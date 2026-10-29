@@ -1968,6 +1968,93 @@ function xeTrip(t){var li=Math.LN2/6.57,lx=Math.LN2/9.14,A=4.7*lx;return Math.ex
  scan(document);
 })();
 
+/* ---- "Ask about this": a ? button that explains whatever is on screen ---- */
+(function(){
+ var css=document.createElement('style');css.textContent=
+ '.askpill{font-weight:800}'+
+ '.pask{font-weight:800;font-size:17px;min-width:38px}'+
+ '.asksheet{position:fixed;inset:0;z-index:3000;display:none;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.45)}'+
+ '.asksheet.open{display:flex}'+
+ '.askbox{width:100%;max-width:640px;max-height:88vh;max-height:88dvh;display:flex;flex-direction:column;background:var(--panel);color:var(--text);border-radius:20px 20px 0 0;padding:16px 16px calc(14px + env(safe-area-inset-bottom));box-shadow:0 -8px 30px rgba(0,0,0,.25)}'+
+ '@media(min-width:700px){.asksheet{align-items:center}.askbox{border-radius:20px}}'+
+ '.askhd{display:flex;align-items:center;gap:8px;margin-bottom:6px}.askhd b{font-size:19px;flex:1}'+
+ '.askx{border:0;background:none;color:var(--muted);font-size:22px;width:40px;height:40px;cursor:pointer}'+
+ '.askctx{font-size:13px;color:var(--muted);margin-bottom:8px}'+
+ '.asklog{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;min-height:40px}'+
+ '.askq{margin:10px 0 6px auto;max-width:85%;width:fit-content;background:var(--accent);color:var(--on-accent);padding:9px 13px;border-radius:16px 16px 4px 16px;font-size:16px;white-space:pre-wrap}'+
+ '.aska{margin:6px 0 12px;background:var(--bg);border:1px solid var(--line);padding:10px 14px;border-radius:16px 16px 16px 4px;font-size:16px;line-height:1.5}'+
+ '.aska p{margin:0 0 8px}.aska p:last-child{margin:0}.aska ul{margin:4px 0 8px;padding-left:20px}.aska.wait{color:var(--muted);font-style:italic}'+
+ '.askchips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}'+
+ '.askchip{border:1px solid var(--line);background:var(--bg);color:var(--text);border-radius:999px;padding:7px 12px;font:inherit;font-size:14px;cursor:pointer}'+
+ '.askf{display:flex;gap:8px;align-items:flex-end}'+
+ '.askf textarea{flex:1;font:inherit;font-size:16px;padding:10px 12px;border:2px solid var(--line);border-radius:14px;background:var(--bg);color:var(--text);resize:none;max-height:120px}'+
+ '.askgo{flex:none;border:0;border-radius:14px;background:var(--accent);color:var(--on-accent);font:inherit;font-weight:700;padding:12px 16px;cursor:pointer}.askgo:disabled{opacity:.5}'+
+ '.asknote{font-size:13px;color:var(--muted);margin:8px 0 0}';
+ document.head.appendChild(css);
+
+ var sh=document.createElement('div');sh.className='asksheet';sh.id='askSheet';
+ sh.innerHTML='<div class="askbox" role="dialog" aria-modal="true" aria-labelledby="askT"><div class="askhd"><b id="askT">Ask about this</b><button class="askx" type="button" aria-label="Close">✕</button></div><div class="askctx"></div><div class="asklog" aria-live="polite"></div><div class="askchips"></div><form class="askf"><textarea rows="2" placeholder="What don\'t you understand?" aria-label="Your question"></textarea><button class="askgo" type="submit">Ask</button></form><p class="asknote"></p></div>';
+ document.body.appendChild(sh);
+ var box=sh.querySelector('.askbox'),log=sh.querySelector('.asklog'),ctxEl=sh.querySelector('.askctx'),chips=sh.querySelector('.askchips'),form=sh.querySelector('form'),ta=sh.querySelector('textarea'),go=sh.querySelector('.askgo'),note=sh.querySelector('.asknote');
+
+ var sample=null,mode='wait',hist=[],lastCtx='',ctl=null,busy=false;
+ function setMode(m){mode=m;go.textContent=m==='live'?'Ask':m==='link'?'Ask Claude ↗':'Ask';
+  note.textContent=m==='live'?'Answers come from Claude using your own Claude account.':m==='link'?'Opens Claude with your question and this screen filled in. It\'s also copied, so you can paste it if it doesn\'t appear.':'';}
+ setMode('link');
+ if(window.claude&&typeof window.claude.use==='function'){window.claude.use('sample').then(function(s){if(s){sample=s;setMode('live')}}).catch(function(){})}
+
+ function txt(el,n){return el?(el.innerText||'').replace(/\n{3,}/g,'\n\n').trim().slice(0,n):''}
+ function context(){
+  var c=window.__crit,P=c&&c.P&&c.P(),pl=document.getElementById('player'),pb=document.getElementById('pBody');
+  var inLesson=P&&pl&&getComputedStyle(pl).display!=='none'&&pb&&pb.innerText.trim();
+  if(inLesson){var body=txt(pb,2600).split('\n').filter(function(l){return l.trim()!=='±'&&!/^Type a number\./.test(l)}).join('\n'),pf=document.getElementById('pFoot'),foot='';if(pf&&/\b(ok|bad|no)\b/.test(pf.className)){var cl=pf.cloneNode(true);cl.querySelectorAll('button').forEach(function(x){x.remove()});foot=(cl.textContent||'').trim().slice(0,600)}
+   var title=(P.lesson&&P.lesson.title)||(P.title)||'';
+   return {label:'About the card you\'re on'+(title?': '+title:''),text:'The learner is in a lesson'+(title?' ("'+title+'")':'')+'. The card on screen says:\n'+body+(foot?'\n\nFeedback shown after they answered:\n'+foot:'')}}
+  var pg=document.querySelector('.page.show'),names={'page-learn':'the Learn page','page-sim':'the Control room simulator','page-review':'the Progress page','page-ref':'the Formulas page'},nm=pg?names[pg.id]||'the app':'the app';
+  return {label:'About '+nm,text:'The learner is on '+nm+'. It shows:\n'+txt(pg,1800)}}
+
+ var RULES='You are a friendly tutor inside "Critical", a nuclear engineering learning app. The learner is a UK secondary-school student working towards becoming a reactor operator at Hinkley Point C. Use British English. Explain slowly and simply, one idea at a time, and say what every symbol or technical word means. A short worked example or an everyday comparison helps. Keep answers under about 180 words unless they ask for more. Plain text only: short paragraphs, "- " bullets and **bold** are fine; no headings, no tables, no LaTeX (write maths with ordinary characters, e.g. E = mc², 3 × 10⁸). If they are in the middle of a question, help them understand and give a nudge, but only give the final answer if they clearly ask for it. Stay on science, maths, nuclear engineering and studying; if asked about something else, gently steer back.';
+
+ function esc(s){return s.replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+ function md(s){var out=[],list=null;esc(s).split('\n').forEach(function(l){l=l.replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');var m=/^\s*[-•*]\s+(.*)/.exec(l);if(m){if(!list){list=[];}list.push('<li>'+m[1]+'</li>');return}if(list){out.push('<ul>'+list.join('')+'</ul>');list=null}if(l.trim())out.push('<p>'+l+'</p>')});if(list)out.push('<ul>'+list.join('')+'</ul>');return out.join('')}
+ function bubble(cls,html){var d=document.createElement('div');d.className=cls;d.innerHTML=html;log.appendChild(d);log.scrollTop=log.scrollHeight;return d}
+
+ var CH=['Explain this more simply','Give me an everyday example','What do the symbols mean?','Why does this matter for an operator?'];
+ function drawChips(){chips.innerHTML='';CH.forEach(function(q){var b=document.createElement('button');b.type='button';b.className='askchip';b.textContent=q;b.onclick=function(){ask(q)};chips.appendChild(b)})}
+
+ var cur=null;
+ function open(){cur=context();ctxEl.textContent=cur.label;if(cur.text!==lastCtx){hist=[];log.innerHTML='';lastCtx=cur.text}if(!hist.length)drawChips();else chips.innerHTML='';sh.classList.add('open');setTimeout(function(){ta.focus()},60)}
+ function close(){sh.classList.remove('open');if(ctl)ctl.abort()}
+ sh.querySelector('.askx').onclick=close;
+ sh.addEventListener('click',function(e){if(e.target===sh)close()});
+ document.addEventListener('keydown',function(e){if(e.key==='Escape'&&sh.classList.contains('open'))close()});
+ ta.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();form.requestSubmit?form.requestSubmit():form.onsubmit(e)}});
+ form.onsubmit=function(e){e.preventDefault();var q=ta.value.trim();if(!q)return;ask(q)};
+
+ function viaLink(q){var p=RULES+'\n\n---\n'+cur.text.slice(0,1500)+'\n---\n\nMy question: '+q;
+  try{navigator.clipboard&&navigator.clipboard.writeText(p).catch(function(){})}catch(_){}
+  bubble('askq',esc(q));bubble('aska','<p>Opening Claude with your question… If the box is empty there, just paste.</p>');
+  window.open('https://claude.ai/new?q='+encodeURIComponent(p),'_blank');ta.value=''}
+
+ function ask(q){if(busy)return;if(!cur)cur=context();
+  if(mode!=='live'||!sample){viaLink(q);return}
+  busy=true;go.disabled=true;ta.value='';chips.innerHTML='';bubble('askq',esc(q));var a=bubble('aska wait','Thinking…');
+  hist.push({role:'user',content:q});var turns=[{role:'user',content:RULES+'\n\nWhat is on their screen right now:\n---\n'+cur.text+'\n---'}].concat(hist.slice(-7));
+  ctl=new AbortController();
+  sample(turns,{cache:false,signal:ctl.signal,onText:function(u){a.className='aska';a.innerHTML=md(u.text);log.scrollTop=log.scrollHeight}})
+  .then(function(r){a.className='aska';a.innerHTML=md(r.text);hist.push({role:'assistant',content:r.text});if(r.truncated)bubble('asknote','<p>(Cut short. Ask for the rest.)</p>')})
+  .catch(function(e){var code=e&&e.code;if(e&&e.text&&code!=='refused'){a.className='aska';a.innerHTML=md(e.text)}else a.remove();hist.pop();
+   var msgs={rate_limited:'Claude is busy or you\'ve reached your usage limit. Try again in a little while.',session_expired:'Sign in to Claude again, then try once more.',refused:'Claude couldn\'t answer that. Try asking it a different way.',cancelled:''};
+   if(/not_granted|sampling_disabled|not_declared|capability_disabled|capability_removed/.test(code||'')){setMode('link');bubble('asknote','<p>Answering inside the app isn\'t available here, so the Ask button now opens Claude instead.</p>')}
+   else if(code!=='cancelled')bubble('asknote','<p>'+(msgs[code]||'Something went wrong. Try again.')+'</p>')})
+  .then(function(){busy=false;go.disabled=false;ctl=null})}
+
+ function mkBtn(cls,label){var b=document.createElement('button');b.type='button';b.className=cls;b.textContent='?';b.title='Ask about this';b.setAttribute('aria-label',label);b.onclick=open;return b}
+ var pills=document.querySelector('.hdr .pills');if(pills)pills.insertBefore(mkBtn('pill askpill','Ask a question about this page'),pills.firstChild);
+ var pu=document.getElementById('pUnits');if(pu)pu.parentNode.insertBefore(mkBtn('psnd pask','Ask a question about this card'),pu);
+ window.__ask={open:open,close:close,mode:function(){return mode}};
+})();
+
 U({id:'maths',title:'Maths for operators',icon:'√x',color:'#7F77DD',desc:'Powers of ten, exponentials, logs, rates of change and counting statistics.',lessons:[
 L('m1','Powers of ten and units',8,[
 T(`<h3>Tiny numbers and huge numbers</h3><p>A reactor deals with numbers from tiny to enormous. A neutron in a reactor core lives for about <b>0.00002 seconds</b>. The core makes about <b>3,000,000,000 watts</b> of heat.</p><p>Scientific notation keeps these readable: 2 × 10<sup>−5</sup> s and 3 × 10<sup>9</sup> W.</p>`),
