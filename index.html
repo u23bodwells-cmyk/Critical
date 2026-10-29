@@ -1955,6 +1955,19 @@ function stableZ(n){var lo=0,hi=120;for(var k=0;k<50;k++){var m=(lo+hi)/2;if(sta
 /* xenon after a trip from equilibrium full power, normalised to the full-power level (burnout rate about 3.7 x decay rate) */
 function xeTrip(t){var li=Math.LN2/6.57,lx=Math.LN2/9.14,A=4.7*lx;return Math.exp(-lx*t)+A/(lx-li)*(Math.exp(-li*t)-Math.exp(-lx*t))}
 
+/* ---- ± button beside every number box: phone decimal keypads have no minus key ---- */
+(function(){
+ var css=document.createElement('style');css.textContent='.sgnb{flex:none;min-width:48px;height:48px;margin-right:8px;border-radius:12px;border:2px solid var(--line);background:var(--panel);color:var(--text);font-family:var(--sans);font-size:24px;font-weight:700;line-height:1;padding:0;cursor:pointer}.sgnb:active{transform:scale(.95)}.sgnb:disabled{opacity:.4}.numrow,.sgnwrap{display:flex;align-items:center}';document.head.appendChild(css);
+ function add(inp){if(inp.__sgn)return;inp.__sgn=1;var b=document.createElement('button');b.type='button';b.className='sgnb';b.textContent='±';b.setAttribute('aria-label','Make the number negative or positive');
+  b.addEventListener('pointerdown',function(e){e.preventDefault()});
+  b.onclick=function(){if(inp.disabled||inp.readOnly)return;var v=inp.value.trim();inp.value=/^[-−]/.test(v)?v.replace(/^[-−]\s*/,''):'-'+v;inp.dispatchEvent(new Event('input',{bubbles:true}));inp.focus()};
+  inp.parentNode.insertBefore(b,inp);
+  new MutationObserver(function(){b.disabled=inp.disabled}).observe(inp,{attributes:true,attributeFilter:['disabled']})}
+ function scan(root){(root.querySelectorAll?root:document).querySelectorAll('input.numin,input.ninp').forEach(add)}
+ new MutationObserver(function(ms){ms.forEach(function(m){m.addedNodes.forEach(function(n){if(n.nodeType===1){if(n.matches&&n.matches('input.numin,input.ninp'))add(n);else scan(n)}})})}).observe(document.documentElement,{childList:true,subtree:true});
+ scan(document);
+})();
+
 U({id:'maths',title:'Maths for operators',icon:'√x',color:'#7F77DD',desc:'Powers of ten, exponentials, logs, rates of change and counting statistics.',lessons:[
 L('m1','Powers of ten and units',8,[
 T(`<h3>Tiny numbers and huge numbers</h3><p>A reactor deals with numbers from tiny to enormous. A neutron in a reactor core lives for about <b>0.00002 seconds</b>. The core makes about <b>3,000,000,000 watts</b> of heat.</p><p>Scientific notation keeps these readable: 2 × 10<sup>−5</sup> s and 3 × 10<sup>9</sup> W.</p>`),
