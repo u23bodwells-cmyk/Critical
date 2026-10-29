@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#4f46b8">
+<meta name="theme-color" content="#ffffff">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -457,28 +457,32 @@ main{max-width:1100px;margin:0 auto;padding:20px 16px 80px}
 @media (max-width:420px){.urow{grid-template-columns:70px 1fr;gap:10px}}
 .usq{width:100%;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:var(--text);font-size:15px;margin:4px 0 8px}
 
+/* ---- colour for text sitting on accent / coral / red fills ---- */
+:root{--on-accent:#fff}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--on-accent:#17142e}}
+:root[data-theme="dark"]{--on-accent:#17142e}
 /* ---- Maths / Theory switch ---- */
 .modesw{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 16px}
 .msb{display:flex;align-items:center;gap:10px;text-align:left;background:var(--panel);border:2px solid var(--line);border-radius:16px;padding:12px 14px;color:var(--text);cursor:pointer;transition:border-color .15s,background .15s,transform .15s}
 .msb:hover{transform:translateY(-1px)}.msb.on{border-color:var(--accent);background:var(--accent-bg)}
-.msi{flex:none;width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:var(--soft);font:700 16px var(--serif)}.msb.on .msi{background:var(--accent);color:#fff}
+.msi{flex:none;width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:var(--soft);font:700 16px var(--serif)}.msb.on .msi{background:var(--accent);color:var(--on-accent)}
 .mst{flex:1;min-width:0}.mst b{display:block;font-size:17px}.mst>span{display:block;font-size:13px;color:var(--muted);line-height:1.3}
 .msp{flex:none;font:700 13px var(--mono);color:var(--muted)}.msb.on .msp{color:var(--accent-text)}
-.newb{display:inline-block;width:auto;line-height:1.4;font-style:normal;font-size:11px;background:var(--coral);color:#fff;border-radius:999px;padding:2px 7px;vertical-align:2px;margin-left:4px}
+.newb{display:inline-block;width:auto;line-height:1.4;font-style:normal;font-size:11px;background:var(--coral);color:var(--on-accent);border-radius:999px;padding:2px 7px;vertical-align:2px;margin-left:4px}
 .modetag{font-size:12px;font-weight:700;background:var(--soft);color:var(--muted);border-radius:999px;padding:3px 9px;vertical-align:3px;margin-left:6px}
 @media (max-width:520px){.msb{padding:10px;gap:8px}.msi{display:none}.mst>span{font-size:12px}.msp{display:none}}
 /* ---- theory widgets ---- */
 .tsvg{display:block;width:100%;height:auto;max-height:430px;margin:0 auto}
 .tsvg .dl{font:12px var(--sans);fill:var(--muted);text-anchor:middle}.tsvg .dl.s{font-size:10px;opacity:.85}
-.tlspot{cursor:pointer;outline:none}.tlspot .tldot{fill:var(--accent);stroke:var(--panel);stroke-width:2.5}.tlspot .tln{fill:#fff;font:700 12px var(--sans);pointer-events:none}
+.tlspot{cursor:pointer;outline:none}.tlspot .tldot{fill:var(--accent);stroke:var(--panel);stroke-width:2.5}.tlspot .tln{fill:var(--on-accent);font:700 12px var(--sans);pointer-events:none}
 .tlspot .tlring{fill:none;stroke:var(--accent);stroke-width:2;opacity:.55;transform-box:fill-box;transform-origin:center;animation:tlp 1.8s ease-out infinite}
-.tlspot.seen .tldot{fill:var(--good-line)}.tlspot.seen .tlring{animation:none;opacity:0}.tlspot.cur .tldot{fill:var(--coral)}.tlspot:focus-visible .tldot{stroke:var(--text)}
+.tlspot.seen .tldot{fill:var(--good-line)}.tlspot.seen .tln{fill:#fff}.tlspot.cur .tln{fill:var(--on-accent)}.tlspot.seen .tlring{animation:none;opacity:0}.tlspot.cur .tldot{fill:var(--coral)}.tlspot:focus-visible .tldot{stroke:var(--text)}
 @keyframes tlp{0%{transform:scale(.8);opacity:.7}100%{transform:scale(1.5);opacity:0}}
 .tlchips{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 6px}.tlchip{display:inline-flex;align-items:center;gap:6px;border:1.5px solid var(--line);background:var(--panel);color:var(--text);border-radius:999px;padding:5px 11px 5px 5px;font-size:13.5px;font-weight:600}
-.tlchip span{width:22px;height:22px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-size:12px}.tlchip.seen span{background:var(--good-line)}.tlchip.cur{border-color:var(--coral)}.tlchip.cur span{background:var(--coral)}
+.tlchip span{width:22px;height:22px;border-radius:50%;background:var(--accent);color:var(--on-accent);display:grid;place-items:center;font-size:12px}.tlchip.seen span{background:var(--good-line);color:#fff}.tlchip.cur{border-color:var(--coral)}.tlchip.cur span{background:var(--coral)}
 .tlinfo{background:var(--soft);border-radius:14px;padding:12px 14px;min-height:74px;font-size:15.5px;line-height:1.5}.tlinfo .tlt{display:flex;align-items:center;gap:8px;font-weight:700;font-size:17px;margin-bottom:4px}
-.tlnum{width:24px;height:24px;border-radius:50%;background:var(--coral);color:#fff;display:grid;place-items:center;font-size:12.5px;flex:none}.tlhint{color:var(--muted)}.jof{margin-left:auto;font-size:12px;font-weight:600;color:var(--muted);white-space:nowrap;padding-left:8px}
-.jstop circle{fill:var(--panel);stroke:var(--muted);stroke-width:1.5}.jstop text{font:700 10px var(--sans);fill:var(--muted)}.jstop.done circle{fill:var(--accent);stroke:var(--accent)}.jstop.done text{fill:#fff}.jstop.cur circle{fill:var(--coral);stroke:var(--coral)}
+.tlnum{width:24px;height:24px;border-radius:50%;background:var(--coral);color:var(--on-accent);display:grid;place-items:center;font-size:12.5px;flex:none}.tlhint{color:var(--muted)}.jof{margin-left:auto;font-size:12px;font-weight:600;color:var(--muted);white-space:nowrap;padding-left:8px}
+.jstop circle{fill:var(--panel);stroke:var(--muted);stroke-width:1.5}.jstop text{font:700 10px var(--sans);fill:var(--muted)}.jstop.done circle{fill:var(--accent);stroke:var(--accent)}.jstop.done text{fill:var(--on-accent)}.jstop.cur circle{fill:var(--coral);stroke:var(--coral)}
 .jball circle{fill:var(--coral)}.jball .jglow{fill:var(--coral);opacity:.25}.jtrail{fill:none;stroke:var(--coral);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;opacity:.55}
 .spool{display:flex;flex-wrap:wrap;gap:7px;min-height:44px;padding:8px;border:2px dashed var(--line);border-radius:14px;margin:6px 0 10px}.spool.empty{border-color:transparent;min-height:0;padding:0;margin:0}
 .sbins{display:grid;grid-template-columns:1fr 1fr;gap:10px}.sbins.s3{grid-template-columns:1fr 1fr 1fr}
@@ -496,14 +500,17 @@ main{max-width:1100px;margin:0 auto;padding:20px 16px 80px}
 .atoms{display:grid;grid-template-columns:repeat(10,1fr);gap:5px;max-width:330px;margin:4px auto 10px}.atom{aspect-ratio:1;border-radius:50%;background:var(--coral);transition:background .4s,transform .4s}
 .atom.pop{background:var(--amber);transform:scale(1.35)}.atom.gone{background:var(--soft2);transform:scale(.7)}
 .shtick{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;font-size:13px;color:var(--muted);align-items:center}.shtick span{background:var(--soft);border-radius:999px;padding:3px 10px}.shtick span.ok{background:var(--good-bg);color:var(--good);font-weight:700}
-.wbtn.tripbtn{background:var(--red);border-color:var(--red);color:#fff;font-weight:800;letter-spacing:.06em}
+.wbtn.tripbtn{background:var(--red);border-color:var(--red);color:var(--on-accent);font-weight:800;letter-spacing:.06em}
+
+.themebtn{padding:5px 9px}.themebtn svg{display:block}.themebtn.isdark{color:#f5c84b}
+body,.hdr,.card,.unit,.pill,.msb,.opt,.prose .key,.tlinfo,.sbin,.schip{transition:background-color .25s ease,border-color .25s ease,color .25s ease}
 </style>
 </head>
 <body>
 <header class="hdr"><div class="hdr-in">
 <div class="brand"><svg class="logo" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="15" fill="#534AB7"/><ellipse cx="16" cy="16" rx="11" ry="4.2" fill="none" stroke="#fff" stroke-width="1.6"/><ellipse cx="16" cy="16" rx="11" ry="4.2" fill="none" stroke="#fff" stroke-width="1.6" transform="rotate(60 16 16)"/><ellipse cx="16" cy="16" rx="11" ry="4.2" fill="none" stroke="#fff" stroke-width="1.6" transform="rotate(120 16 16)"/><circle cx="16" cy="16" r="2.6" fill="#FAC775"/></svg><span>Critical</span></div>
 <nav class="tabs" aria-label="Sections"><button class="tab on" data-p="learn">Learn</button><button class="tab" data-p="sim">Control room</button><button class="tab" data-p="review">Progress</button><button class="tab" data-p="ref">Formulas</button></nav>
-<div class="pills"><button class="pill" id="streakPill" title="Day streak"></button><button class="pill" id="xpPill" title="XP"></button><button class="pill" id="themeBtn" title="Switch light or dark mode" aria-label="Switch light or dark mode"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 1.5a6.5 6.5 0 0 1 0 13z" fill="currentColor"/></svg></button></div>
+<div class="pills"><button class="pill" id="streakPill" title="Day streak"></button><button class="pill" id="xpPill" title="XP"></button><button class="pill themebtn" id="themeBtn" title="Dark mode" aria-label="Switch to dark mode"></button></div>
 </div></header>
 <main>
 <section class="page show" id="page-learn"></section>
@@ -609,8 +616,19 @@ var PAGE='learn';
 function showPage(p){PAGE=p;[].forEach.call(document.querySelectorAll('.tab'),function(t){t.classList.toggle('on',t.dataset.p===p)});[].forEach.call(document.querySelectorAll('.page'),function(s){s.classList.toggle('show',s.id==='page-'+p)});
  if(p==='learn')renderLearn();if(p==='review')renderReview();if(p==='ref')renderRef();if(p==='sim')simShow();else simHide();window.scrollTo(0,0)}
 [].forEach.call(document.querySelectorAll('.tab'),function(t){t.onclick=function(){showPage(t.dataset.p)}});
-$('themeBtn').onclick=function(){var r=document.documentElement,dark=r.getAttribute('data-theme')==='dark'||(!r.getAttribute('data-theme')&&matchMedia('(prefers-color-scheme: dark)').matches);r.setAttribute('data-theme',dark?'light':'dark');try{localStorage.setItem('critical_theme',dark?'light':'dark')}catch(e){}redrawAll()};
-(function(){try{var t=localStorage.getItem('critical_theme');if(t)document.documentElement.setAttribute('data-theme',t)}catch(e){}})();
+var MOON='<svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.6A8.5 8.5 0 0 1 9.4 3.5a8.5 8.5 0 1 0 11.1 11.1z" fill="currentColor"/></svg>',
+ SUN='<svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="4.2" fill="currentColor" stroke="none"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></svg>';
+function themePref(){try{var v=localStorage.getItem('critical_theme');return v==='light'||v==='dark'?v:'auto'}catch(e){return 'auto'}}
+function sysDark(){try{return matchMedia('(prefers-color-scheme: dark)').matches}catch(e){return false}}
+function isDark(){var a=document.documentElement.getAttribute('data-theme');return a==='dark'||(a!=='light'&&sysDark())}
+function themeUI(){var d=isDark(),b=$('themeBtn');if(b){b.innerHTML=d?SUN:MOON;b.title=d?'Light mode':'Dark mode';b.setAttribute('aria-label',d?'Switch to light mode':'Switch to dark mode');b.classList.toggle('isdark',d)}
+ var m=document.querySelector('meta[name="theme-color"]');if(!m){m=document.createElement('meta');m.setAttribute('name','theme-color');document.head.appendChild(m)}m.setAttribute('content',d?'#232326':'#ffffff');
+ var s=$('themeSel');if(s)s.value=themePref()}
+function applyTheme(p){var r=document.documentElement;if(p==='light'||p==='dark')r.setAttribute('data-theme',p);else r.removeAttribute('data-theme');
+ try{if(p==='light'||p==='dark')localStorage.setItem('critical_theme',p);else localStorage.removeItem('critical_theme')}catch(e){}themeUI();redrawAll()}
+$('themeBtn').onclick=function(){applyTheme(isDark()?'light':'dark')};
+(function(){var p=themePref();if(p!=='auto')document.documentElement.setAttribute('data-theme',p);themeUI();
+ try{var mq=matchMedia('(prefers-color-scheme: dark)'),f=function(){if(themePref()==='auto'){themeUI();redrawAll()}};if(mq.addEventListener)mq.addEventListener('change',f);else if(mq.addListener)mq.addListener(f)}catch(e){}})();
 $('xpPill').onclick=function(){showPage('review')};$('streakPill').onclick=function(){showPage('review')};
 
 /* ---------- learn page ---------- */
@@ -790,10 +808,11 @@ function renderReview(){var pool=reviewPool(),wp=reviewPool(true),lv=level(),dc=
  h+='<div class="card"><h2>Your stats</h2><div class="stats"><div class="stat"><p>Rank</p><b>'+(lv.i+1)+'</b><span class="small">'+lv.name+'</span></div><div class="stat"><p>Total XP</p><b>'+fmtInt(S.xp)+'</b></div><div class="stat"><p>Lessons done</p><b>'+dc+'/'+tot+'</b></div><div class="stat"><p>Day streak</p><b>'+streakNow()+'</b><span class="small">best '+S.st.maxStreak+'</span></div><div class="stat"><p>Best combo</p><b>'+S.st.best+'</b></div><div class="stat"><p>Perfect lessons</p><b>'+S.st.perfect+'</b></div><div class="stat"><p>Streak freezes</p><b>'+S.freeze+'/2</b></div><div class="stat"><p>Missions passed</p><b>'+ms+'/4</b></div></div></div>';
  h+=testsCard();h+='<div class="card"><h2>Badges <span class="note" style="font-weight:400">'+got+' of '+B.length+'</span></h2><div class="badges">'+B.map(function(b){return badgeTile(b,!!S.badges[b.id])}).join('')+'</div></div>';
  h+='<div class="card"><h2>Career ladder</h2><p class="note" style="font-size:15px">Earn XP to climb from visitor to station director. The ranks are based on roles at a nuclear power station.</p><ol class="ladder">'+LEVELS.map(function(l,i){var cur=i===lv.i,dn=i<lv.i;return '<li class="'+(cur?'cur':dn?'done':'')+'">'+rankEmblem(i,44)+'<div class="lb"><div><b>'+l[1]+'</b> <span class="note">'+fmtInt(l[0])+' XP</span>'+(cur?' <span class="youare">You are here</span>':'')+'</div><p>'+RANK_INFO[i]+'</p>'+(cur&&lv.next?'<div class="lvlbar"><div style="width:'+lv.frac*100+'%"></div></div><span class="note">'+fmtInt(lv.toNext)+' XP to '+lv.next+'</span>':'')+'</div></li>'}).join('')+'</ol></div>';
- h+='<div class="card"><h2>Settings</h2><div class="wrow"><label for="goalSel">Daily XP goal</label><select id="goalSel">'+[30,50,100,150].map(function(g){return '<option value="'+g+'"'+(S.goal===g?' selected':'')+'>'+g+' XP</option>'}).join('')+'</select></div><div class="wrow"><label for="sndSel">Sound effects</label><select id="sndSel"><option value="1"'+(S.sound!==false?' selected':'')+'>On</option><option value="0"'+(S.sound===false?' selected':'')+'>Off</option></select></div></div>';
+ h+='<div class="card"><h2>Settings</h2><div class="wrow"><label for="themeSel">Appearance</label><select id="themeSel"><option value="auto">Match my device</option><option value="light">Light</option><option value="dark">Dark</option></select></div><div class="wrow"><label for="goalSel">Daily XP goal</label><select id="goalSel">'+[30,50,100,150].map(function(g){return '<option value="'+g+'"'+(S.goal===g?' selected':'')+'>'+g+' XP</option>'}).join('')+'</select></div><div class="wrow"><label for="sndSel">Sound effects</label><select id="sndSel"><option value="1"'+(S.sound!==false?' selected':'')+'>On</option><option value="0"'+(S.sound===false?' selected':'')+'>Off</option></select></div></div>';
  $('page-review').innerHTML=h;wireTestsCard();if($('revGo'))$('revGo').onclick=function(){startReview(false)};if($('fixGo'))$('fixGo').onclick=function(){startReview(true)};
  $('goalSel').onchange=function(){S.goal=+this.value;var q=quests();if(!q.list[0].done){q.list[0].n=S.goal;qProg('xp',0)}save();renderReview()};
- $('sndSel').onchange=function(){S.sound=this.value==='1';save();soundBtnUpd();if(S.sound)sfx('right')}}
+ $('sndSel').onchange=function(){S.sound=this.value==='1';save();soundBtnUpd();if(S.sound)sfx('right')};
+ $('themeSel').value=themePref();$('themeSel').onchange=function(){applyTheme(this.value)}}
 
 /* ---------- reference ---------- */
 function renderRef(){if($('page-ref').dataset.done)return;$('page-ref').dataset.done=1;var h='<div class="card"><h2>Formula sheet</h2><p class="note" style="font-size:15px">Every equation used in the course, grouped by topic.</p></div><div class="fgrid">';
@@ -1702,9 +1721,9 @@ WIDGETS.splitAtom=function(box){var PAIRS=[['Barium-141','Krypton-92',3],['Xenon
  anim(cv,function(dt){var g=prep(cv),c=g.c,W=g.W,H=g.H,cx=W/2,cy=H/2;if(t>=0)t+=dt;
   var p=PAIRS[pi],col=cssv('--coral'),ncol=cssv('--blue'),txt=cssv('--text'),mut=cssv('--muted');c.textAlign='center';c.font='12px system-ui';
   function nuc(x,y,r,cl,lab){c.fillStyle=cl;c.beginPath();c.arc(x,y,r,0,7);c.fill();if(lab){c.fillStyle=txt;c.fillText(lab,x,y+r+14)}}
-  if(t<0||t<1){var nx=t<0?40:40+(cx-40-34)*t;nuc(cx,cy,30,col);c.fillStyle='#fff';c.font='700 13px system-ui';c.fillText('U-235',cx,cy+4);c.font='12px system-ui';
+  if(t<0||t<1){var nx=t<0?40:40+(cx-40-34)*t;nuc(cx,cy,30,col);c.fillStyle=cssv('--on-accent');c.font='700 13px system-ui';c.fillText('U-235',cx,cy+4);c.font='12px system-ui';
    if(t>=0){nuc(nx,cy,6,ncol);c.fillStyle=mut;c.fillText('slow neutron',nx,cy-14)}else{c.fillStyle=mut;c.fillText('Press "Fire a neutron"',cx,H-14)}return}
-  if(t<1.5){var w=(t-1)/0.5,s=1+0.25*Math.sin(w*Math.PI*3);c.save();c.translate(cx,cy);c.scale(s,1/s*1.02);nuc(0,0,31,col);c.restore();c.fillStyle='#fff';c.font='700 13px system-ui';c.fillText('U-236',cx,cy+4);c.font='12px system-ui';c.fillStyle=mut;c.fillText('wobbles…',cx,H-14);return}
+  if(t<1.5){var w=(t-1)/0.5,s=1+0.25*Math.sin(w*Math.PI*3);c.save();c.translate(cx,cy);c.scale(s,1/s*1.02);nuc(0,0,31,col);c.restore();c.fillStyle=cssv('--on-accent');c.font='700 13px system-ui';c.fillText('U-236',cx,cy+4);c.font='12px system-ui';c.fillStyle=mut;c.fillText('wobbles…',cx,H-14);return}
   var e=Math.min(1,(t-1.5)/1.1),d=e*W*0.3;c.globalAlpha=Math.max(0,1-e*2.5);c.fillStyle=cssv('--amber');c.beginPath();c.arc(cx,cy,16+e*60,0,7);c.fill();c.globalAlpha=1;
   nuc(cx-d,cy-d*0.25,21,col,p[0]);nuc(cx+d,cy+d*0.25,19,cssv('--amber'),p[1]);
   for(var k=0;k<p[2];k++){var a=0.9+k*2*Math.PI/p[2];nuc(cx+Math.cos(a)*e*W*0.36,cy+Math.sin(a)*e*H*0.42,5,ncol)}
