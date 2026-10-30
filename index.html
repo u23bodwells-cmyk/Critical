@@ -2011,7 +2011,7 @@ function xeTrip(t){var li=Math.LN2/6.57,lx=Math.LN2/9.14,A=4.7*lx;return Math.ex
  keyP.querySelector('[data-k=save]').onclick=function(){var k=keyIn.value.trim();if(!/^sk-ant-[A-Za-z0-9_\-]{20,}$/.test(k)){keySt.textContent='That doesn\'t look like an Anthropic key (it should start sk-ant-).';return}setKey(k);keyIn.value='';useApi=true;keyP.hidden=true;refreshModes();bubble('aska','<p>Key saved. Questions now go to Claude ('+MODEL+').</p>')};
  keyDel.onclick=function(){setKey('');refreshModes();keySt.textContent='Key removed from this device.'};
  function setMode(m){mode=m;go.textContent='Ask';
-  note.textContent=m==='api'?'Claude Haiku, the cheapest model. Short answers to save tokens.':m==='live'?'Answers come from Claude using your own Claude account.':m==='link'?'Instant answers from Critical\'s own lessons, glossary and formulas. Works offline.':'';}
+  note.textContent=m==='api'?'Claude Haiku, the cheapest model. Short answers to save tokens. (App version 15)':m==='live'?'Answers come from Claude using your own Claude account.':m==='link'?'Instant answers from Critical\'s own lessons, glossary and formulas. Works offline.':'';}
  setMode('link');
  if(window.claude&&typeof window.claude.use==='function'){window.claude.use('sample').then(function(s){if(s){sample=s;setMode('live');sh.querySelector('.askkey').hidden=true;modesEl.hidden=true}}).catch(function(){})}
 
