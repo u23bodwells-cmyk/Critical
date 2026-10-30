@@ -1989,19 +1989,31 @@ function xeTrip(t){var li=Math.LN2/6.57,lx=Math.LN2/9.14,A=4.7*lx;return Math.ex
  '.askf{display:flex;gap:8px;align-items:flex-end}'+
  '.askf textarea{flex:1;font:inherit;font-size:16px;padding:10px 12px;border:2px solid var(--line);border-radius:14px;background:var(--bg);color:var(--text);resize:none;max-height:120px}'+
  '.askgo{flex:none;border:0;border-radius:14px;background:var(--accent);color:var(--on-accent);font:inherit;font-weight:700;padding:12px 16px;cursor:pointer}.askgo:disabled{opacity:.5}'+
- '.asknote{font-size:13px;color:var(--muted);margin:8px 0 0}'+'.askttl{font-size:17px}.asksrc{font-size:13px;color:var(--muted);margin-top:8px!important}.askeq{font-family:var(--mono);font-size:17px;background:var(--soft);padding:8px 10px;border-radius:10px;margin:4px 0 8px;overflow-x:auto}.askacts{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}.askext{color:var(--accent)}.askunit{color:var(--muted)}';
+ '.asknote{font-size:13px;color:var(--muted);margin:8px 0 0}'+'.askkey{border:0;background:none;font-size:18px;width:40px;height:40px;cursor:pointer;opacity:.75}.askmodes{display:flex;gap:6px;margin:0 0 8px}.askmodes button{flex:1;font:inherit;font-size:14px;font-weight:700;padding:8px;border-radius:12px;border:2px solid var(--line);background:var(--bg);color:var(--muted);cursor:pointer}.askmodes button.on{border-color:var(--accent);color:var(--accent);background:var(--accent-bg,var(--soft))}.askkeyp{border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin-bottom:8px;background:var(--bg)}.askkeyp p{margin:0 0 6px}.askkrow{display:flex;gap:8px}.askkrow input{flex:1;min-width:0;font:inherit;font-size:16px;padding:9px 11px;border:2px solid var(--line);border-radius:12px;background:var(--panel);color:var(--text)}.asktok{font-size:12px;color:var(--muted);margin-top:6px!important}'+'.askttl{font-size:17px}.asksrc{font-size:13px;color:var(--muted);margin-top:8px!important}.askeq{font-family:var(--mono);font-size:17px;background:var(--soft);padding:8px 10px;border-radius:10px;margin:4px 0 8px;overflow-x:auto}.askacts{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}.askext{color:var(--accent)}.askunit{color:var(--muted)}';
  document.head.appendChild(css);
 
  var sh=document.createElement('div');sh.className='asksheet';sh.id='askSheet';
- sh.innerHTML='<div class="askbox" role="dialog" aria-modal="true" aria-labelledby="askT"><div class="askhd"><b id="askT">Ask about this</b><button class="askx" type="button" aria-label="Close">✕</button></div><div class="askctx"></div><div class="asklog" aria-live="polite"></div><div class="askchips"></div><form class="askf"><textarea rows="2" placeholder="What don\'t you understand?" aria-label="Your question"></textarea><button class="askgo" type="submit">Ask</button></form><p class="asknote"></p></div>';
+ sh.innerHTML='<div class="askbox" role="dialog" aria-modal="true" aria-labelledby="askT"><div class="askhd"><b id="askT">Ask about this</b><button class="askkey" type="button" aria-label="Claude API key settings" title="Claude API key">🔑</button><button class="askx" type="button" aria-label="Close">✕</button></div><div class="askmodes" hidden><button type="button" data-m="api" class="on">Ask Claude</button><button type="button" data-m="link">Quick answer (free)</button></div><div class="askkeyp" hidden><p><b>Claude API key</b></p><p class="small">Paste your key from console.anthropic.com. It\'s saved only on this device, never in the app\'s code or your save code, and is sent only to Anthropic.</p><div class="askkrow"><input type="password" autocomplete="off" spellcheck="false" placeholder="sk-ant-…" aria-label="API key"><button type="button" class="askgo" data-k="save">Save</button></div><p class="small askkst"></p><button type="button" class="askchip" data-k="del" hidden>Remove key from this device</button></div><div class="askctx"></div><div class="asklog" aria-live="polite"></div><div class="askchips"></div><form class="askf"><textarea rows="2" placeholder="What don\'t you understand?" aria-label="Your question"></textarea><button class="askgo" type="submit">Ask</button></form><p class="asknote"></p></div>';
  document.body.appendChild(sh);
  var box=sh.querySelector('.askbox'),log=sh.querySelector('.asklog'),ctxEl=sh.querySelector('.askctx'),chips=sh.querySelector('.askchips'),form=sh.querySelector('form'),ta=sh.querySelector('textarea'),go=sh.querySelector('.askgo'),note=sh.querySelector('.asknote');
 
  var sample=null,mode='wait',hist=[],lastCtx='',ctl=null,busy=false;
+ var KK='critical_api_key',MODEL='claude-haiku-5-5',MAXT=350,useApi=true,usage={i:0,o:0};
+ function getKey(){try{return localStorage.getItem(KK)||''}catch(_){return ''}}
+ function setKey(k){try{if(k)localStorage.setItem(KK,k);else localStorage.removeItem(KK)}catch(_){}}
+ try{usage=JSON.parse(localStorage.getItem('critical_api_usage')||'null')||usage}catch(_){}
+ var modesEl=sh.querySelector('.askmodes'),keyP=sh.querySelector('.askkeyp'),keyIn=keyP.querySelector('input'),keySt=keyP.querySelector('.askkst'),keyDel=keyP.querySelector('[data-k=del]');
+ function apiOn(){return !sample&&!!getKey()&&useApi}
+ function refreshModes(){var has=!sample&&!!getKey();modesEl.hidden=!has;[].forEach.call(modesEl.children,function(b){b.classList.toggle('on',(b.dataset.m==='api')===useApi)});
+  if(!sample)setMode(apiOn()?'api':'link');keyDel.hidden=!getKey();keySt.textContent=getKey()?'Key saved on this device. Used so far: '+usage.i.toLocaleString('en-GB')+' tokens in, '+usage.o.toLocaleString('en-GB')+' out.':'No key saved yet.'}
+ [].forEach.call(modesEl.children,function(b){b.onclick=function(){useApi=b.dataset.m==='api';refreshModes();if(!hist.length)drawChips()}});
+ sh.querySelector('.askkey').onclick=function(){keyP.hidden=!keyP.hidden;keyIn.value='';refreshModes();if(!keyP.hidden)keyIn.focus()};
+ keyP.querySelector('[data-k=save]').onclick=function(){var k=keyIn.value.trim();if(!/^sk-ant-[A-Za-z0-9_\-]{20,}$/.test(k)){keySt.textContent='That doesn\'t look like an Anthropic key (it should start sk-ant-).';return}setKey(k);keyIn.value='';useApi=true;keyP.hidden=true;refreshModes();bubble('aska','<p>Key saved. Questions now go to Claude ('+MODEL+').</p>')};
+ keyDel.onclick=function(){setKey('');refreshModes();keySt.textContent='Key removed from this device.'};
  function setMode(m){mode=m;go.textContent='Ask';
-  note.textContent=m==='live'?'Answers come from Claude using your own Claude account.':m==='link'?'Instant answers from Critical\'s own lessons, glossary and formulas. Works offline.':'';}
+  note.textContent=m==='api'?'Claude Haiku, the cheapest model. Short answers to save tokens.':m==='live'?'Answers come from Claude using your own Claude account.':m==='link'?'Instant answers from Critical\'s own lessons, glossary and formulas. Works offline.':'';}
  setMode('link');
- if(window.claude&&typeof window.claude.use==='function'){window.claude.use('sample').then(function(s){if(s){sample=s;setMode('live')}}).catch(function(){})}
+ if(window.claude&&typeof window.claude.use==='function'){window.claude.use('sample').then(function(s){if(s){sample=s;setMode('live');sh.querySelector('.askkey').hidden=true;modesEl.hidden=true}}).catch(function(){})}
 
  function txt(el,n){return el?(el.innerText||'').replace(/\n{3,}/g,'\n\n').trim().slice(0,n):''}
  function context(){
@@ -2020,10 +2032,10 @@ function xeTrip(t){var li=Math.LN2/6.57,lx=Math.LN2/9.14,A=4.7*lx;return Math.ex
  function bubble(cls,html){var d=document.createElement('div');d.className=cls;d.innerHTML=html;log.appendChild(d);log.scrollTop=log.scrollHeight;return d}
 
  var CH=['Explain this more simply','Give me an everyday example','What do the symbols mean?','Why does this matter for an operator?'];
- function drawChips(){chips.innerHTML='';(mode==='live'?CH:ctxChips()).forEach(function(q){var b=document.createElement('button');b.type='button';b.className='askchip';b.textContent=q;b.onclick=function(){ask(q)};chips.appendChild(b)})}
+ function drawChips(){chips.innerHTML='';(mode==='live'||mode==='api'?CH:ctxChips()).forEach(function(q){var b=document.createElement('button');b.type='button';b.className='askchip';b.textContent=q;b.onclick=function(){ask(q)};chips.appendChild(b)})}
 
  var cur=null;
- function open(){cur=context();ctxEl.textContent=cur.label;if(cur.text!==lastCtx){hist=[];log.innerHTML='';lastCtx=cur.text}if(!hist.length)drawChips();else chips.innerHTML='';sh.classList.add('open');setTimeout(function(){ta.focus()},60)}
+ function open(){refreshModes();cur=context();ctxEl.textContent=cur.label;if(cur.text!==lastCtx){hist=[];log.innerHTML='';lastCtx=cur.text}if(!hist.length)drawChips();else chips.innerHTML='';sh.classList.add('open');setTimeout(function(){ta.focus()},60)}
  function close(){sh.classList.remove('open');if(ctl)ctl.abort()}
  sh.querySelector('.askx').onclick=close;
  sh.addEventListener('click',function(e){if(e.target===sh)close()});
@@ -2037,6 +2049,7 @@ function xeTrip(t){var li=Math.LN2/6.57,lx=Math.LN2/9.14,A=4.7*lx;return Math.ex
   window.open('https://claude.ai/new?q='+encodeURIComponent(p),'_blank');ta.value=''}
 
  function ask(q){if(busy)return;if(!cur)cur=context();
+  if(mode==='api'&&getKey()){askApi(q);return}
   if(mode!=='live'||!sample){instant(q);return}
   busy=true;go.disabled=true;ta.value='';chips.innerHTML='';bubble('askq',esc(q));var a=bubble('aska wait','Thinking…');
   hist.push({role:'user',content:q});var turns=[{role:'user',content:RULES+'\n\nWhat is on their screen right now:\n---\n'+cur.text+'\n---'}].concat(hist.slice(-7));
@@ -2103,10 +2116,34 @@ function xeTrip(t){var li=Math.LN2/6.57,lx=Math.LN2/9.14,A=4.7*lx;return Math.ex
   if(P&&P.cards){P.cards.forEach(function(cd){if(cd.t==='T'&&cd.h&&cd.h.indexOf('krow')>=0){var d=document.createElement('div');d.innerHTML=cd.h;d.querySelectorAll('.krow .ks').forEach(function(s){var t=strip(s.innerHTML);if(t&&list.indexOf(t)<0&&list.length<4)list.push(t)})}})}
   var qs=list.map(function(t){return 'What does '+t+' mean?'});
   if(qs.length<2)qs=qs.concat(['What is pcm?','What does MTC mean?','What is decay heat?','What is k?']).slice(0,4);return qs}
+
+ var SYS='Tutor in "Critical", a UK nuclear engineering app; learner is a secondary-school student aiming to be a reactor operator. British English. Explain simply, define every symbol, under 120 words. Plain text, "- " bullets and **bold** only; maths as plain text (E = mc², 3 × 10⁸). If mid-question, nudge rather than give the answer unless asked. Stay on science, maths, nuclear and study topics.';
+ function apiErr(st,body){var t=(body&&body.error&&body.error.message)||'';if(st===401)return 'That API key was rejected. Tap 🔑 to check or replace it.';if(st===403)return 'This key isn\'t allowed to do that. Check it in the Anthropic Console.';if(/credit balance/i.test(t))return 'Your API account is out of credit. Top up at console.anthropic.com.';if(st===429)return 'Too many questions at once, or a spending limit was reached. Wait a minute and try again.';if(st===529||st>=500)return 'Claude is busy right now. Try again in a moment.';if(st===404)return 'That model isn\'t available on this key.';return 'Something went wrong ('+st+'). '+t}
+ function askApi(q){busy=true;go.disabled=true;ta.value='';chips.innerHTML='';bubble('askq',esc(q));var a=bubble('aska wait','Thinking…');
+  var ctxT=cur.text.replace(/\n{2,}/g,'\n').slice(0,900);
+  var msgs=hist.slice(-4).map(function(m){return {role:m.role,content:m.role==='assistant'?m.content.slice(0,400):m.content}});
+  msgs.push({role:'user',content:(hist.length?'':'On screen:\n'+ctxT+'\n\n')+q});if(!hist.length)hist.push({role:'user',content:'On screen:\n'+ctxT+'\n\n'+q});else hist.push({role:'user',content:q});
+  if(msgs[0].role!=='user')msgs.shift();
+  ctl=new AbortController();var full='',st=0;
+  fetch('https://api.anthropic.com/v1/messages',{method:'POST',signal:ctl.signal,headers:{'content-type':'application/json','x-api-key':getKey(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+   body:JSON.stringify({model:MODEL,max_tokens:MAXT,system:SYS,stream:true,messages:msgs})})
+  .then(function(r){st=r.status;if(!r.ok)return r.json().catch(function(){return null}).then(function(b){throw {st:st,b:b}});
+   var rd=r.body.getReader(),dec=new TextDecoder(),buf='',ui=0,uo=0;
+   function pump(){return rd.read().then(function(x){if(x.done)return;buf+=dec.decode(x.value,{stream:true});var parts=buf.split('\n');buf=parts.pop();
+     parts.forEach(function(line){if(line.indexOf('data:')!==0)return;var d;try{d=JSON.parse(line.slice(5))}catch(_){return}
+      if(d.type==='content_block_delta'&&d.delta&&d.delta.text){full+=d.delta.text;a.className='aska';a.innerHTML=md(full);log.scrollTop=log.scrollHeight}
+      else if(d.type==='message_start'&&d.message&&d.message.usage)ui=d.message.usage.input_tokens||0;
+      else if(d.type==='message_delta'&&d.usage)uo=d.usage.output_tokens||0;
+      else if(d.type==='error')throw {st:529,b:d}});return pump()})}
+   return pump().then(function(){usage.i+=ui;usage.o+=uo;try{localStorage.setItem('critical_api_usage',JSON.stringify(usage))}catch(_){}
+    if(!full)throw {st:0,b:null};hist.push({role:'assistant',content:full});var u=document.createElement('p');u.className='asktok';u.textContent=(ui+uo)+' tokens';a.appendChild(u)})})
+  .catch(function(e){if(e&&e.name==='AbortError'){if(!full)a.remove();hist.pop();return}hist.pop();if(!full)a.remove();
+   var msg=e&&e.st!=null?apiErr(e.st,e.b):'Couldn\'t reach Claude. Check your internet connection.';bubble('asknote','<p>'+esc(msg)+'</p>')})
+  .then(function(){busy=false;go.disabled=false;ctl=null})}
  function mkBtn(cls,label){var b=document.createElement('button');b.type='button';b.className=cls;b.textContent='?';b.title='Ask about this';b.setAttribute('aria-label',label);b.onclick=open;return b}
  var pills=document.querySelector('.hdr .pills');if(pills)pills.insertBefore(mkBtn('pill askpill','Ask a question about this page'),pills.firstChild);
  var pu=document.getElementById('pUnits');if(pu)pu.parentNode.insertBefore(mkBtn('psnd pask','Ask a question about this card'),pu);
- window.__ask={open:open,close:close,mode:function(){return mode},search:function(q){return search(q).map(function(r){return [r.d.k,strip(r.d.title),Math.round(r.s*10)/10,r.d.lt||'']})}};
+ window.__ask={model:MODEL,open:open,close:close,mode:function(){return mode},search:function(q){return search(q).map(function(r){return [r.d.k,strip(r.d.title),Math.round(r.s*10)/10,r.d.lt||'']})}};
 })();
 
 /* ---- autosave: on close/hide, every 5 minutes, and resume a half-finished lesson ---- */
