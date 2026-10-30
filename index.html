@@ -2118,7 +2118,7 @@ function xeTrip(t){var li=Math.LN2/6.57,lx=Math.LN2/9.14,A=4.7*lx;return Math.ex
   if(qs.length<2)qs=qs.concat(['What is pcm?','What does MTC mean?','What is decay heat?','What is k?']).slice(0,4);return qs}
 
  var SYS='Tutor in "Critical", a UK nuclear engineering app; learner is a secondary-school student aiming to be a reactor operator. British English. Explain simply, define every symbol, under 120 words. Plain text, "- " bullets and **bold** only; maths as plain text (E = mc², 3 × 10⁸). If mid-question, nudge rather than give the answer unless asked. Stay on science, maths, nuclear and study topics.';
- function apiErr(st,body){var t=(body&&body.error&&body.error.message)||'';if(st===401)return 'That API key was rejected. Tap 🔑 to check or replace it.';if(st===403)return 'This key isn\'t allowed to do that. Check it in the Anthropic Console.';if(/credit balance/i.test(t))return 'Your API account is out of credit. Top up at console.anthropic.com.';if(st===429)return 'Too many questions at once, or a spending limit was reached. Wait a minute and try again.';if(st===529||st>=500)return 'Claude is busy right now. Try again in a moment.';if(st===404)return 'That model isn\'t available on this key.';return 'Something went wrong ('+st+'). '+t}
+ function apiErr(st,body){var t=(body&&body.error&&body.error.message)||'';if(st===401)return 'That API key was rejected. Tap 🔑 to check or replace it.';if(st===403)return 'This key isn\'t allowed to do that. Check it in the Anthropic Console.';if(/credit balance/i.test(t))return 'Your API account is out of credit. Top up at console.anthropic.com.';if(st===429)return 'Too many questions at once, or a spending limit was reached. Wait a minute and try again.';if(st===529||st>=500)return 'Claude is busy right now. Try again in a moment.';if(st===404)return 'That model isn\'t available on this key ('+t+').';if(st===-1)return 'Claude didn\'t send an answer back. Try asking again.';if(st===400)return 'Claude couldn\'t accept that request: '+(t||'unknown reason')+'. Send me this message and I\'ll fix it.';return 'Error '+st+': '+(t||'no details')+'. Send me this message and I\'ll fix it.'}
  function askApi(q){busy=true;go.disabled=true;ta.value='';chips.innerHTML='';bubble('askq',esc(q));var a=bubble('aska wait','Thinking…');
   var ctxT=cur.text.replace(/\n{2,}/g,'\n').slice(0,900);
   var msgs=hist.slice(-4).map(function(m){return {role:m.role,content:m.role==='assistant'?m.content.slice(0,400):m.content}});
@@ -2126,17 +2126,17 @@ function xeTrip(t){var li=Math.LN2/6.57,lx=Math.LN2/9.14,A=4.7*lx;return Math.ex
   if(msgs[0].role!=='user')msgs.shift();
   ctl=new AbortController();var full='',st=0;
   fetch('https://api.anthropic.com/v1/messages',{method:'POST',signal:ctl.signal,headers:{'content-type':'application/json','x-api-key':getKey(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-   body:JSON.stringify({model:MODEL,max_tokens:MAXT,system:SYS,stream:true,messages:msgs})})
+   body:JSON.stringify({model:MODEL,max_tokens:MAXT,thinking:{type:'disabled'},output_config:{effort:'low'},system:SYS,stream:true,messages:msgs})})
   .then(function(r){st=r.status;if(!r.ok)return r.json().catch(function(){return null}).then(function(b){throw {st:st,b:b}});
-   var rd=r.body.getReader(),dec=new TextDecoder(),buf='',ui=0,uo=0;
+   var rd=r.body.getReader(),dec=new TextDecoder(),buf='',ui=0,uo=0,sr='';
    function pump(){return rd.read().then(function(x){if(x.done)return;buf+=dec.decode(x.value,{stream:true});var parts=buf.split('\n');buf=parts.pop();
      parts.forEach(function(line){if(line.indexOf('data:')!==0)return;var d;try{d=JSON.parse(line.slice(5))}catch(_){return}
       if(d.type==='content_block_delta'&&d.delta&&d.delta.text){full+=d.delta.text;a.className='aska';a.innerHTML=md(full);log.scrollTop=log.scrollHeight}
       else if(d.type==='message_start'&&d.message&&d.message.usage)ui=d.message.usage.input_tokens||0;
-      else if(d.type==='message_delta'&&d.usage)uo=d.usage.output_tokens||0;
+      else if(d.type==='message_delta'){if(d.usage)uo=d.usage.output_tokens||0;if(d.delta&&d.delta.stop_reason)sr=d.delta.stop_reason}
       else if(d.type==='error')throw {st:529,b:d}});return pump()})}
    return pump().then(function(){usage.i+=ui;usage.o+=uo;try{localStorage.setItem('critical_api_usage',JSON.stringify(usage))}catch(_){}
-    if(!full)throw {st:0,b:null};hist.push({role:'assistant',content:full});var u=document.createElement('p');u.className='asktok';u.textContent=(ui+uo)+' tokens';a.appendChild(u)})})
+    if(!full)throw {st:-1,b:null,sr:sr};if(sr==='max_tokens'){var tn=document.createElement('p');tn.className='asktok';tn.textContent='(Cut short to save tokens. Ask "carry on" for the rest.)';a.appendChild(tn)}hist.push({role:'assistant',content:full});var u=document.createElement('p');u.className='asktok';u.textContent=(ui+uo)+' tokens';a.appendChild(u)})})
   .catch(function(e){if(e&&e.name==='AbortError'){if(!full)a.remove();hist.pop();return}hist.pop();if(!full)a.remove();
    var msg=e&&e.st!=null?apiErr(e.st,e.b):'Couldn\'t reach Claude. Check your internet connection.';bubble('asknote','<p>'+esc(msg)+'</p>')})
   .then(function(){busy=false;go.disabled=false;ctl=null})}
