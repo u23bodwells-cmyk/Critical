@@ -668,10 +668,10 @@ function renderLearn(){var TH=curMode()==='theory',el=$('page-learn'),nx=nextLes
  (na?'<button class="big" id="goNext">'+(dc===0?'Start the first lesson':na.t==='follow'?'Start follow-up':na.t==='test'?'Take the test':'Continue')+'</button> <button class="ghost" id="goSim2">Control room</button>':'<button class="big" id="goSim">Open the control room</button> <button class="ghost" id="goRev">Start a review</button>')+
  '<div class="lvl" style="margin-top:12px"><div class="lvlrow">'+rankEmblem(lv.i,34)+'<div style="flex:1"><div class="lvlbar"><div style="width:'+(lv.frac*100)+'%"></div></div><div class="lvltxt"><span>Rank '+(lv.i+1)+': <b>'+lv.name+'</b></span><span>'+(lv.next?fmtInt(lv.toNext)+' XP to '+lv.next:'Top rank')+'</span></div></div></div></div></div>'+
  '<div class="ringbox">'+ring(dx/S.goal,'#e8742a',130,dx+'/'+S.goal)+'<div class="lbl">'+(dx>=S.goal?'Daily goal reached!':'Daily XP goal')+'</div></div></div>';
- h+='<div class="row2">'+(LV===1?stationCard():levelCard())+questCard()+'</div>';
+ h+='<div class="row2">'+((LV===1&&curMode()==='maths')?stationCard():goalCard())+questCard()+'</div>';
  h+=progressBar();
  h+='<div class="units">';UNITS.forEach(function(u,ui){if(trk(ui)!==curMode()||lvOf(ui)!==curLevel())return;var d=u.lessons.filter(function(l){return S.done[l.id]}).length,full=d===u.lessons.length;
-  h+='<div class="unit'+(full?' full':'')+'"><div class="uhead"><div class="uicon" style="background:'+u.color+'">'+u.icon+'</div><div><h2>'+uNum(ui)+'. '+u.title+'</h2><p>'+u.desc+'</p><p class="builds" style="--c:'+u.color+'">'+(lvOf(ui)>1?(full?'✓ Qualified':'Level '+lvOf(ui)+' · '+d+'/'+u.lessons.length+' lessons'):full?'✓ Qualified · '+COMP[compOf(ui)]+' built':'Builds: '+COMP[compOf(ui)]+' · '+d+'/'+u.lessons.length)+'</p></div></div><div class="uprog"><div style="width:'+(d/u.lessons.length*100)+'%;background:'+u.color+'"></div></div><ol class="path">';
+  h+='<div class="unit'+(full?' full':'')+'"><div class="uhead"><div class="uicon" style="background:'+u.color+'">'+u.icon+'</div><div><h2>'+uNum(ui)+'. '+u.title+'</h2><p>'+u.desc+'</p><p class="builds" style="--c:'+u.color+'">'+((lvOf(ui)>1||trk(ui)==='theory')?(full?'✓ '+goalStep(ui):'Goal stage: '+goalStep(ui)+' · '+d+'/'+u.lessons.length):full?'✓ Qualified · '+COMP[compOf(ui)]+' built':'Builds: '+COMP[compOf(ui)]+' · '+d+'/'+u.lessons.length)+'</p></div></div><div class="uprog"><div style="width:'+(d/u.lessons.length*100)+'%;background:'+u.color+'"></div></div><ol class="path">';
   u.lessons.forEach(function(l,li){var dn=S.done[l.id],isN=na&&na.t==='lesson'&&na.ui===ui&&na.li===li,lk=!dn&&!!pf,nd=fuNeed(l.id),fr=S.fu[l.id],hf=dn&&FOLLOW[l.id];
    h+='<li'+(hf?' class="hasfu"':'')+'><button class="lnode'+(dn?' done':'')+(isN?' next':'')+(lk?' locked':'')+'" data-u="'+ui+'" data-l="'+li+'"><span class="dot" style="'+(dn?'background:'+u.color:'')+'">'+(dn?'✓':lk?LOCK:li+1)+'</span><span><span class="lt">'+l.title+'</span><br><span class="lm">'+l.mins+' min · '+l.cards.length+' steps</span></span></button>'+
    (hf?'<button class="fuchip'+(nd?' need':fr&&fr.n?' did':'')+'" data-f="'+l.id+'" title="'+(nd?'Score more than 50% to unlock new lessons':'5 extra questions on this lesson')+'">'+(nd?'Follow-up needed':fr&&fr.n?'Practice ✓':'Practice')+'</button>':'')+'</li>'});
@@ -800,7 +800,7 @@ function finish(){if(P.mode==='test')return finishTest();if(P.mode==='follow')re
   '<h2>'+(perfect?(P.mode==='lesson'?'Perfect lesson!':'Perfect review!'):(P.mode==='lesson'?(fuNeed(UNITS[ui].lessons[P.li].id)?'Lesson finished':'Lesson complete!'):'Review complete!'))+'</h2><p class="note" style="font-size:16px">'+(P.mode==='lesson'?P.title:(P.fixed?'You fixed '+P.fixed+' mistake'+(P.fixed===1?'':'s')+'.':'Coming back to old topics is how they stick.'))+'</p>'+
   '<div class="done-stats"><div class="dstat"><b id="dsXP">+0</b><span>XP earned</span></div><div class="dstat"><b>'+acc+'%</b><span>right first time</span></div><div class="dstat"><b>'+P.best+'</b><span>best combo</span></div></div>'+
   '<div class="xpbreak">'+lines.map(function(l){return '<div><span>'+l[0]+'</span><b>+'+l[1]+'</b></div>'}).join('')+'</div>';
- if(P.mode==='lesson'&&first&&lvOf(ui)>1){var x2=unitFrac(ui),u2=UNITS[ui];h+='<div class="dblock'+(unitDone?' qual':'')+'" style="--c:'+u2.color+'">'+(unitDone?'<div class="qualbadge" style="background:'+u2.color+'">'+u2.icon+'</div><div class="dbt">'+uLabel(ui)+' complete. You\'re qualified in '+u2.title+'!</div>':'<div class="dbt">'+uLabel(ui)+': '+x2.d+'/'+x2.n+' lessons</div><div class="stbar"><div style="width:'+x2.f*100+'%;background:'+u2.color+'"></div></div>')+'</div>'}
+ if(P.mode==='lesson'&&first&&(lvOf(ui)>1||trk(ui)==='theory')){var x2=unitFrac(ui),u2=UNITS[ui];h+='<div class="dblock'+(unitDone?' qual':'')+'" style="--c:'+u2.color+'">'+(unitDone?'<div class="qualbadge" style="background:'+u2.color+'">'+u2.icon+'</div><div class="dbt">'+uLabel(ui)+' complete. You\'re qualified in '+u2.title+'!</div>':'<div class="dbt">'+uLabel(ui)+': '+x2.d+'/'+x2.n+' lessons</div><div class="stbar"><div style="width:'+x2.f*100+'%;background:'+u2.color+'"></div></div>')+goalNote(ui)+'</div>'}
  else if(P.mode==='lesson'&&first){var x=unitFrac(ui),uu=UNITS[ui],h1=homesNow();
   h+='<div class="dblock'+(unitDone?' qual':'')+'" style="--c:'+uu.color+'">'+(unitDone?'<div class="qualbadge" style="background:'+uu.color+'">'+uu.icon+'</div><div class="dbt">'+uLabel(ui)+' complete. You\'re qualified in '+uu.title+'!</div><p class="note">The '+COMP[compOf(ui)].toLowerCase()+' '+(COMP[compOf(ui)].slice(-1)==='s'?'are':'is')+' finished on your power station.</p>':'<div class="dbt">'+COMP[compOf(ui)]+': '+x.d+'/'+x.n+' built</div><div class="stbar"><div style="width:'+x.f*100+'%;background:'+uu.color+'"></div></div>')+
    '<p class="homesline">Your station now powers <b id="dsHomes">'+fmtInt(h0)+'</b> homes <span class="plus">+'+fmtInt(h1-h0)+'</span></p></div>'}
@@ -2174,6 +2174,46 @@ function xeTrip(t){var li=Math.LN2/6.57,lx=Math.LN2/9.14,A=4.7*lx;return Math.ex
  var css=document.createElement('style');css.textContent='.qlv{display:inline-block;margin-left:8px;font-size:12px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--accent);background:var(--accent-bg,var(--soft));border-radius:999px;padding:3px 9px;vertical-align:3px}.qfocus{margin:-4px 0 10px}';document.head.appendChild(css);
  window.__lq=LQ;
 })();
+
+/* ===== a different goal for every track and level (Maths Level 1 keeps the power station) ===== */
+var GOALS={
+ theory1:{icon:'🧭',title:'Lead the tour of Hinkley Point C',story:'Each unit opens the next stop on the site tour. Finish them all and you can lead visitors round the whole station yourself.',final:'Tour guide: you can explain the whole station',
+  steps:['Visitor centre','Radiation lab','Reactor physics hall','Fuel building','Control rod drives','Primary circuit','Turbine hall and sea tunnels','Safety systems','Health physics office','The control room']},
+ maths2:{icon:'📝',title:'Ace your A-level maths and physics',story:'Each unit is one exam topic signed off. Finish them all and you have the maths an apprenticeship interview will test.',final:'Exam ready: top grades in reach',
+  steps:['Algebra and graphs paper','Logs and exponentials paper','Differentiation paper','Integration paper','Nuclear calculations paper']},
+ theory2:{icon:'🎓',title:'Win a Hinkley Point C apprenticeship',story:'Work through the application one stage at a time. Finish them all and the offer is yours.',final:'Apprenticeship offer accepted',
+  steps:['Application form','Aptitude test','Assessment day','Technical interview','Site visit']},
+ maths3:{icon:'📋',title:'Pass your operator licence exams',story:'Each unit is one written exam operators sit before they are trusted at the controls.',final:'All licence exams passed',
+  steps:['Reactivity exam','Rod and boron worth exam','Kinetics exam','Reactor startup exam','Heat balance exam']},
+ theory3:{icon:'🕹️',title:'Qualify on the full-scope simulator',story:'Each unit is a simulator assessment in a perfect copy of the real control room. Pass them all to be authorised to operate.',final:'Authorised reactor operator',
+  steps:['Temperature coefficients check','Xenon transient','Technical specifications oral','Fault scenarios','Emergency drill']},
+ maths4:{icon:'📐',title:'Design a reactor core on paper',story:'Each unit adds a chapter to your own core design report, from fuel depletion to coolant flow.',final:'Core design report signed off',
+  steps:['Fuel depletion model','Flux and power map','Core size and leakage','Fuel temperature limits','Coolant flow and pumps']},
+ theory4:{icon:'🏛️',title:'Earn your nuclear engineering degree',story:'Each unit is a university module. Pass them all to graduate.',final:'BEng Nuclear Engineering',
+  steps:['Nuclear physics module','Reactor physics module','Thermal-hydraulics module','Materials module','Radiation protection module']},
+ maths5:{icon:'🧮',title:'Write the startup safety calculations',story:'Each unit is a calculation package the regulator must approve before a new core can start up.',final:'Calculations approved by the regulator',
+  steps:['Reactor kinetics model','Feedback and fault bursts','Two-group core model','Reliability of safety systems','Decay heat and cooling times']},
+ theory5:{icon:'🏆',title:'Become a senior reactor engineer',story:'Each unit is a responsibility you take on, ending with leading the station\'s plans for the future.',final:'Senior Reactor Engineer',
+  steps:['Plan a reload','Own the safety case','Run the risk assessment','Lead severe accident planning','Plan the next generation']}};
+function goalKey(m,lv){return m+lv}
+function goalUnits(m,lv){var a=[];UNITS.forEach(function(u,ui){if(trk(ui)===m&&lvOf(ui)===lv)a.push(ui)});return a}
+function goalStep(ui){var g=GOALS[goalKey(trk(ui),lvOf(ui))];if(!g)return null;var k=goalUnits(trk(ui),lvOf(ui)).indexOf(ui);return g.steps[k]||null}
+function goalNote(ui){var m=trk(ui),lv=lvOf(ui),g=GOALS[goalKey(m,lv)];if(!g)return '';var us=goalUnits(m,lv),done=us.filter(function(i){return unitFrac(i).f>=1}).length;
+ return '<p class="note goalnote">'+g.icon+' <b>'+g.title+'</b>: '+done+' of '+us.length+' stages complete'+(done===us.length?'. <b>'+g.final+'!</b>':'')+'</p>'}
+function goalCard(){var m=curMode(),lv=curLevel(m),g=GOALS[goalKey(m,lv)];if(!g)return levelCard();var us=goalUnits(m,lv),cur=-1,done=0,rows='';
+ us.forEach(function(ui,k){var x=unitFrac(ui),st=x.f>=1?'done':'todo';if(st==='done')done++;else if(cur<0){cur=k;st='now'}var u=UNITS[ui];
+  rows+='<li class="gs '+st+'" style="--c:'+u.color+'"><span class="gdot">'+(st==='done'?'✓':(k+1))+'</span><div class="gtx"><b>'+g.steps[k]+'</b><span>'+uLabel(ui)+': '+u.title+' · '+x.d+'/'+x.n+' lessons</span>'+(st==='now'&&x.d>0?'<div class="gbar"><div style="width:'+x.f*100+'%;background:'+u.color+'"></div></div>':'')+'</div></li>'});
+ var all=done===us.length;
+ rows+='<li class="gs final'+(all?' done':'')+'"><span class="gdot">'+g.icon+'</span><div class="gtx"><b>'+g.final+'</b><span>'+(all?'Achieved!':'Your goal for this level')+'</span></div></li>';
+ return '<div class="card goalcard"><div class="ghd"><span class="gico">'+g.icon+'</span><div><div class="gkick">Level '+lv+' goal · '+(m==='theory'?'Theory':'Maths')+'</div><h2>'+g.title+'</h2></div></div><p class="note">'+g.story+'</p><p class="gcount"><b>'+done+' of '+us.length+'</b> stages complete</p><ol class="gsteps">'+rows+'</ol></div>'}
+(function(){var css=document.createElement('style');css.textContent=
+ '.goalcard .ghd{display:flex;gap:12px;align-items:center;margin-bottom:6px}.goalcard .gico{font-size:34px;line-height:1}.goalcard .gkick{font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}.goalcard h2{margin:2px 0 0}'+
+ '.gcount{margin:6px 0 4px;font-size:14px;color:var(--muted)}.gsteps{list-style:none;margin:8px 0 0;padding:0;position:relative}'+
+ '.gs{display:flex;gap:12px;align-items:flex-start;padding:7px 0;position:relative}.gs:not(:last-child)::after{content:"";position:absolute;left:15px;top:38px;bottom:-8px;width:2px;background:var(--line)}.gs.done:not(:last-child)::after{background:var(--c)}'+
+ '.gdot{flex:none;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;background:var(--soft);color:var(--muted);border:2px solid var(--line);z-index:1}'+
+ '.gs.done .gdot{background:var(--c);border-color:var(--c);color:#fff}.gs.now .gdot{border-color:var(--c);color:var(--c);box-shadow:0 0 0 4px var(--accent-bg,rgba(83,74,183,.15))}.gs.final .gdot{font-size:17px}.gs.final.done .gdot{background:var(--amber,#EF9F27);border-color:var(--amber,#EF9F27)}'+
+ '.gtx{flex:1;min-width:0}.gtx b{display:block;font-size:15px}.gtx span{display:block;font-size:13px;color:var(--muted);margin-top:1px}.gs.todo .gtx b{color:var(--muted)}.gbar{height:6px;border-radius:3px;background:var(--soft2);margin-top:6px;overflow:hidden}.gbar div{height:100%}'+
+ '.goalnote{margin-top:8px}';document.head.appendChild(css)})();
 
 U({id:'maths',title:'Maths for operators',icon:'√x',color:'#7F77DD',desc:'Powers of ten, exponentials, logs, rates of change and counting statistics.',lessons:[
 L('m1','Powers of ten and units',8,[
