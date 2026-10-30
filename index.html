@@ -1989,7 +1989,7 @@ function xeTrip(t){var li=Math.LN2/6.57,lx=Math.LN2/9.14,A=4.7*lx;return Math.ex
  '.askf{display:flex;gap:8px;align-items:flex-end}'+
  '.askf textarea{flex:1;font:inherit;font-size:16px;padding:10px 12px;border:2px solid var(--line);border-radius:14px;background:var(--bg);color:var(--text);resize:none;max-height:120px}'+
  '.askgo{flex:none;border:0;border-radius:14px;background:var(--accent);color:var(--on-accent);font:inherit;font-weight:700;padding:12px 16px;cursor:pointer}.askgo:disabled{opacity:.5}'+
- '.asknote{font-size:13px;color:var(--muted);margin:8px 0 0}';
+ '.asknote{font-size:13px;color:var(--muted);margin:8px 0 0}'+'.askttl{font-size:17px}.asksrc{font-size:13px;color:var(--muted);margin-top:8px!important}.askeq{font-family:var(--mono);font-size:17px;background:var(--soft);padding:8px 10px;border-radius:10px;margin:4px 0 8px;overflow-x:auto}.askacts{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}.askext{color:var(--accent)}.askunit{color:var(--muted)}';
  document.head.appendChild(css);
 
  var sh=document.createElement('div');sh.className='asksheet';sh.id='askSheet';
@@ -1998,8 +1998,8 @@ function xeTrip(t){var li=Math.LN2/6.57,lx=Math.LN2/9.14,A=4.7*lx;return Math.ex
  var box=sh.querySelector('.askbox'),log=sh.querySelector('.asklog'),ctxEl=sh.querySelector('.askctx'),chips=sh.querySelector('.askchips'),form=sh.querySelector('form'),ta=sh.querySelector('textarea'),go=sh.querySelector('.askgo'),note=sh.querySelector('.asknote');
 
  var sample=null,mode='wait',hist=[],lastCtx='',ctl=null,busy=false;
- function setMode(m){mode=m;go.textContent=m==='live'?'Ask':m==='link'?'Ask Claude ↗':'Ask';
-  note.textContent=m==='live'?'Answers come from Claude using your own Claude account.':m==='link'?'Opens Claude with your question and this screen filled in. It\'s also copied, so you can paste it if it doesn\'t appear.':'';}
+ function setMode(m){mode=m;go.textContent='Ask';
+  note.textContent=m==='live'?'Answers come from Claude using your own Claude account.':m==='link'?'Instant answers from Critical\'s own lessons, glossary and formulas. Works offline.':'';}
  setMode('link');
  if(window.claude&&typeof window.claude.use==='function'){window.claude.use('sample').then(function(s){if(s){sample=s;setMode('live')}}).catch(function(){})}
 
@@ -2020,7 +2020,7 @@ function xeTrip(t){var li=Math.LN2/6.57,lx=Math.LN2/9.14,A=4.7*lx;return Math.ex
  function bubble(cls,html){var d=document.createElement('div');d.className=cls;d.innerHTML=html;log.appendChild(d);log.scrollTop=log.scrollHeight;return d}
 
  var CH=['Explain this more simply','Give me an everyday example','What do the symbols mean?','Why does this matter for an operator?'];
- function drawChips(){chips.innerHTML='';CH.forEach(function(q){var b=document.createElement('button');b.type='button';b.className='askchip';b.textContent=q;b.onclick=function(){ask(q)};chips.appendChild(b)})}
+ function drawChips(){chips.innerHTML='';(mode==='live'?CH:ctxChips()).forEach(function(q){var b=document.createElement('button');b.type='button';b.className='askchip';b.textContent=q;b.onclick=function(){ask(q)};chips.appendChild(b)})}
 
  var cur=null;
  function open(){cur=context();ctxEl.textContent=cur.label;if(cur.text!==lastCtx){hist=[];log.innerHTML='';lastCtx=cur.text}if(!hist.length)drawChips();else chips.innerHTML='';sh.classList.add('open');setTimeout(function(){ta.focus()},60)}
@@ -2031,13 +2031,13 @@ function xeTrip(t){var li=Math.LN2/6.57,lx=Math.LN2/9.14,A=4.7*lx;return Math.ex
  ta.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();form.requestSubmit?form.requestSubmit():form.onsubmit(e)}});
  form.onsubmit=function(e){e.preventDefault();var q=ta.value.trim();if(!q)return;ask(q)};
 
- function viaLink(q){var p=RULES+'\n\n---\n'+cur.text.slice(0,1500)+'\n---\n\nMy question: '+q;
+ function viaLink(q,quiet){var p=RULES+'\n\n---\n'+cur.text.slice(0,1500)+'\n---\n\nMy question: '+q;
   try{navigator.clipboard&&navigator.clipboard.writeText(p).catch(function(){})}catch(_){}
-  bubble('askq',esc(q));bubble('aska','<p>Opening Claude with your question… If the box is empty there, just paste.</p>');
+  if(!quiet)bubble('askq',esc(q));bubble('aska','<p>Opening Claude with your question… If the box is empty there, just paste.</p>');
   window.open('https://claude.ai/new?q='+encodeURIComponent(p),'_blank');ta.value=''}
 
  function ask(q){if(busy)return;if(!cur)cur=context();
-  if(mode!=='live'||!sample){viaLink(q);return}
+  if(mode!=='live'||!sample){instant(q);return}
   busy=true;go.disabled=true;ta.value='';chips.innerHTML='';bubble('askq',esc(q));var a=bubble('aska wait','Thinking…');
   hist.push({role:'user',content:q});var turns=[{role:'user',content:RULES+'\n\nWhat is on their screen right now:\n---\n'+cur.text+'\n---'}].concat(hist.slice(-7));
   ctl=new AbortController();
@@ -2049,10 +2049,64 @@ function xeTrip(t){var li=Math.LN2/6.57,lx=Math.LN2/9.14,A=4.7*lx;return Math.ex
    else if(code!=='cancelled')bubble('asknote','<p>'+(msgs[code]||'Something went wrong. Try again.')+'</p>')})
   .then(function(){busy=false;go.disabled=false;ctl=null})}
 
+ /* ===== instant helper: searches Critical's own content (works offline, no AI) ===== */
+ var IDX=null,DF={},NDOC=0;
+ var STOP={};('a an the is are was were be been being of to in on at for by with and or what whats what\'s does do did doing mean means meaning meant how why when where which who whom this that these those it its it\'s i me my you your we our can could would should will shall about explain tell give show please help understand dont don\'t get really just like than then so if into from as there their they them stand stands called call symbol word vs versus difference between thing stuff bit part one some any much many more')
+  .split(' ').forEach(function(w){STOP[w]=1});
+ function strip(h){var d=document.createElement('div');d.innerHTML=String(h||'');return (d.textContent||'').replace(/\s+/g,' ').trim()}
+ function toks(s){s=String(s).toLowerCase().replace(/<[^>]+>/g,' ').replace(/[’']/g,'');var m=s.match(/[a-z0-9]+|[^\x00-\x7f\s.,;:!?()\[\]{}"\/\\=+×÷−–—·…%°]+/g)||[];
+  return m.filter(function(w){return !STOP[w]}).map(function(w){if(w.length>5)w=w.replace(/(ity|ing|ed|e)$/,'');return w.length>4&&/[a-z]s$/.test(w)&&!/ss$/.test(w)?w.slice(0,-1):w})}
+ function safe(node){var out='';node.childNodes.forEach(function(n){if(n.nodeType===3){out+=n.textContent.replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c]})}else if(n.nodeType===1){var t=n.tagName.toLowerCase();if(n.classList&&(n.classList.contains('key')||n.classList.contains('recall')))return;var inner=safe(n);
+  if(/^(sup|sub|b|strong|i|em)$/.test(t))out+='<'+t+'>'+inner+'</'+t+'>';else if(t==='li')out+='<br>• '+inner;else if(/^(p|div|tr|ol|ul|table|br|h4)$/.test(t))out+='<br>'+inner;else if(/^(td|th)$/.test(t))out+=inner+' &nbsp;';else out+=inner}});return out}
+ function tidy(h){return h.replace(/^(\s*<br>)+/,'').replace(/(<br>\s*){2,}/g,'<br>')}
+ function cut(h,n){var d=document.createElement('div');d.innerHTML=h;if((d.textContent||'').length<=n)return h;var cnt=0,res='';var parts=h.split(/(<[^>]+>)/);for(var i=0;i<parts.length;i++){var p=parts[i];if(p.charAt(0)==='<'){res+=p;continue}if(cnt+p.length>n){res+=p.slice(0,Math.max(0,n-cnt)).replace(/\s+\S*$/,'')+'…';break}res+=p;cnt+=p.length}return res.replace(/<(sup|sub|b|strong|i|em)>([^<]*)$/,'<$1>$2</$1>')}
+ function build(){IDX=[];var c=window.__crit,U=c&&c.UNITS?c.UNITS:[];
+  function add(d){d.tt=toks(d.title);d.bt=toks(strip(d.body));IDX.push(d)}
+  try{GLOSSARY.forEach(function(g){add({k:'g',title:g[0],body:g[1],w:1.7})})}catch(_){}
+  try{FORMULAS.forEach(function(gr){gr[1].forEach(function(f){add({k:'f',title:f[1],body:f[0],group:gr[0],w:1.3})})})}catch(_){}
+  try{UNITSHEET.forEach(function(u){add({k:'u',title:u[1]+' ('+u[0]+')',sym:u[0],body:'Unit of '+u[2]+'. '+(u[3]||''),w:1.4})})}catch(_){}
+  try{PREFIXES.forEach(function(x){add({k:'u',title:x[1]+' ('+x[0]+')',sym:x[0],body:'Means × '+x[2]+': '+x[3]+'.',w:1})})}catch(_){}
+  U.forEach(function(u,ui){(u.lessons||[]).forEach(function(l,li){var where={ui:ui,li:li,lid:l.id,lt:l.title,ut:u.title,lv:u.level||1,tr:u.track||'maths'};
+   (l.cards||[]).forEach(function(cd){
+    if(cd.t==='T'&&cd.h){var d=document.createElement('div');d.innerHTML=cd.h;if(d.querySelector('.recall'))return;
+     d.querySelectorAll('.krow').forEach(function(r){var s=r.querySelector('.ks'),m=r.querySelector('.km'),un=r.querySelector('.ku');if(!s||!m)return;add(Object.assign({k:'k',title:s.innerHTML,sym:strip(s.innerHTML),body:m.innerHTML+(un&&strip(un.innerHTML)?' <span class="askunit">('+un.innerHTML+')</span>':''),w:1.25},where))});
+     var head='',buf=document.createElement('div');function flush(){var b=tidy(safe(buf));if(strip(b).length>25&&!/^quick recap$/i.test(head))add(Object.assign({k:'s',title:head||l.title,body:b,w:/^key points$/i.test(head)?0.85:1},where));buf=document.createElement('div')}
+     Array.prototype.slice.call(d.childNodes).forEach(function(n){if(n.nodeType===1&&/^H[23]$/.test(n.tagName)){flush();head=strip(n.innerHTML)}else buf.appendChild(n)});flush()}
+    if(cd.t==='W'&&cd.par){(cd.par.pairs||cd.par.cards||[]).forEach(function(pr){if(pr&&pr.length>=2&&typeof pr[0]==='string'&&typeof pr[1]==='string')add(Object.assign({k:'d',title:pr[0],body:pr[1],w:1.2},where))})}
+   })})});
+  DF={};IDX.forEach(function(d){var seen={};d.tt.concat(d.bt).forEach(function(t){if(!seen[t]){seen[t]=1;DF[t]=(DF[t]||0)+1}})});NDOC=IDX.length}
+ function search(q){if(!IDX)build();var qt=toks(q),qs=strip(q).toLowerCase(),c=window.__crit,P=c&&c.P&&c.P(),curL=P&&P.cards?P.cards:null;
+  var symQ=(q.match(/[^\x00-\x7f\s]+[a-z0-9∞₀-₉]*|\b[A-Za-z][a-z]?[₀-₉0-9∞]*(?![a-z])/g)||[]).filter(function(x){return !/^(a|i|I|an|is|in|it|of|to|be|do|me|my|or|on|at|so|if|no|go|up|we|he|vs)$/.test(x)});
+  if(!qt.length&&!symQ.length)return [];var xt=[];if(P&&P.title&&(/\b(it|this|that|these|those|they|here|why|how)\b/i.test(q)||qt.length<=1))xt=toks(P.title).filter(function(t){return qt.indexOf(t)<0});
+  var res=IDX.map(function(d){var s=0,hit=0;qt.forEach(function(t){var idf=Math.log(1+NDOC/(1+(DF[t]||0))),inT=d.tt.indexOf(t)>=0,inB=d.bt.indexOf(t)>=0;if(inT||inB)hit++;s+=idf*((inT?3:0)+(inB?1:0))});xt.forEach(function(t){var idf=Math.log(1+NDOC/(1+(DF[t]||0)));s+=0.6*idf*((d.tt.indexOf(t)>=0?3:0)+(d.bt.indexOf(t)>=0?1:0))});
+   if(d.sym){symQ.forEach(function(x){if(x===d.sym||x.toLowerCase()===d.sym.toLowerCase()&&x.length>1){s+=12;hit=Math.max(hit,1)}})}
+   var tl=strip(d.title).toLowerCase(),qq=qt.join(' ');if(qq.length>2&&(tl===qq||tl.indexOf(qq)===0))s+=8;else if(qq.length>3&&tl.indexOf(qq)>=0)s+=4;
+   s*=d.w;if(curL&&d.lid&&P.lesson_id===d.lid)s*=1.5;
+   if(curL&&d.lid&&P.title===d.lt)s*=1.8;
+   return {d:d,s:s,cov:qt.length?hit/qt.length:1}}).filter(function(r){return r.s>=(qt.length>=2?8:4)&&r.cov>=(qt.length>=2?0.6:0.5)});
+  res.sort(function(a,b){return b.s-a.s});var out=[],seen={};res.forEach(function(r){var key=r.d.k+'|'+strip(r.d.title).toLowerCase()+'|'+strip(r.d.body).slice(0,40);if(!seen[key]&&out.length<5){seen[key]=1;out.push(r)}});return out}
+ function srcLine(d){return d.lt?('From '+(d.lv>1?'Level '+d.lv+' ':'')+(d.tr==='theory'?'Theory':'Maths')+': '+d.ut+' › '+d.lt):d.k==='g'?'From the glossary':d.k==='f'?'From the formula sheet'+(d.group?' ('+d.group+')':''):'From the units sheet'}
+ function showResult(r,others,q){var d=r.d,inLesson=!!(window.__crit&&window.__crit.P&&window.__crit.P());
+  var h='<p class="askttl"><b>'+d.title+'</b></p>';
+  if(d.k==='f')h+='<div class="askeq">'+d.body+'</div>';else h+='<p>'+cut(d.body,520)+'</p>';
+  h+='<p class="asksrc">'+srcLine(d)+'</p>';
+  var a=bubble('aska',h);
+  var acts=document.createElement('div');acts.className='askacts';
+  if(d.lt&&!inLesson){var gl=document.createElement('button');gl.type='button';gl.className='askchip';gl.textContent='Open that lesson';gl.onclick=function(){close();try{window.__crit.startLesson(d.ui,d.li)}catch(_){}};acts.appendChild(gl)}
+  others.forEach(function(o){var b=document.createElement('button');b.type='button';b.className='askchip';b.innerHTML='Or: '+o.d.title;b.onclick=function(){acts.remove();showResult(o,[],q)};acts.appendChild(b)});
+  var ac=document.createElement('button');ac.type='button';ac.className='askchip askext';ac.textContent='Still stuck? Ask Claude ↗';ac.onclick=function(){viaLink(q,true)};acts.appendChild(ac);
+  a.appendChild(acts);log.scrollTop=log.scrollHeight}
+ function instant(q){if(!cur)cur=context();ta.value='';chips.innerHTML='';bubble('askq',esc(q));var r=search(q);
+  if(!r.length){var a=bubble('aska','<p>I couldn\'t find that in Critical\'s lessons. Try a single word or symbol (like <b>σ</b>, <b>MTC</b> or <b>decay heat</b>), or ask Claude.</p>');var ac=document.createElement('button');ac.type='button';ac.className='askchip askext';ac.textContent='Ask Claude ↗';ac.onclick=function(){viaLink(q,true)};var w=document.createElement('div');w.className='askacts';w.appendChild(ac);a.appendChild(w);log.scrollTop=log.scrollHeight;return}
+  showResult(r[0],r.slice(1,4),q)}
+ function ctxChips(){var c=window.__crit,P=c&&c.P&&c.P(),list=[];
+  if(P&&P.cards){P.cards.forEach(function(cd){if(cd.t==='T'&&cd.h&&cd.h.indexOf('krow')>=0){var d=document.createElement('div');d.innerHTML=cd.h;d.querySelectorAll('.krow .ks').forEach(function(s){var t=strip(s.innerHTML);if(t&&list.indexOf(t)<0&&list.length<4)list.push(t)})}})}
+  var qs=list.map(function(t){return 'What does '+t+' mean?'});
+  if(qs.length<2)qs=qs.concat(['What is pcm?','What does MTC mean?','What is decay heat?','What is k?']).slice(0,4);return qs}
  function mkBtn(cls,label){var b=document.createElement('button');b.type='button';b.className=cls;b.textContent='?';b.title='Ask about this';b.setAttribute('aria-label',label);b.onclick=open;return b}
  var pills=document.querySelector('.hdr .pills');if(pills)pills.insertBefore(mkBtn('pill askpill','Ask a question about this page'),pills.firstChild);
  var pu=document.getElementById('pUnits');if(pu)pu.parentNode.insertBefore(mkBtn('psnd pask','Ask a question about this card'),pu);
- window.__ask={open:open,close:close,mode:function(){return mode}};
+ window.__ask={open:open,close:close,mode:function(){return mode},search:function(q){return search(q).map(function(r){return [r.d.k,strip(r.d.title),Math.round(r.s*10)/10,r.d.lt||'']})}};
 })();
 
 U({id:'maths',title:'Maths for operators',icon:'√x',color:'#7F77DD',desc:'Powers of ten, exponentials, logs, rates of change and counting statistics.',lessons:[
