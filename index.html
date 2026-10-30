@@ -2138,6 +2138,43 @@ function xeTrip(t){var li=Math.LN2/6.57,lx=Math.LN2/9.14,A=4.7*lx;return Math.ex
  var _rl=renderLearn;renderLearn=function(){var out=_rl.apply(this,arguments);try{var r=getSnap(),el=$('page-learn');if(r&&!P&&el){var b=document.createElement('div');b.className='resumebar';b.innerHTML='<div class="rt"><b>Carry on where you left off</b>'+(r.mode==='follow'?'Follow-up: ':'')+r.title+' · card '+(r.i+1)+' of '+r.n+'</div><button class="rgo" type="button">Resume</button><button class="rno" type="button">Discard</button>';b.querySelector('.rgo').onclick=function(){resume(r)};b.querySelector('.rno').onclick=function(){clearSnap();b.remove()};el.insertBefore(b,el.firstChild)}}catch(_){}return out};
 })();
 
+/* ---- daily quests that are different for each level ---- */
+(function(){
+ var LQ={
+  1:{name:'Foundations',focus:'Build the habit: little and often.',xm:1,
+     pool:[['lessons',1],['run',5],['right',10],['sim',180],['perfect',1],['review',1],['follow',1]]},
+  2:{name:'A-level',focus:'Practise the maths until it feels easy.',xm:1.25,
+     pool:[['lessons',2],['num',5],['run',8],['right',15],['perfect',1],['follow',1],['review',1]]},
+  3:{name:'Operator training',focus:'Think like an operator: accuracy and the control room.',xm:1.5,
+     pool:[['mission',1],['sim',600],['run',10],['follow',2],['fix',3],['lessons',2],['num',6]]},
+  4:{name:'University 1',focus:'Longer study sessions and harder calculations.',xm:2,
+     pool:[['lessons',3],['num',8],['test',1],['right',20],['run',12],['perfect',1],['fix',4]]},
+  5:{name:'University 2',focus:'Exam standard: high scores under pressure.',xm:2.5,
+     pool:[['test80',1],['num',10],['run',15],['lessons',3],['right',25],['fix',5],['perfect',2]]}};
+ function defs(){QDEF.num=['Get {n} calculation{s} right first time','check'];QDEF.mission=['Complete a control room mission','dial'];QDEF.test=['Pass a unit test','star'];QDEF.test80=['Score 80% or more on a unit test','star'];
+  QDEF.perfect=['Finish {n} lesson{s} with no mistakes','star'];QDEF.follow=['Complete {n} follow-up practice{s}','loop'];QDEF.lessons=['Finish {n} lesson{s}','book']}
+ function activeLv(){try{if(P&&P.ui!=null)return {m:trk(P.ui),lv:lvOf(P.ui)}}catch(_){}return {m:curMode(),lv:curLevel()}}
+ function goalFor(lv){return Math.round(S.goal*LQ[lv].xm/10)*10}
+ quests=function(){defs();var t=today(),a=activeLv(),key=a.m+a.lv;S.qsets=S.qsets||{};
+  if(S.quests&&S.quests.d===t&&!S.quests.key&&a.lv===1){S.quests.key=key;S.qsets[key]=S.quests}
+  var q=S.qsets[key];
+  if(!q||q.d!==t){var r=seedRand('q'+t+key),dc=doneCount('all'),wc=Object.keys(S.wrong||{}).length,
+    pool=LQ[a.lv].pool.map(function(x){return x[0]==='num'&&a.m==='theory'?['right',x[1]*2]:x}).filter(function(x){if((x[0]==='review'||x[0]==='follow')&&!dc)return false;if(x[0]==='fix'&&wc<x[1])return false;return true}).filter(function(x,i,arr){return arr.findIndex(function(y){return y[0]===x[0]})===i}).slice();
+   for(var i=pool.length-1;i>0;i--){var j=Math.floor(r()*(i+1)),tmp=pool[i];pool[i]=pool[j];pool[j]=tmp}
+   q={d:t,key:key,lv:a.lv,chest:false,list:[{k:'xp',n:goalFor(a.lv),p:0,done:false}].concat(pool.slice(0,2).map(function(x){return {k:x[0],n:x[1],p:0,done:false}}))};
+   S.qsets[key]=q;for(var k in S.qsets)if(S.qsets[k].d!==t)delete S.qsets[k];save()}
+  if(!q.list[0].done)q.list[0].n=goalFor(a.lv);
+  S.quests=q;return q};
+ /* calculation questions and unit tests count too */
+ var _qp=qProg;qProg=function(k,v){_qp(k,v);try{if(k==='right'&&P&&P.cards&&P.cards[P.i]&&P.cards[P.i].t==='N')_qp('num',1)}catch(_){}};
+ var _ft=finishTest;finishTest=function(){var r=_ft.apply(this,arguments);try{var u=UNITS[P.ui],st=S.tests[u.id];if(st&&st.last===today()){if(st.lastPct>=PASS_TEST)_qp('test',1);if(st.lastPct>=80)_qp('test80',1)}}catch(_){}return r};
+ /* show which level the quests belong to */
+ var _qc=questCard;questCard=function(){var h=_qc.apply(this,arguments),q=quests(),L=LQ[q.lv||1];
+  return h.replace('<h2>Daily quests</h2>','<h2>Daily quests</h2><span class="qlv">Level '+(q.lv||1)+': '+L.name+'</span>').replace('<div id="questList">','<p class="note qfocus">'+L.focus+'</p><div id="questList">')};
+ var css=document.createElement('style');css.textContent='.qlv{display:inline-block;margin-left:8px;font-size:12px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--accent);background:var(--accent-bg,var(--soft));border-radius:999px;padding:3px 9px;vertical-align:3px}.qfocus{margin:-4px 0 10px}';document.head.appendChild(css);
+ window.__lq=LQ;
+})();
+
 U({id:'maths',title:'Maths for operators',icon:'√x',color:'#7F77DD',desc:'Powers of ten, exponentials, logs, rates of change and counting statistics.',lessons:[
 L('m1','Powers of ten and units',8,[
 T(`<h3>Tiny numbers and huge numbers</h3><p>A reactor deals with numbers from tiny to enormous. A neutron in a reactor core lives for about <b>0.00002 seconds</b>. The core makes about <b>3,000,000,000 watts</b> of heat.</p><p>Scientific notation keeps these readable: 2 × 10<sup>−5</sup> s and 3 × 10<sup>9</sup> W.</p>`),
@@ -5289,7 +5326,7 @@ function simAdvance(T){var s=SIM.s;SIM.acc=(SIM.acc||0)+T;var n=Math.floor(SIM.a
   simStep(s,SP.dt);SIM.srAvg+=(s.n*1e11-SIM.srAvg)*Math.min(1,SP.dt/8);
   if(s.tripped)SIM.ms.wasTripped=true;
   var M=MISSIONS[SIM.mi];if(!SIM.result&&M.goals.length){var allDone=true;M.goals.forEach(function(g,k){if(!SIM.ms.g[k]){if(g[1](s,SP.dt,SIM.ms.m[k],SIM.ms.g))SIM.ms.g[k]=true}if(!SIM.ms.g[k])allDone=false});
-   if(allDone){SIM.result='win';var first=!S.missions[M.id];S.missions[M.id]=1;save();if(first)addXP(50);banner('<b>Mission complete!</b> '+(first?'+50 XP. ':'')+'Great operating. Try the next mission from the menu.','good');var o=$('sMis').options[SIM.mi];if(o.text.indexOf('✓')<0)o.text+=' ✓'}
+   if(allDone){SIM.result='win';var first=!S.missions[M.id];S.missions[M.id]=1;save();try{qProg('mission',1)}catch(_){}if(first)addXP(50);banner('<b>Mission complete!</b> '+(first?'+50 XP. ':'')+'Great operating. Try the next mission from the menu.','good');var o=$('sMis').options[SIM.mi];if(o.text.indexOf('✓')<0)o.text+=' ✓'}
    else if(s.pc){SIM.result='fail';banner('<b>Prompt critical!</b> Reactivity reached β. In a real reactor this is a severe accident. Restart and add reactivity more slowly: watch the startup rate.','bad')}
    else if(M.failOnTrip&&s.tripped){SIM.result='fail';banner('<b>Reactor trip: '+s.tripMsg+'.</b> Mission failed. Press Restart to try again.','bad')}}
   if(s.tripped&&!SIM.lastTrip){SIM.lastTrip=true;$('sLd').value=0;if(!SIM.result)banner('<b>Reactor trip: '+s.tripMsg+'.</b> All rods inserted. Reset the trip once rods are fully in.','bad');setAuto(false)}
