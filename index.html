@@ -2109,6 +2109,35 @@ function xeTrip(t){var li=Math.LN2/6.57,lx=Math.LN2/9.14,A=4.7*lx;return Math.ex
  window.__ask={open:open,close:close,mode:function(){return mode},search:function(q){return search(q).map(function(r){return [r.d.k,strip(r.d.title),Math.round(r.s*10)/10,r.d.lt||'']})}};
 })();
 
+/* ---- autosave: on close/hide, every 5 minutes, and resume a half-finished lesson ---- */
+(function(){
+ var RK='critical_resume';
+ function snap(){try{if(!P||P.finished||(P.mode!=='lesson'&&P.mode!=='follow'))return;
+  var r={mode:P.mode,ui:P.ui,li:P.li,fid:P.fid,i:P.i,n:P.cards.length,title:P.title,xp:P.xp,right:P.right,asked:P.asked,combo:P.combo,best:P.best,cbonus:P.cbonus,mistakes:P.mistakes,fixed:P.fixed,keys:P.mode==='follow'?P.cards.map(function(c){return c._key}):null,ts:Date.now()};
+  localStorage.setItem(RK,JSON.stringify(r))}catch(_){}}
+ function clearSnap(){try{localStorage.removeItem(RK)}catch(_){}}
+ function getSnap(){try{var r=JSON.parse(localStorage.getItem(RK)||'null');if(!r||Date.now()-r.ts>14*864e5){clearSnap();return null}return r}catch(_){return null}}
+ function saveAll(){try{save()}catch(_){}snap()}
+ /* hook the player */
+ var _show=showCard;showCard=function(){_show.apply(this,arguments);snap()};
+ var _close=closePlayer;closePlayer=function(){clearSnap();return _close.apply(this,arguments)};
+ /* save when the app is hidden, switched away from or closed */
+ document.addEventListener('visibilitychange',function(){if(document.visibilityState==='hidden')saveAll()});
+ window.addEventListener('pagehide',saveAll);
+ window.addEventListener('beforeunload',saveAll);
+ window.addEventListener('blur',saveAll);
+ /* and a backup save every 5 minutes */
+ setInterval(saveAll,5*60*1000);
+ /* resume */
+ function resume(r){
+  if(r.mode==='follow'){startFollow(r.fid);if(!P)return clearSnap();if(r.keys){var by={};P.cards.forEach(function(c){by[c._key]=c});var ord=r.keys.map(function(k){return by[k]}).filter(Boolean);if(ord.length===P.cards.length)P.cards=ord}}
+  else{var u=UNITS[r.ui],l=u&&u.lessons[r.li];if(!l||l.title!==r.title)return clearSnap();P={mode:'lesson',ui:r.ui,li:r.li,cards:l.cards,i:0,xp:0,right:0,asked:0,title:l.title,color:u.color,unit:u.title,combo:0,best:0,cbonus:0,mistakes:0,fixed:0,newBadges:[],levelUp:null};openPlayer()}
+  if(!P)return;['xp','right','asked','combo','best','cbonus','mistakes','fixed'].forEach(function(k){if(typeof r[k]==='number')P[k]=r[k]});
+  P.i=Math.max(0,Math.min(r.i,P.cards.length-1));showCard()}
+ var css=document.createElement('style');css.textContent='.resumebar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--accent-bg,var(--soft));border:2px solid var(--accent);border-radius:16px;padding:12px 14px;margin:0 0 14px}.resumebar .rt{flex:1 1 100%;font-size:15px}.resumebar .rt b{display:block;font-size:16px}.resumebar button{font:inherit;font-weight:700;border-radius:12px;padding:9px 14px;cursor:pointer}.resumebar .rgo{background:var(--accent);color:var(--on-accent);border:0}.resumebar .rno{background:none;border:1px solid var(--line);color:var(--muted)}';document.head.appendChild(css);
+ var _rl=renderLearn;renderLearn=function(){var out=_rl.apply(this,arguments);try{var r=getSnap(),el=$('page-learn');if(r&&!P&&el){var b=document.createElement('div');b.className='resumebar';b.innerHTML='<div class="rt"><b>Carry on where you left off</b>'+(r.mode==='follow'?'Follow-up: ':'')+r.title+' · card '+(r.i+1)+' of '+r.n+'</div><button class="rgo" type="button">Resume</button><button class="rno" type="button">Discard</button>';b.querySelector('.rgo').onclick=function(){resume(r)};b.querySelector('.rno').onclick=function(){clearSnap();b.remove()};el.insertBefore(b,el.firstChild)}}catch(_){}return out};
+})();
+
 U({id:'maths',title:'Maths for operators',icon:'√x',color:'#7F77DD',desc:'Powers of ten, exponentials, logs, rates of change and counting statistics.',lessons:[
 L('m1','Powers of ten and units',8,[
 T(`<h3>Tiny numbers and huge numbers</h3><p>A reactor deals with numbers from tiny to enormous. A neutron in a reactor core lives for about <b>0.00002 seconds</b>. The core makes about <b>3,000,000,000 watts</b> of heat.</p><p>Scientific notation keeps these readable: 2 × 10<sup>−5</sup> s and 3 × 10<sup>9</sup> W.</p>`),
