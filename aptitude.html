@@ -1,0 +1,526 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#ffffff">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Critical">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Aptitude Gym</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: one-column app in the Critical family. Home lists five test types; each opens a lesson, practice set or timed test in a full-width quiz card. */
+:root{
+  --bg:#F5F4EF; --card:#FFFFFF; --ink:#1D1B2E; --muted:#615E73; --line:#E4E2D9;
+  --brand:#4F46B8; --brand-soft:#E8E6FA; --on-brand:#FFFFFF;
+  --gold:#F2C46D; --gold-soft:#FBF0D6; --gold-ink:#7E5300; --on-gold:#3A2700;
+  --ok:#1F7A55; --ok-soft:#DCF1E6; --warn:#B4231A; --warn-soft:#FBE4E2;
+  --num:#2B5FC4; --num-soft:#E2EBFB; --verb:#7E5300; --verb-soft:#FBF0D6; --logic:#4F46B8; --logic-soft:#E8E6FA;
+  --mech:#0F6E56; --mech-soft:#DDF1EA; --check:#A8431F; --check-soft:#FBE5DC;
+  --code:#1C1A2B; --code-ink:#E8E6F5; --hero-track:rgba(255,255,255,.25);
+  --ui:"Lexend",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#121120; --card:#1B1A2B; --ink:#ECEAF7; --muted:#A4A1B9; --line:#2E2C44;
+  --brand:#9D96F2; --brand-soft:#29264F; --on-brand:#15132B;
+  --gold:#F2C46D; --gold-soft:#3A2E14; --gold-ink:#F2C46D; --on-gold:#2B1D00;
+  --ok:#62D3A2; --ok-soft:#153226; --warn:#FF8A80; --warn-soft:#3A1716;
+  --num:#8FB2F4; --num-soft:#1B2A4A; --verb:#F2C46D; --verb-soft:#3A2E14; --logic:#9D96F2; --logic-soft:#29264F;
+  --mech:#5DCAA5; --mech-soft:#10302A; --check:#F0997B; --check-soft:#3A1F14;
+  --code:#0D0C17; --code-ink:#E2E0F2; --hero-track:rgba(21,19,43,.22); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121120; --card:#1B1A2B; --ink:#ECEAF7; --muted:#A4A1B9; --line:#2E2C44;
+  --brand:#9D96F2; --brand-soft:#29264F; --on-brand:#15132B;
+  --gold:#F2C46D; --gold-soft:#3A2E14; --gold-ink:#F2C46D; --on-gold:#2B1D00;
+  --ok:#62D3A2; --ok-soft:#153226; --warn:#FF8A80; --warn-soft:#3A1716;
+  --num:#8FB2F4; --num-soft:#1B2A4A; --verb:#F2C46D; --verb-soft:#3A2E14; --logic:#9D96F2; --logic-soft:#29264F;
+  --mech:#5DCAA5; --mech-soft:#10302A; --check:#F0997B; --check-soft:#3A1F14;
+  --code:#0D0C17; --code-ink:#E2E0F2; --hero-track:rgba(21,19,43,.22); color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:400 16px/1.55 var(--ui);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:14px 48px}
+button{font:inherit;color:inherit}
+h1,h2,h3{margin:0;font-weight:600;text-wrap:balance;letter-spacing:-.01em}
+h1{font-size:26px;line-height:1.2} h2{font-size:19px} h3{font-size:16px}
+p{margin:0}
+.app{max-width:640px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)} .small{font-size:13px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:18px}
+.mark{width:34px;height:34px;border-radius:10px;background:#0F6E56;display:grid;place-items:center}
+.mark svg{width:22px;height:22px}
+@media (max-width:420px){.brand .bt{display:none}}
+.pills{display:flex;gap:6px}
+.pill{display:flex;align-items:center;gap:5px;font:600 13px var(--mono);padding:5px 10px;border-radius:999px;background:var(--card);border:1px solid var(--line)}
+.pill .fl{width:14px;height:14px;fill:var(--gold)}
+.pill .dot{width:8px;height:8px;border-radius:50%;background:var(--brand)}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.hero{background:#0F6E56;color:#fff;border:0}
+:root[data-theme="dark"] .hero{background:#5DCAA5;color:#06241C}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .hero{background:#5DCAA5;color:#06241C}}
+.eyebrow{font:600 11px var(--mono);letter-spacing:.1em;text-transform:uppercase}
+.hstats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.hstats div{background:rgba(255,255,255,.14);border-radius:12px;padding:8px 10px}
+:root[data-theme="dark"] .hstats div{background:rgba(6,36,28,.12)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .hstats div{background:rgba(6,36,28,.12)}}
+.hstats b{display:block;font:600 19px var(--mono)}
+.hstats span{font-size:11px}
+@media (max-width:420px){.hstats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;font-weight:600;font-size:15px;border-radius:12px;padding:10px 16px;border:1px solid var(--line);background:var(--card);cursor:pointer;min-height:44px}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--brand);color:var(--on-brand);border-color:transparent}
+.btn.gold{background:var(--gold);color:var(--on-gold);border-color:transparent}
+.btn.sm{padding:6px 12px;min-height:36px;font-size:14px}
+.btnrow{display:flex;gap:8px;flex-wrap:wrap}
+.back{display:flex;align-items:center;gap:6px;background:none;border:0;padding:4px 0;color:var(--muted);font-weight:600;cursor:pointer;align-self:flex-start}
+.chip{display:inline-flex;align-items:center;font:600 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:3px 9px;border-radius:999px;white-space:nowrap}
+.s-num{--c:var(--num);--cs:var(--num-soft)} .s-verb{--c:var(--verb);--cs:var(--verb-soft)} .s-logic{--c:var(--logic);--cs:var(--logic-soft)} .s-mech{--c:var(--mech);--cs:var(--mech-soft)} .s-check{--c:var(--check);--cs:var(--check-soft)} .s-mix{--c:var(--brand);--cs:var(--brand-soft)}
+.chip{background:var(--cs);color:var(--c)}
+.sec{display:grid;grid-template-columns:44px minmax(0,1fr);gap:12px;align-items:start}
+.sic{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font:600 14px var(--mono);background:var(--cs);color:var(--c)}
+.sic svg{width:24px;height:24px}
+.sec .meta{font-size:13px;color:var(--muted);margin:2px 0 10px}
+.bar{height:8px;border-radius:4px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;border-radius:4px;background:var(--c,var(--brand));transition:width .3s}
+.bars{display:flex;flex-direction:column;gap:8px}
+.br{display:grid;grid-template-columns:96px minmax(0,1fr) 44px;gap:10px;align-items:center;font-size:14px}
+.br .mono{text-align:right;font-size:13px}
+
+.qtop{display:flex;align-items:center;gap:12px}
+.qtop .back{padding:4px 0}
+.pbar{flex:1;height:10px;border-radius:5px;background:var(--line);overflow:hidden}
+.pbar i{display:block;height:100%;background:var(--brand);transition:width .3s}
+.clock{font:600 14px var(--mono);min-width:52px;text-align:right}
+.clock.low{color:var(--warn)}
+.qmeta{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.qbody{font-size:17px;line-height:1.6;min-width:0}
+.qbody p{margin:0 0 10px}.qbody p:last-child{margin-bottom:0}
+.passage{background:var(--bg);border-radius:12px;padding:12px 14px;font-size:15.5px;line-height:1.65;margin-bottom:12px}
+.passage h4{margin:0 0 4px;font-size:13px;color:var(--muted);font-weight:600}
+.stmt{font-weight:600;border-left:3px solid var(--gold);border-radius:0;padding-left:12px}
+.seq{font:600 22px var(--mono);margin:6px 0 2px;overflow-wrap:anywhere}
+.tbl{overflow-x:auto;margin:0 0 10px;background:var(--bg);border-radius:12px}
+table{border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums;width:100%}
+th,td{padding:7px 10px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+th:first-child{text-align:left}
+thead th{font-size:12px;color:var(--muted);font-weight:600}
+tbody tr:last-child th,tbody tr:last-child td{border-bottom:0}
+.frames{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:6px}
+.fr{width:64px;height:64px;display:block}
+.fr .frb{fill:var(--card);stroke:var(--line);stroke-width:1.5}
+.fr .arw{fill:none;stroke:var(--ink);stroke-width:3.5;stroke-linecap:round;stroke-linejoin:round}
+.fr .dt{fill:var(--logic)}
+.fr .sqf{fill:var(--gold-ink)}
+.fr .sqe{fill:none;stroke:var(--gold-ink);stroke-width:1.8}
+.fq{width:64px;height:64px;border:2px dashed var(--line);border-radius:8px;display:grid;place-items:center;font:600 22px var(--mono);color:var(--muted)}
+.diag{background:var(--bg);border-radius:12px;padding:8px;margin:4px 0 10px;overflow-x:auto}
+.diag svg{display:block;max-width:100%;height:auto;margin:0 auto}
+.diag .gb{fill:var(--mech-soft);stroke:var(--mech);stroke-width:2}
+.diag .gt{fill:none;stroke:var(--mech);stroke-width:6}
+.diag .gl{font:600 13px var(--mono);fill:var(--mech);text-anchor:middle;dominant-baseline:central}
+.diag .rot{font:600 22px var(--ui);fill:var(--ink);text-anchor:middle}
+.diag .beam{stroke:var(--ink);stroke-width:5;stroke-linecap:round}
+.diag .piv{fill:var(--muted)}
+.diag .load{fill:var(--gold-soft);stroke:var(--gold-ink);stroke-width:1.5}
+.diag .lt{font:600 12px var(--mono);fill:var(--ink);text-anchor:middle}
+.diag .eff{stroke:var(--warn);stroke-width:3;fill:none;stroke-linecap:round}
+.diag .dim{stroke:var(--muted);stroke-width:1;stroke-dasharray:3 3}
+.diag .dl{font:500 11px var(--mono);fill:var(--muted);text-anchor:middle}
+.pairs{display:flex;flex-direction:column;gap:6px;font:500 15px var(--mono)}
+.pr{display:grid;grid-template-columns:22px minmax(0,1fr) minmax(0,1fr);gap:10px;background:var(--bg);border-radius:8px;padding:8px 10px;overflow-wrap:anywhere}
+.pr b{color:var(--muted);font-weight:600}
+mark{background:var(--gold-soft);color:var(--gold-ink);border-radius:3px;padding:0 1px}
+
+.opts{display:flex;flex-direction:column;gap:8px;margin-top:4px}
+.opts.vis{flex-direction:row;flex-wrap:wrap}
+.opt{text-align:left;background:var(--card);border:2px solid var(--line);border-radius:14px;padding:12px 14px;font-size:16px;cursor:pointer;display:flex;align-items:center;gap:12px;min-height:50px}
+.opt .k{font:600 12px var(--mono);color:var(--muted);width:18px;flex:none}
+.opts.vis .opt{padding:8px 10px}
+.opt:hover{border-color:var(--muted)}
+.opt.sel{border-color:var(--brand);background:var(--brand-soft)}
+.opt.right{border-color:var(--ok);background:var(--ok-soft)}
+.opt.wrong{border-color:var(--warn);background:var(--warn-soft)}
+.opt[disabled]{cursor:default}
+.fb{border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.fb.ok{background:var(--ok-soft)} .fb.no{background:var(--warn-soft)}
+.fb h3{font-size:17px}
+.fb.ok h3{color:var(--ok)} .fb.no h3{color:var(--warn)}
+.fb p{margin:0}
+.expl{font-size:15px;line-height:1.6;display:flex;flex-direction:column;gap:6px}
+.ans{background:var(--bg);border-radius:12px;padding:10px 12px;font-size:15px;overflow-wrap:anywhere}
+.ans p{margin:0 0 6px}.ans p:last-child{margin:0}.ans ul{margin:4px 0;padding-left:18px}
+.ans code{font:500 13px var(--mono);background:var(--brand-soft);padding:1px 5px;border-radius:5px}
+.extlink{text-decoration:none;align-self:flex-start}
+
+.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;counter-reset:s}
+.steps li{display:grid;grid-template-columns:28px minmax(0,1fr);gap:10px;counter-increment:s;align-items:start}
+.steps li::before{content:counter(s);width:26px;height:26px;border-radius:50%;background:var(--cs);color:var(--c);display:grid;place-items:center;font:600 12px var(--mono)}
+.tips{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px}
+.exq{background:var(--bg);border-radius:12px;padding:12px 14px;font-weight:600;overflow-wrap:anywhere}
+
+.score{font:600 54px/1 var(--mono)}
+.rv{border:1px solid var(--line);border-radius:12px;background:var(--card)}
+.rv summary{cursor:pointer;display:grid;grid-template-columns:22px minmax(0,1fr);gap:8px;align-items:start;padding:10px 12px;list-style:none}
+.rv summary::-webkit-details-marker{display:none}
+.rv .mk{font-weight:700}
+.rv .mk.ok{color:var(--ok)} .rv .mk.no{color:var(--warn)}
+.rv .pv{font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rv .rb{padding:0 12px 12px;display:flex;flex-direction:column;gap:10px}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translate(-50%,12px);opacity:0;pointer-events:none;background:var(--ink);color:var(--bg);font-weight:600;font-size:14px;padding:10px 16px;border-radius:12px;max-width:calc(100% - 32px);transition:opacity .2s,transform .2s;z-index:30;text-align:center}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.ic{fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+.pill.menu{color:inherit;text-decoration:none;cursor:pointer}.pill.menu svg{width:15px;height:15px}
+</style>
+</head>
+<body>
+
+
+<div class="app">
+  <header class="top">
+    <div class="brand"><span class="mark" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="#fff" stroke-width="2"/><circle cx="12" cy="12" r="4.5" fill="none" stroke="#fff" stroke-width="2"/><circle cx="12" cy="12" r="1.6" fill="#F2C46D"/></svg></span><span class="bt">Aptitude Gym</span></div>
+    <div class="pills"><a class="pill menu" href="./" aria-label="Back to the app menu"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5"/></svg>Menu</a><span class="pill" id="p-streak"></span><span class="pill" id="p-xp"></span></div>
+  </header>
+  <main id="view" class="app"></main>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+/* ---------- helpers ---------- */
+function R(a,b){return a+Math.floor(Math.random()*(b-a+1));}
+function P(a){return a[Math.floor(Math.random()*a.length)];}
+function shuf(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function F(n){return Number(n).toLocaleString("en-GB",{maximumFractionDigits:2});}
+function esc(t){return String(t).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
+function strip(h){var d=document.createElement("div");d.innerHTML=h;return (d.textContent||"").replace(/\s+/g," ").trim();}
+function $(id){return document.getElementById(id);}
+var LET="ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+/* build a multiple-choice question; correct and wrongs are values, f formats them */
+function mk(sec,html,correct,wrongs,exp,f,o){f=f||function(x){return String(x);};o=o||{};
+  var seen={},opts=[];function add(v){if(typeof v==="number"&&(!isFinite(v)||(o.pos!==false&&v<=0&&correct>0)))return;var s=f(v);if(seen[s])return;seen[s]=1;opts.push(s);}
+  add(correct);wrongs.forEach(add);
+  if(typeof correct==="number"){var base=Math.max(1,Math.round(Math.abs(correct)*0.1)),st=[1,-1,2,-2,3,-3,4,-4];for(var i=0;i<st.length&&opts.length<4;i++)add(correct+st[i]*base);}
+  var c=f(correct);opts=opts.slice(0,4);if(o.order)opts.sort(function(a,b){return o.order.indexOf(a)-o.order.indexOf(b);});else if(o.num)opts.sort(function(a,b){return Number(a)-Number(b);});else if(!o.keep)shuf(opts);
+  return{sec:sec,html:html,opts:opts,ans:opts.indexOf(c),exp:exp,vis:!!o.vis};}
+
+/* ---------- numerical ---------- */
+function numQ(){var t=P(["pct","chg","ratio","rate","table","eff"]);
+  if(t==="pct"){var p=P([800,1200,1400,1600,2000]),pc=P([15,20,25,35,40,60,65,75,80,85,90]),a=p*pc/100;
+    return mk("num","<p>A unit is rated at <b>"+F(p)+" MW</b>. It's running at <b>"+pc+"%</b> power. What is its output?</p>",a,[p-a,a+p*0.05,a-p*0.1],
+      "<p>"+pc+"% of "+F(p)+" = "+F(p)+" × "+pc+" ÷ 100 = <b>"+F(a)+" MW</b>.</p><p>Shortcut: 10% of "+F(p)+" is "+F(p/10)+", so "+pc+"% is "+F(p/10)+" × "+F(pc/10)+".</p>",function(x){return F(x)+" MW";});}
+  if(t==="chg"){var a0=P([400,500,800,1000,1200,1600]),pc2=P([10,20,25,40,50]),up=Math.random()<0.6,b=up?a0*(1+pc2/100):a0*(1-pc2/100),wr=Math.round(Math.abs(b-a0)/b*1000)/10;
+    var lab=function(x){return (x<0?"Decrease of ":"Increase of ")+F(Math.abs(x))+"%";};
+    return mk("num","<p>Monthly output went from <b>"+F(a0)+" MWh</b> to <b>"+F(b)+" MWh</b>. What was the percentage change?</p>",up?pc2:-pc2,[up?-pc2:pc2,up?wr:-wr,up?pc2+5:-(pc2+5)],
+      "<p>Change = "+F(b)+" − "+F(a0)+" = "+F(b-a0)+" MWh.</p><p>Always divide by the <b>original</b> value: "+F(Math.abs(b-a0))+" ÷ "+F(a0)+" × 100 = <b>"+pc2+"%</b> "+(up?"increase":"decrease")+". Dividing by the new value gives the trap answer of "+F(wr)+"%.</p>",lab,{pos:false});}
+  if(t==="ratio"){var rr=P([[3,2],[7,2],[5,3],[4,1],[3,1],[5,2]]),k=R(3,12),tot=(rr[0]+rr[1])*k,a1=rr[1]*k;
+    return mk("num","<p>Water and concentrate are mixed in the ratio <b>"+rr[0]+" : "+rr[1]+"</b>. You need <b>"+tot+" litres</b> of mixture. How much concentrate is that?</p>",a1,[rr[0]*k,Math.round(tot/rr[1]),a1+k],
+      "<p>Total parts = "+rr[0]+" + "+rr[1]+" = "+(rr[0]+rr[1])+". One part = "+tot+" ÷ "+(rr[0]+rr[1])+" = "+k+" litres.</p><p>Concentrate = "+rr[1]+" parts × "+k+" = <b>"+a1+" litres</b>.</p>",function(x){return F(x)+" litres";});}
+  if(t==="rate"){var r=P([150,200,250,300,400,450,600]),m=R(4,40),v=r*m;
+    return mk("num","<p>A pump moves <b>"+F(r)+" litres per minute</b>. How long will it take to move <b>"+F(v)+" litres</b>?</p>",m,[m*2,m+10,Math.max(1,Math.round(m/2))],
+      "<p>Time = amount ÷ rate = "+F(v)+" ÷ "+F(r)+" = <b>"+m+" minutes</b>.</p><p>Check by multiplying back: "+F(r)+" × "+m+" = "+F(v)+".</p>",function(x){return x+(x===1?" minute":" minutes");});}
+  if(t==="table"){var days=["Mon","Tue","Wed","Thu","Fri"],A=days.map(function(){return R(30,39);}),B=days.map(function(){return R(26,38);}),q=P(["tot","diff","avg"]),di=R(0,4);
+    var sA=A.reduce(function(s,x){return s+x;},0);if(q==="avg"&&sA%5){A[4]+=5-sA%5;sA=A.reduce(function(s,x){return s+x;},0);}
+    if(A[di]===B[di])B[di]-=2;
+    var td=function(x){return "<td>"+x+"</td>";};
+    var tb='<div class="tbl"><table><thead><tr><th>Sent out (GWh)</th>'+days.map(function(d){return "<th>"+d+"</th>";}).join("")+'</tr></thead><tbody><tr><th>Unit 1</th>'+A.map(td).join("")+'</tr><tr><th>Unit 2</th>'+B.map(td).join("")+'</tr></tbody></table></div>';
+    var g=function(x){return F(x)+" GWh";};
+    if(q==="tot")return mk("num",tb+"<p>How much did <b>Unit 1</b> send out from Monday to Friday?</p>",sA,[sA+10,sA-10,sA+5],"<p>Add Unit 1's row: "+A.join(" + ")+" = <b>"+sA+" GWh</b>.</p><p>Tip: add in pairs to make round numbers.</p>",g);
+    if(q==="diff"){var dd=Math.abs(A[di]-B[di]);return mk("num",tb+"<p>On <b>"+days[di]+"</b>, how much more did the higher unit send out than the lower one?</p>",dd,[dd+2,A[di]+B[di]>60?dd+5:dd+3,Math.max(1,dd-1)],"<p>On "+days[di]+": Unit 1 = "+A[di]+", Unit 2 = "+B[di]+". Difference = <b>"+dd+" GWh</b>.</p>",g);}
+    var av=sA/5;return mk("num",tb+"<p>What was <b>Unit 1's</b> average daily output?</p>",av,[av+2,av-2,sA/4],"<p>Average = total ÷ number of days = "+sA+" ÷ 5 = <b>"+av+" GWh</b>.</p>",g);}
+  var pr=P([[3000,1050],[3400,1190],[4000,1600],[2500,850],[2000,660],[4500,1620],[3600,1260]]),e=Math.round(pr[1]/pr[0]*100);
+  return mk("num","<p>A reactor makes <b>"+F(pr[0])+" MW</b> of heat and <b>"+F(pr[1])+" MW</b> of electricity. What is its efficiency?</p>",e,[100-e,e+5,e-5],
+    "<p>Efficiency = useful output ÷ input × 100 = "+F(pr[1])+" ÷ "+F(pr[0])+" × 100 = <b>"+e+"%</b>.</p><p>The rest leaves as waste heat, mostly through the condenser.</p>",function(x){return x+"%";});}
+
+/* ---------- verbal ---------- */
+var PASS=[
+{t:"Refuelling outages",p:"During a refuelling outage the reactor is shut down and part of the fuel is replaced. Outages are planned many months ahead because hundreds of extra workers may be needed on site. While the reactor is offline, engineers also inspect and repair equipment that cannot be reached while the plant is running. If an inspection finds a serious problem, the outage can last longer than planned.",
+ s:[["Outages are planned well in advance.",0,"The passage says outages are planned many months ahead."],["All of the fuel is replaced during an outage.",1,"It says part of the fuel is replaced, which contradicts all of it."],["Workers are paid more during outages.",2,"Pay isn't mentioned at all."],["Some equipment can only be repaired while the reactor is offline.",0,"Engineers repair equipment that can't be reached while the plant is running."]]},
+{t:"Shift handover",p:"At the end of every shift, the outgoing operator briefs the incoming operator on the plant's condition. The briefing covers any alarms, equipment out of service and work planned for the next shift. Both operators then walk the control room panels together. The incoming operator only takes over once they are satisfied they understand the plant's state.",
+ s:[["Handovers include a walk round the control room panels.",0,"Both operators walk the panels together."],["The outgoing operator decides when the handover is complete.",1,"The incoming operator takes over once they're satisfied, so it isn't the outgoing operator's decision."],["Handovers usually take about half an hour.",2,"No length of time is given."]]},
+{t:"Seawater cooling",p:"Many coastal power stations use seawater to cool the steam leaving their turbines. The seawater passes through thousands of tubes in the condenser and is returned to the sea slightly warmer. Fish screens at the intake stop most marine life from being drawn into the system. The seawater never mixes with the water that passes through the reactor.",
+ s:[["Seawater is used to cool steam after it leaves the turbine.",0,"That's stated in the first sentence."],["Fish screens stop all marine life entering the system.",1,"They stop most marine life, not all of it."],["Seawater goes back to the sea colder than when it came in.",1,"It's returned slightly warmer."],["Inland power stations can't use this method.",2,"The passage only talks about coastal stations and says nothing about inland ones."]]},
+{t:"Decay heat",p:"When a reactor shuts down, the chain reaction stops within seconds, but the fuel keeps producing heat. This decay heat comes from radioactive products created during operation. It falls quickly at first and then more slowly over days and weeks. For this reason, cooling must continue long after shutdown.",
+ s:[["The fuel stops producing heat as soon as the chain reaction stops.",1,"The fuel keeps producing heat after the chain reaction stops."],["Decay heat falls fastest just after shutdown.",0,"It falls quickly at first, then more slowly."],["Decay heat is the main cause of reactor accidents.",2,"The passage doesn't say anything about what causes accidents."]]},
+{t:"Radiation monitoring",p:"Everyone who works in controlled areas of a nuclear site wears a personal dosimeter. The dosimeter records the radiation dose the wearer receives. Readings are checked regularly and compared with legal limits, which are set well below levels known to cause harm. Visitors to controlled areas are also given dosimeters.",
+ s:[["Visitors to controlled areas wear dosimeters.",0,"The last sentence says they're given dosimeters."],["Legal dose limits are set at the level where harm begins.",1,"Limits are set well below levels known to cause harm."],["People working in offices on the site wear dosimeters.",2,"Only controlled areas are mentioned. Offices aren't covered."]]},
+{t:"Apprenticeship scheme",p:"A power company runs a four-year engineering apprenticeship. Apprentices spend their first year at a training college before moving to a power station. Applicants must have GCSEs in maths and English, and a science qualification is preferred. Every year the scheme receives far more applications than it has places.",
+ s:[["Apprentices start at a power station in their first year.",1,"The first year is spent at a training college."],["A science qualification is required to apply.",1,"It's preferred, not required."],["Most applicants aren't offered a place.",0,"Far more applications than places means most applicants miss out."],["Apprentices are guaranteed a job when they finish.",2,"Nothing is said about what happens after the four years."]]}
+];
+function verbQ(){var ps=P(PASS),st=P(ps.s),L=["True","False","Cannot say"];
+  return{sec:"verb",html:'<div class="passage"><h4>'+ps.t+'</h4>'+ps.p+'</div><p class="stmt">'+st[0]+'</p>',opts:L.slice(),ans:st[1],
+    exp:"<p><b>"+L[st[1]]+".</b> "+st[2]+"</p>"+(st[1]===2?"<p>Remember: if the passage doesn't give enough information, the answer is Cannot say, even if you know the answer from real life.</p>":""),vis:false};}
+
+/* ---------- logical ---------- */
+function seqQ(){var k=P(["ar","geo","inc","alt","sq"]),s,ans,exp,d,i;
+  if(k==="ar"){var a=R(2,30);d=R(3,12)*(Math.random()<0.25?-1:1);if(d<0)a+=70;s=[0,1,2,3,4].map(function(i){return a+i*d;});ans=a+5*d;exp="Each number goes "+(d>0?"up":"down")+" by "+Math.abs(d)+".";}
+  if(k==="geo"){var g=R(1,5),r=P([2,3]);s=[0,1,2,3,4].map(function(i){return g*Math.pow(r,i);});ans=g*Math.pow(r,5);exp="Each number is multiplied by "+r+".";d=s[4];}
+  if(k==="inc"){var b=R(1,10),d0=R(1,4);s=[b];for(i=1;i<5;i++)s.push(s[i-1]+d0+i-1);ans=s[4]+d0+4;exp="The gaps grow by 1 each time: +"+d0+", +"+(d0+1)+", +"+(d0+2)+", +"+(d0+3)+". So the next gap is +"+(d0+4)+".";d=d0+4;}
+  if(k==="alt"){var a1=R(1,9),b1=R(30,45),x=R(2,5),y=-R(2,4);s=[a1,b1,a1+x,b1+y,a1+2*x,b1+2*y];ans=a1+3*x;exp="Two sequences take turns. One goes "+a1+", "+(a1+x)+", "+(a1+2*x)+" (+"+x+" each time); the other goes "+b1+", "+(b1+y)+", "+(b1+2*y)+" ("+y+" each time). The next number continues the first one.";d=x;}
+  if(k==="sq"){var n0=R(2,6),c=P([0,1,-1]),cs=c?(c>0?" + 1":" − 1"):"";s=[0,1,2,3,4].map(function(i){return (n0+i)*(n0+i)+c;});ans=(n0+5)*(n0+5)+c;exp="These are square numbers"+cs+": "+n0+"²"+cs+", "+(n0+1)+"²"+cs+" and so on. Next is "+(n0+5)+"²"+cs+".";d=2*(n0+5);}
+  return mk("logic","<p>What number comes next?</p><div class=\"seq\">"+s.join(", ")+", ?</div>",ans,[ans+Math.abs(d),ans-1,ans+2],"<p>"+exp+" Answer: <b>"+ans+"</b>.</p>",null,{pos:false});}
+function letQ(){var k=R(2,4),st=R(0,25-5*k),s=[0,1,2,3].map(function(i){return LET[st+i*k];}),ix=st+4*k;
+  return mk("logic","<p>What letter comes next?</p><div class=\"seq\">"+s.join(" ")+" ?</div>",LET[ix],[LET[ix-1],LET[ix+1],LET[ix+2]],
+    "<p>Each letter moves "+k+" places along the alphabet, skipping "+(k-1)+" letter"+(k>2?"s":"")+" each time. "+s[3]+" + "+k+" = <b>"+LET[ix]+"</b>.</p><p>Tip: number the letters (A = 1, B = 2…) and treat it like a number sequence.</p>");}
+function frame(th,c,f){var dots="",x0=32-(c-1)*3.5;for(var i=0;i<c;i++)dots+='<circle class="dt" cx="'+(x0+i*7)+'" cy="55" r="2.6"/>';
+  return '<svg class="fr" viewBox="0 0 64 64" aria-hidden="true"><rect class="frb" x="2" y="2" width="60" height="60" rx="8"/><g transform="rotate('+th+' 30 28)"><path class="arw" d="M30 41V15M22 23l8-8 8 8"/></g>'+dots+'<rect class="'+(f?"sqf":"sqe")+'" x="48" y="7" width="9" height="9" rx="2"/></svg>';}
+function shapeQ(){var step=P([45,90]),th0=P([0,45,90,135,180]),c0=R(1,3),f0=Math.random()<0.5,alt=Math.random()<0.6;
+  function fill(i){return alt?((i%2===0)===f0):f0;}
+  var cor={th:th0+4*step,c:c0+4,f:fill(4)},w=[{th:cor.th+step,c:cor.c,f:cor.f},{th:cor.th,c:cor.c+1,f:cor.f},alt?{th:cor.th,c:cor.c,f:!cor.f}:{th:cor.th-step,c:cor.c,f:cor.f}];
+  var opts=shuf([cor].concat(w)),ans=opts.indexOf(cor);
+  return{sec:"logic",vis:true,html:"<p>Which picture comes next?</p><div class=\"frames\">"+[0,1,2,3].map(function(i){return frame(th0+i*step,c0+i,fill(i));}).join("")+'<div class="fq">?</div></div>',
+    opts:opts.map(function(o){return frame(o.th,o.c,o.f);}),ans:ans,
+    exp:"<p>Track one feature at a time:</p><p>The arrow turns <b>"+step+"° clockwise</b> each step. The dots go up by <b>1</b> each step, so the next picture has "+cor.c+". The corner square "+(alt?"switches between filled and empty":"stays the same")+".</p><p>Only one option gets all three right.</p>"};}
+
+/* ---------- mechanical ---------- */
+function gearSVG(n,tri,cw){var g="",pos=[],W,H;
+  if(tri){pos=[[60,80],[118,80],[89,30]];W=180;H=120;}else{for(var i=0;i<n;i++)pos.push([36+i*58,48]);W=36*2+(n-1)*58;H=96;}
+  pos.forEach(function(p,i){g+='<circle class="gt" cx="'+p[0]+'" cy="'+p[1]+'" r="25" stroke-dasharray="5.2 5.2"/><circle class="gb" cx="'+p[0]+'" cy="'+p[1]+'" r="21"/><text class="gl" x="'+p[0]+'" y="'+p[1]+'">'+LET[i]+'</text>';});
+  g+='<text class="rot" x="'+pos[0][0]+'" y="'+(tri?pos[0][1]+50:pos[0][1]+46)+'">'+(cw?"↻":"↺")+'</text>';
+  return '<div class="diag"><svg viewBox="0 0 '+W+' '+(H+(tri?18:6))+'" width="'+W+'" role="img" aria-label="'+(tri?"Three gears touching in a triangle":n+" gears in a row")+', gear A turning '+(cw?"clockwise":"anticlockwise")+'">'+g+'</svg></div>';}
+function gearQ(){var cw=Math.random()<0.5;
+  if(Math.random()<0.2)return mk("mech",gearSVG(3,true,cw)+"<p>Three gears all touch each other in a triangle. Gear A is turned "+(cw?"clockwise":"anticlockwise")+". What happens?</p>","They jam and can't turn",["Gear C turns clockwise","Gear C turns anticlockwise"],
+    "<p>Touching gears turn in opposite directions. A turns B one way, B turns C the other way, but C also touches A and would have to turn both ways at once.</p><p><b>The gears jam.</b> That's why gear trains are laid out in lines, not closed loops of three.</p>",null,{keep:false});
+  var n=R(2,5),same=n%2===1,last=LET[n-1],dirs=[];for(var i=0;i<n;i++)dirs.push(LET[i]+" "+((i%2===0)===cw?"clockwise":"anticlockwise"));
+  var ansT=(same===cw)?"Clockwise":"Anticlockwise";
+  return mk("mech",gearSVG(n,false,cw)+"<p>Gear A turns <b>"+(cw?"clockwise":"anticlockwise")+"</b>. Which way does gear <b>"+last+"</b> turn?</p>",ansT,[ansT==="Clockwise"?"Anticlockwise":"Clockwise","It doesn't move"],
+    "<p>Each gear turns the opposite way to the one it touches, so the directions alternate along the row: "+dirs.join(", ")+".</p><p>Quick rule: gears A, C and E turn the same way as A; gears B and D turn the opposite way.</p>",null,{order:["Clockwise","Anticlockwise","It doesn't move"]});}
+function gearSpeedQ(){var T=[10,12,15,20,24,30,40,60],t1,t2,r1,r2,g=0;do{t1=P(T);t2=P(T);r1=P([30,60,90,120,180,240]);r2=r1*t1/t2;g++;}while((t1===t2||r2%1!==0)&&g<200);
+  return mk("mech","<p>Gear A has <b>"+t1+" teeth</b> and turns at <b>"+r1+" rpm</b>. It drives gear B, which has <b>"+t2+" teeth</b>. How fast does gear B turn?</p>",r2,[r1*t2/t1,r1,r2*2],
+    "<p>Teeth × speed is the same for both gears: "+t1+" × "+r1+" = "+F(t1*r1)+".</p><p>Gear B: "+F(t1*r1)+" ÷ "+t2+" = <b>"+F(r2)+" rpm</b>. "+(t2>t1?"B is bigger, so it turns slower.":"B is smaller, so it turns faster.")+"</p>",function(x){return F(x)+" rpm";});}
+function leverQ(){var L,d1,d2,e,g=0;do{L=P([20,30,40,50,60,80,90,120]);d1=P([0.5,1,1.5,2]);d2=P([1,2,3,4]);e=L*d1/d2;g++;}while((d1>=d2||(e*2)%1!==0)&&g<200);
+  var s=40,px=24+d1*s,ex=px+d2*s,W=ex+24;
+  var svg='<div class="diag"><svg viewBox="0 0 '+W+' 104" width="'+W+'" role="img" aria-label="Lever with the load '+d1+' metres from the pivot and the effort '+d2+' metres from it on the other side">'+
+    '<line class="beam" x1="14" y1="50" x2="'+(ex+10)+'" y2="50"/><path class="piv" d="M'+px+' 53l-11 20h22z"/>'+
+    '<rect class="load" x="10" y="22" width="28" height="25" rx="3"/><text class="lt" x="24" y="38">'+L+'kg</text>'+
+    '<path class="eff" d="M'+ex+' 14v30M'+(ex-6)+' 37l6 7 6-7"/>'+
+    '<line class="dim" x1="24" y1="88" x2="'+px+'" y2="88"/><line class="dim" x1="'+px+'" y1="88" x2="'+ex+'" y2="88"/>'+
+    '<text class="dl" x="'+((24+px)/2)+'" y="100">'+d1+' m</text><text class="dl" x="'+((px+ex)/2)+'" y="100">'+d2+' m</text></svg></div>';
+  return mk("mech",svg+"<p>A <b>"+L+" kg</b> load sits <b>"+d1+" m</b> from the pivot. You push down <b>"+d2+" m</b> from the pivot on the other side. How much force (in kg) balances it?</p>",e,[L*d2/d1,L,e*2],
+    "<p>A lever balances when load × its distance = effort × its distance.</p><p>"+L+" × "+d1+" = effort × "+d2+", so effort = "+F(L*d1)+" ÷ "+d2+" = <b>"+F(e)+" kg</b>. The longer arm on your side means you need less force.</p>",function(x){return F(x)+" kg";});}
+function pulleyQ(){var n=R(2,4),W=n*R(15,60),e=W/n;
+  return mk("mech","<p>A load of <b>"+W+" kg</b> hangs from a pulley system with <b>"+n+" rope sections</b> holding it up. Ignoring friction, how much force (in kg) do you need to lift it?</p>",e,[W,W/(n+1),e*2],
+    "<p>The load's weight is shared between the rope sections holding it up: "+W+" ÷ "+n+" = <b>"+F(e)+" kg</b>.</p><p>The trade-off: you have to pull "+n+" times as much rope.</p>",function(x){return F(x)+" kg";});}
+var MC=[
+["Water flows along a pipe that gets narrower. In the narrow part, the water flows…",["Faster","Slower","At the same speed"],"The same amount of water must pass every point each second, so it speeds up where the pipe is narrower."],
+["Two wheels are joined by a belt. The small wheel is half the diameter of the big one. When the big wheel turns once, the small wheel turns…",["Twice","Once","Half a turn"],"The belt moves the same distance round both wheels. The small wheel's rim is half as long, so it has to turn twice."],
+["A tank of water has two holes, one near the top and one near the bottom. Which jet of water comes out faster?",["The bottom one","The top one","Both the same"],"Pressure increases with depth, so water at the bottom is pushed out harder."],
+["You want to open a heavy door with the least force. Where should you push?",["At the edge furthest from the hinges","In the middle","Right next to the hinges"],"Turning effect = force × distance from the pivot. The further from the hinges, the less force you need."],
+["A sealed steel tank full of water is heated. What happens to the pressure inside?",["It rises","It falls","It stays the same"],"Water expands when it's heated but can't escape, so the pressure rises. That's why reactor cooling systems need careful pressure control."],
+["One ball rolls off a table at the same moment an identical ball is dropped from the same height. Which hits the floor first?",["They land at the same time","The dropped ball","The rolling ball"],"Moving sideways doesn't change how fast gravity pulls a ball down, so they land together."]];
+function conceptQ(){var m=P(MC);return mk("mech","<p>"+m[0]+"</p>",m[1][0],m[1].slice(1),"<p><b>"+m[1][0]+".</b> "+m[2]+"</p>");}
+
+/* ---------- checking ---------- */
+var TAGS=["RCP","FW","CVCS","SG","PZR","AFW","CCW","RHR"];
+function code(){return P(TAGS)+"-"+R(1,4)+P(["A","B","C","D"])+"-"+R(1000,9999);}
+function alter(c){for(var g=0;g<30;g++){var a=c.split(""),t=R(0,2),idx=[],j;
+  if(t===0){for(var i=0;i<a.length-1;i++)if(/\d/.test(a[i])&&/\d/.test(a[i+1])&&a[i]!==a[i+1])idx.push(i);if(!idx.length)continue;j=P(idx);var x=a[j];a[j]=a[j+1];a[j+1]=x;}
+  else if(t===1){a.forEach(function(ch,i){if(/\d/.test(ch))idx.push(i);});j=P(idx);a[j]=String((+a[j]+R(1,9))%10);}
+  else{a.forEach(function(ch,i){if(/[A-Z]/.test(ch))idx.push(i);});j=P(idx);a[j]=P("ABCDEFGHKLMNPRSTVW".split("").filter(function(l){return l!==a[j];}));}
+  var r=a.join("");if(r!==c)return r;}return c+"X";}
+function hl(a,b){var o="";for(var i=0;i<b.length;i++)o+=(a[i]!==b[i])?"<mark>"+b[i]+"</mark>":b[i];return o;}
+function checkQ(){
+  if(Math.random()<0.5){var same=R(0,5),rows=[];for(var i=0;i<5;i++){var c=code();rows.push([c,i<same?c:alter(c)]);}shuf(rows);
+    var wr=shuf([0,1,2,3,4,5].filter(function(x){return x!==same;})).slice(0,3);
+    var diffs=[];rows.forEach(function(r,i){if(r[0]!==r[1])diffs.push("Row "+(i+1)+": "+r[0]+" vs "+hl(r[0],r[1]));});
+    return mk("check","<p>How many of these pairs are <b>exactly</b> the same?</p><div class=\"pairs\">"+rows.map(function(r,i){return '<div class="pr"><b>'+(i+1)+'</b><span>'+r[0]+'</span><span>'+r[1]+'</span></div>';}).join("")+"</div>",same,wr,
+      "<p><b>"+same+"</b> pair"+(same===1?" is":"s are")+" identical.</p>"+(diffs.length?"<p>"+diffs.join("<br>")+"</p>":"")+"<p>Tip: compare in chunks, and watch for swapped digits.</p>",String,{pos:false,num:true});}
+  var base=[code(),code(),code(),code()],k=R(0,3),shown=base.map(function(c,i){return i===k?alter(c):c;}),labs=["A","B","C","D"];
+  return mk("check","<p>The log on the left should match the panel on the right. Which row has a mistake?</p><div class=\"pairs\">"+base.map(function(c,i){return '<div class="pr"><b>'+labs[i]+'</b><span>'+c+'</span><span>'+shown[i]+'</span></div>';}).join("")+"</div>",
+    "Row "+labs[k],labs.filter(function(l,i){return i!==k;}).map(function(l){return "Row "+l;}),"<p><b>Row "+labs[k]+"</b>: "+base[k]+" was shown as "+hl(base[k],shown[k])+".</p><p>Tip: read each code in chunks of 3 or 4 characters.</p>",null,{order:["Row A","Row B","Row C","Row D"]});}
+
+var GEN={num:numQ,verb:verbQ,
+  logic:function(){var r=Math.random();return r<0.5?seqQ():r<0.7?letQ():shapeQ();},
+  mech:function(){var r=Math.random();return r<0.3?gearQ():r<0.5?gearSpeedQ():r<0.65?leverQ():r<0.8?pulleyQ():conceptQ();},
+  check:checkQ};
+function build(sec,n){var out=[],seen={},g=0;while(out.length<n&&g<n*30){g++;var q=GEN[sec]();var key=strip(q.html).slice(0,160);if(seen[key]&&g<n*25)continue;seen[key]=1;out.push(q);}return out;}
+
+/* ---------- content ---------- */
+var ORDER=["num","verb","logic","mech","check"];
+var GEAR='<svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/></svg>';
+var LENS='<svg class="ic" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5 5"/></svg>';
+var SECS={num:{n:"Numerical",g:"%",d:"Percentages, ratios, rates and tables",spq:60},
+  verb:{n:"Verbal",g:"Aa",d:"True, False or Cannot say from a short passage",spq:45},
+  logic:{n:"Logical",g:"123",d:"Number, letter and shape patterns",spq:50},
+  mech:{n:"Mechanical",g:GEAR,d:"Gears, levers, pulleys and pressure",spq:45},
+  check:{n:"Checking",g:LENS,d:"Spotting differences in codes, fast",spq:30}};
+var LEARN={
+num:{why:"Numerical tests check you can work with numbers quickly and accurately: percentages, ratios, rates and data in tables. Operators do this all shift, reading flows, temperatures and power levels.",
+ tips:["Estimate before you calculate. 85% of 1,600 must be a bit less than 1,600, which rules out silly options straight away.","Use 10% as a building block: move the decimal point one place, then multiply.","Percentage change is always change ÷ original value. Dividing by the new value is the most common trap.","Read table titles and units carefully. MW and GW, or thousands and millions, catch people out."],
+ q:"Output went from 1,200 MWh to 1,500 MWh. What's the percentage change?",steps:["Find the change: 1,500 − 1,200 = 300 MWh.","Divide by the original value, 1,200, not the new one: 300 ÷ 1,200 = 0.25.","Turn it into a percentage: 0.25 × 100 = 25%.","Answer: an increase of 25%. The trap answer is 20%, which you'd get by dividing by 1,500."]},
+verb:{why:"Verbal tests check you can read carefully and only conclude what the text actually supports. That's exactly how operators have to read procedures: no assumptions.",
+ tips:["Only use the passage. If it doesn't say something, the answer is Cannot say, even if you know it's true in real life.","True means the passage says it, or it must follow from what's written.","False means the passage contradicts it.","Watch strong words like all, never and only. A passage that says most or part usually makes an all statement False."],
+ q:"Passage: \"Fish screens stop most marine life entering the cooling system.\" Statement: \"No marine life ever enters the system.\"",steps:["Find the sentence that matches: it says screens stop most marine life.","Compare: most isn't all, so some marine life can get in.","The passage contradicts the statement, so information isn't just missing.","Answer: False."]},
+logic:{why:"Logical reasoning tests check how quickly you spot patterns and rules. It's the same skill as working out a fault from a pattern of alarms.",
+ tips:["For number sequences, write down the gaps between numbers. If they aren't constant, look at the gaps between the gaps.","If nothing fits, check for two sequences taking turns: 1st, 3rd, 5th… and 2nd, 4th, 6th…","For shape sequences, track one feature at a time: rotation, then count, then shading.","Eliminate options as you go. Once one feature rules an option out, you don't need to check the rest."],
+ q:"2, 5, 9, 14, 20, ?",steps:["Write the gaps: +3, +4, +5, +6.","The gaps grow by 1 each time.","So the next gap is +7.","Answer: 20 + 7 = 27."]},
+mech:{why:"Mechanical reasoning tests check your feel for how machines and fluids behave: gears, levers, pulleys and pressure. Power stations are full of pumps, valves and turbines that follow these rules.",
+ tips:["Touching gears turn in opposite directions. In a row, they alternate.","Bigger gears turn slower: teeth × speed is the same on both gears.","A lever balances when load × distance = effort × distance from the pivot.","In a pulley system, count the rope sections holding the load. The force you need is the load divided by that number."],
+ q:"Gear A has 20 teeth and turns at 90 rpm. It drives gear B, which has 30 teeth. How fast does B turn?",steps:["Teeth × speed is the same for both gears.","Gear A: 20 × 90 = 1,800.","Gear B: 30 × speed = 1,800, so speed = 1,800 ÷ 30.","Answer: 60 rpm. B is bigger, so it should turn slower, which it does."]},
+check:{why:"Checking tests measure how fast and accurately you spot differences. Operators confirm equipment codes all the time, and one wrong digit can mean the wrong valve.",
+ tips:["Compare in chunks of 3 or 4 characters, not the whole code at once.","Look out for swapped digits like 4471 and 4417. They're the most common trap.","Check the letters as well as the numbers. A or B in the middle of a code is easy to skip.","Work steadily. These tests reward accuracy as much as speed."],
+ q:"Are these the same?   CVCS-2B-4471   and   CVCS-2B-4417",steps:["First chunk: CVCS matches CVCS.","Second chunk: 2B matches 2B.","Last chunk: 4471 against 4417. The last two digits are swapped.","Answer: they're different."]}};
+
+/* ---------- state ---------- */
+var KEY="aptitude-v1";
+function blank(){return{xp:0,streak:0,lastDay:null,sec:{},mockBest:null,warm:"",hist:[]};}
+var S=blank();try{var o=JSON.parse(localStorage.getItem(KEY)||"null");if(o)for(var k in o)S[k]=o[k];}catch(e){}
+ORDER.forEach(function(s){if(!S.sec[s])S.sec[s]={n:0,c:0,best:null};});
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+function ds(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
+function today(){return ds(new Date());}
+function pd(s){var a=s.split("-");return new Date(+a[0],+a[1]-1,+a[2]);}
+function gap(a,b){return Math.round((pd(b)-pd(a))/864e5);}
+function liveStreak(){if(!S.lastDay)return 0;return gap(S.lastDay,today())<=1?S.streak:0;}
+function touch(){var t=today();if(S.lastDay===t)return;S.streak=(S.lastDay&&gap(S.lastDay,t)===1)?S.streak+1:1;S.lastDay=t;}
+function addXP(n){if(n<=0)return;S.xp+=n;touch();save();header();}
+var FLAME='<svg class="fl" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5c1.2 3.6 5.5 5.6 5.5 10.6a5.5 5.5 0 0 1-11 0c0-2.8 1.6-4.4 2.7-5.5.3 2 1.3 2.9 2.2 3.3.6-3.3-1-6 .6-8.4z"/></svg>';
+function header(){var s=liveStreak();$("p-streak").innerHTML=FLAME+s+(s===1?" day":" days");$("p-xp").innerHTML='<span class="dot"></span>'+S.xp+" XP";}
+var tq=[],tshow=false;function toast(m){tq.push(m);if(!tshow)nt();}
+function nt(){var m=tq.shift(),el=$("toast");if(!m){tshow=false;el.classList.remove("show");return;}tshow=true;el.textContent=m;el.classList.add("show");setTimeout(function(){el.classList.remove("show");setTimeout(nt,220);},2300);}
+function acc(s){var x=S.sec[s];return x.n?Math.round(x.c/x.n*100):null;}
+
+/* ---------- views ---------- */
+var view="home",lsec=null,lstep=0,Q=null,quitArmed=false;
+function render(){header();var v=$("view");
+  if(view==="home")v.innerHTML=homeHTML();else if(view==="learn")v.innerHTML=learnHTML();else if(view==="quiz")v.innerHTML=quizHTML();else if(view==="results")v.innerHTML=resultsHTML();
+  tickUI();}
+function go(v){view=v;render();window.scrollTo(0,0);}
+function homeHTML(){var tn=0,tc=0;ORDER.forEach(function(s){tn+=S.sec[s].n;tc+=S.sec[s].c;});var warmDone=S.warm===today();
+  var h='<section class="card hero"><span class="eyebrow">Reasoning practice</span><h1>Train for the tests employers use</h1><p>Engineering apprenticeships often use aptitude tests. Practice makes you quicker and more accurate at every question type.</p>'+
+   '<div class="hstats"><div><b>'+S.xp+'</b><span>XP</span></div><div><b>'+liveStreak()+'</b><span>Day streak</span></div><div><b>'+tn+'</b><span>Answered</span></div><div><b>'+(tn?Math.round(tc/tn*100)+"%":"–")+'</b><span>Accuracy</span></div></div></section>';
+  h+='<section class="card s-mix"><div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><div style="min-width:0"><h2>Daily warm-up</h2><p class="small muted">'+(warmDone?"Done today. Come back tomorrow for a new one.":"5 mixed questions with explanations. +15 XP bonus.")+'</p></div><button class="btn '+(warmDone?"":"gold")+'" data-act="warm">'+(warmDone?"Do another":"Start")+'</button></div></section>';
+  h+='<h2>Test types</h2>';
+  ORDER.forEach(function(s){var x=S.sec[s],a=acc(s),sec=SECS[s];
+    h+='<section class="card s-'+s+'"><div class="sec"><span class="sic" aria-hidden="true">'+sec.g+'</span><div style="min-width:0"><h3>'+sec.n+'</h3><p class="meta">'+sec.d+'</p>'+
+     '<p class="small" style="margin-bottom:10px">'+(x.n?"Accuracy "+a+"% · "+x.n+" answered":"Not started yet")+(x.best!=null?" · Best timed "+x.best+"/10":"")+'</p>'+
+     '<div class="btnrow"><button class="btn sm" data-act="learn" data-s="'+s+'">Learn</button><button class="btn sm primary" data-act="prac" data-s="'+s+'">Practise</button><button class="btn sm" data-act="timed" data-s="'+s+'">Timed test</button></div></div></div></section>';});
+  h+='<section class="card s-mix"><h2>Full mock test</h2><p class="small muted">20 questions from all five types in 18 minutes, like a real application test. No feedback until the end.</p>'+(S.mockBest!=null?'<p class="small">Best score: <b>'+S.mockBest+'/20</b></p>':'')+'<div class="btnrow"><button class="btn primary" data-act="mock">Start mock test</button></div></section>';
+  var have=ORDER.filter(function(s){return S.sec[s].n>=5;});
+  if(have.length){var low=have.slice().sort(function(a,b){return acc(a)-acc(b);})[0];
+    h+='<section class="card"><h2>Your strengths</h2><div class="bars">'+ORDER.map(function(s){var a=acc(s);return '<div class="br s-'+s+'"><span>'+SECS[s].n+'</span><div class="bar"><i style="width:'+(a||0)+'%"></i></div><span class="mono">'+(S.sec[s].n>=5?a+"%":"–")+'</span></div>';}).join("")+'</div>'+
+     (have.length>1?'<p class="small muted">Focus next: <b>'+SECS[low].n+'</b>. It\'s your lowest so far.</p>':'<p class="small muted">Answer at least 5 questions in a type to see it here.</p>')+'</section>';}
+  return h;}
+function learnHTML(){var s=lsec,L=LEARN[s],sec=SECS[s];
+  var h='<button class="back" data-act="home"><svg class="ic" viewBox="0 0 24 24" width="20" height="20"><path d="M15 5l-7 7 7 7"/></svg>All test types</button>'+
+   '<div class="s-'+s+'"><span class="chip">'+sec.n+' reasoning</span><h1 style="margin-top:8px">How to tackle '+sec.n.toLowerCase()+' questions</h1></div>'+
+   '<section class="card"><h2>What it tests</h2><p>'+L.why+'</p></section>'+
+   '<section class="card"><h2>Techniques</h2><ul class="tips">'+L.tips.map(function(t){return "<li>"+t+"</li>";}).join("")+'</ul></section>'+
+   '<section class="card s-'+s+'"><h2>Worked example</h2><div class="exq">'+esc(L.q)+'</div><ol class="steps">'+L.steps.slice(0,lstep).map(function(t){return "<li><span>"+esc(t)+"</span></li>";}).join("")+'</ol>'+
+   (lstep<L.steps.length?'<button class="btn" data-act="lnext">'+(lstep?"Next step":"Show the first step")+'</button>':'<p class="small muted">Now try some yourself.</p>')+'</section>'+
+   '<div class="btnrow"><button class="btn primary" data-act="prac" data-s="'+s+'">Practise 10 questions</button><button class="btn" data-act="timed" data-s="'+s+'">Timed test</button></div>';
+  return h;}
+
+/* ---------- quiz ---------- */
+var MODES={prac:{n:"Practice",fb:true},timed:{n:"Timed test",fb:false},warm:{n:"Warm-up",fb:true},mock:{n:"Mock test",fb:false}};
+function start(mode,sec){var items;
+  if(mode==="prac")items=build(sec,10);
+  else if(mode==="timed")items=build(sec,10);
+  else if(mode==="warm")items=shuf(ORDER.map(function(s){return GEN[s]();}));
+  else{items=[];ORDER.forEach(function(s){items=items.concat(build(s,4));});shuf(items);}
+  var lim=mode==="timed"?10*SECS[sec].spq*1000:mode==="mock"?18*60000:0;
+  Q={mode:mode,sec:sec||"mix",items:items,i:0,picks:[],shown:false,start:Date.now(),limit:lim,endAt:lim?Date.now()+lim:0,xp:0};quitArmed=false;go("quiz");}
+function quizHTML(){var q=Q.items[Q.i],m=MODES[Q.mode],sec=SECS[q.sec];
+  var h='<div class="qtop"><button class="back" data-act="quit" id="quitBtn">'+(quitArmed?"Tap again to quit":"Quit")+'</button><div class="pbar" aria-hidden="true"><i style="width:'+Math.round(Q.i/Q.items.length*100)+'%"></i></div><span class="clock" id="qclock">'+(Q.limit?"":(Q.i+1)+"/"+Q.items.length)+'</span></div>'+
+   '<section class="card s-'+q.sec+'"><div class="qmeta"><span class="chip">'+sec.n+'</span><span>'+m.n+' · Question '+(Q.i+1)+' of '+Q.items.length+'</span></div><div class="qbody">'+q.html+'</div>'+
+   '<div class="opts'+(q.vis?" vis":"")+'" role="group" aria-label="Answer options">'+q.opts.map(function(o,k){var cls="opt";
+     if(Q.shown){if(k===q.ans)cls+=" right";else if(k===Q.picks[Q.i])cls+=" wrong";}
+     return '<button class="'+cls+'" data-act="pick" data-k="'+k+'"'+(Q.shown?" disabled":"")+'>'+(q.vis?"":'<span class="k">'+LET[k]+'</span>')+'<span>'+o+'</span></button>';}).join("")+'</div>';
+  if(Q.shown){var ok=Q.picks[Q.i]===q.ans;
+    h+='<div class="fb '+(ok?"ok":"no")+'"><h3>'+(ok?"Correct. +5 XP":"Not quite")+'</h3><div class="expl">'+q.exp+'</div><div id="xbox"></div><div class="btnrow"><button class="btn primary" data-act="next">'+(Q.i+1<Q.items.length?"Next question":"See results")+'</button><button class="btn" data-act="explain" data-i="'+Q.i+'">Explain more</button></div></div>';}
+  return h+'</section>';}
+function pick(k){var q=Q.items[Q.i];if(Q.shown)return;Q.picks[Q.i]=k;var ok=k===q.ans,st=S.sec[q.sec];
+  if(MODES[Q.mode].fb){st.n++;if(ok){st.c++;Q.xp+=5;addXP(5);}save();Q.shown=true;render();}
+  else{var b=document.querySelector('[data-act="pick"][data-k="'+k+'"]');if(b)b.classList.add("sel");setTimeout(function(){next();},180);}}
+function next(){Q.shown=false;quitArmed=false;if(Q.i+1>=Q.items.length){finish(false);return;}Q.i++;render();window.scrollTo(0,0);}
+function finish(timeUp){if(!Q||Q.done)return;Q.done=true;Q.ms=Date.now()-Q.start;var right=0,bySec={};
+  Q.items.forEach(function(q,i){var ok=Q.picks[i]===q.ans;if(ok)right++;bySec[q.sec]=bySec[q.sec]||{n:0,c:0};bySec[q.sec].n++;if(ok)bySec[q.sec].c++;
+    if(!MODES[Q.mode].fb&&Q.picks[i]!=null){S.sec[q.sec].n++;if(ok)S.sec[q.sec].c++;}});
+  Q.right=right;Q.bySec=bySec;Q.timeUp=timeUp;var bonus=0;
+  if(!MODES[Q.mode].fb){Q.xp+=right*5;addXP(right*5);}
+  if(Q.mode==="timed"){bonus=20;if(S.sec[Q.sec].best==null||right>S.sec[Q.sec].best){if(S.sec[Q.sec].best!=null)toast("New best: "+right+"/10");S.sec[Q.sec].best=right;}}
+  if(Q.mode==="mock"){bonus=50;if(S.mockBest==null||right>S.mockBest){if(S.mockBest!=null)toast("New mock best: "+right+"/20");S.mockBest=right;}}
+  if(Q.mode==="warm"&&S.warm!==today()){bonus=15;S.warm=today();}
+  if(Q.mode==="prac")bonus=10;
+  Q.xp+=bonus;addXP(bonus);S.hist.push({at:Date.now(),m:Q.mode,s:Q.sec,r:right,t:Q.items.length});if(S.hist.length>40)S.hist=S.hist.slice(-40);save();go("results");}
+function resultsHTML(){var n=Q.items.length,pc=Math.round(Q.right/n*100),m=MODES[Q.mode];
+  var msg=pc>=80?"Excellent work. Keep it up to stay sharp.":pc>=60?"Good. Check the ones you missed below, then go again.":"Keep going. Read the explanations below, then try a practice set.";
+  var mins=Math.floor(Q.ms/60000),secs=Math.round((Q.ms%60000)/1000);
+  var h='<section class="card s-'+(Q.sec==="mix"?"mix":Q.sec)+'"><span class="chip">'+(Q.sec==="mix"?"Mixed":SECS[Q.sec].n)+' · '+m.n+'</span><div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap"><span class="score">'+Q.right+'/'+n+'</span><span class="mono muted">'+pc+'%</span></div>'+
+   '<p>'+(Q.timeUp?"Time ran out. ":"")+msg+'</p><p class="small muted">Time: '+mins+' min '+secs+' s · +'+Q.xp+' XP</p>';
+  if(Q.sec==="mix"&&Q.mode==="mock")h+='<div class="bars">'+ORDER.map(function(s){var b=Q.bySec[s]||{n:0,c:0};return '<div class="br s-'+s+'"><span>'+SECS[s].n+'</span><div class="bar"><i style="width:'+(b.n?Math.round(b.c/b.n*100):0)+'%"></i></div><span class="mono">'+b.c+'/'+b.n+'</span></div>';}).join("")+'</div>';
+  h+='<div class="btnrow"><button class="btn primary" data-act="again">Go again</button><button class="btn" data-act="home">Home</button></div></section><h2>Review your answers</h2>';
+  Q.items.forEach(function(q,i){var p=Q.picks[i],ok=p===q.ans;
+    h+='<details class="rv s-'+q.sec+'"><summary><span class="mk '+(ok?"ok":"no")+'">'+(ok?"✓":"✗")+'</span><span style="min-width:0"><span class="chip">'+SECS[q.sec].n+'</span> <span class="pv">'+esc(strip(q.html).slice(0,90)||"Picture sequence")+'</span></span></summary><div class="rb"><div class="qbody">'+q.html+'</div>'+
+     '<p><b>Your answer:</b> '+(p==null?"No answer":(q.vis?"Option "+LET[p]:q.opts[p]))+'<br><b>Correct:</b> '+(q.vis?"Option "+LET[q.ans]:q.opts[q.ans])+'</p>'+(q.vis?'<div class="opts vis">'+q.opts.map(function(o,k){return '<div class="opt'+(k===q.ans?" right":(k===p?" wrong":""))+'"><span class="k">'+LET[k]+'</span>'+o+'</div>';}).join("")+'</div>':'')+
+     '<div class="expl">'+q.exp+'</div><div id="xbox-'+i+'"></div><button class="btn sm" data-act="explain" data-i="'+i+'">Explain more</button></div></details>';});
+  return h;}
+function tickUI(){if(view!=="quiz"||!Q||!Q.limit)return;var left=Math.max(0,Q.endAt-Date.now()),el=$("qclock");
+  if(el){var t=Math.ceil(left/1000);el.textContent=Math.floor(t/60)+":"+String(t%60).padStart(2,"0");el.classList.toggle("low",left<60000);}
+  if(left<=0)finish(true);}
+setInterval(tickUI,250);
+
+/* ---------- explain more (uses the API key saved in Critical, or opens Claude) ---------- */
+var AKEY="critical_api_key",AMODEL="claude-haiku-5-5",ASYS='Tutor in "Aptitude Gym", a UK app where a secondary-school student practises aptitude test questions (numerical, verbal, logical, mechanical and checking) for engineering apprenticeships, aiming to become a nuclear reactor operator. British English. Explain the method simply and give a faster technique if there is one, under 120 words. Plain text with "- " bullets and **bold** only.';
+function akey(){try{return localStorage.getItem(AKEY)||"";}catch(e){return "";}}
+function inl(s){return esc(s).replace(/\*\*([^*]+)\*\*/g,"<b>$1</b>").replace(/`([^`]+)`/g,"<code>$1</code>");}
+function md(t){var out=[],list=null;t.split("\n").forEach(function(l){var m=l.match(/^\s*[-*] (.*)/);if(m){(list=list||[]).push("<li>"+inl(m[1])+"</li>");return;}if(list){out.push("<ul>"+list.join("")+"</ul>");list=null;}if(l.trim())out.push("<p>"+inl(l)+"</p>");});if(list)out.push("<ul>"+list.join("")+"</ul>");return out.join("");}
+function ctx(q,p){return "Question type: "+SECS[q.sec].n+" reasoning.\nQuestion: "+strip(q.html)+"\n"+(q.vis?"(Options are pictures.)":"Options: "+q.opts.map(function(o,k){return LET[k]+") "+strip(o);}).join("; "))+"\nCorrect answer: "+(q.vis?"option "+LET[q.ans]:strip(q.opts[q.ans]))+"\nMy answer: "+(p==null?"none":(q.vis?"option "+LET[p]:strip(q.opts[p])))+"\nExplanation shown: "+strip(q.exp);}
+function linkHTML(text,label){return '<a class="btn sm extlink" href="https://claude.ai/new?q='+encodeURIComponent(text)+'" target="_blank" rel="noopener">'+label+'</a>';}
+function trackUsage(i,o){try{var u=JSON.parse(localStorage.getItem("critical_api_usage")||"null")||{i:0,o:0};u.i=(u.i||0)+i;u.o=(u.o||0)+o;localStorage.setItem("critical_api_usage",JSON.stringify(u));}catch(e){}}
+function explain(i,btn){var q=Q.items[i],box=$("xbox-"+i)||$("xbox");if(!box)return;var c=ctx(q,Q.picks[i]);
+  var ask="I'm practising aptitude tests for an engineering apprenticeship. Please explain this question step by step, simply, and show me a quicker way if there is one.\n\n"+c;
+  if(btn)btn.remove();
+  if(!akey()){box.innerHTML='<div class="ans"><p>Open Claude to get a full explanation of this question.</p>'+linkHTML(ask,"Open in Claude ↗")+'</div>';return;}
+  box.innerHTML='<div class="ans"><p>Thinking…</p></div>';var a=box.firstChild,full="",ui=0,uo=0;
+  fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"content-type":"application/json","x-api-key":akey(),"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+    body:JSON.stringify({model:AMODEL,max_tokens:450,thinking:{type:"disabled"},output_config:{effort:"low"},system:ASYS,stream:true,messages:[{role:"user",content:c+"\n\nExplain how to get the right answer, and a quicker method if there is one."}]})})
+  .then(function(r){if(!r.ok)throw{st:r.status};var rd=r.body.getReader(),dec=new TextDecoder(),buf="";
+    function pump(){return rd.read().then(function(x){if(x.done)return;buf+=dec.decode(x.value,{stream:true});var parts=buf.split("\n");buf=parts.pop();
+      parts.forEach(function(line){if(line.indexOf("data:")!==0)return;var d;try{d=JSON.parse(line.slice(5));}catch(e){return;}
+        if(d.type==="message_start"&&d.message&&d.message.usage)ui=d.message.usage.input_tokens||0;
+        else if(d.type==="content_block_delta"&&d.delta&&d.delta.type==="text_delta"){full+=d.delta.text;a.innerHTML=md(full);}
+        else if(d.type==="message_delta"&&d.usage)uo=d.usage.output_tokens||uo;});return pump();});}
+    return pump();})
+  .then(function(){if(!full)a.innerHTML="<p>No answer came back. Try again.</p>";trackUsage(ui,uo);})
+  .catch(function(err){var s=err&&err.st;a.innerHTML="<p>"+(s===401?"That API key didn't work. Check it in Critical's Ask panel.":s===429?"Too many questions at once. Wait a minute, then try again.":"Couldn't reach Claude right now.")+"</p>"+linkHTML(ask,"Ask in Claude instead ↗");});}
+
+/* ---------- events ---------- */
+document.addEventListener("click",function(e){var a=e.target.closest("[data-act]");if(!a)return;var act=a.getAttribute("data-act"),s=a.getAttribute("data-s");
+  if(act==="home"){Q=null;go("home");}
+  else if(act==="learn"){lsec=s;lstep=0;go("learn");}
+  else if(act==="lnext"){lstep++;render();}
+  else if(act==="prac"||act==="timed")start(act,s);
+  else if(act==="warm")start("warm");
+  else if(act==="mock")start("mock");
+  else if(act==="pick")pick(+a.getAttribute("data-k"));
+  else if(act==="next")next();
+  else if(act==="again")start(Q.mode,Q.sec==="mix"?null:Q.sec);
+  else if(act==="explain")explain(+a.getAttribute("data-i"),a);
+  else if(act==="quit"){if(!quitArmed){quitArmed=true;a.textContent="Tap again to quit";return;}Q=null;quitArmed=false;go("home");}
+});
+document.addEventListener("keydown",function(e){if(view!=="quiz"||!Q||e.target.tagName==="INPUT"||e.target.tagName==="TEXTAREA")return;
+  var n=parseInt(e.key,10);if(n>=1&&n<=Q.items[Q.i].opts.length&&!Q.shown){pick(n-1);return;}
+  if(e.key==="Enter"&&Q.shown)next();});
+render();
+})();
+</script>
+
+<script>if("serviceWorker" in navigator&&location.protocol==="https:")navigator.serviceWorker.register("sw.js").catch(function(){});</script>
+</body>
+</html>
