@@ -1,0 +1,487 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#ffffff">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Critical">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Shift Ready</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: a one-column mobile app (same family as Critical). Header with XP and streak, a view area, and a bottom tab bar. */
+:root{
+  --bg:#F5F4EF; --card:#FFFFFF; --ink:#1D1B2E; --muted:#615E73; --line:#E4E2D9;
+  --brand:#4F46B8; --brand-soft:#E8E6FA; --on-brand:#FFFFFF;
+  --gold:#F2C46D; --gold-soft:#FBF0D6; --gold-ink:#7E5300; --on-gold:#3A2700;
+  --ok:#1F7A55; --ok-soft:#DCF1E6; --warn:#B4231A;
+  --code:#1C1A2B; --code-ink:#E8E6F5;
+  --ui:"Lexend",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#121120; --card:#1B1A2B; --ink:#ECEAF7; --muted:#A4A1B9; --line:#2E2C44;
+  --brand:#9D96F2; --brand-soft:#29264F; --on-brand:#15132B;
+  --gold:#F2C46D; --gold-soft:#3A2E14; --gold-ink:#F2C46D; --on-gold:#2B1D00;
+  --ok:#62D3A2; --ok-soft:#153226; --warn:#FF8A80;
+  --code:#0D0C17; --code-ink:#E2E0F2; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121120; --card:#1B1A2B; --ink:#ECEAF7; --muted:#A4A1B9; --line:#2E2C44;
+  --brand:#9D96F2; --brand-soft:#29264F; --on-brand:#15132B;
+  --gold:#F2C46D; --gold-soft:#3A2E14; --gold-ink:#F2C46D; --on-gold:#2B1D00;
+  --ok:#62D3A2; --ok-soft:#153226; --warn:#FF8A80;
+  --code:#0D0C17; --code-ink:#E2E0F2; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:400 16px/1.55 var(--ui);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:14px 104px}
+button{font:inherit;color:inherit}
+h1,h2,h3{margin:0;font-weight:600;text-wrap:balance;letter-spacing:-.01em}
+h1{font-size:26px;line-height:1.2} h2{font-size:19px} h3{font-size:15px}
+p{margin:0}
+.app{max-width:620px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:18px}
+.mark{width:34px;height:34px;border-radius:10px;background:var(--brand);display:grid;place-items:center}
+.mark svg{width:22px;height:22px}
+.pills{display:flex;gap:6px}
+.pill{display:flex;align-items:center;gap:5px;font:600 13px var(--mono);padding:5px 10px;border-radius:999px;background:var(--card);border:1px solid var(--line)}
+.pill .dot{width:8px;height:8px;border-radius:50%;background:var(--gold)}
+.pill.xp .dot{background:var(--brand)}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.hero{background:var(--brand);color:var(--on-brand);border:0}
+.hero .muted{color:var(--on-brand);opacity:1}
+.hero .sub{font-size:14px}
+.eyebrow{font:600 11px var(--mono);letter-spacing:.1em;text-transform:uppercase}
+.bar{height:8px;border-radius:4px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--gold);border-radius:4px;transition:width .4s}
+.hero .bar{background:rgba(255,255,255,.22)}
+.rankrow{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:13px}
+
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 12px}
+.stat b{display:block;font:600 22px var(--mono);font-variant-numeric:tabular-nums}
+.stat span{font-size:12px;color:var(--muted)}
+
+.chip{display:inline-flex;align-items:center;gap:5px;font:600 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:3px 9px;border-radius:999px;white-space:nowrap}
+.chip.py{background:var(--brand-soft);color:var(--brand)}
+.chip.cm{background:var(--gold-soft);color:var(--gold-ink)}
+.chip.ok{background:var(--ok-soft);color:var(--ok)}
+.next{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center}
+.next .t{font-weight:600;font-size:17px}
+.next .m{font-size:13px;color:var(--muted);display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:4px}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;font-weight:600;font-size:15px;border-radius:12px;padding:11px 18px;border:1px solid var(--line);background:var(--card);cursor:pointer;min-height:44px}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--brand);color:var(--on-brand);border-color:transparent}
+.btn.gold{background:var(--gold);color:var(--on-gold);border-color:transparent}
+.btn.block{width:100%}
+.btn.sm{padding:7px 12px;min-height:36px;font-size:13px}
+.link{background:none;border:0;padding:4px 0;color:var(--brand);font-weight:600;font-size:14px;cursor:pointer}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+
+.banner{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--gold-soft);color:var(--gold-ink);border-radius:14px;padding:10px 14px;font-weight:600;font-size:14px}
+
+.back{display:flex;align-items:center;gap:6px;background:none;border:0;padding:4px 0;color:var(--muted);font-weight:600;cursor:pointer;align-self:flex-start}
+.timer{display:flex;flex-direction:column;align-items:center;gap:14px;padding:6px 0}
+.ring{position:relative;width:200px;height:200px;max-width:100%}
+.ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring .tval{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ring .tval b{font:600 44px var(--mono);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.ring .tval span{font-size:12px;color:var(--muted)}
+.trow{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+
+.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;counter-reset:s}
+.steps li{display:grid;grid-template-columns:28px minmax(0,1fr);gap:10px;padding:10px 0;border-top:1px solid var(--line);counter-increment:s}
+.steps li:first-child{border-top:0}
+.steps input{position:absolute;opacity:0;pointer-events:none}
+.steps .num{width:26px;height:26px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font:600 12px var(--mono);cursor:pointer}
+.steps .num::after{content:counter(s)}
+.steps input:checked + .num{background:var(--ok);border-color:var(--ok);color:var(--card)}
+.steps input:checked + .num::after{content:"\2713"}
+.steps input:focus-visible + .num{outline:3px solid var(--gold);outline-offset:2px}
+.steps label.txt{cursor:pointer;min-width:0;overflow-wrap:anywhere}
+.steps input:checked ~ label.txt{color:var(--muted)}
+
+.code{position:relative}
+pre{margin:0;background:var(--code);color:var(--code-ink);border-radius:12px;padding:14px;font:500 13px/1.6 var(--mono);overflow-x:auto;white-space:pre}
+.copy{position:absolute;top:8px;right:8px;font:600 11px var(--mono);background:rgba(255,255,255,.08);color:var(--code-ink);border:1px solid rgba(255,255,255,.2);border-radius:8px;padding:4px 9px;cursor:pointer}
+.chal{display:flex;gap:10px;align-items:flex-start;background:var(--gold-soft);border-radius:14px;padding:12px 14px}
+.chal input{width:20px;height:20px;margin:2px 0 0;accent-color:var(--brand);flex:none}
+.chal label{cursor:pointer;font-size:15px}
+.chal b{color:var(--gold-ink)}
+textarea,input[type=text]{width:100%;font:400 16px var(--ui);color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:11px 12px}
+textarea{min-height:84px;resize:vertical}
+.lbl{font-size:13px;font-weight:600;color:var(--muted)}
+.err{font-size:13px;color:var(--warn);min-height:1em}
+
+.drill{display:flex;flex-direction:column;gap:10px}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button{font-size:13px;font-weight:600;padding:6px 12px;border-radius:999px;border:1px solid var(--line);background:var(--card);cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--brand);color:var(--on-brand);border-color:transparent}
+.callsign{font:600 clamp(44px,13vw,64px)/1 var(--mono);letter-spacing:.14em;color:var(--brand);text-align:center;padding:8px 0}
+.drill-in{display:flex;gap:8px}
+.drill-in input{flex:1;min-width:0}
+.fb{font-size:14px;min-height:1.5em;font-weight:500}
+.fb.ok{color:var(--ok)} .fb.no{color:var(--warn)}
+.drill-foot{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;font-size:13px}
+.alpha{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:4px 10px;font:500 13px var(--mono);background:var(--bg);border-radius:12px;padding:10px 12px}
+.alpha b{color:var(--brand);display:inline-block;width:1.4em}
+
+.week h2{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.week h2 .mono{font-size:13px;color:var(--muted);font-weight:500}
+.days{display:flex;flex-direction:column}
+.day{display:grid;grid-template-columns:40px minmax(0,1fr);gap:10px;padding:8px 0;border-top:1px solid var(--line);align-items:start}
+.day .dl{font:600 12px var(--mono);color:var(--muted);padding-top:9px;text-transform:uppercase}
+.day .ss{display:flex;flex-direction:column;gap:6px;min-width:0}
+.sbtn{display:grid;grid-template-columns:10px minmax(0,1fr) auto;gap:10px;align-items:center;text-align:left;background:var(--bg);border:1px solid transparent;border-radius:10px;padding:8px 10px;cursor:pointer;width:100%}
+.sbtn:hover{border-color:var(--line)}
+.sbtn .k{width:10px;height:10px;border-radius:50%;background:var(--brand)}
+.sbtn.cm .k{background:var(--gold)}
+.sbtn .st{font:500 12px var(--mono);color:var(--muted)}
+.sbtn.done{opacity:1}
+.sbtn.done .tt{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--line)}
+.sbtn.done .st{color:var(--ok)}
+.sbtn.nx{border-color:var(--brand)}
+
+.logs{display:flex;flex-direction:column;gap:10px}
+.entry .when{font:500 12px var(--mono);color:var(--muted)}
+.entry p.txt{white-space:pre-wrap;overflow-wrap:anywhere}
+
+.badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+.badge{display:flex;flex-direction:column;gap:6px;align-items:flex-start;padding:12px;border-radius:14px;background:var(--bg)}
+.hex{width:44px;height:44px;clip-path:polygon(25% 4%,75% 4%,100% 50%,75% 96%,25% 96%,0 50%);background:var(--line);display:grid;place-items:center;font:600 13px var(--mono);color:var(--muted)}
+.badge.on .hex{background:var(--gold);color:var(--on-gold)}
+.badge b{font-size:14px;font-weight:600}
+.badge span{font-size:12px;color:var(--muted);line-height:1.4}
+.badge:not(.on) b{color:var(--muted)}
+
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--card);border-top:1px solid var(--line);display:flex;justify-content:center;
+  padding:6px max(8px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px))}
+.tabs .in{display:flex;width:100%;max-width:620px;justify-content:space-around}
+.tabs button{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:0;color:var(--muted);font-size:11px;font-weight:600;padding:6px 0;cursor:pointer;border-radius:10px}
+.tabs button svg{width:24px;height:24px}
+.tabs button[aria-current="page"]{color:var(--brand)}
+.toast{position:fixed;left:50%;bottom:calc(80px + env(safe-area-inset-bottom,0px));transform:translate(-50%,12px);opacity:0;pointer-events:none;background:var(--ink);color:var(--bg);font-weight:600;font-size:14px;padding:10px 16px;border-radius:12px;max-width:calc(100% - 32px);transition:opacity .2s,transform .2s;z-index:30;text-align:center}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.ic{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+.pill.menu{color:inherit;text-decoration:none;cursor:pointer}.pill.menu svg{width:15px;height:15px}
+</style>
+</head>
+<body>
+
+
+<div class="app">
+  <header class="top">
+    <div class="brand"><span class="mark" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="#fff" stroke-width="2"/><path d="M12 6.5V12l3.5 2.2" fill="none" stroke="#F2C46D" stroke-width="2.2" stroke-linecap="round"/></svg></span>Shift Ready</div>
+    <div class="pills"><a class="pill menu" href="./" aria-label="Back to the app menu"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5"/></svg>Menu</a><span class="pill" id="p-streak"><span class="dot"></span>0 days</span><span class="pill xp" id="p-xp"><span class="dot"></span>0 XP</span></div>
+  </header>
+  <main id="view" class="app" style="gap:16px"></main>
+</div>
+
+<nav class="tabs" aria-label="Main">
+  <div class="in">
+    <button data-tab="today"><svg class="ic" viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v9h-5v-6H9v6H4z"/></svg>Today</button>
+    <button data-tab="plan"><svg class="ic" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>Plan</button>
+    <button data-tab="drill"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="2"/><path d="M8.2 8.2a5.4 5.4 0 0 0 0 7.6M15.8 8.2a5.4 5.4 0 0 1 0 7.6M5.3 5.3a9.5 9.5 0 0 0 0 13.4M18.7 5.3a9.5 9.5 0 0 1 0 13.4"/></svg>Drill</button>
+    <button data-tab="log"><svg class="ic" viewBox="0 0 24 24"><path d="M6 4h11a2 2 0 0 1 2 2v14H8a2 2 0 0 1-2-2z"/><path d="M6 18a2 2 0 0 1 2-2h11M10 8h5M10 11h5"/></svg>Logbook</button>
+    <button data-tab="me"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>Me</button>
+  </div>
+</nav>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+var PY={
+1:[
+{d:"Mon",t:"Install Thonny",steps:["Go to thonny.org and download the Windows installer. Check with a parent first if your laptop needs permission to install things.","Install it with the default options, then open Thonny.","In the Shell box at the bottom, type print(\"Hello, control room\") and press Enter.","Use the Shell as a calculator: try 12 * 60, then 2 ** 10, then 1630 * 2."],ch:"Print your name five times on one line using print(\"Name \" * 5)."},
+{d:"Wed",t:"Variables and input",steps:["In Thonny, click New and paste the code below.","Save it as hello.py, then press the green Run button.","Answer the questions in the Shell and check the output.","Change the messages so they sound like a real control room welcome."],code:'name = input("What\'s your name? ")\nshift = input("Day or night shift? ")\nprint("Welcome to the control room,", name)\nprint("You are on", shift, "shift.")',ch:"Add a third question and print one sentence that uses all three answers."},
+{d:"Fri",t:"Maths with real numbers",steps:["Hinkley Point C is planned to have two reactors of about 1,630 MW each. Paste the code, save it as power.py and run it.","Change the number of units and watch the total change.","Add a line that works out how many minutes are in a 12-hour shift.","Read any error message out loud and fix it. That's normal coding."],code:'units = 2\nmw_per_unit = 1630\ntotal = units * mw_per_unit\nprint(f"{units} reactors x {mw_per_unit} MW = {total} MW")\nprint(f"That is {total / 1000} GW")',ch:"Work out how many minutes of sleep you get between 21:45 and 07:00."}
+],
+2:[
+{d:"Mon",t:"If statements: alarms",steps:["Paste the code, save it as alarm.py and run it three times.","Try 250, then 300, then 330. Check each message is right.","Notice the indentation: the 4 spaces tell Python which lines belong to each if.","Change the limits and predict the output before you run it."],code:'temp = int(input("Coolant temperature (C): "))\n\nif temp > 320:\n    print("ALARM: temperature HIGH")\nelif temp < 280:\n    print("Warning: temperature low")\nelse:\n    print("Normal")',ch:"Add a CRITICAL level for anything above 340."},
+{d:"Wed",t:"For loops",steps:["Paste the countdown code and run it.","Change it to count down from 20 instead of 10.","Write a second loop that prints the 7 times table up to 12 x 7.","Work out what each of the three numbers in range() does."],code:'for i in range(10, -1, -1):\n    print(i)\nprint("Reactor online")',ch:"Print only the even numbers from 0 to 20 with one loop."},
+{d:"Fri",t:"While loop monitor",steps:["Paste the code and run it.","Type a few temperatures, then type stop.","Find the line that ends the loop. That's break.","Add your LOW warning from Monday."],code:'while True:\n    entry = input("Temperature (or stop): ")\n    if entry == "stop":\n        break\n    temp = int(entry)\n    if temp > 320:\n        print("ALARM: HIGH")\n    else:\n        print("ok")\nprint("Monitoring ended")',ch:"Count how many alarms happened and print the total when you type stop."}
+],
+3:[
+{d:"Mon",t:"Lists of readings",steps:["Paste the code and run it.","Add a new reading with readings.append(325).","Print how many readings there are with len(readings).","Change the numbers and check the average makes sense."],code:'readings = [298, 301, 305, 299, 318, 322, 310]\n\nprint("Highest:", max(readings))\nprint("Lowest:", min(readings))\nprint("Average:", round(sum(readings) / len(readings), 1))',ch:"Print the readings in order using sorted(readings)."},
+{d:"Wed",t:"Functions",steps:["Paste the code and run it.","Read the def line: it creates a check you can reuse.","Call print(check(335)) on its own.","Change a limit in one place and watch every result update."],code:'readings = [298, 301, 305, 299, 318, 322, 310]\n\ndef check(temp):\n    if temp > 320:\n        return "HIGH"\n    elif temp < 280:\n        return "LOW"\n    return "normal"\n\nfor r in readings:\n    print(r, check(r))',ch:"Write a function that converts Celsius to Fahrenheit (C x 9 / 5 + 32)."},
+{d:"Fri",t:"Physics quiz game",steps:["Paste the starter quiz and run it.","Add three more questions from your GCSE physics topics.","Test it on someone at home.","Fix any answer that was marked wrong unfairly, like a capital letter."],code:'questions = [\n    ("What particle has no charge?", "neutron"),\n    ("What is the unit of power?", "watt"),\n    ("What splits in nuclear fission?", "nucleus"),\n]\nscore = 0\nfor q, a in questions:\n    answer = input(q + " ").strip().lower()\n    if answer == a:\n        print("Correct")\n        score += 1\n    else:\n        print("The answer was", a)\nprint(f"You scored {score}/{len(questions)}")',ch:"Show the score as a percentage at the end."}
+],
+4:[
+{d:"Mon",t:"Reactor simulator",steps:["Paste the code, save it as monitor.py and run it.","Watch the temperature drift each minute.","Change time.sleep(0.5) to 0.2 to speed it up.","Change randint(-4, 6) and see how the reactor behaves."],code:'import random, time\n\ntemp = 300\nfor minute in range(1, 21):\n    temp += random.randint(-4, 6)\n    if temp > 320:\n        status = "HIGH ALARM"\n    elif temp < 280:\n        status = "LOW"\n    else:\n        status = "normal"\n    print(f"Min {minute:02}: {temp} C  {status}")\n    time.sleep(0.5)',ch:"Make the starting temperature random between 290 and 310."},
+{d:"Wed",t:"Add an operator action",steps:["Open monitor.py from Monday.","Paste the code below inside the loop, just after the temp += line.","Run it and respond to every alarm.","Try to stay out of the HIGH band for all 20 minutes."],code:'    if temp > 320:\n        choice = input("HIGH ALARM. Insert control rods? (y/n) ")\n        if choice == "y":\n            temp -= 15\n            print("Rods in. Temperature falling.")',ch:"Add a LOW alarm that asks whether to withdraw rods and raises the temperature by 10."},
+{d:"Fri",t:"Shift report",steps:["Before the loop, make an empty list: log = []","Inside the loop, add log.append(temp) each minute.","After the loop, paste the report code below.","Run a full shift and read your report."],code:'print("--- Shift report ---")\nprint("Highest:", max(log))\nprint("Lowest:", min(log))\nalarms = 0\nfor t in log:\n    if t > 320:\n        alarms += 1\nprint("Minutes in HIGH alarm:", alarms)',ch:"Save the report to report.txt using with open(\"report.txt\", \"w\") as f: and f.write(...)."}
+]};
+var CM={
+1:[
+{d:"Mon",t:"Learn A to M",warm:"am",steps:["Read the A to M list out loud twice.","Cover it and say each letter's word from memory.","Spell your first name out loud in phonetics."],log:"Which letters kept tripping you up?"},
+{d:"Tue",t:"Learn N to Z",warm:"nz",steps:["Read the N to Z list out loud twice.","Cover it and test yourself.","Spell your surname and your street name out loud."],log:"Which letters are still slow?"},
+{d:"Wed",t:"The repeat-back rule",warm:"all",steps:["Operators use three-way communication: one person gives the instruction, the other repeats it back, then the first says \"correct\".","Tonight, repeat back every request someone at home gives you before you do it: \"Bins out before 8. Got it.\"","Notice whether repeating it back caught any mix-up."],log:"Did repeating back catch anything?"},
+{d:"Thu",t:"Spell it under pressure",warm:"all",steps:["Spell your postcode, a friend's name and your Gorilla Tag username in phonetics.","Do it again faster, with no pauses.","Get someone to call out random words for you to spell."],log:"How fast can you spell without stopping?"},
+{d:"Fri",t:"Phonetic speed run",warm:"all",steps:["Use the warm-up drill for the whole session.","Aim for 10 correct in a row.","If you break the run, start again calmly. Staying calm is the skill."],log:"What was your best run?"}
+],
+2:[
+{d:"Mon",t:"60-second explainer",warm:"all",steps:["Pick a science topic from this week's lessons.","Write three bullet points: what it is, how it works, why it matters.","Explain it out loud with a 60-second timer on your phone. Stop when it beeps."],log:"Which topic did you pick, and did you finish in time?"},
+{d:"Tue",t:"Record and replay",warm:"all",steps:["Record your explainer as a voice note.","Play it back and count the ums.","Pick one thing to improve: slower, clearer, or better structured."],log:"What will you change in the re-record?"},
+{d:"Wed",t:"One clear question",warm:"all",steps:["Look at tomorrow's lessons and find something you're unsure about.","Write one short, specific question, like \"Why does current stay the same in a series circuit?\"","Say it out loud a few times so you ask it confidently tomorrow."],log:"Write the question you'll ask."},
+{d:"Thu",t:"Re-record",warm:"all",steps:["Record the same explainer again, using your improvement note.","Play both recordings back to back.","Notice what got better."],log:"What got better between the two recordings?"},
+{d:"Fri",t:"Explain your code",warm:"all",steps:["Explain your alarm program to someone at home.","Rule: no code words like \"if\", \"loop\" or \"variable\".","Ask them to explain it back. If they can, you nailed it."],log:"Could they explain it back?"}
+],
+3:[
+{d:"Mon",t:"Teach it",warm:"all",steps:["Teach a family member one physics idea in 5 minutes.","Use an everyday example to explain it.","Check they understood by asking them a question at the end."],log:"What example did you use?"},
+{d:"Tue",t:"Instructions test",warm:"all",steps:["Write 5 numbered steps for making toast.","Someone follows them exactly, word for word, without guessing.","Rewrite any step that went wrong. Procedures have to work for anyone."],log:"Which step failed, and how did you fix it?"},
+{d:"Wed",t:"Active listening",warm:"all",steps:["Have a 5-minute conversation without interrupting once.","Before each reply, sum up what they said in one sentence.","Notice how the other person reacts."],log:"Was it harder than you expected?"},
+{d:"Thu",t:"Phonetic numbers",warm:"num",steps:["Numbers have radio words too: Zero, One, Two, and Niner for 9 so it isn't confused with five on a noisy radio.","Read a phone number out loud the operator way.","Read five numbers from your maths homework the same way."],log:"Which numbers felt odd to say?"},
+{d:"Fri",t:"Quiz host",warm:"all",steps:["Run your Python quiz out loud for someone.","Read each question clearly, then pause.","Repeat back each answer before you mark it."],log:"How did your quiz go?"}
+],
+4:[
+{d:"Mon",t:"Write a procedure",warm:"all",steps:["Write 5 numbered steps for \"What to do when HIGH ALARM shows\" in your simulator.","Start each step with a verb: Check, Insert, Confirm, Record.","Read it back. Could someone who's never seen your code follow it?"],log:"Write your procedure here."},
+{d:"Tue",t:"Shift handover",warm:"all",steps:["Give someone a 30-second handover about your day.","Cover three things: what happened, anything still open, what to watch.","Ask them to repeat back the key point."],log:"What was your handover?"},
+{d:"Wed",t:"Run a drill",warm:"all",steps:["Run your simulator with someone else reading out the readings.","Give orders with repeat-back: \"Insert control rods.\" \"Inserting control rods.\" \"Correct.\"","Swap roles once."],log:"How did the drill go?"},
+{d:"Thu",t:"Plan your demo",warm:"all",steps:["Plan a 2-minute demo of your reactor monitor.","Three parts: what it does, how it works, what you'd add next.","Run through it once against a timer."],log:"What would you add next to the program?"},
+{d:"Fri",t:"Present it",warm:"all",steps:["Present your reactor monitor to someone for 2 minutes.","Take one question at the end and answer it clearly.","Keep this project in mind. It's a great example for a work experience interview."],log:"What question did they ask?"}
+]};
+var WEEK_T=["","Set up and say hello","Decisions and alarms","Lists and functions","Build a reactor monitor"];
+var DAYS=["Mon","Tue","Wed","Thu","Fri"];
+var SESS=[],BY={};
+for(var w=1;w<=4;w++){var p=0;for(var k=0;k<5;k++){var d=DAYS[k];
+  if(d==="Mon"||d==="Wed"||d==="Fri"){var a=PY[w][p];var s={id:"py-"+w+"-"+p,kind:"py",w:w,mins:25};for(var x in a)s[x]=a[x];SESS.push(s);p++;}
+  var b=CM[w][k];var c={id:"cm-"+w+"-"+k,kind:"cm",w:w,mins:15};for(var y in b)c[y]=b[y];SESS.push(c);}}
+SESS.forEach(function(s){BY[s.id]=s;});
+
+var RANKS=[["Trainee",0],["Junior operator",200],["Operator",500],["Senior operator",900],["Shift supervisor",1400]];
+var BADGES=[
+{id:"first-py",g:"Py",n:"Hello, world",d:"Finish your first Python session"},
+{id:"first-cm",g:"Cm",n:"Comms check",d:"Finish your first comms session"},
+{id:"w1",g:"W1",n:"Week 1 cleared",d:"Every session in week 1"},
+{id:"w2",g:"W2",n:"Week 2 cleared",d:"Every session in week 2"},
+{id:"w3",g:"W3",n:"Week 3 cleared",d:"Every session in week 3"},
+{id:"w4",g:"W4",n:"Week 4 cleared",d:"Every session in week 4"},
+{id:"drill10",g:"10",n:"Clear transmission",d:"10 phonetic codes right in a row"},
+{id:"full10",g:"25",n:"Full shift",d:"Run the timer to zero in 10 sessions"},
+{id:"streak5",g:"5d",n:"Five-day streak",d:"Train 5 school days in a row"},
+{id:"monitor",g:"RM",n:"Reactor monitor",d:"Build the week 4 shift report"},
+{id:"logger",g:"Lg",n:"Logbook keeper",d:"Write 5 log entries"},
+{id:"grad",g:"SR",n:"Shift ready",d:"Finish all 32 sessions"}
+];
+var NATO={A:"Alfa",B:"Bravo",C:"Charlie",D:"Delta",E:"Echo",F:"Foxtrot",G:"Golf",H:"Hotel",I:"India",J:"Juliett",K:"Kilo",L:"Lima",M:"Mike",N:"November",O:"Oscar",P:"Papa",Q:"Quebec",R:"Romeo",S:"Sierra",T:"Tango",U:"Uniform",V:"Victor",W:"Whiskey",X:"X-ray",Y:"Yankee",Z:"Zulu","0":"Zero","1":"One","2":"Two","3":"Three","4":"Four","5":"Five","6":"Six","7":"Seven","8":"Eight","9":"Niner"};
+var ALT={alpha:"alfa",juliet:"juliett",whisky:"whiskey",xray:"x-ray",x:"x-ray",nine:"niner"};
+
+var KEY="shift-ready-v1";
+function blank(){return{done:{},full:{},ch:{},steps:{},drafts:{},xp:0,streak:0,lastDay:null,drill:{total:0,run:0,best:0},logs:[],badges:{},timer:null};}
+var S=blank();
+try{var raw=localStorage.getItem(KEY);if(raw){var o=JSON.parse(raw);for(var kk in o)S[kk]=o[kk];}}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+
+function esc(t){return String(t).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
+function $(id){return document.getElementById(id);}
+function ds(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
+function prevActive(){var d=new Date();d.setDate(d.getDate()-1);while(d.getDay()===0||d.getDay()===6)d.setDate(d.getDate()-1);return ds(d);}
+function yest(){var d=new Date();d.setDate(d.getDate()-1);return ds(d);}
+function liveStreak(){if(!S.lastDay)return 0;if(S.lastDay===ds(new Date())||S.lastDay===prevActive()||S.lastDay===yest())return S.streak;return 0;}
+function bumpStreak(){var t=ds(new Date());if(S.lastDay===t)return;if(S.lastDay&&(S.lastDay===prevActive()||S.lastDay===yest()))S.streak++;else S.streak=1;S.lastDay=t;}
+function rank(xp){var i=0;while(i<RANKS.length-1&&xp>=RANKS[i+1][1])i++;return{name:RANKS[i][0],cur:RANKS[i][1],next:RANKS[i+1]?RANKS[i+1]:null};}
+function doneCount(){var n=0;SESS.forEach(function(s){if(S.done[s.id])n++;});return n;}
+function weekDone(w){return SESS.filter(function(s){return s.w===w;}).every(function(s){return S.done[s.id];});}
+function nextOf(kind){for(var i=0;i<SESS.length;i++){var s=SESS[i];if(s.kind===kind&&!S.done[s.id])return s;}return null;}
+function fmt(ms){var t=Math.ceil(ms/1000);var m=Math.floor(t/60),s=t%60;return String(m).padStart(2,"0")+":"+String(s).padStart(2,"0");}
+
+var TESTS={
+"first-py":function(){return SESS.some(function(s){return s.kind==="py"&&S.done[s.id];});},
+"first-cm":function(){return SESS.some(function(s){return s.kind==="cm"&&S.done[s.id];});},
+w1:function(){return weekDone(1);},w2:function(){return weekDone(2);},w3:function(){return weekDone(3);},w4:function(){return weekDone(4);},
+drill10:function(){return S.drill.best>=10;},
+full10:function(){return Object.keys(S.full).filter(function(id){return S.done[id];}).length>=10;},
+streak5:function(){return S.streak>=5;},
+monitor:function(){return !!S.done["py-4-2"];},
+logger:function(){return S.logs.length>=5;},
+grad:function(){return doneCount()===SESS.length;}
+};
+function checkBadges(){BADGES.forEach(function(b){if(!S.badges[b.id]&&TESTS[b.id]()){S.badges[b.id]=Date.now();toast("Badge unlocked: "+b.n);}});}
+
+var tq=[],tshow=false;
+function toast(m){tq.push(m);if(!tshow)nextToast();}
+function nextToast(){var m=tq.shift();var el=$("toast");if(!m){tshow=false;el.classList.remove("show");return;}tshow=true;el.textContent=m;el.classList.add("show");setTimeout(function(){el.classList.remove("show");setTimeout(nextToast,220);},2400);}
+
+var view="today",cur=null,prevView="today",pendingImport=false,pendingReset=false;
+var VIEWS=["today","plan","drill","log","me"];
+function fromHash(){var h=location.hash.replace("#","");return VIEWS.indexOf(h)>-1?h:"today";}
+
+function header(){$("p-streak").innerHTML='<span class="dot"></span>'+liveStreak()+(liveStreak()===1?" day":" days");$("p-xp").innerHTML='<span class="dot"></span>'+S.xp+" XP";}
+function render(){
+  document.querySelectorAll(".tabs button").forEach(function(b){if(b.getAttribute("data-tab")===view&&!cur)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current");});
+  header();
+  var v=$("view");
+  if(cur){v.innerHTML=sessionHTML(BY[cur]);afterSession(BY[cur]);return;}
+  if(view==="today")v.innerHTML=todayHTML();
+  else if(view==="plan")v.innerHTML=planHTML();
+  else if(view==="drill"){v.innerHTML='<h1>Phonetic drill</h1><p class="muted">Operators read codes like "Charlie Victor Two" so nothing is misheard over noise. Each right answer is worth 2 XP.</p><section class="card">'+drillHTML(true)+'</section>';mountDrill(D.mode||"all");}
+  else if(view==="log")v.innerHTML=logHTML();
+  else if(view==="me")v.innerHTML=meHTML();
+  updTimer();
+}
+
+function nightInfo(){var wd=new Date().getDay();
+  if(wd===1||wd===3||wd===5)return["Python and comms night","40 minutes tonight: 25 of Python, then 15 of comms."];
+  if(wd===2||wd===4)return["Comms night","15 minutes tonight. Keep the streak going."];
+  return["Rest day","Take the night off, or catch up on anything you missed."];}
+function rankBlock(onHero){var r=rank(S.xp);var pct=r.next?Math.round((S.xp-r.cur)/(r.next[1]-r.cur)*100):100;
+  return '<div class="rankrow"><span><b>'+r.name+'</b></span><span class="mono">'+(r.next?S.xp+" / "+r.next[1]+" XP to "+r.next[0]:S.xp+" XP · top rank")+'</span></div><div class="bar"><i style="width:'+pct+'%"></i></div>';}
+function nextCard(s,label){
+  if(!s)return '<section class="card"><span class="chip ok">'+label+' complete</span><p>Every '+label.toLowerCase()+' session is done. Brilliant work.</p></section>';
+  return '<section class="card next"><div style="min-width:0"><div class="m"><span class="chip '+s.kind+'">'+(s.kind==="py"?"Python":"Comms")+'</span><span>Week '+s.w+' · '+s.d+' · '+s.mins+' min</span></div><p class="t" style="margin-top:6px">'+esc(s.t)+'</p></div><button class="btn primary" data-act="open" data-id="'+s.id+'">Start</button></section>';}
+function timerBanner(){if(!S.timer||!S.timer.endAt||!BY[S.timer.id])return "";
+  return '<div class="banner"><span>Timer running: '+esc(BY[S.timer.id].t)+' <span class="mono" data-tleft>'+fmt(S.timer.endAt-Date.now())+'</span></span><button class="btn sm" data-act="open" data-id="'+S.timer.id+'">Open</button></div>';}
+function todayHTML(){var n=nightInfo();var dc=doneCount();var mins=0;SESS.forEach(function(s){if(S.done[s.id])mins+=s.mins;});
+  return timerBanner()+
+  '<section class="card hero"><span class="eyebrow">'+new Date().toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"})+'</span><h1>'+n[0]+'</h1><p class="sub">'+n[1]+'</p>'+rankBlock(true)+'</section>'+
+  '<div class="stats"><div class="stat"><b>'+liveStreak()+'</b><span>Day streak</span></div><div class="stat"><b>'+dc+'/32</b><span>Sessions</span></div><div class="stat"><b>'+mins+'</b><span>Minutes trained</span></div></div>'+
+  '<h2>Next up</h2>'+nextCard(nextOf("py"),"Python")+nextCard(nextOf("cm"),"Comms")+
+  '<p class="small muted">Each week: three 25-minute Python sessions and five 15-minute comms sessions, 75 minutes of each. Weekends are free.</p>';}
+
+function planHTML(){var nxp=nextOf("py"),ncm=nextOf("cm");var h='<h1>Your 4 weeks</h1><p class="muted">Tap any session to open it. You can go in any order, but the plan builds up week by week.</p>';
+  for(var w=1;w<=4;w++){var ws=SESS.filter(function(s){return s.w===w;});var d=ws.filter(function(s){return S.done[s.id];}).length;
+    h+='<section class="card week"><h2><span>Week '+w+': '+WEEK_T[w]+'</span><span class="mono">'+d+'/'+ws.length+'</span></h2><div class="days">';
+    DAYS.forEach(function(dy){h+='<div class="day"><span class="dl">'+dy+'</span><div class="ss">';
+      ws.filter(function(s){return s.d===dy;}).forEach(function(s){var dn=!!S.done[s.id];var nx=(nxp&&s.id===nxp.id)||(ncm&&s.id===ncm.id);
+        h+='<button class="sbtn '+s.kind+(dn?" done":"")+(nx&&!dn?" nx":"")+'" data-act="open" data-id="'+s.id+'"><span class="k"></span><span class="tt">'+esc(s.t)+'</span><span class="st">'+(dn?"Done":s.mins+" min")+'</span></button>';});
+      h+='</div></div>';});
+    h+='</div></section>';}
+  return h;}
+
+function logHTML(){var h='<h1>Logbook</h1><p class="muted">Operators log every shift. Add a short entry when you finish a session and it lands here.</p>';
+  if(!S.logs.length)return h+'<section class="card"><h2>No entries yet</h2><p class="muted">Finish a session and write a line in its log box. Your first entry will show up here.</p><button class="btn primary" data-tab-go="today">Go to today</button></section>';
+  h+='<div class="logs">';S.logs.slice().reverse().forEach(function(e){var s=BY[e.id];h+='<section class="card entry"><div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><span class="chip '+(s?s.kind:"py")+'">'+(s?(s.kind==="py"?"Python":"Comms"):"Session")+'</span><span class="when">'+new Date(e.at).toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short"})+'</span></div><h3>'+(s?esc(s.t)+' <span class="muted small">Week '+s.w+' · '+s.d+'</span>':"")+'</h3><p class="txt">'+esc(e.text)+'</p></section>';});
+  return h+'</div>';}
+
+function meHTML(){var dc=doneCount();var mins=0,fulls=0;SESS.forEach(function(s){if(S.done[s.id]){mins+=s.mins;if(S.full[s.id])fulls++;}});
+  var h='<h1>Your progress</h1><section class="card">'+rankBlock(false)+'</section>'+
+  '<div class="stats"><div class="stat"><b>'+dc+'</b><span>Sessions done</span></div><div class="stat"><b>'+fulls+'</b><span>Full timers</span></div><div class="stat"><b>'+S.drill.best+'</b><span>Best drill run</span></div></div>'+
+  '<section class="card"><h2>Badges</h2><div class="badges">';
+  BADGES.forEach(function(b){var on=!!S.badges[b.id];h+='<div class="badge'+(on?" on":"")+'"><span class="hex">'+b.g+'</span><b>'+b.n+'</b><span>'+b.d+'</span></div>';});
+  h+='</div></section>'+
+  '<section class="card"><h2>How XP works</h2><p class="small muted">Python session 50 XP, comms session 30 XP. +10 XP if you let the timer run to zero, +20 XP for a Python bonus challenge, +2 XP per drill answer.</p></section>'+
+  '<section class="card"><h2>Move your progress</h2><p class="small muted">Progress saves on this device. To move it to another device, copy your save code here and paste it in there.</p>'+
+  '<button class="btn" data-act="exp">Copy save code</button><textarea id="savebox" aria-label="Save code" placeholder="Paste a save code here"></textarea><p class="err" id="saveerr"></p><button class="btn" data-act="imp" id="impbtn">Load save code</button></section>'+
+  '<section class="card"><h2>Start over</h2><p class="small muted">Clears all sessions, XP, badges and logbook entries on this device.</p><button class="btn" data-act="reset" id="resetbtn">Reset progress</button></section>';
+  return h;}
+
+function sessionHTML(s){ensureTimer(s);var dn=S.done[s.id];var steps=S.steps[s.id]||[];
+  var h='<button class="back" data-act="back"><svg class="ic" viewBox="0 0 24 24" width="20" height="20"><path d="M15 5l-7 7 7 7"/></svg>Back</button>'+
+  '<div><div class="m" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:13px;color:var(--muted)"><span class="chip '+s.kind+'">'+(s.kind==="py"?"Python":"Comms")+'</span><span>Week '+s.w+' · '+s.d+'</span>'+(dn?'<span class="chip ok">Done</span>':'')+'</div><h1 style="margin-top:8px">'+esc(s.t)+'</h1></div>'+
+  '<section class="card timer"><div class="ring"><svg viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="52" fill="none" stroke="var(--line)" stroke-width="8"/><circle id="tarc" cx="60" cy="60" r="52" fill="none" stroke="'+(s.kind==="py"?"var(--brand)":"var(--gold)")+'" stroke-width="8" stroke-linecap="round" stroke-dasharray="326.73" stroke-dashoffset="0"/></svg><div class="tval"><b id="tleft">'+s.mins+':00</b><span id="tsub">'+s.mins+'-minute session</span></div></div><div class="trow"><button class="btn primary" data-act="tgo" id="tbtn">Start</button><button class="btn" data-act="treset">Reset</button></div></section>';
+  if(s.kind==="cm")h+='<section class="card"><h2>Warm-up: 5 min drill</h2>'+drillHTML(false)+'</section>';
+  h+='<section class="card"><h2>'+(s.kind==="cm"?"Main task":"Steps")+'</h2><ol class="steps">';
+  s.steps.forEach(function(t,i){var id="st-"+s.id+"-"+i;h+='<li><input type="checkbox" id="'+id+'" data-step="'+i+'"'+(steps[i]?" checked":"")+'><label class="num" for="'+id+'" aria-hidden="true"></label><label class="txt" for="'+id+'">'+esc(t)+'</label></li>';});
+  h+='</ol>';
+  if(s.code)h+='<div class="code"><pre>'+esc(s.code)+'</pre><button class="copy" data-act="copy">Copy</button></div>';
+  h+='</section>';
+  if(s.ch)h+='<div class="chal"><input type="checkbox" id="ch-'+s.id+'"'+(S.ch[s.id]?" checked":"")+(dn?" disabled":"")+'><label for="ch-'+s.id+'"><b>Bonus challenge, +20 XP.</b> '+esc(s.ch)+'</label></div>';
+  if(dn){h+='<section class="card"><p><b>Session complete.</b> You earned '+dn.xp+' XP.</p><div class="trow" style="justify-content:flex-start"><button class="btn primary" data-act="back">Back</button><button class="btn" data-act="undo">Mark as not done</button></div></section>';}
+  else{h+='<section class="card"><label class="lbl" for="logtxt">Log entry (optional)</label><textarea id="logtxt" placeholder="'+esc(s.log||"What did you build? Anything that confused you?")+'">'+esc(S.drafts[s.id]||"")+'</textarea><button class="btn gold block" data-act="complete">Complete session</button><p class="small muted" id="xpprev"></p></section>';}
+  return h;}
+function xpPreview(s){var b=s.kind==="py"?50:30,f=S.full[s.id]?10:0,c=S.ch[s.id]?20:0;return{t:b+f+c,txt:b+" XP"+(f?" + 10 full timer":" (+10 if the timer reaches zero)")+(s.ch?(c?" + 20 challenge":""):"")};}
+function afterSession(s){if(s.kind==="cm"&&!S.done[s.id])mountDrill(s.warm);else if(s.kind==="cm")mountDrill(s.warm);var p=$("xpprev");if(p){var x=xpPreview(s);p.textContent="You'll earn "+x.t+" XP: "+x.txt+".";}updTimer();}
+
+/* timer */
+var actx=null,wl=null;
+function ensureTimer(s){if(!S.timer||S.timer.id!==s.id){if(S.timer&&S.timer.endAt&&BY[S.timer.id]&&S.timer.id!==s.id){/* another session's timer was running; it stops */}
+  S.timer={id:s.id,dur:s.mins*60000,left:s.mins*60000,endAt:null};save();}}
+function audio(){try{if(!actx){var A=window.AudioContext||window.webkitAudioContext;if(A)actx=new A();}if(actx&&actx.resume)actx.resume();}catch(e){}}
+function ding(){try{if(!actx)return;var t=actx.currentTime;[0,0.35,0.7].forEach(function(o,i){var g=actx.createGain(),os=actx.createOscillator();os.type="sine";os.frequency.value=i===2?988:784;g.gain.setValueAtTime(0.0001,t+o);g.gain.exponentialRampToValueAtTime(0.25,t+o+0.02);g.gain.exponentialRampToValueAtTime(0.0001,t+o+0.3);os.connect(g);g.connect(actx.destination);os.start(t+o);os.stop(t+o+0.32);});}catch(e){}
+  try{if(navigator.vibrate)navigator.vibrate([200,100,200]);}catch(e){}}
+function lock(){try{if(navigator.wakeLock)navigator.wakeLock.request("screen").then(function(l){wl=l;}).catch(function(){});}catch(e){}}
+function unlock(){try{if(wl){wl.release();wl=null;}}catch(e){}}
+function tick(){var T=S.timer;if(!T)return;if(T.endAt){T.left=Math.max(0,T.endAt-Date.now());if(T.left===0){T.endAt=null;S.full[T.id]=true;save();unlock();ding();toast("Time's up. Full-timer bonus unlocked.");if(cur===T.id){var p=$("xpprev");if(p){var x=xpPreview(BY[cur]);p.textContent="You'll earn "+x.t+" XP: "+x.txt+".";}}}}updTimer();}
+function updTimer(){var T=S.timer;document.querySelectorAll("[data-tleft]").forEach(function(el){if(T&&T.endAt)el.textContent=fmt(T.endAt-Date.now());});
+  if(!cur||!T||T.id!==cur)return;var el=$("tleft");if(!el)return;el.textContent=fmt(T.left);
+  var arc=$("tarc");if(arc)arc.setAttribute("stroke-dashoffset",String((326.73*(1-T.left/T.dur)).toFixed(2)));
+  var b=$("tbtn"),sub=$("tsub");if(b){b.textContent=T.endAt?"Pause":(T.left===0?"Finished":(T.left===T.dur?"Start":"Resume"));}
+  if(sub)sub.textContent=T.endAt?"Focus. Phone face down.":(T.left===0?"Full timer done":(T.left===T.dur?BY[cur].mins+"-minute session":"Paused"));}
+setInterval(tick,250);
+document.addEventListener("visibilitychange",function(){if(!document.hidden&&S.timer&&S.timer.endAt)lock();});
+
+/* drill */
+var D={mode:"all",code:"",shown:false};
+function gen(m){var A="ABCDEFGHIJKLM",Z="NOPQRSTUVWXYZ",N="0123456789";function r(s){return s.charAt(Math.floor(Math.random()*s.length));}
+  if(m==="am")return r(A)+r(A)+r(A);if(m==="nz")return r(Z)+r(Z)+r(Z);if(m==="num")return r(N)+r(N)+r(N)+r(N);return r(A+Z)+r(A+Z)+r(N);}
+function drillHTML(modes){var segs=[["all","Mixed"],["am","A to M"],["nz","N to Z"],["num","Numbers"]];
+  return '<div class="drill">'+(modes?'<div class="seg" role="group" aria-label="Drill type">'+segs.map(function(x){return '<button data-act="dmode" data-m="'+x[0]+'" aria-pressed="false">'+x[1]+'</button>';}).join("")+'</div>':'')+
+  '<div class="callsign" id="dr-code" aria-live="polite"></div><label class="lbl" for="dr-in">Type it in phonetics</label><div class="drill-in"><input type="text" id="dr-in" autocomplete="off" autocapitalize="words" spellcheck="false" placeholder="Kilo X-ray Seven"><button class="btn primary" data-act="dcheck">Check</button></div>'+
+  '<p class="fb" id="dr-fb"></p><div class="drill-foot"><span class="mono muted" id="dr-run"></span><span style="display:flex;gap:14px"><button class="link" data-act="dskip">Skip</button><button class="link" data-act="dalpha" id="dr-ab">Show alphabet</button></span></div><div class="alpha" id="dr-alpha" hidden></div></div>';}
+function mountDrill(m){D.mode=m;D.code=gen(m);var c=$("dr-code");if(!c)return;c.textContent=D.code;
+  document.querySelectorAll('[data-act="dmode"]').forEach(function(b){b.setAttribute("aria-pressed",b.getAttribute("data-m")===m?"true":"false");});
+  var keys=Object.keys(NATO).filter(function(k){if(m==="am")return k>="A"&&k<="M";if(m==="nz")return k>="N"&&k<="Z";if(m==="num")return /\d/.test(k);return true;});
+  $("dr-alpha").innerHTML=keys.map(function(k){return '<span><b>'+k+'</b>'+NATO[k]+'</span>';}).join("");runText();}
+function runText(){var r=$("dr-run");if(r)r.textContent="Run "+S.drill.run+" · Best "+S.drill.best+" · Total "+S.drill.total;}
+function norm(w){w=w.toLowerCase().replace(/[^a-z-]/g,"");if(w==="x-ray")return w;return ALT[w]||w;}
+function dcheck(){var inp=$("dr-in"),fb=$("dr-fb");var v=inp.value.trim();if(!v){fb.className="fb no";fb.textContent="Type the phonetic words first.";return;}
+  var words=v.split(/\s+/).map(norm).filter(Boolean);var want=D.code.split("").map(function(c){return NATO[c].toLowerCase();});
+  var ok=words.length===want.length&&want.every(function(w,i){return words[i]===w;});var say=D.code.split("").map(function(c){return NATO[c];}).join(" ");
+  if(ok){S.drill.total++;S.drill.run++;if(S.drill.run>S.drill.best)S.drill.best=S.drill.run;S.xp+=2;checkBadges();save();header();fb.className="fb ok";fb.textContent="Correct. "+say+". +2 XP";runText();
+    setTimeout(function(){if(!$("dr-code"))return;D.code=gen(D.mode);$("dr-code").textContent=D.code;inp.value="";fb.textContent="";inp.focus();},700);}
+  else{S.drill.run=0;save();fb.className="fb no";fb.textContent="Not quite. It's "+say+". Type it to carry on.";runText();}}
+
+/* actions */
+function openS(id){if(!cur)prevView=view;cur=id;render();window.scrollTo(0,0);}
+function complete(){var s=BY[cur];if(S.done[s.id])return;var x=xpPreview(s);var lt=$("logtxt");var txt=lt?lt.value.trim():"";
+  S.done[s.id]={at:Date.now(),xp:x.t};S.xp+=x.t;bumpStreak();if(txt)S.logs.push({id:s.id,at:Date.now(),text:txt});delete S.drafts[s.id];
+  if(S.timer&&S.timer.id===s.id){S.timer=null;unlock();}checkBadges();save();toast("+"+x.t+" XP. "+s.t+" complete.");render();window.scrollTo(0,0);}
+function undo(){var s=BY[cur];var dn=S.done[s.id];if(!dn)return;S.xp=Math.max(0,S.xp-dn.xp);delete S.done[s.id];save();render();}
+function copyText(t,btn,label,fallbackEl){function ok(){btn.textContent="Copied";setTimeout(function(){btn.textContent=label;},1500);}
+  function fb(){if(fallbackEl){fallbackEl.focus();fallbackEl.select&&fallbackEl.select();}btn.textContent="Selected. Copy it now";}
+  try{navigator.clipboard.writeText(t).then(ok,fb);}catch(e){fb();}}
+function saveCode(){var o={};for(var k in S)o[k]=S[k];o.timer=null;return "SR1."+btoa(unescape(encodeURIComponent(JSON.stringify(o))));}
+
+document.addEventListener("click",function(e){
+  var tab=e.target.closest("[data-tab]");if(tab){var t=tab.getAttribute("data-tab");cur=null;if(location.hash!=="#"+t)location.hash=t;else{view=t;render();}window.scrollTo(0,0);return;}
+  var tg=e.target.closest("[data-tab-go]");if(tg){location.hash=tg.getAttribute("data-tab-go");return;}
+  var a=e.target.closest("[data-act]");if(!a)return;var act=a.getAttribute("data-act");
+  if(act==="open")openS(a.getAttribute("data-id"));
+  else if(act==="back"){cur=null;view=prevView;render();window.scrollTo(0,0);}
+  else if(act==="tgo"){var T=S.timer;if(!T)return;if(T.endAt){T.left=Math.max(0,T.endAt-Date.now());T.endAt=null;unlock();}else if(T.left>0){audio();T.endAt=Date.now()+T.left;lock();}save();updTimer();}
+  else if(act==="treset"){var T2=S.timer;if(!T2)return;T2.endAt=null;T2.left=T2.dur;unlock();save();updTimer();}
+  else if(act==="complete")complete();
+  else if(act==="undo")undo();
+  else if(act==="copy"){copyText(BY[cur].code,a,"Copy",null);}
+  else if(act==="dcheck")dcheck();
+  else if(act==="dskip"){S.drill.run=0;save();runText();D.code=gen(D.mode);$("dr-code").textContent=D.code;$("dr-in").value="";$("dr-fb").textContent="";}
+  else if(act==="dalpha"){var al=$("dr-alpha");al.hidden=!al.hidden;a.textContent=al.hidden?"Show alphabet":"Hide alphabet";}
+  else if(act==="dmode"){mountDrill(a.getAttribute("data-m"));$("dr-in").value="";$("dr-fb").textContent="";}
+  else if(act==="exp"){var box=$("savebox");var code=saveCode();box.value=code;copyText(code,a,"Copy save code",box);}
+  else if(act==="imp"){var v=$("savebox").value.trim(),er=$("saveerr");er.textContent="";
+    if(!v){er.textContent="Paste a save code into the box first.";return;}
+    var obj=null;try{obj=JSON.parse(decodeURIComponent(escape(atob(v.replace(/^SR1\./,"")))));}catch(x){}
+    if(!obj||typeof obj.done!=="object"){er.textContent="That code doesn't look right. Copy the whole save code and try again.";return;}
+    if(!pendingImport){pendingImport=true;a.textContent="Tap again to replace your progress";return;}
+    pendingImport=false;S=blank();for(var k in obj)S[k]=obj[k];S.timer=null;save();toast("Save loaded");render();}
+  else if(act==="reset"){if(!pendingReset){pendingReset=true;a.textContent="Tap again to delete everything";return;}pendingReset=false;S=blank();save();toast("Progress reset");render();}
+});
+document.addEventListener("change",function(e){var t=e.target;if(!cur)return;
+  if(t.hasAttribute("data-step")){var arr=S.steps[cur]||[];arr[+t.getAttribute("data-step")]=t.checked;S.steps[cur]=arr;save();}
+  else if(t.id==="ch-"+cur){S.ch[cur]=t.checked;save();var p=$("xpprev");if(p){var x=xpPreview(BY[cur]);p.textContent="You'll earn "+x.t+" XP: "+x.txt+".";}}});
+document.addEventListener("input",function(e){if(e.target.id==="logtxt"&&cur){S.drafts[cur]=e.target.value;save();}
+  if(e.target.id==="dr-in"){var fb=$("dr-fb");if(fb&&fb.classList.contains("no")&&fb.textContent.indexOf("Type the")===0)fb.textContent="";}});
+document.addEventListener("keydown",function(e){if(e.key==="Enter"&&e.target.id==="dr-in"){e.preventDefault();dcheck();}});
+window.addEventListener("hashchange",function(){cur=null;view=fromHash();pendingImport=false;pendingReset=false;render();});
+
+view=fromHash();render();
+})();
+</script>
+
+<script>if("serviceWorker" in navigator&&location.protocol==="https:")navigator.serviceWorker.register("sw.js").catch(function(){});</script>
+</body>
+</html>
