@@ -2546,9 +2546,106 @@ var STUDY=(function(){
   var x=document.createElement('button');x.className='stx';x.type='button';x.setAttribute('aria-label','Dismiss');x.textContent='✕';x.onclick=function(){b.remove()};b.appendChild(g);b.appendChild(x);document.body.appendChild(b)}
  setInterval(check,60000);setTimeout(check,4000);
  writeFile(false);
- return {open:open,state:function(){return st},payload:payload,check:check};
+ return {open:open,state:function(){return st},payload:payload,check:check,start:function(t){if(st.run)return false;st.run={at:Date.now(),t:t||''};keep();startTick();writeFile(false);return true}};
 })();
 try{window.STUDY=STUDY}catch(_){}
+/* ===== weekly plan (calendar button next to the study timer) ===== */
+var PLAN=(function(){
+ var MG='https://www.mathsgenie.co.uk/',SEN='https://senecalearning.com/',COG='https://cognitoedu.org/',SR='shift-ready.html',AG='aptitude.html';
+ var DAYS=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'],AB=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+ /* [title, minutes, what to do, buttons [label, kind, target], shows the topic list] */
+ var D=[
+  [['GCSE maths',20,'One grade 8–9 topic on Maths Genie. Take it from the top of your list below. Mark it, then redo anything you got wrong.',[['Maths Genie','url',MG]],1],
+   ['Aptitude',10,'One practice set in Aptitude Gym.',[['Aptitude Gym','app',AG]]]],
+  [['Calculus',30,'Your next Calculus lesson and its drill. Only move on when the drill says Mastered.',[['Next lesson','calc']]]],
+  [['Python',20,'Your next Python session in Shift Ready.',[['Shift Ready','app',SR]]],
+   ['Communication',10,'The comms drill in Shift Ready. Say your answers out loud, not in your head.',[['Shift Ready','app',SR]]]],
+  [['GCSE science',20,'The topic you\'re doing in class this week, on Seneca or Cognito. Nothing new in class? Do physics: atomic structure and radioactivity.',[['Seneca','url',SEN],['Cognito','url',COG]]],
+   ['Calculus drill',10,'Practice questions on your last Calculus lesson.',[['Practise','calcfu']]]],
+  [['Nuclear',20,'The fun one: the Theory track or the Control room.',[['Theory','theory'],['Control room','sim']]],
+   ['Communication',10,'The comms drill in Shift Ready.',[['Shift Ready','app',SR]]]],
+  [['GCSE maths',30,'30 minutes of mixed questions from a Maths Genie Edexcel paper, timed like an exam. Mark it, and add the topic of every question you dropped marks on to your list below.',[['Maths Genie','url',MG]],1],
+   ['GCSE science',20,'Exam questions on Thursday\'s topic.',[['Seneca','url',SEN],['Cognito','url',COG]]],
+   ['Aptitude',10,'One timed set in Aptitude Gym.',[['Aptitude Gym','app',AG]]]],
+  [['Python',25,'Your next Python session in Shift Ready.',[['Shift Ready','app',SR]]],
+   ['Calculus',25,'Your next Calculus lesson.',[['Next lesson','calc']]],
+   ['Weekly review',10,'Look at your list below. Move the topic you\'re worst at to the top: that\'s Monday\'s maths. Delete topics you\'ve fixed.',[],1]]];
+ function mins(i){return D[i].reduce(function(s,b){return s+b[1]},0)}
+ var TOTAL=D.reduce(function(s,_,i){return s+mins(i)},0);
+ function wk(){var d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-((d.getDay()+6)%7));return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()}
+ function P(){if(!S.plan||typeof S.plan!=='object')S.plan={};var p=S.plan;if(p.wk!==wk()){p.wk=wk();p.t={}}if(!p.t||typeof p.t!=='object')p.t={};if(p.auto==null)p.auto=1;if(typeof p.topics!=='string')p.topics='';return p}
+ function todayI(){return (new Date().getDay()+6)%7}
+ function isDone(i,j){return !!P().t[i+'-'+j]}
+ function dayDone(i){return D[i].every(function(_,j){return isDone(i,j)})}
+ function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+ var css=document.createElement('style');css.textContent=
+ '.plsheet{position:fixed;inset:0;z-index:3001;display:none;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.45)}.plsheet.open{display:flex}@media(min-width:700px){.plsheet{align-items:center}}'+
+ '.plbox{width:100%;max-width:560px;max-height:90vh;max-height:90dvh;overflow:auto;background:var(--panel);color:var(--text);border-radius:20px 20px 0 0;padding:14px 16px calc(16px + env(safe-area-inset-bottom));box-shadow:0 -8px 30px rgba(0,0,0,.25);display:flex;flex-direction:column;gap:12px}@media(min-width:700px){.plbox{border-radius:20px}}'+
+ '.plhd{display:flex;align-items:center;gap:8px}.plhd b{flex:1;font-size:18px}.plx{border:0;background:none;color:var(--muted);font-size:22px;width:40px;height:40px;cursor:pointer}'+
+ '.plwk{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px 12px}.plwkt{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:13px;color:var(--muted)}.plwkt b{font-family:var(--mono);font-size:16px;color:var(--text);font-variant-numeric:tabular-nums}'+
+ '.plbar{height:8px;background:var(--soft2);border-radius:4px;overflow:hidden;margin-top:6px}.plbar i{display:block;height:100%;width:0;background:var(--good-line);border-radius:4px;transition:width .3s}'+
+ '.pldays{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}.pldays button{font:inherit;font-size:13px;font-weight:700;border:2px solid var(--line);background:var(--bg);color:var(--text);border-radius:10px;padding:8px 0 10px;cursor:pointer;position:relative;min-width:0}'+
+ '.pldays button.on{border-color:var(--accent);background:var(--accent-bg);color:var(--accent-text)}.pldays button.td::after{content:"";position:absolute;left:50%;bottom:3px;width:14px;height:3px;margin-left:-7px;border-radius:2px;background:var(--accent)}'+
+ '.pldays button.full::before{content:"✓";position:absolute;top:-7px;right:-5px;width:16px;height:16px;border-radius:50%;background:var(--good-line);color:#fff;font-size:10px;line-height:16px;text-align:center}'+
+ '.pldh{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}.pldh b{font-size:17px}.pldh span{font-size:13px;color:var(--muted)}'+
+ '.plblks{display:flex;flex-direction:column;gap:8px}.plblk{display:flex;gap:12px;align-items:flex-start;background:var(--bg);border:1.5px solid var(--line);border-radius:14px;padding:12px;transition:background .2s,border-color .2s}.plblk.done{border-color:var(--good-line);background:var(--good-bg)}'+
+ '.pltick{flex:none;width:32px;height:32px;border-radius:9px;border:2px solid var(--line);background:var(--panel);color:#fff;font-size:17px;font-weight:800;cursor:pointer;display:grid;place-items:center;padding:0;margin-top:1px}.plblk.done .pltick{border-color:var(--good-line);background:var(--good-line)}'+
+ '.plbody{flex:1;min-width:0}.plt{font-weight:800;font-size:15px;margin:0}.plblk.done .plt>span:first-child{text-decoration:line-through}.plm{display:inline-block;font:700 12px var(--mono);color:var(--accent-text);background:var(--accent-bg);border-radius:999px;padding:2px 8px;margin-left:6px;vertical-align:1px}'+
+ '.plh{margin:4px 0 0;font-size:14px;color:var(--muted);line-height:1.45}.placts{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}'+
+ '.plgo{font:inherit;font-size:13px;font-weight:800;border:0;border-radius:10px;padding:8px 12px;cursor:pointer;background:var(--accent);color:var(--on-accent);text-decoration:none;display:inline-flex;align-items:center;gap:5px;line-height:1.2}.plgo.alt{background:var(--soft);color:var(--text)}'+
+ '.pltop{margin-top:10px}.pltop label{font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}.pltop textarea{display:block;width:100%;box-sizing:border-box;font:inherit;font-size:14px;color:var(--text);background:var(--panel);border:1.5px solid var(--line);border-radius:10px;padding:8px 10px;min-height:70px;resize:vertical;margin-top:5px}'+
+ '.plopt{display:flex;gap:10px;align-items:center;font-size:14px;cursor:pointer}.plopt input{width:20px;height:20px;accent-color:var(--accent);flex:none}.plnote{font-size:13px;color:var(--muted);margin:0;line-height:1.45}.pldone{font-size:14px;font-weight:800;color:var(--good);margin:0}'+
+ '.plpill{position:relative}.plpill .pldot{position:absolute;top:2px;right:2px;width:8px;height:8px;border-radius:50%;background:#e8742a;border:2px solid var(--panel);display:none}.plpill.left .pldot{display:block}@media(max-width:374px){.hdr .plpill{padding:5px 7px}}';
+ document.head.appendChild(css);
+ var sh=document.createElement('div');sh.className='plsheet';
+ sh.innerHTML='<div class="plbox" role="dialog" aria-modal="true" aria-label="This week\'s plan"><div class="plhd"><b>This week\'s plan</b><button class="plx" type="button" aria-label="Close">✕</button></div>'+
+  '<div class="plwk"><div class="plwkt"><span>Ticked off this week</span><b data-k="wk"></b></div><div class="plbar"><i data-k="bar"></i></div></div>'+
+  '<div class="pldays" role="tablist" aria-label="Day"></div>'+
+  '<div class="pldh"><b data-k="dn"></b><span data-k="dt"></span></div>'+
+  '<div class="plblks"></div><p class="pldone" data-k="done" hidden>That\'s today\'s plan done. Nice work.</p>'+
+  '<label class="plopt"><input type="checkbox" data-k="auto"> Start the study timer when I tap a button</label>'+
+  '<p class="plnote">Homework comes first. Missed a day? Don\'t double up the next day. Do that day\'s plan and carry on.</p></div>';
+ document.body.appendChild(sh);
+ var $q=function(s){return sh.querySelector(s)},cur=todayI(),days=$q('.pldays');
+ AB.forEach(function(a,i){var b=document.createElement('button');b.type='button';b.setAttribute('role','tab');b.textContent=a;b.setAttribute('aria-label',DAYS[i]);b.onclick=function(){cur=i;paint()};days.appendChild(b)});
+ function go(a,title){if(P().auto&&typeof STUDY!=='undefined'&&STUDY.start)STUDY.start(title);
+  if(a[1]==='url')return;close();
+  if(a[1]==='app'){location.href=a[2];return}
+  if(a[1]==='sim'){showPage('sim');return}
+  if(a[1]==='calc'||a[1]==='theory'){S.mode=a[1];if(a[1]==='calc')S.seenCalc=1;else S.seenTheory=1;save();showPage('learn');runAction(nextAction(a[1]));return}
+  if(a[1]==='calcfu'){S.mode='calc';S.seenCalc=1;save();showPage('learn');var id=null;allLessons('calc',0).forEach(function(x){var l=UNITS[x[0]].lessons[x[1]];if(S.done[l.id]&&FOLLOW[l.id])id=l.id});if(id)startFollow(id);else runAction(nextAction('calc'))}}
+ function paint(){var p=P(),t=todayI(),m=0;
+  D.forEach(function(d,i){d.forEach(function(b,j){if(isDone(i,j))m+=b[1]})});
+  $q('[data-k=wk]').textContent=m+' / '+TOTAL+' min';$q('[data-k=bar]').style.width=(m/TOTAL*100)+'%';
+  [].forEach.call(days.children,function(b,i){b.className=(i===cur?'on':'')+(i===t?' td':'')+(dayDone(i)?' full':'');b.setAttribute('aria-selected',i===cur)});
+  $q('[data-k=dn]').textContent=(cur===t?'Today, ':'')+DAYS[cur];$q('[data-k=dt]').textContent=mins(cur)+' min · '+(cur<5?'school day':'weekend');
+  var L=$q('.plblks');L.innerHTML='';
+  D[cur].forEach(function(b,j){var dn=isDone(cur,j),e=document.createElement('div');e.className='plblk'+(dn?' done':'');
+   e.innerHTML='<button class="pltick" type="button" role="checkbox" aria-checked="'+dn+'" aria-label="'+esc(b[0])+' done">'+(dn?'✓':'')+'</button><div class="plbody"><p class="plt"><span>'+esc(b[0])+'</span><span class="plm">'+b[1]+' min</span></p><p class="plh">'+esc(b[2])+'</p><div class="placts"></div></div>';
+   e.querySelector('.pltick').onclick=function(){var k=cur+'-'+j;if(P().t[k])delete P().t[k];else P().t[k]=1;save();paint();paintPill()};
+   var A=e.querySelector('.placts');
+   b[3].forEach(function(a,ai){var x;if(a[1]==='url'){x=document.createElement('a');x.href=a[2];x.target='_blank';x.rel='noopener'}else{x=document.createElement('button');x.type='button'}
+    x.className='plgo'+(ai?' alt':'');x.innerHTML=esc(a[0])+(a[1]==='url'?' ↗':' →');x.onclick=function(){go(a,b[0])};A.appendChild(x)});
+   if(!b[3].length)A.remove();
+   if(b[4]){var tp=document.createElement('div');tp.className='pltop';tp.innerHTML='<label for="plTopics">Topics to fix</label><textarea id="plTopics" maxlength="600" placeholder="e.g. Circle theorems, iteration, vectors"></textarea>';
+    var ta=tp.querySelector('textarea');ta.value=p.topics;ta.oninput=function(){P().topics=ta.value;save()};e.querySelector('.plbody').appendChild(tp)}
+   L.appendChild(e)});
+  $q('[data-k=done]').hidden=!(cur===t&&dayDone(t));$q('[data-k=auto]').checked=!!p.auto}
+ $q('[data-k=auto]').onchange=function(){P().auto=this.checked?1:0;save()};
+ function close(){sh.classList.remove('open')}
+ function open(){cur=todayI();paint();sh.classList.add('open')}
+ $q('.plx').onclick=close;sh.addEventListener('click',function(e){if(e.target===sh)close()});
+ document.addEventListener('keydown',function(e){if(e.key==='Escape'&&sh.classList.contains('open'))close()});
+ var CAL='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4M8 14l1.6 1.6L13 12.2"/></svg>';
+ var pill=document.createElement('button');pill.type='button';pill.className='pill plpill';pill.title='This week\'s plan';pill.innerHTML=CAL+'<i class="pldot"></i>';pill.onclick=open;
+ var anchor=document.querySelector('.hdr .stpill')||document.querySelector('.hdr .calcpill')||document.querySelector('.hdr .askpill');
+ if(anchor)anchor.parentNode.insertBefore(pill,anchor.nextSibling);else{var ps=document.querySelector('.hdr .pills');if(ps)ps.insertBefore(pill,ps.firstChild)}
+ function paintPill(){var t=todayI(),left=D[t].filter(function(_,j){return !isDone(t,j)}).length;pill.classList.toggle('left',left>0);pill.setAttribute('aria-label','This week\'s plan'+(left?', '+left+' to do today':', today done'))}
+ paintPill();document.addEventListener('visibilitychange',function(){if(!document.hidden){paintPill();if(sh.classList.contains('open'))paint()}});
+ return {open:open,close:close,paint:paint,paintPill:paintPill,D:D};
+})();
+try{window.PLAN=PLAN}catch(_){}
+
 
 U({id:'maths',title:'Maths for operators',icon:'√x',color:'#7F77DD',desc:'Powers of ten, exponentials, logs, rates of change and counting statistics.',lessons:[
 L('m1','Powers of ten and units',8,[
