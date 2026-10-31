@@ -462,7 +462,9 @@ main{max-width:1100px;margin:0 auto;padding:20px 16px 80px}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--on-accent:#17142e}}
 :root[data-theme="dark"]{--on-accent:#17142e}
 /* ---- Maths / Theory switch ---- */
-.modesw{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:0 0 16px}
+.modesw{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:0 0 16px}@media (max-width:760px){.modesw{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.modesw.m3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.gsw{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:-6px 0 16px}.gsb{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;background:var(--panel);border:2px solid var(--line);border-radius:14px;padding:9px 12px;color:var(--text);cursor:pointer;min-width:0}.gsb b{font-size:15px}.gsb span{font:600 12px var(--mono);color:var(--muted)}.gsb.on{border-color:var(--accent);background:var(--accent-bg)}.gsb.on span{color:var(--accent-text)}
 .msb{display:flex;align-items:center;gap:10px;text-align:left;background:var(--panel);border:2px solid var(--line);border-radius:16px;padding:12px 14px;color:var(--text);cursor:pointer;transition:border-color .15s,background .15s,transform .15s}
 .msb:hover{transform:translateY(-1px)}.msb.on{border-color:var(--accent);background:var(--accent-bg)}
 .msi{flex:none;width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:var(--soft);font:700 16px var(--serif)}.msb.on .msi{background:var(--accent);color:var(--on-accent)}
@@ -597,19 +599,23 @@ function cssv(n){return getComputedStyle(document.documentElement).getPropertyVa
 var UNITS=[],WIDGETS={};
 function U(o){UNITS.push(o)}
 function trk(ui){return (UNITS[ui]&&UNITS[ui].track)||'maths'}
-function curMode(){var m=typeof S!=='undefined'&&S?S.mode:'';return m==='theory'||m==='calc'?m:'maths'}
-function modeName(m){return m==='theory'?'Theory':m==='calc'?'Calculus':'Maths'}
+var GSUB={gp:'Physics',gc:'Chemistry',gm:'Maths'},GBOARD={gp:'AQA',gc:'AQA',gm:'Edexcel'};function isG(m){return !!GSUB[m]}
+function curMode(){var m=typeof S!=='undefined'&&S?S.mode:'';return m==='theory'||m==='calc'||isG(m)?m:'maths'}
+function modeName(m){return m==='theory'?'Theory':m==='calc'?'Calculus':isG(m)?'GCSE '+GSUB[m]:'Maths'}
 var CALC_LEVELS=[null,['Ready for calculus','The algebra calculus is built on: functions, powers, gradients and rates of change. One small step at a time.'],['Differentiation','From the gradient of a chord to the gradient at a point, first principles and the power rule.'],['Differentiation toolkit','Stationary points, real problems, eˣ, ln x, sin and cos, and the chain, product and quotient rules.'],['Integration','Undoing differentiation, areas under curves, definite integrals, substitution and integration by parts.'],['Calculus in the reactor','Differential equations, radioactive decay, reactor period, numerical methods and energy from power.']];
-function lvInfo(m,lv){return (m==='calc'?CALC_LEVELS:LEVELS_INFO)[lv]}
+var GLV={gp:[null,['Year 9 refresher','Only if you need it: the KS3 physics and maths skills GCSE physics assumes you already have.'],['Year 10','AQA GCSE Physics Year 10 topics: energy, electricity, the particle model and atomic structure. Grades 4 to 6.'],['Year 11','AQA GCSE Physics Year 11 topics: forces, waves, magnetism and space. Grades 4 to 6.'],['Grade 7–8','Harder questions on every topic: required practicals, multi-step calculations and 6-mark answers.'],['Grade 9','The hardest questions: unfamiliar contexts, combining ideas from different topics, and full-marks technique.']],
+ gc:[null,['Year 9 refresher','Only if you need it: the KS3 chemistry GCSE chemistry assumes you already have.'],['Year 10','AQA GCSE Chemistry Year 10 topics: atoms and the periodic table, bonding, quantitative chemistry and chemical changes. Grades 4 to 6.'],['Year 11','AQA GCSE Chemistry Year 11 topics: energy changes, rates and equilibrium, organic chemistry, analysis, the atmosphere and resources. Grades 4 to 6.'],['Grade 7–8','Harder questions on every topic: moles, required practicals, electrolysis and 6-mark answers.'],['Grade 9','The hardest questions: multi-step mole calculations, equilibrium reasoning and full-marks technique.']],
+ gm:[null,['Year 9 refresher','Only if you need it: the KS3 maths that GCSE Higher builds on.'],['Year 10','Edexcel GCSE Higher Year 10 topics: number, algebra, ratio and proportion, geometry and trigonometry. Grades 4 to 6.'],['Year 11','Edexcel GCSE Higher Year 11 topics: harder algebra and graphs, circles and vectors, probability and statistics. Grades 5 to 7.'],['Grade 7–8','Harder Higher-tier questions: problem solving across topics, the way Paper 1, 2 and 3 test it.'],['Grade 9','The hardest Higher-tier questions: proof, functions, circle geometry, vectors and multi-step problems.']]};
+function lvInfo(m,lv){return isG(m)?GLV[m][lv]:(m==='calc'?CALC_LEVELS:LEVELS_INFO)[lv]}
 function uNum(ui){var n=0,k=trk(ui),lv=lvOf(ui);for(var i=0;i<=ui;i++)if(trk(i)===k&&lvOf(i)===lv)n++;return n}
-function uLabel(ui){var lv=lvOf(ui);return (lv>1?'Level '+lv+' · ':'')+(trk(ui)==='theory'?'Theory unit ':trk(ui)==='calc'?'Calculus unit ':'Unit ')+uNum(ui)}
+function uLabel(ui){var lv=lvOf(ui);return (lv>1?'Level '+lv+' · ':'')+(trk(ui)==='theory'?'Theory unit ':trk(ui)==='calc'?'Calculus unit ':isG(trk(ui))?GSUB[trk(ui)]+' unit ':'Unit ')+uNum(ui)}
 function compOf(ui){var u=UNITS[ui];return u&&u.comp!=null?u.comp:ui}
 function compUnit(ci,m){m=m||curMode();for(var i=0;i<UNITS.length;i++)if(trk(i)===m&&lvOf(i)===1&&compOf(i)===ci)return i;return -1}
 var LEVELS_INFO=[null,['Foundations','GCSE level. The core ideas, one step at a time.'],['A-level','Builds on Level 1: calculus, logarithms and deeper nuclear physics, still one small step at a time.'],['Operator training','What reactor operators study for their licence: reactivity, kinetics, transients and emergency procedures.'],['University 1','First- and second-year university nuclear engineering: differential equations, diffusion, heat transfer and materials.'],['University 2','Advanced university: reactor kinetics with feedback, core design, safety analysis and severe accidents.']];
 function lvOf(ui){var u=UNITS[ui];return (u&&u.level)||1}
-function curLevel(m){m=m||curMode();var v=typeof S!=='undefined'&&S&&S.lvl?S.lvl[m]:1;return v>=1&&v<=5?v:1}
+function curLevel(m){m=m||curMode();var v=typeof S!=='undefined'&&S&&S.lvl?S.lvl[m]:1;return v>=1&&v<=5?v:isG(m)?2:1}
 function lvDone(m,lv){var a=allLessons(m,lv);return [a.filter(function(x){return S.done[UNITS[x[0]].lessons[x[1]].id]}).length,a.length]}
-function lvOpen(m,lv){if(lv<=1)return true;if(S.lvlOpen&&S.lvlOpen[m+lv])return true;var d=lvDone(m,lv-1);return d[1]>0&&d[0]/d[1]>=0.8}
+function lvOpen(m,lv){if(lv<=1||(isG(m)&&lv===2))return true;if(S.lvlOpen&&S.lvlOpen[m+lv])return true;var d=lvDone(m,lv-1);return d[1]>0&&d[0]/d[1]>=0.8}
 function levelPicker(){var m=curMode(),cl=curLevel(m),h='<div class="lvpick" role="tablist" aria-label="Level">';for(var lv=1;lv<=5;lv++){var d=lvDone(m,lv),op=lvOpen(m,lv);h+='<button role="tab" aria-selected="'+(lv===cl)+'" class="lvb'+(lv===cl?' on':'')+(op?'':' lk')+'" data-lv="'+lv+'"><b>'+(op?'':LOCK)+'Level '+lv+'</b><span>'+lvInfo(m,lv)[0]+'</span><span class="lvn">'+d[0]+'/'+d[1]+'</span><i style="width:'+(d[1]?d[0]/d[1]*100:0)+'%"></i></button>'}return h+'</div>'}
 function levelCard(){var m=curMode(),lv=curLevel(m),d=lvDone(m,lv),f=d[1]?d[0]/d[1]:0;return '<div class="card levelcard"><h2>Level '+lv+': '+lvInfo(m,lv)[0]+' <span class="modetag">'+modeName(m)+'</span></h2><div class="lvrow">'+ring(f,'#534AB7',104,Math.round(f*100)+'%')+'<div><p class="note" style="font-size:15px;margin-top:0">'+lvInfo(m,lv)[1]+'</p><p class="note"><b>'+d[0]+' of '+d[1]+'</b> lessons done.</p></div></div><div class="lvhow"><b>How these lessons stay easy to follow</b><ul><li>Every lesson starts with a <span class="fromb">Remember</span> card: the earlier ideas it needs, said again.</li><li>Each new idea gets its own card, with a key under every equation.</li><li><span class="fromb">From earlier</span> questions bring back older ideas so you don\'t forget them.</li></ul></div></div>'}
 function setLevel(lv){var m=curMode();if(!lvOpen(m,lv)){var d=lvDone(m,lv-1);if(!confirm('Level '+lv+' builds on Level '+(lv-1)+'. You\'ve done '+d[0]+' of '+d[1]+' Level '+(lv-1)+' lessons. We recommend finishing at least 80% first, so nothing feels new and confusing.\n\nOpen Level '+lv+' anyway?'))return;S.lvlOpen=S.lvlOpen||{};S.lvlOpen[m+lv]=1}S.lvl=S.lvl||{};S.lvl[m]=lv;JUST_BUILT=null;save();renderLearn()}
@@ -665,13 +671,15 @@ function allLessons(m,lv){m=m||curMode();if(lv==null&&m!=='all')lv=curLevel(m);v
 function nextLesson(m,lv){var a=allLessons(m,lv);for(var i=0;i<a.length;i++){if(!S.done[UNITS[a[i][0]].lessons[a[i][1]].id])return a[i]}return null}
 function doneCount(m,lv){return allLessons(m,lv).filter(function(x){return S.done[UNITS[x[0]].lessons[x[1]].id]}).length}
 function ring(frac,col,size,label){var r=size/2-7,c=2*Math.PI*r;return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 '+size+' '+size+'"><circle cx="'+size/2+'" cy="'+size/2+'" r="'+r+'" fill="none" stroke="var(--soft2)" stroke-width="9"/><circle cx="'+size/2+'" cy="'+size/2+'" r="'+r+'" fill="none" stroke="'+col+'" stroke-width="9" stroke-linecap="round" stroke-dasharray="'+(c*Math.min(1,frac))+' '+c+'" transform="rotate(-90 '+size/2+' '+size/2+')"/><text x="50%" y="50%" text-anchor="middle" dy=".35em" font-size="17" font-weight="700" fill="var(--text)" font-family="system-ui">'+label+'</text></svg>'}
-function modeSwitch(){var m=curMode(),dm=doneCount('maths'),tm=allLessons('maths').length,dt=doneCount('theory'),tt=allLessons('theory').length,dk=doneCount('calc'),tk=allLessons('calc').length;
- return '<div class="modesw" role="tablist" aria-label="Choose what to study">'+
+function modeSwitch(){var m=curMode(),dm=doneCount('maths'),tm=allLessons('maths').length,dt=doneCount('theory'),tt=allLessons('theory').length,dk=doneCount('calc'),tk=allLessons('calc').length,dg=0,tg=0;['gp','gc','gm'].forEach(function(g){dg+=doneCount(g,0);tg+=allLessons(g,0).length});
+ return '<div class="modesw'+(tg?'':' m3')+'" role="tablist" aria-label="Choose what to study">'+
   '<button role="tab" aria-selected="'+(m==='maths')+'" class="msb'+(m==='maths'?' on':'')+'" data-m="maths"><span class="msi">√x</span><span class="mst"><b>Maths</b><span>Equations and calculations</span></span><span class="msp">'+dm+'/'+tm+'</span></button>'+
   '<button role="tab" aria-selected="'+(m==='theory')+'" class="msb'+(m==='theory'?' on':'')+'" data-m="theory"><span class="msi">💡</span><span class="mst"><b>Theory'+(S.seenTheory?'':' <i class="newb">New</i>')+'</b><span>How it all works, no equations</span></span><span class="msp">'+dt+'/'+tt+'</span></button>'+
-  '<button role="tab" aria-selected="'+(m==='calc')+'" class="msb'+(m==='calc'?' on':'')+'" data-m="calc"><span class="msi">∫</span><span class="mst"><b>Calculus'+(S.seenCalc?'':' <i class="newb">New</i>')+'</b><span>From scratch, one step at a time</span></span><span class="msp">'+dk+'/'+tk+'</span></button></div>'}
+  '<button role="tab" aria-selected="'+(m==='calc')+'" class="msb'+(m==='calc'?' on':'')+'" data-m="calc"><span class="msi">∫</span><span class="mst"><b>Calculus'+(S.seenCalc?'':' <i class="newb">New</i>')+'</b><span>From scratch, one step at a time</span></span><span class="msp">'+dk+'/'+tk+'</span></button>'+
+  (tg?'<button role="tab" aria-selected="'+isG(m)+'" class="msb'+(isG(m)?' on':'')+'" data-m="gcse"><span class="msi">9</span><span class="mst"><b>GCSE'+(S.seenGcse?'':' <i class="newb">New</i>')+'</b><span>Physics, chemistry and maths</span></span><span class="msp">'+dg+'/'+tg+'</span></button>':'')+'</div>'+(isG(m)&&tg?gcseSwitch(m):'')}
+function gcseSwitch(m){return '<div class="gsw" role="tablist" aria-label="GCSE subject">'+['gp','gc','gm'].map(function(g){return '<button role="tab" aria-selected="'+(g===m)+'" class="gsb'+(g===m?' on':'')+'" data-g="'+g+'"><b>'+GSUB[g]+'</b><span>'+GBOARD[g]+' · '+doneCount(g,0)+'/'+allLessons(g,0).length+'</span></button>'}).join('')+'</div>'}
 function renderLearn(){var TH=curMode()==='theory',CA=curMode()==='calc',el=$('page-learn'),nx=nextLesson(),na=nextAction(),pf=pendingFollow(),dc=doneCount(),tot=allLessons().length,lv=level(),dx=S.daily.d===today()?S.daily.xp:0,nl=na&&na.t==='lesson'?UNITS[na.ui].lessons[na.li]:null;
- var LV=curLevel(),h=modeSwitch()+levelPicker()+'<div class="hero"><div><h1>'+(LV>1?'Level '+LV+': '+lvInfo(curMode(),LV)[0]:dc===0?(CA?'Calculus, from the very start':TH?'How a nuclear power station works':'Learn how to run a nuclear reactor'):nx?'Welcome back':'You\'ve finished every lesson')+'</h1><p>'+(LV>1?lvInfo(curMode(),LV)[1]+' '+(nx?dc+' of '+tot+' lessons done.':'You\'ve finished every lesson in this level.'):dc===0?(CA?'One small step at a time, from what a function is all the way to the calculus that describes a reactor. Every idea gets its own card and lots of practice, so it sticks.':TH?'The ideas behind the control room, explained step by step with no equations: atoms, fission, fuel, control, the steam plant, safety, radiation and the control room. Every lesson you finish builds part of your power station.':'Short, hands-on lessons covering the maths, physics and plant knowledge behind a reactor control room. Every lesson you finish builds part of your own power station.'):nx?dc+' of '+tot+' lessons done. Keep building.':'Your station is complete. Keep your knowledge sharp in Progress, or take on the control room missions.')+'</p>'+
+ var LV=curLevel(),h=modeSwitch()+levelPicker()+'<div class="hero"><div><h1>'+(LV>1?'Level '+LV+': '+lvInfo(curMode(),LV)[0]:dc===0?(isG(curMode())?'GCSE '+GSUB[curMode()]+', aiming for a 9':CA?'Calculus, from the very start':TH?'How a nuclear power station works':'Learn how to run a nuclear reactor'):nx?'Welcome back':'You\'ve finished every lesson')+'</h1><p>'+(LV>1?lvInfo(curMode(),LV)[1]+' '+(nx?dc+' of '+tot+' lessons done.':'You\'ve finished every lesson in this level.'):dc===0?(isG(curMode())?(curMode()==='gm'?'Edexcel':'AQA')+' GCSE '+GSUB[curMode()]+' (Higher), one small step at a time and getting harder level by level: Year 10, Year 11, then grade 7–8 and grade 9 questions. Shaky on something? The Year 9 refreshers in Level 1 go back over the basics.':CA?'One small step at a time, from what a function is all the way to the calculus that describes a reactor. Every idea gets its own card and lots of practice, so it sticks.':TH?'The ideas behind the control room, explained step by step with no equations: atoms, fission, fuel, control, the steam plant, safety, radiation and the control room. Every lesson you finish builds part of your power station.':'Short, hands-on lessons covering the maths, physics and plant knowledge behind a reactor control room. Every lesson you finish builds part of your own power station.'):nx?dc+' of '+tot+' lessons done. Keep building.':'Your station is complete. Keep your knowledge sharp in Progress, or take on the control room missions.')+'</p>'+
  (nl?'<div class="nextup"><span class="nk">Next up · Unit '+uNum(na.ui)+'</span><b>'+nl.title+'</b><span class="nh">'+(HOOKS[nl.id]||'')+'</span></div>':na&&na.t==='follow'?'<div class="nextup warn"><span class="nk">Follow-up needed</span><b>'+UNITS[na.ui].lessons[na.li].title+'</b><span class="nh">Score more than 50% on a short recap and 5 questions to unlock new lessons.</span></div>':na&&na.t==='test'?'<div class="nextup"><span class="nk">Unit '+uNum(na.ui)+' test</span><b>'+UNITS[na.ui].title+'</b><span class="nh">15 questions, about 15 minutes. Pass mark 70%.</span></div>':'')+
  (na?'<button class="big" id="goNext">'+(dc===0?'Start the first lesson':na.t==='follow'?'Start follow-up':na.t==='test'?'Take the test':'Continue')+'</button> <button class="ghost" id="goSim2">Control room</button>':'<button class="big" id="goSim">Open the control room</button> <button class="ghost" id="goRev">Start a review</button>')+
  '<div class="lvl" style="margin-top:12px"><div class="lvlrow">'+rankEmblem(lv.i,34)+'<div style="flex:1"><div class="lvlbar"><div style="width:'+(lv.frac*100)+'%"></div></div><div class="lvltxt"><span>Rank '+(lv.i+1)+': <b>'+lv.name+'</b></span><span>'+(lv.next?fmtInt(lv.toNext)+' XP to '+lv.next:'Top rank')+'</span></div></div></div></div></div>'+
@@ -689,7 +697,8 @@ function renderLearn(){var TH=curMode()==='theory',CA=curMode()==='calc',el=$('p
  h+='</div><div class="card" style="margin-top:22px"><h2>About this app</h2><p class="note" style="font-size:15px">There are two ways to study. <b>Theory</b> explains how everything works in words and pictures, with no equations. <b>Maths</b> teaches the calculations behind it. Each one has five levels, from GCSE (Level 1) up to advanced university (Level 5). Level 1 of each builds its own power station, and everything counts towards your XP, streak and badges. This app covers the fundamentals that nuclear operators learn before plant-specific training: maths, nuclear and reactor physics, thermodynamics, heat transfer, radiation protection, plant systems and operator skills, roughly matching the scope of operator "fundamentals" courses. Real operators then spend years learning their own plant\'s systems and procedures, including hundreds of hours on a full-scale simulator. Numbers here are typical values for a pressurised water reactor (PWR) and are simplified for learning. The power station picture is a simple illustration, not a plan of Hinkley Point C.</p><p class="note">Your progress saves automatically in this browser. Use <b>Save progress file</b> near the top of this page to move it to another device. <button class="skip" id="resetAll">Reset all progress</button></p></div>';
  el.innerHTML=h;
  [].forEach.call(el.querySelectorAll('.lvb'),function(b){b.onclick=function(){var lv=+b.dataset.lv;if(lv!==curLevel())setLevel(lv)}});var lvOn=el.querySelector('.lvb.on');if(lvOn&&lvOn.scrollIntoView&&lvOn.offsetLeft>lvOn.parentNode.clientWidth-60)lvOn.parentNode.scrollLeft=lvOn.offsetLeft-20;
- [].forEach.call(el.querySelectorAll('.msb'),function(b){b.onclick=function(){if(S.mode===b.dataset.m)return;S.mode=b.dataset.m;if(S.mode==='theory')S.seenTheory=1;if(S.mode==='calc')S.seenCalc=1;JUST_BUILT=null;save();renderLearn();var sw=el.querySelector('.modesw');if(sw&&sw.getBoundingClientRect().top<0)sw.scrollIntoView()}});
+ [].forEach.call(el.querySelectorAll('.gsb'),function(b){b.onclick=function(){if(S.mode===b.dataset.g)return;S.mode=S.gsub=b.dataset.g;JUST_BUILT=null;save();renderLearn()}});
+ [].forEach.call(el.querySelectorAll('.msb'),function(b){b.onclick=function(){var nm=b.dataset.m==='gcse'?(S.gsub||'gp'):b.dataset.m;if(S.mode===nm||(b.dataset.m==='gcse'&&isG(S.mode)))return;S.mode=nm;if(b.dataset.m==='gcse')S.seenGcse=1;if(S.mode==='theory')S.seenTheory=1;if(S.mode==='calc')S.seenCalc=1;JUST_BUILT=null;save();renderLearn();var sw=el.querySelector('.modesw');if(sw&&sw.getBoundingClientRect().top<0)sw.scrollIntoView()}});
  wireProgress();wireStation();
  if($('goNext'))$('goNext').onclick=function(){runAction(na)};
  if($('goSim'))$('goSim').onclick=function(){showPage('sim')};if($('goSim2'))$('goSim2').onclick=function(){showPage('sim')};if($('goRev'))$('goRev').onclick=function(){startReview(false)};
@@ -2542,11 +2551,11 @@ var STUDY=(function(){
   var slots=[[16*60+15,wd,'Home from school? Time for some Critical.'],[18*60,true,'You haven\'t studied yet today. A short session still counts.'],[20*60,true,'Last call for today. Keep your streak going.']];
   slots.forEach(function(s){var k=ymd()+s[0];if(s[1]&&hm>=s[0]&&hm<s[0]+60&&!shown[k]&&!todayMin()&&!st.run){shown[k]=1;banner(s[2])}})}
  function banner(t){var old=document.querySelector('.stbanner');if(old)old.remove();var b=document.createElement('div');b.className='stbanner';b.setAttribute('role','status');b.innerHTML='<p>'+esc(t)+'</p>';
-  var g=document.createElement('button');g.className='stbtn alt';g.type='button';g.textContent='Start timer';g.onclick=function(){b.remove();open();if(!st.run)$('[data-a=go]').click()};
+  var g=document.createElement('button');g.className='stbtn alt';g.type='button';var usePlan=typeof PLAN!=='undefined'&&PLAN.todayLeft&&PLAN.todayLeft()&&!PLAN.running();g.textContent=usePlan?'Start today\'s plan':'Start timer';g.onclick=function(){b.remove();if(usePlan){PLAN.start();return}open();if(!st.run)$('[data-a=go]').click()};
   var x=document.createElement('button');x.className='stx';x.type='button';x.setAttribute('aria-label','Dismiss');x.textContent='✕';x.onclick=function(){b.remove()};b.appendChild(g);b.appendChild(x);document.body.appendChild(b)}
  setInterval(check,60000);setTimeout(check,4000);
  writeFile(false);
- return {open:open,state:function(){return st},payload:payload,check:check,start:function(t){if(st.run)return false;st.run={at:Date.now(),t:t||''};keep();startTick();writeFile(false);return true}};
+ return {open:open,state:function(){return st},payload:payload,check:check,start:function(t){if(st.run)return false;st.run={at:Date.now(),t:t||''};keep();startTick();return true},stop:function(){if(st.run)$('[data-a=go]').click()}};
 })();
 try{window.STUDY=STUDY}catch(_){}
 /* ===== weekly plan (calendar button next to the study timer) ===== */
@@ -2573,10 +2582,18 @@ var PLAN=(function(){
  function mins(i){return D[i].reduce(function(s,b){return s+b[1]},0)}
  var TOTAL=D.reduce(function(s,_,i){return s+mins(i)},0);
  function wk(){var d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-((d.getDay()+6)%7));return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()}
- function P(){if(!S.plan||typeof S.plan!=='object')S.plan={};var p=S.plan;if(p.wk!==wk()){p.wk=wk();p.t={}}if(!p.t||typeof p.t!=='object')p.t={};if(p.auto==null)p.auto=1;if(typeof p.topics!=='string')p.topics='';return p}
+ function PS(){if(!S.plan||typeof S.plan!=='object')S.plan={};var p=S.plan;if(p.wk!==wk()){p.wk=wk();p.t={}}if(!p.t||typeof p.t!=='object')p.t={};if(p.auto==null)p.auto=1;if(typeof p.topics!=='string')p.topics='';return p}
  function todayI(){return (new Date().getDay()+6)%7}
- function isDone(i,j){return !!P().t[i+'-'+j]}
+ function isDone(i,j){return !!PS().t[i+'-'+j]}
  function dayDone(i){return D[i].every(function(_,j){return isDone(i,j)})}
+ var RK='critical_plan_run',ban=null,banT=null,warned={},upKey=null;
+ function ymdN(){var d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()}
+ function runGet(){try{var r=JSON.parse(localStorage.getItem(RK)||'null');if(r&&r.d!==ymdN()){localStorage.removeItem(RK);return null}return r}catch(_){return null}}
+ function runSet(r){try{localStorage.setItem(RK,JSON.stringify(r))}catch(_){}}
+ function runClear(){try{localStorage.removeItem(RK)}catch(_){}}
+ function firstLeft(day,after){for(var j=0;j<D[day].length;j++){if(after!=null&&j<=after)continue;if(!isDone(day,j))return j}if(after!=null)for(j=0;j<after;j++)if(!isDone(day,j))return j;return -1}
+ function busy(){return !!document.querySelector('#player.open')&&!(typeof P!=='undefined'&&P&&P.finished)}
+ function fmtLeft(ms){return ms<60000?Math.max(0,Math.ceil(ms/1000))+' s':Math.ceil(ms/60000)+' min'}
  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
  var css=document.createElement('style');css.textContent=
  '.plsheet{position:fixed;inset:0;z-index:3001;display:none;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.45)}.plsheet.open{display:flex}@media(min-width:700px){.plsheet{align-items:center}}'+
@@ -2595,6 +2612,9 @@ var PLAN=(function(){
  '.plgo{font:inherit;font-size:13px;font-weight:800;border:0;border-radius:10px;padding:8px 12px;cursor:pointer;background:var(--accent);color:var(--on-accent);text-decoration:none;display:inline-flex;align-items:center;gap:5px;line-height:1.2}.plgo.alt{background:var(--soft);color:var(--text)}'+
  '.pltop{margin-top:10px}.pltop label{font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}.pltop textarea{display:block;width:100%;box-sizing:border-box;font:inherit;font-size:14px;color:var(--text);background:var(--panel);border:1.5px solid var(--line);border-radius:10px;padding:8px 10px;min-height:70px;resize:vertical;margin-top:5px}'+
  '.plopt{display:flex;gap:10px;align-items:center;font-size:14px;cursor:pointer}.plopt input{width:20px;height:20px;accent-color:var(--accent);flex:none}.plnote{font-size:13px;color:var(--muted);margin:0;line-height:1.45}.pldone{font-size:14px;font-weight:800;color:var(--good);margin:0}'+
+ '.plrun:empty{display:none}.plrun{background:var(--accent-bg);border:2px solid var(--accent);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:8px}.plrun p{margin:0;font-size:14px;line-height:1.45}.plrun b{font-size:16px}.plrun .placts{margin-top:0}.plbig{font:inherit;font-size:16px;font-weight:800;border:0;border-radius:12px;padding:12px 16px;cursor:pointer;background:var(--accent);color:var(--on-accent);width:100%}'+
+ '.plban{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom));z-index:3500;width:min(460px,calc(100% - 32px));background:var(--panel);color:var(--text);border:2px solid var(--accent);border-radius:16px;padding:12px 14px;box-shadow:0 8px 30px rgba(0,0,0,.25);display:flex;flex-direction:column;gap:8px}.plban p{margin:0;font-size:15px;line-height:1.45}.plban .placts{margin-top:0}'+
+ '.plpill .plc{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:12px}.plpill.run{background:var(--accent);color:var(--on-accent)}.plpill.run .pldot{display:none}'+
  '.plpill{position:relative}.plpill .pldot{position:absolute;top:2px;right:2px;width:8px;height:8px;border-radius:50%;background:#e8742a;border:2px solid var(--panel);display:none}.plpill.left .pldot{display:block}@media(max-width:374px){.hdr .plpill{padding:5px 7px}}';
  document.head.appendChild(css);
  var sh=document.createElement('div');sh.className='plsheet';
@@ -2602,19 +2622,19 @@ var PLAN=(function(){
   '<div class="plwk"><div class="plwkt"><span>Ticked off this week</span><b data-k="wk"></b></div><div class="plbar"><i data-k="bar"></i></div></div>'+
   '<div class="pldays" role="tablist" aria-label="Day"></div>'+
   '<div class="pldh"><b data-k="dn"></b><span data-k="dt"></span></div>'+
-  '<div class="plblks"></div><p class="pldone" data-k="done" hidden>That\'s today\'s plan done. Nice work.</p>'+
+  '<div class="plrun" data-k="run"></div><div class="plblks"></div><p class="pldone" data-k="done" hidden>That\'s today\'s plan done. Nice work.</p>'+
   '<label class="plopt"><input type="checkbox" data-k="auto"> Start the study timer when I tap a button</label>'+
   '<p class="plnote">Homework comes first. Missed a day? Don\'t double up the next day. Do that day\'s plan and carry on.</p></div>';
  document.body.appendChild(sh);
  var $q=function(s){return sh.querySelector(s)},cur=todayI(),days=$q('.pldays');
  AB.forEach(function(a,i){var b=document.createElement('button');b.type='button';b.setAttribute('role','tab');b.textContent=a;b.setAttribute('aria-label',DAYS[i]);b.onclick=function(){cur=i;paint()};days.appendChild(b)});
- function go(a,title){if(P().auto&&typeof STUDY!=='undefined'&&STUDY.start)STUDY.start(title);
-  if(a[1]==='url')return;close();
+ function go(a,title,openUrl){if(PS().auto&&typeof STUDY!=='undefined'&&STUDY.start)STUDY.start(title);
+  if(a[1]==='url'){if(openUrl)try{window.open(a[2],'_blank','noopener')}catch(_){}return}close();if(document.querySelector('#player.open')&&typeof closePlayer==='function')closePlayer();
   if(a[1]==='app'){location.href=a[2];return}
   if(a[1]==='sim'){showPage('sim');return}
   if(a[1]==='calc'||a[1]==='theory'){S.mode=a[1];if(a[1]==='calc')S.seenCalc=1;else S.seenTheory=1;save();showPage('learn');runAction(nextAction(a[1]));return}
   if(a[1]==='calcfu'){S.mode='calc';S.seenCalc=1;save();showPage('learn');var id=null;allLessons('calc',0).forEach(function(x){var l=UNITS[x[0]].lessons[x[1]];if(S.done[l.id]&&FOLLOW[l.id])id=l.id});if(id)startFollow(id);else runAction(nextAction('calc'))}}
- function paint(){var p=P(),t=todayI(),m=0;
+ function paint(){var p=PS(),t=todayI(),m=0;
   D.forEach(function(d,i){d.forEach(function(b,j){if(isDone(i,j))m+=b[1]})});
   $q('[data-k=wk]').textContent=m+' / '+TOTAL+' min';$q('[data-k=bar]').style.width=(m/TOTAL*100)+'%';
   [].forEach.call(days.children,function(b,i){b.className=(i===cur?'on':'')+(i===t?' td':'')+(dayDone(i)?' full':'');b.setAttribute('aria-selected',i===cur)});
@@ -2622,27 +2642,63 @@ var PLAN=(function(){
   var L=$q('.plblks');L.innerHTML='';
   D[cur].forEach(function(b,j){var dn=isDone(cur,j),e=document.createElement('div');e.className='plblk'+(dn?' done':'');
    e.innerHTML='<button class="pltick" type="button" role="checkbox" aria-checked="'+dn+'" aria-label="'+esc(b[0])+' done">'+(dn?'✓':'')+'</button><div class="plbody"><p class="plt"><span>'+esc(b[0])+'</span><span class="plm">'+b[1]+' min</span></p><p class="plh">'+esc(b[2])+'</p><div class="placts"></div></div>';
-   e.querySelector('.pltick').onclick=function(){var k=cur+'-'+j;if(P().t[k])delete P().t[k];else P().t[k]=1;save();paint();paintPill()};
+   e.querySelector('.pltick').onclick=function(){var k=cur+'-'+j;if(PS().t[k])delete PS().t[k];else PS().t[k]=1;save();var r=runGet();if(r&&PS().t[k]&&r.day===cur&&r.j===j){r.ends=Date.now();r.early=1;runSet(r);loop()}paint();paintPill()};
    var A=e.querySelector('.placts');
    b[3].forEach(function(a,ai){var x;if(a[1]==='url'){x=document.createElement('a');x.href=a[2];x.target='_blank';x.rel='noopener'}else{x=document.createElement('button');x.type='button'}
     x.className='plgo'+(ai?' alt':'');x.innerHTML=esc(a[0])+(a[1]==='url'?' ↗':' →');x.onclick=function(){go(a,b[0])};A.appendChild(x)});
    if(!b[3].length)A.remove();
    if(b[4]){var tp=document.createElement('div');tp.className='pltop';tp.innerHTML='<label for="plTopics">Topics to fix</label><textarea id="plTopics" maxlength="600" placeholder="e.g. Circle theorems, iteration, vectors"></textarea>';
-    var ta=tp.querySelector('textarea');ta.value=p.topics;ta.oninput=function(){P().topics=ta.value;save()};e.querySelector('.plbody').appendChild(tp)}
+    var ta=tp.querySelector('textarea');ta.value=p.topics;ta.oninput=function(){PS().topics=ta.value;save()};e.querySelector('.plbody').appendChild(tp)}
    L.appendChild(e)});
-  $q('[data-k=done]').hidden=!(cur===t&&dayDone(t));$q('[data-k=auto]').checked=!!p.auto}
- $q('[data-k=auto]').onchange=function(){P().auto=this.checked?1:0;save()};
+  $q('[data-k=done]').hidden=!(cur===t&&dayDone(t));$q('[data-k=auto]').checked=!!p.auto;paintRun()}
+ function paintRun(){var R=$q('[data-k=run]'),t=todayI(),r=runGet();R.innerHTML='';if(cur!==t)return;
+  if(r){var b=D[r.day][r.j],left=r.ends-Date.now();R.innerHTML='<p>Today\'s plan is running</p><b>'+esc(b[0])+' · '+(left>0?fmtLeft(left)+' left':'time\'s up')+'</b><p>When the time is up you\'ll move to the next part. If you\'re in the middle of a lesson, you can finish it first.</p><div class="placts"></div>';
+   var A=R.querySelector('.placts'),x1=document.createElement('button');x1.type='button';x1.className='plgo';x1.textContent='Go to it →';x1.onclick=function(){var a=b[3][0];if(a)go(a,b[0],true);else close()};if(b[3].length)A.appendChild(x1);
+   var x2=document.createElement('button');x2.type='button';x2.className='plgo alt';x2.textContent='Next part now';x2.onclick=function(){var rr=runGet();if(rr){rr.ends=Date.now();runSet(rr);loop();paint()}};A.appendChild(x2);
+   var x3=document.createElement('button');x3.type='button';x3.className='plgo alt';x3.textContent='Stop the plan';x3.onclick=function(){stopRun(false)};A.appendChild(x3);return}
+  var j=firstLeft(t);if(j<0)return;var bb=document.createElement('button');bb.type='button';bb.className='plbig';bb.textContent=(D[t].some(function(_,k){return isDone(t,k)})?'Carry on with today\'s plan':'Start today\'s plan')+' ('+D[t].slice(j).filter(function(_,k){return !isDone(t,j+k)}).reduce(function(s2,x){return s2+x[1]},0)+' min)';
+  bb.onclick=function(){startRun()};R.appendChild(bb);var n=document.createElement('p');n.className='plnote';n.textContent='It times each part and moves you on when it\'s time. You can always finish the lesson you\'re in first.';R.appendChild(n)}
+ function startRun(){var t=todayI(),j=firstLeft(t);if(j<0)return;
+  try{if('Notification' in window&&Notification.permission==='default')Notification.requestPermission()}catch(_){}
+  if(typeof STUDY!=='undefined'&&STUDY.start)STUDY.start('Weekly plan · '+DAYS[t]);begin(t,j,true)}
+ function begin(day,j,gesture){var b=D[day][j];runSet({d:ymdN(),day:day,j:j,t:b[0],ends:Date.now()+b[1]*60000});warned={};hideBan();paintPill();
+  var a=b[3][0];if(!a){cur=day;paint();sh.classList.add('open');return}
+  if(a[1]==='url'&&!gesture){cur=day;paint();sh.classList.add('open');return}
+  go(a,b[0],true);if(sh.classList.contains('open'))paint()}
+ function stopRun(done){runClear();hideBan();if(typeof STUDY!=='undefined'&&STUDY.stop)STUDY.stop();paintPill();if(sh.classList.contains('open'))paint();if(done)showBan('<b>That\'s today\'s plan done.</b> Your study time has been saved. Nice work.',[['Close',hideBan]])}
+ function hideBan(){if(ban){ban.remove();ban=null}clearInterval(banT);banT=null}
+ function showBan(html,btns,auto){hideBan();ban=document.createElement('div');ban.className='plban';ban.setAttribute('role','status');ban.innerHTML='<p>'+html+'</p><div class="placts"></div>';var A=ban.querySelector('.placts');
+  btns.forEach(function(x,i){var b=document.createElement('button');b.type='button';b.className='plgo'+(i?' alt':'');b.textContent=x[0];b.onclick=x[1];A.appendChild(b)});document.body.appendChild(ban);
+  if(auto){var n=auto[0],cd=ban.querySelector('.plcd');banT=setInterval(function(){n--;if(cd)cd.textContent=n;if(n<=0){clearInterval(banT);banT=null;auto[1]()}},1000)}}
+ function timeUp(r){var k=r.day+'-'+r.j;if(!PS().t[k]){PS().t[k]=1;save();if(sh.classList.contains('open'))paint()}
+  var nj=firstLeft(r.day,r.j);if(nj<0){stopRun(true);return}
+  var nb=D[r.day][nj],na=nb[3][0],ext=na&&na[1]==='url',title=(r.early?'':'Time\'s up for '+esc(r.t)+'. ')+'Next: <b>'+esc(nb[0])+'</b> ('+nb[1]+' min).';
+  if(document.hidden&&!warned.n){warned.n=1;try{if('Notification' in window&&Notification.permission==='granted')new Notification('Time for '+nb[0],{body:'Come back to Critical for the next part of your plan.',tag:'critical-plan'})}catch(_){}}
+  var goNext=function(){hideBan();begin(r.day,nj,true)};
+  if(ext)showBan(title,[['Open '+na[0]+' ↗',goNext],['5 more minutes',more]]);
+  else showBan(title+' Moving you in <span class="plcd">10</span> s.',[['Go now',goNext],['5 more minutes',more]],[10,function(){hideBan();begin(r.day,nj,false)}])}
+ function more(){var r=runGet();if(r){var k=r.day+'-'+r.j;delete PS().t[k];save();r.ends=Date.now()+5*60000;r.early=0;runSet(r)}upKey=null;hideBan();paintPill();if(sh.classList.contains('open'))paint()}
+ function loop(){var r=runGet();paintPill();if(!r){if(ban&&banT)hideBan();return}
+  var left=r.ends-Date.now();if(sh.classList.contains('open')&&cur===todayI()){var rb=$q('[data-k=run] b');if(rb)rb.textContent=D[r.day][r.j][0]+' · '+(left>0?fmtLeft(left)+' left':'time\'s up')}
+  if(left>0)return;
+  if(busy()){if(!warned.b){warned.b=1;var pf=document.getElementById('pFoot');toastIn('Time\'s up for '+r.t+'. Finish this lesson, then you\'ll move on.')}return}
+  var key=r.day+'-'+r.j+'-'+r.ends;if(!ban&&upKey!==key){upKey=key;timeUp(r)}}
+ function toastIn(t){var d=document.createElement('div');d.className='plban';d.style.bottom='calc(96px + env(safe-area-inset-bottom))';d.setAttribute('role','status');d.innerHTML='<p>'+esc(t)+'</p>';document.body.appendChild(d);setTimeout(function(){d.remove()},6000)}
+ $q('[data-k=auto]').onchange=function(){PS().auto=this.checked?1:0;save()};
  function close(){sh.classList.remove('open')}
  function open(){cur=todayI();paint();sh.classList.add('open')}
  $q('.plx').onclick=close;sh.addEventListener('click',function(e){if(e.target===sh)close()});
  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&sh.classList.contains('open'))close()});
  var CAL='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4M8 14l1.6 1.6L13 12.2"/></svg>';
- var pill=document.createElement('button');pill.type='button';pill.className='pill plpill';pill.title='This week\'s plan';pill.innerHTML=CAL+'<i class="pldot"></i>';pill.onclick=open;
+ var pill=document.createElement('button');pill.type='button';pill.className='pill plpill';pill.title='This week\'s plan';pill.innerHTML=CAL+'<span class="plc"></span><i class="pldot"></i>';pill.onclick=open;
  var anchor=document.querySelector('.hdr .stpill')||document.querySelector('.hdr .calcpill')||document.querySelector('.hdr .askpill');
  if(anchor)anchor.parentNode.insertBefore(pill,anchor.nextSibling);else{var ps=document.querySelector('.hdr .pills');if(ps)ps.insertBefore(pill,ps.firstChild)}
- function paintPill(){var t=todayI(),left=D[t].filter(function(_,j){return !isDone(t,j)}).length;pill.classList.toggle('left',left>0);pill.setAttribute('aria-label','This week\'s plan'+(left?', '+left+' to do today':', today done'))}
- paintPill();document.addEventListener('visibilitychange',function(){if(!document.hidden){paintPill();if(sh.classList.contains('open'))paint()}});
- return {open:open,close:close,paint:paint,paintPill:paintPill,D:D};
+ function paintPill(){var t=todayI(),left=D[t].filter(function(_,j){return !isDone(t,j)}).length,r=runGet(),c=pill.querySelector('.plc');pill.classList.toggle('left',left>0);pill.classList.toggle('run',!!r);
+  if(r){var ms=r.ends-Date.now();c.textContent=ms>0?(ms<60000?Math.ceil(ms/1000)+'s':Math.ceil(ms/60000)+'m'):'0m';pill.setAttribute('aria-label','Today\'s plan: '+r.t+', '+(ms>0?fmtLeft(ms)+' left':'time\'s up'))}else{c.textContent='';pill.setAttribute('aria-label','This week\'s plan'+(left?', '+left+' to do today':', today done'))}}
+ paintPill();document.addEventListener('visibilitychange',function(){if(!document.hidden){warned.n=0;loop();if(sh.classList.contains('open'))paint()}});
+ setInterval(loop,1000);setTimeout(loop,600);
+ if(location.hash==='#plannext'){try{history.replaceState(null,'',location.pathname+location.search)}catch(_){}}
+ return {open:open,close:close,paint:paint,paintPill:paintPill,start:startRun,stop:stopRun,loop:loop,running:function(){return !!runGet()},todayLeft:function(){return firstLeft(todayI())>=0},D:D};
 })();
 try{window.PLAN=PLAN}catch(_){}
 

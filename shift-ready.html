@@ -626,9 +626,35 @@ document.addEventListener("submit",function(e){if(e.target.id==="askForm"){e.pre
 window.addEventListener("hashchange",function(){cur=null;view=fromHash();pendingImport=false;pendingReset=false;render();});
 
 view=fromHash();render();
+window.__busy=function(){return !!cur&&!!BY[cur]&&!S.done[BY[cur].id]};
 })();
 </script>
 
 <script>if("serviceWorker" in navigator&&location.protocol==="https:")navigator.serviceWorker.register("sw.js").catch(function(){});</script>
+<script>
+/* today's plan from Critical: count down, then send you back for the next part (after you finish what you're in) */
+(function(){var K='critical_plan_run',ban=null,bt=null,key=null;
+ function ymd(){var d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()}
+ function rd(){try{var r=JSON.parse(localStorage.getItem(K)||'null');return r&&r.d===ymd()?r:null}catch(e){return null}}
+ function wr(r){try{localStorage.setItem(K,JSON.stringify(r))}catch(e){}}
+ function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+ var css=document.createElement('style');css.textContent='.prun{position:fixed;left:max(12px,env(safe-area-inset-left,0px));bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:9000;max-width:calc(100% - 24px);background:var(--card,#fff);color:var(--ink,#222);border:2px solid var(--brand,#534AB7);border-radius:999px;padding:6px 12px;font:700 13px var(--ui,system-ui,sans-serif);box-shadow:0 4px 16px rgba(0,0,0,.18)}.prun[hidden]{display:none}'+
+ '.pbn{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:9001;width:min(440px,calc(100% - 32px));background:var(--card,#fff);color:var(--ink,#222);border:2px solid var(--brand,#534AB7);border-radius:16px;padding:12px 14px;box-shadow:0 8px 30px rgba(0,0,0,.25);display:flex;flex-direction:column;gap:8px;font:15px var(--ui,system-ui,sans-serif)}.pbn p{margin:0;line-height:1.45}.pbn div{display:flex;gap:8px;flex-wrap:wrap}.pbn button{font:inherit;font-size:14px;font-weight:800;border:0;border-radius:10px;padding:9px 14px;cursor:pointer;background:var(--brand,#534AB7);color:var(--on-brand,#fff)}.pbn button.alt{background:var(--line,#ddd);color:var(--ink,#222)}';
+ document.head.appendChild(css);
+ var chip=document.createElement('div');chip.className='prun';chip.hidden=true;chip.setAttribute('role','status');document.body.appendChild(chip);
+ function back(){location.href='critical.html#plannext'}
+ function hide(){if(ban){ban.remove();ban=null}clearInterval(bt);bt=null}
+ function more(){var r=rd();if(r){r.ends=Date.now()+5*60000;wr(r)}key=null;hide();loop()}
+ function show(r){hide();ban=document.createElement('div');ban.className='pbn';ban.setAttribute('role','status');var n=10;
+  ban.innerHTML='<p><b>Time\'s up for '+esc(r.t)+'.</b> Back to Critical for the next part of today\'s plan in <span class="pcd">10</span> s.</p><div><button type="button" class="g">Go now</button><button type="button" class="alt m">5 more minutes</button></div>';
+  ban.querySelector('.g').onclick=back;ban.querySelector('.m').onclick=more;document.body.appendChild(ban);
+  bt=setInterval(function(){if(typeof window.__busy==='function'&&window.__busy()){hide();key=null;return}n--;var c=ban&&ban.querySelector('.pcd');if(c)c.textContent=n;if(n<=0){hide();back()}},1000)}
+ function loop(){var r=rd();if(!r){chip.hidden=true;hide();return}var left=r.ends-Date.now();chip.hidden=false;
+  if(left>0){chip.textContent='Today\'s plan: '+r.t+' · '+(left<60000?Math.ceil(left/1000)+' s':Math.ceil(left/60000)+' min')+' left';return}
+  if(typeof window.__busy==='function'&&window.__busy()){chip.textContent='Time\'s up for '+r.t+'. Finish this, then you\'ll move on.';return}
+  chip.textContent='Time\'s up for '+r.t;var k=r.j+'-'+r.ends;if(!ban&&key!==k){key=k;show(r)}}
+ setInterval(loop,1000);loop();
+})();
+</script>
 </body>
 </html>
