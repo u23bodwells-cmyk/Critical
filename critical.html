@@ -2689,7 +2689,7 @@ var PLAN=(function(){
  var DAYS=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'],AB=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
  /* [title, minutes, what to do, buttons [label, kind, target], shows the topic list] */
  var D=[
-  [['GCSE maths',20,'Your next GCSE Maths lesson in Critical. Or, if your list below has a weak topic, do grade 8–9 questions on it at Maths Genie and redo anything you got wrong.',[['GCSE Maths','gm'],['Maths Genie','url',MG]],1],
+  [['Fix my mistakes',20,'Clear the Fix my mistakes pile in Critical: the questions you got wrong, 10 at a time. Read the explanation again on any you miss. Empty it early and you move straight on. If it isn\'t empty after 20 minutes, the first 20 minutes of Tuesday go to it too. Nothing to fix? Do your next GCSE Maths lesson.',[['Fix my mistakes','fix'],['GCSE Maths','gm']]],
    ['Aptitude',10,'One practice set in Aptitude Gym.',[['Aptitude Gym','app',AG]]]],
   [['Calculus',30,'Your next Calculus lesson and its drill. Only move on when the drill says Mastered.',[['Next lesson','calc']]]],
   [['Python',20,'Your next Python session in Shift Ready.',[['Shift Ready','app',SR]]],
@@ -2703,20 +2703,28 @@ var PLAN=(function(){
    ['Aptitude',10,'One timed set in Aptitude Gym.',[['Aptitude Gym','app',AG]]]],
   [['Python',25,'Your next Python session in Shift Ready.',[['Shift Ready','app',SR]]],
    ['Calculus',25,'Your next Calculus lesson.',[['Next lesson','calc']]],
-   ['Weekly review',10,'Look at your list below. Move the topic you\'re worst at to the top: that\'s Monday\'s maths. Delete topics you\'ve fixed.',[],1]]];
- function mins(i){return D[i].reduce(function(s,b){return s+b[1]},0)}
+   ['Weekly review',10,'Look at your list below. Move the topic you\'re worst at to the top and practise it first next Saturday. Delete topics you\'ve fixed.',[],1]]];
+ var TUE_FIX=[['Fix my mistakes',20,'Monday\'s Fix my mistakes wasn\'t finished, so it gets the first 20 minutes today. Empty the pile early and you move straight on.',[['Fix my mistakes','fix']]],
+  ['Calculus',10,'A shorter Calculus slot today: carry on with your next lesson, or practise your last one if its drill isn\'t Mastered yet.',[['Next lesson','calc'],['Practise','calcfu']]]];
+ function pile(){try{return reviewPool(true).length}catch(_){return 0}}
+ /* Tuesday's first 20 minutes become Fix my mistakes if Monday's pile wasn't emptied. Decided once on Tuesday, then kept for the week. */
+ var ready=false;setTimeout(function(){ready=true},0);
+ function carry(){var p=PS(),t=todayI();if(p.carry==null){if(t!==1||!ready)return false;p.carry=(!p.monClr&&pile()>0)?1:0;save()}return p.carry===1}
+ function DAY(i){return i===1&&carry()?TUE_FIX:D[i]}
+ function isFix(b){return !!(b&&b[3]&&b[3][0]&&b[3][0][1]==='fix')}
+ function mins(i){return DAY(i).reduce(function(s,b){return s+b[1]},0)}
  var TOTAL=D.reduce(function(s,_,i){return s+mins(i)},0);
  function wk(){var d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-((d.getDay()+6)%7));return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()}
- function PS(){if(!S.plan||typeof S.plan!=='object')S.plan={};var p=S.plan;if(p.wk!==wk()){p.wk=wk();p.t={}}if(!p.t||typeof p.t!=='object')p.t={};if(p.auto==null)p.auto=1;if(typeof p.topics!=='string')p.topics='';return p}
+ function PS(){if(!S.plan||typeof S.plan!=='object')S.plan={};var p=S.plan;if(p.wk!==wk()){p.wk=wk();p.t={};delete p.monClr;delete p.carry}if(!p.t||typeof p.t!=='object')p.t={};if(p.auto==null)p.auto=1;if(typeof p.topics!=='string')p.topics='';return p}
  function todayI(){return (new Date().getDay()+6)%7}
  function isDone(i,j){return !!PS().t[i+'-'+j]}
- function dayDone(i){return D[i].every(function(_,j){return isDone(i,j)})}
+ function dayDone(i){return DAY(i).every(function(_,j){return isDone(i,j)})}
  var RK='critical_plan_run',ban=null,banT=null,warned={},upKey=null;
  function ymdN(){var d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()}
  function runGet(){try{var r=JSON.parse(localStorage.getItem(RK)||'null');if(r&&r.d!==ymdN()){localStorage.removeItem(RK);return null}return r}catch(_){return null}}
  function runSet(r){try{localStorage.setItem(RK,JSON.stringify(r))}catch(_){}}
  function runClear(){try{localStorage.removeItem(RK)}catch(_){}}
- function firstLeft(day,after){for(var j=0;j<D[day].length;j++){if(after!=null&&j<=after)continue;if(!isDone(day,j))return j}if(after!=null)for(j=0;j<after;j++)if(!isDone(day,j))return j;return -1}
+ function firstLeft(day,after){for(var j=0;j<DAY(day).length;j++){if(after!=null&&j<=after)continue;if(!isDone(day,j))return j}if(after!=null)for(j=0;j<after;j++)if(!isDone(day,j))return j;return -1}
  function busy(){return !!document.querySelector('#player.open')&&!(typeof P!=='undefined'&&P&&P.finished)}
  function fmtLeft(ms){return ms<60000?Math.max(0,Math.ceil(ms/1000))+' s':Math.ceil(ms/60000)+' min'}
  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
@@ -2736,6 +2744,7 @@ var PLAN=(function(){
  '.plh{margin:4px 0 0;font-size:14px;color:var(--muted);line-height:1.45}.placts{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}'+
  '.plgo{font:inherit;font-size:13px;font-weight:800;border:0;border-radius:10px;padding:8px 12px;cursor:pointer;background:var(--accent);color:var(--on-accent);text-decoration:none;display:inline-flex;align-items:center;gap:5px;line-height:1.2}.plgo.alt{background:var(--soft);color:var(--text)}'+
  '.pltop{margin-top:10px}.pltop label{font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}.pltop textarea{display:block;width:100%;box-sizing:border-box;font:inherit;font-size:14px;color:var(--text);background:var(--panel);border:1.5px solid var(--line);border-radius:10px;padding:8px 10px;min-height:70px;resize:vertical;margin-top:5px}'+
+ '.plcarry{background:var(--warn-bg);color:var(--text);border-radius:10px;padding:8px 10px}.plfixn{color:var(--text)}'+
  '.plopt{display:flex;gap:10px;align-items:center;font-size:14px;cursor:pointer}.plopt input{width:20px;height:20px;accent-color:var(--accent);flex:none}.plnote{font-size:13px;color:var(--muted);margin:0;line-height:1.45}.pldone{font-size:14px;font-weight:800;color:var(--good);margin:0}'+
  '.plrun:empty{display:none}.plrun{background:var(--accent-bg);border:2px solid var(--accent);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:8px}.plrun p{margin:0;font-size:14px;line-height:1.45}.plrun b{font-size:16px}.plrun .placts{margin-top:0}.plbig{font:inherit;font-size:16px;font-weight:800;border:0;border-radius:12px;padding:12px 16px;cursor:pointer;background:var(--accent);color:var(--on-accent);width:100%}'+
  '.plban{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom));z-index:3500;width:min(460px,calc(100% - 32px));background:var(--panel);color:var(--text);border:2px solid var(--accent);border-radius:16px;padding:12px 14px;box-shadow:0 8px 30px rgba(0,0,0,.25);display:flex;flex-direction:column;gap:8px}.plban p{margin:0;font-size:15px;line-height:1.45}.plban .placts{margin-top:0}'+
@@ -2757,17 +2766,22 @@ var PLAN=(function(){
   if(a[1]==='url'){if(openUrl)try{window.open(a[2],'_blank','noopener')}catch(_){}return}close();if(document.querySelector('#player.open')&&typeof closePlayer==='function')closePlayer();
   if(a[1]==='app'){location.href=a[2];return}
   if(a[1]==='sim'){showPage('sim');return}
+  if(a[1]==='fix'){var n=pile(),rr=runGet();if(n>0){showPage('review');startReview(true);return}
+   if(rr&&isFix(DAY(rr.day)[rr.j])&&rr.day!==0){rr.ends=Date.now();rr.early=1;rr.clr=1;runSet(rr);showPage('review');loop();return}
+   if(todayI()===0||(rr&&rr.day===0)){if(rr&&rr.day===0&&isFix(DAY(0)[rr.j])){rr.gm=1;rr.t='GCSE maths';runSet(rr)}toastIn('Nothing to fix right now, so here\'s your next GCSE Maths lesson.');S.mode=S.gsub='gm';S.seenGcse=1;save();showPage('learn');runAction(nextAction('gm'));return}
+   showPage('review');toastIn('Nothing left to fix. Nice.');return}
   if(a[1]==='gp'||a[1]==='gc'||a[1]==='gm'){S.mode=S.gsub=a[1];S.seenGcse=1;save();showPage('learn');runAction(nextAction(a[1]));return}
   if(a[1]==='calc'||a[1]==='theory'){S.mode=a[1];if(a[1]==='calc')S.seenCalc=1;else S.seenTheory=1;save();showPage('learn');runAction(nextAction(a[1]));return}
   if(a[1]==='calcfu'){S.mode='calc';S.seenCalc=1;save();showPage('learn');var id=null;allLessons('calc',0).forEach(function(x){var l=UNITS[x[0]].lessons[x[1]];if(S.done[l.id]&&FOLLOW[l.id])id=l.id});if(id)startFollow(id);else runAction(nextAction('calc'))}}
  function paint(){var p=PS(),t=todayI(),m=0;
-  D.forEach(function(d,i){d.forEach(function(b,j){if(isDone(i,j))m+=b[1]})});
+  D.forEach(function(_,i){DAY(i).forEach(function(b,j){if(isDone(i,j))m+=b[1]})});
   $q('[data-k=wk]').textContent=m+' / '+TOTAL+' min';$q('[data-k=bar]').style.width=(m/TOTAL*100)+'%';
   [].forEach.call(days.children,function(b,i){b.className=(i===cur?'on':'')+(i===t?' td':'')+(dayDone(i)?' full':'');b.setAttribute('aria-selected',i===cur)});
   $q('[data-k=dn]').textContent=(cur===t?'Today, ':'')+DAYS[cur];$q('[data-k=dt]').textContent=mins(cur)+' min · '+(cur<5?'school day':'weekend');
-  var L=$q('.plblks');L.innerHTML='';
-  D[cur].forEach(function(b,j){var dn=isDone(cur,j),e=document.createElement('div');e.className='plblk'+(dn?' done':'');
-   e.innerHTML='<button class="pltick" type="button" role="checkbox" aria-checked="'+dn+'" aria-label="'+esc(b[0])+' done">'+(dn?'✓':'')+'</button><div class="plbody"><p class="plt"><span>'+esc(b[0])+'</span><span class="plm">'+b[1]+' min</span></p><p class="plh">'+esc(b[2])+'</p><div class="placts"></div></div>';
+  var L=$q('.plblks');L.innerHTML='';var pn=DAY(cur).some(isFix)||(cur===1&&t===0)?pile():0;
+  if(cur===1&&t===0&&!p.monClr&&pn>0){var nt=document.createElement('p');nt.className='plnote plcarry';nt.textContent='If Monday\'s Fix my mistakes isn\'t finished, the first 20 minutes here go to it (then a 10-minute Calculus slot).';L.appendChild(nt)}
+  DAY(cur).forEach(function(b,j){var dn=isDone(cur,j),e=document.createElement('div');e.className='plblk'+(dn?' done':'');
+   e.innerHTML='<button class="pltick" type="button" role="checkbox" aria-checked="'+dn+'" aria-label="'+esc(b[0])+' done">'+(dn?'✓':'')+'</button><div class="plbody"><p class="plt"><span>'+esc(b[0])+'</span><span class="plm">'+b[1]+' min</span></p><p class="plh">'+esc(b[2])+(isFix(b)?' <b class="plfixn">'+(pn?pn+' to fix right now.':'Nothing to fix right now.')+'</b>':'')+'</p><div class="placts"></div></div>';
    e.querySelector('.pltick').onclick=function(){var k=cur+'-'+j;if(PS().t[k])delete PS().t[k];else PS().t[k]=1;save();var r=runGet();if(r&&PS().t[k]&&r.day===cur&&r.j===j){r.ends=Date.now();r.early=1;runSet(r);loop()}paint();paintPill()};
    var A=e.querySelector('.placts');
    b[3].forEach(function(a,ai){var x;if(a[1]==='url'){x=document.createElement('a');x.href=a[2];x.target='_blank';x.rel='noopener'}else{x=document.createElement('button');x.type='button'}
@@ -2778,16 +2792,16 @@ var PLAN=(function(){
    L.appendChild(e)});
   $q('[data-k=done]').hidden=!(cur===t&&dayDone(t));$q('[data-k=auto]').checked=!!p.auto;paintRun()}
  function paintRun(){var R=$q('[data-k=run]'),t=todayI(),r=runGet();R.innerHTML='';if(cur!==t)return;
-  if(r){var b=D[r.day][r.j],left=r.ends-Date.now();R.innerHTML='<p>Today\'s plan is running</p><b>'+esc(b[0])+' · '+(left>0?fmtLeft(left)+' left':'time\'s up')+'</b><p>When the time is up you\'ll move to the next part. If you\'re in the middle of a lesson, you can finish it first.</p><div class="placts"></div>';
+  if(r){var b=DAY(r.day)[r.j]||D[r.day][r.j],left=r.ends-Date.now();R.innerHTML='<p>Today\'s plan is running</p><b>'+esc(r.t||b[0])+' · '+(left>0?fmtLeft(left)+' left':'time\'s up')+'</b><p>When the time is up you\'ll move to the next part. If you\'re in the middle of a lesson, you can finish it first.</p><div class="placts"></div>';
    var A=R.querySelector('.placts'),x1=document.createElement('button');x1.type='button';x1.className='plgo';x1.textContent='Go to it →';x1.onclick=function(){var a=b[3][0];if(a)go(a,b[0],true);else close()};if(b[3].length)A.appendChild(x1);
    var x2=document.createElement('button');x2.type='button';x2.className='plgo alt';x2.textContent='Next part now';x2.onclick=function(){var rr=runGet();if(rr){rr.ends=Date.now();runSet(rr);loop();paint()}};A.appendChild(x2);
    var x3=document.createElement('button');x3.type='button';x3.className='plgo alt';x3.textContent='Stop the plan';x3.onclick=function(){stopRun(false)};A.appendChild(x3);return}
-  var j=firstLeft(t);if(j<0)return;var bb=document.createElement('button');bb.type='button';bb.className='plbig';bb.textContent=(D[t].some(function(_,k){return isDone(t,k)})?'Carry on with today\'s plan':'Start today\'s plan')+' ('+D[t].slice(j).filter(function(_,k){return !isDone(t,j+k)}).reduce(function(s2,x){return s2+x[1]},0)+' min)';
+  var j=firstLeft(t);if(j<0)return;var bb=document.createElement('button');bb.type='button';bb.className='plbig';bb.textContent=(DAY(t).some(function(_,k){return isDone(t,k)})?'Carry on with today\'s plan':'Start today\'s plan')+' ('+DAY(t).slice(j).filter(function(_,k){return !isDone(t,j+k)}).reduce(function(s2,x){return s2+x[1]},0)+' min)';
   bb.onclick=function(){startRun()};R.appendChild(bb);var n=document.createElement('p');n.className='plnote';n.textContent='It times each part and moves you on when it\'s time. You can always finish the lesson you\'re in first.';R.appendChild(n)}
  function startRun(){var t=todayI(),j=firstLeft(t);if(j<0)return;
   try{if('Notification' in window&&Notification.permission==='default')Notification.requestPermission()}catch(_){}
   if(typeof STUDY!=='undefined'&&STUDY.start)STUDY.start('Weekly plan · '+DAYS[t]);begin(t,j,true)}
- function begin(day,j,gesture){var b=D[day][j];runSet({d:ymdN(),day:day,j:j,t:b[0],ends:Date.now()+b[1]*60000});warned={};hideBan();paintPill();
+ function begin(day,j,gesture){var b=DAY(day)[j];runSet({d:ymdN(),day:day,j:j,t:b[0],ends:Date.now()+b[1]*60000});warned={};hideBan();paintPill();
   var a=b[3][0];if(!a){cur=day;paint();sh.classList.add('open');return}
   if(a[1]==='url'&&!gesture){cur=day;paint();sh.classList.add('open');return}
   go(a,b[0],true);if(sh.classList.contains('open'))paint()}
@@ -2798,14 +2812,20 @@ var PLAN=(function(){
   if(auto){var n=auto[0],cd=ban.querySelector('.plcd');banT=setInterval(function(){n--;if(cd)cd.textContent=n;if(n<=0){clearInterval(banT);banT=null;auto[1]()}},1000)}}
  function timeUp(r){var k=r.day+'-'+r.j;if(!PS().t[k]){PS().t[k]=1;save();if(sh.classList.contains('open'))paint()}
   var nj=firstLeft(r.day,r.j);if(nj<0){stopRun(true);return}
-  var nb=D[r.day][nj],na=nb[3][0],ext=na&&na[1]==='url',title=(r.early?'':'Time\'s up for '+esc(r.t)+'. ')+'Next: <b>'+esc(nb[0])+'</b> ('+nb[1]+' min).';
+  var ob=DAY(r.day)[r.j],left0=isFix(ob)&&!r.clr&&!r.gm?pile():0,nb=DAY(r.day)[nj],na=nb[3][0],ext=na&&na[1]==='url',title=(r.clr?'<b>Your mistakes pile is empty.</b> ':r.early?'':'Time\'s up for '+esc(r.t)+'. '+(left0&&r.day===0?left0+' left, so they\'ll come first on Tuesday. ':''))+'Next: <b>'+esc(nb[0])+'</b> ('+nb[1]+' min).';
   if(document.hidden&&!warned.n){warned.n=1;try{if('Notification' in window&&Notification.permission==='granted')new Notification('Time for '+nb[0],{body:'Come back to Critical for the next part of your plan.',tag:'critical-plan'})}catch(_){}}
   var goNext=function(){hideBan();begin(r.day,nj,true)};
   if(ext)showBan(title,[['Open '+na[0]+' ↗',goNext],['5 more minutes',more]]);
   else showBan(title+' Moving you in <span class="plcd">10</span> s.',[['Go now',goNext],['5 more minutes',more]],[10,function(){hideBan();begin(r.day,nj,false)}])}
  function more(){var r=runGet();if(r){var k=r.day+'-'+r.j;delete PS().t[k];save();r.ends=Date.now()+5*60000;r.early=0;runSet(r)}upKey=null;hideBan();paintPill();if(sh.classList.contains('open'))paint()}
- function loop(){var r=runGet();paintPill();if(!r){if(ban&&banT)hideBan();return}
-  var left=r.ends-Date.now();if(sh.classList.contains('open')&&cur===todayI()){var rb=$q('[data-k=run] b');if(rb)rb.textContent=D[r.day][r.j][0]+' · '+(left>0?fmtLeft(left)+' left':'time\'s up')}
+ var lastChk=0;
+ function fixChk(r){var now=Date.now();if(now-lastChk<3000)return;lastChk=now;var p=PS(),n=-1;
+  if(todayI()===0&&!p.monClr){n=pile();if(n===0){p.monClr=1;save()}}
+  if(!r||r.gm||r.ends<=now)return;var b=DAY(r.day)[r.j];if(!isFix(b)||busy())return;if(n<0)n=pile();
+  if(n===0){if(r.day===0){p.monClr=1;save()}r.ends=now;r.early=1;r.clr=1;runSet(r);return}
+  if(typeof P!=='undefined'&&P&&P.finished&&P.mode==='review'&&!P._plAsk&&!ban){P._plAsk=1;showBan('<b>'+n+' mistake'+(n===1?'':'s')+' left to fix.</b> '+fmtLeft(r.ends-now)+' to go on this part.',[['Next round →',function(){hideBan();go(b[3][0],b[0])}],['Not now',hideBan]])}}
+ function loop(){var r=runGet();try{fixChk(r)}catch(e){if(window.console)console.error(e)}r=runGet();paintPill();if(!r){if(ban&&banT)hideBan();return}
+  var left=r.ends-Date.now();if(sh.classList.contains('open')&&cur===todayI()){var rb=$q('[data-k=run] b');if(rb)rb.textContent=(r.t||(DAY(r.day)[r.j]||D[r.day][r.j])[0])+' · '+(left>0?fmtLeft(left)+' left':'time\'s up')}
   if(left>0)return;
   if(busy()){if(!warned.b){warned.b=1;var pf=document.getElementById('pFoot');toastIn('Time\'s up for '+r.t+'. Finish this lesson, then you\'ll move on.')}return}
   var key=r.day+'-'+r.j+'-'+r.ends;if(!ban&&upKey!==key){upKey=key;timeUp(r)}}
@@ -2819,12 +2839,12 @@ var PLAN=(function(){
  var pill=document.createElement('button');pill.type='button';pill.className='pill plpill';pill.title='This week\'s plan';pill.innerHTML=CAL+'<span class="plc"></span><i class="pldot"></i>';pill.onclick=open;
  var anchor=document.querySelector('.hdr .stpill')||document.querySelector('.hdr .calcpill')||document.querySelector('.hdr .askpill');
  if(anchor)anchor.parentNode.insertBefore(pill,anchor.nextSibling);else{var ps=document.querySelector('.hdr .pills');if(ps)ps.insertBefore(pill,ps.firstChild)}
- function paintPill(){var t=todayI(),left=D[t].filter(function(_,j){return !isDone(t,j)}).length,r=runGet(),c=pill.querySelector('.plc');pill.classList.toggle('left',left>0);pill.classList.toggle('run',!!r);
+ function paintPill(){var t=todayI(),left=DAY(t).filter(function(_,j){return !isDone(t,j)}).length,r=runGet(),c=pill.querySelector('.plc');pill.classList.toggle('left',left>0);pill.classList.toggle('run',!!r);
   if(r){var ms=r.ends-Date.now();c.textContent=ms>0?(ms<60000?Math.ceil(ms/1000)+'s':Math.ceil(ms/60000)+'m'):'0m';pill.setAttribute('aria-label','Today\'s plan: '+r.t+', '+(ms>0?fmtLeft(ms)+' left':'time\'s up'))}else{c.textContent='';pill.setAttribute('aria-label','This week\'s plan'+(left?', '+left+' to do today':', today done'))}}
  paintPill();document.addEventListener('visibilitychange',function(){if(!document.hidden){warned.n=0;loop();if(sh.classList.contains('open'))paint()}});
  setInterval(loop,1000);setTimeout(loop,600);
  if(location.hash==='#plannext'){try{history.replaceState(null,'',location.pathname+location.search)}catch(_){}}
- return {open:open,close:close,paint:paint,paintPill:paintPill,start:startRun,stop:stopRun,loop:loop,running:function(){return !!runGet()},todayLeft:function(){return firstLeft(todayI())>=0},D:D};
+ return {open:open,close:close,paint:paint,paintPill:paintPill,start:startRun,stop:stopRun,loop:loop,running:function(){return !!runGet()},todayLeft:function(){return firstLeft(todayI())>=0},D:D,DAY:DAY,pile:pile,TUE_FIX:TUE_FIX};
 })();
 try{window.PLAN=PLAN}catch(_){}
 /* ===== exam practice: real past papers, a countdown timer and an answer sheet to send to Claude ===== */
