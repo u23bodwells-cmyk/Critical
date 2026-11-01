@@ -548,6 +548,7 @@ body,.hdr,.card,.unit,.pill,.msb,.opt,.prose .key,.tlinfo,.sbin,.schip{transitio
 .lvwt span{font-size:14.5px}
 .lvwb{display:flex;align-items:center;gap:8px}
 .lvwb .ghost{margin:0}
+.cmbox{background:var(--good-bg);border:1.5px solid var(--good-line);border-radius:12px;padding:8px 12px;margin-top:8px}
 </style>
 </head>
 <body>
@@ -1292,17 +1293,60 @@ function cleanState(s){
  o.wrong={};if(s.wrong&&typeof s.wrong==='object')for(var wk in s.wrong){var mt=/^F?([a-z0-9]+)#(\d{1,3})$/.exec(wk);if(mt&&ids[mt[1]]&&s.wrong[wk])o.wrong[wk]=1}
  o.quests=null;var q=s.quests;if(q&&typeof q.d==='string'&&dre.test(q.d)&&Array.isArray(q.list)&&q.list.length<=3&&q.list.every(function(it){return it&&QDEF[it.k]&&num(it.n,1,1e5)&&num(it.p,0,1e5)!==null})){o.quests={d:q.d,chest:!!q.chest,list:q.list.map(function(it){return {k:it.k,n:num(it.n,1,1e5),p:Math.min(num(it.p,0,1e5),num(it.n,1,1e5)),done:!!it.done}})}}
  o.fu={};if(s.fu&&typeof s.fu==='object')for(var fk in s.fu){var fv=s.fu[fk];if(ids[fk]&&fv&&typeof fv==='object'){var r={need:!!fv.need,n:num(fv.n,0,1e5)||0,best:num(fv.best,0,100)||0};var lv=num(fv.last,0,100);if(lv!==null)r.last=lv;o.fu[fk]=r}}
+ KEEP_FIELDS.forEach(function(k){var v=s[k];if(v!==undefined&&v!==null&&/^(object|string|number|boolean)$/.test(typeof v)){try{o[k]=JSON.parse(JSON.stringify(v))}catch(e){}}});
  var uids={};UNITS.forEach(function(u){uids[u.id]=1});o.tests={};if(s.tests&&typeof s.tests==='object')for(var tk in s.tests){var tv=s.tests[tk];if(uids[tk]&&tv&&typeof tv==='object')o.tests[tk]={best:num(tv.best,0,100)||0,passed:!!tv.passed,n:num(tv.n,0,1e5)||0,last:(typeof tv.last==='string'&&dre.test(tv.last))?tv.last:'',lastPct:num(tv.lastPct,0,100)||0}}
  return o}
+var KEEP_FIELDS=['mode','gsub','lvl','lvlOpen','lvtests','seenGcse','seenCalc','seenTheory','plView','exam','plan','habits','dayplan','lacc','hardOff','dayNudge','qsets'];
+var EXTRA_KEYS={study:'critical_study',shift:'shift-ready-v1',apt:'aptitude-v1'};
+function readExtras(){var o={};for(var k in EXTRA_KEYS){try{var v=JSON.parse(localStorage.getItem(EXTRA_KEYS[k])||'null');if(v&&typeof v==='object')o[k]=v}catch(e){}}if(o.study)o.study=Object.assign({},o.study,{run:null});return o}
+function writeExtras(x){if(!x)return;for(var k in EXTRA_KEYS)if(x[k]&&typeof x[k]==='object'){try{localStorage.setItem(EXTRA_KEYS[k],JSON.stringify(x[k]))}catch(e){}}}
 function packSave(){var th=null;try{th=localStorage.getItem('critical_theme')}catch(e){}
- return {app:'Critical nuclear engineering',format:1,saved:new Date().toISOString(),theme:th,progress:S}}
+ return {app:'Critical nuclear engineering',format:1,saved:new Date().toISOString(),theme:th,progress:S,extras:readExtras()}}
+/* ----- combining two saves (this device + a file from another device) ----- */
+function ndate(x){var m=/^(\d{4})-(\d{1,2})-(\d{1,2})/.exec(String(x||''));return m?m[1]+'-'+('0'+m[2]).slice(-2)+'-'+('0'+m[3]).slice(-2):''}
+function gmerge(a,b){if(a===undefined||a===null)return b;if(b===undefined||b===null)return a;
+ if(Array.isArray(a)&&Array.isArray(b)){var seen={},out=[];a.concat(b).forEach(function(x){var k=JSON.stringify(x);if(!seen[k]){seen[k]=1;out.push(x)}});return out.slice(-500)}
+ if(typeof a==='object'&&typeof b==='object'&&!Array.isArray(a)&&!Array.isArray(b)){var o={},k;for(k in a)o[k]=(k in b)?gmerge(a[k],b[k]):a[k];for(k in b)if(!(k in a))o[k]=b[k];return o}
+ if(typeof a==='number'&&typeof b==='number')return Math.max(a,b);
+ if(typeof a==='boolean'&&typeof b==='boolean')return a||b;
+ if(typeof a==='string'&&typeof b==='string'){var da=ndate(a),db=ndate(b);if(da&&db)return da>=db?a:b;return a||b}
+ return a}
+function mergeState(A,B){var o=gmerge(A,B),k,d;
+ /* XP: add up each day's XP from both devices (a day with the same XP on both is shared history, so it counts once) */
+ var hA=A.hist||{},hB=B.hist||{},Hh={},sA=0,sB=0,sH=0,days={};for(d in hA){sA+=hA[d]||0;days[d]=1}for(d in hB){sB+=hB[d]||0;days[d]=1}
+ for(d in days){var a=hA[d]||0,b=hB[d]||0;Hh[d]=a===b?a:a+b;sH+=Hh[d]}
+ o.hist=Hh;o.xp=Math.max(0,Math.round(Math.max((A.xp||0)-sA,(B.xp||0)-sB)))+sH;
+ o.badges={};[A.badges||{},B.badges||{}].forEach(function(bb){for(var k2 in bb)if(!o.badges[k2]||ndate(bb[k2])<ndate(o.badges[k2]))o.badges[k2]=bb[k2]});
+ var la=ndate(A.last),lb=ndate(B.last);o.last=la>=lb?(A.last||''):(B.last||'');var L=ndate(o.last),run=0;
+ if(L){var dd=new Date(L+'T12:00:00');while((Hh[dstr(dd)]||0)>0&&run<400){run++;dd.setDate(dd.getDate()-1)}}
+ o.streak=Math.max(run,la===L?A.streak||0:0,lb===L?B.streak||0:0);o.daily={d:o.last,xp:Hh[L]||0};
+ /* follow-ups: passing one on either device counts */
+ o.fu={};var fa=A.fu||{},fb=B.fu||{};for(k in fa)o.fu[k]=fa[k];for(k in fb){var x=fb[k],y=o.fu[k];if(!y){o.fu[k]=x;continue}var r={need:!!(x.need&&y.need),n:Math.max(x.n||0,y.n||0),best:Math.max(x.best||0,y.best||0)},lt=(x.n||0)>(y.n||0)?x.last:y.last;if(lt!=null)r.last=lt;o.fu[k]=r}
+ /* habits: a full tick beats a bad-day tick */
+ if(A.habits||B.habits){var ha=A.habits||{},hb=B.habits||{},hl={},on=(ha.on||[]).slice();(hb.on||[]).forEach(function(x){if(on.indexOf(x)<0)on.push(x)});
+  [ha.log||{},hb.log||{}].forEach(function(Lg){for(var d2 in Lg)for(var id in Lg[d2]){var v=Lg[d2][id];hl[d2]=hl[d2]||{};var c=hl[d2][id];hl[d2][id]=(c===1||v===1)?1:(c||v)}});
+  var since={},sa=ha.since||{},sb=hb.since||{};for(k in sa)since[k]=sa[k];for(k in sb)if(!since[k]||sb[k]<since[k])since[k]=sb[k];o.habits={on:on,since:since,log:hl}}
+ /* weekly plan: ticks from the same week combine; otherwise keep the newer week */
+ if(A.plan&&B.plan&&A.plan.wk!==B.plan.wk)o.plan=ndate(A.plan.wk)>=ndate(B.plan.wk)?A.plan:B.plan;
+ /* exams: one entry per paper you sat, keeping the marked score */
+ if(A.exam||B.exam){var ea=A.exam||{},eb=B.exam||{},byId={},list=[];(ea.hist||[]).concat(eb.hist||[]).forEach(function(e){if(!e||typeof e!=='object')return;var key=e.id+'|'+e.d;var p=byId[key];if(!p){byId[key]=e;list.push(e)}else if(p.score==null&&e.score!=null){list[list.indexOf(p)]=e;byId[key]=e}});
+  list.sort(function(p,q){return String(q.d||'').localeCompare(String(p.d||''))});o.exam=Object.assign({},ea,{cur:ea.cur||eb.cur||null,hist:list.slice(0,40)})}
+ /* level-too-hard history: keep the latest few */
+ if(A.lacc||B.lacc){o.lacc={};var ka={};for(k in A.lacc||{})ka[k]=1;for(k in B.lacc||{})ka[k]=1;for(k in ka){var arr=gmerge((A.lacc||{})[k]||[],(B.lacc||{})[k]||[]);arr.sort(function(p,q){return p[1]-q[1]});o.lacc[k]=arr.slice(-5)}}
+ /* things that belong to this device stay as they are */
+ ['mode','gsub','lvl','plView','dayNudge','goal','sound','dayplan','quests','qsets'].forEach(function(f){if(A[f]!==undefined)o[f]=A[f]});
+ return o}
+function mergeExtras(A,B){A=A||{};B=B||{};var o={};
+ if(A.study||B.study){var sa=(A.study&&A.study.sessions)||[],sb=(B.study&&B.study.sessions)||[],seen={},ss=[];sa.concat(sb).forEach(function(x){if(!x)return;var k=x.c||JSON.stringify(x);if(!seen[k]){seen[k]=1;ss.push(x)}});
+  o.study=Object.assign({},B.study||{},A.study||{},{sessions:ss})}
+ ['shift','apt'].forEach(function(k){if(A[k]||B[k])o[k]=gmerge(A[k],B[k])});return o}
 function saveCode(){var j=JSON.stringify(packSave());return SAVE_PREFIX+btoa(unescape(encodeURIComponent(j)))}
 function readSave(text){text=String(text||'').trim();var obj=null;
  try{if(text.indexOf(SAVE_PREFIX)===0)obj=JSON.parse(decodeURIComponent(escape(atob(text.slice(SAVE_PREFIX.length).replace(/\s+/g,'')))));
   else{var a=text.indexOf('{');if(a>=0)obj=JSON.parse(text.slice(a))}}catch(e){return {err:'That doesn\'t look like a Critical save. Check you picked the right file or copied the whole code.'}}
  if(!obj||obj.format!==1||!obj.progress)return {err:'That doesn\'t look like a Critical save. Check you picked the right file or copied the whole code.'};
  var st=cleanState(obj.progress);if(!st)return {err:'This save file is damaged, so nothing was loaded.'};
- return {state:st,theme:(obj.theme==='dark'||obj.theme==='light')?obj.theme:null,saved:obj.saved}}
+ return {state:st,theme:(obj.theme==='dark'||obj.theme==='light')?obj.theme:null,saved:obj.saved,extras:(obj.extras&&typeof obj.extras==='object')?obj.extras:null}}
 function summary(st){var n=0;for(var k in st.done)n++;var m=0;for(var j in st.missions)m++;
  return '<b>'+st.xp+' XP</b> · '+n+' lesson'+(n===1?'':'s')+' · '+m+' mission'+(m===1?'':'s')}
 function niceDate(iso){if(!iso)return 'unknown date';var d=new Date(iso);if(isNaN(d))return 'unknown date';
@@ -1310,7 +1354,7 @@ function niceDate(iso){if(!iso)return 'unknown date';var d=new Date(iso);if(isNa
 function backupDays(){if(!S.backup)return null;var d=dayDiff(S.backup,today());return isNaN(d)?null:d}
 function backupAge(){var d=backupDays();return d===null?'never':d<=0?'today':d===1?'yesterday':d+' days ago'}
 function progressBar(){var n=doneCount('all'),d=backupDays(),stale=d===null?n>0:d>=7;
- return '<div class="card savecard" id="saveCard"><div class="savehead"><div class="saveicon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg></div><div><h2>Your progress</h2><p class="note">Saved automatically on this device. To carry on somewhere else, save a progress file and load it on the other device. Last saved to a file: <b'+(stale?' style="color:var(--warn)"':'')+'>'+backupAge()+'</b>.</p></div></div>'+
+ return '<div class="card savecard" id="saveCard"><div class="savehead"><div class="saveicon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg></div><div><h2>Your progress</h2><p class="note">Saved automatically on this device. To carry on somewhere else, save a progress file and load it on the other device. If both devices have progress, choose Combine and nothing is lost. Last saved to a file: <b'+(stale?' style="color:var(--warn)"':'')+'>'+backupAge()+'</b>.</p></div></div>'+
  '<div class="savebtns"><button class="wbtn pri" id="svFile">Save progress file</button><button class="wbtn" id="ldFile">Load progress file</button><button class="skip" id="svMore">Use a save code instead</button></div>'+
  '<input type="file" id="ldInput" accept=".json,.txt,application/json,text/plain" hidden>'+
  '<div id="svCodeBox" class="savebox" hidden><p class="note" style="margin:0 0 6px">A save code is your progress written as text. Copy it, send it to yourself (email, Google Docs or Classroom), then paste it into the second box on the other device.</p><label class="note" for="svCode">Your save code</label><textarea id="svCode" rows="3" readonly spellcheck="false"></textarea><div class="savebtns"><button class="wbtn" id="svCopy">Copy my save code</button></div><label class="note" for="ldPaste" style="display:block;margin-top:10px">Paste a code from another device</label><textarea id="ldPaste" rows="3" spellcheck="false" placeholder="CRITICAL-SAVE-1:..."></textarea><div class="savebtns"><button class="wbtn" id="ldCode">Load pasted code</button></div></div>'+
@@ -1327,12 +1371,19 @@ function wireProgress(){var msgEl=$('svMsg');function say(t,ok){msgEl.className=
  $('ldCode').onclick=function(){var v=$('ldPaste').value.trim();if(!v){say('Paste the save code from your other device into the second box first.',false);$('ldPaste').focus();return}preview(readSave(v))};
  function preview(res){var p=$('ldPreview');if(res.err){p.hidden=true;say(res.err,false);return}say('');
   var cur=S,n0=doneCount('all'),n1=0;for(var k in res.state.done)n1++;var less=res.state.xp<cur.xp||n1<n0;
+  var merged=mergeState(S,res.state);
   p.hidden=false;p.innerHTML='<div class="cmp"><div><p class="note">In the save (from '+niceDate(res.saved)+')</p><p>'+summary(res.state)+'</p></div><div><p class="note">On this device now</p><p>'+summary(cur)+'</p></div></div>'+
-   (less?'<p class="wmsg no" style="margin:6px 0">This save has less progress than this device. Loading it will replace what\'s here.</p>':'<p class="note" style="margin:6px 0">Loading replaces the progress on this device.</p>')+
-   '<div class="savebtns"><button class="wbtn pri" id="ldYes">Load this progress</button><button class="wbtn" id="ldNo">Cancel</button></div>';
+   '<div class="cmbox"><p class="note" style="margin:0">If you combine them</p><p style="margin:2px 0 0">'+summary(merged)+'</p></div>'+
+   '<p class="note" style="margin:6px 0">Combine keeps everything from both: lessons, XP, tests, exam scores, habits and study time.'+(res.extras?' Shift Ready and Aptitude Gym progress is combined too.':' This save is from before Shift Ready, Aptitude Gym and study time were included, so only Critical progress is combined.')+' Replace swaps this device\'s progress for the save.</p>'+
+   '<div class="savebtns"><button class="wbtn pri" id="ldMix">Combine with this device</button><button class="wbtn" id="ldYes">Replace with the save</button><button class="wbtn" id="ldNo">Cancel</button></div><p class="wmsg no" id="ldWarn" hidden style="margin:6px 0"></p>';
   $('ldNo').onclick=function(){p.hidden=true;p.innerHTML=''};
-  $('ldYes').onclick=function(){S=res.state;motInit();checkBadges(true);save();if(res.theme){document.documentElement.setAttribute('data-theme',res.theme);try{localStorage.setItem('critical_theme',res.theme)}catch(e){}}
-   updHeader();renderLearn();var sm=$('sMis');if(sm&&typeof MISSIONS!=='undefined')[].forEach.call(sm.options,function(o,i){if(MISSIONS[i])o.textContent=MISSIONS[i].name+(S.missions[MISSIONS[i].id]?' ✓':'')});var m=$('svMsg');m.className='wmsg ok';m.innerHTML='Progress loaded: '+summary(S)+'. Welcome back!';$('saveCard').scrollIntoView({block:'nearest'});redrawAll()}}}
+  function finish(state,extras,msg,theme){S=state;motInit();checkBadges(true);save();if(extras)writeExtras(extras);
+   if(theme){document.documentElement.setAttribute('data-theme',theme);try{localStorage.setItem('critical_theme',theme)}catch(e){}}
+   try{sessionStorage.setItem('critical_load_msg',msg+': '+summary(S).replace(/<[^>]+>/g,''))}catch(e){}location.reload()}
+  $('ldMix').onclick=function(){finish(mergeState(S,res.state),res.extras?mergeExtras(readExtras(),res.extras):null,'Progress combined')};
+  var armed=false;$('ldYes').onclick=function(){if(less&&!armed){armed=true;var w=$('ldWarn');w.hidden=false;w.textContent='This save has less progress than this device, so replacing will lose some. Press Replace again if you\'re sure, or use Combine.';this.textContent='Replace anyway';return}
+   finish(res.state,res.extras||null,'Progress loaded',res.theme)}}}
+try{var LMSG=sessionStorage.getItem('critical_load_msg');if(LMSG){sessionStorage.removeItem('critical_load_msg');setTimeout(function(){try{toast(BOLT,LMSG.split(':')[0],LMSG.slice(LMSG.indexOf(':')+2))}catch(e){}},900)}}catch(e){}
 
 var SP={beta:0.0065,bi:[0.033,0.219,0.196,0.395,0.115,0.042],li:[0.0124,0.0305,0.111,0.301,1.14,3.01],Lam:2e-5,LS:3e-11,Pfull:3000,Rf:500/3000,Cf:30,Cc:1500,mcp:90.9,pump:15,aM:-30,aF:-2.5,bw:-10,Wsd:4000,Wcb:3000,dh:[[0.025,0.1],[0.018,0.005],[0.012,0.00025],[0.010,1e-5]],lI:2.93e-5,lX:2.09e-5,gX:0.05,bX:1.2e-4,XeW:2800,dt:0.02,Tsat:344.8};
 SP.dhSum=SP.dh.reduce(function(a,b){return a+b[0]},0);
