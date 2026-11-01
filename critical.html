@@ -2648,7 +2648,7 @@ var STUDY=(function(){
   if(!canFS){h+='<p class="stnote">Open Critical in Chrome or Edge to set up reminders. This browser can\'t share your study time with them.</p>';R.innerHTML=h;return}
   h+='<ol><li><a href="https://u23bodwells-cmyk.github.io/Critical/reminders/critical-reminders.zip" target="_blank" rel="noopener" download>Download the reminder setup</a>, right-click it, choose <b>Extract All</b>, then double-click <b>install.cmd</b>. If Windows warns you, click <b>More info → Run anyway</b>.</li>'+
    '<li>Connect this app to the reminders, so they know when you\'ve studied: <button class="stbtn alt" type="button" data-a="link">'+(linkState==='ok'?'Connected ✓':linkState==='lost'?'Reconnect':'Choose the Critical folder')+'</button><br><span class="stnote">'+(linkState==='ok'?'Your study time is shared with the reminders.':linkState==='lost'?'Windows needs you to allow access again. Tap Reconnect and choose Allow.':'Pick <b>Documents → Critical</b>, then click <b>Select folder</b> and <b>Allow</b>. If it asks, choose “Allow on every visit”.')+'</span></li></ol>'+
-   '<p class="stnote">You\'ll get a reminder at 4:15pm on school days, then at 6pm and 8pm if you still haven\'t studied. Any session counts.</p>';
+   '<p class="stnote">You\'ll get a reminder at 4:15pm on school days, then at 6pm and 8pm if you still haven\'t studied. Any session counts. It also opens Critical when you turn on or unlock your PC after 3pm on a school day, so your evening timetable starts from when you get home. Already set up? Download it again and rerun install.cmd to add this.</p>';
   R.innerHTML=h;var lb=R.querySelector('[data-a=link]');if(lb)lb.onclick=function(){linkState==='lost'?writeFile(true):link()}}
  function startTick(){clearInterval(tick);tick=setInterval(paintClock,1000);paintClock()}
  $('[data-a=go]').onclick=function(){note('');
@@ -2789,12 +2789,37 @@ var PLAN=(function(){
  function tmin(x){var a=x.split(':');return +a[0]*60+ +a[1]}
  function f12(x){var m=tmin(x),h=Math.floor(m/60),n=m%60;return (h%12||12)+':'+(n<10?'0':'')+n+(h>=12?'pm':'am')}
  function nowMin(){var d=new Date();return d.getHours()*60+d.getMinutes()}
- function nowRow(){if(todayI()>4)return -1;var R=rows(),m=nowMin(),k=-1;for(var i=0;i<R.length;i++)if(tmin(R[i][0])<=m)k=i;return k}
+ function m12(m){var h=Math.floor(m/60)%24,n=m%60;return (h%12||12)+':'+(n<10?'0':'')+n+(h>=12?'pm':'am')}
+ /* when you got home today: set when the PC opens Critical after 3pm on a school day (#home), or with "I'm home now" */
+ var HK='critical_home',HOME_FROM=15*60;
+ function homeGet(){try{var o=JSON.parse(localStorage.getItem(HK)||'null');return o&&o.d===ymdN()?o:null}catch(_){return null}}
+ function homeSet(at,off){try{localStorage.setItem(HK,JSON.stringify({d:ymdN(),at:at,off:off?1:0}))}catch(_){}}
+ function homeAuto(){if(todayI()>4||homeGet())return;var m=nowMin(),T=rows(),last=tmin(T[T.length-1][0]);if(m>=HOME_FROM&&m<last)homeSet(m,0)}
+ var FLEX={home:1,study:1,plan:1};
+ /* today's rows as [startMin,label,kind]: the usual times, or moved to start when you got home. Dinner, screens off and sleep stay put. */
+ function sched(){var T=rows().map(function(r){return {m:tmin(r[0]),l:r[1],k:r[2]||'free'}}).sort(function(a,b){return a.m-b.m});
+  T.forEach(function(r,i){r.d=T[i+1]?T[i+1].m-r.m:0});
+  var h=todayI()<5?homeGet():null,A=h&&!h.off?h.at:null,info={shift:0,skip:[],skipK:[],at:A};
+  if(A==null||Math.abs(A-T[0].m)<3){info.rows=T.map(function(r){return [r.m,r.l,r.k]});return info}
+  var X=T.filter(function(r){return !FLEX[r.k]&&r.k!=='free'}).map(function(r){return {m:r.m,e:r.k==='sleep'?r.m+600:r.m+r.d,l:r.l,k:r.k}}).filter(function(x){return x.e>A}),
+   lim=X.filter(function(x){return x.k==='read'||x.k==='sleep'}).reduce(function(a,x){return Math.min(a,x.m)},24*60),F=T.filter(function(r){return FLEX[r.k]});
+  function place(brk){var cur=A,out=[],skip=[],full=false;
+   F.forEach(function(f){var d=f.k==='home'?Math.min(f.d,brk):f.d,st=cur,mv=true,g=0;
+    if(f.k==='home'){var hit=X.filter(function(x){return st<x.e&&st+d>x.m})[0];if(hit&&hit.m-st>=10)d=hit.m-st}
+    while(mv&&g++<20){mv=false;X.forEach(function(x){if(st<x.e&&st+d>x.m){st=x.e;mv=true}})}
+    if(full||st+d>lim){full=true;skip.push(f)}else{out.push({m:st,e:st+d,l:f.l,k:f.k});cur=st+d}});
+   return {out:out,skip:skip}}
+  var P1=place(999);if(P1.skip.length){var P2=place(10);if(P2.skip.length<P1.skip.length)P1=P2}
+  info.skip=P1.skip.map(function(f){return f.l});info.skipK=P1.skip.map(function(f){return f.k});
+  var all=P1.out.concat(X).sort(function(a,b){return a.m-b.m}),R=[],end=A;
+  all.forEach(function(r){if(r.m-end>=10&&r.m>A)R.push([end,'Free time','free']);R.push([r.m,r.l,r.k]);end=Math.max(end,r.k==='sleep'?r.m:r.e)});
+  info.shift=A-T[0].m;info.rows=R;return info}
+ function nowRow(){if(todayI()>4)return -1;var R=sched().rows,m=nowMin(),k=-1;for(var i=0;i<R.length;i++)if(R[i][0]<=m)k=i;return k}
  var view=(S.plView==='day')?'day':'plan',editing=null;
  function setView(v){view=v;S.plView=v;save();editing=null;paint()}
  [].forEach.call(sh.querySelectorAll('.plseg button'),function(b){b.onclick=function(){setView(b.dataset.v)}});
- function paintDay(){var D2=$q('.pldv'),R=rows(),t=todayI(),school=t<5,k=nowRow(),L=$q('.pldl'),now=$q('[data-k=now]'),A=$q('[data-k=dacts]');L.innerHTML='';A.innerHTML='';
-  if(editing){now.innerHTML='<b>Edit your school day</b>Change any time or name. Rows sort themselves by time when you save.';
+ function paintDay(){var D2=$q('.pldv'),SC=sched(),R=SC.rows,t=todayI(),school=t<5,k=nowRow(),L=$q('.pldl'),now=$q('[data-k=now]'),A=$q('[data-k=dacts]'),hm=homeGet();L.innerHTML='';A.innerHTML='';
+  if(editing){now.innerHTML='<b>Edit your usual school day</b>Change any time or name. Rows sort themselves by time when you save. If you get home late, the first part still moves later by itself.';
    editing.forEach(function(r,i){var e=document.createElement('div');e.className='pldr';e.innerHTML='<input type="time" step="300" aria-label="Start time"><input type="text" maxlength="40" aria-label="What you do"><button class="pldel" type="button" aria-label="Remove this row">✕</button>';
     var ti=e.querySelector('[type=time]'),tx=e.querySelector('[type=text]');ti.value=r[0];tx.value=r[1];ti.oninput=function(){r[0]=ti.value};tx.oninput=function(){r[1]=tx.value};
     e.querySelector('.pldel').onclick=function(){editing.splice(i,1);paintDay()};L.appendChild(e)});
@@ -2807,24 +2832,28 @@ var PLAN=(function(){
    var rs=document.createElement('button');rs.type='button';rs.className='plgo alt';rs.textContent='Reset to the original';rs.onclick=function(){editing=DAYDEF.map(function(r){return r.slice()});paintDay()};
    A.appendChild(sv);A.appendChild(add);A.appendChild(cn);A.appendChild(rs);return}
   if(!school)now.innerHTML='<b>It\'s the weekend</b>This timetable is for school days. Your plan today is in Study plan.';
-  else if(k<0)now.innerHTML='<b>Your evening starts at '+f12(R[0][0])+'</b>'+esc(R[0][1])+' first.';
-  else now.innerHTML='<b>Now: '+esc(R[k][1])+'</b>'+(R[k+1]?'Until '+f12(R[k+1][0])+'. Next: '+esc(R[k+1][1])+'.':'Good night.');
+  else if(k<0)now.innerHTML='<b>Your evening starts when you get home</b>Usually '+m12(R[0][0])+'. It starts when you turn on your PC after 3pm, or when you press I\'m home now.';
+  else now.innerHTML='<b>Now: '+esc(R[k][1])+'</b>'+(R[k+1]?'Until '+m12(R[k+1][0])+'. Next: '+esc(R[k+1][1])+'.':'Good night.');
+  if(school&&SC.at!=null&&SC.shift){var sh2=document.createElement('p');sh2.className='plnote plcarry';var ad=Math.abs(SC.shift),dur=ad>=60?Math.floor(ad/60)+(ad>=120?' hours':' hour')+(ad%60?' '+ad%60+' min':''):ad+' minutes';sh2.textContent='You got home at '+m12(SC.at)+', so your evening starts from then ('+dur+(SC.shift>0?' later':' earlier')+' than usual). Dinner, screens off and sleep stay the same.';L.appendChild(sh2)}
+  if(school&&SC.skip.length){var sk=document.createElement('p');sk.className='plnote plcarry';sk.textContent=SC.skipK.indexOf('study')>=0?'It\'s late, so not everything fits tonight. If you have homework due tomorrow, do that and skip the rest.':'Doesn\'t fit tonight: '+SC.skip.join(', ')+'. Homework comes first, so leave it for tomorrow.';L.appendChild(sk)}
   R.forEach(function(r,i){var e=document.createElement('div');e.className='pldr'+(school&&k>=0&&i<k?' past':'')+(school&&i===k?' now':'');
-   e.innerHTML='<span class="dot k-'+esc(r[2]||'free')+'"></span><span class="tm">'+f12(r[0])+'</span><span class="lb">'+esc(r[1])+'</span>'+(school&&i===k?'<span class="nowb">Now</span>':'');
+   e.innerHTML='<span class="dot k-'+esc(r[2]||'free')+'"></span><span class="tm">'+m12(r[0])+'</span><span class="lb">'+esc(r[1])+'</span>'+(school&&i===k?'<span class="nowb">Now</span>':'');
    if(r[2]==='plan'&&school){var dn=firstLeft(t)<0,run=!!runGet(),b=document.createElement('button');b.type='button';b.className='plgo'+(dn||run?' alt':'');b.textContent=dn?'Done ✓':run?'Running':'Start →';if(!dn&&!run)b.onclick=function(){startRun()};else b.onclick=function(){setView('plan')};e.appendChild(b)}
    L.appendChild(e)});
+  if(school&&nowMin()>=HOME_FROM){var ih=document.createElement('button');ih.type='button';ih.className='plgo';ih.textContent='I\'m home now';ih.onclick=function(){homeSet(nowMin(),0);paint()};A.appendChild(ih);
+   if(hm&&!hm.off&&SC.shift){var us=document.createElement('button');us.type='button';us.className='plgo alt';us.textContent='Use my usual times';us.onclick=function(){homeSet(null,1);paint()};A.appendChild(us)}}
   var ed=document.createElement('button');ed.type='button';ed.className='plgo alt';ed.textContent='Edit times';ed.onclick=function(){editing=rows().map(function(r){return r.slice()});paintDay()};A.appendChild(ed);
-  var pr=R.filter(function(r){return r[2]==='plan'})[0],rr=R.filter(function(r){return r[2]==='read'})[0],parts=[];if(pr)parts.push(f12(pr[0])+' for your plan');if(rr)parts.push(f12(rr[0])+' for screens off');
+  var pr=R.filter(function(r){return r[2]==='plan'})[0],rr=R.filter(function(r){return r[2]==='read'})[0],parts=[];if(pr)parts.push(m12(pr[0])+' for your plan');if(rr)parts.push(m12(rr[0])+' for screens off');
   $q('[data-k=nudget]').textContent=parts.length?'Nudge me at '+parts.join(' and ')+' (while Critical is open)':'Nudge me when it\'s time (while Critical is open)';$q('[data-k=nudge]').checked=S.dayNudge!==0}
  $q('[data-k=nudge]').onchange=function(){S.dayNudge=this.checked?1:0;save()};
  var NK='critical_day_nudge',lastNudge=0;
  function nudgeGet(){try{var o=JSON.parse(localStorage.getItem(NK)||'null');return o&&o.d===ymdN()?o:{d:ymdN(),s:{}}}catch(_){return {d:ymdN(),s:{}}}}
- function dayNudge(){var now=Date.now();if(now-lastNudge<15000)return;lastNudge=now;if(S.dayNudge===0||todayI()>4||ban)return;var R=rows(),m=nowMin(),o=nudgeGet();
-  R.forEach(function(r,i){var k=r[2];if((k!=='plan'&&k!=='read')||o.s[k]||ban)return;var st=tmin(r[0]);if(m<st||m>=st+30)return;
+ function dayNudge(){var now=Date.now();if(now-lastNudge<15000)return;lastNudge=now;if(S.dayNudge===0||todayI()>4||ban)return;var R=sched().rows,m=nowMin(),o=nudgeGet();
+  R.forEach(function(r,i){var k=r[2];if((k!=='plan'&&k!=='read')||o.s[k]||ban)return;var st=r[0];if(m<st||m>=st+30)return;
    if(k==='plan'){if(runGet()||firstLeft(todayI())<0||busy())return;o.s[k]=1;try{localStorage.setItem(NK,JSON.stringify(o))}catch(_){}
     var left=DAY(todayI()).filter(function(_,j){return !isDone(todayI(),j)}).reduce(function(a,b){return a+b[1]},0);
-    showBan('<b>'+f12(r[0])+': time for today\'s plan.</b> '+left+' minutes.',[['Start today\'s plan',function(){hideBan();startRun()}],['Later',hideBan]])}
-   else{o.s[k]=1;try{localStorage.setItem(NK,JSON.stringify(o))}catch(_){}var nx=R[i+1];showBan('<b>'+f12(r[0])+': '+esc(r[1]).replace(/^./,function(c){return c.toLowerCase()})+'.</b>'+(nx?' '+esc(nx[1])+' at '+f12(nx[0])+'.':'')+' Good night.',[['Good night',hideBan]])}})}
+    showBan('<b>'+m12(r[0])+': time for today\'s plan.</b> '+left+' minutes.',[['Start today\'s plan',function(){hideBan();startRun()}],['Later',hideBan]])}
+   else{o.s[k]=1;try{localStorage.setItem(NK,JSON.stringify(o))}catch(_){}var nx=R[i+1];showBan('<b>'+m12(r[0])+': '+esc(r[1]).replace(/^./,function(c){return c.toLowerCase()})+'.</b>'+(nx?' '+esc(nx[1])+' at '+m12(nx[0])+'.':'')+' Good night.',[['Good night',hideBan]])}})}
  function paint(){var p=PS(),t=todayI(),m=0;
   [].forEach.call(sh.querySelectorAll('.plseg button'),function(b){var on=b.dataset.v===view;b.classList.toggle('on',on);b.setAttribute('aria-selected',on)});
   $q('.plmain').hidden=view!=='plan';$q('.pldv').hidden=view!=='day';$q('.plhd b').textContent=view==='day'?'Your school day':'This week\'s plan';if(view==='day'){paintDay();return}
@@ -2899,7 +2928,8 @@ var PLAN=(function(){
  paintPill();document.addEventListener('visibilitychange',function(){if(!document.hidden){warned.n=0;loop();if(sh.classList.contains('open'))paint()}});
  setInterval(loop,1000);setTimeout(loop,600);
  if(location.hash==='#plannext'){try{history.replaceState(null,'',location.pathname+location.search)}catch(_){}}
- return {open:open,close:close,paint:paint,paintPill:paintPill,start:startRun,stop:stopRun,loop:loop,running:function(){return !!runGet()},todayLeft:function(){return firstLeft(todayI())>=0},D:D,DAY:DAY,pile:pile,TUE_FIX:TUE_FIX,rows:rows,nowRow:nowRow};
+ if(location.hash==='#home'){try{history.replaceState(null,'',location.pathname+location.search)}catch(_){}setTimeout(function(){try{homeAuto();open('day')}catch(_){}},400)}
+ return {open:open,close:close,paint:paint,paintPill:paintPill,start:startRun,stop:stopRun,loop:loop,running:function(){return !!runGet()},todayLeft:function(){return firstLeft(todayI())>=0},D:D,DAY:DAY,pile:pile,TUE_FIX:TUE_FIX,rows:rows,nowRow:nowRow,sched:sched,home:homeGet};
 })();
 try{window.PLAN=PLAN}catch(_){}
 /* ===== exam practice: real past papers, a countdown timer and an answer sheet to send to Claude ===== */
