@@ -549,6 +549,7 @@ body,.hdr,.card,.unit,.pill,.msb,.opt,.prose .key,.tlinfo,.sbin,.schip{transitio
 .lvwb{display:flex;align-items:center;gap:8px}
 .lvwb .ghost{margin:0}
 .cmbox{background:var(--good-bg);border:1.5px solid var(--good-line);border-radius:12px;padding:8px 12px;margin-top:8px}
+body:has(#player.open) .plban{bottom:calc(100px + env(safe-area-inset-bottom))}
 </style>
 </head>
 <body>
@@ -706,7 +707,7 @@ function gcseSwitch(m){return '<div class="gsw" role="tablist" aria-label="GCSE 
 function renderLearn(){var TH=curMode()==='theory',CA=curMode()==='calc',el=$('page-learn'),nx=nextLesson(),na=nextAction(),pf=pendingFollow(),dc=doneCount(),tot=allLessons().length,lv=level(),dx=S.daily.d===today()?S.daily.xp:0,nl=na&&na.t==='lesson'?UNITS[na.ui].lessons[na.li]:null;
  var LV=curLevel(),h=modeSwitch()+levelPicker()+'<div class="hero"><div><h1>'+(LV>1?'Level '+LV+': '+lvInfo(curMode(),LV)[0]:dc===0?(isG(curMode())?'GCSE '+GSUB[curMode()]+', aiming for a 9':CA?'Calculus, from the very start':TH?'How a nuclear power station works':'Learn how to run a nuclear reactor'):nx?'Welcome back':'You\'ve finished every lesson')+'</h1><p>'+(LV>1?lvInfo(curMode(),LV)[1]+' '+(nx?dc+' of '+tot+' lessons done.':'You\'ve finished every lesson in this level.'):dc===0?(isG(curMode())?(curMode()==='gm'?'Edexcel':'AQA')+' GCSE '+GSUB[curMode()]+' (Higher), one small step at a time and getting harder level by level: Year 10, Year 11, then grade 7–8 and grade 9 questions. Shaky on something? The Year 9 refreshers in Level 1 go back over the basics.':CA?'One small step at a time, from what a function is all the way to the calculus that describes a reactor. Every idea gets its own card and lots of practice, so it sticks.':TH?'The ideas behind the control room, explained step by step with no equations: atoms, fission, fuel, control, the steam plant, safety, radiation and the control room. Every lesson you finish builds part of your power station.':'Short, hands-on lessons covering the maths, physics and plant knowledge behind a reactor control room. Every lesson you finish builds part of your own power station.'):nx?dc+' of '+tot+' lessons done. Keep building.':'Your station is complete. Keep your knowledge sharp in Progress, or take on the control room missions.')+'</p>'+
  (nl?'<div class="nextup"><span class="nk">Next up · Unit '+uNum(na.ui)+'</span><b>'+nl.title+'</b><span class="nh">'+(HOOKS[nl.id]||'')+'</span></div>':na&&na.t==='follow'?'<div class="nextup warn"><span class="nk">Follow-up needed</span><b>'+UNITS[na.ui].lessons[na.li].title+'</b><span class="nh">Score more than 50% on a short recap and 5 questions to unlock new lessons.</span></div>':na&&na.t==='test'?'<div class="nextup"><span class="nk">Unit '+uNum(na.ui)+' test</span><b>'+UNITS[na.ui].title+'</b><span class="nh">15 questions, about 15 minutes. Pass mark 70%.</span></div>':'')+
- (na?'<button class="big" id="goNext">'+(dc===0?'Start the first lesson':na.t==='follow'?'Start follow-up':na.t==='test'?'Take the test':'Continue')+'</button> <button class="ghost" id="goSim2">Control room</button>':'<button class="big" id="goSim">Open the control room</button> <button class="ghost" id="goRev">Start a review</button>')+
+ (na?'<button class="big" id="goNext">'+(dc===0?'Start the first lesson':na.t==='follow'?'Start follow-up':na.t==='test'?'Take the test':'Continue')+'</button> <button class="ghost" id="goOne">Just one question</button> <button class="ghost" id="goSim2">Control room</button>':'<button class="big" id="goSim">Open the control room</button> <button class="ghost" id="goRev">Start a review</button>')+
  '<div class="lvl" style="margin-top:12px"><div class="lvlrow">'+rankEmblem(lv.i,34)+'<div style="flex:1"><div class="lvlbar"><div style="width:'+(lv.frac*100)+'%"></div></div><div class="lvltxt"><span>Rank '+(lv.i+1)+': <b>'+lv.name+'</b></span><span>'+(lv.next?fmtInt(lv.toNext)+' XP to '+lv.next:'Top rank')+'</span></div></div></div></div></div>'+
  '<div class="ringbox">'+ring(dx/S.goal,'#e8742a',130,dx+'/'+S.goal)+'<div class="lbl">'+(dx>=S.goal?'Daily goal reached!':'Daily XP goal')+'</div></div></div>';
  h+='<div class="row2">'+((LV===1&&curMode()==='maths')?stationCard():goalCard())+questCard()+'</div>';
@@ -725,7 +726,7 @@ function renderLearn(){var TH=curMode()==='theory',CA=curMode()==='calc',el=$('p
  [].forEach.call(el.querySelectorAll('.gsb'),function(b){b.onclick=function(){if(S.mode===b.dataset.g)return;S.mode=S.gsub=b.dataset.g;JUST_BUILT=null;save();renderLearn()}});
  [].forEach.call(el.querySelectorAll('.msb'),function(b){b.onclick=function(){var nm=b.dataset.m==='gcse'?(S.gsub||'gp'):b.dataset.m;if(S.mode===nm||(b.dataset.m==='gcse'&&isG(S.mode)))return;S.mode=nm;if(b.dataset.m==='gcse')S.seenGcse=1;if(S.mode==='theory')S.seenTheory=1;if(S.mode==='calc')S.seenCalc=1;JUST_BUILT=null;save();renderLearn();var sw=el.querySelector('.modesw');if(sw&&sw.getBoundingClientRect().top<0)sw.scrollIntoView()}});
  wireProgress();wireStation();
- if($('goNext'))$('goNext').onclick=function(){runAction(na)};
+ if($('goNext'))$('goNext').onclick=function(){runAction(na)};if($('goOne'))$('goOne').onclick=function(){ONE.start()};
  if($('goSim'))$('goSim').onclick=function(){showPage('sim')};if($('goSim2'))$('goSim2').onclick=function(){showPage('sim')};if($('goRev'))$('goRev').onclick=function(){startReview(false)};
  $('resetAll').onclick=function(){if(confirm('Reset all your XP, streak, badges and lesson progress?')){S={xp:0,done:{},streak:0,last:'',daily:{d:'',xp:0},missions:{},goal:50};motInit();JUST_BUILT=null;save();updHeader();renderLearn()}};
  [].forEach.call(el.querySelectorAll('.lnode[data-u]'),function(b){b.onclick=function(){startLesson(+b.dataset.u,+b.dataset.l)}});
@@ -795,7 +796,7 @@ function award(n){if(n>0){P.xp+=n;addXP(n,$('pBtn'));$('pXP').textContent='+'+P.
 function nextCard(){P.i++;if(P.i>=P.cards.length)finish();else showCard()}
 function showCard(){var c=P.cards[P.i];DRAWS=[];$('pBar').style.width=(P.i/P.cards.length*100)+'%';if(P.mode==='test')updTimer();else $('pXP').textContent=P.xp?'+'+P.xp+' XP':'';
  var b=$('pBody');b.innerHTML='';$('pScroll').scrollTop=0;foot('','','');skipBtn(null);P.st={tries:0};P.hintFn=P.hintCan=null;P.rtSrc=null;$('pFoot').style.display='';
- var k=document.createElement('div');k.className='pkick';k.style.color=P.mode==='review'&&c._src?'var(--muted)':P.color;k.textContent=P.mode==='review'?(c._src||'Review'):P.mode==='test'?P.unit+' · Question '+(P.i+1)+' of '+P.cards.length:P.unit;b.appendChild(k);
+ var k=document.createElement('div');k.className='pkick';k.style.color=P.mode==='review'&&c._src?'var(--muted)':P.color;k.textContent=P.mode==='one'?'Just one question'+(c._src?' · '+c._src:''):P.mode==='review'?(c._src||'Review'):P.mode==='test'?P.unit+' · Question '+(P.i+1)+' of '+P.cards.length:P.unit;b.appendChild(k);
  (P.mode==='test'?{Q:tQ,N:tN,O:tO}:{T:rT,Q:rQ,N:rN,W:rW,O:rO})[c.t](c,b)}
 function rT(c,b){var d=document.createElement('div');d.className='prose';d.innerHTML=c.h;b.appendChild(d);mainBtn('Continue',nextCard)}
 function rQ(c,b){P.asked++;var p=document.createElement('div');p.className='qprompt';p.innerHTML=c.p;b.appendChild(p);var box=document.createElement('div');box.className='opts';b.appendChild(box);
@@ -831,7 +832,7 @@ function rO(c,b){P.asked++;var p=document.createElement('div');p.className='qpro
  function check(){var ok=ord.every(function(v,i){return v===i});if(ok){lock=true;mark();gotRight(c);foot('ok',praise(),c.e?'<div>'+c.e+'</div>':'');mainBtn('Continue',nextCard)}
   else{P.st.tries++;if(P.st.tries===1)gotWrong(c);mark();var n=ord.filter(function(v,i){return v===i}).length;if(P.st.tries>=3){lock=true;ord=c.items.map(function(_,i){return i});draw();mark();foot('no','Here\'s the right order',(c.e?'<div>'+c.e+'</div>':'')+EASE.revNote(c));mainBtn('Continue',nextCard)}else foot('no',EASE.gentle(),'<div>'+n+' of '+ord.length+' are in the right place (shown in green).</div>')}}}
 function bonusXP(n){P.xp+=n;addXP(n)}
-function finish(){if(P.mode==='test')return finishTest();if(P.mode==='follow')return finishFollow();P.finished=true;P.quiet=true;$('pBar').style.width='100%';var b=$('pBody'),acc=P.asked?Math.round(P.right/P.asked*100):100,perfect=P.asked>0&&P.mistakes===0,lines=[],first=false,unitDone=false,h0=homesNow(),ui=P.ui;
+function finish(){if(P.mode==='one')return ONE.finish();if(P.mode==='test')return finishTest();if(P.mode==='follow')return finishFollow();P.finished=true;P.quiet=true;$('pBar').style.width='100%';var b=$('pBody'),acc=P.asked?Math.round(P.right/P.asked*100):100,perfect=P.asked>0&&P.mistakes===0,lines=[],first=false,unitDone=false,h0=homesNow(),ui=P.ui;
  lines.push(['Answers',P.xp-P.cbonus]);if(P.cbonus)lines.push(['Combo bonus',P.cbonus]);
  if(P.mode==='lesson'){var u=UNITS[ui],id=u.lessons[P.li].id;first=!S.done[id];S.done[id]=1;if(first){JUST_BUILT=ui;unitDone=u.lessons.every(function(l){return S.done[l.id]})}save();
   var cb=first?20:5;lines.push([first?'Lesson complete':'Lesson replayed',cb]);bonusXP(cb);if(perfect){S.st.perfect++;lines.push(['Perfect lesson',10]);bonusXP(10)}
@@ -2728,7 +2729,8 @@ var STUDY=(function(){
   slots.forEach(function(s){var k=ymd()+s[0];if(s[1]&&hm>=s[0]&&hm<s[0]+60&&!shown[k]&&!todayMin()&&!st.run){shown[k]=1;banner(s[2])}})}
  function banner(t){var old=document.querySelector('.stbanner');if(old)old.remove();var b=document.createElement('div');b.className='stbanner';b.setAttribute('role','status');b.innerHTML='<p>'+esc(t)+'</p>';
   var g=document.createElement('button');g.className='stbtn alt';g.type='button';var usePlan=typeof PLAN!=='undefined'&&PLAN.todayLeft&&PLAN.todayLeft()&&!PLAN.running();g.textContent=usePlan?'Start today\'s plan':'Start timer';g.onclick=function(){b.remove();if(usePlan){PLAN.start();return}open();if(!st.run)$('[data-a=go]').click()};
-  var x=document.createElement('button');x.className='stx';x.type='button';x.setAttribute('aria-label','Dismiss');x.textContent='✕';x.onclick=function(){b.remove()};b.appendChild(g);b.appendChild(x);document.body.appendChild(b)}
+  var q1=document.createElement('button');q1.className='stbtn alt';q1.type='button';q1.textContent='Just one question';q1.onclick=function(){b.remove();if(typeof ONE!=='undefined')ONE.start()};
+  var x=document.createElement('button');x.className='stx';x.type='button';x.setAttribute('aria-label','Dismiss');x.textContent='✕';x.onclick=function(){b.remove()};b.appendChild(q1);b.appendChild(g);b.appendChild(x);document.body.appendChild(b)}
  setInterval(check,60000);setTimeout(check,4000);
  writeFile(false);
  return {open:open,state:function(){return st},payload:payload,check:check,start:function(t){if(st.run)return false;st.run={at:Date.now(),t:t||''};keep();startTick();return true},stop:function(){if(st.run)$('[data-a=go]').click()}};
@@ -2911,7 +2913,7 @@ var PLAN=(function(){
   R.forEach(function(r,i){var k=r[2];if((k!=='plan'&&k!=='read')||o.s[k]||ban)return;var st=r[0];if(m<st||m>=st+30)return;
    if(k==='plan'){if(runGet()||hwGet()||firstLeft(todayI())<0||busy())return;o.s[k]=1;try{localStorage.setItem(NK,JSON.stringify(o))}catch(_){}
     var left=DAY(todayI()).filter(function(_,j){return !isDone(todayI(),j)}).reduce(function(a,b){return a+b[1]},0);
-    showBan('<b>'+m12(r[0])+': time for today\'s plan.</b> '+left+' minutes.',[['Start today\'s plan',function(){hideBan();startRun()}],['Homework first',function(){hideBan();startHw()}],['Later',hideBan]])}
+    showBan('<b>'+m12(r[0])+': time for today\'s plan.</b> '+left+' minutes.',[['Just one question',function(){hideBan();ONE.start()}],['Start today\'s plan',function(){hideBan();startRun()}],['Homework first',function(){hideBan();startHw()}],['Later',hideBan]])}
    else{o.s[k]=1;try{localStorage.setItem(NK,JSON.stringify(o))}catch(_){}var nx=R[i+1];var hb=[['Good night',hideBan]];if(HS().on.indexOf('scr')>=0)hb.unshift(['Phone\'s away ✓',function(){hset(dstr(new Date()),'scr',1);hideBan();if(sh.classList.contains('open'))paint()}]);showBan('<b>'+m12(r[0])+': '+esc(r[1]).replace(/^./,function(c){return c.toLowerCase()})+'.</b>'+(nx?' '+esc(nx[1])+' at '+m12(nx[0])+'.':'')+' Good night.',hb)}})}
  /* ----- habit tracker (school days) ----- */
  var HAB=[['hw','Homework on time','When I\'ve finished my snack, I sit at my desk and open my homework.','Just start the piece that\'s due soonest.'],
@@ -2983,7 +2985,10 @@ var PLAN=(function(){
    var x3=document.createElement('button');x3.type='button';x3.className='plgo alt';x3.textContent='Stop the plan';x3.onclick=function(){stopRun(false)};A.appendChild(x3);return}
   var j=firstLeft(t);if(j<0)return;var bb=document.createElement('button');bb.type='button';bb.className='plbig';bb.textContent=(DAY(t).some(function(_,k){return isDone(t,k)})?'Carry on with today\'s plan':'Start today\'s plan')+' ('+DAY(t).slice(j).filter(function(_,k){return !isDone(t,j+k)}).reduce(function(s2,x){return s2+x[1]},0)+' min)';
   bb.onclick=function(){startRun()};R.appendChild(bb);
-  var hf=document.createElement('button');hf.type='button';hf.className='plgo alt';hf.textContent='Homework first';hf.onclick=startHw;var hr=document.createElement('div');hr.className='placts';hr.appendChild(hf);R.appendChild(hr);
+  var o1=document.createElement('button');o1.type='button';o1.className='plgo alt';o1.textContent='Just one question';o1.onclick=function(){close();ONE.start()};
+  var hf=document.createElement('button');hf.type='button';hf.className='plgo alt';hf.textContent='Homework first';hf.onclick=startHw;var hr=document.createElement('div');hr.className='placts';hr.appendChild(o1);hr.appendChild(hf);R.appendChild(hr);
+  if(!focusOk&&/Windows|Macintosh|CrOS|Linux x86/.test(navigator.userAgent)&&!/Mobile|Android/.test(navigator.userAgent)&&window.chrome){var fg=document.createElement('p');fg.className='plnote';fg.innerHTML='Strict mode: <a href="https://u23bodwells-cmyk.github.io/Critical/reminders/critical-focus.zip" target="_blank" rel="noopener">get the Critical Focus extension for Chrome</a>. It closes TikTok at plan time and keeps Critical on screen until you\'re done.';R.appendChild(fg)}
+  if(focusOk){var fz=document.createElement('p');fz.className='plnote';fz.textContent=focusOk.locked?'Critical Focus is locked on: TikTok is blocked and Critical stays on screen until today\'s plan is done.':'Critical Focus is on: from plan time, TikTok is closed and blocked until today\'s plan is done.';R.appendChild(fz)}
   var n=document.createElement('p');n.className='plnote';n.textContent=hw&&hw.done&&!hw.alloc?'Homework used up today\'s Critical time. You can still start it if you want to.':'It times each part and moves you on when it\'s time. Got homework that\'s running over? Press Homework first: Critical gets whatever time is left when you\'ve finished.';R.appendChild(n)}
  /* ----- homework first: homework uses the plan's time until it's finished, then Critical gets what's left ----- */
  var HWK='critical_plan_hw';
@@ -2994,7 +2999,7 @@ var PLAN=(function(){
  function hhmm(ms){var d=new Date(ms),h=d.getHours(),m=d.getMinutes();return (h%12||12)+':'+(m<10?'0':'')+m+(h>=12?'pm':'am')}
  function startHw(){var t=todayI();if(runGet()||firstLeft(t)<0)return;var L=leftMins(t),now=Date.now();hwSet({d:ymdN(),at:now,end:now+L*60000,mins:L});warned={};hideBan();paintPill();
   if(sh.classList.contains('open')){cur=t;view='plan';paint()}else showBan('<b>Homework first.</b> When you\'ve finished, tap the calendar button and press Homework done. Critical gets whatever\'s left until '+hhmm(now+L*60000)+'.',[['OK',hideBan]])}
- function hwDone(){var h=hwGet(),t=todayI();if(!h||h.done)return;var rem=Math.floor((h.end-Date.now())/60000);h.done=Date.now();
+ function hwDone(){var h=hwGet(),t=todayI();if(!h||h.done)return;setTimeout(function(){try{focusSend(true)}catch(_){}},80);var rem=Math.floor((h.end-Date.now())/60000);h.done=Date.now();
   var idx=DAY(t).map(function(_,j){return j}).filter(function(j){return !isDone(t,j)});
   if(rem<5||!idx.length){h.alloc=null;hwSet(h);paintPill();if(sh.classList.contains('open'))paint();showBan('<b>No time left for Critical today.</b> That\'s fine: homework comes first. Pick it up tomorrow.',[['OK',hideBan]]);return}
   var tot=idx.reduce(function(a,j){return a+DAY(t)[j][1]},0),f=Math.min(1,rem/tot),alloc={},acc=0;
@@ -3002,6 +3007,13 @@ var PLAN=(function(){
   var ks=Object.keys(alloc);if(!ks.length){alloc[idx[0]]=Math.min(rem,DAY(t)[idx[0]][1]);ks=[String(idx[0])]}else if(f<1)alloc[ks[0]]=Math.max(5,alloc[ks[0]]+rem-acc);
   h.alloc=alloc;hwSet(h);if(typeof STUDY!=='undefined'&&STUDY.start)STUDY.start('Weekly plan · '+DAYS[t]);begin(t,+ks[0],true)}
  function hwNext(day,j){var h=hwGet();if(!h||!h.alloc||day!==todayI())return firstLeft(day,j);var ks=Object.keys(h.alloc).map(Number).sort(function(a,b){return a-b});for(var i=0;i<ks.length;i++)if(ks[i]>j&&!isDone(day,ks[i]))return ks[i];return -1}
+ /* ----- Critical Focus (Chrome extension): tell it today's plan time and when the plan is done ----- */
+ var FOCUS_ID='dofdocaillphcjghjdjodhippjldkibo',focusOk=null,lastFocus=0;
+ function focusStatus(){var t=todayI(),school=t<5,SC=sched(),R=SC.rows,pr=R.filter(function(r){return r[2]==='plan'})[0],rd=R.filter(function(r){return r[2]==='read'})[0],base=new Date();base.setHours(0,0,0,0);
+  var hw=hwGet(),done=firstLeft(t)<0||!!(hw&&hw.done&&!hw.alloc)||!!(hw&&hw.alloc&&Object.keys(hw.alloc).every(function(j){return isDone(t,+j)}))||(school&&!pr);
+  return {type:'status',due:school&&pr?base.getTime()+pr[0]*60000:null,end:rd?base.getTime()+rd[0]*60000:null,done:done,hw:hwOn(),running:!!runGet()}}
+ function focusSend(force){var now=Date.now();if(!force&&now-lastFocus<30000)return;lastFocus=now;
+  try{if(!(window.chrome&&chrome.runtime&&chrome.runtime.sendMessage))return;chrome.runtime.sendMessage(FOCUS_ID,focusStatus(),function(r){try{void chrome.runtime.lastError}catch(_){}var was=!!focusOk;focusOk=r&&r.ok?r:null;if(was!==!!focusOk&&sh.classList.contains('open'))paint()})}catch(_){}}
  function startRun(){var t=todayI(),j=firstLeft(t);if(j<0)return;
   try{if('Notification' in window&&Notification.permission==='default')Notification.requestPermission()}catch(_){}
   if(typeof STUDY!=='undefined'&&STUDY.start)STUDY.start('Weekly plan · '+DAYS[t]);begin(t,j,true)}
@@ -3009,7 +3021,7 @@ var PLAN=(function(){
   var a=b[3][0];if(!a){cur=day;paint();sh.classList.add('open');return}
   if(a[1]==='url'&&!gesture){cur=day;paint();sh.classList.add('open');return}
   go(a,b[0],true);if(sh.classList.contains('open'))paint()}
- function stopRun(done){if(done)try{habAuto()}catch(_){}runClear();hideBan();if(typeof STUDY!=='undefined'&&STUDY.stop)STUDY.stop();paintPill();if(sh.classList.contains('open'))paint();if(done){var hz=hwGet();showBan(hz&&hz.alloc&&firstLeft(todayI())>=0?'<b>That\'s all your Critical time for today.</b> Homework came first, and you still got some done. Nice work.':'<b>That\'s today\'s plan done.</b> Your study time has been saved. Nice work.',[['Close',hideBan]])}}
+ function stopRun(done){if(done)try{habAuto()}catch(_){}runClear();setTimeout(function(){try{focusSend(true)}catch(_){}},50);hideBan();if(typeof STUDY!=='undefined'&&STUDY.stop)STUDY.stop();paintPill();if(sh.classList.contains('open'))paint();if(done){var hz=hwGet();showBan(hz&&hz.alloc&&firstLeft(todayI())>=0?'<b>That\'s all your Critical time for today.</b> Homework came first, and you still got some done. Nice work.':'<b>That\'s today\'s plan done.</b> Your study time has been saved. Nice work.',[['Close',hideBan]])}}
  function hideBan(){if(ban){ban.remove();ban=null}clearInterval(banT);banT=null}
  function showBan(html,btns,auto){hideBan();ban=document.createElement('div');ban.className='plban';ban.setAttribute('role','status');ban.innerHTML='<p>'+html+'</p><div class="placts"></div>';var A=ban.querySelector('.placts');
   btns.forEach(function(x,i){var b=document.createElement('button');b.type='button';b.className='plgo'+(i?' alt':'');b.textContent=x[0];b.onclick=x[1];A.appendChild(b)});document.body.appendChild(ban);
@@ -3031,7 +3043,7 @@ var PLAN=(function(){
  var lastDayPaint=-1;
  function hwTick(){var h=hwGet();if(!h||h.done)return;var lf=h.end-Date.now();var el=$q('[data-k=hwt]');if(el)el.textContent=lf>0?fmtLeft(lf)+' left for Critical':'Critical time used up';
   if(lf<=0&&!h.warn&&!ban){h.warn=1;hwSet(h);showBan('<b>Your Critical time is used up.</b> Keep going with your homework: it comes first. Critical can wait until tomorrow.',[['OK',hideBan]])}}
- function loop(){try{hwTick()}catch(_){}var r=runGet();try{fixChk(r)}catch(e){if(window.console)console.error(e)}try{dayNudge()}catch(e){if(window.console)console.error(e)}if(view==='day'&&!editing&&sh.classList.contains('open')){var nm=nowMin();if(nm!==lastDayPaint){lastDayPaint=nm;paintDay()}}r=runGet();paintPill();if(!r){if(ban&&banT)hideBan();return}
+ function loop(){try{hwTick()}catch(_){}try{focusSend()}catch(_){}var r=runGet();try{fixChk(r)}catch(e){if(window.console)console.error(e)}try{dayNudge()}catch(e){if(window.console)console.error(e)}if(view==='day'&&!editing&&sh.classList.contains('open')){var nm=nowMin();if(nm!==lastDayPaint){lastDayPaint=nm;paintDay()}}r=runGet();paintPill();if(!r){if(ban&&banT)hideBan();return}
   var left=r.ends-Date.now();if(sh.classList.contains('open')&&cur===todayI()){var rb=$q('[data-k=run] b');if(rb)rb.textContent=(r.t||(DAY(r.day)[r.j]||D[r.day][r.j])[0])+' · '+(left>0?fmtLeft(left)+' left':'time\'s up')}
   if(left>0)return;
   if(busy()){if(!warned.b){warned.b=1;var pf=document.getElementById('pFoot');toastIn('Time\'s up for '+r.t+'. Finish this lesson, then you\'ll move on.')}return}
@@ -3050,12 +3062,40 @@ var PLAN=(function(){
   var hwp=!r&&hwOn();if(hwp){pill.classList.add('run');var hg=hwGet(),lm=hg.end-Date.now();c.textContent='HW';pill.setAttribute('aria-label','Homework first, '+(lm>0?fmtLeft(lm)+' left for Critical':'Critical time used up'));return}
   if(r){var ms=r.ends-Date.now();c.textContent=ms>0?(ms<60000?Math.ceil(ms/1000)+'s':Math.ceil(ms/60000)+'m'):'0m';pill.setAttribute('aria-label','Today\'s plan: '+r.t+', '+(ms>0?fmtLeft(ms)+' left':'time\'s up'))}else{c.textContent='';pill.setAttribute('aria-label','This week\'s plan'+(left?', '+left+' to do today':', today done'))}}
  paintPill();document.addEventListener('visibilitychange',function(){if(!document.hidden){warned.n=0;loop();if(sh.classList.contains('open'))paint()}});
- setInterval(loop,1000);setTimeout(loop,600);
+ setInterval(loop,1000);setTimeout(loop,600);setTimeout(function(){try{focusSend(true)}catch(_){}},1500);
  if(location.hash==='#plannext'){try{history.replaceState(null,'',location.pathname+location.search)}catch(_){}}
+ if(location.hash==='#setup'){try{history.replaceState(null,'',location.pathname+location.search)}catch(_){}setTimeout(function(){try{if(window.chrome&&chrome.runtime&&chrome.runtime.sendMessage)chrome.runtime.sendMessage(FOCUS_ID,{type:'setup'},function(){try{void chrome.runtime.lastError}catch(_){}open('plan')});else open('plan')}catch(_){open('plan')}},400)}
+ if(location.hash==='#focus'){try{history.replaceState(null,'',location.pathname+location.search)}catch(_){}setTimeout(function(){try{if(!runGet()&&!hwOn()&&firstLeft(todayI())>=0&&typeof ONE!=='undefined')ONE.start();else open('plan')}catch(_){}},600)}
  if(location.hash==='#home'){try{history.replaceState(null,'',location.pathname+location.search)}catch(_){}setTimeout(function(){try{homeAuto();open('day')}catch(_){}},400)}
- return {open:open,close:close,paint:paint,paintPill:paintPill,start:startRun,stop:stopRun,loop:loop,running:function(){return !!runGet()},todayLeft:function(){return firstLeft(todayI())>=0},D:D,DAY:DAY,pile:pile,TUE_FIX:TUE_FIX,rows:rows,nowRow:nowRow,sched:sched,home:homeGet,habits:HS,streak:streak,hw:hwGet,hwStart:startHw,hwDone:hwDone};
+ return {hideBan:hideBan,next:function(){var t=todayI(),j=firstLeft(t);return j<0?null:DAY(t)[j]},leftMins:function(){return leftMins(todayI())},open:open,close:close,paint:paint,paintPill:paintPill,start:startRun,stop:stopRun,loop:loop,running:function(){return !!runGet()},todayLeft:function(){return firstLeft(todayI())>=0},D:D,DAY:DAY,pile:pile,TUE_FIX:TUE_FIX,rows:rows,nowRow:nowRow,sched:sched,home:homeGet,habits:HS,streak:streak,hw:hwGet,hwStart:startHw,hwDone:hwDone,focusStatus:focusStatus,focus:function(){return focusOk}};
 })();
 try{window.PLAN=PLAN}catch(_){}
+/* ===== just one question: a tiny way into a study session ===== */
+var ONE=(function(){
+ function trackFor(a){return a==='gp'||a==='gc'||a==='gm'||a==='theory'?a:(a==='calc'||a==='calcfu')?'calc':null}
+ function pick(){var b=PLAN.next?PLAN.next():null,a=b&&b[3]&&b[3][0]?b[3][0][1]:null,tr=trackFor(a)||curMode(),c=null;
+  if(a==='fix'){var pool=reviewPool(true).filter(function(x){return x.t==='Q'});if(pool.length)c=pool[Math.floor(Math.random()*pool.length)]}
+  function from(test){var cs=[];UNITS.forEach(function(u,ui){if(!test(ui))return;u.lessons.forEach(function(l){if(!S.done[l.id])return;l.cards.forEach(function(x,ci){if(x.t==='Q'&&!S.wrong[l.id+'#'+ci])cs.push([x,l,u,ci])})})});return cs}
+  if(!c){var cs=from(function(ui){return trk(ui)===tr});if(!cs.length)cs=from(function(){return true});
+   if(cs.length){var k=cs[Math.floor(Math.random()*cs.length)];c=Object.assign({},k[0],{_key:k[1].id+'#'+k[3],_src:k[2].title+' · '+k[1].title})}
+   else{var nl=nextLesson(tr)||nextLesson();if(nl){var u=UNITS[nl[0]],l=u.lessons[nl[1]];for(var ci=0;ci<l.cards.length;ci++)if(l.cards[ci].t==='Q'){c=Object.assign({},l.cards[ci],{_key:l.id+'#'+ci,_src:u.title+' · '+l.title});break}}}}
+  return c}
+ function start(){if(typeof P!=='undefined'&&P&&!P.finished&&document.querySelector('#player.open'))return;try{PLAN.hideBan()}catch(_){}if(document.querySelector('#player.open'))closePlayer();var c=pick();
+  if(!c){var na=nextAction();if(na)runAction(na);return}
+  P={mode:'one',cards:[c],i:0,xp:0,right:0,asked:0,title:'Just one question',color:'#534AB7',unit:'Just one question',combo:0,best:0,cbonus:0,mistakes:0,fixed:0,newBadges:[],levelUp:null};openPlayer()}
+ function finish(){P.finished=true;P.quiet=true;$('pBar').style.width='100%';var ok=P.right>0,b=$('pBody'),left=PLAN.todayLeft&&PLAN.todayLeft(),run=PLAN.running&&PLAN.running(),mins=PLAN.leftMins?PLAN.leftMins():0;save();
+  b.innerHTML='<div class="done-screen"><div class="dicon"><svg width="90" height="90" viewBox="0 0 90 90"><circle cx="45" cy="45" r="42" fill="var(--accent-bg)"/><path d="M37 28v34l28-17z" fill="var(--accent)" stroke="var(--accent)" stroke-width="4" stroke-linejoin="round"/></svg></div>'+
+   '<h2>That\'s the start done</h2><p class="note" style="font-size:16px">'+(ok?'You got it right.':'Not this time, and that\'s fine: it\'s saved to Review for later.')+' Starting is the hardest part, and you\'ve already done it.</p>'+
+   '<div class="dblock" style="text-align:center"><p class="note" style="margin:0 0 8px">While you\'re here…</p><div class="savebtns" style="justify-content:center"><button class="wbtn" id="oneMore">One more question</button><button class="skip" id="oneStop">That\'s enough for now</button></div></div></div>';
+  foot('','','');skipBtn(null);
+  if(run)mainBtn('Back to your plan',function(){closePlayer()});
+  else if(left)mainBtn('Keep going: today\'s plan'+(mins?' ('+mins+' min)':''),function(){closePlayer();PLAN.start()});
+  else mainBtn('Keep going: next lesson',function(){closePlayer();var na=nextAction();if(na)runAction(na)});
+  $('oneMore').onclick=function(){closePlayer();start()};$('oneStop').onclick=function(){closePlayer()};
+  $('pXP').textContent=P.xp?'+'+P.xp+' XP':''}
+ return {start:start,finish:finish,pick:pick}
+})();
+try{window.ONE=ONE}catch(_){}
 /* ===== exam practice: real past papers, a countdown timer and an answer sheet to send to Claude ===== */
 var EXAM=(function(){
  var PMT='https://pmt.physicsandmathstutor.com/download/',SCI=['June 2025','June 2024','June 2023','June 2022','June 2021','June 2020','June 2019','June 2018','Specimen'];
