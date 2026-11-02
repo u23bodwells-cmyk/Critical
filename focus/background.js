@@ -21,17 +21,21 @@ const DEFAULT_DAYS = [false, true, true, true, true, true, false];   // Sun..Sat
 function isOnDay(days, d = new Date()) { return !!(days || DEFAULT_DAYS)[d.getDay()]; }
 
 async function load() {
-  const s = await chrome.storage.local.get(['status', 'lock', 'winId', 'screen', 'music', 'strict', 'skip', 'layout', 'claude', 'days']);
+  const s = await chrome.storage.local.get(['status', 'lock', 'winId', 'critTab', 'screen', 'music', 'strict', 'skip', 'layout', 'claude', 'days', 'level', 'lastForce', 'focusShown']);
   return {
     status: s.status && s.status.d === ymd() ? s.status : null,
     locked: !!(s.lock && s.lock.d === ymd()),
     winId: s.winId || null,
+    critTab: s.critTab || null,
     screen: typeof s.screen === 'number' ? s.screen : 2,
     music: typeof s.music === 'number' ? s.music : 0,
     claude: s.claude === 'web' ? 'web' : 'app',
     days: Array.isArray(s.days) && s.days.length === 7 ? s.days : DEFAULT_DAYS,
     layout: s.layout && s.layout.d === ymd() ? s.layout : null,
     strict: !!s.strict,
+    level: ['gentle', 'firm', 'harsh'].includes(s.level) ? s.level : 'firm',
+    lastForce: s.lastForce || 0,
+    focusShown: s.focusShown === ymd(),
     skipped: !!(s.skip && s.skip.d === ymd())
   };
 }
@@ -78,13 +82,17 @@ async function pickDisplay(screen) {
 // move to their own window so you can still use them; empty new tabs and TikTok just close.
 async function moveOrClose(t) {
   const u = t.pendingUrl || t.url || '';
-  if (u.startsWith('claude://')) return;
-  const blank = !u || u.startsWith('chrome://newtab') || u === 'about:blank' || u.startsWith('chrome://new-tab-page');
+  if (!u || u.startsWith('claude://')) return;          // still loading (or the Claude app link): leave it alone
+  const blank = u.startsWith('chrome://newtab') || u === 'about:blank' || u.startsWith('chrome://new-tab-page');
   try {
     if (!blank && !/tiktok\.com/.test(u)) await chrome.windows.create({ tabId: t.id, focused: true });
     else await chrome.tabs.remove(t.id);
   } catch (e) {}
 }
+
+const FIRM_GAP = 5 * 60000;
+function mayForce(st) { return st.level === 'harsh' || Date.now() - st.lastForce >= FIRM_GAP; }
+function critUrl(st) { return st.focusShown ? CRIT : CRIT + '#focus'; }
 
 let busy = false;
 async function ensureCritical(st) {
@@ -93,17 +101,25 @@ async function ensureCritical(st) {
     let w = null;
     if (st.winId) { try { w = await chrome.windows.get(st.winId, { populate: true }); } catch (e) { w = null; } }
     if (!w) {
+      if (!mayForce(st)) return;           // Firm: closed it? It comes back in a few minutes, not straight away
+      const recent = (await chrome.storage.local.get(['opens'])).opens || [], nowT = Date.now(), r2 = recent.filter(x => nowT - x < 120000);
+      if (r2.length >= 3) return;          // safety net: never more than 3 opens in 2 minutes
+      await chrome.storage.local.set({ opens: r2.concat(nowT) });
       const disp = await pickDisplay(st.screen), b = st.layout ? st.layout.crit : disp.workArea;
-      w = await chrome.windows.create({ url: CRIT + '#focus', left: b.left, top: b.top, width: b.width, height: b.height, focused: true, type: 'normal' });
-      await chrome.storage.local.set({ winId: w.id });
+      w = await chrome.windows.create({ url: critUrl(st), left: b.left, top: b.top, width: b.width, height: b.height, focused: true, type: 'normal' });
+      await chrome.storage.local.set({ winId: w.id, critTab: w.tabs && w.tabs[0] ? w.tabs[0].id : null, lastForce: Date.now(), focusShown: ymd() });
       if (!st.layout) { try { await chrome.windows.update(w.id, { state: 'fullscreen' }); } catch (e) {} }
       return;
     }
     // keep only Critical in that window
     const tabs = w.tabs || [];
-    let crit = tabs.find(t => (t.url || t.pendingUrl || '').startsWith(CRIT_ORIGIN));
+    let crit = tabs.find(t => t.id === st.critTab) || tabs.find(t => (t.url || t.pendingUrl || '').startsWith(CRIT_ORIGIN));
+    if (crit && crit.id !== st.critTab) await chrome.storage.local.set({ critTab: crit.id });
     for (const t of tabs) if (!crit || t.id !== crit.id) await moveOrClose(t);
-    if (!crit) { await chrome.tabs.create({ windowId: w.id, url: CRIT + '#focus', active: true }); }
+    if (!crit) { const nt = await chrome.tabs.create({ windowId: w.id, url: critUrl(st), active: true }); await chrome.storage.local.set({ critTab: nt.id, focusShown: ymd() }); }
+    const needs = st.layout ? w.state === 'minimized' : w.state !== 'fullscreen';
+    if (needs && !mayForce(st)) return;     // Firm: minimised it? It comes back in a few minutes
+    if (needs) await chrome.storage.local.set({ lastForce: Date.now() });
     if (st.layout) { if (w.state === 'minimized') { try { await chrome.windows.update(w.id, { state: 'normal' }); await chrome.windows.update(w.id, Object.assign({ focused: true }, st.layout.crit)); } catch (e) {} } }
     else if (w.state !== 'fullscreen') { try { await chrome.windows.update(w.id, { state: 'fullscreen', focused: true }); } catch (e) {} }
   } finally { busy = false; }
@@ -117,7 +133,11 @@ function stopGuard() { if (guardTimer) { clearInterval(guardTimer); guardTimer =
 async function lockNow(reason) {
   const st = await load(), wi0 = windowInfo(st);
   if (!wi0.inWindow) return false;
-  if (wi0.hw) { await setBlock(true); await closeTikTok(); if (st.locked) await releaseWindow(); return true; }
+  if (wi0.hw || st.level === 'gentle') {
+    await setBlock(true); await closeTikTok(); if (st.locked) await releaseWindow();
+    if (st.level === 'gentle' && !wi0.hw) chrome.notifications.create('gentle', { type: 'basic', iconUrl: 'icon128.png', title: 'Not now: Critical first', message: 'TikTok is blocked until today\'s plan is done.', priority: 1 });
+    return true;
+  }
   const was = st.locked;
   await chrome.storage.local.set({ lock: { d: ymd(), why: reason } });
   st.locked = true;
@@ -213,7 +233,7 @@ async function check() {
   }
   await setBlock(true);
   const tt = await chrome.tabs.query({ url: TT_MATCH });
-  if (wi.hw) { if (tt.length) await closeTikTok(); if (st.locked) await releaseWindow(); return; }
+  if (wi.hw || st.level === 'gentle') { if (tt.length) await closeTikTok(); if (st.locked) await releaseWindow(); return; }
   if (st.locked || tt.length || st.strict) { await lockNow(st.strict && !tt.length ? 'plan time' : 'tiktok'); return; }
 }
 
@@ -227,7 +247,7 @@ chrome.tabs.onUpdated.addListener(async (id, info, tab) => {
   const st = await load();
   if (/^https?:\/\/([^/]*\.)?tiktok\.com\//.test(url)) { if (windowInfo(st).inWindow) lockNow('tiktok'); return; }
   // Wandering off from Critical in the locked window
-  if (st.locked && st.winId && tab.windowId === st.winId && url && !url.startsWith(CRIT_ORIGIN) && !url.startsWith(chrome.runtime.getURL(''))) {
+  if (st.locked && st.winId && tab.windowId === st.winId && url && /^https?:/.test(url) && !url.startsWith(CRIT_ORIGIN)) {
     try { await chrome.tabs.update(id, { url: CRIT + '#focus' }); } catch (e) {}
   }
 });
@@ -239,7 +259,7 @@ chrome.tabs.onCreated.addListener(async tab => {
 async function guard() {
   const st = await load();
   if (!st.locked) { stopGuard(); return; }
-  if (windowInfo(st).hw) { await releaseWindow(); return; }
+  if (windowInfo(st).hw || st.level === 'gentle') { await releaseWindow(); return; }
   if (!windowInfo(st).inWindow) { await release(windowInfo(st).done ? 'done' : ''); return; }
   await ensureCritical(st);
 }
@@ -283,6 +303,7 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
       if (st.days[g] && !msg.days[g] && windowInfo(st).inWindow) { reply({ ok: false, error: 'You can\'t switch today off during plan time. Do your plan, press Homework first, or use Let me off today.' }); return; }
       await chrome.storage.local.set({ days: msg.days }); await check(); reply({ ok: true }); return;
     }
+    if (msg.type === 'level') { await chrome.storage.local.set({ level: msg.level }); await check(); reply({ ok: true }); return; }
     if (msg.type === 'strict') { await chrome.storage.local.set({ strict: !!msg.on }); check(); reply({ ok: true }); return; }
     if (msg.type === 'test') { const disp = await pickDisplay(msg.screen), b = disp.workArea; const w = await chrome.windows.create({ url: CRIT, left: b.left, top: b.top, width: b.width, height: b.height, focused: true });
       setTimeout(() => chrome.windows.remove(w.id).catch(() => {}), 4000); reply({ ok: true }); return; }

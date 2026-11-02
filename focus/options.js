@@ -25,6 +25,9 @@ function paint() {
     const DN = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], order = [1, 2, 3, 4, 5, 6, 0];
     $('days').innerHTML = order.map(i => '<label class="' + (st.days[i] ? 'on' : '') + '" data-d="' + i + '">' + DN[i] + '<br><span class="muted">' + (st.days[i] ? 'On' : 'Off') + '</span></label>').join('');
     document.querySelectorAll('#days label').forEach(l => l.onclick = () => { const d = st.days.slice(); d[+l.dataset.d] = !d[+l.dataset.d]; chrome.runtime.sendMessage({ type: 'days', days: d }, res => { if (res && res.ok === false) { const n = document.getElementById('daysmsg'); n.textContent = res.error; n.hidden = false; } else paint(); }); });
+    const LN = { gentle: 'TikTok is blocked at plan time, but Critical never opens by itself.', firm: 'TikTok is blocked. Opening it brings Critical up. Close or minimise Critical and it comes back after 5 minutes, not straight away.', harsh: 'TikTok is blocked, and Critical comes straight back every time you close or minimise it until the plan is done.' };
+    document.querySelectorAll('#level label').forEach(l => { l.className = l.dataset.v === st.level ? 'on' : ''; l.onclick = () => chrome.runtime.sendMessage({ type: 'level', level: l.dataset.v }, paint); });
+    $('levelnote').textContent = LN[st.level];
     $('strict').checked = !!st.strict;
     $('exit').hidden = !school || st.skipped || wi.done;
   });
