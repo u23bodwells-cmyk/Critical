@@ -8,13 +8,17 @@ function paint() {
     screen = Math.min(st.screen, displays.length - 1);
     let h;
     if (!school) h = '<h2>Off today</h2><p class="muted">' + (['Sunday','Saturday'].includes(new Date().toLocaleDateString('en-GB',{weekday:'long'})) ? 'It\'s the weekend, so' : 'Today is switched off, so') + ' nothing is blocked and Critical won\'t open by itself.</p>';
-    else if (st.skipped) h = '<h2>Off for today</h2><p class="muted">You used the exit. It\'s back on tomorrow.</p>';
+    else if (st.skipped) h = '<h2>Off for today</h2><p class="muted">It\'s switched off for the rest of today and back on tomorrow.</p>';
     else if (wi.done) h = '<h2>Today\'s plan is done ✓</h2><p class="muted">TikTok is unblocked. Nice work.</p>';
     else if (st.locked) h = '<h2>Locked: Critical first</h2><p>TikTok is blocked and Critical stays on screen until today\'s plan is done, or ' + hm(wi.end) + ' at the latest.</p>';
     else if (wi.inWindow) h = '<h2>Plan time</h2><p>TikTok is blocked until today\'s plan is done. Open it and Critical locks onto your screen.</p>';
     else h = '<h2>Waiting for plan time</h2><p>From <b>' + hm(wi.due) + '</b> until today\'s plan is done, TikTok gets closed and blocked.</p>';
     h += '<p class="muted" style="font-size:13px;margin:0">' + (st.status ? 'Critical last checked in at ' + hm(st.status.at) + '.' : 'Open Critical today so it can tell this when your plan time is. Until then it uses 5:30pm.') + '</p>';
+    const late = new Date().getHours() >= 20, active = school && !st.skipped && !wi.done && (st.locked || wi.inWindow);
+    if (active && late) h += '<button id="tonight" style="width:100%;margin-top:10px">Turn off for tonight</button>';
+    else if (active) h += '<p class="muted" style="font-size:13px;margin:8px 0 0">From 8pm you can turn it off for the night with one click.</p>';
     $('status').innerHTML = h;
+    if ($('tonight')) $('tonight').onclick = () => chrome.runtime.sendMessage({ type: 'tonight' }, () => location.reload());
     $('screens').innerHTML = displays.map((d, i) => '<label class="' + (i === screen ? 'on' : '') + '"><input type="radio" name="s" value="' + i + '"' + (i === screen ? ' checked' : '') + '>Screen ' + (i + 1) + '<br><span class="muted">' + d.w + '×' + d.h + (d.primary ? ', main' : '') + '</span></label>').join('');
     document.querySelectorAll('#screens input').forEach(inp => inp.onchange = () => { screen = +inp.value; chrome.runtime.sendMessage({ type: 'screen', screen }, paint); });
     const mu = Math.min(typeof st.music === 'number' ? st.music : 0, displays.length - 1);

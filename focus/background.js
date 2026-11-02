@@ -307,6 +307,11 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
     if (msg.type === 'strict') { await chrome.storage.local.set({ strict: !!msg.on }); check(); reply({ ok: true }); return; }
     if (msg.type === 'test') { const disp = await pickDisplay(msg.screen), b = disp.workArea; const w = await chrome.windows.create({ url: CRIT, left: b.left, top: b.top, width: b.width, height: b.height, focused: true });
       setTimeout(() => chrome.windows.remove(w.id).catch(() => {}), 4000); reply({ ok: true }); return; }
+    if (msg.type === 'tonight') {
+      // After 8pm you can switch it off for the rest of the evening with one click
+      if (new Date().getHours() < 20) { reply({ ok: false, error: 'Turn off for tonight works from 8pm.' }); return; }
+      await chrome.storage.local.set({ skip: { d: ymd(), why: 'tonight' } }); await release('skip'); reply({ ok: true }); return;
+    }
     if (msg.type === 'skip') { await chrome.storage.local.set({ skip: { d: ymd() } }); await release('skip'); reply({ ok: true }); return; }
     reply({ ok: false });
   })();
