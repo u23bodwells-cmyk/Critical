@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Critical Focus",
-  "version": "1.0",
+  "version": "1.1",
   "description": "Strict mode for Critical: at plan time TikTok gets closed and blocked, and Critical stays on your chosen screen until today's plan is done. Plus one button (or Alt+Shift+C) to set up your study screens.",
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApc3PlqJuK0G1Rbl6KRfI949tdreUFYRv8IvjxDoYB8WIx11YWgTGacnJcDVBonO6FTLVbNct9Iz7laCW6xIiGMDEDGAy5jFFI8OqeGdnaUwLH/ry/l5SzLeGXcRQtKKYOUq3x1F0Qg+H7CygoP2dWmO5P3853JflbkuVIFj3PqTgs9YzBRxGGyhRbZT1xUC1NA+DZy/KaLX/hu/XdxntTqUQPyfsnbpSZSBI4heqXO4JTn7IuSqlETfujNbhPYxXqvvoNn0JFumCA1a1In4D0Z/rsUkxLrlSkeUQN5Cbzy1nuQjnxNdS5v+eax2mZljCyKEKPe0Y5+qJJpoJNGkKlQIDAQAB",
   "permissions": [
@@ -50,7 +50,7 @@
       "suggested_key": {
         "default": "Alt+Shift+C"
       },
-      "description": "Open Critical: close TikTok, Critical and Claude on your study screen, SoundCloud on your music screen"
+      "description": "Open Critical: close TikTok, Critical on your study screen, the Claude app, SoundCloud on your music screen"
     }
   }
 }

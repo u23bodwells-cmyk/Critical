@@ -20,6 +20,8 @@ function paint() {
     const mu = Math.min(typeof st.music === 'number' ? st.music : 0, displays.length - 1);
     $('music').innerHTML = displays.map((d, i) => '<label class="' + (i === mu ? 'on' : '') + '"><input type="radio" name="m" value="' + i + '"' + (i === mu ? ' checked' : '') + '>Screen ' + (i + 1) + '</label>').join('');
     document.querySelectorAll('#music input').forEach(inp => inp.onchange = () => chrome.runtime.sendMessage({ type: 'music', screen: +inp.value }, paint));
+    document.querySelectorAll('#claude label').forEach(l => { const on = l.dataset.v === st.claude; l.className = on ? 'on' : ''; l.querySelector('input').checked = on; l.onclick = () => chrome.runtime.sendMessage({ type: 'claude', mode: l.dataset.v }, paint); });
+    $('cnote').textContent = st.claude === 'app' ? 'The first time, Chrome asks "Open Claude?". Tick "Always allow" and press Open. Drag the app to the right side of your study screen once and it reopens there.' : 'Opens claude.ai on the right side of your study screen.';
     $('strict').checked = !!st.strict;
     $('exit').hidden = !school || st.skipped || wi.done;
   });

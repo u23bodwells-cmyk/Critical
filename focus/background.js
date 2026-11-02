@@ -12,6 +12,7 @@ const CRIT_ORIGIN = 'https://u23bodwells-cmyk.github.io/Critical/';
 const TT_MATCH = ['*://*.tiktok.com/*', '*://tiktok.com/*'];
 const RULE_ID = 1;
 const CLAUDE = 'https://claude.ai/new';
+const CLAUDE_APP = 'claude://claude.ai/new';
 const SOUNDCLOUD = 'https://soundcloud.com/';
 
 function ymd(d = new Date()) { return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); }
@@ -19,13 +20,14 @@ function at(h, m) { const d = new Date(); d.setHours(h, m, 0, 0); return d.getTi
 function isSchoolDay(d = new Date()) { const g = d.getDay(); return g >= 1 && g <= 5; }
 
 async function load() {
-  const s = await chrome.storage.local.get(['status', 'lock', 'winId', 'screen', 'music', 'strict', 'skip', 'layout']);
+  const s = await chrome.storage.local.get(['status', 'lock', 'winId', 'screen', 'music', 'strict', 'skip', 'layout', 'claude']);
   return {
     status: s.status && s.status.d === ymd() ? s.status : null,
     locked: !!(s.lock && s.lock.d === ymd()),
     winId: s.winId || null,
     screen: typeof s.screen === 'number' ? s.screen : 2,
     music: typeof s.music === 'number' ? s.music : 0,
+    claude: s.claude === 'web' ? 'web' : 'app',
     layout: s.layout && s.layout.d === ymd() ? s.layout : null,
     strict: !!s.strict,
     skipped: !!(s.skip && s.skip.d === ymd())
@@ -68,6 +70,7 @@ async function pickDisplay(screen) {
 // move to their own window so you can still use them; empty new tabs and TikTok just close.
 async function moveOrClose(t) {
   const u = t.pendingUrl || t.url || '';
+  if (u.startsWith('claude://')) return;
   const blank = !u || u.startsWith('chrome://newtab') || u === 'about:blank' || u.startsWith('chrome://new-tab-page');
   try {
     if (!blank && !/tiktok\.com/.test(u)) await chrome.windows.create({ tabId: t.id, focused: true });
@@ -158,9 +161,17 @@ async function setup(senderTabId) {
     else winId = (await chrome.windows.create(Object.assign({ url: CRIT, focused: true }, critB))).id;
   }
   await chrome.storage.local.set({ winId, layout: { d: ymd(), crit: critB } });
-  // Claude
-  const cl = (await chrome.tabs.query({ url: 'https://claude.ai/*' }))[0];
-  try { if (cl) await moveTab(cl.id, clB, false); else await chrome.windows.create(Object.assign({ url: CLAUDE, focused: false }, clB)); } catch (e) { console.warn(e); }
+  // Claude: the desktop app (opened through its claude:// link) or the website on the right of the study screen
+  if (st.claude === 'app') {
+    try {
+      const lt = await chrome.tabs.create({ windowId: winId, url: CLAUDE_APP, active: true });
+      // Chrome asks "Open Claude?" the first time (tick "Always allow"). Tidy the leftover blank tab afterwards.
+      setTimeout(async () => { try { const t = await chrome.tabs.get(lt.id); if (!(t.url || '').startsWith(CRIT_ORIGIN)) await chrome.tabs.remove(lt.id); } catch (e) {} }, 10000);
+    } catch (e) { console.warn(e); }
+  } else {
+    const cl = (await chrome.tabs.query({ url: 'https://claude.ai/*' }))[0];
+    try { if (cl) await moveTab(cl.id, clB, false); else await chrome.windows.create(Object.assign({ url: CLAUDE, focused: false }, clB)); } catch (e) { console.warn(e); }
+  }
   // SoundCloud (an open SoundCloud tab is moved, so your music keeps playing)
   const sc = (await chrome.tabs.query({ url: ['*://soundcloud.com/*', '*://*.soundcloud.com/*'] }))[0];
   try { const mid = sc ? await moveTab(sc.id, musB, false) : (await chrome.windows.create(Object.assign({ url: SOUNDCLOUD, focused: false }, musB))).id; await chrome.windows.update(mid, { state: 'maximized' }); } catch (e) { console.warn(e); }
@@ -238,6 +249,7 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
       reply({ st, wi: windowInfo(st), displays: ds.map(d => ({ name: d.name, w: d.bounds.width, h: d.bounds.height, primary: d.isPrimary })) }); return; }
     if (msg.type === 'screen') { await chrome.storage.local.set({ screen: msg.screen }); reply({ ok: true }); return; }
     if (msg.type === 'music') { await chrome.storage.local.set({ music: msg.screen }); reply({ ok: true }); return; }
+    if (msg.type === 'claude') { await chrome.storage.local.set({ claude: msg.mode === 'web' ? 'web' : 'app' }); reply({ ok: true }); return; }
     if (msg.type === 'setup') { await setup(null); reply({ ok: true }); return; }
     if (msg.type === 'strict') { await chrome.storage.local.set({ strict: !!msg.on }); check(); reply({ ok: true }); return; }
     if (msg.type === 'test') { const disp = await pickDisplay(msg.screen), b = disp.workArea; const w = await chrome.windows.create({ url: CRIT, left: b.left, top: b.top, width: b.width, height: b.height, focused: true });

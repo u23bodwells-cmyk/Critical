@@ -1,10 +1,11 @@
 <!doctype html><html lang="en-GB"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Critical Focus</title><link rel="stylesheet" href="page.css"></head>
 <body style="padding:16px;min-width:340px;max-width:520px">
 <h1 style="font-size:22px">Critical Focus</h1>
-<div class="card"><button id="setup" style="width:100%;font-size:17px;padding:12px">Open Critical</button><p class="muted" style="font-size:13px;margin:8px 0 0">Closes TikTok, puts Critical and Claude side by side on your study screen, and SoundCloud on your music screen. Shortcut: <b>Alt+Shift+C</b>.</p></div>
+<div class="card"><button id="setup" style="width:100%;font-size:17px;padding:12px">Open Critical</button><p class="muted" style="font-size:13px;margin:8px 0 0">Closes TikTok, puts Critical on your study screen, opens the Claude app, and SoundCloud on your music screen. Shortcut: <b>Alt+Shift+C</b>.</p></div>
 <div class="card" id="status"><p class="muted">Loading…</p></div>
 <div class="card"><h2>Study screen (Critical and Claude)</h2><p class="muted" style="font-size:13px">Screens are listed left to right.</p><div class="scr" id="screens"></div><div class="row" style="margin-top:8px"><button class="alt" id="test">Test this screen</button></div></div>
 <div class="card"><h2>Music screen (SoundCloud)</h2><div class="scr" id="music"></div></div>
+<div class="card"><h2>Claude opens as</h2><div class="scr" id="claude"><label data-v="app"><input type="radio" name="c">Desktop app</label><label data-v="web"><input type="radio" name="c">Website</label></div><p class="muted" style="font-size:13px;margin:8px 0 0" id="cnote"></p></div>
 <div class="card"><label class="tog"><input type="checkbox" id="strict"><span><b>Extra strict</b><br><span class="muted" style="font-size:13px">Lock Critical on screen at plan time even if TikTok isn't open.</span></span></label></div>
 <div class="card" id="exit"><h2>Let me off today</h2><p class="muted" style="font-size:13px">For real emergencies only. You'll have to type a sentence and wait a minute.</p><button class="alt" id="exitGo">I need to stop</button></div>
 <script src="options.js"></script></body></html>
