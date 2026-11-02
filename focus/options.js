@@ -42,3 +42,4 @@ $('exitGo').onclick = () => {
   $('no').onclick = () => { clearInterval(tick); location.reload(); };
 };
 paint();
+chrome.runtime.sendMessage({ type: 'helper' }, r => { $('helper').innerHTML = r && r.ok ? '<b>PC helper installed ✓</b> The Claude app moves onto the right of your study screen.' : '<b>PC helper not installed.</b> To have the Claude app moved onto your study screen, run <b>install-helper.cmd</b> in the extension\'s helper folder, then restart Chrome.'; });

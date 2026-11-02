@@ -40,7 +40,8 @@ function windowInfo(st) {
   const end = st.status && st.status.end ? st.status.end : at(21, 30);
   const done = !!(st.status && st.status.done);
   const now = Date.now();
-  return { due, end, done, inWindow: isSchoolDay() && !st.skipped && !done && now >= due && now < end };
+  const hw = !!(st.status && st.status.hw && st.status.at && now - st.status.at < 3 * 3600000);
+  return { due, end, done, hw, inWindow: isSchoolDay() && !st.skipped && !done && now >= due && now < end };
 }
 
 async function setBlock(on) {
@@ -55,9 +56,14 @@ async function setBlock(on) {
 async function closeTikTok() {
   const tabs = await chrome.tabs.query({ url: TT_MATCH });
   const blocked = await chrome.tabs.query({ url: chrome.runtime.getURL('blocked.html') + '*' });
-  const ids = tabs.concat(blocked).map(t => t.id);
+  const bad = tabs.concat(blocked);
+  if (!bad.length) return 0;
+  // Never close the last tab in Chrome (that would quit Chrome): turn it into Critical instead
+  const all = await chrome.tabs.query({});
+  let ids = bad.map(t => t.id);
+  if (all.length <= ids.length) { const keep = bad[0]; ids = ids.filter(id => id !== keep.id); try { await chrome.tabs.update(keep.id, { url: CRIT }); } catch (e) {} }
   if (ids.length) { try { await chrome.tabs.remove(ids); } catch (e) {} }
-  return ids.length;
+  return bad.length;
 }
 
 async function pickDisplay(screen) {
@@ -107,19 +113,28 @@ function startGuard() { if (!guardTimer) guardTimer = setInterval(() => guard().
 function stopGuard() { if (guardTimer) { clearInterval(guardTimer); guardTimer = null; } }
 
 async function lockNow(reason) {
-  const st = await load();
-  if (!windowInfo(st).inWindow) return false;
+  const st = await load(), wi0 = windowInfo(st);
+  if (!wi0.inWindow) return false;
+  if (wi0.hw) { await setBlock(true); await closeTikTok(); if (st.locked) await releaseWindow(); return true; }
   const was = st.locked;
   await chrome.storage.local.set({ lock: { d: ymd(), why: reason } });
   st.locked = true;
   await setBlock(true);
-  await closeTikTok();
   await ensureCritical(st);
+  await closeTikTok();
   startGuard();
   if (!was) {
     chrome.notifications.create('lock', { type: 'basic', iconUrl: 'icon128.png', title: 'Critical first', message: 'TikTok is closed until today\'s plan is done. Critical is on your screen.', priority: 2 });
   }
   return true;
+}
+
+// Homework first: let go of the Critical window but keep TikTok blocked
+async function releaseWindow() {
+  stopGuard();
+  const st = await load();
+  await chrome.storage.local.remove(['lock']);
+  if (st.winId) { try { await chrome.windows.update(st.winId, { state: 'maximized' }); } catch (e) {} await chrome.storage.local.remove(['winId']); }
 }
 
 async function release(why) {
@@ -165,6 +180,12 @@ async function setup(senderTabId) {
   if (st.claude === 'app') {
     try {
       const lt = await chrome.tabs.create({ windowId: winId, url: CLAUDE_APP, active: true });
+      // With the PC helper installed, move the Claude app onto the right of the study screen (tries a few times while it opens)
+      const place = (tries) => chrome.runtime.sendNativeMessage('com.critical.focus', { cmd: 'place', screen: st.screen, side: 'right', frac: 0.38 }, r => {
+        const err = chrome.runtime.lastError; chrome.storage.local.set({ helper: err ? { ok: false, error: err.message } : (r || { ok: false }) });
+        if (!err && r && !r.ok && tries > 0) setTimeout(() => place(tries - 1), 2000);
+      });
+      setTimeout(() => place(2), 2500);
       // Chrome asks "Open Claude?" the first time (tick "Always allow"). Tidy the leftover blank tab afterwards.
       setTimeout(async () => { try { const t = await chrome.tabs.get(lt.id); if (!(t.url || '').startsWith(CRIT_ORIGIN)) await chrome.tabs.remove(lt.id); } catch (e) {} }, 10000);
     } catch (e) { console.warn(e); }
@@ -190,6 +211,7 @@ async function check() {
   }
   await setBlock(true);
   const tt = await chrome.tabs.query({ url: TT_MATCH });
+  if (wi.hw) { if (tt.length) await closeTikTok(); if (st.locked) await releaseWindow(); return; }
   if (st.locked || tt.length || st.strict) { await lockNow(st.strict && !tt.length ? 'plan time' : 'tiktok'); return; }
 }
 
@@ -215,6 +237,7 @@ chrome.tabs.onCreated.addListener(async tab => {
 async function guard() {
   const st = await load();
   if (!st.locked) { stopGuard(); return; }
+  if (windowInfo(st).hw) { await releaseWindow(); return; }
   if (!windowInfo(st).inWindow) { await release(windowInfo(st).done ? 'done' : ''); return; }
   await ensureCritical(st);
 }
@@ -245,6 +268,7 @@ chrome.runtime.onMessageExternal.addListener((msg, sender, reply) => {
 chrome.runtime.onMessage.addListener((msg, sender, reply) => {
   (async () => {
     if (msg.type === 'blocked') { const ok = await lockNow('tiktok'); if (!ok) { await setBlock(false); } reply({ ok }); return; }
+    if (msg.type === 'helper') { chrome.runtime.sendNativeMessage('com.critical.focus', { cmd: 'ping' }, r => { const err = chrome.runtime.lastError; reply(err ? { ok: false, error: err.message } : (r || { ok: false })); }); return; }
     if (msg.type === 'info') { const st = await load(); const ds = await chrome.system.display.getInfo(); ds.sort((a, b) => a.bounds.left - b.bounds.left || a.bounds.top - b.bounds.top);
       reply({ st, wi: windowInfo(st), displays: ds.map(d => ({ name: d.name, w: d.bounds.width, h: d.bounds.height, primary: d.isPrimary })) }); return; }
     if (msg.type === 'screen') { await chrome.storage.local.set({ screen: msg.screen }); reply({ ok: true }); return; }

@@ -2978,7 +2978,7 @@ var PLAN=(function(){
  function paintRun(){var R=$q('[data-k=run]'),t=todayI(),r=runGet();R.innerHTML='';if(cur!==t)return;
   var hw=hwGet();if(!r&&hw&&!hw.done){var lf=hw.end-Date.now();R.innerHTML='<p>Homework first</p><b data-k="hwt">'+(lf>0?fmtLeft(lf)+' left for Critical':'Critical time used up')+'</b><p>Started at '+hhmm(hw.at)+'. When you\'ve finished, press Homework done and Critical gets whatever\'s left until '+hhmm(hw.end)+', with each part shortened to fit.</p><div class="placts"></div>';
    var A0=R.querySelector('.placts'),d1=document.createElement('button');d1.type='button';d1.className='plgo';d1.textContent='Homework done → Critical';d1.onclick=hwDone;A0.appendChild(d1);
-   var d2=document.createElement('button');d2.type='button';d2.className='plgo alt';d2.textContent='Cancel';d2.onclick=function(){hwSet(null);paintPill();paint()};A0.appendChild(d2);return}
+   var d2=document.createElement('button');d2.type='button';d2.className='plgo alt';d2.textContent='Cancel';d2.onclick=function(){hwSet(null);paintPill();paint();setTimeout(function(){try{focusSend(true)}catch(_){}},50)};A0.appendChild(d2);return}
   if(r){var b=DAY(r.day)[r.j]||D[r.day][r.j],left=r.ends-Date.now();R.innerHTML='<p>Today\'s plan is running</p><b>'+esc(r.t||b[0])+' · '+(left>0?fmtLeft(left)+' left':'time\'s up')+'</b><p>When the time is up you\'ll move to the next part. If you\'re in the middle of a lesson, you can finish it first.</p><div class="placts"></div>';
    var A=R.querySelector('.placts'),x1=document.createElement('button');x1.type='button';x1.className='plgo';x1.textContent='Go to it →';x1.onclick=function(){var a=b[3][0];if(a)go(a,b[0],true);else close()};if(b[3].length)A.appendChild(x1);
    var x2=document.createElement('button');x2.type='button';x2.className='plgo alt';x2.textContent='Next part now';x2.onclick=function(){var rr=runGet();if(rr){rr.ends=Date.now();runSet(rr);loop();paint()}};A.appendChild(x2);
@@ -2997,7 +2997,7 @@ var PLAN=(function(){
  function hwOn(){var h=hwGet();return !!(h&&!h.done)}
  function leftMins(t){return DAY(t).filter(function(_,j){return !isDone(t,j)}).reduce(function(a,b){return a+b[1]},0)}
  function hhmm(ms){var d=new Date(ms),h=d.getHours(),m=d.getMinutes();return (h%12||12)+':'+(m<10?'0':'')+m+(h>=12?'pm':'am')}
- function startHw(){var t=todayI();if(runGet()||firstLeft(t)<0)return;var L=leftMins(t),now=Date.now();hwSet({d:ymdN(),at:now,end:now+L*60000,mins:L});warned={};hideBan();paintPill();
+ function startHw(){var t=todayI();if(runGet()||firstLeft(t)<0)return;var L=leftMins(t),now=Date.now();hwSet({d:ymdN(),at:now,end:now+L*60000,mins:L});setTimeout(function(){try{focusSend(true)}catch(_){}},50);warned={};hideBan();paintPill();
   if(sh.classList.contains('open')){cur=t;view='plan';paint()}else showBan('<b>Homework first.</b> When you\'ve finished, tap the calendar button and press Homework done. Critical gets whatever\'s left until '+hhmm(now+L*60000)+'.',[['OK',hideBan]])}
  function hwDone(){var h=hwGet(),t=todayI();if(!h||h.done)return;setTimeout(function(){try{focusSend(true)}catch(_){}},80);var rem=Math.floor((h.end-Date.now())/60000);h.done=Date.now();
   var idx=DAY(t).map(function(_,j){return j}).filter(function(j){return !isDone(t,j)});
