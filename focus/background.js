@@ -17,10 +17,11 @@ const SOUNDCLOUD = 'https://soundcloud.com/';
 
 function ymd(d = new Date()) { return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); }
 function at(h, m) { const d = new Date(); d.setHours(h, m, 0, 0); return d.getTime(); }
-function isSchoolDay(d = new Date()) { const g = d.getDay(); return g >= 1 && g <= 5; }
+const DEFAULT_DAYS = [false, true, true, true, true, true, false];   // Sun..Sat: Monday to Friday only
+function isOnDay(days, d = new Date()) { return !!(days || DEFAULT_DAYS)[d.getDay()]; }
 
 async function load() {
-  const s = await chrome.storage.local.get(['status', 'lock', 'winId', 'screen', 'music', 'strict', 'skip', 'layout', 'claude']);
+  const s = await chrome.storage.local.get(['status', 'lock', 'winId', 'screen', 'music', 'strict', 'skip', 'layout', 'claude', 'days']);
   return {
     status: s.status && s.status.d === ymd() ? s.status : null,
     locked: !!(s.lock && s.lock.d === ymd()),
@@ -28,6 +29,7 @@ async function load() {
     screen: typeof s.screen === 'number' ? s.screen : 2,
     music: typeof s.music === 'number' ? s.music : 0,
     claude: s.claude === 'web' ? 'web' : 'app',
+    days: Array.isArray(s.days) && s.days.length === 7 ? s.days : DEFAULT_DAYS,
     layout: s.layout && s.layout.d === ymd() ? s.layout : null,
     strict: !!s.strict,
     skipped: !!(s.skip && s.skip.d === ymd())
@@ -41,7 +43,7 @@ function windowInfo(st) {
   const done = !!(st.status && st.status.done);
   const now = Date.now();
   const hw = !!(st.status && st.status.hw && st.status.at && now - st.status.at < 3 * 3600000);
-  return { due, end, done, hw, inWindow: isSchoolDay() && !st.skipped && !done && now >= due && now < end };
+  return { due, end, done, hw, inWindow: isOnDay(st.days) && !st.skipped && !done && now >= due && now < end };
 }
 
 async function setBlock(on) {
@@ -275,6 +277,12 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
     if (msg.type === 'music') { await chrome.storage.local.set({ music: msg.screen }); reply({ ok: true }); return; }
     if (msg.type === 'claude') { await chrome.storage.local.set({ claude: msg.mode === 'web' ? 'web' : 'app' }); reply({ ok: true }); return; }
     if (msg.type === 'setup') { await setup(null); reply({ ok: true }); return; }
+    if (msg.type === 'days') {
+      const st = await load(), g = new Date().getDay();
+      // No switching today off in the middle of plan time: that's what the slow "let me off today" exit is for
+      if (st.days[g] && !msg.days[g] && windowInfo(st).inWindow) { reply({ ok: false, error: 'You can\'t switch today off during plan time. Do your plan, press Homework first, or use Let me off today.' }); return; }
+      await chrome.storage.local.set({ days: msg.days }); await check(); reply({ ok: true }); return;
+    }
     if (msg.type === 'strict') { await chrome.storage.local.set({ strict: !!msg.on }); check(); reply({ ok: true }); return; }
     if (msg.type === 'test') { const disp = await pickDisplay(msg.screen), b = disp.workArea; const w = await chrome.windows.create({ url: CRIT, left: b.left, top: b.top, width: b.width, height: b.height, focused: true });
       setTimeout(() => chrome.windows.remove(w.id).catch(() => {}), 4000); reply({ ok: true }); return; }

@@ -4,10 +4,10 @@ let screen = 2;
 function paint() {
   chrome.runtime.sendMessage({ type: 'info' }, r => {
     if (!r) return;
-    const { st, wi, displays } = r, school = [1, 2, 3, 4, 5].includes(new Date().getDay());
+    const { st, wi, displays } = r, school = !!st.days[new Date().getDay()];
     screen = Math.min(st.screen, displays.length - 1);
     let h;
-    if (!school) h = '<h2>It\'s the weekend</h2><p class="muted">Focus mode only runs on school days.</p>';
+    if (!school) h = '<h2>Off today</h2><p class="muted">' + (['Sunday','Saturday'].includes(new Date().toLocaleDateString('en-GB',{weekday:'long'})) ? 'It\'s the weekend, so' : 'Today is switched off, so') + ' nothing is blocked and Critical won\'t open by itself.</p>';
     else if (st.skipped) h = '<h2>Off for today</h2><p class="muted">You used the exit. It\'s back on tomorrow.</p>';
     else if (wi.done) h = '<h2>Today\'s plan is done ✓</h2><p class="muted">TikTok is unblocked. Nice work.</p>';
     else if (st.locked) h = '<h2>Locked: Critical first</h2><p>TikTok is blocked and Critical stays on screen until today\'s plan is done, or ' + hm(wi.end) + ' at the latest.</p>';
@@ -22,6 +22,9 @@ function paint() {
     document.querySelectorAll('#music input').forEach(inp => inp.onchange = () => chrome.runtime.sendMessage({ type: 'music', screen: +inp.value }, paint));
     document.querySelectorAll('#claude label').forEach(l => { const on = l.dataset.v === st.claude; l.className = on ? 'on' : ''; l.querySelector('input').checked = on; l.onclick = () => chrome.runtime.sendMessage({ type: 'claude', mode: l.dataset.v }, paint); });
     $('cnote').textContent = st.claude === 'app' ? 'The first time, Chrome asks "Open Claude?". Tick "Always allow" and press Open. Drag the app to the right side of your study screen once and it reopens there.' : 'Opens claude.ai on the right side of your study screen.';
+    const DN = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], order = [1, 2, 3, 4, 5, 6, 0];
+    $('days').innerHTML = order.map(i => '<label class="' + (st.days[i] ? 'on' : '') + '" data-d="' + i + '">' + DN[i] + '<br><span class="muted">' + (st.days[i] ? 'On' : 'Off') + '</span></label>').join('');
+    document.querySelectorAll('#days label').forEach(l => l.onclick = () => { const d = st.days.slice(); d[+l.dataset.d] = !d[+l.dataset.d]; chrome.runtime.sendMessage({ type: 'days', days: d }, res => { if (res && res.ok === false) { const n = document.getElementById('daysmsg'); n.textContent = res.error; n.hidden = false; } else paint(); }); });
     $('strict').checked = !!st.strict;
     $('exit').hidden = !school || st.skipped || wi.done;
   });
