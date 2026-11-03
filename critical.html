@@ -657,7 +657,7 @@ function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(M
 var S=(function(){var d={xp:0,done:{},streak:0,last:'',daily:{d:'',xp:0},missions:{},goal:50};try{var s=JSON.parse(localStorage.getItem('critical_state')||'null');if(s){for(var k in d)if(s[k]===undefined)s[k]=d[k];return s}}catch(e){}return d})();
 function save(){try{localStorage.setItem('critical_state',JSON.stringify(S))}catch(e){}}
 function ymdL(){var d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()}
-function lcount(){try{if(typeof P==='undefined'||!P||P._lc||P.mode==='one')return;P._lc=1;var d=ymdL();if(!S.lday||S.lday.d!==d)S.lday={d:d,n:0};S.lday.n++;save();setTimeout(function(){try{if(window.PLAN&&PLAN.afterLesson)PLAN.afterLesson()}catch(_){}},0)}catch(_){}}
+function lcount(){try{if(typeof P==='undefined'||!P||P._lc||P.mode==='one')return;P._lc=1;var d=ymdL();if(!S.lday||S.lday.d!==d)S.lday={d:d,n:0};S.lday.n++;save();setTimeout(function(){try{if(typeof REW!=='undefined')REW.lessonBonus()}catch(_){}try{if(window.PLAN&&PLAN.afterLesson)PLAN.afterLesson()}catch(_){}},0)}catch(_){}}
 function lessonsToday(){var n=0,d=ymdL(),t=new Date();function same(ms){var x=new Date(ms);return x.getFullYear()===t.getFullYear()&&x.getMonth()===t.getMonth()&&x.getDate()===t.getDate()}
  if(S.lday&&S.lday.d===d)n+=S.lday.n||0;
  try{var s=JSON.parse(localStorage.getItem('shift-ready-v1')||'null');if(s&&s.done)for(var k in s.done){var v=s.done[k];if(v&&v.at&&same(v.at))n++}}catch(_){}
@@ -871,7 +871,8 @@ function finish(){if(P.mode==='one')return ONE.finish();if(P.mode==='test')retur
  sfx('done');confetti();
  if(P.levelUp!=null){var lu=P.levelUp;P.levelUp=null;setTimeout(function(){showLevelUp(lu)},1100)}}
 function countUp(e,a,b,pre){if(!e)return;var t0=performance.now(),d=900;function f(t){var u=Math.min(1,(t-t0)/d),v=a+(b-a)*(1-Math.pow(1-u,3));e.textContent=pre+fmtInt(v);if(u<1&&e.isConnected)requestAnimationFrame(f)}requestAnimationFrame(f)}
-function confetti(){var cols=['#7F77DD','#1D9E75','#D85A30','#EF9F27','#378ADD','#D4537E'];for(var i=0;i<40;i++){var d=document.createElement('div');d.style.cssText='position:fixed;z-index:90;width:8px;height:12px;border-radius:2px;pointer-events:none;left:'+(50+(Math.random()-0.5)*30)+'%;top:30%;background:'+cols[i%6];document.body.appendChild(d);(function(d){var vx=(Math.random()-0.5)*14,vy=-6-Math.random()*8,x=0,y=0,r=0,t=0;function f(){t++;vy+=0.4;x+=vx;y+=vy;r+=8;d.style.transform='translate('+x+'px,'+y+'px) rotate('+r+'deg)';d.style.opacity=1-t/90;if(t<90)requestAnimationFrame(f);else d.remove()}requestAnimationFrame(f)})(d)}}
+function lookFx(){try{return (S.rw&&S.rw.look&&S.rw.look.fx&&S.rw.unl&&(S.rw.look.fx==='confetti'||S.rw.unl['fx-'+S.rw.look.fx]))?S.rw.look.fx:'confetti'}catch(_){return 'confetti'}}
+function confetti(){var fx=lookFx(),round=fx==='glow'||fx==='atoms',cols=fx==='glow'?['#5ec8ff','#9fe4ff','#3aa0ff','#c9f1ff','#7fd3ff','#2f7bd1']:fx==='gold'?['#f5c542','#e0a526','#ffd96b','#c98a12','#fff1b3','#b8860b']:fx==='atoms'?['#D85A30','#378ADD','#7F77DD','#1D9E75','#EF9F27','#D4537E']:['#7F77DD','#1D9E75','#D85A30','#EF9F27','#378ADD','#D4537E'];for(var i=0;i<40;i++){var d=document.createElement('div');d.style.cssText='position:fixed;z-index:90;width:'+(round?(fx==='glow'?6:9):8)+'px;height:'+(round?(fx==='glow'?6:9):12)+'px;border-radius:'+(round?'50%':'2px')+';pointer-events:none;left:'+(50+(Math.random()-0.5)*30)+'%;top:30%;background:'+cols[i%6]+(fx==='glow'?';box-shadow:0 0 8px 2px '+cols[i%6]:'');document.body.appendChild(d);(function(d){var vx=(Math.random()-0.5)*14,vy=-6-Math.random()*8,x=0,y=0,r=0,t=0;function f(){t++;vy+=0.4;x+=vx;y+=vy;r+=8;d.style.transform='translate('+x+'px,'+y+'px) rotate('+r+'deg)';d.style.opacity=1-t/90;if(t<90)requestAnimationFrame(f);else d.remove()}requestAnimationFrame(f)})(d)}}
 
 /* ---------- review and progress ---------- */
 function reviewPool(only){var pool=[];UNITS.forEach(function(u){u.lessons.forEach(function(l){if(!S.done[l.id])return;function add(c,k){if(c.t==='Q'||c.t==='N'||c.t==='O'){if(only&&!S.wrong[k])return;var cc=Object.assign({},c);cc._src=u.title+' · '+l.title;cc._key=k;pool.push(cc)}}
@@ -883,10 +884,10 @@ function renderReview(){var pool=reviewPool(),wp=reviewPool(true),lv=level(),dc=
   (pool.length?'<div class="savebtns"><button class="big" id="revGo">Start a review</button>'+(wp.length?'<button class="ghost" id="fixGo">Fix my mistakes ('+wp.length+')</button>':'')+'</div>'+(wp.length?'':'<p class="note" style="margin-top:8px">No mistakes waiting to be fixed. Nice.</p>'):'<p><b>Finish a lesson first</b> and its questions will appear here.</p>')+'</div>'+
   '<div class="card"><h2>This week</h2>'+wk.svg+'<p class="note">'+fmtInt(wk.tot)+' XP in the last 7 days · daily goal met on '+wk.met+' of 7 days</p></div></div>';
  h+='<div class="card"><h2>Your stats</h2><div class="stats"><div class="stat"><p>Rank</p><b>'+(lv.i+1)+'</b><span class="small">'+lv.name+'</span></div><div class="stat"><p>Total XP</p><b>'+fmtInt(S.xp)+'</b></div><div class="stat"><p>Lessons done</p><b>'+dc+'/'+tot+'</b></div><div class="stat"><p>Day streak</p><b>'+streakNow()+'</b><span class="small">best '+S.st.maxStreak+'</span></div><div class="stat"><p>Best combo</p><b>'+S.st.best+'</b></div><div class="stat"><p>Perfect lessons</p><b>'+S.st.perfect+'</b></div><div class="stat"><p>Streak freezes</p><b>'+S.freeze+'/2</b></div><div class="stat"><p>Missions passed</p><b>'+ms+'/4</b></div></div></div>';
- h+=testsCard();h+='<div class="card"><h2>Badges <span class="note" style="font-weight:400">'+got+' of '+B.length+'</span></h2><div class="badges">'+B.map(function(b){return badgeTile(b,!!S.badges[b.id])}).join('')+'</div></div>';
+ h+=REW.card();h+=testsCard();h+='<div class="card"><h2>Badges <span class="note" style="font-weight:400">'+got+' of '+B.length+'</span></h2><div class="badges">'+B.map(function(b){return badgeTile(b,!!S.badges[b.id])}).join('')+'</div></div>';
  h+='<div class="card"><h2>Career ladder</h2><p class="note" style="font-size:15px">Earn XP to climb from visitor to station director. The ranks are based on roles at a nuclear power station.</p><ol class="ladder">'+LEVELS.map(function(l,i){var cur=i===lv.i,dn=i<lv.i;return '<li class="'+(cur?'cur':dn?'done':'')+'">'+rankEmblem(i,44)+'<div class="lb"><div><b>'+l[1]+'</b> <span class="note">'+fmtInt(l[0])+' XP</span>'+(cur?' <span class="youare">You are here</span>':'')+'</div><p>'+RANK_INFO[i]+'</p>'+(cur&&lv.next?'<div class="lvlbar"><div style="width:'+lv.frac*100+'%"></div></div><span class="note">'+fmtInt(lv.toNext)+' XP to '+lv.next+'</span>':'')+'</div></li>'}).join('')+'</ol></div>';
  h+='<div class="card"><h2>Settings</h2><div class="wrow"><label for="themeSel">Appearance</label><select id="themeSel"><option value="auto">Match my device</option><option value="light">Light</option><option value="dark">Dark</option></select></div><div class="wrow"><label for="goalSel">Daily XP goal</label><select id="goalSel">'+[30,50,100,150].map(function(g){return '<option value="'+g+'"'+(S.goal===g?' selected':'')+'>'+g+' XP</option>'}).join('')+'</select></div><div class="wrow"><label for="sndSel">Sound effects</label><select id="sndSel"><option value="1"'+(S.sound!==false?' selected':'')+'>On</option><option value="0"'+(S.sound===false?' selected':'')+'>Off</option></select></div></div>';
- $('page-review').innerHTML=h;wireTestsCard();if($('revGo'))$('revGo').onclick=function(){startReview(false)};if($('fixGo'))$('fixGo').onclick=function(){startReview(true)};
+ $('page-review').innerHTML=h;REW.wire();wireTestsCard();if($('revGo'))$('revGo').onclick=function(){startReview(false)};if($('fixGo'))$('fixGo').onclick=function(){startReview(true)};
  $('goalSel').onchange=function(){S.goal=+this.value;var q=quests();if(!q.list[0].done){q.list[0].n=S.goal;qProg('xp',0)}save();renderReview()};
  $('sndSel').onchange=function(){S.sound=this.value==='1';save();soundBtnUpd();if(S.sound)sfx('right')};
  $('themeSel').value=themePref();$('themeSel').onchange=function(){applyTheme(this.value)}}
@@ -932,7 +933,7 @@ function stationSVG(){var gs=[];
   return '<g class="stc '+st+(JUST_BUILT===ui?' pulse':'')+'" data-u="'+ui+'" tabindex="0" role="button" aria-label="'+COMP[ci]+': '+x.d+' of '+x.n+' lessons" style="--c:'+(x.d===0?'var(--faint)':u.color)+';--f:'+(x.d===0?0:(0.18+0.55*x.f).toFixed(2))+'"><title>'+COMP[ci]+' ('+x.d+'/'+x.n+')</title>'+inner+'</g>'}
  var tot=allLessons(curMode(),1).length,dc=doneCount(curMode(),1),lit=Math.ceil(dc/tot*8-1e-9),houses='';
  for(var i=0;i<8;i++){var hx=560+(i%4)*19-(i>3?9:0),hy=i>3?186:172+(i%2)*4,on=i<lit;houses+='<path d="M'+hx+' '+(hy+6)+'l6-6 6 6v'+(200-hy-6)+'h-12z" class="house'+(on?' on':'')+'"/><rect x="'+(hx+4)+'" y="'+(hy+9)+'" width="4" height="4" class="win'+(on?' on':'')+'"/>'}
- var s='<svg viewBox="0 62 640 174" class="station" role="img" aria-label="Your power station"><defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--soft)" stop-opacity=".2"/><stop offset="1" stop-color="var(--soft)"/></linearGradient></defs><rect x="0" y="62" width="640" height="174" rx="14" fill="url(#sky)"/>'+
+ var s='<svg viewBox="0 62 640 174" class="station" role="img" aria-label="Your power station"><defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--soft)" stop-opacity=".2"/><stop offset="1" stop-color="var(--soft)"/></linearGradient></defs><rect x="0" y="62" width="640" height="174" rx="14" fill="url(#sky)"/>'+stationBack()+
   '<path d="M0 200 Q10 196 20 200 T40 200 T60 200 V236 H0Z" class="sea"/><line x1="0" y1="200" x2="640" y2="200" class="ground"/>'+houses+
   g(6,'<rect x="62" y="184" width="22" height="16" class="b"/><path d="M30 214 H300 V200" class="ln flow"/><path d="M30 222 H312 V200" class="ln flow rev"/>')+
   g(0,'<rect x="92" y="200" width="320" height="8" class="b"/><path d="M110 208v14M160 208v14M210 208v14M260 208v14M310 208v14M360 208v14M400 208v14" class="ln"/>')+
@@ -944,7 +945,9 @@ function stationSVG(){var gs=[];
   g(8,'<path d="M262 200 V150 L327 142 L392 150 V200 Z" class="b"/><path d="M276 192 L282 172 H312 L318 192 Z M320 192 L325 176 H345 L350 192 Z" class="b2"/><rect x="356" y="174" width="26" height="18" rx="3" class="b2"/>')+
   g(7,'<path d="M96 200V188M106 200V188M116 200V188M126 200V188M196 200V188M206 200V188M216 200V188M256 200V188M96 190H126M196 190H256" class="ln"/><rect x="74" y="168" width="14" height="10" rx="2" class="b"/><path d="M81 178V200" class="ln"/>')+
   g(1,'<rect x="400" y="182" width="20" height="18" class="b"/><path d="M455 200 L463 130 L471 200 M457 180 H469 M459 160 H467 M461 142 H465 M440 134 H486 M520 200 L528 130 L536 200 M522 180 H534 M524 160 H532 M526 142 H530 M505 134 H551" class="ln"/><path d="M410 182 Q436 150 444 134 M486 134 Q503 140 505 134 M551 134 Q565 150 575 175" class="ln flow"/>')+
-  '</svg>';return s}
+  stationFront()+'</svg>';return s}
+function stationBack(){try{return REW.back()}catch(_){return ''}}
+function stationFront(){try{return REW.front()}catch(_){return ''}}
 function stationCard(){var dc=doneCount(curMode(),1),tot=allLessons(curMode(),1).length,pct=Math.round(dc/tot*100),hm=homesNow();
  return '<div class="card stationcard"><div class="sch"><div><h2>Your power station'+(curMode()==='theory'?' <span class="modetag">Theory</span>':' <span class="modetag">Maths</span>')+'</h2><p class="note">Each unit you finish builds part of the station. Hinkley Point C is designed to power about 6 million homes.</p></div><div class="homes"><b>'+fmtInt(hm)+'</b><span>homes powered</span></div></div>'+stationSVG()+
   '<div class="stbar"><div style="width:'+pct+'%"></div></div><p class="note" id="stInfo">'+pct+'% built. Tap a part of the station to see which unit builds it.</p></div>'}
@@ -1304,7 +1307,7 @@ function cleanState(s){
  KEEP_FIELDS.forEach(function(k){var v=s[k];if(v!==undefined&&v!==null&&/^(object|string|number|boolean)$/.test(typeof v)){try{o[k]=JSON.parse(JSON.stringify(v))}catch(e){}}});
  var uids={};UNITS.forEach(function(u){uids[u.id]=1});o.tests={};if(s.tests&&typeof s.tests==='object')for(var tk in s.tests){var tv=s.tests[tk];if(uids[tk]&&tv&&typeof tv==='object')o.tests[tk]={best:num(tv.best,0,100)||0,passed:!!tv.passed,n:num(tv.n,0,1e5)||0,last:(typeof tv.last==='string'&&dre.test(tv.last))?tv.last:'',lastPct:num(tv.lastPct,0,100)||0}}
  return o}
-var KEEP_FIELDS=['mode','gsub','lvl','lvlOpen','lvtests','seenGcse','seenCalc','seenTheory','plView','exam','plan','habits','dayplan','lacc','hardOff','dayNudge','qsets','lday'];
+var KEEP_FIELDS=['mode','gsub','lvl','lvlOpen','lvtests','seenGcse','seenCalc','seenTheory','plView','exam','plan','habits','dayplan','lacc','hardOff','dayNudge','qsets','lday','pdays','rw'];
 var EXTRA_KEYS={study:'critical_study',shift:'shift-ready-v1',apt:'aptitude-v1'};
 function readExtras(){var o={};for(var k in EXTRA_KEYS){try{var v=JSON.parse(localStorage.getItem(EXTRA_KEYS[k])||'null');if(v&&typeof v==='object')o[k]=v}catch(e){}}if(o.study)o.study=Object.assign({},o.study,{run:null});return o}
 function writeExtras(x){if(!x)return;for(var k in EXTRA_KEYS)if(x[k]&&typeof x[k]==='object'){try{localStorage.setItem(EXTRA_KEYS[k],JSON.stringify(x[k]))}catch(e){}}}
@@ -3074,7 +3077,7 @@ var PLAN=(function(){
  var lastDayPaint=-1;
  function hwTick(){var h=hwGet();if(!h||h.done)return;var lf=h.end-Date.now();var el=$q('[data-k=hwt]');if(el)el.textContent=lf>0?fmtLeft(lf)+' left for Critical':'Critical time used up';
   if(lf<=0&&!h.warn&&!ban){h.warn=1;hwSet(h);showBan('<b>Your Critical time is used up.</b> Keep going with your homework: it comes first. Critical can wait until tomorrow.',[['OK',hideBan]])}}
- function loop(){try{hwTick()}catch(_){}try{focusSend()}catch(_){}var r=runGet();try{fixChk(r)}catch(e){if(window.console)console.error(e)}try{dayNudge()}catch(e){if(window.console)console.error(e)}if(view==='day'&&!editing&&sh.classList.contains('open')){var nm=nowMin();if(nm!==lastDayPaint){lastDayPaint=nm;paintDay()}}r=runGet();paintPill();if(!r){if(ban&&banT)hideBan();return}
+ function loop(){try{if(typeof REW!=='undefined')REW.planTick()}catch(e){if(window.console)console.error(e)}try{hwTick()}catch(_){}try{focusSend()}catch(_){}var r=runGet();try{fixChk(r)}catch(e){if(window.console)console.error(e)}try{dayNudge()}catch(e){if(window.console)console.error(e)}if(view==='day'&&!editing&&sh.classList.contains('open')){var nm=nowMin();if(nm!==lastDayPaint){lastDayPaint=nm;paintDay()}}r=runGet();paintPill();if(!r){if(ban&&banT)hideBan();return}
   var left=r.ends-Date.now();if(sh.classList.contains('open')&&cur===todayI()){var rb=$q('[data-k=run] b');if(rb)rb.textContent=(r.t||(DAY(r.day)[r.j]||D[r.day][r.j])[0])+' · '+(left>0?fmtLeft(left)+' left':'time\'s up')}
   if(left>0)return;
   if(busy()){if(!warned.b){warned.b=1;var pf=document.getElementById('pFoot');toastIn('Time\'s up for '+r.t+'. Finish this lesson, then you\'ll move on.')}return}
@@ -3101,7 +3104,7 @@ var PLAN=(function(){
   showBan('<b>4:45: time to start.</b> Today\'s plan is '+restMins(t)+' minutes. Got homework due? Do that first and Critical gets whatever time is left.',[['Start today\'s plan',function(){hideBan();startRun()}],['Homework first',function(){hideBan();startHw()}],['Just one question',function(){hideBan();ONE.start()}]])}catch(e){if(window.console)console.error(e)}},600)}
  if(location.hash==='#early'){try{history.replaceState(null,'',location.pathname+location.search)}catch(_){}setTimeout(function(){try{finishEarly()}catch(_){}},700)}
  if(location.hash==='#home'){try{history.replaceState(null,'',location.pathname+location.search)}catch(_){}setTimeout(function(){try{homeAuto();open('day')}catch(_){}},400)}
- return {early:finishEarly,afterLesson:afterLesson,feOn:feOn,undoEarly:undoEarly,hideBan:hideBan,next:function(){var t=todayI(),j=firstLeft(t);return j<0?null:DAY(t)[j]},leftMins:function(){return leftMins(todayI())},open:open,close:close,paint:paint,paintPill:paintPill,start:startRun,stop:stopRun,loop:loop,running:function(){return !!runGet()},todayLeft:function(){return firstLeft(todayI())>=0},D:D,DAY:DAY,pile:pile,TUE_FIX:TUE_FIX,rows:rows,nowRow:nowRow,sched:sched,home:homeGet,habits:HS,streak:streak,hw:hwGet,hwStart:startHw,hwDone:hwDone,focusStatus:focusStatus,focus:function(){return focusOk}};
+ return {wkKey:wk,wkMins:function(){var m=0;D.forEach(function(_,i){DAY(i).forEach(function(b,j){if(isDone(i,j))m+=b[1]})});return m},schoolMins:function(){var m=0;for(var i=0;i<5;i++)m+=mins(i);return m},TOTAL:TOTAL,dayMins:function(){return mins(todayI())},fullInfo:function(){var t=todayI(),full=DAY(t).every(function(_,j){return isDone(t,j)}),h=hwGet(),ks=h&&h.alloc?Object.keys(h.alloc):[],hf=ks.length>0&&ks.every(function(j){return isDone(t,+j)});return {t:t,full:full||hf,mins:full?mins(t):hf?ks.reduce(function(a,j){return a+h.alloc[j]},0):0,early:feOn(t)}},early:finishEarly,afterLesson:afterLesson,feOn:feOn,undoEarly:undoEarly,hideBan:hideBan,next:function(){var t=todayI(),j=firstLeft(t);return j<0?null:DAY(t)[j]},leftMins:function(){return leftMins(todayI())},open:open,close:close,paint:paint,paintPill:paintPill,start:startRun,stop:stopRun,loop:loop,running:function(){return !!runGet()},todayLeft:function(){return firstLeft(todayI())>=0},D:D,DAY:DAY,pile:pile,TUE_FIX:TUE_FIX,rows:rows,nowRow:nowRow,sched:sched,home:homeGet,habits:HS,streak:streak,hw:hwGet,hwStart:startHw,hwDone:hwDone,focusStatus:focusStatus,focus:function(){return focusOk}};
 })();
 try{window.PLAN=PLAN}catch(_){}
 /* ===== just one question: a tiny way into a study session ===== */
@@ -3130,6 +3133,94 @@ var ONE=(function(){
  return {start:start,finish:finish,pick:pick}
 })();
 try{window.ONE=ONE}catch(_){}
+/* ===== rewards: bonus XP for doing more Critical, and things to unlock ===== */
+var REW=(function(){
+ var GIFT='<svg viewBox="0 0 24 24" fill="none" stroke="#7F77DD" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7M7.5 8a2.5 2.5 0 0 1 0-5C11 3 12 8 12 8s1-5 4.5-5a2.5 2.5 0 0 1 0 5"/></svg>';
+ var PAL={purple:['Reactor purple',null,'#534AB7'],
+  teal:['Coolant teal',['#0F6E56','#E1F5EE','#085041','#5DCAA5','#0c3a30','#c4efe0']],
+  blue:['Cherenkov blue',['#185FA5','#E6F1FB','#0C447C','#85B7EB','#10304f','#d2e5f8']],
+  green:['Turbine green',['#3B6D11','#EAF3DE','#27500A','#97C459','#233a10','#dcedc4']],
+  amber:['Warning amber',['#854F0B','#FAEEDA','#633806','#EF9F27','#3d2a0c','#fae0b8']],
+  red:['Alarm red',['#A32D2D','#FCEBEB','#791F1F','#F09595','#4a1a1a','#fbd6d6']],
+  graphite:['Graphite',['#444441','#F1EFE8','#2C2C2A','#D3D1C7','#2f2f2c','#eeece6']],
+  gold:['Director gold',['#8a6a08','#faf1d2','#5e4705','#e6c25a','#3a300f','#f6e7b8']]};
+ var FXC={confetti:['Confetti',['#7F77DD','#1D9E75','#D85A30']],glow:['Reactor glow',['#5ec8ff','#9fe4ff','#2f7bd1']],atoms:['Neutron burst',['#D85A30','#378ADD','#1D9E75']],gold:['Golden confetti',['#f5c542','#e0a526','#c98a12']]};
+ var EXN={visitor:'Visitor centre',wind:'Wind farm',night:'Night sky',flag:'Station flag'};
+ var UNL=[['c-teal','accent','teal',['xp',250]],['fx-glow','fx','glow',['xp',500]],['c-blue','accent','blue',['xp',800]],['ex-visitor','ex','visitor',['xp',1200]],
+  ['c-green','accent','green',['xp',1800]],['ex-wind','ex','wind',['xp',2600]],['fx-atoms','fx','atoms',['xp',3500]],['c-amber','accent','amber',['xp',4500]],
+  ['c-red','accent','red',['xp',6000]],['ex-night','ex','night',['xp',8000]],['c-gold','accent','gold',['xp',10000]],
+  ['ex-flag','ex','flag',['streak',3]],['fx-gold','fx','gold',['streak',5]],['c-graphite','accent','graphite',['streak',10]]];
+ var css=document.createElement('style');css.textContent='.rwspin{animation:rwspin 6s linear infinite}.rwspin.s2{animation-duration:4.5s}@keyframes rwspin{to{transform:rotate(360deg)}}.rwtw{animation:rwtw 3s ease-in-out infinite}.rwtw.d2{animation-delay:1s}.rwtw.d3{animation-delay:2s}@keyframes rwtw{50%{opacity:.25}}@media (prefers-reduced-motion:reduce){.rwspin,.rwtw{animation:none}}'+
+  '.rwcard h3{font-size:15px;margin:16px 0 2px}.rwgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;margin:8px 0 4px}'+
+  '.rwit{display:flex;align-items:center;gap:10px;text-align:left;background:var(--soft);border:2px solid transparent;border-radius:12px;padding:8px 10px;font:inherit;color:var(--text);cursor:pointer;min-width:0}.rwit:hover{background:var(--soft2)}.rwit.on{border-color:var(--accent);background:var(--accent-bg)}.rwit.lock{cursor:default;background:transparent;border:1.5px dashed var(--line)}.rwit.lock:hover{background:transparent}'+
+  '.rwit .rwt{min-width:0}.rwit b{display:block;font-size:14px;font-weight:600}.rwit .rwt span{display:block;font-size:12px;color:var(--muted)}.rwit.lock b{color:var(--muted)}'+
+  '.rwsw{width:22px;height:22px;border-radius:50%;flex:none;border:2px solid var(--panel);box-shadow:0 0 0 1px var(--line)}.rwdots{display:flex;gap:2px;flex:none;width:22px;flex-wrap:wrap}.rwdots i{width:9px;height:9px;border-radius:50%;display:block}.rwico{width:22px;height:22px;flex:none;color:var(--muted)}'+
+  '.rwms{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 6px}.rwms span{font-size:12px;padding:4px 10px;border-radius:999px;background:var(--soft);color:var(--muted)}.rwms span.ok{background:var(--good-bg);color:var(--good)}';
+ document.head.appendChild(css);
+ var pend=[];
+ function R(){if(!S.rw||typeof S.rw!=='object')S.rw={};var r=S.rw;if(!r.unl||typeof r.unl!=='object')r.unl={};if(!r.look||typeof r.look!=='object')r.look={accent:'purple',fx:'confetti',ex:{}};if(!r.look.ex)r.look.ex={};if(!r.bonus)r.bonus={};if(!r.wk)r.wk={k:'',got:{}};if(!r.wk.got)r.wk.got={};return r}
+ function dk(d){return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()}
+ function streak(){var p=S.pdays||{},d=new Date(),n=0;for(var i=0;i<400;i++){var k=dk(d),g=d.getDay();if(p[k])n++;else if(i>0&&g!==0&&g!==6)break;d.setDate(d.getDate()-1)}return n}
+ function mult(n){return n>=10?1.5:n>=5?1.25:n>=3?1.1:1}
+ function note(t,sub){pend.push([t,sub]);flush()}
+ function flush(){while(pend.length&&!(typeof P!=='undefined'&&P&&P.quiet)){var x=pend.shift();toast(GIFT,x[0],x[1],'badge')}}
+ function MS(){var sc=PLAN.schoolMins(),tot=PLAN.TOTAL,a=[[60,20,0,'1 hour of your plan this week'],[120,40,0,'2 hours of your plan this week']];if(sc>120)a.push([sc,75,1,'Every school day\'s plan done']);if(tot>Math.max(120,sc))a.push([tot,150,0,'The whole week\'s plan done']);return a}
+ function planTick(){flush();if(typeof PLAN==='undefined'||!PLAN.fullInfo)return;var f=PLAN.fullInfo(),k=ymdL(),r=R(),ch=false;if(!S.pdays||typeof S.pdays!=='object')S.pdays={};var cur=S.pdays[k];
+  if(f.full){if(cur!=='f'){S.pdays[k]='f';ch=true}if(!r.bonus[k]){var b=Math.max(20,f.mins);r.bonus[k]=b;save();addXP(b);note('Whole plan done: +'+b+' bonus XP','For doing all of today\'s plan')}}
+  else if(f.early){if(!cur){S.pdays[k]='e';ch=true}}
+  else if(cur){delete S.pdays[k];ch=true}
+  var st=streak();if(st>(r.best||0)){r.best=st;ch=true}
+  var wk=PLAN.wkKey(),m=PLAN.wkMins();if(r.wk.k!==wk){r.wk={k:wk,got:{}};ch=true}
+  MS().forEach(function(x){if(m>=x[0]&&!r.wk.got[x[0]]){r.wk.got[x[0]]=1;ch=true;var fz=x[2]&&(S.freeze||0)<2;if(fz)S.freeze=(S.freeze||0)+1;save();addXP(x[1]);note(x[3]+': +'+x[1]+' XP',fz?'And a streak freeze':'Weekly milestone')}});
+  if(ch){for(var d in r.bonus){if(Object.keys(r.bonus).length>40)delete r.bonus[d];else break}save();check()}}
+ function have(u){var n=u[3];return n[0]==='xp'?S.xp>=n[1]:Math.max(R().best||0,streak())>=n[1]}
+ function uname(u){return u[1]==='accent'?PAL[u[2]][0]:u[1]==='fx'?FXC[u[2]][0]:EXN[u[2]]}
+ function check(){var r=R(),nw=[];UNL.forEach(function(u){if(!r.unl[u[0]]&&have(u)){r.unl[u[0]]=ymdL();nw.push(u)}});if(!nw.length)return;save();
+  if(!r.init){r.init=1;save();if(nw.length>1){note(nw.length+' rewards unlocked','Try them on the Progress page');return}}
+  nw.forEach(function(u){note('Unlocked: '+uname(u),'Try it on the Progress page')})}
+ function lessonBonus(){if(typeof P==='undefined'||!P||P._rb||!P.finished)return;P._rb=1;var st=streak(),m=mult(st),x=P.xp||0,b=Math.round(x*(m-1));if(b<1)return;addXP(b);
+  var ds=document.querySelector('#pBody .done-screen');if(ds){var e=document.createElement('p');e.className='note rwm';e.style.cssText='text-align:center;margin:4px 0 10px';e.innerHTML='Plan streak <b>×'+m+'</b> ('+st+' days in a row): <b>+'+b+' bonus XP</b>';var an=ds.querySelector('.dblock');if(an)ds.insertBefore(e,an);else ds.appendChild(e)}
+  var px=document.getElementById('pXP');if(px)px.textContent='+'+(x+b)+' XP'}
+ function applyLook(){var r=R(),a=r.look.accent,p=PAL[a]&&PAL[a][1],el=document.getElementById('rwLook');if(!el){el=document.createElement('style');el.id='rwLook';document.head.appendChild(el)}
+  if(!p||!r.unl['c-'+a]){el.textContent='';return}var L='--accent:'+p[0]+';--accent-bg:'+p[1]+';--accent-text:'+p[2],K='--accent:'+p[3]+';--accent-bg:'+p[4]+';--accent-text:'+p[5];
+  el.textContent=':root{'+L+'}@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){'+K+'}}:root[data-theme="dark"]{'+K+'}'}
+ function on(id){var r=R();return !!(r.unl['ex-'+id]&&r.look.ex[id])}
+ function back(){var s='';
+  if(on('night')){s+='<rect x="0" y="62" width="640" height="174" rx="14" fill="#1b2350" opacity=".1"/><path d="M606 76a10 10 0 1 0 8 17 8 8 0 1 1-8-17z" fill="#f3d27a"/>';
+   [[240,78],[262,98],[290,74],[318,92],[352,76],[384,100],[410,80],[436,96],[566,100],[582,74],[630,108],[44,80],[70,100],[22,112],[226,108]].forEach(function(p,i){s+='<circle cx="'+p[0]+'" cy="'+p[1]+'" r="1.8" fill="#f3d27a" class="rwtw'+(i%3===1?' d2':i%3===2?' d3':'')+'"/>'})}
+  if(on('wind'))s+='<g><path d="M592 172V130M618 172V138" stroke="var(--faint)" stroke-width="2"/><g transform="translate(592 130)"><g class="rwspin"><path d="M0 0V-13M0 0L11.3 6.5M0 0L-11.3 6.5" stroke="var(--muted)" stroke-width="2" stroke-linecap="round"/></g><circle r="2" fill="var(--muted)"/></g><g transform="translate(618 138)"><g class="rwspin s2"><path d="M0 0V-11M0 0L9.5 5.5M0 0L-9.5 5.5" stroke="var(--muted)" stroke-width="2" stroke-linecap="round"/></g><circle r="1.8" fill="var(--muted)"/></g></g>';
+  return s}
+ function front(){var s='';
+  if(on('visitor'))s+='<g><rect x="12" y="184" width="40" height="16" rx="2" fill="var(--panel)" stroke="var(--muted)" stroke-width="1.5"/><path d="M9 185 L32 175 L55 185" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-linejoin="round"/><rect x="28" y="191" width="8" height="9" fill="var(--accent-bg)" stroke="var(--muted)" stroke-width="1"/><rect x="16" y="188" width="8" height="5" fill="var(--accent-bg)"/><rect x="40" y="188" width="8" height="5" fill="var(--accent-bg)"/><title>Visitor centre</title></g>';
+  if(on('flag'))s+='<g><path d="M544 200V146" stroke="var(--muted)" stroke-width="1.6"/><path d="M544 146 L563 151.5 L544 157Z" fill="var(--accent)"/><title>Station flag</title></g>';
+  return s}
+ var ICO={visitor:'<path d="M3 21h18M5 21V10l7-5 7 5v11M10 21v-5h4v5"/>',wind:'<path d="M12 21V11M12 11V4M12 11l6 3.5M12 11l-6 3.5"/>',night:'<path d="M20 14.5A8 8 0 1 1 9.5 4 6.5 6.5 0 0 0 20 14.5z"/>',flag:'<path d="M5 21V4M5 4h11l-2 4 2 4H5"/>'};
+ function need(u){var n=u[3];return n[0]==='xp'?fmtInt(n[1])+' XP ('+fmtInt(Math.max(0,n[1]-S.xp))+' to go)':n[1]+'-day plan streak'}
+ function item(u,eq){var r=R(),ok=u[0]==='c-purple'||u[0]==='fx-confetti'||!!r.unl[u[0]],k=u[1],v=u[2],nm=uname(u),ic;
+  if(k==='accent')ic='<span class="rwsw" style="background:'+(PAL[v][1]?PAL[v][1][0]:PAL[v][2])+'"></span>';
+  else if(k==='fx')ic='<span class="rwdots">'+FXC[v][1].map(function(c){return '<i style="background:'+c+'"></i>'}).join('')+'</span>';
+  else ic='<svg class="rwico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+ICO[v]+'</svg>';
+  var sub=!ok?need(u):k==='ex'?(eq?'On: tap to hide':'Tap to show'):(eq?'Using this':'Tap to use');
+  return '<button type="button" class="rwit'+(ok?(eq?' on':''):' lock')+'"'+(ok?' data-k="'+k+'" data-v="'+v+'"':' aria-disabled="true"')+'>'+ic+'<span class="rwt"><b>'+(ok?'':'🔒 ')+nm+'</b><span>'+sub+'</span></span></button>'}
+ function card(){var r=R();check();var st=streak(),m=mult(st),k=ymdL(),f=PLAN.fullInfo(),wm=PLAN.wkMins(),ms=MS(),cw=r.wk.k===PLAN.wkKey(),nx=ms.filter(function(x){return wm<x[0]})[0],lk=r.look;
+  var h='<div class="card rwcard" id="rwCard"><h2>Rewards</h2><p class="note" style="font-size:15px">The more Critical you do, the more you get: bonus XP for doing your whole plan, and colours and power station extras to unlock.</p>'+
+   '<div class="stats"><div class="stat"><p>Plan streak</p><b>'+st+' day'+(st===1?'':'s')+'</b><span class="small">'+(m>1?'×'+m+' XP on lessons':'3 in a row for ×1.1 XP')+'</span></div>'+
+   '<div class="stat"><p>Whole-plan bonus today</p><b>'+(r.bonus[k]?'+'+r.bonus[k]+' ✓':'+'+Math.max(20,PLAN.dayMins())+' XP')+'</b><span class="small">'+(r.bonus[k]?'Got it today':f.early?'Not with Finished early':'Do all of today\'s plan')+'</span></div>'+
+   '<div class="stat"><p>Plan this week</p><b>'+wm+' min</b><span class="small">'+(nx?'Next: '+nx[0]+' min, +'+nx[1]+' XP':'Every milestone done ✓')+'</span></div></div>'+
+   '<div class="rwms">'+ms.map(function(x){var ok=cw&&!!r.wk.got[x[0]];return '<span class="'+(ok?'ok':'')+'">'+(ok?'✓ ':'')+x[0]+' min: +'+x[1]+' XP'+(x[2]?' and a streak freeze':'')+'</span>'}).join('')+'</div>'+
+   '<p class="note">Your plan streak is how many school days in a row you\'ve done your plan (Finished early counts too). 3 days in a row gives ×1.1 XP on lessons, 5 days ×1.25 and 10 days ×1.5. Your best is '+(r.best||0)+'.</p>';
+  h+='<h3>App colour</h3><div class="rwgrid">'+item(['c-purple','accent','purple',['xp',0]],lk.accent==='purple'||!r.unl['c-'+lk.accent])+UNL.filter(function(u){return u[1]==='accent'}).map(function(u){return item(u,lk.accent===u[2]&&!!r.unl[u[0]])}).join('')+'</div>';
+  h+='<h3>Lesson celebration</h3><div class="rwgrid">'+item(['fx-confetti','fx','confetti',['xp',0]],lookFx()==='confetti')+UNL.filter(function(u){return u[1]==='fx'}).map(function(u){return item(u,lookFx()===u[2])}).join('')+'</div>';
+  h+='<h3>Power station extras</h3><div class="rwgrid">'+UNL.filter(function(u){return u[1]==='ex'}).map(function(u){return item(u,on(u[2]))}).join('')+'</div></div>';
+  return h}
+ function wire(){var c=document.getElementById('rwCard');if(!c)return;[].forEach.call(c.querySelectorAll('.rwit[data-k]'),function(b){b.onclick=function(){var r=R(),k=b.dataset.k,v=b.dataset.v;
+  if(k==='accent')r.look.accent=v;else if(k==='fx'){r.look.fx=v}else r.look.ex[v]=r.look.ex[v]?0:1;save();applyLook();if(k==='fx')confetti();renderReview()}})}
+ applyLook();setTimeout(function(){try{check()}catch(_){}},1500);
+ return {planTick:planTick,check:check,lessonBonus:lessonBonus,card:card,wire:wire,back:back,front:front,streak:streak,mult:mult,applyLook:applyLook}
+})();
+try{window.REW=REW}catch(_){}
+/* unlocks are checked whenever XP goes up */
+(function(){var ax=addXP;addXP=function(n,el){ax(n,el);try{REW.check()}catch(_){}}})();
 /* ===== exam practice: real past papers, a countdown timer and an answer sheet to send to Claude ===== */
 var EXAM=(function(){
  var PMT='https://pmt.physicsandmathstutor.com/download/',SCI=['June 2025','June 2024','June 2023','June 2022','June 2021','June 2020','June 2019','June 2018','Specimen'];
