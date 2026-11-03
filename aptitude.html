@@ -530,10 +530,20 @@ window.__busy=function(){return view==='quiz'||view==='learn'};
  function rd(){try{var r=JSON.parse(localStorage.getItem(K)||'null');return r&&r.d===ymd()?r:null}catch(e){return null}}
  function wr(r){try{localStorage.setItem(K,JSON.stringify(r))}catch(e){}}
  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
- var css=document.createElement('style');css.textContent='.prun{position:fixed;left:max(12px,env(safe-area-inset-left,0px));bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:9000;max-width:calc(100% - 24px);background:var(--card,#fff);color:var(--ink,#222);border:2px solid var(--brand,#534AB7);border-radius:999px;padding:6px 12px;font:700 13px var(--ui,system-ui,sans-serif);box-shadow:0 4px 16px rgba(0,0,0,.18)}.prun[hidden]{display:none}'+
+ var css=document.createElement('style');css.textContent='.prun{position:fixed;left:max(12px,env(safe-area-inset-left,0px));bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:9000;max-width:calc(100% - 24px);background:var(--card,#fff);color:var(--ink,#222);border:2px solid var(--brand,#534AB7);border-radius:999px;padding:6px 12px;font:700 13px var(--ui,system-ui,sans-serif);box-shadow:0 4px 16px rgba(0,0,0,.18)}.prun[hidden]{display:none}.prun{display:flex;align-items:center;gap:10px}.prun .pe{font:inherit;font-size:12px;font-weight:800;border:0;border-radius:999px;padding:5px 10px;cursor:pointer;background:var(--brand,#534AB7);color:var(--on-brand,#fff);white-space:nowrap}.prun .pe[hidden]{display:none}'+
  '.pbn{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:9001;width:min(440px,calc(100% - 32px));background:var(--card,#fff);color:var(--ink,#222);border:2px solid var(--brand,#534AB7);border-radius:16px;padding:12px 14px;box-shadow:0 8px 30px rgba(0,0,0,.25);display:flex;flex-direction:column;gap:8px;font:15px var(--ui,system-ui,sans-serif)}.pbn p{margin:0;line-height:1.45}.pbn div{display:flex;gap:8px;flex-wrap:wrap}.pbn button{font:inherit;font-size:14px;font-weight:800;border:0;border-radius:10px;padding:9px 14px;cursor:pointer;background:var(--brand,#534AB7);color:var(--on-brand,#fff)}.pbn button.alt{background:var(--line,#ddd);color:var(--ink,#222)}';
  document.head.appendChild(css);
- var chip=document.createElement('div');chip.className='prun';chip.hidden=true;chip.setAttribute('role','status');document.body.appendChild(chip);
+ var chip=document.createElement('div');chip.className='prun';chip.hidden=true;chip.setAttribute('role','status');chip.innerHTML='<span class="pt"></span><button type="button" class="pe">Finished early</button>';document.body.appendChild(chip);
+ var ct=chip.querySelector('.pt'),ce=chip.querySelector('.pe');
+ function lessons(){var n=0,t=new Date();function same(ms){var x=new Date(ms);return x.getFullYear()===t.getFullYear()&&x.getMonth()===t.getMonth()&&x.getDate()===t.getDate()}
+  try{var c=JSON.parse(localStorage.getItem('critical_state')||'null');if(c&&c.lday&&c.lday.d===ymd())n+=c.lday.n||0}catch(e){}
+  try{var s=JSON.parse(localStorage.getItem('shift-ready-v1')||'null');if(s&&s.done)for(var k in s.done){var v=s.done[k];if(v&&v.at&&same(v.at))n++}}catch(e){}
+  try{var a=JSON.parse(localStorage.getItem('aptitude-v1')||'null');if(a&&a.hist&&a.hist.forEach)a.hist.forEach(function(h){if(h&&h.at&&same(h.at))n++})}catch(e){}
+  return n}
+ function early(){if(lessons()<1){hide();ban=document.createElement('div');ban.className='pbn';ban.setAttribute('role','status');ban.innerHTML='<p><b>Do at least 1 lesson first.</b> Finishing one here counts. Then you can finish today\'s plan early.</p><div><button type="button" class="g">OK</button></div>';ban.querySelector('.g').onclick=hide;document.body.appendChild(ban);return}
+  try{if(parent!==window&&parent.__subEarly){parent.__subEarly();return}}catch(e){}location.href='critical.html#early'}
+ ce.onclick=early;
+ var nv=document.querySelector('nav.tabs');function pos(){var h=0;try{if(nv&&getComputedStyle(nv).position==='fixed')h=Math.round(nv.getBoundingClientRect().height)}catch(e){}chip.style.bottom=h?(h+10)+'px':''}pos();addEventListener('resize',pos);
  function back(){location.href='critical.html#plannext'}
  function hide(){if(ban){ban.remove();ban=null}clearInterval(bt);bt=null}
  function more(){var r=rd();if(r){r.ends=Date.now()+5*60000;wr(r)}key=null;hide();loop()}
@@ -542,9 +552,9 @@ window.__busy=function(){return view==='quiz'||view==='learn'};
   ban.querySelector('.g').onclick=back;ban.querySelector('.m').onclick=more;document.body.appendChild(ban);
   bt=setInterval(function(){if(typeof window.__busy==='function'&&window.__busy()){hide();key=null;return}n--;var c=ban&&ban.querySelector('.pcd');if(c)c.textContent=n;if(n<=0){hide();back()}},1000)}
  function loop(){var r=rd();if(!r){chip.hidden=true;hide();return}var left=r.ends-Date.now();chip.hidden=false;
-  if(left>0){chip.textContent='Today\'s plan: '+r.t+' · '+(left<60000?Math.ceil(left/1000)+' s':Math.ceil(left/60000)+' min')+' left';return}
-  if(typeof window.__busy==='function'&&window.__busy()){chip.textContent='Time\'s up for '+r.t+'. Finish this, then you\'ll move on.';return}
-  chip.textContent='Time\'s up for '+r.t;var k=r.j+'-'+r.ends;if(!ban&&key!==k){key=k;show(r)}}
+  if(left>0){ce.hidden=false;ct.textContent='Today\'s plan: '+r.t+' · '+(left<60000?Math.ceil(left/1000)+' s':Math.ceil(left/60000)+' min')+' left';return}
+  ce.hidden=true;if(typeof window.__busy==='function'&&window.__busy()){ct.textContent='Time\'s up for '+r.t+'. Finish this, then you\'ll move on.';return}
+  ct.textContent='Time\'s up for '+r.t;var k=r.j+'-'+r.ends;if(!ban&&key!==k){key=k;show(r)}}
  setInterval(loop,1000);loop();
 })();
 </script>

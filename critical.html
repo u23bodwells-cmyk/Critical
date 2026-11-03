@@ -656,6 +656,13 @@ function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(M
 /* ---------- state ---------- */
 var S=(function(){var d={xp:0,done:{},streak:0,last:'',daily:{d:'',xp:0},missions:{},goal:50};try{var s=JSON.parse(localStorage.getItem('critical_state')||'null');if(s){for(var k in d)if(s[k]===undefined)s[k]=d[k];return s}}catch(e){}return d})();
 function save(){try{localStorage.setItem('critical_state',JSON.stringify(S))}catch(e){}}
+function ymdL(){var d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()}
+function lcount(){try{if(typeof P==='undefined'||!P||P._lc||P.mode==='one')return;P._lc=1;var d=ymdL();if(!S.lday||S.lday.d!==d)S.lday={d:d,n:0};S.lday.n++;save();setTimeout(function(){try{if(window.PLAN&&PLAN.afterLesson)PLAN.afterLesson()}catch(_){}},0)}catch(_){}}
+function lessonsToday(){var n=0,d=ymdL(),t=new Date();function same(ms){var x=new Date(ms);return x.getFullYear()===t.getFullYear()&&x.getMonth()===t.getMonth()&&x.getDate()===t.getDate()}
+ if(S.lday&&S.lday.d===d)n+=S.lday.n||0;
+ try{var s=JSON.parse(localStorage.getItem('shift-ready-v1')||'null');if(s&&s.done)for(var k in s.done){var v=s.done[k];if(v&&v.at&&same(v.at))n++}}catch(_){}
+ try{var a=JSON.parse(localStorage.getItem('aptitude-v1')||'null');if(a&&a.hist&&a.hist.forEach)a.hist.forEach(function(h){if(h&&h.at&&same(h.at))n++})}catch(_){}
+ return n}
 function dstr(d){var m=d.getMonth()+1,y=d.getDate();return d.getFullYear()+'-'+(m<10?'0':'')+m+'-'+(y<10?'0':'')+y}
 function today(){return dstr(new Date())}
 function touchStreak(){var t=today();if(S.last===t)return;var gap=S.last?dayDiff(S.last,t):99;
@@ -832,7 +839,7 @@ function rO(c,b){P.asked++;var p=document.createElement('div');p.className='qpro
  function check(){var ok=ord.every(function(v,i){return v===i});if(ok){lock=true;mark();gotRight(c);foot('ok',praise(),c.e?'<div>'+c.e+'</div>':'');mainBtn('Continue',nextCard)}
   else{P.st.tries++;if(P.st.tries===1)gotWrong(c);mark();var n=ord.filter(function(v,i){return v===i}).length;if(P.st.tries>=3){lock=true;ord=c.items.map(function(_,i){return i});draw();mark();foot('no','Here\'s the right order',(c.e?'<div>'+c.e+'</div>':'')+EASE.revNote(c));mainBtn('Continue',nextCard)}else foot('no',EASE.gentle(),'<div>'+n+' of '+ord.length+' are in the right place (shown in green).</div>')}}}
 function bonusXP(n){P.xp+=n;addXP(n)}
-function finish(){if(P.mode==='one')return ONE.finish();if(P.mode==='test')return finishTest();if(P.mode==='follow')return finishFollow();P.finished=true;P.quiet=true;$('pBar').style.width='100%';var b=$('pBody'),acc=P.asked?Math.round(P.right/P.asked*100):100,perfect=P.asked>0&&P.mistakes===0,lines=[],first=false,unitDone=false,h0=homesNow(),ui=P.ui;
+function finish(){if(P.mode==='one')return ONE.finish();if(P.mode==='test')return finishTest();if(P.mode==='follow')return finishFollow();P.finished=true;lcount();P.quiet=true;$('pBar').style.width='100%';var b=$('pBody'),acc=P.asked?Math.round(P.right/P.asked*100):100,perfect=P.asked>0&&P.mistakes===0,lines=[],first=false,unitDone=false,h0=homesNow(),ui=P.ui;
  lines.push(['Answers',P.xp-P.cbonus]);if(P.cbonus)lines.push(['Combo bonus',P.cbonus]);
  if(P.mode==='lesson'){var u=UNITS[ui],id=u.lessons[P.li].id;first=!S.done[id];S.done[id]=1;if(first){JUST_BUILT=ui;unitDone=u.lessons.every(function(l){return S.done[l.id]})}save();
   var cb=first?20:5;lines.push([first?'Lesson complete':'Lesson replayed',cb]);bonusXP(cb);if(perfect){S.st.perfect++;lines.push(['Perfect lesson',10]);bonusXP(10)}
@@ -1190,7 +1197,7 @@ function gateFollow(id){var L=lessonById(id),m=$('modal');if(!m||!L)return;
 function startFollow(id){var L=lessonById(id),src=FOLLOW[id];if(!L||!src)return;
  var cards=src.map(function(c,ci){var cc=Object.assign({},c);cc._key='F'+id+'#'+ci;return cc}),head=cards.filter(function(c){return c.t==='T'}),qs=shuffle(cards.filter(function(c){return c.t!=='T'}));
  P={mode:'follow',fid:id,ui:L.ui,li:L.li,cards:head.concat(qs),i:0,xp:0,right:0,asked:0,title:L.l.title,color:L.u.color,unit:'Follow-up · '+L.l.title,required:fuNeed(id),combo:0,best:0,cbonus:0,mistakes:0,fixed:0,newBadges:[],levelUp:null};openPlayer()}
-function finishFollow(){P.finished=true;P.quiet=true;$('pBar').style.width='100%';var id=P.fid,acc=P.asked?Math.round(P.right/P.asked*100):100,pass=acc>PASS_FU,rec=S.fu[id]||{},wasReq=!!rec.need,first=!rec.n,lines=[];
+function finishFollow(){P.finished=true;lcount();P.quiet=true;$('pBar').style.width='100%';var id=P.fid,acc=P.asked?Math.round(P.right/P.asked*100):100,pass=acc>PASS_FU,rec=S.fu[id]||{},wasReq=!!rec.need,first=!rec.n,lines=[];
  rec.n=(rec.n||0)+1;rec.best=Math.max(rec.best||0,acc);if(pass)rec.need=false;S.fu[id]=rec;save();
  lines.push(['Answers',P.xp-P.cbonus]);if(P.cbonus)lines.push(['Combo bonus',P.cbonus]);var cb=first?10:5;lines.push(['Follow-up complete',cb]);bonusXP(cb);
  if(pass&&wasReq){S.st.fuFixed++;lines.push(['Back on track',15]);bonusXP(15)}
@@ -1240,7 +1247,7 @@ function tO(c,b){testHead(c,b);el('p','small','Use the arrows to put these in th
  function draw(){ul.innerHTML='';ord.forEach(function(k,i){var li=el('li',null,'<span class="n">'+(i+1)+'</span><span class="t">'+c.items[k]+'</span><span class="mv"><button aria-label="Move up">▲</button><button aria-label="Move down">▼</button></span>',ul),bs=li.querySelectorAll('button');
   bs[0].onclick=function(){if(i===0)return;var t=ord[i-1];ord[i-1]=ord[i];ord[i]=t;draw()};bs[1].onclick=function(){if(i===ord.length-1)return;var t=ord[i+1];ord[i+1]=ord[i];ord[i]=t;draw()}})}
  draw();mainBtn(nextLabel(),function(){testRecord(c,ord.every(function(v,i){return v===i}),ord.map(function(k,i){return (i+1)+'. '+c.items[k]}).join('<br>'))},false);skipBtn(testSkip,'Skip')}
-function finishTest(){P.finished=true;P.quiet=true;stopTimer();$('pBar').style.width='100%';
+function finishTest(){P.finished=true;lcount();P.quiet=true;stopTimer();$('pBar').style.width='100%';
  var u=UNITS[P.ui],uid=u.id,n=P.answers.length,ok=P.answers.filter(function(a){return a.ok}).length,pct=Math.round(ok/n*100),secs=Math.round((Date.now()-P.t0)/1000),pass=pct>=PASS_TEST,prev=S.tests[uid]||{},firstPass=pass&&!prev.passed,lines=[];
  S.tests[uid]={best:Math.max(prev.best||0,pct),passed:!!prev.passed||pass,n:(prev.n||0)+1,last:today(),lastPct:pct};save();EASE.record(trk(P.ui),lvOf(P.ui),pct);
  if(ok){lines.push(['Correct answers ('+ok+' × 5)',ok*5]);bonusXP(ok*5)}if(firstPass){lines.push(['First pass bonus',50]);bonusXP(50)}if(pct===100){lines.push(['Full marks',25]);bonusXP(25)}
@@ -1297,7 +1304,7 @@ function cleanState(s){
  KEEP_FIELDS.forEach(function(k){var v=s[k];if(v!==undefined&&v!==null&&/^(object|string|number|boolean)$/.test(typeof v)){try{o[k]=JSON.parse(JSON.stringify(v))}catch(e){}}});
  var uids={};UNITS.forEach(function(u){uids[u.id]=1});o.tests={};if(s.tests&&typeof s.tests==='object')for(var tk in s.tests){var tv=s.tests[tk];if(uids[tk]&&tv&&typeof tv==='object')o.tests[tk]={best:num(tv.best,0,100)||0,passed:!!tv.passed,n:num(tv.n,0,1e5)||0,last:(typeof tv.last==='string'&&dre.test(tv.last))?tv.last:'',lastPct:num(tv.lastPct,0,100)||0}}
  return o}
-var KEEP_FIELDS=['mode','gsub','lvl','lvlOpen','lvtests','seenGcse','seenCalc','seenTheory','plView','exam','plan','habits','dayplan','lacc','hardOff','dayNudge','qsets'];
+var KEEP_FIELDS=['mode','gsub','lvl','lvlOpen','lvtests','seenGcse','seenCalc','seenTheory','plView','exam','plan','habits','dayplan','lacc','hardOff','dayNudge','qsets','lday'];
 var EXTRA_KEYS={study:'critical_study',shift:'shift-ready-v1',apt:'aptitude-v1'};
 function readExtras(){var o={};for(var k in EXTRA_KEYS){try{var v=JSON.parse(localStorage.getItem(EXTRA_KEYS[k])||'null');if(v&&typeof v==='object')o[k]=v}catch(e){}}if(o.study)o.study=Object.assign({},o.study,{run:null});return o}
 function writeExtras(x){if(!x)return;for(var k in EXTRA_KEYS)if(x[k]&&typeof x[k]==='object'){try{localStorage.setItem(EXTRA_KEYS[k],JSON.stringify(x[k]))}catch(e){}}}
@@ -2768,16 +2775,17 @@ var PLAN=(function(){
  function mins(i){return DAY(i).reduce(function(s,b){return s+b[1]},0)}
  var TOTAL=D.reduce(function(s,_,i){return s+mins(i)},0);
  function wk(){var d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-((d.getDay()+6)%7));return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()}
- function PS(){if(!S.plan||typeof S.plan!=='object')S.plan={};var p=S.plan;if(p.wk!==wk()){p.wk=wk();p.t={};delete p.monClr;delete p.carry}if(!p.t||typeof p.t!=='object')p.t={};if(p.auto==null)p.auto=1;if(typeof p.topics!=='string')p.topics='';return p}
+ function PS(){if(!S.plan||typeof S.plan!=='object')S.plan={};var p=S.plan;if(p.wk!==wk()){p.wk=wk();p.t={};delete p.monClr;delete p.carry;delete p.fe}if(!p.t||typeof p.t!=='object')p.t={};if(p.auto==null)p.auto=1;if(typeof p.topics!=='string')p.topics='';return p}
  function todayI(){return (new Date().getDay()+6)%7}
  function isDone(i,j){return !!PS().t[i+'-'+j]}
- function dayDone(i){return DAY(i).every(function(_,j){return isDone(i,j)})}
+ function feOn(i){var f=PS().fe;return !!(f&&f[i==null?todayI():i])}
+ function dayDone(i){return feOn(i)||DAY(i).every(function(_,j){return isDone(i,j)})}
  var RK='critical_plan_run',ban=null,banT=null,warned={},upKey=null;
  function ymdN(){var d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()}
  function runGet(){try{var r=JSON.parse(localStorage.getItem(RK)||'null');if(r&&r.d!==ymdN()){localStorage.removeItem(RK);return null}return r}catch(_){return null}}
  function runSet(r){try{localStorage.setItem(RK,JSON.stringify(r))}catch(_){}}
  function runClear(){try{localStorage.removeItem(RK)}catch(_){}}
- function firstLeft(day,after){for(var j=0;j<DAY(day).length;j++){if(after!=null&&j<=after)continue;if(!isDone(day,j))return j}if(after!=null)for(j=0;j<after;j++)if(!isDone(day,j))return j;return -1}
+ function firstLeft(day,after){if(feOn(day))return -1;for(var j=0;j<DAY(day).length;j++){if(after!=null&&j<=after)continue;if(!isDone(day,j))return j}if(after!=null)for(j=0;j<after;j++)if(!isDone(day,j))return j;return -1}
  function busy(){return !!document.querySelector('#player.open')&&!(typeof P!=='undefined'&&P&&P.finished)}
  function fmtLeft(ms){return ms<60000?Math.max(0,Math.ceil(ms/1000))+' s':Math.ceil(ms/60000)+' min'}
  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
@@ -2974,19 +2982,22 @@ var PLAN=(function(){
    if(b[4]){var tp=document.createElement('div');tp.className='pltop';tp.innerHTML='<label for="plTopics">Topics to fix</label><textarea id="plTopics" maxlength="600" placeholder="e.g. Circle theorems, iteration, vectors"></textarea>';
     var ta=tp.querySelector('textarea');ta.value=p.topics;ta.oninput=function(){PS().topics=ta.value;save()};e.querySelector('.plbody').appendChild(tp)}
    L.appendChild(e)});
-  $q('[data-k=done]').hidden=!(cur===t&&dayDone(t));$q('[data-k=auto]').checked=!!p.auto;paintRun()}
+  $q('[data-k=done]').hidden=!(cur===t&&dayDone(t))||feOn(t);$q('[data-k=auto]').checked=!!p.auto;paintRun()}
  function paintRun(){var R=$q('[data-k=run]'),t=todayI(),r=runGet();R.innerHTML='';if(cur!==t)return;
   var hw=hwGet();if(!r&&hw&&!hw.done){var lf=hw.end-Date.now();R.innerHTML='<p>Homework first</p><b data-k="hwt">'+(lf>0?fmtLeft(lf)+' left for Critical':'Critical time used up')+'</b><p>Started at '+hhmm(hw.at)+'. When you\'ve finished, press Homework done and Critical gets whatever\'s left until '+hhmm(hw.end)+', with each part shortened to fit.</p><div class="placts"></div>';
    var A0=R.querySelector('.placts'),d1=document.createElement('button');d1.type='button';d1.className='plgo';d1.textContent='Homework done → Critical';d1.onclick=hwDone;A0.appendChild(d1);
    var d2=document.createElement('button');d2.type='button';d2.className='plgo alt';d2.textContent='Cancel';d2.onclick=function(){hwSet(null);paintPill();paint();setTimeout(function(){try{focusSend(true)}catch(_){}},50)};A0.appendChild(d2);return}
-  if(r){var b=DAY(r.day)[r.j]||D[r.day][r.j],left=r.ends-Date.now();R.innerHTML='<p>Today\'s plan is running</p><b>'+esc(r.t||b[0])+' · '+(left>0?fmtLeft(left)+' left':'time\'s up')+'</b><p>When the time is up you\'ll move to the next part. If you\'re in the middle of a lesson, you can finish it first.</p><div class="placts"></div>';
+  if(r){var b=DAY(r.day)[r.j]||D[r.day][r.j],left=r.ends-Date.now();R.innerHTML='<p>Today\'s plan is running</p><b>'+esc(r.t||b[0])+' · '+(left>0?fmtLeft(left)+' left':'time\'s up')+'</b><p>When the time is up you\'ll move to the next part. If you\'re in the middle of a lesson, you can finish it first. Done at least 1 lesson and not up for more? Press Finished early.</p><div class="placts"></div>';
    var A=R.querySelector('.placts'),x1=document.createElement('button');x1.type='button';x1.className='plgo';x1.textContent='Go to it →';x1.onclick=function(){var a=b[3][0];if(a)go(a,b[0],true);else close()};if(b[3].length)A.appendChild(x1);
    var x2=document.createElement('button');x2.type='button';x2.className='plgo alt';x2.textContent='Next part now';x2.onclick=function(){var rr=runGet();if(rr){rr.ends=Date.now();runSet(rr);loop();paint()}};A.appendChild(x2);
+   var x4=document.createElement('button');x4.type='button';x4.className='plgo alt';x4.textContent='Finished early';x4.onclick=function(){finishEarly()};A.appendChild(x4);
    var x3=document.createElement('button');x3.type='button';x3.className='plgo alt';x3.textContent='Stop the plan';x3.onclick=function(){stopRun(false)};A.appendChild(x3);return}
-  var j=firstLeft(t);if(j<0)return;var bb=document.createElement('button');bb.type='button';bb.className='plbig';bb.textContent=(DAY(t).some(function(_,k){return isDone(t,k)})?'Carry on with today\'s plan':'Start today\'s plan')+' ('+DAY(t).slice(j).filter(function(_,k){return !isDone(t,j+k)}).reduce(function(s2,x){return s2+x[1]},0)+' min)';
+  var j=firstLeft(t);if(j<0){if(feOn(t)){var fz0=PS().fe[t],fn=fz0.n||1;R.innerHTML='<p>Finished early today ✓</p><b>'+fn+' lesson'+(fn===1?'':'s')+' done</b><p>Today\'s plan is finished. Changed your mind? You can carry on with it.</p><div class="placts"></div>';
+   var uu=document.createElement('button');uu.type='button';uu.className='plgo alt';uu.textContent='Undo: carry on with the plan';uu.onclick=undoEarly;R.querySelector('.placts').appendChild(uu)}return}
+  var bb=document.createElement('button');bb.type='button';bb.className='plbig';bb.textContent=(DAY(t).some(function(_,k){return isDone(t,k)})?'Carry on with today\'s plan':'Start today\'s plan')+' ('+DAY(t).slice(j).filter(function(_,k){return !isDone(t,j+k)}).reduce(function(s2,x){return s2+x[1]},0)+' min)';
   bb.onclick=function(){startRun()};R.appendChild(bb);
   var o1=document.createElement('button');o1.type='button';o1.className='plgo alt';o1.textContent='Just one question';o1.onclick=function(){close();ONE.start()};
-  var hf=document.createElement('button');hf.type='button';hf.className='plgo alt';hf.textContent='Homework first';hf.onclick=startHw;var hr=document.createElement('div');hr.className='placts';hr.appendChild(o1);hr.appendChild(hf);R.appendChild(hr);
+  var hf=document.createElement('button');hf.type='button';hf.className='plgo alt';hf.textContent='Homework first';hf.onclick=startHw;var hr=document.createElement('div');hr.className='placts';hr.appendChild(o1);hr.appendChild(hf);if(lessonsN()>=1){var fe1=document.createElement('button');fe1.type='button';fe1.className='plgo alt';fe1.textContent='Finished early';fe1.onclick=function(){finishEarly()};hr.appendChild(fe1)}R.appendChild(hr);
   if(!focusOk&&/Windows|Macintosh|CrOS|Linux x86/.test(navigator.userAgent)&&!/Mobile|Android/.test(navigator.userAgent)&&window.chrome){var fg=document.createElement('p');fg.className='plnote';fg.innerHTML='Strict mode: <a href="https://u23bodwells-cmyk.github.io/Critical/reminders/critical-focus.zip" target="_blank" rel="noopener">get the Critical Focus extension for Chrome</a>. It closes TikTok at plan time and keeps Critical on screen until you\'re done.';R.appendChild(fg)}
   if(focusOk){var fz=document.createElement('p');fz.className='plnote';fz.textContent=focusOk.locked?'Critical Focus is locked on: TikTok is blocked and Critical stays on screen until today\'s plan is done.':'Critical Focus is on: from plan time, TikTok is closed and blocked until today\'s plan is done.';R.appendChild(fz)}
   var n=document.createElement('p');n.className='plnote';n.textContent=hw&&hw.done&&!hw.alloc?'Homework used up today\'s Critical time. You can still start it if you want to.':'It times each part and moves you on when it\'s time. Got homework that\'s running over? Press Homework first: Critical gets whatever time is left when you\'ve finished.';R.appendChild(n)}
@@ -3011,9 +3022,29 @@ var PLAN=(function(){
  var FOCUS_ID='dofdocaillphcjghjdjodhippjldkibo',focusOk=null,lastFocus=0;
  function focusStatus(){var t=todayI(),school=t<5,SC=sched(),R=SC.rows,pr=R.filter(function(r){return r[2]==='plan'})[0],rd=R.filter(function(r){return r[2]==='read'})[0],base=new Date();base.setHours(0,0,0,0);
   var hw=hwGet(),done=firstLeft(t)<0||!!(hw&&hw.done&&!hw.alloc)||!!(hw&&hw.alloc&&Object.keys(hw.alloc).every(function(j){return isDone(t,+j)}))||(school&&!pr);
-  return {type:'status',due:school&&pr?base.getTime()+pr[0]*60000:null,end:rd?base.getTime()+rd[0]*60000:null,done:done,hw:hwOn(),running:!!runGet()}}
+  return {type:'status',due:school&&pr?base.getTime()+pr[0]*60000:null,end:rd?base.getTime()+rd[0]*60000:null,done:done,hw:hwOn(),running:!!runGet(),lessons:lessonsN(),early:feOn(t)}}
  function focusSend(force){var now=Date.now();if(!force&&now-lastFocus<30000)return;lastFocus=now;
-  try{if(!(window.chrome&&chrome.runtime&&chrome.runtime.sendMessage))return;chrome.runtime.sendMessage(FOCUS_ID,focusStatus(),function(r){try{void chrome.runtime.lastError}catch(_){}var was=!!focusOk;focusOk=r&&r.ok?r:null;if(was!==!!focusOk&&sh.classList.contains('open'))paint()})}catch(_){}}
+  try{if(!(window.chrome&&chrome.runtime&&chrome.runtime.sendMessage))return;chrome.runtime.sendMessage(FOCUS_ID,focusStatus(),function(r){try{void chrome.runtime.lastError}catch(_){}var was=!!focusOk;focusOk=r&&r.ok?r:null;if(r&&r.ok&&r.early){var tt=todayI();if(!feOn(tt)&&firstLeft(tt)>=0&&lessonsN()>=1)applyEarly(lessonsN(),true)}if(was!==!!focusOk&&sh.classList.contains('open'))paint()})}catch(_){}}
+ /* ----- finished early: end today's plan once you've done at least 1 lesson ----- */
+ function lessonsN(){try{return lessonsToday()}catch(_){return 0}}
+ function restMins(t){var r=runGet(),m=0;DAY(t).forEach(function(b,j){if(isDone(t,j))return;if(r&&r.day===t&&r.j===j)m+=Math.max(0,Math.ceil((r.ends-Date.now())/60000));else m+=b[1]});return m}
+ function doLesson(){var r=runGet();if(r){var b=DAY(r.day)[r.j];if(b&&b[3][0]){go(b[3][0],b[0],true);return}}if(firstLeft(todayI())>=0)startRun()}
+ function finishEarly(ok){var t=todayI();if(feOn(t)||firstLeft(t)<0)return;var n=lessonsN();close();
+  if(n<1){showBan('<b>Do at least 1 lesson first.</b> Then you can finish early. A lesson or test in Critical, a Fix my mistakes round, a Shift Ready session or an Aptitude Gym set all count.',[['Do one now',function(){hideBan();doLesson()}],['OK',hideBan]]);return}
+  if(!ok){var lm=restMins(t);showBan('<b>Finish today\'s plan early?</b> You\'ve done '+n+' lesson'+(n===1?'':'s')+' today, so you can stop here.'+(lm?' The rest of today\'s plan ('+lm+' min) will be skipped.':''),[['Yes, finish early',function(){hideBan();applyEarly(n,false)}],['Keep going',hideBan]]);return}
+  applyEarly(n,false)}
+ function applyEarly(n,fromFocus){var t=todayI(),p=PS();if(!p.fe)p.fe={};p.fe[t]={n:n,at:Date.now()};save();
+  try{habAuto()}catch(_){}runClear();try{var h=hwGet();if(h&&!h.done){h.done=Date.now();h.alloc=null;hwSet(h)}}catch(_){}
+  if(typeof STUDY!=='undefined'&&STUDY.stop)STUDY.stop();setTimeout(function(){try{focusSend(true)}catch(_){}},50);paintPill();if(sh.classList.contains('open'))paint();
+  showBan('<b>Finished early for today ✓</b> '+(fromFocus?'You pressed Finished early in Critical Focus. ':'')+n+' lesson'+(n===1?'':'s')+' done.'+(focusOk||fromFocus?' TikTok is unblocked.':'')+' See you tomorrow.',[['Close',hideBan],['Undo',function(){hideBan();undoEarly()}]])}
+ function undoEarly(){var t=todayI(),p=PS();if(p.fe){delete p.fe[t];save()}
+  try{if(window.chrome&&chrome.runtime&&chrome.runtime.sendMessage)chrome.runtime.sendMessage(FOCUS_ID,{type:'unearly'},function(){try{void chrome.runtime.lastError}catch(_){}})}catch(_){}
+  setTimeout(function(){try{focusSend(true)}catch(_){}},300);paintPill();if(sh.classList.contains('open'))paint()}
+ function afterLesson(){setTimeout(function(){try{focusSend(true)}catch(_){}},50);
+  var r=runGet(),b=document.getElementById('pBody'),ds=b&&b.querySelector('.done-screen');if(!r||!ds||feOn(todayI())||ds.querySelector('.plearly'))return;
+  var left=r.ends-Date.now(),d=document.createElement('div');d.className='dblock plearly';d.style.textAlign='center';
+  d.innerHTML='<p class="note" style="margin:0 0 8px">Today\'s plan: <b>'+esc(r.t)+'</b>'+(left>0?', '+fmtLeft(left)+' left on this part.':'.')+' Not up for any more today?</p><button type="button" class="wbtn">Finished early: that\'s enough for today</button>';
+  d.querySelector('button').onclick=function(){if(typeof closePlayer==='function')closePlayer();finishEarly()};var an=ds.querySelector('.dblock');if(an)ds.insertBefore(d,an);else ds.appendChild(d)}
  function startRun(){var t=todayI(),j=firstLeft(t);if(j<0)return;
   try{if('Notification' in window&&Notification.permission==='default')Notification.requestPermission()}catch(_){}
   if(typeof STUDY!=='undefined'&&STUDY.start)STUDY.start('Weekly plan · '+DAYS[t]);begin(t,j,true)}
@@ -3058,7 +3089,7 @@ var PLAN=(function(){
  var pill=document.createElement('button');pill.type='button';pill.className='pill plpill';pill.title='This week\'s plan';pill.innerHTML=CAL+'<span class="plc"></span><i class="pldot"></i>';pill.onclick=open;
  var anchor=document.querySelector('.hdr .stpill')||document.querySelector('.hdr .calcpill')||document.querySelector('.hdr .askpill');
  if(anchor)anchor.parentNode.insertBefore(pill,anchor.nextSibling);else{var ps=document.querySelector('.hdr .pills');if(ps)ps.insertBefore(pill,ps.firstChild)}
- function paintPill(){var t=todayI(),left=DAY(t).filter(function(_,j){return !isDone(t,j)}).length,r=runGet(),c=pill.querySelector('.plc');pill.classList.toggle('left',left>0);pill.classList.toggle('run',!!r);
+ function paintPill(){var t=todayI(),left=feOn(t)?0:DAY(t).filter(function(_,j){return !isDone(t,j)}).length,r=runGet(),c=pill.querySelector('.plc');pill.classList.toggle('left',left>0);pill.classList.toggle('run',!!r);
   var hwp=!r&&hwOn();if(hwp){pill.classList.add('run');var hg=hwGet(),lm=hg.end-Date.now();c.textContent='HW';pill.setAttribute('aria-label','Homework first, '+(lm>0?fmtLeft(lm)+' left for Critical':'Critical time used up'));return}
   if(r){var ms=r.ends-Date.now();c.textContent=ms>0?(ms<60000?Math.ceil(ms/1000)+'s':Math.ceil(ms/60000)+'m'):'0m';pill.setAttribute('aria-label','Today\'s plan: '+r.t+', '+(ms>0?fmtLeft(ms)+' left':'time\'s up'))}else{c.textContent='';pill.setAttribute('aria-label','This week\'s plan'+(left?', '+left+' to do today':', today done'))}}
  paintPill();document.addEventListener('visibilitychange',function(){if(!document.hidden){warned.n=0;loop();if(sh.classList.contains('open'))paint()}});
@@ -3066,8 +3097,9 @@ var PLAN=(function(){
  if(location.hash==='#plannext'){try{history.replaceState(null,'',location.pathname+location.search)}catch(_){}}
  if(location.hash==='#setup'){try{history.replaceState(null,'',location.pathname+location.search)}catch(_){}setTimeout(function(){try{if(window.chrome&&chrome.runtime&&chrome.runtime.sendMessage)chrome.runtime.sendMessage(FOCUS_ID,{type:'setup'},function(){try{void chrome.runtime.lastError}catch(_){}open('plan')});else open('plan')}catch(_){open('plan')}},400)}
  if(location.hash==='#focus'){try{history.replaceState(null,'',location.pathname+location.search)}catch(_){}setTimeout(function(){try{if(!runGet()&&!hwOn()&&firstLeft(todayI())>=0&&typeof ONE!=='undefined')ONE.start();else open('plan')}catch(_){}},600)}
+ if(location.hash==='#early'){try{history.replaceState(null,'',location.pathname+location.search)}catch(_){}setTimeout(function(){try{finishEarly()}catch(_){}},700)}
  if(location.hash==='#home'){try{history.replaceState(null,'',location.pathname+location.search)}catch(_){}setTimeout(function(){try{homeAuto();open('day')}catch(_){}},400)}
- return {hideBan:hideBan,next:function(){var t=todayI(),j=firstLeft(t);return j<0?null:DAY(t)[j]},leftMins:function(){return leftMins(todayI())},open:open,close:close,paint:paint,paintPill:paintPill,start:startRun,stop:stopRun,loop:loop,running:function(){return !!runGet()},todayLeft:function(){return firstLeft(todayI())>=0},D:D,DAY:DAY,pile:pile,TUE_FIX:TUE_FIX,rows:rows,nowRow:nowRow,sched:sched,home:homeGet,habits:HS,streak:streak,hw:hwGet,hwStart:startHw,hwDone:hwDone,focusStatus:focusStatus,focus:function(){return focusOk}};
+ return {early:finishEarly,afterLesson:afterLesson,feOn:feOn,undoEarly:undoEarly,hideBan:hideBan,next:function(){var t=todayI(),j=firstLeft(t);return j<0?null:DAY(t)[j]},leftMins:function(){return leftMins(todayI())},open:open,close:close,paint:paint,paintPill:paintPill,start:startRun,stop:stopRun,loop:loop,running:function(){return !!runGet()},todayLeft:function(){return firstLeft(todayI())>=0},D:D,DAY:DAY,pile:pile,TUE_FIX:TUE_FIX,rows:rows,nowRow:nowRow,sched:sched,home:homeGet,habits:HS,streak:streak,hw:hwGet,hwStart:startHw,hwDone:hwDone,focusStatus:focusStatus,focus:function(){return focusOk}};
 })();
 try{window.PLAN=PLAN}catch(_){}
 /* ===== just one question: a tiny way into a study session ===== */

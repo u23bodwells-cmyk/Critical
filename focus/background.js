@@ -21,7 +21,7 @@ const DEFAULT_DAYS = [false, true, true, true, true, true, false];   // Sun..Sat
 function isOnDay(days, d = new Date()) { return !!(days || DEFAULT_DAYS)[d.getDay()]; }
 
 async function load() {
-  const s = await chrome.storage.local.get(['status', 'lock', 'winId', 'critTab', 'screen', 'music', 'strict', 'skip', 'layout', 'claude', 'days', 'level', 'lastForce', 'focusShown']);
+  const s = await chrome.storage.local.get(['status', 'lock', 'winId', 'critTab', 'screen', 'music', 'strict', 'skip', 'layout', 'claude', 'days', 'level', 'lastForce', 'focusShown', 'early']);
   return {
     status: s.status && s.status.d === ymd() ? s.status : null,
     locked: !!(s.lock && s.lock.d === ymd()),
@@ -36,7 +36,8 @@ async function load() {
     level: ['gentle', 'firm', 'harsh'].includes(s.level) ? s.level : 'firm',
     lastForce: s.lastForce || 0,
     focusShown: s.focusShown === ymd(),
-    skipped: !!(s.skip && s.skip.d === ymd())
+    skipped: !!(s.skip && s.skip.d === ymd()),
+    earlyDone: !!(s.early && s.early.d === ymd())
   };
 }
 
@@ -44,10 +45,12 @@ async function load() {
 function windowInfo(st) {
   const due = st.status && st.status.due ? st.status.due : at(17, 30);
   const end = st.status && st.status.end ? st.status.end : at(21, 30);
-  const done = !!(st.status && st.status.done);
+  const early = !!st.earlyDone || !!(st.status && st.status.early);
+  const done = !!(st.status && st.status.done) || early;
+  const lessons = st.status ? (st.status.lessons || 0) : 0;
   const now = Date.now();
   const hw = !!(st.status && st.status.hw && st.status.at && now - st.status.at < 3 * 3600000);
-  return { due, end, done, hw, inWindow: isOnDay(st.days) && !st.skipped && !done && now >= due && now < end };
+  return { due, end, done, hw, early, lessons, inWindow: isOnDay(st.days) && !st.skipped && !done && now >= due && now < end };
 }
 
 async function setBlock(on) {
@@ -169,7 +172,7 @@ async function release(why) {
     try { await chrome.windows.update(st.winId, { state: 'maximized' }); } catch (e) {}
     await chrome.storage.local.remove(['winId']);
   }
-  if (wasLocked && why) chrome.notifications.create('free', { type: 'basic', iconUrl: 'icon128.png', title: why === 'done' ? 'Plan done. You\'re free!' : 'Critical Focus is off for today', message: why === 'done' ? 'TikTok is unblocked. Nice work.' : 'TikTok is unblocked.', priority: 1 });
+  if (wasLocked && why) chrome.notifications.create('free', { type: 'basic', iconUrl: 'icon128.png', title: why === 'done' ? 'Plan done. You\'re free!' : why === 'early' ? 'Finished early for today' : 'Critical Focus is off for today', message: why === 'done' ? 'TikTok is unblocked. Nice work.' : why === 'early' ? 'TikTok is unblocked. See you tomorrow.' : 'TikTok is unblocked.', priority: 1 });
 }
 
 // "Open Critical": close TikTok, put Critical (left) and Claude (right) on your study screen, SoundCloud on your music screen.
@@ -275,13 +278,14 @@ chrome.runtime.onMessageExternal.addListener((msg, sender, reply) => {
   (async () => {
     if (!sender.url || !sender.url.startsWith(CRIT_ORIGIN) || !msg) { reply({ ok: false }); return; }
     if (msg.type === 'setup') { await setup(sender.tab && sender.tab.id); reply({ ok: true }); return; }
+    if (msg.type === 'unearly') { await chrome.storage.local.remove(['early']); await check(); reply({ ok: true }); return; }
     if (msg.type !== 'status') { reply({ ok: false }); return; }
-    const status = { d: ymd(), due: +msg.due || null, end: +msg.end || null, done: !!msg.done, hw: !!msg.hw, at: Date.now() };
+    const status = { d: ymd(), due: +msg.due || null, end: +msg.end || null, done: !!msg.done, hw: !!msg.hw, lessons: Math.max(0, +msg.lessons || 0), early: !!msg.early, at: Date.now() };
     await chrome.storage.local.set({ status });
     const st = await load(), wi = windowInfo(st);
-    if (status.done && st.locked) await release('done');
+    if (wi.done && st.locked) await release('done');
     else check();
-    reply({ ok: true, locked: st.locked && !status.done, inWindow: wi.inWindow, strict: st.strict, version: chrome.runtime.getManifest().version });
+    reply({ ok: true, locked: st.locked && !wi.done, inWindow: wi.inWindow, strict: st.strict, early: st.earlyDone, version: chrome.runtime.getManifest().version });
   })();
   return true;
 });
@@ -311,6 +315,13 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
       // After 8pm you can switch it off for the rest of the evening with one click
       if (new Date().getHours() < 20) { reply({ ok: false, error: 'Turn off for tonight works from 8pm.' }); return; }
       await chrome.storage.local.set({ skip: { d: ymd(), why: 'tonight' } }); await release('skip'); reply({ ok: true }); return;
+    }
+    if (msg.type === 'early') {
+      // Finished early: ends today's plan, but only once you've done at least 1 lesson
+      const st = await load(), wi = windowInfo(st);
+      if (wi.done) { reply({ ok: true }); return; }
+      if (wi.lessons < 1) { reply({ ok: false, error: 'Do at least 1 lesson first. A lesson or test in Critical, a Fix my mistakes round, a Shift Ready session or an Aptitude Gym set all count.' }); return; }
+      await chrome.storage.local.set({ early: { d: ymd(), n: wi.lessons } }); await release('early'); reply({ ok: true }); return;
     }
     if (msg.type === 'skip') { await chrome.storage.local.set({ skip: { d: ymd() } }); await release('skip'); reply({ ok: true }); return; }
     reply({ ok: false });
