@@ -791,6 +791,14 @@ html.neo.neocalm *,html.neo.neocalm *::before,html.neo.neocalm *::after{animatio
 @keyframes neoBreath{0%,100%{transform:scale(1);filter:brightness(1)}50%{transform:scale(1.05);filter:brightness(1.2)}}
 @keyframes neoHotP{0%,100%{opacity:.75}50%{opacity:1}}
 @keyframes neoCPop{0%{opacity:0;transform:translate(-50%,-30%) scale(.6)}18%{opacity:1;transform:translate(-50%,-50%) scale(1.08)}30%{transform:translate(-50%,-50%) scale(1)}75%{opacity:1}100%{opacity:0;transform:translate(-50%,-75%) scale(.98)}}
+
+/* live labs inside lessons (both looks) */
+.labscr{position:relative;border-radius:14px;overflow:hidden;background:#040a17;box-shadow:inset 0 0 0 1px rgba(120,160,255,.18),0 12px 30px -20px rgba(0,0,0,.7);margin:2px 0 8px;-webkit-user-select:none;user-select:none}
+.labscr canvas{display:block;width:100%;border-radius:0!important}
+.lablive{display:inline-flex;align-items:center;gap:5px;margin-left:8px;padding:1px 8px 1px 7px;border-radius:99px;font:700 10.5px/1.6 var(--mono,ui-monospace,monospace);letter-spacing:.06em;text-transform:uppercase;color:#7fe3ff;background:#071631;border:1px solid rgba(58,212,255,.45);vertical-align:1px;white-space:nowrap}
+.lablive::before{content:"";width:6px;height:6px;border-radius:50%;background:#3ad4ff;box-shadow:0 0 8px #3ad4ff;animation:labBlink 1.6s ease-in-out infinite}
+@keyframes labBlink{50%{opacity:.35}}
+@media (prefers-reduced-motion:reduce){.lablive::before{animation:none}}
 </style>
 </head>
 <body>
@@ -4919,7 +4927,7 @@ module.exports = QRCode;
 }},C={};function req(n){n=n.replace(/^\.\//,"./").replace(/\.js$/,"");if(n==="./index"||n===".")n="./index";if(C[n])return C[n].exports;var m={exports:{}};C[n]=m;M[n](m,m.exports,req);return m.exports}return req("./index")})();
 function qrSvg(text){var q=new QRMAKER(-1,0);q.addData(text);q.make();var n=q.getModuleCount(),pad=4,sz=n+pad*2,p='';for(var r=0;r<n;r++)for(var c=0;c<n;c++)if(q.isDark(r,c))p+='M'+(c+pad)+' '+(r+pad)+'h1v1h-1z';return '<svg viewBox="0 0 '+sz+' '+sz+'" width="240" height="240" shape-rendering="crispEdges" role="img" aria-label="QR code of your sync key"><rect width="'+sz+'" height="'+sz+'" fill="#fff"/><path d="'+p+'" fill="#000"/></svg>'}
 /* ===== sync: sign in once on each device and progress moves across by itself (a secret gist on your GitHub account) ===== */
-var APPV='50 (4 Nov 2026)';
+var APPV='51 (4 Nov 2026)';
 var SYNC=(function(){
  var KEY='critical_sync',DEV='critical_dev',FILE='critical-sync.json',DESC='Critical progress sync (used by the Critical app)',API='https://api.github.com';
  var css=document.createElement('style');css.textContent='.syncpill .sp-ok{display:none}.syncpill[data-st=on]{color:var(--accent)}.syncpill[data-st=on] .sp-ok{display:inline}.syncpill[data-st=on] .sp-off{display:none}.syncpill[data-st=off] .sp-off{display:none}.syncpill[data-st=err]{color:var(--amber)}.syncpill[data-st=busy] svg{animation:rwtw 1.2s ease-in-out infinite}.syncbox{border:1.5px solid var(--line);border-radius:14px;padding:12px 14px;margin:12px 0 4px;background:var(--soft)}.syncbox .synchd{display:flex;align-items:center;gap:8px;font-weight:700}.syncbox .synchd svg{color:var(--accent);flex:none}.syncbox .note{margin:6px 0 0}.syncbox.on{border-color:var(--accent);background:var(--accent-bg)}.syncbox .savebtns{margin-top:10px}'+
@@ -11645,6 +11653,238 @@ var NEO=(function(){
 })();
 try{window.NEO=NEO}catch(_){}
 NEO.boot();
+/* ===== Live labs inside lessons: collision lab (momentum), live reactor core, 3D flux ===== */
+(function(){
+ var LE0=Math.log10(0.025),LE1=Math.log10(2e6);
+ /* neutron transport toy: 2D, real elastic-scattering kinematics off hydrogen, moderation, resonance capture, fission, control rods, leakage */
+function NSIM(w,h,rnd){
+ rnd=rnd||Math.random;
+ var LE0=Math.log10(0.025),LE1=Math.log10(2e6),A=1;
+ var S={w:w,h:h,ns:[],ev:[],fuel:[],rods:[],ins:.5,born:0,lost:0,fis:0,cap:0,leak:0,col:0,abs:0,srcT:0,max:260,lastCol:null,t:0,
+  win:[],k:1,knum:0,kden:0,P:{refl:.8,sR:[.6,.25,.08],sF:[.16,.006,.01],ff:.84,lamT:24,lamF:28,hAbs:.0008}};
+ function lay(w,h){S.w=w;S.h=h;var cols=Math.max(4,Math.round(w/74)),rows=Math.max(3,Math.round(h/74)),px=w/cols,py=h/rows,r=Math.min(px,py)*.2;S.fuel=[];S.px=px;S.py=py;S.cols=cols;S.rows=rows;S.fr=r;
+  for(var j=0;j<rows;j++)for(var i=0;i<cols;i++)S.fuel.push({x:(i+.5)*px,y:(j+.5)*py,heat:0});
+  S.rods=[];for(var c=1;c<cols;c+=2)S.rods.push({x:c*px,w:Math.max(5,px*.09)})}
+ lay(w,h);
+ function sp(E){var l=(Math.log10(Math.max(E,1e-3))-LE0)/(LE1-LE0);l=l<0?0:l>1?1:l;return .5+4.4*Math.pow(l,.85)}
+ function add(x,y,E,ux,uy){if(S.ns.length>=S.max)return false;if(ux==null){var a=rnd()*6.2832;ux=Math.cos(a);uy=Math.sin(a)}S.ns.push({x:x,y:y,ux:ux,uy:uy,E:E,tr:[],age:0});return true}
+ function watt(){var E=0;for(var i=0;i<3;i++)E+=rnd();return (0.35+E*0.75)*1e6}
+ function fission(n,fi){var nu=rnd()<.43?3:2,b=0;for(var i=0;i<nu;i++)if(add(n.x,n.y,watt()))b++;S.born+=b;S.fis++;S.knum+=nu;var a=rnd()*6.2832;S.ev.push({k:'fis',x:n.x,y:n.y,t:0,a:a});if(fi!=null)S.fuel[fi].heat=Math.min(6,S.fuel[fi].heat+1)}
+ function scatter(n){var v=Math.sqrt(n.E),vx=n.ux*v,vy=n.uy*v;
+  if(n.E<0.2){var E1=0.0125*(-Math.log(rnd()+1e-9)-Math.log(rnd()+1e-9)),a=rnd()*6.2832;n.E=Math.max(0.004,E1);n.ux=Math.cos(a);n.uy=Math.sin(a);S.col++;return null}
+  var Vx=vx/(A+1),Vy=vy/(A+1),ux=vx-Vx,uy=vy-Vy,th=rnd()*6.2832,c=Math.cos(th),s=Math.sin(th),wx=Vx+ux*c-uy*s,wy=Vy+ux*s+uy*c,E1=wx*wx+wy*wy;if(E1<1e-12)E1=1e-12;
+  var rx=(vx-wx)/A,ry=(vy-wy)/A,v1=Math.sqrt(E1),cosL=(vx*wx+vy*wy)/(v*v1||1);
+  var rec={E0:n.E,E1:E1,ang:Math.acos(Math.max(-1,Math.min(1,cosL)))*180/Math.PI,p0:v,p1:v1,pr:Math.sqrt(rx*rx+ry*ry)*A,x:n.x,y:n.y,vx:vx/v,vy:vy/v,wx:wx/v,wy:wy/v,rx:rx/v,ry:ry/v};
+  n.E=E1;n.ux=wx/v1;n.uy=wy/v1;S.col++;S.lastCol=rec;return rec}
+ function lose(n,kind){S.lost++;S.kden++;if(kind==='leak')S.leak++;else S.abs++;if(kind==='cap')S.cap++}
+ function step(dt){var k=dt/16,out=[],ns=S.ns,i,fx=S.px,fy=S.py,r2=S.fr*S.fr,ins=S.ins*S.h;S.t+=dt;
+  S.srcT-=dt;if(S.srcT<=0){S.srcT=700+rnd()*700;var f=S.fuel[Math.floor(rnd()*S.fuel.length)];if(add(f.x+(rnd()-.5)*4,f.y+(rnd()-.5)*4,watt()))S.born++}
+  for(i=0;i<S.fuel.length;i++)S.fuel[i].heat*=Math.pow(.985,k);
+  for(i=0;i<ns.length;i++){var n=ns[i],s=sp(n.E)*k,gone=null;n.age+=dt;
+   n.x+=n.ux*s;n.y+=n.uy*s;
+   if(n.x<0||n.x>S.w||n.y<0||n.y>S.h){if(rnd()<S.P.refl){if(n.x<0){n.x=-n.x;n.ux=Math.abs(n.ux)}if(n.x>S.w){n.x=2*S.w-n.x;n.ux=-Math.abs(n.ux)}if(n.y<0){n.y=-n.y;n.uy=Math.abs(n.uy)}if(n.y>S.h){n.y=2*S.h-n.y;n.uy=-Math.abs(n.uy)}}else gone='leak'}
+   if(!gone){var inRod=false;if(n.y<ins)for(var q=0;q<S.rods.length;q++){if(Math.abs(n.x-S.rods[q].x)<S.rods[q].w/2){inRod=true;break}}
+    if(inRod){var R=S.P.sR,sr=n.E<1?R[0]:n.E<1e4?R[1]:R[2];if(rnd()<sr*s)gone='rod'}
+    else{var ci=Math.floor(n.x/fx),cj=Math.floor(n.y/fy),fi=cj*S.cols+ci,f2=S.fuel[fi],inF=false;if(f2){var dx=n.x-f2.x,dy=n.y-f2.y;inF=dx*dx+dy*dy<r2}
+     if(inF){var F=S.P.sF,sf=n.E<1?F[0]:n.E<1e4?F[1]:F[2];if(rnd()<sf*s){if(n.E<1){if(rnd()<S.P.ff){fission(n,fi);gone='fis'}else gone='cap'}else if(n.E<1e4)gone='cap';else{fission(n,fi);gone='fis'}}}
+     else{var lam=n.E<1?S.P.lamT:S.P.lamF;if(rnd()<s/lam){var rc=scatter(n);if(rc)out.push(rc)}if(n.E<1&&rnd()<S.P.hAbs*k)gone='h'}}}
+   if(gone){if(gone==='fis'){S.lost++;S.kden++;S.abs++}else lose(n,gone==='leak'?'leak':gone==='cap'?'cap':'abs');S.ev.push({k:gone,x:n.x,y:n.y,t:0});ns.splice(i,1);i--}}
+  // measured k over a sliding window
+  S.win.push([dt,S.knum,S.kden]);S.knum=0;S.kden=0;var T=0,a=0,b=0;for(i=S.win.length-1;i>=0;i--){T+=S.win[i][0];a+=S.win[i][1];b+=S.win[i][2];if(T>8000){S.win.splice(0,i);break}}
+  if(b>=6)S.k=S.k+(a/b-S.k)*Math.min(1,dt/1500);
+  return out}
+ function auto(dt,target){S.nsm=S.nsm==null?S.ns.length:S.nsm+(S.ns.length-S.nsm)*Math.min(1,dt/1500);var e=Math.log(Math.max(1,S.nsm)/Math.max(4,target)),rate=.05*e+.22*(S.k-1);rate=Math.max(-.07,Math.min(.07,rate));S.ins=Math.max(0,Math.min(1,S.ins+rate*dt/1000))}
+ S.auto=auto;S.lay=lay;S.step=step;S.add=add;S.sp=sp;S.watt=watt;return S}
+
+
+ function dpr(){return Math.min(2,window.devicePixelRatio||1)}
+ function narrow(){return innerWidth<=560}
+ function calm(){try{return NEO.calm()}catch(_){return false}}
+ function screen(box,h,hn){var w=el('div','labscr',null,box),cv=document.createElement('canvas');w.appendChild(cv);var o={wrap:w,cv:cv,c:cv.getContext('2d'),W:0,H:0,d:0};
+  o.fit=function(){var Wd=Math.max(220,Math.round(w.clientWidth||600)),Hd=narrow()?(hn||h):h,d=dpr();if(Wd===o.W&&Hd===o.H&&d===o.d)return false;o.W=Wd;o.H=Hd;o.d=d;cv.style.height=Hd+'px';cv.width=Math.round(Wd*d);cv.height=Math.round(Hd*d);o.c.setTransform(d,0,0,d,0,0);return true};o.fit();return o}
+ function run(scr,f){var last=performance.now();function L(t){if(!scr.cv.isConnected)return;requestAnimationFrame(L);var dt=Math.min(50,t-last);last=t;if(document.visibilityState!=='visible')return;var rs=scr.fit();f(dt,t,rs)}requestAnimationFrame(L)}
+ var EC=[];(function(){var st=[[0,[58,212,255]],[.34,[110,255,175]],[.67,[255,206,70]],[1,[255,80,64]]];for(var i=0;i<64;i++){var u=i/63,a=st[0],b=st[1];for(var k=1;k<st.length;k++)if(u<=st[k][0]){a=st[k-1];b=st[k];break}var f=(u-a[0])/(b[0]-a[0]||1);EC.push([0,1,2].map(function(j){return Math.round(a[1][j]+(b[1][j]-a[1][j])*f)}))}})();
+ function eIdx(E){var l=(Math.log10(Math.max(E,1e-3))-LE0)/(LE1-LE0);return Math.max(0,Math.min(63,Math.round(l*63)))}
+ function rgba(c,a){return 'rgba('+c[0]+','+c[1]+','+c[2]+','+(+a).toFixed(3)+')'}
+ function fmtE(E){return E>=1e6?(E/1e6).toFixed(E>=1e7?0:2)+' MeV':E>=1e3?(E/1e3).toFixed(E>=1e5?0:1)+' keV':E>=1?E.toFixed(E>=100?0:1)+' eV':E.toFixed(3)+' eV'}
+ function arrow(c,x0,y0,x1,y1,col,w,dash){var dx=x1-x0,dy=y1-y0,L=Math.hypot(dx,dy);if(L<2)return;c.strokeStyle=col;c.fillStyle=col;c.lineWidth=w||2;c.setLineDash(dash||[]);c.beginPath();c.moveTo(x0,y0);c.lineTo(x1-dx/L*5,y1-dy/L*5);c.stroke();c.setLineDash([]);var a=Math.atan2(dy,dx),h=Math.min(9,4+L*.15);c.beginPath();c.moveTo(x1,y1);c.lineTo(x1-Math.cos(a-.42)*h,y1-Math.sin(a-.42)*h);c.lineTo(x1-Math.cos(a+.42)*h,y1-Math.sin(a+.42)*h);c.closePath();c.fill()}
+ function hud(c,x,y,t,col,size,align,bold){c.font=(bold?'700 ':'600 ')+(size||10)+'px "JetBrains Mono",ui-monospace,Consolas,monospace';c.textAlign=align||'left';c.fillStyle=col||'rgba(200,220,255,.8)';c.fillText(t,x,y);c.textAlign='left'}
+ function tog(b,v){b.classList.toggle('on',!!v);b.setAttribute('aria-pressed',v?'true':'false')}
+
+ /* ---------- live reactor core: a Monte Carlo chain reaction you control ---------- */
+ WIDGETS.reactorSim=function(box,par){par=par||{};var scr=screen(box,310,260),sim=NSIM(scr.W,scr.H),tgt=par.rods==null?.62:par.rods,mom=true,slow=false,paused=calm(),bgc=null,arrows=[],recoils=[],hist=new Float32Array(26),hold=0,done=false,moved=false,fisW=[],fps=0,tStat=0,blink=0;
+  sim.ins=tgt;sim.max=narrow()?170:260;for(var i=0;i<(par.n||40);i++){var f0=sim.fuel[Math.floor(Math.random()*sim.fuel.length)];sim.add(f0.x,f0.y,sim.watt())}
+  var rs=slider(box,'Control rods',0,100,1,Math.round(tgt*100),function(v){return v+'% in'},function(v){tgt=v/100;moved=true});
+  var r=row(box),bP=btn(r,paused?'Play':'Pause',function(){paused=!paused;bP.textContent=paused?'Play':'Pause'}),bF=btn(r,'Fire neutrons',function(){fire(scr.W/2,scr.H/2,6)}),bM=btn(r,'Momentum arrows',function(){mom=!mom;tog(bM,mom)}),bS=btn(r,'Slow motion',function(){slow=!slow;tog(bS,slow)});tog(bM,mom);tog(bS,slow);
+  var st=stats(box,[['n','Neutrons now'],['k','k, measured'],['f','Fissions a second'],['t','Slow (thermal)']]),m=msg(box);
+  m.set(par.goal==='critical'?'Tap the core to fire in more neutrons. Get k to stay near <b>1.00</b>.':'Tap the core to fire in more neutrons.');
+  function fire(x,y,n){for(var i=0;i<n;i++)if(sim.add(x+(Math.random()-.5)*6,y+(Math.random()-.5)*6,sim.watt()))sim.born++;sim.ev.push({k:'tap',x:x,y:y,t:0})}
+  scr.cv.addEventListener('pointerdown',function(e){var b=scr.cv.getBoundingClientRect();fire(e.clientX-b.left,e.clientY-b.top,3)});scr.cv.style.cursor='crosshair';
+  function bg(){var o=document.createElement('canvas');o.width=scr.cv.width;o.height=scr.cv.height;var c=o.getContext('2d'),W=scr.W,H=scr.H;c.setTransform(scr.d,0,0,scr.d,0,0);
+   var g=c.createLinearGradient(0,0,0,H);g.addColorStop(0,'#071631');g.addColorStop(1,'#040a17');c.fillStyle=g;c.fillRect(0,0,W,H);
+   c.strokeStyle='rgba(90,150,255,.06)';c.lineWidth=1;for(var x=sim.px/2;x<W;x+=sim.px/2){c.beginPath();c.moveTo(Math.round(x)+.5,0);c.lineTo(Math.round(x)+.5,H);c.stroke()}for(var y=sim.py/2;y<H;y+=sim.py/2){c.beginPath();c.moveTo(0,Math.round(y)+.5);c.lineTo(W,Math.round(y)+.5);c.stroke()}
+   sim.fuel.forEach(function(f){var R=sim.fr,gr=c.createRadialGradient(f.x-R*.35,f.y-R*.35,1,f.x,f.y,R);gr.addColorStop(0,'#46557a');gr.addColorStop(1,'#141c2e');c.fillStyle=gr;c.beginPath();c.arc(f.x,f.y,R,0,6.283);c.fill();c.strokeStyle='rgba(170,200,255,.38)';c.lineWidth=1.2;c.stroke();c.strokeStyle='rgba(255,170,90,.18)';c.beginPath();c.arc(f.x,f.y,R*.55,0,6.283);c.stroke()});
+   return o}
+  function relayout(){var ow=sim.w,oh=sim.h;sim.lay(scr.W,scr.H);sim.ns.forEach(function(n){n.x*=scr.W/ow;n.y*=scr.H/oh;n.tr=[]});bgc=bg()}
+  bgc=bg();
+  run(scr,function(dt,t,rsz){if(rsz)relayout();var c=scr.c,W=scr.W,H=scr.H,step=paused?0:(slow?dt*.3:dt);blink+=dt;
+   if(step>0){var dIns=tgt-sim.ins,mv=.25*step/1000;sim.ins+=Math.abs(dIns)<mv?dIns:mv*Math.sign(dIns);var f1=sim.fis,cols=sim.step(step);fisW.push([t,sim.fis-f1]);
+    cols.forEach(function(rc){sim.ev.push({k:'col',x:rc.x,y:rc.y,t:0});if(rc.E0>50&&recoils.length<40)recoils.push({x:rc.x,y:rc.y,vx:rc.rx*sim.sp(rc.E0),vy:rc.ry*sim.sp(rc.E0),t:0});if(mom&&rc.E0>500&&arrows.length<(narrow()?4:7)&&Math.random()<.5)arrows.push({r:rc,t:0,ec:EC[eIdx(rc.E1)]})});
+    sim.ns.forEach(function(n){n.tr.push(n.x,n.y);if(n.tr.length>16)n.tr.splice(0,2)})}
+   while(fisW.length&&t-fisW[0][0]>1500)fisW.shift();
+   // energy histogram (smoothed)
+   var hb=new Float32Array(26);sim.ns.forEach(function(n){var l=(Math.log10(Math.max(n.E,.003))+2.5)/9.5;hb[Math.max(0,Math.min(25,Math.floor(l*26)))]++});for(var q=0;q<26;q++)hist[q]+=(hb[q]-hist[q])*Math.min(1,dt/250);
+   // goal
+   if(par.goal==='critical'&&!done&&step>0){if(moved&&Math.abs(sim.k-1)<.05&&sim.ns.length>=15)hold+=step;else hold=Math.max(0,hold-step*.5);if(hold>=6000){done=true;m.set('<b>Critical!</b> k is holding at '+sim.k.toFixed(2)+'. Each fission causes about one more, so the neutron count stays steady.',true);try{NEO.burst(scr.cv.getBoundingClientRect().left+W/2,scr.cv.getBoundingClientRect().top+H/2,{n:40,speed:7})}catch(_){}}}
+   // draw
+   c.globalCompositeOperation='source-over';c.drawImage(bgc,0,0,W,H);
+   c.globalCompositeOperation='lighter';
+   sim.fuel.forEach(function(f){if(f.heat<.03)return;var a=Math.min(.55,f.heat*.14),R=sim.fr,g=c.createRadialGradient(f.x,f.y,R*.4,f.x,f.y,R*2.8);g.addColorStop(0,'rgba(80,200,255,'+a.toFixed(3)+')');g.addColorStop(1,'rgba(40,140,255,0)');c.fillStyle=g;c.beginPath();c.arc(f.x,f.y,R*2.8,0,6.283);c.fill();c.fillStyle='rgba(255,150,70,'+(a*.6).toFixed(3)+')';c.beginPath();c.arc(f.x,f.y,R*.55,0,6.283);c.fill()});
+   c.globalCompositeOperation='source-over';
+   // control rods
+   var ins=sim.ins*H;sim.rods.forEach(function(rd,k){var x0=rd.x-rd.w/2,g=c.createLinearGradient(x0,0,x0+rd.w,0);g.addColorStop(0,'#5d6a86');g.addColorStop(.45,'#c9d3e8');g.addColorStop(1,'#3a4560');c.fillStyle=g;c.fillRect(x0,0,rd.w,ins);c.fillStyle='rgba(255,90,90,.8)';c.fillRect(x0,ins-2,rd.w,2);c.fillStyle='#2a3348';c.fillRect(x0-2,0,rd.w+4,5)});
+   // neutrons
+   c.globalCompositeOperation='lighter';c.lineCap='round';
+   for(var j=0;j<sim.ns.length;j++){var n=sim.ns[j],col=EC[eIdx(n.E)],tr=n.tr;if(tr.length>=4){c.strokeStyle=rgba(col,.4);c.lineWidth=1.3;c.beginPath();c.moveTo(tr[0],tr[1]);for(var p=2;p<tr.length;p+=2){var jx=tr[p]-tr[p-2],jy=tr[p+1]-tr[p-1];if(jx*jx+jy*jy>900)c.moveTo(tr[p],tr[p+1]);else c.lineTo(tr[p],tr[p+1])}c.stroke()}
+    c.fillStyle=rgba(col,.16);c.beginPath();c.arc(n.x,n.y,4.6,0,6.283);c.fill();c.fillStyle=rgba(col,.95);c.beginPath();c.arc(n.x,n.y,1.8,0,6.283);c.fill()}
+   // events
+   sim.ev=sim.ev.filter(function(e){e.t+=dt;var u;if(e.k==='fis'){u=e.t/460;if(u>1)return false;var R=4+u*24,g=c.createRadialGradient(e.x,e.y,0,e.x,e.y,R);g.addColorStop(0,'rgba(255,255,255,'+(.9*(1-u)).toFixed(3)+')');g.addColorStop(.35,'rgba(255,170,70,'+(.6*(1-u)).toFixed(3)+')');g.addColorStop(1,'rgba(255,90,40,0)');c.fillStyle=g;c.beginPath();c.arc(e.x,e.y,R,0,6.283);c.fill();
+     var fa=e.a||0,fd=6+u*16;c.fillStyle='rgba(255,180,90,'+(1-u).toFixed(3)+')';c.beginPath();c.arc(e.x+Math.cos(fa)*fd,e.y+Math.sin(fa)*fd,1.8,0,6.283);c.arc(e.x-Math.cos(fa)*fd,e.y-Math.sin(fa)*fd,1.8,0,6.283);c.fill();return true}
+    if(e.k==='col'){u=e.t/200;if(u>1)return false;c.fillStyle='rgba(255,255,255,'+(.7*(1-u)).toFixed(3)+')';c.beginPath();c.arc(e.x,e.y,1.2+u*3,0,6.283);c.fill();return true}
+    if(e.k==='cap'||e.k==='rod'||e.k==='h'){u=e.t/380;if(u>1)return false;c.strokeStyle=e.k==='cap'?'rgba(255,70,70,'+(1-u).toFixed(3)+')':e.k==='rod'?'rgba(190,140,255,'+(1-u).toFixed(3)+')':'rgba(90,200,255,'+(.5*(1-u)).toFixed(3)+')';c.lineWidth=1.4;c.beginPath();c.arc(e.x,e.y,2+u*7,0,6.283);c.stroke();return true}
+    if(e.k==='tap'){u=e.t/500;if(u>1)return false;c.strokeStyle='rgba(255,255,255,'+(.8*(1-u)).toFixed(3)+')';c.lineWidth=2;c.beginPath();c.arc(e.x,e.y,4+u*28,0,6.283);c.stroke();return true}return false});
+   recoils=recoils.filter(function(p){p.t+=dt;if(p.t>420)return false;var k=step>0?(slow?.3:1)*dt/16:0;p.x+=p.vx*k*.6;p.y+=p.vy*k*.6;c.fillStyle='rgba(255,230,150,'+(.8*(1-p.t/420)).toFixed(3)+')';c.beginPath();c.arc(p.x,p.y,1.5,0,6.283);c.fill();return true});
+   c.globalCompositeOperation='source-over';
+   // momentum arrows: incoming p, outgoing p' and the proton's share P (p = p' + P)
+   arrows=arrows.filter(function(a){a.t+=dt*(slow?.45:1);if(a.t>1300)return false;var u=a.t/1300,al=u<.15?u/.15:1-Math.max(0,(u-.6)/.4),L=narrow()?20:26,rc=a.r;c.globalAlpha=al;
+    arrow(c,rc.x-rc.vx*L,rc.y-rc.vy*L,rc.x,rc.y,'rgba(255,255,255,.7)',1.6);arrow(c,rc.x,rc.y,rc.x+rc.wx*L,rc.y+rc.wy*L,rgba(a.ec,1),2);arrow(c,rc.x,rc.y,rc.x+rc.rx*L,rc.y+rc.ry*L,'#ffd166',1.6,[3,2]);
+    if(!narrow()){hud(c,rc.x+rc.wx*L+4,rc.y+rc.wy*L+3,'p′','rgba(255,255,255,.75)',9);hud(c,rc.x+rc.rx*L+4,rc.y+rc.ry*L+3,'P','#ffd166',9)}c.globalAlpha=1;return true});
+   // HUD
+   var nb=narrow(),k=sim.k,state=k>1.05?['SUPERCRITICAL','#ffb347']:k<.95?['SUBCRITICAL','#7fd8ff']:['CRITICAL','#8dff9a'];
+   var gl=par.goal==='critical'&&nb;c.fillStyle='rgba(3,8,18,.62)';c.fillRect(0,0,W,gl?54:42);
+   hud(c,10,16,'LIVE CORE',nb?'rgba(200,225,255,.9)':'rgba(200,225,255,.9)',10,'left',true);c.fillStyle=(Math.floor(blink/600)%2)?'#ff4d4d':'rgba(255,77,77,.25)';c.beginPath();c.arc(nb?80:84,12.5,3.2,0,6.283);c.fill();
+   hud(c,10,32,'rods '+Math.round(sim.ins*100)+'% in · '+sim.ns.length+(nb?' n':' neutrons'),'rgba(160,190,230,.85)',10);
+   hud(c,W-10,19,'k = '+k.toFixed(2),state[1],nb?14:16,'right',true);hud(c,W-10,34,state[0],state[1],9,'right',true);
+   if(par.goal==='critical'){var gw=nb?W-20:140,gx=nb?10:W/2-gw/2,gy=nb?46:27;c.fillStyle='rgba(255,255,255,.1)';c.fillRect(gx,gy,gw,4);c.fillStyle=done?'#8dff9a':'#3ad4ff';c.fillRect(gx,gy,gw*Math.min(1,done?1:hold/6000),4);if(!nb)hud(c,W/2,20,done?'CRITICAL HELD':!moved?'MOVE THE RODS':'HOLD k≈1 · '+(hold/1000).toFixed(1)+' / 6 s','rgba(200,225,255,.85)',9,'center',true);else hud(c,W/2,42,done?'CRITICAL HELD':!moved?'MOVE THE RODS':'HOLD k≈1 · '+(hold/1000).toFixed(1)+' / 6 s','rgba(200,225,255,.85)',8,'center',true)}
+   // spectrum
+   var sw=nb?128:176,sh=nb?46:58,sx=8,sy=H-sh-8;c.fillStyle='rgba(3,8,18,.72)';c.fillRect(sx,sy,sw,sh);c.strokeStyle='rgba(120,160,255,.25)';c.strokeRect(sx+.5,sy+.5,sw-1,sh-1);hud(c,sx+6,sy+11,'ENERGY SPECTRUM','rgba(200,225,255,.8)',8,'left',true);
+   var mx=1;for(q=0;q<26;q++)mx=Math.max(mx,hist[q]);var bw=(sw-12)/26;for(q=0;q<26;q++){var e=Math.pow(10,-2.5+(q+.5)/26*9.5),hgt=(sh-26)*hist[q]/mx;c.fillStyle=rgba(EC[eIdx(e)],.9);c.fillRect(sx+6+q*bw,sy+sh-12-hgt,Math.max(1,bw-1),hgt)}
+   hud(c,sx+6,sy+sh-3,'slow',rgba(EC[0],.9),8);hud(c,sx+sw-6,sy+sh-3,'fast',rgba(EC[63],.9),8,'right');
+   if(!nb&&sim.lastCol){var lc=sim.lastCol,bx=W-238,by=H-50;c.fillStyle='rgba(3,8,18,.72)';c.fillRect(bx,by,230,42);c.strokeStyle='rgba(120,160,255,.25)';c.strokeRect(bx+.5,by+.5,229,41);hud(c,bx+8,by+14,'LAST HIT ON HYDROGEN','rgba(200,225,255,.8)',8,'left',true);hud(c,bx+8,by+27,fmtE(lc.E0)+' → '+fmtE(lc.E1)+' · '+Math.round(lc.ang)+'°','rgba(230,240,255,.92)',10);hud(c,bx+8,by+38,'neutron kept '+Math.round(lc.p1/lc.p0*100)+'% of its momentum','rgba(255,209,102,.9)',8.5)}
+   if(paused){c.fillStyle='rgba(3,8,18,.45)';c.fillRect(0,0,W,H);hud(c,W/2,H/2+5,'PAUSED · press Play','#fff',13,'center',true)}
+   // readouts (a few times a second)
+   tStat+=dt;if(tStat>250){tStat=0;var fs=0;fisW.forEach(function(x){fs+=x[1]});st.n.textContent=sim.ns.length;st.k.textContent=k.toFixed(2);st.f.textContent=Math.round(fs/1.5*(slow?1/0.3:1));var th=0;sim.ns.forEach(function(n){if(n.E<1)th++});st.t.textContent=sim.ns.length?Math.round(th/sim.ns.length*100)+'%':'–'}
+  });
+  if(par.goal!=='critical')return {};
+  return {check:function(){if(done)return {ok:true,head:'Critical!'};var k=sim.k;return {ok:false,msg:!moved?'Move the control rods first: drag the slider and watch what happens to k.':sim.ns.length<15?'There are only '+sim.ns.length+' neutrons. Pull the rods out a bit so the chain reaction can build up.':k>1.05?'k is '+k.toFixed(2)+', so the neutrons keep multiplying. Push the rods in a little and wait for k to settle.':k<.95?'k is '+k.toFixed(2)+', so the chain reaction is dying away. Pull the rods out a little and give it a few seconds.':'Nearly there: hold k close to 1 until the bar at the top fills.'}},lock:function(){rs.input.disabled=true}}};
+
+ /* ---------- collision lab: one neutron, one nucleus, real momentum ---------- */
+ WIDGETS.scatterLab=function(box,par){par=par||{};var NUC=[['Hydrogen-1 (in water)',1,'H-1'],['Deuterium (heavy water)',2,'H-2'],['Carbon-12 (graphite)',12,'C-12'],['Uranium-238',238,'U-238']],ti=0,aim=.35,mom=true,pts=[],fired=0,t=-1,lastAim=null,lastTi=null;
+  var scr=screen(box,300,380);
+  var sel=select(box,'Target nucleus',NUC.map(function(n){return n[0]}),function(i){ti=i;pts=[];t=-1;upd()});
+  var sa=slider(box,'Aim: how far off centre',0,95,1,35,function(v){return v===0?'dead centre':v+'%'},function(v){aim=v/100;t=-1;upd()});
+  var r=row(box),bF=btn(r,'Fire',function(){t=0;fired++;lastAim=aim;lastTi=ti;pts.push(calc(NUC[ti][1],aim));if(pts.length>300)pts.shift()},'pri'),bR=btn(r,'Fire 100 at random',spray),bM=btn(r,'Momentum arrows',function(){mom=!mom;tog(bM,mom)});tog(bM,mom);
+  var st=stats(box,[['k','Energy the neutron keeps'],['g','Energy the nucleus takes'],['a','Bounce angle'],['n','Hits to slow from 2 MeV to thermal']]),m=msg(box);
+  function calc(A,b){var tc=Math.PI-2*Math.asin(Math.min(.999,b)),Vc=1/(1+A),u=A/(1+A),nx=Vc+u*Math.cos(tc),ny=u*Math.sin(tc),Nx=Vc-Vc*Math.cos(tc),Ny=-Vc*Math.sin(tc),f=nx*nx+ny*ny;return {A:A,b:b,nx:nx,ny:ny,Nx:Nx,Ny:Ny,f:f,lab:Math.atan2(ny,nx)*180/Math.PI}}
+  function xi(A){if(A===1)return 1;var al=Math.pow((A-1)/(A+1),2);return 1+al*Math.log(al)/(1-al)}
+  function spray(){var A=NUC[ti][1];for(var i=0;i<100;i++)pts.push(calc(A,Math.sqrt(Math.random())*.97));if(pts.length>300)pts.splice(0,pts.length-300);t=0;fired++;lastAim=aim;lastTi=ti}
+  function upd(){var o=calc(NUC[ti][1],aim);st.k.textContent=(o.f*100).toFixed(o.f>.99?2:1)+'%';st.g.textContent=((1-o.f)*100).toFixed((1-o.f)<.01?2:1)+'%';st.a.textContent=o.f<.001?'stopped':Math.round(o.lab)+'°';st.n.textContent=Math.round(Math.log(2e6/.025)/xi(NUC[ti][1]))}
+  upd();
+  run(scr,function(dt){var c=scr.c,W=scr.W,H=scr.H,wide=W>=620,aw=wide?Math.round(W*.6):W,ah=wide?H:Math.round(H*.56),A=NUC[ti][1],o=calc(A,aim);if(t>=0)t+=dt/1000*(calm()?.6:1);
+   var g=c.createLinearGradient(0,0,0,H);g.addColorStop(0,'#071631');g.addColorStop(1,'#040a17');c.fillStyle=g;c.fillRect(0,0,W,H);
+   c.strokeStyle='rgba(90,150,255,.06)';for(var gx=20;gx<aw;gx+=24){c.beginPath();c.moveTo(gx+.5,0);c.lineTo(gx+.5,ah);c.stroke()}for(var gy=20;gy<ah;gy+=24){c.beginPath();c.moveTo(0,gy+.5);c.lineTo(aw,gy+.5);c.stroke()}
+   c.save();c.beginPath();c.rect(0,0,aw,ah);c.clip();
+   var R=Math.max(13,Math.min(44,13*Math.cbrt(A))),rn=6,cx=aw*.56,cy=ah*.54,cd=R+rn,by=cy-aim*cd,contactX=cx-Math.sqrt(Math.max(0,cd*cd-(aim*cd)*(aim*cd))),x0=22,spd=(contactX-x0)/1,ph=t<0?-1:t<1?0:1,nxp,nyp,Nxp=cx,Nyp=cy,te=Math.max(0,Math.min(1.5,t-1))*.6;
+   if(ph<1){nxp=t<0?x0:x0+(contactX-x0)*t;nyp=by}else{nxp=contactX+o.nx*spd*te;nyp=by-o.ny*spd*te;Nxp=cx+o.Nx*spd*te;Nyp=cy-o.Ny*spd*te}
+   // aim line and paths
+   c.setLineDash([4,5]);c.strokeStyle='rgba(160,200,255,.28)';c.lineWidth=1;c.beginPath();c.moveTo(x0,by);c.lineTo(contactX,by);c.stroke();if(ph===1){c.strokeStyle='rgba(58,212,255,.35)';c.beginPath();c.moveTo(contactX,by);c.lineTo(nxp,nyp);c.stroke();c.strokeStyle='rgba(255,170,90,.35)';c.beginPath();c.moveTo(cx,cy);c.lineTo(Nxp,Nyp);c.stroke()}c.setLineDash([]);
+   // nucleus
+   var gn=c.createRadialGradient(Nxp-R*.35,Nyp-R*.35,2,Nxp,Nyp,R);gn.addColorStop(0,'#ffb27a');gn.addColorStop(1,'#b8461f');c.fillStyle=gn;c.beginPath();c.arc(Nxp,Nyp,R,0,6.283);c.fill();hud(c,Nxp,Nyp+4,NUC[ti][2],'#fff',R>20?11:9,'center',true);
+   // flash at contact
+   if(t>=1&&t<1.35){var u=(t-1)/.35,gf=c.createRadialGradient(contactX,by,0,contactX,by,10+u*30);gf.addColorStop(0,'rgba(255,255,255,'+(.8*(1-u)).toFixed(3)+')');gf.addColorStop(1,'rgba(255,255,255,0)');c.fillStyle=gf;c.beginPath();c.arc(contactX,by,10+u*30,0,6.283);c.fill()}
+   // neutron
+   c.save();c.shadowColor='#3ad4ff';c.shadowBlur=14;c.fillStyle='#bff3ff';c.beginPath();c.arc(nxp,nyp,rn,0,6.283);c.fill();c.restore();hud(c,nxp,nyp-11,'n','rgba(200,240,255,.9)',10,'center',true);
+   // momentum arrows
+   var L=wide?70:54;if(mom){if(ph<1)arrow(c,nxp,nyp,nxp+L,nyp,'rgba(255,255,255,.85)',2.4);else{arrow(c,nxp,nyp,nxp+o.nx*L,nyp-o.ny*L,'#3ad4ff',2.4);arrow(c,Nxp,Nyp,Nxp+o.Nx*A*L,Nyp-o.Ny*A*L,'#ffd166',2.4)}
+    // vector triangle: p = p' + P
+    var tx=wide?aw-118:aw-104,ty=wide?ah-28:ah-22,tl=wide?84:66;c.fillStyle='rgba(3,8,18,.7)';c.fillRect(tx-14,ty-tl*.62-18,tl+30,tl*.62+34);hud(c,tx-8,ty-tl*.62-6,'p = p′ + P','rgba(200,225,255,.85)',9,'left',true);
+    arrow(c,tx,ty,tx+tl,ty,'rgba(255,255,255,.8)',1.8);arrow(c,tx,ty,tx+o.nx*tl,ty-o.ny*tl,'#3ad4ff',1.8);arrow(c,tx+o.nx*tl,ty-o.ny*tl,tx+tl,ty,'#ffd166',1.8,[3,2])}
+   c.restore();if(!wide){c.strokeStyle='rgba(120,160,255,.18)';c.beginPath();c.moveTo(0,ah+.5);c.lineTo(W,ah+.5);c.stroke()}
+   // labels
+   c.fillStyle='rgba(3,8,18,.62)';c.fillRect(0,0,aw,22);hud(c,8,15,'COLLISION LAB · elastic scattering','rgba(200,225,255,.9)',9.5,'left',true);
+   if(ph===1)hud(c,8,ah-10,o.f<.001?'neutron stopped dead · the proton took all its energy':'neutron keeps '+(o.f*100).toFixed(o.f>.99?2:0)+'% of its energy · bounced '+Math.round(o.lab)+'°','rgba(230,240,255,.92)',wide?11:9.5);
+   // plot: energy kept against bounce angle
+   var px=wide?aw+40:40,py=wide?30:ah+26,pw=wide?W-aw-52:W-54,ph2=wide?H-62:H-ah-56;c.fillStyle='rgba(255,255,255,.03)';c.fillRect(px,py,pw,ph2);c.strokeStyle='rgba(120,160,255,.25)';c.strokeRect(px+.5,py+.5,pw-1,ph2-1);
+   hud(c,px,py-8,'ENERGY KEPT vs BOUNCE ANGLE','rgba(200,225,255,.85)',8.5,'left',true);
+   for(var gi=0;gi<=4;gi++){var yy=py+ph2-gi/4*ph2;c.strokeStyle='rgba(120,160,255,.1)';c.beginPath();c.moveTo(px,yy);c.lineTo(px+pw,yy);c.stroke();hud(c,px-3,yy+3,gi*25+'%','rgba(160,190,230,.7)',8,'right')}
+   [0,45,90,135,180].forEach(function(a){var xx=px+a/180*pw;hud(c,xx,py+ph2+11,a+'°','rgba(160,190,230,.7)',8,'center')});
+   c.strokeStyle='#3ad4ff';c.lineWidth=1.8;c.beginPath();for(var s=0;s<=60;s++){var q=calc(A,1-s/60*.999);var X=px+Math.max(0,q.lab)/180*pw,Y=py+ph2-q.f*ph2;if(s)c.lineTo(X,Y);else c.moveTo(X,Y)}c.stroke();
+   pts.forEach(function(q){if(q.A!==A)return;c.fillStyle='rgba(255,209,102,.8)';c.beginPath();c.arc(px+q.lab/180*pw,py+ph2-q.f*ph2,2.2,0,6.283);c.fill()});
+   var cur=px+o.lab/180*pw,cy2=py+ph2-o.f*ph2;c.strokeStyle='#fff';c.lineWidth=1.5;c.beginPath();c.arc(cur,cy2,4.5,0,6.283);c.stroke();
+   if(A===1&&wide)hud(c,px+pw-4,py+12,'never past 90°','rgba(160,190,230,.7)',8,'right')});
+  if(par.goal!=='max')return {};
+  return {check:function(){if(!fired)return {ok:false,msg:'Press <b>Fire</b> first.'};if(lastTi!==0)return {ok:false,msg:'The neutron kept '+(calc(NUC[lastTi][1],lastAim).f*100).toFixed(1)+'% of its energy. Try a lighter nucleus.'};if(lastAim>.1)return {ok:false,msg:'Close! A glancing hit only takes some of the energy. Aim closer to the centre and fire again.'};return {ok:true,head:'Stopped dead!'}},lock:function(){sel.disabled=true;sa.input.disabled=true}}};
+
+ /* ---------- 3D flux: the power shape across a core ---------- */
+ WIDGETS.flux3d=function(box,par){par=par||{};var scr=screen(box,340,250),N=narrow()?22:30,ins=par.rod||0,refl=par.refl||0,yaw=-.62,pitch=.6,auto=!calm(),drag=null,idle=0,Hh=[],Tt=[],peak=2.4,edge=0,mid=0,pkI=0,pkJ=0,i,j;
+  for(i=0;i<=N;i++){Hh.push(new Float32Array(N+1));Tt.push(new Float32Array(N+1))}
+  var s1=slider(box,'Control rods in the middle',0,100,1,Math.round(ins*100),function(v){return v+'% in'},function(v){ins=v/100;target()}),s2=slider(box,'Reflector round the core',0,100,1,Math.round(refl*100),function(v){return v?v+'%':'none (bare core)'},function(v){refl=v/100;target()});
+  var st=stats(box,[['p','Peaking factor (peak ÷ average)'],['e','Power at the edge'],['c','Power in the middle']]),m=msg(box);m.set('Drag the graph to turn it. The flat sheet is the <b>average</b> power.');
+  function target(){var d=.7*refl,sum=0,mx=0,n=(N+1)*(N+1);for(i=0;i<=N;i++)for(j=0;j<=N;j++){var x=-1+2*i/N,y=-1+2*j/N,v=Math.cos(Math.PI*x/(2*(1+d)))*Math.cos(Math.PI*y/(2*(1+d)));v*=1-.82*ins*Math.exp(-(x*x+y*y)/(2*.2*.2));Tt[i][j]=Math.max(0,v);sum+=Tt[i][j]}var av=sum/n;
+   for(i=0;i<=N;i++)for(j=0;j<=N;j++){Tt[i][j]/=av;if(Tt[i][j]>mx){mx=Tt[i][j];pkI=i;pkJ=j}}peak=mx;edge=Tt[0][N>>1];mid=Tt[N>>1][N>>1];st.p.textContent=peak.toFixed(2);st.e.textContent=edge.toFixed(2)+'× average';st.c.textContent=mid.toFixed(2)+'× average'}
+  target();for(i=0;i<=N;i++)for(j=0;j<=N;j++)Hh[i][j]=0;
+  var cv=scr.cv;cv.style.touchAction='pan-y';cv.style.cursor='grab';
+  cv.addEventListener('pointerdown',function(e){drag={x:e.clientX,y:e.clientY,yaw:yaw,pitch:pitch,id:e.pointerId};auto=false;cv.style.cursor='grabbing';try{cv.setPointerCapture(e.pointerId)}catch(_){}});
+  cv.addEventListener('pointermove',function(e){if(!drag)return;yaw=drag.yaw+(e.clientX-drag.x)*.01;if(e.pointerType==='mouse')pitch=Math.max(.28,Math.min(1.2,drag.pitch+(e.clientY-drag.y)*.006));idle=0});
+  function up(){drag=null;cv.style.cursor='grab';idle=0}cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
+  var CM=[[0,[22,34,110]],[.25,[30,120,230]],[.45,[38,198,218]],[.62,[120,230,120]],[.78,[255,213,79]],[.9,[255,138,61]],[1,[255,61,61]]];function cmap(u){u=Math.max(0,Math.min(1,u));for(var k=1;k<CM.length;k++)if(u<=CM[k][0]){var a=CM[k-1],b=CM[k],f=(u-a[0])/(b[0]-a[0]);return [a[1][0]+(b[1][0]-a[1][0])*f,a[1][1]+(b[1][1]-a[1][1])*f,a[1][2]+(b[1][2]-a[1][2])*f]}return CM[CM.length-1][1]}
+  var PX=new Float32Array((N+1)*(N+1)*3),quads=[];for(i=0;i<N;i++)for(j=0;j<N;j++)quads.push({i:i,j:j,z:0,h:0});
+  run(scr,function(dt){var c=scr.c,W=scr.W,H=scr.H,cy=Math.cos(yaw),sy=Math.sin(yaw),cp=Math.cos(pitch),sp=Math.sin(pitch),D=6.2,F=Math.min(W*.9,H*1.45)*.78,ox=W/2,oy=H*.6,HS=.62,SZ=1.55;
+   if(auto)yaw+=dt*.00016;else if(!drag){idle+=dt;if(idle>4000&&!calm())auto=true}
+   var lr=calm()?1:Math.min(1,dt/220);for(i=0;i<=N;i++)for(j=0;j<=N;j++)Hh[i][j]+=(Tt[i][j]-Hh[i][j])*lr;
+   function P(x,y,z){var X=x*cy-z*sy,Z=x*sy+z*cy,Y2=y*cp-Z*sp,Z2=y*sp+Z*cp,f=F/(D-Z2);return [ox+X*f,oy-Y2*f,Z2]}
+   var g=c.createLinearGradient(0,0,0,H);g.addColorStop(0,'#071631');g.addColorStop(1,'#040a17');c.fillStyle=g;c.fillRect(0,0,W,H);
+   // floor: reflector band, core outline, grid
+   var rf=SZ*(1+.32*refl);if(refl>0){var q1=P(-rf,0,-rf),q2=P(rf,0,-rf),q3=P(rf,0,rf),q4=P(-rf,0,rf);c.fillStyle='rgba(120,160,255,'+(.05+.1*refl).toFixed(3)+')';c.beginPath();c.moveTo(q1[0],q1[1]);c.lineTo(q2[0],q2[1]);c.lineTo(q3[0],q3[1]);c.lineTo(q4[0],q4[1]);c.closePath();c.fill()}
+   c.strokeStyle='rgba(120,160,255,.16)';c.lineWidth=1;for(var k=0;k<=6;k++){var v=-SZ+2*SZ*k/6,a1=P(v,0,-SZ),a2=P(v,0,SZ),b1=P(-SZ,0,v),b2=P(SZ,0,v);c.beginPath();c.moveTo(a1[0],a1[1]);c.lineTo(a2[0],a2[1]);c.moveTo(b1[0],b1[1]);c.lineTo(b2[0],b2[1]);c.stroke()}
+   // project surface
+   for(i=0;i<=N;i++)for(j=0;j<=N;j++){var p=P(-SZ+2*SZ*i/N,Hh[i][j]*HS,-SZ+2*SZ*j/N),o=(i*(N+1)+j)*3;PX[o]=p[0];PX[o+1]=p[1];PX[o+2]=p[2]}
+   quads.forEach(function(q){var a=(q.i*(N+1)+q.j)*3,b=((q.i+1)*(N+1)+q.j)*3,d=((q.i+1)*(N+1)+q.j+1)*3,e=(q.i*(N+1)+q.j+1)*3;q.z=(PX[a+2]+PX[b+2]+PX[d+2]+PX[e+2])/4;q.h=(Hh[q.i][q.j]+Hh[q.i+1][q.j]+Hh[q.i+1][q.j+1]+Hh[q.i][q.j+1])/4});
+   quads.sort(function(a,b){return a.z-b.z});
+   var dx=2*SZ/N;function drawQ(q){var a=(q.i*(N+1)+q.j)*3,b=((q.i+1)*(N+1)+q.j)*3,d=((q.i+1)*(N+1)+q.j+1)*3,e=(q.i*(N+1)+q.j+1)*3,hx=(Hh[q.i+1][q.j]-Hh[q.i][q.j])*HS/dx,hz=(Hh[q.i][q.j+1]-Hh[q.i][q.j])*HS/dx,nl=1/Math.sqrt(hx*hx+hz*hz+1),lt=Math.max(0,(-hx*-.45+1*.85+-hz*.3)*nl),sh=.5+.55*lt,col=cmap(q.h/2.6);
+    c.fillStyle='rgb('+Math.min(255,col[0]*sh|0)+','+Math.min(255,col[1]*sh|0)+','+Math.min(255,col[2]*sh|0)+')';c.beginPath();c.moveTo(PX[a],PX[a+1]);c.lineTo(PX[b],PX[b+1]);c.lineTo(PX[d],PX[d+1]);c.lineTo(PX[e],PX[e+1]);c.closePath();c.fill();c.strokeStyle='rgba(255,255,255,.07)';c.lineWidth=.6;c.stroke()}
+   quads.forEach(function(q){if(q.h<1)drawQ(q)});
+   // the average-power sheet
+   var y1=1*HS,c1=P(-SZ,y1,-SZ),c2=P(SZ,y1,-SZ),c3=P(SZ,y1,SZ),c4=P(-SZ,y1,SZ);c.fillStyle='rgba(200,230,255,.10)';c.strokeStyle='rgba(200,230,255,.45)';c.lineWidth=1.2;c.beginPath();c.moveTo(c1[0],c1[1]);c.lineTo(c2[0],c2[1]);c.lineTo(c3[0],c3[1]);c.lineTo(c4[0],c4[1]);c.closePath();c.fill();c.stroke();
+   quads.forEach(function(q){if(q.h>=1)drawQ(q)});
+   // peak marker and labels
+   var pk=P(-SZ+2*SZ*pkI/N,Hh[pkI][pkJ]*HS,-SZ+2*SZ*pkJ/N),pt=P(-SZ+2*SZ*pkI/N,Hh[pkI][pkJ]*HS+.55,-SZ+2*SZ*pkJ/N);c.strokeStyle='rgba(255,255,255,.8)';c.lineWidth=1.2;c.beginPath();c.moveTo(pk[0],pk[1]);c.lineTo(pt[0],pt[1]);c.stroke();c.fillStyle='#fff';c.beginPath();c.arc(pk[0],pk[1],3,0,6.283);c.fill();hud(c,pt[0],pt[1]-5,'peak '+peak.toFixed(2)+'×','#fff',10,'center',true);
+   var lab=P(SZ,y1,SZ);hud(c,lab[0]+6,lab[1]+3,'average','rgba(200,230,255,.8)',9);
+   c.fillStyle='rgba(3,8,18,.62)';c.fillRect(0,0,W,24);hud(c,8,16,'3D NEUTRON FLUX · power across the core','rgba(200,225,255,.9)',9.5,'left',true);hud(c,W-8,16,narrow()?'drag to turn':'drag to turn it','rgba(160,190,230,.75)',9,'right');
+   var kx=W-22,ky=40,kh=Math.min(110,H*.36);for(var u=0;u<=20;u++){var cc=cmap(u/20);c.fillStyle='rgb('+(cc[0]|0)+','+(cc[1]|0)+','+(cc[2]|0)+')';c.fillRect(kx,ky+kh-(u+1)/21*kh,8,kh/21+1)}hud(c,kx-4,ky+8,'high','rgba(200,225,255,.75)',8,'right');hud(c,kx-4,ky+kh,'low','rgba(200,225,255,.75)',8,'right')});
+  if(par.goal!=='flat')return {};
+  return {check:function(){return peak<1.75?{ok:true,head:'Nice and flat!',msg:'Peaking factor '+peak.toFixed(2)+'.'}:{ok:false,msg:'The peaking factor is '+peak.toFixed(2)+'. '+(refl<.5?'Add more reflector so fewer neutrons leak from the edges.':'Now push some rods into the middle to pull the peak down.')}},lock:function(){s1.input.disabled=true;s2.input.disabled=true}}};
+
+ /* ---------- put the labs into lessons (added at the end, so saved mistakes still line up) ---------- */
+ var ADD=[
+  ['r3',{w:'scatterLab',par:{goal:'max'},p:'<b>Collision lab.</b> Fire a neutron at a nucleus and watch the momentum arrows. Find the hit that takes <b>the most energy</b> from the neutron.',e:'Head-on with hydrogen, the neutron stops dead. A proton has the same mass, so it takes all the momentum and all the energy. That\'s why water is such a good moderator, and why uranium-238 is hopeless at it.'}],
+  ['tf3',{w:'scatterLab',par:{goal:'max'},p:'<b>Collision lab.</b> Fire a neutron at a nucleus and watch the arrows: they show the push (momentum) each one carries. Find the hit that slows the neutron down the most.',e:'Head-on with hydrogen, the neutron stops dead and hands everything to the proton, like snooker balls. Big nuclei just bounce it back at almost full speed.'}],
+  ['t2-2-1',{w:'scatterLab',par:{},p:'<b>Collision lab.</b> Try each target and different aims. Then press <b>Fire 100 at random</b> to see how much energy a neutron keeps at each bounce angle.'}],
+  ['r1',{w:'reactorSim',par:{goal:'critical'},p:'<b>Live core.</b> Every dot is a neutron: red ones are fast, blue ones are slow. Fast neutrons slow down by hitting hydrogen, then split uranium in the fuel. Move the control rods until the reactor is <b>critical</b>, with k holding near 1.',e:'At k = 1 each generation of neutrons is the same size as the last, so the power stays steady. That\'s what the operators hold the reactor at all day.'}],
+  ['tf2',{w:'reactorSim',par:{goal:'critical'},p:'<b>Live core.</b> Every dot is a neutron: red ones are fast, blue ones are slow. When a slow one hits a fuel rod it can split a uranium atom and release 2 or 3 new ones. Move the control rods until the chain reaction is <b>steady</b>.',e:'Steady means each split leads to exactly one more split. Rods further out and it grows; further in and it dies away.'}],
+  ['tk1',{w:'reactorSim',par:{goal:'critical',rods:.9},p:'<b>Live core.</b> The rods start almost fully in, so the chain reaction is dying. Pull them out slowly until the reactor is <b>critical</b>, and hold it there.',e:'Control rods soak up neutrons. Pulling them out leaves more neutrons to cause fission, so k rises. Operators move them a little at a time and wait, just like you did.'}],
+  ['r6',{w:'reactorSim',par:{goal:'critical',rods:.35},p:'<b>Live core.</b> This time the rods start too far out and the power is climbing. Push them in until k settles at <b>1</b>.',e:'Rod worth is how much reactivity a bit of rod movement changes. You felt it: small moves near the middle of the core make a big difference.'}],
+  ['t4-2-1',{w:'reactorSim',par:{rods:.45},p:'<b>Live core.</b> Watch the energy spectrum in the corner. Neutrons are born fast (right), lose energy hitting hydrogen and pile up at thermal energies (left), where uranium-235 catches them. Turn on slow motion to follow one.'}],
+  ['a6',{w:'flux3d',par:{},p:'<b>3D flux.</b> This is the neutron flux across a square core, in 3D. It\'s highest in the middle and falls towards the edges, where neutrons leak out. Drag it to turn it.'}],
+  ['t2-3-3',{w:'flux3d',par:{},p:'<b>3D flux.</b> Neutrons near the edge of a bare core leak out, so the flux falls to almost zero there. Add a reflector and watch the edges come up.'}],
+  ['t3-3-1',{w:'flux3d',par:{goal:'flat'},p:'<b>3D flux.</b> This is the power across the core. The higher the peak compared with the average, the hotter the hottest fuel rod. Use the reflector and the rods in the middle to get the <b>peaking factor below 1.75</b>.',e:'A flatter shape means no single fuel rod runs too hot, so the whole core can make more power within its limits. Real cores do it with reflectors, careful fuel loading and rod patterns.'}],
+  ['m4-3-2',{w:'flux3d',par:{},p:'<b>3D flux.</b> For a bare square core the diffusion equation gives φ = A cos(πx/a) cos(πy/a): a cosine hill in each direction. Drag to turn it, then see how a reflector and central rods change the solution.'}],
+  ['m4-3-3',{w:'flux3d',par:{refl:.3},p:'<b>3D flux.</b> A reflector bounces leaking neutrons back, which works like making the core bigger: the cosine stretches and the edges no longer drop to zero. Try it.'}]];
+ /* show which lessons have a live lab */
+ var LABS={reactorSim:'Live core',scatterLab:'Collision lab',flux3d:'3D flux'};
+ (function(){var rl=renderLearn;renderLearn=function(){var r=rl.apply(this,arguments);try{[].forEach.call(document.querySelectorAll('#page-learn .lnode[data-u]'),function(b){var l=UNITS[+b.dataset.u]&&UNITS[+b.dataset.u].lessons[+b.dataset.l];if(!l)return;var w=null;l.cards.forEach(function(c){if(c.t==='W'&&LABS[c.w])w=LABS[c.w]});if(!w||b.querySelector('.lablive'))return;var lm=b.querySelector('.lm');if(lm)lm.insertAdjacentHTML('afterend','<span class="lablive" title="This lesson has a live simulation">'+w+'</span>')})}catch(e){if(window.console)console.error(e)}return r}})();
+ ADD.forEach(function(a){var L0=null;UNITS.forEach(function(u){u.lessons.forEach(function(l){if(l.id===a[0])L0=l})});if(!L0||L0.cards.some(function(c){return c.t==='W'&&c.w===a[1].w}))return;L0.cards.push({t:'W',w:a[1].w,par:a[1].par||{},p:a[1].p,e:a[1].e})});
+})();
 window.__crit={startFollow:startFollow,startTest:startTest,FOLLOW:FOLLOW,TESTS:TESTS,startReview:startReview,updHeader:updHeader,UNITS:UNITS,WIDGETS:WIDGETS,startLesson:startLesson,SIM:SIM,simAdvance:simAdvance,simStart:simStart,simRho:simRho,simTref:simTref,MISSIONS:MISSIONS,S:function(){return S},P:function(){return P},card:function(i){P.i=i;showCard()},renderLearn:renderLearn,curMode:curMode,setLevel:setLevel,curLevel:curLevel,FOLLOW:FOLLOW,closePlayer:closePlayer,showPage:showPage,openUnits:openUnits};
 checkBadges(true);quests();updHeader();showPage('learn');
 })();
