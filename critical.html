@@ -551,6 +551,7 @@ body,.hdr,.card,.unit,.pill,.msb,.opt,.prose .key,.tlinfo,.sbin,.schip{transitio
 .cmbox{background:var(--good-bg);border:1.5px solid var(--good-line);border-radius:12px;padding:8px 12px;margin-top:8px}
 body:has(#player.open) .plban{bottom:calc(100px + env(safe-area-inset-bottom))}
 .tybadge{display:inline-block;font:700 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;background:var(--accent-bg);color:var(--accent-text);border-radius:6px;padding:2px 7px;margin-right:6px;vertical-align:1px}.tyin{width:min(360px,100%);font-family:inherit}.tyw{font:inherit;font-size:20px;padding:10px 14px;border:2px solid var(--line);border-radius:12px;background:var(--panel);color:var(--text);box-sizing:border-box}.tyw:focus{outline:none;border-color:var(--accent)}.small .tymc{margin-left:4px}
+@media (hover:hover) and (pointer:fine){#pBody .opts{counter-reset:optk}#pBody .opts .opt{counter-increment:optk;position:relative;padding-left:50px}#pBody .opts .opt::before{content:counter(optk);position:absolute;left:14px;top:50%;transform:translateY(-50%);width:24px;height:24px;box-sizing:border-box;border-radius:7px;border:1.5px solid var(--line);font:600 12px var(--mono);display:flex;align-items:center;justify-content:center;color:var(--muted);background:var(--soft)}#pBody .opts .opt.sel::before{border-color:var(--accent);color:var(--accent)}#pBtn:not(:disabled)::after{content:'Enter';margin-left:10px;font:600 11px var(--mono);letter-spacing:.04em;padding:2px 6px;border-radius:5px;border:1px solid currentColor;opacity:.75;vertical-align:1px}}
 </style>
 </head>
 <body>
@@ -794,7 +795,10 @@ $('pUnits').onclick=function(){openUnits()};
 $('pClose').onclick=function(){if(!P||P.finished||confirm('Leave this lesson? Your progress in it won\'t be saved.'))closePlayer()};
 $('pBtn').onclick=function(){if(P&&P.onMain)P.onMain()};
 $('pSkip').onclick=function(){if(P&&P.onSkip)P.onSkip()};
-document.addEventListener('keydown',function(e){if(!P||e.key!=='Enter')return;var t=e.target;if(t&&t.tagName==='TEXTAREA')return;if(t&&t.tagName==='BUTTON'&&t!==$('pBtn'))return;if(!$('pBtn').disabled){e.preventDefault();P.onMain&&P.onMain()}});
+document.addEventListener('keydown',function(e){if(!P||e.ctrlKey||e.metaKey||e.altKey)return;var pl=$('player');if(!pl||!pl.classList.contains('open'))return;
+ var md=$('modal');if((md&&(md.classList.contains('open')||md.classList.contains('show')))||document.querySelector('.shmod'))return;var t=e.target,tag=t&&t.tagName;
+ if(e.key==='Enter'){if(e.shiftKey||e.isComposing)return;if(tag==='TEXTAREA')return;if(tag==='BUTTON'&&t!==$('pBtn')&&!t.classList.contains('opt'))return;if(!$('pBtn').disabled){e.preventDefault();P.onMain&&P.onMain()}return}
+ if(/^[1-9]$/.test(e.key)&&!e.shiftKey){if(tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT'||(t&&t.isContentEditable))return;var os=document.querySelectorAll('#pBody .opts .opt'),o=os[+e.key-1];if(o&&!o.disabled){e.preventDefault();o.click();try{o.focus({preventScroll:true})}catch(_){}}}});
 function foot(st,head,body){$('pFoot').className='pfoot'+(st?' '+st:'');$('pFb').innerHTML=(head?'<b class="h">'+head+'</b>':'')+(body||'');if(st==='no'&&P&&P.helpDue){P.helpDue=0;try{EASE.offer()}catch(e){if(window.console)console.error(e)}}}
 function mainBtn(label,fn,dis){var b=$('pBtn');b.textContent=label;b.disabled=!!dis;P.onMain=fn}
 function skipBtn(fn,label){$('pSkip').style.display=fn?'':'none';$('pSkip').textContent=label||'Skip this one';P.onSkip=fn}
