@@ -4680,7 +4680,7 @@ module.exports = QRCode;
 }},C={};function req(n){n=n.replace(/^\.\//,"./").replace(/\.js$/,"");if(n==="./index"||n===".")n="./index";if(C[n])return C[n].exports;var m={exports:{}};C[n]=m;M[n](m,m.exports,req);return m.exports}return req("./index")})();
 function qrSvg(text){var q=new QRMAKER(-1,0);q.addData(text);q.make();var n=q.getModuleCount(),pad=4,sz=n+pad*2,p='';for(var r=0;r<n;r++)for(var c=0;c<n;c++)if(q.isDark(r,c))p+='M'+(c+pad)+' '+(r+pad)+'h1v1h-1z';return '<svg viewBox="0 0 '+sz+' '+sz+'" width="240" height="240" shape-rendering="crispEdges" role="img" aria-label="QR code of your sync key"><rect width="'+sz+'" height="'+sz+'" fill="#fff"/><path d="'+p+'" fill="#000"/></svg>'}
 /* ===== sync: sign in once on each device and progress moves across by itself (a secret gist on your GitHub account) ===== */
-var APPV='48 (4 Nov 2026)';
+var APPV='49 (4 Nov 2026)';
 var SYNC=(function(){
  var KEY='critical_sync',DEV='critical_dev',FILE='critical-sync.json',DESC='Critical progress sync (used by the Critical app)',API='https://api.github.com';
  var css=document.createElement('style');css.textContent='.syncpill .sp-ok{display:none}.syncpill[data-st=on]{color:var(--accent)}.syncpill[data-st=on] .sp-ok{display:inline}.syncpill[data-st=on] .sp-off{display:none}.syncpill[data-st=off] .sp-off{display:none}.syncpill[data-st=err]{color:var(--amber)}.syncpill[data-st=busy] svg{animation:rwtw 1.2s ease-in-out infinite}.syncbox{border:1.5px solid var(--line);border-radius:14px;padding:12px 14px;margin:12px 0 4px;background:var(--soft)}.syncbox .synchd{display:flex;align-items:center;gap:8px;font-weight:700}.syncbox .synchd svg{color:var(--accent);flex:none}.syncbox .note{margin:6px 0 0}.syncbox.on{border-color:var(--accent);background:var(--accent-bg)}.syncbox .savebtns{margin-top:10px}'+
@@ -4696,7 +4696,7 @@ var SYNC=(function(){
   return fetch(API+path,{method:opt.method||'GET',cache:'no-store',headers:h,body:opt.body?JSON.stringify(opt.body):undefined}).then(function(r){if(r.status===401||r.status===403)throw {code:r.status};if(!r.ok)throw {code:r.status};return r.json()},function(e){throw (e&&e.code)?e:{code:'net'}})}
  function sumH(h){var t=0;for(var d in h)t+=+h[d]||0;return t}
  /* merge this device with the copy online. XP is kept per device so nothing is ever counted twice. */
- function merge(doc,meta){var me=devId(),L=JSON.parse(JSON.stringify(S)),E=readExtras(),R=doc&&doc.prog?cleanState(doc.prog):null,devs=(doc&&doc.devs&&typeof doc.devs==='object')?doc.devs:{},d,k;
+ function merge(doc,meta,ob){var me=ob?ob.dev:devId(),L=ob?cleanState(JSON.parse(JSON.stringify(ob.state))):JSON.parse(JSON.stringify(S)),E=ob?(ob.extras||{}):readExtras(),R=doc&&doc.prog?cleanState(doc.prog):null,devs=(doc&&doc.devs&&typeof doc.devs==='object')?doc.devs:{},d,k;
   var lh=L.hist||{},others={};for(k in devs){if(k===me)continue;var h=devs[k].hist||{};for(d in h)others[d]=(others[d]||0)+(+h[d]||0)}
   var own={},lo=meta&&meta.others,shared=R&&Object.keys(devs).length;
   if(lo){for(d in lh){var v1=Math.max(0,(+lh[d]||0)-(+lo[d]||0));if(v1)own[d]=v1}}
@@ -4705,9 +4705,9 @@ var SYNC=(function(){
   var baseL=Math.max(0,(L.xp||0)-sumH(lh)),baseR=R?Math.max(0,(R.xp||0)-sumH(R.hist||{})):0,sh=sumH(Hh);
   var Lx=Object.assign({},L,{hist:Hh,xp:baseL+sh}),M=R?mergeState(Lx,Object.assign({},R,{hist:Hh,xp:baseR+sh})):Lx;
   /* mistakes: fixing one on any device clears it everywhere */
-  var base={};((meta&&meta.wrong)||[]).forEach(function(x){base[x]=1});var lw=L.wrong||{},rw=(R&&R.wrong)||{},W={};
+  var base={};((meta&&meta.wrong)||[]).concat((devs[me]&&devs[me].base)||[]).forEach(function(x){base[x]=1});var lw=L.wrong||{},rw=(R&&R.wrong)||{},W={};
   for(k in lw)if(!(base[k]&&R&&!(k in rw)))W[k]=lw[k];for(k in rw)if(!(k in W)&&!(base[k]&&!(k in lw)))W[k]=rw[k];M.wrong=W;
-  var X=doc&&doc.extras?mergeExtras(E,doc.extras):E,nd={v:2,app:'Critical',prog:M,extras:X,devs:Object.assign({},devs)};nd.devs[me]={hist:own,name:devName(),at:Date.now()};
+  var X=doc&&doc.extras?mergeExtras(E,doc.extras):E,nd={v:2,app:'Critical',prog:M,extras:X,devs:Object.assign({},devs)};nd.devs[me]={hist:own,name:ob?ob.name:devName(),at:ob?ob.at:Date.now()};if(ob)nd.devs[me].base=Object.keys(W);
   return {state:M,extras:X,doc:nd,meta:{others:others,wrong:Object.keys(W)}}}
  /* what counts as new progress (ignores things worked out from it, like the streak) */
  function fp(st){st=st||{};var ks=function(o){return Object.keys(o||{}).sort()};return canon({xp:st.xp,hist:st.hist,done:ks(st.done),wrong:ks(st.wrong),missions:st.missions,badges:ks(st.badges),plan:st.plan,habits:st.habits,exam:st.exam&&st.exam.hist,fu:st.fu,mys:st.mys,shift:st.shift&&st.shift.notes,rw:st.rw&&{unl:st.rw.unl,bonus:st.rw.bonus,wk:st.rw.wk},pdays:st.pdays,lday:st.lday,lvtests:st.lvtests,exams:st.exam&&st.exam.cur})}
@@ -4715,17 +4715,24 @@ var SYNC=(function(){
  function findGist(c){return api('/gists?per_page=100').then(function(list){var g=(list||[]).filter(function(x){return x.files&&x.files[FILE]})[0];if(g)return g.id;
   return api('/gists',{method:'POST',body:{description:DESC,public:false,files:(function(){var f={};f[FILE]={content:'{}'};return f})()}}).then(function(n){return n.id})})}
  function getDoc(c){var g=c.gist?Promise.resolve(c.gist):findGist(c).then(function(id){c.gist=id;setCfg(c);return id});
-  return g.then(function(id){return api('/gists/'+id)}).then(function(g){var f=g.files&&g.files[FILE];if(!f)return null;if(f.truncated&&f.raw_url)return fetch(f.raw_url,{cache:'no-store'}).then(function(r){return r.json()}).catch(function(){return null});try{var o=JSON.parse(f.content||'{}');return o&&o.prog?o:null}catch(_){return null}},
+  return g.then(function(id){return api('/gists/'+id)}).then(function(g){var files=(g&&g.files)||{},names=Object.keys(files),mine=outName(devId());lastNames=names;
+   var outs=names.filter(function(n){return n.indexOf(OUTP)===0&&n!==mine});
+   return Promise.all([files[FILE]?readFile(files[FILE]):null].concat(outs.map(function(n){return readFile(files[n])}))).then(function(a){var doc=a[0]&&a[0].prog?a[0]:null;
+    a.slice(1).filter(function(o){return o&&o.dev&&o.state&&o.meta&&o.meta.others&&o.at}).sort(function(x,y){return x.at-y.at}).forEach(function(o){var dv=doc&&doc.devs&&doc.devs[o.dev];if(dv&&dv.at>=o.at)return;try{doc=merge(doc,o.meta,o).doc}catch(_){}});
+    return doc})},
    function(e){if(e&&e.code===404&&c.gist){delete c.gist;setCfg(c);return getDoc(c)}throw e})}
- function putDoc(c,doc){doc.saved=new Date().toISOString();var f={};f[FILE]={content:JSON.stringify(doc)};return api('/gists/'+c.gist,{method:'PATCH',body:{files:f}})}
- var busy=false,dirty=false,timer=null,pending=false,state='',hidAt=0;
+ function readFile(f){if(f.truncated&&f.raw_url)return fetch(f.raw_url,{cache:'no-store'}).then(function(r){return r.json()}).catch(function(){return null});try{return Promise.resolve(JSON.parse(f.content||'null'))}catch(_){return Promise.resolve(null)}}
+ function outName(id){return OUTP+id+'.json'}
+ function putDoc(c,doc){doc.saved=new Date().toISOString();var f={},mine=outName(devId());f[FILE]={content:JSON.stringify(doc)};if(lastNames.indexOf(mine)>=0)f[mine]=null;
+  return api('/gists/'+c.gist,{method:'PATCH',body:{files:f}}).then(function(r){outFp=null;lastNames=lastNames.filter(function(n){return n!==mine});return r})}
+ var busy=false,dirty=false,timer=null,pending=false,state='',hidAt=0,lastDoc=null,lastPush=0,lastNames=[],OUTP='critical-out-',outFp=null;
  function say(t){state=t;var e=document.getElementById('syncSt');if(e)e.textContent=t;try{pill()}catch(_){}}
  function ago(ms){var m=Math.round((Date.now()-ms)/60000);return m<1?'just now':m===1?'1 minute ago':m<60?m+' minutes ago':m<120?'1 hour ago':Math.round(m/60)+' hours ago'}
  function inLesson(){var pl=document.getElementById('player');return !!(pl&&pl.classList.contains('open'))}
  function sync(apply){var c=cfg();if(!c||!c.tok)return Promise.resolve(false);if(busy){dirty=true;return Promise.resolve(false)}busy=true;var was=dirty;dirty=false;say('Syncing…');
-  return getDoc(c).then(function(doc){var res=merge(doc,c.meta),changed=fp(res.state)!==fp(S)||canon(res.extras)!==canon(readExtras());
-   var up=(!doc||canon(strip(res.doc))!==canon(strip(doc)))?putDoc(c,res.doc):Promise.resolve();
-   return up.then(function(){var c2=cfg()||c;c2.gist=c.gist;c2.last=Date.now();c2.err=null;
+  return getDoc(c).then(function(doc){lastDoc=doc;var res=merge(doc,c.meta),changed=fp(res.state)!==fp(S)||canon(res.extras)!==canon(readExtras());
+   var up=(!doc||canon(strip(res.doc))!==canon(strip(doc))||lastNames.indexOf(outName(devId()))>=0)?putDoc(c,res.doc):Promise.resolve();
+   return up.then(function(){lastDoc=res.doc;lastPush=Date.now();var c2=cfg()||c;c2.gist=c.gist;c2.last=Date.now();c2.err=null;
     if(!changed){c2.meta=res.meta;setCfg(c2);busy=false;say('Synced '+ago(c2.last));return false}
     if(apply&&!inLesson()){c2.meta=res.meta;setCfg(c2);S=res.state;try{motInit()}catch(_){}try{checkBadges(true)}catch(_){}SAVE0();writeExtras(res.extras);busy=false;pending=false;reloadSoon();return true}
     setCfg(c2);pending=true;busy=false;say('Synced '+ago(c2.last)+'. New progress from your other device will show next time you open Critical.');return false})})
@@ -4733,8 +4740,18 @@ var SYNC=(function(){
    say(e&&(e.code===401||e.code===403)?'Your sync key has stopped working. It may have expired: turn sync off and on again with a new key.':e&&e.code==='net'?'Couldn\'t reach GitHub just now (some Wi-Fi blocks it). Your progress is safe here and will sync later.':'Sync had a problem. It\'ll try again soon.');return false})}
  function reloadSoon(){var t=0;try{t=+sessionStorage.getItem('critical_sync_rl')||0}catch(_){}if(Date.now()-t<20000){try{showPage(PAGE)}catch(_){}say('Synced just now');return}
   try{sessionStorage.setItem('critical_sync_rl',String(Date.now()));sessionStorage.setItem('critical_load_msg','Progress synced: '+summary(S).replace(/<[^>]+>/g,''))}catch(_){}location.reload()}
- function mark(){if(!cfg())return;dirty=true;clearTimeout(timer);timer=setTimeout(function(){if(dirty)sync(false)},10000)}
- document.addEventListener('visibilitychange',function(){if(!cfg())return;if(document.visibilityState==='hidden'){hidAt=Date.now();if(dirty){clearTimeout(timer);sync(false)}}else if(hidAt&&Date.now()-hidAt>20000){hidAt=0;sync(true)}});
+ function mark(){if(!cfg())return;dirty=true;clearTimeout(timer);timer=setTimeout(function(){if(dirty)sync(false)},Math.max(4000,20000-(Date.now()-lastPush)))}
+ /* closing or switching away: send everything in one quick request that finishes even after the page has gone */
+ function closePush(){var c=cfg();if(!c||!c.tok||!c.gist||!dirty)return;clearTimeout(timer);if(!c.meta){if(!busy)sync(false);return}
+  if(lastDoc){try{var r0=merge(lastDoc,c.meta);if(canon(strip(r0.doc))===canon(strip(lastDoc))){dirty=false;return}}catch(_){}}
+  var f0=fp(S)+canon(readExtras());if(f0===outFp){dirty=false;return}outFp=f0;
+  var me=devId(),ob={v:1,dev:me,name:devName(),at:Date.now(),state:S,extras:readExtras(),meta:c.meta},f={};f[outName(me)]={content:JSON.stringify(ob)};var body=JSON.stringify({files:f});
+  var opts={method:'PATCH',cache:'no-store',headers:{'Accept':'application/vnd.github+json','Authorization':'Bearer '+c.tok,'X-GitHub-Api-Version':'2022-11-28','Content-Type':'application/json'},body:body};
+  if(body.length<60000)opts.keepalive=true;dirty=false;lastPush=Date.now();
+  var done=function(r){if(!(r&&r.ok))outFp=null;if(r&&r.ok){if(lastNames.indexOf(outName(me))<0)lastNames.push(outName(me));var c2=cfg();if(c2){c2.last=Date.now();c2.err=null;setCfg(c2)}say('Synced just now')}else dirty=true};
+  try{fetch(API+'/gists/'+c.gist,opts).then(done,function(){if(opts.keepalive){delete opts.keepalive;fetch(API+'/gists/'+c.gist,opts).then(done,function(){dirty=true})}else dirty=true})}catch(e){dirty=true}}
+ window.addEventListener('pagehide',function(){closePush()});
+ document.addEventListener('visibilitychange',function(){if(!cfg())return;if(document.visibilityState==='hidden'){hidAt=Date.now();closePush()}else if(hidAt&&Date.now()-hidAt>15000){hidAt=0;sync(true)}});
  setInterval(function(){if(cfg()&&dirty&&!busy)sync(false)},180000);
  /* sign in */
  var mod=null;function closeM(){if(mod){mod.remove();mod=null}}
@@ -4765,7 +4782,7 @@ var SYNC=(function(){
   var b;if((b=document.getElementById('syncOn')))b.onclick=signIn;if((b=document.getElementById('syncNow')))b.onclick=function(){sync(true)};if((b=document.getElementById('syncLink')))b.onclick=link;if((b=document.getElementById('syncOff')))b.onclick=signOut}
  var SAVE0=save;
  setTimeout(function(){var b=document.getElementById('syncPill');if(b)b.onclick=function(){panel()};pill()},0);
- return {panel:panel,pill:pill,sync:sync,mark:mark,mount:mount,merge:merge,cfg:cfg,signIn:signIn,link:link,pending:function(){return pending},saveRaw:function(){SAVE0()},boot:function(){if(cfg())setTimeout(function(){sync(true)},1200)}}
+ return {closePush:closePush,dirty:function(){return dirty},panel:panel,pill:pill,sync:sync,mark:mark,mount:mount,merge:merge,cfg:cfg,signIn:signIn,link:link,pending:function(){return pending},saveRaw:function(){SAVE0()},boot:function(){if(cfg())setTimeout(function(){sync(true)},1200)}}
 })();
 try{window.SYNC=SYNC}catch(_){}
 /* every save marks sync as needed; the sync box sits in the Your progress card */
