@@ -54,11 +54,16 @@ body{min-height:100%;padding-left:max(16px,env(safe-area-inset-left,0px));paddin
 .ah{display:flex;align-items:center;gap:12px}
 .ic{width:56px;height:56px;border-radius:16px;display:grid;place-items:center;flex:none}
 .cr .ic{background:#534AB7}
+.app.cm:hover,.app.cm:focus-visible{border-color:#1f8fb3}.app.ca:hover,.app.ca:focus-visible{border-color:#c9a227}.cm .ic{background:linear-gradient(135deg,#0b1430,#1f4f8f)}.ca .ic{background:linear-gradient(135deg,#8f80ff,#1aa7e0)}
+
 .sr .ic{background:#4F46B8}
 .ic svg{width:36px;height:36px}
 .ah h2{margin:0;font-size:21px;letter-spacing:-.01em}
 .tag{display:inline-block;font:700 11px var(--sans);letter-spacing:.06em;text-transform:uppercase;border-radius:999px;padding:3px 9px;margin-top:3px}
 .cr .tag{background:var(--accent-bg);color:var(--accent-text)}
+.cm .tag{background:rgba(31,143,179,.16);color:#1f8fb3}.ca .tag{background:rgba(201,162,39,.18);color:#9a7a12}.cm .go span.arrow{background:#1f8fb3;color:#fff}.ca .go span.arrow{background:#c9a227;color:#2B1D00}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .cm .tag{color:#7fe3ff}:root:not([data-theme="light"]) .ca .tag{color:#f2d36b}}
+
 .sr .tag{background:var(--gold-bg);color:var(--gold-text)}
 .desc{margin:0;color:var(--muted);font-size:15px;line-height:1.5}
 .stats{display:flex;flex-wrap:wrap;gap:6px}
@@ -112,6 +117,24 @@ body{min-height:100%;padding-left:max(16px,env(safe-area-inset-left,0px));paddin
       <div class="stats" id="apStats"></div>
       <div class="go"><span id="apLast"></span><span class="arrow" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></div>
     </a>
+    <a class="app cm" href="control-room.html" data-app="control">
+      <div class="ah">
+        <span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="11" rx="2"/><path d="M7 20h10M12 16v4"/><path d="M6 12l3-3 3 2 4-4 2 2" stroke="#3ad4ff"/></svg></span>
+        <div><h2>Control Room</h2><span class="tag">Operate</span></div>
+      </div>
+      <p class="desc">Run a reactor across all three of your monitors: a cold start to full power, alarm flood drills and emergency procedures.</p>
+      <div class="stats" id="cmStats"></div>
+      <div class="go"><span id="cmLast"></span><span class="arrow" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></div>
+    </a>
+    <a class="app ca" href="career.html" data-app="career">
+      <div class="ah">
+        <span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10l8-6 8 6v10"/><path d="M9 20v-6h6v6"/></svg></span>
+        <div><h2>Career Route</h2><span class="tag">Plan</span></div>
+      </div>
+      <p class="desc">Your route from Year 10 to the control room, with checkpoints to tick off, and interview practice with a timer and recording.</p>
+      <div class="stats" id="caStats"></div>
+      <div class="go"><span id="caLast"></span><span class="arrow" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></div>
+    </a>
   </nav>
 
   <p class="foot">Each app saves its own progress on this device. Tap Menu in any app to come back here.</p>
@@ -152,5 +175,10 @@ body{min-height:100%;padding-left:max(16px,env(safe-area-inset-left,0px));paddin
 })();
 if("serviceWorker" in navigator&&location.protocol==="https:")navigator.serviceWorker.register("sw.js").catch(function(){});
 </script>
+<script>(function(){function J(k){try{return JSON.parse(localStorage.getItem(k)||'null')}catch(e){return null}}function st(t){return '<span class="stat">'+t+'</span>'}
+ var last=null;try{last=localStorage.getItem('critical_last_app')}catch(e){}
+ var c=document.getElementById('cmStats'),a=document.getElementById('caStats');
+ if(c){var w=J('cr_cold_won'),sv=J('cr_cold'),fb=J('cr_flood_best'),o=[];if(w)o.push(st('Cold start done'));else if(sv&&sv.S)o.push(st('Cold start: step '+((sv.i||0)+1)+' of 9'));if(fb)o.push(st('Flood best '+fb));if(!o.length)o.push(st('Try a cold start'));c.innerHTML=o.join('');document.getElementById('cmLast').innerHTML=last==='control'?'<span class="last">Last opened</span>':'Open Control Room'}
+ if(a){var s=J('career-v1')||{},n=Object.keys(s.c||{}).length,q=Object.keys(s.q||{}).length,o2=[];if(n)o2.push(st(n+'/27 checkpoints'));if(q)o2.push(st(q+' questions practised'));if(!o2.length)o2.push(st('See your route'));a.innerHTML=o2.join('');document.getElementById('caLast').innerHTML=last==='career'?'<span class="last">Last opened</span>':'Open Career Route'}})();</script>
 </body>
 </html>

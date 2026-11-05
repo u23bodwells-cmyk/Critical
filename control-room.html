@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#050813">
+<link rel="icon" href="icons/icon-192.png">
+<title>Control Room</title>
+<style>
+:root{--bg:#050813;--panel:#0b1222;--panel2:#0f1830;--line:#1f2d4d;--ink:#e6ecfa;--muted:#8d9bc0;--acc:#3ad4ff;--acc2:#8f80ff;--ok:#3ef0b8;--warn:#ffb03c;--bad:#ff4d6d;--amber:#ffd65a;
+ --mono:ui-monospace,"JetBrains Mono",Consolas,"Liberation Mono",monospace;--ui:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--ui);font-size:15px}
+body{min-height:100vh;background:radial-gradient(1000px 500px at 50% -200px,rgba(58,212,255,.12),transparent 70%),var(--bg)}
+button{font:inherit;color:inherit}
+.top{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:calc(10px + env(safe-area-inset-top,0px)) max(14px,env(safe-area-inset-right,0px)) 10px max(14px,env(safe-area-inset-left,0px));background:rgba(5,8,19,.86);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.top .brand{display:flex;align-items:center;gap:8px;font-weight:800;font-size:16px;margin-right:auto;text-decoration:none;color:inherit}
+.top .brand i{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--acc2),var(--acc));display:grid;place-items:center;box-shadow:0 0 18px -4px var(--acc)}
+.top .brand i svg{width:18px;height:18px}
+.modes{display:flex;gap:6px;flex-wrap:wrap}
+.mbtn{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:7px 12px;font-size:13px;font-weight:700;cursor:pointer}
+.mbtn.on{background:linear-gradient(135deg,var(--acc2),var(--acc));border-color:transparent;color:#fff}
+.mbtn.spread{border-color:rgba(58,212,255,.5)}
+.wrap{padding:14px max(14px,env(safe-area-inset-right,0px)) calc(24px + env(safe-area-inset-bottom,0px)) max(14px,env(safe-area-inset-left,0px))}
+.grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) minmax(0,1fr);gap:14px;align-items:start}
+@media (max-width:1200px){.grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.grid .p-trends{grid-column:1/-1}}
+@media (max-width:760px){.grid{grid-template-columns:minmax(0,1fr)}}
+body.solo .grid{grid-template-columns:minmax(0,1fr)}
+body.solo-core .p-alarms,body.solo-core .p-trends,body.solo-alarms .p-core,body.solo-alarms .p-trends,body.solo-trends .p-core,body.solo-trends .p-alarms{display:none}
+.pan{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:18px;padding:14px;display:flex;flex-direction:column;gap:12px;min-width:0;box-shadow:0 24px 50px -30px #000}
+.pan h2{margin:0;font:700 12px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--acc);display:flex;align-items:center;gap:8px}
+.pan h2 .r{margin-left:auto;color:var(--muted);letter-spacing:.04em}
+.mimic svg{width:100%;height:auto;display:block}
+.mimic text{font-family:var(--mono)}
+.read{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px}
+.rd{background:#070d1c;border:1px solid var(--line);border-radius:12px;padding:8px 10px;min-width:0}
+.rd span{display:block;font:600 10.5px var(--mono);letter-spacing:.08em;color:var(--muted);text-transform:uppercase}
+.rd b{display:block;font:700 19px var(--mono);font-variant-numeric:tabular-nums;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rd b.warn{color:var(--warn)}.rd b.bad{color:var(--bad)}.rd b.ok{color:var(--ok)}
+.ctl{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr));gap:10px}
+.cg{background:#070d1c;border:1px solid var(--line);border-radius:14px;padding:10px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.cg>b{font:700 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.row{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.cb{border:1px solid var(--line);background:#121c36;border-radius:10px;padding:9px 12px;font-size:13.5px;font-weight:700;cursor:pointer;user-select:none;-webkit-user-select:none;touch-action:none}
+.cb:hover{border-color:var(--acc)}.cb.on{background:var(--acc);color:#03202b;border-color:var(--acc)}.cb[disabled]{opacity:.45;cursor:default}
+.cb.trip{background:#5a0f1e;border-color:var(--bad);color:#fff}.cb.trip.armed{background:var(--bad)}
+.cb.sm{padding:6px 10px;font-size:12.5px}
+input[type=range]{width:100%;accent-color:var(--acc)}
+.speed .cb{min-width:46px}
+.alarmgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+@media (max-width:420px){.alarmgrid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.an{border-radius:8px;padding:8px 6px;min-height:52px;display:grid;place-items:center;text-align:center;font:700 10.5px/1.2 var(--mono);letter-spacing:.03em;background:#0a1020;color:#3b4766;border:1px solid #16213d;cursor:pointer;overflow-wrap:anywhere}
+.an.st{background:#3a2a0a;color:var(--amber);border-color:#7a5a12}
+.an.st.r{background:#3a0f18;color:#ff9aac;border-color:#7a1a2c}
+.an.fl{animation:anf .5s steps(1) infinite}
+@keyframes anf{0%{background:#ffd65a;color:#201500}50%{background:#3a2a0a;color:var(--amber)}}
+.an.fl.r{animation-name:anfr}@keyframes anfr{0%{background:#ff4d6d;color:#fff}50%{background:#3a0f18;color:#ff9aac}}
+.an.first{outline:2px solid #fff;outline-offset:1px}
+.alog{background:#070d1c;border:1px solid var(--line);border-radius:12px;padding:8px 10px;max-height:180px;overflow-y:auto;font:500 12.5px/1.5 var(--mono);color:#b8c4e4}
+.alog div{display:flex;gap:8px}.alog .t{color:var(--muted)}.alog .in{color:var(--amber)}.alog .out{color:var(--ok)}
+.trend canvas{width:100%;height:130px;display:block;background:#070d1c;border:1px solid var(--line);border-radius:12px}
+.trend .lab{display:flex;justify-content:space-between;font:600 11px var(--mono);color:var(--muted);margin:2px 2px 4px}
+.mis{background:#070d1c;border:1px solid rgba(58,212,255,.35);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:6px}
+.mis h3{margin:0;font-size:15px}.mis ol{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:5px;font-size:13.5px;color:var(--muted)}
+.mis li.done{color:var(--ok)}.mis li.cur{color:#fff;font-weight:700}.mis li.cur::marker{color:var(--acc)}
+.mis .hint{font-size:13px;color:#c9d3ef;background:rgba(58,212,255,.08);border-radius:10px;padding:8px 10px}
+.minv{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center}
+.minv canvas{width:100%;height:110px;background:#070d1c;border:1px solid var(--line);border-radius:12px}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:#101a33;border:1px solid var(--line);color:#fff;padding:10px 16px;border-radius:12px;font-weight:700;z-index:60;box-shadow:0 12px 30px -10px #000;max-width:90vw;text-align:center}
+.ov{position:fixed;inset:0;z-index:50;background:rgba(3,6,14,.94);overflow-y:auto;padding:calc(16px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) calc(24px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.ov .in{max-width:860px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+.ov .hd{display:flex;align-items:center;gap:10px}.ov .hd b{flex:1;font-size:18px}
+.card{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.card p{margin:0;line-height:1.5}
+.big{font:800 clamp(28px,6vw,44px)/1.05 var(--ui);margin:0}
+.opts{display:grid;gap:8px}
+.opt{text-align:left;border:1.5px solid var(--line);background:#0c1428;border-radius:12px;padding:11px 13px;font-size:15px;font-weight:600;cursor:pointer}
+.opt:hover:not([disabled]){border-color:var(--acc)}.opt.right{border-color:var(--ok);background:rgba(62,240,184,.12)}.opt.wrong{border-color:var(--bad);background:rgba(255,77,109,.12)}.opt[disabled]{cursor:default}
+.go{border:0;border-radius:12px;padding:12px 20px;font-weight:800;font-size:16px;cursor:pointer;color:#fff;background:linear-gradient(135deg,var(--acc2),var(--acc));align-self:flex-start}
+.go.alt{background:#121c36;border:1px solid var(--line)}
+.step{display:grid;grid-template-columns:34px minmax(0,1fr);gap:10px;align-items:start}
+.step .n{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;font:800 13px var(--mono);background:#121c36;border:1px solid var(--line)}
+.step.done .n{background:var(--ok);color:#03261b;border-color:var(--ok)}.step.cur .n{background:var(--acc);color:#03202b;border-color:var(--acc)}
+.step .tx{font-size:15px;line-height:1.45}.step .tx small{display:block;color:var(--muted);font-size:13px;margin-top:3px}
+.ind{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+.lamp{display:flex;gap:8px;align-items:center;background:#070d1c;border:1px solid var(--line);border-radius:10px;padding:8px 10px;font:600 12.5px var(--mono)}
+.lamp i{width:12px;height:12px;border-radius:50%;flex:none;background:#2a3554}.lamp i.g{background:var(--ok);box-shadow:0 0 10px var(--ok)}.lamp i.r{background:var(--bad);box-shadow:0 0 10px var(--bad)}.lamp i.a{background:var(--amber);box-shadow:0 0 10px var(--amber)}
+.meter{height:8px;border-radius:5px;background:rgba(255,255,255,.08);overflow:hidden}.meter i{display:block;height:100%;background:linear-gradient(90deg,var(--bad),var(--warn),var(--ok))}
+.solo-note{display:none;font-size:13px;color:var(--muted)}
+body.solo .solo-note{display:block}
+.chips{display:flex;gap:6px;flex-wrap:wrap}.chip{font:600 12px var(--mono);padding:5px 9px;border-radius:999px;background:#121c36;border:1px solid var(--line);color:#c9d3ef}
+.order{display:flex;flex-direction:column;gap:6px}.order .opt .k{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:6px;background:var(--acc);color:#03202b;font:800 12px var(--mono);margin-right:8px}
+.hide{display:none!important}
+@media (prefers-reduced-motion:reduce){.an.fl{animation-duration:1.4s}}
+</style>
+</head>
+<body>
+<header class="top">
+ <a class="brand" href="./" title="Back to the app menu"><i><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="12" cy="12" r="3"/><ellipse cx="12" cy="12" rx="10" ry="4"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(120 12 12)"/></svg></i>Control Room</a>
+ <nav class="modes" aria-label="Mode">
+  <button class="mbtn on" data-mode="free">Free play</button>
+  <button class="mbtn" data-mode="cold">Cold start mission</button>
+  <button class="mbtn" data-mode="flood">Alarm flood drill</button>
+  <button class="mbtn" data-mode="eop">Emergency procedures</button>
+  <button class="mbtn spread" id="spread">Spread across my monitors</button>
+ </nav>
+</header>
+<main class="wrap">
+ <p class="solo-note" id="soloNote">This window is one panel of the Control Room. The controls are in the main window.</p>
+ <div class="grid">
+  <section class="pan p-core" aria-label="Reactor and plant">
+   <h2>Unit 1 · reactor and plant <span class="r" id="clock">00:00:00</span></h2>
+   <div class="mimic" id="mimic"></div>
+   <div class="read" id="reads"></div>
+   <div id="misBox"></div>
+   <div class="ctl" id="ctl"></div>
+  </section>
+  <section class="pan p-alarms" aria-label="Alarms">
+   <h2>Annunciator <span class="r" id="almCount">0 active</span></h2>
+   <div class="alarmgrid" id="ann"></div>
+   <div class="row"><button class="cb sm" id="ack">Acknowledge</button><button class="cb sm" id="sil">Silence horn</button></div>
+   <div class="alog" id="alog" aria-live="polite"></div>
+  </section>
+  <section class="pan p-trends" aria-label="Trends">
+   <h2>Trends <span class="r">last 5 minutes</span></h2>
+   <div class="trend"><div class="lab"><span>Neutron power (log)</span><span id="tl0"></span></div><canvas id="t0" width="600" height="130"></canvas></div>
+   <div class="trend"><div class="lab"><span>Tavg and programme (°C)</span><span id="tl1"></span></div><canvas id="t1" width="600" height="130"></canvas></div>
+   <div class="trend"><div class="lab"><span>Boron (ppm) and control rods</span><span id="tl2"></span></div><canvas id="t2" width="600" height="130"></canvas></div>
+   <div class="trend"><div class="lab"><span>Pressuriser pressure (bar)</span><span id="tl3"></span></div><canvas id="t3" width="600" height="130"></canvas></div>
+  </section>
+ </div>
+</main>
+<script>
+(function(){
+"use strict";
+var Q=new URLSearchParams(location.search),PANEL=Q.get('panel'),MAIN=!PANEL;
+if(PANEL){document.body.classList.add('solo','solo-'+PANEL);document.querySelector('.modes').classList.add('hide')}
+var BC=null;try{BC=new BroadcastChannel('critical-control-room')}catch(e){}
+function $(id){return document.getElementById(id)}
+function esc(t){return String(t).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function lsGet(k){try{return JSON.parse(localStorage.getItem(k)||'null')}catch(e){return null}}
+function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+function toast(t){var e=document.createElement('div');e.className='toast';e.textContent=t;document.body.appendChild(e);setTimeout(function(){e.remove()},3200)}
+function giveXP(n,why){if(!n)return;var q=lsGet('critical_xpq')||[];q.push({n:n,app:'Control Room',why:why||'',at:Date.now()});lsSet('critical_xpq',q);toast('+'+n+' XP to Critical')}
+var AC=null;function beep(f,d,v,type){if(lsGet('cr_mute'))return;try{if(!AC)AC=new (window.AudioContext||window.webkitAudioContext)();var o=AC.createOscillator(),g=AC.createGain(),t=AC.currentTime;o.type=type||'square';o.frequency.value=f;g.gain.setValueAtTime(v||.03,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+d+.02)}catch(e){}}
+
+/* ================= the reactor model =================
+   One delayed-neutron group with the prompt-jump approximation (stable at any time step),
+   rod and boron worth, moderator and fuel temperature feedback, a simple heat balance and pressuriser. */
+var K={beta:.0065,lam:.08,rho0:.12,wSD:.05,wCB:.07,bW:1e-4,aT:-1.5e-4,Tref:290,aD:-.02,S:7.5e-11};
+function f(x){return x-Math.sin(2*Math.PI*x)/(2*Math.PI)}
+function fresh(cold){return {auto:!cold,t:0,c:cold?1e-9:1,sd:cold?0:1,cb:cold?0:.95,ppm:cold?1500:974,dil:0,T:cold?50:307,rcp:!cold,gen:!cold,load:cold?0:1,L:cold?0:1,trip:false,why:'',Pp:cold?25:155,sur:0,P:cold?1e-9:1,rodCmd:0,bank:'cb',speed:1,maxSur:0,dT:0,dump:0,rho:0,mpts:[],trips:0}}
+var S=fresh(false);
+function rhoN(s){return K.rho0-K.wSD*(1-f(s.sd))-K.wCB*(1-f(s.cb))-K.bW*s.ppm+K.aT*(s.T-K.Tref)}
+function rho(s){return rhoN(s)+K.aD*s.P}
+/* power with fuel-temperature feedback solved exactly: a·P² + (β−ρn)·P − c·β = 0 */
+function solveP(c,rn){var a=-K.aD,bb=K.beta-rn,d=Math.sqrt(bb*bb+4*a*c*K.beta);return 2*c*K.beta/Math.max(1e-9,bb+d)}
+function tprog(s){return 291+16*s.L}
+function trip(why){if(S.trip)return;S.trip=true;S.why=why;S.trips++;S.tripGen=S.gen;S.sd=0;S.cb=0;S.rodCmd=0;if(S.gen){S.gen=false;S.load=0;S.L=0}addLog('REACTOR TRIP: '+why,'in');beep(220,.6,.05,'sawtooth');if(M.on)M.onTrip&&M.onTrip()}
+function stepSim(dt){var s=S;
+ /* automatic rod control above 15% turbine load: Tavg error plus power mismatch, like a real PWR */
+ var autoOn=s.auto&&s.gen&&s.L>.15&&!s.trip&&!s.rodCmd;if(autoOn){var er=s.T-tprog(s),lim=s.P<.2?.35:1,v=Math.max(-lim,Math.min(lim,-er/4-2*(s.P-s.L)));if(Math.abs(v)>.05)s.cb=Math.max(0,Math.min(1,s.cb+.0053*dt*v))}
+ if(!s.trip&&s.rodCmd){var r=.0053*dt*s.rodCmd;if(s.bank==='sd')s.sd=Math.max(0,Math.min(1,s.sd+r));else s.cb=Math.max(0,Math.min(1,s.cb+r))}
+ if(s.dil<0)s.ppm=Math.max(0,s.ppm-dt/6);else if(s.dil>0)s.ppm=Math.min(2500,s.ppm+dt/3);
+ var rn=rhoN(s),P0=solveP(s.c,rn),r0=rn+K.aD*P0;if(r0>=.85*K.beta&&!s.trip){trip('Prompt criticality protection');rn=rhoN(s);P0=solveP(s.c,rn);r0=rn+K.aD*P0}
+ var g=K.lam*r0/(K.beta-r0);s.c=s.c*Math.exp(Math.min(30,g*dt))+K.S*dt;s.c=Math.max(1e-12,Math.min(5,s.c));
+ var P=solveP(s.c,rn);s.rho=rn+K.aD*P;var lp=Math.log10(Math.max(1e-12,s.P)),ln=Math.log10(Math.max(1e-12,P));var sur=dt>0?(ln-lp)/dt*60:0;s.sur=s.sur*.9+sur*.1;s.P=P;
+ if(!s.trip&&s.sur>s.maxSur&&s.P>1e-8)s.maxSur=s.sur;
+ /* heat balance: reactor + pump heat in; turbine, steam dumps and losses out */
+ if(s.gen){var dl=s.load-s.L,mx=.05/60*dt;s.L+=Math.max(-mx,Math.min(mx,dl))}else s.L=Math.max(0,s.L-.2*dt);
+ var hin=Math.min(1.3,s.P)+(s.rcp?.004:0),dump=0;if(!s.gen&&s.T>291&&s.rcp)dump=Math.min(.12,(s.T-291)*.02);s.dump=dump;
+ var loss=.0012*Math.max(0,(s.T-20)/270),hout=s.L+dump+loss,dT=(hin-hout)*2*dt;s.T=Math.max(20,Math.min(360,s.T+dT));s.dT=dt>0?dT/dt*3600:0;
+ var Pt=25+130*Math.max(0,Math.min(1,(s.T-50)/241))+Math.max(-15,Math.min(15,(hin-hout)*25));s.Pp+=(Pt-s.Pp)*Math.min(1,dt/30);
+ if(!s.trip){if(s.P>1.09)trip('High neutron power');else if(s.sur>3&&s.P>1e-7&&s.P<.05)trip('High startup rate');else if(!s.rcp&&s.P>.02)trip('Low coolant flow');else if(s.Pp>165)trip('High pressuriser pressure');else if(s.T>330)trip('High coolant temperature')}
+ s.t+=dt}
+
+/* ================= alarms ================= */
+var AL=[['trip','REACTOR TRIP',1,function(s){return s.trip}],['sur','STARTUP RATE HIGH',1,function(s){return s.sur>1&&s.P>1e-8&&s.P<.05}],['pwr','NEUTRON POWER HIGH',1,function(s){return s.P>1.03}],['rcp','COOLANT PUMPS OFF',0,function(s){return !s.rcp}],
+ ['flow','LOW COOLANT FLOW',1,function(s){return !s.rcp&&s.P>.01}],['thi','TAVG HIGH',1,function(s){return s.T>315}],['tlo','TAVG LOW',0,function(s){return s.gen&&s.T<tprog(s)-5}],['dev','TAVG/TREF DEVIATION',0,function(s){return s.gen&&Math.abs(s.T-tprog(s))>3}],
+ ['phi','PRZ PRESSURE HIGH',1,function(s){return s.Pp>160}],['plo','PRZ PRESSURE LOW',0,function(s){return s.T>280&&s.Pp<145}],['dil','BORON DILUTION',0,function(s){return s.dil<0}],['bor','BORATION IN PROGRESS',0,function(s){return s.dil>0}],
+ ['sdm','SHUTDOWN MARGIN LOW',1,function(s){return s.cb<.02&&s.sd<.02&&s.rho>-.01}],['rbot','RODS ON BOTTOM',0,function(s){return s.cb<.01&&s.sd<.01&&s.T>100}],['ril','ROD INSERTION LIMIT',0,function(s){return s.P>.2&&s.cb<.5}],['heat','HEAT-UP RATE HIGH',0,function(s){return s.dT>55&&s.T<285}],
+ ['dump','STEAM DUMP OPEN',0,function(s){return s.dump>.01}],['gen','GENERATOR OFFLINE',0,function(s){return !s.gen&&s.T>285}],['ttrip','TURBINE TRIP',1,function(s){return s.trip&&s.tripGen}],['lowp','POWER BELOW 1%',0,function(s){return !s.trip&&s.P<.01&&s.T>285}]];
+var AS={};AL.forEach(function(a){AS[a[0]]={on:false,ack:true}});
+var LOG=[],silenced=false,lastHorn=0;
+function addLog(t,cls){var tm=fmtClock(S.t);LOG.unshift({tm:tm,t:t,c:cls||''});if(LOG.length>80)LOG.length=80}
+function evalAlarms(){var newOne=false;AL.forEach(function(a){var st=AS[a[0]],on=!!a[3](S);if(on&&!st.on){st.on=true;st.ack=false;newOne=true;addLog(a[1],'in')}else if(!on&&st.on){st.on=false;st.ack=true;addLog(a[1]+' cleared','out')}});if(newOne){silenced=false}
+ var unacked=AL.some(function(a){return AS[a[0]].on&&!AS[a[0]].ack});if(unacked&&!silenced&&MAIN&&Date.now()-lastHorn>1200){lastHorn=Date.now();beep(880,.12,.02)}}
+function ack(){AL.forEach(function(a){AS[a[0]].ack=true});silenced=true}
+function fmtClock(t){t=Math.floor(t);var h=Math.floor(t/3600),m=Math.floor(t%3600/60),s=t%60;return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0')}
+
+/* ================= drawing ================= */
+function fmtP(P){return P>=.01?(P*100).toFixed(P>=.1?1:2)+'%':P.toExponential(1).replace('e','×10^')}
+function mimic(){var s=S,pw=Math.min(1,s.P),glow=Math.max(.08,Math.min(1,pw*1.4+(s.P>1e-6?.15:0))),sdh=86*(1-s.sd),cbh=86*(1-s.cb),flow=s.rcp?'cr-flow':'',steam=s.L>.01||s.dump>.01?'cr-steam':'';
+ return '<svg viewBox="0 0 620 250" role="img" aria-label="Plant mimic"><defs><radialGradient id="cg" cx="50%" cy="55%" r="60%"><stop offset="0" stop-color="rgba(58,212,255,'+glow+')"/><stop offset="1" stop-color="rgba(58,212,255,0)"/></radialGradient><style>.cr-flow{stroke-dasharray:10 8;animation:crf 1s linear infinite}.cr-steam{stroke-dasharray:6 10;animation:crf 1.6s linear infinite}@keyframes crf{to{stroke-dashoffset:-36}}@media (prefers-reduced-motion:reduce){.cr-flow,.cr-steam{animation:none}}</style></defs>'+
+  '<rect x="40" y="40" width="110" height="170" rx="50" fill="#0a1226" stroke="#3a4c78" stroke-width="3"/><rect x="58" y="95" width="74" height="90" rx="8" fill="url(#cg)" stroke="#2a3b66"/>'+
+  [0,1,2,3,4].map(function(i){var x=66+i*14,h=i%2?sdh:cbh;return '<rect x="'+x+'" y="'+(95+0)+'" width="7" height="'+(Math.max(2,h)).toFixed(1)+'" fill="'+(i%2?'#c6a0ff':'#e8eefc')+'" opacity=".9"/><line x1="'+(x+3.5)+'" y1="40" x2="'+(x+3.5)+'" y2="95" stroke="#55648c" stroke-width="2"/>'}).join('')+
+  '<text x="95" y="230" text-anchor="middle" font-size="12" fill="#8d9bc0">REACTOR</text>'+
+  '<path d="M150 90 H250 V70" fill="none" stroke="#ff8a3c" stroke-width="6" class="'+flow+'"/><path d="M250 190 V200 H150" fill="none" stroke="#3a8cff" stroke-width="6" class="'+flow+'"/>'+
+  '<rect x="220" y="60" width="60" height="140" rx="26" fill="#0a1226" stroke="#3a4c78" stroke-width="3"/><text x="250" y="230" text-anchor="middle" font-size="12" fill="#8d9bc0">STEAM GEN</text>'+
+  '<circle cx="190" cy="200" r="14" fill="#0a1226" stroke="'+(s.rcp?'#3ef0b8':'#55648c')+'" stroke-width="3"/><path d="M182 200h16M190 192v16" stroke="'+(s.rcp?'#3ef0b8':'#55648c')+'" stroke-width="2.5" '+(s.rcp?'class="cr-pump"':'')+'/><text x="190" y="176" text-anchor="middle" font-size="10" fill="#8d9bc0">RCP</text>'+
+  '<path d="M280 80 H380" fill="none" stroke="#d9e4ff" stroke-width="5" class="'+steam+'"/><path d="M360 80 V40 H520" fill="none" stroke="#d9e4ff" stroke-width="2" opacity="'+(s.dump>.01?1:.15)+'" class="'+(s.dump>.01?'cr-steam':'')+'"/><text x="440" y="34" text-anchor="middle" font-size="10" fill="#8d9bc0">STEAM DUMP '+(s.dump>.01?'OPEN':'SHUT')+'</text>'+
+  '<path d="M380 60 L450 45 L450 125 L380 110 Z" fill="#0a1226" stroke="#3a4c78" stroke-width="3"/><text x="415" y="145" text-anchor="middle" font-size="12" fill="#8d9bc0">TURBINE</text>'+
+  '<rect x="465" y="62" width="60" height="46" rx="10" fill="#0a1226" stroke="'+(s.gen?'#3ef0b8':'#3a4c78')+'" stroke-width="3"/><text x="495" y="90" text-anchor="middle" font-size="12" fill="'+(s.gen?'#3ef0b8':'#8d9bc0')+'">GEN</text><path d="M525 85 H560" stroke="'+(s.gen?'#3ef0b8':'#3a4c78')+'" stroke-width="4"/>'+
+  '<path d="M575 125 L560 50 L590 50 Z M560 70 H590 M565 90 H585" fill="none" stroke="'+(s.gen?'#3ef0b8':'#55648c')+'" stroke-width="2.5"/><text x="575" y="145" text-anchor="middle" font-size="12" fill="#8d9bc0">GRID</text>'+
+  '<text x="415" y="190" text-anchor="middle" font-size="22" font-weight="700" fill="#fff">'+(s.gen?Math.round(s.L*1630):0)+' MWe</text><text x="415" y="210" text-anchor="middle" font-size="11" fill="#8d9bc0">'+(s.gen?'ON THE GRID':'GENERATOR OFFLINE')+'</text>'+
+  (s.trip?'<text x="95" y="28" text-anchor="middle" font-size="14" font-weight="800" fill="#ff4d6d">TRIPPED</text>':'')+'</svg>'}
+function reads(){var s=S,dv=s.gen?s.T-tprog(s):0,k=1/(1-s.rho);
+ var R=[['Neutron power',fmtP(s.P),s.P>1.03?'bad':''],['Startup rate',(Math.abs(s.sur)<.005?0:s.sur).toFixed(2)+' DPM',s.sur>1?'bad':s.sur>.5?'warn':''],['Reactivity',(Math.round(s.rho*1e5)||0)+' pcm',s.rho>.003?'warn':''],['k-eff',k.toFixed(4),''],['Tavg',s.T.toFixed(1)+' °C',s.T>315?'bad':Math.abs(dv)>3?'warn':''],['Programme',s.gen?tprog(s).toFixed(1)+' °C':'291.0 °C',''],
+  ['Pressure',s.Pp.toFixed(1)+' bar',s.Pp>160||(s.T>280&&s.Pp<145)?'bad':''],['Boron',s.ppm.toFixed(0)+' ppm',s.dil?'warn':''],['Shutdown banks',Math.round(s.sd*228)+' steps',''],['Control banks',Math.round(s.cb*228)+' steps',''],['Turbine load',Math.round(s.L*100)+'%',''],['Heat-up rate',(s.T<285&&!s.gen?s.dT.toFixed(0):'0')+' °C/h',s.dT>55&&s.T<285?'warn':'']];
+ return R.map(function(r){return '<div class="rd"><span>'+r[0]+'</span><b class="'+r[2]+'">'+r[1]+'</b></div>'}).join('')}
+function annHTML(){return AL.map(function(a){var st=AS[a[0]];var c='an'+(st.on?' st'+(a[2]?' r':'')+(st.ack?'':' fl'):'');return '<div class="'+c+'" role="status" data-al="'+a[0]+'">'+a[1]+'</div>'}).join('')}
+function logHTML(){return LOG.slice(0,40).map(function(l){return '<div><span class="t">'+l.tm+'</span><span class="'+l.c+'">'+esc(l.t)+'</span></div>'}).join('')||'<div><span class="t">No alarms yet.</span></div>'}
+/* trend history: one sample a second, last 5 minutes */
+var H=[],hsN=0;function sample(){hsN++;H.push({P:S.P,T:S.T,Tp:S.gen?tprog(S):291,ppm:S.ppm,cb:S.cb,Pp:S.Pp});if(H.length>300)H.shift()}
+function chart(id,series,lo,hi,log,lab){var cv=$(id);if(!cv)return;var W=cv.clientWidth||600,Ht=130,d=Math.min(2,window.devicePixelRatio||1);if(cv.width!==Math.round(W*d)){cv.width=Math.round(W*d);cv.height=Ht*d}var c=cv.getContext('2d');c.setTransform(d,0,0,d,0,0);c.clearRect(0,0,W,Ht);
+ c.strokeStyle='rgba(140,170,255,.12)';c.lineWidth=1;for(var g=1;g<4;g++){c.beginPath();c.moveTo(0,Ht*g/4);c.lineTo(W,Ht*g/4);c.stroke()}
+ series.forEach(function(se){c.strokeStyle=se.c;c.lineWidth=se.w||2;c.setLineDash(se.dash||[]);c.beginPath();H.forEach(function(h,i){var v=se.f(h);if(log)v=Math.log10(Math.max(1e-10,v));var y=Ht-(v-lo)/(hi-lo)*Ht,x=W-(H.length-1-i)*(W/299);i?c.lineTo(x,y):c.moveTo(x,y)});c.stroke();c.setLineDash([])});
+ c.fillStyle='#6f7da6';c.font='10px ui-monospace,monospace';c.fillText(lab[1],4,11);c.fillText(lab[0],4,Ht-4)}
+function drawTrends(){if(!$('t0'))return;var last=H[H.length-1]||{};
+ chart('t0',[{f:function(h){return h.P},c:'#3ad4ff'}],-10,.2,true,['10^-10','100%']);$('tl0').textContent=last.P!=null?fmtP(last.P):'';
+ chart('t1',[{f:function(h){return h.Tp},c:'#8d9bc0',dash:[5,5],w:1.5},{f:function(h){return h.T},c:'#ff8a3c'}],0,340,false,['0','340']);$('tl1').textContent=last.T!=null?last.T.toFixed(1)+' °C':'';
+ chart('t2',[{f:function(h){return h.ppm/2000},c:'#c6a0ff'},{f:function(h){return h.cb},c:'#3ef0b8'}],0,1,false,['0','2000 ppm · 228 steps']);$('tl2').textContent=last.ppm!=null?Math.round(last.ppm)+' ppm · '+Math.round(last.cb*228)+' steps':'';
+ chart('t3',[{f:function(h){return h.Pp},c:'#ffd65a'}],0,180,false,['0','180']);$('tl3').textContent=last.Pp!=null?last.Pp.toFixed(1)+' bar':''}
+
+/* ================= controls (main window only) ================= */
+function ctlHTML(){var s=S;return '<div class="cg"><b>Rods</b><div class="row"><button class="cb sm'+(s.bank==='sd'?' on':'')+'" data-bank="sd">Shutdown banks</button><button class="cb sm'+(s.bank==='cb'?' on':'')+'" data-bank="cb">Control banks</button></div><div class="row"><button class="cb" data-rod="1"'+(s.trip?' disabled':'')+'>Withdraw ▲</button><button class="cb" data-rod="-1">Insert ▼</button></div><div class="row"><button class="cb sm'+(s.auto?' on':'')+'" data-a="auto">Automatic rod control: '+(s.auto?'on':'off')+'</button></div><small style="color:var(--muted);font-size:12px">Hold to move (or use the arrow keys). About 72 steps a minute. Automatic control moves the control banks to keep Tavg on programme once the turbine is above 15%.</small></div>'+
+ '<div class="cg"><b>Boron</b><div class="row"><button class="cb'+(s.dil<0?' on':'')+'" data-dil="-1">Dilute</button><button class="cb'+(s.dil>0?' on':'')+'" data-dil="1">Borate</button><button class="cb" data-dil="0">Stop</button></div><small style="color:var(--muted);font-size:12px">Dilute 10 ppm/min · borate 20 ppm/min</small></div>'+
+ '<div class="cg"><b>Coolant pumps and turbine</b><div class="row"><button class="cb'+(s.rcp?' on':'')+'" data-a="rcp">'+(s.rcp?'Pumps running':'Start pumps')+'</button><button class="cb'+(s.gen?' on':'')+'" data-a="gen"'+(!s.gen&&(s.P<.08||s.T<289||s.trip)?' disabled':'')+'>'+(s.gen?'Generator on':'Sync generator')+'</button></div><label style="font-size:12.5px;color:var(--muted)">Turbine load target: <b id="ldv" style="color:#fff">'+Math.round(s.load*100)+'%</b></label><input type="range" id="load" min="0" max="100" value="'+Math.round(s.load*100)+'"'+(s.gen?'':' disabled')+'></div>'+
+ '<div class="cg"><b>Protection and time</b><div class="row"><button class="cb trip" data-a="trip">Manual trip</button><button class="cb" data-a="reset"'+(s.trip&&s.P<1e-6?'':' disabled')+'>Reset trip</button></div><div class="row speed">'+[1,10,60,300].map(function(x){return '<button class="cb sm'+(s.speed===x?' on':'')+'" data-sp="'+x+'"'+(x===300&&s.P>1e-4?' disabled':'')+'>×'+x+'</button>'}).join('')+'<button class="cb sm" data-a="mute">'+(lsGet('cr_mute')?'Sound off':'Sound on')+'</button></div>'+(s.trip?'<small style="color:var(--bad);font-weight:700">Tripped: '+esc(s.why)+'</small>':'')+'</div>'}
+var ctlKey='';
+function renderCtl(force){var k=[S.auto,S.bank,S.dil,S.rcp,S.gen,S.trip,S.speed,S.P<1e-6,S.P>1e-4,S.P<.08,S.T<289,lsGet('cr_mute'),Math.round(S.load*100)].join('|');if(!force&&k===ctlKey)return;ctlKey=k;var box=$('ctl');box.innerHTML=ctlHTML();wireCtl()}
+function wireCtl(){var box=$('ctl');
+ [].forEach.call(box.querySelectorAll('[data-bank]'),function(b){b.onclick=function(){S.bank=b.getAttribute('data-bank');renderCtl(true)}});
+ [].forEach.call(box.querySelectorAll('[data-rod]'),function(b){var v=+b.getAttribute('data-rod');function dn(e){e.preventDefault();if(b.disabled)return;S.rodCmd=v}function up(){if(S.rodCmd===v)S.rodCmd=0}b.addEventListener('pointerdown',dn);b.addEventListener('pointerup',up);b.addEventListener('pointerleave',up);b.addEventListener('pointercancel',up)});
+ [].forEach.call(box.querySelectorAll('[data-dil]'),function(b){b.onclick=function(){S.dil=+b.getAttribute('data-dil');renderCtl(true)}});
+ [].forEach.call(box.querySelectorAll('[data-sp]'),function(b){b.onclick=function(){S.speed=+b.getAttribute('data-sp');renderCtl(true)}});
+ var tb=box.querySelector('[data-a=trip]'),armed=0;tb.onclick=function(){if(!armed){armed=1;tb.classList.add('armed');tb.textContent='Confirm trip';setTimeout(function(){armed=0;if(tb.isConnected){tb.classList.remove('armed');tb.textContent='Manual trip'}},2500);return}trip('Manual trip')};
+ box.querySelector('[data-a=reset]').onclick=function(){S.trip=false;S.why='';addLog('Trip reset','out');renderCtl(true)};
+ box.querySelector('[data-a=rcp]').onclick=function(){S.rcp=!S.rcp;addLog(S.rcp?'Coolant pumps started':'Coolant pumps stopped','');renderCtl(true)};
+ box.querySelector('[data-a=gen]').onclick=function(){if(S.gen){S.gen=false;S.load=0;addLog('Generator off the grid','')}else{S.gen=true;S.load=Math.max(.05,Math.min(.1,S.P));S.L=Math.min(S.P,.06);addLog('Generator synchronised','out')}renderCtl(true)};
+ box.querySelector('[data-a=auto]').onclick=function(){S.auto=!S.auto;addLog('Automatic rod control '+(S.auto?'on':'off'),'');renderCtl(true)};
+ box.querySelector('[data-a=mute]').onclick=function(){lsSet('cr_mute',!lsGet('cr_mute'));renderCtl(true)};
+ var ld=$('load');if(ld)ld.oninput=function(){S.load=ld.value/100;$('ldv').textContent=ld.value+'%'}}
+document.addEventListener('keydown',function(e){if(!MAIN||e.target.tagName==='INPUT')return;if(e.key==='ArrowUp'){S.rodCmd=1;e.preventDefault()}if(e.key==='ArrowDown'){S.rodCmd=-1;e.preventDefault()}});
+document.addEventListener('keyup',function(e){if(e.key==='ArrowUp'||e.key==='ArrowDown')S.rodCmd=0});
+
+/* ================= cold start mission ================= */
+var M={on:false};
+var STEPS=[
+ {t:'Start the reactor coolant pumps',h:'Press Start pumps. They circulate the coolant, and their heat starts warming the plant.',ok:function(s){return s.rcp}},
+ {t:'Heat up to 291 °C, slower than 55 °C an hour',h:'The pumps do the heating. Use ×300 time to speed it up. The reactor stays shut down while you heat up.',ok:function(s){return s.T>=290}},
+ {t:'Withdraw the shutdown banks fully (228 steps)',h:'Select Shutdown banks and hold Withdraw. The boron keeps the reactor well subcritical.',ok:function(s){return s.sd>=.999}},
+ {t:'Dilute the boron to about 1,000 ppm',h:'Press Dilute and watch the boron fall. Stop at about 1,000 ppm: the estimated critical concentration with the control banks part-way out.',ok:function(s){return s.ppm<=1010}},
+ {t:'Approach criticality: withdraw the control banks and record 4 points on the 1/M plot',h:'Withdraw the control banks in small steps. After each step, wait for the count rate to settle, then press Record. The line on the 1/M plot points at the critical rod position.',ok:function(s){return s.mpts.length>=4}},
+ {t:'Go critical, keeping the startup rate under 1 decade a minute',h:'Keep withdrawing slowly. When power keeps rising on its own with the rods stopped, you\'re critical. Above 1 DPM an alarm sounds; above 3 DPM the reactor trips (this protection works below 5% power).',ok:function(s){return s.rho>.0003&&s.P>1e-6}},
+ {t:'Raise power to the point of adding heat (about 2%)',h:'Let power rise to around 2%. The reactor now heats the coolant, and the steam dumps open to hold Tavg near 291 °C.',ok:function(s){return s.P>=.02}},
+ {t:'Raise power to 10% and synchronise the generator',h:'Withdraw a little more or dilute slowly. At 8% or more, press Sync generator.',ok:function(s){return s.gen}},
+ {t:'Ramp the turbine to 100%, keeping Tavg within 3 °C of programme',h:'Raise the turbine load target in stages. More steam cools the coolant, the negative temperature coefficient adds reactivity and power follows. Above 15% turbine load you can switch on automatic rod control to hold Tavg on programme. If the rods reach the top, dilute a little boron.',ok:function(s){return s.L>=.99&&s.P>=.97&&Math.abs(s.T-tprog(s))<3}}];
+function misStart(resume){var sv=lsGet('cr_cold');if(resume&&sv&&sv.S){S=sv.S;M={on:true,i:sv.i||0,done:sv.done||[]}}else{S=fresh(true);M={on:true,i:0,done:[]};lsSet('cr_cold',null)}H=[];LOG=[];AL.forEach(function(a){AS[a[0]]={on:false,ack:true}});addLog(resume&&sv?'Mission resumed':'Cold start mission: Unit 1 is cold and shut down','');renderCtl(true);misRender()}
+M.onTrip=function(){};
+function misTick(){if(!M.on)return;var s=S;if(s.trip&&M.i>=5){M.i=4;M.done.length=Math.min(M.done.length,4);s.mpts=[];toast('Reactor trip. Reset it, then approach criticality again.')}
+ while(M.i<STEPS.length&&STEPS[M.i].ok(s)){M.done[M.i]=true;M.i++;beep(660,.15,.04,'triangle');if(M.i<STEPS.length)toast('Step done: '+STEPS[M.i-1].t);misRender()}
+ if(M.i>=STEPS.length&&!M.won){M.won=true;var first=!lsGet('cr_cold_won');lsSet('cr_cold_won',Date.now());giveXP(first?80:30,'Cold start');lsSet('cr_cold',null);misRender();overlay('<p class="big">Unit 1 at full power</p><p>From cold and shut down to 1,630 MWe on the grid'+(S.trips?', with '+S.trips+' trip'+(S.trips===1?'':'s')+' along the way':' without a single trip')+'. Highest startup rate: '+S.maxSur.toFixed(2)+' DPM.</p><p>'+(first?'+80 XP':'+30 XP')+' to Critical.</p><button class="go" data-x>Back to the plant</button>')}}
+function misSave(){if(M.on&&!M.won)lsSet('cr_cold',{S:S,i:M.i,done:M.done,at:Date.now()})}
+function misRender(){var b=$('misBox');if(!M.on){b.innerHTML='';return}var st=STEPS[Math.min(M.i,STEPS.length-1)];
+ b.innerHTML='<div class="mis"><h3>Cold start to full power '+(M.won?'· complete':'· step '+(M.i+1)+' of '+STEPS.length)+'</h3><ol>'+STEPS.map(function(x,i){return '<li class="'+(M.done[i]?'done':i===M.i?'cur':'')+'">'+x.t+'</li>'}).join('')+'</ol>'+(M.won?'':'<div class="hint">'+st.h+'</div>')+(M.i===4||M.i===5?'<div class="minv"><canvas id="mcv" width="500" height="110"></canvas><button class="cb" id="mrec">Record</button></div>':'')+'<div class="row"><button class="cb sm" id="mquit">Leave the mission</button><span style="font-size:12px;color:var(--muted)">Progress saves itself, so you can come back to it.</span></div></div>';
+ var r=$('mrec');if(r)r.onclick=function(){if(S.P<=0)return;var cr=S.P/1e-9;S.mpts.push({x:S.cb,m:1/Math.max(1,cr)});drawM();beep(990,.08,.03,'triangle')};$('mquit').onclick=function(){misSave();M={on:false};setMode('free',true)};drawM()}
+function drawM(){var cv=$('mcv');if(!cv)return;var c=cv.getContext('2d'),W=cv.width,H2=cv.height,p=S.mpts;c.clearRect(0,0,W,H2);c.fillStyle='#6f7da6';c.font='11px ui-monospace,monospace';c.fillText('1/M',4,12);c.fillText('control rod steps →',W-130,H2-4);
+ if(!p.length){c.fillText('Record a point to start the plot',60,60);return}var m0=p[0].m;var pts=p.map(function(q){return {x:q.x,y:q.m/m0}});c.fillStyle='#3ad4ff';pts.forEach(function(q){c.beginPath();c.arc(20+q.x*(W-30),H2-12-q.y*(H2-24),4,0,6.3);c.fill()});
+ if(pts.length>=2){var a=pts[pts.length-2],b2=pts[pts.length-1];if(b2.y<a.y){var xc=a.x+(b2.x-a.x)*a.y/(a.y-b2.y);c.strokeStyle='rgba(255,214,90,.8)';c.setLineDash([5,4]);c.beginPath();c.moveTo(20+a.x*(W-30),H2-12-a.y*(H2-24));c.lineTo(20+Math.min(1,xc)*(W-30),H2-12);c.stroke();c.setLineDash([]);c.fillStyle='#ffd65a';c.fillText('critical ≈ '+Math.round(Math.min(1,xc)*228)+' steps',Math.min(W-120,24+xc*(W-30)),H2-16)}}}
+
+/* ================= overlays: drills and procedures ================= */
+function overlay(html,cb){var o=document.createElement('div');o.className='ov';o.setAttribute('role','dialog');o.setAttribute('aria-modal','true');o.innerHTML='<div class="in">'+html+'</div>';document.body.appendChild(o);[].forEach.call(o.querySelectorAll('[data-x]'),function(b){b.onclick=function(){o.remove();if(cb)cb()}});return o}
+
+/* ---- alarm flood drill ---- */
+var FLOODS=[
+ {name:'Loss of main feedwater',first:'MAIN FEED PUMP A TRIP',flood:['MAIN FEED PUMP B TRIP','SG A LEVEL LOW','SG B LEVEL LOW','SG FLOW MISMATCH','REACTOR TRIP','TURBINE TRIP','AUX FEED PUMPS START','PRZ PRESSURE HIGH','STEAM DUMP OPEN','GENERATOR OFFLINE','RODS ON BOTTOM','SG A LEVEL LOW-LOW','SG B LEVEL LOW-LOW','PRZ LEVEL HIGH','CONDENSER VACUUM LOW'],
+  causes:['Both main feed pumps tripped','A steam line broke','The grid supply was lost','A control rod dropped'],acts:['Check the reactor has tripped (rods on bottom, power falling)','Check auxiliary feedwater is flowing to the steam generators','Acknowledge and silence the alarms'],why:'The first alarm, MAIN FEED PUMP A TRIP, followed straight away by pump B. With no feedwater, the steam generator levels fall and the reactor trips on low level. The priority is always the same: is the reactor shut down, and is the core being cooled? Here that means auxiliary feedwater.'},
+ {name:'Turbine trip',first:'TURBINE STOP VALVES CLOSED',flood:['TURBINE TRIP','GENERATOR OFFLINE','REACTOR TRIP','STEAM DUMP OPEN','PRZ PRESSURE HIGH','TAVG HIGH','SG A PRESSURE HIGH','SG B PRESSURE HIGH','RODS ON BOTTOM','MAIN STEAM RELIEF OPEN','PRZ SPRAY ON','FEEDWATER FLOW LOW'],causes:['The turbine tripped and its stop valves closed','The main feed pumps tripped','A coolant pump failed','There was a small coolant leak'],acts:['Check the reactor has tripped (rods on bottom, power falling)','Check the steam dumps are controlling temperature','Acknowledge and silence the alarms'],why:'TURBINE STOP VALVES CLOSED came in first. With the turbine gone, there is suddenly nowhere for the steam to go, so temperature and pressure rise and the reactor trips. After confirming the trip, check the steam dumps are taking the heat to the condenser.'},
+ {name:'Loss of off-site power',first:'400 kV GRID SUPPLY LOST',flood:['STATION BOARD A UNDERVOLTAGE','STATION BOARD B UNDERVOLTAGE','COOLANT PUMPS OFF','REACTOR TRIP','TURBINE TRIP','DIESEL GENERATOR A START','DIESEL GENERATOR B START','GENERATOR OFFLINE','RODS ON BOTTOM','MAIN FEED PUMPS TRIP','AUX FEED PUMPS START','LOW COOLANT FLOW','CONDENSER VACUUM LOW'],causes:['The connection to the grid was lost','The turbine tripped on its own','The pressuriser heaters failed','A steam generator tube leaked'],acts:['Check the reactor has tripped (rods on bottom, power falling)','Check the emergency diesel generators have started and are powering the safety systems','Acknowledge and silence the alarms'],why:'The grid supply went first, so the station boards lost voltage and everything driven by them stopped, including the coolant pumps. After the trip, the most important thing is power for the safety systems: the diesel generators.'},
+ {name:'Steam generator tube leak',first:'SG B BLOWDOWN RADIATION HIGH',flood:['CONDENSER OFF-GAS RADIATION HIGH','PRZ LEVEL LOW','PRZ PRESSURE LOW','CHARGING FLOW HIGH','SG B LEVEL HIGH','MAIN STEAM LINE B RADIATION HIGH','REACTOR TRIP','SAFETY INJECTION','TURBINE TRIP','RODS ON BOTTOM','GENERATOR OFFLINE','CONTAINMENT NORMAL'],causes:['A tube leak in steam generator B','A leak inside containment','Loss of feedwater','A dropped control rod'],acts:['Check the reactor has tripped and safety injection is working','Identify and isolate steam generator B','Acknowledge and silence the alarms'],why:'Radiation on steam generator B\'s blowdown came first: radioactive primary coolant is leaking into the secondary side. Containment is normal, so the leak isn\'t inside containment. The key action is to find and isolate the leaking steam generator.'},
+ {name:'Small loss of coolant',first:'CONTAINMENT HUMIDITY HIGH',flood:['CONTAINMENT SUMP LEVEL HIGH','PRZ LEVEL LOW','PRZ PRESSURE LOW','CHARGING FLOW HIGH','CONTAINMENT RADIATION HIGH','CONTAINMENT PRESSURE HIGH','REACTOR TRIP','SAFETY INJECTION','TURBINE TRIP','RODS ON BOTTOM','GENERATOR OFFLINE','PRZ PRESSURE LOW-LOW'],causes:['A small leak of coolant inside containment','A steam generator tube leak','The turbine tripped','The boron was diluted too far'],acts:['Check the reactor has tripped and safety injection is working','Check coolant inventory and containment conditions','Acknowledge and silence the alarms'],why:'Humidity and sump level inside containment rose first: water is escaping from the primary circuit inside containment. Pressuriser level and pressure fall, the reactor trips and safety injection starts. Check safety injection is keeping the core covered.'}];
+function flood(){var sc=FLOODS[Math.floor(Math.random()*FLOODS.length)],tiles=[sc.first].concat(sc.flood),order=[sc.first].concat(sc.flood.slice().sort(function(){return Math.random()-.5})),grid=tiles.slice().sort(function(){return Math.random()-.5}),t0=0,score=0,log=[];
+ var o=overlay('<div class="hd"><b>Alarm flood drill</b><button class="cb sm" data-x>Close</button></div><div class="card"><p>The desk is quiet. Then everything goes at once. <b>Watch which alarm comes in first.</b> The alarm printer on the right logs them in order, if you\'re quick enough to read it.</p><button class="go" id="fgo">I\'m ready</button></div>');
+ o.querySelector('#fgo').onclick=function(){var c=o.querySelector('.card');c.innerHTML='<div class="grid" style="grid-template-columns:minmax(0,1.4fr) minmax(0,1fr)"><div class="alarmgrid" id="fg"></div><div class="alog" id="fl" style="max-height:340px"></div></div><p id="fq" style="font-weight:700">Alarms coming in…</p><div class="opts" id="fo"></div>';
+  var fg=o.querySelector('#fg'),fl=o.querySelector('#fl');fg.innerHTML=grid.map(function(t){return '<div class="an" data-t="'+esc(t)+'">'+esc(t)+'</div>'}).join('');var k=0;
+  (function next(){if(!o.isConnected)return;if(k>=order.length){ask1();return}var t=order[k],el=fg.querySelector('[data-t="'+t.replace(/"/g,'\\"')+'"]');if(el)el.className='an st r fl';var d=document.createElement('div');d.innerHTML='<span class="t">00:00:0'+Math.min(9,Math.floor(k/2))+'.'+(k%2?5:0)+'</span><span class="in">'+esc(t)+'</span>';fl.appendChild(d);beep(700+k*20,.06,.02);k++;setTimeout(next,k===1?900:260)})();
+  function ask1(){t0=Date.now();o.querySelector('#fq').textContent='1. Tap the alarm that came in first.';[].forEach.call(fg.querySelectorAll('.an'),function(e){e.onclick=function(){if(o.querySelector('#fq').dataset.done)return;o.querySelector('#fq').dataset.done=1;var ok=e.getAttribute('data-t')===sc.first;var fe=fg.querySelector('[data-t="'+sc.first+'"]');if(fe)fe.classList.add('first');if(ok)score+=40;log.push(ok?'First-out alarm: right':'First-out alarm: it was '+sc.first);ask2()}})}
+  function ask2(){var q=o.querySelector('#fq'),op=o.querySelector('#fo'),cs=sc.causes.slice().sort(function(){return Math.random()-.5});q.textContent='2. What\'s the most likely cause?';op.innerHTML=cs.map(function(c){return '<button class="opt" data-c="'+esc(c)+'">'+esc(c)+'</button>'}).join('');
+   [].forEach.call(op.querySelectorAll('.opt'),function(b){b.onclick=function(){var ok=b.getAttribute('data-c')===sc.causes[0];[].forEach.call(op.querySelectorAll('.opt'),function(x){x.disabled=true;if(x.getAttribute('data-c')===sc.causes[0])x.classList.add('right')});if(!ok)b.classList.add('wrong');if(ok)score+=30;log.push(ok?'Cause: right':'Cause: it was '+sc.causes[0].toLowerCase());setTimeout(ask3,900)}})}
+  function ask3(){var q=o.querySelector('#fq'),op=o.querySelector('#fo'),acts=sc.acts.slice().sort(function(){return Math.random()-.5}),picked=[];q.textContent='3. Tap the three actions in the order you\'d do them.';
+   op.innerHTML='<div class="order">'+acts.map(function(a){return '<button class="opt" data-a="'+esc(a)+'">'+esc(a)+'</button>'}).join('')+'</div>';
+   [].forEach.call(op.querySelectorAll('.opt'),function(b){b.onclick=function(){if(b.disabled)return;picked.push(b.getAttribute('data-a'));b.disabled=true;b.innerHTML='<span class="k">'+picked.length+'</span>'+b.innerHTML;if(picked.length===3)finish(picked)}})}
+  function finish(picked){var right=picked.every(function(a,i){return a===sc.acts[i]}),secs=Math.round((Date.now()-t0)/1000);if(right)score+=30;var tb=Math.max(0,30-secs);score+=tb;log.push(right?'Action order: right':'Action order: '+sc.acts.map(function(a,i){return (i+1)+'. '+a}).join(' '));
+   var xp=Math.max(5,Math.round(score/5));giveXP(xp,'Alarm flood drill');var best=lsGet('cr_flood_best')||0;if(score>best)lsSet('cr_flood_best',score);
+   c.innerHTML='<p class="big">'+score+' points'+(score>best?' · new best':'')+'</p><p><b>'+esc(sc.name)+'.</b> '+esc(sc.why)+'</p><div class="chips">'+log.map(function(l){return '<span class="chip">'+esc(l)+'</span>'}).join('')+'<span class="chip">'+secs+' s to decide (+'+tb+' speed bonus)</span></div><div class="row"><button class="go" id="fag">Another flood</button><button class="go alt" data-x>Done</button></div>';
+   c.querySelector('#fag').onclick=function(){o.remove();flood()};c.querySelector('[data-x]').onclick=function(){o.remove()}}}}
+
+/* ---- emergency procedure runs (in the style of a reactor trip procedure) ---- */
+function eop(){var fails={rod:Math.random()<.35,tt:Math.random()<.35,busB:Math.random()<.4,afw:Math.random()<.4,si:Math.random()<.5},health=100,i=0,log=[];
+ var steps=[
+  {t:'Verify the reactor has tripped',d:'All rods on the bottom and neutron power falling.',lamps:function(){return [['Rod bottom lights',fails.rod?'a':'g',fails.rod?'1 rod NOT on bottom':'All rods on bottom'],['Neutron power',fails.rod?'a':'g',fails.rod?'2.1% and steady':'0.4% and falling']]},bad:fails.rod,ok:'Yes: the reactor has tripped',fix:'No: trip the reactor manually and start emergency boration',why:'If any rod isn\'t in, you can\'t rely on the trip: trip it manually and add boron.'},
+  {t:'Verify the turbine has tripped',d:'Turbine stop valves closed.',lamps:function(){return [['Stop valves',fails.tt?'r':'g',fails.tt?'OPEN':'Closed'],['Turbine speed',fails.tt?'a':'g',fails.tt?'3,000 rpm':'Running down']]},bad:fails.tt,ok:'Yes: the turbine has tripped',fix:'No: trip the turbine manually',why:'A turbine still taking steam would cool the plant too fast. Trip it.'},
+  {t:'Verify power to the safety electrical boards',d:'Both safety boards energised.',lamps:function(){return [['Safety board A',(fails.busB?'g':'g'),'Energised'],['Safety board B',fails.busB?'r':'g',fails.busB?'DEAD':'Energised']]},bad:fails.busB,ok:'Yes: both boards have power',fix:'No: start diesel generator B and power board B',why:'Safety systems need power. A dead board means starting its diesel generator.'},
+  {t:'Check whether safety injection is needed',d:'Needed if pressuriser pressure is below 128 bar.',lamps:function(){return [['Pressuriser pressure',fails.si?'r':'g',fails.si?'119 bar and falling':'151 bar and steady'],['Containment',fails.si?'a':'g',fails.si?'Humidity rising':'Normal']]},bad:fails.si,ok:'Not needed: pressure is normal',fix:'Needed: actuate safety injection',why:'Pressure under 128 bar means coolant is being lost. Safety injection keeps the core covered.'},
+  {t:'Verify auxiliary feedwater flow',d:'At least 100 kg/s to the steam generators.',lamps:function(){return [['AFW flow',fails.afw?'r':'g',fails.afw?'0 kg/s':'140 kg/s'],['SG levels',fails.afw?'a':'g',fails.afw?'Falling':'Recovering']]},bad:fails.afw,ok:'Yes: feedwater is flowing',fix:'No: start the standby auxiliary feed pump',why:'Without feedwater, the steam generators can\'t take heat away from the core.'},
+  {t:'Decide which procedure to go to next',d:'Based on everything you\'ve checked.',lamps:function(){return [['Pressure',fails.si?'r':'g',fails.si?'Low':'Normal'],['Containment',fails.si?'a':'g',fails.si?'Abnormal':'Normal']]},choice:true}];
+ var o=overlay('<div class="hd"><b>Emergency procedure: reactor trip</b><button class="cb sm" data-x>Close</button></div><div class="card"><p>The reactor has just tripped. Work through the procedure <b>one step at a time</b>. For each step, read the panel, then choose. If what you see isn\'t what the step expects, take the action it gives you. Mistakes make the plant worse.</p><div class="meter"><i id="eh" style="width:100%"></i></div><p style="font:600 12px var(--mono);color:var(--muted)" id="ehl">CORE COOLING MARGIN 100%</p><div id="es"></div></div>');
+ function render(){var es=o.querySelector('#es');if(i>=steps.length){end();return}var st=steps[i];
+  es.innerHTML=steps.map(function(x,k){return '<div class="step '+(k<i?'done':k===i?'cur':'')+'"><span class="n">'+(k+1)+'</span><div class="tx">'+x.t+(k===i?'<small>'+x.d+'</small>':'')+'</div></div>'}).join('')+
+   '<div class="ind" style="margin-top:8px">'+st.lamps().map(function(l){return '<div class="lamp"><i class="'+l[1]+'"></i><span>'+l[0]+': <b>'+l[2]+'</b></span></div>'}).join('')+'</div><div class="opts" style="margin-top:8px">'+
+   (st.choice?['Reactor trip response (everything is normal)','Loss of coolant procedure','Steam generator tube leak procedure'].map(function(t,k){return '<button class="opt" data-k="'+k+'">'+t+'</button>'}).join(''):'<button class="opt" data-k="ok">'+st.ok+'</button><button class="opt" data-k="fix">'+st.fix+'</button>')+'</div>';
+  [].forEach.call(es.querySelectorAll('.opt'),function(b){b.onclick=function(){var k=b.getAttribute('data-k'),right;if(st.choice)right=+k===(fails.si?1:0);else right=(k==='fix')===!!st.bad;
+   [].forEach.call(es.querySelectorAll('.opt'),function(x){x.disabled=true});b.classList.add(right?'right':'wrong');
+   if(!right){health=Math.max(0,health-(st.bad?30:15));log.push('Step '+(i+1)+': '+(st.choice?'wrong procedure':(st.bad?'missed a failure':'took an action that wasn\'t needed')));beep(220,.3,.04,'sawtooth')}else beep(660,.1,.03,'triangle');
+   o.querySelector('#eh').style.width=health+'%';o.querySelector('#ehl').textContent='CORE COOLING MARGIN '+health+'%';
+   var w=document.createElement('p');w.style.cssText='font-size:14px;color:'+(right?'var(--ok)':'var(--warn)');w.textContent=(right?'Right. ':'Not quite. ')+(st.choice?(fails.si?'Low pressure and abnormal containment mean a loss of coolant.':'With pressure and containment normal, it\'s the standard trip response.'):st.why);es.appendChild(w);
+   if(health<=0){setTimeout(end,1200);return}setTimeout(function(){i++;render()},right?900:2200)}})}
+ function end(){var sc=health,xp=Math.max(5,Math.round(sc/4));giveXP(xp,'Emergency procedure');var c=o.querySelector('.card');var nf=Object.keys(fails).filter(function(k){return fails[k]}).length;
+  c.innerHTML='<p class="big">'+(health<=0?'Core cooling lost':health===100?'Textbook response':'Plant safe')+'</p><p>Core cooling margin at the end: <b>'+health+'%</b>. This run had '+nf+' hidden failure'+(nf===1?'':'s')+'.</p>'+(log.length?'<div class="chips">'+log.map(function(l){return '<span class="chip">'+esc(l)+'</span>'}).join('')+'</div>':'<p>You spotted everything that was wrong and nothing that wasn\'t.</p>')+'<div class="row"><button class="go" id="eag">Run it again (new failures)</button><button class="go alt" data-x>Done</button></div>';
+  c.querySelector('#eag').onclick=function(){o.remove();eop()};c.querySelector('[data-x]').onclick=function(){o.remove()}}
+ render()}
+
+/* ================= modes ================= */
+function setMode(m,quiet){[].forEach.call(document.querySelectorAll('[data-mode]'),function(b){b.classList.toggle('on',b.getAttribute('data-mode')===(m==='flood'||m==='eop'?(M.on?'cold':'free'):m))});
+ if(m==='free'){if(M.on){misSave();M={on:false}}if(!quiet){S=fresh(false);H=[];LOG=[];AL.forEach(function(a){AS[a[0]]={on:false,ack:true}});addLog('Free play: Unit 1 at full power','')}misRender();renderCtl(true)}
+ else if(m==='cold'){var sv=lsGet('cr_cold');if(sv&&sv.S){var o=overlay('<div class="hd"><b>Cold start mission</b><button class="cb sm" data-x>Close</button></div><div class="card"><p>You have a cold start saved at step '+((sv.i||0)+1)+' of '+STEPS.length+'.</p><div class="row"><button class="go" id="cres">Carry on</button><button class="go alt" id="cnew">Start again from cold</button></div></div>');o.querySelector('#cres').onclick=function(){o.remove();misStart(true)};o.querySelector('#cnew').onclick=function(){o.remove();misStart(false)}}else misStart(false)}
+ else if(m==='flood')flood();else if(m==='eop')eop()}
+[].forEach.call(document.querySelectorAll('[data-mode]'),function(b){b.onclick=function(){setMode(b.getAttribute('data-mode'))}});
+
+/* ================= spread across monitors ================= */
+$('spread').onclick=function(){var sizes=[];function open(panel,sc){var l=sc?sc.availLeft:undefined,t=sc?sc.availTop:undefined,w=sc?sc.availWidth:900,h=sc?sc.availHeight:700,f='popup=yes,width='+w+',height='+h+(l!=null?',left='+l+',top='+t:'');return window.open('control-room.html?panel='+panel,'cr-'+panel,f)}
+ function go(scr){var a=open('alarms',scr&&scr[1]),tr=open('trends',scr&&scr[2]);if(!a||!tr){toast('Your browser blocked the extra windows. Allow pop-ups for this site, then try again.');return}
+  document.body.classList.add('solo','solo-core');$('soloNote').textContent='Alarms and trends are in their own windows. Drag them onto your other monitors and press F11 on each for full screen.';toast(scr?'Panels opened on your other screens':'Panels opened. Drag them onto your other monitors.')}
+ if(window.getScreenDetails){window.getScreenDetails().then(function(d){var me=d.currentScreen,others=d.screens.filter(function(s){return s!==me});go(others.length>=2?[me,others[0],others[1]]:others.length===1?[me,others[0],others[0]]:null)}).catch(function(){go(null)})}else go(null)};
+
+/* ================= loop ================= */
+var lastSample=0,lastSave=0,lastBC=0;
+function render(){$('mimic').innerHTML=mimic();$('reads').innerHTML=reads();$('ann').innerHTML=annHTML();$('alog').innerHTML=logHTML();$('clock').textContent=fmtClock(S.t);var n=AL.filter(function(a){return AS[a[0]].on}).length;$('almCount').textContent=n+' active';drawTrends();if(M.on&&(M.i===4||M.i===5))drawM()}
+if(MAIN){
+ $('ack').onclick=ack;$('sil').onclick=function(){silenced=true};
+ addLog('Free play: Unit 1 at full power','');renderCtl(true);
+ setInterval(function(){if(S.speed===300&&S.P>1e-4)S.speed=60;if(S.speed>10&&S.P>1e-7&&S.P<.02&&!S.trip)S.speed=10;var sp=S.speed,dt=.1*sp,n=Math.ceil(dt/.5);for(var k=0;k<n;k++)stepSim(dt/n);evalAlarms();misTick();var now=Date.now();if(now-lastSample>=1000){lastSample=now;sample()}if(now-lastSave>5000){lastSave=now;misSave()}renderCtl(false);
+  if(BC&&now-lastBC>250){lastBC=now;BC.postMessage({k:'st',S:S,AS:AS,LOG:LOG.slice(0,40),hs:hsN,h:H[H.length-1]||null})}},100);
+ setInterval(render,250);
+ if(BC)BC.onmessage=function(e){var d=e.data||{};if(d.k==='ack')ack();if(d.k==='sil')silenced=true;if(d.k==='hello')BC.postMessage({k:'hist',H:H})};
+ addEventListener('beforeunload',misSave);
+}else{
+ var lastHs=-1;$('ctl').innerHTML='';$('ack').onclick=function(){BC&&BC.postMessage({k:'ack'})};$('sil').onclick=function(){BC&&BC.postMessage({k:'sil'})};var seen=false;
+ if(BC){BC.onmessage=function(e){var d=e.data||{};if(d.k==='st'){seen=true;S=d.S;AS=d.AS;LOG=d.LOG;if(d.h&&d.hs!==lastHs){lastHs=d.hs;H.push(d.h);if(H.length>300)H.shift()}}else if(d.k==='hist')H=d.H.slice()};BC.postMessage({k:'hello'})}
+ setInterval(render,250);setTimeout(function(){if(!seen)$('soloNote').textContent='Open the main Control Room window first: this panel shows what it\'s doing.'},2000);
+}
+render();
+window.__cr={S:function(){return S},set:function(o){for(var k in o)S[k]=o[k]},M:function(){return M},setMode:setMode,step:function(sec){var n=Math.ceil(sec/.5);for(var i=0;i<n;i++)stepSim(sec/n);evalAlarms();misTick()}};
+})();
+</script>
+</body>
+</html>
