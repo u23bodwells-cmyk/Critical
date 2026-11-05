@@ -1628,7 +1628,11 @@ function cleanState(s){
 var KEEP_FIELDS=['mode','gsub','lvl','lvlOpen','lvtests','seenGcse','seenCalc','seenTheory','plView','exam','plan','habits','dayplan','lacc','hardOff','dayNudge','qsets','lday','pdays','rw','shift','mys'];
 var EXTRA_KEYS={study:'critical_study',shift:'shift-ready-v1',apt:'aptitude-v1'};
 function readExtras(){var o={};for(var k in EXTRA_KEYS){try{var v=JSON.parse(localStorage.getItem(EXTRA_KEYS[k])||'null');if(v&&typeof v==='object')o[k]=v}catch(e){}}if(o.study)o.study=Object.assign({},o.study,{run:null});return o}
-function writeExtras(x){if(!x)return;for(var k in EXTRA_KEYS)if(x[k]&&typeof x[k]==='object'){try{localStorage.setItem(EXTRA_KEYS[k],JSON.stringify(x[k]))}catch(e){}}}
+function writeExtras(x){if(!x)return;for(var k in EXTRA_KEYS)if(x[k]&&typeof x[k]==='object'){var v=x[k];
+  /* the running study timer belongs to this device: keep it whatever comes in from sync */
+  if(k==='study'){try{var cur=JSON.parse(localStorage.getItem(EXTRA_KEYS.study)||'null');v=Object.assign({},v,{run:cur&&cur.run?cur.run:null})}catch(e){}}
+  try{localStorage.setItem(EXTRA_KEYS[k],JSON.stringify(v))}catch(e){}}
+ try{if(typeof STUDY!=='undefined'&&STUDY.refresh)STUDY.refresh()}catch(e){}}
 function packSave(){var th=null;try{th=localStorage.getItem('critical_theme')}catch(e){}
  return {app:'Critical nuclear engineering',format:1,saved:new Date().toISOString(),theme:th,progress:S,extras:readExtras()}}
 /* ----- combining two saves (this device + a file from another device) ----- */
@@ -1666,7 +1670,7 @@ function mergeState(A,B){var o=gmerge(A,B),k,d;
  ['mode','gsub','lvl','plView','dayNudge','goal','sound','dayplan','quests','qsets'].forEach(function(f){if(A[f]!==undefined)o[f]=A[f]});
  return o}
 function mergeExtras(A,B){A=A||{};B=B||{};var o={};
- if(A.study||B.study){var sa=(A.study&&A.study.sessions)||[],sb=(B.study&&B.study.sessions)||[],seen={},ss=[];sa.concat(sb).forEach(function(x){if(!x)return;var k=x.c||JSON.stringify(x);if(!seen[k]){seen[k]=1;ss.push(x)}});
+ if(A.study||B.study){var sa=(A.study&&A.study.sessions)||[],sb=(B.study&&B.study.sessions)||[],seen={},ss=[];sa.concat(sb).forEach(function(x){if(!x)return;var k=x.c||JSON.stringify(x);if(seen[k]==null){seen[k]=ss.length;ss.push(x)}else if((+x.m||0)>(+ss[seen[k]].m||0))ss[seen[k]]=x});
   o.study=Object.assign({},B.study||{},A.study||{},{sessions:ss})}
  ['shift','apt'].forEach(function(k){if(A[k]||B[k])o[k]=gmerge(A[k],B[k])});return o}
 function saveCode(){var j=JSON.stringify(packSave());return SAVE_PREFIX+btoa(unescape(encodeURIComponent(j)))}
@@ -2974,6 +2978,8 @@ var STUDY=(function(){
  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
  function per(){var p={};st.sessions.forEach(function(s){p[s.d]=(p[s.d]||0)+s.m});return p}
  function todayMin(){return per()[ymd()]||0}
+ function didToday(){if(todayMin()>0||st.run)return true;try{var t=ymd();if(S.hist&&S.hist[t]>0)return true;if(S.daily&&S.daily.d===t&&S.daily.xp>0)return true;
+  var wi=(new Date().getDay()+6)%7;if(S.plan&&S.plan.t)for(var k in S.plan.t)if(S.plan.t[k]&&k.indexOf(wi+'-')===0)return true}catch(_){}return false}
  function streak(){var p=per(),d=new Date(),n=0;if(!p[ymd(d)])d.setDate(d.getDate()-1);while(p[ymd(d)]){n++;d.setDate(d.getDate()-1)}return n}
  function weekMin(){var mon=new Date();mon.setHours(0,0,0,0);mon.setDate(mon.getDate()-((mon.getDay()+6)%7));var k=ymd(mon);return st.sessions.filter(function(s){return s.d>=k}).reduce(function(a,s){return a+s.m},0)}
  function fmtM(m){return m>=60?Math.floor(m/60)+' h '+(m%60?m%60+' min':''):m+' min'}
@@ -2985,7 +2991,7 @@ var STUDY=(function(){
  function getH(){return idb().then(function(db){return new Promise(function(res){var q=db.transaction('h').objectStore('h').get('dir');q.onsuccess=function(){res(q.result||null)};q.onerror=function(){res(null)}})}).catch(function(){return null})}
  function putH(h){return idb().then(function(db){return new Promise(function(res){var t=db.transaction('h','readwrite');t.objectStore('h').put(h,'dir');t.oncomplete=function(){res()};t.onerror=function(){res()}})}).catch(function(){})}
  var linkState='none',memH=null;
- function payload(){var p=per(),days=Object.keys(p).sort();return JSON.stringify({lastStudied:days.length?days[days.length-1]:null,todayMinutes:todayMin(),streak:streak(),updated:new Date().toISOString()},null,1)}
+ function payload(){var p=per(),days=Object.keys(p).sort();return JSON.stringify({lastStudied:didToday()?ymd():days.length?days[days.length-1]:null,todayMinutes:todayMin(),streak:streak(),updated:new Date().toISOString()},null,1)}
  function writeFile(ask){if(!canFS)return Promise.resolve(false);return (memH?Promise.resolve(memH):getH()).then(function(h){if(!h){linkState='none';return false}memH=h;
   return h.queryPermission({mode:'readwrite'}).then(function(p){if(p==='granted')return p;if(ask)return h.requestPermission({mode:'readwrite'});return p}).then(function(p){
    if(p!=='granted'){linkState='lost';return false}
@@ -3028,29 +3034,48 @@ var STUDY=(function(){
   $('.stdays').innerHTML=days.map(function(x){return '<span>'+'MTWTFSS'[(x.getDay()+6)%7]+'</span>'}).join('');
   var L=$('.stlist');L.innerHTML='';var list=st.sessions.slice().sort(function(a,b){return (b.d+b.c).localeCompare(a.d+a.c)}).slice(0,12);
   if(!list.length)L.innerHTML='<p class="stnote">No sessions yet. Press Start studying when you begin.</p>';
-  list.forEach(function(s){var r=document.createElement('div'),dt=new Date(s.d+'T12:00:00');r.innerHTML='<span>'+dt.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})+'</span><span>'+esc(s.t)+'</span><b>'+s.m+' min</b>';
-   var b=document.createElement('button');b.type='button';b.textContent='Delete';b.onclick=function(){if(b.dataset.arm){st.sessions=st.sessions.filter(function(x){return x!==s});keep();writeFile(true);paint()}else{b.dataset.arm=1;b.textContent='Sure?';setTimeout(function(){delete b.dataset.arm;b.textContent='Delete'},3000)}};r.appendChild(b);L.appendChild(r)});
+  list.forEach(function(s){var r=document.createElement('div'),dt=new Date(s.d+'T12:00:00');var lv=!!(st.run&&s.c===st.run.c);r.innerHTML='<span>'+dt.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})+'</span><span>'+esc(s.t)+'</span><b>'+s.m+' min'+(lv?' · live':'')+'</b>';
+   var b=document.createElement('button');b.type='button';b.textContent='Delete';b.onclick=function(){if(b.dataset.arm){st.sessions=st.sessions.filter(function(x){return x!==s});if(st.run&&s.c===st.run.c){st.run=null;clearInterval(tick);note('Timer stopped and that session deleted.')}keep();writeFile(true);paint()}else{b.dataset.arm=1;b.textContent='Sure?';setTimeout(function(){delete b.dataset.arm;b.textContent='Delete'},3000)}};r.appendChild(b);L.appendChild(r)});
   paintClock();paintLink()}
  function paintClock(){var c=$('.stclock'),g=$('[data-a=go]');
   if(st.run){c.textContent=clock(Date.now()-st.run.at);c.classList.add('live');g.textContent='Stop and save';g.classList.add('stop')}else{c.textContent='00:00:00';c.classList.remove('live');g.textContent='Start studying';g.classList.remove('stop')}
   pills.forEach(function(b){var t=b.querySelector('.stt');b.classList.toggle('live',!!st.run);if(t)t.textContent=st.run?clock(Date.now()-st.run.at).replace(/^00:/,''):''})}
- function paintLink(){var R=$('.strem');if(!R)return;var studied=todayMin()>0;
-  var h='<p class="stlab">Reminders on Windows</p><p>'+(studied?'<span class="stok">✓ Studied today ('+fmtM(todayMin())+').</span> Tonight\'s reminders will stay quiet.':'<span class="stwarn">Not studied yet today.</span>')+'</p>';
+ function paintLink(){var R=$('.strem');if(!R)return;var studied=didToday();
+  var h='<p class="stlab">Reminders on Windows</p><p>'+(studied?'<span class="stok">✓ Studied today'+(todayMin()?' ('+fmtM(todayMin())+')':'')+'.</span> Tonight\'s reminders will stay quiet.':'<span class="stwarn">Not studied yet today.</span>')+'</p>';
   if(!isWin){h+='<p class="stnote">On school days, reminders pop up on your Windows PC at 4:30pm and 4:40pm, then Critical opens by itself at 4:45pm. There are more reminders at 6pm and 8pm if you haven\'t studied. Open Critical on the laptop in Chrome or Edge to set them up.</p>';R.innerHTML=h;return}
   if(!canFS){h+='<p class="stnote">Open Critical in Chrome or Edge to set up reminders. This browser can\'t share your study time with them.</p>';R.innerHTML=h;return}
   h+='<ol><li><a href="https://u23bodwells-cmyk.github.io/Critical/reminders/critical-reminders.zip" target="_blank" rel="noopener" download>Download the reminder setup</a>, right-click it, choose <b>Extract All</b>, then double-click <b>install.cmd</b>. If Windows warns you, click <b>More info → Run anyway</b>.</li>'+
    '<li>Connect this app to the reminders, so they know when you\'ve studied: <button class="stbtn alt" type="button" data-a="link">'+(linkState==='ok'?'Connected ✓':linkState==='lost'?'Reconnect':'Choose the Critical folder')+'</button><br><span class="stnote">'+(linkState==='ok'?'Your study time is shared with the reminders.':linkState==='lost'?'Windows needs you to allow access again. Tap Reconnect and choose Allow.':'Pick <b>Documents → Critical</b>, then click <b>Select folder</b> and <b>Allow</b>. If it asks, choose “Allow on every visit”.')+'</span></li></ol>'+
    '<p class="stnote">On school days you\'ll get a break reminder at 4:15pm and warnings at 4:30pm and 4:40pm. Then Critical opens by itself at 4:45pm, in its own app window. There are more reminders at 6pm and 8pm if you still haven\'t studied, and any session counts. It also opens Critical when you turn on or unlock your PC after 3pm on a school day, so your evening timetable starts from when you get home. Already set up? Download it again and rerun install.cmd to get the latest version.</p>';
   R.innerHTML=h;var lb=R.querySelector('[data-a=link]');if(lb)lb.onclick=function(){linkState==='lost'?writeFile(true):link()}}
- function startTick(){clearInterval(tick);tick=setInterval(paintClock,1000);paintClock()}
+ /* autosave: while the timer runs, the session so far is saved every minute, so a crash, a closed tab or a sync can't lose it */
+ var lastM=-1;
+ function liveIdx(){if(!st.run||!st.run.c)return -1;for(var i=0;i<st.sessions.length;i++)if(st.sessions[i]&&st.sessions[i].c===st.run.c)return i;return -1}
+ function liveSave(){if(!st.run)return;
+  try{var cur=JSON.parse(localStorage.getItem(KEY)||'null');if(cur&&Array.isArray(cur.sessions))st.sessions=cur.sessions}catch(_){}
+  if(!st.run.c)st.run.c=new Date(st.run.at).toISOString();
+  var m=Math.min(600,Math.floor((Date.now()-st.run.at)/60000)),i=liveIdx(),t=st.run.t||'Study session';
+  if(m>=1){if(i<0)st.sessions.push({d:ymd(new Date(st.run.at)),m:m,t:t,c:st.run.c});else{st.sessions[i].m=Math.max(m,+st.sessions[i].m||0);st.sessions[i].t=t}}
+  keep()}
+ function tk(){paintClock();if(!st.run)return;var m=Math.floor((Date.now()-st.run.at)/60000);if(m!==lastM){var first=lastM<0;lastM=m;liveSave();if(!first&&m%5===0)writeFile(false);if(sh.classList.contains('open'))paint()}}
+ function startTick(){clearInterval(tick);lastM=-1;tick=setInterval(tk,1000);tk()}
+ function onHide(){if(st.run)liveSave()}
+ document.addEventListener('visibilitychange',function(){if(document.visibilityState==='hidden')onHide()});window.addEventListener('pagehide',onHide);
+ /* another Critical window changed the timer (started, stopped, or saved): follow it */
+ function adopt(raw){var v=null;try{v=JSON.parse(raw||'null')}catch(_){}if(!v||!Array.isArray(v.sessions))return;
+  var was=st.run&&st.run.c;st=v;
+  if(st.run){if(!tick||was!==st.run.c){clearInterval(tick);tick=setInterval(tk,1000)}lastM=Math.floor((Date.now()-st.run.at)/60000)}else{clearInterval(tick);tick=null}
+  paintClock();if(sh.classList.contains('open'))paint()}
+ window.addEventListener('storage',function(e){if(e.key===KEY)adopt(e.newValue)});
  $('[data-a=go]').onclick=function(){note('');
-  if(!st.run){st.run={at:Date.now(),t:$('#stTopic').value.trim()};keep();startTick();return}
-  var m=Math.round((Date.now()-st.run.at)/60000),t=$('#stTopic').value.trim()||st.run.t||'Study session',d=ymd(new Date(st.run.at));
+  if(!st.run){var n0=Date.now();st.run={at:n0,t:$('#stTopic').value.trim(),c:new Date(n0).toISOString()};keep();startTick();note('The timer saves itself every minute.');return}
+  try{var cur=JSON.parse(localStorage.getItem(KEY)||'null');if(cur&&Array.isArray(cur.sessions))st.sessions=cur.sessions}catch(_){}
+  var m=Math.round((Date.now()-st.run.at)/60000),t=$('#stTopic').value.trim()||st.run.t||'Study session',d=ymd(new Date(st.run.at)),li=liveIdx(),c=st.run.c||new Date(st.run.at).toISOString();
   st.run=null;clearInterval(tick);
-  if(m<1)note('That was under a minute, so it wasn\'t saved.',true);
-  else{if(m>600)m=600;st.sessions.push({d:d,m:m,t:t,c:new Date().toISOString()});note('Saved '+m+' min. Nice work.')}
+  if(m<1){if(li>=0)st.sessions.splice(li,1);note('That was under a minute, so it wasn\'t saved.',true)}
+  else{if(m>600)m=600;if(li>=0){st.sessions[li].m=Math.max(m,+st.sessions[li].m||0);st.sessions[li].t=t;m=st.sessions[li].m}else st.sessions.push({d:d,m:m,t:t,c:c});note('Saved '+m+' min. Nice work.')}
   keep();writeFile(true);paint()};
- $('#stTopic').addEventListener('input',function(){if(st.run){st.run.t=this.value.trim();keep()}});
+ $('#stTopic').addEventListener('input',function(){if(st.run){st.run.t=this.value.trim();var i=liveIdx();if(i>=0)st.sessions[i].t=st.run.t||'Study session';keep()}});
  $('[data-a=add]').onclick=function(){var m=parseInt($('#stAddM').value,10);if(!(m>=1&&m<=600)){note('Type the minutes first (1 to 600).',true);return}
   st.sessions.push({d:ymd(),m:m,t:$('#stAddT').value.trim()||'Study session',c:new Date().toISOString()});$('#stAddM').value='';$('#stAddT').value='';keep();writeFile(true);note('Added '+m+' min to today.');paint()};
  function close(){sh.classList.remove('open')}
@@ -3066,14 +3091,17 @@ var STUDY=(function(){
  var shown={};
  function check(){var n=new Date(),hm=n.getHours()*60+n.getMinutes(),wd=n.getDay()>=1&&n.getDay()<=5;
   var slots=[[16*60+45,wd,'It\'s 4:45: time to start.'],[18*60,true,'You haven\'t studied yet today. A short session still counts.'],[20*60,true,'Last call for today. Keep your streak going.']];
-  slots.forEach(function(s){var k=ymd()+s[0];if(s[1]&&hm>=s[0]&&hm<s[0]+60&&!shown[k]&&!todayMin()&&!st.run){shown[k]=1;banner(s[2])}})}
+  var did=didToday();
+  if(did){var ob=document.querySelector('.stbanner');if(ob)ob.remove();if(toldFile!==ymd()){toldFile=ymd();writeFile(false)}return}
+  slots.forEach(function(s){var k=ymd()+s[0];if(s[1]&&hm>=s[0]&&hm<s[0]+60&&!shown[k]){shown[k]=1;banner(s[2])}})}
+ var toldFile=null;
  function banner(t){var old=document.querySelector('.stbanner');if(old)old.remove();var b=document.createElement('div');b.className='stbanner';b.setAttribute('role','status');b.innerHTML='<p>'+esc(t)+'</p>';
   var g=document.createElement('button');g.className='stbtn alt';g.type='button';var usePlan=typeof PLAN!=='undefined'&&PLAN.todayLeft&&PLAN.todayLeft()&&!PLAN.running();g.textContent=usePlan?'Start today\'s plan':'Start timer';g.onclick=function(){b.remove();if(usePlan){PLAN.start();return}open();if(!st.run)$('[data-a=go]').click()};
   var q1=document.createElement('button');q1.className='stbtn alt';q1.type='button';q1.textContent='Just one question';q1.onclick=function(){b.remove();if(typeof ONE!=='undefined')ONE.start()};
   var x=document.createElement('button');x.className='stx';x.type='button';x.setAttribute('aria-label','Dismiss');x.textContent='✕';x.onclick=function(){b.remove()};b.appendChild(q1);b.appendChild(g);b.appendChild(x);document.body.appendChild(b)}
  setInterval(check,60000);setTimeout(check,4000);
  writeFile(false);
- return {open:open,state:function(){return st},payload:payload,check:check,start:function(t){if(st.run)return false;st.run={at:Date.now(),t:t||''};keep();startTick();return true},stop:function(){if(st.run)$('[data-a=go]').click()}};
+ return {open:open,state:function(){return st},payload:payload,check:check,refresh:function(){try{adopt(localStorage.getItem(KEY))}catch(_){}},start:function(t){if(st.run)return false;var n0=Date.now();st.run={at:n0,t:t||'',c:new Date(n0).toISOString()};keep();startTick();return true},stop:function(){if(st.run)$('[data-a=go]').click()}};
 })();
 try{window.STUDY=STUDY}catch(_){}
 /* ===== weekly plan (calendar button next to the study timer) ===== */
@@ -4950,7 +4978,7 @@ module.exports = QRCode;
 }},C={};function req(n){n=n.replace(/^\.\//,"./").replace(/\.js$/,"");if(n==="./index"||n===".")n="./index";if(C[n])return C[n].exports;var m={exports:{}};C[n]=m;M[n](m,m.exports,req);return m.exports}return req("./index")})();
 function qrSvg(text){var q=new QRMAKER(-1,0);q.addData(text);q.make();var n=q.getModuleCount(),pad=4,sz=n+pad*2,p='';for(var r=0;r<n;r++)for(var c=0;c<n;c++)if(q.isDark(r,c))p+='M'+(c+pad)+' '+(r+pad)+'h1v1h-1z';return '<svg viewBox="0 0 '+sz+' '+sz+'" width="240" height="240" shape-rendering="crispEdges" role="img" aria-label="QR code of your sync key"><rect width="'+sz+'" height="'+sz+'" fill="#fff"/><path d="'+p+'" fill="#000"/></svg>'}
 /* ===== sync: sign in once on each device and progress moves across by itself (a secret gist on your GitHub account) ===== */
-var APPV='55 (5 Nov 2026)';
+var APPV='56 (5 Nov 2026)';
 var SYNC=(function(){
  var KEY='critical_sync',DEV='critical_dev',FILE='critical-sync.json',DESC='Critical progress sync (used by the Critical app)',API='https://api.github.com';
  var css=document.createElement('style');css.textContent='.syncpill .sp-ok{display:none}.syncpill[data-st=on]{color:var(--accent)}.syncpill[data-st=on] .sp-ok{display:inline}.syncpill[data-st=on] .sp-off{display:none}.syncpill[data-st=off] .sp-off{display:none}.syncpill[data-st=err]{color:var(--amber)}.syncpill[data-st=busy] svg{animation:rwtw 1.2s ease-in-out infinite}.syncbox{border:1.5px solid var(--line);border-radius:14px;padding:12px 14px;margin:12px 0 4px;background:var(--soft)}.syncbox .synchd{display:flex;align-items:center;gap:8px;font-weight:700}.syncbox .synchd svg{color:var(--accent);flex:none}.syncbox .note{margin:6px 0 0}.syncbox.on{border-color:var(--accent);background:var(--accent-bg)}.syncbox .savebtns{margin-top:10px}'+
