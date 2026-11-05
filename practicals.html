@@ -1,0 +1,1328 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#060a13">
+<link rel="icon" href="icons/icon-192.png">
+<title>Practicals Lab</title>
+<style>
+:root{--bg:#F3F5F1;--card:#FFFFFF;--ink:#17201B;--muted:#5B6660;--line:#DDE3DD;--brand:#0F8A64;--brand-soft:#DDF3EA;--ok:#1F7A55;--okbg:#E2F4EA;--warn:#B4231A;--warnbg:#FBE7E4;--gold:#c9a227;
+ --glass:#cfe3f033;--water:#7cc3ea55;--metal:#b9c2c9;--hot:#e2513b;--paper:#FBFAF6;
+ --ui:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;--mono:ui-monospace,"JetBrains Mono",Consolas,monospace}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0F1512;--card:#17201C;--ink:#E8EFEA;--muted:#9DAAA3;--line:#2A3630;--brand:#4FD8A6;--brand-soft:#1B3A2F;--ok:#62D3A2;--okbg:#173327;--warn:#FF8A80;--warnbg:#3A1E1C;--glass:#9fc6e022;--water:#3d8fc055;--metal:#7d878f;--paper:#E9E6DC;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0F1512;--card:#17201C;--ink:#E8EFEA;--muted:#9DAAA3;--line:#2A3630;--brand:#4FD8A6;--brand-soft:#1B3A2F;--ok:#62D3A2;--okbg:#173327;--warn:#FF8A80;--warnbg:#3A1E1C;--glass:#9fc6e022;--water:#3d8fc055;--metal:#7d878f;--paper:#E9E6DC;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--ui);font-size:16px;line-height:1.5}
+button,input,select{font:inherit;color:inherit}
+.app{max-width:1080px;margin:0 auto;padding:calc(12px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) calc(40px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.top{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:18px;text-decoration:none;color:inherit;margin-right:auto}
+.mark{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;background:linear-gradient(135deg,#19c08a,#1a8fd0);color:#fff}
+.mark svg{width:20px;height:20px}
+.pill{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:6px 12px;font:600 13px var(--mono);white-space:nowrap}
+#view{display:flex;flex-direction:column;gap:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;min-width:0}
+.card h2{margin:0 0 6px;font-size:19px}.card h3{margin:0 0 6px;font-size:16px}.card p{margin:0}
+.card p+p{margin-top:8px}
+.muted,.note{color:var(--muted)}.note{font-size:14px}
+.eyebrow{font:700 12px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--brand)}
+.hero{border:0;color:#fff;background:linear-gradient(125deg,#0b7a5c,#1286c9)}
+.hero h1{margin:0;font-size:clamp(24px,6vw,32px);line-height:1.15}.hero p{color:rgba(255,255,255,.9);margin-top:6px;max-width:62ch}
+.hero .hp{display:flex;gap:14px;align-items:center;margin-top:12px;flex-wrap:wrap}
+.hero .bar{flex:1;min-width:160px;height:10px;border-radius:6px;background:rgba(255,255,255,.25);overflow:hidden}.hero .bar i{display:block;height:100%;background:#fff;border-radius:6px}
+.hero .hp b{font:800 14px var(--mono)}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button{border:1.5px solid var(--line);background:var(--card);border-radius:12px;padding:8px 14px;font-weight:800;cursor:pointer}
+.seg button[aria-selected="true"]{border-color:var(--brand);background:var(--brand-soft)}
+.prgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+.prc{display:flex;flex-direction:column;gap:6px;text-align:left;border:1px solid var(--line);background:var(--card);border-radius:16px;padding:14px;cursor:pointer;min-width:0}
+.prc:hover,.prc:focus-visible{border-color:var(--brand)}
+.prc .rp{font:700 11.5px var(--mono);color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+.prc b{font-size:16.5px;line-height:1.25}
+.prc .ic{font-size:24px;line-height:1}
+.dots{display:flex;gap:5px;margin-top:auto;align-items:center}
+.dots i{width:22px;height:6px;border-radius:3px;background:var(--line)}.dots i.on{background:var(--brand)}
+.dots span{font:600 12px var(--mono);color:var(--muted);margin-left:6px}
+.btns{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.btn{border:0;border-radius:12px;padding:11px 16px;font-weight:800;cursor:pointer;background:var(--brand);color:#fff}
+.btn.primary{background:var(--brand);color:#fff}
+:root:not([data-theme="light"]) .btn.primary,:root:not([data-theme="light"]) .btn:not(.alt){color:#04130d}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]) .btn:not(.alt){color:#fff}}
+:root[data-theme="light"] .btn:not(.alt){color:#fff}
+.btn.alt{background:var(--card);color:var(--ink);border:1.5px solid var(--line)}
+.btn.sm{padding:7px 12px;font-size:14px;border-radius:10px}
+.btn[disabled]{opacity:.45;cursor:default}
+.back{border:0;background:none;color:var(--brand);font-weight:800;cursor:pointer;padding:4px 0}
+.stg{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.stg button{border:1.5px solid var(--line);background:var(--card);border-radius:12px;padding:9px 6px;font-weight:800;cursor:pointer;font-size:14.5px;display:flex;align-items:center;justify-content:center;gap:6px;min-width:0}
+.stg button[aria-selected="true"]{border-color:var(--brand);background:var(--brand-soft)}
+.stg button .tk{width:18px;height:18px;border-radius:50%;display:inline-grid;place-items:center;font-size:11px;background:var(--line);color:var(--muted);flex:none}
+.stg button .tk.on{background:var(--ok);color:#fff}
+.two{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:14px;align-items:start}
+@media (max-width:820px){.two{grid-template-columns:minmax(0,1fr)}.stg button span.l{font-size:13px}}
+.ap{width:100%;max-width:460px;display:block;margin:0 auto}
+.ap text{font-family:var(--ui)}
+.readout{font:600 14px var(--mono);text-align:center;margin-top:6px;color:var(--ink);min-height:1.4em}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:1.5px solid var(--line);background:var(--card);border-radius:10px;padding:6px 10px;font:600 13.5px var(--mono);cursor:pointer;min-width:42px}
+.chip.on{border-color:var(--brand);background:var(--brand-soft)}
+.chip.has{box-shadow:inset 0 -3px 0 var(--brand)}
+.lbl{font-weight:800;font-size:14px;margin:10px 0 6px}
+.chk{display:flex;gap:8px;align-items:center;font-size:15px;cursor:pointer;margin-top:8px}
+.chk input{width:18px;height:18px;accent-color:var(--brand)}
+select{border:1.5px solid var(--line);background:var(--card);border-radius:10px;padding:7px 10px}
+.tw{overflow-x:auto;margin-top:8px}
+table.tb{border-collapse:collapse;width:100%;font-size:14px}
+.tb th,.tb td{border:1px solid var(--line);padding:6px 8px;text-align:center;white-space:nowrap}
+.tb th{background:var(--brand-soft);font-size:12.5px;font-weight:800;white-space:normal}
+.tb td.n{font-family:var(--mono)}
+.tb .tr{cursor:pointer;border-radius:6px;padding:1px 4px}
+.tb .tr.x{text-decoration:line-through;opacity:.5}
+.tb .tr.an{background:var(--warnbg);color:var(--warn);font-weight:700}
+.tb tr.ex td{opacity:.45}
+.tb td.ok{color:var(--ok);font-weight:800}
+.gw{position:relative;width:100%;touch-action:none}
+.gw svg{display:block;width:100%;height:auto}
+.gw .hd{cursor:grab}.gw .hd:active{cursor:grabbing}
+.res{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-top:10px}
+.res div{border:1px solid var(--line);border-radius:12px;padding:8px 10px}
+.res b{display:block;font:800 19px var(--mono)}
+.res span{font-size:12.5px;color:var(--muted)}
+.mcq{border:1px solid var(--line);border-radius:14px;padding:12px;margin-top:10px}
+.mcq .qq{font-weight:700;margin-bottom:8px}
+.opts{display:grid;gap:6px}
+.opt{border:1.5px solid var(--line);background:var(--card);border-radius:12px;padding:10px 12px;text-align:left;cursor:pointer;font-size:15px}
+.opt.right{border-color:var(--ok);background:var(--okbg)}
+.opt.wrong{border-color:var(--warn);background:var(--warnbg)}
+.opt[disabled]{cursor:default}
+.exp{margin-top:8px;font-size:14.5px;padding:8px 10px;border-radius:10px;background:var(--brand-soft)}
+.order{display:grid;gap:6px}
+.order button{border:1.5px solid var(--line);background:var(--card);border-radius:12px;padding:10px 12px;text-align:left;cursor:pointer;font-size:15px}
+.order button.placed{border-color:var(--ok);background:var(--okbg);cursor:default}
+.order button .num{font:800 13px var(--mono);margin-right:8px;color:var(--ok)}
+.shake{animation:shk .35s}
+@keyframes shk{20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(3px)}}
+.risk{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0;border:1px solid var(--line);border-radius:12px;overflow:hidden;font-size:14.5px}
+.risk div{padding:8px 10px;border-top:1px solid var(--line)}
+.risk .h{background:var(--brand-soft);font-weight:800;border-top:0}
+.msg{border-radius:12px;padding:10px 12px;font-size:15px;margin-top:10px}
+.msg.ok{background:var(--okbg);color:var(--ok)}.msg.bad{background:var(--warnbg);color:var(--warn)}.msg.info{background:var(--brand-soft)}
+.steps{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.steps li{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:12px;padding:9px 11px;font-size:15px}
+.steps li i{font:800 12px var(--mono);width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--line);flex:none;font-style:normal}
+.steps li.done i{background:var(--ok);color:#fff}.steps li.cur{border-color:var(--brand);background:var(--brand-soft)}
+.steps li.done{color:var(--muted)}
+.inrow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px}
+.inrow input{width:130px;border:1.5px solid var(--line);background:var(--bg);border-radius:10px;padding:8px 10px;font-family:var(--mono)}
+.big{font:800 clamp(30px,8vw,44px)/1 var(--mono)}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-weight:700;z-index:60;max-width:90vw;text-align:center}
+.k{stroke:var(--ink);fill:none;stroke-width:2}
+.kt{stroke:var(--ink);fill:none;stroke-width:1.2}
+.kf{stroke:var(--ink);fill:var(--card);stroke-width:2}
+.mu{stroke:var(--muted);fill:none;stroke-width:1.2}
+.tx{fill:var(--ink);font-size:12px}
+.txs{fill:var(--muted);font-size:10px}
+.txb{fill:var(--ink);font-size:13px;font-weight:700;font-family:var(--mono)!important}
+.wa{fill:var(--water)}
+.gl{fill:var(--glass);stroke:var(--ink);stroke-width:2}
+.me{fill:var(--metal);stroke:var(--ink);stroke-width:2}
+.hot{fill:var(--hot)}
+.br{stroke:var(--brand);fill:none;stroke-width:2.5}
+.brf{fill:var(--brand)}
+.pap{fill:var(--paper);stroke:var(--ink);stroke-width:1.5}
+.gx line{stroke:var(--line)}.gx text{fill:var(--muted);font-size:12.5px;font-family:var(--mono)}
+.gx .ax{stroke:var(--ink);stroke-width:1.5}
+.gx .al{fill:var(--ink);font-size:12.5px;font-weight:700;font-family:var(--ui)}
+.gx .pt{fill:var(--brand);stroke:var(--card);stroke-width:2;cursor:pointer}
+.gx .pt.ex{fill:var(--card);stroke:var(--muted);stroke-dasharray:2 2}
+.gx .ul{stroke:#e8742a;stroke-width:2.5}
+.gx .bf{stroke:var(--ink);stroke-width:1.5;stroke-dasharray:6 5}
+.gx .hd{fill:#e8742a;fill-opacity:.25;stroke:#e8742a;stroke-width:2}
+.gx .bar{fill:var(--brand);fill-opacity:.8}
+.gx .eb{stroke:var(--ink);stroke-width:1.5}
+.gx .cv{stroke:var(--brand);stroke-width:2;fill:none}
+.gx .l2{stroke:#e8742a;stroke-width:2}
+.bub{fill:none;stroke:var(--ink);stroke-width:1}
+@media (prefers-reduced-motion:reduce){.bubs,.wv{display:none}}
+/* ===== Critical's live look for Shift Ready and Aptitude Gym (html.arc). Critical's Settings → Look → Classic turns it off. ===== */
+html.arc{--glow:#0a9fd0;--glow2:#6a5af0;--hot:#ff7a2f;
+ --bg:#edf1f8;--card:#ffffff;--ink:#0c1324;--muted:#4a5571;--line:#d4dbea;
+ --np:rgba(255,255,255,.88);--nedge:rgba(255,255,255,.95);--nglass:rgba(246,249,255,.78);--gridc:rgba(40,70,150,.055);
+ --nsh:0 1px 2px rgba(20,35,80,.05),0 14px 34px -16px rgba(20,35,80,.22);
+ --display:"Space Grotesk",var(--ui);--ease:cubic-bezier(.2,.8,.2,1);--spring:cubic-bezier(.34,1.5,.64,1);
+ --heroa:#4f46e5;--herob:#0a9fd0;background:var(--bg)}
+html.arc[data-app="apt"]{--glow:#0aa37a;--glow2:#0a8fd0;--heroa:#0b7a5c;--herob:#0a8fd0}
+@media (prefers-color-scheme:dark){html.arc:not([data-theme="light"]){--glow:#3ad4ff;--glow2:#8f80ff;
+ --bg:#060a13;--card:#0e1525;--ink:#e8edf7;--muted:#9ca8c3;--line:#223050;
+ --np:rgba(13,20,36,.86);--nedge:rgba(160,190,255,.07);--nglass:rgba(7,12,23,.74);--gridc:rgba(120,160,255,.05);
+ --nsh:0 24px 48px -26px rgba(0,0,0,.85);--heroa:#5b4bff;--herob:#1aa7e0}
+ html.arc[data-app="apt"]:not([data-theme="light"]){--glow:#3ef0b8;--glow2:#3ad4ff;--heroa:#0e8f6c;--herob:#1286c9}}
+html.arc[data-theme="dark"]{--glow:#3ad4ff;--glow2:#8f80ff;
+ --bg:#060a13;--card:#0e1525;--ink:#e8edf7;--muted:#9ca8c3;--line:#223050;
+ --np:rgba(13,20,36,.86);--nedge:rgba(160,190,255,.07);--nglass:rgba(7,12,23,.74);--gridc:rgba(120,160,255,.05);
+ --nsh:0 24px 48px -26px rgba(0,0,0,.85);--heroa:#5b4bff;--herob:#1aa7e0}
+html.arc[data-app="apt"][data-theme="dark"]{--glow:#3ef0b8;--glow2:#3ad4ff;--heroa:#0e8f6c;--herob:#1286c9}
+
+/* backdrop: soft glow, faint instrument grid and the live particle canvas */
+html.arc body{background:radial-gradient(1100px 520px at 50% -170px,color-mix(in srgb,var(--glow) 16%,transparent),transparent 72%),radial-gradient(800px 460px at 105% 0,color-mix(in srgb,var(--glow2) 12%,transparent),transparent 70%),var(--bg);min-height:100vh}
+html.arc body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;background-image:linear-gradient(var(--gridc) 1px,transparent 1px),linear-gradient(90deg,var(--gridc) 1px,transparent 1px);background-size:44px 44px;-webkit-mask-image:radial-gradient(ellipse 85% 60% at 50% 0%,#000 25%,transparent 78%);mask-image:radial-gradient(ellipse 85% 60% at 50% 0%,#000 25%,transparent 78%)}
+#arcBg{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
+html:not(.arc) #arcBg{display:none}
+html.arc .app{position:relative;z-index:1}
+html.arc h1,html.arc h2{font-family:var(--display);letter-spacing:-.02em}
+html.arc h1{font-weight:700}
+
+/* glass cards */
+html.arc .card{background:var(--np);border:1px solid var(--line);box-shadow:var(--nsh),inset 0 1px 0 var(--nedge);border-radius:20px;-webkit-backdrop-filter:blur(14px) saturate(1.3);backdrop-filter:blur(14px) saturate(1.3)}
+html.arc .card:has(.btn:hover){border-color:color-mix(in srgb,var(--glow) 40%,var(--line))}
+html.arc .hero{position:relative;overflow:hidden;border:0;color:#fff!important;background:linear-gradient(125deg,var(--heroa),var(--herob))!important;box-shadow:0 22px 48px -24px color-mix(in srgb,var(--heroa) 80%,transparent)}
+html.arc .hero::after{content:"";position:absolute;inset:-40% -20%;background:linear-gradient(105deg,transparent 42%,rgba(255,255,255,.16) 50%,transparent 58%);transform:translateX(-60%);pointer-events:none}
+html.arc:not(.arccalm) .hero::after{animation:arcSheen 7s ease-in-out infinite}
+@keyframes arcSheen{0%,55%{transform:translateX(-60%)}85%,100%{transform:translateX(60%)}}
+html.arc .hero *{position:relative;z-index:1}
+html.arc .hero .muted,html.arc .hero .sub{color:rgba(255,255,255,.86)}
+html.arc .hstats div{background:rgba(255,255,255,.14)!important;border:1px solid rgba(255,255,255,.16)}
+html.arc .hero .bar{background:rgba(255,255,255,.22)}html.arc .hero .bar i{background:#fff}
+html.arc .eyebrow{opacity:.9}
+
+/* buttons, pills, chips */
+html.arc .btn{border-radius:12px;transition:transform .25s var(--spring),box-shadow .25s,background .2s,border-color .2s}
+html.arc .btn:active{transform:scale(.96)}
+html.arc .btn.primary{background:linear-gradient(135deg,var(--glow2),var(--glow));color:#fff;border:0;box-shadow:0 10px 24px -12px color-mix(in srgb,var(--glow) 90%,transparent)}
+html.arc .btn.primary:hover{box-shadow:0 14px 30px -12px color-mix(in srgb,var(--glow) 100%,transparent);transform:translateY(-1px)}
+html.arc .pill{background:var(--np);border-color:var(--line);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+html.arc .mark{box-shadow:0 0 18px -4px color-mix(in srgb,var(--glow) 80%,transparent)}
+html.arc .bar i{background:linear-gradient(90deg,var(--glow2),var(--glow))}
+html.arc .opt{border-radius:14px;transition:transform .2s var(--spring),border-color .2s,background .2s,box-shadow .2s}
+html.arc .opt:hover:not([disabled]){border-color:var(--glow);box-shadow:0 0 0 3px color-mix(in srgb,var(--glow) 18%,transparent)}
+html.arc .tabs{background:var(--nglass)!important;-webkit-backdrop-filter:blur(18px) saturate(1.5);backdrop-filter:blur(18px) saturate(1.5);border-top:1px solid var(--line)}
+html.arc .tabs button[aria-current="page"]{color:var(--glow)}
+html.arc .callsign{font-family:var(--mono);text-shadow:0 0 22px color-mix(in srgb,var(--glow) 55%,transparent)}
+html.arc .toast{box-shadow:0 12px 32px -12px rgba(0,0,0,.5)}
+
+/* things arrive with a little lift */
+html.arc:not(.arccalm) .arcin{animation:arcUp .55s var(--ease) both}
+@keyframes arcUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+
+/* ---------- arcade cards on the home screens ---------- */
+.arcsec{display:flex;flex-direction:column;gap:12px}
+.arch{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.arch span{font:600 12px var(--mono);color:var(--muted);letter-spacing:.04em}
+.arcgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:12px}
+.arcc{position:relative;overflow:hidden;cursor:pointer;text-align:left;font:inherit;color:inherit;border-radius:20px;padding:16px;border:1px solid var(--line);background:var(--card);display:flex;flex-direction:column;gap:8px;min-width:0;transition:transform .3s var(--spring),box-shadow .3s,border-color .3s}
+html.arc .arcc{background:var(--np);box-shadow:var(--nsh),inset 0 1px 0 var(--nedge)}
+.arcc:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--glow,#4F46B8) 55%,var(--line))}
+.arcc:active{transform:scale(.98)}
+.arcc .ai{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;color:#fff;background:linear-gradient(135deg,var(--glow2,#4F46B8),var(--glow,#4F46B8));box-shadow:0 8px 20px -10px var(--glow,#4F46B8)}
+.arcc .ai svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.arcc b{font:700 17px var(--display,inherit)}
+.arcc p{font-size:13.5px;color:var(--muted);margin:0;line-height:1.45}
+.arcc .am{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:auto;font:600 12px var(--mono);color:var(--muted)}
+.arcc .am .go{margin-left:auto;font:800 13px var(--ui);color:#fff;background:linear-gradient(135deg,var(--glow2,#4F46B8),var(--glow,#4F46B8));border-radius:999px;padding:6px 13px}
+.arcc.big{grid-column:1/-1;padding:20px;background:linear-gradient(135deg,#0b1430,#12204a 55%,#0b2a3f)!important;color:#eef3ff;border-color:rgba(120,170,255,.25)}
+.arcc.big p,.arcc.big .am{color:rgba(220,230,255,.8)}
+.arcc.big b{font-size:21px}
+.arcc.big::before{content:"";position:absolute;inset:0;background:radial-gradient(420px 160px at 85% 0,rgba(58,212,255,.25),transparent 70%),radial-gradient(300px 140px at 0 100%,rgba(143,128,255,.25),transparent 70%);pointer-events:none}
+.arcc.big>*{position:relative}
+.arcc.boss{border-color:color-mix(in srgb,#ff7a2f 35%,var(--line))}
+.arcc.boss .ai{background:linear-gradient(135deg,#ff4d6d,#ff9a3c);box-shadow:0 8px 20px -10px #ff6a3c}
+.arcc.boss .am .go{background:linear-gradient(135deg,#ff4d6d,#ff9a3c)}
+.arcc.boss.won .ai{background:linear-gradient(135deg,#f2c46d,#ffdf8a);color:#3a2700}
+.arcc.lock{cursor:default;opacity:.62}
+.arcc.lock:hover{transform:none;border-color:var(--line)}
+.arcc .tro{font:700 12px var(--mono);color:#b8860b}
+html.arc .arcc .tro,[data-theme="dark"] .arcc .tro{color:#f2c46d}
+@media (prefers-color-scheme:dark){.arcc .tro{color:#f2c46d}}
+.arcrow{display:flex;gap:8px;flex-wrap:wrap}
+.arcbtn{font:inherit;font-size:13px;font-weight:700;border-radius:999px;padding:7px 13px;cursor:pointer;border:1px solid var(--line);background:var(--card);color:var(--ink);display:inline-flex;align-items:center;gap:6px}
+.arcbtn.hot{background:linear-gradient(135deg,#ff4d6d,#ff9a3c);color:#fff;border:0}
+.arcbtn.play{background:linear-gradient(135deg,var(--glow2,#4F46B8),var(--glow,#4F46B8));color:#fff;border:0}
+.arcbtn[disabled]{opacity:.5;cursor:default}
+.arcbtn svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+
+/* ---------- the game screen: always a dark control-room look ---------- */
+.arcov{position:fixed;inset:0;z-index:9500;display:flex;flex-direction:column;overflow:hidden;color:#e8edf7;
+ --bg:#060a13;--card:#0f1729;--ink:#e8edf7;--muted:#9ca8c3;--line:#26355a;--brand:#9D96F2;--brand-soft:#29264F;--on-brand:#15132B;
+ --gold:#F2C46D;--gold-soft:#3A2E14;--gold-ink:#F2C46D;--on-gold:#2B1D00;--ok:#62D3A2;--ok-soft:#153226;--warn:#FF8A80;--warn-soft:#3A1716;
+ --num:#8FB2F4;--num-soft:#1B2A4A;--verb:#F2C46D;--verb-soft:#3A2E14;--logic:#9D96F2;--logic-soft:#29264F;--mech:#5DCAA5;--mech-soft:#10302A;--check:#F0997B;--check-soft:#3A1F14;
+ --code:#0b1020;--code-ink:#e2e8f8;--acc:#3ad4ff;--acc2:#8f80ff;color-scheme:dark;
+ background:radial-gradient(900px 500px at 50% 110%,color-mix(in srgb,var(--acc) 16%,transparent),transparent 70%),radial-gradient(700px 400px at 50% -10%,color-mix(in srgb,var(--acc2) 18%,transparent),transparent 70%),#050813;
+ font-family:var(--ui,system-ui);opacity:0;transition:opacity .3s ease}
+.arcov.on{opacity:1}
+.arcov.boss{--acc:#ff7a3c;--acc2:#ff3d6e}
+.arcov canvas.fx{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.arcov .scan{position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(255,255,255,.018) 0 1px,transparent 1px 3px);mix-blend-mode:overlay}
+.arcbar{position:relative;z-index:2;display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top,0px)) max(14px,env(safe-area-inset-right,0px)) 8px max(14px,env(safe-area-inset-left,0px))}
+.arcbar .ttl{flex:1;min-width:0;font:700 14px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:#cfd8f5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.arcx,.arcsnd{flex:none;width:40px;height:40px;border-radius:12px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);color:#dfe6ff;cursor:pointer;display:grid;place-items:center;font:700 14px var(--ui)}
+.arcx.armed{width:auto;padding:0 12px;background:#ff4d6d;border-color:#ff4d6d;color:#fff}
+.arcsnd svg,.arcx svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round}
+.archud{position:relative;z-index:2;display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:0 max(14px,env(safe-area-inset-right,0px)) 0 max(14px,env(safe-area-inset-left,0px))}
+.arcsc{font:700 30px var(--mono);font-variant-numeric:tabular-nums;color:#fff;text-shadow:0 0 18px color-mix(in srgb,var(--acc) 60%,transparent);min-width:0}
+.arcsc small{display:block;font:600 10.5px var(--mono);letter-spacing:.12em;color:#8e9bc0;text-shadow:none}
+.arccombo{font:800 14px var(--mono);padding:5px 11px;border-radius:999px;background:rgba(255,255,255,.07);color:#9fb0d8;border:1px solid rgba(255,255,255,.12);transition:transform .3s var(--spring,ease),background .3s}
+.arccombo.hot{background:linear-gradient(135deg,var(--acc2),var(--acc));color:#fff;border-color:transparent;box-shadow:0 0 20px -4px var(--acc)}
+.arccombo.bump{transform:scale(1.25)}
+.arclives{display:flex;gap:6px;margin-left:auto}
+.arclives i{width:16px;height:16px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fff,var(--acc) 45%,color-mix(in srgb,var(--acc) 40%,#000));box-shadow:0 0 12px var(--acc);transition:transform .4s,opacity .4s,filter .4s}
+.arclives i.gone{opacity:.25;filter:grayscale(1);box-shadow:none;transform:scale(.7)}
+.arcmeter{flex:1 1 100%;display:flex;align-items:center;gap:10px;font:600 11px var(--mono);letter-spacing:.1em;color:#9fb0d8;text-transform:uppercase}
+.arcmeter .mt{flex:1;height:10px;border-radius:6px;background:rgba(255,255,255,.08);overflow:hidden;border:1px solid rgba(255,255,255,.08)}
+.arcmeter .mt i{display:block;height:100%;width:100%;border-radius:6px;background:linear-gradient(90deg,var(--acc2),var(--acc));transition:width .5s var(--ease,ease)}
+.arcmeter.hp .mt i{background:linear-gradient(90deg,#ff3d6e,#ff9a3c)}
+.arcmeter.hl .mt i{background:linear-gradient(90deg,#3ef0b8,#3ad4ff)}
+.arcmeter.hl.warn .mt i{background:linear-gradient(90deg,#ff9a3c,#ffd65a)}
+.arcmeter.hl.bad .mt i{background:linear-gradient(90deg,#ff3d6e,#ff7a3c)}
+.arcmeter b{color:#fff;font-size:12px;min-width:3.2em;text-align:right}
+.arctime{position:relative;z-index:2;height:4px;margin:10px max(14px,env(safe-area-inset-right,0px)) 0 max(14px,env(safe-area-inset-left,0px));border-radius:3px;background:rgba(255,255,255,.07);overflow:hidden}
+.arctime i{position:absolute;inset:0 auto 0 0;width:100%;background:linear-gradient(90deg,#3ef0b8,var(--acc));box-shadow:0 0 12px var(--acc)}
+.arctime.low i{background:linear-gradient(90deg,#ff3d6e,#ff9a3c);box-shadow:0 0 12px #ff3d6e}
+.arcstage{position:relative;z-index:2;flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:14px max(14px,env(safe-area-inset-right,0px)) calc(18px + env(safe-area-inset-bottom,0px)) max(14px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;align-items:center}
+.arcin2{width:100%;max-width:680px;display:flex;flex-direction:column;gap:14px;margin:auto 0}
+.arcev{font:700 12px var(--mono);letter-spacing:.08em;color:var(--acc);text-transform:uppercase;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.arcev .tm{color:#fff;background:rgba(255,255,255,.08);border-radius:6px;padding:2px 7px}
+.arcstory{font-size:15px;color:#c9d3ef;margin:-6px 0 0;line-height:1.45}
+.arcqc{background:rgba(15,23,41,.82);border:1px solid rgba(140,170,255,.16);border-radius:20px;padding:18px;box-shadow:0 24px 60px -30px rgba(0,0,0,.9),inset 0 1px 0 rgba(255,255,255,.05);font-size:17px;line-height:1.5;display:flex;flex-direction:column;gap:12px;min-width:0}
+.arcqc p{margin:0}
+.arcqc .qbody{display:flex;flex-direction:column;gap:10px}
+.arcopts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:10px}
+.arcopts.vis{grid-template-columns:repeat(4,minmax(0,1fr))}
+.arco{position:relative;font:inherit;font-size:16px;font-weight:600;text-align:left;color:#eef2ff;background:rgba(255,255,255,.05);border:1.5px solid rgba(140,170,255,.2);border-radius:14px;padding:13px 14px 13px 48px;cursor:pointer;min-height:54px;transition:transform .18s var(--spring,ease),border-color .2s,background .2s,box-shadow .2s;min-width:0;overflow-wrap:anywhere}
+.arco .k{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:26px;height:26px;border-radius:8px;display:grid;place-items:center;font:700 12px var(--mono);background:rgba(255,255,255,.08);color:#9fb0d8}
+.arcopts.vis .arco{padding:8px;display:grid;place-items:center;min-height:0}
+.arcopts.vis .arco .k{top:8px;left:8px;transform:none}
+.arco:hover:not([disabled]){border-color:var(--acc);background:rgba(58,212,255,.08);box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 18%,transparent)}
+.arco:active:not([disabled]){transform:scale(.97)}
+.arco.right{border-color:#3ef0b8;background:rgba(62,240,184,.14);box-shadow:0 0 24px -6px #3ef0b8}
+.arco.right .k{background:#3ef0b8;color:#04261b}
+.arco.wrong{border-color:#ff4d6d;background:rgba(255,77,109,.14)}
+.arco.wrong .k{background:#ff4d6d;color:#fff}
+.arco[disabled]{cursor:default}
+.arcqc pre.arccode{margin:0;background:#070b18;border:1px solid rgba(140,170,255,.16);border-radius:12px;padding:12px 14px;overflow-x:auto;font:500 14.5px/1.55 var(--mono);color:#e2e8f8;white-space:pre;tab-size:4}
+.arccode .kw{color:#c792ea}.arccode .st{color:#c3e88d}.arccode .nu{color:#f78c6c}.arccode .cm{color:#697098;font-style:italic}.arccode .fn{color:#82aaff}
+.arcsay{font:700 clamp(22px,5.5vw,34px)/1.2 var(--mono);letter-spacing:.04em;color:#fff;text-align:center;padding:14px 8px;text-shadow:0 0 24px color-mix(in srgb,var(--acc) 60%,transparent)}
+.arcsay small{display:block;font:600 12px var(--mono);letter-spacing:.12em;color:#8e9bc0;text-shadow:none;margin-bottom:6px;text-transform:uppercase}
+.arcflash{position:absolute;inset:0;pointer-events:none;z-index:3;opacity:0}
+.arcflash.g{background:radial-gradient(circle at 50% 60%,rgba(62,240,184,.22),transparent 60%);animation:arcFl .5s ease}
+.arcflash.r{background:radial-gradient(circle at 50% 60%,rgba(255,61,110,.28),transparent 60%);animation:arcFl .6s ease}
+@keyframes arcFl{0%{opacity:0}20%{opacity:1}100%{opacity:0}}
+.arcov:not(.calm) .shake{animation:arcShake .4s ease}
+@keyframes arcShake{0%,100%{transform:none}20%{transform:translateX(-8px)}40%{transform:translateX(7px)}60%{transform:translateX(-5px)}80%{transform:translateX(3px)}}
+.arcpop{position:absolute;z-index:4;pointer-events:none;font:800 22px var(--mono);color:#fff;text-shadow:0 0 16px var(--acc);transform:translate(-50%,-50%);animation:arcPop 1s ease-out forwards;white-space:nowrap}
+.arcpop.big{font-size:30px;color:#ffd65a;text-shadow:0 0 22px #ff9a3c}
+.arcpop.bad{color:#ff8aa0;text-shadow:0 0 16px #ff3d6e}
+@keyframes arcPop{0%{opacity:0;transform:translate(-50%,-30%) scale(.7)}15%{opacity:1;transform:translate(-50%,-60%) scale(1.1)}100%{opacity:0;transform:translate(-50%,-160%) scale(1)}}
+.arcov.calm .arcpop{animation:arcPopC 1s ease-out forwards}
+@keyframes arcPopC{0%,70%{opacity:1}100%{opacity:0}}
+/* intro, countdown and results */
+.arcintro{text-align:center;display:flex;flex-direction:column;gap:14px;align-items:center}
+.arcintro .badge{font:700 12px var(--mono);letter-spacing:.14em;color:var(--acc);text-transform:uppercase}
+.arcintro h2{font:700 clamp(30px,8vw,54px)/1.05 var(--display,var(--ui));letter-spacing:-.02em;margin:0;background:linear-gradient(100deg,#fff 10%,color-mix(in srgb,var(--acc) 70%,#fff) 50%,color-mix(in srgb,var(--acc2) 70%,#fff) 90%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 20px color-mix(in srgb,var(--acc) 40%,transparent))}
+.arcintro p{margin:0;max-width:34em;color:#c9d3ef;font-size:16px;line-height:1.5}
+.arcrules{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.arcrules span{font:600 12.5px var(--mono);color:#dfe6ff;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:999px;padding:6px 12px}
+.arcgo{font:inherit;font-size:17px;font-weight:800;border:0;border-radius:14px;padding:14px 26px;cursor:pointer;color:#fff;background:linear-gradient(135deg,var(--acc2),var(--acc));box-shadow:0 14px 34px -12px var(--acc);transition:transform .2s var(--spring,ease)}
+.arcgo:hover{transform:translateY(-2px)}.arcgo:active{transform:scale(.97)}
+.arcgo.alt{background:rgba(255,255,255,.08);box-shadow:none;border:1px solid rgba(255,255,255,.16);font-size:15px;padding:12px 18px}
+.arcacts{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.arccount{font:800 clamp(80px,22vw,160px)/1 var(--mono);color:#fff;text-align:center;text-shadow:0 0 40px var(--acc);animation:arcCt .8s ease both}
+@keyframes arcCt{0%{opacity:0;transform:scale(1.6)}30%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(.8)}}
+.arcres{display:flex;flex-direction:column;gap:14px;align-items:center;text-align:center}
+.arcres .big{font:800 clamp(46px,13vw,84px)/1 var(--mono);color:#fff;text-shadow:0 0 30px var(--acc)}
+.arcres .nb{font:800 14px var(--mono);letter-spacing:.16em;color:#ffd65a;text-transform:uppercase;text-shadow:0 0 18px #ff9a3c}
+.arcres .gr{font:800 clamp(70px,20vw,120px)/1 var(--display,var(--ui));background:linear-gradient(160deg,#fff,var(--acc));-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 24px color-mix(in srgb,var(--acc) 50%,transparent))}
+.arcstats{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;width:100%}
+.arcstats div{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:10px 12px;text-align:left}
+.arcstats b{display:block;font:700 20px var(--mono);color:#fff}
+.arcstats span{font-size:11.5px;color:#9fb0d8;letter-spacing:.04em}
+.arcrep{width:100%;text-align:left;background:rgba(15,23,41,.8);border:1px solid rgba(140,170,255,.16);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:6px;font-size:14px}
+.arcrep h3{margin:0 0 4px;font:700 13px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--acc)}
+.arcrep .ln{display:flex;gap:10px;align-items:baseline}
+.arcrep .ln .tm{font:600 12px var(--mono);color:#8e9bc0;flex:none}
+.arcrep .ln .ok{color:#3ef0b8;font-weight:800}.arcrep .ln .no{color:#ff8aa0;font-weight:800}
+.arcrv{width:100%;text-align:left;display:flex;flex-direction:column;gap:8px}
+.arcrv details{background:rgba(15,23,41,.8);border:1px solid rgba(140,170,255,.14);border-radius:14px;padding:10px 12px}
+.arcrv summary{cursor:pointer;font-weight:700;color:#dfe6ff;list-style:none;display:flex;gap:8px}
+.arcrv summary::-webkit-details-marker{display:none}
+.arcrv summary .x{color:#ff8aa0}
+.arcrv .rb{margin-top:10px;display:flex;flex-direction:column;gap:8px;font-size:14.5px;color:#c9d3ef}
+.arcrv .rb p{margin:0}
+.arcov .expl b,.arcov .rb b{color:#fff}
+.arcwin{font:800 clamp(30px,8vw,52px)/1.05 var(--display,var(--ui));margin:0;color:#fff}
+.arcwin.lose{color:#ff8aa0}
+.arcbossart{width:min(190px,48vw);aspect-ratio:1;position:relative}
+.arcbossart canvas{width:100%;height:100%}
+.arcov .tbl{overflow-x:auto}
+.arcov table{border-collapse:collapse;font-size:14px}
+.arcov th,.arcov td{border:1px solid rgba(140,170,255,.18);padding:5px 8px;text-align:center}
+.arcov .passage{background:rgba(255,255,255,.04);border:1px solid rgba(140,170,255,.14);border-radius:12px;padding:12px;font-size:15px}
+.arcov .passage h4{margin:0 0 6px}
+.arcov .stmt{font-weight:700;font-size:17px}
+.arcov .seq{font:700 22px var(--mono);letter-spacing:.04em}
+.arcov .pairs{display:flex;flex-direction:column;gap:6px;font-family:var(--mono)}
+.arcov .pr{display:grid;grid-template-columns:28px 1fr 1fr;gap:8px;background:rgba(255,255,255,.04);border-radius:8px;padding:6px 8px}
+.arcov .frames{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.arcov .fr{width:64px;height:64px}
+.arcov .arcopts.vis .fr{width:100%;max-width:80px;height:auto}
+.arcov .diag{display:flex;justify-content:center;overflow-x:auto}
+.arcov .diag svg{max-width:100%;height:auto}
+.arcov mark{background:#ffd65a;color:#1c1500;border-radius:3px;padding:0 2px}
+@media (max-width:520px){.arcsc{font-size:24px}.arcqc{padding:14px;font-size:16px}.arco{font-size:15px}.arcopts.vis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (prefers-reduced-motion:reduce){.arcov *{animation-duration:.01ms!important}}
+
+</style>
+</head>
+<body>
+<div class="app">
+ <header class="top"><a class="brand" href="./" title="Back to the app menu"><span class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6M10 3v6L5 18a2 2 0 0 0 1.8 3h10.4a2 2 0 0 0 1.8-3l-5-9V3"/><path d="M7.5 14h9"/></svg></span>Practicals Lab</a><span class="pill" id="pct">0%</span></header>
+ <main id="view"></main>
+</div>
+<script>
+/* ===== Arcade: Critical's live look, plus the game engine for arcade rounds, boss fights and shift missions.
+   Shared by Shift Ready and Aptitude Gym. Works offline; nothing here talks to the internet. ===== */
+(function(){
+var R=document.documentElement;
+function lg(k){try{return localStorage.getItem(k)}catch(_){return null}}
+function ls(k,v){try{localStorage.setItem(k,v)}catch(_){}}
+function classic(){return lg('critical_look')==='classic'}
+function calm(){var m=lg('critical_motion');if(m==='less')return true;if(m==='full')return false;try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(_){return false}}
+function esc(t){return String(t).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+function el(tag,cls,html){var e=document.createElement(tag);if(cls)e.className=cls;if(html!=null)e.innerHTML=html;return e}
+function fmt(n){return Math.round(n).toLocaleString('en-GB')}
+var IC={x:'<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>',son:'<svg viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/></svg>',soff:'<svg viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M17 9l5 6M22 9l-5 6"/></svg>'};
+
+/* ---------- the look ---------- */
+function initLook(app){R.setAttribute('data-app',app||'');if(classic())return;R.classList.add('arc');if(calm())R.classList.add('arccalm');
+ if(!document.getElementById('arcFonts')){var l=el('link');l.id='arcFonts';l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&display=swap';document.head.appendChild(l)}
+ bg();entrances()}
+function bg(){var cv=el('canvas');cv.id='arcBg';cv.setAttribute('aria-hidden','true');document.body.insertBefore(cv,document.body.firstChild);
+ var c=cv.getContext('2d'),W=0,H=0,dpr=Math.min(2,window.devicePixelRatio||1),P=[],col='58,212,255';
+ function rgb(){try{var v=getComputedStyle(R).getPropertyValue('--glow').trim(),m=/^#?([0-9a-f]{6})$/i.exec(v);if(m){var n=parseInt(m[1],16);col=(n>>16)+','+(n>>8&255)+','+(n&255)}}catch(_){}}
+ function size(){W=innerWidth;H=innerHeight;cv.width=W*dpr;cv.height=H*dpr;c.setTransform(dpr,0,0,dpr,0,0);var n=Math.round(Math.min(70,W*H/26000));P=[];for(var i=0;i<n;i++)P.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.18,vy:-.05-Math.random()*.22,r:.6+Math.random()*1.6,a:.25+Math.random()*.5})}
+ function draw(){c.clearRect(0,0,W,H);for(var i=0;i<P.length;i++){var p=P[i];for(var j=i+1;j<P.length;j++){var q=P[j],dx=p.x-q.x,dy=p.y-q.y,d=dx*dx+dy*dy;if(d<9000){c.strokeStyle='rgba('+col+','+(.12*(1-d/9000)).toFixed(3)+')';c.lineWidth=1;c.beginPath();c.moveTo(p.x,p.y);c.lineTo(q.x,q.y);c.stroke()}}
+  c.fillStyle='rgba('+col+','+p.a+')';c.beginPath();c.arc(p.x,p.y,p.r,0,6.283);c.fill()}}
+ function step(){if(!document.hidden&&!G&&R.classList.contains('arc')&&!R.classList.contains('arccalm')){P.forEach(function(p){p.x+=p.vx;p.y+=p.vy;if(p.y<-10){p.y=H+10;p.x=Math.random()*W}if(p.x<-10)p.x=W+10;if(p.x>W+10)p.x=-10});draw()}requestAnimationFrame(step)}
+ rgb();size();draw();addEventListener('resize',function(){size();draw()});try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){rgb();draw()})}catch(_){}
+ requestAnimationFrame(step)}
+function entrances(){var v=document.getElementById('view');if(!v||!window.MutationObserver)return;
+ new MutationObserver(function(ms){if(R.classList.contains('arccalm'))return;var k=0;ms.forEach(function(m){[].forEach.call(m.addedNodes,function(n){if(n.nodeType!==1||k>12)return;n.classList.add('arcin');n.style.animationDelay=(k++*45)+'ms'})})}).observe(v,{childList:true})}
+
+/* ---------- sound ---------- */
+var ac=null;function sndOn(){return lg('arc_sound')!=='off'}
+function tone(f,t0,d,type,vol,f2){if(!sndOn())return;try{if(!ac){var A=window.AudioContext||window.webkitAudioContext;if(!A)return;ac=new A()}if(ac.state==='suspended')ac.resume();var t=ac.currentTime+t0,o=ac.createOscillator(),g=ac.createGain();o.type=type||'sine';o.frequency.setValueAtTime(f,t);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d);g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(vol||.05,t+.012);g.gain.exponentialRampToValueAtTime(0.0001,t+d);o.connect(g);g.connect(ac.destination);o.start(t);o.stop(t+d+.02)}catch(_){}}
+function sfx(k,n){n=n||0;
+ if(k==='ok'){var b=523*Math.pow(1.0595,Math.min(12,n*2));tone(b,0,.12,'triangle',.05);tone(b*1.5,.07,.16,'triangle',.045)}
+ else if(k==='bad'){tone(220,0,.28,'sawtooth',.035,110)}
+ else if(k==='tick'){tone(1100,0,.05,'square',.02)}
+ else if(k==='go'){tone(392,0,.12,'triangle',.05);tone(523,.12,.12,'triangle',.05);tone(784,.24,.25,'triangle',.05)}
+ else if(k==='count'){tone(660,0,.09,'square',.03)}
+ else if(k==='win'){[523,659,784,1047].forEach(function(f,i){tone(f,i*.11,.3,'triangle',.05)})}
+ else if(k==='lose'){[392,330,262,196].forEach(function(f,i){tone(f,i*.14,.32,'sawtooth',.03)})}
+ else if(k==='hit'){tone(180,0,.16,'square',.04,60);tone(900,0,.08,'triangle',.04)}
+ else if(k==='combo'){tone(880,0,.1,'triangle',.05);tone(1320,.08,.18,'triangle',.05)}}
+
+/* ---------- Python code, nicely coloured ---------- */
+function code(src){var re=/(#[^\n]*)|(f?"[^"\n]*"|f?'[^'\n]*')|\b(\d+(?:\.\d+)?)\b|\b(if|elif|else|for|in|while|def|return|import|break|and|or|not|True|False|None)\b|\b(print|range|len|max|min|sum|sorted|input|int|str|round|float|abs|append)\b/g,out='',last=0,m;
+ while((m=re.exec(src))){out+=esc(src.slice(last,m.index));out+='<span class="'+(m[1]?'cm':m[2]?'st':m[3]?'nu':m[4]?'kw':'fn')+'">'+esc(m[0])+'</span>';last=re.lastIndex}
+ return '<pre class="arccode"><code>'+out+esc(src.slice(last))+'</code></pre>'}
+
+/* ---------- the game ---------- */
+var G=null;
+function play(cfg){if(G)return;var cm=calm();
+ G={cfg:cfg,i:0,score:0,combo:0,bestCombo:0,lives:cfg.lives||3,right:0,wrong:0,log:[],fr:[],hp:cfg.boss?cfg.boss.hp:0,health:100,t0:0,q:null,lock:false,timer:0,paused:null,phase:1,mult:1};
+ var ov=el('div','arcov'+(cfg.kind==='boss'?' boss':'')+(cm?' calm':''));ov.setAttribute('role','dialog');ov.setAttribute('aria-modal','true');ov.setAttribute('aria-label',cfg.title);
+ if(cfg.acc)ov.style.setProperty('--acc',cfg.acc);if(cfg.acc2)ov.style.setProperty('--acc2',cfg.acc2);
+ ov.innerHTML='<canvas class="fx" aria-hidden="true"></canvas><div class="scan"></div><div class="arcflash"></div>'+
+  '<div class="arcbar"><button type="button" class="arcx" aria-label="Quit">'+IC.x+'</button><div class="ttl"></div><button type="button" class="arcsnd" aria-label="Sound"></button></div>'+
+  '<div class="archud" hidden></div><div class="arctime" hidden><i></i></div><div class="arcstage"><div class="arcin2"></div></div>';
+ document.body.appendChild(ov);document.body.style.overflow='hidden';G.ov=ov;
+ var $=function(s){return ov.querySelector(s)},stage=$('.arcin2'),hud=$('.archud'),tbar=$('.arctime'),tfill=tbar.querySelector('i');
+ $('.ttl').textContent=cfg.title;
+ function sndBtn(){var b=$('.arcsnd');b.innerHTML=sndOn()?IC.son:IC.soff;b.setAttribute('aria-pressed',sndOn()?'true':'false')}sndBtn();
+ $('.arcsnd').onclick=function(){ls('arc_sound',sndOn()?'off':'on');sndBtn()};
+ var armed=false,xb=$('.arcx');
+ function quitArm(){if(G.ended){close();return}if(!armed){armed=true;xb.classList.add('armed');xb.textContent='Quit?';setTimeout(function(){if(!G)return;armed=false;xb.classList.remove('armed');xb.innerHTML=IC.x},2600);return}close()}
+ xb.onclick=quitArm;
+ requestAnimationFrame(function(){ov.classList.add('on')});
+
+
+ /* sparks in the background, bursts on a right answer */
+ var cv=$('canvas.fx'),cx=cv.getContext('2d'),SP=[],BU=[],W=0,H=0,dpr=Math.min(2,window.devicePixelRatio||1);
+
+ for(var i=0;i<40;i++)SP.push({x:Math.random(),y:Math.random(),r:.5+Math.random()*1.6,v:.01+Math.random()*.04,a:.2+Math.random()*.5});
+ function acc(){var v=getComputedStyle(ov).getPropertyValue('--acc').trim(),m=/^#?([0-9a-f]{6})$/i.exec(v);if(!m)return '58,212,255';var n=parseInt(m[1],16);return (n>>16)+','+(n>>8&255)+','+(n&255)}
+ var AC=acc();
+ function burst(x,y,n,gold){if(cm)return;for(var k=0;k<n;k++){var an=Math.random()*6.283,sp=2+Math.random()*5;BU.push({x:x,y:y,vx:Math.cos(an)*sp,vy:Math.sin(an)*sp-1.5,l:1,c:gold?(Math.random()<.5?'255,214,90':'255,154,60'):(Math.random()<.5?AC:'62,240,184')})}}
+ G.burst=burst;
+ function frame(){if(!G||G.ov!==ov)return;var w=cv.clientWidth,h=cv.clientHeight;if(w!==W||h!==H){W=w;H=h;cv.width=W*dpr;cv.height=H*dpr;cx.setTransform(dpr,0,0,dpr,0,0)}
+  cx.clearRect(0,0,W,H);SP.forEach(function(p){if(!cm){p.y-=p.v/60;if(p.y<-.02){p.y=1.02;p.x=Math.random()}}cx.fillStyle='rgba('+AC+','+p.a+')';cx.beginPath();cx.arc(p.x*W,p.y*H,p.r,0,6.283);cx.fill()});
+  for(var k=BU.length-1;k>=0;k--){var b=BU[k];b.x+=b.vx;b.y+=b.vy;b.vy+=.18;b.l-=.022;if(b.l<=0){BU.splice(k,1);continue}cx.fillStyle='rgba('+b.c+','+b.l.toFixed(2)+')';cx.fillRect(b.x-2,b.y-2,4,4)}
+  requestAnimationFrame(frame)}
+ requestAnimationFrame(frame);
+
+ function flash(c){var f=$('.arcflash');f.className='arcflash';void f.offsetWidth;f.className='arcflash '+c}
+ function pop(txt,x,y,cls){var p=el('div','arcpop'+(cls?' '+cls:''),esc(txt));p.style.left=x+'px';p.style.top=y+'px';ov.appendChild(p);setTimeout(function(){p.remove()},1100)}
+
+ /* ----- HUD ----- */
+ function hudHTML(){var h='';
+  if(cfg.kind!=='boss')h+='<div class="arcsc"><small>SCORE</small><span data-k="sc">'+fmt(G.score)+'</span></div>';
+  h+='<span class="arccombo" data-k="cb">×1</span>';
+  if(cfg.kind!=='mission'){h+='<div class="arclives" aria-label="Lives">';for(var i=0;i<(cfg.lives||3);i++)h+='<i></i>';h+='</div>'}
+  if(cfg.kind==='boss')h+='<div class="arcmeter hp"><span>'+esc(cfg.boss.name)+'</span><div class="mt"><i data-k="hp"></i></div><b data-k="hpn"></b></div>';
+  if(cfg.kind==='mission')h+='<div class="arcmeter hl" data-k="hlw"><span>Plant health</span><div class="mt"><i data-k="hl"></i></div><b data-k="hln"></b></div>';
+  if(cfg.kind==='arcade'&&cfg.best)h+='<div class="arcmeter"><span>Best</span><div class="mt" style="opacity:.0;flex:0 0 0"></div><b>'+fmt(cfg.best)+'</b></div>';
+  hud.innerHTML=h;hud.hidden=false;upd()}
+ function upd(){var s=hud.querySelector('[data-k=sc]');if(s)s.textContent=fmt(G.score);
+  var cb=hud.querySelector('[data-k=cb]');if(cb){cb.textContent='×'+G.mult+(G.combo>=2?' · '+G.combo+' in a row':'');cb.classList.toggle('hot',G.mult>1)}
+  [].forEach.call(hud.querySelectorAll('.arclives i'),function(x,i){x.classList.toggle('gone',i>=G.lives)});
+  if(cfg.kind==='boss'){var f=G.hp/cfg.boss.hp;hud.querySelector('[data-k=hp]').style.width=(f*100)+'%';hud.querySelector('[data-k=hpn]').textContent=Math.max(0,G.hp)+' HP'}
+  if(cfg.kind==='mission'){hud.querySelector('[data-k=hl]').style.width=G.health+'%';hud.querySelector('[data-k=hln]').textContent=G.health+'%';var w=hud.querySelector('[data-k=hlw]');w.classList.toggle('warn',G.health<=50&&G.health>25);w.classList.toggle('bad',G.health<=25)}}
+
+ /* ----- intro ----- */
+ function intro(){G.stage='intro';var i=cfg.intro||{};
+  stage.innerHTML='<div class="arcintro">'+(cfg.kind==='boss'?'<div class="arcbossart"><canvas width="380" height="380" aria-hidden="true"></canvas></div>':'')+'<span class="badge">'+esc(i.badge||'')+'</span><h2>'+esc(i.h||cfg.title)+'</h2>'+(i.p?'<p>'+i.p+'</p>':'')+
+   (i.rules?'<div class="arcrules">'+i.rules.map(function(r){return '<span>'+esc(r)+'</span>'}).join('')+'</div>':'')+
+   '<div class="arcacts"><button type="button" class="arcgo" data-a="start">'+esc(i.go||'Start')+'</button><button type="button" class="arcgo alt" data-a="close">Not now</button></div>'+(i.foot?'<p style="font-size:13px;color:#8e9bc0">'+i.foot+'</p>':'')+'</div>';
+  stage.querySelector('[data-a=start]').onclick=countdown;stage.querySelector('[data-a=close]').onclick=close;
+  if(cfg.kind==='boss')bossArt(stage.querySelector('.arcbossart canvas'),cfg.boss.col||'#ff5a3c');
+  setTimeout(function(){try{stage.querySelector('[data-a=start]').focus({preventScroll:true})}catch(_){}},60)}
+ function countdown(){G.stage='count';hudHTML();if(cm){sfx('go');G.t0=Date.now();ask();return}var n=3;
+  (function t(){if(!G||G.ov!==ov)return;if(n===0){sfx('go');G.t0=Date.now();ask();return}stage.innerHTML='<div class="arccount">'+n+'</div>';sfx('count');n--;setTimeout(t,700)})()}
+
+ /* ----- a question ----- */
+ function ask(){if(!G||G.ov!==ov)return;G.stage='q';G.lock=false;armed=false;
+  var ev=cfg.kind==='mission'?cfg.events[G.i]:null,q=ev?ev.q:cfg.next(G.i,G);G.q=q;
+  var h='';
+  if(ev)h+='<div class="arcev"><span class="tm">'+esc(ev.tm)+'</span><span>'+esc(ev.ev)+'</span><span style="color:#8e9bc0">Event '+(G.i+1)+' of '+cfg.events.length+'</span></div>'+(ev.story?'<p class="arcstory">'+ev.story+'</p>':'');
+  else if(cfg.kind==='boss')h+='<div class="arcev"><span>'+esc(cfg.boss.name)+(G.phase>1?' · phase 2':'')+'</span><span style="color:#8e9bc0">Question '+(G.i+1)+'</span></div>';
+  else h+='<div class="arcev"><span>'+esc(q.tag||cfg.title)+'</span><span style="color:#8e9bc0">Question '+(G.i+1)+'</span></div>';
+  h+='<div class="arcqc"><div class="qbody">'+q.html+'</div><div class="arcopts'+(q.vis?' vis':'')+'" role="group" aria-label="Answers">'+q.opts.map(function(o,k){return '<button type="button" class="arco" data-k="'+k+'"><span class="k">'+(k+1)+'</span><span>'+o+'</span></button>'}).join('')+'</div></div>';
+  stage.innerHTML=h;stage.parentNode.scrollTop=0;
+  [].forEach.call(stage.querySelectorAll('.arco'),function(b){b.onclick=function(e){pick(+b.getAttribute('data-k'),e)}});
+  var lim=cfg.time?cfg.time(G.i,G):20000;if(cfg.kind==='boss'&&G.phase>1)lim*=.8;G.lim=lim;G.qs=Date.now();G.left=lim;tbar.hidden=false;tbar.classList.remove('low');runTimer()}
+ function runTimer(){cancelAnimationFrame(G.timer);var lastTick=null;
+  (function t(){if(!G||G.ov!==ov||G.lock||G.paused!=null)return;var left=Math.max(0,G.lim-(Date.now()-G.qs));G.left=left;tfill.style.width=(left/G.lim*100)+'%';var low=left<Math.min(4000,G.lim*.3);tbar.classList.toggle('low',low);
+   var s=Math.ceil(left/1000);if(low&&s!==lastTick&&s<=3){lastTick=s;sfx('tick')}
+   if(left<=0){pick(-1);return}G.timer=requestAnimationFrame(t)})()}
+ function onVis(){if(!G||G.ov!==ov||G.stage!=='q'||G.lock)return;if(document.hidden){G.paused=G.left;cancelAnimationFrame(G.timer)}else if(G.paused!=null){G.qs=Date.now()-(G.lim-G.paused);G.paused=null;runTimer()}}
+ document.addEventListener('visibilitychange',onVis);G.onVis=onVis;
+
+ function pick(k,e){if(!G||G.lock||G.stage!=='q')return;G.lock=true;cancelAnimationFrame(G.timer);var q=G.q,ok=k===q.ans,frac=Math.max(0,G.left/G.lim),bs=stage.querySelectorAll('.arco');
+  [].forEach.call(bs,function(b,i){b.disabled=true;if(i===q.ans)b.classList.add('right');else if(i===k)b.classList.add('wrong')});
+  var r=(e&&e.currentTarget?e.currentTarget:bs[q.ans]||stage).getBoundingClientRect(),px=r.left+r.width/2,py=r.top+r.height/2;
+  G.log.push({q:q,k:k,ok:ok,frac:frac,ev:cfg.kind==='mission'?cfg.events[G.i]:null});G.fr.push(frac);
+  if(ok){G.right++;G.combo++;if(G.combo>G.bestCombo)G.bestCombo=G.combo;var m=Math.min(5,1+Math.floor(G.combo/3));if(m>G.mult){G.mult=m;sfx('combo');var cb=hud.querySelector('[data-k=cb]');if(cb){cb.classList.add('bump');setTimeout(function(){cb.classList.remove('bump')},300)}pop('COMBO ×'+m,innerWidth/2,innerHeight*.3,'big')}else sfx('ok',G.combo);
+   var pts=Math.round((100+100*frac)*G.mult);G.score+=pts;flash('g');burst(px,py,cm?0:18+G.mult*4);
+   if(cfg.kind==='boss'){var crit=frac>=.6,dmg=crit?2:1;G.hp=Math.max(0,G.hp-dmg);sfx('hit');pop(crit?'CRITICAL HIT −2':'HIT −1',px,py-30,crit?'big':'');if(G.phase===1&&G.hp<=cfg.boss.hp/2&&G.hp>0){G.phase=2;setTimeout(function(){pop('PHASE 2: it\'s speeding up',innerWidth/2,innerHeight*.38,'bad')},500)}}
+   else pop('+'+pts,px,py-30)}
+  else{G.wrong++;G.combo=0;G.mult=1;sfx('bad');flash('r');var qc=stage.querySelector('.arcqc');if(qc){qc.classList.remove('shake');void qc.offsetWidth;qc.classList.add('shake')}
+   if(cfg.kind==='mission'){G.health=Math.max(0,G.health-25);pop(k<0?'Too slow: −25%':'−25% plant health',px,py-30,'bad')}
+   else{G.lives--;pop(k<0?'Out of time':'Life lost',px,py-30,'bad')}}
+  upd();if(cfg.onAnswer)try{cfg.onAnswer(q,ok)}catch(_){}
+  var over=cfg.kind==='boss'?(G.hp<=0||G.lives<=0):cfg.kind==='mission'?(G.health<=0||G.i+1>=cfg.events.length):(G.lives<=0||(cfg.n&&G.i+1>=cfg.n));
+  if(ok){setTimeout(function(){next(over)},cm?500:680)}
+  else{var nb=el('div','arcacts','<button type="button" class="arcgo alt" data-a="next">'+(over?'See how you did':'Next')+' ▸</button>');stage.querySelector('.arcqc').appendChild(nb);var go=nb.querySelector('button');go.onclick=function(){next(over)};try{go.focus({preventScroll:true})}catch(_){}
+   G.auto=setTimeout(function(){if(G&&G.ov===ov&&G.stage==='q'&&G.lock)next(over)},over?3200:2600)}}
+ function next(over){clearTimeout(G.auto);if(!G||G.ov!==ov||G.stage!=='q')return;if(over){end();return}G.i++;ask()}
+
+ /* ----- the end ----- */
+ function end(){G.stage='end';G.ended=true;tbar.hidden=true;cancelAnimationFrame(G.timer);var res={kind:cfg.kind,score:G.score,right:G.right,wrong:G.wrong,answered:G.log.length,bestCombo:G.bestCombo,ms:Date.now()-G.t0,log:G.log};
+  res.acc=res.answered?Math.round(res.right/res.answered*100):0;var af=G.fr.length?G.fr.reduce(function(a,b){return a+b},0)/G.fr.length:0;res.speed=af;
+  if(cfg.kind==='boss')res.won=G.hp<=0;
+  if(cfg.kind==='mission'){res.health=G.health;res.tripped=G.health<=0;res.grade=res.tripped?'U':G.health===100?(af>=.45?'A*':'A'):G.health>=75?'B':G.health>=50?'C':'D';res.events=cfg.events.length}
+  var out={};try{out=cfg.onEnd(res)||{}}catch(e){if(window.console)console.error(e)}
+  var win=cfg.kind==='boss'?res.won:cfg.kind==='mission'?!res.tripped:true;sfx(win?'win':'lose');
+  var h='<div class="arcres">';
+  if(cfg.kind==='arcade'){h+='<span class="badge" style="font:700 12px var(--mono);letter-spacing:.14em;color:var(--acc)">GAME OVER</span><div class="big">'+fmt(res.score)+'</div>'+(out.newBest?'<div class="nb">New best score</div>':out.best?'<div style="color:#9fb0d8;font:600 13px var(--mono)">Best: '+fmt(out.best)+'</div>':'')}
+  if(cfg.kind==='boss')h+='<span class="badge" style="font:700 12px var(--mono);letter-spacing:.14em;color:var(--acc)">'+esc(cfg.boss.name)+'</span><h2 class="arcwin'+(res.won?'':' lose')+'">'+(res.won?'Boss beaten':'Not this time')+'</h2><p style="margin:0;color:#c9d3ef;max-width:30em">'+(res.won?(out.first?'You earned the <b>'+esc(cfg.boss.badge||'boss')+'</b> trophy.':'Rematch won.'):'It had '+G.hp+' HP left. Every attempt makes you faster. Have another go.')+'</p>';
+  if(cfg.kind==='mission')h+='<span class="badge" style="font:700 12px var(--mono);letter-spacing:.14em;color:var(--acc)">'+(res.tripped?'REACTOR TRIP':'SHIFT COMPLETE')+'</span><div class="gr">'+res.grade+'</div>'+(out.newBest?'<div class="nb">Best shift yet</div>':'')+'<p style="margin:0;color:#c9d3ef;max-width:30em">'+(res.tripped?'Plant health hit zero, so the reactor tripped. Read the report, then take the next shift.':res.grade==='A*'?'Flawless and fast. That\'s a shift supervisor\'s night.':res.grade==='A'?'Nothing went wrong all shift. Go faster for an A*.':'The plant is safe. Check what went wrong in the report.')+'</p>';
+  h+='<div class="arcstats"><div><b>'+res.right+'/'+res.answered+'</b><span>Right</span></div><div><b>'+res.acc+'%</b><span>Accuracy</span></div><div><b>'+res.bestCombo+'</b><span>Best run</span></div><div><b>+'+(out.xp||0)+'</b><span>XP</span></div></div>';
+  if(cfg.kind==='mission'){h+='<div class="arcrep"><h3>Shift report</h3>'+G.log.map(function(l){return '<div class="ln"><span class="tm">'+esc(l.ev.tm)+'</span><span>'+esc(l.ev.ev)+'</span><span class="'+(l.ok?'ok':'no')+'" style="margin-left:auto">'+(l.ok?'Handled':l.k<0?'Too slow':'Wrong call')+'</span></div>'}).join('')+'<div class="ln" style="margin-top:4px;border-top:1px solid rgba(255,255,255,.08);padding-top:6px"><span class="tm">End</span><span>Plant health '+res.health+'%</span></div></div>'}
+  if(out.html)h+=out.html;
+  var miss=G.log.filter(function(l){return !l.ok});
+  h+='<div class="arcacts"><button type="button" class="arcgo" data-a="again">'+(cfg.kind==='boss'?(res.won?'Rematch':'Try again'):cfg.kind==='mission'?'Another shift':'Play again')+'</button>'+(miss.length?'<button type="button" class="arcgo alt" data-a="rev">Review '+miss.length+' mistake'+(miss.length===1?'':'s')+'</button>':'')+'<button type="button" class="arcgo alt" data-a="close">Done</button></div><div class="arcrv" hidden></div></div>';
+  stage.innerHTML=h;stage.parentNode.scrollTop=0;
+  if(win&&!cm){var r=stage.getBoundingClientRect();burst(innerWidth/2,r.top+80,out.newBest||res.won||res.grade==='A*'?90:40,true)}
+  stage.querySelector('[data-a=close]').onclick=close;
+  stage.querySelector('[data-a=again]').onclick=function(){var c=cfg.again?cfg.again():cfg;close(true);setTimeout(function(){play(c)},60)};
+  var rv=stage.querySelector('[data-a=rev]');if(rv)rv.onclick=function(){var box=stage.querySelector('.arcrv');box.hidden=false;rv.remove();
+   box.innerHTML=miss.map(function(l){var q=l.q;return '<details><summary><span class="x">✗</span><span>'+esc((l.ev?l.ev.ev+': ':'')+(strip(q.html).slice(0,80)||'Picture question'))+'</span></summary><div class="rb"><div class="qbody">'+q.html+'</div><p><b>Right answer:</b> '+(q.vis?'option '+(q.ans+1):q.opts[q.ans])+'</p>'+(q.vis?'<div class="arcopts vis">'+q.opts.map(function(o,i){return '<div class="arco'+(i===q.ans?' right':i===l.k?' wrong':'')+'"><span class="k">'+(i+1)+'</span>'+o+'</div>'}).join('')+'</div>':'')+(q.exp?'<div class="expl">'+q.exp+'</div>':'')+'</div></details>'}).join('');
+   var d=box.querySelector('details');if(d)d.open=true};
+  setTimeout(function(){try{stage.querySelector('[data-a=again]').focus({preventScroll:true})}catch(_){}},80)}
+ function strip(h){var d=document.createElement('div');d.innerHTML=h;return (d.textContent||'').replace(/\s+/g,' ').trim()}
+
+ function key(e){if(!G||G.ov!==ov)return;if(e.key==='Escape'){e.preventDefault();quitArm();return}
+  if(G.stage==='q'&&!G.lock){var n=parseInt(e.key,10);if(n>=1&&n<=G.q.opts.length){e.preventDefault();var b=stage.querySelectorAll('.arco')[n-1];pick(n-1,{currentTarget:b})}}
+  else if(e.key==='Enter'){var t=stage.querySelector('[data-a=next],[data-a=start],[data-a=again]');if(t&&document.activeElement!==t){e.preventDefault();t.click()}}}
+ document.addEventListener('keydown',key);G.key=key;
+ function close(again){if(!G)return;cancelAnimationFrame(G.timer);clearTimeout(G.auto);document.removeEventListener('keydown',G.key);document.removeEventListener('visibilitychange',G.onVis);
+  var o=G.ov,done=G.ended;G=null;o.classList.remove('on');document.body.style.overflow='';setTimeout(function(){o.remove()},again?0:300);if(cfg.onClose&&!again)try{cfg.onClose(done)}catch(_){}}
+ intro()}
+
+/* a menacing reactor core for the boss screen */
+function bossArt(cv,col){if(!cv)return;var c=cv.getContext('2d'),t0=performance.now(),cm=calm();
+ (function f(t){if(!cv.isConnected)return;var s=(t-t0)/1000,W=cv.width,H=cv.height,x=W/2,y=H/2;c.clearRect(0,0,W,H);
+  var g=c.createRadialGradient(x,y,10,x,y,W*.48);g.addColorStop(0,col);g.addColorStop(.35,col+'88');g.addColorStop(1,'rgba(0,0,0,0)');c.fillStyle=g;c.beginPath();c.arc(x,y,W*.48,0,6.283);c.fill();
+  c.save();c.translate(x,y);c.rotate(cm?0:s*.6);c.strokeStyle=col;c.lineWidth=5;for(var i=0;i<12;i++){c.rotate(Math.PI/6);c.beginPath();c.moveTo(W*.2,0);c.lineTo(W*.3+(cm?0:Math.sin(s*4+i)*10),0);c.stroke()}c.restore();
+  c.save();c.translate(x,y);c.rotate(cm?0:-s*1.1);c.setLineDash([18,14]);c.lineWidth=4;c.strokeStyle='rgba(255,255,255,.75)';c.beginPath();c.arc(0,0,W*.17,0,6.283);c.stroke();c.restore();
+  var p=cm?1:1+Math.sin(s*5)*.08;c.fillStyle='#fff';c.beginPath();c.arc(x,y,W*.07*p,0,6.283);c.fill();
+  c.fillStyle='rgba(10,10,20,.9)';c.beginPath();c.arc(x-16,y-6,6,0,6.283);c.arc(x+16,y-6,6,0,6.283);c.fill();
+  if(!cm)requestAnimationFrame(f)})(t0)}
+
+/* shuffle helpers the apps share */
+function shuf(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t}return a}
+function pick1(a){return a[Math.floor(Math.random()*a.length)]}
+function mcq(html,correct,wrongs,exp,tag){var seen={},opts=[];[correct].concat(wrongs).forEach(function(o){o=String(o);if(seen[o]||opts.length>=4)return;seen[o]=1;opts.push(o)});var c=opts[0];shuf(opts);return {html:html,opts:opts,ans:opts.indexOf(c),exp:exp||'',tag:tag||''}}
+function clock(h,m){return String(h%24).padStart(2,'0')+':'+String(m).padStart(2,'0')}
+
+window.ARC={init:initLook,play:play,active:function(){return !!G},peek:function(){return G},calm:calm,code:code,esc:esc,shuf:shuf,pick:pick1,mcq:mcq,clock:clock,fmt:fmt,sfx:sfx};
+})();
+
+</script>
+<script>
+(function(){
+"use strict";
+var KEY='practicals-v1';
+function ld(){try{return JSON.parse(localStorage.getItem(KEY)||'null')||{}}catch(e){return {}}}
+var S=ld();if(!S.p)S.p={};if(!S.mq)S.mq={};if(!S.f)S.f='all';
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function esc(t){return String(t).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function toast(t){var e=document.createElement('div');e.className='toast';e.textContent=t;document.body.appendChild(e);setTimeout(function(){e.remove()},2800)}
+function today(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function xp(n,why){if(!n)return;var q=[];try{q=JSON.parse(localStorage.getItem('critical_xpq')||'[]')}catch(e){}q.push({n:n,app:'Practicals Lab',why:why,at:Date.now()});try{localStorage.setItem('critical_xpq',JSON.stringify(q))}catch(e){}toast('+'+n+' XP to Critical')}
+function snd(k,n){try{if(window.ARC&&ARC.sfx)ARC.sfx(k,n)}catch(e){}}
+function shuf(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t}return a}
+function g(){var u=0,v=0;while(!u)u=Math.random();while(!v)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)}
+function nz(x,rel,abs){return x+x*(rel||0)*g()+(abs||0)*g()}
+function rd(x,d){var p=Math.pow(10,d);return Math.round(x*p)/p}
+function fx(x,d){if(x==null||isNaN(x))return '–';return (+x).toFixed(d)}
+function sig3(x){if(!isFinite(x))return '–';if(x===0)return '0';var a=Math.abs(x);return a>=1000?Math.round(x).toLocaleString('en-GB'):a>=100?x.toFixed(0):a>=10?x.toFixed(1):a>=1?x.toFixed(2):x.toPrecision(3)}
+function clamp(x,a,b){return Math.max(a,Math.min(b,x))}
+function PD(id){return S.p[id]||(S.p[id]={})}
+function award(id,k,n,why){var p=PD(id);p.xp=p.xp||{};if(p.xp[k])return 0;p.xp[k]=1;save();xp(n,why);return n}
+function done(id,k){var p=PD(id);return !!(p.st&&p.st[k])}
+function markDone(id,k){var p=PD(id);p.st=p.st||{};if(!p.st[k]){p.st[k]=1;save()}}
+var V=document.getElementById('view');
+try{if(window.ARC)ARC.init('apt')}catch(e){}
+var DEG=Math.PI/180;
+
+/* ================= the practicals ================= */
+var PR=[
+/* ---------- PHYSICS ---------- */
+{id:'shc',sub:'p',n:1,t:"Specific heat capacity",ic:'🔥',
+ aim:"Find the specific heat capacity of aluminium by heating a 1.00 kg block and measuring how its temperature rises as energy goes in.",
+ vars:{iv:"Energy transferred (joulemeter reading)",dv:"Temperature of the block",cv:["Mass of the block (1.00 kg)","Material of the block","Power of the heater"]},
+ risk:[["The heater and block get hot enough to burn","Don't touch them while it's on, and let them cool before packing away"],["Liquids near the power supply","Keep water and oil away from the supply"]],
+ method:["Measure the mass of the aluminium block.","Put the heater in one hole and the thermometer in the other, with a drop of oil so it makes good contact.","Wrap the block in insulation.","Record the starting temperature, then switch the heater on.","Record the joulemeter reading and the temperature every minute for 10 minutes.","Plot temperature against energy and use the gradient to find the specific heat capacity."],
+ eng:'graph',ctl:{k:'t',l:"Stopwatch",u:'min',vals:[0,1,2,3,4,5,6,7,8,9,10]},opts:[{k:'ins',l:"Wrap the block in insulation",d:1}],rep:0,min:6,
+ meas:function(v,o){var E=nz(49.8*v*60,0.002),loss=o.ins?0.06:0.17,T=19.5+E*(1-loss)/900+(v?g()*0.12:0);return {E:Math.round(E),T:rd(T,1)}},
+ cols:[{k:'t',h:"Time (min)",iv:1,d:0},{k:'E',h:"Energy (J)",d:0},{k:'T',h:"Temperature (°C)",d:1}],
+ gr:{x:'E',y:'T',xl:"Energy transferred (J)",yl:"Temperature (°C)",fit:'line'},
+ an:function(f){var c=1/(1.00*f.m);return {v:c,u:"J/kg °C",acc:900,d:0,name:"Specific heat capacity",how:"Gradient = "+sig3(f.m)+" °C per J. Since ΔE = m × c × Δθ, the gradient is 1 ÷ (m × c). So c = 1 ÷ (1.00 kg × gradient) = "+Math.round(c)+" J/kg °C. Your value is likely to be a bit higher than 900, because some energy heats the air instead of the block."}},
+ readout:function(L){return L?"Joulemeter: "+L.E.toLocaleString('en-GB')+" J · Thermometer: "+fx(L.T,1)+" °C":"Pick a time and take a reading"},
+ svg:function(v,o,L){var T=L?L.T:19.5,h=clamp((T-10)/60,0,1)*118,on=v>0;
+  return '<svg class="ap" viewBox="0 0 320 240" role="img" aria-label="Aluminium block with a heater and thermometer">'+
+  (o.ins?'<rect x="70" y="84" width="150" height="132" rx="12" fill="#e9c46a" fill-opacity=".35" stroke="#c9a227" stroke-dasharray="5 4" stroke-width="2"/>':'')+
+  '<rect x="84" y="98" width="122" height="104" rx="4" class="me"/><text x="145" y="190" text-anchor="middle" class="txs">ALUMINIUM 1.00 kg</text>'+
+  '<rect x="112" y="46" width="16" height="120" rx="3" class="hot" fill-opacity="'+(on?1:.35)+'"/>'+(on?'<rect x="108" y="100" width="24" height="66" rx="8" fill="#e2513b" fill-opacity=".25"/>':'')+
+  '<path d="M120 46 V30 H236" class="k"/><path d="M124 46 V36 H236" class="k"/>'+
+  '<rect x="236" y="14" width="76" height="46" rx="7" class="kf"/><text x="274" y="30" text-anchor="middle" class="txs">JOULEMETER</text><text x="274" y="50" text-anchor="middle" class="txb">'+(L?L.E:0)+'</text>'+
+  '<rect x="166" y="14" width="12" height="156" rx="6" class="gl"/><rect x="169" y="'+(166-h)+'" width="6" height="'+h+'" fill="#e2513b"/><circle cx="172" cy="172" r="8" fill="#e2513b"/>'+
+  '<text x="186" y="'+(170-h)+'" class="txb">'+fx(T,1)+' °C</text></svg>'},
+ concl:[["Why is your value higher than the real value of 900 J/kg °C?","Some energy heats the surroundings, so the temperature rises less than it should",["The block was heavier than 1 kg","The joulemeter adds extra energy","Aluminium gets denser as it heats"],"Energy lost to the air isn't used to heat the block, so Δθ is smaller and the calculated c comes out bigger."],
+  ["Try it without insulation. What happens to your value?","It gets further from 900, because more energy is wasted",["It gets closer to 900","Nothing changes","The graph becomes a curve"],"Less insulation means more energy lost, so a bigger error."]],
+ qs:[["A 2.0 kg block is given 36 000 J and its temperature rises by 20 °C. What is its specific heat capacity?","900 J/kg °C",["450 J/kg °C","1800 J/kg °C","36 000 J/kg °C"],"c = ΔE ÷ (m × Δθ) = 36 000 ÷ (2.0 × 20) = 900 J/kg °C."],
+  ["Why is a drop of oil put in the thermometer hole?","It improves thermal contact, so the thermometer reads the block's real temperature",["It stops the block rusting","It lowers the specific heat capacity","It insulates the thermometer"],"Air is a poor conductor. Oil fills the gap."],
+  ["How could the student reduce the energy wasted?","Add more insulation around the block",["Use a bigger power supply","Take readings every 5 minutes","Start with a hotter block"],"Insulation reduces the energy transferred to the surroundings."],
+  ["The temperature keeps rising for a short time after the heater is switched off. Why?","Energy is still spreading from the hot heater into the block",["The joulemeter is still counting","The thermometer is broken","Aluminium makes its own heat"],"The heater is hotter than the block, so energy keeps flowing for a bit."]]},
+
+{id:'res',sub:'p',n:3,t:"Resistance of a wire",ic:'〰️',
+ aim:"Find how the length of a wire affects its resistance.",
+ vars:{iv:"Length of the wire",dv:"Resistance (worked out from V ÷ I)",cv:["Material of the wire","Diameter of the wire","Temperature of the wire"]},
+ risk:[["The wire can get hot","Use a low p.d. and open the switch between readings"]],
+ method:["Tape a constantan wire to a metre ruler.","Connect it in series with an ammeter, a switch and a battery, with a voltmeter across the wire.","Put one crocodile clip at 0 cm and the other at the length you want.","Close the switch, read the voltmeter and the ammeter, then open the switch again.","Repeat for lengths from 10 cm to 100 cm.","Work out R = V ÷ I and plot resistance against length."],
+ eng:'graph',ctl:{k:'L',l:"Length between the clips",u:'cm',vals:[10,20,30,40,50,60,70,80,90,100]},rep:0,min:6,
+ meas:function(v){var R=0.061*v+0.35,I=1.5/(R+0.9);return {V:rd(nz(I*R,0,0.006),2),I:rd(nz(I,0,0.0015),3)}},
+ cols:[{k:'L',h:"Length (cm)",iv:1,d:0},{k:'V',h:"p.d. (V)",d:2},{k:'I',h:"Current (A)",d:3},{k:'R',h:"Resistance (Ω)",d:2,f:function(r){return r.V/r.I}}],
+ gr:{x:'L',y:'R',xl:"Length (cm)",yl:"Resistance (Ω)",fit:'line'},
+ an:function(f){var r=f.m*100;return {v:r,u:"Ω per metre",acc:6.1,d:2,name:"Resistance per metre",how:"Gradient = "+sig3(f.m)+" Ω per cm, so × 100 = "+r.toFixed(2)+" Ω per metre. Your line crosses the resistance axis at about "+f.c.toFixed(2)+" Ω, not 0: that's the resistance of the crocodile clips and contacts."}},
+ readout:function(L){return L?"Voltmeter: "+fx(L.V,2)+" V · Ammeter: "+fx(L.I,3)+" A":"Pick a length and take a reading"},
+ svg:function(v,o,L){var x2=20+2.8*v,i,t='';for(i=0;i<=100;i+=10)t+='<line x1="'+(20+i*2.8)+'" y1="168" x2="'+(20+i*2.8)+'" y2="'+(i%50?176:180)+'" class="kt"/>'+(i%20===0?'<text x="'+(20+i*2.8)+'" y="192" text-anchor="middle" class="txs">'+i+'</text>':'');
+  return '<svg class="ap" viewBox="0 0 320 240" role="img" aria-label="Wire on a metre ruler with crocodile clips">'+
+  '<rect x="12" y="160" width="296" height="38" rx="4" fill="#e9c46a" fill-opacity=".3" stroke="var(--ink)" stroke-width="1.5"/>'+t+
+  '<line x1="20" y1="154" x2="300" y2="154" stroke="#b87333" stroke-width="2.5"/>'+
+  '<path d="M20 150 V96 H70" class="k"/><circle cx="86" cy="96" r="16" class="kf"/><text x="86" y="101" text-anchor="middle" class="txb">A</text>'+
+  '<path d="M102 96 H140 M140 86 V106 M150 90 V102" class="k"/><path d="M150 96 H'+x2+' V150" class="k"/>'+
+  '<path d="M20 120 H'+(20+(x2-20)/2-16)+'" class="kt"/><path d="M'+(20+(x2-20)/2+16)+' 120 H'+x2+'" class="kt"/>'+
+  '<circle cx="'+(20+(x2-20)/2)+'" cy="120" r="16" class="kf"/><text x="'+(20+(x2-20)/2)+'" y="125" text-anchor="middle" class="txb">V</text>'+
+  '<rect x="14" y="146" width="12" height="12" rx="2" fill="#d43c3b"/><rect x="'+(x2-6)+'" y="146" width="12" height="12" rx="2" fill="#222"/>'+
+  '<text x="86" y="70" text-anchor="middle" class="txb">'+(L?fx(L.I,3)+' A':'')+'</text><text x="160" y="40" text-anchor="middle" class="txs">'+v+' cm of wire in the circuit</text>'+
+  '<text x="'+(20+(x2-20)/2)+'" y="'+(L?146:146)+'" text-anchor="middle" class="txb">'+(L?fx(L.V,2)+' V':'')+'</text></svg>'},
+ concl:[["What does your graph show?","Resistance goes up in proportion to length: a straight line",["Resistance falls as length increases","Resistance doesn't depend on length","Resistance doubles every 10 cm"],"A straight line: double the length, double the resistance (once you take away the small offset from the clips)."],
+  ["Why doesn't your line go through the origin?","The clips and contacts add a small extra resistance",["The ammeter was broken","The wire is too thin","Resistance can never be zero"],"It's a systematic error: every reading is shifted up by the same amount."]],
+ qs:[["Why should the switch be opened between readings?","So the wire doesn't heat up, because a hotter wire has more resistance",["To save the battery","To reset the ammeter","So the voltmeter can cool down"],"Temperature is a control variable."],
+  ["A wire has a p.d. of 0.60 V across it and a current of 0.20 A. What is its resistance?","3.0 Ω",["0.12 Ω","12 Ω","0.33 Ω"],"R = V ÷ I = 0.60 ÷ 0.20 = 3.0 Ω."],
+  ["What type of error does the resistance of the crocodile clips cause?","A systematic error, because every reading is shifted by the same amount",["A random error","A human reaction-time error","No error at all"],"Systematic errors shift all results the same way. They don't change the gradient."],
+  ["How should the voltmeter be connected?","In parallel across the length of wire being tested",["In series with the wire","In series with the battery only","Across the ammeter"],"Voltmeters always go in parallel."]]},
+
+{id:'iv',sub:'p',n:4,t:"I–V characteristics",ic:'💡',
+ aim:"Plot graphs of current against potential difference for a resistor, a filament lamp and a diode.",
+ vars:{iv:"Potential difference across the component",dv:"Current through the component",cv:["The component being tested","Temperature of the resistor"]},
+ risk:[["The lamp gets hot","Don't touch it while it's on"],["Too much current can damage the diode","Keep a protective resistor in series with it"]],
+ method:["Connect the component in series with an ammeter, a variable resistor and the power supply.","Connect a voltmeter in parallel across the component.","Adjust the variable resistor to change the p.d., and record the current each time.","Swap the connections to the component to get negative values.","Repeat for each component.","Plot current (y-axis) against p.d. (x-axis)."],
+ eng:'graph',ctl:{k:'V',l:"p.d. across the component",u:'V',vals:function(o){return o.comp==='d'?[-1,-0.8,-0.6,-0.4,-0.2,0,0.2,0.4,0.5,0.6,0.7,0.8,0.9,1]:[-6,-5,-4,-3,-2,-1,0,1,2,3,4,5,6]}},
+ opts:[{k:'comp',l:"Component",sel:[['r',"10 Ω resistor"],['lamp',"Filament lamp"],['d',"Diode"]]}],rep:0,min:7,
+ meas:function(v,o){var I;if(o.comp==='r')I=v/10*1000;else if(o.comp==='lamp')I=300*Math.sign(v)*Math.pow(Math.abs(v)/6,0.6);else I=v>0.55?160*Math.pow(v-0.55,1.6):0;I=I?nz(I,0.01,0.3):Math.abs(nz(0,0,0.04));return {I:rd(I,1)}},
+ cols:[{k:'V',h:"p.d. (V)",iv:1,d:1},{k:'I',h:"Current (mA)",d:1}],
+ gr:{x:'V',y:'I',xl:"Potential difference (V)",yl:"Current (mA)",fit:function(o){return o.comp==='r'?'line':'curve'}},
+ an:function(f,G,o){if(o.comp!=='r')return null;var R=1000/f.m;return {v:R,u:"Ω",acc:10,d:1,name:"Resistance",how:"Gradient = "+sig3(f.m)+" mA per V = "+(f.m/1000).toPrecision(3)+" A per V. Resistance = 1 ÷ gradient = "+R.toFixed(1)+" Ω. Now try the lamp and the diode: their graphs curve."}},
+ readout:function(L,o){return L?"Ammeter: "+fx(L.I,1)+" mA":"Pick a p.d. and take a reading"},
+ svg:function(v,o,L){var I=L?L.I:0,c=o.comp,sym;
+  if(c==='r')sym='<rect x="186" y="170" width="44" height="20" class="kf"/>';
+  else if(c==='lamp')sym='<circle cx="208" cy="180" r="16" fill="#ffd166" fill-opacity="'+clamp(Math.abs(I)/300,0,1)+'" stroke="var(--ink)" stroke-width="2"/><path d="M197 169 L219 191 M219 169 L197 191" class="k"/>';
+  else sym='<path d="M194 168 V192 L220 180 Z" class="kf"/><path d="M222 168 V192" class="k"/>';
+  return '<svg class="ap" viewBox="0 0 320 240" role="img" aria-label="Circuit for an I–V graph">'+
+  '<path d="M40 40 H140 M164 40 H280 V180 H230 M186 180 H136 M104 180 H40 V40" class="k"/>'+
+  '<path d="M140 28 V52 M150 34 V46" class="k"/><path d="M156 28 V52 M164 34 V46" class="k"/>'+
+  '<rect x="28" y="90" width="24" height="46" class="kf"/><path d="M18 150 L62 78 M56 82 L62 78 L61 86" class="kt"/>'+
+  '<circle cx="120" cy="180" r="16" class="kf"/><text x="120" y="185" text-anchor="middle" class="txb">A</text>'+sym+
+  '<path d="M186 180 V214 H192 M230 180 V214 H224" class="kt"/><circle cx="208" cy="214" r="14" class="kf"/><text x="208" y="219" text-anchor="middle" class="txb">V</text>'+
+  '<text x="120" y="160" text-anchor="middle" class="txb">'+fx(I,1)+' mA</text><text x="262" y="219" text-anchor="middle" class="txb">'+fx(v,1)+' V</text></svg>'},
+ concl:[["The resistor's graph is a straight line through the origin. What does that tell you?","Current is directly proportional to p.d., so its resistance stays the same",["Its resistance increases with current","It only conducts one way","It gets hotter as current flows"],"That's an ohmic conductor at constant temperature."],
+  ["Why does the filament lamp's graph curve?","As the filament gets hotter, its resistance goes up",["The lamp runs out of energy","The voltmeter is in the wrong place","Its resistance goes down as it heats"],"Hotter metal ions vibrate more, so electrons collide with them more often."],
+  ["What does the diode's graph show?","Current only flows one way, and only above about 0.6 V",["Current flows equally both ways","Its resistance is always zero","It works like a filament lamp"],"A diode has a very high resistance in the reverse direction."]],
+ qs:[["Which component has a very high resistance in one direction?","Diode",["Filament lamp","Fixed resistor","Thermistor"],"Diodes let current flow one way only."],
+  ["What is the variable resistor for?","To change the current and p.d. so you get a range of readings",["To protect the voltmeter","To measure the resistance","To keep the current constant"],"Changing its resistance changes the share of p.d. across the component."],
+  ["A lamp has 6.0 V across it and 0.25 A through it. What's its resistance?","24 Ω",["1.5 Ω","0.042 Ω","6.25 Ω"],"R = V ÷ I = 6.0 ÷ 0.25 = 24 Ω."],
+  ["How do you get negative values of p.d. and current?","Swap the connections to the component (or the supply)",["Turn the variable resistor the other way","Use a smaller battery","Take the ammeter out"],"Reversing the component reverses the direction of the current through it."]]},
+
+{id:'den',sub:'p',n:5,t:"Density",ic:'🪨',
+ aim:"Find the density of a rock by measuring the mass and volume of pebbles of different sizes.",
+ vars:{iv:"Which pebble (its size)",dv:"Mass and volume of the pebble",cv:["Type of rock","Reading the measuring cylinder at eye level"]},
+ risk:[["Spilled water is slippery","Mop up spills straight away"]],
+ method:["Measure the mass of the pebble on a balance.","Fill a displacement (eureka) can until water drips from the spout, and wait for it to stop.","Put a measuring cylinder under the spout.","Lower the pebble in gently on a thread.","Read the volume of water that comes out, at eye level with the bottom of the meniscus.","Repeat for each pebble, and plot mass against volume."],
+ eng:'graph',ctl:{k:'n',l:"Pebble",u:'',vals:[1,2,3,4,5,6],lab:function(v){return 'ABCDEF'[v-1]}},rep:0,min:5,
+ VT:[6.2,11.4,17.0,23.3,29.6,37.8],
+ meas:function(v){var Vt=this.VT[v-1];return {m:rd(nz(Vt*2.7,0,0.06),1),V:Math.round(nz(Vt,0,0.35)*2)/2}},
+ cols:[{k:'n',h:"Pebble",iv:1,txt:function(v){return 'ABCDEF'[v-1]}},{k:'m',h:"Mass (g)",d:1},{k:'V',h:"Volume (cm³)",d:1},{k:'rho',h:"Density (g/cm³)",d:2,f:function(r){return r.m/r.V}}],
+ gr:{x:'V',y:'m',xl:"Volume (cm³)",yl:"Mass (g)",fit:'line'},
+ an:function(f){return {v:f.m,u:"g/cm³",acc:2.7,d:2,name:"Density of the rock",how:"Density = mass ÷ volume, so the gradient of mass against volume is the density: "+f.m.toFixed(2)+" g/cm³, which is "+Math.round(f.m*1000).toLocaleString('en-GB')+" kg/m³. Granite is about 2.7 g/cm³."}},
+ readout:function(L){return L?"Balance: "+fx(L.m,1)+" g · Cylinder: "+fx(L.V,1)+" cm³":"Pick a pebble and take a reading"},
+ svg:function(v,o,L){var r=6+Math.cbrt(this.VT[v-1])*3.2,lv=L?L.V:0,h=clamp(lv/50,0,1)*130;
+  return '<svg class="ap" viewBox="0 0 320 240" role="img" aria-label="Balance, eureka can and measuring cylinder">'+
+  '<rect x="10" y="190" width="84" height="26" rx="4" class="kf"/><rect x="18" y="182" width="68" height="8" class="me"/><text x="52" y="208" text-anchor="middle" class="txb">'+(L?fx(L.m,1)+' g':'0.0 g')+'</text>'+
+  '<ellipse cx="52" cy="'+(182-r*0.7)+'" rx="'+r+'" ry="'+(r*0.7)+'" fill="#8d8478" stroke="var(--ink)" stroke-width="1.5"/>'+
+  '<path d="M120 80 V214 H196 V80" class="k"/><rect x="122" y="100" width="72" height="112" class="wa"/><path d="M196 104 L224 120" class="k" stroke-width="5"/>'+
+  '<ellipse cx="158" cy="'+(210-r*0.7)+'" rx="'+r+'" ry="'+(r*0.7)+'" fill="#8d8478" stroke="var(--ink)" stroke-width="1.5" opacity="'+(L?1:.25)+'"/><path d="M158 '+(210-r*1.4)+' V60" class="kt" opacity="'+(L?1:.25)+'"/>'+
+  '<path d="M232 72 V214 H262 V72" class="k"/><rect x="234" y="'+(212-h)+'" width="26" height="'+h+'" class="wa"/>'+
+  [0,10,20,30,40,50].map(function(n){var y=212-n/50*130;return '<line x1="262" y1="'+y+'" x2="270" y2="'+y+'" class="kt"/><text x="274" y="'+(y+4)+'" class="txs">'+n+'</text>'}).join('')+
+  '<text x="158" y="40" text-anchor="middle" class="txs">Pebble '+'ABCDEF'[v-1]+'</text></svg>'},
+ concl:[["Your graph is a straight line through the origin. What does that tell you?","All the pebbles have the same density, so they're the same kind of rock",["Bigger pebbles are denser","The balance is wrong","Density depends on size"],"Mass ∝ volume, so mass ÷ volume is the same for each pebble."]],
+ qs:[["A stone has a mass of 54 g and displaces 20 cm³ of water. What's its density?","2.7 g/cm³",["0.37 g/cm³","1080 g/cm³","34 g/cm³"],"ρ = m ÷ V = 54 ÷ 20 = 2.7 g/cm³."],
+  ["Why wait for the eureka can to stop dripping before starting?","So only the water pushed out by the pebble ends up in the cylinder",["To let the water warm up","To make the pebble sink faster","So the balance settles"],"Otherwise extra water would make the volume too big."],
+  ["How would you find the volume of a regular block?","Measure its length, width and height and multiply them",["Weigh it twice","Put it in a eureka can only","Divide its mass by 1000"],"V = l × w × h for a cuboid."],
+  ["What is 2.7 g/cm³ in kg/m³?","2700 kg/m³",["27 kg/m³","0.0027 kg/m³","270 kg/m³"],"Multiply g/cm³ by 1000 to get kg/m³."]]},
+
+{id:'spr',sub:'p',n:6,t:"Force and extension",ic:'🧷',
+ aim:"Find how the extension of a spring depends on the force on it, and find its spring constant.",
+ vars:{iv:"Force on the spring (weight of the masses)",dv:"Extension of the spring",cv:["Using the same spring","Measuring from the same point on the spring"]},
+ risk:[["Masses can fall on your feet","Clamp the stand to the bench and stand up so you can step back"]],
+ method:["Hang the spring from a clamp stand with a metre ruler beside it.","Measure the length of the spring with no masses (its original length).","Hang a 100 g mass and read the new length at eye level.","Keep adding 100 g masses, reading the length each time.","Work out each extension: new length − original length.","Plot force against extension and find the gradient."],
+ eng:'graph',ctl:{k:'m',l:"Mass hanging on the spring",u:'g',vals:[0,100,200,300,400,500,600,700,800]},rep:0,min:6,
+ meas:function(v){var F=v*9.8/1000,e=F<=4.9?F/25:4.9/25+(F-4.9)/25*2.4;return {L:rd(nz(15+e*100,0,0.08),1)}},
+ cols:[{k:'m',h:"Mass (g)",iv:1,d:0},{k:'F',h:"Force (N)",d:2,f:function(r){return r.m*9.8/1000}},{k:'L',h:"Length (cm)",d:1},{k:'e',h:"Extension (cm)",d:1,f:function(r){return r.L-15}}],
+ gr:{x:'e',y:'F',xl:"Extension (cm)",yl:"Force (N)",fit:'line'},
+ an:function(f){var k=f.m*100;return {v:k,u:"N/m",acc:25,d:1,name:"Spring constant",how:"Gradient = "+sig3(f.m)+" N per cm, so × 100 = "+k.toFixed(1)+" N/m. F = k × e, so the gradient is k. Leave out points past the limit of proportionality (where the line bends): tap them on the graph."}},
+ readout:function(L){return L?"Ruler: spring is "+fx(L.L,1)+" cm long (original length 15.0 cm)":"Pick a mass and take a reading"},
+ svg:function(v,o,L){var len=L?L.L:15+(v*9.8/1000)/25*100,px=len*3.4,y0=26,y1=y0+px,n=v/100,i,z='M150 '+y0;
+  for(i=1;i<=16;i++)z+=' L'+(i%2?140:160)+' '+(y0+px*i/17);z+=' L150 '+y1;
+  var m='';for(i=0;i<n;i++)m+='<rect x="136" y="'+(y1+8+i*5)+'" width="28" height="5" rx="1" class="me"/>';
+  var t='';for(i=0;i<=60;i+=5){var y=y0+i*3.4;t+='<line x1="196" y1="'+y+'" x2="'+(i%10?202:206)+'" y2="'+y+'" class="kt"/>'+(i%10===0?'<text x="210" y="'+(y+4)+'" class="txs">'+i+'</text>':'')}
+  return '<svg class="ap" viewBox="0 0 320 240" role="img" aria-label="Spring hanging from a clamp stand">'+
+  '<rect x="30" y="226" width="90" height="10" class="me"/><path d="M60 226 V12 M60 20 H156" class="k" stroke-width="4"/>'+
+  '<rect x="190" y="'+y0+'" width="34" height="'+(60*3.4)+'" fill="#e9c46a" fill-opacity=".25" stroke="var(--ink)" stroke-width="1"/>'+t+
+  '<path d="'+z+'" stroke="var(--ink)" stroke-width="2" fill="none"/><path d="M150 '+y1+' V'+(y1+8)+'" class="k"/>'+(n?m:'<path d="M142 '+(y1+8)+' H158" class="k"/>')+
+  '<path d="M170 '+y1+' H196" stroke="#e8742a" stroke-width="1.5" stroke-dasharray="3 2"/><text x="250" y="40" class="txb">'+v+' g</text><text x="250" y="58" class="txs">'+(v*9.8/1000).toFixed(2)+' N</text></svg>'},
+ concl:[["What happens to your graph for the biggest masses?","It curves: the spring has gone past its limit of proportionality",["It goes back to zero","It stays perfectly straight","The extension gets smaller"],"Past the limit of proportionality, extension is no longer proportional to force."]],
+ qs:[["A spring stretches 0.04 m with a force of 2.0 N. What is its spring constant?","50 N/m",["0.08 N/m","8 N/m","0.02 N/m"],"k = F ÷ e = 2.0 ÷ 0.04 = 50 N/m."],
+  ["How much elastic potential energy does that spring store? (E = ½ k e²)","0.04 J",["0.08 J","2 J","1 J"],"½ × 50 × 0.04² = 0.04 J."],
+  ["Why read the ruler at eye level?","To avoid parallax error",["To read it faster","To protect your eyes","To stop the spring swinging"],"Looking from above or below makes the reading wrong."],
+  ["What is the weight of a 300 g mass? (g = 9.8 N/kg)","2.94 N",["300 N","30 N","0.3 N"],"W = m g = 0.300 × 9.8 = 2.94 N."]]},
+
+{id:'acc',sub:'p',n:7,t:"Acceleration",ic:'🛒',
+ aim:"Find how the acceleration of a trolley depends on the force pulling it, keeping the mass the same.",
+ vars:{iv:"Force (the weight on the hanger)",dv:"Acceleration of the trolley",cv:["Total mass being accelerated","Slope of the runway"]},
+ risk:[["Falling masses","Put a box of sand or a cushion under the hanger"],["The trolley can run off the bench","Put a stop at the end of the runway"]],
+ method:["Tilt the runway slightly so the trolley keeps moving at a steady speed after a push (this cancels friction).","Attach a string from the trolley, over a pulley, to a mass hanger.","Put all the slotted masses on the trolley.","Move one mass at a time from the trolley to the hanger, so the total mass stays the same.","Release the trolley and record the acceleration from the light gates.","Repeat each force three times, then plot acceleration against force."],
+ eng:'graph',ctl:{k:'mg',l:"Mass on the hanger",u:'g',vals:[20,40,60,80,100,120]},opts:[{k:'slope',l:"Tilt the runway to cancel friction",d:1}],rep:1,min:5,
+ meas:function(v,o){var F=v*9.8/1000,f=o.slope?0.008:0.07,a=Math.max(0.01,(F-f)/0.8);return {a:rd(nz(a,0.035),2)}},
+ cols:[{k:'mg',h:"Mass on hanger (g)",iv:1,d:0},{k:'F',h:"Force (N)",d:3,f:function(r){return r.mg*9.8/1000}},{k:'a',h:"Acceleration (m/s²)",d:2,rep:1}],
+ gr:{x:'F',y:'a',xl:"Force (N)",yl:"Acceleration (m/s²)",fit:'line'},
+ an:function(f){var m=1/f.m;return {v:m,u:"kg",acc:0.8,d:2,name:"Mass of trolley and masses",how:"F = m a, so a = F ÷ m: the gradient ("+f.m.toFixed(2)+") is 1 ÷ m. Mass = 1 ÷ gradient = "+m.toFixed(2)+" kg. If you didn't tilt the runway, friction makes the line cross the force axis to the right of zero."}},
+ readout:function(L){return L?"Light gates: acceleration "+fx(L.a,2)+" m/s²":"Pick a mass and release the trolley"},
+ svg:function(v,o,L){var n=v/20,i,tm='',hm='';for(i=0;i<6-n;i++)tm+='<rect x="'+(72+i*9)+'" y="104" width="8" height="12" rx="1" class="me"/>';for(i=0;i<n;i++)hm+='<rect x="276" y="'+(172+i*6)+'" width="24" height="6" rx="1" class="me"/>';
+  return '<svg class="ap" viewBox="0 0 320 240" role="img" aria-label="Trolley on a runway pulled by masses over a pulley">'+
+  '<g transform="rotate('+(o.slope?-2.2:0)+' 160 140)"><rect x="10" y="140" width="272" height="8" class="kf"/>'+
+  '<rect x="64" y="116" width="66" height="18" rx="3" fill="#4f8bd6" stroke="var(--ink)" stroke-width="2"/><circle cx="78" cy="137" r="5" class="kf"/><circle cx="116" cy="137" r="5" class="kf"/>'+tm+
+  '<path d="M130 124 H286" class="kt"/><path d="M160 112 V140 M160 112 H176 V140" class="k"/><path d="M216 112 V140 M216 112 H232 V140" class="k"/></g>'+
+  '<circle cx="288" cy="132" r="9" class="kf"/><path d="M297 132 V170" class="kt"/><path d="M286 170 H298" class="k"/>'+hm+
+  '<rect x="0" y="'+(o.slope?150:150)+'" width="0" height="0"/><text x="160" y="40" text-anchor="middle" class="txb">'+(L?fx(L.a,2)+' m/s²':'')+'</text><text x="160" y="58" text-anchor="middle" class="txs">'+v+' g on the hanger · '+(120-v)+' g on the trolley</text></svg>'},
+ concl:[["What does your graph show?","Acceleration is directly proportional to the resultant force",["Acceleration falls as force increases","Acceleration doesn't depend on force","Force is proportional to mass"],"Newton's second law: a ∝ F when mass is constant."]],
+ qs:[["Why are masses moved from the trolley to the hanger, instead of adding new ones?","So the total mass being accelerated stays the same",["To make the trolley lighter","To speed up the experiment","So the string doesn't snap"],"Total mass is a control variable."],
+  ["A 0.50 kg trolley is pulled by a resultant force of 0.20 N. What's its acceleration?","0.40 m/s²",["0.10 m/s²","2.5 m/s²","0.70 m/s²"],"a = F ÷ m = 0.20 ÷ 0.50 = 0.40 m/s²."],
+  ["Why use light gates rather than a stopwatch?","They remove human reaction time, so results are more accurate",["They're cheaper","They make the trolley go faster","They measure force"],"Reaction time adds random error to stopwatch readings."],
+  ["Newton's second law says acceleration is…","proportional to resultant force and inversely proportional to mass",["proportional to mass","equal to force × mass","always 9.8 m/s²"],"a = F ÷ m."]]},
+
+{id:'wav',sub:'p',n:8,t:"Waves in a ripple tank",ic:'🌊',
+ aim:"Measure the frequency and wavelength of water waves, and use them to find the wave speed.",
+ vars:{iv:"Frequency of the vibrating bar",dv:"Wavelength of the waves",cv:["Depth of the water"]},
+ risk:[["Water near mains electricity","Keep the power supply away from the tank and mop up spills"]],
+ method:["Fill the ripple tank to about 5 mm deep and switch on the lamp above it.","Set the signal generator to a frequency.","Put a metre ruler on the paper under the tank.","Photograph the shadows of the waves and measure the length of 10 wavelengths.","Divide by 10 to get one wavelength.","Work out wave speed = frequency × wavelength, and repeat at other frequencies."],
+ eng:'graph',ctl:{k:'f',l:"Frequency",u:'Hz',vals:[4,5,6,7,8,9,10,11,12]},rep:1,min:5,
+ meas:function(v){return {L10:rd(nz(10*0.20/v*100,0,0.35),1)}},
+ cols:[{k:'f',h:"Frequency (Hz)",iv:1,d:0},{k:'L10',h:"Length of 10 waves (cm)",d:1,rep:1},{k:'lam',h:"Wavelength (m)",d:4,f:function(r){return r.L10/1000}},{k:'v',h:"Speed (m/s)",d:3,f:function(r){return r.f*r.L10/1000}},{k:'T',hide:1,f:function(r){return 1/r.f}}],
+ gr:{x:'T',y:'lam',xl:"1 ÷ frequency (s)",yl:"Wavelength (m)",fit:'line'},
+ an:function(f){return {v:f.m,u:"m/s",acc:0.20,d:3,name:"Wave speed",how:"v = f × λ, so λ = v × (1 ÷ f). Plotting λ against 1 ÷ f gives a straight line through the origin with gradient v = "+f.m.toFixed(3)+" m/s. Check it against the speed column in your table."}},
+ readout:function(L){return L?"10 waves measure "+fx(L.L10,1)+" cm":"Pick a frequency and measure"},
+ svg:function(v,o,L){var lam=0.20/v*100,px=lam*6.6,i,s='';for(i=-1;i*px<210;i++)s+='<rect x="22" y="'+(26+i*px)+'" width="246" height="'+(px*0.35)+'" fill="var(--ink)" fill-opacity=".22"/>';
+  var t='';for(i=0;i<=30;i+=5)t+='<line x1="276" y1="'+(26+i*6.6)+'" x2="'+(i%10?282:286)+'" y2="'+(26+i*6.6)+'" class="kt"/>'+(i%10===0?'<text x="290" y="'+(30+i*6.6)+'" class="txs">'+i+'</text>':'');
+  return '<svg class="ap" viewBox="0 0 320 240" role="img" aria-label="Ripple tank seen from above"><defs><clipPath id="wclip"><rect x="22" y="24" width="246" height="200"/></clipPath></defs>'+
+  '<rect x="20" y="16" width="250" height="210" rx="6" class="wa" stroke="var(--ink)" stroke-width="2"/><g clip-path="url(#wclip)"><g>'+s+'<animateTransform class="wv" attributeName="transform" type="translate" from="0 0" to="0 '+px.toFixed(2)+'" dur="1.4s" repeatCount="indefinite"/></g></g>'+
+  '<rect x="30" y="18" width="230" height="6" class="me"/>'+t+'<text x="300" y="20" text-anchor="middle" class="txs">cm</text>'+
+  '<text x="145" y="238" text-anchor="middle" class="txs">'+v+' Hz · strobe slows the waves down</text></svg>'},
+ concl:[["As the frequency goes up, the wavelength…","goes down, because the speed stays the same",["goes up","stays the same","doubles each time"],"v = f λ with v fixed by the depth, so λ ∝ 1 ÷ f."]],
+ qs:[["A wave has a frequency of 5 Hz and a wavelength of 0.04 m. What's its speed?","0.2 m/s",["125 m/s","0.008 m/s","5.04 m/s"],"v = f λ = 5 × 0.04 = 0.2 m/s."],
+  ["Why measure across 10 waves rather than just 1?","It reduces the uncertainty in the wavelength",["Waves are too small to see","It makes the waves faster","Exam boards say so"],"A small reading error is shared across 10 wavelengths."],
+  ["Why is a strobe light or a photo used?","It makes the waves look still, so they're easier to measure",["It heats the water","It changes the frequency","It makes the waves bigger"],"Moving waves are hard to measure by eye."],
+  ["What happens to the wavelength if you double the frequency in the same depth of water?","It halves",["It doubles","It stays the same","It quadruples"],"The speed is fixed, so λ ∝ 1 ÷ f."]]},
+
+{id:'lig',sub:'p',n:9,t:"Refraction of light",ic:'🔦',
+ aim:"Trace light rays through a glass block and find how the angle of refraction depends on the angle of incidence.",
+ vars:{iv:"Angle of incidence",dv:"Angle of refraction",cv:["The glass block","Colour of the light"]},
+ risk:[["The ray box lamp gets hot","Don't touch it, and let it cool"],["Working in a dim room","Keep bags and stools out of the way"]],
+ method:["Draw around a glass block on paper, remove it, and draw a normal at 90° to one side.","Put the block back and aim a thin ray from the ray box at the point where the normal meets the block.","Mark the ray going in and the ray coming out with small crosses.","Remove the block, join the crosses, and draw the ray through the block.","Measure the angles of incidence and refraction from the normal with a protractor.","Repeat for different angles of incidence."],
+ eng:'graph',ctl:{k:'i',l:"Angle of incidence",u:'°',vals:[0,10,20,30,40,50,60,70]},rep:0,min:6,
+ meas:function(v){var r=Math.asin(Math.sin(v*DEG)/1.5)/DEG;return {r:Math.max(0,Math.round(nz(r,0,0.7))),re:Math.max(0,Math.round(nz(v,0,0.5)))}},
+ cols:[{k:'i',h:"Incidence (°)",iv:1,d:0},{k:'r',h:"Refraction (°)",d:0},{k:'re',h:"Reflection (°)",d:0}],
+ gr:{x:'i',y:'r',xl:"Angle of incidence (°)",yl:"Angle of refraction (°)",fit:'curve'},
+ an:function(f,G){var s=0,n=0;G.forEach(function(q){if(q.ex||q.val.i<15||q.val.r<=0)return;s+=Math.sin(q.val.i*DEG)/Math.sin(q.val.r*DEG);n++});if(!n)return null;var r=s/n;return {v:r,u:"",acc:1.5,d:2,name:"Refractive index (extra)",how:"Not needed for GCSE, but nice to know: sin i ÷ sin r is the same for every ray. That ratio is the glass's refractive index, about "+r.toFixed(2)+" from your data. Glass is about 1.5."}},
+ readout:function(L){return L?"Protractor: refraction "+L.r+"° · reflection "+L.re+"°":"Pick an angle and trace the ray"},
+ svg:function(v,o,L){var x0=126,y0=70,r=Math.asin(Math.sin(v*DEG)/1.5),ix=x0-110*Math.sin(v*DEG),iy=y0-110*Math.cos(v*DEG),dx=110*Math.tan(r),ex=x0+dx,ey=180;
+  return '<svg class="ap" viewBox="0 0 320 240" role="img" aria-label="Ray of light through a glass block">'+
+  '<rect x="104" y="70" width="128" height="110" class="gl"/><path d="M'+x0+' 20 V225" stroke="var(--muted)" stroke-dasharray="5 4" stroke-width="1.3"/>'+
+  '<path d="M'+ix+' '+iy+' L'+x0+' '+y0+'" stroke="#e2513b" stroke-width="2.5"/><path d="M'+x0+' '+y0+' L'+(x0+110*Math.sin(v*DEG))+' '+(y0-110*Math.cos(v*DEG))+'" stroke="#e2513b" stroke-width="1.5" opacity=".35"/>'+
+  '<path d="M'+x0+' '+y0+' L'+ex+' '+ey+'" stroke="#e2513b" stroke-width="2.5"/><path d="M'+ex+' '+ey+' L'+(ex+60*Math.sin(v*DEG))+' '+(ey+60*Math.cos(v*DEG))+'" stroke="#e2513b" stroke-width="2.5"/>'+
+  '<text x="'+(x0-30)+'" y="'+(y0-30)+'" class="txb">i</text><text x="'+(x0+8)+'" y="'+(y0+36)+'" class="txb">r</text>'+
+  '<text x="250" y="40" class="txb">i = '+v+'°</text>'+(L?'<text x="250" y="58" class="txb">r = '+L.r+'°</text>':'')+'</svg>'},
+ concl:[["As light goes from air into glass, it…","bends towards the normal, because it slows down",["bends away from the normal","doesn't bend at all","speeds up"],"Glass is optically denser than air."],
+  ["Compare the angles of incidence and reflection in your table.","They're equal (give or take your measuring error)",["Reflection is always bigger","Reflection is always 90°","There's no pattern"],"The law of reflection: angle of incidence = angle of reflection."]],
+ qs:[["Why is a thin ray of light used?","So you can mark the middle of the ray accurately",["It's brighter","Thick rays don't refract","To stop the block getting hot"],"A narrow ray reduces the uncertainty in the angles."],
+  ["A ray hits the block along the normal (0°). What happens?","It goes straight through without changing direction",["It reflects straight back","It bends at 90°","It disappears"],"It still slows down, but doesn't change direction."],
+  ["When the ray leaves the block back into air, it…","bends away from the normal and comes out parallel to the ray that went in",["bends towards the normal","stops","comes out at 90°"],"The two refractions cancel out for a parallel-sided block."],
+  ["Which angles are measured in this practical?","Angles between each ray and the normal",["Angles between each ray and the block's surface","The angle of the ray box","The corners of the block"],"Always measure from the normal."]]},
+
+{id:'ir',sub:'p',n:10,t:"Infrared radiation",ic:'♨️',
+ aim:"Find which kind of surface gives out the most infrared radiation, using a Leslie cube full of hot water.",
+ vars:{iv:"Type of surface",dv:"Infrared detector reading",cv:["Temperature of the water","Distance from the detector to the surface"]},
+ risk:[["Hot water can scald","Fill the cube carefully on the bench, and don't carry it when it's full"]],
+ method:["Put the Leslie cube on a heatproof mat and fill it with hot water from a kettle.","Place the infrared detector 10 cm from one face.","Record the reading.","Turn the cube to each face in turn, keeping the distance the same.","Repeat the readings quickly, before the water cools.","Draw a bar chart of the results."],
+ eng:'graph',ctl:{k:'s',l:"Face pointing at the detector",u:'',vals:[0,1,2,3],lab:function(v){return ["Matt black","Matt white","Shiny black","Shiny silver"][v]}},rep:1,min:4,
+ BASE:[1.84,1.66,1.38,0.19],
+ meas:function(v){return {R:rd(Math.max(0.02,nz(this.BASE[v],0.025,0.015)),2)}},
+ cols:[{k:'s',h:"Surface",iv:1,txt:function(v){return ["Matt black","Matt white","Shiny black","Shiny silver"][v]}},{k:'R',h:"Reading (mV)",d:2,rep:1}],
+ gr:{x:'s',y:'R',xl:"Surface",yl:"Detector reading (mV)",fit:'bar',lab:function(v){return ["Matt black","Matt white","Shiny black","Shiny silver"][v]}},
+ readout:function(L){return L?"Detector: "+fx(L.R,2)+" mV":"Turn the cube and take a reading"},
+ svg:function(v,o,L){var C=['#1b1b1b','#f4f1ea','#3a3a46','#d9dde3'],rot=-90*v,R=L?L.R:0,i,w='';
+  for(i=0;i<3;i++)w+='<path d="M198 '+(100+i*20)+' q8 -8 16 0 t16 0 t16 0" fill="none" stroke="#e2513b" stroke-width="2" opacity="'+clamp(R/1.9,0.08,1)+'"/>';
+  return '<svg class="ap" viewBox="0 0 320 240" role="img" aria-label="Leslie cube and infrared detector, from above">'+
+  '<g transform="rotate('+rot+' 130 120)"><rect x="70" y="60" width="120" height="120" fill="var(--metal)" fill-opacity=".4"/>'+
+  '<path d="M190 60 V180" stroke="'+C[0]+'" stroke-width="10"/><path d="M190 180 H70" stroke="'+C[1]+'" stroke-width="10"/><path d="M70 180 V60" stroke="'+C[2]+'" stroke-width="10"/><path d="M70 60 H190" stroke="'+C[3]+'" stroke-width="10"/>'+
+  '<rect x="64" y="54" width="132" height="132" fill="none" stroke="var(--ink)" stroke-width="1.5"/></g>'+
+  '<text x="130" y="124" text-anchor="middle" class="txs">HOT WATER</text>'+w+
+  '<rect x="252" y="96" width="50" height="48" rx="6" class="kf"/><circle cx="252" cy="120" r="8" class="me"/><text x="278" y="124" text-anchor="middle" class="txb">'+fx(R,2)+'</text><text x="278" y="160" text-anchor="middle" class="txs">mV</text>'+
+  '<text x="130" y="222" text-anchor="middle" class="txb">'+["Matt black","Matt white","Shiny black","Shiny silver"][v]+' face</text></svg>'},
+ concl:[["Which surface is the best emitter of infrared?","Matt black",["Shiny silver","Shiny black","Matt white"],"Dark, matt surfaces emit the most."],
+  ["Which is the worst emitter?","Shiny silver",["Matt black","Matt white","Shiny black"],"Shiny surfaces emit (and absorb) the least. In real labs matt white often comes close to matt black: shininess matters more than colour for infrared. In the exam, say matt black is best and shiny silver is worst."]],
+ qs:[["Why must the detector be the same distance from each face?","Distance affects the reading, so it has to be controlled",["To save time","So the cube doesn't tip over","Because the detector is fixed to the bench"],"Closer means a bigger reading."],
+  ["Why should the readings be taken quickly?","The water cools, so later readings would be lower",["The detector's battery runs out","Infrared is only made at the start","To stop the cube melting"],"Temperature of the water is a control variable."],
+  ["A good emitter of infrared is also a good…","absorber of infrared",["reflector of infrared","insulator","conductor of electricity"],"Matt black is the best emitter and the best absorber."],
+  ["Why are the cooling pipes on the back of a fridge painted matt black?","Matt black is the best emitter, so they lose energy quickly",["To look better","To absorb heat from the room","Black paint is cheaper"],"The fridge needs to get rid of energy to the room."]]},
+
+/* ---------- CHEMISTRY ---------- */
+{id:'salt',sub:'c',n:1,t:"Making salts",ic:'💎',
+ aim:"Make pure, dry crystals of copper(II) sulfate from insoluble copper(II) oxide and dilute sulfuric acid.",
+ risk:[["Sulfuric acid is corrosive and copper(II) oxide is harmful","Wear eye protection and gloves"],["Hot equipment when evaporating","Use a water bath, and don't heat to dryness"]],
+ method:["Warm 40 cm³ of dilute sulfuric acid in a beaker (don't boil it).","Add copper(II) oxide a spatula at a time, stirring, until some stays undissolved.","Filter the mixture to remove the excess copper(II) oxide.","Heat the filtrate in an evaporating basin over a water bath until crystals start to form.","Leave the solution to cool so crystals can grow.","Pat the crystals dry with filter paper."],
+ eng:'salt',
+ concl:[["Why is your percentage yield less than 100%?","Some copper sulfate stays dissolved in the solution, and some is lost when filtering and moving it",["The reaction makes extra crystals","Copper oxide turns into copper","The balance was too accurate"],"Losses happen at every transfer, and not all of the salt crystallises out."],
+  ["What is the word equation for the reaction?","copper(II) oxide + sulfuric acid → copper(II) sulfate + water",["copper + sulfuric acid → copper sulfate + hydrogen","copper(II) oxide + water → copper sulfate","copper sulfate → copper + sulfate"],"Metal oxide + acid → salt + water."]],
+ qs:[["Why is the copper(II) oxide added in excess?","To make sure all the acid has reacted",["To make more acid","To speed up filtering","To make the crystals bigger"],"Then there's no acid left to contaminate the salt."],
+  ["Why can the excess be removed by filtering?","Copper(II) oxide is insoluble, so it stays on the filter paper",["It dissolves in the filter paper","It evaporates","It's a gas"],"Insoluble solids are the residue."],
+  ["Why shouldn't you heat the solution until it's dry?","The crystals can break down, and you'd get powder instead of crystals",["It takes too long","The water would freeze","It makes the salt soluble"],"Heat to the crystallisation point, then let it cool slowly."],
+  ["Which salt would you make from zinc oxide and hydrochloric acid?","Zinc chloride",["Zinc sulfate","Zinc nitrate","Zinc hydroxide"],"Hydrochloric acid makes chlorides."]]},
+
+{id:'titr',sub:'c',n:2,t:"Titration",ic:'🧪',
+ aim:"Find the concentration of a sodium hydroxide solution by titrating it with 0.100 mol/dm³ hydrochloric acid.",
+ risk:[["Sodium hydroxide is an irritant and can damage eyes","Wear eye protection"],["Filling the burette above your head","Fill it below eye level with a funnel, then take the funnel out"]],
+ method:["Use a pipette and pipette filler to put 25.0 cm³ of sodium hydroxide in a conical flask.","Add a few drops of phenolphthalein indicator (it turns pink).","Fill the burette with hydrochloric acid and record the starting reading.","Add the acid, swirling the flask, until the pink colour just disappears.","Record the final reading and work out the titre.","Repeat until you have two concordant titres (within 0.10 cm³ of each other)."],
+ eng:'titr',
+ concl:[["NaOH + HCl → NaCl + H₂O. What's the mole ratio of sodium hydroxide to hydrochloric acid?","1 : 1",["1 : 2","2 : 1","25 : 1"],"So moles of NaOH = moles of HCl at the end point."]],
+ qs:[["What does concordant mean?","Titres within 0.10 cm³ of each other",["Titres that are exactly 25.0 cm³","The first and last titres","Any titres that are close to the rough one"],"Use only concordant titres to work out the mean."],
+  ["Why do a rough titration first?","To find roughly where the end point is, so you can add acid drop by drop near it",["To clean the burette","To warm the solutions","It's included in the mean"],"The rough titre usually overshoots."],
+  ["25.0 cm³ of NaOH is neutralised by 20.0 cm³ of 0.100 mol/dm³ HCl. What's the concentration of the NaOH?","0.0800 mol/dm³",["0.125 mol/dm³","0.100 mol/dm³","0.00200 mol/dm³"],"Moles HCl = 0.100 × 0.0200 = 0.00200. ÷ 0.0250 dm³ = 0.0800 mol/dm³."],
+  ["Why swirl the flask?","To mix the acid and alkali so they react completely",["To cool it down","To make the indicator work","To stop bubbles"],"Otherwise the colour might change too early."]]},
+
+{id:'elec',sub:'c',n:3,t:"Electrolysis",ic:'⚡',
+ aim:"Predict and test the products when different salt solutions are electrolysed with inert carbon electrodes.",
+ vars:{iv:"The solution being electrolysed",dv:"The products at each electrode",cv:["Using inert electrodes","Concentration of the solution","p.d. of the power supply"]},
+ risk:[["Chlorine is toxic","Keep run times short and the room ventilated (or use a fume cupboard)"],["Copper(II) salts are harmful","Wear eye protection and gloves"]],
+ method:["Pour the solution into a beaker.","Put two carbon electrodes in, held apart by a lid.","Connect them to a low-voltage d.c. supply (about 4 V).","Switch on and watch what happens at each electrode.","Test any gas: squeaky pop = hydrogen, relights a glowing splint = oxygen, bleaches damp litmus = chlorine.","Record what forms at the cathode (−) and the anode (+)."],
+ eng:'elec',
+ concl:[["Which half equation happens at the cathode in copper(II) sulfate solution?","Cu²⁺ + 2e⁻ → Cu",["Cu → Cu²⁺ + 2e⁻","2H⁺ + 2e⁻ → H₂","4OH⁻ → O₂ + 2H₂O + 4e⁻"],"Copper ions gain electrons: reduction."],
+  ["Which half equation happens at the anode in sodium chloride solution?","2Cl⁻ → Cl₂ + 2e⁻",["Cl₂ + 2e⁻ → 2Cl⁻","Na⁺ + e⁻ → Na","2H⁺ + 2e⁻ → H₂"],"Chloride ions lose electrons: oxidation."]],
+ qs:[["Why are carbon (graphite) electrodes used?","They're inert, so they don't react with the products",["They're magnetic","They make more gas","They're cheaper than wires"],"Inert electrodes take no part in the reaction."],
+  ["In sodium chloride solution, why does hydrogen form at the cathode instead of sodium?","Sodium is more reactive than hydrogen",["Sodium is a gas","Hydrogen is a metal","There are no sodium ions"],"The less reactive of the two is discharged."],
+  ["What is left in solution after electrolysing sodium chloride solution?","Sodium hydroxide",["Pure water","Hydrochloric acid","Sodium metal"],"Na⁺ and OH⁻ ions are left behind."],
+  ["Oxidation happens at which electrode?","The anode (+), where ions lose electrons",["The cathode (−)","Both electrodes","Neither"],"OIL RIG: oxidation is loss of electrons."]]},
+
+{id:'temp',sub:'c',n:4,t:"Temperature changes",ic:'🌡️',
+ aim:"Find how the temperature changes as sodium hydroxide is added to hydrochloric acid, and use it to find the volume that exactly neutralises the acid.",
+ vars:{iv:"Volume of sodium hydroxide added",dv:"Highest temperature reached",cv:["Volume and concentration of the acid","Concentration of the sodium hydroxide","An insulated cup with a lid"]},
+ risk:[["Sodium hydroxide and hydrochloric acid are irritants","Wear eye protection"]],
+ method:["Measure 30 cm³ of hydrochloric acid into a polystyrene cup, standing in a beaker so it can't tip over.","Record its temperature.","Add 5 cm³ of 2.0 mol/dm³ sodium hydroxide, put the lid on, stir, and record the highest temperature.","Keep adding 5 cm³ at a time, recording the highest temperature each time, up to 40 cm³.","Plot temperature against volume added, and draw two lines of best fit.","Where the lines cross is the volume needed to neutralise the acid."],
+ eng:'graph',ctl:{k:'v',l:"Total sodium hydroxide added",u:'cm³',vals:[0,5,10,15,20,25,30,35,40]},opts:[{k:'lid',l:"Put a lid on the cup",d:1}],rep:0,min:8,
+ meas:function(v,o){var dTm=12.1*(o.lid?0.96:0.84),dT=v<=24?dTm*v/24:dTm*54/(30+v);return {T:rd(19.5+dT+(v?g()*0.15:0),1)}},
+ cols:[{k:'v',h:"NaOH added (cm³)",iv:1,d:0},{k:'T',h:"Highest temperature (°C)",d:1}],
+ gr:{x:'v',y:'T',xl:"Volume of sodium hydroxide (cm³)",yl:"Temperature (°C)",fit:'two'},
+ an:function(f){if(f.ix==null)return null;var c=2.0*f.ix/30;return {v:c,u:"mol/dm³",acc:1.6,d:2,name:"Concentration of the acid",how:"The lines cross at "+f.ix.toFixed(1)+" cm³: that's when all the acid has reacted. Moles of NaOH = 2.0 × "+f.ix.toFixed(1)+" ÷ 1000 = "+(2*f.ix/1000).toFixed(4)+" mol. The ratio is 1 : 1, so the acid's concentration = "+(2*f.ix/1000).toFixed(4)+" ÷ 0.030 dm³ = "+c.toFixed(2)+" mol/dm³."}},
+ readout:function(L){return L?"Thermometer: "+fx(L.T,1)+" °C":"Pick a volume and take a reading"},
+ svg:function(v,o,L){var T=L?L.T:19.5,h=clamp((T-10)/30,0,1)*110,vh=(40-v)/50*120;
+  return '<svg class="ap" viewBox="0 0 320 240" role="img" aria-label="Polystyrene cup with a thermometer">'+
+  '<path d="M60 96 V220 H200 V96" class="k"/><path d="M80 108 L90 214 H170 L180 108 Z" fill="var(--card)" stroke="var(--ink)" stroke-width="2"/>'+
+  '<path d="M84 '+(180-v*1.1)+' L88 210 H172 L176 '+(180-v*1.1)+' Z" class="wa"/>'+(o.lid?'<rect x="74" y="100" width="112" height="9" rx="3" fill="var(--metal)" stroke="var(--ink)" stroke-width="1.5"/>':'')+
+  '<rect x="124" y="30" width="12" height="164" rx="6" class="gl"/><rect x="127" y="'+(190-h)+'" width="6" height="'+h+'" fill="#e2513b"/><circle cx="130" cy="196" r="7" fill="#e2513b"/>'+
+  '<text x="144" y="'+(194-h)+'" class="txb">'+fx(T,1)+' °C</text>'+
+  '<path d="M240 70 V214 H272 V70" class="k"/><rect x="242" y="'+(212-vh)+'" width="28" height="'+vh+'" class="wa"/><text x="256" y="60" text-anchor="middle" class="txs">NaOH</text>'+
+  '<text x="256" y="232" text-anchor="middle" class="txs">'+v+' cm³ added</text></svg>'},
+ concl:[["Why does the temperature rise at first?","The neutralisation reaction is exothermic",["The cup is warm","Sodium hydroxide is hot","The thermometer heats it"],"Energy is transferred to the surroundings (the solution)."],
+  ["Why does the temperature fall after the lines cross?","All the acid has reacted, so extra sodium hydroxide just cools the mixture",["The reaction becomes endothermic","The lid falls off","The thermometer breaks"],"Adding room-temperature liquid with no reaction lowers the temperature."]],
+ qs:[["Why is a polystyrene cup used rather than a glass beaker?","It's a good insulator, so less energy is lost",["It's cheaper","It doesn't react with acid","It's easier to stir"],"Less energy lost means a bigger, more accurate temperature change."],
+  ["Is neutralisation exothermic or endothermic?","Exothermic",["Endothermic","Neither","It depends on the indicator"],"The temperature goes up."],
+  ["Why is the cup put inside a beaker?","To stop it tipping over",["To heat it","To make it react faster","To measure the volume"],"Polystyrene cups are light and fall over easily."],
+  ["How could the results be made more accurate?","Use a lid and add smaller volumes near the peak",["Use a glass beaker","Add all the NaOH at once","Measure the temperature once at the end"],"Smaller steps near the peak pin down where the lines cross."]]},
+
+{id:'rate',sub:'c',n:5,t:"Rates of reaction",ic:'⏱️',
+ aim:"Find how the concentration of sodium thiosulfate affects the rate of its reaction with hydrochloric acid, by timing how long a cross takes to disappear.",
+ vars:{iv:"Concentration of sodium thiosulfate",dv:"Time for the cross to disappear",cv:["Volume and concentration of the acid","Temperature","The same cross and the same person watching"]},
+ risk:[["Sulfur dioxide gas forms, which can trigger asthma","Work in a ventilated room and pour the mixture away quickly"],["Acid is an irritant","Wear eye protection"]],
+ method:["Draw a black cross on paper and put a conical flask on it.","Measure sodium thiosulfate solution and water into the flask to make the concentration you want (50 cm³ in total).","Add 5 cm³ of dilute hydrochloric acid and start the stopwatch.","Swirl, then look down through the flask at the cross.","Stop the clock when you can no longer see the cross.","Repeat each concentration three times, then plot 1 ÷ time against concentration."],
+ eng:'graph',live:1,ctl:{k:'c',l:"Concentration of sodium thiosulfate",u:'g/dm³',vals:[8,16,24,32,40]},rep:1,min:4,
+ tTrue:function(v){return 1600/v},
+ cols:[{k:'c',h:"Concentration (g/dm³)",iv:1,d:0},{k:'t',h:"Time (s)",d:0,rep:1},{k:'rate',h:"1 ÷ time (s⁻¹)",d:4,f:function(r){return 1/r.t}}],
+ gr:{x:'c',y:'rate',xl:"Concentration (g/dm³)",yl:"Rate, 1 ÷ time (s⁻¹)",fit:'line'},
+ an:function(f){var r=(f.m*32+f.c)/(f.m*16+f.c);return {v:r,u:"× faster",acc:2,d:2,name:"Doubling 16 → 32 g/dm³ makes it",how:"Your line has gradient "+sig3(f.m)+". Doubling the concentration from 16 to 32 g/dm³ multiplies the rate by "+r.toFixed(2)+". A straight line through the origin means rate is directly proportional to concentration, so it should be about 2."}},
+ readout:function(L){return L?"Mean time: "+fx(L.t,0)+" s":"Pick a concentration, then start the run"},
+ svg:function(v,o,L,st){var a=st&&st.alpha!=null?st.alpha:0,tm=st&&st.ts!=null?st.ts:null;
+  return '<svg class="ap" viewBox="0 0 320 240" role="img" aria-label="Flask on a cross, seen from above">'+
+  '<rect x="40" y="20" width="200" height="200" class="pap"/><path d="M90 70 L190 170 M190 70 L90 170" stroke="#111" stroke-width="10" stroke-linecap="round"/>'+
+  '<circle cx="140" cy="120" r="80" fill="var(--glass)" stroke="var(--ink)" stroke-width="2"/><circle cx="140" cy="120" r="78" fill="#f4eccd" fill-opacity="'+a.toFixed(3)+'"/>'+
+  '<circle cx="140" cy="120" r="22" fill="none" stroke="var(--ink)" stroke-width="1.5" opacity=".6"/>'+
+  '<rect x="252" y="90" width="62" height="60" rx="10" class="kf"/><text x="283" y="126" text-anchor="middle" class="txb">'+(tm!=null?Math.floor(tm)+' s':'0 s')+'</text><text x="283" y="166" text-anchor="middle" class="txs">stopwatch</text></svg>'},
+ concl:[["What does a straight line through the origin tell you?","Rate is directly proportional to concentration",["Rate doesn't depend on concentration","Rate falls as concentration rises","The reaction has stopped"],"Double the concentration, double the rate."]],
+ qs:[["Why must the same person judge when the cross disappears?","People judge it differently, so it keeps the measurement consistent",["To save time","Because of safety rules","So the stopwatch works"],"It's still a source of random error, but a smaller one."],
+  ["Why does a higher concentration increase the rate?","There are more particles in the same volume, so collisions happen more often",["The particles have more energy","The activation energy is lower","The particles are bigger"],"More frequent successful collisions."],
+  ["If the cross disappears after 50 s, what is 1 ÷ time?","0.020 s⁻¹",["50 s⁻¹","0.50 s⁻¹","2.0 s⁻¹"],"1 ÷ 50 = 0.020."],
+  ["How else could you measure the rate of a reaction that gives off a gas?","Collect the gas in a gas syringe and measure its volume over time",["Weigh the flask before and after only","Time how long the flask takes to cool","Count the bubbles by eye only"],"Or measure the loss of mass on a balance over time."]]},
+
+{id:'chrom',sub:'c',n:6,t:"Chromatography",ic:'🎨',
+ aim:"Separate the dyes in inks using paper chromatography, and use Rf values to work out what's in an unknown ink.",
+ vars:{iv:"The ink being tested",dv:"Distance each spot moves",cv:["Type of paper and solvent","Position of the baseline"]},
+ risk:[["Some solvents are flammable","Keep them away from flames"]],
+ method:["Draw a baseline in pencil about 1.5 cm from the bottom of the paper.","Put a small spot of each ink on the line.","Stand the paper in a beaker with a little solvent, below the baseline.","Put a lid on and let the solvent soak up the paper.","Take the paper out before the solvent reaches the top, and mark the solvent front in pencil.","Measure the distances and work out Rf = distance moved by spot ÷ distance moved by solvent."],
+ eng:'chrom',
+ concl:[["What can you conclude about ink X?","It has the same dye as ink B, and one of the dyes in ink C",["It is the same as ink A","It's a pure substance","It contains all four dyes"],"Spots with the same Rf value in the same solvent are probably the same substance."],
+  ["Ink A gives a single spot. What does that suggest?","It may be a pure substance",["It's a mixture of two dyes","It didn't dissolve","The solvent was wrong"],"A pure substance gives one spot (in every solvent you try)."]],
+ qs:[["Why is the baseline drawn in pencil?","Graphite is insoluble, so it won't move up with the solvent",["Pencil is easier to see","Pen would dry too slowly","Pencil makes the dyes move faster"],"Ink from a pen would separate and confuse the results."],
+  ["A spot moves 36 mm and the solvent front moves 90 mm. What's the Rf value?","0.40",["2.5","54","0.36"],"Rf = 36 ÷ 90 = 0.40."],
+  ["A spot stays on the baseline. What does that tell you?","That substance is insoluble in the solvent",["It's the most soluble","It's a gas","The paper is wet"],"Try a different solvent."],
+  ["What is the stationary phase in paper chromatography?","The paper",["The solvent","The ink","The lid"],"The solvent is the mobile phase."]]}
+];
+var BY={};PR.forEach(function(p){BY[p.id]=p});
+var STG=[['plan',"Plan"],['do',"Do it"],['an',"Analyse"],['ex',"Exam"]];
+
+/* ================= shared bits ================= */
+function mcq(q,cb,opts){var w=document.createElement('div');w.className='mcq';var o=shuf([q[1]].concat(q[2]));var tried=false;
+ w.innerHTML='<div class="qq">'+esc(q[0])+'</div><div class="opts">'+o.map(function(t,i){return '<button class="opt" data-i="'+i+'">'+esc(t)+'</button>'}).join('')+'</div>';
+ [].forEach.call(w.querySelectorAll('.opt'),function(b){b.onclick=function(){var t=o[+b.dataset.i],ok=t===q[1];
+  if(ok||(opts&&opts.once)){[].forEach.call(w.querySelectorAll('.opt'),function(x){x.disabled=true;if(o[+x.dataset.i]===q[1])x.classList.add('right')});if(!ok)b.classList.add('wrong');
+   var e=document.createElement('div');e.className='exp';e.textContent=(ok?'Right. ':'Not quite. ')+(q[3]||'');w.appendChild(e);snd(ok?'ok':'bad');if(cb)cb(ok&&!tried)}
+  else{b.classList.add('wrong');b.disabled=true;tried=true;snd('bad')}}});
+ return w}
+function svgPt(svg,e){var p=svg.createSVGPoint();p.x=e.clientX;p.y=e.clientY;return p.matrixTransform(svg.getScreenCTM().inverse())}
+function pctAll(){var n=0;PR.forEach(function(p){STG.forEach(function(s){if(done(p.id,s[0]))n++})});return n}
+function updPct(){document.getElementById('pct').textContent=Math.round(pctAll()/(PR.length*4)*100)+'% done'}
+
+/* ================= home ================= */
+function home(){var n=pctAll(),tot=PR.length*4,f=S.f;
+ var list=PR.filter(function(p){return f==='all'||p.sub===f});
+ V.innerHTML='<section class="card hero"><div class="eyebrow" style="color:rgba(255,255,255,.85)">AQA GCSE physics and chemistry</div><h1>Practicals Lab</h1><p>Do the required practicals here, any time. Plan each one, run it with real-looking (messy) data, draw the graph and work out the answer, then try the exam questions. At least 15% of the marks in your science exams are about practical work.</p><div class="hp"><div class="bar"><i style="width:'+(n/tot*100)+'%"></i></div><b>'+n+'/'+tot+' stages</b></div></section>'+
+ '<div class="seg" role="tablist">'+[['all','All 15'],['p','Physics'],['c','Chemistry']].map(function(x){return '<button role="tab" data-f="'+x[0]+'" aria-selected="'+(f===x[0])+'">'+x[1]+'</button>'}).join('')+'</div>'+
+ '<div class="prgrid">'+list.map(function(p){var d=STG.map(function(s){return '<i class="'+(done(p.id,s[0])?'on':'')+'" title="'+s[1]+'"></i>'}).join(''),b=PD(p.id).best;
+  return '<button class="prc" data-id="'+p.id+'"><span class="ic" aria-hidden="true">'+p.ic+'</span><span class="rp">'+(p.sub==='p'?'Physics':'Chemistry')+' · Required practical '+p.n+'</span><b>'+esc(p.t)+'</b><span class="dots">'+d+(b!=null?'<span>Exam best '+b+'/'+p.qs.length+'</span>':'')+'</span></button>'}).join('')+'</div>'+
+ '<section class="card"><h2>Quick-fire practical questions</h2><p class="muted">Ten random exam questions from every practical. 1 XP for each one you get right first time (up to 10 a day).</p><div class="btns" style="margin-top:10px"><button class="btn primary" id="mq">Start 10 questions</button></div></section>';
+ [].forEach.call(V.querySelectorAll('.seg button'),function(b){b.onclick=function(){S.f=b.dataset.f;save();home()}});
+ [].forEach.call(V.querySelectorAll('.prc'),function(b){b.onclick=function(){go(b.dataset.id+'/'+firstStage(b.dataset.id))}});
+ document.getElementById('mq').onclick=function(){go('quiz')};updPct();scrollTo(0,0)}
+function firstStage(id){for(var i=0;i<STG.length;i++)if(!done(id,STG[i][0]))return STG[i][0];return 'plan'}
+
+/* ================= practical page ================= */
+var CUR=null,CLEAN=null;
+function page(id,stg){var p=BY[id];if(!p){home();return}if(CLEAN){CLEAN();CLEAN=null}CUR={id:id,stg:stg};
+ V.innerHTML='<div><button class="back" id="bk">← All practicals</button></div><section class="card"><div class="eyebrow">'+(p.sub==='p'?'Physics':'Chemistry')+' · Required practical '+p.n+'</div><h2 style="font-size:24px;margin-top:4px">'+p.ic+' '+esc(p.t)+'</h2><p class="muted">'+esc(p.aim)+'</p></section>'+
+ '<div class="stg" role="tablist">'+STG.map(function(s,i){return '<button role="tab" data-s="'+s[0]+'" aria-selected="'+(stg===s[0])+'"><span class="tk'+(done(id,s[0])?' on':'')+'">'+(done(id,s[0])?'✓':(i+1))+'</span><span class="l">'+s[1]+'</span></button>'}).join('')+'</div><div id="stage" style="display:flex;flex-direction:column;gap:14px"></div>';
+ document.getElementById('bk').onclick=function(){go('')};
+ [].forEach.call(V.querySelectorAll('.stg button'),function(b){b.onclick=function(){go(id+'/'+b.dataset.s)}});
+ var st=document.getElementById('stage');
+ if(stg==='plan')plan(p,st);else if(stg==='do')(ENG[p.eng].doit)(p,st);else if(stg==='an')(ENG[p.eng].an)(p,st);else exam(p,st);
+ updPct()}
+function refreshTabs(id){[].forEach.call(V.querySelectorAll('.stg button'),function(b,i){var k=b.dataset.s,t=b.querySelector('.tk');t.className='tk'+(done(id,k)?' on':'');t.textContent=done(id,k)?'✓':(i+1)})}
+function nextBtn(p,stg,label){return '<div class="btns" style="margin-top:12px"><button class="btn primary" data-go="'+p.id+'/'+stg+'">'+label+' →</button></div>'}
+function wireGo(root){[].forEach.call(root.querySelectorAll('[data-go]'),function(b){b.onclick=function(){go(b.dataset.go)}})}
+function stageDone(p,k,xpn,why){markDone(p.id,k);award(p.id,k,xpn,why);refreshTabs(p.id);updPct()}
+
+/* ---------- plan ---------- */
+function plan(p,st){var pd=PD(p.id),c1=document.createElement('section');c1.className='card';
+ c1.innerHTML='<h2>Hazards and how to stay safe</h2><div class="risk"><div class="h">Hazard</div><div class="h">What you do about it</div>'+p.risk.map(function(r){return '<div>'+esc(r[0])+'</div><div>'+esc(r[1])+'</div>'}).join('')+'</div>';st.appendChild(c1);
+ var need=0,got=0;
+ if(p.vars){var c2=document.createElement('section');c2.className='card';c2.innerHTML='<h2>Variables</h2><p class="muted">Exam questions often ask you to name these.</p>';st.appendChild(c2);
+  var vv=p.vars,ex=["The time of day you do it","The colour of your lab coat"],
+  Qs=[["Which is the independent variable (the one you change)?",vv.iv,[vv.dv,vv.cv[0],vv.cv[1]||ex[0]],"The independent variable is the one you choose values for."],
+   ["Which is the dependent variable (the one you measure)?",vv.dv,[vv.iv,vv.cv[0],vv.cv[1]||ex[1]],"The dependent variable changes because of the independent one."],
+   ["Which is a control variable (kept the same)?",vv.cv[0],[vv.iv,vv.dv,ex[0]],"Control variables stay the same so the test is fair. Others here: "+vv.cv.join('; ')+"."]];
+  Qs.forEach(function(q){need++;c2.appendChild(mcq(q,function(){got++;chk()}))})}
+ var c3=document.createElement('section');c3.className='card';c3.innerHTML='<h2>Put the method in order</h2><p class="muted">Tap the steps in the order you\'d do them.</p><div class="order" style="margin-top:10px"></div><div id="ordmsg"></div>';st.appendChild(c3);
+ need++;var ord=c3.querySelector('.order'),nx=0,ids=shuf(p.method.map(function(_,i){return i}));
+ ids.forEach(function(i){var b=document.createElement('button');b.innerHTML='<span class="num"></span>'+esc(p.method[i]);b.onclick=function(){if(b.classList.contains('placed'))return;
+  if(i===nx){b.classList.add('placed');b.querySelector('.num').textContent=(nx+1)+'.';nx++;snd('ok',nx);ord.appendChild(b);ord.querySelectorAll('button:not(.placed)').forEach(function(x){ord.appendChild(x)});
+   if(nx===p.method.length){c3.querySelector('#ordmsg').innerHTML='<div class="msg ok">Method in order. That\'s the kind of thing a 6-mark method question wants.</div>';got++;chk()}}
+  else{b.classList.remove('shake');void b.offsetWidth;b.classList.add('shake');snd('bad');c3.querySelector('#ordmsg').innerHTML='<div class="msg bad">Not that one yet. What has to happen first?</div>'}};ord.appendChild(b)});
+ var fin=document.createElement('div');st.appendChild(fin);
+ function chk(){if(got>=need){stageDone(p,'plan',5,p.t+': plan');fin.innerHTML=nextBtn(p,'do','Do the practical');wireGo(fin)}}
+ if(done(p.id,'plan')){fin.innerHTML='<div class="msg ok">You\'ve already planned this one. Do it again any time.</div>'+nextBtn(p,'do','Do the practical');wireGo(fin)}}
+
+/* ---------- exam ---------- */
+function exam(p,st){runQuiz(st,p.qs.map(function(q){return q}),function(score){var pd=PD(p.id),first=!done(p.id,'ex');pd.best=Math.max(pd.best||0,score);save();
+  markDone(p.id,'ex');if(first)xp(score*2,p.t+': exam questions');refreshTabs(p.id);updPct()},p.t)}
+function runQuiz(st,qs,end,title){var i=0,score=0,c=document.createElement('section');c.className='card';st.appendChild(c);
+ function show(){if(i>=qs.length){c.innerHTML='<div class="eyebrow">Done</div><div class="big" style="margin:6px 0">'+score+'/'+qs.length+'</div><p class="muted">'+(score===qs.length?'Full marks. ':'')+'Right first time counts.</p><div class="btns" style="margin-top:12px"><button class="btn primary" id="qa">Try again</button><button class="btn alt" id="qh">All practicals</button></div>';snd(score>=qs.length*0.75?'win':'go');end(score);
+   c.querySelector('#qa').onclick=function(){i=0;score=0;qs=shuf(qs);show()};c.querySelector('#qh').onclick=function(){go('')};return}
+  c.innerHTML='<div class="eyebrow">Question '+(i+1)+' of '+qs.length+(qs[i].from?' · '+esc(qs[i].from):'')+'</div>';var m=mcq(qs[i],function(ok){if(ok)score++;var b=document.createElement('div');b.className='btns';b.style.marginTop='10px';b.innerHTML='<button class="btn primary">'+(i+1<qs.length?'Next':'See score')+'</button>';b.firstChild.onclick=function(){i++;show()};c.appendChild(b);b.firstChild.focus()},{once:true});c.appendChild(m)}
+ show()}
+function quizPage(){if(CLEAN){CLEAN();CLEAN=null}var all=[];PR.forEach(function(p){p.qs.forEach(function(q){var c=q.slice();c.from=p.t;all.push(c)})});
+ V.innerHTML='<div><button class="back" id="bk">← All practicals</button></div><section class="card"><h2>Quick-fire practical questions</h2><p class="muted">Ten random questions. Today: '+(S.mq[today()]||0)+'/10 XP earned.</p></section><div id="stage" style="display:flex;flex-direction:column;gap:14px"></div>';
+ document.getElementById('bk').onclick=function(){go('')};
+ runQuiz(document.getElementById('stage'),shuf(all).slice(0,10),function(score){var d=today(),had=S.mq[d]||0,add=Math.min(score,10-had);if(add>0){S.mq[d]=had+add;save();xp(add,'Practical quick-fire')}})}
+
+/* ================= engines ================= */
+var ENG={};
+
+/* ---------- generic: readings → table → graph ---------- */
+function opts0(p){var pd=PD(p.id);if(!pd.o){pd.o={};(p.opts||[]).forEach(function(x){pd.o[x.k]=x.sel?x.sel[0][0]:(x.d?1:0)})}return pd.o}
+function sigOf(p){var o=opts0(p);return (p.opts||[]).map(function(x){return x.k+'='+o[x.k]}).join('&')||'-'}
+function valsOf(p){var v=p.ctl.vals;return typeof v==='function'?v(opts0(p)):v}
+function labV(p,v){return p.ctl.lab?p.ctl.lab(v):(v+(p.ctl.u?' '+p.ctl.u:''))}
+function repCol(p){for(var i=0;i<p.cols.length;i++)if(p.cols[i].rep)return p.cols[i].k;return null}
+function groups(p){var pd=PD(p.id),s=sigOf(p),G={},ex=pd.ex||{};(pd.rows||[]).forEach(function(r,ix){if(r.s!==s)return;(G[r.v]=G[r.v]||{v:r.v,tr:[]}).tr.push({m:r.m,x:r.x,ix:ix})});
+ var out=Object.keys(G).map(function(k){return G[k]}).sort(function(a,b){return a.v-b.v});
+ out.forEach(function(q){var inc=q.tr.filter(function(t){return !t.x});if(!inc.length)inc=q.tr;var val={};val[p.ctl.k]=q.v;
+  p.cols.forEach(function(c){if(c.iv||c.f)return;var a=0;inc.forEach(function(t){a+=t.m[c.k]});val[c.k]=a/inc.length});
+  p.cols.forEach(function(c){if(c.f)val[c.k]=c.f(val)});q.val=val;q.ex=!!ex[s+'|'+q.v]});return out}
+function anomalies(q,k){var a=q.tr.map(function(t){return t.m[k]}).slice().sort(function(x,y){return x-y});if(a.length<3)return {};var med=a[Math.floor(a.length/2)],o={};
+ q.tr.forEach(function(t,i){if(Math.abs(t.m[k]-med)>Math.max(0.12*Math.abs(med),1e-9)&&Math.abs(t.m[k]-med)>0.015)o[i]=1});return o}
+function fitType(p){var f=p.gr.fit;return typeof f==='function'?f(opts0(p)):f}
+function lsq(pts){var n=pts.length;if(n<2)return null;var sx=0,sy=0,sxx=0,sxy=0;pts.forEach(function(q){sx+=q[0];sy+=q[1];sxx+=q[0]*q[0];sxy+=q[0]*q[1]});var d=n*sxx-sx*sx;if(!d)return null;var m=(n*sxy-sx*sy)/d;return {m:m,c:(sy-m*sx)/n}}
+
+ENG.graph={doit:function(p,st){
+ var pd=PD(p.id),o=opts0(p);if(pd.sel==null||valsOf(p).indexOf(pd.sel)<0)pd.sel=valsOf(p)[0];
+ st.innerHTML='<div class="two"><section class="card"><h2>Apparatus</h2><div id="ap"></div><div class="readout" id="ro"></div></section>'+
+  '<section class="card"><h2>Take readings</h2><div class="lbl">'+esc(p.ctl.l)+(p.ctl.u?' ('+esc(p.ctl.u)+')':'')+'</div><div class="chips" id="vals"></div>'+
+  (p.opts||[]).map(function(x){return x.sel?'<div class="lbl">'+esc(x.l)+'</div><select data-o="'+x.k+'">'+x.sel.map(function(s){return '<option value="'+s[0]+'"'+(o[x.k]===s[0]?' selected':'')+'>'+esc(s[1])+'</option>'}).join('')+'</select>':'<label class="chk"><input type="checkbox" data-o="'+x.k+'"'+(o[x.k]?' checked':'')+'> '+esc(x.l)+'</label>'}).join('')+
+  '<div class="btns" style="margin-top:14px"><button class="btn primary" id="go">'+(p.live?'Add the acid and start':'Take a reading')+'</button><button class="btn alt sm" id="clr">Clear results</button></div><p class="note" id="hint" style="margin-top:8px"></p></section></div>'+
+  '<section class="card"><h2>Results table</h2><p class="note">'+(p.rep?'Do each value three times. Tap a reading to leave it out of the mean (for example, an anomaly).':'Take a reading at each value. Taking it again replaces it.')+'</p><div class="tw" id="tbl"></div><div id="fin"></div></section>';
+ var run=null;
+ function stopRun(){if(!run)return;var ts=run.ts||0;cancelAnimationFrame(run.raf);run=null;document.getElementById('go').textContent='Add the acid and start';var m={};m[repCol(p)]=Math.max(1,Math.round(ts));if(Math.random()<0.06)m[repCol(p)]=Math.round(ts*1.22);record(m)}
+ function last(){var gs=groups(p);for(var i=0;i<gs.length;i++)if(gs[i].v===pd.sel)return gs[i].val;return null}
+ function drawAp(stt){document.getElementById('ap').innerHTML=p.svg(pd.sel,o,last(),stt||{});document.getElementById('ro').textContent=p.readout(last(),o)}
+ function drawVals(){var gs=groups(p),has={};gs.forEach(function(q){has[q.v]=q.tr.length});
+  document.getElementById('vals').innerHTML=valsOf(p).map(function(v){return '<button class="chip'+(v===pd.sel?' on':'')+(has[v]?' has':'')+'" data-v="'+v+'">'+esc(p.ctl.lab?p.ctl.lab(v):v)+(p.rep&&has[v]?' <small>×'+has[v]+'</small>':'')+'</button>'}).join('');
+  [].forEach.call(document.querySelectorAll('#vals .chip'),function(b){b.onclick=function(){if(run)return;pd.sel=+b.dataset.v;save();drawVals();drawAp()}});
+  var n=has[pd.sel]||0;document.getElementById('hint').textContent=p.rep?(n>=3?'Three readings done here. Pick another value.':'Readings at this value: '+n+' of 3.'):(n?'Already measured. Taking it again replaces it.':'')}
+ function drawTbl(){var gs=groups(p),rk=repCol(p),cols=p.cols.filter(function(c){return !c.hide}),h='<table class="tb"><thead><tr>';
+  cols.forEach(function(c){if(c.rep)h+='<th colspan="4">'+esc(c.h)+'</th>';else h+='<th'+(rk?' rowspan="2"':'')+'>'+esc(c.h)+'</th>'});h+='</tr>'+(rk?'<tr><th>Trial 1</th><th>Trial 2</th><th>Trial 3</th><th>Mean</th></tr>':'')+'</thead><tbody>';
+  if(!gs.length)h+='<tr><td colspan="'+(cols.length+(rk?3:0))+'" class="note">No readings yet.</td></tr>';
+  gs.forEach(function(q){var an=rk?anomalies(q,rk):{};h+='<tr>';cols.forEach(function(c){
+   if(c.iv)h+='<td class="n"><b>'+esc(c.txt?c.txt(q.v):fx(q.v,c.d))+'</b></td>';
+   else if(c.rep){for(var i=0;i<3;i++){var t=q.tr[i];h+='<td class="n">'+(t?'<span class="tr'+(t.x?' x':'')+(an[i]&&!t.x?' an':'')+'" data-ix="'+t.ix+'" title="Tap to leave out or put back">'+fx(t.m[c.k],c.d)+'</span>':'')+'</td>'}h+='<td class="n"><b>'+fx(q.val[c.k],c.d)+'</b></td>'}
+   else h+='<td class="n">'+fx(q.val[c.k],c.d)+'</td>'});h+='</tr>'});
+  h+='</tbody></table>';document.getElementById('tbl').innerHTML=h;
+  var anyA=false;gs.forEach(function(q){var a=rk?anomalies(q,rk):{};q.tr.forEach(function(t,i){if(a[i]&&!t.x)anyA=true})});
+  [].forEach.call(document.querySelectorAll('#tbl .tr'),function(s){s.onclick=function(){var r=pd.rows[+s.dataset.ix];r.x=r.x?0:1;save();drawTbl();drawAp()}});
+  var ok=gs.length>=Math.min(p.min,valsOf(p).length),f=document.getElementById('fin');
+  f.innerHTML=(anyA?'<div class="msg bad">A highlighted reading looks like an anomaly: it doesn\'t fit with the others. Tap it to leave it out of the mean, or take it again.</div>':'')+
+   (ok?'<div class="msg ok">Enough data to analyse ('+gs.length+' values).'+(p.rep&&gs.some(function(q){return q.tr.length<3})?' Doing three trials of each makes your means more reliable.':'')+'</div>'+nextBtn(p,'an','Draw the graph'):'<p class="note" style="margin-top:8px">Readings at '+gs.length+' of at least '+Math.min(p.min,valsOf(p).length)+' values so far.</p>');wireGo(f);
+  if(ok&&!done(p.id,'do'))stageDone(p,'do',10,p.t+': results')}
+ function record(m){pd.rows=pd.rows||[];var s=sigOf(p);
+  if(!p.rep){pd.rows=pd.rows.filter(function(r){return !(r.s===s&&r.v===pd.sel)})}
+  else{var n=pd.rows.filter(function(r){return r.s===s&&r.v===pd.sel}).length;if(n>=3){toast('Three readings already. Tap one in the table to leave it out, or clear the results.');return}}
+  pd.rows.push({s:s,v:pd.sel,m:m,x:0});save();snd('tick');drawVals();drawTbl();drawAp()}
+ document.getElementById('go').onclick=function(){
+  if(p.live){if(run){stopRun();return}var tt=nz(p.tTrue(pd.sel),0.03),t0=performance.now(),b=this;b.textContent='Cross gone! Stop the clock';run={tt:tt};
+   (function tick(){if(!run||!document.getElementById('ap')){run=null;return}var ts=(performance.now()-t0)/1000*10;run.ts=ts;var a=Math.min(1,0.93*Math.pow(ts/tt,1.7));drawAp({alpha:a,ts:ts});if(ts>tt*2.2){toast('Too slow: the cross went ages ago. Try again.');run=null;b.textContent='Add the acid and start';drawAp();return}run.raf=requestAnimationFrame(tick)})();
+   return}
+  var m=p.meas(pd.sel,o),rk=repCol(p);if(rk&&Math.random()<0.07)m[rk]=rd(m[rk]*(Math.random()<0.5?1.2:0.82),p.cols.filter(function(c){return c.k===rk})[0].d);record(m)};
+ document.getElementById('clr').onclick=function(){var s=sigOf(p);pd.rows=(pd.rows||[]).filter(function(r){return r.s!==s});if(pd.ln)delete pd.ln[s];save();drawVals();drawTbl();drawAp()};
+ [].forEach.call(st.querySelectorAll('[data-o]'),function(el){el.onchange=function(){o[el.dataset.o]=el.type==='checkbox'?(el.checked?1:0):el.value;if(valsOf(p).indexOf(pd.sel)<0)pd.sel=valsOf(p)[0];save();drawVals();drawTbl();drawAp();
+  if(groups(p).length===0)toast('New set of results for this setting')}});
+ drawVals();drawTbl();drawAp();CLEAN=function(){if(run){cancelAnimationFrame(run.raf);run=null}}},
+
+an:function(p,st){var pd=PD(p.id),o=opts0(p),gs=groups(p),ft=fitType(p),s=sigOf(p);
+ if(gs.length<2){st.innerHTML='<section class="card"><h2>No data yet</h2><p class="muted">Take some readings first'+((p.opts||[]).length?' (with these settings: '+(p.opts.map(function(x){return x.sel?x.sel.filter(function(q){return q[0]===o[x.k]})[0][1]:(o[x.k]?x.l:'not: '+x.l)}).join(', '))+')':'')+'.</p>'+nextBtn(p,'do','Take readings')+'</section>';wireGo(st);return}
+ pd.ln=pd.ln||{};pd.useB=pd.useB||{};
+ st.innerHTML='<section class="card"><h2>Graph</h2><p class="note" id="gn"></p><div class="gw" id="gw"></div><div class="btns" style="margin-top:10px" id="gb"></div></section><section class="card" id="rc"></section><section class="card" id="cc"><h2>Conclusions</h2></section>';
+ var gw=document.getElementById('gw'),split=null;
+ function pts(){return groups(p).filter(function(q){return !q.ex}).map(function(q){return [q.val[p.gr.x],q.val[p.gr.y]]})}
+ function dom(){var G=groups(p),xs=G.map(function(q){return q.val[p.gr.x]}),ys=G.map(function(q){return q.val[p.gr.y]});
+  if(ft==='bar')return {xa:-0.5,xb:G.length-0.5,ya:0,yb:nice(0,Math.max.apply(null,ys.concat(G.map(function(q){return Math.max.apply(null,q.tr.map(function(t){return t.m[repCol(p)]}))})))*1.08,5).b};
+  var x0=Math.min.apply(null,xs),x1=Math.max.apply(null,xs),y0=Math.min.apply(null,ys),y1=Math.max.apply(null,ys);
+  if(ft==='line'||ft==='curve'){if(x0>0)x0=0;if(y0>0&&ft==='line')y0=0}if(ft==='two'){y0=Math.floor(y0-1)}
+  var nx=nice(x0,x1+(x1-x0)*0.04,6),ny=nice(y0,y1+(y1-y0)*0.06,6);return {xa:nx.a,xb:nx.b,ya:ny.a,yb:ny.b,sx:nx.s,sy:ny.s}}
+ function bestFit(){return lsq(pts())}
+ function userLine(){return pd.ln[s]||null}
+ function lineFit(){var u=userLine();if(u&&!pd.useB[s]){var m=(u.y2-u.y1)/(u.x2-u.x1);return {m:m,c:u.y1-m*u.x1,src:'your line'}}var b=bestFit();return b?{m:b.m,c:b.c,src:'the best-fit line'}:null}
+ function twoFit(){var P=groups(p).filter(function(q){return !q.ex}).map(function(q){return [q.val[p.gr.x],q.val[p.gr.y]]});if(P.length<4)return {};
+  if(split==null){var mi=0;P.forEach(function(q,i){if(q[1]>P[mi][1])mi=i});split=clamp(mi,2,P.length-2)}split=clamp(split,2,P.length-2);
+  var a=lsq(P.slice(0,split)),b=lsq(P.slice(split));if(!a||!b||a.m===b.m)return {a:a,b:b};var ix=(b.c-a.c)/(a.m-b.m);return {a:a,b:b,ix:ix,iy:a.m*ix+a.c,n:P.length}}
+ function draw(){if(!gw.isConnected)return;var W=Math.max(280,gw.clientWidth||600),H=Math.round(W<520?W*0.88:W*0.56),ml=W<520?50:62,mr=14,mt=12,mb=W<520?44:50,D=dom(),G=groups(p);
+  var X=function(x){return ml+(x-D.xa)/(D.xb-D.xa)*(W-ml-mr)},Y=function(y){return H-mb-(y-D.ya)/(D.yb-D.ya)*(H-mb-mt)},IX=function(px){return D.xa+(px-ml)/(W-ml-mr)*(D.xb-D.xa)},IY=function(py){return D.ya+(H-mb-py)/(H-mb-mt)*(D.yb-D.ya)};
+  var h='<svg viewBox="0 0 '+W+' '+H+'" class="gx" role="img" aria-label="Graph of '+esc(p.gr.yl)+' against '+esc(p.gr.xl)+'">',v;
+  if(ft==='bar'){for(v=0;v<=D.yb+1e-9;v+=nice(0,D.yb,5).s){h+='<line x1="'+ml+'" y1="'+Y(v)+'" x2="'+(W-mr)+'" y2="'+Y(v)+'"/><text x="'+(ml-6)+'" y="'+(Y(v)+4)+'" text-anchor="end">'+tk(v)+'</text>'}
+   var bw=(W-ml-mr)/G.length*0.55,rk=repCol(p);G.forEach(function(q,i){var x=X(i),y=q.val[p.gr.y],mn=Math.min.apply(null,q.tr.filter(function(t){return !t.x}).map(function(t){return t.m[rk]})),mx=Math.max.apply(null,q.tr.filter(function(t){return !t.x}).map(function(t){return t.m[rk]}));
+    h+='<rect class="bar" x="'+(x-bw/2)+'" y="'+Y(y)+'" width="'+bw+'" height="'+(Y(0)-Y(y))+'" rx="3"/>';if(isFinite(mn)&&mx>mn)h+='<path class="eb" d="M'+x+' '+Y(mn)+' V'+Y(mx)+' M'+(x-6)+' '+Y(mn)+' H'+(x+6)+' M'+(x-6)+' '+Y(mx)+' H'+(x+6)+'"/>';
+    h+='<text x="'+x+'" y="'+(H-mb+16)+'" text-anchor="middle">'+esc(p.gr.lab(q.v)).replace(' ','</text><text x="'+x+'" y="'+(H-mb+29)+'" text-anchor="middle">')+'</text>'})}
+  else{for(v=D.xa;v<=D.xb+1e-9;v+=D.sx)h+='<line x1="'+X(v)+'" y1="'+mt+'" x2="'+X(v)+'" y2="'+(H-mb)+'"/><text x="'+X(v)+'" y="'+(H-mb+16)+'" text-anchor="middle">'+tk(v)+'</text>';
+   for(v=D.ya;v<=D.yb+1e-9;v+=D.sy)h+='<line x1="'+ml+'" y1="'+Y(v)+'" x2="'+(W-mr)+'" y2="'+Y(v)+'"/><text x="'+(ml-6)+'" y="'+(Y(v)+4)+'" text-anchor="end">'+tk(v)+'</text>';
+   if(D.xa<0&&D.xb>0)h+='<line class="ax" x1="'+X(0)+'" y1="'+mt+'" x2="'+X(0)+'" y2="'+(H-mb)+'"/>';if(D.ya<0&&D.yb>0)h+='<line class="ax" x1="'+ml+'" y1="'+Y(0)+'" x2="'+(W-mr)+'" y2="'+Y(0)+'"/>'}
+  h+='<line class="ax" x1="'+ml+'" y1="'+(H-mb)+'" x2="'+(W-mr)+'" y2="'+(H-mb)+'"/><line class="ax" x1="'+ml+'" y1="'+mt+'" x2="'+ml+'" y2="'+(H-mb)+'"/>';
+  h+='<text class="al" x="'+((ml+W-mr)/2)+'" y="'+(H-6)+'" text-anchor="middle">'+esc(p.gr.xl)+'</text><text class="al" transform="translate(13 '+((mt+H-mb)/2)+') rotate(-90)" text-anchor="middle">'+esc(p.gr.yl)+'</text>';
+  var cx0=function(x1,y1,x2,y2){return '<line x1="'+X(x1)+'" y1="'+Y(y1)+'" x2="'+X(x2)+'" y2="'+Y(y2)+'"'};
+  h+='<clipPath id="pc"><rect x="'+ml+'" y="'+mt+'" width="'+(W-ml-mr)+'" height="'+(H-mb-mt)+'"/></clipPath><g clip-path="url(#pc)">';
+  if(ft==='line'){var b=bestFit(),u=userLine();if(b&&(pd.useB[s]||pd.show))h+=cx0(D.xa,b.m*D.xa+b.c,D.xb,b.m*D.xb+b.c)+' class="bf"/>';
+   if(!u){var P=pts(),my=P.reduce(function(a,q){return a+q[1]},0)/P.length;u={x1:D.xa+(D.xb-D.xa)*0.1,y1:my,x2:D.xa+(D.xb-D.xa)*0.9,y2:my,fresh:1}}
+   if(!pd.useB[s]){var m=(u.y2-u.y1)/(u.x2-u.x1),c=u.y1-m*u.x1;h+=cx0(D.xa,m*D.xa+c,D.xb,m*D.xb+c)+' class="ul"/>'}}
+  if(ft==='curve'){var Q=pts().slice().sort(function(a,b){return a[0]-b[0]});if(Q.length>1)h+='<path class="cv" d="'+smooth(Q.map(function(q){return [X(q[0]),Y(q[1])]}))+'"/>'}
+  if(ft==='two'){var t=twoFit();if(t.a)h+=cx0(D.xa,t.a.m*D.xa+t.a.c,D.xb,t.a.m*D.xb+t.a.c)+' class="ul"/>';if(t.b)h+=cx0(D.xa,t.b.m*D.xa+t.b.c,D.xb,t.b.m*D.xb+t.b.c)+' class="l2"/>';
+   if(t.ix!=null)h+='<line x1="'+X(t.ix)+'" y1="'+Y(t.iy)+'" x2="'+X(t.ix)+'" y2="'+(H-mb)+'" class="bf"/><circle cx="'+X(t.ix)+'" cy="'+Y(t.iy)+'" r="5" fill="none" stroke="var(--ink)" stroke-width="2"/>'}
+  h+='</g>';
+  if(ft!=='bar')G.forEach(function(q){h+='<circle class="pt'+(q.ex?' ex':'')+'" data-v="'+q.v+'" cx="'+X(q.val[p.gr.x])+'" cy="'+Y(q.val[p.gr.y])+'" r="'+(W<520?6:5.5)+'"><title>Tap to leave out or put back</title></circle>'});
+  if(ft==='line'&&!pd.useB[s]){var uu=userLine()||u;h+='<circle class="hd" data-h="1" cx="'+X(uu.x1)+'" cy="'+Y(uu.y1)+'" r="13"/><circle class="hd" data-h="2" cx="'+X(uu.x2)+'" cy="'+Y(uu.y2)+'" r="13"/>'}
+  h+='</svg>';gw.innerHTML=h;var svg=gw.firstChild;
+  [].forEach.call(svg.querySelectorAll('.pt'),function(c){c.onclick=function(){pd.ex=pd.ex||{};var k=s+'|'+c.dataset.v;if(pd.ex[k])delete pd.ex[k];else pd.ex[k]=1;save();draw();res()}});
+  [].forEach.call(svg.querySelectorAll('.hd'),function(c){c.addEventListener('pointerdown',function(e){e.preventDefault();c.setPointerCapture(e.pointerId);var cur=userLine()||{x1:u.x1,y1:u.y1,x2:u.x2,y2:u.y2};
+   function mv(ev){var q=svgPt(svg,ev),x=IX(clamp(q.x,ml,W-mr)),y=IY(clamp(q.y,mt,H-mb));if(c.dataset.h==='1'){cur.x1=x;cur.y1=y}else{cur.x2=x;cur.y2=y}if(Math.abs(cur.x2-cur.x1)<(D.xb-D.xa)*0.02)return;pd.ln[s]=cur;
+    var m=(cur.y2-cur.y1)/(cur.x2-cur.x1),cc=cur.y1-m*cur.x1,L=svg.querySelector('.ul');if(L){L.setAttribute('y1',Y(m*D.xa+cc));L.setAttribute('y2',Y(m*D.xb+cc))}c.setAttribute('cx',X(x));c.setAttribute('cy',Y(y))}
+   function up(){c.removeEventListener('pointermove',mv);c.removeEventListener('pointerup',up);c.removeEventListener('pointercancel',up);save();res()}
+   c.addEventListener('pointermove',mv);c.addEventListener('pointerup',up);c.addEventListener('pointercancel',up)})});
+  document.getElementById('gn').textContent=ft==='line'?(pd.useB[s]?'Showing the computer\'s line of best fit.':'Drag the two orange handles to draw your own line of best fit: roughly as many points above it as below. Tap a point to leave it out.'):ft==='two'?'Two lines of best fit: one through the rising points, one through the falling points. Tap a point to leave it out.':ft==='bar'?'Categoric data (types of surface), so it\'s a bar chart, not a line graph. The black bars show the range of your trials.':'A smooth curve through the points. Tap a point to leave it out.';
+  var gb=document.getElementById('gb');
+  gb.innerHTML=ft==='line'?'<button class="btn alt sm" id="sb">'+(pd.show?'Hide':'Show')+' the computer\'s best fit</button><button class="btn alt sm" id="ub">'+(pd.useB[s]?'Draw my own line':'Use the computer\'s line')+'</button>':ft==='two'?'<span class="note">Points in the first line:</span> <button class="btn alt sm" id="sm">−</button><b class="txb" style="font-family:var(--mono)">'+(split||'–')+'</b><button class="btn alt sm" id="sp">+</button>':'';
+  if(ft==='line'){document.getElementById('sb').onclick=function(){pd.show=!pd.show;save();draw()};document.getElementById('ub').onclick=function(){pd.useB[s]=!pd.useB[s];save();draw();res()}}
+  if(ft==='two'){document.getElementById('sm').onclick=function(){split--;draw();res()};document.getElementById('sp').onclick=function(){split++;draw();res()}}}
+ function res(){var rc=document.getElementById('rc'),f=null,G=groups(p);if(!rc)return;
+  if(ft==='line')f=lineFit();else if(ft==='two'){var t=twoFit();f={ix:t.ix}}else f={};
+  var A=p.an&&f?p.an(f,G,o):null;
+  if(!A){rc.innerHTML='<h2>What the graph shows</h2><p class="muted">'+(ft==='curve'?'This graph is a curve, so there\'s no single gradient to work out. Use the shape to answer the conclusions below.':ft==='bar'?'Compare the heights of the bars. The longer the error bar, the more your trials disagreed.':'Not enough points yet.')+'</p>';return}
+  var diff=Math.abs(A.v-A.acc)/A.acc*100,b=bestFit(),close='';
+  if(ft==='line'&&b&&!pd.useB[s]&&userLine()){var um=lineFit().m,e=Math.abs(um-b.m)/Math.abs(b.m)*100;close='<div class="msg '+(e<8?'ok':'info')+'">Your line\'s gradient is '+(e<1?'almost exactly':'within '+Math.round(e)+'% of')+' the computer\'s best fit.'+(e>=8?' Try adjusting it: balance the points either side.':'')+'</div>'}
+  rc.innerHTML='<h2>'+esc(A.name)+'</h2><div class="res"><div><b>'+fx(A.v,A.d)+'</b><span>Your result'+(A.u?' ('+esc(A.u)+')':'')+(ft==='line'?', from '+lineFit().src:'')+'</span></div><div><b>'+fx(A.acc,A.d)+'</b><span>Expected'+(A.u?' ('+esc(A.u)+')':'')+'</span></div><div><b>'+(diff<10?diff.toFixed(1):Math.round(diff))+'%</b><span>Difference</span></div></div><p style="margin-top:10px">'+esc(A.how)+'</p>'+close+(diff>15?'<div class="msg info">That\'s quite far off. Look for anomalies, or points that don\'t follow the pattern, and tap them on the graph to leave them out.</div>':'')+(ft==='line'&&!userLine()&&!pd.useB[s]?'<div class="msg info">Draw your line first: drag the orange handles on the graph.</div>':'');
+  rc.dataset.diff=diff}
+ draw();res();var ro=window.ResizeObserver?new ResizeObserver(function(){draw()}):null;if(ro)ro.observe(gw);CLEAN=function(){if(ro)ro.disconnect()};
+ concl(p,document.getElementById('cc'),function(){var d=+(document.getElementById('rc').dataset.diff||99);stageDone(p,'an',10,p.t+': analysis');if(d<10&&(ft!=='line'||userLine()||pd.useB[s]))award(p.id,'acc',5,p.t+': accurate result')})}};
+function tk(v){var a=Math.abs(v);if(a<1e-12)return '0';return a>=1000?String(Math.round(v)):String(+v.toPrecision(4))}
+function nice(lo,hi,n){var span=(hi-lo)||Math.abs(hi)||1,step=Math.pow(10,Math.floor(Math.log10(span/n))),err=span/n/step;if(err>=7.5)step*=10;else if(err>=3.5)step*=5;else if(err>=1.5)step*=2;return {a:Math.floor(lo/step+1e-9)*step,b:Math.ceil(hi/step-1e-9)*step,s:step}}
+function smooth(P){var d='M'+P[0][0]+' '+P[0][1];for(var i=0;i<P.length-1;i++){var p0=P[i-1]||P[i],p1=P[i],p2=P[i+1],p3=P[i+2]||p2;d+=' C'+(p1[0]+(p2[0]-p0[0])/6)+' '+(p1[1]+(p2[1]-p0[1])/6)+' '+(p2[0]-(p3[0]-p1[0])/6)+' '+(p2[1]-(p3[1]-p1[1])/6)+' '+p2[0]+' '+p2[1]}return d}
+function concl(p,box,onAll){var n=0,need=p.concl.length;p.concl.forEach(function(q){box.appendChild(mcq(q,function(){n++;if(n>=need){var f=document.createElement('div');f.innerHTML='<div class="msg ok">Analysis done.</div>'+nextBtn(p,'ex','Exam questions');box.appendChild(f);wireGo(f);onAll()}}))})}
+function simpleAn(p,st,top){st.innerHTML='';if(top)st.appendChild(top);var c=document.createElement('section');c.className='card';c.innerHTML='<h2>Conclusions</h2>';st.appendChild(c);concl(p,c,function(){stageDone(p,'an',10,p.t+': analysis')})}
+
+/* ---------- titration ---------- */
+var TT=23.45;
+ENG.titr={doit:function(p,st){var pd=PD(p.id);pd.T=pd.T||{runs:[]};var T=pd.T;
+ function newRun(){T.cur={start:Math.round(Math.random()*30)*0.05,add:0,tt:+(TT+g()*0.03).toFixed(3)};save()}
+ if(!T.cur)newRun();
+ st.innerHTML='<div class="two"><section class="card"><h2>Burette and flask</h2><div id="ap"></div><div class="readout" id="ro"></div></section><section class="card"><h2>Titrate</h2><p class="muted" id="rl"></p>'+
+  '<div class="btns" style="margin-top:10px"><button class="btn alt" data-a="1">Open the tap: +1.00 cm³</button><button class="btn alt" data-a="0.1">+0.10 cm³</button><button class="btn alt" data-a="0.05">One drop: +0.05 cm³</button></div>'+
+  '<div class="btns" style="margin-top:10px"><button class="btn primary" id="rec">Pink has gone: record the end point</button></div><div class="btns" style="margin-top:8px"><button class="btn alt sm" id="nw">Refill and start a new titration</button></div><div id="tm"></div></section></div>'+
+  '<section class="card"><h2>Results table</h2><p class="note">Titre = final reading − initial reading. Keep going until two titres (not the rough) are within 0.10 cm³.</p><div class="tw" id="tbl"></div><div id="fin"></div></section>';
+ function rdg(){return T.cur.start+T.cur.add}
+ function col(){var c=T.cur,left=c.tt-c.add;if(left<=0)return 0;if(left<0.06)return 0.12;if(left<0.4)return 0.3;return 0.75}
+ function draw(flash){var c=T.cur,r=rdg(),i,t='',top=14,sc=4.6,lv=top+r*sc,B=top+50*sc;
+  for(i=0;i<=50;i++){var y=top+i*sc;t+='<line x1="96" y1="'+y+'" x2="'+(i%5?102:106)+'" y2="'+y+'" class="kt"/>'+(i%10===0?'<text x="88" y="'+(y+4)+'" text-anchor="end" class="txs">'+i+'</text>':'')}
+  var a=flash?Math.max(0,col()-0.25):col();
+  document.getElementById('ap').innerHTML='<svg class="ap" style="max-width:300px" viewBox="0 0 320 400" role="img" aria-label="Burette over a conical flask"><rect x="96" y="'+top+'" width="22" height="'+(50*sc)+'" class="gl"/><rect x="98" y="'+lv+'" width="18" height="'+(B-lv)+'" class="wa"/>'+t+
+   '<path d="M103 '+B+' V'+(B+16)+' H111 V'+B+'" class="k"/><rect x="94" y="'+(B+4)+'" width="26" height="6" rx="2" class="me"/>'+
+   '<path d="M95 '+(B+38)+' V'+(B+66)+' L58 392 H162 L125 '+(B+66)+' V'+(B+38)+'" class="k"/><path d="M78 345 L142 345 L160 390 H60 Z" fill="var(--water)"/><path d="M78 345 L142 345 L160 390 H60 Z" fill="#ec4899" fill-opacity="'+a+'"/>'+
+   '<rect x="180" y="'+(lv-26)+'" width="128" height="52" rx="10" class="kf"/><text x="244" y="'+(lv-6)+'" text-anchor="middle" class="txs">ZOOMED IN</text><text x="244" y="'+(lv+14)+'" text-anchor="middle" class="txb">'+r.toFixed(2)+' cm³</text><path d="M118 '+lv+' H180" stroke="var(--muted)" stroke-dasharray="3 3"/></svg>';
+  document.getElementById('ro').textContent='Burette reading: '+r.toFixed(2)+' cm³ · started at '+c.start.toFixed(2)+' cm³';
+  var nr=T.runs.length;document.getElementById('rl').textContent=nr===0?'This is your rough titration: go quickly to find roughly where the end point is.':'Titration '+nr+': add quickly to about 1 cm³ before your rough titre, then drop by drop.'}
+ function conc(){var a=T.runs.filter(function(r){return !r.rough}).map(function(r){return r.titre}),best=null;for(var i=0;i<a.length;i++)for(var j=i+1;j<a.length;j++)if(Math.abs(a[i]-a[j])<=0.1001){var m=(a[i]+a[j])/2;if(!best||Math.abs(a[i]-a[j])<best.d)best={d:Math.abs(a[i]-a[j]),i:a[i],j:a[j],m:m}}return best}
+ function tbl(){var R=T.runs,c=conc(),h='<table class="tb"><thead><tr><th></th>'+R.map(function(r,i){return '<th>'+(r.rough?'Rough':'Titration '+i)+'</th>'}).join('')+(R.length?'':'<th>–</th>')+'</tr></thead><tbody>';
+  h+='<tr><td><b>Final reading (cm³)</b></td>'+R.map(function(r){return '<td class="n">'+r.end.toFixed(2)+'</td>'}).join('')+'</tr><tr><td><b>Initial reading (cm³)</b></td>'+R.map(function(r){return '<td class="n">'+r.start.toFixed(2)+'</td>'}).join('')+'</tr>';
+  h+='<tr><td><b>Titre (cm³)</b></td>'+R.map(function(r){var cc=c&&!r.rough&&(Math.abs(r.titre-c.i)<1e-9||Math.abs(r.titre-c.j)<1e-9);return '<td class="n'+(cc?' ok':'')+'">'+r.titre.toFixed(2)+(cc?' ✓':'')+'</td>'}).join('')+'</tr></tbody></table>';
+  document.getElementById('tbl').innerHTML=h;var f=document.getElementById('fin');
+  if(c){T.mean=c.m;save();f.innerHTML='<div class="msg ok">Concordant titres: '+c.i.toFixed(2)+' and '+c.j.toFixed(2)+' cm³. Mean titre = '+c.m.toFixed(2)+' cm³.</div>'+nextBtn(p,'an','Work out the concentration');wireGo(f);if(!done(p.id,'do'))stageDone(p,'do',10,p.t+': titres')}
+  else f.innerHTML='<p class="note" style="margin-top:8px">'+(R.length<2?'Do a rough titration, then accurate ones.':'No concordant pair yet. Do another titration.')+'</p>'}
+ [].forEach.call(st.querySelectorAll('[data-a]'),function(b){b.onclick=function(){if(T.cur.done){toast('Refill for a new titration first');return}var a=+b.dataset.a;if(rdg()+a>50){toast('The burette is nearly empty. Refill it.');return}T.cur.add=+(T.cur.add+a).toFixed(2);save();snd('tick');var left=T.cur.tt-T.cur.add;draw(left>0&&left<0.5);if(left>0&&left<0.5)setTimeout(function(){if(document.getElementById('rl'))draw()},450)}});
+ document.getElementById('rec').onclick=function(){var c=T.cur;if(c.done)return;if(c.add<1){toast('Add some acid first');return}if(c.add<c.tt){document.getElementById('tm').innerHTML='<div class="msg bad">It\'s still pink. Keep adding acid.</div>';snd('bad');return}
+  var over=c.add-c.tt;c.done=1;T.runs.push({rough:T.runs.length===0,start:c.start,end:rdg(),titre:+c.add.toFixed(2)});save();snd('ok');
+  document.getElementById('tm').innerHTML='<div class="msg '+(over>0.3&&T.runs.length>1?'bad':'ok')+'">Recorded a titre of '+c.add.toFixed(2)+' cm³.'+(over>0.3&&T.runs.length>1?' You overshot the end point. Go drop by drop near the end next time.':'')+'</div>';tbl()};
+ document.getElementById('nw').onclick=function(){newRun();document.getElementById('tm').innerHTML='';draw()};
+ draw();tbl()},
+an:function(p,st){var pd=PD(p.id),T=pd.T||{},m=T.mean;
+ if(!m){st.innerHTML='<section class="card"><h2>No concordant titres yet</h2><p class="muted">Get two titres within 0.10 cm³ first.</p>'+nextBtn(p,'do','Do the titrations')+'</section>';wireGo(st);return}
+ var n=0.100*m/1000,c=n/0.025,top=document.createElement('section');top.className='card';
+ top.innerHTML='<h2>Calculate the concentration</h2><p>Mean titre = <b>'+m.toFixed(2)+' cm³</b> of 0.100 mol/dm³ HCl. Volume of NaOH = 25.0 cm³.</p>'+
+  '<div class="lbl">1. Moles of HCl = concentration × volume in dm³</div><div class="inrow"><input id="i1" inputmode="decimal" placeholder="mol"><button class="btn sm" id="c1">Check</button><span id="r1"></span></div>'+
+  '<div class="lbl">2. The ratio is 1 : 1, so moles of NaOH = moles of HCl. Concentration of NaOH = moles ÷ 0.0250 dm³</div><div class="inrow"><input id="i2" inputmode="decimal" placeholder="mol/dm³"><button class="btn sm" id="c2">Check</button><span id="r2"></span></div><div id="ar"></div>';
+ simpleAn(p,st,top);var ok1=false,ok2=false;
+ function num(s){s=String(s).replace(/\s/g,'').replace('×10^','e').replace('x10^','e');return parseFloat(s)}
+ top.querySelector('#c1').onclick=function(){var v=num(top.querySelector('#i1').value),ok=Math.abs(v-n)/n<0.015;top.querySelector('#r1').innerHTML=ok?'<b style="color:var(--ok)">✓ '+n.toPrecision(3)+' mol</b>':'<span style="color:var(--warn)">Not quite: 0.100 × ('+m.toFixed(2)+' ÷ 1000)</span>';snd(ok?'ok':'bad');ok1=ok1||ok;fin()};
+ top.querySelector('#c2').onclick=function(){var v=num(top.querySelector('#i2').value),ok=Math.abs(v-c)/c<0.015;top.querySelector('#r2').innerHTML=ok?'<b style="color:var(--ok)">✓ '+c.toPrecision(3)+' mol/dm³</b>':'<span style="color:var(--warn)">Not quite: moles ÷ 0.0250</span>';snd(ok?'ok':'bad');ok2=ok2||ok;fin()};
+ function fin(){if(!(ok1&&ok2))return;var acc=0.1*TT/25,d=Math.abs(c-acc)/acc*100;top.querySelector('#ar').innerHTML='<div class="res"><div><b>'+c.toPrecision(3)+'</b><span>Your concentration (mol/dm³)</span></div><div><b>'+acc.toPrecision(3)+'</b><span>Actual (mol/dm³)</span></div><div><b>'+d.toFixed(1)+'%</b><span>Difference</span></div></div>';if(d<2)award(p.id,'acc',5,p.t+': accurate result')}}};
+
+/* ---------- making salts ---------- */
+var SALT_TH=9.98;
+ENG.salt={doit:function(p,st){var pd=PD(p.id);pd.L=pd.L||{step:0,sp:0};var L=pd.L;
+ st.innerHTML='<div class="two"><section class="card"><h2>Bench</h2><div id="ap"></div><div class="readout" id="ro"></div></section><section class="card"><h2>Method</h2><ol class="steps" id="sl"></ol><div class="btns" style="margin-top:12px" id="ac"></div><div id="sm"></div></section></div><div id="fin"></div>';
+ var NEED=6.4;
+ function draw(){var s=L.step,ex=L.sp>NEED,f=clamp(L.sp/NEED,0,1),h='';
+  if(s<=1)h='<path d="M90 70 V200 H200 V70" class="k"/><rect x="92" y="110" width="106" height="88" fill="#3b82f6" fill-opacity="'+(0.05+f*0.55)+'"/><rect x="92" y="110" width="106" height="88" class="wa" opacity="'+(1-f)+'"/>'+(ex?'<ellipse cx="145" cy="194" rx="40" ry="5" fill="#222"/>':'')+(L.warm?'<path d="M130 220 q8 -14 15 0 q7 -14 15 0" fill="#f59e0b" stroke="#e2513b"/><text x="230" y="100" class="txb">50 °C</text>':'')+'<rect x="80" y="204" width="130" height="6" class="me"/>';
+  else if(s===2)h='<path d="M110 40 L180 40 L152 90 V120 H138 V90 Z" class="kf"/><path d="M118 46 L172 46 L148 86 H142 Z" fill="#222" opacity=".8"/><path d="M145 120 V160" stroke="#3b82f6" stroke-width="2" stroke-dasharray="3 4"/><path d="M118 150 h54 M128 150 L100 214 H190 L162 150" class="k"/><path d="M106 200 H184 L190 214 H100 Z" fill="#3b82f6" fill-opacity=".55"/><text x="200" y="70" class="txs">excess copper(II) oxide</text><text x="200" y="205" class="txs">blue filtrate</text>';
+  else if(s===3)h='<path d="M80 130 V210 H210 V130" class="k"/><rect x="82" y="150" width="126" height="58" class="wa"/><path d="M96 130 Q145 175 194 130 Z" fill="#3b82f6" fill-opacity="'+(L.evap?'.75':'.5')+'" stroke="var(--ink)" stroke-width="2"/><path d="M130 225 q8 -14 15 0 q7 -14 15 0" fill="#f59e0b" stroke="#e2513b"/><text x="226" y="160" class="txs">water bath</text>';
+  else{var dry=L.evap==='dry';h='<path d="M70 120 Q145 190 220 120 Z" fill="var(--card)" stroke="var(--ink)" stroke-width="2"/>';if(s>=4||L.evap)for(var i=0;i<(dry?0:9);i++){var x=104+(i%5)*20,y=128+Math.floor(i/5)*16;h+='<path d="M'+x+' '+y+' l9 -8 l9 8 l-9 8 Z" fill="#2563eb" stroke="#1e3a8a"/>'}if(dry)h+='<ellipse cx="145" cy="140" rx="46" ry="8" fill="#e5e7eb" stroke="#9ca3af"/>';if(L.mass)h+='<rect x="96" y="196" width="100" height="30" rx="5" class="kf"/><text x="146" y="216" text-anchor="middle" class="txb">'+L.mass.toFixed(2)+' g</text>'}
+  document.getElementById('ap').innerHTML='<svg class="ap" viewBox="0 0 320 240" role="img" aria-label="Making copper sulfate">'+h+'</svg>';
+  document.getElementById('ro').textContent=s<=1?(L.sp?L.sp+' spatulas of copper(II) oxide added'+(ex?' · some stays undissolved':''):'40 cm³ of 1.0 mol/dm³ sulfuric acid'):s===2?'Filtering':s===3?'Evaporating':L.mass?'Mass of crystals: '+L.mass.toFixed(2)+' g':'Crystallising';
+  document.getElementById('sl').innerHTML=p.method.map(function(m,i){return '<li class="'+(i<s?'done':i===s?'cur':'')+'"><i>'+(i<s?'✓':i+1)+'</i><span>'+esc(m)+'</span></li>'}).join('');
+  var a='';if(s===0)a='<button class="btn primary" data-k="warm">Warm the acid gently</button><button class="btn alt" data-k="boil">Boil it</button>';
+  else if(s===1)a='<button class="btn primary" data-k="sp">Add a spatula of copper(II) oxide</button><button class="btn alt" data-k="enough">That\'s enough, move on</button>';
+  else if(s===2)a='<button class="btn primary" data-k="filt">Filter the mixture</button>';
+  else if(s===3)a='<button class="btn primary" data-k="cp">Heat until crystals start to form</button><button class="btn alt" data-k="dry">Heat until all the water has gone</button>';
+  else if(s===4)a='<button class="btn primary" data-k="cool">Leave it to cool and crystallise</button>';
+  else if(s===5)a='<button class="btn primary" data-k="pat">Pat the crystals dry and weigh them</button>';
+  else a='<button class="btn alt" data-k="again">Make another batch</button>';
+  var ac=document.getElementById('ac');ac.innerHTML=a;[].forEach.call(ac.querySelectorAll('button'),function(b){b.onclick=function(){act(b.dataset.k)}})}
+ function say(t,k){document.getElementById('sm').innerHTML='<div class="msg '+(k||'info')+'">'+t+'</div>'}
+ function act(k){
+  if(k==='boil'){say('Don\'t boil it: hot acid spits and gives off fumes. Warm it gently instead.','bad');snd('bad');return}
+  if(k==='warm'){L.warm=1;L.step=1;say('Warm acid reacts faster with the copper(II) oxide.','ok')}
+  if(k==='sp'){L.sp++;snd('tick');say(L.sp>NEED?'Some black powder stays at the bottom: the copper(II) oxide is now in excess, so all the acid has reacted.':'The black powder disappears and the solution turns bluer.')}
+  if(k==='enough'){if(L.sp<=NEED){say('All the powder has dissolved, so there may still be acid left. Keep adding until some stays undissolved.','bad');snd('bad');return}L.step=2;say('Good: excess copper(II) oxide means no acid is left.','ok')}
+  if(k==='filt'){L.step=3;say('The black copper(II) oxide stays on the filter paper. The blue copper sulfate solution goes through.','ok')}
+  if(k==='cp'){L.evap='cp';L.step=4;say('Crystals are starting to form on a cold glass rod dipped in: that\'s the crystallisation point.','ok')}
+  if(k==='dry'){L.evap='dry';L.step=5;say('Heating to dryness leaves a white powder: the crystals lost their water and some broke down. You\'ll get a poor yield, and no crystals.','bad');snd('bad')}
+  if(k==='cool'){L.step=5;say('Slow cooling makes bigger crystals.','ok')}
+  if(k==='pat'){L.mass=+(L.evap==='dry'?4.9+Math.random()*0.7:SALT_TH*(0.62+Math.random()*0.16)).toFixed(2);L.step=6;snd('win');say('You made '+L.mass.toFixed(2)+' g of '+(L.evap==='dry'?'white powder':'blue crystals')+'.','ok');if(!done(p.id,'do'))stageDone(p,'do',10,p.t+': crystals');var f=document.getElementById('fin');f.innerHTML=nextBtn(p,'an','Work out the percentage yield');wireGo(f)}
+  if(k==='again'){pd.L=L={step:0,sp:0};say('Fresh beaker of acid.')}
+  save();draw()}
+ draw();if(L.step>=6){var f=document.getElementById('fin');f.innerHTML=nextBtn(p,'an','Work out the percentage yield');wireGo(f)}},
+an:function(p,st){var L=(PD(p.id).L)||{};if(!L.mass){st.innerHTML='<section class="card"><h2>No crystals yet</h2><p class="muted">Make the salt first.</p>'+nextBtn(p,'do','Make the salt')+'</section>';wireGo(st);return}
+ var y=L.mass/SALT_TH*100,top=document.createElement('section');top.className='card';
+ top.innerHTML='<h2>Percentage yield</h2><p>The acid contained 0.040 mol (40 cm³ × 1.0 mol/dm³). It makes 0.040 mol of copper sulfate crystals, CuSO₄·5H₂O (M<sub>r</sub> = 249.5), so the most you could make, the theoretical yield, is <b>'+SALT_TH.toFixed(2)+' g</b>. You made <b>'+L.mass.toFixed(2)+' g</b>.</p><div class="lbl">Percentage yield = actual ÷ theoretical × 100</div><div class="inrow"><input id="iy" inputmode="decimal" placeholder="%"><button class="btn sm" id="cy">Check</button><span id="ry"></span></div>';
+ simpleAn(p,st,top);top.querySelector('#cy').onclick=function(){var v=parseFloat(top.querySelector('#iy').value),ok=Math.abs(v-y)<0.6;top.querySelector('#ry').innerHTML=ok?'<b style="color:var(--ok)">✓ '+y.toFixed(1)+'%</b>':'<span style="color:var(--warn)">Not quite: '+L.mass.toFixed(2)+' ÷ '+SALT_TH.toFixed(2)+' × 100</span>';snd(ok?'ok':'bad');if(ok)award(p.id,'acc',5,p.t+': percentage yield')}}};
+
+/* ---------- electrolysis ---------- */
+var SOL=[{k:'cucl2',n:"Copper(II) chloride",ions:"Cu²⁺ Cl⁻ (and H⁺ OH⁻ from water)",m:"Copper",cat:'cu',an:'cl',blue:1},
+ {k:'nacl',n:"Sodium chloride",ions:"Na⁺ Cl⁻ (and H⁺ OH⁻)",m:"Sodium",cat:'h2',an:'cl'},
+ {k:'cuso4',n:"Copper(II) sulfate",ions:"Cu²⁺ SO₄²⁻ (and H⁺ OH⁻)",m:"Copper",cat:'cu',an:'o2',blue:1},
+ {k:'h2so4',n:"Dilute sulfuric acid",ions:"H⁺ SO₄²⁻ (and OH⁻)",m:null,cat:'h2',an:'o2'},
+ {k:'kbr',n:"Potassium bromide",ions:"K⁺ Br⁻ (and H⁺ OH⁻)",m:"Potassium",cat:'h2',an:'br'},
+ {k:'na2so4',n:"Sodium sulfate",ions:"Na⁺ SO₄²⁻ (and H⁺ OH⁻)",m:"Sodium",cat:'h2',an:'o2'}];
+var PROD={cu:"Copper",h2:"Hydrogen",cl:"Chlorine",o2:"Oxygen",br:"Bromine"};
+var SEE={cu:"A pink-brown coating of copper on the electrode",h2:"Bubbles of gas",cl:"Bubbles of a pale green gas with a sharp smell",o2:"Bubbles of gas",br:"The solution turns orange-brown near the electrode"};
+var TEST={pop:{l:"Lit splint",h2:"Squeaky pop: it's hydrogen"},splint:{l:"Glowing splint",o2:"It relights: it's oxygen"},lit:{l:"Damp blue litmus",cl:"Turns red, then bleaches white: it's chlorine"}};
+ENG.elec={doit:function(p,st){var pd=PD(p.id);pd.E=pd.E||{};var E=pd.E;if(!pd.es)pd.es='cucl2';
+ function draw(){var s=SOL.filter(function(x){return x.k===pd.es})[0],r=E[s.k]||{},on=r.on;
+  var bub=function(x){var b='';for(var i=0;i<6;i++)b+='<circle class="bub" cx="'+(x+(i%3-1)*5)+'" cy="200" r="2.5"><animate attributeName="cy" from="205" to="120" dur="'+(1.2+i*0.25)+'s" begin="'+(i*0.3)+'s" repeatCount="indefinite"/></circle>';return '<g class="bubs">'+b+'</g>'};
+  var cg=s.cat==='h2'?bub(110):'',ag=s.an!=='br'?bub(210):'';
+  var svg='<svg class="ap" viewBox="0 0 320 240" role="img" aria-label="Electrolysis cell"><path d="M60 90 V220 H260 V90" class="k"/><rect x="62" y="110" width="196" height="108" fill="'+(s.blue?'#3b82f6':'var(--water)')+'" fill-opacity="'+(s.blue?(on?'.38':'.5'):'1')+'"/>'+
+   (on&&s.an==='br'?'<ellipse cx="210" cy="170" rx="30" ry="46" fill="#d97706" fill-opacity=".5"/>':'')+
+   '<rect x="102" y="70" width="16" height="140" fill="#3a3a3a"/><rect x="202" y="70" width="16" height="140" fill="#3a3a3a"/>'+(on&&s.cat==='cu'?'<rect x="99" y="120" width="22" height="90" fill="#b87333" opacity=".85"/>':'')+
+   '<path d="M110 70 V30 H146 M174 30 H210 V70" class="k"/><path d="M146 18 V42 M156 24 V36" class="k"/><path d="M164 18 V42 M174 24 V36" class="k"/>'+
+   '<text x="110" y="62" text-anchor="middle" class="txb">−</text><text x="210" y="62" text-anchor="middle" class="txb">+</text><text x="110" y="234" text-anchor="middle" class="txs">cathode</text><text x="210" y="234" text-anchor="middle" class="txs">anode</text>'+(on?cg+ag:'')+'</svg>';
+  st.innerHTML='<section class="card"><h2>Pick a solution</h2><div class="chips">'+SOL.map(function(x){return '<button class="chip'+(x.k===pd.es?' on':'')+(E[x.k]&&E[x.k].on?' has':'')+'" data-s="'+x.k+'">'+esc(x.n)+'</button>'}).join('')+'</div><p class="note" style="margin-top:8px">The rules: at the cathode (−), hydrogen forms unless the metal is less reactive than hydrogen (like copper). At the anode (+), a halogen forms if there are halide ions (Cl⁻, Br⁻, I⁻); otherwise oxygen forms.</p></section>'+
+   '<div class="two"><section class="card"><h2>'+esc(s.n)+' solution</h2>'+svg+'<p class="readout">Ions: '+esc(s.ions)+'</p></section><section class="card" id="pr"></section></div><section class="card"><h2>Results</h2><div class="tw" id="tbl"></div><div id="fin"></div></section>';
+  var pr=document.getElementById('pr'),cO=[s.m||"Sulfur",'Hydrogen'],aO=['Oxygen','Chlorine','Bromine'];
+  if(!on){pr.innerHTML='<h2>Predict</h2><div class="lbl">Cathode (−) product</div><div class="chips" id="pc">'+cO.map(function(x){return '<button class="chip'+(r.pc===x?' on':'')+'" data-v="'+x+'">'+x+'</button>'}).join('')+'</div><div class="lbl">Anode (+) product</div><div class="chips" id="pa">'+aO.map(function(x){return '<button class="chip'+(r.pa===x?' on':'')+'" data-v="'+x+'">'+x+'</button>'}).join('')+'</div><div class="btns" style="margin-top:14px"><button class="btn primary" id="sw">Switch on</button></div>';
+   [].forEach.call(pr.querySelectorAll('#pc .chip'),function(b){b.onclick=function(){r.pc=b.dataset.v;E[s.k]=r;save();draw()}});[].forEach.call(pr.querySelectorAll('#pa .chip'),function(b){b.onclick=function(){r.pa=b.dataset.v;E[s.k]=r;save();draw()}});
+   pr.querySelector('#sw').onclick=function(){if(!r.pc||!r.pa){toast('Make both predictions first');return}r.on=1;r.ok=(r.pc===PROD[s.cat])+(r.pa===PROD[s.an]);E[s.k]=r;save();snd(r.ok===2?'win':'tick');draw()}}
+  else{pr.innerHTML='<h2>What you see</h2><p><b>Cathode:</b> '+SEE[s.cat]+'.<br><b>Anode:</b> '+SEE[s.an]+'.</p><div class="lbl">Test the gases</div><div class="btns">'+Object.keys(TEST).map(function(k){return '<button class="btn alt sm" data-t="'+k+'">'+TEST[k].l+'</button>'}).join('')+'</div><div id="tr"></div>'+
+    '<div class="msg '+(r.ok===2?'ok':'bad')+'">Your prediction: '+r.pc+' and '+r.pa+'. Products: '+PROD[s.cat]+' at the cathode and '+PROD[s.an]+' at the anode.'+(r.ok===2?' Both right.':'')+'</div><div class="btns" style="margin-top:10px"><button class="btn alt sm" id="rs">Reset this one</button></div>';
+   [].forEach.call(pr.querySelectorAll('[data-t]'),function(b){b.onclick=function(){var t=TEST[b.dataset.t],c=t[s.cat],a=t[s.an],out=[];if(c)out.push('At the cathode: '+c+'.');if(a)out.push('At the anode: '+a+'.');if(!out.length)out.push(b.dataset.t==='lit'?'No change at either electrode.':'Nothing happens at either electrode.');pr.querySelector('#tr').innerHTML='<div class="msg info">'+out.join(' ')+'</div>';snd('tick')}});
+   pr.querySelector('#rs').onclick=function(){delete E[s.k];save();draw()}}
+  [].forEach.call(st.querySelectorAll('[data-s]'),function(b){b.onclick=function(){pd.es=b.dataset.s;save();draw()}});
+  var runs=SOL.filter(function(x){return E[x.k]&&E[x.k].on});
+  document.getElementById('tbl').innerHTML='<table class="tb"><thead><tr><th>Solution</th><th>Cathode (−)</th><th>Anode (+)</th><th>Your predictions</th></tr></thead><tbody>'+(runs.length?runs.map(function(x){var q=E[x.k];return '<tr><td>'+esc(x.n)+'</td><td>'+PROD[x.cat]+'</td><td>'+PROD[x.an]+'</td><td class="'+(q.ok===2?'ok':'')+'">'+q.ok+'/2</td></tr>'}).join(''):'<tr><td colspan="4" class="note">No solutions tested yet.</td></tr>')+'</tbody></table>';
+  var f=document.getElementById('fin');if(runs.length>=4){f.innerHTML='<div class="msg ok">'+runs.length+' solutions tested.</div>'+nextBtn(p,'an','Analyse');wireGo(f);if(!done(p.id,'do'))stageDone(p,'do',10,p.t+': solutions')}else f.innerHTML='<p class="note" style="margin-top:8px">Test at least 4 solutions ('+runs.length+' so far).</p>'}
+ draw()},
+an:function(p,st){var E=PD(p.id).E||{},n=0,r=0;SOL.forEach(function(x){if(E[x.k]&&E[x.k].on){n++;r+=E[x.k].ok}});var top=document.createElement('section');top.className='card';
+ top.innerHTML='<h2>How did your predictions do?</h2><div class="res"><div><b>'+r+'/'+(n*2)+'</b><span>Products predicted right</span></div><div><b>'+n+'/6</b><span>Solutions tested</span></div></div><p style="margin-top:10px">Reduction (gaining electrons) happens at the cathode. Oxidation (losing electrons) happens at the anode. Higher tier papers ask for the half equations.</p>';
+ simpleAn(p,st,top);if(n&&r===n*2)award(p.id,'acc',5,p.t+': all predictions right')}};
+
+/* ---------- chromatography ---------- */
+var DYE=[{rf:0.20,c:'#dc2626'},{rf:0.47,c:'#2563eb'},{rf:0.66,c:'#eab308'},{rf:0.86,c:'#9333ea'}];
+var INK=[{n:'A',d:[1]},{n:'B',d:[0]},{n:'C',d:[2,3]},{n:'X',d:[0,2]}];
+ENG.chrom={doit:function(p,st){var pd=PD(p.id);pd.C=pd.C||{pen:null,lvl:null,ran:0};var C=pd.C,FR=70;
+ function draw(prog){var pr=prog!=null?prog:(C.ran?1:0),sc=3.0,base=300-15*sc,front=base-FR*sc*pr,bad=C.pen==='pen',wash=C.lvl==='above',h='';
+  h+='<rect x="60" y="0" width="240" height="300" class="pap"/>';var t='';for(var i=0;i<=80;i+=10)t+='<line x1="40" y1="'+(base-i*sc)+'" x2="'+(i%10?46:52)+'" y2="'+(base-i*sc)+'" class="kt"/><text x="34" y="'+(base-i*sc+4)+'" text-anchor="end" class="txs">'+i+'</text>';
+  h+='<rect x="40" y="'+(base-82*sc)+'" width="14" height="'+(82*sc+6)+'" fill="#e9c46a" fill-opacity=".3"/>'+t+'<text x="47" y="'+(base+18)+'" text-anchor="middle" class="txs">mm</text>';
+  if(pr>0)h+='<rect x="61" y="'+front+'" width="238" height="'+(299-front)+'" fill="var(--water)" opacity=".5"/>';
+  h+='<line x1="60" y1="'+base+'" x2="300" y2="'+base+'" stroke="'+(bad?'#1d4ed8':'#555')+'" stroke-width="'+(bad?2:1.2)+'"/>';
+  if(bad&&pr>0)h+='<rect x="62" y="'+(base-FR*sc*pr*0.5)+'" width="236" height="'+(FR*sc*pr*0.5)+'" fill="#1d4ed8" opacity=".18"/>';
+  if(pr>0)h+='<line x1="60" y1="'+front+'" x2="300" y2="'+front+'" stroke="#555" stroke-dasharray="4 3"/>'+(pr>=1?'<text x="296" y="'+(front-4)+'" text-anchor="end" class="txs" style="fill:#4a4640">solvent front · 70 mm</text>':'');
+  INK.forEach(function(k,j){var x=96+j*56;h+='<text x="'+x+'" y="'+(base+20)+'" text-anchor="middle" class="txb" style="fill:#1d1b16">'+k.n+'</text>';
+   if(wash&&pr>0)return;k.d.forEach(function(di){var d=DYE[di],y=base-d.rf*FR*sc*pr;h+='<ellipse class="spot" data-k="'+j+'" data-d="'+di+'" cx="'+x+'" cy="'+y+'" rx="9" ry="'+(pr>0?7:5)+'" fill="'+d.c+'" fill-opacity=".85" style="cursor:pointer"/>'})});
+  if(C.meas){var m=C.meas,mx=96+m.k*56,my=base-DYE[m.d].rf*FR*sc;h+='<path d="M'+(mx+14)+' '+base+' V'+my+'" stroke="#e8742a" stroke-width="2"/><path d="M'+(mx+10)+' '+my+' h8 M'+(mx+10)+' '+base+' h8" stroke="#e8742a" stroke-width="2"/><rect x="'+(mx-8)+'" y="'+(my-30)+'" width="44" height="18" rx="4" fill="#fff" stroke="#e8742a"/><text x="'+(mx+14)+'" y="'+(my-17)+'" text-anchor="middle" class="txb" style="fill:#1d1b16">'+Math.round(DYE[m.d].rf*FR)+' mm</text>'}
+  document.getElementById('ap').innerHTML='<svg class="ap" viewBox="0 0 320 320" role="img" aria-label="Chromatography paper">'+h+'</svg>';
+  [].forEach.call(document.querySelectorAll('#ap .spot'),function(e){e.onclick=function(){if(!C.ran||wash)return;C.meas={k:+e.dataset.k,d:+e.dataset.d};save();draw()}})}
+ st.innerHTML='<div class="two"><section class="card"><h2>Chromatogram</h2><div id="ap"></div><p class="readout" id="ro"></p></section><section class="card" id="ctl"></section></div><div id="fin"></div>';
+ function ctl(){var c=document.getElementById('ctl'),wash=C.lvl==='above',bad=C.pen==='pen';
+  if(!C.ran){c.innerHTML='<h2>Set it up</h2><div class="lbl">Draw the baseline with</div><div class="chips"><button class="chip'+(C.pen==='pencil'?' on':'')+'" data-p="pencil">Pencil</button><button class="chip'+(C.pen==='pen'?' on':'')+'" data-p="pen">Ballpoint pen</button></div><div class="lbl">Solvent level in the beaker</div><div class="chips"><button class="chip'+(C.lvl==='below'?' on':'')+'" data-l="below">Below the baseline</button><button class="chip'+(C.lvl==='above'?' on':'')+'" data-l="above">Above the baseline</button></div><div class="btns" style="margin-top:14px"><button class="btn primary" id="run">Put the paper in the solvent</button></div>';
+   [].forEach.call(c.querySelectorAll('[data-p]'),function(b){b.onclick=function(){C.pen=b.dataset.p;save();ctl();draw()}});[].forEach.call(c.querySelectorAll('[data-l]'),function(b){b.onclick=function(){C.lvl=b.dataset.l;save();ctl();draw()}});
+   c.querySelector('#run').onclick=function(){if(!C.pen||!C.lvl){toast('Choose both first');return}var t0=performance.now();(function an(){if(!document.getElementById('ctl'))return;var k=Math.min(1,(performance.now()-t0)/3500);draw(k);if(k<1)requestAnimationFrame(an);else{C.ran=1;save();snd('go');ctl();draw()}})()};return}
+  if(wash||bad){c.innerHTML='<h2>That didn\'t work</h2><div class="msg bad">'+(wash?'The solvent was above the baseline, so the inks dissolved into the solvent in the beaker instead of moving up the paper.':'The pen ink in the baseline dissolved and ran up the paper, mixing with your spots.')+'</div><div class="btns" style="margin-top:10px"><button class="btn primary" id="re">Try again with fresh paper</button></div>';c.querySelector('#re').onclick=function(){pd.C=C={pen:null,lvl:null,ran:0};save();ctl();draw()};return}
+  c.innerHTML='<h2>Measure and work out Rf</h2><p class="muted">Tap a spot to measure how far it moved from the baseline. The solvent front moved 70 mm.</p>'+
+   '<div class="lbl">Rf of X\'s lower spot</div><div class="inrow"><input id="r1" inputmode="decimal" value="'+(C.a1||'')+'"><span id="k1"></span></div>'+
+   '<div class="lbl">Rf of X\'s upper spot</div><div class="inrow"><input id="r2" inputmode="decimal" value="'+(C.a2||'')+'"><span id="k2"></span></div>'+
+   '<div class="lbl">X\'s lower spot matches a dye in ink…</div><div class="chips" id="m1">'+['A','B','C'].map(function(x){return '<button class="chip'+(C.m1===x?' on':'')+'" data-v="'+x+'">'+x+'</button>'}).join('')+'</div>'+
+   '<div class="lbl">X\'s upper spot matches a dye in ink…</div><div class="chips" id="m2">'+['A','B','C'].map(function(x){return '<button class="chip'+(C.m2===x?' on':'')+'" data-v="'+x+'">'+x+'</button>'}).join('')+'</div>'+
+   '<div class="btns" style="margin-top:14px"><button class="btn primary" id="ck">Check</button><button class="btn alt sm" id="re">New paper</button></div><div id="cm"></div>';
+  [].forEach.call(c.querySelectorAll('#m1 .chip'),function(b){b.onclick=function(){C.m1=b.dataset.v;save();ctl()}});[].forEach.call(c.querySelectorAll('#m2 .chip'),function(b){b.onclick=function(){C.m2=b.dataset.v;save();ctl()}});
+  c.querySelector('#re').onclick=function(){pd.C=C={pen:null,lvl:null,ran:0};save();ctl();draw()};
+  c.querySelector('#ck').onclick=function(){C.a1=c.querySelector('#r1').value;C.a2=c.querySelector('#r2').value;save();var v1=parseFloat(C.a1),v2=parseFloat(C.a2),o1=Math.abs(v1-0.20)<=0.02,o2=Math.abs(v2-0.66)<=0.02,o3=C.m1==='B',o4=C.m2==='C';
+   c.querySelector('#k1').innerHTML=o1?'<b style="color:var(--ok)">✓</b>':'<span style="color:var(--warn)">14 mm ÷ 70 mm</span>';c.querySelector('#k2').innerHTML=o2?'<b style="color:var(--ok)">✓</b>':'<span style="color:var(--warn)">Measure the upper spot, then ÷ 70</span>';
+   var all=o1&&o2&&o3&&o4;c.querySelector('#cm').innerHTML='<div class="msg '+(all?'ok':'bad')+'">'+(all?'All right. X contains the same dye as B (Rf 0.20) and one of the two dyes in C (Rf 0.66).':(!o3||!o4?'Compare heights: a match is at exactly the same height (same Rf) as a spot in another ink.':'Check your Rf values: distance moved by spot ÷ 70 mm.'))+'</div>';snd(all?'win':'bad');
+   if(all){var f=document.getElementById('fin');f.innerHTML=nextBtn(p,'an','Conclusions');wireGo(f);if(!done(p.id,'do'))stageDone(p,'do',10,p.t+': Rf values')}}}
+ ctl();draw();document.getElementById('ro').textContent='Rf = distance moved by spot ÷ distance moved by solvent'},
+an:function(p,st){var top=document.createElement('section');top.className='card';top.innerHTML='<h2>Rf values</h2><div class="tw"><table class="tb"><thead><tr><th>Ink</th><th>Spot distances (mm)</th><th>Rf values</th></tr></thead><tbody>'+INK.map(function(k){return '<tr><td><b>'+k.n+'</b></td><td class="n">'+k.d.map(function(d){return Math.round(DYE[d].rf*70)}).join(', ')+'</td><td class="n">'+k.d.map(function(d){return DYE[d].rf.toFixed(2)}).join(', ')+'</td></tr>'}).join('')+'</tbody></table></div>';simpleAn(p,st,top)}};
+
+/* ================= routing ================= */
+function go(h){if(location.hash.replace('#','')===h)route();else location.hash=h}
+function route(){var h=location.hash.replace('#','');if(CLEAN){CLEAN();CLEAN=null}
+ if(!h){home();return}if(h==='quiz'){quizPage();scrollTo(0,0);return}var a=h.split('/');if(BY[a[0]]){var s=a[1]||'plan';if(!STG.some(function(x){return x[0]===s}))s='plan';page(a[0],s);scrollTo(0,0);return}home()}
+addEventListener('hashchange',route);route();
+window.__pl={S:function(){return S},PR:PR,groups:function(id){return groups(BY[id])},go:go};
+})();
+</script>
+</body>
+</html>
