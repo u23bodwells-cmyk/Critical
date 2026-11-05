@@ -1054,7 +1054,7 @@ $('pClose').onclick=function(){if(!P||P.finished||confirm('Leave this lesson? Yo
 $('pBtn').onclick=function(){if(P&&P.onMain)P.onMain()};
 $('pSkip').onclick=function(){if(P&&P.onSkip)P.onSkip()};
 document.addEventListener('keydown',function(e){if(!P||e.ctrlKey||e.metaKey||e.altKey)return;var pl=$('player');if(!pl||!pl.classList.contains('open'))return;
- var md=$('modal');if((md&&(md.classList.contains('open')||md.classList.contains('show')))||document.querySelector('.shmod'))return;var t=e.target,tag=t&&t.tagName;
+ var md=$('modal');if((md&&(md.classList.contains('open')||md.classList.contains('show')))||document.querySelector('.shmod')||document.querySelector('.calcsheet.open'))return;var t=e.target,tag=t&&t.tagName;
  if(e.key==='Enter'){if(e.shiftKey||e.isComposing)return;if(tag==='TEXTAREA')return;if(tag==='BUTTON'&&t!==$('pBtn')&&!t.classList.contains('opt'))return;if(!$('pBtn').disabled){e.preventDefault();P.onMain&&P.onMain()}return}
  if(/^[1-9]$/.test(e.key)&&!e.shiftKey){if(tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT'||(t&&t.isContentEditable))return;var os=document.querySelectorAll('#pBody .opts .opt'),o=os[+e.key-1];if(o&&!o.disabled){e.preventDefault();o.click();try{o.focus({preventScroll:true})}catch(_){}}}});
 function foot(st,head,body){$('pFoot').className='pfoot'+(st?' '+st:'');$('pFb').innerHTML=(head?'<b class="h">'+head+'</b>':'')+(body||'');if(st==='no'&&P&&P.helpDue){P.helpDue=0;try{EASE.offer()}catch(e){if(window.console)console.error(e)}}}
@@ -2921,13 +2921,13 @@ var CALC=(function(){
  sh.innerHTML='<div class="calcbox" role="dialog" aria-modal="true" aria-label="Calculator"><div class="calchd"><b>Calculator</b><button class="calcmode" type="button" title="Angle unit">DEG</button><button class="calcx" type="button" aria-label="Close">✕</button></div><div class="calcscr"><div class="calcexp"></div><div class="calcres">0</div></div><div class="calcuse"><button type="button" class="alt" data-u="inv">2nd: sin⁻¹ cos⁻¹ tan⁻¹</button><button type="button" data-u="use">Use answer ↵</button></div><div class="calcgrid">'+K.map(function(k,i){return '<button type="button" class="'+(k[2]||'')+'" data-i="'+i+'">'+k[0]+'</button>'}).join('')+'</div><div class="calchist"></div></div>';
  document.body.appendChild(sh);
  var exEl=sh.querySelector('.calcexp'),resEl=sh.querySelector('.calcres'),useB=sh.querySelector('[data-u=use]'),invB=sh.querySelector('[data-u=inv]'),histEl=sh.querySelector('.calchist'),modeB=sh.querySelector('.calcmode'),inv=false,target=null,last=null;
- function preview(){exEl.textContent=expr||' ';if(!expr){resEl.innerHTML=justEq?fmt(ans):'0';resEl.className='calcres';return}try{var v=parse(expr);resEl.innerHTML=isFinite(v)?'= '+fmt(v):'…';resEl.className='calcres'}catch(_){resEl.innerHTML='…';resEl.className='calcres'}}
+ function preview(){if(useB)updUse();exEl.textContent=expr||' ';if(!expr){resEl.innerHTML=justEq?fmt(ans):'0';resEl.className='calcres';return}try{var v=parse(expr);resEl.innerHTML=isFinite(v)?'= '+fmt(v):'…';resEl.className='calcres'}catch(_){resEl.innerHTML='…';resEl.className='calcres'}}
  function equals(){if(!expr)return;try{var v=parse(expr);if(!isFinite(v)||v!==v)throw 'math';hist.unshift(expr+' = '+plain(v));hist=hist.slice(0,3);ans=v;last=v;justEq=true;exEl.textContent=expr+' =';resEl.innerHTML=fmt(v);resEl.className='calcres';expr='';histEl.textContent=hist.slice(1).join('   ·   ');updUse()}
   catch(e){resEl.textContent=e==='math'?'Maths error (e.g. ÷ 0 or √ of a negative)':'Check the brackets and signs';resEl.className='calcres err'}}
  function press(k){var t=k[1];
   if(t==='AC'){expr='';justEq=false;last=null;preview();updUse();return}
   if(t==='DEL'){expr=/(sin|cos|tan|asin|acos|atan|ln|log|exp)\($|√\($|Ans$|e\^\($/.test(expr)?expr.replace(/(asin|acos|atan|sin|cos|tan|ln|log|exp)\($|√\($|Ans$|e\^\($/,''):expr.slice(0,-1);preview();return}
-  if(t==='='){equals();return}
+  if(t==='='){again();return}
   if(inv&&/^(sin|cos|tan)\($/.test(t)){t='a'+t;inv=false;invB.classList.add('alt');invUpd()}
   if(justEq){justEq=false;if(/^[×÷+^²!E]/.test(t)||t==='−'&&expr==='')expr='Ans'}
   expr+=t;preview()}
@@ -2938,13 +2938,22 @@ var CALC=(function(){
  function close(){sh.classList.remove('open')}
  sh.querySelector('.calcx').onclick=close;sh.addEventListener('click',function(e){if(e.target===sh)close()});
  function findTarget(){var i=document.querySelector('#player.open #pBody input.numin:not([disabled])');return i||null}
- function updUse(){target=findTarget();useB.disabled=!(target&&last!==null);useB.textContent=target?'Use answer ↵':'Use answer (open a question first)'}
+ function updUse(){target=findTarget();useB.disabled=!(target&&last!==null);useB.textContent=!target?'Use answer (open a question first)':justEq&&!expr&&last!==null?'Use answer: press = again':'Use answer ↵'}
+ /* = (or Enter) straight after an answer puts that answer into the question, like Use answer */
+ function again(){if(!expr&&justEq&&last!==null){updUse();if(target){useB.click();return}}equals()}
  useB.onclick=function(){if(!target||last===null)return;target.value=plain(last);target.dispatchEvent(new Event('input',{bubbles:true}));close();try{target.focus({preventScroll:true})}catch(_){}};
  document.addEventListener('keydown',function(e){if(!sh.classList.contains('open'))return;var k=e.key,map={'*':'×','/':'÷','-':'−','x':'×'};
-  if(k==='Escape'){close();return}if(k==='Enter'||k==='='){e.preventDefault();equals();return}if(k==='Backspace'){press(['','DEL']);return}
+  if(k==='Escape'){close();return}if(k==='Enter'||k==='='){e.preventDefault();again();return}if(k==='Backspace'){press(['','DEL']);return}
   if(/^[0-9.+()^!]$/.test(k)){press(['',k]);e.preventDefault()}else if(map[k]){press(['',map[k]]);e.preventDefault()}});
  function open(){updUse();preview();sh.classList.add('open')}
- function mk(cls,label){var b=document.createElement('button');b.type='button';b.className=cls;b.innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><rect x="5" y="2.5" width="14" height="19" rx="2.5"/><rect x="8" y="5.5" width="8" height="4" rx="1"/><path d="M8.5 13h.01M12 13h.01M15.5 13h.01M8.5 16.5h.01M12 16.5h.01M15.5 16.5h.01"/></svg>';b.title='Calculator';b.setAttribute('aria-label',label);b.onclick=open;return b}
+ /* T opens (and closes) the calculator, but never while you're typing in a box, or over another window */
+ function typing(n){if(!n||n===document.body||n===document.documentElement)return false;if(n.isContentEditable)return true;var tg=n.tagName;if(tg==='TEXTAREA'||tg==='SELECT')return true;if(tg!=='INPUT')return false;return !/^(button|checkbox|radio|range|submit|reset|color|file|image)$/i.test(n.type||'text')}
+ function busy(){var ds=document.querySelectorAll('[role=dialog],.shmod,.wiov');for(var i=0;i<ds.length;i++){var d=ds[i];if(d.id==='player'||d.classList.contains('calcbox'))continue;if(d.getClientRects().length&&getComputedStyle(d).visibility!=='hidden')return true}return false}
+ document.addEventListener('keydown',function(e){if(e.key!=='t'&&e.key!=='T')return;if(e.ctrlKey||e.metaKey||e.altKey||e.isComposing||e.repeat||e.defaultPrevented)return;
+  if(typing(e.target)||typing(document.activeElement))return;
+  if(sh.classList.contains('open')){e.preventDefault();close();return}
+  if(busy())return;e.preventDefault();open()});
+ function mk(cls,label){var b=document.createElement('button');b.type='button';b.className=cls;b.innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><rect x="5" y="2.5" width="14" height="19" rx="2.5"/><rect x="8" y="5.5" width="8" height="4" rx="1"/><path d="M8.5 13h.01M12 13h.01M15.5 13h.01M8.5 16.5h.01M12 16.5h.01M15.5 16.5h.01"/></svg>';b.title='Calculator (press T)';b.setAttribute('aria-label',label);b.onclick=open;return b}
  var hq=document.querySelector('.hdr .askpill');if(hq)hq.parentNode.insertBefore(mk('pill calcpill','Open calculator'),hq.nextSibling);
  var lq=document.querySelector('.pask');if(lq)lq.parentNode.insertBefore(mk('psnd pcalc','Open calculator'),lq.nextSibling);
  return {parse:parse,open:open,close:close,set:function(x){expr=x;preview()},eq:equals,last:function(){return last},deg:function(d){deg=d;modeB.textContent=d?'DEG':'RAD'}};
@@ -4938,11 +4947,11 @@ module.exports = QRCode;
 }},C={};function req(n){n=n.replace(/^\.\//,"./").replace(/\.js$/,"");if(n==="./index"||n===".")n="./index";if(C[n])return C[n].exports;var m={exports:{}};C[n]=m;M[n](m,m.exports,req);return m.exports}return req("./index")})();
 function qrSvg(text){var q=new QRMAKER(-1,0);q.addData(text);q.make();var n=q.getModuleCount(),pad=4,sz=n+pad*2,p='';for(var r=0;r<n;r++)for(var c=0;c<n;c++)if(q.isDark(r,c))p+='M'+(c+pad)+' '+(r+pad)+'h1v1h-1z';return '<svg viewBox="0 0 '+sz+' '+sz+'" width="240" height="240" shape-rendering="crispEdges" role="img" aria-label="QR code of your sync key"><rect width="'+sz+'" height="'+sz+'" fill="#fff"/><path d="'+p+'" fill="#000"/></svg>'}
 /* ===== sync: sign in once on each device and progress moves across by itself (a secret gist on your GitHub account) ===== */
-var APPV='53 (5 Nov 2026)';
+var APPV='54 (5 Nov 2026)';
 var SYNC=(function(){
  var KEY='critical_sync',DEV='critical_dev',FILE='critical-sync.json',DESC='Critical progress sync (used by the Critical app)',API='https://api.github.com';
  var css=document.createElement('style');css.textContent='.syncpill .sp-ok{display:none}.syncpill[data-st=on]{color:var(--accent)}.syncpill[data-st=on] .sp-ok{display:inline}.syncpill[data-st=on] .sp-off{display:none}.syncpill[data-st=off] .sp-off{display:none}.syncpill[data-st=err]{color:var(--amber)}.syncpill[data-st=busy] svg{animation:rwtw 1.2s ease-in-out infinite}.syncbox{border:1.5px solid var(--line);border-radius:14px;padding:12px 14px;margin:12px 0 4px;background:var(--soft)}.syncbox .synchd{display:flex;align-items:center;gap:8px;font-weight:700}.syncbox .synchd svg{color:var(--accent);flex:none}.syncbox .note{margin:6px 0 0}.syncbox.on{border-color:var(--accent);background:var(--accent-bg)}.syncbox .savebtns{margin-top:10px}'+
-  '.synckey{width:100%;box-sizing:border-box;font:14px var(--mono);padding:10px 12px;border:2px solid var(--line);border-radius:10px;background:var(--panel);color:var(--text)}.synckey:focus{outline:none;border-color:var(--accent)}.syncsteps{margin:8px 0;padding-left:22px;line-height:1.55}.syncsteps li{margin:4px 0}.syncqr{display:flex;justify-content:center;padding:14px;background:#fff;border-radius:12px;margin:10px 0}';
+  '.synckey{width:100%;box-sizing:border-box;font:14px var(--mono);padding:10px 12px;border:2px solid var(--line);border-radius:10px;background:var(--panel);color:var(--text)}.synckey:focus{outline:none;border-color:var(--accent)}.syncsteps{margin:8px 0;padding-left:22px;line-height:1.55}.syncsteps li{margin:4px 0}.syncqr{display:flex;justify-content:center;padding:14px;background:#fff;border-radius:12px;margin:10px 0}.syncopts{display:grid;gap:8px;margin:8px 0}.syncopt{font:inherit;text-align:left;border:2px solid var(--line);background:var(--panel);color:var(--text);border-radius:14px;padding:12px 14px;cursor:pointer}.syncopt:hover{border-color:var(--accent)}.syncopt b{display:block;font-size:16px}.syncopt span{display:block;font-size:13.5px;color:var(--muted);margin-top:2px;line-height:1.4}textarea.synckey{resize:none;white-space:pre;overflow:auto}';
  document.head.appendChild(css);
  var CLOUD='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 18a5 5 0 1 1 .9-9.9A6 6 0 0 1 19 10a4 4 0 0 1-1 7.9H7z"/><path d="m9 13 2 2 4-4"/></svg>';
  function cfg(){try{return JSON.parse(localStorage.getItem(KEY)||'null')}catch(_){return null}}
@@ -4952,6 +4961,22 @@ var SYNC=(function(){
  function canon(x){if(x===null||typeof x!=='object')return JSON.stringify(x);if(Array.isArray(x))return '['+x.map(canon).join(',')+']';return '{'+Object.keys(x).sort().filter(function(k){return x[k]!==undefined}).map(function(k){return JSON.stringify(k)+':'+canon(x[k])}).join(',')+'}'}
  function api(path,opt,tok){opt=opt||{};var c=cfg();var h={'Accept':'application/vnd.github+json','Authorization':'Bearer '+(tok||(c&&c.tok)),'X-GitHub-Api-Version':'2022-11-28'};if(opt.body)h['Content-Type']='application/json';
   return fetch(API+path,{method:opt.method||'GET',cache:'no-store',headers:h,body:opt.body?JSON.stringify(opt.body):undefined}).then(function(r){if(r.status===401||r.status===403)throw {code:r.status};if(!r.ok)throw {code:r.status};return r.json()},function(e){throw (e&&e.code)?e:{code:'net'}})}
+ function isGS(c){return !!(c&&c.via==='gs'&&c.url)}
+ function gs(c,body,keep){var o={method:'POST',cache:'no-store',redirect:'follow',body:JSON.stringify(Object.assign({k:c.key},body))};if(keep)o.keepalive=true;
+  return fetch(c.url,o).then(function(r){if(!r.ok)throw {code:r.status};return r.text()},function(e){throw (e&&e.code)?e:{code:'net'}}).then(function(t){var j;try{j=JSON.parse(t)}catch(_){throw {code:'access'}}if(!j||!j.ok)throw {code:j&&j.err==='key'?401:'other'};return j})}
+ function gsKey(){var k=null;try{k=localStorage.getItem('critical_sync_gskey')}catch(_){}if(!k){var a=new Uint8Array(18);try{crypto.getRandomValues(a)}catch(_){for(var i=0;i<18;i++)a[i]=Math.random()*256|0}k=Array.prototype.map.call(a,function(x){return 'abcdefghijkmnpqrstuvwxyz23456789'.charAt(x%32)}).join('');try{localStorage.setItem('critical_sync_gskey',k)}catch(_){}}return k}
+ function gsCode(key){return ['// Critical sync: keeps your Critical progress in your own Google account.','// Paste all of this into a new Apps Script project, then deploy it as a web app.',"var KEY = '"+key+"';",
+  'function doGet(e) { var p = (e && e.parameter) || {}; return out({ok: true, app: "Critical sync", key: p.k === KEY}); }',
+  'function doPost(e) {','  var p = {};','  try { p = JSON.parse(e.postData.contents); } catch (x) {}','  if (p.k !== KEY) return out({ok: false, err: "key"});','  var lock = LockService.getScriptLock();','  lock.waitLock(25000);','  try {',
+  '    var P = PropertiesService.getScriptProperties();','    if (p.put) for (var n in p.put) write(P, n, p.put[n]);','    var res = {ok: true};','    if (p.get) res.files = readAll(P);','    return out(res);','  } finally { lock.releaseLock(); }','}',
+  'function write(P, n, v) {','  var old = +(P.getProperty("n:" + n) || 0);','  for (var i = 0; i < old; i++) P.deleteProperty("c:" + n + ":" + i);','  if (v === null || v === undefined) { P.deleteProperty("n:" + n); return; }',
+  '  var parts = Math.max(1, Math.ceil(v.length / 2500)), props = {};','  for (var j = 0; j < parts; j++) props["c:" + n + ":" + j] = v.substr(j * 2500, 2500);','  props["n:" + n] = String(parts);','  P.setProperties(props);','}',
+  'function readAll(P) {','  var all = P.getProperties(), files = {};','  Object.keys(all).forEach(function (k) {','    if (k.indexOf("n:") !== 0) return;','    var n = k.slice(2), parts = +all[k], s = "";','    for (var i = 0; i < parts; i++) s += all["c:" + n + ":" + i] || "";','    files[n] = {content: s};','  });','  return files;','}',
+  'function out(o) { return ContentService.createTextOutput(JSON.stringify(o)).setMimeType(ContentService.MimeType.JSON); }'].join('\n')}
+ function gsLink(c){return 'critical-sync:'+c.url+'#'+c.key}
+ function parseLink(t){var m=String(t||'').trim().match(/^critical-sync:(https:\/\/script\.google(?:usercontent)?\.com\/\S+?)#([a-z0-9]{8,})$/i);return m?{url:m[1],key:m[2]}:null}
+ function okUrl(u){return /^https:\/\/script\.google\.com\/(a\/macros\/[^\/]+|macros)\/s\/[\w-]{20,}\/exec$/.test(u)}
+ function where(c){return isGS(c)?'Google':'GitHub'}
  function sumH(h){var t=0;for(var d in h)t+=+h[d]||0;return t}
  /* merge this device with the copy online. XP is kept per device so nothing is ever counted twice. */
  function merge(doc,meta,ob){var me=ob?ob.dev:devId(),L=ob?cleanState(JSON.parse(JSON.stringify(ob.state))):JSON.parse(JSON.stringify(S)),E=ob?(ob.extras||{}):readExtras(),R=doc&&doc.prog?cleanState(doc.prog):null,devs=(doc&&doc.devs&&typeof doc.devs==='object')?doc.devs:{},d,k;
@@ -4972,75 +4997,101 @@ var SYNC=(function(){
  function strip(doc){if(!doc)return null;var d=JSON.parse(JSON.stringify(doc));delete d.saved;if(d.devs)for(var k in d.devs)delete d.devs[k].at;return d}
  function findGist(c){return api('/gists?per_page=100').then(function(list){var g=(list||[]).filter(function(x){return x.files&&x.files[FILE]})[0];if(g)return g.id;
   return api('/gists',{method:'POST',body:{description:DESC,public:false,files:(function(){var f={};f[FILE]={content:'{}'};return f})()}}).then(function(n){return n.id})})}
- function getDoc(c){var g=c.gist?Promise.resolve(c.gist):findGist(c).then(function(id){c.gist=id;setCfg(c);return id});
-  return g.then(function(id){return api('/gists/'+id)}).then(function(g){var files=(g&&g.files)||{},names=Object.keys(files),mine=outName(devId());lastNames=names;
+ function FILES(g){var files=(g&&g.files)||{},names=Object.keys(files),mine=outName(devId());lastNames=names;
    var outs=names.filter(function(n){return n.indexOf(OUTP)===0&&n!==mine});
    return Promise.all([files[FILE]?readFile(files[FILE]):null].concat(outs.map(function(n){return readFile(files[n])}))).then(function(a){var doc=a[0]&&a[0].prog?a[0]:null;
     a.slice(1).filter(function(o){return o&&o.dev&&o.state&&o.meta&&o.meta.others&&o.at}).sort(function(x,y){return x.at-y.at}).forEach(function(o){var dv=doc&&doc.devs&&doc.devs[o.dev];if(dv&&dv.at>=o.at)return;try{doc=merge(doc,o.meta,o).doc}catch(_){}});
-    return doc})},
+    return doc})}
+ function getDoc(c){if(isGS(c))return gs(c,{get:1}).then(function(j){return FILES({files:j.files||{}})});var g=c.gist?Promise.resolve(c.gist):findGist(c).then(function(id){c.gist=id;setCfg(c);return id});
+  return g.then(function(id){return api('/gists/'+id)}).then(FILES,
    function(e){if(e&&e.code===404&&c.gist){delete c.gist;setCfg(c);return getDoc(c)}throw e})}
  function readFile(f){if(f.truncated&&f.raw_url)return fetch(f.raw_url,{cache:'no-store'}).then(function(r){return r.json()}).catch(function(){return null});try{return Promise.resolve(JSON.parse(f.content||'null'))}catch(_){return Promise.resolve(null)}}
  function outName(id){return OUTP+id+'.json'}
  function putDoc(c,doc){doc.saved=new Date().toISOString();var f={},mine=outName(devId());f[FILE]={content:JSON.stringify(doc)};if(lastNames.indexOf(mine)>=0)f[mine]=null;
+  if(isGS(c)){var g2={};for(var n in f)g2[n]=f[n]&&f[n].content;return gs(c,{put:g2}).then(function(r){outFp=null;lastNames=lastNames.filter(function(n){return n!==mine});return r})}
   return api('/gists/'+c.gist,{method:'PATCH',body:{files:f}}).then(function(r){outFp=null;lastNames=lastNames.filter(function(n){return n!==mine});return r})}
  var busy=false,dirty=false,timer=null,pending=false,state='',hidAt=0,lastDoc=null,lastPush=0,lastNames=[],OUTP='critical-out-',outFp=null;
  function say(t){state=t;var e=document.getElementById('syncSt');if(e)e.textContent=t;try{pill()}catch(_){}}
  function ago(ms){var m=Math.round((Date.now()-ms)/60000);return m<1?'just now':m===1?'1 minute ago':m<60?m+' minutes ago':m<120?'1 hour ago':Math.round(m/60)+' hours ago'}
  function inLesson(){var pl=document.getElementById('player');return !!(pl&&pl.classList.contains('open'))}
- function sync(apply){var c=cfg();if(!c||!c.tok)return Promise.resolve(false);if(busy){dirty=true;return Promise.resolve(false)}busy=true;var was=dirty;dirty=false;say('Syncing…');
+ function sync(apply){var c=cfg();if(!c||!(c.tok||isGS(c)))return Promise.resolve(false);if(busy){dirty=true;return Promise.resolve(false)}busy=true;var was=dirty;dirty=false;say('Syncing…');
   return getDoc(c).then(function(doc){lastDoc=doc;var res=merge(doc,c.meta),changed=fp(res.state)!==fp(S)||canon(res.extras)!==canon(readExtras());
    var up=(!doc||canon(strip(res.doc))!==canon(strip(doc))||lastNames.indexOf(outName(devId()))>=0)?putDoc(c,res.doc):Promise.resolve();
    return up.then(function(){lastDoc=res.doc;lastPush=Date.now();var c2=cfg()||c;c2.gist=c.gist;c2.last=Date.now();c2.err=null;
     if(!changed){c2.meta=res.meta;setCfg(c2);busy=false;say('Synced '+ago(c2.last));return false}
     if(apply&&!inLesson()){c2.meta=res.meta;setCfg(c2);S=res.state;try{motInit()}catch(_){}try{checkBadges(true)}catch(_){}SAVE0();writeExtras(res.extras);busy=false;pending=false;reloadSoon();return true}
     setCfg(c2);pending=true;busy=false;say('Synced '+ago(c2.last)+'. New progress from your other device will show next time you open Critical.');return false})})
-  .catch(function(e){busy=false;if(was)dirty=true;var c3=cfg();if(c3){c3.err=e&&e.code===401?'key':e&&e.code==='net'?'net':'other';setCfg(c3)}
-   say(e&&(e.code===401||e.code===403)?'Your sync key has stopped working. It may have expired: turn sync off and on again with a new key.':e&&e.code==='net'?'Couldn\'t reach GitHub just now (some Wi-Fi blocks it). Your progress is safe here and will sync later.':'Sync had a problem. It\'ll try again soon.');return false})}
+  .catch(function(e){busy=false;if(was)dirty=true;var c3=cfg();if(c3){c3.err=e&&e.code===401?'key':e&&e.code==='net'?'net':e&&e.code==='access'?'access':'other';setCfg(c3)}
+   var g3=isGS(cfg());say(g3?(e&&e.code===401?'Your Google sync script has a different key. Set it up again from Sync settings.':e&&e.code==='access'?'Google asked for a sign-in. In the Apps Script deployment, set Who has access to Anyone.':e&&e.code==='net'?'Couldn\'t reach Google just now. Your progress is safe here and will sync later.':'Sync had a problem. It\'ll try again soon.'):e&&(e.code===401||e.code===403)?'Your sync key has stopped working. It may have expired: turn sync off and on again with a new key.':e&&e.code==='net'?'Couldn\'t reach GitHub just now. Some networks, like school ones, block it: switch to Google sync in Sync settings to sync there.':'Sync had a problem. It\'ll try again soon.');return false})}
  function reloadSoon(){var t=0;try{t=+sessionStorage.getItem('critical_sync_rl')||0}catch(_){}if(Date.now()-t<20000){try{showPage(PAGE)}catch(_){}say('Synced just now');return}
   try{sessionStorage.setItem('critical_sync_rl',String(Date.now()));sessionStorage.setItem('critical_load_msg','Progress synced: '+summary(S).replace(/<[^>]+>/g,''))}catch(_){}location.reload()}
  function mark(){if(!cfg())return;dirty=true;clearTimeout(timer);timer=setTimeout(function(){if(dirty)sync(false)},Math.max(4000,20000-(Date.now()-lastPush)))}
  /* closing or switching away: send everything in one quick request that finishes even after the page has gone */
- function closePush(){var c=cfg();if(!c||!c.tok||!c.gist||!dirty)return;clearTimeout(timer);if(!c.meta){if(!busy)sync(false);return}
+ function closePush(){var c=cfg();if(!c||!(isGS(c)||(c.tok&&c.gist))||!dirty)return;clearTimeout(timer);if(!c.meta){if(!busy)sync(false);return}
   if(lastDoc){try{var r0=merge(lastDoc,c.meta);if(canon(strip(r0.doc))===canon(strip(lastDoc))){dirty=false;return}}catch(_){}}
   var f0=fp(S)+canon(readExtras());if(f0===outFp){dirty=false;return}outFp=f0;
-  var me=devId(),ob={v:1,dev:me,name:devName(),at:Date.now(),state:S,extras:readExtras(),meta:c.meta},f={};f[outName(me)]={content:JSON.stringify(ob)};var body=JSON.stringify({files:f});
-  var opts={method:'PATCH',cache:'no-store',headers:{'Accept':'application/vnd.github+json','Authorization':'Bearer '+c.tok,'X-GitHub-Api-Version':'2022-11-28','Content-Type':'application/json'},body:body};
+  var me=devId(),ob={v:1,dev:me,name:devName(),at:Date.now(),state:S,extras:readExtras(),meta:c.meta},f={};f[outName(me)]={content:JSON.stringify(ob)};var g4={};g4[outName(me)]=f[outName(me)].content;var body=isGS(c)?JSON.stringify({k:c.key,put:g4}):JSON.stringify({files:f}),dest=isGS(c)?c.url:API+'/gists/'+c.gist;
+  var opts=isGS(c)?{method:'POST',cache:'no-store',redirect:'follow',body:body}:{method:'PATCH',cache:'no-store',headers:{'Accept':'application/vnd.github+json','Authorization':'Bearer '+c.tok,'X-GitHub-Api-Version':'2022-11-28','Content-Type':'application/json'},body:body};
   if(body.length<60000)opts.keepalive=true;dirty=false;lastPush=Date.now();
   var done=function(r){if(!(r&&r.ok))outFp=null;if(r&&r.ok){if(lastNames.indexOf(outName(me))<0)lastNames.push(outName(me));var c2=cfg();if(c2){c2.last=Date.now();c2.err=null;setCfg(c2)}say('Synced just now')}else dirty=true};
-  try{fetch(API+'/gists/'+c.gist,opts).then(done,function(){if(opts.keepalive){delete opts.keepalive;fetch(API+'/gists/'+c.gist,opts).then(done,function(){dirty=true})}else dirty=true})}catch(e){dirty=true}}
+  try{fetch(dest,opts).then(done,function(){if(opts.keepalive){delete opts.keepalive;fetch(dest,opts).then(done,function(){dirty=true})}else dirty=true})}catch(e){dirty=true}}
  window.addEventListener('pagehide',function(){closePush()});
  document.addEventListener('visibilitychange',function(){if(!cfg())return;if(document.visibilityState==='hidden'){hidAt=Date.now();closePush()}else if(hidAt&&Date.now()-hidAt>15000){hidAt=0;sync(true)}});
  setInterval(function(){if(cfg()&&dirty&&!busy)sync(false)},180000);
  /* sign in */
  var mod=null;function closeM(){if(mod){mod.remove();mod=null}}
  function openM(html){closeM();mod=document.createElement('div');mod.className='shmod';mod.setAttribute('role','dialog');mod.setAttribute('aria-modal','true');mod.innerHTML='<div class="shcard">'+html+'</div>';document.body.appendChild(mod);mod.addEventListener('click',function(e){if(e.target===mod)closeM()});return mod}
- function signIn(){var M=openM('<p class="shk">Sync between your devices</p><h2>Turn on sync</h2><p>Your progress is kept in a private file on your GitHub account. To let Critical use it, make a <b>sync key</b> once, then paste it on each device.</p>'+
+ function connectGS(c0,err,btn,label){btn.disabled=true;btn.textContent='Checking…';return gs(c0,{get:1}).then(function(){var c={via:'gs',url:c0.url,key:c0.key};setCfg(c);closeM();lastNames=[];lastDoc=null;
+   sync(true).then(function(r){if(!r){try{toast(BOLT,'Google sync is on','Your progress will now move between your devices')}catch(_){}mount()}})},
+  function(e){btn.disabled=false;btn.textContent=label;err.textContent=e&&e.code===401?'The script answered, but with a different key. Copy the code again (it has your key in it), paste it over the old code and deploy a new version.':e&&e.code==='access'?'Google wants a sign-in. In Deploy → Manage deployments, set Who has access to Anyone, then try again.':e&&e.code==='net'?'Couldn\'t reach your script. Check the address ends in /exec, that Who has access is set to Anyone, and that you\'re online.':'That didn\'t work. Check the address is the Web app URL and try again.'})}
+ function choose(){var c=cfg(),M=openM('<p class="shk">Sync between your devices</p><h2>'+(c?'Switch to Google sync':'Turn on sync')+'</h2>'+
+   '<p>Already set up on another device? Paste its <b>sync link</b> (Google) or <b>sync key</b> (GitHub) here:</p><input class="synckey" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="critical-sync:… or github_pat_…" aria-label="Sync link or key"><p class="wmsg no" data-k="err"></p>'+
+   '<div class="shacts"><button type="button" class="wbtn pri" data-a="go">Connect</button></div>'+
+   '<p class="shex" style="margin-top:14px">First time? Choose where your progress is kept:</p><div class="syncopts"><button type="button" class="syncopt" data-a="gs"><b>Google</b><span>Works on school Chromebooks. Uses a small script in your own Google account. About 3 minutes to set up.</span></button>'+
+   (c?'':'<button type="button" class="syncopt" data-a="gh"><b>GitHub</b><span>Uses a private file on your GitHub account. Some school networks block GitHub.</span></button>')+'</div><div class="shacts"><button type="button" class="skip" data-a="no">Cancel</button></div>');
+  var inp=M.querySelector('.synckey'),err=M.querySelector('[data-k=err]'),go=M.querySelector('[data-a=go]');M.querySelector('[data-a=no]').onclick=closeM;M.querySelector('[data-a=gs]').onclick=gsSetup;var gh=M.querySelector('[data-a=gh]');if(gh)gh.onclick=signIn;
+  inp.onkeydown=function(e){if(e.key==='Enter'){e.preventDefault();go.click()}};inp.oninput=function(){err.textContent=''};
+  go.onclick=function(){var t=inp.value.trim(),L=parseLink(t);if(L){connectGS(L,err,go,'Connect');return}t=t.replace(/\s+/g,'');if(/^(github_pat_|ghp_|gho_)[A-Za-z0-9_]{20,}$/.test(t)){if(c&&!isGS(c)){err.textContent='This device already uses that GitHub sync.';return}signIn(t);return}err.textContent=t?'That isn\'t a sync link or key. A Google sync link starts with critical-sync:':'Paste the link or key first.'}}
+ function gsSetup(){var key=gsKey(),M=openM('<p class="shk">Google sync</p><h2>Set up Google sync</h2><p>Your progress is kept by a tiny script in <b>your own</b> Google account. Do this once; your other devices just paste a link.</p>'+
+   '<ol class="syncsteps"><li><a href="https://script.google.com/home/projects/create" target="_blank" rel="noopener">Open Google Apps Script ↗</a>. Use a personal Google account if you can: school accounts often aren\'t allowed to share scripts.</li><li>Delete the code that\'s there and paste in this code: <button type="button" class="wbtn" data-a="copy">Copy the code</button><span class="wmsg" data-k="cm"></span><textarea class="synckey" data-k="code" readonly rows="3" style="font-size:11px;margin-top:8px" aria-label="Script code">'+escH(gsCode(key))+'</textarea></li>'+
+   '<li>Press <b>Deploy</b> → <b>New deployment</b>. Click the gear next to <b>Select type</b> and choose <b>Web app</b>.</li><li>Set <b>Execute as</b>: <b>Me</b> and <b>Who has access</b>: <b>Anyone</b>. Press <b>Deploy</b> (and <b>Authorise access</b> if it asks).</li><li>Copy the <b>Web app URL</b> (it ends in <b>/exec</b>) and paste it here:</li></ol>'+
+      '<input class="synckey" data-k="url" type="url" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="https://script.google.com/macros/s/…/exec" aria-label="Web app URL"><p class="wmsg no" data-k="err"></p>'+
+   '<div class="shacts"><button type="button" class="wbtn pri" data-a="go">Connect</button><button type="button" class="skip" data-a="back">Back</button></div><p class="shex">Your current progress on this device comes with you.</p>');
+  var u=M.querySelector('[data-k=url]'),err=M.querySelector('[data-k=err]'),go=M.querySelector('[data-a=go]'),cd=M.querySelector('[data-k=code]'),cm=M.querySelector('[data-k=cm]');M.querySelector('[data-a=back]').onclick=choose;
+  M.querySelector('[data-a=copy]').onclick=function(){var ok=function(){cm.className='wmsg ok';cm.textContent=' Copied.'};var fb=function(){try{cd.focus();cd.select();document.execCommand('copy');ok()}catch(_){cm.className='wmsg no';cm.textContent=' Select the code below and copy it.'}};if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(gsCode(key)).then(ok,fb);else fb()};
+  u.onkeydown=function(e){if(e.key==='Enter'){e.preventDefault();go.click()}};u.oninput=function(){err.textContent=''};
+  go.onclick=function(){var v=u.value.trim();if(!okUrl(v)){err.textContent=v?'That isn\'t a Web app URL. It should start with https://script.google.com/ and end in /exec.':'Paste the Web app URL first.';return}connectGS({url:v,key:key},err,go,'Connect')}}
+ function signIn(pre){if(typeof pre!=='string')pre='';var M=openM('<p class="shk">Sync between your devices</p><h2>Turn on sync</h2><p>Your progress is kept in a private file on your GitHub account. To let Critical use it, make a <b>sync key</b> once, then paste it on each device.</p>'+
    '<ol class="syncsteps"><li><a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">Open GitHub to make a key ↗</a> (sign in if it asks).</li><li>Token name: <b>Critical sync</b>. Expiration: the longest it offers.</li><li>Under <b>Permissions</b>, add <b>Gists</b> and set it to <b>Read and write</b>. Leave everything else as it is.</li><li>Press <b>Generate token</b>, copy it (it starts with github_pat_), and paste it below.</li></ol>'+
-   '<p class="shex">Already turned on sync on another device? Press <b>Link another device</b> there, then scan or copy the key.</p>'+
+   '<p class="shex">Already turned on sync on another device? Press <b>Link another device</b> there, then scan or copy the key. On a school Chromebook, use <b>Google</b> sync instead.</p>'+
    '<input class="synckey" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Paste your sync key here" aria-label="Sync key"><p class="wmsg no" data-k="err"></p>'+
    '<div class="shacts"><button type="button" class="wbtn pri" data-a="go">Sign in</button><button type="button" class="skip" data-a="no">Cancel</button></div>');
-  var inp=M.querySelector('.synckey'),err=M.querySelector('[data-k=err]'),go=M.querySelector('[data-a=go]');M.querySelector('[data-a=no]').onclick=closeM;setTimeout(function(){try{inp.focus()}catch(_){}},50);
+  var inp=M.querySelector('.synckey'),err=M.querySelector('[data-k=err]'),go=M.querySelector('[data-a=go]');M.querySelector('[data-a=no]').onclick=closeM;setTimeout(function(){try{inp.focus()}catch(_){}},50);if(pre){inp.value=pre;setTimeout(function(){go.click()},0)}
   inp.onkeydown=function(e){if(e.key==='Enter'){e.preventDefault();go.click()}};inp.oninput=function(){err.textContent=''};
   go.onclick=function(){var t=inp.value.trim().replace(/\s+/g,'');if(!t){err.textContent='Paste your sync key first.';return}if(!/^(github_pat_|ghp_|gho_)[A-Za-z0-9_]{20,}$/.test(t)){err.textContent='That doesn\'t look like a GitHub key. It should start with github_pat_.';return}
    go.disabled=true;go.textContent='Checking…';api('/user',{},t).then(function(u){var c={tok:t,user:u.login};setCfg(c);return findGist(c).then(function(id){c.gist=id;setCfg(c)})}).then(function(){closeM();sync(true).then(function(r){if(!r){try{toast(BOLT,'Sync is on','Your progress will now move between your devices')}catch(_){}mount()}})},
     function(e){go.disabled=false;go.textContent='Sign in';err.textContent=e&&(e.code===401||e.code===403)?'GitHub didn\'t accept that key. Check you copied all of it, and that Gists is set to Read and write.':e&&e.code==='net'?'Couldn\'t reach GitHub. Check your internet (some school Wi-Fi blocks it) and try again.':'Something went wrong. Try again in a minute.';setCfg(null)})}}
- function link(){var c=cfg();if(!c)return;var M=openM('<p class="shk">Link another device</p><h2>Use the same key on your phone</h2><p>Scan this with your phone\'s camera and copy the text it shows. Then open Critical on your phone, press <b>Turn on sync</b> and paste it.</p><div class="syncqr" data-k="qr"></div>'+
+ function link(){var c=cfg();if(!c)return;if(isGS(c))return linkGS(c);var M=openM('<p class="shk">Link another device</p><h2>Use the same key on your phone</h2><p>Scan this with your phone\'s camera and copy the text it shows. Then open Critical on your phone, press <b>Turn on sync</b> and paste it.</p><div class="syncqr" data-k="qr"></div>'+
    '<p class="shex">Only show this to your own devices: anyone with the key could change your Critical progress.</p><div class="shacts"><button type="button" class="wbtn" data-a="copy">Copy the key instead</button><button type="button" class="wbtn pri" data-a="ok">Done</button></div><p class="wmsg" data-k="msg"></p>');
   M.querySelector('[data-a=ok]').onclick=closeM;M.querySelector('[data-a=copy]').onclick=function(){var m=M.querySelector('[data-k=msg]');var ok=function(){m.className='wmsg ok';m.textContent='Copied. Send it to yourself somewhere private, then paste it on your phone.'};
    if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(c.tok).then(ok,function(){m.className='wmsg no';m.textContent='Couldn\'t copy. Scan the code instead.'});};
   var box=M.querySelector('[data-k=qr]');try{box.innerHTML=qrSvg(c.tok)}catch(e){box.innerHTML='<span class="note">Couldn\'t draw the code. Use Copy the key instead.</span>';if(window.console)console.error(e)}}
+ function linkGS(c){var L=gsLink(c),M=openM('<p class="shk">Link another device</p><h2>Use the same link everywhere</h2><p>On your phone, scan this and copy the text. On a Chromebook or PC, copy the link and send it to yourself (for example, email it to your school address). Then open Critical there, press <b>Turn on sync</b> and paste it.</p><div class="syncqr" data-k="qr"></div>'+
+   '<textarea class="synckey" readonly rows="2" style="font-size:11px" aria-label="Sync link">'+escH(L)+'</textarea><p class="shex">Only share this with your own devices: anyone with the link could change your Critical progress.</p><div class="shacts"><button type="button" class="wbtn" data-a="copy">Copy the link</button><button type="button" class="wbtn pri" data-a="ok">Done</button></div><p class="wmsg" data-k="msg"></p>');
+  M.querySelector('[data-a=ok]').onclick=closeM;var ta=M.querySelector('textarea'),m=M.querySelector('[data-k=msg]');M.querySelector('[data-a=copy]').onclick=function(){var ok=function(){m.className='wmsg ok';m.textContent='Copied.'};var fb=function(){try{ta.focus();ta.select();document.execCommand('copy');ok()}catch(_){m.className='wmsg no';m.textContent='Select the link and copy it.'}};if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(L).then(ok,fb);else fb()};
+  var box=M.querySelector('[data-k=qr]');try{box.innerHTML=qrSvg(L)}catch(e){box.innerHTML='<span class="note">Couldn\'t draw the code. Copy the link instead.</span>'}}
  function pill(){var b=document.getElementById('syncPill');if(!b)return;var c=cfg();b.dataset.st=!c?'off':busy?'busy':c.err?'err':'on';b.title=!c?'Sync is off: press to turn it on':c.err?'Sync needs attention':'Sync is on'+(c.last?' (synced '+ago(c.last)+')':'');b.setAttribute('aria-label',b.title)}
- function panel(){var c=cfg();if(!c){signIn();return}var M=openM('<p class="shk">Sync between your devices</p><h2>Sync is on</h2><p>Signed in to GitHub as <b>'+escH(c.user||'you')+'</b>.</p><p class="shex" data-k="st">'+escH(state||(c.last?'Synced '+ago(c.last):'Not synced yet'))+'</p>'+
-   '<div class="shacts"><button type="button" class="wbtn pri" data-a="now">Sync now</button><button type="button" class="wbtn" data-a="link">Link another device</button><button type="button" class="skip" data-a="off">Turn off sync</button><button type="button" class="skip" data-a="x">Close</button></div>');
-  M.querySelector('[data-a=now]').onclick=function(){var st=M.querySelector('[data-k=st]');st.textContent='Syncing…';sync(true).then(function(){if(st)st.textContent=state})};M.querySelector('[data-a=link]').onclick=link;M.querySelector('[data-a=off]').onclick=function(){closeM();signOut()};M.querySelector('[data-a=x]').onclick=closeM}
+ function panel(){var c=cfg();if(!c){choose();return}var M=openM('<p class="shk">Sync between your devices</p><h2>Sync is on</h2><p>'+(isGS(c)?'Syncing through your <b>Google</b> account.':'Signed in to GitHub as <b>'+escH(c.user||'you')+'</b>.')+'</p><p class="shex" data-k="st">'+escH(state||(c.last?'Synced '+ago(c.last):'Not synced yet'))+'</p>'+
+   '<div class="shacts"><button type="button" class="wbtn pri" data-a="now">Sync now</button><button type="button" class="wbtn" data-a="link">Link another device</button>'+(isGS(c)?'':'<button type="button" class="wbtn" data-a="gsw">Switch to Google (for school)</button>')+'<button type="button" class="skip" data-a="off">Turn off sync</button><button type="button" class="skip" data-a="x">Close</button></div>');
+  M.querySelector('[data-a=now]').onclick=function(){var st=M.querySelector('[data-k=st]');st.textContent='Syncing…';sync(true).then(function(){if(st)st.textContent=state})};M.querySelector('[data-a=link]').onclick=link;var sw=M.querySelector('[data-a=gsw]');if(sw)sw.onclick=choose;M.querySelector('[data-a=off]').onclick=function(){closeM();signOut()};M.querySelector('[data-a=x]').onclick=closeM}
  function signOut(){setCfg(null);mount();try{toast(BOLT,'Sync is off','Your progress stays on this device')}catch(_){}}
- function block(){var c=cfg();if(!c)return '<div class="syncbox" id="syncBox"><div class="synchd">'+CLOUD+'Sync between your devices</div><p class="note">Sign in once on each device and your progress moves across by itself: lessons, XP, streak, plan, habits, Shift Ready and Aptitude Gym. No more save files.</p><div class="savebtns"><button class="wbtn pri" id="syncOn">Turn on sync</button></div></div>';
-  return '<div class="syncbox on" id="syncBox"><div class="synchd">'+CLOUD+'Sync is on</div><p class="note">Signed in to GitHub as <b>'+escH(c.user||'you')+'</b>. <span id="syncSt">'+escH(state||(c.last?'Synced '+ago(c.last):'Not synced yet'))+'</span></p><div class="savebtns"><button class="wbtn" id="syncNow">Sync now</button><button class="wbtn" id="syncLink">Link another device</button><button class="skip" id="syncOff">Turn off sync</button></div></div>'}
+ function block(){var c=cfg();if(!c)return '<div class="syncbox" id="syncBox"><div class="synchd">'+CLOUD+'Sync between your devices</div><p class="note">Set it up once and your progress moves across by itself: lessons, XP, streak, plan, habits, Shift Ready and Aptitude Gym. Choose Google sync for school Chromebooks.</p><div class="savebtns"><button class="wbtn pri" id="syncOn">Turn on sync</button></div></div>';
+  return '<div class="syncbox on" id="syncBox"><div class="synchd">'+CLOUD+'Sync is on</div><p class="note">'+(isGS(c)?'Syncing through your <b>Google</b> account.':'Signed in to GitHub as <b>'+escH(c.user||'you')+'</b>.')+' <span id="syncSt">'+escH(state||(c.last?'Synced '+ago(c.last):'Not synced yet'))+'</span></p><div class="savebtns"><button class="wbtn" id="syncNow">Sync now</button><button class="wbtn" id="syncLink">Link another device</button><button class="skip" id="syncOff">Turn off sync</button></div></div>'}
  function mount(){try{pill()}catch(_){}var card=document.getElementById('saveCard');if(!card)return;var old=document.getElementById('syncBox');if(old)old.remove();var hd=card.querySelector('.savehead');var w=document.createElement('div');w.innerHTML=block();var el=w.firstChild;if(hd&&hd.nextSibling)card.insertBefore(el,hd.nextSibling);else card.appendChild(el);
-  var b;if((b=document.getElementById('syncOn')))b.onclick=signIn;if((b=document.getElementById('syncNow')))b.onclick=function(){sync(true)};if((b=document.getElementById('syncLink')))b.onclick=link;if((b=document.getElementById('syncOff')))b.onclick=signOut}
+  var b;if((b=document.getElementById('syncOn')))b.onclick=choose;if((b=document.getElementById('syncNow')))b.onclick=function(){sync(true)};if((b=document.getElementById('syncLink')))b.onclick=link;if((b=document.getElementById('syncOff')))b.onclick=signOut}
  var SAVE0=save;
  setTimeout(function(){var b=document.getElementById('syncPill');if(b)b.onclick=function(){panel()};pill()},0);
- return {closePush:closePush,dirty:function(){return dirty},panel:panel,pill:pill,sync:sync,mark:mark,mount:mount,merge:merge,cfg:cfg,signIn:signIn,link:link,pending:function(){return pending},saveRaw:function(){SAVE0()},boot:function(){if(cfg())setTimeout(function(){sync(true)},1200)}}
+ return {choose:choose,gsSetup:gsSetup,isGS:function(){return isGS(cfg())},closePush:closePush,dirty:function(){return dirty},panel:panel,pill:pill,sync:sync,mark:mark,mount:mount,merge:merge,cfg:cfg,signIn:signIn,link:link,pending:function(){return pending},saveRaw:function(){SAVE0()},boot:function(){if(cfg())setTimeout(function(){sync(true)},1200)}}
 })();
 try{window.SYNC=SYNC}catch(_){}
 /* every save marks sync as needed; the sync box sits in the Your progress card */
@@ -13147,6 +13198,57 @@ function NSIM(w,h,rnd){
  var _g3w=gotWrong;gotWrong=function(c){var i=P&&P.i;var r=_g3w.apply(this,arguments);try{if(P&&P.mode==='lesson'){P.log3=P.log3||{};var e=P.log3[i]||(P.log3[i]={});e.w=(e.w||0)+1}}catch(_){}return r};
  var _fin3=finish;finish=function(){var r=_fin3.apply(this,arguments);try{if(P&&P.mode==='lesson'&&P.finished)show()}catch(e){try{console.error(e)}catch(_){}}return r};
  window.__s3={show:show,sc:S3SC.SC,map:S3MAP};
+ })();
+ /* ===== "What if?": a motivation button at the top right (works offline, needs nothing online) ===== */
+ (function(){
+ var PAIRS=[["What if I don't make it?","What if you do?"],["What if I'm not good enough?","Not yet. That's what today is for."],["What if it's too hard?","That's why it's worth it."],["What if I give up?","Then you'll never know."],["What if I fall behind?","One lesson puts you back in front."]];
+ var css=document.createElement('style');css.textContent=
+  '.whatif{margin-left:auto;display:inline-flex;align-items:center;gap:6px;font:inherit;font-weight:800;font-size:13px;border-radius:999px;padding:6px 12px;cursor:pointer;border:1.5px solid color-mix(in srgb,var(--accent) 55%,transparent);background:color-mix(in srgb,var(--accent) 14%,var(--panel));color:var(--accent-text,var(--accent));white-space:nowrap;letter-spacing:.01em}'+
+  '.whatif svg{width:15px;height:15px;flex:none}.whatif:hover{background:color-mix(in srgb,var(--accent) 24%,var(--panel))}'+
+  'html.neo .whatif{background:linear-gradient(135deg,rgba(124,92,255,.28),rgba(58,212,255,.18));border-color:rgba(140,170,255,.55);color:#fff;box-shadow:0 0 18px -6px rgba(110,140,255,.9)}'+
+  'html.neo:not(.neocalm) .whatif svg{animation:wiPulse 2.6s ease-in-out infinite}@keyframes wiPulse{0%,100%{transform:scale(1);opacity:.85}50%{transform:scale(1.18);opacity:1}}'+
+  '@media (max-width:700px){.hdr-in{position:relative}.whatif{position:absolute;top:12px;right:max(12px,env(safe-area-inset-right,0px));padding:6px 11px}}'+
+  /* room for the button: the header bar runs a little wider than the page on big screens, and the button goes icon-only on mid-size ones */
+  '@media (min-width:1200px){.hdr .hdr-in{max-width:1320px}}@media (min-width:701px) and (max-width:1199px){.whatif span{display:none}.whatif{padding:7px 9px}}@media (min-width:701px) and (max-width:1060px){.hdr .brand span{display:none}}'+
+  '.wiov{position:fixed;inset:0;z-index:3600;display:flex;align-items:center;justify-content:center;padding:24px max(20px,env(safe-area-inset-right,0px)) 24px max(20px,env(safe-area-inset-left,0px));background:radial-gradient(ellipse at 50% 60%,#16124a 0%,#070a1c 55%,#02040b 100%);color:#eef2ff;opacity:0;transition:opacity .35s ease}'+
+  '.wiov.on{opacity:1}.wiov canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}'+
+  '.wibox{position:relative;max-width:620px;width:100%;text-align:center;font-family:var(--sans,system-ui)}'+
+  '.wi1{font-size:clamp(19px,4.6vw,26px);color:rgba(200,210,240,.72);font-weight:600;margin:0 0 18px;opacity:0;transform:translateY(8px);transition:opacity .7s ease,transform .7s ease}'+
+  '.wi2{font-family:var(--display,inherit);font-size:clamp(38px,10vw,68px);line-height:1.05;font-weight:800;letter-spacing:-.02em;margin:0 0 22px;opacity:0;transform:scale(.92);transition:opacity .9s ease,transform 1.1s cubic-bezier(.2,.9,.2,1.2);background:linear-gradient(100deg,#ffffff 10%,#9fe8ff 45%,#b9a2ff 90%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 22px rgba(120,170,255,.45))}'+
+  '.wi3{font-size:clamp(15px,3.8vw,18px);line-height:1.5;color:rgba(220,228,255,.9);margin:0 auto 10px;max-width:30em;opacity:0;transition:opacity .9s ease}'+
+  '.wi4{font-family:var(--mono,ui-monospace,monospace);font-size:13px;color:#ffd65a;letter-spacing:.04em;margin:0 0 26px;opacity:0;transition:opacity .9s ease}'+
+  '.wiacts{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;opacity:0;transition:opacity .8s ease}.wiacts button{font:inherit;font-weight:800;font-size:16px;border-radius:14px;padding:13px 20px;cursor:pointer;border:0}'+
+  '.wigo{background:linear-gradient(135deg,#7c5cff,#3ad4ff);color:#fff;box-shadow:0 10px 30px -10px rgba(90,140,255,.9)}.wino{background:rgba(255,255,255,.08);color:#dfe6ff;border:1px solid rgba(255,255,255,.16)!important}.wimore{background:none;color:rgba(200,210,240,.7);text-decoration:underline;font-size:14px!important;font-weight:600!important;padding:13px 8px!important}'+
+  '.wiov.s1 .wi1,.wiov.s2 .wi2,.wiov.s3 .wi3,.wiov.s3 .wi4,.wiov.s4 .wiacts{opacity:1;transform:none}';
+ document.head.appendChild(css);
+ var SPARK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v4M12 18v4M4.9 4.9l2.8 2.8M16.3 16.3l2.8 2.8M2 12h4M18 12h4M4.9 19.1l2.8-2.8M16.3 7.7l2.8-2.8"/><circle cx="12" cy="12" r="2.6" fill="currentColor"/></svg>';
+ function quiet(){try{return document.documentElement.classList.contains('neocalm')||matchMedia('(prefers-reduced-motion: reduce)').matches}catch(_){return false}}
+ var idx=-1;function pick(){var d=new Date().toDateString(),k='critical_whatif',v=null;try{v=JSON.parse(localStorage.getItem(k)||'null')}catch(_){}
+  if(!v||v.d!==d)v={d:d,i:0};else v.i=(v.i+1)%PAIRS.length;try{localStorage.setItem(k,JSON.stringify(v))}catch(_){}return v.i}
+ function stats(){try{var n=doneCount('all'),t=allLessons('all').length;return n?fmtInt(n)+' lessons down. Make it '+fmtInt(n+1)+'.':'Lesson one is where every operator started.'}catch(_){return ''}}
+ function open(){if(document.querySelector('.wiov'))return;idx=pick();var ov=document.createElement('div');ov.className='wiov';ov.setAttribute('role','dialog');ov.setAttribute('aria-modal','true');ov.setAttribute('aria-label','What if?');
+  ov.innerHTML='<canvas aria-hidden="true"></canvas><div class="wibox"><p class="wi1"></p><h2 class="wi2"></h2><p class="wi3">The control room at Hinkley Point C. Six million homes. You at the desk.</p><p class="wi4"></p><div class="wiacts"><button type="button" class="wigo">Prove it: do a lesson</button><button type="button" class="wino">Not now</button><button type="button" class="wimore">Another</button></div></div>';
+  document.body.appendChild(ov);var cv=ov.querySelector('canvas'),T=[];
+  function fill(){ov.querySelector('.wi1').textContent=PAIRS[idx][0];ov.querySelector('.wi2').textContent=PAIRS[idx][1];ov.querySelector('.wi4').textContent=stats()}
+  function play(){fill();ov.classList.remove('s1','s2','s3','s4');T.forEach(clearTimeout);T=[];if(quiet()){ov.classList.add('s1','s2','s3','s4');return}
+   T.push(setTimeout(function(){ov.classList.add('s1')},120));T.push(setTimeout(function(){ov.classList.add('s2');try{if(S.sound!==false){beep(523,0,.5,'sine',.045);beep(784,.12,.7,'sine',.04)}}catch(_){}},1350));T.push(setTimeout(function(){ov.classList.add('s3')},2500));T.push(setTimeout(function(){ov.classList.add('s4')},3100))}
+  requestAnimationFrame(function(){ov.classList.add('on');play()});
+  function close(){T.forEach(clearTimeout);ov.classList.remove('on');document.removeEventListener('keydown',key);setTimeout(function(){ov.remove()},300)}
+  function key(e){if(e.key==='Escape')close();else if(e.key==='Enter'&&ov.classList.contains('s4')){e.preventDefault();go()}}
+  function go(){close();try{runAction(nextAction())}catch(_){}}
+  document.addEventListener('keydown',key);ov.querySelector('.wigo').onclick=go;ov.querySelector('.wino').onclick=close;ov.querySelector('.wimore').onclick=function(){idx=(idx+1)%PAIRS.length;play()};
+  ov.addEventListener('click',function(e){if(e.target===ov&&ov.classList.contains('s4'))close()});
+  setTimeout(function(){try{ov.querySelector('.wigo').focus({preventScroll:true})}catch(_){}},quiet()?50:3200);
+  /* slow sparks rising, like the glow over a reactor core */
+  var c=cv.getContext('2d'),P=[],W=0,H=0,dpr=Math.min(2,window.devicePixelRatio||1);for(var i=0;i<46;i++)P.push({x:Math.random(),y:Math.random(),r:.6+Math.random()*1.8,v:.015+Math.random()*.04,a:.2+Math.random()*.6});
+  function fr(){if(!ov.isConnected)return;var w=cv.clientWidth,h=cv.clientHeight;if(w!==W||h!==H){W=w;H=h;cv.width=W*dpr;cv.height=H*dpr;c.setTransform(dpr,0,0,dpr,0,0)}c.clearRect(0,0,W,H);
+   P.forEach(function(p){if(!quiet()){p.y-=p.v/60;if(p.y<-.02){p.y=1.02;p.x=Math.random()}}var x=p.x*W,y=p.y*H,g=c.createRadialGradient(x,y,0,x,y,p.r*5);g.addColorStop(0,'rgba(160,200,255,'+p.a+')');g.addColorStop(1,'rgba(120,120,255,0)');c.fillStyle=g;c.beginPath();c.arc(x,y,p.r*5,0,6.283);c.fill()});
+   if(!quiet())requestAnimationFrame(fr)}
+  requestAnimationFrame(fr)}
+ function mount(){var pills=document.querySelector('.hdr .pills');if(!pills||document.getElementById('whatIf'))return;var b=document.createElement('button');b.type='button';b.id='whatIf';b.className='whatif';b.title='What if?';b.setAttribute('aria-label','What if?');b.innerHTML=SPARK+'<span>What if?</span>';b.onclick=open;
+  var hin=document.querySelector('.hdr .hdr-in');if(hin)hin.appendChild(b);else pills.appendChild(b)}
+ mount();setTimeout(mount,0);
+ window.__whatif=open;
  })();
 
  (function(){var rl=renderLearn;renderLearn=function(){var r=rl.apply(this,arguments);try{[].forEach.call(document.querySelectorAll('#page-learn .lnode[data-u]'),function(b){var l=UNITS[+b.dataset.u]&&UNITS[+b.dataset.u].lessons[+b.dataset.l];if(!l)return;var w=null;l.cards.forEach(function(c){if(c.t==='W'&&LABS[c.w])w=LABS[c.w]});if(!w||b.querySelector('.lablive'))return;var lm=b.querySelector('.lm');if(lm)lm.insertAdjacentHTML('afterend','<span class="lablive" title="This lesson has a live simulation">'+w+'</span>')})}catch(e){if(window.console)console.error(e)}return r}})();
