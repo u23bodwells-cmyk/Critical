@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; img-src 'self' data:">
+<title>Blocked</title>
+<link rel="stylesheet" href="pages.css">
+<style>
+.wrap{max-width:620px;text-align:center;align-items:center}
+.badge{width:96px;height:96px;border-radius:30px;display:grid;place-items:center;background:var(--warn-bg);color:var(--warn);position:relative}
+.badge svg{width:46px;height:46px;stroke-width:1.8}
+.badge::after{content:"";position:absolute;inset:-8px;border-radius:36px;border:2px solid color-mix(in srgb,var(--warn) 35%,transparent);animation:ring 2.4s ease-out infinite}
+@keyframes ring{0%{opacity:.9;transform:scale(.92)}100%{opacity:0;transform:scale(1.12)}}
+.badge.ok{background:var(--good-bg);color:var(--good)}
+.badge.ok::after{border-color:color-mix(in srgb,var(--good) 35%,transparent)}
+h1{font-size:clamp(24px,4vw,32px)}
+.lead{font-size:16.5px;color:var(--muted);margin:0;max-width:52ch}
+.prog{width:100%;max-width:420px;text-align:left}
+.bar{height:10px;border-radius:6px;background:var(--field);border:1px solid var(--line);overflow:hidden;margin-top:8px}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--glow),var(--accent));border-radius:6px;transition:width .6s}
+.fact{text-align:left;width:100%}
+.fact p{margin:6px 0 0}
+.count{font-size:13px;color:var(--muted)}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="badge" id="badge"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m5.6 5.6 12.8 12.8"/></svg></div>
+  <h1 id="h">Blocked until today's plan is done</h1>
+  <p class="lead" id="lead"></p>
+  <div class="card prog" id="prog" hidden><b id="pT"></b><div class="bar"><i id="pBar"></i></div></div>
+  <div class="row" style="justify-content:center"><button class="btn pri" id="goCrit" type="button">Go to Critical</button><button class="btn" id="goClaude" type="button">Claude mode</button><button class="btn" id="goBack" type="button">Go back</button></div>
+  <section class="card fact"><div class="eyebrow">While you're here</div><p id="fact"></p></section>
+  <p class="count" id="count"></p>
+</main>
+<script src="blocked.js"></script>
+</body>
+</html>

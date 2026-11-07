@@ -6,9 +6,39 @@ on:
   workflow_dispatch:
 permissions:
   contents: write
+concurrency:
+  group: critical-browser
+  cancel-in-progress: true
 jobs:
-  placeholder:
-    if: false
-    runs-on: ubuntu-latest
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: browser
     steps:
-      - run: echo placeholder
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install
+        run: npm install --no-audit --no-fund
+      - name: Self-test (blocking, Critical tab, Claude panel)
+        timeout-minutes: 6
+        shell: pwsh
+        run: |
+          npx electron . --self-test
+          $code = $LASTEXITCODE
+          if (Test-Path selftest.log) { Get-Content selftest.log }
+          exit $code
+      - name: Keep the self-test screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: selftest
+          path: browser/selftest*.png
+          if-no-files-found: ignore
+      - name: Build the installer and publish it as a release
+        run: npx electron-builder --win nsis --x64 --publish always
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

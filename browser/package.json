@@ -1,0 +1,40 @@
+{
+  "name": "critical-browser",
+  "productName": "Critical Browser",
+  "version": "1.0.0",
+  "description": "A study browser built around Critical: TikTok, YouTube Shorts and social sites stay blocked until today's plan is done, with Claude built in.",
+  "main": "main.js",
+  "author": "u23bodwells-cmyk",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "selftest": "electron . --self-test",
+    "dist": "electron-builder --win nsis --x64"
+  },
+  "dependencies": {
+    "electron-updater": "^6.3.9"
+  },
+  "devDependencies": {
+    "electron": ">=38.0.0",
+    "electron-builder": ">=25.1.8"
+  },
+  "build": {
+    "appId": "io.github.u23bodwellscmyk.criticalbrowser",
+    "productName": "Critical Browser",
+    "copyright": "u23bodwells-cmyk",
+    "files": ["main.js", "preload-ui.js", "preload-web.js", "selftest.js", "ui/**", "pages/**", "build/icon.png", "build/tray.png"],
+    "directories": { "buildResources": "build", "output": "dist" },
+    "win": { "target": "nsis", "icon": "build/icon.ico", "artifactName": "Critical-Browser-Setup-${version}.${ext}" },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Critical Browser",
+      "runAfterFinish": true,
+      "deleteAppDataOnUninstall": false
+    },
+    "publish": [{ "provider": "github", "owner": "u23bodwells-cmyk", "repo": "Critical", "releaseType": "release" }]
+  }
+}
