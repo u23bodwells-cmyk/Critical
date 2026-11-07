@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#060a13">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<title>Critical</title>
+<script>(function(){try{var t=localStorage.getItem('critical_theme');if(t==='dark'||t==='light')document.documentElement.setAttribute('data-theme',t)}catch(e){}})()</script>
+<style>
+:root{--bg:#edf1f8;--line:#d4dbea;--accent:#534AB7;--muted:#4a5571;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#060a13;--line:#223050;--accent:#a9a2ef;--muted:#9ca8c3;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#060a13;--line:#223050;--accent:#a9a2ef;--muted:#9ca8c3;color-scheme:dark}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--bg)}
+.wrap{display:flex;height:100%;width:100%}
+iframe{border:0;display:block;height:100%;background:var(--bg)}
+#main{flex:1 1 auto;min-width:320px}
+#side{flex:0 0 auto}
+.div{flex:0 0 10px;cursor:col-resize;background:var(--bg);position:relative;touch-action:none;outline:none}
+.div::before{content:"";position:absolute;top:0;bottom:0;left:4px;width:2px;background:var(--line);transition:background .15s}
+.div::after{content:"";position:absolute;top:50%;left:2px;width:6px;height:44px;margin-top:-22px;border-radius:4px;background:var(--line);transition:background .15s}
+.div:hover::before,.div:hover::after,.div.on::before,.div.on::after,.div:focus-visible::before,.div:focus-visible::after{background:var(--accent)}
+body.drag iframe{pointer-events:none}
+body.drag{cursor:col-resize;user-select:none}
+@media (max-width:760px){#side,.div{display:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+ <iframe id="main" title="Critical" src="critical.html" allow="fullscreen; clipboard-read; clipboard-write; window-management; microphone; camera"></iframe>
+ <div class="div" id="div" role="separator" aria-orientation="vertical" aria-label="Drag to resize the panels" tabindex="0" title="Drag to resize. Double-click to reset."></div>
+ <iframe id="side" title="Reactor dashboard" src="screens.html?s=side&amp;only=rx&amp;embed=1" allow="fullscreen"></iframe>
+</div>
+<script>
+(function(){
+var side=document.getElementById('side'),div=document.getElementById('div'),KEY='critical_split_w',DEF=0.34;
+function clamp(w){var W=innerWidth;return Math.max(300,Math.min(Math.round(W*0.6),Math.round(w)))}
+function get(){var v=null;try{v=parseFloat(localStorage.getItem(KEY))}catch(e){}return v&&v>0?(v<=1?v*innerWidth:v):DEF*innerWidth}
+function set(w,save){w=clamp(w);side.style.width=w+'px';div.setAttribute('aria-valuenow',Math.round(w/innerWidth*100));if(save){try{localStorage.setItem(KEY,String(w/innerWidth))}catch(e){}}}
+set(get());addEventListener('resize',function(){set(get())});
+div.addEventListener('pointerdown',function(e){e.preventDefault();div.setPointerCapture(e.pointerId);document.body.classList.add('drag');div.classList.add('on');
+ function mv(ev){set(innerWidth-ev.clientX-5,false)}
+ function up(){div.removeEventListener('pointermove',mv);div.removeEventListener('pointerup',up);div.removeEventListener('pointercancel',up);document.body.classList.remove('drag');div.classList.remove('on');set(parseFloat(side.style.width),true)}
+ div.addEventListener('pointermove',mv);div.addEventListener('pointerup',up);div.addEventListener('pointercancel',up)});
+div.addEventListener('dblclick',function(){set(DEF*innerWidth,true)});
+div.addEventListener('keydown',function(e){var w=parseFloat(side.style.width);if(e.key==='ArrowLeft'){set(w+20,true);e.preventDefault()}if(e.key==='ArrowRight'){set(w-20,true);e.preventDefault()}});
+addEventListener('message',function(e){if(e.origin!==location.origin)return;var m=e.data||{};if(m.t==='closeSplit')location.href='critical.html'});
+addEventListener('storage',function(e){if(e.key==='critical_theme'){var t=e.newValue;if(t==='dark'||t==='light')document.documentElement.setAttribute('data-theme',t);else document.documentElement.removeAttribute('data-theme')}});
+/* keep the address bar tidy: Critical's own page title shows in the tab */
+var main=document.getElementById('main');main.addEventListener('load',function(){try{document.title=main.contentDocument.title||'Critical'}catch(e){}});
+})();
+</script>
+</body>
+</html>
