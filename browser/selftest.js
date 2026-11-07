@@ -9,6 +9,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 module.exports = async function run(ctx) {
   const { win, setStatus, blockedReason, publicState } = ctx;
+  const V = ctx.backup ? 'Backup ' : '', SUF = ctx.backup ? '-backup' : '';
   const res = [], log = [];
   const ok = (name, cond, info) => { res.push({ name, ok: !!cond, info: info == null ? '' : String(info).slice(0, 160) }); };
   const ui = (js) => win.webContents.executeJavaScript(js);
@@ -59,7 +60,7 @@ module.exports = async function run(ctx) {
 
   // 7. does Critical report today's plan? (needs the latest Critical on GitHub Pages)
   const known = await until(() => publicState().known, 15000);
-  log.push('::notice title=Critical status::' + (known ? 'Critical reported today\'s plan to the browser' : 'Critical has not reported a plan status yet (GitHub Pages may still be deploying)'));
+  log.push('::notice title=' + V + 'Critical status::' + (known ? 'Critical reported today\'s plan to the browser' : 'Critical has not reported a plan status yet (GitHub Pages may still be deploying)'));
 
   // 8. lock screen renders
   await ui('CB.lock()');
@@ -67,8 +68,16 @@ module.exports = async function run(ctx) {
   ok('plan-time lock screen shows', /plan time/i.test(lk || ''), (lk || '').split('\n')[0]);
   await ui('document.getElementById("lock").hidden=true');
 
+  // backup copy: shows it's the backup, starts without Windows, never updates
+  if (ctx.backup) {
+    ok('backup badge shows', await ui('CB.badge()'));
+    ok('backup does not start with Windows', publicState().autostart === false);
+    const upd = await ui('cbHost.checkUpdates()');
+    ok('backup never updates itself', upd && upd.ok === false && /Backup/.test(upd.why || ''), upd && upd.why);
+  }
+
   // 9. screenshot of the window
-  try { await ui('CB.openTab()'); await sleep(1500); const img = await win.capturePage(); fs.writeFileSync(path.join(process.cwd(), 'selftest.png'), img.toPNG()); ok('screenshot captured', !img.isEmpty(), img.getSize().width + 'x' + img.getSize().height); } catch (e) { ok('screenshot captured', false, e.message); }
+  try { await ui('CB.openTab()'); await sleep(1500); const img = await win.capturePage(); fs.writeFileSync(path.join(process.cwd(), 'selftest' + SUF + '.png'), img.toPNG()); ok('screenshot captured', !img.isEmpty(), img.getSize().width + 'x' + img.getSize().height); } catch (e) { ok('screenshot captured', false, e.message); }
 
   // 10. finishing the plan unlocks everything (and the open blocked page notices)
   setStatus({ type: 'status', done: true, due: null, end: null, lessons: 3, left: 0, mins: 0 });
@@ -77,12 +86,12 @@ module.exports = async function run(ctx) {
   ok('plan done unlocks Shorts', !blockedReason('https://www.youtube.com/shorts/x'));
   const un = await guestEval('critical://app/blocked', 'document.getElementById("h").textContent', 5000);
   ok('blocked page updates to unlocked', /unlocked/i.test(un || ''), un);
-  try { const img = await win.capturePage(); fs.writeFileSync(path.join(process.cwd(), 'selftest-done.png'), img.toPNG()); } catch (e) {}
+  try { const img = await win.capturePage(); fs.writeFileSync(path.join(process.cwd(), 'selftest' + SUF + '-done.png'), img.toPNG()); } catch (e) {}
 
   const pass = res.filter((r) => r.ok).length, fail = res.filter((r) => !r.ok);
-  log.unshift('::notice title=Self-test::' + pass + '/' + res.length + ' checks passed');
-  log.push('::notice title=Passed::' + res.filter((r) => r.ok).map((r) => r.name).join(' | ').slice(0, 900));
-  fail.slice(0, 9).forEach((r) => log.push('::error title=Self-test failed::' + r.name + (r.info ? ' → ' + r.info.replace(/[\r\n]+/g, ' ') : '')));
+  log.unshift('::notice title=' + V + 'Self-test::' + pass + '/' + res.length + ' checks passed');
+  log.push('::notice title=' + V + 'Passed::' + res.filter((r) => r.ok).map((r) => r.name).join(' | ').slice(0, 900));
+  fail.slice(0, 9).forEach((r) => log.push('::error title=' + V + 'Self-test failed::' + r.name + (r.info ? ' → ' + r.info.replace(/[\r\n]+/g, ' ') : '')));
   const out = log.join('\n') + '\n' + res.map((r) => (r.ok ? 'PASS ' : 'FAIL ') + r.name + (r.info ? '  [' + r.info + ']' : '')).join('\n') + '\n';
   try { fs.writeFileSync(path.join(process.cwd(), 'selftest.log'), out); } catch (e) {}
   console.log(out);

@@ -27,6 +27,8 @@
     claude: P('<path d="M12 2.5v5M12 16.5v5M2.5 12h5M16.5 12h5M5.3 5.3l3.5 3.5M15.2 15.2l3.5 3.5M18.7 5.3l-3.5 3.5M8.8 15.2l-3.5 3.5" stroke-width="2.4"/>')
   };
   const fill = (id, ic) => { const e = $(id); if (e) e.innerHTML = ic; };
+  const NAME = INIT.name || 'Critical Browser';
+  if (INIT.backup) { const br = document.querySelector('.brand'); br.title = NAME; const tag = document.createElement('span'); tag.className = 'bk'; tag.textContent = 'Backup'; tag.title = 'Backup copy: its own data, no auto-updates'; br.after(tag); document.body.classList.add('backup'); }
   fill('newTab', I.plus); fill('back', I.back); fill('fwd', I.fwd); fill('reload', I.reload); fill('home', I.atom); fill('menuBtn', I.more);
   fill('askIc', I.ask); fill('clIc', I.claude); fill('clIc2', I.claude); fill('clNew', I.chat); fill('clMode', I.split); fill('clClose', I.x);
   fill('findUp', I.up); fill('findDn', I.down); fill('findX', I.x);
@@ -109,7 +111,7 @@
       el.onclick = (e) => { if (e.target.closest('.x')) { closeTab(t); return; } activate(t); };
       el.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activate(t); } };
     });
-    document.title = active ? (active.pinned ? 'Critical' : active.title || 'New tab') + ' · Critical Browser' : 'Critical Browser';
+    document.title = active ? (active.pinned ? 'Critical' : active.title || 'New tab') + ' · ' + NAME : NAME;
   }
   function paintBar() {
     const t = active; if (!t) return;
@@ -240,7 +242,7 @@
       '<div class="zoom"><span>Zoom</span><button data-a="zo" aria-label="Zoom out">−</button><b style="min-width:44px;text-align:center">' + z + '%</b><button data-a="zi" aria-label="Zoom in">+</button></div>' +
       '<button data-a="full">' + I.full + 'Full screen<span class="k">F11</span></button><hr><button data-a="set">' + I.gear + 'Settings</button>' +
       (S.updateReady ? '<button data-a="upd">' + I.reload + 'Restart to update to ' + esc(S.updateReady) + '</button>' : '') +
-      '<button data-a="quit"' + (S.canQuit ? '' : ' disabled title="You can quit once today\'s plan is done"') + '>' + I.power + (S.canQuit ? 'Quit Critical Browser' : 'Quit (after today\'s plan)') + '</button>';
+      '<button data-a="quit"' + (S.canQuit ? '' : ' disabled title="You can quit once today\'s plan is done"') + '>' + I.power + (S.canQuit ? 'Quit ' + NAME : 'Quit (after today\'s plan)') + '</button>';
     const r = $('menuBtn').getBoundingClientRect(); m.style.top = (r.bottom + 6) + 'px'; m.style.right = Math.max(8, innerWidth - r.right) + 'px'; m.style.left = 'auto'; m.hidden = false;
     m.querySelectorAll('[data-a]').forEach((b) => b.onclick = () => {
       const a = b.dataset.a; if (a !== 'zi' && a !== 'zo') m.hidden = true;
@@ -261,7 +263,7 @@
       '<h4>At plan time</h4><label class="tog"><input type="checkbox" id="shCl"' + (S.claudeAtPlan ? ' checked' : '') + '> Open Claude next to Critical (Claude mode)</label><label class="tog"><input type="checkbox" id="shAuto"' + (S.autostart ? ' checked' : '') + '> Start Critical Browser with Windows (it waits by the clock until plan time)</label>' +
       '<h4>Blocked until today\'s plan is done</h4><div class="chips">' + S.core.filter((x, i, a) => a.indexOf(x) === i).map((x) => '<span class="chip">' + esc(x) + '</span>').join('') + '<span class="chip">youtube.com/shorts</span></div>' +
       '<h4>Also block</h4><textarea id="shExtra" placeholder="One website per line, like roblox.com" aria-label="Extra websites to block">' + esc((S.extra || []).join('\n')) + '</textarea><p class="note">' + (S.done ? 'You can add or remove sites.' : 'You can add sites now. Removing them only works once today\'s plan is done.') + '</p><div class="row"><button class="btn" id="shSave">Save list</button></div>' +
-      '<h4>About</h4><p class="note" style="margin-top:0">Critical Browser ' + esc(S.version) + '. Updates download by themselves from GitHub.</p><div class="row"><button class="btn" id="shUpd">Check for updates</button>' + (S.updateReady ? '<button class="btn pri" id="shInst">Restart to update</button>' : '') + '</div><p class="note" id="shMsg"></p></div>';
+      '<h4>About</h4><p class="note" style="margin-top:0">' + esc(NAME) + ' ' + esc(S.version) + '. ' + (S.backup ? 'This is the Backup copy: it keeps its own data and never updates itself, so it still works if the main browser breaks.' : 'Updates download by themselves from GitHub.') + '</p><div class="row"><button class="btn" id="shUpd">Check for updates</button>' + (S.updateReady ? '<button class="btn pri" id="shInst">Restart to update</button>' : '') + '</div><p class="note" id="shMsg"></p></div>';
     sh.hidden = false;
     $('shX').onclick = () => { sh.hidden = true; };
     sh.querySelectorAll('input[name=lv]').forEach((r) => r.onchange = async () => { S = await H.settings({ strict: r.value }); paintAll(); });
@@ -346,6 +348,6 @@
   setInterval(paintBar, 1500);
 
   // hooks the automated self-test uses
-  window.CB = { openTab: (u) => { newTab(u); return true; }, activeUrl: () => (active ? wvUrl(active) : ''), activeTitle: () => (active ? active.title : ''), tabUrl: (i) => (tabs[i] ? wvUrl(tabs[i]) : ''),
+  window.CB = { backup: () => !!INIT.backup, badge: () => !!document.querySelector('.bk'), openTab: (u) => { newTab(u); return true; }, activeUrl: () => (active ? wvUrl(active) : ''), activeTitle: () => (active ? active.title : ''), tabUrl: (i) => (tabs[i] ? wvUrl(tabs[i]) : ''),
     toggleClaude: (on) => { claudeOpen(on); return true; }, claudeUrl: () => { try { return claudeWv ? claudeWv.getURL() : ''; } catch (e) { return ''; } }, count: () => tabs.length, state: () => S, lock: () => { showLock(S); return true; }, settings: () => { openSettings(); return true; } };
 })();

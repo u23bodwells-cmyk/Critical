@@ -15,7 +15,14 @@ const NEWTAB = 'critical://app/newtab.html';
 const PART = 'persist:critical';
 const SELFTEST = process.argv.includes('--self-test');
 const HIDDEN = process.argv.includes('--hidden');
-const APP_ID = 'io.github.u23bodwellscmyk.criticalbrowser';
+// Two builds come from this code: the main app, and a Backup copy that installs alongside it with its own data,
+// no auto-updates and no start-with-Windows, so if the main one ever breaks there's still a working browser.
+let PKG = {}; try { PKG = require('./package.json'); } catch (e) {}
+const BACKUP = (process.env.CB_VARIANT || PKG.variant) === 'backup';
+const APP_NAME = BACKUP ? 'Critical Browser Backup' : 'Critical Browser';
+const APP_ID = BACKUP ? 'io.github.u23bodwellscmyk.criticalbrowser.backup' : 'io.github.u23bodwellscmyk.criticalbrowser';
+const ICON = path.join(__dirname, 'build', BACKUP ? 'icon-backup.png' : 'icon.png');
+const TRAY = path.join(__dirname, 'build', BACKUP ? 'tray-backup.png' : 'tray.png');
 
 // Everything that's blocked until the plan is done. Subdomains count too (m.facebook.com, vm.tiktok.com...).
 const CORE = ['tiktok.com', 'tiktokv.com', 'tiktokcdn.com', 'tiktokcdn-us.com', 'instagram.com', 'cdninstagram.com', 'facebook.com', 'fb.com', 'fb.watch', 'messenger.com',
@@ -27,7 +34,7 @@ const NAMES = { tiktok: 'TikTok', tiktokv: 'TikTok', tiktokcdn: 'TikTok', 'tikto
 const SHORTS_CSS = 'ytd-reel-shelf-renderer,ytd-rich-shelf-renderer[is-shorts],ytd-rich-section-renderer:has(ytd-rich-shelf-renderer[is-shorts]),ytd-guide-entry-renderer:has(a[title="Shorts"]),ytd-mini-guide-entry-renderer[aria-label="Shorts"],yt-tab-shape[tab-title="Shorts"],ytd-video-renderer:has(a[href^="/shorts/"]),ytd-grid-video-renderer:has(a[href^="/shorts/"]),ytd-rich-item-renderer:has(a[href^="/shorts/"]),ytm-shorts-lockup-view-model,ytm-shorts-lockup-view-model-v2,grid-shelf-view-model:has(ytm-shorts-lockup-view-model),ytm-reel-shelf-renderer,ytm-pivot-bar-item-renderer:has(.pivot-shorts){display:none!important}';
 
 let win = null, tray = null, quitting = false, hiddenSince = 0, skipStart = 0, updateReady = null;
-const DEF_SETTINGS = { strict: 'firm', screen: null, autostart: true, extra: [], claudeAtPlan: true };
+const DEF_SETTINGS = { strict: 'firm', screen: null, autostart: !BACKUP, extra: [], claudeAtPlan: true };
 let state = { status: null, skip: null, lastShow: null, blocks: null, trayHinted: false, settings: Object.assign({}, DEF_SETTINGS) };
 
 /* ---------- saved state ---------- */
@@ -57,7 +64,7 @@ function blocksToday() { return state.blocks && state.blocks.d === ymd() ? state
 function publicState() {
   const w = windowInfo();
   return Object.assign(w, { social: w.done ? 'open' : 'blocked', strict: state.settings.strict, extra: state.settings.extra, core: CORE, blocksToday: blocksToday(),
-    autostart: state.settings.autostart, claudeAtPlan: state.settings.claudeAtPlan, screen: state.settings.screen, version: app.getVersion(), updateReady: updateReady,
+    backup: BACKUP, autostart: state.settings.autostart, claudeAtPlan: state.settings.claudeAtPlan, screen: state.settings.screen, version: app.getVersion(), updateReady: updateReady,
     canQuit: !(w.inWindow && state.settings.strict !== 'gentle') });
 }
 function setStatus(s) {
@@ -101,7 +108,7 @@ function broadcast() {
   for (const wc of webContents.getAllWebContents()) { try { if (wc.getURL().startsWith('critical://')) wc.send('state', s); } catch (e) {} }
   updateTray();
 }
-function notify(title, body) { try { if (Notification.isSupported()) new Notification({ title, body, icon: path.join(__dirname, 'build', 'icon.png') }).show(); } catch (e) {} }
+function notify(title, body) { try { if (Notification.isSupported()) new Notification({ title, body, icon: ICON }).show(); } catch (e) {} }
 
 /* ---------- screens ---------- */
 function displays() {
@@ -123,7 +130,7 @@ function createWindow(show) {
   const d = targetDisplay(), wa = d ? d.work : { x: 60, y: 60, width: 1400, height: 900 }, c = themeColours();
   win = new BrowserWindow({
     x: wa.x + 40, y: wa.y + 40, width: Math.min(1400, wa.width - 80), height: Math.min(900, wa.height - 80), minWidth: 760, minHeight: 500,
-    show: false, title: 'Critical Browser', backgroundColor: c.bg, icon: path.join(__dirname, 'build', 'icon.png'), autoHideMenuBar: true,
+    show: false, title: APP_NAME, backgroundColor: c.bg, icon: ICON, autoHideMenuBar: true,
     titleBarStyle: 'hidden', titleBarOverlay: { color: c.bg, symbolColor: c.fg, height: 42 },
     webPreferences: { preload: path.join(__dirname, 'preload-ui.js'), webviewTag: true, contextIsolation: true, nodeIntegration: false, spellcheck: true }
   });
@@ -144,7 +151,7 @@ function createWindow(show) {
     const w = windowInfo();
     if (w.inWindow && state.settings.strict !== 'gentle') { if (win.isMinimized()) win.restore(); win.show(); win.focus(); send('lock-prompt', publicState()); return; }
     win.hide();
-    if (!state.trayHinted) { state.trayHinted = true; persist(); notify('Critical Browser is still running', 'It opens itself at plan time. To quit, right-click its icon by the clock.'); }
+    if (!state.trayHinted) { state.trayHinted = true; persist(); notify(APP_NAME + ' is still running', 'It opens itself at plan time. To quit, right-click its icon by the clock.'); }
   });
   win.on('minimize', () => { hiddenSince = Date.now(); });
   win.on('restore', () => { hiddenSince = 0; });
@@ -162,7 +169,7 @@ function showForPlan(first) {
   if (state.settings.strict === 'harsh') win.setFullScreen(true); else if (!win.isFullScreen()) win.maximize();
   win.focus(); win.moveTop();
   send('plan-time', Object.assign(publicState(), { first: !!first }));
-  if (first) notify('Plan time', 'Critical Browser is open. TikTok, Shorts and social stay blocked until today\'s plan is done.');
+  if (first) notify('Plan time', APP_NAME + ' is open. TikTok, Shorts and social stay blocked until today\'s plan is done.');
 }
 
 /* ---------- keyboard shortcuts (they work even when a page has focus) ---------- */
@@ -260,9 +267,9 @@ function shortsCSS(wc) { try { const h = hostOf(wc.getURL()); if ((h === 'youtub
 function updateTray() {
   if (!tray) return; const w = windowInfo(), canQuit = !(w.inWindow && state.settings.strict !== 'gentle');
   const line = w.done ? '✓ Plan done: social unlocked' : w.inWindow ? '📘 Plan time: ' + (w.left != null ? w.left + ' part' + (w.left === 1 ? '' : 's') + ' left' : 'in progress') : '🔒 Social blocked until the plan is done';
-  tray.setToolTip('Critical Browser\n' + line);
+  tray.setToolTip(APP_NAME + '\n' + line);
   tray.setContextMenu(Menu.buildFromTemplate([
-    { label: 'Open Critical Browser', click: showWindow }, { label: line, enabled: false }, { type: 'separator' },
+    { label: 'Open ' + APP_NAME, click: showWindow }, { label: line, enabled: false }, { type: 'separator' },
     { label: 'Start with Windows', type: 'checkbox', checked: !!state.settings.autostart, click: (m) => { state.settings.autostart = m.checked; persist(); applyAutostart(); broadcast(); } },
     { label: canQuit ? 'Quit' : 'Quit (after today\'s plan)', enabled: canQuit, click: () => { quitting = true; app.quit(); } }
   ]));
@@ -287,7 +294,7 @@ function tick() {
 /* ---------- updates ---------- */
 let updater = null;
 function setupUpdates() {
-  if (!app.isPackaged || SELFTEST) return;
+  if (!app.isPackaged || SELFTEST || BACKUP) return;   // the Backup copy never updates itself
   try {
     updater = require('electron-updater').autoUpdater;
     updater.autoDownload = true; updater.autoInstallOnAppQuit = true;
@@ -301,7 +308,7 @@ function setupUpdates() {
 /* ---------- messages from the window and pages ---------- */
 function fromUI(e) { return win && !win.isDestroyed() && e.sender === win.webContents; }
 function fromPage(e) { try { return (e.senderFrame && e.senderFrame.url || '').startsWith('critical://'); } catch (_) { return false; } }
-ipcMain.handle('cb-init', e => fromUI(e) ? { crit: CRIT, newtab: NEWTAB, version: app.getVersion(), state: publicState(), selftest: SELFTEST } : null);
+ipcMain.handle('cb-init', e => fromUI(e) ? { crit: CRIT, newtab: NEWTAB, version: app.getVersion(), state: publicState(), selftest: SELFTEST, backup: BACKUP, name: APP_NAME } : null);
 ipcMain.handle('cb-state', e => (fromUI(e) || fromPage(e)) ? publicState() : null);
 ipcMain.handle('cb-displays', e => fromUI(e) ? displays() : null);
 ipcMain.handle('cb-test-display', (e, i) => { if (!fromUI(e)) return; const d = displays()[i]; if (d) { moveTo(d); win.show(); win.maximize(); } });
@@ -324,7 +331,7 @@ ipcMain.handle('cb-skip-today', e => {
   broadcast(); return true;
 });
 ipcMain.handle('cb-quit', e => { if (!fromUI(e)) return false; const w = windowInfo(); if (w.inWindow && state.settings.strict !== 'gentle') return false; quitting = true; app.quit(); return true; });
-ipcMain.handle('cb-check-updates', async e => { if (!fromUI(e)) return null; if (!updater) return { ok: false, why: app.isPackaged ? 'Updates aren\'t available right now.' : 'Updates only work in the installed app.' }; try { const r = await updater.checkForUpdates(); return { ok: true, latest: r && r.updateInfo ? r.updateInfo.version : app.getVersion() }; } catch (err) { return { ok: false, why: 'Couldn\'t reach GitHub.' }; } });
+ipcMain.handle('cb-check-updates', async e => { if (!fromUI(e)) return null; if (BACKUP) return { ok: false, why: 'The Backup copy doesn\'t update itself, so a bad update can never break both browsers. Download a newer Backup from the releases page if you ever need one.' }; if (!updater) return { ok: false, why: app.isPackaged ? 'Updates aren\'t available right now.' : 'Updates only work in the installed app.' }; try { const r = await updater.checkForUpdates(); return { ok: true, latest: r && r.updateInfo ? r.updateInfo.version : app.getVersion() }; } catch (err) { return { ok: false, why: 'Couldn\'t reach GitHub.' }; } });
 ipcMain.handle('cb-install-update', e => { if (fromUI(e) && updater && updateReady) { quitting = true; updater.quitAndInstall(true, true); } });
 ipcMain.handle('cb-open-external', (e, url) => { if (fromUI(e) && /^https:\/\//.test(url)) shell.openExternal(url); });
 ipcMain.handle('cb-show-file', (e, p) => { if (fromUI(e) && typeof p === 'string' && p.startsWith(app.getPath('downloads'))) shell.showItemInFolder(p); });
@@ -344,15 +351,16 @@ else {
   app.on('second-instance', (e, argv) => { showWindow(); const url = argv.find(a => /^https?:\/\//i.test(a)); if (url) send('open-tab', url); });
   app.whenReady().then(() => {
     app.setAppUserModelId(APP_ID);
-    if (SELFTEST) app.setPath('userData', path.join(app.getPath('temp'), 'critical-browser-selftest-' + Date.now()));
+    if (SELFTEST) app.setPath('userData', path.join(app.getPath('temp'), 'critical-browser-selftest-' + (BACKUP ? 'backup-' : '') + Date.now()));
+    else if (BACKUP && !app.isPackaged) app.setPath('userData', path.join(app.getPath('appData'), APP_NAME));
     load(); setupSession();
     createWindow(!HIDDEN || SELFTEST);
-    try { const img = nativeImage.createFromPath(path.join(__dirname, 'build', 'tray.png')); tray = new Tray(img.isEmpty() ? nativeImage.createFromPath(path.join(__dirname, 'build', 'icon.png')).resize({ width: 16 }) : img); tray.on('click', showWindow); tray.on('double-click', showWindow); } catch (e) {}
+    try { const img = nativeImage.createFromPath(TRAY); tray = new Tray(img.isEmpty() ? nativeImage.createFromPath(ICON).resize({ width: 16 }) : img); tray.on('click', showWindow); tray.on('double-click', showWindow); } catch (e) {}
     applyAutostart(); updateTray(); setupUpdates();
     screen.on('display-added', broadcast); screen.on('display-removed', broadcast);
     nativeTheme.on('updated', broadcast);
     setTimeout(tick, 4000); setInterval(tick, 15000);
-    if (SELFTEST) require('./selftest')({ win, setStatus, blockedReason, publicState, windowInfo, send }).then(ok => { quitting = true; app.exit(ok ? 0 : 1); }, err => { console.log('::error title=selftest::crashed ' + (err && err.stack || err)); quitting = true; app.exit(1); });
+    if (SELFTEST) require('./selftest')({ win, setStatus, blockedReason, publicState, windowInfo, send, backup: BACKUP }).then(ok => { quitting = true; app.exit(ok ? 0 : 1); }, err => { console.log('::error title=selftest::crashed ' + (err && err.stack || err)); quitting = true; app.exit(1); });
   });
   app.on('before-quit', () => { quitting = true; });
   app.on('window-all-closed', () => { /* stay in the tray */ });

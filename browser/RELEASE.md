@@ -7,4 +7,10 @@
 - Claude panel: Ctrl+Shift+C. Select something and press **Ask Claude** (Ctrl+Shift+A).
 - It updates itself from this page.
 
-Only the `.exe` is needed. The other files are for automatic updates.
+**Two downloads:**
+- `Critical-Browser-Setup-….exe`: the main app. It starts with Windows and updates itself.
+- `Critical-Browser-Backup-Setup-….exe`: a **Backup copy** that installs alongside it with its own separate data. It never updates itself and doesn't start with Windows, so if the main one ever breaks you still have a working browser. Same blocking.
+
+Neither uses Chrome, Chrome extensions or Chrome's data: each has its own built-in engine and profile.
+
+The `.blockmap` and `latest.yml` files are only for automatic updates.

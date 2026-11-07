@@ -31,6 +31,16 @@ jobs:
           $code = $LASTEXITCODE
           if (Test-Path selftest.log) { Get-Content selftest.log }
           exit $code
+      - name: Self-test (Backup copy)
+        timeout-minutes: 6
+        shell: pwsh
+        env:
+          CB_VARIANT: backup
+        run: |
+          npx electron . --self-test
+          $code = $LASTEXITCODE
+          if (Test-Path selftest.log) { Get-Content selftest.log }
+          exit $code
       - name: Keep the self-test screenshots
         if: always()
         uses: actions/upload-artifact@v4
@@ -40,13 +50,29 @@ jobs:
           if-no-files-found: ignore
       - name: Build the installer
         run: npx electron-builder --win nsis --x64 --publish never
+      - name: Build the Backup copy (own app, own data, no auto-updates)
+        shell: pwsh
+        run: |
+          npx electron-builder --win nsis --x64 --publish never `
+            "-c.appId=io.github.u23bodwellscmyk.criticalbrowser.backup" `
+            "-c.productName=Critical Browser Backup" `
+            "-c.extraMetadata.name=critical-browser-backup" `
+            "-c.extraMetadata.productName=Critical Browser Backup" `
+            "-c.extraMetadata.variant=backup" `
+            "-c.win.icon=build/icon-backup.ico" `
+            '-c.win.artifactName=Critical-Browser-Backup-Setup-${version}.${ext}' `
+            "-c.nsis.shortcutName=Critical Browser Backup" `
+            "-c.directories.output=dist-backup"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          Get-ChildItem dist-backup -File | Select-Object Name, Length
       - name: Publish it as a GitHub release (the app's auto-updater reads this)
         shell: pwsh
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           $v = node -p "require('./package.json').version"
-          $files = Get-ChildItem dist -File | Where-Object { $_.Name -match '\.exe(\.blockmap)?$' -or $_.Name -eq 'latest.yml' } | ForEach-Object { $_.FullName }
+          $files = @(Get-ChildItem dist -File | Where-Object { $_.Name -match '\.exe(\.blockmap)?$' -or $_.Name -eq 'latest.yml' } | ForEach-Object { $_.FullName })
+          $files += @(Get-ChildItem dist-backup -File -Filter 'Critical-Browser-Backup-Setup-*.exe' | ForEach-Object { $_.FullName })
           Write-Output "Version $v"; $files
           gh release view "v$v" --repo $env:GITHUB_REPOSITORY *> $null
           if ($LASTEXITCODE -eq 0) { gh release upload "v$v" @files --clobber --repo $env:GITHUB_REPOSITORY }
