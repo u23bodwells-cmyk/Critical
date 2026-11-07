@@ -38,7 +38,18 @@ jobs:
           name: selftest
           path: browser/selftest*.png
           if-no-files-found: ignore
-      - name: Build the installer and publish it as a release
-        run: npx electron-builder --win nsis --x64 --publish always
+      - name: Build the installer
+        run: npx electron-builder --win nsis --x64 --publish never
+      - name: Publish it as a GitHub release (the app's auto-updater reads this)
+        shell: pwsh
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $v = node -p "require('./package.json').version"
+          $files = Get-ChildItem dist -File | Where-Object { $_.Name -match '\.exe(\.blockmap)?$' -or $_.Name -eq 'latest.yml' } | ForEach-Object { $_.FullName }
+          Write-Output "Version $v"; $files
+          gh release view "v$v" --repo $env:GITHUB_REPOSITORY *> $null
+          if ($LASTEXITCODE -eq 0) { gh release upload "v$v" @files --clobber --repo $env:GITHUB_REPOSITORY }
+          else { gh release create "v$v" @files --target $env:GITHUB_SHA --title "Critical Browser $v" --notes-file RELEASE.md --latest --repo $env:GITHUB_REPOSITORY }
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          Write-Output "::notice title=Released::Critical Browser $v is on the releases page"
