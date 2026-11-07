@@ -1,0 +1,14 @@
+name: Critical Browser
+on:
+  push:
+    branches: [main]
+    paths: ['browser/**', '.github/workflows/browser.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  placeholder:
+    if: false
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo placeholder
