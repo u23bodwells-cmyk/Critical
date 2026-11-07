@@ -5,7 +5,7 @@
   "description": "A study browser built around Critical: TikTok, YouTube Shorts and social sites stay blocked until today's plan is done, with Claude built in.",
   "main": "main.js",
   "author": "u23bodwells-cmyk",
-  "license": "MIT",
+  "license": "UNLICENSED",
   "private": true,
   "scripts": {
     "start": "electron .",
