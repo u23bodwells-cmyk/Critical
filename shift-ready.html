@@ -710,12 +710,13 @@ function sessionHTML(s){ensureTimer(s);var dn=S.done[s.id];var steps=S.steps[s.i
   h+='</ol>';
   if(s.code)h+='<div class="code"><pre>'+esc(s.code)+'</pre><button class="copy" data-act="copy">Copy</button></div>';
   h+='</section>';
+  if(s.kind==="py"&&window.SRCHK)h+=SRCHK.html(s);
   if(s.ch)h+='<div class="chal"><input type="checkbox" id="ch-'+s.id+'"'+(S.ch[s.id]?" checked":"")+(dn?" disabled":"")+'><label for="ch-'+s.id+'"><b>Bonus challenge, +20 XP.</b> '+esc(s.ch)+'</label></div>';
   if(dn){h+='<section class="card"><p><b>Session complete.</b> You earned '+dn.xp+' XP.</p><div class="trow" style="justify-content:flex-start"><button class="btn primary" data-act="back">Back</button><button class="btn" data-act="undo">Mark as not done</button></div></section>';}
   else{h+='<section class="card"><label class="lbl" for="logtxt">Log entry (optional)</label><textarea id="logtxt" placeholder="'+esc(s.log||"What did you build? Anything that confused you?")+'">'+esc(S.drafts[s.id]||"")+'</textarea><button class="btn gold block" data-act="complete">Complete session</button><p class="small muted" id="xpprev"></p></section>';}
   return h;}
 function xpPreview(s){var b=s.kind==="py"?50:30,f=S.full[s.id]?10:0,c=S.ch[s.id]?20:0;return{t:b+f+c,txt:b+" XP"+(f?" + 10 full timer":" (+10 if the timer reaches zero)")+(s.ch?(c?" + 20 challenge":""):"")};}
-function afterSession(s){if(s.kind==="cm"&&!S.done[s.id])mountDrill(s.warm);else if(s.kind==="cm")mountDrill(s.warm);var p=$("xpprev");if(p){var x=xpPreview(s);p.textContent="You'll earn "+x.t+" XP: "+x.txt+".";}updTimer();}
+function afterSession(s){if(s.kind==="py"&&window.SRCHK)try{SRCHK.after(s)}catch(_){}if(s.kind==="cm"&&!S.done[s.id])mountDrill(s.warm);else if(s.kind==="cm")mountDrill(s.warm);var p=$("xpprev");if(p){var x=xpPreview(s);p.textContent="You'll earn "+x.t+" XP: "+x.txt+".";}updTimer();}
 
 /* timer */
 var actx=null,wl=null;
@@ -855,7 +856,7 @@ window.addEventListener("hashchange",function(){cur=null;view=fromHash();pending
 
 view=fromHash();render();
 window.__busy=function(){return !!cur&&!!BY[cur]&&!S.done[BY[cur].id]};
-window.SR={S:function(){return S},addXP:addXP,save:save,toast:toast,qProg:qProg,NATO:NATO,nextOf:nextOf,refresh:function(){if(!cur&&(view==="today"||view==="drill")){var y=window.scrollY;render();window.scrollTo(0,y);}}};
+window.SR={S:function(){return S},addXP:addXP,save:save,toast:toast,qProg:qProg,NATO:NATO,nextOf:nextOf,cur:function(){return cur},BY:BY,inl:inl,model:AMODEL,track:trackUsage,openS:openS,refresh:function(){if(!cur&&(view==="today"||view==="drill")){var y=window.scrollY;render();window.scrollTo(0,y);}}};
 })();
 </script>
 
@@ -1238,6 +1239,107 @@ document.addEventListener('click',function(e){var t=e.target.closest('[data-arc]
 var ob=window.__busy;window.__busy=function(){return X.active()||(typeof ob==='function'&&ob())};
 try{A.refresh()}catch(_){}
 window.__srq={encodeQ:encodeQ,decodeQ:decodeQ,letterQ:letterQ,numQ:numQ,repeatQ:repeatQ,conceptQ:conceptQ,pyQ:pyQ};
+})();
+</script>
+<script id="chkJs">
+/* ===== Shift Ready: check my code ===== */
+/* Paste your code from Thonny; Claude checks what you've done, what's wrong and what to change.
+   Three wrong checks on the same task and it shows you the answer. Instant "quick checks" spot common slips first. */
+(function(){if(!window.SR)return;
+var A=window.SR;function $(id){return document.getElementById(id)}function inl(t){return A.inl?A.inl(t):t}
+function st(){var S=A.S();if(!S.chk||typeof S.chk!=='object')S.chk={};return S.chk}
+function key(s,part){return s.id+':'+part}
+function rec(k){var c=st();if(!c[k])c[k]={n:0,wrong:0,ok:0,rev:0,code:'',out:'',fb:null};return c[k]}
+function hasCh(s){return !!(s&&s.ch)}
+var part={};   // which task is picked per session: 'main' or 'ch'
+
+/* ---------- instant checks for common beginner slips ---------- */
+function quick(code){var out=[],lines=code.split('\n');
+  if(/[‘’“”]/.test(code))out.push('Your code has curly quotes (‘ ’ “ ”). Python needs straight quotes: \' and ". Retype them in Thonny.');
+  var tabs=/^\t/m.test(code),spaces=/^ +\S/m.test(code);if(tabs&&spaces)out.push('You\'ve mixed tabs and spaces for indenting. Use 4 spaces everywhere.');
+  lines.forEach(function(l,i){var t=l.replace(/#.*$/,'').replace(/(["'])(?:\\.|(?!\1).)*\1/g,'""').trimEnd();if(!t.trim())return;var n=i+1;
+    if(/^\s*(if|elif|else|for|while|def|try|except|finally|with|class)\b/.test(t)&&!/:/.test(t))out.push('Line '+n+' starts with "'+t.trim().split(/[\s(:]/)[0]+'" but doesn\'t end with a colon (:).');
+    if(/^\s*(if|elif|while)\b[^=!<>]*[^=!<>]=[^=]/.test(t))out.push('Line '+n+': to compare two things use == (two equals signs). A single = stores a value.');
+    if(/^\s*print\s+["'\w]/.test(t))out.push('Line '+n+': print needs brackets, like print("hello").');
+    if(/:\s*$/.test(t)&&/^\s*(if|elif|else|for|while|def|try|except|finally|with|class)\b/.test(t)){var nx=lines.slice(i+1).find(function(x){return x.trim()&&!/^\s*#/.test(x)});var ind=function(x){return (x.match(/^\s*/)||[''])[0].replace(/\t/g,'    ').length};if(nx!=null&&ind(nx)<=ind(l))out.push('The line after line '+n+' should be indented (moved right by 4 spaces), because line '+n+' ends with a colon.');}
+  });
+  var bal={'(':0,'[':0,'{':0},pairs={')':'(',']':'[','}':'{'},stripped=code.replace(/#.*$/gm,'').replace(/(["'])(?:\\.|(?!\1).)*\1/g,'""');
+  for(var i=0;i<stripped.length;i++){var ch=stripped[i];if(bal[ch]!=null)bal[ch]++;else if(pairs[ch])bal[pairs[ch]]--;}
+  if(bal['(']>0)out.push('There '+(bal['(']===1?'is 1 bracket ( that isn\'t':'are '+bal['(']+' brackets ( that aren\'t')+' closed. Every ( needs a ).');
+  if(bal['(']<0)out.push('There are more ) than ( brackets somewhere.');
+  if(bal['[']!==0)out.push('Your square brackets [ ] don\'t match up.');
+  if(!/"""|'''/.test(code))lines.some(function(l,i){var q=null;for(var j=0;j<l.length;j++){var c=l[j];if(q){if(c==='\\'){j++;continue}if(c===q)q=null}else{if(c==='#')break;if(c==='"'||c==="'")q=c}}if(q){out.push('Line '+(i+1)+' has a '+(q==='"'?'double':'single')+' quote that\'s opened but never closed.');return true}return false});
+  return out.slice(0,5)}
+
+/* ---------- asking Claude ---------- */
+var SYS='You check beginner Python for "Shift Ready", a UK app where a Year 10 student (14 to 15) learns Python in Thonny on Windows, on the way to becoming a nuclear reactor operator. Check the student\'s code against the task they were set. Be kind, specific and brief. British English, simple words. Refer to line numbers like "line 3".\n'+
+ 'Verdict: "correct" if the code would run without errors in Python 3 and does what the task asks (different wording, variable names or extra features are fine); otherwise "incorrect". input() is allowed. If they pasted an error message or output, use it.\n'+
+ 'Reply with ONLY a JSON object and nothing else: {"verdict":"correct" or "incorrect","done":[up to 3 short points about what they did well],"wrong":[each mistake, saying what and where; empty if correct],"change":[specific steps to fix or improve, as hints],"answer":"","explain":""}\n'+
+ 'Rules: in "change", never write the whole corrected program; a one-line example at most. Only when REVEAL is yes and the verdict is incorrect, put a complete working solution in "answer" (plain Python, kept as close to the student\'s own code as possible) and 2 to 4 short sentences in "explain" saying what was wrong and why the fix works. Otherwise leave "answer" and "explain" empty. Keep each point under 25 words.';
+function taskText(s,p){return 'Session: Week '+s.w+' '+s.d+': '+s.t+'\n'+(p==='ch'?'The student is doing the BONUS CHALLENGE: '+s.ch+'\n(Context, the main steps were:\n- '+s.steps.join('\n- ')+')':'Task steps:\n- '+s.steps.join('\n- '))+(s.code?'\nStarter code they were given:\n'+s.code:'')}
+function prompt(s,p,code,out,reveal,n){return taskText(s,p)+'\n\nSTUDENT\'S CODE:\n```python\n'+code+'\n```'+(out?'\n\nWhat happened when they ran it:\n'+out:'')+'\n\nAttempt: '+n+'. REVEAL: '+(reveal?'yes':'no')}
+function apiKey(){try{return localStorage.getItem('critical_api_key')||''}catch(e){return ''}}
+function call(sys,content,max){return fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'content-type':'application/json','x-api-key':apiKey(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+  body:JSON.stringify({model:A.model||'claude-haiku-5-5',max_tokens:max||900,thinking:{type:'disabled'},output_config:{effort:'low'},system:sys,messages:[{role:'user',content:content}]})})
+ .then(function(r){return r.json().then(function(j){if(!r.ok)throw{st:r.status,b:j};try{if(A.track&&j.usage)A.track(j.usage.input_tokens||0,j.usage.output_tokens||0)}catch(e){}return (j.content||[]).filter(function(c){return c.type==='text'}).map(function(c){return c.text}).join('')})})}
+function parse(t){var a=t.indexOf('{'),b=t.lastIndexOf('}');if(a<0||b<a)return null;try{var j=JSON.parse(t.slice(a,b+1));}catch(e){return null}
+  var L=function(x){return Array.isArray(x)?x.filter(function(y){return typeof y==='string'&&y.trim()}).slice(0,6):[]};
+  if(j.verdict!=='correct'&&j.verdict!=='incorrect')return null;return {verdict:j.verdict,done:L(j.done),wrong:L(j.wrong),change:L(j.change),answer:typeof j.answer==='string'?j.answer.replace(/^```(?:python)?\n?|```$/g,'').trim():'',explain:typeof j.explain==='string'?j.explain.trim():''}}
+function errText(e){var st=e&&e.st;return st===401?'Your API key wasn\'t accepted. Check it in Critical\'s Ask panel.':st===429?'Too many checks at once. Wait a minute and try again.':st===400&&e.b&&e.b.error&&/credit/i.test(e.b.error.message||'')?'Your API account is out of credit.':st?'Claude had a problem ('+st+'). Try again in a moment.':'Couldn\'t reach Claude. Check the internet and try again.'}
+
+/* ---------- the card ---------- */
+var busy=false;
+function strikes(r){var w=Math.min(3,r.wrong);return '<span class="chk-st" aria-label="'+w+' of 3 wrong checks">'+[0,1,2].map(function(i){return '<i class="'+(i<w?'x':'')+'"></i>'}).join('')+'</span>'}
+function meta(r){if(!apiKey()&&!r.ok)return 'Quick checks only. Add an API key in Critical for full checks.';return r.ok?'✓ Done'+(r.rev?' (after seeing the answer)':''):r.rev?'Answer unlocked':r.wrong?r.wrong+' wrong · answer after '+(3-r.wrong)+' more':'Answer appears after 3 wrong checks'}
+function cardHTML(s){var p=part[s.id]||'main',k=key(s,p),r=rec(k),ak=!!apiKey(),esc2=window.ARC?ARC.esc:function(t){return String(t)};
+  var h='<section class="card chk" id="chkCard"><div class="chk-h"><h2>🧪 Check my code</h2>'+strikes(r)+'</div>'+
+   '<p class="small muted">Paste your code from Thonny. '+(ak?'Claude checks what you\'ve done, what\'s wrong and what to change. Get it wrong 3 times and it shows you the answer.':'Quick checks run here straight away. Claude can check the rest.')+'</p>';
+  if(hasCh(s))h+='<div class="seg chk-seg" role="group" aria-label="What are you checking?"><button type="button" data-act="chkpart" data-p="main" aria-pressed="'+(p==='main')+'">Main task</button><button type="button" data-act="chkpart" data-p="ch" aria-pressed="'+(p==='ch')+'">Bonus challenge</button></div>';
+  h+='<label class="sr" for="chkCode">Your code</label><textarea id="chkCode" class="chk-code" spellcheck="false" autocapitalize="off" autocomplete="off" placeholder="Paste your code here (Ctrl+V)">'+esc2(r.code||'')+'</textarea>'+
+   '<details class="chk-out"'+(r.out?' open':'')+'><summary>What happened when you ran it? <span class="small muted">(optional)</span></summary><label class="sr" for="chkOut">Output or error</label><textarea id="chkOut" spellcheck="false" placeholder="Paste the output or the red error message from the Shell">'+esc2(r.out||'')+'</textarea></details>'+
+   '<div class="trow chk-row"><button class="btn primary" type="button" data-act="chkgo" id="chkGo">'+(ak?'Check my code':'Run quick checks')+'</button><span class="small muted" id="chkMeta">'+meta(r)+'</span></div><div id="chkRes" aria-live="polite">'+resHTML(s,r,null)+'</div></section>';
+  return h}
+function list(cls,ic,title,a){return a&&a.length?'<div class="chk-sec '+cls+'"><b>'+ic+' '+title+'</b><ul>'+a.map(function(x){return '<li>'+inl(x)+'</li>'}).join('')+'</ul></div>':''}
+function resHTML(s,r,qk){var f=r.fb,h='';
+  if(qk&&qk.length)h+=list('qk','⚡','Spotted straight away',qk);
+  if(f){h+='<div class="chk-v '+(f.verdict==='correct'?'ok':'no')+'">'+(f.verdict==='correct'?'✅ That works!':'❌ Not quite yet')+(f.verdict==='correct'?(f.xp?' <span>+'+f.xp+' XP</span>':''):' <span>'+(r.rev?'Answer unlocked below':'Wrong check '+Math.min(3,r.wrong)+' of 3')+'</span>')+'</div>'+
+    list('dn','✓','What you\'ve done',f.done)+list('wr','✗','What\'s wrong',f.wrong)+list('ch','🔧','What to change',f.change);}
+  if(r.rev&&r.ans)h+='<div class="chk-ans"><b>💡 The answer</b>'+(r.ansx?'<p>'+inl(r.ansx)+'</p>':'')+'<div class="code"><pre>'+(window.ARC?ARC.esc(r.ans):r.ans)+'</pre><button class="copy" type="button" data-act="chkcopy">Copy</button></div><p class="small muted">Type it into Thonny yourself rather than pasting, run it, then check again to finish the task.</p></div>';
+  if(!apiKey()&&(qk||r.code)){var q=prompt(s,part[s.id]||'main',(r.code||'').slice(0,3500),(r.out||'').slice(0,800),false,1);
+    h+='<div class="chk-nokey"><p class="small">'+(qk&&!qk.length?'No common slips spotted. ':'')+'To check whether it does the task, ask Claude:</p><a class="btn sm" target="_blank" rel="noopener" href="https://claude.ai/new?q='+encodeURIComponent('Please check my Python code for this task. Tell me what I\'ve done well, what\'s wrong and what to change, but don\'t give me the full answer yet.\n\n'+q)+'">Check with Claude ↗</a><p class="small muted">Add an API key in Critical\'s Ask panel to get checks right here, with the answer after 3 wrong tries.</p></div>';}
+  return h}
+function save(){try{A.save()}catch(e){}}
+function go(s){if(busy)return;var p=part[s.id]||'main',k=key(s,p),r=rec(k),code=($('chkCode').value||'').replace(/\s+$/,''),out=($('chkOut').value||'').trim();
+  var res=$('chkRes'),btn=$('chkGo');if(!code.trim()){res.innerHTML='<p class="fb no">Paste your code into the box first.</p>';$('chkCode').focus();return}
+  r.code=code.slice(0,8000);r.out=out.slice(0,2000);save();var qk=quick(code);
+  if(!apiKey()){r.fb=null;res.innerHTML=resHTML(s,r,qk);return}
+  busy=true;btn.disabled=true;btn.textContent='Checking…';res.innerHTML=(qk.length?list('qk','⚡','Spotted straight away',qk):'')+'<p class="small muted chk-wait">Claude is reading your code…</p>';
+  var reveal=r.wrong>=2,n=r.n+1;
+  call(SYS,prompt(s,p,r.code,r.out,reveal,n)).then(function(t){var f=parse(t);if(!f)throw{parse:1};r.n=n;
+    if(f.verdict==='incorrect'){r.wrong++;if(r.wrong>=3){r.rev=1;if(f.answer){r.ans=f.answer;r.ansx=f.explain}}}
+    else if(!r.ok){r.ok=Date.now();f.xp=r.rev?5:10;try{A.addXP(f.xp);A.toast(r.rev?'Task checked: +5 XP':'Correct first time'+(r.wrong?'':'!')+' +10 XP')}catch(e){}}
+    r.fb=f;save();
+    if(r.rev&&!r.ans&&f.verdict==='incorrect')return call(SYS,prompt(s,p,r.code,r.out,true,n)+'\nThe student has now had 3 wrong checks: give the answer.',1100).then(function(t2){var f2=parse(t2);if(f2&&f2.answer){r.ans=f2.answer;r.ansx=f2.explain;save()}});})
+  .catch(function(e){res.innerHTML=(qk.length?list('qk','⚡','Spotted straight away',qk):'')+'<p class="fb no">'+(e&&e.parse?'Claude\'s reply came back in the wrong format. Press Check again.':errText(e))+'</p>';throw e})
+  .then(function(){res.innerHTML=resHTML(s,r,qk);var m=$('chkMeta');if(m)m.textContent=meta(r);var sc=document.querySelector('#chkCard .chk-st');if(sc)sc.outerHTML=strikes(r);if(r.ok)res.scrollIntoView({block:'nearest',behavior:'smooth'})},function(){})
+  .then(function(){busy=false;btn.disabled=false;btn.textContent='Check again'})}
+
+/* ---------- plug into the session screen (Shift Ready calls SRCHK.html and SRCHK.after) ---------- */
+function bind(s){var ta=$('chkCode');if(!ta)return;var k=function(){return key(s,part[s.id]||'main')};
+  ta.addEventListener('keydown',function(e){if(e.key==='Tab'&&!e.shiftKey&&!e.ctrlKey&&!e.altKey){e.preventDefault();var a=ta.selectionStart,b=ta.selectionEnd;ta.setRangeText('    ',a,b,'end')}
+    if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)){e.preventDefault();go(s)}});
+  var keep=function(){var r=rec(k());r.code=ta.value.slice(0,8000);var o=$('chkOut');if(o)r.out=o.value.slice(0,2000);save()};ta.addEventListener('change',keep);var o=$('chkOut');if(o)o.addEventListener('change',keep)}
+document.addEventListener('click',function(e){var a=e.target.closest('[data-act]');if(!a)return;var act=a.getAttribute('data-act');if(act.indexOf('chk')!==0)return;var c0=A.cur&&A.cur(),s=c0&&A.BY?A.BY[c0]:null;if(!s)return;
+  if(act==='chkgo')go(s);
+  else if(act==='chkpart'){part[s.id]=a.getAttribute('data-p');var c=$('chkCard');if(c){c.outerHTML=cardHTML(s);bind(s)}}
+  else if(act==='chkcopy'){var r=rec(key(s,part[s.id]||'main'));try{navigator.clipboard.writeText(r.ans||'').then(function(){a.textContent='Copied';setTimeout(function(){a.textContent='Copy'},1500)})}catch(_){}}});
+var css=document.createElement('style');css.textContent='.chk-h{display:flex;align-items:center;justify-content:space-between;gap:10px}.chk-h h2{margin:0}.chk-st{display:inline-flex;gap:5px}.chk-st i{width:12px;height:12px;border-radius:50%;border:2px solid var(--line);display:block}.chk-st i.x{background:var(--warn,#c2410c);border-color:var(--warn,#c2410c)}'+
+ '.chk-seg{margin:10px 0 4px}.chk .chk-code{font:500 13.5px/1.55 var(--mono);min-height:150px;tab-size:4;white-space:pre;overflow-x:auto;margin-top:8px;background:var(--code);color:var(--code-ink);border-color:transparent}.chk-out{margin-top:8px}.chk-out summary{cursor:pointer;font-weight:600;font-size:14px}.chk-out textarea{font:500 13px/1.5 var(--mono);min-height:70px;margin-top:6px}'+
+ '.chk-row{justify-content:flex-start;align-items:center;margin-top:10px;flex-wrap:wrap}.chk-v{font-weight:800;font-size:16px;margin-top:12px;padding:10px 12px;border-radius:12px}.chk-v span{font-weight:600;font-size:13px;opacity:.85;margin-left:6px}.chk-v.ok{background:var(--ok-soft);color:var(--ok)}.chk-v.no{background:var(--check-soft,var(--gold-soft));color:var(--check,var(--gold-ink))}'+
+ '.chk-sec{margin-top:10px;border:1px solid var(--line);border-radius:12px;padding:10px 12px}.chk-sec ul{margin:6px 0 0;padding-left:20px}.chk-sec li{margin:3px 0;line-height:1.5}.chk-sec.dn b{color:var(--ok)}.chk-sec.wr b{color:var(--check,var(--warn))}.chk-sec.ch b{color:var(--brand)}.chk-sec.qk{border-style:dashed}.chk-sec code{font-family:var(--mono);font-size:.92em;background:var(--brand-soft);padding:1px 5px;border-radius:5px}'+
+ '.chk-ans{margin-top:12px;border:2px solid var(--gold);background:var(--gold-soft);border-radius:14px;padding:12px}.chk-ans>b{color:var(--gold-ink)}.chk-ans p{margin:6px 0}.chk-ans .code{margin-top:8px}.chk-nokey{margin-top:12px;border-top:1px solid var(--line);padding-top:10px}.chk-nokey p{margin:4px 0}.chk-wait{margin-top:10px}';
+document.head.appendChild(css);
+window.SRCHK={html:cardHTML,after:bind,quick:quick,parse:parse};
 })();
 </script>
 </body>
