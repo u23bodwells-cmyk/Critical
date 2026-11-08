@@ -33,7 +33,7 @@ const NAMES = { tiktok: 'TikTok', tiktokv: 'TikTok', tiktokcdn: 'TikTok', 'tikto
   kick: 'Kick', bsky: 'Bluesky', bereal: 'BeReal', '9gag': '9GAG', triller: 'Triller', likee: 'Likee', 'lemon8-app': 'Lemon8' };
 const SHORTS_CSS = 'ytd-reel-shelf-renderer,ytd-rich-shelf-renderer[is-shorts],ytd-rich-section-renderer:has(ytd-rich-shelf-renderer[is-shorts]),ytd-guide-entry-renderer:has(a[title="Shorts"]),ytd-mini-guide-entry-renderer[aria-label="Shorts"],yt-tab-shape[tab-title="Shorts"],ytd-video-renderer:has(a[href^="/shorts/"]),ytd-grid-video-renderer:has(a[href^="/shorts/"]),ytd-rich-item-renderer:has(a[href^="/shorts/"]),ytm-shorts-lockup-view-model,ytm-shorts-lockup-view-model-v2,grid-shelf-view-model:has(ytm-shorts-lockup-view-model),ytm-reel-shelf-renderer,ytm-pivot-bar-item-renderer:has(.pivot-shorts){display:none!important}';
 
-let win = null, tray = null, quitting = false, hiddenSince = 0, skipStart = 0, updateReady = null;
+let win = null, tray = null, quitting = false, hiddenSince = 0, skipStart = 0, updateReady = null, lastRefresh = 0;
 const DEF_SETTINGS = { strict: 'firm', screen: null, autostart: !BACKUP, extra: [], claudeAtPlan: true };
 let state = { status: null, skip: null, lastShow: null, blocks: null, trayHinted: false, settings: Object.assign({}, DEF_SETTINGS) };
 
@@ -57,7 +57,7 @@ function windowInfo() {
   const due = s ? (s.due || null) : (school ? at(17, 30) : null);
   const end = s && s.end ? s.end : at(21, 30);
   const skipped = state.skip === ymd(), now = Date.now(), done = isDone();
-  return { due, end, done, skipped, known: !!s, left: s ? s.left : null, mins: s ? s.mins : null, lessons: s ? s.lessons || 0 : 0,
+  return { due, end, done, skipped, known: !!s, left: s ? s.left : null, mins: s ? s.mins : null, lessons: s ? s.lessons || 0 : 0, critSync: s ? s.sync : null, critLocked: s ? !!s.locked : false, checkedAt: s ? s.at : null,
     inWindow: !!due && !done && !skipped && now >= due && now < end };
 }
 function blocksToday() { return state.blocks && state.blocks.d === ymd() ? state.blocks.n : 0; }
@@ -71,7 +71,7 @@ function setStatus(s) {
   if (!s || typeof s !== 'object') return;
   const n = (v) => (typeof v === 'number' && isFinite(v) ? v : null);
   const was = isDone();
-  state.status = { d: ymd(), at: Date.now(), due: n(s.due), end: n(s.end), done: !!s.done, early: !!s.early, lessons: n(s.lessons) || 0, left: n(s.left), mins: n(s.mins), hw: !!s.hw };
+  state.status = { d: ymd(), at: Date.now(), due: n(s.due), end: n(s.end), done: !!s.done, early: !!s.early, lessons: n(s.lessons) || 0, left: n(s.left), mins: n(s.mins), hw: !!s.hw, sync: typeof s.sync === 'boolean' ? s.sync : null, locked: !!s.locked };
   persist();
   if (!was && isDone()) {
     notify('Plan done ✓', 'TikTok, Shorts and social are unlocked for today. Nice work.');
@@ -95,7 +95,17 @@ function blockedReason(url) {
   return null;
 }
 function blockedURL(url, why) { return 'critical://app/blocked.html?u=' + encodeURIComponent(url) + '&s=' + encodeURIComponent(why || blockedReason(url) || 'This site'); }
-function countBlock() { const d = ymd(); state.blocks = { d, n: blocksToday() + 1 }; persist(); }
+function countBlock() { const d = ymd(); state.blocks = { d, n: blocksToday() + 1 }; persist(); refreshCritical(false); }
+// Ask Critical (in the first tab) to pull synced progress again, e.g. after you finished the plan in Chrome.
+function refreshCritical(manual) {
+  if (isDone()) return false;
+  if (!manual && Date.now() - lastRefresh < 20000) return false;
+  lastRefresh = Date.now(); let sent = false;
+  for (const wc of webContents.getAllWebContents()) {
+    try { const u = new URL(wc.getURL()); if (u.origin === CRIT_ORIGIN && u.pathname.startsWith(CRIT_PATH)) { wc.send('critical-refresh'); sent = true; } } catch (e) {}
+  }
+  return sent;
+}
 function cleanExtra(list) {
   return (Array.isArray(list) ? list : String(list || '').split(/[\s,]+/)).map(x => String(x).trim().toLowerCase().replace(/^https?:\/\//, '').replace(/^www\./, '').replace(/\/.*$/, ''))
     .filter(x => /^[a-z0-9-]+(\.[a-z0-9-]+)+$/.test(x)).filter((x, i, a) => a.indexOf(x) === i).slice(0, 60);
@@ -153,6 +163,7 @@ function createWindow(show) {
     win.hide();
     if (!state.trayHinted) { state.trayHinted = true; persist(); notify(APP_NAME + ' is still running', 'It opens itself at plan time. To quit, right-click its icon by the clock.'); }
   });
+  win.on('focus', () => refreshCritical(false));   // coming back from Chrome? check whether the plan got finished there
   win.on('minimize', () => { hiddenSince = Date.now(); });
   win.on('restore', () => { hiddenSince = 0; });
   win.on('show', () => { hiddenSince = 0; });
@@ -279,6 +290,7 @@ function applyAutostart() { if (!app.isPackaged) return; try { app.setLoginItemS
 /* ---------- the clock: opens at plan time and keeps it open ---------- */
 function tick() {
   const w = windowInfo(), strict = state.settings.strict;
+  if (!w.done && Date.now() - lastRefresh > 180000) refreshCritical(false);
   if (w.inWindow) {
     const key = ymd() + ':' + w.due;
     if (state.lastShow !== key) { state.lastShow = key; persist(); showForPlan(true); }
@@ -323,6 +335,7 @@ ipcMain.handle('cb-settings', (e, p) => {
   if (p.extra !== undefined) { const next = cleanExtra(p.extra); S.extra = isDone() ? next : Array.from(new Set(S.extra.concat(next))); }
   persist(); broadcast(); return publicState();
 });
+ipcMain.handle('cb-refresh', e => { if (!(fromUI(e) || fromPage(e))) return false; return refreshCritical(true); });
 ipcMain.handle('cb-skip-begin', e => { if (fromUI(e)) skipStart = Date.now(); return true; });
 ipcMain.handle('cb-skip-today', e => {
   if (!fromUI(e) || !skipStart || Date.now() - skipStart < 55000) return false;

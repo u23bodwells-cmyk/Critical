@@ -158,12 +158,24 @@
       lines.push('<p>Blocked until then:</p><div class="chips">' + ['TikTok', 'YouTube Shorts', 'Instagram', 'Snapchat', 'X', 'Reddit', 'Facebook', 'Discord', 'Twitch', 'Pinterest', 'Threads', 'and more'].map((n) => '<span class="chip">' + n + '</span>').join('') + '</div>');
       if (S.blocksToday) lines.push('<p>You\'ve hit the block <b>' + S.blocksToday + '</b> time' + (S.blocksToday === 1 ? '' : 's') + ' today.</p>');
     }
-    lines.push('<div class="row"><button class="btn pri" id="spCrit">Go to Critical</button><button class="btn" id="spClaude">Claude mode</button></div>');
+    if (!S.done && S.critLocked) lines.push('<p class="warnp">Critical is still locked in this browser, so it can\'t see progress you made in Chrome. Open the Critical tab and paste your sync link.</p>');
+    else if (!S.done && S.critSync === false) lines.push('<p class="warnp">Sync isn\'t on for Critical in this browser, so it can\'t see progress you made in Chrome. Turn sync on in the Critical tab (cloud button).</p>');
+    lines.push('<div class="row">' + (S.done ? '' : '<button class="btn pri" id="spCheck">I\'ve finished: check again</button>') + '<button class="btn' + (S.done ? ' pri' : '') + '" id="spCrit">Go to Critical</button><button class="btn" id="spClaude">Claude mode</button></div>');
     pop.innerHTML = lines.join(''); place(pop, $('pill')); pop.hidden = false;
     $('spCrit').onclick = () => { pop.hidden = true; goHome(); };
+    const ck = $('spCheck'); if (ck) ck.onclick = () => { pop.hidden = true; checkAgain(); };
     $('spClaude').onclick = () => { pop.hidden = true; claudeMode(); };
   }
   $('pill').onclick = openStatus;
+  // ask Critical to pull synced progress right now (for when you finished the plan in Chrome)
+  async function checkAgain() {
+    if (S.done) return; const sent = await H.refresh();
+    if (!sent) { toast('Open the Critical tab first, so it can check today\'s plan.'); goHome(); return; }
+    toast('Checking your plan…');
+    for (let i = 0; i < 16 && !S.done; i++) await sleep(500);
+    if (S.done) return;
+    toast(S.critLocked ? 'Critical is locked in this browser. Paste your sync link in the Critical tab so it can see your progress.' : S.critSync === false ? 'Sync is off for Critical in this browser, so it can\'t see progress from Chrome. Turn it on with the cloud button.' : 'Critical still shows ' + (S.left != null ? S.left + ' part' + (S.left === 1 ? '' : 's') : 'some of the plan') + ' left. Open the Critical tab to see what\'s left.', { label: 'Open Critical', fn: goHome });
+  }
   function place(pop, anchor) { const r = anchor.getBoundingClientRect(); pop.style.top = (r.bottom + 6) + 'px'; pop.style.right = Math.max(8, innerWidth - r.right) + 'px'; pop.style.left = 'auto'; }
   function closePops() { $('menu').hidden = true; $('statusPop').hidden = true; }
   document.addEventListener('mousedown', (e) => { if (!e.target.closest('.pop') && !e.target.closest('#menuBtn') && !e.target.closest('#pill')) closePops(); });
@@ -314,6 +326,7 @@
     else if (what === 'claude') claudeMode();
     else if (what === 'back' && from) { try { if (from.wv.canGoBack()) from.wv.goBack(); else closeTab(from); } catch (e) {} }
     else if (what === 'settings') openSettings();
+    else if (what === 'check') checkAgain();
     else if (/^https?:\/\//.test(what)) { if (from && !from.pinned) from.wv.loadURL(what); else newTab(what); }
   }
 

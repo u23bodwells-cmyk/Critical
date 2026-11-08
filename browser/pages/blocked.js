@@ -16,6 +16,11 @@
   document.title = site + ' is blocked';
   $('h').textContent = site + ' is blocked until today\'s plan is done';
   $('goCrit').onclick = () => { if (window.cb) cb.go('critical'); };
+  $('check').onclick = () => {
+    if (!window.cb) return; const b = $('check'); b.disabled = true; b.textContent = 'Checking…';
+    cb.refresh().then((sent) => { if (!sent) { b.disabled = false; b.textContent = 'I\'ve finished: check again'; cb.go('critical'); return; }
+      setTimeout(() => { if (unlocked) return; b.disabled = false; b.textContent = 'Check again'; cb.state().then((s) => { if (s && !s.done) { const w = $('warn'); w.hidden = false; w.textContent = s.critLocked ? 'Critical is locked in this browser, so it can\'t see what you did in Chrome. Go to Critical and paste your sync link.' : s.critSync === false ? 'Sync is off for Critical in this browser, so it can\'t see what you did in Chrome. Turn it on with the cloud button in Critical.' : 'Critical still shows ' + (s.left != null ? s.left + ' part' + (s.left === 1 ? '' : 's') : 'some of the plan') + ' left today.'; } }); }, 8000); });
+  };
   $('goClaude').onclick = () => { if (window.cb) cb.go('claude'); };
   $('goBack').onclick = () => { if (window.cb) cb.go('back'); else history.back(); };
   function hm(m) { return m == null ? '' : m >= 60 ? Math.floor(m / 60) + ' h ' + (m % 60) + ' min' : m + ' min'; }
@@ -27,7 +32,7 @@
       $('badge').classList.add('ok'); $('badge').innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>';
       $('h').textContent = 'Plan done: ' + site + ' is unlocked';
       $('lead').textContent = 'Nice work. Everything\'s unlocked until tomorrow.';
-      $('prog').hidden = true;
+      $('prog').hidden = true; $('check').hidden = true; $('warn').hidden = true;
       const b = $('goCrit'); b.textContent = 'Open ' + site; b.onclick = () => { if (/^https?:\/\//.test(url)) location.href = url; };
       return;
     }

@@ -60,6 +60,7 @@ module.exports = async function run(ctx) {
 
   // 7. does Critical report today's plan? (needs the latest Critical on GitHub Pages)
   const known = await until(() => publicState().known, 15000);
+  { const ps = publicState(); log.push('::notice title=' + V + 'Critical sync flags::locked=' + ps.critLocked + ' sync=' + ps.critSync); }
   log.push('::notice title=' + V + 'Critical status::' + (known ? 'Critical reported today\'s plan to the browser' : 'Critical has not reported a plan status yet (GitHub Pages may still be deploying)'));
 
   // 8. lock screen renders

@@ -11,6 +11,7 @@ contextBridge.exposeInMainWorld('cbHost', {
   skipBegin: () => ipcRenderer.invoke('cb-skip-begin'),
   skipToday: () => ipcRenderer.invoke('cb-skip-today'),
   quit: () => ipcRenderer.invoke('cb-quit'),
+  refresh: () => ipcRenderer.invoke('cb-refresh'),
   checkUpdates: () => ipcRenderer.invoke('cb-check-updates'),
   installUpdate: () => ipcRenderer.invoke('cb-install-update'),
   openExternal: (u) => ipcRenderer.invoke('cb-open-external', u),
