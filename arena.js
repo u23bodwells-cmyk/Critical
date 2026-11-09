@@ -227,7 +227,7 @@ function store() {
   if (!c.bots || !c.bots.length) c.bots = ['auto', 'auto', 'auto', 'auto'];
   if (!c.v3d) { c.v3d = 1; c.bots = c.bots.map(function () { return 'auto'; }); } /* first run of the 3D version: bots match your skill */
   if (!LADDERS[c.ladder] && c.ladder !== 'mine') c.ladder = 'full'; if (!c.sens) c.sens = 5; if (c.onlyDone == null) c.onlyDone = true;
-  if (!c.mode) c.mode = 'gun'; if (!c.dmKills) c.dmKills = 15; if (!c.gfx) c.gfx = 'medium'; if (!c.fov) c.fov = 80;
+  c.mode = 'dm'; if (!c.dmKills) c.dmKills = 10; if (!c.gfx) c.gfx = 'medium'; if (!c.fov) c.fov = 80;
   if (c.coins == null) c.coins = 0; if (c.cxp == null) c.cxp = 0; if (!c.owned) c.owned = ['pistol']; if (c.owned.indexOf('pistol') < 0) c.owned.unshift('pistol');
   c.owned = SHOP.filter(function (k) { return c.owned.indexOf(k) >= 0; });
   if (!c.primary || c.owned.indexOf(c.primary) < 0) c.primary = c.owned[c.owned.length - 1]; if (c.skill == null) c.skill = 0.35; if (!c.rec) c.rec = {};
@@ -254,7 +254,7 @@ function setup() {
   stopGame(); stopPreview(); var c = store(), tracks = API.tracks();
   root.innerHTML = ''; var S = el('div', 'arsetup'); root.appendChild(S); var W = el('div', 'arwrap'); S.appendChild(W);
   var L = lvlInfo(c.cxp);
-  W.appendChild(el('div', 'arhd', '<div><h1>CRITICAL CLASH 3D</h1><p>Blocky arena shooter against AI bots. Every kill asks a question with a 30-second timer. Answer right to level up your weapon, earn coins and unlock better guns.</p></div><button type="button" class="arx" data-a="x">✕ Exit</button>'));
+  W.appendChild(el('div', 'arhd', '<div><h1>CRITICAL CLASH 3D</h1><p>Blocky arena shooter against AI bots. Pick one gun you own and keep it all match. Every kill asks a question with a 30-second timer: answer right for coins, health and a damage boost, then buy better guns in the shop.</p></div><button type="button" class="arx" data-a="x">✕ Exit</button>'));
   W.appendChild(el('div', 'arwallet', '<div><span>Coins</span><b>🪙 ' + fmt(c.coins) + '</b></div><div><span>Clash level</span><b>' + L.lv + '</b><i><em style="width:' + Math.round(L.into / L.need * 100) + '%"></em></i></div><div><span>Guns owned</span><b>' + c.owned.length + ' / ' + SHOP.length + '</b></div><div><span>Match me skill</span><b>' + Math.round(c.skill * 100) + '%</b></div><div><span>Wins</span><b>' + (c.rec.wins || 0) + '</b></div>'));
   var tabs = el('div', 'artabs', '<button type="button" class="artab" data-tab="play" aria-selected="' + (setupTab === 'play') + '">▶ Play</button><button type="button" class="artab" data-tab="shop" aria-selected="' + (setupTab === 'shop') + '">🛒 Gun shop</button>'); W.appendChild(tabs);
   var body = el('div'); W.appendChild(body);
@@ -263,18 +263,16 @@ function setup() {
   if (setupTab === 'shop') { shopUI(body, c); return; }
   var G2 = el('div', 'argrid'); body.appendChild(G2);
   var Lf = el('div'), Rt = el('div'); Lf.style.cssText = Rt.style.cssText = 'display:flex;flex-direction:column;gap:14px;min-width:0'; G2.appendChild(Lf); G2.appendChild(Rt);
-  var md = el('section', 'arcard'); md.innerHTML = '<h2>Mode</h2><div class="archips" data-k="mode"><button type="button" class="archip" data-md="gun">🔫 Gun game <small>answer to upgrade</small></button><button type="button" class="archip" data-md="dm">💥 Deathmatch <small>your guns</small></button></div><div data-k="modeopt" style="margin-top:10px"></div>'; Lf.appendChild(md);
+  var md = el('section', 'arcard'); md.innerHTML = '<h2>Your gun</h2><div class="archips" data-k="guns"></div><div class="arrow" style="margin-top:10px"><button type="button" class="arbtn" data-a="toshop">🛒 Get more guns</button><span class="arsmall">You keep this one gun for the whole match.</span></div><h2 style="margin-top:16px">Win by</h2><div class="archips" data-k="dmk"></div><p class="arsmall" style="margin:8px 0 0">First to the kill target wins (or most kills after 6 minutes). Every kill asks a question: answer right for 15 coins, full health and ammo, and +30% damage for 15 seconds.</p>'; Lf.appendChild(md);
   var cs = el('section', 'arcard'); cs.innerHTML = '<h2>Questions from</h2><div class="archips" data-k="track"></div><div style="height:10px"></div><div class="archips" data-k="lv"></div><p class="arsmall" data-k="qinfo" style="margin:10px 0 0"></p><label class="arsmall" style="display:flex;gap:8px;align-items:center;margin-top:6px"><input type="checkbox" data-k="only"> Only lessons I\'ve done</label>'; Lf.appendChild(cs);
   var ms = el('section', 'arcard'); ms.innerHTML = '<h2>Map</h2><div class="armaps"></div>'; Lf.appendChild(ms);
   var bs = el('section', 'arcard'); bs.innerHTML = '<h2>Bots</h2><div class="arbots"></div><div class="arrow" style="margin-top:8px"><button type="button" class="arbtn" data-a="add">+ Add bot</button><span class="arsmall">Set all:</span><button type="button" class="archip" data-all="auto" style="padding:6px 10px;font-size:13px;border-color:#22d3ee55">Match me</button>' + Object.keys(DIFF).map(function (k) { return '<button type="button" class="archip" data-all="' + k + '" style="padding:6px 10px;font-size:13px;border-color:' + DIFF[k].col + '55">' + DIFF[k].n + '</button>'; }).join('') + '</div><p class="arsmall" style="margin:8px 0 0"><b style="color:#22d3ee">Match me</b> bots get better as you get kills and easier when they keep beating you. They remember your level between matches.</p>'; Rt.appendChild(bs);
-  var gs = el('section', 'arcard'); gs.innerHTML = '<h2>Settings</h2><div class="archips" data-k="gfx"><button type="button" class="archip" data-gfx="high">High graphics</button><button type="button" class="archip" data-gfx="medium">Medium</button><button type="button" class="archip" data-gfx="low">Low (faster)</button></div><div class="arsl"><span class="arsmall">Mouse speed</span><input type="range" min="1" max="10" step="1" data-k="sens" aria-label="Mouse speed"><b data-k="sensv"></b></div><div class="arsl"><span class="arsmall">Field of view</span><input type="range" min="65" max="100" step="1" data-k="fov" aria-label="Field of view"><b data-k="fovv"></b></div><div class="arkeys" style="margin-top:12px"><kbd>WASD</kbd><span>Move</span><kbd>Space</kbd><span>Jump (you can jump onto crates and barriers)</span><kbd>Mouse</kbd><span>Look. Left-click shoots, right-click aims</span><kbd>R</kbd><span>Reload</span><kbd>Q / scroll</kbd><span>Swap gun (deathmatch)</span><kbd>1–4</kbd><span>Answer questions</span><kbd>Tab</kbd><span>Scoreboard</span><kbd>Esc</kbd><span>Pause</span></div>'; Rt.appendChild(gs);
+  var gs = el('section', 'arcard'); gs.innerHTML = '<h2>Settings</h2><div class="archips" data-k="gfx"><button type="button" class="archip" data-gfx="high">High graphics</button><button type="button" class="archip" data-gfx="medium">Medium</button><button type="button" class="archip" data-gfx="low">Low (faster)</button></div><div class="arsl"><span class="arsmall">Mouse speed</span><input type="range" min="1" max="10" step="1" data-k="sens" aria-label="Mouse speed"><b data-k="sensv"></b></div><div class="arsl"><span class="arsmall">Field of view</span><input type="range" min="65" max="100" step="1" data-k="fov" aria-label="Field of view"><b data-k="fovv"></b></div><div class="arkeys" style="margin-top:12px"><kbd>WASD</kbd><span>Move</span><kbd>Space</kbd><span>Jump (you can jump onto crates and barriers)</span><kbd>Mouse</kbd><span>Look. Left-click shoots, right-click aims</span><kbd>R</kbd><span>Reload</span><kbd>1–4</kbd><span>Answer questions</span><kbd>Tab</kbd><span>Scoreboard</span><kbd>Esc</kbd><span>Pause</span></div>'; Rt.appendChild(gs);
   var go = el('div', 'arrow'); go.innerHTML = '<button type="button" class="arbtn go" data-a="go">▶ Start match</button><span class="arsmall" data-k="tip"></span>'; body.appendChild(go);
   function q(s) { return S.querySelector(s); }
   function paint() {
-    [].forEach.call(q('[data-k=mode]').querySelectorAll('[data-md]'), function (b) { b.setAttribute('aria-pressed', String(b.dataset.md === c.mode)); });
-    if (c.mode === 'gun') q('[data-k=modeopt]').innerHTML = '<div class="archips" data-k="ladder"><button type="button" class="archip" data-ld="full">Full ladder <small>10 weapons</small></button><button type="button" class="archip" data-ld="quick">Quick <small>5</small></button><button type="button" class="archip" data-ld="mega">Mega <small>13, every gun</small></button><button type="button" class="archip" data-ld="mine"' + (c.owned.length < 3 ? ' disabled title="Buy at least 3 guns first"' : '') + '>My guns <small>' + (c.owned.length < 3 ? 'buy 3 to unlock' : (c.owned.length + 1) + ' weapons') + '</small></button></div><p class="arsmall" style="margin:8px 0 0">Kill, answer right, get the next gun. First kill with the golden control rod wins.</p>';
-    else q('[data-k=modeopt]').innerHTML = '<div class="arrow"><span class="arsmall">Your gun</span><select data-k="primary" aria-label="Your gun">' + c.owned.slice().reverse().map(function (k) { return '<option value="' + k + '"' + (k === c.primary ? ' selected' : '') + '>' + G[k].n + '</option>'; }).join('') + '</select>' + (c.primary !== 'pistol' ? '<span class="arsmall">+ Geiger pistol</span>' : '') + '</div><div class="archips" style="margin-top:8px" data-k="dmk">' + [10, 15, 25].map(function (n) { return '<button type="button" class="archip" data-dmk="' + n + '" aria-pressed="' + (n === c.dmKills) + '">First to ' + n + '</button>'; }).join('') + '</div><p class="arsmall" style="margin:8px 0 0">Answer right after a kill for bonus coins, full health and ammo. Buy better guns in the shop.</p>';
-    var ld = q('[data-k=ladder]'); if (ld) [].forEach.call(ld.querySelectorAll('[data-ld]'), function (b) { b.setAttribute('aria-pressed', String(b.dataset.ld === c.ladder)); });
+    q('[data-k=guns]').innerHTML = c.owned.slice().reverse().map(function (k) { var g = G[k]; return '<button type="button" class="archip arlv" data-pg="' + k + '" aria-pressed="' + (k === c.primary) + '" style="border-left:4px solid ' + g.col + '">' + g.n + '<small>' + (g.pel ? g.pel + '×' + g.dmg : g.dmg) + ' dmg · ' + g.mag + ' mag · ' + g.rel.toFixed(1) + ' s reload</small></button>'; }).join('');
+    q('[data-k=dmk]').innerHTML = [10, 15, 25].map(function (n) { return '<button type="button" class="archip" data-dmk="' + n + '" aria-pressed="' + (n === c.dmKills) + '">First to ' + n + ' kills</button>'; }).join('');
     var tr = tracks.filter(function (t) { return t.id === c.track; })[0] || tracks[0];
     q('[data-k=track]').innerHTML = tracks.map(function (t) { return '<button type="button" class="archip" data-tr="' + t.id + '" aria-pressed="' + (t.id === c.track) + '">' + t.ic + ' ' + esc(t.name) + '</button>'; }).join('');
     if (tr) {
@@ -297,6 +295,8 @@ function setup() {
   S.addEventListener('click', function (e) {
     var b = e.target.closest('button'); if (!b || b.dataset.tab || b.dataset.a === 'x') return;
     if (b.dataset.a === 'go') { start(c); return; }
+    if (b.dataset.a === 'toshop') { wr(c); setupTab = 'shop'; shopSel = null; setup(); return; }
+    if (b.dataset.pg) c.primary = b.dataset.pg;
     if (b.dataset.a === 'add') { if (c.bots.length < 7) c.bots.push(c.bots[c.bots.length - 1] || 'auto'); }
     if (b.dataset.md) c.mode = b.dataset.md; if (b.dataset.tr) c.track = b.dataset.tr; if (b.dataset.lv) c.lv = +b.dataset.lv; if (b.dataset.map) c.map = b.dataset.map;
     if (b.dataset.rm != null && c.bots.length > 1) c.bots.splice(+b.dataset.rm, 1); if (b.dataset.all) c.bots = c.bots.map(function () { return b.dataset.all; });
@@ -314,11 +314,11 @@ function shopUI(body, c) {
   if (!shopSel || !G[shopSel]) shopSel = c.primary || 'pistol';
   var L = lvlInfo(c.cxp), box = el('div', 'arshop'); body.appendChild(box);
   var left = el('div', 'arprev', '<canvas aria-label="3D preview of the gun"></canvas><div class="arpi"></div>'), right = el('div', 'arcard'); box.appendChild(left); box.appendChild(right);
-  right.innerHTML = '<h2>Guns</h2><div class="argunlist"></div><p class="arsmall" style="margin:10px 0 0">Better guns unlock as your Clash level goes up (you\'re level ' + L.lv + '). Earn Clash XP and coins in every match: kills, right answers and wins. Your gun is used in deathmatch and in the "My guns" gun-game ladder.</p>';
+  right.innerHTML = '<h2>Guns</h2><div class="argunlist"></div><p class="arsmall" style="margin:10px 0 0">Better guns unlock as your Clash level goes up (you\'re level ' + L.lv + '). Earn Clash XP and coins in every match: kills, right answers and wins. You take one gun into each match, so the better your gun, the better your chances.</p>';
   previewInit(left.querySelector('canvas'));
   function paint() {
     var w = G[shopSel], own = c.owned.indexOf(shopSel) >= 0, locked = L.lv < w.lvl, afford = c.coins >= w.price;
-    left.querySelector('.arpi').innerHTML = '<h3 style="color:' + w.col + '">' + w.n + '</h3><p>' + w.d + '</p>' + statRows(w) + '<div class="arrow" style="margin-top:12px">' + (own ? (c.primary === shopSel ? '<span class="archip" style="border-color:#22c55e">✓ Your deathmatch gun</span>' : '<button type="button" class="arbtn go" data-buy="eq">Use this gun</button>') : locked ? '<span class="archip" style="border-color:#ef4444">🔒 Unlocks at Clash level ' + w.lvl + '</span>' + (afford ? '' : '<span class="arsmall">and costs 🪙 ' + fmt(w.price) + '</span>') : '<button type="button" class="arbtn go" data-buy="buy"' + (afford ? '' : ' disabled') + '>Buy for 🪙 ' + fmt(w.price) + '</button>' + (afford ? '' : '<span class="arsmall">You need ' + fmt(w.price - c.coins) + ' more coins.</span>')) + '</div>';
+    left.querySelector('.arpi').innerHTML = '<h3 style="color:' + w.col + '">' + w.n + '</h3><p>' + w.d + '</p>' + statRows(w) + '<div class="arrow" style="margin-top:12px">' + (own ? (c.primary === shopSel ? '<span class="archip" style="border-color:#22c55e">✓ Your match gun</span>' : '<button type="button" class="arbtn go" data-buy="eq">Use this gun</button>') : locked ? '<span class="archip" style="border-color:#ef4444">🔒 Unlocks at Clash level ' + w.lvl + '</span>' + (afford ? '' : '<span class="arsmall">and costs 🪙 ' + fmt(w.price) + '</span>') : '<button type="button" class="arbtn go" data-buy="buy"' + (afford ? '' : ' disabled') + '>Buy for 🪙 ' + fmt(w.price) + '</button>' + (afford ? '' : '<span class="arsmall">You need ' + fmt(w.price - c.coins) + ' more coins.</span>')) + '</div>';
     right.querySelector('.argunlist').innerHTML = SHOP.map(function (k) { var g = G[k], o = c.owned.indexOf(k) >= 0, lk = L.lv < g.lvl; return '<button type="button" class="argun" data-g="' + k + '" aria-pressed="' + (k === shopSel) + '" style="--gc:' + g.col + '">' + (c.primary === k ? '<span class="eq">IN USE</span>' : '') + '<b>' + g.n + '</b><small class="' + (o ? 'own' : lk ? 'lock' : '') + '">' + (o ? '✓ Owned' : lk ? '🔒 Level ' + g.lvl + ' · 🪙 ' + fmt(g.price) : '🪙 ' + fmt(g.price)) + '</small><small>' + (g.pel ? g.pel + '×' + g.dmg : g.dmg) + ' dmg · ' + g.mag + ' mag · ' + g.rel.toFixed(1) + ' s reload</small></button>'; }).join('');
     previewGun(shopSel);
   }
@@ -519,7 +519,7 @@ function start(c) {
   MC = {}; st.env = makeEnv(R3);
   buildWorld(); buildFX(); buildVM();
   var me = mkEnt('You', '#fde047', null); me.me = true; st.me = me; st.ents.push(me);
-  if (c.mode === 'dm') { me.slots = c.primary && c.primary !== 'pistol' && c.owned.indexOf(c.primary) >= 0 ? [c.primary, 'pistol'] : ['pistol']; me.slot = 0; }
+  me.slots = [c.owned.indexOf(c.primary) >= 0 ? c.primary : 'pistol']; me.slot = 0;
   c.bots.forEach(function (d, i) { var b = mkEnt(BOTNAMES[i], BOTCOL[i % BOTCOL.length], d); if (c.mode === 'dm') b.slots = [botGun(b)]; st.ents.push(b); });
   st.ents.forEach(function (e) { if (!e.me) { e.char = makeChar({ shirt: e.col, pants: pick(PANTS), skin: pick(SKINS), face: Math.floor(Math.random() * 6), hat: pick(HATS) }); st.scene.add(e.char.root); setCharGun(e); } spawn(e); });
   setVMGun(true);
@@ -528,7 +528,7 @@ function start(c) {
   canvas.addEventListener('mousedown', function (e) { if (!st || st.paused || st.q || st.result) return; if (document.pointerLockElement !== canvas && !st.touch) { lock(); return; } if (e.button === 0) { mouseDown = true; tryFire(); } if (e.button === 2) rmb = true; });
   canvas.addEventListener('contextmenu', function (e) { e.preventDefault(); });
   if ('ontouchstart' in window && navigator.maxTouchPoints > 0) touchUI();
-  lock(); feed(c.mode === 'dm' ? 'Deathmatch: first to ' + c.dmKills + ' kills!' : 'Gun game: first kill with the golden control rod wins!', '#fde047');
+  lock(); feed('First to ' + c.dmKills + ' kills wins! Every kill is a question.', '#fde047');
   var last = performance.now();
   function loop(now) {
     if (!st || st.over) return; var rdt = clamp((now - last) / 1000, 0, 0.05); last = now; adapt(rdt);
@@ -543,7 +543,7 @@ function start(c) {
 }
 function adapt(dt) { st.fps.push(dt); if (st.fps.length < 120) return; var a = st.fps.reduce(function (x, y) { return x + y; }, 0) / st.fps.length; st.fps = []; var pr = R3.getPixelRatio(); if (a > 0.036 && pr > 0.6) { R3.setPixelRatio(Math.max(0.6, pr - 0.15)); resize(); } }
 function mkEnt(name, col, diff) { return { name: name, col: col, diffKey: diff, D: diff ? diffFor(diff, st.skill) : null, x: 0, z: 0, y: 0, vy: 0, a: 0, pitch: 0, hp: 100, tier: 0, kills: 0, deaths: 0, alive: true, spawned: false, respawn: 0, cd: 0, lastHurt: -9, inv: 0, path: [], tgt: null, seenT: 0, strafe: 1, strafeT: 0, stuckT: 0, moving: false, ph: 0, shootAnim: 0, hurtAnim: 0, burstLeft: 0, burstT: 0, lastAtk: null, ammo: {}, reloadT: 0, autoRel: 0, slots: null, slot: 0, onGround: true }; }
-function botGun(b) { var t = b.D.auto ? st.skill : clamp((b.D.acc - 0.16) / 0.44, 0, 1), pool = SHOP.slice(1, 2 + Math.round(t * 9)); return pick(pool); }
+function botGun(b) { var t = b.D.auto ? st.skill : clamp((b.D.acc - 0.16) / 0.44, 0, 1), mine = Math.max(0, SHOP.indexOf(st.me.slots[0])), i = clamp(mine + Math.round((t - 0.35) * 4) + Math.floor(Math.random() * 3) - 1, 0, SHOP.length - 1); return SHOP[i]; }
 function wkey(e) { if (st.mode === 'dm') return e.slots[e.slot] || 'pistol'; return st.lad[Math.min(e.tier, st.lad.length - 1)]; }
 function W_(e) { return G[wkey(e)]; }
 function isFinal(e) { return st.mode === 'gun' && e.tier === st.lad.length - 1; }
@@ -781,7 +781,7 @@ function update(dt, rdt) {
   st.t += dt; var me = st.me;
   if (st.dmEnd) { st.dmEnd -= dt; if (st.dmEnd <= 0) { var lead = st.ents.slice().sort(function (a, b) { return b.kills - a.kills; })[0]; finish(lead, true); return; } }
   st.ents.forEach(function (e) {
-    if (e.inv > 0) e.inv -= dt; e.cd -= dt; e.shootAnim = Math.max(0, e.shootAnim - dt); e.hurtAnim = Math.max(0, e.hurtAnim - dt);
+    if (e.inv > 0) e.inv -= dt; if (e.boostT > 0) e.boostT -= dt; e.cd -= dt; e.shootAnim = Math.max(0, e.shootAnim - dt); e.hurtAnim = Math.max(0, e.hurtAnim - dt);
     if (e.alive && st.t - e.lastHurt > 4 && e.hp < 100) e.hp = Math.min(100, e.hp + 20 * dt);
     if (e.reloadT > 0) { e.reloadT -= dt; if (e.reloadT <= 0) { e.ammo[wkey(e)] = W_(e).mag; if (e.me) snd('reloaded', 0.7); } }
     if (!e.alive) { e.respawn -= dt; if (e.respawn <= 0) { spawn(e); if (e.me) { st.vm.key = null; setVMGun(true); } } }
@@ -852,7 +852,7 @@ function fireShot(me, w) {
     var hits = rc.intersectObjects(targets, false), end = null, hitBots = {};
     for (var h = 0; h < hits.length; h++) {
       var H = hits[h], bot = null; st.ents.forEach(function (o) { if (o.char && (o.char.hit[0] === H.object || o.char.hit[1] === H.object)) bot = o; });
-      if (bot) { if (hitBots[bot.name]) continue; hitBots[bot.name] = 1; var head = H.object.userData.part === 'head', fall = w.pel ? clamp(1.25 - H.distance / w.rng, 0.25, 1) : 1, dmg = w.dmg * fall * (head ? w.head : 1); hitAny = true; if (head) headAny = true; sparks(H.point, 6, head ? '#fde047' : '#fca5a5', 3); st.dnums.push({ p: H.point.clone(), v: Math.round(dmg), t: st.t, head: head }); damage(bot, dmg, me, head); end = H.point; if (!w.pierce) break; }
+      if (bot) { if (hitBots[bot.name]) continue; hitBots[bot.name] = 1; var head = H.object.userData.part === 'head', fall = w.pel ? clamp(1.25 - H.distance / w.rng, 0.25, 1) : 1, dmg = w.dmg * fall * (head ? w.head : 1); hitAny = true; if (head) headAny = true; sparks(H.point, 6, head ? '#fde047' : '#fca5a5', 3); st.dnums.push({ p: H.point.clone(), v: Math.round(dmg * (me.boostT > 0 ? 1.3 : 1)), t: st.t, head: head }); damage(bot, dmg, me, head); end = H.point; if (!w.pierce) break; }
       else { end = H.point; if (H.face) { var n = H.face.normal.clone(); if (!H.object.isInstancedMesh) n.transformDirection(H.object.matrixWorld); decal(H.point, n); sparks(H.point.clone().addScaledVector(n, 0.05), 5, '#ffd27a', 3); } break; }
     }
     if (!end) end = rc.ray.origin.clone().addScaledVector(rc.ray.direction, w.rng);
@@ -928,12 +928,12 @@ function animChar(e, dt) {
 
 /* ---------- damage, kills, skill ---------- */
 function damage(v, amt, by, head) {
-  if (!v.alive || v.inv > 0 || !st || st.result || st.slow > 0) return; v.hp -= amt; v.lastHurt = st.t; v.lastAtk = by; v.hurtAnim = 0.12;
+  if (!v.alive || v.inv > 0 || !st || st.result || st.slow > 0) return; if (by && by.boostT > 0) amt *= 1.3; v.hp -= amt; v.lastHurt = st.t; v.lastAtk = by; v.hurtAnim = 0.12;
   if (v.me) { st.dmgT = 0.45; st.dmgFrom = Math.atan2(-(by.x - v.x), -(by.z - v.z)); st.shake = Math.max(st.shake, 0.25); }
   if (v.hp <= 0) kill(v, by, head);
 }
 function kill(v, by, head) {
-  v.alive = false; v.hp = 0; v.deaths++; v.respawn = 3; v.reloadT = 0; v.burstLeft = 0;
+  v.alive = false; v.hp = 0; v.deaths++; v.respawn = 3; v.reloadT = 0; v.burstLeft = 0; v.boostT = 0;
   if (v.me) { st.deaths++; st.killer = by; snd('death', 0.8); if (by && !by.me) st.skill = clamp(st.skill - 0.022, 0.03, 0.98); mouseDown = false; st.burstLeft = 0; }
   else { breakApart(v, by); snd('death', clamp(1.2 - Math.hypot(v.x - st.me.x, v.z - st.me.z) / 40, 0.1, 0.7)); }
   if (by === v) { feed(v.name + ' blew themselves up', '#9aa6bb'); return; }
@@ -955,7 +955,7 @@ function askQ() {
   mouseDown = false; rmb = false; keys = {}; st.burstLeft = 0; try { if (document.pointerLockElement) document.exitPointerLock(); } catch (e) {}
   var num = q.t === 'N', order = num ? [] : shuffle(q.o.map(function (_, i) { return i; }));
   st.q = { q: q, order: order, t0: performance.now(), done: false, lim: 30000 };
-  var reward = st.mode === 'gun' ? (st.me.tier + 1 < st.lad.length ? 'Right answer = ' + G[st.lad[st.me.tier + 1]].n : '') : 'Right answer = +15 coins and full health';
+  var reward = st.mode === 'gun' ? (st.me.tier + 1 < st.lad.length ? 'Right answer = ' + G[st.lad[st.me.tier + 1]].n : '') : 'Right answer = coins, full health and a damage boost';
   var box2 = el('div', 'arq'); box2.innerHTML = '<div class="arqbox" role="dialog" aria-label="Question"><div class="arqtop"><span>' + esc(reward) + '</span><span data-k="sec">30</span></div><div class="artime"><i data-k="bar"></i></div><div class="arqs">' + esc(q.src) + '</div><div class="arqp">' + q.p + '</div>' + (num ? '<form class="arnum" data-k="nf"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer" placeholder="Type your answer">' + (q.u ? '<span>' + q.u + '</span>' : '') + '<button type="submit" class="arbtn" style="background:#fb923c;color:#111;border:0">Check</button></form>' : '<div class="aropts">' + order.map(function (oi, i) { return '<button type="button" class="aropt" data-i="' + i + '"><kbd>' + (i + 1) + '</kbd><span>' + q.o[oi] + '</span></button>'; }).join('') + '</div>') + '<div data-k="fb"></div></div>';
   root.appendChild(box2); st.q.el = box2;
   if (num) { var nf = box2.querySelector('[data-k=nf]'), inp = nf.querySelector('input'); setTimeout(function () { try { inp.focus(); } catch (e) {} }, 60); nf.addEventListener('submit', function (e) { e.preventDefault(); if (st && st.q && !st.q.done && inp.value.trim()) answer(inp.value); }); }
@@ -975,7 +975,7 @@ function answer(i) {
     st.right++; st.xp += 4; st.coins += 15; st.cxp += 25; API.sfx('right'); snd('coin', 0.7);
     var msg;
     if (st.mode === 'gun') { me.tier = Math.min(st.lad.length - 1, me.tier + 1); me.ammo[wkey(me)] = W_(me).mag; me.reloadT = 0; setVMGun(false); snd('up', 0.8); msg = 'Now on the <b style="display:inline;color:' + W_(me).col + '">' + W_(me).n + '</b> (' + (me.tier + 1) + '/' + st.lad.length + ')' + (isFinal(me) ? '. One kill with it wins the match!' : '') + ' · +15 coins'; st.banner = { t: st.t, s: isFinal(me) ? '🏆 GOLDEN CONTROL ROD: one kill to win!' : 'NEW WEAPON: ' + W_(me).n, c: W_(me).col }; }
-    else { me.hp = 100; fillAmmo(me); msg = '+15 coins, full health and fresh ammo.'; }
+    else { me.hp = 100; fillAmmo(me); me.boostT = 15; msg = '+15 coins, full health, fresh ammo and ⚡ +30% damage for 15 seconds.'; st.banner = { t: st.t, s: '⚡ CRITICAL BOOST: +30% damage', c: '#facc15' }; snd('up', 0.8); }
     fb.innerHTML = '<div class="arfb ok"><b>✓ Correct!</b>' + msg + '</div>';
     setTimeout(function () { if (st && st.q === Q) endQ(); }, 1100);
   } else {
@@ -1067,7 +1067,7 @@ function hud() {
   /* damage numbers */
   st.dnums.forEach(function (n) { var p = project(n.p); if (!p) return; var k = (st.t - n.t) / 0.9; g.globalAlpha = 1 - k; g.font = '900 ' + ((n.head ? 22 : 17) * d) + 'px system-ui,sans-serif'; g.textAlign = 'center'; g.lineWidth = 4 * d; g.strokeStyle = 'rgba(0,0,0,.7)'; g.strokeText(n.v, p.x, p.y - k * 40 * d); g.fillStyle = n.head ? '#fde047' : '#fff'; g.fillText(n.v, p.x, p.y - k * 40 * d); g.globalAlpha = 1; });
   /* crosshair */
-  if (me.alive && !scoped && st.adsT < 0.6) { var sp = (w.melee ? 0 : (w.spr * 260 + 5) * (me.moving ? 1.35 : 1) * (me.onGround ? 1 : 1.5) + st.recoil * 12) * d, ln = 8 * d; g.strokeStyle = '#fff'; g.lineWidth = 2 * d; g.shadowColor = 'rgba(0,0,0,.7)'; g.shadowBlur = 3; if (w.melee) { g.beginPath(); g.arc(cx, cy, 12 * d, 0, 6.3); g.stroke(); } else { g.beginPath(); g.moveTo(cx - sp - ln, cy); g.lineTo(cx - sp, cy); g.moveTo(cx + sp, cy); g.lineTo(cx + sp + ln, cy); g.moveTo(cx, cy - sp - ln); g.lineTo(cx, cy - sp); g.moveTo(cx, cy + sp); g.lineTo(cx, cy + sp + ln); g.stroke(); g.fillStyle = '#fff'; g.fillRect(cx - d, cy - d, 2 * d, 2 * d); } g.shadowBlur = 0; }
+  if (me.alive && !scoped && st.adsT < 0.6) { var sp = (w.melee ? 0 : (w.spr * 260 + 5) * (me.moving ? 1.35 : 1) * (me.onGround ? 1 : 1.5) + st.recoil * 12) * d, ln = 8 * d; g.strokeStyle = me.boostT > 0 ? '#facc15' : '#fff'; g.lineWidth = 2 * d; g.shadowColor = 'rgba(0,0,0,.7)'; g.shadowBlur = 3; if (w.melee) { g.beginPath(); g.arc(cx, cy, 12 * d, 0, 6.3); g.stroke(); } else { g.beginPath(); g.moveTo(cx - sp - ln, cy); g.lineTo(cx - sp, cy); g.moveTo(cx + sp, cy); g.lineTo(cx + sp + ln, cy); g.moveTo(cx, cy - sp - ln); g.lineTo(cx, cy - sp); g.moveTo(cx, cy + sp); g.lineTo(cx, cy + sp + ln); g.stroke(); g.fillStyle = '#fff'; g.fillRect(cx - d, cy - d, 2 * d, 2 * d); } g.shadowBlur = 0; }
   else if (me.alive && st.adsT >= 0.6 && !w.scope) { g.fillStyle = '#ef4444'; g.beginPath(); g.arc(cx, cy, 2.5 * d, 0, 6.3); g.fill(); }
   if (st.hitT > 0) { g.strokeStyle = st.headT > 0 ? '#fde047' : '#fff'; g.lineWidth = 2.5 * d; var hh = 10 * d; g.beginPath(); g.moveTo(cx - hh, cy - hh); g.lineTo(cx - hh / 2, cy - hh / 2); g.moveTo(cx + hh, cy - hh); g.lineTo(cx + hh / 2, cy - hh / 2); g.moveTo(cx - hh, cy + hh); g.lineTo(cx - hh / 2, cy + hh / 2); g.moveTo(cx + hh, cy + hh); g.lineTo(cx + hh / 2, cy + hh / 2); g.stroke(); }
   /* damage direction + low health */
@@ -1076,7 +1076,8 @@ function hud() {
   /* health */
   g.fillStyle = 'rgba(5,8,13,.72)'; rr(g, pad, CH - pad - 62 * d, 240 * d, 62 * d, 14 * d); g.fill();
   g.font = '900 ' + (28 * d) + 'px ui-monospace,monospace'; g.textAlign = 'left'; g.fillStyle = me.hp > 50 ? '#e8edf7' : me.hp > 25 ? '#fde047' : '#f87171'; g.fillText('✚ ' + Math.max(0, Math.ceil(me.hp)), pad + 14 * d, CH - pad - 40 * d);
-  if (me.inv > 0 && me.alive) { g.font = '800 ' + (11 * d) + 'px system-ui,sans-serif'; g.fillStyle = '#7dd3fc'; g.fillText('SPAWN SHIELD', pad + 130 * d, CH - pad - 40 * d); }
+  if (me.boostT > 0 && me.alive) { g.font = '800 ' + (12 * d) + 'px system-ui,sans-serif'; g.fillStyle = '#facc15'; g.fillText('⚡ BOOST ' + Math.ceil(me.boostT) + 's', pad + 122 * d, CH - pad - 40 * d); }
+  else if (me.inv > 0 && me.alive) { g.font = '800 ' + (11 * d) + 'px system-ui,sans-serif'; g.fillStyle = '#7dd3fc'; g.fillText('SPAWN SHIELD', pad + 130 * d, CH - pad - 40 * d); }
   g.fillStyle = '#1f2937'; rr(g, pad + 14 * d, CH - pad - 19 * d, 212 * d, 8 * d, 4 * d); g.fill(); g.fillStyle = me.hp > 50 ? '#22c55e' : me.hp > 25 ? '#eab308' : '#ef4444'; rr(g, pad + 14 * d, CH - pad - 19 * d, Math.max(8 * d, 212 * d * clamp(me.hp / 100, 0, 1)), 8 * d, 4 * d); g.fill();
   /* ammo */
   g.fillStyle = 'rgba(5,8,13,.72)'; rr(g, CW - pad - 250 * d, CH - pad - 62 * d, 250 * d, 62 * d, 14 * d); g.fill(); g.textAlign = 'right';
