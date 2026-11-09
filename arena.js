@@ -23,20 +23,20 @@ var CELL = 3, EYE = 1.62, PR = 0.36, GRAV = 26, JUMPV = 8.6, SPEED = 7.4;
 /* every gun: damage, seconds between shots, magazine, reload seconds, spread (radians), range, aim zoom, move speed, price, Clash level to unlock */
 var G = {
   pistol: { n: 'Geiger pistol', kind: 'pistol', dmg: 26, rate: 0.24, mag: 12, rel: 1.2, spr: 0.012, rng: 70, ads: 0.82, move: 1.06, head: 1.6, price: 0, lvl: 1, col: '#9aa4b2', d: 'Reliable sidearm. Quick to reload.' },
-  smg: { n: 'Neutron SMG', kind: 'smg', dmg: 15, rate: 0.075, mag: 32, rel: 1.6, spr: 0.04, rng: 45, ads: 0.82, move: 1.08, head: 1.5, auto: 1, price: 600, lvl: 1, col: '#5eead4', d: 'Sprays fast up close. Light, so you move quickly.' },
-  shotgun: { n: 'Boron shotgun', kind: 'shotgun', dmg: 12, pel: 8, rate: 0.8, mag: 6, rel: 2.4, spr: 0.1, rng: 24, ads: 0.85, move: 1.0, head: 1.3, price: 900, lvl: 2, col: '#f97316', d: 'Eight pellets. Brutal at close range, useless far away.' },
-  rifle: { n: 'Isotope rifle', kind: 'rifle', dmg: 24, rate: 0.11, mag: 30, rel: 2.0, spr: 0.02, rng: 90, ads: 0.72, move: 0.98, head: 1.6, auto: 1, price: 1500, lvl: 3, col: '#60a5fa', d: 'The all-rounder. Accurate, automatic, decent damage.' },
-  burst: { n: 'Burst carbine', kind: 'burst', dmg: 26, burst: 3, rate: 0.42, mag: 24, rel: 1.9, spr: 0.013, rng: 85, ads: 0.72, move: 1.0, head: 1.7, price: 1800, lvl: 4, col: '#a78bfa', d: 'Three-round bursts. Land them all for a quick kill.' },
-  revolver: { n: 'Turbine revolver', kind: 'revolver', dmg: 55, rate: 0.5, mag: 6, rel: 2.2, spr: 0.008, rng: 80, ads: 0.75, move: 1.04, head: 2.0, price: 2200, lvl: 5, col: '#eab308', d: 'Huge hits, six shots. Two to the body finishes most players.' },
-  lmg: { n: 'Coolant LMG', kind: 'lmg', dmg: 20, rate: 0.085, mag: 75, rel: 3.6, spr: 0.034, rng: 80, ads: 0.75, move: 0.88, head: 1.5, auto: 1, price: 3200, lvl: 7, col: '#38bdf8', d: 'Big magazine, long reload. Slows you down.' },
-  sniper: { n: 'Gamma sniper', kind: 'sniper', dmg: 95, rate: 1.1, mag: 5, rel: 2.6, spr: 0.065, aspr: 0, rng: 170, ads: 0.33, scope: 1, move: 0.94, head: 2.2, price: 4000, lvl: 9, col: '#22c55e', d: 'One shot to the head. Aim (right-click) or it sprays wide.' },
-  mini: { n: 'Plasma minigun', kind: 'mini', dmg: 10, rate: 0.045, mag: 150, rel: 4.2, spr: 0.06, rng: 50, ads: 0.85, move: 0.8, head: 1.4, auto: 1, spin: 0.45, price: 5500, lvl: 11, col: '#f472b6', d: 'Spins up, then shreds. Very heavy.' },
-  rocket: { n: 'Fission launcher', kind: 'rocket', dmg: 100, proj: 30, splash: 4.6, rate: 1.0, mag: 2, rel: 2.8, spr: 0, rng: 120, ads: 0.8, move: 0.92, head: 1, price: 7000, lvl: 14, col: '#ef4444', d: 'Rockets with splash damage. Shoot the floor near them. Rocket-jump!' },
-  rail: { n: 'Fusion railgun', kind: 'rail', dmg: 120, pierce: 1, rate: 1.35, mag: 4, rel: 2.5, spr: 0.004, rng: 220, ads: 0.5, scope: 1, move: 0.95, head: 1.5, price: 9000, lvl: 17, col: '#22d3ee', d: 'Goes straight through everyone in a line. One hit kills.' },
-  laser: { n: 'Tokamak beam', kind: 'laser', dmg: 8, rate: 0.05, mag: 120, rel: 3.0, spr: 0, rng: 55, ads: 0.8, move: 1.0, head: 1.3, auto: 1, beam: 1, price: 12000, lvl: 21, col: '#e879f9', d: 'A continuous plasma beam. Never misses where you point it.' },
+  smg: { n: 'Neutron SMG', kind: 'smg', dmg: 17, rate: 0.075, mag: 32, rel: 1.5, spr: 0.032, rng: 45, ads: 0.82, move: 1.08, head: 1.5, auto: 1, price: 600, lvl: 1, col: '#5eead4', d: 'Sprays fast up close. Light, so you move quickly.' },
+  shotgun: { n: 'Boron shotgun', kind: 'shotgun', dmg: 16, pel: 8, rate: 0.7, mag: 6, rel: 2.2, spr: 0.055, rng: 30, ads: 0.85, move: 1.0, head: 1.3, price: 1300, lvl: 3, col: '#f97316', d: 'Eight pellets. One shot kills up close; useless far away.' },
+  rifle: { n: 'Isotope rifle', kind: 'rifle', dmg: 26, rate: 0.1, mag: 30, rel: 1.9, spr: 0.017, rng: 90, ads: 0.72, move: 0.98, head: 1.6, auto: 1, price: 1800, lvl: 4, col: '#60a5fa', d: 'The all-rounder. Accurate and automatic at any range.' },
+  burst: { n: 'Burst carbine', kind: 'burst', dmg: 35, burst: 3, rate: 0.42, mag: 30, rel: 1.8, spr: 0.011, rng: 90, ads: 0.72, move: 1.0, head: 1.7, price: 2400, lvl: 5, col: '#a78bfa', d: 'Three-round bursts. Land a whole burst and that\'s a kill.' },
+  revolver: { n: 'Turbine revolver', kind: 'revolver', dmg: 72, rate: 0.42, mag: 6, rel: 2.0, spr: 0.006, rng: 90, ads: 0.75, move: 1.04, head: 2.0, price: 900, lvl: 2, col: '#eab308', d: 'Huge accurate hits at any range. Two body shots or one headshot.' },
+  lmg: { n: 'Coolant LMG', kind: 'lmg', dmg: 27, rate: 0.08, mag: 80, rel: 3.2, spr: 0.026, rng: 85, ads: 0.75, move: 0.88, head: 1.5, auto: 1, price: 3200, lvl: 7, col: '#38bdf8', d: '80-round magazine and hard-hitting. Long reload, and it slows you down.' },
+  sniper: { n: 'Gamma sniper', kind: 'sniper', dmg: 120, rate: 1.0, mag: 5, rel: 2.4, spr: 0.05, aspr: 0, rng: 170, ads: 0.33, scope: 1, move: 0.94, head: 2.0, price: 4000, lvl: 9, col: '#22c55e', d: 'One hit kills. Aim (right-click) for perfect accuracy; it sprays when you don\'t.' },
+  mini: { n: 'Plasma minigun', kind: 'mini', dmg: 17, rate: 0.035, mag: 200, rel: 3.8, spr: 0.045, rng: 55, ads: 0.85, move: 0.8, head: 1.4, auto: 1, spin: 0.35, price: 5500, lvl: 11, col: '#f472b6', d: 'Takes a moment to spin up, then shreds anything in front of it.' },
+  rocket: { n: 'Fission launcher', kind: 'rocket', dmg: 150, proj: 30, splash: 5, rate: 0.85, mag: 3, rel: 2.4, spr: 0.0001, rng: 120, ads: 0.8, move: 0.92, head: 1, price: 7000, lvl: 14, col: '#ef4444', d: 'Rockets with splash damage. Shoot the floor near them. Rocket-jump!' },
+  rail: { n: 'Fusion railgun', kind: 'rail', dmg: 150, pierce: 1, rate: 1.1, mag: 5, rel: 2.2, spr: 0.003, rng: 220, ads: 0.5, scope: 1, move: 0.95, head: 1.5, price: 9000, lvl: 17, col: '#22d3ee', d: 'Goes straight through everyone in a line. One hit kills.' },
+  laser: { n: 'Tokamak beam', kind: 'laser', dmg: 21, rate: 0.05, mag: 150, rel: 2.6, spr: 0, rng: 70, ads: 0.8, move: 1.0, head: 1.3, auto: 1, beam: 1, price: 12000, lvl: 21, col: '#e879f9', d: 'A plasma beam that never misses where you point it. The best gun in the game.' },
   rod: { n: 'Golden control rod', kind: 'rod', dmg: 200, rate: 0.45, mag: 0, rel: 0, melee: 2.7, move: 1.12, head: 1, price: -1, lvl: 99, col: '#f5c542', d: 'The gun-game finale. One hit wins.' }
 };
-var SHOP = ['pistol', 'smg', 'shotgun', 'rifle', 'burst', 'revolver', 'lmg', 'sniper', 'mini', 'rocket', 'rail', 'laser'];
+var SHOP = ['pistol', 'smg', 'revolver', 'shotgun', 'rifle', 'burst', 'lmg', 'sniper', 'mini', 'rocket', 'rail', 'laser'];
 var LADDERS = { full: ['pistol', 'smg', 'shotgun', 'rifle', 'burst', 'sniper', 'mini', 'revolver', 'rocket', 'rod'], quick: ['pistol', 'shotgun', 'sniper', 'rocket', 'rod'], mega: ['pistol', 'smg', 'shotgun', 'rifle', 'burst', 'revolver', 'lmg', 'sniper', 'mini', 'rail', 'laser', 'rocket', 'rod'] };
 var DIFF = {
   easy: { n: 'Easy', acc: 0.16, react: 0.95, spd: 1.5, ans: 0.4, fire: 1.6, vis: 12, turn: 3.2, col: '#22c55e' },
@@ -194,7 +194,8 @@ var CSS = '.arn{position:fixed;inset:0;z-index:2147482000;background:#05080d;col
   '.artable{width:100%;border-collapse:collapse;font-size:14px}.artable td,.artable th{padding:7px 8px;border-bottom:1px solid #1f2a3d;text-align:left}.artable th{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#93a3bd}.artable tr.me td{color:#fde047;font-weight:800}.artw{overflow-x:auto}' +
   '.armiss{display:flex;flex-direction:column;gap:8px}.armiss div{background:#0d1524;border:1px solid #1f2a3d;border-left:4px solid #ef4444;border-radius:10px;padding:10px 12px;font-size:14px;line-height:1.4}.armiss em{display:block;font-style:normal;color:#86efac;font-weight:700;margin-top:4px}' +
   '.artouch{position:absolute;inset:0;pointer-events:none}.artouch .stick{position:absolute;left:24px;bottom:24px;width:130px;height:130px;border-radius:50%;background:rgba(255,255,255,.06);border:2px solid rgba(255,255,255,.18);pointer-events:auto}.artouch .stick i{position:absolute;left:40px;top:40px;width:50px;height:50px;border-radius:50%;background:rgba(255,255,255,.3)}.artouch .tb{position:absolute;border-radius:50%;border:3px solid rgba(255,255,255,.35);pointer-events:auto;font-weight:900;color:#fff}.artouch .fire{right:28px;bottom:40px;width:96px;height:96px;background:rgba(239,68,68,.35)}.artouch .jump{right:140px;bottom:30px;width:66px;height:66px;background:rgba(59,130,246,.3)}.artouch .rel{right:40px;bottom:150px;width:60px;height:60px;background:rgba(255,255,255,.12)}.artouch .aim{right:120px;bottom:120px;width:60px;height:60px;background:rgba(34,211,238,.25)}.artouch .look{position:absolute;right:0;top:0;width:55%;height:100%;pointer-events:auto}' +
-  '.arload{position:absolute;inset:0;display:grid;place-items:center;font-weight:800;color:#93a3bd}';
+  '.arload{position:absolute;inset:0;display:grid;place-items:center;font-weight:800;color:#93a3bd}' +
+  'body:has(.arn) .calcsheet{z-index:2147483100!important}@media(min-width:1100px){body:has(.arn) .calcsheet.open{justify-content:flex-end;align-items:center;padding-right:24px;background:transparent}body:has(.arn):has(.calcsheet.open) .arq{justify-items:start;padding-left:24px}}.arcalc{display:inline-flex;gap:6px;align-items:center}.arcalc kbd{font:800 11px ui-monospace,monospace;background:#0b1220;border-radius:6px;padding:2px 6px}.arnum input{min-width:0}';
 
 function el(tag, cls, html) { var e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
 function loadThree(cb) {
@@ -212,7 +213,7 @@ function open() {
 function fail(msg) { if (!root) return; root.innerHTML = '<div class="arload" style="text-align:center;padding:20px;line-height:1.5">' + msg + '<br><br><button type="button" class="arbtn" data-a="x">Close</button></div>'; root.querySelector('[data-a=x]').onclick = close; }
 var pendingXP = 0;
 function close() {
-  stopGame(); stopPreview(); killR3();
+  closeCalc(); stopGame(); stopPreview(); killR3();
   if (root) root.remove(); root = null;
   if (!document.querySelector('.xov')) document.body.classList.remove('noscroll');
   try { if (document.pointerLockElement) document.exitPointerLock(); } catch (e) {}
@@ -556,8 +557,14 @@ function resize() { if (!st || !root) return; var w = root.clientWidth, h = root
 function onMouse(e) { if (!st || st.q || st.paused || st.result || document.pointerLockElement !== st.canvas) return; if (Math.abs(e.movementX) > 250 || Math.abs(e.movementY) > 250) return; var z = st.camera.fov / st.c.fov, s = (0.0009 + st.c.sens * 0.00045) * z; st.me.a -= e.movementX * s; st.me.pitch = clamp(st.me.pitch - e.movementY * s, -1.45, 1.45); st.swayX = (st.swayX || 0) + e.movementX * 0.00025; st.swayY = (st.swayY || 0) + e.movementY * 0.00025; }
 function onUp(e) { if (e.button === 0) mouseDown = false; if (e.button === 2) rmb = false; }
 function onWheel() { if (st && st.mode === 'dm' && !st.q && !st.paused && st.t - st.lastSwap > 0.25) { st.lastSwap = st.t; swapGun(); } }
+function calcOpen() { var c = document.querySelector('.calcsheet'); return !!(c && c.classList.contains('open')); }
+function openCalc() { try { if (window.CALC) window.CALC.open(); } catch (e) {} }
+function closeCalc() { try { if (window.CALC && calcOpen()) window.CALC.close(); } catch (e) {} }
 function onKey(e) {
-  if (!st) return; var k = e.key; e.stopPropagation();
+  if (!st) return; var k = e.key;
+  if (calcOpen()) return; /* the calculator handles its own keys */
+  e.stopPropagation();
+  if (st.q && st.q.q.t === 'N' && !st.q.done && (k === 't' || k === 'T') && !e.ctrlKey && !e.metaKey && !e.altKey && window.CALC) { e.preventDefault(); openCalc(); return; }
   if (st.q) { if (/^[1-4]$/.test(k) && st.q.q.t !== 'N') { e.preventDefault(); answer(+k - 1); } else if ((k === 'Enter' || k === ' ') && st.q.done) { e.preventDefault(); endQ(); } return; }
   if (st.result) return;
   if (k === 'Escape') { if (st.paused) resume(); else pauseMenu(); e.preventDefault(); return; }
@@ -954,19 +961,20 @@ function askQ() {
   var q = nextQ(); if (!q) { if (st.mode === 'gun') { st.me.tier = Math.min(st.lad.length - 1, st.me.tier + 1); setVMGun(false); } return; }
   mouseDown = false; rmb = false; keys = {}; st.burstLeft = 0; try { if (document.pointerLockElement) document.exitPointerLock(); } catch (e) {}
   var num = q.t === 'N', order = num ? [] : shuffle(q.o.map(function (_, i) { return i; }));
-  st.q = { q: q, order: order, t0: performance.now(), done: false, lim: 30000 };
+  var hasCalc = num && window.CALC && typeof window.CALC.open === 'function';
+  st.q = { q: q, order: order, t0: performance.now(), done: false, lim: num ? 45000 : 30000 };
   var reward = st.mode === 'gun' ? (st.me.tier + 1 < st.lad.length ? 'Right answer = ' + G[st.lad[st.me.tier + 1]].n : '') : 'Right answer = coins, full health and a damage boost';
-  var box2 = el('div', 'arq'); box2.innerHTML = '<div class="arqbox" role="dialog" aria-label="Question"><div class="arqtop"><span>' + esc(reward) + '</span><span data-k="sec">30</span></div><div class="artime"><i data-k="bar"></i></div><div class="arqs">' + esc(q.src) + '</div><div class="arqp">' + q.p + '</div>' + (num ? '<form class="arnum" data-k="nf"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer" placeholder="Type your answer">' + (q.u ? '<span>' + q.u + '</span>' : '') + '<button type="submit" class="arbtn" style="background:#fb923c;color:#111;border:0">Check</button></form>' : '<div class="aropts">' + order.map(function (oi, i) { return '<button type="button" class="aropt" data-i="' + i + '"><kbd>' + (i + 1) + '</kbd><span>' + q.o[oi] + '</span></button>'; }).join('') + '</div>') + '<div data-k="fb"></div></div>';
+  var box2 = el('div', 'arq'); box2.innerHTML = '<div class="arqbox" role="dialog" aria-label="Question"><div class="arqtop"><span>' + esc(reward) + '</span><span data-k="sec">' + (num ? 45 : 30) + '</span></div><div class="artime"><i data-k="bar"></i></div><div class="arqs">' + esc(q.src) + '</div><div class="arqp">' + q.p + '</div>' + (num ? '<form class="arnum" data-k="nf"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer" placeholder="Type your answer">' + (q.u ? '<span>' + q.u + '</span>' : '') + '<button type="submit" class="arbtn" style="background:#fb923c;color:#111;border:0">Check</button>' + (hasCalc ? '<button type="button" class="arbtn arcalc" data-a="calc">🧮 Calculator <kbd>T</kbd></button>' : '') + '</form>' + (hasCalc ? '<p class="arsmall" style="margin:-4px 0 0">Work it out on the calculator, then press <b>Use answer</b> (or = twice) to put it in the box. You get 45 seconds for these.</p>' : '') : '<div class="aropts">' + order.map(function (oi, i) { return '<button type="button" class="aropt" data-i="' + i + '"><kbd>' + (i + 1) + '</kbd><span>' + q.o[oi] + '</span></button>'; }).join('') + '</div>') + '<div data-k="fb"></div></div>';
   root.appendChild(box2); st.q.el = box2;
   if (num) { var nf = box2.querySelector('[data-k=nf]'), inp = nf.querySelector('input'); setTimeout(function () { try { inp.focus(); } catch (e) {} }, 60); nf.addEventListener('submit', function (e) { e.preventDefault(); if (st && st.q && !st.q.done && inp.value.trim()) answer(inp.value); }); }
-  box2.addEventListener('click', function (e) { var b = e.target.closest('.aropt'); if (b && st.q && !st.q.done) answer(+b.dataset.i); var c = e.target.closest('[data-a=cont]'); if (c) endQ(); });
+  box2.addEventListener('click', function (e) { var b = e.target.closest('.aropt'); if (b && st.q && !st.q.done) answer(+b.dataset.i); var c = e.target.closest('[data-a=cont]'); if (c) endQ(); if (e.target.closest('[data-a=calc]') && st.q && !st.q.done) openCalc(); });
   var Q = st.q, tick = function () { if (!st || st.q !== Q || Q.done) return; var left = Q.lim - (performance.now() - Q.t0); var s = box2.querySelector('[data-k=sec]'), b = box2.querySelector('[data-k=bar]'); if (s) s.textContent = Math.max(0, Math.ceil(left / 1000)); if (b) b.style.transform = 'scaleX(' + clamp(left / Q.lim, 0, 1) + ')'; if (left <= 0) { answer(-1); return; } if (left < 5000 && Math.ceil(left / 1000) !== Q.lastS) { Q.lastS = Math.ceil(left / 1000); snd('tick', 0.8); } requestAnimationFrame(tick); };
   requestAnimationFrame(tick);
 }
 function ansText(q) { return q.t === 'N' ? String(q.a) + (q.u ? ' ' + q.u : '') : q.o[q.a]; }
 function parseNum(t) { t = String(t).trim().replace(/,/g, '').replace(/[−–]/g, '-').replace(/×\s*10\^?/g, 'e').replace(/\s+/g, ''); var m = /^(-?[\d.]+)\/(-?[\d.]+)$/.exec(t); if (m) return parseFloat(m[1]) / parseFloat(m[2]); var u = t.replace(/[^0-9eE.+\-]/g, ''); return u ? parseFloat(u) : NaN; }
 function answer(i) {
-  var Q = st.q; if (!Q || Q.done) return; Q.done = true; var q = Q.q, ok;
+  var Q = st.q; if (!Q || Q.done) return; Q.done = true; closeCalc(); var q = Q.q, ok;
   if (q.t === 'N') { var v = typeof i === 'string' ? parseNum(i) : NaN, tol = q.tol == null ? 0.02 : q.tol; ok = isFinite(v) && (q.a === 0 ? Math.abs(v) <= (tol || 1e-9) : Math.abs(v - q.a) <= Math.abs(q.a) * tol + 1e-12); i = typeof i === 'string' ? 0 : -1; var ip = Q.el.querySelector('[data-k=nf] input'); if (ip) { ip.disabled = true; ip.style.borderColor = ok ? '#22c55e' : '#ef4444'; } }
   else { ok = i >= 0 && Q.order[i] === q.a; [].forEach.call(Q.el.querySelectorAll('.aropt'), function (b, j) { b.disabled = true; if (Q.order[j] === q.a) b.classList.add('ok'); else if (j === i) b.classList.add('no'); }); }
   st.asked++; API.result(q.k, ok);
@@ -984,7 +992,7 @@ function answer(i) {
     try { Q.el.querySelector('[data-a=cont]').focus(); } catch (e) {}
   }
 }
-function endQ() { if (!st || !st.q) return; st.q.el.remove(); st.q = null; if (st.qQueue > 0) { st.qQueue--; setTimeout(function () { if (st && !st.result) askQ(); }, 250); return; } lock(); }
+function endQ() { if (!st || !st.q) return; closeCalc(); st.q.el.remove(); st.q = null; if (st.qQueue > 0) { st.qQueue--; setTimeout(function () { if (st && !st.result) askQ(); }, 250); return; } lock(); }
 
 /* ============================================================ menus + results ============================================================ */
 function pauseMenu() {
@@ -1005,7 +1013,7 @@ function finish(winner) {
 function results(winner, quiet) {
   if (!st || st.saved) return; var me = st.me, won = winner === me; st.result = true; st.saved = true; mouseDown = false;
   try { if (document.pointerLockElement) document.exitPointerLock(); } catch (e) {}
-  if (st.q) { st.q.el.remove(); st.q = null; }
+  if (st.q) { closeCalc(); st.q.el.remove(); st.q = null; }
   pendingXP += st.xp;
   var c = store(), before = lvlInfo(c.cxp); c.coins += st.coins; c.cxp += st.cxp; if (st.ents.some(function (e) { return e.diffKey === 'auto'; })) c.skill = Math.round(st.skill * 1000) / 1000;
   c.rec.played = (c.rec.played || 0) + (quiet ? 0 : 1); c.rec.kills = (c.rec.kills || 0) + st.kills; if (won) c.rec.wins = (c.rec.wins || 0) + 1; wr(c);
@@ -1112,5 +1120,5 @@ function hud() {
   g.restore();
 }
 
-window.CRIT_ARENA = { open: open, close: close, _st: function () { return st; }, _G: G, _store: store, _wr: wr, _start: function () { start(store()); }, _dbg: { r3: function () { return R3; }, manual: function (v) { st.manual = v; }, step: function (n, d) { for (var i = 0; i < n; i++) { if (!st.paused && !st.q && !st.result) update(d, d); else updateFX(d); if (st.slow > 0) { st.slow -= d; if (st.slow <= 0 && st.pendingFinish) { var w = st.pendingFinish; st.pendingFinish = null; results(w, false); return; } } } render(d); }, hud: function () { hud(); }, upd: function (d) { update(d, d); }, fire: function () { tryFire(); }, vm: function () { setVMGun(true); }, swap: swapGun, reload: function () { startReload(st.me); } } };
+window.CRIT_ARENA = { open: open, close: close, _st: function () { return st; }, _G: G, _store: store, _wr: wr, _start: function () { start(store()); }, _dbg: { ask: function () { askQ(); }, r3: function () { return R3; }, manual: function (v) { st.manual = v; }, step: function (n, d) { for (var i = 0; i < n; i++) { if (!st.paused && !st.q && !st.result) update(d, d); else updateFX(d); if (st.slow > 0) { st.slow -= d; if (st.slow <= 0 && st.pendingFinish) { var w = st.pendingFinish; st.pendingFinish = null; results(w, false); return; } } } render(d); }, hud: function () { hud(); }, upd: function (d) { update(d, d); }, fire: function () { tryFire(); }, vm: function () { setVMGun(true); }, swap: swapGun, reload: function () { startReload(st.me); } } };
 })();
