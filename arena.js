@@ -243,7 +243,7 @@ function store() {
   if (!c.bots || !c.bots.length) c.bots = ['auto', 'auto', 'auto', 'auto'];
   if (!c.v3d) { c.v3d = 1; c.bots = c.bots.map(function () { return 'auto'; }); } /* first run of the 3D version: bots match your skill */
   if (!LADDERS[c.ladder] && c.ladder !== 'mine') c.ladder = 'full'; if (!c.sens) c.sens = 5; if (c.onlyDone == null) c.onlyDone = true;
-  c.mode = 'dm'; if (!c.dmKills) c.dmKills = 10; if (!c.gfx) c.gfx = isTouchDev() ? 'low' : 'medium'; if (!c.ctrl) c.ctrl = 'auto'; if (c.autoShoot == null) c.autoShoot = true; if (c.gloss == null) c.gloss = true; if (!c.events) c.events = 'some'; if (!c.tsens) c.tsens = 5; if (!c.fov) c.fov = 80;
+  c.mode = 'dm'; if (!c.dmKills) c.dmKills = 10; if (!c.gfx) c.gfx = isTouchDev() ? 'low' : 'medium'; if (!c.ctrl) c.ctrl = 'auto'; if (c.autoShoot == null) c.autoShoot = true; if (c.gloss == null) c.gloss = true; if (c.autoShootPC == null) c.autoShootPC = false; if (c.aimAssist == null) c.aimAssist = false; if (!c.events) c.events = 'some'; if (!c.tsens) c.tsens = 5; if (!c.fov) c.fov = 80;
   if (c.coins == null) c.coins = 0; if (c.cxp == null) c.cxp = 0; if (!c.owned) c.owned = ['pistol']; if (c.owned.indexOf('pistol') < 0) c.owned.unshift('pistol');
   c.owned = SHOP.filter(function (k) { return c.owned.indexOf(k) >= 0; });
   if (!c.primary || c.owned.indexOf(c.primary) < 0) c.primary = c.owned[c.owned.length - 1]; if (c.skill == null) c.skill = 0.35; if (!c.rec) c.rec = {};
@@ -306,9 +306,9 @@ function setup() {
     [].forEach.call(q('[data-k=ctrl]').querySelectorAll('[data-ctrl]'), function (b) { b.setAttribute('aria-pressed', String(b.dataset.ctrl === c.ctrl)); });
     [].forEach.call(q('[data-k=evs]').querySelectorAll('[data-evs]'), function (b) { b.setAttribute('aria-pressed', String(b.dataset.evs === c.events)); });
     var tm = touchMode(c);
-    q('[data-k=touchopt]').innerHTML = tm ? '<label class="arsmall" style="display:flex;gap:8px;align-items:center;margin-top:10px"><input type="checkbox" data-k="auto"' + (c.autoShoot ? ' checked' : '') + '> Auto-shoot when your crosshair is on a bot</label><div class="arsl"><span class="arsmall">Look speed</span><input type="range" min="1" max="10" step="1" data-k="tsens" aria-label="Touch look speed" value="' + c.tsens + '"><b data-k="tsensv">' + c.tsens + '</b></div>' : '';
+    q('[data-k=touchopt]').innerHTML = tm ? '<label class="arsmall" style="display:flex;gap:8px;align-items:center;margin-top:10px"><input type="checkbox" data-k="auto"' + (c.autoShoot ? ' checked' : '') + '> Auto-shoot when your crosshair is on a bot</label><div class="arsl"><span class="arsmall">Look speed</span><input type="range" min="1" max="10" step="1" data-k="tsens" aria-label="Touch look speed" value="' + c.tsens + '"><b data-k="tsensv">' + c.tsens + '</b></div>' : '<label class="arsmall" style="display:flex;gap:8px;align-items:center;margin-top:10px"><input type="checkbox" data-k="autopc"' + (c.autoShootPC ? ' checked' : '') + '> Auto-shoot when your crosshair is on a bot (great on a trackpad). Press F in a match to switch it</label><label class="arsmall" style="display:flex;gap:8px;align-items:center;margin-top:6px"><input type="checkbox" data-k="assist"' + (c.aimAssist ? ' checked' : '') + '> Aim assist: your aim slows down when it\'s on a bot</label>';
     q('[data-k=sens]').closest('.arsl').style.display = tm ? 'none' : '';
-    q('[data-k=keys]').innerHTML = tm ? '<kbd>Left thumb</kbd><span>Move (touch anywhere on the left). Push all the way up to sprint</span><kbd>Right thumb</kbd><span>Drag to look around</span><kbd>Red button</kbd><span>Shoot (hold and drag to aim while you shoot)</span><kbd>Blue ring</kbd><span>Aim down the sights</span><kbd>Arrow / circle</kbd><span>Jump / reload</span><kbd>Top right</kbd><span>Scoreboard and pause. The game goes full screen and sideways</span>' : '<kbd>WASD</kbd><span>Move</span><kbd>Space</kbd><span>Jump (you can jump onto crates and barriers)</span><kbd>Mouse</kbd><span>Look. Left-click shoots, right-click aims</span><kbd>R</kbd><span>Reload</span><kbd>T</kbd><span>Calculator on number questions</span><kbd>1–4</kbd><span>Answer questions</span><kbd>Tab</kbd><span>Scoreboard</span><kbd>Esc</kbd><span>Pause</span>';
+    q('[data-k=keys]').innerHTML = tm ? '<kbd>Left thumb</kbd><span>Move (touch anywhere on the left). Push all the way up to sprint</span><kbd>Right thumb</kbd><span>Drag to look around</span><kbd>Red button</kbd><span>Shoot (hold and drag to aim while you shoot)</span><kbd>Blue ring</kbd><span>Aim down the sights</span><kbd>Arrow / circle</kbd><span>Jump / reload</span><kbd>Top right</kbd><span>Scoreboard and pause. The game goes full screen and sideways</span>' : '<kbd>WASD</kbd><span>Move</span><kbd>Space</kbd><span>Jump (you can jump onto crates and barriers)</span><kbd>Mouse</kbd><span>Look. Left-click shoots, right-click aims</span><kbd>R</kbd><span>Reload</span><kbd>F</kbd><span>Auto-shoot on/off</span><kbd>T</kbd><span>Calculator on number questions</span><kbd>1–4</kbd><span>Answer questions</span><kbd>Tab</kbd><span>Scoreboard</span><kbd>Esc</kbd><span>Pause</span>';
     q('[data-k=sens]').value = c.sens; q('[data-k=sensv]').textContent = c.sens; q('[data-k=fov]').value = c.fov; q('[data-k=fovv]').textContent = c.fov + '°';
     var cheap = SHOP.filter(function (k) { return c.owned.indexOf(k) < 0 && G[k].price <= c.coins && G[k].lvl <= L.lv; });
     q('[data-k=tip]').textContent = cheap.length ? 'You can afford the ' + G[cheap[cheap.length - 1]].n + '! Have a look in the gun shop.' : 'Coins: kills and wins × your question score (×0.5 to ×1.5), plus 15+ for every right answer.';
@@ -325,7 +325,7 @@ function setup() {
     if (b.dataset.ld) c.ladder = b.dataset.ld; if (b.dataset.gfx) c.gfx = b.dataset.gfx; if (b.dataset.ctrl) c.ctrl = b.dataset.ctrl; if (b.dataset.evs) c.events = b.dataset.evs; if (b.dataset.dmk) c.dmKills = +b.dataset.dmk;
     paint();
   });
-  S.addEventListener('change', function (e) { var t = e.target; if (t.dataset.bot != null) { c.bots[+t.dataset.bot] = t.value; paint(); } if (t.dataset.k === 'only') { c.onlyDone = t.checked; paint(); } if (t.dataset.k === 'auto') { c.autoShoot = t.checked; wr(c); } if (t.dataset.k === 'gloss') { c.gloss = t.checked; wr(c); } if (t.dataset.k === 'primary') { c.primary = t.value; paint(); } });
+  S.addEventListener('change', function (e) { var t = e.target; if (t.dataset.bot != null) { c.bots[+t.dataset.bot] = t.value; paint(); } if (t.dataset.k === 'only') { c.onlyDone = t.checked; paint(); } if (t.dataset.k === 'auto') { c.autoShoot = t.checked; wr(c); } if (t.dataset.k === 'gloss') { c.gloss = t.checked; wr(c); } if (t.dataset.k === 'autopc') { c.autoShootPC = t.checked; wr(c); } if (t.dataset.k === 'assist') { c.aimAssist = t.checked; wr(c); } if (t.dataset.k === 'primary') { c.primary = t.value; paint(); } });
   S.addEventListener('input', function (e) { var k = e.target.dataset.k; if (k === 'sens') { c.sens = +e.target.value; q('[data-k=sensv]').textContent = c.sens; wr(c); } if (k === 'fov') { c.fov = +e.target.value; q('[data-k=fovv]').textContent = c.fov + '°'; wr(c); } if (k === 'tsens') { c.tsens = +e.target.value; q('[data-k=tsensv]').textContent = c.tsens; wr(c); } });
   paint(); try { q('[data-a=go]').focus({ preventScroll: true }); } catch (e) {}
 }
@@ -580,7 +580,7 @@ function goFull() { try { var p = root.requestFullscreen ? root.requestFullscree
 function exitFull() { try { if (document.fullscreenElement && document.exitFullscreen) { var p = document.exitFullscreen(); if (p && p.catch) p.catch(function () {}); } } catch (e) {} }
 function onBlur() { keys = {}; mouseDown = false; rmb = false; }
 function resize() { if (!st || !root) return; var w = root.clientWidth, h = root.clientHeight; R3.setSize(w, h, false); st.camera.aspect = w / Math.max(1, h); st.camera.updateProjectionMatrix(); st.vm.cam.aspect = st.camera.aspect; st.vm.cam.updateProjectionMatrix(); var d = Math.min(2, window.devicePixelRatio || 1); st.hud.width = Math.round(w * d); st.hud.height = Math.round(h * d); st.hdpr = d; st.uiS = clamp(Math.min(w / 1100, h / 620), 0.6, 1); }
-function onMouse(e) { if (!st || st.q || st.paused || st.result || document.pointerLockElement !== st.canvas) return; if (Math.abs(e.movementX) > 250 || Math.abs(e.movementY) > 250) return; var z = st.camera.fov / st.c.fov, s = (0.0009 + st.c.sens * 0.00045) * z; st.me.a -= e.movementX * s; st.me.pitch = clamp(st.me.pitch - e.movementY * s, -1.45, 1.45); st.swayX = (st.swayX || 0) + e.movementX * 0.00025; st.swayY = (st.swayY || 0) + e.movementY * 0.00025; }
+function onMouse(e) { if (!st || st.q || st.paused || st.result || document.pointerLockElement !== st.canvas) return; if (Math.abs(e.movementX) > 250 || Math.abs(e.movementY) > 250) return; var z = st.camera.fov / st.c.fov, s = (0.0009 + st.c.sens * 0.00045) * z; if (st.c.aimAssist) { var na = nearestAim(); if (na.o && na.ang < 0.12) s *= 0.5; } st.me.a -= e.movementX * s; st.me.pitch = clamp(st.me.pitch - e.movementY * s, -1.45, 1.45); st.swayX = (st.swayX || 0) + e.movementX * 0.00025; st.swayY = (st.swayY || 0) + e.movementY * 0.00025; }
 function onUp(e) { if (e.button === 0) mouseDown = false; if (e.button === 2) rmb = false; }
 function onWheel() { if (st && st.mode === 'dm' && !st.q && !st.paused && st.t - st.lastSwap > 0.25) { st.lastSwap = st.t; swapGun(); } }
 function calcOpen() { var c = document.querySelector('.calcsheet'); return !!(c && c.classList.contains('open')); }
@@ -601,6 +601,7 @@ function onKey(e) {
   var kl = k.toLowerCase(); keys[kl] = true;
   if (k === ' ') { e.preventDefault(); jump(); }
   if (kl === 'r') startReload(st.me);
+  if (kl === 'f' && !st.touch) { st.c.autoShootPC = !st.c.autoShootPC; var sc2 = store(); sc2.autoShootPC = st.c.autoShootPC; wr(sc2); feed('Auto-shoot ' + (st.c.autoShootPC ? 'ON' : 'OFF') + ' (press F to switch)', st.c.autoShootPC ? '#4ade80' : '#9aa6bb'); snd('swap', 0.6); }
   if (kl === 'q' || ((k === '1' || k === '2') && st.mode === 'dm')) swapGun(k === '1' ? 0 : k === '2' ? 1 : null);
   if (/^Arrow/.test(k)) e.preventDefault();
 }
@@ -821,9 +822,14 @@ function nearestAim() {
   st.ents.forEach(function (o) { if (o.me || !o.alive) return; var dx = o.x - me.x, dy = (o.y + 1.15) - ey, dz = o.z - me.z, dist = Math.hypot(dx, dy, dz); if (dist < 0.5) return; var ang = Math.acos(clamp((dx * _fw.x + dy * _fw.y + dz * _fw.z) / dist, -1, 1)); if (ang < best.ang && los(me.x, me.z, o.x, o.z)) best = { ang: ang, dist: dist, o: o }; });
   return best;
 }
+function onTarget(o) { /* does the crosshair ray actually pass through this bot's body or head? */
+  var me = st.me, cp = Math.cos(me.pitch), fx = -Math.sin(me.a) * cp, fy = Math.sin(me.pitch), fz = -Math.cos(me.a) * cp, hh = fx * fx + fz * fz; if (hh < 1e-6) return false;
+  var t = ((o.x - me.x) * fx + (o.z - me.z) * fz) / hh; if (t <= 0) return false; var py = me.y + EYE + fy * t - o.y;
+  return Math.hypot(me.x + fx * t - o.x, me.z + fz * t - o.z) < 0.4 && py > 0.15 && py < 2.15;
+}
 function autoTarget() {
-  var me = st.me, w = W_(me); if (!me.alive || st.swapT > 0 || me.reloadT > 0) return false; var n = nearestAim(); if (!n.o || n.o.inv > 0) return false;
-  if (n.dist > w.rng || (w.proj && n.dist < 5)) return false; return n.ang < Math.atan(0.42 / n.dist) + 0.008;
+  var me = st.me, w = W_(me); if (!me.alive || st.swapT > 0 || me.reloadT > 0) return false;
+  return st.ents.some(function (o) { if (o.me || !o.alive || o.inv > 0) return false; var d = Math.hypot(o.x - me.x, o.z - me.z); if (d < 0.5 || d > w.rng || (w.proj && d < 5)) return false; return onTarget(o) && los(me.x, me.z, o.x, o.z); });
 }
 function update(dt, rdt) {
   st.t += dt; var me = st.me; evTick(dt);
@@ -853,7 +859,7 @@ function update(dt, rdt) {
     var gnd = groundAt(me.x, me.z, PR);
     if (me.y > gnd + 0.001 || me.vy > 0) { me.vy -= GRAV * gravMul() * dt; me.y += me.vy * dt; if (me.y <= gnd) { if (me.vy < -6) snd('land', 0.7); me.y = gnd; me.vy = 0; me.onGround = true; } else me.onGround = false; } else { me.y = gnd; me.onGround = true; }
     if (me.moving && me.onGround) { st.bob += dt * 10 * w.move * (me.sprinting ? 1.35 : 1); st.stepT -= dt; if (st.stepT <= 0) { st.stepT = 0.36 / w.move / (me.sprinting ? 1.4 : 1); snd('step', me.sprinting ? 0.75 : 0.6); } }
-    st.autoFire = st.touch && st.c.autoShoot && !st.q ? autoTarget() : false; var firing = mouseDown || st.autoFire;
+    st.autoFire = (st.touch ? st.c.autoShoot : st.c.autoShootPC) && !st.q ? autoTarget() : false; var firing = mouseDown || st.autoFire;
     if (w.spin) { st.spin = clamp(st.spin + (firing ? 1 : -1) * dt / w.spin, 0, 1); if (firing && st.spin < 1 && !st.spinS) { st.spinS = 1; snd('spin', 0.7); } if (!firing) st.spinS = 0; } else st.spin = 0;
     if (firing && (w.auto || w.beam)) tryFire(); else if (st.autoFire) tryFire();
     if (me.radT > 0) { me.radT -= dt; st.geigerT = (st.geigerT || 0) - dt; if (st.geigerT <= 0) { st.geigerT = rnd(0.03, 0.22); snd('geiger', 0.55); } if (me.radT <= 0) feed('☢ Radiation cleared', '#84cc16'); }
@@ -1411,7 +1417,7 @@ function hud() {
   /* scoreboard */
   if (st.board) { var bw = Math.min(CW * 0.86, 620 * d), bh = (64 + st.ents.length * 32) * d, bx = cx - bw / 2, by = cy - bh / 2; g.fillStyle = 'rgba(5,8,13,.9)'; rr(g, bx, by, bw, bh, 16 * d); g.fill(); g.textAlign = 'left'; g.font = '800 ' + (13 * d) + 'px system-ui,sans-serif'; g.fillStyle = '#93a3bd'; g.fillText('PLAYER', bx + 22 * d, by + 30 * d); g.fillText('WEAPON', bx + bw * 0.44, by + 30 * d); g.fillText('K / D', bx + bw * 0.84, by + 30 * d);
     st.ents.slice().sort(function (a, b) { return st.mode === 'dm' ? b.kills - a.kills : b.tier - a.tier || b.kills - a.kills; }).forEach(function (e, i) { var Y = by + (64 + i * 32) * d; g.font = '800 ' + (14 * d) + 'px system-ui,sans-serif'; g.fillStyle = e.me ? '#fde047' : e.col; g.fillText(e.name + (e.D ? ' (' + e.D.n + ')' : ''), bx + 22 * d, Y); g.fillStyle = '#e8edf7'; g.fillText(W_(e).n + (st.mode === 'gun' ? ' ' + (e.tier + 1) : ''), bx + bw * 0.44, Y); g.fillText(e.kills + ' / ' + e.deaths, bx + bw * 0.84, Y); }); }
-  if (st.touch && st.autoFire && me.alive) { g.textAlign = 'center'; g.font = '900 ' + (11 * d) + 'px system-ui,sans-serif'; g.fillStyle = '#fca5a5'; g.fillText('AUTO', cx, cy + 30 * d); }
+  if ((st.autoFire || (!st.touch && st.c.autoShootPC)) && me.alive) { g.textAlign = 'center'; g.font = '900 ' + (11 * d) + 'px system-ui,sans-serif'; g.fillStyle = st.autoFire ? '#fca5a5' : 'rgba(255,255,255,.35)'; g.fillText('AUTO', cx, cy + 30 * d); }
   if (st.portrait) { g.fillStyle = 'rgba(3,6,12,.86)'; g.fillRect(0, 0, CW, CH); g.textAlign = 'center'; g.fillStyle = '#fff'; var pf = 26 * (st.hdpr || 1); g.font = '900 ' + pf + 'px system-ui,sans-serif'; var pw = g.measureText('📱 Turn your phone sideways').width; if (pw > CW * 0.9) { pf *= CW * 0.9 / pw; g.font = '900 ' + pf + 'px system-ui,sans-serif'; } g.fillText('📱 Turn your phone sideways', cx, cy - 14 * (st.hdpr || 1)); g.font = '700 ' + (14 * (st.hdpr || 1)) + 'px system-ui,sans-serif'; g.fillStyle = '#cbd5e1'; g.fillText('The game waits until you do.', cx, cy + 20 * (st.hdpr || 1)); }
   if (document.pointerLockElement !== st.canvas && !st.touch && !st.q && !st.paused && !st.result && st.slow <= 0) { g.textAlign = 'center'; g.font = '800 ' + (15 * d) + 'px system-ui,sans-serif'; g.fillStyle = 'rgba(5,8,13,.75)'; rr(g, cx - 140 * d, CH * 0.64 - 19 * d, 280 * d, 38 * d, 10 * d); g.fill(); g.fillStyle = '#fff'; g.fillText('Click to aim with the mouse', cx, CH * 0.64); }
   g.restore();
