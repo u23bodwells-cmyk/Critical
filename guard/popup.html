@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<title>Critical Guard</title>
+<style>
+:root{color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;width:330px;padding:16px;font:14px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif;color:#fff;background:radial-gradient(400px 260px at 100% 0,rgba(58,212,255,.25),transparent 70%),linear-gradient(160deg,#0b1430,#060a13)}
+.eb{font:700 11px ui-monospace,Consolas,monospace;letter-spacing:.14em;text-transform:uppercase;color:#7fe3ff}
+h1{margin:2px 0 4px;font-size:22px;font-weight:800;letter-spacing:-.02em}
+.st{display:flex;gap:8px;align-items:center;font-weight:700}
+.dot{width:10px;height:10px;border-radius:50%;background:#64748b}
+.dot.on{background:#ef4444;box-shadow:0 0 10px #ef4444}
+.tile{background:rgba(255,255,255,.06);border-radius:16px;padding:10px 12px;margin-top:10px}
+label.m{display:flex;gap:8px;align-items:flex-start;padding:8px 6px;border-radius:12px;cursor:pointer}
+label.m:hover{background:rgba(255,255,255,.05)}
+label.m small{display:block;color:#9fb0d8}
+.times{display:flex;gap:8px;align-items:center;margin:6px 0 0 30px;flex-wrap:wrap}
+input[type=time]{font:inherit;background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(160,185,255,.2);border-radius:10px;padding:4px 6px}
+.days{display:flex;gap:4px;margin:8px 0 0 30px}
+.days button{width:30px;height:30px;border-radius:9px;border:0;background:rgba(255,255,255,.07);color:#b8c4e4;font-weight:800;cursor:pointer}
+.days button.on{background:linear-gradient(90deg,#3ad4ff,#8f80ff);color:#041019}
+.save{width:100%;margin-top:12px;border:0;border-radius:14px;padding:11px;font:inherit;font-weight:800;color:#fff;background:linear-gradient(90deg,#3ad4ff,#8f80ff);cursor:pointer}
+.save:disabled{opacity:.5;cursor:default}
+.note{color:#9fb0d8;font-size:12.5px;margin-top:8px}
+.wait{color:#ffd65a;font-weight:700}
+b.n{font:800 22px ui-monospace,Consolas,monospace}
+</style>
+</head>
+<body>
+<div class="eb">Critical Guard</div>
+<h1>TikTok closer</h1>
+<div class="st"><span class="dot" id="dot"></span><span id="st">Checking…</span></div>
+<div class="tile"><b class="n" id="n">0</b> <span style="color:#9fb0d8">TikTok tabs closed today</span><div id="plan" style="margin-top:6px;color:#b8c4e4;font-size:13px"></div><button type="button" id="chk" class="save" style="margin-top:8px;padding:8px;background:rgba(255,255,255,.08)">Check Critical now</button></div>
+<div class="tile">
+  <label class="m"><input type="radio" name="mode" value="plan"><span>Until today's plan is done<small>From the start time below, TikTok stays closed until Critical says today's plan is done.</small></span></label>
+  <label class="m"><input type="radio" name="mode" value="always"><span>Always<small>TikTok closes whenever you open it.</small></span></label>
+  <label class="m"><input type="radio" name="mode" value="study"><span>Fixed hours<small>Closed between the two times, done or not.</small></span></label>
+  <label class="m"><input type="radio" name="mode" value="off"><span>Off<small>TikTok works normally.</small></span></label>
+  <div style="border-top:1px solid rgba(160,185,255,.12);margin:8px 0 0;padding-top:8px">
+  <div class="times" style="margin-left:6px"><span>Closes from</span><input type="time" id="start" aria-label="Start time"><span id="toW">until</span><input type="time" id="end" aria-label="End time"></div>
+  <div class="days" id="days" style="margin-left:6px" aria-label="Days"></div>
+  </div>
+  <button class="save" id="save" type="button">Save</button>
+  <div class="note" id="note">Making the rules looser takes 2 minutes to kick in, so you can't switch it off on a whim.</div>
+</div>
+<script src="shared.js"></script>
+<script src="popup.js"></script>
+</body>
+</html>
