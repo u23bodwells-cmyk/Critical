@@ -193,10 +193,20 @@ var CSS = '.arn{position:fixed;inset:0;z-index:2147482000;background:#05080d;col
   '.arres{position:absolute;inset:0;overflow:auto;background:rgba(3,6,12,.9);padding:20px 16px}.arres .arwrap{max-width:820px}.arbig{font-size:clamp(34px,7vw,64px);font-weight:900;letter-spacing:-.03em;margin:0;line-height:1}.arbig.win{background:linear-gradient(90deg,#fde047,#f59e0b);-webkit-background-clip:text;background-clip:text;color:transparent}.arstats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}.arstats div{background:#0d1524;border:1px solid #1f2a3d;border-radius:14px;padding:10px 12px}.arstats b{display:block;font:900 24px ui-monospace,monospace}.arstats span{font-size:12px;color:#93a3bd;font-weight:700}' +
   '.artable{width:100%;border-collapse:collapse;font-size:14px}.artable td,.artable th{padding:7px 8px;border-bottom:1px solid #1f2a3d;text-align:left}.artable th{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#93a3bd}.artable tr.me td{color:#fde047;font-weight:800}.artw{overflow-x:auto}' +
   '.armiss{display:flex;flex-direction:column;gap:8px}.armiss div{background:#0d1524;border:1px solid #1f2a3d;border-left:4px solid #ef4444;border-radius:10px;padding:10px 12px;font-size:14px;line-height:1.4}.armiss em{display:block;font-style:normal;color:#86efac;font-weight:700;margin-top:4px}' +
-  '.artouch{position:absolute;inset:0;pointer-events:none}.artouch .stick{position:absolute;left:24px;bottom:24px;width:130px;height:130px;border-radius:50%;background:rgba(255,255,255,.06);border:2px solid rgba(255,255,255,.18);pointer-events:auto}.artouch .stick i{position:absolute;left:40px;top:40px;width:50px;height:50px;border-radius:50%;background:rgba(255,255,255,.3)}.artouch .tb{position:absolute;border-radius:50%;border:3px solid rgba(255,255,255,.35);pointer-events:auto;font-weight:900;color:#fff}.artouch .fire{right:28px;bottom:40px;width:96px;height:96px;background:rgba(239,68,68,.35)}.artouch .jump{right:140px;bottom:30px;width:66px;height:66px;background:rgba(59,130,246,.3)}.artouch .rel{right:40px;bottom:150px;width:60px;height:60px;background:rgba(255,255,255,.12)}.artouch .aim{right:120px;bottom:120px;width:60px;height:60px;background:rgba(34,211,238,.25)}.artouch .look{position:absolute;right:0;top:0;width:55%;height:100%;pointer-events:auto}' +
+  '.artouch{position:absolute;inset:0;pointer-events:none;touch-action:none;-webkit-user-select:none;user-select:none}.artouch .tzone{position:absolute;inset:0;pointer-events:auto;touch-action:none}' +
+  '.artouch .tstick{position:absolute;width:132px;height:132px;border-radius:50%;background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.28);pointer-events:none}.artouch .tstick i{position:absolute;left:40px;top:40px;width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,.42);box-shadow:0 2px 10px rgba(0,0,0,.4)}' +
+  '.artouch .thint{position:absolute;left:calc(26px + env(safe-area-inset-left));bottom:calc(26px + env(safe-area-inset-bottom));width:120px;height:120px;border-radius:50%;border:2px dashed rgba(255,255,255,.2);pointer-events:none;display:grid;place-items:center;text-align:center;color:rgba(255,255,255,.45);font:800 11px/1.2 system-ui,sans-serif}' +
+  '.artouch .tb{position:absolute;pointer-events:auto;touch-action:none;border-radius:50%;border:2px solid rgba(255,255,255,.4);color:#fff;font:900 12px system-ui,sans-serif;letter-spacing:.04em;display:grid;place-items:center;-webkit-tap-highlight-color:transparent;padding:0;box-shadow:0 4px 14px rgba(0,0,0,.35);transition:transform .06s}.artouch .tb svg{width:46%;height:46%}.artouch .tb.on{transform:scale(.9);filter:brightness(1.35)}' +
+  '.artouch .fire{right:calc(22px + env(safe-area-inset-right));bottom:calc(34px + env(safe-area-inset-bottom));width:96px;height:96px;background:rgba(239,68,68,.5)}.artouch .fire2{left:calc(30px + env(safe-area-inset-left));bottom:calc(178px + env(safe-area-inset-bottom));width:62px;height:62px;background:rgba(239,68,68,.38)}' +
+  '.artouch .aim{right:calc(134px + env(safe-area-inset-right));bottom:calc(118px + env(safe-area-inset-bottom));width:62px;height:62px;background:rgba(34,211,238,.28)}.artouch .aim.lit{background:rgba(34,211,238,.7)}.artouch .jump{right:calc(132px + env(safe-area-inset-right));bottom:calc(30px + env(safe-area-inset-bottom));width:64px;height:64px;background:rgba(59,130,246,.38)}.artouch .rel{right:calc(30px + env(safe-area-inset-right));bottom:calc(146px + env(safe-area-inset-bottom));width:56px;height:56px;background:rgba(255,255,255,.14)}' +
+  '.artouch .ttop{position:absolute;top:calc(10px + env(safe-area-inset-top));right:calc(12px + env(safe-area-inset-right));display:flex;gap:8px;pointer-events:auto}.artouch .tsm{width:44px;height:44px;border-radius:12px;background:rgba(5,8,13,.62);border:1px solid rgba(255,255,255,.22);color:#fff;font-size:18px;display:grid;place-items:center;padding:0;touch-action:manipulation}' +
+  '@media(max-height:430px){.artouch .fire{width:84px;height:84px;bottom:22px}.artouch .aim{bottom:100px;right:118px;width:54px;height:54px}.artouch .jump{right:116px;bottom:20px;width:56px;height:56px}.artouch .rel{bottom:124px;width:50px;height:50px}.artouch .fire2{bottom:156px;width:56px;height:56px}.artouch .thint{width:104px;height:104px;bottom:18px}}' +
+  '@media(max-height:520px){.arqbox{padding:12px 14px;gap:8px;max-height:96vh}.arqp{font-size:16px}.aropts{grid-template-columns:1fr 1fr}.aropt{padding:8px 10px;font-size:14px;gap:8px}.arnum input{font-size:17px;padding:8px 10px}.arfb{padding:8px 10px;font-size:14px}.arfb b{font-size:15px}.arqtop{font-size:11px}}' +
   '.arload{position:absolute;inset:0;display:grid;place-items:center;font-weight:800;color:#93a3bd}' +
   'body:has(.arn) .calcsheet{z-index:2147483100!important}@media(min-width:1100px){body:has(.arn) .calcsheet.open{justify-content:flex-end;align-items:center;padding-right:24px;background:transparent}body:has(.arn):has(.calcsheet.open) .arq{justify-items:start;padding-left:24px}}.arcalc{display:inline-flex;gap:6px;align-items:center}.arcalc kbd{font:800 11px ui-monospace,monospace;background:#0b1220;border-radius:6px;padding:2px 6px}.arnum input{min-width:0}';
 
+function isTouchDev() { try { return matchMedia('(pointer: coarse)').matches || (navigator.maxTouchPoints > 0 && !matchMedia('(pointer: fine)').matches); } catch (e) { return false; } }
+function touchMode(c) { return c.ctrl === 'touch' || (c.ctrl !== 'mouse' && isTouchDev()); }
 function el(tag, cls, html) { var e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
 function loadThree(cb) {
   if (window.THREE && THREE.WebGLRenderer) { cb(true); return; }
@@ -213,7 +223,7 @@ function open() {
 function fail(msg) { if (!root) return; root.innerHTML = '<div class="arload" style="text-align:center;padding:20px;line-height:1.5">' + msg + '<br><br><button type="button" class="arbtn" data-a="x">Close</button></div>'; root.querySelector('[data-a=x]').onclick = close; }
 var pendingXP = 0;
 function close() {
-  closeCalc(); stopGame(); stopPreview(); killR3();
+  closeCalc(); exitFull(); stopGame(); stopPreview(); killR3();
   if (root) root.remove(); root = null;
   if (!document.querySelector('.xov')) document.body.classList.remove('noscroll');
   try { if (document.pointerLockElement) document.exitPointerLock(); } catch (e) {}
@@ -228,7 +238,7 @@ function store() {
   if (!c.bots || !c.bots.length) c.bots = ['auto', 'auto', 'auto', 'auto'];
   if (!c.v3d) { c.v3d = 1; c.bots = c.bots.map(function () { return 'auto'; }); } /* first run of the 3D version: bots match your skill */
   if (!LADDERS[c.ladder] && c.ladder !== 'mine') c.ladder = 'full'; if (!c.sens) c.sens = 5; if (c.onlyDone == null) c.onlyDone = true;
-  c.mode = 'dm'; if (!c.dmKills) c.dmKills = 10; if (!c.gfx) c.gfx = 'medium'; if (!c.fov) c.fov = 80;
+  c.mode = 'dm'; if (!c.dmKills) c.dmKills = 10; if (!c.gfx) c.gfx = isTouchDev() ? 'low' : 'medium'; if (!c.ctrl) c.ctrl = 'auto'; if (c.autoShoot == null) c.autoShoot = true; if (!c.tsens) c.tsens = 5; if (!c.fov) c.fov = 80;
   if (c.coins == null) c.coins = 0; if (c.cxp == null) c.cxp = 0; if (!c.owned) c.owned = ['pistol']; if (c.owned.indexOf('pistol') < 0) c.owned.unshift('pistol');
   c.owned = SHOP.filter(function (k) { return c.owned.indexOf(k) >= 0; });
   if (!c.primary || c.owned.indexOf(c.primary) < 0) c.primary = c.owned[c.owned.length - 1]; if (c.skill == null) c.skill = 0.35; if (!c.rec) c.rec = {};
@@ -268,7 +278,7 @@ function setup() {
   var cs = el('section', 'arcard'); cs.innerHTML = '<h2>Questions from</h2><div class="archips" data-k="track"></div><div style="height:10px"></div><div class="archips" data-k="lv"></div><p class="arsmall" data-k="qinfo" style="margin:10px 0 0"></p><label class="arsmall" style="display:flex;gap:8px;align-items:center;margin-top:6px"><input type="checkbox" data-k="only"> Only lessons I\'ve done</label>'; Lf.appendChild(cs);
   var ms = el('section', 'arcard'); ms.innerHTML = '<h2>Map</h2><div class="armaps"></div>'; Lf.appendChild(ms);
   var bs = el('section', 'arcard'); bs.innerHTML = '<h2>Bots</h2><div class="arbots"></div><div class="arrow" style="margin-top:8px"><button type="button" class="arbtn" data-a="add">+ Add bot</button><span class="arsmall">Set all:</span><button type="button" class="archip" data-all="auto" style="padding:6px 10px;font-size:13px;border-color:#22d3ee55">Match me</button>' + Object.keys(DIFF).map(function (k) { return '<button type="button" class="archip" data-all="' + k + '" style="padding:6px 10px;font-size:13px;border-color:' + DIFF[k].col + '55">' + DIFF[k].n + '</button>'; }).join('') + '</div><p class="arsmall" style="margin:8px 0 0"><b style="color:#22d3ee">Match me</b> bots get better as you get kills and easier when they keep beating you. They remember your level between matches.</p>'; Rt.appendChild(bs);
-  var gs = el('section', 'arcard'); gs.innerHTML = '<h2>Settings</h2><div class="archips" data-k="gfx"><button type="button" class="archip" data-gfx="high">High graphics</button><button type="button" class="archip" data-gfx="medium">Medium</button><button type="button" class="archip" data-gfx="low">Low (faster)</button></div><div class="arsl"><span class="arsmall">Mouse speed</span><input type="range" min="1" max="10" step="1" data-k="sens" aria-label="Mouse speed"><b data-k="sensv"></b></div><div class="arsl"><span class="arsmall">Field of view</span><input type="range" min="65" max="100" step="1" data-k="fov" aria-label="Field of view"><b data-k="fovv"></b></div><div class="arkeys" style="margin-top:12px"><kbd>WASD</kbd><span>Move</span><kbd>Space</kbd><span>Jump (you can jump onto crates and barriers)</span><kbd>Mouse</kbd><span>Look. Left-click shoots, right-click aims</span><kbd>R</kbd><span>Reload</span><kbd>1–4</kbd><span>Answer questions</span><kbd>Tab</kbd><span>Scoreboard</span><kbd>Esc</kbd><span>Pause</span></div>'; Rt.appendChild(gs);
+  var gs = el('section', 'arcard'); gs.innerHTML = '<h2>Settings</h2><div class="archips" data-k="gfx"><button type="button" class="archip" data-gfx="high">High graphics</button><button type="button" class="archip" data-gfx="medium">Medium</button><button type="button" class="archip" data-gfx="low">Low (faster)</button></div><div class="archips" data-k="ctrl" style="margin-top:10px"><button type="button" class="archip" data-ctrl="auto">Controls: auto</button><button type="button" class="archip" data-ctrl="touch">📱 Touch (phone/tablet)</button><button type="button" class="archip" data-ctrl="mouse">🖱️ Mouse and keyboard</button></div><div data-k="touchopt"></div><div class="arsl"><span class="arsmall">Mouse speed</span><input type="range" min="1" max="10" step="1" data-k="sens" aria-label="Mouse speed"><b data-k="sensv"></b></div><div class="arsl"><span class="arsmall">Field of view</span><input type="range" min="65" max="100" step="1" data-k="fov" aria-label="Field of view"><b data-k="fovv"></b></div><div class="arkeys" data-k="keys" style="margin-top:12px"><kbd>WASD</kbd><span>Move</span><kbd>Space</kbd><span>Jump (you can jump onto crates and barriers)</span><kbd>Mouse</kbd><span>Look. Left-click shoots, right-click aims</span><kbd>R</kbd><span>Reload</span><kbd>1–4</kbd><span>Answer questions</span><kbd>Tab</kbd><span>Scoreboard</span><kbd>Esc</kbd><span>Pause</span></div>'; Rt.appendChild(gs);
   var go = el('div', 'arrow'); go.innerHTML = '<button type="button" class="arbtn go" data-a="go">▶ Start match</button><span class="arsmall" data-k="tip"></span>'; body.appendChild(go);
   function q(s) { return S.querySelector(s); }
   function paint() {
@@ -288,6 +298,11 @@ function setup() {
     q('.arbots').innerHTML = c.bots.map(function (d, i) { return '<div class="arbot"><i style="background:' + BOTCOL[i % BOTCOL.length] + '"></i><b>' + BOTNAMES[i] + '</b><select data-bot="' + i + '" aria-label="' + BOTNAMES[i] + ' difficulty"><option value="auto"' + (d === 'auto' ? ' selected' : '') + '>Match me</option>' + Object.keys(DIFF).map(function (k) { return '<option value="' + k + '"' + (k === d ? ' selected' : '') + '>' + DIFF[k].n + '</option>'; }).join('') + '</select><button type="button" data-rm="' + i + '" aria-label="Remove ' + BOTNAMES[i] + '"' + (c.bots.length <= 1 ? ' disabled' : '') + '>✕</button></div>'; }).join('');
     q('[data-a=add]').disabled = c.bots.length >= 7;
     [].forEach.call(q('[data-k=gfx]').querySelectorAll('[data-gfx]'), function (b) { b.setAttribute('aria-pressed', String(b.dataset.gfx === c.gfx)); });
+    [].forEach.call(q('[data-k=ctrl]').querySelectorAll('[data-ctrl]'), function (b) { b.setAttribute('aria-pressed', String(b.dataset.ctrl === c.ctrl)); });
+    var tm = touchMode(c);
+    q('[data-k=touchopt]').innerHTML = tm ? '<label class="arsmall" style="display:flex;gap:8px;align-items:center;margin-top:10px"><input type="checkbox" data-k="auto"' + (c.autoShoot ? ' checked' : '') + '> Auto-shoot when your crosshair is on a bot</label><div class="arsl"><span class="arsmall">Look speed</span><input type="range" min="1" max="10" step="1" data-k="tsens" aria-label="Touch look speed" value="' + c.tsens + '"><b data-k="tsensv">' + c.tsens + '</b></div>' : '';
+    q('[data-k=sens]').closest('.arsl').style.display = tm ? 'none' : '';
+    q('[data-k=keys]').innerHTML = tm ? '<kbd>Left thumb</kbd><span>Move (touch anywhere on the left)</span><kbd>Right thumb</kbd><span>Drag to look around</span><kbd>Red button</kbd><span>Shoot (hold and drag to aim while you shoot)</span><kbd>Blue ring</kbd><span>Aim down the sights</span><kbd>Arrow / circle</kbd><span>Jump / reload</span><kbd>Top right</kbd><span>Scoreboard and pause. The game goes full screen and sideways</span>' : '<kbd>WASD</kbd><span>Move</span><kbd>Space</kbd><span>Jump (you can jump onto crates and barriers)</span><kbd>Mouse</kbd><span>Look. Left-click shoots, right-click aims</span><kbd>R</kbd><span>Reload</span><kbd>T</kbd><span>Calculator on number questions</span><kbd>1–4</kbd><span>Answer questions</span><kbd>Tab</kbd><span>Scoreboard</span><kbd>Esc</kbd><span>Pause</span>';
     q('[data-k=sens]').value = c.sens; q('[data-k=sensv]').textContent = c.sens; q('[data-k=fov]').value = c.fov; q('[data-k=fovv]').textContent = c.fov + '°';
     var cheap = SHOP.filter(function (k) { return c.owned.indexOf(k) < 0 && G[k].price <= c.coins && G[k].lvl <= L.lv; });
     q('[data-k=tip]').textContent = cheap.length ? 'You can afford the ' + G[cheap[cheap.length - 1]].n + '! Have a look in the gun shop.' : 'Coins: 10 a kill, 15 a right answer, 100 for a win.';
@@ -301,11 +316,11 @@ function setup() {
     if (b.dataset.a === 'add') { if (c.bots.length < 7) c.bots.push(c.bots[c.bots.length - 1] || 'auto'); }
     if (b.dataset.md) c.mode = b.dataset.md; if (b.dataset.tr) c.track = b.dataset.tr; if (b.dataset.lv) c.lv = +b.dataset.lv; if (b.dataset.map) c.map = b.dataset.map;
     if (b.dataset.rm != null && c.bots.length > 1) c.bots.splice(+b.dataset.rm, 1); if (b.dataset.all) c.bots = c.bots.map(function () { return b.dataset.all; });
-    if (b.dataset.ld) c.ladder = b.dataset.ld; if (b.dataset.gfx) c.gfx = b.dataset.gfx; if (b.dataset.dmk) c.dmKills = +b.dataset.dmk;
+    if (b.dataset.ld) c.ladder = b.dataset.ld; if (b.dataset.gfx) c.gfx = b.dataset.gfx; if (b.dataset.ctrl) c.ctrl = b.dataset.ctrl; if (b.dataset.dmk) c.dmKills = +b.dataset.dmk;
     paint();
   });
-  S.addEventListener('change', function (e) { var t = e.target; if (t.dataset.bot != null) { c.bots[+t.dataset.bot] = t.value; paint(); } if (t.dataset.k === 'only') { c.onlyDone = t.checked; paint(); } if (t.dataset.k === 'primary') { c.primary = t.value; paint(); } });
-  S.addEventListener('input', function (e) { var k = e.target.dataset.k; if (k === 'sens') { c.sens = +e.target.value; q('[data-k=sensv]').textContent = c.sens; wr(c); } if (k === 'fov') { c.fov = +e.target.value; q('[data-k=fovv]').textContent = c.fov + '°'; wr(c); } });
+  S.addEventListener('change', function (e) { var t = e.target; if (t.dataset.bot != null) { c.bots[+t.dataset.bot] = t.value; paint(); } if (t.dataset.k === 'only') { c.onlyDone = t.checked; paint(); } if (t.dataset.k === 'auto') { c.autoShoot = t.checked; wr(c); } if (t.dataset.k === 'primary') { c.primary = t.value; paint(); } });
+  S.addEventListener('input', function (e) { var k = e.target.dataset.k; if (k === 'sens') { c.sens = +e.target.value; q('[data-k=sensv]').textContent = c.sens; wr(c); } if (k === 'fov') { c.fov = +e.target.value; q('[data-k=fovv]').textContent = c.fov + '°'; wr(c); } if (k === 'tsens') { c.tsens = +e.target.value; q('[data-k=tsensv]').textContent = c.tsens; wr(c); } });
   paint(); try { q('[data-a=go]').focus({ preventScroll: true }); } catch (e) {}
 }
 /* ---------- the shop, with a spinning 3D preview ---------- */
@@ -498,7 +513,7 @@ var keys = {}, mouseDown = false, rmb = false;
 function stopGame() {
   if (st) { st.over = true; cancelAnimationFrame(st.raf); try { disposeTree(st.scene); disposeTree(st.vm.scene); if (st.env) st.env.dispose(); (st.detached || []).forEach(function (n) { n.geometry.dispose(); }); } catch (e) {} MC = {}; clearTexCache(); }
   st = null;
-  document.removeEventListener('keydown', onKey, true); document.removeEventListener('keyup', onKeyUp, true); document.removeEventListener('mousemove', onMouse); document.removeEventListener('pointerlockchange', onLock); document.removeEventListener('mouseup', onUp); window.removeEventListener('resize', resize); window.removeEventListener('wheel', onWheel); window.removeEventListener('blur', onBlur);
+  document.removeEventListener('keydown', onKey, true); document.removeEventListener('keyup', onKeyUp, true); document.removeEventListener('mousemove', onMouse); document.removeEventListener('pointerlockchange', onLock); document.removeEventListener('mouseup', onUp); window.removeEventListener('resize', resize); window.removeEventListener('wheel', onWheel); window.removeEventListener('blur', onBlur); document.removeEventListener('visibilitychange', onVis);
   keys = {}; mouseDown = false; rmb = false;
 }
 function gfxPR(c) { var d = window.devicePixelRatio || 1; return c.gfx === 'high' ? Math.min(d, 2) : c.gfx === 'low' ? Math.min(d, 1) * 0.75 : Math.min(d, 1.25); }
@@ -525,10 +540,10 @@ function start(c) {
   st.ents.forEach(function (e) { if (!e.me) { e.char = makeChar({ shirt: e.col, pants: pick(PANTS), skin: pick(SKINS), face: Math.floor(Math.random() * 6), hat: pick(HATS) }); st.scene.add(e.char.root); setCharGun(e); } spawn(e); });
   setVMGun(true);
   resize(); window.addEventListener('resize', resize);
-  document.addEventListener('keydown', onKey, true); document.addEventListener('keyup', onKeyUp, true); document.addEventListener('mousemove', onMouse); document.addEventListener('pointerlockchange', onLock); document.addEventListener('mouseup', onUp); window.addEventListener('wheel', onWheel, { passive: true }); window.addEventListener('blur', onBlur);
+  document.addEventListener('keydown', onKey, true); document.addEventListener('keyup', onKeyUp, true); document.addEventListener('mousemove', onMouse); document.addEventListener('pointerlockchange', onLock); document.addEventListener('mouseup', onUp); window.addEventListener('wheel', onWheel, { passive: true }); window.addEventListener('blur', onBlur); document.addEventListener('visibilitychange', onVis);
   canvas.addEventListener('mousedown', function (e) { if (!st || st.paused || st.q || st.result) return; if (document.pointerLockElement !== canvas && !st.touch) { lock(); return; } if (e.button === 0) { mouseDown = true; tryFire(); } if (e.button === 2) rmb = true; });
   canvas.addEventListener('contextmenu', function (e) { e.preventDefault(); });
-  if ('ontouchstart' in window && navigator.maxTouchPoints > 0) touchUI();
+  if (touchMode(c)) { touchUI(); goFull(); }
   lock(); feed('First to ' + c.dmKills + ' kills wins! Every kill is a question.', '#fde047');
   var last = performance.now();
   function loop(now) {
@@ -537,7 +552,8 @@ function start(c) {
     if (st.slow > 0) { st.slow -= rdt; if (st.slow <= 0 && st.pendingFinish) { var w = st.pendingFinish; st.pendingFinish = null; results(w, false); } }
     if (!st || st.over) return;
     if (st.manual) { st.raf = requestAnimationFrame(loop); return; }
-    if (!st.paused && !st.q && !st.result) update(dt, rdt); else updateFX(rdt);
+    st.portrait = st.touch && root.clientHeight > root.clientWidth * 1.05;
+    if (!st.paused && !st.q && !st.result && !st.portrait) update(dt, rdt); else updateFX(rdt);
     render(rdt); st.raf = requestAnimationFrame(loop);
   }
   st.raf = requestAnimationFrame(loop);
@@ -552,8 +568,11 @@ function fillAmmo(e) { if (st.mode === 'dm') e.slots.forEach(function (k) { e.am
 function ammo(e) { var k = wkey(e); if (e.ammo[k] == null) e.ammo[k] = G[k].mag; return e.ammo[k]; }
 function lock() { try { if (st && !st.touch && st.canvas.requestPointerLock) { var p = st.canvas.requestPointerLock(); if (p && p.catch) p.catch(function () {}); } } catch (e) {} }
 function onLock() { if (!st || st.over) return; if (document.pointerLockElement !== st.canvas && !st.q && !st.paused && !st.result && !st.touch && st.slow <= 0) pauseMenu(); }
+function onVis() { if (document.hidden && st && !st.q && !st.result && !st.paused && st.slow <= 0) pauseMenu(); }
+function goFull() { try { var p = root.requestFullscreen ? root.requestFullscreen({ navigationUI: 'hide' }) : root.webkitRequestFullscreen ? root.webkitRequestFullscreen() : null; if (p && p.then) p.then(function () { try { var o = screen.orientation && screen.orientation.lock && screen.orientation.lock('landscape'); if (o && o.catch) o.catch(function () {}); } catch (e) {} }).catch(function () {}); } catch (e) {} }
+function exitFull() { try { if (document.fullscreenElement && document.exitFullscreen) { var p = document.exitFullscreen(); if (p && p.catch) p.catch(function () {}); } } catch (e) {} }
 function onBlur() { keys = {}; mouseDown = false; rmb = false; }
-function resize() { if (!st || !root) return; var w = root.clientWidth, h = root.clientHeight; R3.setSize(w, h, false); st.camera.aspect = w / Math.max(1, h); st.camera.updateProjectionMatrix(); st.vm.cam.aspect = st.camera.aspect; st.vm.cam.updateProjectionMatrix(); var d = Math.min(2, window.devicePixelRatio || 1); st.hud.width = Math.round(w * d); st.hud.height = Math.round(h * d); st.hdpr = d; }
+function resize() { if (!st || !root) return; var w = root.clientWidth, h = root.clientHeight; R3.setSize(w, h, false); st.camera.aspect = w / Math.max(1, h); st.camera.updateProjectionMatrix(); st.vm.cam.aspect = st.camera.aspect; st.vm.cam.updateProjectionMatrix(); var d = Math.min(2, window.devicePixelRatio || 1); st.hud.width = Math.round(w * d); st.hud.height = Math.round(h * d); st.hdpr = d; st.uiS = clamp(Math.min(w / 1100, h / 620), 0.6, 1); }
 function onMouse(e) { if (!st || st.q || st.paused || st.result || document.pointerLockElement !== st.canvas) return; if (Math.abs(e.movementX) > 250 || Math.abs(e.movementY) > 250) return; var z = st.camera.fov / st.c.fov, s = (0.0009 + st.c.sens * 0.00045) * z; st.me.a -= e.movementX * s; st.me.pitch = clamp(st.me.pitch - e.movementY * s, -1.45, 1.45); st.swayX = (st.swayX || 0) + e.movementX * 0.00025; st.swayY = (st.swayY || 0) + e.movementY * 0.00025; }
 function onUp(e) { if (e.button === 0) mouseDown = false; if (e.button === 2) rmb = false; }
 function onWheel() { if (st && st.mode === 'dm' && !st.q && !st.paused && st.t - st.lastSwap > 0.25) { st.lastSwap = st.t; swapGun(); } }
@@ -784,6 +803,17 @@ function muzzleWorld() { var V = st.vm, p = new THREE.Vector3(); if (!V.gun || !
 function flashVM() { var V = st.vm, p = new THREE.Vector3(); V.gun.tip.getWorldPosition(p); V.flash.position.copy(p); V.flash.material.rotation = Math.random() * 6; var k = W_(st.me).kind, s = (k === 'shotgun' || k === 'rocket' ? 0.34 : k === 'rail' ? 0.3 : k === 'pistol' || k === 'revolver' ? 0.17 : 0.22) * V.S; V.flash.scale.set(s, s, 1); V.flash.material.color.set(k === 'rail' ? '#a5f3fc' : '#ffe3a1'); V.flash.visible = true; V.flashT = 0.04; st.fx.muzzleL.position.copy(st.camera.position); st.fx.muzzleL.intensity = 30; }
 
 /* ============================================================ update ============================================================ */
+var _fw = null;
+/* touch helpers: is a bot under the crosshair (auto-shoot), and how close is the nearest one (aim slows down near bots) */
+function nearestAim() {
+  var me = st.me, best = { ang: 9, dist: 0, o: null }, cp = Math.cos(me.pitch), fx = -Math.sin(me.a) * cp, fy = Math.sin(me.pitch), fz = -Math.cos(me.a) * cp, ey = me.y + EYE; _fw = _fw || { x: 0, y: 0, z: 0 }; _fw.x = fx; _fw.y = fy; _fw.z = fz;
+  st.ents.forEach(function (o) { if (o.me || !o.alive) return; var dx = o.x - me.x, dy = (o.y + 1.15) - ey, dz = o.z - me.z, dist = Math.hypot(dx, dy, dz); if (dist < 0.5) return; var ang = Math.acos(clamp((dx * _fw.x + dy * _fw.y + dz * _fw.z) / dist, -1, 1)); if (ang < best.ang && los(me.x, me.z, o.x, o.z)) best = { ang: ang, dist: dist, o: o }; });
+  return best;
+}
+function autoTarget() {
+  var me = st.me, w = W_(me); if (!me.alive || st.swapT > 0 || me.reloadT > 0) return false; var n = nearestAim(); if (!n.o || n.o.inv > 0) return false;
+  if (n.dist > w.rng || (w.proj && n.dist < 5)) return false; return n.ang < Math.atan(0.42 / n.dist) + 0.008;
+}
 function update(dt, rdt) {
   st.t += dt; var me = st.me;
   if (st.dmEnd) { st.dmEnd -= dt; if (st.dmEnd <= 0) { var lead = st.ents.slice().sort(function (a, b) { return b.kills - a.kills; })[0]; finish(lead, true); return; } }
@@ -808,8 +838,9 @@ function update(dt, rdt) {
     var gnd = groundAt(me.x, me.z, PR);
     if (me.y > gnd + 0.001 || me.vy > 0) { me.vy -= GRAV * dt; me.y += me.vy * dt; if (me.y <= gnd) { if (me.vy < -6) snd('land', 0.7); me.y = gnd; me.vy = 0; me.onGround = true; } else me.onGround = false; } else { me.y = gnd; me.onGround = true; }
     if (me.moving && me.onGround) { st.bob += dt * 10 * w.move; st.stepT -= dt; if (st.stepT <= 0) { st.stepT = 0.36 / w.move; snd('step', 0.6); } }
-    if (w.spin) { st.spin = clamp(st.spin + (mouseDown ? 1 : -1) * dt / w.spin, 0, 1); if (mouseDown && st.spin < 1 && !st.spinS) { st.spinS = 1; snd('spin', 0.7); } if (!mouseDown) st.spinS = 0; } else st.spin = 0;
-    if (mouseDown && (w.auto || w.beam)) tryFire();
+    st.autoFire = st.touch && st.c.autoShoot && !st.q ? autoTarget() : false; var firing = mouseDown || st.autoFire;
+    if (w.spin) { st.spin = clamp(st.spin + (firing ? 1 : -1) * dt / w.spin, 0, 1); if (firing && st.spin < 1 && !st.spinS) { st.spinS = 1; snd('spin', 0.7); } if (!firing) st.spinS = 0; } else st.spin = 0;
+    if (firing && (w.auto || w.beam)) tryFire(); else if (st.autoFire) tryFire();
     if (st.burstLeft > 0) { st.burstT -= dt; if (st.burstT <= 0) { if (ammo(me) > 0) { st.burstLeft--; st.burstT = 0.065; me.ammo[wkey(me)]--; fireShot(me, w); } else st.burstLeft = 0; } }
     if (me.autoRel > 0) { me.autoRel -= dt; if (me.autoRel <= 0) startReload(me); }
   }
@@ -1035,18 +1066,35 @@ function results(winner, quiet) {
 
 /* ============================================================ touch ============================================================ */
 function touchUI() {
-  st.touch = true; var t = el('div', 'artouch', '<div class="look"></div><div class="stick"><i></i></div><button type="button" class="tb fire">FIRE</button><button type="button" class="tb jump">JUMP</button><button type="button" class="tb rel">R</button><button type="button" class="tb aim">AIM</button>'); root.appendChild(t);
-  var stick = t.querySelector('.stick'), knob = stick.querySelector('i'), sid = null, cx = 0, cy = 0;
-  stick.addEventListener('touchstart', function (e) { var p = e.changedTouches[0]; sid = p.identifier; var r = stick.getBoundingClientRect(); cx = r.left + r.width / 2; cy = r.top + r.height / 2; e.preventDefault(); }, { passive: false });
-  stick.addEventListener('touchmove', function (e) { [].forEach.call(e.changedTouches, function (p) { if (p.identifier !== sid || !st) return; var dx = clamp((p.clientX - cx) / 50, -1, 1), dy = clamp((p.clientY - cy) / 50, -1, 1); st.touchMove = [dx, dy]; knob.style.transform = 'translate(' + dx * 40 + 'px,' + dy * 40 + 'px)'; }); e.preventDefault(); }, { passive: false });
-  var endS = function () { sid = null; if (st) st.touchMove = null; knob.style.transform = ''; }; stick.addEventListener('touchend', endS); stick.addEventListener('touchcancel', endS);
-  var look = t.querySelector('.look'), lid = null, lx = 0, ly = 0;
-  look.addEventListener('touchstart', function (e) { var p = e.changedTouches[0]; lid = p.identifier; lx = p.clientX; ly = p.clientY; e.preventDefault(); }, { passive: false });
-  look.addEventListener('touchmove', function (e) { [].forEach.call(e.changedTouches, function (p) { if (p.identifier !== lid || !st || st.q) return; var z = st.camera.fov / st.c.fov; st.me.a -= (p.clientX - lx) * 0.006 * z; st.me.pitch = clamp(st.me.pitch - (p.clientY - ly) * 0.005 * z, -1.45, 1.45); lx = p.clientX; ly = p.clientY; }); e.preventDefault(); }, { passive: false });
-  var fire = t.querySelector('.fire'); fire.addEventListener('touchstart', function (e) { mouseDown = true; if (st && !st.q && !st.paused) tryFire(); e.preventDefault(); }, { passive: false }); fire.addEventListener('touchend', function () { mouseDown = false; });
-  t.querySelector('.jump').addEventListener('touchstart', function (e) { if (st && !st.q) jump(); e.preventDefault(); }, { passive: false });
-  t.querySelector('.rel').addEventListener('touchstart', function (e) { if (st) startReload(st.me); e.preventDefault(); }, { passive: false });
-  t.querySelector('.aim').addEventListener('touchstart', function (e) { if (st) st.touchAim = !st.touchAim; e.preventDefault(); }, { passive: false });
+  st.touch = true; root.classList.add('touch');
+  var I = { fire: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="7"/><path d="M12 2v5M12 17v5M2 12h5M17 12h5"/></svg>', aim: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.5" fill="currentColor"/></svg>', jump: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>', rel: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v5h-5"/></svg>' };
+  var t = el('div', 'artouch', '<div class="tzone"></div><div class="thint">MOVE<br>here</div><div class="tstick" hidden><i></i></div>' +
+    '<button type="button" class="tb fire" aria-label="Shoot">' + I.fire + '</button><button type="button" class="tb fire2" aria-label="Shoot">' + I.fire + '</button><button type="button" class="tb aim" aria-label="Aim">' + I.aim + '</button><button type="button" class="tb jump" aria-label="Jump">' + I.jump + '</button><button type="button" class="tb rel" aria-label="Reload">' + I.rel + '</button>' +
+    '<div class="ttop"><button type="button" class="tsm" data-t="board" aria-label="Scoreboard">☰</button><button type="button" class="tsm" data-t="pause" aria-label="Pause">⏸</button></div>');
+  root.appendChild(t); st.tui = t;
+  var zone = t.querySelector('.tzone'), stick = t.querySelector('.tstick'), knob = stick.querySelector('i'), hint = t.querySelector('.thint'), aimB = t.querySelector('.aim'), ptr = {};
+  function cap(n, e) { try { n.setPointerCapture(e.pointerId); } catch (x) {} }
+  function live() { return st && !st.q && !st.paused && !st.result && !st.portrait; }
+  function look(dx, dy) { if (!live()) return; var z = st.camera.fov / st.c.fov, k = 0.0046 * (st.c.tsens || 5) / 5 * z; var n = nearestAim(); if (n.o && n.ang < 0.12) k *= 0.55; st.me.a -= dx * k; st.me.pitch = clamp(st.me.pitch - dy * k * 0.85, -1.45, 1.45); }
+  function hasStick() { for (var id in ptr) if (ptr[id].kind === 'stick') return true; return false; }
+  zone.addEventListener('pointerdown', function (e) { e.preventDefault(); cap(zone, e); var stickSide = e.clientX < root.clientWidth * 0.42 && !hasStick(); ptr[e.pointerId] = { kind: stickSide ? 'stick' : 'look', x: e.clientX, y: e.clientY, ox: e.clientX, oy: e.clientY }; if (stickSide) { stick.hidden = false; hint.hidden = true; stick.style.left = (e.clientX - 66) + 'px'; stick.style.top = (e.clientY - 66) + 'px'; } });
+  zone.addEventListener('pointermove', function (e) { var p = ptr[e.pointerId]; if (!p || !st) return; e.preventDefault(); if (p.kind === 'stick') { var dx = e.clientX - p.ox, dy = e.clientY - p.oy, L = Math.hypot(dx, dy), m = Math.min(L, 56), nx = L ? dx / L * m : 0, ny = L ? dy / L * m : 0; knob.style.transform = 'translate(' + nx + 'px,' + ny + 'px)'; st.touchMove = L > 6 ? [nx / 56, ny / 56] : null; } else { look(e.clientX - p.x, e.clientY - p.y); p.x = e.clientX; p.y = e.clientY; } });
+  function endP(e) { var p = ptr[e.pointerId]; if (!p) return; if (p.kind === 'stick') { stick.hidden = true; hint.hidden = false; knob.style.transform = ''; if (st) st.touchMove = null; } delete ptr[e.pointerId]; }
+  zone.addEventListener('pointerup', endP); zone.addEventListener('pointercancel', endP);
+  /* shoot buttons: hold to shoot, drag while holding to aim */
+  [].forEach.call(t.querySelectorAll('.fire, .fire2'), function (fb) {
+    var id = null, lx = 0, ly = 0;
+    fb.addEventListener('pointerdown', function (e) { e.preventDefault(); e.stopPropagation(); if (!st) return; cap(fb, e); id = e.pointerId; lx = e.clientX; ly = e.clientY; st.touchFire = (st.touchFire || 0) + 1; mouseDown = true; fb.classList.add('on'); if (live()) tryFire(); });
+    fb.addEventListener('pointermove', function (e) { if (e.pointerId !== id) return; e.preventDefault(); look(e.clientX - lx, e.clientY - ly); lx = e.clientX; ly = e.clientY; });
+    var up = function (e) { if (e.pointerId !== id) return; id = null; fb.classList.remove('on'); if (!st) return; st.touchFire = Math.max(0, (st.touchFire || 1) - 1); if (!st.touchFire) mouseDown = false; };
+    fb.addEventListener('pointerup', up); fb.addEventListener('pointercancel', up);
+  });
+  function tap(sel, fn) { var b = t.querySelector(sel); b.addEventListener('pointerdown', function (e) { e.preventDefault(); e.stopPropagation(); b.classList.add('on'); if (st) fn(); }); var off = function () { b.classList.remove('on'); }; b.addEventListener('pointerup', off); b.addEventListener('pointercancel', off); b.addEventListener('pointerleave', off); }
+  tap('.jump', function () { if (live()) jump(); });
+  tap('.rel', function () { if (live()) startReload(st.me); });
+  tap('.aim', function () { st.touchAim = !st.touchAim; aimB.classList.toggle('lit', st.touchAim); });
+  t.querySelector('[data-t=pause]').addEventListener('click', function () { if (st && !st.q && !st.result) pauseMenu(); });
+  t.querySelector('[data-t=board]').addEventListener('click', function () { if (st) st.board = !st.board; });
 }
 
 /* ============================================================ render + HUD ============================================================ */
@@ -1066,7 +1114,8 @@ function render(dt) {
 function rr(g, x, y, w, h, r) { g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); }
 function project(v) { var p = v.clone().project(st.camera); if (p.z > 1) return null; return { x: (p.x + 1) / 2 * st.hud.width, y: (1 - p.y) / 2 * st.hud.height }; }
 function hud() {
-  var g = st.hg, CW = st.hud.width, CH = st.hud.height, d = st.hdpr || 1, me = st.me, w = W_(me), pad = 16 * d, cx = CW / 2, cy = CH / 2, i;
+  var g = st.hg, CW = st.hud.width, CH = st.hud.height, d = (st.hdpr || 1) * (st.uiS || 1), me = st.me, w = W_(me), pad = 16 * d, cx = CW / 2, cy = CH / 2, i;
+  var hx = st.touch ? cx - 252 * d : pad, ax = st.touch ? cx + 12 * d : CW - pad - 250 * d;
   g.clearRect(0, 0, CW, CH); g.save(); g.textBaseline = 'middle';
   var scoped = w.scope && st.adsT > 0.85 && me.alive;
   if (scoped) { var R = Math.min(CW, CH) * 0.42; g.fillStyle = '#000'; g.beginPath(); g.rect(0, 0, CW, CH); g.arc(cx, cy, R, 0, Math.PI * 2, true); g.fill(); g.strokeStyle = '#000'; g.lineWidth = 2 * d; g.beginPath(); g.moveTo(cx - R, cy); g.lineTo(cx + R, cy); g.moveTo(cx, cy - R); g.lineTo(cx, cy + R); g.stroke(); g.strokeStyle = w.kind === 'rail' ? '#22d3ee' : '#ef4444'; g.lineWidth = 1.5 * d; g.beginPath(); g.arc(cx, cy, 3 * d, 0, 6.3); g.stroke(); var vg = g.createRadialGradient(cx, cy, R * 0.7, cx, cy, R); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.7)'); g.fillStyle = vg; g.beginPath(); g.arc(cx, cy, R, 0, 6.3); g.fill(); }
@@ -1082,26 +1131,26 @@ function hud() {
   if (st.dmgT > 0) { var an = -angDiff(me.a, st.dmgFrom) - Math.PI / 2; g.strokeStyle = 'rgba(239,68,68,' + clamp(st.dmgT * 2, 0, 0.9) + ')'; g.lineWidth = 7 * d; g.beginPath(); g.arc(cx, cy, 90 * d, an - 0.35, an + 0.35); g.stroke(); }
   if (st.dmgT > 0 || (me.alive && me.hp < 40)) { var a = Math.max(st.dmgT * 1.2, me.alive && me.hp < 40 ? (40 - me.hp) / 80 : 0), gr = g.createRadialGradient(cx, cy, CH * 0.3, cx, cy, CH * 0.85); gr.addColorStop(0, 'rgba(200,0,0,0)'); gr.addColorStop(1, 'rgba(200,0,0,' + clamp(a, 0, 0.55) + ')'); g.fillStyle = gr; g.fillRect(0, 0, CW, CH); }
   /* health */
-  g.fillStyle = 'rgba(5,8,13,.72)'; rr(g, pad, CH - pad - 62 * d, 240 * d, 62 * d, 14 * d); g.fill();
-  g.font = '900 ' + (28 * d) + 'px ui-monospace,monospace'; g.textAlign = 'left'; g.fillStyle = me.hp > 50 ? '#e8edf7' : me.hp > 25 ? '#fde047' : '#f87171'; g.fillText('✚ ' + Math.max(0, Math.ceil(me.hp)), pad + 14 * d, CH - pad - 40 * d);
-  if (me.boostT > 0 && me.alive) { g.font = '800 ' + (12 * d) + 'px system-ui,sans-serif'; g.fillStyle = '#facc15'; g.fillText('⚡ BOOST ' + Math.ceil(me.boostT) + 's', pad + 122 * d, CH - pad - 40 * d); }
-  else if (me.inv > 0 && me.alive) { g.font = '800 ' + (11 * d) + 'px system-ui,sans-serif'; g.fillStyle = '#7dd3fc'; g.fillText('SPAWN SHIELD', pad + 130 * d, CH - pad - 40 * d); }
-  g.fillStyle = '#1f2937'; rr(g, pad + 14 * d, CH - pad - 19 * d, 212 * d, 8 * d, 4 * d); g.fill(); g.fillStyle = me.hp > 50 ? '#22c55e' : me.hp > 25 ? '#eab308' : '#ef4444'; rr(g, pad + 14 * d, CH - pad - 19 * d, Math.max(8 * d, 212 * d * clamp(me.hp / 100, 0, 1)), 8 * d, 4 * d); g.fill();
+  g.fillStyle = 'rgba(5,8,13,.72)'; rr(g, hx, CH - pad - 62 * d, 240 * d, 62 * d, 14 * d); g.fill();
+  g.font = '900 ' + (28 * d) + 'px ui-monospace,monospace'; g.textAlign = 'left'; g.fillStyle = me.hp > 50 ? '#e8edf7' : me.hp > 25 ? '#fde047' : '#f87171'; g.fillText('✚ ' + Math.max(0, Math.ceil(me.hp)), hx + 14 * d, CH - pad - 40 * d);
+  if (me.boostT > 0 && me.alive) { g.font = '800 ' + (12 * d) + 'px system-ui,sans-serif'; g.fillStyle = '#facc15'; g.fillText('⚡ BOOST ' + Math.ceil(me.boostT) + 's', hx + 122 * d, CH - pad - 40 * d); }
+  else if (me.inv > 0 && me.alive) { g.font = '800 ' + (11 * d) + 'px system-ui,sans-serif'; g.fillStyle = '#7dd3fc'; g.fillText('SPAWN SHIELD', hx + 130 * d, CH - pad - 40 * d); }
+  g.fillStyle = '#1f2937'; rr(g, hx + 14 * d, CH - pad - 19 * d, 212 * d, 8 * d, 4 * d); g.fill(); g.fillStyle = me.hp > 50 ? '#22c55e' : me.hp > 25 ? '#eab308' : '#ef4444'; rr(g, hx + 14 * d, CH - pad - 19 * d, Math.max(8 * d, 212 * d * clamp(me.hp / 100, 0, 1)), 8 * d, 4 * d); g.fill();
   /* ammo */
-  g.fillStyle = 'rgba(5,8,13,.72)'; rr(g, CW - pad - 250 * d, CH - pad - 62 * d, 250 * d, 62 * d, 14 * d); g.fill(); g.textAlign = 'right';
-  g.font = '800 ' + (13 * d) + 'px system-ui,sans-serif'; g.fillStyle = w.col; g.fillText(w.n + (st.mode === 'dm' && me.slots.length > 1 ? '  (Q to swap)' : ''), CW - pad - 14 * d, CH - pad - 46 * d);
-  g.font = '900 ' + (26 * d) + 'px ui-monospace,monospace'; g.fillStyle = w.mag && ammo(me) <= Math.ceil(w.mag * 0.2) ? '#f87171' : '#e8edf7'; g.fillText(w.melee ? '∞' : me.reloadT > 0 ? 'RELOADING' : ammo(me) + ' / ' + w.mag, CW - pad - 14 * d, CH - pad - 20 * d);
-  if (me.reloadT > 0 && w.rel) { g.fillStyle = '#1f2937'; g.fillRect(CW - pad - 236 * d, CH - pad - 8 * d, 222 * d, 4 * d); g.fillStyle = '#38bdf8'; g.fillRect(CW - pad - 236 * d, CH - pad - 8 * d, 222 * d * clamp(1 - me.reloadT / (w.rel * (me.D ? me.D.fire : 1)), 0, 1), 4 * d); g.textAlign = 'center'; g.font = '800 ' + (14 * d) + 'px system-ui,sans-serif'; g.fillStyle = '#e8edf7'; g.fillText('Reloading…', cx, cy + 48 * d); }
-  else if (w.mag && ammo(me) === 0 && me.alive) { g.textAlign = 'center'; g.font = '800 ' + (14 * d) + 'px system-ui,sans-serif'; g.fillStyle = '#f87171'; g.fillText('Press R to reload', cx, cy + 48 * d); }
+  g.fillStyle = 'rgba(5,8,13,.72)'; rr(g, ax, CH - pad - 62 * d, 250 * d, 62 * d, 14 * d); g.fill(); g.textAlign = 'right';
+  g.font = '800 ' + (13 * d) + 'px system-ui,sans-serif'; g.fillStyle = w.col; g.fillText(w.n + (st.mode === 'dm' && me.slots.length > 1 ? '  (Q to swap)' : ''), ax + 236 * d, CH - pad - 46 * d);
+  g.font = '900 ' + (26 * d) + 'px ui-monospace,monospace'; g.fillStyle = w.mag && ammo(me) <= Math.ceil(w.mag * 0.2) ? '#f87171' : '#e8edf7'; g.fillText(w.melee ? '∞' : me.reloadT > 0 ? 'RELOADING' : ammo(me) + ' / ' + w.mag, ax + 236 * d, CH - pad - 20 * d);
+  if (me.reloadT > 0 && w.rel) { g.fillStyle = '#1f2937'; g.fillRect(ax + 14 * d, CH - pad - 8 * d, 222 * d, 4 * d); g.fillStyle = '#38bdf8'; g.fillRect(ax + 14 * d, CH - pad - 8 * d, 222 * d * clamp(1 - me.reloadT / (w.rel * (me.D ? me.D.fire : 1)), 0, 1), 4 * d); g.textAlign = 'center'; g.font = '800 ' + (14 * d) + 'px system-ui,sans-serif'; g.fillStyle = '#e8edf7'; g.fillText('Reloading…', cx, cy + 48 * d); }
+  else if (w.mag && ammo(me) === 0 && me.alive) { g.textAlign = 'center'; g.font = '800 ' + (14 * d) + 'px system-ui,sans-serif'; g.fillStyle = '#f87171'; g.fillText(st.touch ? 'Tap ↻ to reload' : 'Press R to reload', cx, cy + 48 * d); }
   if (w.spin && st.spin > 0 && st.spin < 1) { g.textAlign = 'center'; g.font = '800 ' + (12 * d) + 'px system-ui,sans-serif'; g.fillStyle = '#f472b6'; g.fillText('Spinning up ' + Math.round(st.spin * 100) + '%', cx, cy + 66 * d); }
   /* top bar: weapon ladder or deathmatch score */
   var lw = Math.min(CW * 0.5, 460 * d), lx = cx - lw / 2, ly = 14 * d;
   g.fillStyle = 'rgba(5,8,13,.72)'; rr(g, lx - 10 * d, ly - 6 * d, lw + 20 * d, 52 * d, 14 * d); g.fill();
   if (st.mode === 'gun') { var n = st.lad.length, cw = lw / n; for (i = 0; i < n; i++) { var W2 = G[st.lad[i]]; g.fillStyle = i === me.tier ? W2.col : i < me.tier ? 'rgba(255,255,255,.55)' : 'rgba(255,255,255,.12)'; rr(g, lx + i * cw + 2 * d, ly, cw - 4 * d, 9 * d, 3 * d); g.fill(); var k = 0; st.ents.forEach(function (e) { if (!e.me && e.tier === i) { g.fillStyle = e.col; g.beginPath(); g.arc(lx + i * cw + cw / 2 + (k - 1) * 6 * d, ly + 16 * d, 3 * d, 0, 6.3); g.fill(); k++; } }); } g.textAlign = 'center'; g.font = '800 ' + (13 * d) + 'px system-ui,sans-serif'; g.fillStyle = w.col; g.fillText(w.n + '   ' + (me.tier + 1) + '/' + n, cx, ly + 33 * d); }
   else { var lead = st.ents.slice().sort(function (a, b) { return b.kills - a.kills; })[0], mm = Math.max(0, Math.floor(st.dmEnd / 60)), ss = Math.max(0, Math.floor(st.dmEnd % 60)); g.textAlign = 'center'; g.font = '900 ' + (15 * d) + 'px ui-monospace,monospace'; g.fillStyle = '#e8edf7'; g.fillText('You ' + me.kills + '  ·  ' + (!lead.kills ? 'no kills yet' : lead === me ? 'you lead' : lead.name + ' ' + lead.kills) + '  ·  first to ' + st.c.dmKills, cx, ly + 10 * d); g.font = '800 ' + (13 * d) + 'px ui-monospace,monospace'; g.fillStyle = st.dmEnd < 30 ? '#f87171' : '#93a3bd'; g.fillText(mm + ':' + String(ss).padStart(2, '0'), cx, ly + 31 * d); }
-  g.textAlign = 'right'; g.font = '800 ' + (13 * d) + 'px system-ui,sans-serif'; g.fillStyle = '#fde047'; g.fillText('🪙 +' + st.coins + '   ·   ' + st.right + '/' + st.asked + ' right', CW - pad, CH - pad - 76 * d);
+  g.textAlign = 'right'; g.font = '800 ' + (13 * d) + 'px system-ui,sans-serif'; g.fillStyle = '#fde047'; g.fillText('🪙 +' + st.coins + '   ·   ' + st.right + '/' + st.asked + ' right', ax + 250 * d, CH - pad - 76 * d);
   /* kill feed */
-  g.font = '700 ' + (13 * d) + 'px system-ui,sans-serif'; st.feed.forEach(function (f, i) { var age = st.t - f.t; g.globalAlpha = clamp(6 - age, 0, 1); var tw = g.measureText(f.s).width + 18 * d; g.fillStyle = 'rgba(5,8,13,.65)'; rr(g, CW - pad - tw, 74 * d + i * 27 * d, tw, 23 * d, 7 * d); g.fill(); g.fillStyle = f.c; g.textAlign = 'right'; g.fillText(f.s, CW - pad - 9 * d, 86 * d + i * 27 * d); }); g.globalAlpha = 1;
+  g.font = '700 ' + (13 * d) + 'px system-ui,sans-serif'; st.feed.forEach(function (f, i) { var age = st.t - f.t; g.globalAlpha = clamp(6 - age, 0, 1); var tw = g.measureText(f.s).width + 18 * d; g.fillStyle = 'rgba(5,8,13,.65)'; var fy = (st.touch ? 66 / (st.uiS || 1) : 0) * d; rr(g, CW - pad - tw, fy + 74 * d + i * 27 * d, tw, 23 * d, 7 * d); g.fill(); g.fillStyle = f.c; g.textAlign = 'right'; g.fillText(f.s, CW - pad - 9 * d, fy + 86 * d + i * 27 * d); }); g.globalAlpha = 1;
   /* kill popups */
   st.popups.slice(-2).forEach(function (p, i) { var k = (st.t - p.t) / 1.6, y = cy - 120 * d - i * 44 * d - k * 12 * d; g.globalAlpha = k < 0.8 ? 1 : (1 - k) / 0.2; g.textAlign = 'center'; g.font = '900 ' + (22 * d) + 'px system-ui,sans-serif'; g.lineWidth = 5 * d; g.strokeStyle = 'rgba(0,0,0,.6)'; g.strokeText(p.s, cx, y); g.fillStyle = /HEADSHOT/.test(p.s) ? '#fde047' : '#fff'; g.fillText(p.s, cx, y); g.font = '800 ' + (13 * d) + 'px system-ui,sans-serif'; g.fillStyle = '#fde047'; g.fillText(p.sub, cx, y + 20 * d); g.globalAlpha = 1; });
   /* banner */
@@ -1116,9 +1165,11 @@ function hud() {
   /* scoreboard */
   if (st.board) { var bw = Math.min(CW * 0.86, 620 * d), bh = (64 + st.ents.length * 32) * d, bx = cx - bw / 2, by = cy - bh / 2; g.fillStyle = 'rgba(5,8,13,.9)'; rr(g, bx, by, bw, bh, 16 * d); g.fill(); g.textAlign = 'left'; g.font = '800 ' + (13 * d) + 'px system-ui,sans-serif'; g.fillStyle = '#93a3bd'; g.fillText('PLAYER', bx + 22 * d, by + 30 * d); g.fillText('WEAPON', bx + bw * 0.44, by + 30 * d); g.fillText('K / D', bx + bw * 0.84, by + 30 * d);
     st.ents.slice().sort(function (a, b) { return st.mode === 'dm' ? b.kills - a.kills : b.tier - a.tier || b.kills - a.kills; }).forEach(function (e, i) { var Y = by + (64 + i * 32) * d; g.font = '800 ' + (14 * d) + 'px system-ui,sans-serif'; g.fillStyle = e.me ? '#fde047' : e.col; g.fillText(e.name + (e.D ? ' (' + e.D.n + ')' : ''), bx + 22 * d, Y); g.fillStyle = '#e8edf7'; g.fillText(W_(e).n + (st.mode === 'gun' ? ' ' + (e.tier + 1) : ''), bx + bw * 0.44, Y); g.fillText(e.kills + ' / ' + e.deaths, bx + bw * 0.84, Y); }); }
+  if (st.touch && st.autoFire && me.alive) { g.textAlign = 'center'; g.font = '900 ' + (11 * d) + 'px system-ui,sans-serif'; g.fillStyle = '#fca5a5'; g.fillText('AUTO', cx, cy + 30 * d); }
+  if (st.portrait) { g.fillStyle = 'rgba(3,6,12,.86)'; g.fillRect(0, 0, CW, CH); g.textAlign = 'center'; g.fillStyle = '#fff'; var pf = 26 * (st.hdpr || 1); g.font = '900 ' + pf + 'px system-ui,sans-serif'; var pw = g.measureText('📱 Turn your phone sideways').width; if (pw > CW * 0.9) { pf *= CW * 0.9 / pw; g.font = '900 ' + pf + 'px system-ui,sans-serif'; } g.fillText('📱 Turn your phone sideways', cx, cy - 14 * (st.hdpr || 1)); g.font = '700 ' + (14 * (st.hdpr || 1)) + 'px system-ui,sans-serif'; g.fillStyle = '#cbd5e1'; g.fillText('The game waits until you do.', cx, cy + 20 * (st.hdpr || 1)); }
   if (document.pointerLockElement !== st.canvas && !st.touch && !st.q && !st.paused && !st.result && st.slow <= 0) { g.textAlign = 'center'; g.font = '800 ' + (15 * d) + 'px system-ui,sans-serif'; g.fillStyle = 'rgba(5,8,13,.75)'; rr(g, cx - 140 * d, CH * 0.64 - 19 * d, 280 * d, 38 * d, 10 * d); g.fill(); g.fillStyle = '#fff'; g.fillText('Click to aim with the mouse', cx, CH * 0.64); }
   g.restore();
 }
 
-window.CRIT_ARENA = { open: open, close: close, _st: function () { return st; }, _G: G, _store: store, _wr: wr, _start: function () { start(store()); }, _dbg: { ask: function () { askQ(); }, r3: function () { return R3; }, manual: function (v) { st.manual = v; }, step: function (n, d) { for (var i = 0; i < n; i++) { if (!st.paused && !st.q && !st.result) update(d, d); else updateFX(d); if (st.slow > 0) { st.slow -= d; if (st.slow <= 0 && st.pendingFinish) { var w = st.pendingFinish; st.pendingFinish = null; results(w, false); return; } } } render(d); }, hud: function () { hud(); }, upd: function (d) { update(d, d); }, fire: function () { tryFire(); }, vm: function () { setVMGun(true); }, swap: swapGun, reload: function () { startReload(st.me); } } };
+window.CRIT_ARENA = { open: open, close: close, _st: function () { return st; }, _G: G, _store: store, _wr: wr, _start: function () { start(store()); }, _dbg: { ask: function () { askQ(); }, near: function () { var n = nearestAim(); return { ang: n.ang, dist: n.dist, name: n.o && n.o.name, auto: autoTarget(), af: st.autoFire }; }, r3: function () { return R3; }, manual: function (v) { st.manual = v; }, step: function (n, d) { for (var i = 0; i < n; i++) { if (!st.paused && !st.q && !st.result) update(d, d); else updateFX(d); if (st.slow > 0) { st.slow -= d; if (st.slow <= 0 && st.pendingFinish) { var w = st.pendingFinish; st.pendingFinish = null; results(w, false); return; } } } render(d); }, hud: function () { hud(); }, upd: function (d) { update(d, d); }, fire: function () { tryFire(); }, vm: function () { setVMGun(true); }, swap: swapGun, reload: function () { startReload(st.me); } } };
 })();
