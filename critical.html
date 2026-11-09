@@ -351,8 +351,8 @@ main{max-width:1100px;margin:0 auto;padding:20px 16px 80px}
 .homesline b{font-family:var(--mono);color:#BA7517}
 .homesline .plus{color:var(--good);font-weight:700;font-size:13px}
 .dblock .quest{padding:6px 0}
-.newb{display:flex;flex-wrap:wrap;gap:8px}
-.nbchip{display:inline-flex;align-items:center;gap:8px;background:var(--soft);border-radius:999px;padding:4px 12px 4px 4px;font-weight:600;font-size:14px}
+.newbs{display:flex;flex-wrap:wrap;gap:8px}
+.nbchip{display:inline-flex;align-items:center;gap:8px;background:var(--soft);color:var(--text);border:1px solid var(--line);border-radius:999px;padding:4px 12px 4px 4px;font-weight:600;font-size:14px}
 .nbchip .tb{width:28px;height:28px;flex-basis:28px;font-size:15px}
 .nextfoot{display:flex;flex-direction:column;line-height:1.35}
 .nextfoot .nh{font-size:13px;color:var(--muted)}
@@ -954,7 +954,7 @@ function streakNow(){if(!S.last)return 0;var g=dayDiff(S.last,today());if(g<=1)r
 function addXP(n,el){if(n<=0)return;var lv0=level().i;S.xp+=n;var t=today();if(S.daily.d!==t)S.daily={d:t,xp:0};S.daily.xp+=n;S.hist[t]=(S.hist[t]||0)+n;pruneHist();touchStreak();save();updHeader();var xpp=$('xpPill');xpp.classList.remove('bump');void xpp.offsetWidth;xpp.classList.add('bump');
  if(el){var r=el.getBoundingClientRect(),f=document.createElement('div');f.className='xpfloat';f.textContent='+'+n+' XP';f.style.left=(r.left+r.width/2-30)+'px';f.style.top=(r.top-10)+'px';document.body.appendChild(f);setTimeout(function(){f.remove()},1000)}
  var lv1=level().i;if(lv1>lv0)queueLevelUp(lv1);qProg('xp',n);checkBadges()}
-var LEVELS=[[0,'Visitor'],[100,'Trainee'],[300,'Plant technician'],[600,'Field operator'],[1000,'Operator trainee'],[1600,'Reactor operator'],[2400,'Senior reactor operator'],[3400,'Shift supervisor'],[4600,'Shift manager'],[6000,'Station director']];
+var LEVELS=[[0,'Visitor'],[100,'Trainee'],[300,'Plant technician'],[600,'Field operator'],[1000,'Operator trainee'],[1600,'Reactor operator'],[2400,'Senior reactor operator'],[3400,'Shift supervisor'],[4600,'Shift manager'],[6000,'Station director'],[7800,'Fleet director'],[10000,'Chief nuclear officer'],[12500,'Chief inspector'],[15500,'New-build director'],[19000,'SMR designer'],[23000,'Fusion engineer'],[27500,'Tokamak commander'],[32500,'Fusion plant director'],[38000,'Grid architect'],[45000,'Star maker']];
 function level(){var i=0;while(i<LEVELS.length-1&&S.xp>=LEVELS[i+1][0])i++;var lo=LEVELS[i][0],hi=i<LEVELS.length-1?LEVELS[i+1][0]:lo+2000;return {i:i,name:LEVELS[i][1],frac:Math.min(1,(S.xp-lo)/(hi-lo)),next:i<LEVELS.length-1?LEVELS[i+1][1]:'',toNext:hi-S.xp}}
 var FLAME='<svg viewBox="0 0 24 24" fill="none"><path d="M12 2c1 4 6 6 6 12a6 6 0 0 1-12 0c0-3 2-5 3-6 0 2 1 3 2 3 0-4-1-6 1-9z" fill="#e8742a"/><path d="M12 13c1 1.5 3 2.3 3 4.5a3 3 0 0 1-6 0c0-1.5 1-2.5 1.5-3 0 1 .5 1.5 1 1.5 0-1.5 0-2 .5-3z" fill="#fcc24a"/></svg>';
 var BOLT='<svg viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7z" fill="#7F77DD"/></svg>';
@@ -1202,7 +1202,7 @@ function finish(){if(P.mode==='lap')return HIGH.finish();if(P.mode==='one')retur
  else if(fid&&FOLLOW[fid])h+='<div class="dblock fuopt"><div><div class="dbt">Want more practice?</div><p class="note">5 extra questions on this lesson. It\'s optional.</p></div><button class="ghost sm" id="fuGo">Extra practice</button></div>';
  if(P.mode==='lesson')h+=EASE.endBlock(ui,acc,P.right,P.asked,'lesson',!!fneed);
  h+='<div class="dblock"><div class="dbt">Daily quests</div>'+questsHTML(true)+(P.chestNow?'<div class="quest chest done"><span class="qi">'+CHEST+'</span><div class="qb"><div class="qt">Daily chest opened: +30 XP'+(P.chestNow===2?' and a streak freeze':'')+'</div></div></div>':'')+'</div>';
- if(P.newBadges.length)h+='<div class="dblock"><div class="dbt">Badges earned</div><div class="newb">'+P.newBadges.map(function(bd){return '<span class="nbchip"><span class="tb" style="background:'+bd.col+'">'+bd.ic+'</span>'+bd.name+'</span>'}).join('')+'</div></div>';
+ if(P.newBadges.length)h+='<div class="dblock"><div class="dbt">Badges earned</div><div class="newbs">'+P.newBadges.map(function(bd){return '<span class="nbchip"><span class="tb" style="background:'+bd.col+'">'+bd.ic+'</span>'+bd.name+'</span>'}).join('')+'</div></div>';
  b.innerHTML=h+'</div>';$('pScroll').scrollTop=0;$('pXP').textContent='+'+P.xp+' XP';if($('fuGo'))$('fuGo').onclick=function(){closePlayer();startFollow(fid)};
  countUp($('dsXP'),0,P.xp,'+');if($('dsHomes'))countUp($('dsHomes'),h0,homesNow(),'');
  foot('','','');skipBtn(null);
@@ -1262,7 +1262,7 @@ var HOOKS={m1:'A reactor\'s power spans ten powers of ten. Learn the shorthand o
  o1:'The habits that stop good operators making small mistakes.',o2:'Three Mile Island, Chernobyl and Fukushima: what went wrong, and what operators changed.',o3:'Put it all together: take a reactor from shutdown to the grid.'};
 
 /* ----- ranks ----- */
-var RANK_INFO=['You\'re on the visitor centre tour, looking through the glass at the control room.','Day one of training: site induction, safety rules and the basics.','You test and maintain equipment around the plant.','You walk the plant, check equipment and carry out the control room\'s instructions.','You\'re training for the control room and practising on the simulator.','You\'re qualified to work the control desk: rods, boron and power.','You supervise the desk and make the key calls during events.','You lead the whole shift team and are responsible for the plant\'s safety on your shift.','You manage shifts, training and standards across the station.','You run the whole power station.'];
+var RANK_INFO=['You\'re on the visitor centre tour, looking through the glass at the control room.','Day one of training: site induction, safety rules and the basics.','You test and maintain equipment around the plant.','You walk the plant, check equipment and carry out the control room\'s instructions.','You\'re training for the control room and practising on the simulator.','You\'re qualified to work the control desk: rods, boron and power.','You supervise the desk and make the key calls during events.','You lead the whole shift team and are responsible for the plant\'s safety on your shift.','You manage shifts, training and standards across the station.','You run the whole power station.','You oversee operations at every power station in the fleet.','You\'re accountable for nuclear safety across the whole company.','You lead the inspectors who decide whether a reactor is safe to run.','You lead the building of a brand-new power station, like Hinkley Point C.','You design small modular reactors that can be built in a factory and shipped to site.','You work on fusion: joining light atoms together, the reaction that powers the Sun.','You run a tokamak, holding plasma at over 100 million °C inside magnetic fields.','You run the first power station to put fusion electricity on the grid.','You plan how the whole country gets clean, reliable electricity, day and night.','You\'ve mastered fission and fusion. This is the top of the ladder.'];
 
 /* ----- station ----- */
 var COMP=['Foundations','Grid connection','Fuel','Reactor building','Control rods','Steam lines','Cooling water','Radiation monitoring','Turbine hall','Control room'];
@@ -1371,7 +1371,7 @@ var LAD=(function(){
    streak:Math.max(S.st.maxStreak||0,streakNow()),hours:Math.floor(mins/60),mis:Object.keys(S.missions||{}).length,misN:MISSIONS.length,bg:bg,bgN:B.length}}
  function L(t,v,n){return {t:t,v:v,n:n}}
  var LIST=[
-  {id:'ops',name:'Operations',col:'#1f8fb3',ic:'🎛️',p:'The classic route: earn XP to climb from visitor to station director.',
+  {id:'ops',name:'Operations',col:'#1f8fb3',ic:'🎛️',p:'The classic route: earn XP to climb from visitor to station director, then on to fusion and beyond.',
    rungs:function(D){return LEVELS.map(function(l,i){return {n:l[1],i:RANK_INFO[i],req:i?[L('XP',D.xp,l[0])]:[]}})}},
   {id:'eng',name:'Reactor engineering',col:'#D85A30',ic:'⚛️',p:'Finish Theory lessons to rise through reactor engineering.',
    rungs:function(D){var N=D.thN;return [['Engineering student',0,'You\'ve picked engineering. The reactor is the thing to understand.'],['Graduate engineer',10,'You know what fission, fuel and the core actually do.'],['Systems engineer',25,'You can follow the primary circuit and the turbine from end to end.'],['Reactor physicist',45,'Neutrons, reactivity and xenon make sense to you.'],['Safety case engineer',65,'You can explain why the plant is safe, and prove it.'],['Lead reactor engineer',85,'Severe accidents and safety analysis are your daily work.'],['Chief engineer',N,'Every Theory lesson, done. The station\'s engineering is in your hands.']].map(function(r,i){return {n:r[0],i:r[2],req:i?[L('Theory lessons',D.th,Math.min(r[1],N))]:[]}})}},
@@ -1430,10 +1430,12 @@ function toast(icon,title,sub,snd){if(P&&P.quiet)return;TQ.push([icon,title,sub,
 function nextToast(){var x=TQ.shift(),box=$('toasts');if(!x||!box){TBUSY=false;return}TBUSY=true;var t=el('div','toast','<span class="ti">'+x[0]+'</span><div><b>'+x[1]+'</b>'+(x[2]?'<span>'+x[2]+'</span>':'')+'</div>',box);if(x[3])sfx(x[3]);
  requestAnimationFrame(function(){requestAnimationFrame(function(){t.classList.add('in')})});setTimeout(function(){t.classList.remove('in');setTimeout(function(){t.remove();nextToast()},320)},2300)}
 function queueLevelUp(i){if(P)P.levelUp=Math.max(P.levelUp==null?-1:P.levelUp,i);else setTimeout(function(){showLevelUp(i)},300)}
-function rankEmblem(i,size){size=size||96;var c=['#9a988f','#7F77DD','#378ADD','#1D9E75','#1f8fb3','#D85A30','#D4537E','#BA7517','#534AB7','#e8742a'][i]||'#7F77DD';
- return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 100 100"><path d="M50 4 88 20v28c0 24-16 40-38 48C28 88 12 72 12 48V20z" fill="'+c+'"/><path d="M50 14 79 26v22c0 18-12 31-29 38-17-7-29-20-29-38V26z" fill="#fff" fill-opacity=".18"/>'+
-  (function(){var s='';for(var k=0;k<=i;k++){var row=Math.floor(k/5),col=k%5,n=Math.min(5,i+1-row*5);s+='<circle cx="'+(50+(col-(n-1)/2)*11)+'" cy="'+(70+row*-12)+'" r="3.6" fill="#fff"/>'}return s})()+
-  '<text x="50" y="52" text-anchor="middle" font-size="30" font-weight="800" fill="#fff" font-family="system-ui">'+(i+1)+'</text></svg>'}
+function rankEmblem(i,size){size=size||96;var c=['#9a988f','#7F77DD','#378ADD','#1D9E75','#1f8fb3','#D85A30','#D4537E','#BA7517','#534AB7','#e8742a','#0f9d8a','#2563eb','#7c3aed','#c026d3','#db2777','#0891b2','#4f46e5','#9333ea','#b45309','#e11d48'][i]||'#7F77DD',hi=i>=10;
+ function star(x,y,r){var p=[];for(var k=0;k<10;k++){var a=-Math.PI/2+k*Math.PI/5,rr=k%2?r*.45:r;p.push((x+Math.cos(a)*rr).toFixed(1)+','+(y+Math.sin(a)*rr).toFixed(1))}return '<polygon points="'+p.join(' ')+'" fill="#ffe08a"/>'}
+ var s='<svg width="'+size+'" height="'+size+'" viewBox="0 0 100 100"><path d="M50 4 88 20v28c0 24-16 40-38 48C28 88 12 72 12 48V20z" fill="'+c+'"'+(hi?' stroke="#f5c542" stroke-width="5" stroke-linejoin="round"':'')+'/><path d="M50 14 79 26v22c0 18-12 31-29 38-17-7-29-20-29-38V26z" fill="#fff" fill-opacity=".18"/>';
+ if(!hi){for(var k=0;k<=i;k++){var row=Math.floor(k/5),col=k%5,n=Math.min(5,i+1-row*5);s+='<circle cx="'+(50+(col-(n-1)/2)*11)+'" cy="'+(i>=5?75-row*10:70)+'" r="3.4" fill="#fff"/>'}}
+ else{var ns=i-9,r1=Math.min(5,ns),r2=ns-r1,y1=r2?67:72;for(var a=0;a<r1;a++)s+=star(50+(a-(r1-1)/2)*10,y1,4.6);for(var b=0;b<r2;b++)s+=star(50+(b-(r2-1)/2)*10,79,4.6);s+='<path d="M38 24 40.5 13l5 5L50 10l4.5 8 5-5L62 24z" fill="#f5c542"/>'}
+ return s+'<text x="50" y="'+(hi?56:i>=5?53:52)+'" text-anchor="middle" font-size="'+(i>=9?24:i>=5?27:30)+'" font-weight="800" fill="#fff" font-family="system-ui">'+(i+1)+'</text></svg>'}
 function showLevelUp(i){var m=$('modal');if(!m)return;var nx=LEVELS[i+1];
  m.innerHTML='<div class="mcard" role="dialog" aria-modal="true" aria-labelledby="mTitle"><div class="memb">'+rankEmblem(i,110)+'</div><p class="mkick">Promotion!</p><h2 id="mTitle">You\'re now '+(/^[AEIOU]/.test(LEVELS[i][1])?'an ':'a ')+LEVELS[i][1]+'</h2><p>'+RANK_INFO[i]+'</p>'+(nx?'<p class="note">Next rank: <b>'+nx[1]+'</b> at '+fmtInt(nx[0])+' XP</p>':'<p class="note">That\'s the top rank. Brilliant work.</p>')+'<button class="big" id="mOk">Continue</button></div>';
  m.classList.add('open');sfx('level');confetti();$('mOk').focus();$('mOk').onclick=function(){m.classList.remove('open');m.innerHTML=''}}
@@ -1619,7 +1621,7 @@ function finishFollow(){P.finished=true;lcount();P.quiet=true;$('pBar').style.wi
   '<h2>'+title+'</h2><p class="note" style="font-size:16px">Follow-up: '+P.title+'</p>'+
   '<div class="done-stats"><div class="dstat"><b id="dsXP">+0</b><span>XP earned</span></div><div class="dstat"><b>'+acc+'%</b><span>right first time</span></div><div class="dstat"><b>'+(rec.best)+'%</b><span>best score</span></div></div>'+
   '<div class="xpbreak">'+lines.map(function(l){return '<div><span>'+l[0]+'</span><b>+'+l[1]+'</b></div>'}).join('')+'</div>'+msg;
- if(P.newBadges.length)h+='<div class="dblock"><div class="dbt">Badges earned</div><div class="newb">'+P.newBadges.map(function(bd){return '<span class="nbchip"><span class="tb" style="background:'+bd.col+'">'+bd.ic+'</span>'+bd.name+'</span>'}).join('')+'</div></div>';
+ if(P.newBadges.length)h+='<div class="dblock"><div class="dbt">Badges earned</div><div class="newbs">'+P.newBadges.map(function(bd){return '<span class="nbchip"><span class="tb" style="background:'+bd.col+'">'+bd.ic+'</span>'+bd.name+'</span>'}).join('')+'</div></div>';
  $('pBody').innerHTML=h+'</div>';$('pScroll').scrollTop=0;$('pXP').textContent='+'+P.xp+' XP';countUp($('dsXP'),0,P.xp,'+');foot('','','');
  if(!pass&&wasReq){var L=lessonById(id);mainBtn('Try again',function(){closePlayer();startFollow(id)});skipBtn(function(){closePlayer();startLesson(L.ui,L.li)},'Redo the lesson');$('pFb').innerHTML='<span class="note">Score more than 50% to unlock new lessons.</span>'}
  else{var a=nextAction();$('pFb').innerHTML=actionFoot(a);mainBtn(actionLabel(a),goAction(a));skipBtn(null)}
@@ -1669,7 +1671,7 @@ function finishTest(){P.finished=true;lcount();P.quiet=true;stopTimer();$('pBar'
  if(lines.length)h+='<div class="xpbreak">'+lines.map(function(l){return '<div><span>'+l[0]+'</span><b>+'+l[1]+'</b></div>'}).join('')+'<div><span>Total</span><b id="dsXP">+0</b></div></div>';
  if(order.length)h+='<div class="dblock"><div class="dbt">Topics to work on</div><p class="note">The questions you missed came from these lessons. Their follow-ups are a quick way to practise.</p>'+order.map(function(lid){var L=lessonById(lid);return L?'<div class="weak"><span><b>'+L.l.title+'</b><span class="note"> · '+weak[lid]+' missed</span></span><button class="ghost sm" data-wf="'+lid+'">Practise</button></div>':''}).join('')+'</div>';
  if(!pass)h+=EASE.endBlock(P.ui,pct,ok,n,'test');
- if(P.newBadges.length)h+='<div class="dblock"><div class="dbt">Badges earned</div><div class="newb">'+P.newBadges.map(function(bd){return '<span class="nbchip"><span class="tb" style="background:'+bd.col+'">'+bd.ic+'</span>'+bd.name+'</span>'}).join('')+'</div></div>';
+ if(P.newBadges.length)h+='<div class="dblock"><div class="dbt">Badges earned</div><div class="newbs">'+P.newBadges.map(function(bd){return '<span class="nbchip"><span class="tb" style="background:'+bd.col+'">'+bd.ic+'</span>'+bd.name+'</span>'}).join('')+'</div></div>';
  h+='<div class="treview"><div class="dbt">Your answers</div>'+P.answers.map(function(a,i){return '<details class="tq '+(a.ok?'ok':'no')+'"'+(a.ok?'':' open')+'><summary><span class="tqn">'+(i+1)+'</span><span class="tqm">'+(a.ok?'✓':'✗')+'</span><span class="tqp">'+a.c.p+'</span></summary><div class="tqb">'+(a.ok?'<p><b>Your answer:</b> '+a.given+'</p>':'<p><b>Your answer:</b> '+a.given+'</p><p><b>Correct answer:</b> '+a.correct+'</p>')+(a.c.e?'<p class="note">'+a.c.e+'</p>':'')+'</div></details>'}).join('')+'</div>';
  $('pBody').innerHTML=h+'</div>';$('pScroll').scrollTop=0;$('pXP').innerHTML='<span class="ttime">'+fmtClock(secs)+'</span>';if($('dsXP'))countUp($('dsXP'),0,P.xp,'+');
  [].forEach.call(document.querySelectorAll('[data-wf]'),function(bt){bt.onclick=function(){var lid=bt.dataset.wf;closePlayer();startFollow(lid)}});
@@ -5084,7 +5086,7 @@ module.exports = QRCode;
 }},C={};function req(n){n=n.replace(/^\.\//,"./").replace(/\.js$/,"");if(n==="./index"||n===".")n="./index";if(C[n])return C[n].exports;var m={exports:{}};C[n]=m;M[n](m,m.exports,req);return m.exports}return req("./index")})();
 function qrSvg(text){var q=new QRMAKER(-1,0);q.addData(text);q.make();var n=q.getModuleCount(),pad=4,sz=n+pad*2,p='';for(var r=0;r<n;r++)for(var c=0;c<n;c++)if(q.isDark(r,c))p+='M'+(c+pad)+' '+(r+pad)+'h1v1h-1z';return '<svg viewBox="0 0 '+sz+' '+sz+'" width="240" height="240" shape-rendering="crispEdges" role="img" aria-label="QR code of your sync key"><rect width="'+sz+'" height="'+sz+'" fill="#fff"/><path d="'+p+'" fill="#000"/></svg>'}
 /* ===== sync: sign in once on each device and progress moves across by itself (a secret gist on your GitHub account) ===== */
-var APPV='74 (9 Nov 2026)';
+var APPV='75 (9 Nov 2026)';
 var SYNC=(function(){
  var KEY='critical_sync',DEV='critical_dev',FILE='critical-sync.json',DESC='Critical progress sync (used by the Critical app)',API='https://api.github.com';
  var css=document.createElement('style');css.textContent='.syncpill .sp-ok{display:none}.syncpill[data-st=on]{color:var(--accent)}.syncpill[data-st=on] .sp-ok{display:inline}.syncpill[data-st=on] .sp-off{display:none}.syncpill[data-st=off] .sp-off{display:none}.syncpill[data-st=err]{color:var(--amber)}.syncpill[data-st=busy] svg{animation:rwtw 1.2s ease-in-out infinite}.syncbox{border:1.5px solid var(--line);border-radius:14px;padding:12px 14px;margin:12px 0 4px;background:var(--soft)}.syncbox .synchd{display:flex;align-items:center;gap:8px;font-weight:700}.syncbox .synchd svg{color:var(--accent);flex:none}.syncbox .note{margin:6px 0 0}.syncbox.on{border-color:var(--accent);background:var(--accent-bg)}.syncbox .savebtns{margin-top:10px}'+
@@ -14443,9 +14445,9 @@ var MOT=(function(){
   for(i=0;i<XS.length;i++)if(XS[i][0]===id)return {id:id,ty:'skin',n:XS[i][1],r:'E',c1:XS[i][2],c2:XS[i][3],ex:1,how:'Comes round on the season pass'};
   if((m=/^(ssk|sfx|stt|bd-S)-([a-z]+)$/.exec(id))){var sj=subj(m[2]);if(sj){if(m[1]==='ssk')return {id:id,ty:'skin',n:sj.skin[0],r:'E',c1:sj.skin[1],c2:sj.skin[2],ex:1,how:'On the '+sj.n+' pass'};if(m[1]==='sfx')return {id:id,ty:'fx',n:sj.fx[0],r:'E',st:sj.fx[1],pal:sj.fx[2],chars:sj.fx[3],ex:1,how:'On the '+sj.n+' pass'};if(m[1]==='stt')return {id:id,ty:'title',n:sj.title,r:'L',ex:1,how:'End of the '+sj.n+' pass'};return {id:id,ty:'badge',n:sj.n+' pass',r:'E',em:sj.ic,ex:1,how:'On the '+sj.n+' pass'}}}
   if((m=/^lmt-([a-z]+)$/.exec(id))){var mn2=m[1];try{mn2=modeName(m[1])}catch(e){}return {id:id,ty:'title',n:mn2+' master',r:'L',ex:1,how:'Finish '+mn2+' level 5'}}
-  if(id==='tt-director')return {id:id,ty:'title',n:'Station Director',r:'L',ex:1,how:'Reach the top rank'};
+  if(id==='tt-director')return {id:id,ty:'title',n:'Station Director',r:'L',ex:1,how:'Reach the Station director rank'};if(id==='tt-plasma')return {id:id,ty:'title',n:'Plasma Tamer',r:'L',ex:1,how:'Reach the Tokamak commander rank'};if(id==='tt-star')return {id:id,ty:'title',n:'Star Maker',r:'L',ex:1,how:'Reach the very top rank'};
   if((m=/^bd-L-([a-z]+)-(\d)$/.exec(id))){var mn3=m[1];try{mn3=modeName(m[1])}catch(e){}return {id:id,ty:'badge',n:mn3+' level '+m[2],r:['R','E','E','L','L'][+m[2]-1]||'R',em:MODEIC[m[1]]||'📘',num:m[2],ex:1,how:'Finish every lesson in '+mn3+' level '+m[2]}}
-  if((m=/^bd-R-(\d)$/.exec(id))){var ri=+m[1],nm='Rank '+ri;try{nm=LEVELS[ri][1]}catch(e){}return {id:id,ty:'badge',n:nm,r:ri>=9?'L':ri>=6?'E':ri>=3?'R':'C',rank:ri,ex:1,how:'Get promoted to '+nm}}
+  if((m=/^bd-R-(\d+)$/.exec(id))){var ri=+m[1],nm='Rank '+ri;try{nm=LEVELS[ri][1]}catch(e){}return {id:id,ty:'badge',n:nm,r:ri>=9?'L':ri>=6?'E':ri>=3?'R':'C',rank:ri,ex:1,how:'Get promoted to '+nm}}
   if((m=/^bd-M-(\d{4}-\d{2})$/.exec(id)))return {id:id,ty:'badge',n:monthName(m[1])+' season',r:'L',em:'🏆',num:new Date(m[1]+'-01T12:00:00').toLocaleDateString('en-GB',{month:'short'}).toUpperCase(),ex:1,how:'Finish a season pass'};
   if(id==='bd-week')return {id:id,ty:'badge',n:'Weekly finisher',r:'E',em:'📅',ex:1,how:'Finish a weekly pass'};
   if(id==='story-1')return {id:id,ty:'title',n:'Kestrel Point Hero',r:'L',ex:1};return null}
@@ -14640,7 +14642,8 @@ var MOT=(function(){
  function lvReward(m,lv){var T=[[rCrate('R'),rXP(50)],[rCrate('E'),rXP(100)],[rCrate('E'),rPow('upg',2)],[rCrate('L'),rPow('boost3')],[rCrate('L',2),rItem('lmt-'+m,'Title: '+modeName(m)+' master')]][lv-1];
   return RW(rItem('bd-L-'+m+'-'+lv).parts.concat(T[0].parts,T[1].parts),MODEIC[m]||'📘','Level '+lv+' complete',T[0].lab+', '+T[1].lab+' and a Level '+lv+' badge',['R','E','E','L','L'][lv-1])}
  function rkList(){var cur=0;try{cur=level().i}catch(e){}var o=[];for(var i=1;i<LEVELS.length;i++)o.push({i:i,key:'R:'+i,name:LEVELS[i][1],xp:LEVELS[i][0],got:cur>=i});return o}
- function rkReward(i){var c=i>=9?rCrate('L',2):i>=6?rCrate('L'):i>=3?rCrate('E'):rCrate('R'),parts=c.parts.concat(rItem('bd-R-'+i).parts);if(i>=9)parts=parts.concat(rItem('tt-director').parts);return RW(parts,'🎖️',c.lab+' + rank badge'+(i>=9?' + title':''),c.lab+', the '+LEVELS[i][1]+' badge'+(i>=9?' and the title "Station Director"':'')+'.',c.r)}
+ function rkReward(i){var c=i>=9?rCrate('L',2):i>=6?rCrate('L'):i>=3?rCrate('E'):rCrate('R'),parts=c.parts.concat(rItem('bd-R-'+i).parts),tt=i===9?'tt-director':i===16?'tt-plasma':i===19?'tt-star':null,nm=(LEVELS[i]||[0,''])[1];if(i>=10)parts=parts.concat(rPow('boost3').parts);if(tt)parts=parts.concat(rItem(tt).parts);
+  return RW(parts,'🎖️',c.lab+' + rank badge'+(i>=10?' + super boost':'')+(tt?' + title':''),c.lab+', the '+nm+' badge'+(i>=10?', a 3× super boost':'')+(tt?' and the title "'+item(tt).n+'"':'')+'.',c.r)}
  function lvClaimed(){return Lget().lvc||[]}
  function lvCan(){var c=lvClaimed(),o=[];lvList().forEach(function(x){if(x.complete&&c.indexOf(x.key)<0)o.push(x.key)});rkList().forEach(function(x){if(x.got&&c.indexOf(x.key)<0)o.push(x.key)});return o}
  function lvClaim(k){if(lvCan().indexOf(k)<0)return false;var l=Lget();l.lvc=l.lvc||[];l.lvc.push(k);wrk(LK,l);var p=k.split(':'),rw=p[0]==='L'?lvReward(p[1],+p[2]):rkReward(+p[1]);give(rw.parts);return true}
