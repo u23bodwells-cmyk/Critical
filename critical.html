@@ -12,7 +12,7 @@
 <meta name="apple-mobile-web-app-title" content="Critical">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <title>Critical: learn nuclear engineering</title>
-<script>(function(){var d=document.documentElement;try{if(localStorage.getItem("critical_look")==="classic")return;d.classList.add("neo");var m=localStorage.getItem("critical_motion");if(m==="less"||(m!=="full"&&window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches))d.classList.add("neocalm");var l=document.createElement("link");l.id="neoFonts";l.rel="stylesheet";l.href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Space+Grotesk:wght@500;600;700&display=swap";document.head.appendChild(l)}catch(e){d.classList.add("neo")}})();</script>
+<script>(function(){var d=document.documentElement;try{var lk=localStorage.getItem("critical_look");if(lk==="classic")return;d.classList.add("neo");if(lk!=="legacy")d.classList.add("rpt");var m=localStorage.getItem("critical_motion");if(m==="less"||(m!=="full"&&window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches))d.classList.add("neocalm");var l=document.createElement("link");l.id="neoFonts";l.rel="stylesheet";l.href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Space+Grotesk:wght@500;600;700&display=swap";document.head.appendChild(l)}catch(e){d.classList.add("neo","rpt")}})();</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <style>:root{
 --bg:#f5f4ef;--panel:#ffffff;--soft:#eeece5;--soft2:#e6e3da;--text:#1d1c19;--muted:#5d5c57;--faint:#8b8a84;--line:#dedbd1;
@@ -831,6 +831,75 @@ html:not(.neo) .lablive{display:none}
 .s3tabs{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .s3hint{margin-left:auto;font-size:12.5px;color:var(--muted)}
 @media (max-width:520px){.sum3d{padding:10px 8px 8px;margin:14px 0 6px}.s3cap{font-size:14px}.s3hint{width:100%;margin:2px 2px 0}}
+/* ===== Report card look (default). Layered on top of the new look; Settings → Look → Legacy turns it off. ===== */
+html.rpt{--glow:#0a9fd0;--glow2:#6a5af0;--gold:#b7860b;--eyebrow:#0a7fa8;
+ --bg:#eef3fc;--panel:#ffffff;--soft:rgba(12,30,80,.05);--soft2:rgba(12,30,80,.09);--text:#0b1430;--muted:#46557a;--faint:#7583a6;--line:rgba(12,30,80,.10);
+ --accent:#1f6fd6;--accent-bg:rgba(31,111,214,.10);--accent-text:#1557ad;--on-accent:#ffffff;
+ --np:rgba(255,255,255,.78);--nedge:rgba(255,255,255,.9);--nglass:rgba(238,243,252,.8);--gridc:transparent;--rtile:rgba(255,255,255,.72);--rtile2:rgba(255,255,255,.92);
+ --nsh:0 1px 1px rgba(11,20,48,.04),0 18px 40px -24px rgba(11,20,48,.28);--shadow:var(--nsh);
+ --display:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;--rbg:linear-gradient(160deg,#f4f7ff,#e7eefb)}
+@media (prefers-color-scheme:dark){html.rpt:not([data-theme="light"]){--glow:#3ad4ff;--glow2:#8f80ff;--gold:#ffd65a;--eyebrow:#7fe3ff;
+ --bg:#070c18;--panel:#0d1630;--soft:rgba(255,255,255,.06);--soft2:rgba(255,255,255,.10);--text:#ffffff;--muted:#b8c4e4;--faint:#6f7da6;--line:rgba(160,185,255,.10);
+ --accent:#3ad4ff;--accent-bg:rgba(58,212,255,.13);--accent-text:#7fe3ff;--on-accent:#041019;
+ --np:rgba(255,255,255,.055);--nedge:rgba(255,255,255,.04);--nglass:rgba(8,13,28,.72);--rtile:rgba(255,255,255,.06);--rtile2:rgba(255,255,255,.09);
+ --good:#7ee2a8;--good-bg:rgba(34,197,94,.14);--bad:#ff8fa0;--bad-bg:rgba(255,90,110,.14);--warn:#ffd65a;--warn-bg:rgba(255,214,90,.12);
+ --nsh:0 30px 60px -36px rgba(0,0,0,.9);--shadow:var(--nsh);--rbg:linear-gradient(160deg,#0b1430,#060a13)}}
+html.rpt[data-theme="dark"]{--glow:#3ad4ff;--glow2:#8f80ff;--gold:#ffd65a;--eyebrow:#7fe3ff;
+ --bg:#070c18;--panel:#0d1630;--soft:rgba(255,255,255,.06);--soft2:rgba(255,255,255,.10);--text:#ffffff;--muted:#b8c4e4;--faint:#6f7da6;--line:rgba(160,185,255,.10);
+ --accent:#3ad4ff;--accent-bg:rgba(58,212,255,.13);--accent-text:#7fe3ff;--on-accent:#041019;
+ --np:rgba(255,255,255,.055);--nedge:rgba(255,255,255,.04);--nglass:rgba(8,13,28,.72);--rtile:rgba(255,255,255,.06);--rtile2:rgba(255,255,255,.09);
+ --good:#7ee2a8;--good-bg:rgba(34,197,94,.14);--bad:#ff8fa0;--bad-bg:rgba(255,90,110,.14);--warn:#ffd65a;--warn-bg:rgba(255,214,90,.12);
+ --nsh:0 30px 60px -36px rgba(0,0,0,.9);--shadow:var(--nsh);--rbg:linear-gradient(160deg,#0b1430,#060a13)}
+/* the report card's backdrop: deep gradient with a cyan glow in the top corner, no grid */
+html.rpt,html.rpt body{background:var(--rbg) fixed,var(--bg)}
+html.rpt body{background:radial-gradient(900px 640px at 88% -120px,color-mix(in srgb,var(--glow) 26%,transparent),transparent 70%) fixed,radial-gradient(700px 520px at -10% 30%,color-mix(in srgb,var(--glow2) 10%,transparent),transparent 70%) fixed,var(--rbg) fixed}
+html.rpt body::before{display:none}
+/* type: big heavy headlines, mono eyebrows, mono numbers */
+html.rpt :is(h1,h2,h3,.brand>span,.mcard h2,.done-screen h2){font-family:var(--display);font-weight:800;letter-spacing:-.025em}
+html.rpt h2{font-size:clamp(20px,2.4vw,26px)}
+html.rpt .hero h1,html.rpt .hero h2{font-size:clamp(28px,4.2vw,44px);line-height:1.05}
+html.rpt :is(.nextup .nk,.mkick,.sec-h,.pkick,.eyebrow,.dbt,.stlab,.memtx em,.mrr){font-family:var(--mono);text-transform:uppercase;letter-spacing:.14em;color:var(--eyebrow)}
+html.rpt :is(.stat b,.dstat b,.mpstat b,.memtx b+span b){font-family:var(--mono);font-weight:800;letter-spacing:-.02em}
+html.rpt :is(.stat span,.dstat span,.mpstat span){color:var(--muted);font-weight:600}
+html.rpt .note{color:var(--muted)}
+/* surfaces: borderless translucent tiles with big corners, like the report card */
+html.rpt :is(.card,.unit,.fcard,.xcard){background:var(--rtile);border:0;box-shadow:var(--nsh);border-radius:26px}
+html.rpt .hero{background:radial-gradient(600px 300px at 92% 0,color-mix(in srgb,var(--glow) 22%,transparent),transparent 70%),var(--rtile);border:0;box-shadow:var(--nsh);border-radius:30px}
+html.rpt .hero::before{height:3px;opacity:1}
+html.rpt :is(.nextup,.stat,.dstat,.mch,.mpstat>div,.lv .lvlrow){background:var(--rtile2);border:0;border-radius:20px}
+html.rpt :is(.msb,.lvb,.gsb){background:var(--rtile);border:1.5px solid transparent;box-shadow:none;border-radius:20px}
+html.rpt :is(.msb,.lvb,.gsb).on,html.rpt :is(.msb,.lvb,.gsb)[aria-selected="true"]{background:var(--accent-bg);border-color:color-mix(in srgb,var(--accent) 55%,transparent);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 12%,transparent)}
+/* progress bars: the report card's cyan to violet */
+html.rpt :is(.lvlbar>div,.pbar>div,#pBar,.mbar i,.memmeter i,.mrfill,.bar i){background:linear-gradient(90deg,var(--glow),var(--glow2))!important}
+html.rpt :is(.lvlbar,.mbar,.memmeter){background:var(--soft2)}
+/* buttons */
+html.rpt .big,html.rpt .xbtn:not(.alt),html.rpt .stbtn:not(.alt):not(.stop){background:linear-gradient(90deg,var(--glow),var(--glow2));color:#fff;border:0;border-radius:16px;box-shadow:0 14px 30px -16px var(--glow2);font-weight:800}
+html.rpt .big:hover,html.rpt .xbtn:not(.alt):hover{filter:brightness(1.07)}
+html.rpt :is(.ghost,.xbtn.alt,.stbtn.alt){background:var(--rtile2);border:0;border-radius:14px;color:var(--text)}
+html.rpt :is(.ghost,.xbtn.alt):hover{background:var(--soft2)}
+/* header: dark glass strip, pills as soft tiles, gold XP */
+html.rpt .hdr{background:var(--nglass);border-bottom:1px solid var(--line)}
+html.rpt .pill{background:var(--rtile);border:1px solid transparent}
+html.rpt .pill:hover{border-color:color-mix(in srgb,var(--accent) 40%,transparent)}
+html.rpt #xpPill{color:var(--gold)}
+html.rpt .tab.on{color:var(--text)}
+html.rpt .ntind{background:var(--rtile2);box-shadow:inset 0 0 0 1px var(--line)}
+/* sheets, popups and the lesson player use the solid panel colour so text stays readable */
+html.rpt :is(.mcard,.stbox,.plbox,.xin,.modal>div){background:var(--panel)!important;border:0;border-radius:26px}
+html.rpt #player{background:var(--rbg) fixed,var(--bg)}
+html.rpt #player .opt{background:var(--rtile);border:1.5px solid transparent;border-radius:16px}
+html.rpt #player .opt:hover{border-color:color-mix(in srgb,var(--accent) 45%,transparent)}
+html.rpt #player .opt.sel{border-color:var(--accent);background:var(--accent-bg)}
+html.rpt #player .opt.right{border-color:var(--good);background:var(--good-bg)}
+html.rpt #player .opt.wrong{border-color:var(--bad);background:var(--bad-bg)}
+html.rpt #pFoot{background:var(--nglass);border-top:1px solid var(--line)}
+/* inputs */
+html.rpt :is(input[type=text],input[type=number],input[type=time],select,textarea){background:var(--rtile2);border:1.5px solid var(--line);border-radius:12px;color:var(--text)}
+/* small touches that echo the card: gold for streaks and goals */
+html.rpt #streakPill{color:var(--gold)}
+html.rpt .memcard,html.rpt .arncard,html.rpt #motCard{border-radius:26px}
+html.rpt .mt{background:var(--rtile2);border:0;border-radius:18px}
+html.rpt .mt.mgo{background:linear-gradient(90deg,var(--glow),var(--glow2));color:#fff}html.rpt .mt.mgo span{color:rgba(255,255,255,.85)}
 </style>
 </head>
 <body>
@@ -5086,7 +5155,7 @@ module.exports = QRCode;
 }},C={};function req(n){n=n.replace(/^\.\//,"./").replace(/\.js$/,"");if(n==="./index"||n===".")n="./index";if(C[n])return C[n].exports;var m={exports:{}};C[n]=m;M[n](m,m.exports,req);return m.exports}return req("./index")})();
 function qrSvg(text){var q=new QRMAKER(-1,0);q.addData(text);q.make();var n=q.getModuleCount(),pad=4,sz=n+pad*2,p='';for(var r=0;r<n;r++)for(var c=0;c<n;c++)if(q.isDark(r,c))p+='M'+(c+pad)+' '+(r+pad)+'h1v1h-1z';return '<svg viewBox="0 0 '+sz+' '+sz+'" width="240" height="240" shape-rendering="crispEdges" role="img" aria-label="QR code of your sync key"><rect width="'+sz+'" height="'+sz+'" fill="#fff"/><path d="'+p+'" fill="#000"/></svg>'}
 /* ===== sync: sign in once on each device and progress moves across by itself (a secret gist on your GitHub account) ===== */
-var APPV='78 (9 Nov 2026)';
+var APPV='79 (9 Nov 2026)';
 var SYNC=(function(){
  var KEY='critical_sync',DEV='critical_dev',FILE='critical-sync.json',DESC='Critical progress sync (used by the Critical app)',API='https://api.github.com';
  var css=document.createElement('style');css.textContent='.syncpill .sp-ok{display:none}.syncpill[data-st=on]{color:var(--accent)}.syncpill[data-st=on] .sp-ok{display:inline}.syncpill[data-st=on] .sp-off{display:none}.syncpill[data-st=off] .sp-off{display:none}.syncpill[data-st=err]{color:var(--amber)}.syncpill[data-st=busy] svg{animation:rwtw 1.2s ease-in-out infinite}.syncbox{border:1.5px solid var(--line);border-radius:14px;padding:12px 14px;margin:12px 0 4px;background:var(--soft)}.syncbox .synchd{display:flex;align-items:center;gap:8px;font-weight:700}.syncbox .synchd svg{color:var(--accent);flex:none}.syncbox .note{margin:6px 0 0}.syncbox.on{border-color:var(--accent);background:var(--accent-bg)}.syncbox .savebtns{margin-top:10px}'+
@@ -12306,7 +12375,7 @@ function drawOneM(){var cv=$('sOneM');if(!cv||$('sOneMBox').style.display==='non
 /* ===== New look: live animations and juicier feedback. Settings → Look → Classic turns all of it off. ===== */
 var NEO=(function(){
  var LK='critical_look',MK='critical_motion',SEEN='critical_neo_seen',R=document.documentElement;
- function look(){try{return localStorage.getItem(LK)==='classic'?'classic':'neo'}catch(_){return 'neo'}}
+ function look(){try{var v=localStorage.getItem(LK);return v==='classic'?'classic':v==='legacy'?'legacy':'neo'}catch(_){return 'neo'}}
  function on(){return R.classList.contains('neo')}
  function motPref(){try{var v=localStorage.getItem(MK);return v==='full'||v==='less'?v:'auto'}catch(_){return 'auto'}}
  function sysCalm(){try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(_){return false}}
@@ -12446,13 +12515,14 @@ var NEO=(function(){
 
  /* ---------- settings rows ---------- */
  function settingsRows(){var ts=$('themeSel');if(!ts||$('lookSel'))return;var row=ts.closest('.wrow');if(!row)return;var w=document.createElement('div');
-  w.innerHTML='<div class="wrow"><label for="lookSel">Look</label><select id="lookSel"><option value="neo">New: live and animated</option><option value="classic">Classic</option></select></div><div class="wrow"><label for="motSel">Animations</label><select id="motSel"><option value="auto">Match my device</option><option value="full">Full</option><option value="less">Less movement</option></select></div>';
+  w.innerHTML='<div class="wrow"><label for="lookSel">Look</label><select id="lookSel"><option value="neo">Report card (new)</option><option value="legacy">Legacy: the previous look</option><option value="classic">Classic</option></select></div><div class="wrow"><label for="motSel">Animations</label><select id="motSel"><option value="auto">Match my device</option><option value="full">Full</option><option value="less">Less movement</option></select></div>';
   var a=w.children[0],b=w.children[1];row.parentNode.insertBefore(b,row.nextSibling);row.parentNode.insertBefore(a,row.nextSibling);$('lookSel').value=look();$('motSel').value=motPref();
   $('lookSel').onchange=function(){apply(this.value)};$('motSel').onchange=function(){try{if(this.value==='auto')localStorage.removeItem(MK);else localStorage.setItem(MK,this.value)}catch(_){}calmUpd();bgKick();coreMount()}}
 
  /* ---------- switching looks ---------- */
  function calmUpd(){R.classList.toggle('neocalm',on()&&calm())}
- function apply(lk,silent){try{if(lk==='classic')localStorage.setItem(LK,'classic');else localStorage.removeItem(LK)}catch(_){}R.classList.toggle('neo',lk!=='classic');calmUpd();
+ setTimeout(function(){try{if(R.classList.contains('rpt')&&!localStorage.getItem('critical_rpt_seen')){localStorage.setItem('critical_rpt_seen','1');toast('✨','New look: report card style','Prefer the old one? Progress → Settings → Look → Legacy','')}}catch(_){}},2500);
+ function apply(lk,silent){try{if(lk==='classic'||lk==='legacy')localStorage.setItem(LK,lk);else localStorage.removeItem(LK)}catch(_){}R.classList.toggle('neo',lk!=='classic');R.classList.toggle('rpt',lk!=='classic'&&lk!=='legacy');calmUpd();
   if(on()){fonts();bgInit();cols()}else{var h=document.querySelector('.hdr');if(h)h.classList.remove('neohide');heat()}
   try{themeUI()}catch(_){}tabInd();navBuild();bgSize&&bg.cv&&bgSize();bgKick();if(!silent){showPage(PAGE);if(on()){try{localStorage.setItem(SEEN,'1')}catch(_){}}}}
 
