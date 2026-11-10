@@ -309,7 +309,7 @@ function store() {
   if (!c.bots || !c.bots.length) c.bots = ['auto', 'auto', 'auto', 'auto'];
   if (!c.v3d) { c.v3d = 1; c.bots = c.bots.map(function () { return 'auto'; }); } /* first run of the 3D version: bots match your skill */
   if (!LADDERS[c.ladder] && c.ladder !== 'mine') c.ladder = 'full'; if (!c.sens) c.sens = 5; if (c.onlyDone == null) c.onlyDone = true;
-  c.mode = 'dm'; if (!c.dmKills) c.dmKills = 10; if (!c.gfx) c.gfx = isTouchDev() ? 'low' : 'medium'; if (!c.ctrl) c.ctrl = 'auto'; if (c.autoShoot == null) c.autoShoot = true; if (c.gloss == null) c.gloss = true; if (c.autoShootPC == null) c.autoShootPC = false; if (c.aimAssist == null) c.aimAssist = false; if (!c.events) c.events = 'some'; if (!c.tsens) c.tsens = 5; if (!c.fov) c.fov = 80;
+  c.mode = 'dm'; if (!c.dmKills) c.dmKills = 10; if (!c.gfx) c.gfx = isTouchDev() ? 'low' : 'medium'; if (!c.ctrl) c.ctrl = 'auto'; if (c.autoShoot == null) c.autoShoot = true; if (c.gloss == null) c.gloss = true; if (c.autoShootPC == null) c.autoShootPC = false; if (c.aimAssist == null) c.aimAssist = false; if (c.assistT == null) c.assistT = 1; if (!c.events) c.events = 'some'; if (!c.tsens) c.tsens = 5; if (!c.fov) c.fov = 80;
   if (c.coins == null) c.coins = 0; if (c.cxp == null) c.cxp = 0; if (!c.owned) c.owned = ['pistol']; if (c.owned.indexOf('pistol') < 0) c.owned.unshift('pistol');
   c.owned = SHOP.filter(function (k) { return c.owned.indexOf(k) >= 0; });
   if (!c.primary || c.owned.indexOf(c.primary) < 0) c.primary = c.owned[c.owned.length - 1]; if (c.skill == null) c.skill = 0.35; if (!c.rec) c.rec = {};
@@ -380,7 +380,7 @@ function setup() {
     [].forEach.call(q('[data-k=ctrl]').querySelectorAll('[data-ctrl]'), function (b) { b.setAttribute('aria-pressed', String(b.dataset.ctrl === c.ctrl)); });
     [].forEach.call(q('[data-k=evs]').querySelectorAll('[data-evs]'), function (b) { b.setAttribute('aria-pressed', String(b.dataset.evs === c.events)); });
     var tm = touchMode(c);
-    q('[data-k=touchopt]').innerHTML = tm ? '<label class="arsmall" style="display:flex;gap:8px;align-items:center;margin-top:10px"><input type="checkbox" data-k="auto"' + (c.autoShoot ? ' checked' : '') + '> Auto-shoot when your crosshair is on a bot</label><div class="arsl"><span class="arsmall">Look speed</span><input type="range" min="1" max="10" step="1" data-k="tsens" aria-label="Touch look speed" value="' + c.tsens + '"><b data-k="tsensv">' + c.tsens + '</b></div>' : '<label class="arsmall" style="display:flex;gap:8px;align-items:center;margin-top:10px"><input type="checkbox" data-k="autopc"' + (c.autoShootPC ? ' checked' : '') + '> Auto-shoot when your crosshair is on a bot (great on a trackpad). Press F in a match to switch it</label><label class="arsmall" style="display:flex;gap:8px;align-items:center;margin-top:6px"><input type="checkbox" data-k="assist"' + (c.aimAssist ? ' checked' : '') + '> Aim assist: your aim slows down when it\'s on a bot</label>';
+    q('[data-k=touchopt]').innerHTML = tm ? '<label class="arsmall" style="display:flex;gap:8px;align-items:center;margin-top:10px"><input type="checkbox" data-k="auto"' + (c.autoShoot ? ' checked' : '') + '> Auto-shoot when your crosshair is on a bot</label><div class="arrow" style="margin-top:10px"><span class="arsmall">🎯 Aim assist</span><div class="archips">' + [[0, 'Off'], [1, 'Normal'], [2, 'Strong']].map(function (x) { return '<button type="button" class="archip" data-assistt="' + x[0] + '" aria-pressed="' + (c.assistT === x[0]) + '">' + x[1] + '</button>'; }).join('') + '</div></div><p class="arsmall" style="margin:4px 0 0">' + ['Your aim moves exactly where your thumb goes.', 'Your aim slows down on a bot and gently pulls onto it while you move, look or shoot.', 'Your aim pulls hard onto the nearest bot in front of you and stays locked on as it moves.'][c.assistT] + '</p><div class="arsl"><span class="arsmall">Look speed</span><input type="range" min="1" max="10" step="1" data-k="tsens" aria-label="Touch look speed" value="' + c.tsens + '"><b data-k="tsensv">' + c.tsens + '</b></div>' : '<label class="arsmall" style="display:flex;gap:8px;align-items:center;margin-top:10px"><input type="checkbox" data-k="autopc"' + (c.autoShootPC ? ' checked' : '') + '> Auto-shoot when your crosshair is on a bot (great on a trackpad). Press F in a match to switch it</label><label class="arsmall" style="display:flex;gap:8px;align-items:center;margin-top:6px"><input type="checkbox" data-k="assist"' + (c.aimAssist ? ' checked' : '') + '> Aim assist: your aim slows down when it\'s on a bot</label>';
     q('[data-k=sens]').closest('.arsl').style.display = tm ? 'none' : '';
     q('[data-k=keys]').innerHTML = tm ? '<kbd>Left thumb</kbd><span>Move (touch anywhere on the left). Push all the way up to sprint</span><kbd>Right thumb</kbd><span>Drag to look around</span><kbd>Red button</kbd><span>Shoot (hold and drag to aim while you shoot)</span><kbd>Blue ring</kbd><span>Aim down the sights</span><kbd>Arrow / circle</kbd><span>Jump / reload</span><kbd>💣 / ✨</kbd><span>Throw a grenade / a neutron flash that blinds bots</span><kbd>Top right</kbd><span>Scoreboard and pause. The game goes full screen and sideways</span>' : '<kbd>WASD</kbd><span>Move</span><kbd>Space</kbd><span>Jump (you can jump onto crates and barriers)</span><kbd>Mouse</kbd><span>Look. Left-click shoots, right-click aims</span><kbd>R</kbd><span>Reload</span><kbd>G</kbd><span>Throw a frag grenade</span><kbd>H</kbd><span>Throw a neutron flash (blinds bots)</span><kbd>F</kbd><span>Auto-shoot on/off</span><kbd>T</kbd><span>Calculator on number questions</span><kbd>1–4</kbd><span>Answer questions</span><kbd>Tab</kbd><span>Scoreboard</span><kbd>Esc</kbd><span>Pause</span>';
     q('[data-k=sens]').value = c.sens; q('[data-k=sensv]').textContent = c.sens; q('[data-k=fov]').value = c.fov; q('[data-k=fovv]').textContent = c.fov + '°';
@@ -394,7 +394,7 @@ function setup() {
     if (b.dataset.a === 'toshop') { wr(c); setupTab = 'shop'; shopSel = null; setup(); return; }
     if (b.dataset.pg) c.primary = b.dataset.pg;
     if (b.dataset.a === 'add') { if (c.bots.length < 7) c.bots.push(c.bots[c.bots.length - 1] || 'auto'); }
-    if (b.dataset.play) c.play = b.dataset.play; if (b.dataset.md) c.mode = b.dataset.md; if (b.dataset.tr) c.track = b.dataset.tr; if (b.dataset.lv) c.lv = +b.dataset.lv; if (b.dataset.map) c.map = b.dataset.map;
+    if (b.dataset.assistt != null) c.assistT = +b.dataset.assistt; if (b.dataset.play) c.play = b.dataset.play; if (b.dataset.md) c.mode = b.dataset.md; if (b.dataset.tr) c.track = b.dataset.tr; if (b.dataset.lv) c.lv = +b.dataset.lv; if (b.dataset.map) c.map = b.dataset.map;
     if (b.dataset.rm != null && c.bots.length > 1) c.bots.splice(+b.dataset.rm, 1); if (b.dataset.all) c.bots = c.bots.map(function () { return b.dataset.all; });
     if (b.dataset.ld) c.ladder = b.dataset.ld; if (b.dataset.gfx) c.gfx = b.dataset.gfx; if (b.dataset.ctrl) c.ctrl = b.dataset.ctrl; if (b.dataset.evs) c.events = b.dataset.evs; if (b.dataset.dmk) c.dmKills = +b.dataset.dmk;
     paint();
@@ -931,6 +931,14 @@ function nearestAim() {
   st.ents.forEach(function (o) { if (o.me || !o.alive) return; var dx = o.x - me.x, dy = (o.y + 1.15) - ey, dz = o.z - me.z, dist = Math.hypot(dx, dy, dz); if (dist < 0.5) return; var ang = Math.acos(clamp((dx * _fw.x + dy * _fw.y + dz * _fw.z) / dist, -1, 1)); if (ang < best.ang && los(me.x, me.z, o.x, o.z)) best = { ang: ang, dist: dist, o: o }; });
   return best;
 }
+function assistPull(dt) { /* mobile aim assist: pull the crosshair towards the nearest visible bot near it */
+  var me = st.me, lv = st.c.assistT, w = W_(me); st.lookT = Math.max(0, (st.lookT || 0) - dt); if (!me.alive || w.melee) return;
+  if (!(lv === 2 || st.touchMove || st.lookT > 0 || mouseDown || st.touchAim)) return;
+  var cone = lv === 2 ? 0.34 : 0.2, n = nearestAim(); if (!n.o || n.o.inv > 0 || n.ang > cone || n.dist > w.rng) return;
+  var o = n.o, dx = o.x - me.x, dz = o.z - me.z, dy = o.y + 1.2 - (me.y + EYE), ty = Math.atan2(-dx, -dz), tp = Math.atan2(dy, Math.hypot(dx, dz));
+  var rate = (lv === 2 ? 3.2 : 1.5) * (0.35 + 0.65 * (1 - n.ang / cone)) * (st.camera.fov / st.c.fov) * dt;
+  me.a += clamp(angDiff(me.a, ty), -rate, rate); me.pitch = clamp(me.pitch + clamp(tp - me.pitch, -rate * 0.7, rate * 0.7), -1.45, 1.45);
+}
 function onTarget(o) { /* does the crosshair ray actually pass through this bot's body or head? */
   var me = st.me, cp = Math.cos(me.pitch), fx = -Math.sin(me.a) * cp, fy = Math.sin(me.pitch), fz = -Math.cos(me.a) * cp, hh = fx * fx + fz * fz; if (hh < 1e-6) return false;
   var t = ((o.x - me.x) * fx + (o.z - me.z) * fz) / hh; if (t <= 0) return false; var py = me.y + EYE + fy * t - o.y;
@@ -957,7 +965,7 @@ function update(dt, rdt) {
   if (me.alive) {
     var fw = (keys.w || keys.arrowup ? 1 : 0) - (keys.s || keys.arrowdown ? 1 : 0), sw = (keys.d ? 1 : 0) - (keys.a ? 1 : 0), turn = (keys.arrowright ? 1 : 0) - (keys.arrowleft ? 1 : 0);
     if (st.touchMove) { fw = -st.touchMove[1]; sw = st.touchMove[0]; }
-    me.a -= turn * 2.4 * dt;
+    me.a -= turn * 2.4 * dt; if (st.touch && st.c.assistT) assistPull(dt);
     var wantSprint = (keys.shift || st.touchSprint) && fw > 0.3 && !(mouseDown || st.autoFire) && st.adsT < 0.2; if (st.stam == null) st.stam = 1;
     if (wantSprint && st.stam > 0 && !st.stamLock) { st.stam = Math.max(0, st.stam - dt / 4); if (st.stam === 0) st.stamLock = true; me.sprinting = true; } else { me.sprinting = false; st.stamWait = wantSprint ? 0.6 : Math.max(0, (st.stamWait || 0) - dt); if (st.stamWait <= 0) st.stam = Math.min(1, st.stam + dt / 3); if (st.stam > 0.3 && !wantSprint) st.stamLock = false; }
     st.sprintT = clamp((st.sprintT || 0) + (me.sprinting ? 1 : -1) * dt * 6, 0, 1);
@@ -1642,7 +1650,7 @@ function touchUI() {
   var zone = t.querySelector('.tzone'), stick = t.querySelector('.tstick'), knob = stick.querySelector('i'), hint = t.querySelector('.thint'), aimB = t.querySelector('.aim'), ptr = {};
   function cap(n, e) { try { n.setPointerCapture(e.pointerId); } catch (x) {} }
   function live() { return st && !st.q && !st.paused && !st.result && !st.portrait; }
-  function look(dx, dy) { if (!live()) return; var z = st.camera.fov / st.c.fov, k = 0.0046 * (st.c.tsens || 5) / 5 * z; var n = nearestAim(); if (n.o && n.ang < 0.12) k *= 0.55; st.me.a -= dx * k; st.me.pitch = clamp(st.me.pitch - dy * k * 0.85, -1.45, 1.45); }
+  function look(dx, dy) { if (!live()) return; var z = st.camera.fov / st.c.fov, k = 0.0046 * (st.c.tsens || 5) / 5 * z; st.lookT = 0.3; var lv = st.c.assistT; if (lv) { var n = nearestAim(); if (n.o && n.ang < (lv === 2 ? 0.16 : 0.12)) k *= lv === 2 ? 0.4 : 0.55; } st.me.a -= dx * k; st.me.pitch = clamp(st.me.pitch - dy * k * 0.85, -1.45, 1.45); }
   function hasStick() { for (var id in ptr) if (ptr[id].kind === 'stick') return true; return false; }
   zone.addEventListener('pointerdown', function (e) { e.preventDefault(); cap(zone, e); var stickSide = e.clientX < root.clientWidth * 0.42 && !hasStick(); ptr[e.pointerId] = { kind: stickSide ? 'stick' : 'look', x: e.clientX, y: e.clientY, ox: e.clientX, oy: e.clientY }; if (stickSide) { stick.hidden = false; hint.hidden = true; stick.style.left = (e.clientX - 66) + 'px'; stick.style.top = (e.clientY - 66) + 'px'; } });
   zone.addEventListener('pointermove', function (e) { var p = ptr[e.pointerId]; if (!p || !st) return; e.preventDefault(); if (p.kind === 'stick') { var dx = e.clientX - p.ox, dy = e.clientY - p.oy, L = Math.hypot(dx, dy), m = Math.min(L, 56), nx = L ? dx / L * m : 0, ny = L ? dy / L * m : 0; knob.style.transform = 'translate(' + nx + 'px,' + ny + 'px)'; st.touchMove = L > 6 ? [nx / 56, ny / 56] : null; st.touchSprint = L > 52 && dy < 0 && Math.abs(dx) < -dy * 0.6; knob.style.background = st.touchSprint ? 'rgba(250,204,21,.85)' : ''; } else { look(e.clientX - p.x, e.clientY - p.y); p.x = e.clientX; p.y = e.clientY; } });
