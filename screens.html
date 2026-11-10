@@ -202,9 +202,7 @@ function notesApp(){var tab='type',scope='lesson',q='',saveT=null,curKey,undo=[]
  function noteOf(k){var it=nread().items['n:'+k];return it&&!it.del?it:null}
  function meta(){return {lid:CTX.lid,ci:CTX.ci,lt:CTX.lt,ut:CTX.ut,st:CTX.title}}
  function slide(pop){var el=APP.querySelector('#slide');if(!CTX||!CTX.lid){el.innerHTML='<div class="eyebrow">This slide</div><h2>Open a lesson in Critical</h2><p class="muted">Your notes for each slide show up here as you go. You can still search and export everything on the right.</p>';whereTxt();return}
-  var k=key(),n=noteOf(k),sk=(skread()[k]||{}).s,hl=Object.keys(nread().items).filter(function(i){var x=nread().items[i];return x.k==='hl'&&!x.del&&x.lid===CTX.lid&&x.ci===CTX.ci}).length;
-  el.innerHTML='<div class="eyebrow">'+esc(CTX.ut)+' · slide '+(CTX.ci+1)+' of '+CTX.n+'</div><h2>'+esc(CTX.title||CTX.lt)+'</h2><p class="note">'+esc(CTX.lt)+(CTX.mode==='review'?' · from a review':'')+'</p>'+
-   ((n&&n.txt)||(sk&&sk.length)||hl?'<div class="banner">📌 You have '+[n&&n.txt?'a note':'',sk&&sk.length?'a sketch':'',hl?hl+' highlight'+(hl>1?'s':''):''].filter(Boolean).join(', ')+' on this slide.</div>':'');
+  el.innerHTML='<div class="eyebrow">'+esc(CTX.ut)+' · slide '+(CTX.ci+1)+' of '+CTX.n+'</div><h2>'+esc(CTX.title||CTX.lt)+'</h2><p class="note">'+esc(CTX.lt)+(CTX.mode==='review'?' · from a review':'')+'</p>';
   if(pop){el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop')}whereTxt()}
  function work(){var el=APP.querySelector('#work');if(!CTX||!CTX.lid){el.innerHTML='<div class="empty">Notes and sketches attach to the slide you\'re on.</div>';return}
   var k=key();el.innerHTML='<div class="row" style="justify-content:space-between"><div class="seg" role="tablist"><button role="tab" data-t="type" aria-selected="'+(tab==='type')+'">📝 Type</button><button role="tab" data-t="sketch" aria-selected="'+(tab==='sketch')+'">✏️ Sketch</button></div><span class="st" id="sv"></span></div><div id="pane" style="margin-top:10px"></div>';
