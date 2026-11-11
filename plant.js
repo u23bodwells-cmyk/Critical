@@ -2422,7 +2422,7 @@ function buildHand() { var root = new THREE.Group(), wrist = new THREE.Group(); 
   /* forearm, cuff and a watch */
   var fa = cap(0.03, 0.2, skin); fa.rotation.y = Math.PI; fa.position.z = 0.004; fa.scale.set(1.15, 0.85, 1); wrist.add(fa); fa.visible = false;
   var cuff = new THREE.Mesh(new THREE.CylinderGeometry(0.047, 0.05, 0.25, 22, 1, true), shirt); cuff.rotation.x = Math.PI / 2; cuff.position.z = 0.19; cuff.material.side = THREE.DoubleSide; cuff.visible = false; wrist.add(cuff);
-  var wb = new THREE.Mesh(new THREE.TorusGeometry(0.034, 0.006, 8, 24), watch); wb.position.z = 0.045; wb.scale.set(1.1, 0.85, 1); wrist.add(wb); var face = new THREE.Mesh(new THREE.CylinderGeometry(0.013, 0.013, 0.005, 20), watch); face.position.set(0, 0.03, 0.045); wrist.add(face);
+  var wb = new THREE.Mesh(new THREE.TorusGeometry(0.034, 0.006, 8, 24), watch); wb.position.z = 0.045; wb.scale.set(1.1, 0.85, 1); wb.userData.keep = 1; wrist.add(wb); var face = new THREE.Mesh(new THREE.CylinderGeometry(0.013, 0.013, 0.005, 20), watch); face.position.set(0, 0.03, 0.045); face.userData.keep = 1; wrist.add(face);
   /* fingers: [x at knuckle, segment lengths, radius] index, middle, ring, little */
   var F = [[-0.026, [0.042, 0.026, 0.02], 0.0092], [-0.0085, [0.046, 0.029, 0.021], 0.0095], [0.0095, [0.043, 0.027, 0.02], 0.009], [0.026, [0.034, 0.021, 0.017], 0.0078]], bones = [];
   F.forEach(function (d, fi) { var parent = wrist, z = -0.085, chain = []; d[1].forEach(function (L, k) { var j = new THREE.Group(); j.position.set(k ? 0 : d[0], k ? 0 : 0.002, k ? -d[1][k - 1] - d[2] * 0.15 : z - fi % 3 * 0.003 + (fi === 3 ? 0.008 : 0)); parent.add(j); var m = cap(d[2] * (1 - k * 0.1), L - d[2], k === 2 ? tipSkin : skin); j.add(m); var kn = new THREE.Mesh(new THREE.SphereGeometry(d[2] * (1.04 - k * 0.1), 14, 10), skin); j.add(kn); /* rounded joint so segments blend */
@@ -2434,7 +2434,11 @@ function buildHand() { var root = new THREE.Group(), wrist = new THREE.Group(); 
   /* the arm: upper arm and forearm in shirt sleeves, placed every frame by two-bone IK from your shoulder to the wrist */
   var seg = function (r0, r1, m) { var g = new THREE.CylinderGeometry(r1, r0, 1, 18, 1, true); g.translate(0, 0.5, 0); var me = new THREE.Mesh(g, m); me.material.side = THREE.DoubleSide; me.frustumCulled = false; return me; };
   HAND.up = seg(0.06, 0.05, shirt); HAND.lo = seg(0.05, 0.042, shirt); HAND.el = new THREE.Mesh(new THREE.SphereGeometry(0.052, 16, 12), shirt); HAND.fore = seg(0.036, 0.03, skin); [HAND.up, HAND.lo, HAND.el].forEach(function (m) { m.visible = false; R3.scene.add(m); });
-  root.traverse(function (o) { if (o.isMesh) { o.castShadow = true; o.renderOrder = 2; } }); HAND.bones = bones; return root; }
+  root.traverse(function (o) { if (o.isMesh) { o.castShadow = true; o.renderOrder = 2; } }); HAND.bones = bones; loadRealHand(root, skin); return root; }
+/* the real hand: a properly modelled, skinned human hand (the WebXR generic hand, W3C licence), posed through its 25 bones */
+function loadRealHand(root, skin) { var go = function () { try { new THREE.GLTFLoader().load('models/hand-right.glb', function (g) { var sc = g.scene, bones = {}; sc.traverse(function (o) { if (/finger|thumb|wrist/.test(o.name)) bones[o.name] = o; if (o.isMesh) { o.material = new THREE.MeshPhysicalMaterial({ color: 0xdba68c, roughness: 0.6, sheen: 0.8, sheenColor: new THREE.Color(0xffb59a), sheenRoughness: 0.45, clearcoat: 0.1, clearcoatRoughness: 0.5, specularIntensity: 0.35 }); o.castShadow = false; o.frustumCulled = false; o.renderOrder = 2; } });
+  HAND.real = bones; HAND.rest = {}; Object.keys(bones).forEach(function (k) { HAND.rest[k] = bones[k].quaternion.clone(); }); var w = root.children[0]; w.children.forEach(function (c) { if (!c.userData.keep) c.visible = false; }); sc.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(new THREE.Vector3(0, 1, 0), new THREE.Vector3(0, 0, 1), new THREE.Vector3(1, 0, 0))); sc.position.set(-0.009, -0.03, 0.0); w.add(sc); }, undefined, function () {}); } catch (e) {} };
+  if (THREE.GLTFLoader) go(); else { var s = document.createElement('script'); s.src = 'vendor/GLTFLoader.js'; s.onload = go; document.head.appendChild(s); } }
 function placeSeg(m, a, b) { var v = b.clone().sub(a), L = v.length(); m.position.copy(a); m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), v.normalize()); m.scale.set(1, L, 1); }
 function armIK() { var hd = FEEL.hand, cam = R3.cam, on = hd && hd.visible; [HAND.up, HAND.lo, HAND.el].forEach(function (m) { if (m) m.visible = on; }); if (!on) return;
   var q = cam.quaternion, R = new THREE.Vector3(1, 0, 0).applyQuaternion(q), U = new THREE.Vector3(0, 1, 0).applyQuaternion(q), Fw = new THREE.Vector3(0, 0, -1).applyQuaternion(q);
@@ -2443,7 +2447,7 @@ function armIK() { var hd = FEEL.hand, cam = R3.cam, on = hd && hd.visible; [HAN
   var a = (L1 * L1 - L2 * L2 + d * d) / (2 * d), hh = Math.sqrt(Math.max(0, L1 * L1 - a * a)), pole = U.clone().multiplyScalar(-1).addScaledVector(R, 0.8).normalize(), perp = pole.sub(dir.clone().multiplyScalar(pole.dot(dir))).normalize();
   var E = Sh.clone().addScaledVector(dir, a).addScaledVector(perp, hh); placeSeg(HAND.up, Sh, E); placeSeg(HAND.lo, E, W); HAND.el.position.copy(E); }
 /* finger curl for a pose blend: 0 = relaxed, 1 = the action pose */
-function handPose(k) { var B = HAND.bones; if (!B) return; var relax = [[0.35, 0.45, 0.3], [0.45, 0.55, 0.35], [0.55, 0.6, 0.4], [0.65, 0.7, 0.45]];
+function handPose(k) { if (HAND.real) return realPose(k); var B = HAND.bones; if (!B) return; var relax = [[0.35, 0.45, 0.3], [0.45, 0.55, 0.35], [0.55, 0.6, 0.4], [0.65, 0.7, 0.45]];
   var act = HAND.mode === 'press' ? [[-0.05, 0.08, 0.05], [1.35, 1.5, 0.9], [1.45, 1.55, 0.95], [1.5, 1.55, 1.0]] : [[0.9, 0.85, 0.55], [1.0, 0.9, 0.55], [1.15, 1.1, 0.7], [1.25, 1.2, 0.75]];
   for (var f = 0; f < 4; f++) for (var j = 0; j < 3; j++) B[f][j].rotation.x = -(relax[f][j] + (act[f][j] - relax[f][j]) * k);
   var th = B[4]; th[1].rotation.x = -(0.25 + (HAND.mode === 'press' ? 0.7 : 0.45) * k); th[2].rotation.x = -(0.2 + 0.5 * k); }
@@ -2469,6 +2473,13 @@ function handTick(dt) { var hd = FEEL.hand; if (!hd || !hd.visible) { HAND.lean 
   if (t > 0.42 && t < 0.62) { var pk = Math.sin((t - 0.42) / 0.2 * Math.PI); hd.position.addScaledVector(HAND.press, (HAND.mode === 'press' ? 0.012 : 0.005) * pk); if (HAND.mode === 'grip') hd.quaternion.copy(HAND.q1).multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(0, 0, -0.35 * pk))); }
   else hd.quaternion.copy(HAND.q0).slerp(HAND.q1, a);
   handPose(pose); HAND.lean = a; armIK(); if (t >= 1) { hd.visible = false; HAND.lean = 0; armIK(); } }
+
+var QX = new THREE.Quaternion(), AX = new THREE.Vector3(1, 0, 0);
+function realPose(k) { var R = HAND.real, rest = HAND.rest, press = HAND.mode === 'press';
+  var curl = { index: press ? [0, 0.05, 0.05] : [0.85, 0.8, 0.5], middle: press ? [1.3, 1.45, 0.9] : [0.95, 0.9, 0.55], ring: press ? [1.4, 1.5, 0.95] : [1.05, 1.0, 0.6], pinky: press ? [1.45, 1.5, 1.0] : [1.15, 1.1, 0.7] }, relax = { index: [0.25, 0.3, 0.2], middle: [0.3, 0.35, 0.22], ring: [0.38, 0.4, 0.25], pinky: [0.45, 0.45, 0.3] }, seg = ['phalanx-proximal', 'phalanx-intermediate', 'phalanx-distal'];
+  Object.keys(curl).forEach(function (f) { seg.forEach(function (sg, j) { var n = f + '-finger-' + sg, b = R[n]; if (!b) return; var a = relax[f][j] + (curl[f][j] - relax[f][j]) * k; b.quaternion.copy(rest[n]).multiply(QX.setFromAxisAngle(AX, a * HAND.sign)); }); });
+  [['thumb-phalanx-proximal', 0.2, press ? 0.6 : 0.4], ['thumb-phalanx-distal', 0.15, press ? 0.5 : 0.35]].forEach(function (t) { var b = R[t[0]]; if (b) b.quaternion.copy(rest[t[0]]).multiply(QX.setFromAxisAngle(AX, (t[1] + (t[2] - t[1]) * k) * HAND.sign)); }); }
+HAND.sign = -1;
 
 /* ================================================================ station life ================================================================
    Phone calls, field operators who take real time, day and night shifts with handovers, weather and the grid, PA announcements,
