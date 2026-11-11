@@ -1988,7 +1988,7 @@ var TRI = { cams: null, q: null, up: null, ang: 0,
   setup: function () { if (TRI.cams) return; TRI.cams = [0, 1, 2].map(function () { return new THREE.PerspectiveCamera(60, 1, 0.03, 60); }); TRI.q = new THREE.Quaternion(); TRI.up = new THREE.Vector3(0, 1, 0); },
   sync: function () { TRI.setup(); var W = root.clientWidth, H = Math.max(1, root.clientHeight), w3 = W / 3, asp = w3 / H, vf = CAM.fov * (S.cfg.triFov || 1), half = Math.atan(Math.tan(vf * Math.PI / 360) * asp), bz = (S.cfg.triBezel || 0) * Math.PI / 180;
     TRI.ang = 2 * half + bz; var c0 = R3.cam;
-    TRI.cams.forEach(function (c, i) { var k = i - 1; c.fov = vf; c.aspect = asp; c.clearViewOffset(); c.updateProjectionMatrix(); c.position.copy(c0.position); TRI.q.setFromAxisAngle(TRI.up, -k * TRI.ang); c.quaternion.copy(c0.quaternion).multiply(TRI.q); c.updateMatrixWorld(); }); },
+    TRI.cams.forEach(function (c, i) { var k = i - 1; c.fov = vf; c.aspect = asp; c.clearViewOffset(); c.updateProjectionMatrix(); c.position.copy(c0.position); c.rotation.order = 'YXZ'; c.rotation.set(CAM.pitch, CAM.yaw - k * TRI.ang, 0); c.updateMatrixWorld(); /* world yaw then pitch: all three screens tilt up and down together and the horizon stays level */ }); },
   render: function () { var ren = R3.ren, W = root.clientWidth, H = Math.max(1, root.clientHeight), w3 = W / 3, sm = ren.shadowMap.autoUpdate; TRI.sync(); ren.setScissorTest(true);
     for (var i = 0; i < 3; i++) { ren.setViewport(i * w3, 0, w3, H); ren.setScissor(i * w3, 0, w3, H); if (i === 1) ren.shadowMap.autoUpdate = false; ren.render(R3.scene, TRI.cams[i]); }
     ren.shadowMap.autoUpdate = sm; ren.setScissorTest(false); ren.setViewport(0, 0, W, H); },
