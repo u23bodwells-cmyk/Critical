@@ -2404,8 +2404,8 @@ var FEEL = { t: 0, chatT: 20, keyT: 5, flT: 8, lights: null, people: null, hand:
    Built from rounded segments with real proportions: palm, four fingers with three jointed bones each, a thumb, wrist and a shirt
    cuff. It comes in from the lower right in an arc, slows as it arrives, the index finger presses a button (or the fingers close on
    a switch or knob and turn it), holds for a moment, then eases back. Skin uses a physical material with sheen for a soft look. */
-var HAND = { t: 1, from: new THREE.Vector3(), to: new THREE.Vector3(), q0: new THREE.Quaternion(), q1: new THREE.Quaternion(), mode: 'press', bones: null };
-function buildHand() { var root = new THREE.Group(), wrist = new THREE.Group(); root.add(wrist); root.visible = false;
+var HAND = { t: 1, mode: 'press', bones: null };
+function buildHand() { HAND.from = new THREE.Vector3(); HAND.to = new THREE.Vector3(); HAND.q0 = new THREE.Quaternion(); HAND.q1 = new THREE.Quaternion(); var root = new THREE.Group(), wrist = new THREE.Group(); root.add(wrist); root.visible = false;
   /* procedural skin: mottled colour with redder patches, fine pores and wrinkle creases as a bump map, slightly translucent sheen */
   var cv = function (w, h, fn) { var c = document.createElement('canvas'); c.width = w; c.height = h; fn(c.getContext('2d'), w, h); var t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; return t; };
   var col = cv(512, 512, function (g, w, h) { g.fillStyle = '#d9a389'; g.fillRect(0, 0, w, h); for (var i = 0; i < 2600; i++) { var r = 4 + Math.random() * 28; g.fillStyle = 'rgba(' + (Math.random() < 0.5 ? '200,110,95' : '238,190,165') + ',' + (0.025 + Math.random() * 0.05) + ')'; g.beginPath(); g.arc(Math.random() * w, Math.random() * h, r, 0, 6.3); g.fill(); }
@@ -2474,8 +2474,8 @@ function handTick(dt) { var hd = FEEL.hand; if (!hd || !hd.visible) { HAND.lean 
   else hd.quaternion.copy(HAND.q0).slerp(HAND.q1, a);
   handPose(pose); HAND.lean = a; armIK(); if (t >= 1) { hd.visible = false; HAND.lean = 0; armIK(); } }
 
-var QX = new THREE.Quaternion(), AX = new THREE.Vector3(1, 0, 0);
-function realPose(k) { var R = HAND.real, rest = HAND.rest, press = HAND.mode === 'press';
+var QX, AX;
+function realPose(k) { if (!QX) { QX = new THREE.Quaternion(); AX = new THREE.Vector3(1, 0, 0); } var R = HAND.real, rest = HAND.rest, press = HAND.mode === 'press';
   var curl = { index: press ? [0, 0.05, 0.05] : [0.85, 0.8, 0.5], middle: press ? [1.3, 1.45, 0.9] : [0.95, 0.9, 0.55], ring: press ? [1.4, 1.5, 0.95] : [1.05, 1.0, 0.6], pinky: press ? [1.45, 1.5, 1.0] : [1.15, 1.1, 0.7] }, relax = { index: [0.25, 0.3, 0.2], middle: [0.3, 0.35, 0.22], ring: [0.38, 0.4, 0.25], pinky: [0.45, 0.45, 0.3] }, seg = ['phalanx-proximal', 'phalanx-intermediate', 'phalanx-distal'];
   Object.keys(curl).forEach(function (f) { seg.forEach(function (sg, j) { var n = f + '-finger-' + sg, b = R[n]; if (!b) return; var a = relax[f][j] + (curl[f][j] - relax[f][j]) * k; b.quaternion.copy(rest[n]).multiply(QX.setFromAxisAngle(AX, a * HAND.sign)); }); });
   [['thumb-phalanx-proximal', 0.2, press ? 0.6 : 0.4], ['thumb-phalanx-distal', 0.15, press ? 0.5 : 0.35]].forEach(function (t) { var b = R[t[0]]; if (b) b.quaternion.copy(rest[t[0]]).multiply(QX.setFromAxisAngle(AX, (t[1] + (t[2] - t[1]) * k) * HAND.sign)); }); }
