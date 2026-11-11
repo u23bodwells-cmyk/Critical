@@ -41,8 +41,8 @@ function setOverlap(p) { p.rods.CA = clamp(p.pc, 0, TOP); p.rods.CB = clamp(p.pc
 /* moderator temperature coefficient: boron makes it less negative (water expands, boron leaves the core), about -12 pcm/°C at 1200 ppm, -38 with no boron */
 function mtc(p) { return -38 + 0.022 * p.boron; }
 var DHF = [0.03, 0.02, 0.015], DHT = [10, 150, 3000];
-function rhoParts(p) { var rods = 0; BANKS.forEach(function (b) { rods -= WORTH[b] * (1 - bankF(p.rods[b])); }); return { base: RHO0, rods: rods, boron: -p.boron * BW, dop: AD * (p.Tf - T0), mod: mtc(p) * (p.Tavg - T0), xe: xeRho(p) }; }
-function rhoPcm(p) { var r = rhoParts(p); return r.base + r.rods + r.boron + r.dop + r.mod + r.xe; }
+function rhoParts(p) { var rods = 0; BANKS.forEach(function (b) { rods -= WORTH[b] * (1 - bankF(p.rods[b])); }); return { base: RHO0, rods: rods, boron: -p.boron * BW, dop: AD * (p.Tf - T0), mod: mtc(p) * (p.Tavg - T0), xe: xeRho(p), burn: -((p.x && p.x.bu) || 0) * 0.42, drop: p.x && p.x.f && p.x.f.drop ? -260 : 0 }; }
+function rhoPcm(p) { var r = rhoParts(p); return r.base + r.rods + r.boron + r.dop + r.mod + r.xe + r.burn + r.drop; }
 function pcName(pc) { if (pc <= 0) return 'all control banks in'; if (pc >= PCMAX) return 'all control banks out'; var b = pc >= 3 * OVL ? 'D' : pc >= 2 * OVL ? 'C' : pc >= OVL ? 'B' : 'A', z = b === 'D' ? pc - 3 * OVL : b === 'C' ? pc - 2 * OVL : b === 'B' ? pc - OVL : pc; return 'bank ' + b + ' at ' + Math.round(z) + ' steps'; }
 
 function freshPlant() {
@@ -193,9 +193,9 @@ function bopStep(p, dt, Q) {
     x.brgT[i] += ((on ? (ccwOK ? 55 : 120) : 40) - x.brgT[i]) * (1 - Math.exp(-dt / 180)); if (x.rcpOn[i] && x.brgT[i] > 95) { x.rcpOn[i] = false; bopLog(p, 'RCP ' + (i + 1) + ' tripped on high bearing temperature (no cooling water)'); } }
   var W = Math.max(0.035, (x.rcp[0] + x.rcp[1] + x.rcp[2] + x.rcp[3]) / 4), rcpQ = 5 * (x.rcp[0] + x.rcp[1] + x.rcp[2] + x.rcp[3]);
   /* ---- steam generators: heat goes into those with water, steam leaves through the MSIVs ---- */
-  var ts = tsat(p.Ps), wet = x.sg.filter(function (s) { return s.Lm > 3; }).length / 4, ua = UA * (0.35 + 0.65 * Math.sqrt(W)) * wet, qsg = ua * Math.max(0, p.Tavg - ts);
+  var ts = tsat(p.Ps), wet = x.sg.filter(function (s) { return s.Lm > 3; }).length / 4, ua = UA * (0.35 + 0.65 * Math.sqrt(W)) * wet, qsg = sgHeat(p, x, W, dt);
   p.Tf += ((p.Tavg + 460 * Math.min(p.n, 1.3) / Math.sqrt(Math.max(W, 0.2))) - p.Tf) * (1 - Math.exp(-dt / 5));
-  var dT0 = p.Tavg; p.Tavg += (Q + rcpQ - qsg - 1.5 - rhrQ(p) + (x.si.flow > 0 ? -x.si.flow * 0.08 : 0)) / CRCS * dt; var dTdt = (p.Tavg - dT0) / dt;
+  var dT0 = p.Tavg; p.Tavg += (Q + rcpQ - qsg - 1.5 - rhrQ(p) + - (x.si.flow + (x.core && x.core.brk > 50 ? x.core.brk * 0.5 : 0)) * Math.max(0, p.Tavg - 25) * 0.00117) / CRCS * dt; var dTdt = (p.Tavg - dT0) / dt;
   /* ---- turbine and generator ---- */
   var anyMsiv = x.sg.some(function (s) { return s.msiv; }), vacOK = x.vac < 0.2;
   if (tb.latched) { tb.tg = false;
@@ -215,7 +215,7 @@ function bopStep(p, dt, Q) {
   if (!c9 || p12 || !anyMsiv || x.aux.airP < 4) dem = 0;
   p.dump += (dem - p.dump) * (1 - Math.exp(-dt / 1.2));
   var porvQ = 0; x.sg.forEach(function (s) { s.porv = s.porvMode === 'OPEN' || (s.porvMode === 'AUTO' && p.Ps > x.sgPorvSet + (s.porv ? -1 : 0)); if (s.porv) porvQ += 0.025 * FULL * clamp((p.Ps - 10) / 70, 0, 1.2); });
-  var relief = p.Ps > 84 ? (p.Ps - 84) * 600 : 0, steamOut = p.dump * 0.4 * FULL + tb.steam + porvQ + relief + (x.tdafw ? 6 : 0) + 4;
+  var relief = p.Ps > 84 ? (p.Ps - 84) * 600 : 0, steamOut = p.dump * 0.4 * FULL + tb.steam + porvQ + relief + (x.tdafw ? 6 : 0) + 4 + x.sg.reduce(function (a, s) { return a + (s.msiv ? s.brk || 0 : 0); }, 0);
   p.Ps += (qsg - steamOut) / 400 * dt; if (p.Ps < 1) p.Ps = 1;
   /* ---- steam generator levels: feed in, steam out, with swell (level jumps up briefly when steam flow increases) ---- */
   var stmPct = steamOut / FULL * 100, msivN = x.sg.filter(function (s) { return s.msiv; }).length || 1, airOK = x.aux.airP > 4;
@@ -224,6 +224,7 @@ function bopStep(p, dt, Q) {
   x.sg.forEach(function (s, k) {
     s.steam = s.msiv ? (stmPct - (s.porv ? 0 : 0)) / msivN * (msivN / 4) * 4 / 4 : (s.porv ? 2.5 : 0); if (!s.msiv && s.porv) s.steam = porvQ / FULL * 100 / 4;
     if (s.msiv) s.steam = (p.dump * 0.4 * FULL + tb.steam + relief) / FULL * 100 / msivN + (s.porv ? 0.025 * 100 : 0) * clamp((p.Ps - 10) / 70, 0, 1.2) + 4 / FULL * 100 / 4;
+    s.steam += (s.brk || 0) / FULL * 100;
     s.sfS += (s.steam - s.sfS) * (1 - Math.exp(-dt / 25));
     /* main feed through the feed regulating valve (3-element control: feed matches steam, trimmed by level) */
     if (s.frvMode === 'AUTO') { s.fI = clamp(s.fI + (50 - s.L) * 0.0015 * dt, -0.3, 0.3); s.frvDem = clamp(s.steam / 28 + 0.04 * (50 - s.L) + s.fI, 0, 1); }
@@ -247,10 +248,10 @@ function bopStep(p, dt, Q) {
   for (i = 0; i < 2; i++) { var o = pz.porvMode[i] === 'OPEN' || (pz.porvMode[i] === 'AUTO' && pz.P > (pz.porv[i] ? 160.5 : 162.3)); pz.porv[i] = o && airOK; } if (f.porv) pz.porv[0] = true;
   var porvN = (pz.porv[0] && pz.blk[0] ? 1 : 0) + (pz.porv[1] && pz.blk[1] ? 1 : 0); pz.safety = pz.P > 172;
   /* level: thermal expansion of the coolant plus charging minus letdown */
-  var sealIn = cv.ccp.some(Boolean) || cv.pd ? 2.0 : -1.2, siIn = x.si.flow;
+  var sealIn = cv.ccp.some(Boolean) || cv.pd ? 2.0 : -1.2, siIn = x.si.flow + accFlow(x, pz, dt);
   var cr = x.core || (x.core = core0());
   /* small-break LOCA: a 3 cm hole in a cold leg. Subcooled critical flow goes as the square root of pressure; once the coolant is two-phase much less mass gets out */
-  var brk = f.loca ? 7.2 * Math.sqrt(Math.max(0, pz.P - x.ct.P)) * (1 - 0.58 * clamp(cr.vv / 5, 0, 1)) : 0; cr.brk = brk;
+  var brk = f.loca ? 7.2 * Math.sqrt(Math.max(0, pz.P - x.ct.P)) * (1 - 0.58 * clamp(cr.vv / 5, 0, 1)) : 0; if (f.lb) brk += lbBreak(x, cr, pz); cr.brk = brk;
   var sgtl = f.sgtl ? 6 * clamp((pz.P - p.Ps) / 80, 0, 1) : 0; if (sgtl) x.sg[0].Lm = Math.min(100, x.sg[0].Lm + sgtl * 0.0004 * dt);
   var dLdt = 2.35 * dTdt + (cv.chg + sealIn + siIn - cv.ltd - porvN * 4 - (pz.safety ? 40 : 0) - sgtl - brk) / 3600 / 0.51;
   /* RCS inventory: when the pressuriser is empty, any further loss leaves steam voids in the loops and the reactor vessel (0.51 m³ per % of pressuriser level) */
@@ -280,14 +281,16 @@ function bopStep(p, dt, Q) {
   cv.divert = cv.vct > 87; cv.vct = clamp(cv.vct + (cv.ltd + (sealIn < 0 ? 0 : 1.2) - cv.chg - (sealIn > 0 ? 3.1 : 0) + cv.mkup - (cv.divert ? 15 : 0)) / 0.1 / 3600 * 0.1 * dt * 10, 0, 100);
   /* ---- safety injection: pressuriser pressure < 127 bar or steam pressure < 41 bar (unless blocked below P-11), or containment pressure high ---- */
   var p11 = pz.P < 136; if (!p11) { x.si.blkP = false; x.si.blkS = false; }
-  if (!x.si.on && ((pz.P < 127 && !x.si.blkP) || (p.Ps < 41 && !x.si.blkS) || x.ct.P > 0.3)) siActuate(p, pz.P < 127 ? 'pressuriser pressure low' : p.Ps < 41 ? 'steam line pressure low' : 'containment pressure high');
+  if (!x.si.on && ((pz.P < 127 && !x.si.blkP) || (minPs(x, p) < 41 && !x.si.blkS) || x.ct.P > 0.3)) siActuate(p, pz.P < 127 ? 'pressuriser pressure low' : minPs(x, p) < 41 ? 'steam line pressure low' : 'containment pressure high');
+  /* main steam line isolation: low steam line pressure shuts every MSIV (unless blocked below P-11) */
+  if (minPs(x, p) < 41 && !x.si.blkS && x.sg.some(function (s) { return s.msiv; })) { x.sg.forEach(function (s) { s.msiv = false; }); bopLog(p, 'Main steam line isolation: all MSIVs shut (steam line pressure low)'); }
   var siHead = 0; if (x.si.on || x.si.pumps.some(Boolean)) { x.si.pumps.forEach(function (on2, k) { if (on2 && pwr(x, 'sip', k)) siHead += clamp((115 - pz.P) / 30, 0, 1) * 60; }); }
   cv.ccp.forEach(function (on2, k) { if (on2 && pwr(x, 'ccp', k) && x.si.on) siHead += clamp((175 - pz.P) / 60, 0, 1) * 25; });
   x.si.rhr.forEach(function (on2, k) { if (on2 && pwr(x, 'rhr', k)) siHead += clamp((14 - pz.P) / 10, 0, 1) * 300; });
   x.si.flow = (x.si.on || siHead > 0) && x.si.rwst > 0 ? siHead : 0; x.si.rwst = Math.max(0, x.si.rwst - x.si.flow / 3600 / 18 * dt);
   /* ---- containment ---- */
   var leakT = (pz.safety || porvN) && pz.prtP > 6 ? 1 : 0, leak = Math.max(leakT, clamp(brk / 50, 0, 1.6)), fans = x.aux.fan.filter(function (f, k) { return f && pwr(x, 'fan', k); }).length, sprays = x.si.cs.filter(function (c, k) { return c && pwr(x, 'cs', k); }).length;
-  x.ct.T += ((32 + leakT * 60 + brk / 90 * 13) - x.ct.T - fans * 0.5 * (x.ct.T > 33 ? 1 : 0)) * (1 - Math.exp(-dt / 600)) - sprays * 0.01 * dt; x.ct.P = clamp(x.ct.P + ((leak * 0.01) * (brk > 0 ? 0.025 : 1) - sprays * 0.003 - fans * 0.0003 * (brk > 0 ? 0.3 : 1)) * dt, -0.02, 4); x.ct.sump = clamp(x.ct.sump + brk / 3600 * dt * 0.05 + (x.si.cs.some(Boolean) ? 0.002 * dt : 0), 0, 100); x.ct.hum = clamp(x.ct.hum + (brk > 0 ? 0.02 : (40 - x.ct.hum) * 0.001) * dt, 0, 100); if (x.ct.P < 0) x.ct.P += 0.0005 * dt;
+  x.ct.T += ((32 + leakT * 60 + brk / 90 * 13) - x.ct.T - fans * 0.5 * (x.ct.T > 33 ? 1 : 0)) * (1 - Math.exp(-dt / 600)) - sprays * 0.01 * dt; x.ct.P = clamp(x.ct.P + ((leak * 0.01) * (brk > 0 ? 0.025 : 1) - sprays * 0.003 - fans * 0.0003 * (brk > 0 ? 0.3 : 1)) * dt, -0.02, 4); x.ct.P = clamp(x.ct.P + (brk * 2e-6 + x.sg.reduce(function (a, s) { return a + (s.brk || 0); }, 0) * 1.5e-5) * dt * (x.ct.P > 3 ? 0.1 : 1), -0.02, 4.5); x.ct.sump = clamp(x.ct.sump + brk / 3600 * dt * 0.05 + (x.si.cs.some(Boolean) ? 0.002 * dt : 0), 0, 100); x.ct.hum = clamp(x.ct.hum + (brk > 0 ? 0.02 : (40 - x.ct.hum) * 0.001) * dt, 0, 100); if (x.ct.P < 0) x.ct.P += 0.0005 * dt;
   if (x.ct.P > 1.0 && !x.si.cs.every(Boolean)) { x.si.cs = [true, true]; bopLog(p, 'Containment spray actuated (containment pressure high-3)'); }
   /* ---- electrical: diesels start on bus undervoltage or SI, come up to 3000 rpm (50 Hz) in about 10 s ---- */
   x.el.edg.forEach(function (g, k) { var bus = k ? 'EB' : 'EA', dead = !((k ? x.el.tieB : x.el.tieA) && busOn(x, k ? 'B' : 'A'));
@@ -345,7 +348,7 @@ function core0() { var s = [], z = []; for (var i = 0; i < NZ; i++) { s.push(Mat
 function cal0() { return { fv: 1.0, d: [0, 0, 0, 0], g: PRG.slice(), eT: gauss() * 0.25, eP: gauss() * 0.08, dao: [0.01, -0.015, 0.02, -0.01], last: null, lastT: -1e12, log: [] }; }
 /* what each power range channel reads per unit of true power: its gain pot, slow detector drift, downcomer water temperature and the axial shape it sees */
 function prResp(p, i) { var x = p.x; if (!x) return PRG[i]; var c = x.cal || (x.cal = cal0()), cr = x.core; var tc = cr ? cr.Tc : T0, ao = cr ? cr.ao : 0;
-  return c.g[i] * (1 + c.d[i]) * (1 + 0.004 * (tc - (TAVF - DTN / 2))) * (1 + 0.1 * ao); }
+  return c.g[i] * (1 + c.d[i]) * (1 + 0.004 * (tc - (TAVF - DTN / 2))) * (1 + 0.1 * ao) * (cr && cr.qt ? cr.qt[i] : 1); }
 /* rod insertion limit: the control banks must stay above this line (Tech Spec 3.1.6), in overlap steps, against power */
 function rilPc(pw) { return 300 + 1.7 * clamp(pw, 0, 100); }
 function coreShape(p) {
@@ -379,8 +382,8 @@ function coreStep(p, dt, Q) {
   var W = Math.max(0.035, (x.rcp[0] + x.rcp[1] + x.rcp[2] + x.rcp[3]) / 4); if (cr.vv > 30 && W < 0.1) W *= clamp(1 - (cr.vv - 30) / 60, 0.25, 1); /* steam in the SG tubes blocks natural circulation */
   var Qc = Q == null ? FULL * n : Q, dTt = Math.min(80, Qc * 1000 / (WCORE * W * CPW)); cr.dT += (dTt - cr.dT) * (1 - Math.exp(-dt / 4)); cr.W = W;
   cr.Th = p.Tavg + cr.dT / 2; cr.Tc = p.Tavg - cr.dT / 2; var Ts = tsat(x.pz.P); if (cr.Th > Ts + 0.5) cr.Th = Ts + 0.5;
-  /* ---- axial power shape ---- */
-  coreShape(p);
+  /* ---- axial power shape, loops and quadrants ---- */
+  coreShape(p); loopStep(p, dt);
   /* ---- xenon and iodine, node by node ---- */
   for (i = 0; i < NZ; i++) { var ph = n * s[i]; cr.I[i] += (0.2418 * ph - 2.87e-5 * cr.I[i]) * dt; cr.X[i] += (0.0127 * ph + 2.87e-5 * cr.I[i] - 2.09e-5 * cr.X[i] - 7e-5 * ph * cr.X[i]) * dt; if (cr.X[i] < 0) cr.X[i] = 0; }
   xeSum(p);
@@ -418,7 +421,7 @@ function margins(p, Qc, W) {
   var x = p.x, cr = x.core, s = cr.s, i, qf = Qc / FULL;
   var dIn = 1 - p.rods.CD / TOP, cIn = 1 - p.rods.CC / TOP, j = 0; for (i = 1; i < NZ; i++) if (s[i] > s[j]) j = i;
   cr.fz = s[j] * 1.04; cr.fdh = 1.43 + 0.09 * dIn + 0.04 * cIn; var rodHere = (j + 1) / NZ > p.rods.CD / TOP ? 0.1 : 0; cr.fxy = 1.34 + 0.08 * dIn + rodHere;
-  cr.fq = cr.fz * cr.fxy * 1.03 * 1.05; cr.lhgr = LHGR0 * qf * 0.974 * cr.fq;
+  cr.fq = cr.fz * cr.fxy * 1.03 * 1.05 * (cr.qptr || 1); cr.fdh *= (cr.qptr || 1); cr.lhgr = LHGR0 * qf * 0.974 * cr.fq;
   /* hottest fuel pellet: coolant + film + clad + gap, then integrate the pellet's conductivity to the centre */
   var q1 = cr.lhgr, tps = cr.tm[j] + q1 * (0.9 + 1.4 + 6.5); cr.tcl = q1 > 0.2 ? fuelCL(tps, q1) : cr.tm[j]; cr.tclZ = j;
   /* hot channel DNBR, node by node */
@@ -432,6 +435,29 @@ function margins(p, Qc, W) {
 }
 /* overtemperature / overpower ΔT trips (2 of 4 loops; the loops read alike here) */
 function rpsCore(p) { var cr = p.x && p.x.core; if (!cr || cr.ratio <= 0) return null; if (cr.ratio > cr.otsp) return 'OTDT'; if (cr.ratio > cr.opsp) return 'OPDT'; return null; }
+
+/* ================================================================ four separate loops, core quadrants, fuel burnup ================================================================
+   Each steam generator has its own pressure and heat transfer; an SG with its MSIV shut (or a steam line break upstream of it)
+   follows its own pressure. Each loop's cold leg is set by what its own SG takes out, and feeds its own core quadrant, so a
+   cold loop makes a hot quadrant (quadrant power tilt). A dropped rod pushes power out of its quadrant. Burnup lowers the
+   excess reactivity through the 18-month cycle. */
+var BRK_SG = 1;
+function sgHeat(p, x, W, dt) { var q = 0, uaS = UA * (0.35 + 0.65 * Math.sqrt(W)) / 4, f = x.f || {};
+  x.sg.forEach(function (s, k) { if (s.P == null) s.P = p.Ps; var lw = Math.max(0.035, x.rcp[k]); s.q = s.Lm > 3 ? uaS * Math.sqrt(lw / Math.max(W, 0.035)) * Math.max(0, p.Tavg - tsat(s.P)) : 0; q += s.q;
+    s.brk = f.msb && k === BRK_SG ? 0.32 * FULL * Math.sqrt(Math.max(0, s.P) / 70) : 0;
+    if (s.msiv) s.P = p.Ps; else { var po = s.porv ? 0.025 * FULL * clamp((s.P - 10) / 70, 0, 1.2) : 0; s.P = Math.max(0, s.P + (s.q - po - s.brk - 1) / 100 * dt); } });
+  return q; }
+function minPs(x, p) { var m = p.Ps; x.sg.forEach(function (s) { if (s.P != null && s.P < m) m = s.P; }); return m; }
+function loopStep(p, dt) { var x = p.x, cr = x.core, mt = mtc(p), tcs = [], m = 0, i;
+  for (i = 0; i < 4; i++) { var s = x.sg[i], lw = Math.max(0.035, x.rcp[i]) * (cr.vv > 30 ? 0.5 : 1); var tc = cr.Th - (s.q || 0) * 1000 / (WCORE / 4 * lw * CPW); tc = clamp(tc, Math.min(cr.Th, tsat(s.P == null ? p.Ps : s.P)), cr.Th); tcs.push(tc); m += tc / 4; }
+  cr.lp = tcs; var d = [], dm = 0, dropK = (x.f && x.f.drop) ? 1 : -1;
+  for (i = 0; i < 4; i++) { d[i] = mt * (tcs[i] - m) * (x.rcp.some(function (r) { return r > 0.5; }) ? 0.55 : 1) + (i === dropK ? -420 : 0); dm += d[i] / 4; }
+  var qt = [], sm = 0; for (i = 0; i < 4; i++) { qt[i] = Math.exp(0.00035 * (d[i] - dm)); sm += qt[i]; } cr.qt = qt.map(function (v) { return v * 4 / sm; }); cr.qptr = Math.max.apply(null, cr.qt);
+  x.bu = (x.bu || 0) + Math.max(0, p.n) * 38 / 86400 * dt; }
+/* the large-break LOCA (double-ended cold leg break) and the accumulators */
+function lbBreak(x, cr, pz) { var vf = clamp(cr.vv / 160, 0, 1); var dp = Math.max(0, pz.P - x.ct.P); return 3600 * Math.sqrt(dp) * Math.pow(Math.min(1, dp / 40), 1.5) * (1 - 0.88 * vf); }
+function accFlow(x, pz, dt) { var s = x.si, f = 0; if (s.accV == null) s.accV = [30, 30, 30, 30]; s.acc.forEach(function (o, k) { if (o && pz.P < 44 && s.accV[k] > 0) { var q = 900 * Math.sqrt((44 - pz.P) / 44 + 0.05); s.accV[k] = Math.max(0, s.accV[k] - q / 3600 * dt); f += q; } }); return f; }
+function setBurnup(p, bu) { var r0 = rhoPcm(p); p.x.bu = bu; p.boron = clamp(p.boron + (rhoPcm(p) - r0) / BW, 0, 2500); }
 
 /* ================================================================ drawing helpers ================================================================ */
 var ANISO = 4, S = null, root = null, R3 = null;
@@ -1450,7 +1476,7 @@ CONTENT.pzr = function (s) { be(s); var x = X, pz = function () { return x().pz;
 CONTENT.rcs = function (s) { be(s); var x = X;
   REC(s, 1.2, 1.4, 'LOOP TEMPERATURES', [['THOT', function () { return D.thot; }], ['TCOLD', function () { return D.tcold; }, '#1f5fbf']], 260, 340, '\u00b0C');
   grp(s, -1.74, 0.0, 1.66, 2.33, 'LOOP TEMPERATURES'); grp(s, 0.04, 1.74, 1.66, 2.33, 'REACTOR COOLANT PUMPS'); grp(s, -1.74, 1.74, 1.18, 1.62, 'LOOP FLOW  ·  CORE');
-  var th = function (i) { return function () { return D.thot + (i - 1.5) * 0.08; }; }, tc = function (i) { return function () { return D.tcold - (i - 1.5) * 0.06; }; };
+  var th = function (i) { return function () { return D.thot + (i - 1.5) * 0.08; }; }, tc = function (i) { return function () { var l = crx().lp; return l ? l[i] : D.tcold; }; };
   meterRow(s, -1.68, 2.0, [].concat.apply([], L4(function (i) { return [['TH ' + (i + 1), '°C', 260, 340, th(i), 'Loop ' + (i + 1) + ' hot leg temperature', null, { major: 4, minor: 4 }], ['TC ' + (i + 1), '°C', 260, 340, tc(i), 'Loop ' + (i + 1) + ' cold leg temperature', null, { major: 4, minor: 4 }]]; })), 0.098);
   dgRow(s, -1.6, 1.79, L4(function (i) { return ['LOOP ' + (i + 1) + ' TAVG', function () { return ((th(i)() + tc(i)()) / 2).toFixed(1); }]; }), 0.2);
   meterRow(s, 0.1, 2.0, L4(function (i) { return ['AMPS ' + (i + 1), 'A', 0, 1000, function () { return x().rcp[i] * (612 + i * 4) + (x().rcp[i] > 0.05 && x().rcp[i] < 0.95 && x().rcpOn[i] ? 2500 * (1 - x().rcp[i]) : 0); }, 'RCP ' + (i + 1) + ' motor current']; }).concat(
@@ -1471,7 +1497,7 @@ CONTENT.rcs = function (s) { be(s); var x = X;
 CONTENT.sg = function (s) { be(s); var x = X, sgi = function (i) { return x().sg[i]; };
   grp(s, -1.74, 1.74, 1.66, 2.33, 'STEAM GENERATORS 1–4: LEVEL  ·  STEAM FLOW  ·  FEED FLOW'); grp(s, -1.74, 1.74, 1.18, 1.62, 'FEED REGULATING VALVES  ·  AUX FEED VALVES  ·  FEED PUMPS');
   L4(function (i) { var x0 = -1.68 + i * 0.88; meterRow(s, x0, 2.0, [['NR ' + (i + 1), '% LEVEL', 0, 100, function () { return sgi(i).L; }, 'Steam generator ' + (i + 1) + ' narrow range level', null, { bands: [[0, 0.17, RD], [0.85, 1, RD]] }], ['WR ' + (i + 1), '% LEVEL', 0, 100, function () { return 35 + sgi(i).Lm * 0.45; }, 'Steam generator ' + (i + 1) + ' wide range level'],
-    ['STM ' + (i + 1), '% FLOW', 0, 30, function () { return sgi(i).steam; }, 'SG ' + (i + 1) + ' steam flow', null, { major: 3, minor: 5 }], ['FEED ' + (i + 1), '% FLOW', 0, 30, function () { return sgi(i).feed; }, 'SG ' + (i + 1) + ' feed flow', null, { major: 3, minor: 5 }], ['P ' + (i + 1), 'BAR', 0, 100, function () { return S.p.Ps - 0.1 * i; }, 'Steam generator ' + (i + 1) + ' pressure']], 0.098, { info: [/x/, 'Steam generator', 'A tall heat exchanger with about 5,000 U-shaped tubes. Reactor coolant flows inside the tubes and boils the feedwater outside them. Level must stay between 17% (trip: the tubes could uncover) and 85% (trip: water would reach the turbine).', 'Level shrinks and swells: open the steam valves and level jumps up for a moment as the bubbles grow, even though water is leaving.'] }); });
+    ['STM ' + (i + 1), '% FLOW', 0, 30, function () { return sgi(i).steam; }, 'SG ' + (i + 1) + ' steam flow', null, { major: 3, minor: 5 }], ['FEED ' + (i + 1), '% FLOW', 0, 30, function () { return sgi(i).feed; }, 'SG ' + (i + 1) + ' feed flow', null, { major: 3, minor: 5 }], ['P ' + (i + 1), 'BAR', 0, 100, function () { var s = S.p.x.sg[i]; return s.P == null ? S.p.Ps : s.P; }, 'Steam generator ' + (i + 1) + ' pressure']], 0.098, { info: [/x/, 'Steam generator', 'A tall heat exchanger with about 5,000 U-shaped tubes. Reactor coolant flows inside the tubes and boils the feedwater outside them. Level must stay between 17% (trip: the tubes could uncover) and 85% (trip: water would reach the turbine).', 'Level shrinks and swells: open the steam valves and level jumps up for a moment as the bubbles grow, even though water is leaving.'] }); });
   L4(function (i) { var x0 = -1.62 + i * 0.88;
     MA(s, x0, 1.4, { t: 'FRV SG ' + (i + 1), mode: function () { return sgi(i).frvMode; }, setMode: function (m) { sgi(i).frvMode = m; sgi(i).frvDem = sgi(i).frv; }, out: function () { return sgi(i).frv; }, pv: function () { return sgi(i).L.toFixed(0) + '%'; }, sp: function () { return '50'; }, raise: function (d, dt) { if (sgi(i).frvMode === 'MAN') sgi(i).frvDem = clamp(sgi(i).frvDem + d * dt * 0.05, 0, 1); },
       info: [/x/, 'Feed regulating valve controller', 'Three-element control: in AUTO it matches feed flow to steam flow and trims it to hold level at 50%. Needs a main feed pump running.'] });
@@ -1753,6 +1779,10 @@ var TS = {
       act: [{ t: 'Reduce power at least 1% for every 1% FQ is over the limit', ct: 15 * 60 }, { t: 'Be in MODE 2', ct: 6 * H, ok: function () { return D.mode >= 2; } }] },
     { id: '3.2.2', t: 'Nuclear enthalpy rise hot channel factor FΔH', lim: 'FΔH ≤ 1.65 × [1 + 0.3 (1 − fraction of power)]', ap: 'MODE 1', cond: function () { var P = rtp() / 100; return D.mode === 1 && crx().fdh > 1.65 * (1 + 0.3 * (1 - P)); }, val: function () { return crx().fdh.toFixed(3); },
       act: [{ t: 'Reduce power below 50%', ct: 4 * H, ok: function () { return rtp() < 50; } }, { t: 'Be in MODE 2', ct: 6 * H, ok: function () { return D.mode >= 2; } }] },
+    { id: '3.2.4', t: 'Quadrant power tilt ratio (QPTR)', lim: 'QPTR ≤ 1.02', ap: 'MODE 1 above 50% power', cond: function () { return D.mode === 1 && rtp() > 50 && crx().qptr > 1.02; }, val: function () { return (crx().qptr || 1).toFixed(3) + ' · quadrants ' + (crx().qt || []).map(function (v) { return v.toFixed(3); }).join(' / '); },
+      act: [{ t: 'Reduce power 3% for every 1% QPTR is above 1.00', ct: 2 * H }, { t: 'Reduce power below 50%', ct: 6 * H, ok: function () { return rtp() < 50; } }] },
+    { id: '3.1.4', t: 'Rod group alignment', lim: 'Every rod within 12 steps of its group (no dropped or misaligned rods)', ap: 'MODES 1 and 2', cond: function (p) { return D.mode <= 2 && !!(p.x.f && p.x.f.drop); }, val: function (p) { return p.x.f && p.x.f.drop ? 'rod H-08 (bank D) on the bottom' : 'aligned'; },
+      act: [{ t: 'Recover the rod, or reduce power below 75%', ct: 60 * 60, ok: function () { return rtp() < 75; } }, { t: 'Be in MODE 3', ct: 6 * H, ok: function () { return D.mode >= 3; } }] },
     { id: '3.2.3', t: 'Axial flux difference (AFD)', lim: 'AFD inside the acceptable operation envelope (the "tent" on the core monitor)', ap: 'MODE 1 above 50% power', cond: function () { var P = rtp(), e = afdEnv(P), a = crx().afdI; return D.mode === 1 && P > 50 && (a < e[0] || a > e[1]); }, val: function () { var e = afdEnv(rtp()); return crx().afdI.toFixed(1) + ' % (envelope ' + e[0].toFixed(0) + ' to +' + e[1].toFixed(0) + ')'; },
       act: [{ t: 'Reduce power below 50%', ct: 30 * 60, ok: function () { return rtp() < 50; } }] },
     { id: '3.3.1', t: 'Power range calibration (SR 3.3.1.2)', lim: 'Every power range channel within 2% of the calorimetric heat balance', ap: 'MODE 1 above 15% power', cond: function () { var c = rtp(); return D.mode === 1 && c > 15 && NI.pr.some(function (v) { return v < c - 2; }); }, val: function () { var c = rtp(); return NI.pr.map(function (v) { return (v - c >= 0 ? '+' : '') + (v - c).toFixed(1); }).join(' / ') + ' %'; },
@@ -1892,7 +1922,7 @@ function coreMenu(tab) { if (!S.menu) S.wasPaused = S.paused; setPause(true); ta
       row('Minimum DNBR (W-3)', cr.dnbr > 50 ? '> 50' : cr.dnbr.toFixed(2), 'limit 1.30 · at level ' + (cr.dnbZ + 1), cr.dnbr < 1.3 && P > 5) + row('Peak linear heat rate', cr.lhgr.toFixed(1) + ' kW/m', 'limit 44.7 kW/m', cr.lhgr > 44.7) + row('Hottest fuel centreline', Math.round(cr.tcl) + ' °C', 'UO₂ melts at 2800 °C', cr.tcl > 2500) +
       row('Hot / cold leg', cr.Th.toFixed(1) + ' / ' + cr.Tc.toFixed(1) + ' °C', 'ΔT ' + cr.dT.toFixed(1) + ' °C') + row('OTΔT margin', ((cr.otsp - cr.ratio) * 100).toFixed(1) + ' % of ΔT₀', 'rod stop and runback at 3%', cr.ratio > 0 && cr.otsp - cr.ratio < 0.05) + row('OPΔT margin', ((cr.opsp - cr.ratio) * 100).toFixed(1) + ' % of ΔT₀', 'rod stop and runback at 3%', cr.ratio > 0 && cr.opsp - cr.ratio < 0.05) +
       row('Core exit temperature (max)', cr.cet.toFixed(1) + ' °C', '') + row('Subcooling margin', cr.sub.toFixed(1) + ' °C', 'trip the RCPs below 15 °C in a LOCA', cr.sub < 15) + row('Reactor vessel level (RVLIS)', Math.round(cr.rvl) + ' %', 'top of core at 62%', cr.rvl < 90) +
-      row('Control banks', pcName(p.pc).replace('bank ', ''), 'insertion limit ' + pcName(ril).replace('bank ', ''), p.pc < ril && D.mode <= 2 && D.keff >= 1) + row('Shutdown margin (if tripped now)', Math.round(sdmPcm(p)) + ' pcm', 'limit 1300 pcm') + row('Xenon worth', Math.round(x.xe.X) + ' pcm', 'iodine ' + (x.xe.I / 8400 * 100).toFixed(0) + '% of full-power level') + row('MTC', mtc(p).toFixed(1) + ' pcm/°C', 'must be ≤ 0') + '</div>' +
+      row('Control banks', pcName(p.pc).replace('bank ', ''), 'insertion limit ' + pcName(ril).replace('bank ', ''), p.pc < ril && D.mode <= 2 && D.keff >= 1) + row('Shutdown margin (if tripped now)', Math.round(sdmPcm(p)) + ' pcm', 'limit 1300 pcm') + row('Xenon worth', Math.round(x.xe.X) + ' pcm', 'iodine ' + (x.xe.I / 8400 * 100).toFixed(0) + '% of full-power level') + row('MTC', mtc(p).toFixed(1) + ' pcm/°C', 'must be ≤ 0') + row('QPTR (quadrant tilt)', (cr.qptr || 1).toFixed(3), 'limit 1.02 · ' + (cr.qt || []).map(function (v) { return v.toFixed(2); }).join('/'), cr.qptr > 1.02 && P > 50) + row('Loop cold legs', (cr.lp || []).map(function (v) { return v.toFixed(1); }).join(' / ') + ' °C', 'SG pressures ' + x.sg.map(function (s) { return (s.P == null ? p.Ps : s.P).toFixed(0); }).join('/') + ' bar') + row('Core burnup', Math.round(x.bu || 0).toLocaleString('en-GB') + ' MWd/tU', 'cycle ends about 18,000 (' + Math.round((x.bu || 0) / 18000 * 100) + '%)') + '</div>' +
       '<p class="cmnote">Xenon oscillations: if AFD swings away and back over about a day, that’s xenon sloshing between the top and bottom of the core. Damp it by moving bank D against the swing, early.</p>'; }
   if (tab === 'cal') { var ss = steadyState(), corr = c.corr || 1, sh = satH(p.Ps + c.eP), hs = sh[0] + 0.9975 * (sh[1] - sh[0]), hf = hLiq(cr.Tfw + c.eT), rcpN = x.rcpOn.filter(Boolean).length, tot = 0;
     var lines = [0, 1, 2, 3].map(function (i) { var m = cr.mfw[i] * c.fv * corr, q = m * (hs - hf) / 1000; tot += q; return '<tr><td>SG ' + (i + 1) + '</td><td>' + m.toFixed(1) + '</td><td>' + (cr.Tfw + c.eT).toFixed(1) + '</td><td>' + (p.Ps + c.eP).toFixed(2) + '</td><td>' + hs.toFixed(1) + '</td><td>' + hf.toFixed(1) + '</td><td><b>' + q.toFixed(1) + '</b></td></tr>'; }).join('');
@@ -2076,7 +2106,7 @@ var PROCS = {
     ['Verify containment isolation phase A', 'Phase A lamp on board 1.', function (p) { return p.x.si.phaseA; }],
     ['Check RCS temperature controlled', 'Tavg held near 292 °C by the steam dumps or SG PORVs. Stop any uncontrolled cooldown (close MSIVs).', function (p) { return p.Tavg > 280 && p.Tavg < 298; }],
     ['Check RCP trip criteria', 'If SI is injecting and subcooling is below 15 °C, stop all four RCPs (board 5).', function (p) { return !(crx().sub < 15 && p.x.si.flow > 5 && p.x.rcpOn.some(Boolean)); }],
-    ['Diagnose: faulted or ruptured SG, or LOCA?', 'Radiation on the steam side → E-3. Containment pressure, sump or radiation up → E-1. Neither → SI termination (ES-1.1).', function () { return true; }, function (p) { var f = p.x.f || {}; return f.sgtl ? 'E-3' : (crx().brk > 0.2 || p.x.ct.P > 0.1) ? 'E-1' : 'ES-1.1'; }]] },
+    ['Diagnose: faulted or ruptured SG, or LOCA?', 'Radiation on the steam side → E-3. Containment pressure, sump or radiation up → E-1. Neither → SI termination (ES-1.1).', function () { return true; }, function (p) { var f = p.x.f || {}; return f.msb ? 'E-2' : f.sgtl ? 'E-3' : (crx().brk > 0.2 || p.x.ct.P > 0.1) ? 'E-1' : 'ES-1.1'; }]] },
   'ES-0.1': { t: 'ES-0.1 · Reactor trip response', s: [
     ['Check RCS temperature stabilising', 'Tavg within 3 °C of 291.7 on the steam dumps (STEAM PRESS mode).', function (p) { return Math.abs(p.Tavg - 291.7) < 3; }],
     ['Check SG levels with feed', 'All four SG levels 25–65% with AFW or a main feed pump.', function (p) { return p.x.sg.every(function (s) { return s.L > 25 && s.L < 65; }); }],
@@ -2105,6 +2135,16 @@ var PROCS = {
     ['Stop the SI pumps', 'Leave the charging pumps running.', function (p) { return !p.x.si.pumps.some(Boolean); }],
     ['Restore charging and letdown', 'Pressuriser level back on programme with letdown in service.', function (p) { return !p.x.cv.ltdIso; }],
     ['Go to the trip response', '', function () { return true; }, function () { return 'ES-0.1'; }]] },
+  'E-2': { t: 'E-2 · Faulted steam generator isolation', s: [
+    ['Identify the faulted SG', 'Pressure falling fast and out of step with the others: SG 2.', function () { return true; }],
+    ['Isolate the faulted SG', 'Close MSIV 2 (board 8) and stop all feed to SG 2: feed regulating valve and AFW valve to MAN, closed.', function (p) { var s = p.x.sg[BRK_SG]; return !s.msiv && s.feed < 0.5; }],
+    ['Check the RCS cooldown has stopped', 'Once SG 2 boils dry, Tavg stops falling.', function (p) { return cdRate(p) < 15 && crx().lp && Math.abs(crx().lp[BRK_SG] - crx().lp[0]) < 25; }],
+    ['Go to SI termination', '', function () { return true; }, function () { return 'ES-1.1'; }]] },
+  'AOP-DR': { t: 'AOP · Dropped rod', s: [
+    ['Put rod control in MANUAL', 'Stops AUTO from pulling the other rods out to make up for it.', function (p) { return p.sel === 'MAN'; }],
+    ['Reduce power below 75%', 'Tech Spec 3.1.4 and the tilt: turbine load down, Tavg on Tref.', function () { return rtp() < 75; }],
+    ['Recover the dropped rod', 'Procedure panel: Recover dropped rod (withdraws it to its group position).', function (p) { return !(p.x.f && p.x.f.drop); }],
+    ['Check QPTR below 1.02', 'Tilt gone once the rod is back.', function () { return (crx().qptr || 1) < 1.02; }]] },
   'GOP-305': { t: 'GOP-305 · Hot standby to cold shutdown', s: [
     ['Borate to the cold shutdown boron', 'Shutdown margin must stay above 1300 pcm at 60 °C. Cooling adds reactivity (the moderator coefficient), so borate first.', function (p) { return sdmCold(p) >= 1300; }],
     ['Lower pressuriser pressure below P-11 and block SI', 'Pressuriser pressure setpoint down; below 136 bar block low-pressure and steam-line SI.', function (p) { var s = p.x.si; return p.x.pz.P < 136 && s.blkP && s.blkS; }],
@@ -2129,9 +2169,11 @@ function procMenu() { if (!S.menu) S.wasPaused = S.paused; setPause(true); var p
   menu('<h1>📘 Procedures</h1><p class="cpnsub">MODE ' + D.mode + ' · ' + MODEN[D.mode] + ' · Tavg ' + p.Tavg.toFixed(1) + ' °C · RCS ' + z.P.toFixed(1) + ' bar · cooldown rate ' + cdRate(p).toFixed(0) + ' °C/h · cold SDM ' + Math.round(sdmCold(p)) + ' pcm</p>' +
     '<p>E-0 starts by itself after a trip in free play and branches like the real one. Start any procedure here. Steps tick themselves when the plant gets there.</p><div class="cpnbtns">' + Object.keys(PROCS).map(function (k) { return bt('pr" data-p="' + k, (PROC.id === k ? '▶ ' : '') + esc(PROCS[k].t)); }).join('') + '</div>' +
     '<h2>Cooldown controls</h2>' + sl('dump', 'Steam dump pressure setpoint', 1, 80, x.dumpSet || PSP, ' bar') + sl('pz', 'Pressuriser pressure setpoint', 15, 155, x.pzSet || 155, ' bar') +
-    '<div class="cpnbtns">' + bt('p12', 'P-12 bypass', x.p12b) + bt('blk', 'Block SI (P-11)', x.si.blkP && x.si.blkS) + bt('acc', 'Isolate accumulators', x.si.acc.every(function (a) { return !a; })) + bt('sdc', 'RHR shutdown cooling', x.sdc) + bt('sir', 'Reset SI') + bt('sip', 'Stop SI pumps') + '</div>' +
+    '<div class="cpnbtns">' + bt('p12', 'P-12 bypass', x.p12b) + bt('blk', 'Block SI (P-11)', x.si.blkP && x.si.blkS) + bt('acc', 'Isolate accumulators', x.si.acc.every(function (a) { return !a; })) + bt('sdc', 'RHR shutdown cooling', x.sdc) + bt('rec', 'Recover dropped rod') + bt('bu0', 'Fuel: start of cycle', (x.bu || 0) < 3000) + bt('bu1', 'Middle of cycle', (x.bu || 0) >= 3000 && x.bu < 14000) + bt('bu2', 'End of cycle', (x.bu || 0) >= 14000) + bt('sir', 'Reset SI') + bt('sip', 'Stop SI pumps') + '</div>' +
     '<p class="cmnote">Real interlocks: SI blocks only below 136 bar (P-11); RHR suction only below 30 bar. Tech Spec 3.4.3 limits the cooldown to 55 °C/h. Below about 120 °C the steam generators stop working well and RHR has to take over.</p><div class="cpnbtns"><button class="cpnb" data-a="x">Back to the plant</button></div>', function (a, b) {
     if (a === 'x') closeMenu(); if (a === 'pr') { PROC.start(b.dataset.p); closeMenu(); return; }
+    if (a === 'rec') { if (!(x.f && x.f.drop)) toast('No dropped rod.', 'warn'); else if (rtp() > 75 || p.sel !== 'MAN') toast('Rods in MAN and power below 75% first.', 'warn'); else { x.f.drop = false; S.addLog('Dropped rod H-08 recovered'); } }
+    if (a === 'bu0' || a === 'bu1' || a === 'bu2') { setBurnup(p, [150, 9000, 17000][+a[2]]); S.addLog('Fuel cycle set to ' + Math.round(x.bu) + ' MWd/tU, boron adjusted to ' + Math.round(p.boron) + ' ppm'); }
     if (a === 'p12') x.p12b = !x.p12b; if (a === 'blk') { if (z.P < 136) { x.si.blkP = x.si.blkS = true; } else toast('Can’t block SI above P-11 (136 bar).', 'warn'); }
     if (a === 'acc') { if (z.P < 69 || !x.si.acc.every(function (q) { return !q; })) x.si.acc = x.si.acc.map(function () { return z.P >= 69; }); if (z.P >= 69) toast('Accumulators stay open above 69 bar (Tech Spec 3.5.1).', 'warn'); }
     if (a === 'sdc') { if (!x.sdc && z.P > 30) toast('RHR suction valves are interlocked shut above 30 bar.', 'warn'); else { x.sdc = !x.sdc; x.si.rhr = [false, false]; S.addLog('RHR shutdown cooling ' + (x.sdc ? 'started' : 'stopped')); } }
@@ -2283,6 +2325,9 @@ var FAULT = {
     { id: 'ccw', t: 'Loss of component cooling water', d: 'All component cooling water pumps trip.', see: 'RCP bearing temperatures climb (board 2 and 5). At 95 °C the pumps trip on their own.', resp: 'Try to restart a CCW pump (it won’t while the fault is in). Trip the reactor, then stop all four reactor coolant pumps before their bearings are damaged. Natural circulation will cool the core.' },
     { id: 'sgtl', t: 'Steam generator tube leak', d: 'A tube in steam generator 1 starts leaking reactor coolant into the steam side.', see: 'The N-16 main steam monitor and air ejector radiation go up (board 1). Pressuriser level falls slowly and charging rises to make up. SG 1 level creeps up.', resp: 'Raise charging to hold pressuriser level. Reduce power, trip the reactor, then isolate SG 1: close MSIV 1 (board 8) and stop feeding it. Cool down on the other three SGs.' },
     { id: 'loca', t: 'Small-break LOCA', d: 'A 3 cm crack opens in a reactor coolant cold leg inside containment.', see: 'Charging can’t keep up: pressuriser level and pressure fall, containment pressure, humidity, sump level and area radiation rise. At 127 bar safety injection starts. Pressure then hangs at saturation while steam forms in the loops: watch subcooling, RVLIS and core exit temperatures on the core monitor (board 5 too).', resp: 'E-0: trip the reactor (or check it tripped), check SI. When SI is running and subcooling is lost, trip all four RCPs so the water isn’t pumped out of the break. Keep feeding the steam generators and cool down on the steam dumps or SG PORVs to bring RCS pressure down so more SI water gets in. Watch RVLIS: the core must stay covered.' },
+    { id: 'msb', t: 'Steam line break (SG 2)', d: 'Main steam line 2 breaks inside containment, upstream of its MSIV.', see: 'Steam flow jumps, SG 2 pressure collapses, the RCS cools fast (and the cold water can push power up), containment pressure rises, SI on low steam pressure.', resp: 'E-0, then E-2: close all MSIVs if needed, isolate SG 2 (MSIV 2 shut, feed and AFW to it off) and let it boil dry. Watch for the RCS cooling too fast.' },
+    { id: 'drop', t: 'Dropped rod', d: 'Rod H-08 of control bank D drops to the bottom.', see: 'Power and Tavg dip, the power range channels disagree (one reads low), QPTR rises, rod position deviation. In AUTO the other rods pull out.', resp: 'AOP dropped rod (📘): rods to MANUAL, power below 75%, recover the rod. Tech Specs 3.1.4 and 3.2.4.' },
+    { id: 'lb', t: 'Large-break LOCA', d: 'A double-ended guillotine break of a cold leg: the design basis accident.', see: 'The RCS blows down in seconds, voids shut the reactor down, accumulators dump at 44 bar, containment goes to 2–3 bar, sprays start. RVLIS falls and the core uncovers until RHR and SI refill it.', resp: 'E-0 then E-1: check all ECCS pumps run and both containment sprays; trip the RCPs; watch core exit temperature and RVLIS as the core refloods.' },
     { id: 'cw', t: 'Circulating water pumps trip', d: 'All the sea-water pumps for the condenser trip.', see: 'Condenser vacuum is lost in a minute or two. The turbine trips on low vacuum and the steam dumps are blocked (C-9).', resp: 'Expect the turbine trip and reactor trip. With no condenser, steam pressure is controlled by the SG PORVs. Feed with auxiliary feed. Restart a CW pump when the fault clears.' }
   ],
   active: function () { var f = S && S.p && S.p.x && S.p.x.f; if (!f) return []; return FAULT.list.filter(function (q) { return f[q.id]; }); },
@@ -2935,6 +2980,7 @@ function helpMenu() { if (!S.menu) S.wasPaused = S.paused; setPause(true);
     '<h2>Tech Specs (\ud83d\udcd5)</h2><p>The licence rules are checked all the time. Break one and a yellow chip appears top right with the <b>Required Action</b> and its <b>Completion Time</b> counting down in plant time. Fix it in time and you exit the LCO (+XP). Miss it and the next action starts; miss the last and it\u2019s a violation.</p>' +
     '<h2>Multiple monitors (\ud83d\udda5)</h2><p><b>Screen windows</b> open on your other monitors: each is a grid of tiles showing any plant computer screen or a live panel (checklist, reactor instruments, Tech Specs, supervisor). <b>Triple view</b> draws the room across three monitors in true perspective when this window spans all three. Press \ud83d\udda5 at the top.</p>' +
     '<h2>Procedures (\ud83d\udcd8)</h2><p>After a trip in free play <b>E-0</b> starts by itself and branches to ES-0.1, E-1 (LOCA), E-3 (tube rupture) or ES-1.1 like the real one. <b>GOP-305</b> takes the plant to cold shutdown: borate, block SI at P-11, bypass P-12, cool down at under 55 \u00b0C/h, isolate the accumulators, then RHR shutdown cooling down to MODE 5. The cooldown controls are in \ud83d\udcd8.</p>' + 
+    '<h2>Loops, quadrants and fuel</h2><p>Each steam generator has its own pressure and heat transfer, so a steam line break or an isolated SG affects its own loop, and each loop\u2019s cold leg feeds its own core quadrant. A dropped rod or a cold loop tilts power between quadrants (QPTR, Tech Spec 3.2.4); the power range channels disagree. Fuel burns up through the 18-month cycle: pick start, middle or end of cycle in \ud83d\udcd8 and the boron, MTC and xenon behaviour change with it.</p>' + 
     '<h2>The crew (free play)</h2><p>Your Control Room Supervisor gives orders: load changes for National Grid, calorimetrics, AFD control, pump swaps. Pick the correct <b>repeat-back</b> (three-way communication, exactly as real operators do it), do the job, then press <b>Report complete</b>. After a trip she takes you through the first steps of <b>E-0</b>. Turn it off in the menu settings.</p>' +
     '<h2>Going to power (free play)</h2><p>From the point of adding heat: start a <b>main feed pump</b> (board 7). On the turbine board <b>LATCH</b>, set the speed target to 3000 and wait. On the generator board close the <b>field breaker</b>, turn the <b>sync selector</b> to MAN, use <b>speed raise</b> to make the synchroscope creep clockwise and close the <b>generator breaker</b> as it passes 12 o\u2019clock. Then put the dumps in <b>TAVG</b>, the rods in <b>AUTO</b>, block the IR and PR-low trips at <b>P-10</b>, and raise the load setpoint. Rods soon run out: dilute boron on board 3 to keep going. Use \u00d720 or \u00d760 time: it takes hours, just like a real plant. Or press <b>\u23eb Go to power</b> on the checklist card for the guided GOP-302 checklist.</p><p><b>\u26a0 Faults:</b> from the pause menu or the \u26a0 button on the checklist card. Start from <b>Free play at 50% power</b> for the most interesting ones.</p>' +
     '<h2>Colours</h2><p>Lamps use the Westinghouse convention: <b style="color:#ff6b5b">red = closed / running / open valve</b>, <b style="color:#59e07a">green = open breaker / stopped / shut valve</b>. Annunciators: fast flash = new alarm (press ACK), steady = acknowledged, slow flash = cleared (press RESET).</p>' +
