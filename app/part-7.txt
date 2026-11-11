@@ -1,4 +1,5 @@
-neutrons are fast: they travel much further before slowing down than afterwards.</p>`),
+0.175, Σ<sub>12</sub> = 0.018, Σ<sub>r1</sub> = 0.026, Σ<sub>a2</sub> = 0.1 (all cm⁻¹). k∞? (3 d.p.)`,1.212,0.003,'',`0.175 × 0.018 ÷ (0.026 × 0.1) = 0.00315 ÷ 0.0026 = 1.212.`),
+T(`<h3>With leakage</h3><p>For a bare core with buckling B²:</p><div class="eq">k = k∞ ÷ [(1 + L₁²B²)(1 + L₂²B²)]</div>${KY([['L₁² = D₁/Σ<sub>r1</sub>','fast diffusion area (about 50 cm² in a PWR)','cm²'],['L₂² = D₂/Σ<sub>a2</sub>','thermal diffusion area (a few cm²)','cm²']])}<p>Most leakage happens while neutrons are fast: they travel much further before slowing down than afterwards.</p>`),
 QE(`M² is about 60 cm² in a PWR. That's roughly…`,[`L₁² + L₂²`,`L₁² × L₂²`,`L₁²/L₂²`,`1/B²`],0,`Migration area = fast + thermal diffusion areas.`),
 T(`<h3>Key points</h3><ul><li>Two groups: fast (removed by slowing down) and thermal.</li><li><b>k∞ = νΣ<sub>f2</sub>Σ<sub>12</sub>/(Σ<sub>r1</sub>Σ<sub>a2</sub>)</b>.</li><li>Leakage: (1 + L₁²B²)(1 + L₂²B²); fast leakage dominates.</li></ul>`)]),
 LH('m5-3-2','Reflectors',10,'Surround the core with something that bounces neutrons back, and the core needs less fuel.',[
@@ -899,6 +900,4 @@ T(`<h3>Key points</h3><ul><li>The area under a curve is the limit of thin strips
 LH('c4-2-2','Definite integrals',10,'The shortcut: integrate, then subtract. No + C needed.',[
 RM(`<p>The area under a curve is the integral from a to b. To integrate: add 1 to the power, divide by the new power.</p>`),
 T(`<h3>The method</h3><div class="eq">∫ from a to b of f(x) dx = F(b) − F(a)</div>${KY([['F(x)','the integral of f(x) (without + C)',''],['a, b','the limits: where the area starts and stops','']],'Integrate, put in the top limit, put in the bottom limit, subtract.')}`),
-W('stepCalc',{steps:[`∫ from 0 to 3 of x² dx`,`Integrate: x³ ÷ 3`,`Top limit: 3³ ÷ 3 = 9`,`Bottom limit: 0³ ÷ 3 = 0`,`Subtract: 9 − 0 = <b>9</b>. Exactly what the strips were heading towards!`]},`The exact area from the last lesson.`,`Integrate, then top minus bottom.`),
-T(`<h3>Why no + C?</h3><p>If you included it: (F(b) + C) − (F(a) + C) = F(b) − F(a). The C always cancels, so definite integrals don't need it.</p>`),
-Q(`Why don't definite integrals need + C?`,[`It cancels when you subtract`,`C is always zero`,`Areas can't have co
+W('stepCalc',{steps:[`∫ from 0 to 3 of x² dx`,`Int

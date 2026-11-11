@@ -863,7 +863,7 @@ function cleanState(s){
  var uids={};UNITS.forEach(function(u){uids[u.id]=1});o.tests={};if(s.tests&&typeof s.tests==='object')for(var tk in s.tests){var tv=s.tests[tk];if(uids[tk]&&tv&&typeof tv==='object')o.tests[tk]={best:num(tv.best,0,100)||0,passed:!!tv.passed,n:num(tv.n,0,1e5)||0,last:(typeof tv.last==='string'&&dre.test(tv.last))?tv.last:'',lastPct:num(tv.lastPct,0,100)||0}}
  return o}
 var KEEP_FIELDS=['mode','gsub','lvl','lvlOpen','lvtests','seenGcse','seenCalc','seenTheory','plView','exam','plan','habits','dayplan','lacc','hardOff','dayNudge','qsets','lday','pdays','rw','shift','mys'];
-var EXTRA_KEYS={study:'critical_study',shift:'shift-ready-v1',apt:'aptitude-v1',notes:'critical_notes',act:'critical_act',loot:'critical_loot',arena:'critical_arena'};
+var EXTRA_KEYS={plant:'critical_plant',pslots:'critical_plant_slots',study:'critical_study',shift:'shift-ready-v1',apt:'aptitude-v1',notes:'critical_notes',act:'critical_act',loot:'critical_loot',arena:'critical_arena'};
 function readExtras(){var o={};for(var k in EXTRA_KEYS){try{var v=JSON.parse(localStorage.getItem(EXTRA_KEYS[k])||'null');if(v&&typeof v==='object')o[k]=v}catch(e){}}if(o.study)o.study=Object.assign({},o.study,{run:null});return o}
 function writeExtras(x){if(!x)return;for(var k in EXTRA_KEYS)if(x[k]&&typeof x[k]==='object'){var v=x[k];
   /* the running study timer belongs to this device: keep it whatever comes in from sync */
@@ -907,6 +907,9 @@ function mergeState(A,B){var o=gmerge(A,B),k,d;
  ['mode','gsub','lvl','plView','dayNudge','goal','sound','dayplan','quests','qsets'].forEach(function(f){if(A[f]!==undefined)o[f]=A[f]});
  return o}
 function mergeExtras(A,B){A=A||{};B=B||{};var o={};
+ /* the simulator: the newest save wins, and each save slot keeps its newest copy */
+ if(A.plant||B.plant)o.plant=((A.plant&&A.plant.at)||0)>=((B.plant&&B.plant.at)||0)?A.plant:B.plant;
+ if(A.pslots||B.pslots){var pa=Array.isArray(A.pslots)?A.pslots:[],pb=Array.isArray(B.pslots)?B.pslots:[];o.pslots=[0,1,2].map(function(i){var a=pa[i],b=pb[i];if(!a)return b||null;if(!b)return a;return ((a.d&&a.d.at)||0)>=((b.d&&b.d.at)||0)?a:b})}
  if(A.study||B.study){var sa=(A.study&&A.study.sessions)||[],sb=(B.study&&B.study.sessions)||[],seen={},ss=[];sa.concat(sb).forEach(function(x){if(!x)return;var k=x.c||JSON.stringify(x);if(seen[k]==null){seen[k]=ss.length;ss.push(x)}else if((+x.m||0)>(+ss[seen[k]].m||0))ss[seen[k]]=x});
   o.study=Object.assign({},B.study||{},A.study||{},{sessions:ss})}
  ['shift','apt'].forEach(function(k){if(A[k]||B[k])o[k]=gmerge(A[k],B[k])});
@@ -1146,7 +1149,4 @@ WIDGETS.modRatio=function(box){var DEN=[[280,0.764],[290,0.746],[300,0.726],[310
  onDraw(draw);draw();el('p','small','Illustrative curve. Hotter water is less dense, so there\'s effectively less moderator per unit of fuel.',box);return {}};
 
 WIDGETS.reactivityCalc=function(box,par){var st,s=slider(box,'k',0.99,1.01,0.0001,0.995,function(v){return v.toFixed(4)},function(){upd()}),r=row(box);btn(r,'− 0.0001',function(){s.set(Math.round((s.get()-0.0001)*1e4)/1e4)});btn(r,'+ 0.0001',function(){s.set(Math.round((s.get()+0.0001)*1e4)/1e4)});st=stats(box,[['r','ρ (Δk/k)'],['p','ρ (pcm)'],['d','ρ (dollars)'],['s','State']]);
- function rho(){var k=s.get();return (k-1)/k}function upd(){var p=rho();st.r.textContent=p.toFixed(5).replace('-','−');st.p.textContent=String(Math.round(p*1e5)).replace('-','−');st.d.textContent=(p/0.0065).toFixed(2).replace('-','−')+' $';st.s.textContent=Math.abs(p)<1e-7?'Critical':p<0?'Subcritical':'Supercritical'}upd();
- return {check:function(){var p=rho()*1e5;return Math.abs(p-par.target)<=6?{ok:true}:{ok:false,msg:'That\'s '+Math.round(p)+' pcm. You want +100 pcm.'}},lock:function(){s.input.disabled=true}}};
-
-WIDGETS.reactivityBalance=function(box){var EV=[['Withdraw control rods',250],['Dilute boron',150],['Coolant heats up 5 °C',-150],['Xenon builds up',-250],['Borate',-100],['Fuel heats up',-50],['Coolant cools 2 °C',60]],on={},ch=el('div','chips',null,box),st=stat
+ function rho(){var k=s.get();return (k-1)/k}function upd(){var p=rho();st.r.textContent=p.toFixed(5).replace('-','−');st.p.textContent=String(Math.round(p*1e5)).replace('-','−');st.d.textContent=(p/0.0065).toFixed(2).replace('-','−')+' $';st.s.textContent=Math.abs(p)<1e-7?'Critical':p<0?'Subcriti

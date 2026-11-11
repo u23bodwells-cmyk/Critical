@@ -1,4 +1,7 @@
-s(box,[['t','Total reactivity'],['s','State']]);
+cal':'Supercritical'}upd();
+ return {check:function(){var p=rho()*1e5;return Math.abs(p-par.target)<=6?{ok:true}:{ok:false,msg:'That\'s '+Math.round(p)+' pcm. You want +100 pcm.'}},lock:function(){s.input.disabled=true}}};
+
+WIDGETS.reactivityBalance=function(box){var EV=[['Withdraw control rods',250],['Dilute boron',150],['Coolant heats up 5 °C',-150],['Xenon builds up',-250],['Borate',-100],['Fuel heats up',-50],['Coolant cools 2 °C',60]],on={},ch=el('div','chips',null,box),st=stats(box,[['t','Total reactivity'],['s','State']]);
  EV.forEach(function(e,i){var b=el('button','chip',e[0]+': '+(e[1]>0?'+':'−')+Math.abs(e[1])+' pcm',ch);b.onclick=function(){on[i]=!on[i];b.classList.toggle('on',!!on[i]);upd()}});
  function tot(){var t=0,n=0;EV.forEach(function(e,i){if(on[i]){t+=e[1];n++}});return [t,n]}function upd(){var t=tot();st.t.textContent=(t[0]>0?'+':'')+String(t[0]).replace('-','−')+' pcm';st.s.textContent=t[1]===0?'–':t[0]===0?'Critical':t[0]<0?'Subcritical':'Supercritical'}upd();
  return {check:function(){var t=tot();if(t[1]<2)return {ok:false,msg:'Pick at least two events.'};return t[0]===0?{ok:true}:{ok:false,msg:'The total is '+t[0]+' pcm. Balance the positives and negatives.'}}}};
@@ -1262,6 +1265,4 @@ var PLAN=(function(){
  function fmtLeft(ms){return ms<60000?Math.max(0,Math.ceil(ms/1000))+' s':Math.ceil(ms/60000)+' min'}
  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
  var css=document.createElement('style');css.textContent=
- '.plsheet{position:fixed;inset:0;z-index:3001;display:none;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.45)}.plsheet.open{display:flex}@media(min-width:700px){.plsheet{align-items:center}}'+
- '.plbox{width:100%;max-width:560px;max-height:90vh;max-height:90dvh;overflow:auto;background:var(--panel);color:var(--text);border-radius:20px 20px 0 0;padding:14px 16px calc(16px + env(safe-area-inset-bottom));box-shadow:0 -8px 30px rgba(0,0,0,.25);display:flex;flex-direction:column;gap:12px}@media(min-width:700px){.plbox{border-radius:20px}}'+
- '.pl
+ '.plsheet{position:fixed;inset:0;z-index:3001;display:none;align-items:flex-end;

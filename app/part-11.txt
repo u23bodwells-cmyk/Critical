@@ -1,4 +1,9 @@
-t.`)]),
+,`FOR i ← 1 TO 10`,`IF…THEN`,`No loop is needed`],0,`You always need to ask once, then check.`),
+N(`<pre class="cs">count ← 0
+FOR i ← 3 TO 9
+   count ← count + 1
+ENDFOR</pre>What's count at the end?`,7,0.001,'',`3, 4, 5, 6, 7, 8, 9: in AQA pseudo-code FOR includes both ends, so it runs 7 times.`),
+Q(`A WHILE loop's condition is False at the start. How many times does it run?`,[`0`,`1`,`Forever`,`It depends on the code inside`],0,`WHILE checks before running, so it skips straight past.`)]),
 LH('gcs2-2-3','Arrays, records and strings',9,'Storing lots of values together, and working with text.',[
 T(`<h3>Arrays</h3><p>An <b>array</b> stores many values of the <b>same type</b> under one name. Each has an index, starting at <b>0</b>.</p><pre class="cs">temps ← [301, 305, 299, 310]
 OUTPUT temps[2]</pre><p>Outputs <b>299</b>. A 2D array is like a table: grid[row][column].</p>`),
@@ -1084,6 +1089,4 @@ function NSIM(w,h,rnd){
     drawNuc(c,pts,nx,ny,sc*.55,yaw,.35);var tx=wide?W*.62:14,ty=wide?60:H*.72;hud(c,tx,ty,(mode==='isotope'?I[3]+'-'+A:N[0]),'#fff',16,'left',true);hud(c,tx,ty+20,Z+' protons · '+(A-Z)+' neutrons · '+Z+' electrons','rgba(220,235,255,.9)',10,'left');
     hud(c,tx,ty+36,mode==='isotope'?((I[4][A-Z])||'very unstable'):N[5],mode==='isotope'?(/stable/.test(I[4][A-Z]||'')&&!/unstable/.test(I[4][A-Z]||'')?'#8dff9a':'#ffd65a'):'#ffd65a',10,'left',true);hud(c,tx,ty+52,nb?'Not to scale: atoms are 100,000× wider':'Not to scale: a real atom is about 100,000 times wider than its nucleus.','rgba(160,190,230,.7)',8.5,'left');
     if(st){st.z.textContent=Z;st.n.textContent=A-Z;st.b.textContent=fx(N[3],2)+' MeV'}return}
-   if(mode==='binding'||mode==='stability'||mode==='emc2'){band(c,W,mode==='binding'?'BINDING ENERGY PER NUCLEON':mode==='stability'?'THE VALLEY OF STABILITY':'MASS DEFECT AND E = mc²',N[0]);var nx2=wide?W*.2:W*.22,ny2=wide?H*.55:H*.28;drawNuc(c,pts,nx2,ny2,Math.min(sc*.5,(wide?W*.15:W*.18)/Math.cbrt(A)/2),yaw,.35);
-    var gx=wide?W*.42:16,gy=wide?36:H*.52,gw=W-gx-12,gh=wide?H-70:H-gy-30;
-    if(mode==='binding'){var Cb=chart(c,gx+28,gy,gw-28,gh,{x:[0,250],y:[0,9.5],ny:4,title:'MeV PER NUCLEON',xl:'mass number A'});Cb.fn(function(a){return a<10?NaN:semf(a)},rgba(CY,.9),2,6);NUCS.forEach(function(q){Cb.dot(q[2],q[3],'rgba(255,255,255,.35)',2.5)});Cb.dot(A,N[3],'#ffd65a',6);arrow(c,Cb.X(8),Cb.Y(3),Cb.X(45),Cb.Y(8.2),'rgba(120,235,140,.8)',1.6,[4,3]);hud(c,Cb.X(16),Cb.Y(2.2),'fusion →','#8
+   if(mode==='binding'||mode==='stability'||mode==='emc2'){band(c,W,mode==='binding'?'BINDING ENERGY PER NUCLEON':mode==='stability'?'THE VALLEY OF STABILITY':'MASS DEFECT AND E = mc²',N[0]);var nx2=wide?W*.2:W*.22,ny2=wide?H*.55:H*.28;drawNuc(c,pts,nx2,ny2,Math.min(sc*.5,(wide?W*.15:W*.18)/Math.cbrt(A)/2),yaw

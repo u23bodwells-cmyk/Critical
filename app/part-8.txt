@@ -1,4 +1,6 @@
-nstants`,`They do`],0,`C − C = 0.`),
+egrate: x³ ÷ 3`,`Top limit: 3³ ÷ 3 = 9`,`Bottom limit: 0³ ÷ 3 = 0`,`Subtract: 9 − 0 = <b>9</b>. Exactly what the strips were heading towards!`]},`The exact area from the last lesson.`,`Integrate, then top minus bottom.`),
+T(`<h3>Why no + C?</h3><p>If you included it: (F(b) + C) − (F(a) + C) = F(b) − F(a). The C always cancels, so definite integrals don't need it.</p>`),
+Q(`Why don't definite integrals need + C?`,[`It cancels when you subtract`,`C is always zero`,`Areas can't have constants`,`They do`],0,`C − C = 0.`),
 N(`Evaluate ∫ from 1 to 3 of 2x dx.`,8,0.001,'',`[x²] from 1 to 3 = 9 − 1 = 8.`),
 W('calcDrill',{skill:'defint',need:5},`Definite integrals. Get 5 right in a row.`,`Integrate, then top limit minus bottom limit.`),
 T(`<h3>Key points</h3><ul><li><b>∫ₐᵇ f(x) dx = F(b) − F(a)</b>.</li><li>Top limit minus bottom limit.</li><li>No + C: it cancels.</li></ul>`)]),
@@ -840,5 +842,4 @@ T(`<h3>Key points</h3><ul><li>Positive ions → cathode (−). Negative ions →
 ]});
 
 F('gc2-1-1',[Q(`Air is a…`,[`mixture`,`compound`,`element`,`pure substance`],0,`Gases not chemically combined.`),Q(`Which method separates an insoluble solid from a liquid?`,[`Filtration`,`Crystallisation`,`Distillation`,`Chromatography`],0,`The solid stays in the filter paper.`),Q(`Fractional distillation separates liquids with different…`,[`boiling points`,`colours`,`densities`,`masses`],0,`They condense at different heights.`),Q(`H₂O is a compound because…`,[`hydrogen and oxygen are chemically combined`,`it is a liquid`,`it contains one element`,`it can be filtered`],0,`Chemically bonded.`),Q(`Which method gets pure water from salt water?`,[`Simple distillation`,`Filtration`,`Chromatography`,`Crystallisation`],0,`Evaporate and condense.`)]);
-F('gc2-1-2',[GN('g_atom'),GN('g_atom'),GN('g_config'),GN('g_config'),GN('g_rfm2')]);
-F('gc2-1-3',[Q(`The modern periodic table is ordered by…`,[`atomic number`,`atomic weight`,`date of discovery`,`reactivity`],0,`Number of protons.`),Q(`Mendeleev left gaps for…`,[`undiscovered elements`,`noble gases he disliked`,`isotopes`,`compounds`],0,`And predicted their properties.`),Q(`Metals form…`,[`positive ions`,`negative ions`,`no ions`,`shared pairs only`],0,`They lose electrons.`),Q(`Going down group 0, b
+F('gc2-1-2',[GN('g_

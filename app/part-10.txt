@@ -1,4 +1,6 @@
-><p>If you change the conditions, the equilibrium shifts to <b>counteract</b> the change:</p><ul><li>Add more reactant → it shifts right, making more product.</li><li>Raise the temperature → it shifts in the <b>endothermic</b> direction.</li><li>Raise the pressure (gases) → it shifts to the side with <b>fewer molecules</b>.</li></ul>`),
+um</b>: the forward and reverse reactions happen at the <b>same rate</b>. Both are still going on, so the amounts stay constant.</p>`),
+Q(`At equilibrium, what is true?`,[`The forward and reverse reactions happen at the same rate`,'Both reactions have stopped completely, so nothing changes',`There are equal amounts of reactants and products`,'Only the forward reaction happens, at a slow steady rate'],0,`It's dynamic: both still happen.`),
+T(`<h3>Le Chatelier's principle (Higher)</h3><p>If you change the conditions, the equilibrium shifts to <b>counteract</b> the change:</p><ul><li>Add more reactant → it shifts right, making more product.</li><li>Raise the temperature → it shifts in the <b>endothermic</b> direction.</li><li>Raise the pressure (gases) → it shifts to the side with <b>fewer molecules</b>.</li></ul>`),
 Q(`(Higher) N₂ + 3H₂ ⇌ 2NH₃. The pressure is increased. What happens?`,[`More ammonia is made: the right has fewer molecules`,'Less ammonia is made: the left has more molecules','Nothing changes: pressure never affects equilibrium','More ammonia is made: the right has more molecules'],0,`4 molecules on the left, 2 on the right.`),
 Q(`(Higher) The forward reaction is exothermic. The temperature is raised. What happens to the yield of product?`,[`It falls: the endothermic reverse reaction is favoured`,'It rises: the exothermic forward reaction is favoured','It doesn\'t change: temperature only affects the rate','It rises: higher temperatures always favour products'],0,`It shifts to absorb the extra heat.`),
 T(`<h3>Key points</h3><ul><li>⇌ means reversible. Exo one way, endo the other.</li><li>Equilibrium: forward rate = reverse rate, in a closed system.</li><li>Le Chatelier: it shifts to oppose the change.</li></ul>`)])
@@ -830,9 +832,4 @@ ELSE
 ENDIF</pre>`),
 Q(`With the code above, what's output when temp is 320?`,[`Normal`,`HIGH`,`LOW`,`Nothing`],0,`320 isn't greater than 320, and it isn't less than 280.`),
 T(`<h3>Three kinds of loop</h3><ul><li><b>FOR</b>: count-controlled (definite). Runs a set number of times.</li><li><b>WHILE</b>: condition checked <b>before</b> each run. Might run zero times.</li><li><b>REPEAT…UNTIL</b>: condition checked <b>after</b> each run. Always runs at least once.</li></ul>`),
-Q(`You want to keep asking for a password until it's correct. Which loop fits best?`,[`REPEAT…UNTIL (it must ask at least once)`,`FOR i ← 1 TO 10`,`IF…THEN`,`No loop is needed`],0,`You always need to ask once, then check.`),
-N(`<pre class="cs">count ← 0
-FOR i ← 3 TO 9
-   count ← count + 1
-ENDFOR</pre>What's count at the end?`,7,0.001,'',`3, 4, 5, 6, 7, 8, 9: in AQA pseudo-code FOR includes both ends, so it runs 7 times.`),
-Q(`A WHILE loop's condition is False at the start. How many times does it run?`,[`0`,`1`,`Forever`,`It depends on the code inside`],0,`WHILE checks before running, so it skips straight pas
+Q(`You want to keep asking for a password until it's correct. Which loop fits best?`,[`REPEAT…UNTIL (it must ask at least once)`
