@@ -3074,7 +3074,7 @@ function onMove(e) {
   var D0 = PTR.down;
   if (D0 && D0.id === e.pointerId) { var dx = e.clientX - D0.lx, dy = e.clientY - D0.ly; if (Math.hypot(e.clientX - D0.x, e.clientY - D0.y) > 6) D0.moved = true;
     if (D0.moved && D0.lp) { clearTimeout(D0.lp); D0.lp = 0; }
-    if (D0.moved && !D0.hold) { var k = 0.0042 * CAM.fov / 60; var sg = e.pointerType === 'mouse' ? -1 : 1; CAM.yaw += sg * dx * k; CAM.pitch = clamp(CAM.pitch + sg * dy * k, -1.35, 1.35); CAM.tw = null; }
+    if (D0.moved && !D0.hold) { var k = 0.0042 * CAM.fov / 60; var sg = e.pointerType === 'mouse' ? -1 : 1; CAM.yaw += (e.pointerType === 'mouse' ? sg : -sg) * dx * k; /* touch: left/right inverted */ CAM.pitch = clamp(CAM.pitch + sg * dy * k, -1.35, 1.35); CAM.tw = null; }
     D0.lx = e.clientX; D0.ly = e.clientY; return; }
   if (e.pointerType === 'mouse') { PTR.hx = e.clientX; PTR.hy = e.clientY; PTR.hoverDirty = true; if (EXP.shown && !EXP.touch && Math.hypot(e.clientX - EXP.x, e.clientY - EXP.y) > 60) { hideExplain(); EXP.t0 = performance.now(); } }
 }
