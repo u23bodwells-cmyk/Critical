@@ -132,7 +132,7 @@ function rps(p) {
 }
 function doTrip(p, cause) {
   if (p.tripped) return; var out = BANKS.some(function (b) { return p.rods[b] > 0; });
-  p.tripped = true; p.rtb = [false, false]; p.lever = 0; p.firstOut = cause; p.trips++; if (p.x && p.x.tb.latched && cause !== 'TT') turbTrip(p, 'reactor trip'); if (out) { p.dropping = true; p.dropped = true; p.dropT = 0; p.drop0 = {}; BANKS.forEach(function (b) { p.drop0[b] = p.rods[b]; }); }
+  p.tripped = true; p.tripT = p.t; p.rtb = [false, false]; p.lever = 0; p.firstOut = cause; p.trips++; if (p.x && p.x.tb.latched && cause !== 'TT') turbTrip(p, 'reactor trip'); if (out) { p.dropping = true; p.dropped = true; p.dropT = 0; p.drop0 = {}; BANKS.forEach(function (b) { p.drop0[b] = p.rods[b]; }); }
   if (S && S.onTrip) S.onTrip(cause);
 }
 /* P-6 gone (power back below 1E-10 A): the source range blocks reset by themselves and the detectors come back on */
@@ -2420,8 +2420,8 @@ function buildHand() { var root = new THREE.Group(), wrist = new THREE.Group(); 
   var pg = new THREE.CapsuleGeometry(0.034, 0.05, 8, 18); pg.rotateX(Math.PI / 2); pg.scale(1.18, 0.45, 1); var palm = new THREE.Mesh(pg, skin); palm.position.z = -0.045; wrist.add(palm);
   var knuck = new THREE.Mesh(new THREE.CapsuleGeometry(0.012, 0.06, 6, 12), skin); knuck.rotation.z = Math.PI / 2; knuck.position.set(0, 0.004, -0.083); knuck.scale.set(1, 1, 0.8); wrist.add(knuck);
   /* forearm, cuff and a watch */
-  var fa = cap(0.03, 0.2, skin); fa.rotation.y = Math.PI; fa.position.z = 0.004; fa.scale.set(1.15, 0.85, 1); wrist.add(fa);
-  var cuff = new THREE.Mesh(new THREE.CylinderGeometry(0.047, 0.05, 0.25, 22, 1, true), shirt); cuff.rotation.x = Math.PI / 2; cuff.position.z = 0.19; cuff.material.side = THREE.DoubleSide; wrist.add(cuff);
+  var fa = cap(0.03, 0.2, skin); fa.rotation.y = Math.PI; fa.position.z = 0.004; fa.scale.set(1.15, 0.85, 1); wrist.add(fa); fa.visible = false;
+  var cuff = new THREE.Mesh(new THREE.CylinderGeometry(0.047, 0.05, 0.25, 22, 1, true), shirt); cuff.rotation.x = Math.PI / 2; cuff.position.z = 0.19; cuff.material.side = THREE.DoubleSide; cuff.visible = false; wrist.add(cuff);
   var wb = new THREE.Mesh(new THREE.TorusGeometry(0.034, 0.006, 8, 24), watch); wb.position.z = 0.045; wb.scale.set(1.1, 0.85, 1); wrist.add(wb); var face = new THREE.Mesh(new THREE.CylinderGeometry(0.013, 0.013, 0.005, 20), watch); face.position.set(0, 0.03, 0.045); wrist.add(face);
   /* fingers: [x at knuckle, segment lengths, radius] index, middle, ring, little */
   var F = [[-0.026, [0.042, 0.026, 0.02], 0.0092], [-0.0085, [0.046, 0.029, 0.021], 0.0095], [0.0095, [0.043, 0.027, 0.02], 0.009], [0.026, [0.034, 0.021, 0.017], 0.0078]], bones = [];
@@ -2431,7 +2431,17 @@ function buildHand() { var root = new THREE.Group(), wrist = new THREE.Group(); 
   /* thumb: comes off the side of the palm, angled in */
   var t0 = new THREE.Group(); t0.position.set(-0.036, -0.006, -0.025); t0.rotation.set(0.25, 0.85, 0.35); wrist.add(t0); var tc = [t0]; t0.add(cap(0.012, 0.03, skin));
   var t1 = new THREE.Group(); t1.position.z = -0.038; t0.add(t1); t1.add(cap(0.0105, 0.022, skin)); var t2 = new THREE.Group(); t2.position.z = -0.03; t1.add(t2); t2.add(cap(0.0098, 0.016, skin)); var tn = new THREE.Mesh(new THREE.SphereGeometry(0.0075, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2.4), nail); tn.scale.set(1, 0.35, 1.25); tn.position.set(0, 0.006, -0.022); t2.add(tn); tc.push(t1, t2); bones.push(tc);
+  /* the arm: upper arm and forearm in shirt sleeves, placed every frame by two-bone IK from your shoulder to the wrist */
+  var seg = function (r0, r1, m) { var g = new THREE.CylinderGeometry(r1, r0, 1, 18, 1, true); g.translate(0, 0.5, 0); var me = new THREE.Mesh(g, m); me.material.side = THREE.DoubleSide; me.frustumCulled = false; return me; };
+  HAND.up = seg(0.06, 0.05, shirt); HAND.lo = seg(0.05, 0.042, shirt); HAND.el = new THREE.Mesh(new THREE.SphereGeometry(0.052, 16, 12), shirt); HAND.fore = seg(0.036, 0.03, skin); [HAND.up, HAND.lo, HAND.el].forEach(function (m) { m.visible = false; R3.scene.add(m); });
   root.traverse(function (o) { if (o.isMesh) { o.castShadow = true; o.renderOrder = 2; } }); HAND.bones = bones; return root; }
+function placeSeg(m, a, b) { var v = b.clone().sub(a), L = v.length(); m.position.copy(a); m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), v.normalize()); m.scale.set(1, L, 1); }
+function armIK() { var hd = FEEL.hand, cam = R3.cam, on = hd && hd.visible; [HAND.up, HAND.lo, HAND.el].forEach(function (m) { if (m) m.visible = on; }); if (!on) return;
+  var q = cam.quaternion, R = new THREE.Vector3(1, 0, 0).applyQuaternion(q), U = new THREE.Vector3(0, 1, 0).applyQuaternion(q), Fw = new THREE.Vector3(0, 0, -1).applyQuaternion(q);
+  var Sh = cam.position.clone().addScaledVector(R, 0.19).addScaledVector(U, -0.24).addScaledVector(Fw, -0.04), W = new THREE.Vector3(0, 0, 0.06).applyQuaternion(hd.quaternion).add(hd.position);
+  var d = W.distanceTo(Sh), tot = Math.max(0.6, d * 1.04), L1 = tot * 0.52, L2 = tot * 0.48, dir = W.clone().sub(Sh).normalize();
+  var a = (L1 * L1 - L2 * L2 + d * d) / (2 * d), hh = Math.sqrt(Math.max(0, L1 * L1 - a * a)), pole = U.clone().multiplyScalar(-1).addScaledVector(R, 0.8).normalize(), perp = pole.sub(dir.clone().multiplyScalar(pole.dot(dir))).normalize();
+  var E = Sh.clone().addScaledVector(dir, a).addScaledVector(perp, hh); placeSeg(HAND.up, Sh, E); placeSeg(HAND.lo, E, W); HAND.el.position.copy(E); }
 /* finger curl for a pose blend: 0 = relaxed, 1 = the action pose */
 function handPose(k) { var B = HAND.bones; if (!B) return; var relax = [[0.35, 0.45, 0.3], [0.45, 0.55, 0.35], [0.55, 0.6, 0.4], [0.65, 0.7, 0.45]];
   var act = HAND.mode === 'press' ? [[-0.05, 0.08, 0.05], [1.35, 1.5, 0.9], [1.45, 1.55, 0.95], [1.5, 1.55, 1.0]] : [[0.9, 0.85, 0.55], [1.0, 0.9, 0.55], [1.15, 1.1, 0.7], [1.25, 1.2, 0.75]];
@@ -2448,8 +2458,9 @@ function handReach(h) { var hd = FEEL.hand; if (!hd || !h || !h.point) return; v
   HAND.q0.copy(HAND.q1).multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(0.6, 0.3, 0.4)));
   /* stop so the fingertip (about 14 cm from the wrist) lands on the control, a few mm in front of it */
   HAND.to.copy(tgt).addScaledVector(toCam, 0.008).addScaledVector(dir, -(HAND.mode === 'press' ? 0.165 : 0.13)); HAND.press = dir.clone();
+  var pp = S.p; HAND.rush = !!(ANNC.horn || (pp && pp.tripped && pp.t - (pp.tripT || -1e9) < 120) || /TRIP/i.test(tip) || (crx && crx().sub < 15)); HAND.leanDir = tgt.clone().sub(cam.position); HAND.reachX = clamp(HAND.leanDir.length() - 0.6, 0.08, 0.75); HAND.leanDir.normalize(); HAND.leanDir.y = Math.max(-0.5, Math.min(0.2, HAND.leanDir.y));
   hd.visible = true; HAND.t = 0; hd.position.copy(HAND.from); hd.quaternion.copy(HAND.q0); handPose(0); }
-function handTick(dt) { var hd = FEEL.hand; if (!hd || !hd.visible) return; HAND.t += dt / 0.95; var t = HAND.t;
+function handTick(dt) { var hd = FEEL.hand; if (!hd || !hd.visible) { HAND.lean = 0; return; } HAND.t += dt / (HAND.rush ? 0.45 : 0.95); var t = HAND.t;
   var ease = function (x) { return x < 0 ? 0 : x > 1 ? 1 : 1 - Math.pow(1 - x, 3); }, inO = function (x) { return x < 0 ? 0 : x > 1 ? 1 : x * x * (3 - 2 * x); };
   var a = t < 0.42 ? ease(t / 0.42) : t < 0.62 ? 1 : 1 - inO((t - 0.62) / 0.38), pose = t < 0.3 ? inO(t / 0.3) : t < 0.7 ? 1 : 1 - inO((t - 0.7) / 0.3);
   /* arc: rise a little on the way in */
@@ -2457,7 +2468,7 @@ function handTick(dt) { var hd = FEEL.hand; if (!hd || !hd.visible) return; HAND
   /* the press itself: a small push forward and back while holding */
   if (t > 0.42 && t < 0.62) { var pk = Math.sin((t - 0.42) / 0.2 * Math.PI); hd.position.addScaledVector(HAND.press, (HAND.mode === 'press' ? 0.012 : 0.005) * pk); if (HAND.mode === 'grip') hd.quaternion.copy(HAND.q1).multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(0, 0, -0.35 * pk))); }
   else hd.quaternion.copy(HAND.q0).slerp(HAND.q1, a);
-  handPose(pose); if (t >= 1) hd.visible = false; }
+  handPose(pose); HAND.lean = a; armIK(); if (t >= 1) { hd.visible = false; HAND.lean = 0; armIK(); } }
 
 /* ================================================================ station life ================================================================
    Phone calls, field operators who take real time, day and night shifts with handovers, weather and the grid, PA announcements,
@@ -2953,7 +2964,7 @@ function moveCam(dt) {
 }
 /* when the mission card covers the left of a wide screen, shift the picture right so what you're looking at sits in the clear part */
 var OFS = { cur: 0, w: 0, h: 0 };
-function applyCam(dt) { var c = R3.cam; if (c.position.x !== CAM.x || c.position.z !== CAM.z || c.rotation.y !== CAM.yaw || c.rotation.x !== CAM.pitch || OFS.f !== CAM.fov) { PTR.hoverDirty = true; OFS.f = CAM.fov; } c.position.set(CAM.x, CAM.y, CAM.z); c.rotation.order = 'YXZ'; c.rotation.y = CAM.yaw; c.rotation.x = CAM.pitch;
+function applyCam(dt) { var c = R3.cam; if (c.position.x !== CAM.x || c.position.z !== CAM.z || c.rotation.y !== CAM.yaw || c.rotation.x !== CAM.pitch || OFS.f !== CAM.fov) { PTR.hoverDirty = true; OFS.f = CAM.fov; } c.position.set(CAM.x, CAM.y, CAM.z); c.rotation.order = 'YXZ'; c.rotation.y = CAM.yaw; c.rotation.x = CAM.pitch; if (HAND.lean > 0 && HAND.leanDir) { var ln = HAND.lean * (HAND.rush ? 1.25 : 1); c.position.addScaledVector(HAND.leanDir, (HAND.reachX || 0.13) * ln); c.position.y -= 0.05 * ln; c.rotation.x -= 0.07 * ln; c.rotation.z = (HAND.rush ? 0.02 : 0.01) * Math.sin(HAND.t * 9) * ln; } else c.rotation.z = 0;
   var W = root.clientWidth, H = Math.max(1, root.clientHeight), ms = HUD.el.ms, want = 0; if (W > 900 && ms && !ms.hidden && !ms.classList.contains('min') && CAM.view !== 'walk' && CAM.view !== 'start' && CAM.view !== 'room' && !locked()) want = Math.round((ms.offsetWidth + 16) / 2);
   OFS.want = want; OFS.cur += (want - OFS.cur) * (1 - Math.exp(-(dt || 0.016) * 6)); if (Math.abs(OFS.cur - want) < 0.5) OFS.cur = want; var d = Math.round(OFS.cur);
   var asp = W / H, fe = asp < 1 ? Math.min(88, 2 * Math.atan(Math.tan(CAM.fov * 0.92 * Math.PI / 360) / asp) * 180 / Math.PI) : CAM.fov;
