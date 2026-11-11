@@ -2383,12 +2383,8 @@ var FEEL = { t: 0, chatT: 20, keyT: 5, flT: 8, lights: null, people: null, hand:
       g.userData = { legs: legs, arms: arms }; sc.add(g); return g; };
     var sup = person(0xf2f2f2, true); sup.position.set(0, 0, SZ + 0.45); sup.rotation.y = Math.PI;
     var walker = person(0x2f5d9e, false); FEEL.people = { sup: sup, walk: walker, a: 0.2, dir: 1, pause: 0 };
-    /* the hand that reaches for controls */
-    var hg = new THREE.Group(), skinM = new THREE.MeshStandardMaterial({ color: 0xd9a77f, roughness: 0.7 }), slv = new THREE.MeshStandardMaterial({ color: 0x2f5d9e, roughness: 0.9 });
-    var palm = new THREE.Mesh(new THREE.BoxGeometry(0.075, 0.025, 0.09), skinM); hg.add(palm); [-0.027, -0.009, 0.009, 0.027].forEach(function (x, i) { var f = new THREE.Mesh(new THREE.CapsuleGeometry(0.009, 0.045 - Math.abs(i - 1.5) * 0.006, 3, 6), skinM); f.rotation.x = Math.PI / 2; f.position.set(x, 0, -0.07); hg.add(f); });
-    var th = new THREE.Mesh(new THREE.CapsuleGeometry(0.01, 0.035, 3, 6), skinM); th.rotation.set(Math.PI / 2, 0, 0.9); th.position.set(-0.05, 0, -0.02); hg.add(th); var arm = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.045, 0.35, 10), slv); arm.rotation.x = Math.PI / 2; arm.position.z = 0.22; hg.add(arm);
-    hg.visible = false; sc.add(hg); FEEL.hand = hg; },
-  reach: function (h) { if (!FEEL.hand || !h || !h.point) return; var hd = FEEL.hand, c = R3.cam.position, p = h.point.clone(), d = c.clone().sub(p).normalize(); FEEL.hFrom = p.clone().add(d.clone().multiplyScalar(0.45)).add(new THREE.Vector3(0.12, -0.18, 0)); FEEL.hTo = p.clone().add(d.multiplyScalar(0.06)); hd.position.copy(FEEL.hFrom); hd.lookAt(FEEL.hTo.clone().add(FEEL.hTo.clone().sub(FEEL.hFrom))); hd.visible = true; FEEL.hT = 0; },
+    FEEL.hand = buildHand(); sc.add(FEEL.hand); },
+  reach: function (h) { handReach(h); },
   tick: function (dt) { if (!R3 || !S || !S.p) return; FEEL.build(); FEEL.t += dt; var p = S.p, x = p.x;
     /* sound */ if (AUD.ctx && S.cfg.snd) { FEEL.audio(); var ld = x.tb.latched ? clamp(x.tb.rpm / 3000, 0, 1) * (0.4 + 0.6 * clamp(x.tb.mw / 1150, 0, 1)) : 0, now = AUD.ctx.currentTime; FEEL.rum.gain.setTargetAtTime(0.05 + ld * 0.35, now, 0.6); FEEL.tg.gain.setTargetAtTime(x.tb.gen ? 0.006 + 0.01 * ld : 0, now, 0.6);
       if (!S.paused && !S.menu) { if ((FEEL.chatT -= dt) < 0) { FEEL.chatT = 35 + Math.random() * 60; FEEL.chatter(); } if ((FEEL.keyT -= dt) < 0) { FEEL.keyT = 6 + Math.random() * 14; FEEL.keys(); } } }
@@ -2401,8 +2397,59 @@ var FEEL = { t: 0, chatT: 20, keyT: 5, flT: 8, lights: null, people: null, hand:
       var r = 6.2, ax = Math.sin(P.a) * r, az = BCZ - Math.cos(P.a) * r; w.position.set(ax, 0, az); w.rotation.y = P.pause > 0 ? Math.atan2(Math.sin(P.a), -Math.cos(P.a)) : Math.atan2(Math.cos(P.a) * P.dir, Math.sin(P.a) * P.dir);
       var sw = P.pause > 0 ? 0 : Math.sin(FEEL.t * 7) * 0.45; w.userData.legs[0].rotation.x = sw; w.userData.legs[1].rotation.x = -sw; w.userData.arms[0].rotation.x = -sw * 0.7; w.userData.arms[1].rotation.x = sw * 0.7;
       P.sup.userData.arms[1].rotation.x = -1.1 + Math.sin(FEEL.t * 9) * 0.05 * (Math.sin(FEEL.t * 0.7) > 0 ? 1 : 0); P.sup.userData.arms[0].rotation.x = -1.1; P.sup.children[1].rotation.y = Math.sin(FEEL.t * 0.3) * 0.4; }
-    /* hand */ if (FEEL.hand && FEEL.hand.visible) { FEEL.hT += dt / 0.5; var u = FEEL.hT < 0.5 ? FEEL.hT * 2 : 2 - FEEL.hT * 2, e = u * u * (3 - 2 * u); FEEL.hand.position.lerpVectors(FEEL.hFrom, FEEL.hTo, e); if (FEEL.hT >= 1) FEEL.hand.visible = false; } }
+    /* hand */ handTick(dt); }
 };
+
+/* ---------------------------------------------------------------- a realistic first-person hand ----------------------------------------------------------------
+   Built from rounded segments with real proportions: palm, four fingers with three jointed bones each, a thumb, wrist and a shirt
+   cuff. It comes in from the lower right in an arc, slows as it arrives, the index finger presses a button (or the fingers close on
+   a switch or knob and turn it), holds for a moment, then eases back. Skin uses a physical material with sheen for a soft look. */
+var HAND = { t: 1, from: new THREE.Vector3(), to: new THREE.Vector3(), q0: new THREE.Quaternion(), q1: new THREE.Quaternion(), mode: 'press', bones: null };
+function buildHand() { var root = new THREE.Group(), wrist = new THREE.Group(); root.add(wrist); root.visible = false;
+  var skin = new THREE.MeshPhysicalMaterial({ color: 0xd8a287, roughness: 0.55, sheen: 0.6, sheenColor: new THREE.Color(0xffc8b0), sheenRoughness: 0.5, clearcoat: 0.08, clearcoatRoughness: 0.6 }), nail = new THREE.MeshPhysicalMaterial({ color: 0xf0cdbf, roughness: 0.25, clearcoat: 0.6 }), shirt = new THREE.MeshStandardMaterial({ color: 0xe9edf2, roughness: 0.92 }), watch = new THREE.MeshStandardMaterial({ color: 0x1b1d22, roughness: 0.4, metalness: 0.6 });
+  var cap = function (r, l, m) { var g = new THREE.CapsuleGeometry(r, l, 6, 14); g.rotateX(Math.PI / 2); g.translate(0, 0, -l / 2 - r * 0.2); return new THREE.Mesh(g, m); };
+  /* palm: a flattened rounded block, slightly wider at the knuckles */
+  var pg = new THREE.CapsuleGeometry(0.034, 0.05, 8, 18); pg.rotateX(Math.PI / 2); pg.scale(1.18, 0.45, 1); var palm = new THREE.Mesh(pg, skin); palm.position.z = -0.045; wrist.add(palm);
+  var knuck = new THREE.Mesh(new THREE.CapsuleGeometry(0.012, 0.06, 6, 12), skin); knuck.rotation.z = Math.PI / 2; knuck.position.set(0, 0.004, -0.083); knuck.scale.set(1, 1, 0.8); wrist.add(knuck);
+  /* forearm, cuff and a watch */
+  var fa = cap(0.03, 0.2, skin); fa.rotation.y = Math.PI; fa.position.z = 0.004; fa.scale.set(1.15, 0.85, 1); wrist.add(fa);
+  var cuff = new THREE.Mesh(new THREE.CylinderGeometry(0.047, 0.05, 0.25, 22, 1, true), shirt); cuff.rotation.x = Math.PI / 2; cuff.position.z = 0.19; cuff.material.side = THREE.DoubleSide; wrist.add(cuff);
+  var wb = new THREE.Mesh(new THREE.TorusGeometry(0.034, 0.006, 8, 24), watch); wb.position.z = 0.045; wb.scale.set(1.1, 0.85, 1); wrist.add(wb); var face = new THREE.Mesh(new THREE.CylinderGeometry(0.013, 0.013, 0.005, 20), watch); face.position.set(0, 0.03, 0.045); wrist.add(face);
+  /* fingers: [x at knuckle, segment lengths, radius] index, middle, ring, little */
+  var F = [[-0.026, [0.042, 0.026, 0.02], 0.0092], [-0.0085, [0.046, 0.029, 0.021], 0.0095], [0.0095, [0.043, 0.027, 0.02], 0.009], [0.026, [0.034, 0.021, 0.017], 0.0078]], bones = [];
+  F.forEach(function (d, fi) { var parent = wrist, z = -0.085, chain = []; d[1].forEach(function (L, k) { var j = new THREE.Group(); j.position.set(k ? 0 : d[0], k ? 0 : 0.002, k ? -d[1][k - 1] - d[2] * 0.15 : z - fi % 3 * 0.003 + (fi === 3 ? 0.008 : 0)); parent.add(j); var m = cap(d[2] * (1 - k * 0.1), L - d[2], skin); j.add(m);
+      if (k === 2) { var n = new THREE.Mesh(new THREE.SphereGeometry(d[2] * 0.75, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2.4), nail); n.scale.set(1, 0.35, 1.25); n.position.set(0, d[2] * 0.62, -L + d[2] * 0.9); j.add(n); }
+      chain.push(j); parent = j; }); if (fi === 3) chain[0].rotation.y = -0.12; if (fi === 0) chain[0].rotation.y = 0.05; bones.push(chain); });
+  /* thumb: comes off the side of the palm, angled in */
+  var t0 = new THREE.Group(); t0.position.set(-0.036, -0.006, -0.025); t0.rotation.set(0.25, 0.85, 0.35); wrist.add(t0); var tc = [t0]; t0.add(cap(0.012, 0.03, skin));
+  var t1 = new THREE.Group(); t1.position.z = -0.038; t0.add(t1); t1.add(cap(0.0105, 0.022, skin)); var t2 = new THREE.Group(); t2.position.z = -0.03; t1.add(t2); t2.add(cap(0.0098, 0.016, skin)); var tn = new THREE.Mesh(new THREE.SphereGeometry(0.0075, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2.4), nail); tn.scale.set(1, 0.35, 1.25); tn.position.set(0, 0.006, -0.022); t2.add(tn); tc.push(t1, t2); bones.push(tc);
+  root.traverse(function (o) { if (o.isMesh) { o.castShadow = true; o.renderOrder = 2; } }); HAND.bones = bones; return root; }
+/* finger curl for a pose blend: 0 = relaxed, 1 = the action pose */
+function handPose(k) { var B = HAND.bones; if (!B) return; var relax = [[0.35, 0.45, 0.3], [0.45, 0.55, 0.35], [0.55, 0.6, 0.4], [0.65, 0.7, 0.45]];
+  var act = HAND.mode === 'press' ? [[-0.05, 0.08, 0.05], [1.35, 1.5, 0.9], [1.45, 1.55, 0.95], [1.5, 1.55, 1.0]] : [[0.9, 0.85, 0.55], [1.0, 0.9, 0.55], [1.15, 1.1, 0.7], [1.25, 1.2, 0.75]];
+  for (var f = 0; f < 4; f++) for (var j = 0; j < 3; j++) B[f][j].rotation.x = -(relax[f][j] + (act[f][j] - relax[f][j]) * k);
+  var th = B[4]; th[1].rotation.x = -(0.25 + (HAND.mode === 'press' ? 0.7 : 0.45) * k); th[2].rotation.x = -(0.2 + 0.5 * k); }
+function handReach(h) { var hd = FEEL.hand; if (!hd || !h || !h.point) return; var cam = R3.cam, hi = h.object.userData.hit || {}, tip = String(typeof hi.tip === 'function' ? hi.tip() : hi.tip || '');
+  HAND.mode = /button|push|ACK|RESET|TRIP|BLOCK|LATCH|press/i.test(tip) ? 'press' : 'grip';
+  var tgt = h.point.clone(), toCam = cam.position.clone().sub(tgt).normalize();
+  /* start low and to the right of the view, just out of shot */
+  var right = new THREE.Vector3(1, 0, 0).applyQuaternion(cam.quaternion), up = new THREE.Vector3(0, 1, 0).applyQuaternion(cam.quaternion), fwd = new THREE.Vector3(0, 0, -1).applyQuaternion(cam.quaternion);
+  HAND.from.copy(cam.position).addScaledVector(right, 0.28).addScaledVector(up, -0.32).addScaledVector(fwd, 0.25);
+  /* aim the fingertips at the control: the hand's -z points from the hand to the target */
+  var m = new THREE.Matrix4(), dir = tgt.clone().sub(HAND.from).normalize(), roll = HAND.mode === 'press' ? 0.15 : -0.35; m.lookAt(new THREE.Vector3(0, 0, 0), dir.clone(), up); HAND.q1.setFromRotationMatrix(m); HAND.q1.multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(0.15, 0, roll)));
+  HAND.q0.copy(HAND.q1).multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(0.6, 0.3, 0.4)));
+  /* stop so the fingertip (about 14 cm from the wrist) lands on the control, a few mm in front of it */
+  HAND.to.copy(tgt).addScaledVector(toCam, 0.008).addScaledVector(dir, -(HAND.mode === 'press' ? 0.165 : 0.13)); HAND.press = dir.clone();
+  hd.visible = true; HAND.t = 0; hd.position.copy(HAND.from); hd.quaternion.copy(HAND.q0); handPose(0); }
+function handTick(dt) { var hd = FEEL.hand; if (!hd || !hd.visible) return; HAND.t += dt / 0.95; var t = HAND.t;
+  var ease = function (x) { return x < 0 ? 0 : x > 1 ? 1 : 1 - Math.pow(1 - x, 3); }, inO = function (x) { return x < 0 ? 0 : x > 1 ? 1 : x * x * (3 - 2 * x); };
+  var a = t < 0.42 ? ease(t / 0.42) : t < 0.62 ? 1 : 1 - inO((t - 0.62) / 0.38), pose = t < 0.3 ? inO(t / 0.3) : t < 0.7 ? 1 : 1 - inO((t - 0.7) / 0.3);
+  /* arc: rise a little on the way in */
+  hd.position.lerpVectors(HAND.from, HAND.to, a); hd.position.y += Math.sin(a * Math.PI) * 0.035;
+  /* the press itself: a small push forward and back while holding */
+  if (t > 0.42 && t < 0.62) { var pk = Math.sin((t - 0.42) / 0.2 * Math.PI); hd.position.addScaledVector(HAND.press, (HAND.mode === 'press' ? 0.012 : 0.005) * pk); if (HAND.mode === 'grip') hd.quaternion.copy(HAND.q1).multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(0, 0, -0.35 * pk))); }
+  else hd.quaternion.copy(HAND.q0).slerp(HAND.q1, a);
+  handPose(pose); if (t >= 1) hd.visible = false; }
 
 /* ================================================================ station life ================================================================
    Phone calls, field operators who take real time, day and night shifts with handovers, weather and the grid, PA announcements,
@@ -3408,7 +3455,7 @@ function close() {
   if (!root) return; try { save(); } catch (e) {} try { RADIO.stop(); } catch (e) {} try { MULTI.closeAll(); } catch (e) {} cancelAnimationFrame(RAF); RAF = 0; root.hidden = true; document.removeEventListener('keydown', kd); document.removeEventListener('keyup', ku); KEYS = {};
   try { if (AUD.ctx) AUD.ctx.suspend(); } catch (e) {} try { if (window.speechSynthesis) speechSynthesis.cancel(); } catch (e) {} try { API.close(); } catch (e) {}
 }
-window.CRIT_PLANT = { open: open, close: close, _dbg: { S: function () { return S; }, LIFE: LIFE, FEEL: FEEL, TEACH: TEACH, EXAM: EXAM, PROC: PROC, procMenu: function () { procMenu(); }, MULTI: MULTI, TRI: TRI, multiMenu: function () { multiMenu(); }, MVH: MVH, FAULT: FAULT, TS: TS, CREW: CREW, coreMenu: function (t) { coreMenu(t); }, tsMenu: function () { tsMenu(); }, crx: function () { return crx(); }, rtp: function () { return rtp(); }, CAR: CAR, careerMenu: function () { careerMenu(); }, startAsc: function () { startAsc(); }, ctl: function (re, arg) { var r = new RegExp(re), m = HITS.filter(function (h) { var o = h.userData.hit, t = typeof o.tip === 'function' ? o.tip() : o.tip; return t && r.test(t) && (o.act || o.hold); }); if (m.length !== 1) return 'match ' + m.length + ': ' + m.slice(0, 4).map(function (h) { var o = h.userData.hit; return typeof o.tip === 'function' ? o.tip() : o.tip; }).join(' | '); var o = m[0].userData.hit; if (o.act) o.act(arg); else { o.hold(true); o.hold(false); } return 'ok'; }, tips: function (re) { var r = new RegExp(re); return HITS.map(function (h) { var o = h.userData.hit; return typeof o.tip === 'function' ? o.tip() : o.tip; }).filter(function (t) { return t && r.test(t); }); }, MS: MS, ACT: ACT, ANNC: ANNC, NI: NI, D: D, CAM: CAM, goView: goView, showMe: showMe, setTS: setTS, step: function (sec, h) { h = h || 0.05; var p = S.p; for (var t = 0; t < sec; t += h) { plantStep(p, h); niTick(p, h); rps(p); permissives(p); oneMTick(p, h); derive(h); MS.tick(h); ANNC.tick(); CAR.tick(h, 0); TS.tick(h); if (p.sur > S.st.maxSur && !p.tripped) S.st.maxSur = p.sur; if (p.everCrit && S.st.critPc == null) { S.st.critPc = p.pc; S.st.predPc = ecpFromOneM(p); S.st.pts = Math.max(0, p.oneM.length - 1); } } },
+window.CRIT_PLANT = { open: open, close: close, _dbg: { S: function () { return S; }, HAND: HAND, handReach: function (h) { handReach(h); }, LIFE: LIFE, FEEL: FEEL, TEACH: TEACH, EXAM: EXAM, PROC: PROC, procMenu: function () { procMenu(); }, MULTI: MULTI, TRI: TRI, multiMenu: function () { multiMenu(); }, MVH: MVH, FAULT: FAULT, TS: TS, CREW: CREW, coreMenu: function (t) { coreMenu(t); }, tsMenu: function () { tsMenu(); }, crx: function () { return crx(); }, rtp: function () { return rtp(); }, CAR: CAR, careerMenu: function () { careerMenu(); }, startAsc: function () { startAsc(); }, ctl: function (re, arg) { var r = new RegExp(re), m = HITS.filter(function (h) { var o = h.userData.hit, t = typeof o.tip === 'function' ? o.tip() : o.tip; return t && r.test(t) && (o.act || o.hold); }); if (m.length !== 1) return 'match ' + m.length + ': ' + m.slice(0, 4).map(function (h) { var o = h.userData.hit; return typeof o.tip === 'function' ? o.tip() : o.tip; }).join(' | '); var o = m[0].userData.hit; if (o.act) o.act(arg); else { o.hold(true); o.hold(false); } return 'ok'; }, tips: function (re) { var r = new RegExp(re); return HITS.map(function (h) { var o = h.userData.hit; return typeof o.tip === 'function' ? o.tip() : o.tip; }).filter(function (t) { return t && r.test(t); }); }, MS: MS, ACT: ACT, ANNC: ANNC, NI: NI, D: D, CAM: CAM, goView: goView, showMe: showMe, setTS: setTS, step: function (sec, h) { h = h || 0.05; var p = S.p; for (var t = 0; t < sec; t += h) { plantStep(p, h); niTick(p, h); rps(p); permissives(p); oneMTick(p, h); derive(h); MS.tick(h); ANNC.tick(); CAR.tick(h, 0); TS.tick(h); if (p.sur > S.st.maxSur && !p.tripped) S.st.maxSur = p.sur; if (p.everCrit && S.st.critPc == null) { S.st.critPc = p.pc; S.st.predPc = ecpFromOneM(p); S.st.pts = Math.max(0, p.oneM.length - 1); } } },
   pick: function (x, y) { var hh = pick(x, y); return hh ? { tip: hh.object.userData.hit && (typeof hh.object.userData.hit.tip === 'function' ? hh.object.userData.hit.tip() : hh.object.userData.hit.tip), act: !!(hh.object.userData.hit && hh.object.userData.hit.act), hold: !!(hh.object.userData.hit && hh.object.userData.hit.hold) } : null; },
   click: function (x, y) { activate(pick(x, y)); }, verifyPre: verifyPre, startShutdown: startShutdown, PRE: PRE, SHUT: SHUT, EXP: EXP, shiftLeft: function () { return shiftLeft(); }, ofs: function () { return OFS; }, settled: function () { return !CAM.tw && Math.abs(OFS.cur - (OFS.want || 0)) < 0.5; }, R3: function () { return R3; }, desk: function (id, u, d, lift) { var v = SEC[id].desk.localToWorld(new THREE.Vector3(u, lift == null ? 0.0015 : lift, -d * SL)); v.project(R3.cam); var r = R3.ren.domElement.getBoundingClientRect(); return [r.left + (v.x + 1) / 2 * r.width, r.top + (1 - v.y) / 2 * r.height]; }, WG: WG, HITS: HITS, SEC: SEC, rho: function () { return rhoParts(S.p); }, ecp: function () { return ecpFromOneM(S.p); } } };
 })();
