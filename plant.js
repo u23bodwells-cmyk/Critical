@@ -469,6 +469,7 @@ var SECDEF = [
   { id: 'elec', name: 'ELECTRICAL DISTRIBUTION  ·  DIESEL GENERATORS', short: 'Electrical' }
 ];
 SECDEF.forEach(function (d, i) { d.a = (i - 5) * BSTEP; });
+var TEXS = 1; /* texture scale: 0.5 in Lite graphics */
 var SEC = {}, HITS = [], CTRL = [], LAMPS = [], MAT = {}, SCR = [];
 /* things the other boards show that the Section 1 model doesn't calculate yet: they drift realistically around their hot standby values */
 var D = { grid: 50.0, gridV: 401, sgL: [50, 50, 50, 50], vct: 46, chg: 17.8, ltd: 17.2, tgSpd: 31, bat: 82, rwst: 96, dT: 0, thot: T0, tcold: T0, sub: 53, stmF: 0, feedF: 0, keff: 0.95, mode: 3, rho: 0, clock: 0 };
@@ -570,7 +571,7 @@ function joints() {
     box(end ? 0.12 : 0.34, 2.98, 0.8, MAT.trim, 0, 1.49, -0.3, g); box(end ? 0.12 : 0.34, 0.05, 0.81, MAT.black, 0, 2.985, -0.3, g); }
 }
 function panelBG(s) {
-  var c = CV(PCW, PCH), g = c.getContext('2d'), gr = g.createLinearGradient(0, 0, 0, PCH); gr.addColorStop(0, '#c8cbc7'); gr.addColorStop(1, '#b7bab6'); g.fillStyle = gr; g.fillRect(0, 0, PCW, PCH); speck(g, PCW, PCH, 9000, 0.03);
+  var c = CV(Math.round(PCW * TEXS), Math.round(PCH * TEXS)), g = c.getContext('2d'); g.scale(TEXS, TEXS); var gr = g.createLinearGradient(0, 0, 0, PCH); gr.addColorStop(0, '#c8cbc7'); gr.addColorStop(1, '#b7bab6'); g.fillStyle = gr; g.fillRect(0, 0, PCW, PCH); speck(g, PCW, PCH, 9000, 0.03);
   g.strokeStyle = 'rgba(0,0,0,.28)'; g.lineWidth = 2; for (var i = 1; i < 4; i++) { var x = PCW * i / 4; g.beginPath(); g.moveTo(x, 0); g.lineTo(x, PCH); g.stroke(); }
   for (i = 0; i <= 4; i++) { screw(g, Math.max(10, Math.min(PCW - 10, PCW * i / 4)), 10, 4); screw(g, Math.max(10, Math.min(PCW - 10, PCW * i / 4)), PCH - 10, 4); }
   s.mimic.forEach(function (m) { g.strokeStyle = m.col; g.lineWidth = m.w || 9; g.lineJoin = 'round'; g.lineCap = 'round'; g.beginPath(); m.pts.forEach(function (p, j) { var X = px(p[0]), Y = py(p[1]); if (j) g.lineTo(X, Y); else g.moveTo(X, Y); }); g.stroke(); });
@@ -581,7 +582,7 @@ function panelBG(s) {
   return c;
 }
 function deskBG(s) {
-  var c = CV(DCW, DCH), g = c.getContext('2d'); g.fillStyle = '#c3c6c2'; g.fillRect(0, 0, DCW, DCH); speck(g, DCW, DCH, 7000, 0.03);
+  var c = CV(Math.round(DCW * TEXS), Math.round(DCH * TEXS)), g = c.getContext('2d'); g.scale(TEXS, TEXS); g.fillStyle = '#c3c6c2'; g.fillRect(0, 0, DCW, DCH); speck(g, DCW, DCH, 7000, 0.03);
   var gr = g.createLinearGradient(0, 0, 0, DCH); gr.addColorStop(0, 'rgba(0,0,0,.06)'); gr.addColorStop(1, 'rgba(255,255,255,.08)'); g.fillStyle = gr; g.fillRect(0, 0, DCW, DCH);
   g.fillStyle = '#2a2f35'; g.fillRect(0, DCH - 26, DCW, 26);
   s.dgrp.forEach(function (b) { var x0 = dx(b[0]), x1 = dx(b[1]), y0 = dy(b[3]), y1 = dy(b[2]); g.strokeStyle = b[5] || '#26394d'; g.lineWidth = 4; g.strokeRect(x0, y0, x1 - x0, y1 - y0); tag(g, b[4], (x0 + x1) / 2, y0, Math.min(x1 - x0 - 16, Math.max(170, b[4].length * 15)), 28, 19, b[5] || '#26394d', '#fff'); });
@@ -1161,7 +1162,7 @@ function beTick(b, dt, force) {
   if (b.rk) { ch = false; b.rot.forEach(function (r, i) { var t = r.ang(r.o.get()); if (Math.abs(r.cur - t) < 0.002 && !force) return; r.cur += (t - r.cur) * (1 - Math.exp(-dt * 18)); E.set(0, -r.cur, 0); Q.setFromEuler(E); V.set(r.u, 0.008, -r.d * SL); M4.compose(V, Q, SC); b.rk.setMatrixAt(i, M4); ch = true; }); if (ch) b.rk.instanceMatrix.needsUpdate = true; }
   b.at += dt; if (b.at > 0.35 || force) { b.at = 0; beAtlas(b, force); }
 }
-var BEI = 0; function beFrame(dt) { if (!BE.length) return; for (var k = 0; k < 3; k++) { BEI = (BEI + 1) % BE.length; beTick(BE[BEI], dt * BE.length / 3); } BE.forEach(function (b) { if (b.ramp && b.ramp.o.raise) b.ramp.o.raise(b.ramp.dir, dt); }); }
+var BEI = 0, BEN = 3; function beFrame(dt) { if (!BE.length) return; for (var k = 0; k < BEN; k++) { BEI = (BEI + 1) % BE.length; beTick(BE[BEI], dt * BE.length / BEN); } BE.forEach(function (b) { if (b.ramp && b.ramp.o.raise) b.ramp.o.raise(b.ramp.dir, dt); }); }
 /* helpers to make pumps, valves and breakers into switches quickly */
 var SWINFO = [/x/, 'Control switch', 'A pistol-grip switch: turn it right to START (or OPEN / CLOSE a breaker), left to STOP. It springs back to the middle. The red lamp above it means running or open, green means stopped or closed.', 'Many have a \u201cpull to lock\u201d position so a pump can\u2019t auto-start during maintenance.'];
 function pumpSW(t, arr, i, kind, extra) { extra = extra || {}; return Object.assign({ info: SWINFO, t: t, l: 'STOP', r: 'START', onTxt: 'RUNNING', offTxt: 'STOPPED', on: function () { var a = arr(); return !!a[i] && (!kind || pwr(X(), kind, i)); },
@@ -1474,6 +1475,121 @@ CONTENT.elec = function (s) { be(s); var x = X, el = function () { return x().el
   swRow(s, 1.2, 0.28, [valveSW('CHARGER\nA', function () { return el().chg[0]; }, function (v) { el().chg[0] = v; }, { l: 'OFF', r: 'ON', onTxt: 'ON', offTxt: 'OFF' }), valveSW('CHARGER\nB', function () { return el().chg[1]; }, function (v) { el().chg[1] = v; }, { l: 'OFF', r: 'ON', onTxt: 'ON', offTxt: 'OFF' }), valveSW('UPS\nBYPASS', NO, function () {})], 0.135);
 };
 
+/* ================================================================ career: XP, levels, ranks, achievements, daily challenges ================================================================
+   Everything you do in the control room earns XP: checklist steps, whole procedures, every megawatt-hour you send to the grid,
+   steady operation, and how well you handle faults. Levels climb through real job titles from trainee to station manager. */
+var RANKS = [[1, 'Trainee'], [3, 'Auxiliary Operator'], [6, 'Plant Operator'], [10, 'Trainee Reactor Operator'], [15, 'Reactor Operator'], [20, 'Licensed Reactor Operator'], [26, 'Senior Reactor Operator'], [32, 'Shift Supervisor'], [40, 'Shift Manager'], [48, 'Station Manager'], [56, 'Chief Nuclear Officer']];
+function lvlXp(L) { return 100 * (L - 1) + 35 * (L - 1) * L / 2 - 35 * 0; } /* total XP needed to reach level L */
+function lvlOf(xp) { var L = 1; while (lvlXp(L + 1) <= xp) L++; return L; }
+function rankOf(L) { var r = RANKS[0][1]; RANKS.forEach(function (q) { if (L >= q[0]) r = q[1]; }); return r; }
+function nextRank(L) { for (var i = 0; i < RANKS.length; i++) if (RANKS[i][0] > L) return RANKS[i]; return null; }
+var ACH = [
+  ['crit', '☢️', 'First criticality', 'Take the reactor critical.', 50],
+  ['star3', '⭐', 'Textbook startup', 'Get three stars on a reactor startup.', 100],
+  ['shut', '⏬', 'Safe shutdown', 'Complete the shutdown checklist.', 50],
+  ['sync', '⚡', 'On the grid', 'Synchronise the generator to the 400 kV grid.', 75],
+  ['asc', '📈', 'Power ascension', 'Complete the GOP-302 checklist to 50% power.', 100],
+  ['full', '🔥', 'Full power', 'Send 1,100 MW or more to the grid.', 150],
+  ['gwh1', '💡', '1 GWh', 'Generate 1,000 MWh in total.', 50],
+  ['gwh10', '🏘️', '10 GWh', 'Generate 10,000 MWh: a year of electricity for 3,000 homes.', 150],
+  ['gwh100', '🏙️', '100 GWh', 'Generate 100,000 MWh.', 400],
+  ['online8', '🕒', 'Full shift on line', '8 hours of plant time on the grid without a trip.', 150],
+  ['xenon', '🧪', 'Xenon watcher', 'Run long enough for xenon to reach 2,500 pcm.', 75],
+  ['dilute', '💧', 'Boron chemist', 'Dilute 200 ppm of boron in total.', 75],
+  ['fault1', '🛠️', 'Fault finder', 'Handle your first fault safely.', 75],
+  ['online', '🧱', 'Kept it on line', 'Handle a fault without the reactor tripping.', 120],
+  ['tmi', '🛡️', 'Not like Three Mile Island', 'Isolate a stuck-open PORV before safety injection.', 150],
+  ['loop', '🔌', 'Blackout survivor', 'Handle a loss of offsite power safely.', 120],
+  ['secret', '🎲', 'Expect the unexpected', 'Handle a secret fault safely.', 120],
+  ['allf', '🏆', 'Seen it all', 'Handle all seven fault types safely.', 300],
+  ['hour1', '☕', 'First hour', 'Spend an hour in the control room.', 50],
+  ['hour5', '🌙', 'Night shift', 'Spend 5 hours in the control room.', 150],
+  ['hour20', '🏅', 'Veteran', 'Spend 20 hours in the control room.', 400],
+  ['lv10', '🎓', 'Reactor operator trainee', 'Reach level 10.', 100],
+  ['lv20', '📜', 'Licensed', 'Reach level 20.', 200],
+  ['daily', '📅', 'Daily grind', 'Finish all three daily challenges in one day.', 75]
+];
+var DAILY = [
+  ['gen', 'Generate 2,000 MWh', 2000, function (d) { return d.gen || 0; }],
+  ['start', 'Complete a reactor startup', 1, function (d) { return d.start || 0; }],
+  ['asc', 'Complete a power ascension', 1, function (d) { return d.asc || 0; }],
+  ['shut', 'Complete a shutdown', 1, function (d) { return d.shut || 0; }],
+  ['fault', 'Handle a fault safely', 1, function (d) { return d.fault || 0; }],
+  ['secret', 'Handle a secret fault safely', 1, function (d) { return d.secret || 0; }],
+  ['online', '2 hours of plant time on line without a trip', 7200, function (d) { return d.online || 0; }],
+  ['full', 'Reach 1,100 MW', 1, function (d) { return d.full || 0; }],
+  ['dil', 'Dilute 50 ppm of boron', 50, function (d) { return d.dil || 0; }],
+  ['steady', 'Hold Tavg on Tref at power for 30 plant minutes', 1800, function (d) { return d.steady || 0; }]
+];
+var CAR = {
+  p: null, dirty: false, saveT: 0, pend: 0, pendWhy: '', pendT: 0, genAcc: 0, stT: 0, wasGen: false, lastB: null,
+  fresh: function () { return { xp: 0, ach: {}, st: { mwh: 0, onl: 0, play: 0, starts: 0, ascs: 0, shuts: 0, faults: 0, trips: 0, dil: 0, best: 0, curOn: 0 }, fseen: {}, day: null }; },
+  load: function () { var sv = rd(); CAR.p = Object.assign(CAR.fresh(), sv.prog || {}); CAR.p.st = Object.assign(CAR.fresh().st, CAR.p.st || {}); CAR.dayCheck(); },
+  save: function () { if (!CAR.p) return; var sv = rd(); sv.prog = CAR.p; wr(sv); CAR.dirty = false; },
+  lvl: function () { return lvlOf(CAR.p.xp); },
+  today: function () { var d = new Date(); return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); },
+  dayCheck: function () { var t = CAR.today(), p = CAR.p; if (p.day && p.day.date === t) return; var seed = 0; for (var i = 0; i < t.length; i++) seed = (seed * 31 + t.charCodeAt(i)) % 100003;
+    var pool = DAILY.map(function (q, k) { return k; }), pick = []; while (pick.length < 3) { seed = (seed * 9301 + 49297) % 233280; var k = pool.splice(Math.floor(seed / 233280 * pool.length), 1)[0]; pick.push(DAILY[k][0]); }
+    p.day = { date: t, ids: pick, c: {}, done: {}, all: false }; CAR.dirty = true; },
+  dayAdd: function (k, n) { var p = CAR.p; CAR.dayCheck(); var d = p.day; if (d.ids.indexOf(k) < 0) return; d.c[k] = (d.c[k] || 0) + n;
+    var q = DAILY.filter(function (z) { return z[0] === k; })[0]; if (!d.done[k] && q[3](d.c) >= q[2]) { d.done[k] = true; CAR.add(60, 'Daily challenge: ' + q[1], true); AUD.sfx('ok');
+      if (!d.all && d.ids.every(function (z) { return d.done[z]; })) { d.all = true; CAR.add(120, 'All three daily challenges done!', true); CAR.unlock('daily'); } } CAR.dirty = true; },
+  /* award XP; small amounts are bundled into one popup */
+  add: function (n, why, big) { if (!CAR.p || !(n > 0)) return; var L0 = CAR.lvl(); CAR.p.xp += Math.round(n); CAR.dirty = true;
+    if (big) CAR.pop('+' + Math.round(n) + ' XP', why, true); else { CAR.pend += n; CAR.pendWhy = why; }
+    var L1 = CAR.lvl(); if (L1 > L0) CAR.levelUp(L0, L1); HUD.dirty = true; },
+  levelUp: function (L0, L1) { var r0 = rankOf(L0), r1 = rankOf(L1); AUD.sfx('done'); CAR.pop('LEVEL ' + L1, r1 !== r0 ? 'Promoted: ' + r1 + '!' : rankOf(L1), true, true);
+    speak(r1 !== r0 ? 'Promotion. You are now a ' + r1 + '.' : 'Level ' + L1 + '.'); S.addLog('Reached level ' + L1 + ' (' + r1 + ')');
+    try { API.xp(10 + 3 * L1, 'Critical Point: reached level ' + L1); } catch (e) {} if (L1 >= 10) CAR.unlock('lv10'); if (L1 >= 20) CAR.unlock('lv20'); CAR.save(); },
+  unlock: function (id) { var p = CAR.p; if (!p || p.ach[id]) return; var a = ACH.filter(function (q) { return q[0] === id; })[0]; if (!a) return; p.ach[id] = Date.now(); CAR.dirty = true; S.addLog('Achievement: ' + a[2]);
+    CAR.pop(a[1] + ' ' + a[2], 'Achievement unlocked · +' + a[4] + ' XP', true, false, true); CAR.add(a[4], a[2]); CAR.save(); },
+  pop: function (big, small, keep, lvl, ach) { var E = HUD.el.xpf; if (!E) return; var d = h('div', 'cpnxpp' + (lvl ? ' lvl' : '') + (ach ? ' ach' : ''), '<b>' + esc(big) + '</b>' + (small ? '<span>' + esc(small) + '</span>' : ''), E);
+    while (E.children.length > 4) E.removeChild(E.firstChild); setTimeout(function () { d.style.opacity = '0'; d.style.transform = 'translateY(-8px)'; setTimeout(function () { d.remove(); }, 500); }, lvl || ach ? 5200 : 2600); },
+  event: function (k, a) { var st = CAR.p && CAR.p.st; if (!st) return;
+    if (k === 'pre') CAR.add(3, 'Pre-startup check');
+    if (k === 'step') CAR.add(a === 'asc' ? 20 : a === 'shut' ? 10 : 15, a === 'asc' ? 'Power ascension step' : a === 'shut' ? 'Shutdown step' : 'Startup step', true);
+    if (k === 'start') { st.starts++; CAR.add(120 + a, 'Reactor startup (score ' + a + ')', true); CAR.unlock('crit'); if (a >= 85) CAR.unlock('star3'); CAR.dayAdd('start', 1); }
+    if (k === 'shut') { st.shuts++; CAR.add(70, 'Reactor shutdown', true); CAR.unlock('shut'); CAR.dayAdd('shut', 1); }
+    if (k === 'asc') { st.ascs++; CAR.add(180, 'Power ascension to 50%', true); CAR.unlock('asc'); CAR.dayAdd('asc', 1); }
+    if (k === 'trip') { st.trips++; st.curOn = 0; }
+    if (k === 'crit') CAR.unlock('crit');
+    CAR.dirty = true; },
+  /* rate how a fault was handled, 15 plant-minutes after it went in (or when cleared after 5) */
+  rateFault: function (id, info) { var p = S.p, x = p.x, safe = x.pz.P > 90 && x.sg.every(function (s) { return s.L > 5; }) && D.sub > 3 && p.Tavg < 315, kept = !p.tripped && !info.trip0, xp, verdict;
+    if (kept) { xp = 140; verdict = 'Kept the unit on line'; } else if (safe) { xp = 70; verdict = 'Safe shutdown'; } else { xp = 15; verdict = 'Plant not in a safe state'; }
+    if (id === 'porv' && x.si.on) { if (xp > 70) xp = 70; }
+    if (info.quiet) xp = Math.round(xp * 1.5); CAR.add(xp, 'Fault handled: ' + verdict, true);
+    var q = FAULT.list.filter(function (z) { return z.id === id; })[0]; toast('🛠 ' + (q ? q.t : 'Fault') + ': ' + verdict + ' (+' + xp + ' XP)', kept || safe ? 'ok' : 'warn');
+    if (kept || safe) { CAR.p.st.faults++; CAR.p.fseen[id] = 1; CAR.unlock('fault1'); if (kept) CAR.unlock('online'); if (id === 'porv' && !x.si.on && kept) CAR.unlock('tmi'); if (id === 'grid') CAR.unlock('loop'); if (info.quiet) { CAR.unlock('secret'); CAR.dayAdd('secret', 1); } CAR.dayAdd('fault', 1);
+      if (FAULT.list.every(function (z) { return CAR.p.fseen[z.id]; })) CAR.unlock('allf'); } CAR.save(); },
+  tick: function (sim, real) { var p = S.p, x = p.x, st, tb; if (!CAR.p || !x) return; st = CAR.p.st; tb = x.tb; CAR.dayCheck();
+    st.play += real; if (st.play >= 3600) CAR.unlock('hour1'); if (st.play >= 18000) CAR.unlock('hour5'); if (st.play >= 72000) CAR.unlock('hour20');
+    /* generation: 1 XP per 8 MWh */
+    if (tb.gen && tb.mw > 0) { var mwh = tb.mw * sim / 3600; st.mwh += mwh; CAR.genAcc += mwh; CAR.dayAdd('gen', mwh); if (CAR.genAcc >= 8) { var n = Math.floor(CAR.genAcc / 8); CAR.genAcc -= n * 8; CAR.add(n, 'Electricity to the grid'); }
+      if (st.mwh >= 1000) CAR.unlock('gwh1'); if (st.mwh >= 10000) CAR.unlock('gwh10'); if (st.mwh >= 100000) CAR.unlock('gwh100'); if (tb.mw >= 1100) { CAR.unlock('full'); CAR.dayAdd('full', 1); } }
+    if (tb.gen && !CAR.wasGen) CAR.unlock('sync'); CAR.wasGen = tb.gen;
+    /* time on line without a trip, and steady operation bonus */
+    if (tb.gen && !p.tripped) { st.onl += sim; st.curOn += sim; st.best = Math.max(st.best, st.curOn); CAR.dayAdd('online', sim); if (st.curOn >= 28800) CAR.unlock('online8'); }
+    var steady = tb.gen && !p.tripped && tb.mw > 170 && Math.abs(p.Tavg - trefC(x)) < 1.5 && Math.abs(x.pz.P - 155) < 3 && x.sg.every(function (s) { return Math.abs(s.L - 50) < 8; });
+    if (steady) { CAR.stT += sim; CAR.dayAdd('steady', sim); if (CAR.stT >= 600) { CAR.stT -= 600; CAR.add(25, 'Ten minutes of steady operation', true); } } else CAR.stT = Math.max(0, CAR.stT - sim * 2);
+    if (x.xe.X >= 2500) CAR.unlock('xenon');
+    if (CAR.lastB != null && x.cv.run && (x.cv.mode === 'DIL' || x.cv.mode === 'ALTDIL') && p.boron < CAR.lastB) { var db = CAR.lastB - p.boron; st.dil += db; CAR.dayAdd('dil', db); if (st.dil >= 200) CAR.unlock('dilute'); } CAR.lastB = p.boron;
+    /* faults */
+    var fT = x.fT || {}; Object.keys(fT).forEach(function (id) { var info = fT[id]; if (info.done) return; if (p.t - info.t >= 900 || p.t < info.t) { info.done = true; CAR.rateFault(id, info); } });
+    /* bundled popups and saving */
+    CAR.pendT += real; if (CAR.pend >= 1 && CAR.pendT > 2.5) { CAR.pop('+' + Math.floor(CAR.pend) + ' XP', CAR.pendWhy); CAR.pend -= Math.floor(CAR.pend); CAR.pendT = 0; }
+    CAR.saveT += real; if (CAR.dirty && CAR.saveT > 8) { CAR.saveT = 0; CAR.save(); } }
+};
+function careerMenu() { if (!S.menu) S.wasPaused = S.paused; setPause(true); CAR.dayCheck(); var p = CAR.p, L = CAR.lvl(), a = lvlXp(L), b = lvlXp(L + 1), nr = nextRank(L), st = p.st, d = p.day, nAch = ACH.filter(function (q) { return p.ach[q[0]]; }).length;
+  var fmtH = function (s) { return s >= 3600 ? (s / 3600).toFixed(1) + ' h' : Math.round(s / 60) + ' min'; };
+  menu('<h1>🏅 Career</h1><div class="cpncar"><div class="lv"><b>' + L + '</b><span>LEVEL</span></div><div class="rk"><h2 style="margin:0">' + esc(rankOf(L)) + '</h2><div class="xpbar"><i style="width:' + Math.round((p.xp - a) / (b - a) * 100) + '%"></i></div><small>' + (p.xp - a).toLocaleString('en-GB') + ' / ' + (b - a).toLocaleString('en-GB') + ' XP to level ' + (L + 1) + ' · ' + p.xp.toLocaleString('en-GB') + ' XP in total' + (nr ? ' · <b>' + esc(nr[1]) + '</b> at level ' + nr[0] : '') + '</small></div></div>' +
+    '<h2>Today’s challenges</h2><div class="cpndaily">' + d.ids.map(function (k) { var q = DAILY.filter(function (z) { return z[0] === k; })[0], v = Math.min(q[2], q[3](d.c)); return '<div class="' + (d.done[k] ? 'ok' : '') + '"><b>' + (d.done[k] ? '✔ ' : '') + esc(q[1]) + '</b><div class="xpbar"><i style="width:' + Math.round(v / q[2] * 100) + '%"></i></div><small>' + (q[2] > 1 ? (q[0] === 'online' || q[0] === 'steady' ? fmtH(v) + ' / ' + fmtH(q[2]) : Math.floor(v).toLocaleString('en-GB') + ' / ' + q[2].toLocaleString('en-GB')) : d.done[k] ? 'done' : 'not yet') + ' · +60 XP</small></div>'; }).join('') + '</div><p style="font-size:12px;color:#8ea6bc">All three: +120 XP bonus. New challenges every day.</p>' +
+    '<h2>Stats</h2><div class="cpnstat">' + [['⚡', Math.round(st.mwh).toLocaleString('en-GB') + ' MWh', 'generated'], ['🕒', fmtH(st.onl), 'on the grid'], ['🏁', fmtH(st.best), 'longest run without a trip'], ['⏱', fmtH(st.play), 'in the control room'], ['☢️', st.starts, 'startups'], ['📈', st.ascs, 'power ascensions'], ['⏬', st.shuts, 'shutdowns'], ['🛠', st.faults, 'faults handled'], ['⚠', st.trips, 'reactor trips'], ['💧', Math.round(st.dil) + ' ppm', 'boron diluted']].map(function (q) { return '<div><span>' + q[0] + '</span><b>' + q[1] + '</b><small>' + q[2] + '</small></div>'; }).join('') + '</div>' +
+    '<h2>Achievements · ' + nAch + ' / ' + ACH.length + '</h2><div class="cpnach">' + ACH.map(function (q) { var got = !!p.ach[q[0]]; return '<div class="' + (got ? 'ok' : '') + '"><span>' + (got ? q[1] : '🔒') + '</span><b>' + esc(q[2]) + '</b><small>' + esc(q[3]) + ' · +' + q[4] + ' XP</small></div>'; }).join('') + '</div>' +
+    '<h2>How to earn XP</h2><p style="font-size:13px;color:#c9d6e2">Checklist steps (3–20 XP each) · whole procedures (70–220) · every 8 MWh sent to the grid (1 XP, so a full-power hour of plant time is about 140) · every 10 plant-minutes of steady operation (25) · faults: kept on line 140, safe shutdown 70, and ×1.5 for a secret fault · achievements and daily challenges. Use ×5 and ×20 time to play through long shifts.</p>' +
+    '<div class="cpnbtns"><button class="cpnb" data-a="x">Back to the plant</button></div>', function (a2) { if (a2 === 'x') closeMenu(); });
+}
+
 /* ================================================================ what's in the simulator ================================================================ */
 var ROAD = [
   { t: 'Reactor startup', s: 'now', d: 'Pre-startup checks, trip breakers, rods, nuclear instruments, the 1/M plot, criticality, P-6 and the point of adding heat. Guided checklist.' },
@@ -1540,6 +1656,31 @@ var ASC = [
   { t: 'Start the second main feed pump and load to 30% (345 MW)', show: 'sgD', h: 'One feed pump can only carry about half power. Start <b>MAIN FEED PUMP B</b>, then keep raising the <b>LOAD SET</b>. Load at 30–60 MW a minute so the fuel isn’t stressed.', st: function (p) { var x = p.x; return 'MFPs ' + x.mfp.filter(Boolean).length + '/2 · ' + Math.round(x.tb.mw) + ' MW'; }, ok: function (p) { return p.x.mfp.every(Boolean) && p.x.tb.mw >= 345; } },
   { t: 'Load to 50% (575 MW) with Tavg on Tref for 60 s, diluting boron as needed', show: 'cvcsD', h: 'As power rises, hotter fuel and coolant take reactivity away, so the AUTO rods keep coming out. Before they reach the top, <b>dilute</b> on the chemical &amp; volume control board: MAKE-UP MODE to DIL, flow 20–40, a batch of 2000–5000 litres, START. Hold Tavg within 2 °C of Tref at 575 MW or more for a minute.', st: function (p) { var x = p.x, tr = trefC(x); return Math.round(x.tb.mw) + ' MW · Tavg ' + p.Tavg.toFixed(1) + ' / Tref ' + tr.toFixed(1) + ' °C · ' + pcName(p.pc) + ' · boron ' + Math.round(p.boron) + ' ppm · steady ' + Math.floor(MS.ascT) + '/60 s'; }, ok: function (p) { return MS.ascT >= 60; } }
 ];
+/* ---------- 'do this now': the next concrete action for each step, with a progress bar and a ring on the control ---------- */
+function nk(k) { return root && root.classList.contains('touch') ? '' : ' <kbd>' + k + '</kbd>'; }
+STEPS[0].now = function (p) { var n = (p.rtb[0] ? 1 : 0) + (p.rtb[1] ? 1 : 0); if (!p.rtb[0]) return { a: 'Turn the <b>RTB A</b> handle to the right (CLOSE).', pct: n / 2, ring: 'rtbA' }; return { a: 'Now turn the <b>RTB B</b> handle to the right (CLOSE).', pct: n / 2, ring: 'rtbB' }; };
+STEPS[1].now = function (p) { var tot = 0; SDB.forEach(function (b) { tot += Math.min(TOP, p.rods[b]); }); var b = SDB.filter(function (q) { return p.rods[q] < TOP; })[0], pct = tot / (TOP * 4); if (!b) return { a: 'All four shutdown banks are out.', pct: 1 };
+  if (p.sel !== b) return { a: 'Turn the <b>BANK SELECTOR</b> to <b>' + b + '</b>.' + nk(String(SDB.indexOf(b) + 1)), pct: pct, ring: 'sel' };
+  return { a: 'Hold the <b>rod lever</b> at <b>OUT</b>' + (nk('O') ? ' (or hold' + nk('O') + ')' : '') + ' until ' + b + ' reads 228. Now: <b>' + Math.round(p.rods[b]) + '</b>.', pct: pct, ring: 'lever' }; };
+STEPS[2].now = function (p) { var o = p.oneM || [], last = o.length ? o[o.length - 1][1] : 1, pct = clamp(1 - last, 0, 1), pr = ecpFromOneM(p), near = pr != null && pr - p.pc < 45;
+  if (p.sel !== 'MAN') return { a: 'Turn the <b>BANK SELECTOR</b> to <b>MAN</b> (the control banks).' + nk('5'), pct: pct, ring: 'sel' };
+  if (p.c0 == null) return { a: 'Leave the rods alone while the reference count is taken: <b>' + Math.min(20, Math.floor(p.stillT || 0)) + ' / 20 s</b>.', pct: pct };
+  if (p.lever > 0) { var d = p.pc - (p.lastPc || 0); return { a: 'Keep holding OUT… <b>' + d + '</b> steps pulled since the last point. Let go at about <b>' + (near ? 8 : 30) + '</b>.', pct: pct, ring: 'lever' }; }
+  if (p.lastPc != null && p.pc - p.lastPc >= 20 && (p.stillT || 0) < 25) return { a: 'Let go and wait while the counts settle: <b>' + Math.floor(p.stillT || 0) + ' / 25 s</b>. A 1/M point is plotted after that.', pct: pct };
+  return { a: near ? 'Nearly critical (prediction: ' + pcName(Math.min(pr, PCMAX)).replace('bank ', '') + '). Pull just <b>5–10 steps</b>, then let go and watch the counts.' : 'Hold the lever at <b>OUT</b> for about <b>30 steps</b>' + (nk('O') ? ' (' + nk('O') + ')' : '') + ', then let go.', pct: pct, ring: 'lever' }; };
+STEPS[3].now = function (p) { var pct = clamp(MS.surT / 20, 0, 1); if (p.sur < 0.3) return { a: 'Startup rate is <b>' + p.sur.toFixed(2) + ' DPM</b>: pull <b>2–3 steps</b> OUT to raise it to 0.3–1.0.', pct: pct, ring: 'lever' }; if (p.sur > 1) return { a: 'Startup rate is <b>' + p.sur.toFixed(2) + ' DPM</b>, too fast: push <b>2–3 steps</b> IN.', pct: pct, ring: 'lever' }; return { a: 'Good: <b>' + p.sur.toFixed(2) + ' DPM</b>. Leave the rods alone: <b>' + Math.floor(MS.surT) + ' / 20 s</b>.', pct: pct }; };
+STEPS[4].now = function (p) { var n = (p.srBlk[0] ? 1 : 0) + (p.srBlk[1] ? 1 : 0); if (!p6(p)) return { a: 'Wait for power to rise. The white <b>P-6</b> lamp lights at 1E-10 A (now ' + fmtSci(NI.ir[0], 1) + ' A).', pct: clamp((Math.log10(NI.ir[0]) + 12) / 2, 0, 0.95) * 0.5 };
+  if (!p.srBlk[0]) return { a: '<b>P-6 is lit!</b> Press <b>SR TRIP BLOCK train A</b> now.', pct: 0.5 + n / 4, ring: 'srA' }; return { a: 'Now press <b>SR TRIP BLOCK train B</b>.', pct: 0.5 + n / 4, ring: 'srB' }; };
+STEPS[5].now = function (p) { var pct = clamp(MS.poT / 30, 0, 1); if (D.pr < 0.5) return { a: 'Let power keep rising to 0.5–5%: now <b>' + (D.pr < 0.01 ? fmtSci(D.pr, 1) : D.pr.toFixed(2)) + '%</b>. If SUR drops below 0.2, pull 2 steps.', pct: pct, ring: p.sur < 0.2 ? 'lever' : null };
+  if (Math.abs(p.sur) >= 0.1 || D.pr > 5) return { a: (p.sur > 0 ? 'Power ' + D.pr.toFixed(2) + '%, still rising: push <b>2–3 steps IN</b> to bring SUR to zero.' : 'SUR ' + p.sur.toFixed(2) + ', falling: pull <b>1–2 steps OUT</b>.'), pct: pct, ring: 'lever' }; return { a: 'Level at <b>' + D.pr.toFixed(2) + '%</b>. Hold it: <b>' + Math.floor(MS.poT) + ' / 30 s</b>.', pct: pct }; };
+SHUT[0].now = function (p) { if (p.sel !== 'MAN') return { a: 'Turn the <b>BANK SELECTOR</b> to <b>MAN</b>.' + nk('5'), ring: 'sel' }; return { a: 'Hold the lever at <b>IN</b>' + (nk('I') ? ' (' + nk('I') + ')' : '') + ' until the white <b>P-6</b> lamp goes out.', ring: 'lever' }; };
+SHUT[2].now = function (p) { if (p.sel !== 'MAN') return { a: 'Turn the <b>BANK SELECTOR</b> to <b>MAN</b>.' + nk('5'), ring: 'sel' }; return { a: 'Hold <b>IN</b> until every control bank reads 0 (' + pcName(p.pc) + ').', pct: 1 - p.pc / PCMAX, ring: 'lever' }; };
+SHUT[3].now = function (p) { var b = ['SD', 'SC', 'SB', 'SA'].filter(function (q) { return p.rods[q] > 0; })[0]; if (!b) return { a: 'All rods in.', pct: 1 }; var tot = 0; SDB.forEach(function (q) { tot += p.rods[q]; }); if (p.sel !== b) return { a: 'Turn the <b>BANK SELECTOR</b> to <b>' + b + '</b>.' + nk(String(SDB.indexOf(b) + 1)), pct: 1 - tot / (4 * TOP), ring: 'sel' }; return { a: 'Hold <b>IN</b> until ' + b + ' reads 0. Now: <b>' + Math.round(p.rods[b]) + '</b>.', pct: 1 - tot / (4 * TOP), ring: 'lever' }; };
+SHUT[4].now = function (p) { if (p.rtb[0]) return { a: 'Turn the <b>RTB A</b> handle to the left (TRIP).', ring: 'rtbA' }; return { a: 'Turn the <b>RTB B</b> handle to the left (TRIP).', ring: 'rtbB' }; };
+var GUIDE = { m: null, key: '', at: { rtbA: [0.63, 0.52], rtbB: [0.93, 0.52], sel: [-0.16, 0.6], lever: [0.19, 0.58], srA: [-0.9, 0.6], srB: [-0.74, 0.6] } };
+function guideTick(dt) { if (!SEC.rx) return; if (!GUIDE.m) { GUIDE.m = new THREE.Mesh(new THREE.RingGeometry(0.07, 0.1, 40), new THREE.MeshBasicMaterial({ color: 0x59e0ff, transparent: true, depthTest: false, toneMapped: false })); GUIDE.m.rotation.x = -Math.PI / 2; GUIDE.m.renderOrder = 11; SEC.rx.desk.add(GUIDE.m); GUIDE.t = 0; }
+  var ph = MS.phase(), P = ph === 'start' || ph === 'shut' ? phaseDef(ph) : null, s = P && P.list[firstOpen(P.list, MS[P.fl])], n = s && s.now && S.cfg.guide !== false ? s.now(S.p) : null, a = n && n.ring && GUIDE.at[n.ring];
+  GUIDE.m.visible = !!a; if (!a) return; GUIDE.t += dt; GUIDE.m.position.set(a[0], 0.05, -a[1] * SL); var k = 1 + 0.18 * Math.sin(GUIDE.t * 5); GUIDE.m.scale.set(k, k, k); GUIDE.m.material.opacity = 0.55 + 0.4 * Math.sin(GUIDE.t * 5); }
 var PHASES = [{ id: 'pre', t: 'Pre-startup checks', short: 'Pre-startup', code: 'GOP-301 §4', list: PRE, fl: 'pre' }, { id: 'start', t: 'Reactor startup', short: 'Startup', code: 'GOP-301', list: STEPS, fl: 'done' }, { id: 'asc', t: 'Power ascension', short: 'To power', code: 'GOP-302', list: ASC, fl: 'asc' }, { id: 'shut', t: 'Reactor shutdown', short: 'Shutdown', code: 'GOP-303', list: SHUT, fl: 'shut' }];
 function phaseDef(id) { return PHASES.filter(function (x) { return x.id === id; })[0] || PHASES[1]; }
 function firstOpen(list, fl) { var i = 0; while (i < list.length && fl[i]) i++; return i; }
@@ -1571,13 +1712,13 @@ MS.tick = function (dt) {
     MS.scur = firstOpen(SHUT, MS.shut); if (MS.scur >= SHUT.length) finishShut();
   }
 };
-function stepDone(list, i) { S.sfx('ok'); S.toast('✔ ' + list[i].t, 'ok'); S.addLog((list === SHUT ? 'Shutdown' : list === ASC ? 'Power ascension' : 'Startup') + ' step ' + (i + 1) + ' done: ' + list[i].t); clearHL(); HUD.dirty = true;
+function stepDone(list, i) { S.sfx('ok'); CAR.event('step', list === ASC ? 'asc' : list === SHUT ? 'shut' : 'start'); S.toast('✔ ' + list[i].t, 'ok'); S.addLog((list === SHUT ? 'Shutdown' : list === ASC ? 'Power ascension' : 'Startup') + ' step ' + (i + 1) + ' done: ' + list[i].t); clearHL(); HUD.dirty = true;
   if (list === STEPS) { if (i === 0) speak('Both reactor trip breakers closed.'); if (i === 1) speak('Shutdown banks fully withdrawn.'); if (i === 3) speak('Startup rate is steady.'); if (i === 4) speak('Source range trips blocked.'); }
   else if (list === ASC) { if (i === 2) speak('Generator synchronised.'); if (i === 4) speak('P 10 trips blocked.'); }
   else { if (i === 0) speak('Below P 6.'); if (i === 3) speak('All rods in.'); } }
 function verifyPre(i) {
   var it = PRE[i], p = S.p; if (MS.pre[i]) return;
-  if (it.ok(p)) { MS.pre[i] = true; S.sfx('ok'); toast('✔ Checked: ' + it.t, 'ok'); S.addLog('Pre-startup check: ' + it.t);
+  if (it.ok(p)) { MS.pre[i] = true; S.sfx('ok'); CAR.event('pre'); toast('✔ Checked: ' + it.t, 'ok'); S.addLog('Pre-startup check: ' + it.t);
     if (MS.preAll()) { speak('Pre-startup checks complete. Begin the reactor startup.'); toast('Pre-startup checks complete. Start the startup: close both reactor trip breakers.', 'ok'); S.addLog('Pre-startup checklist complete'); } }
   else { S.sfx('deny'); toast('✘ Not right: ' + it.st(p) + '. ' + it.h.replace(/<[^>]+>/g, ''), 'warn'); }
   HUD.dirty = true; HUD.el.ms.dataset.cur = '';
@@ -1594,9 +1735,9 @@ var FAULT = {
     { id: 'cw', t: 'Circulating water pumps trip', d: 'All the sea-water pumps for the condenser trip.', see: 'Condenser vacuum is lost in a minute or two. The turbine trips on low vacuum and the steam dumps are blocked (C-9).', resp: 'Expect the turbine trip and reactor trip. With no condenser, steam pressure is controlled by the SG PORVs. Feed with auxiliary feed. Restart a CW pump when the fault clears.' }
   ],
   active: function () { var f = S && S.p && S.p.x && S.p.x.f; if (!f) return []; return FAULT.list.filter(function (q) { return f[q.id]; }); },
-  insert: function (id, quiet) { var x = S.p.x, q = FAULT.list.filter(function (k) { return k.id === id; })[0]; x.f = x.f || {}; x.f[id] = true; S.addLog('INSTRUCTOR: fault inserted' + (quiet ? '' : ': ' + q.t)); AUD.sfx('deny');
+  insert: function (id, quiet) { var x = S.p.x, q = FAULT.list.filter(function (k) { return k.id === id; })[0]; x.f = x.f || {}; x.f[id] = true; x.fT = x.fT || {}; x.fT[id] = { t: S.p.t, quiet: !!quiet, trip0: S.p.tripped }; S.addLog('INSTRUCTOR: fault inserted' + (quiet ? '' : ': ' + q.t)); AUD.sfx('deny');
     if (id === 'porv') S.p.x.pz.prtP = Math.max(S.p.x.pz.prtP, 0.3); toast(quiet ? '⚠ The instructor has put a fault into the plant. Watch the alarms.' : '⚠ Fault: ' + q.t, 'bad'); HUD.dirty = true; HUD.el.ms.dataset.cur = ''; },
-  clear: function () { var x = S.p.x; if (x.f && x.f.grid) x.el.grid = true; x.f = {}; S.addLog('INSTRUCTOR: all faults cleared'); toast('All faults cleared. Systems can be restored.', 'ok'); HUD.dirty = true; HUD.el.ms.dataset.cur = ''; }
+  clear: function () { var x = S.p.x; Object.keys(x.fT || {}).forEach(function (id) { var inf = x.fT[id]; if (!inf.done && S.p.t - inf.t >= 300) { inf.done = true; CAR.rateFault(id, inf); } }); x.fT = {}; if (x.f && x.f.grid) x.el.grid = true; x.f = {}; S.addLog('INSTRUCTOR: all faults cleared'); toast('All faults cleared. Systems can be restored.', 'ok'); HUD.dirty = true; HUD.el.ms.dataset.cur = ''; }
 };
 function faultsMenu() { if (!S.menu) S.wasPaused = S.paused; setPause(true); var act = FAULT.active();
   menu('<h1>⚠ Faults</h1><p>You’re the instructor now. Put a fault into the plant, then go back to the control room and deal with it the way an operator would: read the alarms, work out what failed, act. Faults are best from power, so choose <b>Free play at 50% power</b> on the main menu first.</p>' +
@@ -1621,7 +1762,7 @@ function atPowerStart() { freshState(true); S.p = atPowerPlant(575); MS.free = t
   for (var i = 0; i < 8; i++) niTick(S.p, 0.2); derive(0.05); ANNC.init(); ANNC.list = []; S.log = []; S.addLog('Shift start: Unit 1 at 50% power, ' + Math.round(S.p.x.tb.mw) + ' MW, rods in AUTO'); goView('start', true); save(); }
 function startAsc() { if (S.p.tripped || D.pr < 0.3) { warnOnce('asc0', 'Power ascension starts from the point of adding heat: take the reactor critical first.'); return; } MS.ascOn = true; MS.ascDone = false; MS.asc = []; MS.ascT = 0; MS.view = 'step'; MS.free = true; S.addLog('Power ascension started (GOP-302)'); speak('Begin the power ascension.'); toast('Power ascension checklist (GOP-302) started.', 'ok'); HUD.el.ms.dataset.cur = ''; HUD.dirty = true; }
 function finishAsc() {
-  if (MS.ascDone) return; MS.ascDone = true; var p = S.p, x = p.x, sv = rd(), first = !sv.doneAsc, xp = first ? 80 : 15; try { API.xp(xp, 'Critical Point: power ascension'); } catch (e) {} sv = rd(); sv.doneAsc = (sv.doneAsc || 0) + 1; wr(sv);
+  if (MS.ascDone) return; MS.ascDone = true; var p = S.p, x = p.x, sv = rd(), first = !sv.doneAsc, xp = first ? 80 : 15; try { API.xp(xp, 'Critical Point: power ascension'); } catch (e) {} CAR.event('asc'); sv = rd(); sv.doneAsc = (sv.doneAsc || 0) + 1; wr(sv);
   AUD.sfx('done'); speak('Unit 1 is at fifty percent power. Well done.'); S.addLog('Power ascension to 50% complete. GOP-302 complete.'); S.wasPaused = false; setPause(true);
   menu('<h1>⚡ Unit 1 at 50% power</h1><p class="cpnsub">GOP-302 complete · ' + Math.round(x.tb.mw) + ' MW to the grid · ' + D.pr.toFixed(0) + '% reactor power · boron ' + Math.round(p.boron) + ' ppm</p><div class="cpnscore"><span>Power ascension to 50% (GOP-302)</span><span>✔</span><span><b>XP earned</b></span><span>+' + xp + '</span></div>' +
     '<p>You started the feed pumps, rolled and synchronised the turbine-generator, switched the plant to automatic control, blocked the low-power trips at P-10 and diluted boron to keep the rods in range. That’s enough electricity for about a million homes.</p><p>From here: keep loading to 1150 MW, try a fault from the ⚠ Faults menu, or shut the plant down.</p>' +
@@ -1633,7 +1774,7 @@ function startShutdown() { MS.ascOn = false; MS.shutOn = true; MS.shutDone = fal
 function finishShut() {
   if (MS.shutDone) return; MS.shutDone = true; var noTrip = MS.shutTrips === 0, order = !MS.orderBad, sv = rd(), first = !sv.doneShut, xp = (first ? 30 : 8) + (noTrip ? 10 : 0) + (order ? 10 : 0), rows = [];
   rows.push('<span>Reactor shut down to Mode 3 (GOP-303)</span><span>✔</span>', '<span>' + (noTrip ? '✔' : '✘') + ' Shut down with the rods, not a trip</span><span>' + (noTrip ? '+10' : '0') + '</span>', '<span>' + (order ? '✔' : '✘') + ' Control banks in before the shutdown banks</span><span>' + (order ? '+10' : '0') + '</span>');
-  try { API.xp(xp, 'Critical Point: reactor shutdown'); } catch (e) {} sv = rd(); sv.doneShut = (sv.doneShut || 0) + 1; wr(sv);
+  try { API.xp(xp, 'Critical Point: reactor shutdown'); } catch (e) {} CAR.event('shut'); sv = rd(); sv.doneShut = (sv.doneShut || 0) + 1; wr(sv);
   AUD.sfx('done'); speak('The reactor is shut down. Well done.'); S.addLog('Reactor shut down. GOP-303 complete.'); S.wasPaused = false; setPause(true);
   menu('<h1>✅ Reactor shut down</h1><p class="cpnsub">GOP-303 complete · Mode 3 · N31 ' + Math.round(NI.sr[0]) + ' cps</p><div class="cpnscore">' + rows.join('') + '<span><b>XP earned</b></span><span>+' + xp + '</span></div>' +
     '<p>You brought power down with the control banks, let the source range come back on below P-6, put every rod in (control banks first, then the shutdown banks) and opened the trip breakers. The reactor is back at hot standby, ready for the next startup.</p>' +
@@ -1941,6 +2082,7 @@ function activate(h, touch) {
 }
 function onWheel(e) { e.preventDefault(); CAM.fov = clamp(CAM.fov * (1 + e.deltaY * 0.0012), 16, 75); CAM.tw = null; }
 function hover() {
+  if (PERF.lite) { var tn = performance.now(); if (tn - (PERF.hv || 0) < 120) return; PERF.hv = tn; }
   if (S.menu) { hideTip(); return; }
   if (locked()) { var lr = R3.ren.domElement.getBoundingClientRect(); PTR.hx = lr.left + lr.width / 2; PTR.hy = lr.top + lr.height / 2; }
   if (!PTR.hoverDirty || PTR.down) return; PTR.hoverDirty = false; var h = pick(PTR.hx, PTR.hy), hi = hitInfo(h); PTR.hover = hi || null; PTR.hoverObj = hi ? h.object : null; if (EXP.shown && EXP.obj === PTR.hoverObj) return;
@@ -1966,10 +2108,23 @@ var kd = function (e) { onKey(e, true); }, ku = function (e) { onKey(e, false); 
 
 /* ================================================================ the session ================================================================ */
 function newPlant() { var p = freshPlant(); p.audio = true; return p; }
+function autoGfx() { var n = navigator, coarse = !!(window.matchMedia && matchMedia('(pointer: coarse)').matches), small = Math.min(screen.width, screen.height) < 820, cores = n.hardwareConcurrency || 4, mem = n.deviceMemory || 4;
+  if ((coarse && small) || cores <= 2 || mem <= 2) return 'lite'; if (coarse || cores <= 4 || mem <= 4) return 'low'; return 'high'; }
+/* Lite graphics: for low-end laptops and phones. Half-size board textures, no shadows, reflections or bloom, simple (Lambert) lighting,
+   one light plus sky, 30 fps cap, slower widget refresh, and the resolution drops by itself if frames get slow. */
+var PERF = { lite: false, cap: 0, pr: 1, prMax: 1, acc: 0, n: 0, t: 0, fps: 0, lastR: 0 };
+function liteScene(scene) { var map = new Map();
+  scene.traverse(function (o) { if (o.isLight && (o.isPointLight || o.isSpotLight)) o.visible = false; if (o.isHemisphereLight) o.intensity = 1.25; if (o.isDirectionalLight) o.intensity = 1.0;
+    if (!o.isMesh || !o.material || !o.material.isMeshStandardMaterial || o.material.onBeforeCompile && o.material.onBeforeCompile.toString().length > 30) return; var m = o.material, n = map.get(m);
+    if (!n) { n = new THREE.MeshLambertMaterial({ color: m.color, map: m.map, emissive: m.emissive, emissiveIntensity: m.emissiveIntensity, transparent: m.transparent, opacity: m.opacity, side: m.side, depthWrite: m.depthWrite }); map.set(m, n); } o.material = n; });
+  LAMPS.forEach(function (L) { var n = map.get(L.m); if (n) L.m = n; }); Object.keys(MAT).forEach(function (k) { var n = map.get(MAT[k]); if (n) MAT[k] = n; }); }
+function perfTick(dt) { PERF.acc += dt; PERF.n++; PERF.t += dt; if (PERF.t < 1.5) return; var avg = PERF.acc / PERF.n; PERF.fps = Math.round(PERF.n / PERF.t); PERF.acc = 0; PERF.n = 0; PERF.t = 0;
+  if (S.cfg.gfx !== 'high') { var np = PERF.pr; if (avg > 0.045 && np > 0.5) np = Math.max(0.5, np * 0.85); else if (avg < 0.024 && np < PERF.prMax) np = Math.min(PERF.prMax, np * 1.1); if (Math.abs(np - PERF.pr) > 0.01) { PERF.pr = np; R3.ren.setPixelRatio(np); sizeK = ''; } }
+  if (HUD.el.fps) { HUD.el.fps.hidden = !S.cfg.fps; HUD.el.fps.textContent = PERF.fps + ' fps · ' + (S.cfg.gfx === 'lite' ? 'Lite' : S.cfg.gfx === 'low' ? 'Low' : 'High') + ' · ' + Math.round(PERF.pr * 100) + '% res'; } }
 function makeSession(sv) {
-  var cfg = Object.assign({ gfx: 'high', snd: true, voice: true, assist: true, explain: true, shift: 30, quick: !!(window.matchMedia && matchMedia('(pointer: coarse)').matches) }, sv.cfg || {});
+  var cfg = Object.assign({ gfx: autoGfx(), fps: false, snd: true, voice: true, assist: true, explain: true, guide: true, shift: 30, quick: !!(window.matchMedia && matchMedia('(pointer: coarse)').matches) }, sv.cfg || {});
   S = { p: null, cfg: cfg, ts: 1, paused: true, log: [], lampTest: false, clock0: 7 * 3600 + 12 * 60, leverDir: 0, audDiv: 1, menu: null, shiftUsed: 0, shiftWarn: false, shiftOver: false, st: { trips: 0, maxSur: 0, pts: 0, critPc: null, predPc: null }, lastTrip: sv.lastTrip || (Date.now() - 37 * 86400000) };
-  S.toast = toast; S.sfx = function (k) { AUD.sfx(k); };
+  S.toast = toast; S.sfx = function (k) { AUD.sfx(k); }; CAR.load();
   S.addLog = function (t) { S.log.push([D.clock, t]); if (S.log.length > 200) S.log.shift(); };
   S.daysSince = function () { return Math.max(0, (Date.now() - S.lastTrip) / 86400000); };
   S.onTrip = onTrip; S.onAlarm = function () { if (S.ts > 1) { setTS(1); toast('Slowed to ×1: new alarm.', 'warn'); } };
@@ -1980,7 +2135,7 @@ function ecpBand() { var rc = function (pc) { var q = { rods: {} }; BANKS.forEac
 function onTrip(cause) {
   var p = S.p;
   if (!p.dropping) { AUD.sfx('breaker'); S.addLog('Reactor trip breakers opened by ' + (cause === 'MAN' ? 'manual trip' : TRIPS[cause]) + ' (all rods were already in)'); toast('Trip breakers open. Every rod was already in, so nothing dropped.', 'ok'); HUD.dirty = true; save(); return; }
-  if (MS.phase() === 'shut') MS.shutTrips++;
+  if (MS.phase() === 'shut') MS.shutTrips++; if (p.dropping || p.x && p.x.tb.gen || D.pr > 0.3) CAR.event('trip');
   S.st.trips++; S.lastTrip = Date.now(); p.everCrit = false; p.c0 = null; p.oneM = []; p.lastPc = null; S.st.pts = 0; S.st.critPc = null;
   AUD.sfx('trip'); setTS(1); speak('Reactor trip. Reactor trip.'); S.addLog('REACTOR TRIP: ' + TRIPS[cause]); HUD.dirty = true;
   var ph = MS.phase(); if (ph === 'pre' || ph === 'start') { var had = MS.done.slice(); MS.resetStart(); HUD.el.ms.dataset.cur = ''; if (cause !== 'MAN' || had.some(Boolean)) tripMenu(cause); }
@@ -2000,6 +2155,12 @@ var CSS = '.cpn{position:fixed;inset:0;z-index:2147480000;background:#0b0f14;col
   '.cpnclk{font:700 13px ui-monospace,Menlo,Consolas,monospace;padding:9px 10px;color:#7fd1ff}' +
   '.cpnms{position:absolute;top:max(8px,env(safe-area-inset-top));left:max(8px,env(safe-area-inset-left));width:min(380px,calc(100% - 16px));background:rgba(10,16,24,.88);border:1px solid rgba(255,211,74,.35);border-radius:14px;padding:12px 14px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);box-shadow:0 10px 30px rgba(0,0,0,.35)}' +
   '.cpnms h3{margin:0 0 2px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#ffd34a}.cpnms .t{font-weight:800;font-size:15.5px;line-height:1.3;margin:2px 0 6px}.cpnms .h{font-size:13px;color:#c5d2de;max-height:30vh;overflow:auto}.cpnms .h b{color:#fff}' +
+  '.cpnfps{font:700 11px ui-monospace,monospace;color:#7dffa0;padding:0 6px;align-self:center;white-space:nowrap}.cpn.lite .cpnms,.cpn.lite .cpnas,.cpn.lite .cpnqc,.cpn.lite .cpng,.cpn.lite .cpnxpp{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}' +
+  '.cpnxpc{align-items:center;gap:8px!important;padding:4px 10px 4px 4px!important;cursor:pointer;color:inherit;font:inherit}.cpnxpc>b{display:grid;place-items:center;min-width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,#ffd34a,#ff9f43);color:#1b1200;font-weight:900;font-size:14px}.cpnxpc span{display:flex;flex-direction:column;gap:4px;text-align:left}.cpnxpc i{font-style:normal;font-size:11.5px;font-weight:700;white-space:nowrap;color:#e8f1f8}.cpnxpc em{display:block;width:120px;height:5px;border-radius:3px;background:rgba(255,255,255,.12);overflow:hidden}.cpnxpc u{display:block;height:100%;background:linear-gradient(90deg,#ffd34a,#59e07a)}' +
+  '.cpnxpf{position:absolute;top:calc(max(8px,env(safe-area-inset-top)) + 52px);right:max(8px,env(safe-area-inset-right));display:flex;flex-direction:column;align-items:flex-end;gap:5px;pointer-events:none;z-index:6}.cpnxpp{background:rgba(10,16,24,.9);border:1px solid rgba(255,211,74,.5);border-radius:10px;padding:5px 11px;text-align:right;transition:opacity .45s,transform .45s;animation:cpnin .25s ease}.cpnxpp b{display:block;color:#ffd34a;font-size:14px}.cpnxpp span{display:block;font-size:11.5px;color:#c9d6e2}.cpnxpp.lvl{border-color:#59e07a;padding:9px 16px}.cpnxpp.lvl b{font-size:20px;color:#59e07a}.cpnxpp.ach{border-color:#b98cff}.cpnxpp.ach b{color:#e3d1ff}' +
+  '.cpncar{display:flex;gap:14px;align-items:center;background:rgba(255,211,74,.08);border:1px solid rgba(255,211,74,.3);border-radius:14px;padding:12px 14px}.cpncar .lv{display:grid;place-items:center;min-width:64px;height:64px;border-radius:16px;background:linear-gradient(135deg,#ffd34a,#ff9f43);color:#1b1200}.cpncar .lv b{font-size:28px;line-height:1}.cpncar .lv span{font-size:9px;font-weight:800;letter-spacing:.12em}.cpncar .rk{flex:1;min-width:0}.cpncar small{color:#9fb3c6}.xpbar{height:8px;border-radius:4px;background:rgba(255,255,255,.1);overflow:hidden;margin:6px 0}.xpbar i{display:block;height:100%;background:linear-gradient(90deg,#ffd34a,#59e07a)}' +
+  '.cpndaily,.cpnach,.cpnstat{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px}.cpndaily>div,.cpnach>div,.cpnstat>div{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:9px 11px;font-size:13px}.cpndaily>div.ok{border-color:rgba(89,224,122,.5)}.cpndaily small,.cpnach small,.cpnstat small{display:block;color:#8ea6bc;font-size:11.5px}.cpnach>div{opacity:.55}.cpnach>div.ok{opacity:1;border-color:rgba(185,140,255,.5)}.cpnach span{font-size:20px;margin-right:6px}.cpnstat>div span{font-size:18px}.cpnstat>div b{display:block;font-size:16px}' +
+  '.cpnms .now{display:flex;gap:8px;align-items:flex-start;background:rgba(89,224,255,.1);border:1px solid rgba(89,224,255,.45);border-radius:10px;padding:8px 10px;margin:4px 0 6px;font-size:14px;line-height:1.35}.cpnms .now>span{flex:none;font:800 10.5px/1.9 system-ui,sans-serif;letter-spacing:.1em;background:#59e0ff;color:#04202a;border-radius:6px;padding:0 6px}.cpnms .now kbd{font:700 11px ui-monospace,monospace;background:rgba(255,255,255,.14);border-radius:4px;padding:1px 5px;margin-left:2px}.cpnms .pb{height:6px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden;margin:0 0 6px}.cpnms .pb i{display:block;height:100%;width:0;background:linear-gradient(90deg,#59e0ff,#59e07a);transition:width .4s}.cpnms details.why summary{cursor:pointer;color:#8ea6bc;font-size:12px;margin:2px 0}.cpnms details.why .h{margin-top:4px}' +
   '.cpnms .st{margin-top:8px;font:600 12.5px ui-monospace,Menlo,Consolas,monospace;color:#7fd1ff;background:rgba(0,0,0,.3);border-radius:8px;padding:6px 8px}.cpnms .row{display:flex;gap:6px;margin-top:9px;align-items:center;flex-wrap:wrap}' +
   '.cpnms .dots{display:flex;gap:4px;flex:1}.cpnms .dots i{height:6px;flex:1;border-radius:4px;background:rgba(255,255,255,.14)}.cpnms .dots i.d{background:#59e07a}.cpnms .dots i.c{background:#ffd34a}' +
   '.cpnb{background:#ffd34a;color:#1a1300;font-weight:800;padding:8px 12px;min-height:36px}.cpnb2{background:rgba(255,255,255,.1);font-weight:700;padding:8px 12px;min-height:36px}.cpnms.min .h,.cpnms.min .st{display:none}' +
@@ -2045,7 +2206,9 @@ function h(tag, cls, html, parent) { var e = el(tag, cls, html); if (parent) par
 function buildHUD() {
   var E = HUD.el;
   E.bar = h('div', 'cpnbar', null, root);
-  E.time = h('div', 'cpng', '<span class="cpnshift" data-k="shift" title="Time left on your shift"></span><span class="cpnclk" data-k="clk" title="Station time"></span><button data-ts="0" aria-label="Pause">❚❚</button><button data-ts="1">×1</button><button data-ts="5">×5</button><button data-ts="20">×20</button>', E.bar);
+  E.time = h('div', 'cpng', '<span class="cpnshift" data-k="shift" title="Time left on your shift"></span><span class="cpnclk" data-k="clk" title="Station time"></span><span class="cpnfps" data-k="fps" hidden></span><button data-ts="0" aria-label="Pause">❚❚</button><button data-ts="1">×1</button><button data-ts="5">×5</button><button data-ts="20">×20</button>', E.bar);
+  E.xpc = h('button', 'cpng cpnxpc', '<b data-k="lv"></b><span><i data-k="rk"></i><em><u data-k="xb"></u></em></span>', E.bar); E.xpc.title = 'Career: level, rank, achievements and daily challenges'; E.xpc.addEventListener('click', function (e) { e.stopPropagation(); AUD.init(); careerMenu(); });
+  E.xpf = h('div', 'cpnxpf', null, root); E.fps = E.time.querySelector('[data-k=fps]');
   E.tools = h('div', 'cpng', '<button data-b="views" title="Views (V)">🎥 Views</button><button data-b="explain" title="Explain mode: rest the pointer on anything for 3 seconds (X)">💡</button><button data-b="quick" title="Quick controls (C)">🎛</button><button data-b="assist" title="Instructor assist (G)">🎓</button><button data-b="snd" title="Sound">🔊</button><button data-b="help" title="Help (H)">?</button><button data-b="menu" title="Menu (Esc)">☰</button><button data-b="exit" title="Exit">✕</button>', E.bar);
   E.ms = h('div', 'cpnms', null, root); E.urg = h('div', 'cpnurg', null, root); E.urg.hidden = true;
   E.as = h('div', 'cpnas', null, root); E.qc = h('div', 'cpnqc', null, root); buildQC();
@@ -2112,10 +2275,11 @@ function msCard(p) {
   }
   var s = P.list[cur]; if (!s) return;
   if (E.ms.dataset.cur !== key) { E.ms.dataset.cur = key;
-    E.ms.innerHTML = '<h3>' + esc(P.t) + ' · ' + esc(P.code) + ' · ' + (ph === 'pre' ? countDone(fl, P.list.length) + ' of ' + P.list.length + ' checked' : 'step ' + (cur + 1) + ' of ' + P.list.length) + '</h3><div class="t"></div><div class="h"></div><div class="st"></div><div class="row"><div class="dots">' + P.list.map(function () { return '<i></i>'; }).join('') + '</div>' +
+    E.ms.innerHTML = '<h3>' + esc(P.t) + ' · ' + esc(P.code) + ' · ' + (ph === 'pre' ? countDone(fl, P.list.length) + ' of ' + P.list.length + ' checked' : 'step ' + (cur + 1) + ' of ' + P.list.length) + '</h3><div class="t"></div>' + (s.now ? '<div class="now"><span>NOW</span><div data-k="now"></div></div><div class="pb"><i data-k="pb"></i></div><details class="why"><summary>Why? (more detail)</summary><div class="h"></div></details>' : '<div class="h"></div>') + '<div class="st"></div><div class="row"><div class="dots">' + P.list.map(function () { return '<i></i>'; }).join('') + '</div>' +
       (ph === 'pre' ? '<button class="cpnb" data-m="verify">✔ Check it</button><button class="cpnb2" data-m="show" aria-label="Show me">👁</button>' : '<button class="cpnb" data-m="show">👁 Show me</button>') + '<button class="cpnb2" data-m="list" title="All the checklists" aria-label="All the checklists">📋</button>' + minB + '</div>';
     E.ms.querySelector('.t').textContent = s.t; E.ms.querySelector('.h').innerHTML = s.h; }
-  E.ms.querySelector('.st').textContent = s.st(p); [].forEach.call(E.ms.querySelectorAll('.dots i'), function (d, i) { d.className = fl[i] ? 'd' : i === cur ? 'c' : ''; });
+  E.ms.querySelector('.st').textContent = s.st(p); if (s.now) { var nw = s.now(p), ne = E.ms.querySelector('[data-k=now]'); if (ne.dataset.v !== nw.a) { ne.dataset.v = nw.a; ne.innerHTML = nw.a; } E.ms.querySelector('[data-k=pb]').style.width = Math.round(clamp(nw.pct == null ? 0 : nw.pct, 0, 1) * 100) + '%'; }
+  [].forEach.call(E.ms.querySelectorAll('.dots i'), function (d, i) { d.className = fl[i] ? 'd' : i === cur ? 'c' : ''; });
 }
 function hudTick(dt) {
   HUD.t += dt; if (!HUD.dirty && HUD.t < 0.2) return; HUD.t = 0; HUD.dirty = false; var E = HUD.el, p = S.p;
@@ -2126,6 +2290,7 @@ function hudTick(dt) {
   var sc = E.time.querySelector('[data-k=shift]'), left = shiftLeft(); sc.hidden = !S.cfg.shift; if (S.cfg.shift) { sc.textContent = left > 0 ? '⏱ ' + fmtMS(left) : 'OVERTIME +' + fmtMS(-left); sc.className = 'cpnshift' + (left <= 0 ? ' ot' : left <= 300 ? ' low' : ''); }
   E.tools.querySelector('[data-b=explain]').setAttribute('aria-pressed', String(!!S.cfg.explain));
   msCard(p);
+  if (E.xpc && CAR.p) { var Lv = CAR.lvl(), x0 = lvlXp(Lv), x1 = lvlXp(Lv + 1); E.xpc.querySelector('[data-k=lv]').textContent = Lv; E.xpc.querySelector('[data-k=rk]').textContent = rankOf(Lv) + ' · ' + CAR.p.xp.toLocaleString('en-GB') + ' XP'; E.xpc.querySelector('[data-k=xb]').style.width = Math.round((CAR.p.xp - x0) / (x1 - x0) * 100) + '%'; }
   /* urgent banner */
   var u = '';
   if (!p.tripped && p6(p) && (!p.srBlk[0] || !p.srBlk[1]) && (NI.sr[0] > 2e4 || NI.sr[1] > 2e4)) u = 'P-6 IS LIT: BLOCK BOTH SOURCE RANGE TRIPS NOW (' + Math.round(Math.max(p.srBlk[0] ? 0 : NI.sr[0], p.srBlk[1] ? 0 : NI.sr[1])).toLocaleString('en-GB') + ' cps, trip at 100,000)';
@@ -2157,7 +2322,7 @@ function menu(html, onclick) { if (document.pointerLockElement) { try { document
 function closeMenu(keepPause) { if (S.menu) { S.menu.remove(); S.menu = null; } if (!keepPause && S.wasPaused === false) setPause(false); }
 function roadHTML() { return '<div class="cpnroad">' + ROAD.map(function (r, i) { return '<div class="' + (r.s === 'now' ? 'now' : '') + '"><b>' + esc(r.t) + (r.s === 'now' ? ' · PLAY NOW' : r.s === 'free' ? ' · FREE PLAY' : ' · coming soon') + '</b>' + esc(r.d) + '</div>'; }).join('') + '</div>'; }
 function setHTML() { var c = S.cfg, ck = function (k, l) { return '<label><input type="checkbox" data-a="cfg" data-c="' + k + '"' + (c[k] ? ' checked' : '') + '>' + l + '</label>'; };
-  return '<div class="cpnset">' + ck('snd', 'Sound') + ck('voice', 'Voice announcements') + ck('assist', 'Instructor assist panel') + ck('quick', 'Quick controls panel') + ck('explain', 'Explain mode (rest on a control for 3 s)') + '<label><input type="checkbox" data-a="cfg" data-c="gfxlo"' + (c.gfx === 'low' ? ' checked' : '') + '>Low graphics (faster)</label></div><div class="cpnseg"><span>Shift length</span>' + [15, 30, 45, 60, 0].map(function (m) { return '<button data-a="shift" data-v="' + m + '" aria-pressed="' + (c.shift === m) + '">' + (m ? m + ' min' : 'No limit') + '</button>'; }).join('') + '</div>'; }
+  return '<div class="cpnset">' + ck('snd', 'Sound') + ck('voice', 'Voice announcements') + ck('assist', 'Instructor assist panel') + ck('quick', 'Quick controls panel') + ck('explain', 'Explain mode (rest on a control for 3 s)') + ck('guide', 'Guide ring on the next control') + ck('fps', 'Show frame rate') + '</div><div class="cpnseg"><span>Graphics</span>' + [['lite', '\ud83e\udd54 Lite (phones, old laptops)'], ['low', 'Low'], ['high', 'High (shadows, reflections)']].map(function (q) { return '<button data-a="gfx" data-v="' + q[0] + '" aria-pressed="' + (c.gfx === q[0]) + '">' + q[1] + '</button>'; }).join('') + '</div><div class="cpnseg"><span>Shift length</span>' + [15, 30, 45, 60, 0].map(function (m) { return '<button data-a="shift" data-v="' + m + '" aria-pressed="' + (c.shift === m) + '">' + (m ? m + ' min' : 'No limit') + '</button>'; }).join('') + '</div>'; }
 function shiftClick(b) { S.cfg.shift = +b.dataset.v; S.shiftWarn = false; S.shiftOver = false; saveCfg(); [].forEach.call(b.parentNode.querySelectorAll('button'), function (x) { x.setAttribute('aria-pressed', String(x === b)); }); }
 function shiftLeft() { return S.cfg.shift ? S.cfg.shift * 60 - S.shiftUsed : Infinity; }
 function fmtMS(t) { t = Math.max(0, Math.round(t)); return Math.floor(t / 60) + ':' + String(t % 60).padStart(2, '0'); }
@@ -2176,17 +2341,18 @@ function shiftOverMenu() {
     '<p>Everything is saved, so the next shift (you, next time) carries on from exactly here.</p><div class="cpnbtns"><button class="cpnb" data-a="hand">📝 Hand over and finish</button><button class="cpnb2" data-a="ot">Keep going (overtime)</button></div>',
     function (a) { if (a === 'hand') { S.addLog('Shift handed over'); S.shiftUsed = 0; S.shiftWarn = false; S.shiftOver = false; save(); close(); } if (a === 'ot') closeMenu(); });
 }
+function gfxClick(b) { S.cfg.gfx = b.dataset.v; saveCfg(); [].forEach.call(b.parentNode.querySelectorAll('button'), function (x) { x.setAttribute('aria-pressed', String(x === b)); }); toast('Graphics set to ' + b.textContent + '. It applies next time you open the simulator (close it with \u2715 and open it again).', 'ok'); }
 function cfgClick(b) { var k = b.dataset.c; if (k === 'gfxlo') { S.cfg.gfx = b.checked ? 'low' : 'high'; toast('Graphics change applies next time you open the simulator.'); } else S.cfg[k] = b.checked; if (k === 'snd') AUD.vol(); saveCfg(); HUD.dirty = true; }
 function startMenu() {
   var sv = rd(), canResume = !!(sv.p && sv.v === 1);
   S.wasPaused = true; setPause(true);
-  menu('<h1>☢ Critical Point Nuclear Power Station</h1><p class="cpnsub">Unit 1 main control room · 11 boards, every control working</p>' +
+  menu('<h1>☢ Critical Point Nuclear Power Station</h1><p class="cpnsub">Unit 1 main control room · 11 boards, every control working</p>' + '<div class="cpncar" style="margin:8px 0 12px"><div class="lv"><b>' + CAR.lvl() + '</b><span>LEVEL</span></div><div class="rk"><b>' + esc(rankOf(CAR.lvl())) + '</b><div class="xpbar"><i style="width:' + Math.round((CAR.p.xp - lvlXp(CAR.lvl())) / (lvlXp(CAR.lvl() + 1) - lvlXp(CAR.lvl())) * 100) + '%"></i></div><small>' + CAR.p.xp.toLocaleString('en-GB') + ' XP · ' + ACH.filter(function (q) { return CAR.p.ach[q[0]]; }).length + '/' + ACH.length + ' achievements</small></div><button class="cpnb2" data-a="career">🏅 Career</button></div>' +
     '<p>You are the reactor operator on shift. Unit 1 is a four-loop pressurised water reactor (3411 MW of heat, about 1200 MW of electricity), sitting at <b>hot standby</b>: 291.7 °C, 155 bar, every control rod in. Your job is to work through the <b>pre-startup checklist</b>, take it <b>critical</b> with the real startup procedure, level off at the point of adding heat, then <b>shut it down</b> again. Rest the pointer on any control for 3 seconds to find out what it does.</p>' +
     '<div class="cpnbtns">' + (canResume ? '<button class="cpnb" data-a="resume">▶ Resume shift</button><button class="cpnb2" data-a="new">↻ New startup</button>' : '<button class="cpnb" data-a="new">▶ Start the reactor startup</button>') + '<button class="cpnb2" data-a="shutp">⏬ Shutdown practice</button><button class="cpnb2" data-a="ascp">⏫ Power ascension practice</button><button class="cpnb2" data-a="free">Free play (hot standby)</button><button class="cpnb2" data-a="atp">⚡ Free play at 50% power</button><button class="cpnb2" data-a="learn">📘 How a PWR works</button><button class="cpnb2" data-a="exit">Exit</button></div>' +
     '<h2>Settings</h2>' + setHTML() + '<h2>What you can do</h2>' + roadHTML() +
     '<p style="font-size:12px;color:#7f93a6;margin-top:14px">Inspired by Roblox’s Oakridge Nuclear Power Station. Physics: point kinetics with six delayed-neutron groups, rod worth curves, boron, Doppler, moderator and xenon feedback, plus a whole-plant model: pressuriser, coolant pumps, steam generators, feed, turbine, generator, grid and electrics. Real plants differ in detail.</p>',
-    function (a, b) { if (a === 'cfg') return cfgClick(b); if (a === 'shift') return shiftClick(b);
-      if (a === 'resume') { loadState(sv); begin(); } else if (a === 'new') { freshState(false); begin(); } else if (a === 'free') { freshState(true); begin(); } else if (a === 'shutp') { shutPractice(); begin(); } else if (a === 'ascp') { shutPractice(); MS.shutOn = false; MS.practice = false; startAsc(); begin(); } else if (a === 'atp') { atPowerStart(); begin(); } else if (a === 'learn') learnMenu(); else if (a === 'exit') close(); });
+    function (a, b) { if (a === 'cfg') return cfgClick(b); if (a === 'shift') return shiftClick(b); if (a === 'gfx') return gfxClick(b);
+      if (a === 'resume') { loadState(sv); begin(); } else if (a === 'new') { freshState(false); begin(); } else if (a === 'free') { freshState(true); begin(); } else if (a === 'shutp') { shutPractice(); begin(); } else if (a === 'ascp') { shutPractice(); MS.shutOn = false; MS.practice = false; startAsc(); begin(); } else if (a === 'atp') { atPowerStart(); begin(); } else if (a === 'learn') learnMenu(); else if (a === 'career') careerMenu(); else if (a === 'exit') close(); });
 }
 function begin() { closeMenu(true); S.wasPaused = false; setPause(false); AUD.init(); HUD.dirty = true; HUD.el.ms.dataset.cur = '';
   if (!S.welcomed) { S.welcomed = true; setTimeout(function () { speak(MS.practice ? 'Unit 1 is at the point of adding heat. Begin the reactor shutdown.' : MS.free ? 'Free play. Unit 1 is at hot standby.' : 'Good morning. Unit 1 is at hot standby. Begin the pre-startup checks.'); }, 600); } }
@@ -2207,15 +2373,15 @@ function helpMenu() { if (!S.menu) S.wasPaused = S.paused; setPause(true);
   menu('<h1>Help</h1><h2>Moving around</h2><div class="cpnkeys"><kbd>Drag</kbd><span>Look around (mouse or finger)</span><kbd>L</kbd><span>Lock the mouse to the centre (move to look, click what the dot is on). L again unlocks</span><kbd>W A S D</kbd><span>Walk (Shift to hurry). On a phone: the joystick</span><kbd>Scroll / pinch</kbd><span>Zoom in to read meters</span><kbd>Click</kbd><span>Use a control, or zoom in to a screen</span><kbd>V</kbd><span>Views menu</span><kbd>Esc</kbd><span>Step back / menu</span></div>' +
     '<h2>Reactor shortcuts</h2><div class="cpnkeys"><kbd>O</kbd><span>Hold: rods OUT</span><kbd>I</kbd><span>Hold: rods IN</span><kbd>1 2 3 4</kbd><span>Select shutdown bank SA, SB, SC, SD</span><kbd>5</kbd><span>Select MAN (control banks)</span><kbd>K / J / R</kbd><span>Annunciator acknowledge / silence / reset</span><kbd>T</kbd><span>Time ×1 → ×5 → ×20</span><kbd>Space</kbd><span>Pause</span><kbd>C / G</kbd><span>Quick controls / instructor assist</span></div>' +
     '<h2>Checklists, shifts and explain mode</h2><p><b>📋 Checklists:</b> the card at the top left shows the step you\u2019re on. Press 📋 to see all three procedures: <b>pre-startup</b> (you look at the right instrument and press ✔ to tick each check), <b>startup</b> and <b>shutdown</b> (these tick themselves when the plant gets there). 👁 flies you to the right place.</p><p><b>⏱ Shift length:</b> set it in the menu. Five minutes before the end you get a warning; at the end you hand over with a summary of your shift. Pick \u201cNo limit\u201d for none.</p><p><b>💡 Explain mode:</b> rest the pointer on any control or instrument for 3 seconds (a small ring fills up), or press and hold it on a touch screen. A card explains what it does and how it\u2019s used in a real plant. It never blocks clicks. Press <kbd>X</kbd> or 💡 to turn it off.</p>' +
-    '<h2>The boards, left to right</h2><div class="cpnkeys"><kbd>1</kbd><span>Safety injection, containment, radiation</span><kbd>2</kbd><span>Cooling water, instrument air, ventilation, fire</span><kbd>3</kbd><span>Chemical &amp; volume control: charging, letdown, boron</span><kbd>4</kbd><span>Pressuriser: heaters, spray, PORVs</span><kbd>5</kbd><span>Reactor coolant pumps and loop temperatures</span><kbd>6</kbd><span>REACTOR: rods, nuclear instruments, trip breakers</span><kbd>7</kbd><span>Steam generators and feedwater</span><kbd>8</kbd><span>Main steam, steam dumps, condenser</span><kbd>9</kbd><span>Turbine</span><kbd>10</kbd><span>Generator, synchronising, 400 kV grid</span><kbd>11</kbd><span>Electrical buses and diesel generators</span></div>' +
+    '<h2>XP and your career</h2><p>The gold chip at the top shows your level and rank. You earn XP for checklist steps and procedures, every 8 MWh you send to the grid, steady operation, handling faults, achievements and three new daily challenges every day. Climb from Trainee to Station Manager. Click the chip to see everything.</p><p><b>Following a checklist:</b> the blue <b>NOW</b> box always says the very next thing to do, the bar shows how far through the step you are, and a pulsing blue ring sits on the control to use. Tap <b>Why?</b> for the reasoning.</p><p><b>Slow device?</b> Choose <b>\ud83e\udd54 Lite</b> graphics in the menu settings: it\u2019s many times faster, and lowers the resolution by itself if frames get slow. Tick <b>Show frame rate</b> to see the difference.</p>' + '<h2>The boards, left to right</h2><div class="cpnkeys"><kbd>1</kbd><span>Safety injection, containment, radiation</span><kbd>2</kbd><span>Cooling water, instrument air, ventilation, fire</span><kbd>3</kbd><span>Chemical &amp; volume control: charging, letdown, boron</span><kbd>4</kbd><span>Pressuriser: heaters, spray, PORVs</span><kbd>5</kbd><span>Reactor coolant pumps and loop temperatures</span><kbd>6</kbd><span>REACTOR: rods, nuclear instruments, trip breakers</span><kbd>7</kbd><span>Steam generators and feedwater</span><kbd>8</kbd><span>Main steam, steam dumps, condenser</span><kbd>9</kbd><span>Turbine</span><kbd>10</kbd><span>Generator, synchronising, 400 kV grid</span><kbd>11</kbd><span>Electrical buses and diesel generators</span></div>' +
     '<h2>Going to power (free play)</h2><p>From the point of adding heat: start a <b>main feed pump</b> (board 7). On the turbine board <b>LATCH</b>, set the speed target to 3000 and wait. On the generator board close the <b>field breaker</b>, turn the <b>sync selector</b> to MAN, use <b>speed raise</b> to make the synchroscope creep clockwise and close the <b>generator breaker</b> as it passes 12 o\u2019clock. Then put the dumps in <b>TAVG</b>, the rods in <b>AUTO</b>, block the IR and PR-low trips at <b>P-10</b>, and raise the load setpoint. Rods soon run out: dilute boron on board 3 to keep going. Use \u00d720 time: it takes hours, just like a real plant. Or press <b>\u23eb Go to power</b> on the checklist card for the guided GOP-302 checklist.</p><p><b>\u26a0 Faults:</b> from the pause menu or the \u26a0 button on the checklist card. Start from <b>Free play at 50% power</b> for the most interesting ones.</p>' +
     '<h2>Colours</h2><p>Lamps use the Westinghouse convention: <b style="color:#ff6b5b">red = closed / running / open valve</b>, <b style="color:#59e07a">green = open breaker / stopped / shut valve</b>. Annunciators: fast flash = new alarm (press ACK), steady = acknowledged, slow flash = cleared (press RESET).</p>' +
     '<div class="cpnbtns"><button class="cpnb" data-a="x">Got it</button></div>', function (a) { if (a === 'x') closeMenu(); });
 }
 function pauseMenu() { S.wasPaused = S.paused; setPause(true); var ph = MS.phase(), P = phaseDef(ph);
   menu('<h1>Paused</h1><p class="cpnsub">' + (ph === 'free' ? 'Free play' : esc(P.t) + ' · ' + countDone(MS[P.fl], P.list.length) + ' of ' + P.list.length + ' done') + ' · ' + esc(pcName(S.p.pc)) + (S.cfg.shift ? ' · shift ' + (shiftLeft() > 0 ? fmtMS(shiftLeft()) + ' left' : 'in overtime') : '') + '</p>' +
-    '<div class="cpnbtns"><button class="cpnb" data-a="go">▶ Resume</button><button class="cpnb2" data-a="views">🎥 Views</button><button class="cpnb2" data-a="faults">⚠ Faults</button><button class="cpnb2" data-a="restart">↻ Restart from hot standby</button><button class="cpnb2" data-a="main">Main menu</button><button class="cpnb2" data-a="exit">Exit</button></div><h2>Settings</h2>' + setHTML() + '<h2>The 10 sections</h2>' + roadHTML(),
-    function (a, b) { if (a === 'cfg') return cfgClick(b); if (a === 'shift') return shiftClick(b); if (a === 'go') closeMenu(); if (a === 'views') viewsMenu(); if (a === 'faults') faultsMenu(); if (a === 'restart') { freshState(MS.free); begin(); } if (a === 'main') { save(); startMenu(); } if (a === 'exit') close(); });
+    '<div class="cpnbtns"><button class="cpnb" data-a="go">▶ Resume</button><button class="cpnb2" data-a="views">🎥 Views</button><button class="cpnb2" data-a="faults">⚠ Faults</button><button class="cpnb2" data-a="career">🏅 Career</button><button class="cpnb2" data-a="restart">↻ Restart from hot standby</button><button class="cpnb2" data-a="main">Main menu</button><button class="cpnb2" data-a="exit">Exit</button></div><h2>Settings</h2>' + setHTML() + '<h2>The 10 sections</h2>' + roadHTML(),
+    function (a, b) { if (a === 'cfg') return cfgClick(b); if (a === 'shift') return shiftClick(b); if (a === 'gfx') return gfxClick(b); if (a === 'go') closeMenu(); if (a === 'views') viewsMenu(); if (a === 'faults') faultsMenu(); if (a === 'career') careerMenu(); if (a === 'restart') { freshState(MS.free); begin(); } if (a === 'main') { save(); startMenu(); } if (a === 'exit') close(); });
 }
 var TRIPWHY = {
   SR: 'The source range detectors trip the reactor at 100,000 counts per second. Once P-6 lights (intermediate range above 1E-10 A, about 30,000 cps) you have to press <b>SR TRIP BLOCK</b> on both trains, which switches the source range off.',
@@ -2245,7 +2411,7 @@ function finish() {
   var band = S.ecpBand, inBand = st.critPc != null && band && st.critPc >= band[0] && st.critPc <= band[1]; add('Critical within ±500 pcm of the ECP (' + (st.critPc != null ? pcName(st.critPc) : '?') + ')', inBand, 10);
   var predOk = st.predPc != null && st.critPc != null && Math.abs(st.predPc - st.critPc) <= 15; add('1/M prediction within 15 steps', predOk, 5);
   var stars = score >= 85 ? 3 : score >= 60 ? 2 : 1, sv = rd(), first = !sv.done1, xp = first ? 60 + Math.round(score * 0.4) : 10 + Math.round(score / 10);
-  try { API.xp(xp, 'Critical Point: reactor startup'); } catch (e) {}
+  try { API.xp(xp, 'Critical Point: reactor startup'); } catch (e) {} CAR.event('start', score);
   sv = rd(); sv.done1 = (sv.done1 || 0) + 1; sv.best1 = Math.max(sv.best1 || 0, score); wr(sv);
   AUD.sfx('done'); speak('The reactor is at the point of adding heat. Well done.'); S.addLog('Reactor at the point of adding heat. GOP-301 complete. Score ' + score);
   S.wasPaused = false; setPause(true);
@@ -2262,7 +2428,7 @@ function finish() {
 
 /* ================================================================ save and load ================================================================ */
 function snap(p) { var o = {}; Object.keys(p).forEach(function (k) { o[k] = p[k]; }); o.hist = p.hist.slice(-600); o.c = p.c.slice(); o.rods = Object.assign({}, p.rods); o.lever = 0; o.dropping = false; return o; }
-function save() { if (!S || !S.p) return; var sv = rd(); sv.v = 1; sv.p = snap(S.p); sv.ms = { pre: MS.pre, done: MS.done, shut: MS.shut, surT: MS.surT, poT: MS.poT, complete: MS.complete, free: MS.free, shutOn: MS.shutOn, shutDone: MS.shutDone, preSkipped: MS.preSkipped, practice: MS.practice, orderBad: MS.orderBad, shutTrips: MS.shutTrips, asc: MS.asc, ascOn: MS.ascOn, ascDone: MS.ascDone }; sv.shiftUsed = S.shiftUsed; sv.st = S.st; sv.log = S.log.slice(-80); sv.cfg = S.cfg; sv.clock0 = S.clock0; sv.lastTrip = S.lastTrip; sv.cam = { x: CAM.x, y: CAM.y, z: CAM.z, yaw: CAM.yaw, pitch: CAM.pitch, fov: CAM.fov }; wr(sv); }
+function save() { if (!S || !S.p) return; CAR.save(); var sv = rd(); sv.v = 1; sv.p = snap(S.p); sv.ms = { pre: MS.pre, done: MS.done, shut: MS.shut, surT: MS.surT, poT: MS.poT, complete: MS.complete, free: MS.free, shutOn: MS.shutOn, shutDone: MS.shutDone, preSkipped: MS.preSkipped, practice: MS.practice, orderBad: MS.orderBad, shutTrips: MS.shutTrips, asc: MS.asc, ascOn: MS.ascOn, ascDone: MS.ascDone }; sv.shiftUsed = S.shiftUsed; sv.st = S.st; sv.log = S.log.slice(-80); sv.cfg = S.cfg; sv.clock0 = S.clock0; sv.lastTrip = S.lastTrip; sv.cam = { x: CAM.x, y: CAM.y, z: CAM.z, yaw: CAM.yaw, pitch: CAM.pitch, fov: CAM.fov }; wr(sv); }
 function saveCfg() { var sv = rd(); sv.cfg = S.cfg; wr(sv); HUD.dirty = true; }
 function loadState(sv) { var p = Object.assign(freshPlant(), sv.p); p.lever = 0; S.p = p; var m = sv.ms || {}; MS.reset(); MS.pre = m.pre || []; MS.done = m.done || []; MS.shut = m.shut || []; MS.surT = m.surT || 0; MS.poT = m.poT || 0; ['complete', 'free', 'shutOn', 'shutDone', 'preSkipped', 'practice', 'orderBad'].forEach(function (k) { MS[k] = !!m[k]; }); MS.shutTrips = m.shutTrips || 0; MS.asc = m.asc || []; MS.ascOn = !!m.ascOn; MS.ascDone = !!m.ascDone; MS.cur = firstOpen(STEPS, MS.done); MS.scur = firstOpen(SHUT, MS.shut);
   S.shiftUsed = sv.shiftUsed || 0; S.shiftWarn = shiftLeft() <= 300; S.shiftOver = shiftLeft() <= 0;
@@ -2276,12 +2442,12 @@ function freshState(free, keepCam) { S.p = newPlant(); MS.reset(); MS.complete =
 /* ================================================================ the loop ================================================================ */
 var RAF = 0, last = 0, rr0 = 0, saveT = 0, lastSteps = 0, wasP6 = false, wasCrit = false, lastPts = 0, sizeK = '';
 function frame(now) {
-  RAF = requestAnimationFrame(frame); var dt = Math.min(0.1, Math.max(0.001, (now - (last || now)) / 1000)); last = now; var p = S.p;
+  RAF = requestAnimationFrame(frame); if (PERF.cap && last && (now - last) / 1000 < PERF.cap - 0.004) return; var dt = Math.min(0.1, Math.max(0.001, (now - (last || now)) / 1000)); last = now; var p = S.p; perfTick(dt);
   var k = root.clientWidth + 'x' + root.clientHeight; if (k !== sizeK) { sizeK = k; R3.ren.setSize(root.clientWidth, root.clientHeight, false); POST.size(root.clientWidth, root.clientHeight); OFS.w = -1; }
   if (!S.paused && !S.menu) {
     var sim = dt * S.ts, n = Math.max(1, Math.ceil(sim / 0.05)), hh = sim / n;
     for (var i = 0; i < n; i++) { plantStep(p, hh); niTick(p, hh); rps(p); permissives(p); oneMTick(p, hh); }
-    derive(sim); MS.tick(sim); ANNC.tick();
+    derive(sim); MS.tick(sim); ANNC.tick(); CAR.tick(sim, dt);
     if (p.sur > S.st.maxSur && !p.tripped) S.st.maxSur = p.sur;
     if (p.steps !== lastSteps) { var ds = p.steps - lastSteps; lastSteps = p.steps; if (ds > 0 && ds < 50) AUD.sfx('step'); }
     var np = p6(p); if (np && !wasP6 && !p.tripped) { S.addLog('P-6 permissive: intermediate range above 1E-10 A'); speak('P 6. Block the source range.'); if (S.ts > 1) setTS(1); } wasP6 = np;
@@ -2298,8 +2464,8 @@ function frame(now) {
   HL.forEach(function (q) { q.t += dt; var s = 1 + 0.15 * Math.sin(q.t * 6); q.m.scale.set(s, s, s); q.m.material.opacity = 0.55 + 0.45 * Math.sin(q.t * 6); }); if (HL.length && HL[0].t > 12) clearHL();
   /* widgets: annunciators every frame, the rest a slice at a time */
   ANNW.forEach(function (w) { redraw(w); });
-  beFrame(dt);
-  var per = Math.max(10, Math.ceil(WG.length / 6)); for (var j = 0; j < per; j++) { rr0 = (rr0 + 1) % WG.length; var w = WG[rr0]; if (!w.isAnn) redraw(w); }
+  beFrame(dt); guideTick(dt);
+  var per = PERF.lite ? Math.max(3, Math.ceil(WG.length / 16)) : Math.max(10, Math.ceil(WG.length / 6)); for (var j = 0; j < per; j++) { rr0 = (rr0 + 1) % WG.length; var w = WG[rr0]; if (!w.isAnn) redraw(w); }
   AUD.tick(dt); hudTick(dt); explainTick(now);
   if (POST.on) POST.render(); else R3.ren.render(R3.scene, R3.cam);
 }
@@ -2319,8 +2485,8 @@ function open() {
 }
 function loadThree(cb) { if (window.THREE && THREE.WebGLRenderer) { cb(true); return; } var s = document.createElement('script'); s.src = 'vendor/three.min.js?v=160'; s.onload = function () { cb(!!(window.THREE && THREE.WebGLRenderer)); }; s.onerror = function () { cb(false); }; document.head.appendChild(s); }
 function init() {
-  var sv = rd(); makeSession(sv); var hi = S.cfg.gfx !== 'low';
-  var ren = new THREE.WebGLRenderer({ antialias: hi, powerPreference: 'high-performance' }); ren.setPixelRatio(Math.min(window.devicePixelRatio || 1, hi ? 2 : 1)); ren.toneMapping = THREE.ACESFilmicToneMapping; ren.toneMappingExposure = 0.92;
+  var sv = rd(); makeSession(sv); var hi = S.cfg.gfx === 'high', lite = S.cfg.gfx === 'lite'; root.classList.toggle('lite', lite); PERF.lite = lite; PERF.cap = lite ? 1 / 31 : 0; if (lite) { TEXS = 0.5; BEN = 1; }
+  var ren = new THREE.WebGLRenderer({ antialias: hi, powerPreference: lite ? 'default' : 'high-performance', stencil: false }); PERF.prMax = Math.min(window.devicePixelRatio || 1, hi ? 2 : lite ? 0.85 : 1); PERF.pr = PERF.prMax; ren.setPixelRatio(PERF.pr); ren.toneMapping = THREE.ACESFilmicToneMapping; ren.toneMappingExposure = 0.92;
   ren.domElement.className = 'cpn3d'; ren.domElement.tabIndex = 0; root.insertBefore(ren.domElement, root.firstChild);
   ANISO = Math.min(hi ? 8 : 2, ren.capabilities.getMaxAnisotropy ? ren.capabilities.getMaxAnisotropy() : 4);
   var scene = new THREE.Scene(); scene.background = new THREE.Color(0x1d2126); var cam = new THREE.PerspectiveCamera(60, 1, 0.03, 60); R3 = { ren: ren, scene: scene, cam: cam }; RC = new THREE.Raycaster();
@@ -2330,6 +2496,7 @@ function init() {
     var lm = new THREE.MeshBasicMaterial({ color: 0xffffff }); lm.color.setScalar(5); for (var x = -10.5; x <= 10.5; x += 3) for (var z = ZB + 1.5; z <= ZF - 1; z += 3) { var l = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 0.6), lm); l.rotation.x = Math.PI / 2; l.position.set(x, CH - 0.05, z); es.add(l); }
     scene.environment = pm.fromScene(es, 0.04).texture; scene.environmentIntensity = 0.55; pm.dispose(); } catch (e) {} }
   if (hi) { try { realism(scene); } catch (e) { try { console.error(e); } catch (x) {} } }
+  if (lite) { ren.toneMapping = THREE.NoToneMapping; try { liteScene(scene); } catch (e) { try { console.error(e); } catch (x) {} } }
   if (hi) { ren.shadowMap.enabled = true; ren.shadowMap.type = THREE.PCFSoftShadowMap; var sn = R3.sun, sc = sn.shadow.camera; sn.castShadow = true; sn.shadow.mapSize.set(2048, 2048); sc.left = -14; sc.right = 14; sc.top = 14; sc.bottom = -14; sc.near = 1; sc.far = 40; sc.updateProjectionMatrix(); sn.shadow.bias = -0.0004; sn.shadow.normalBias = 0.04; sn.shadow.radius = 5;
     scene.traverse(function (o) { if (!o.isMesh || !o.material || o.material.isMeshBasicMaterial) return; o.receiveShadow = true; var gt = o.geometry.type; if (gt !== 'PlaneGeometry' && gt !== 'RingGeometry' && !o.material.transparent) o.castShadow = true; }); }
   WG.forEach(function (w) { if (w.o.tiles) { w.isAnn = true; ANNW.push(w); } });
@@ -2347,7 +2514,7 @@ function close() {
   if (!root) return; try { save(); } catch (e) {} cancelAnimationFrame(RAF); RAF = 0; root.hidden = true; document.removeEventListener('keydown', kd); document.removeEventListener('keyup', ku); KEYS = {};
   try { if (AUD.ctx) AUD.ctx.suspend(); } catch (e) {} try { if (window.speechSynthesis) speechSynthesis.cancel(); } catch (e) {} try { API.close(); } catch (e) {}
 }
-window.CRIT_PLANT = { open: open, close: close, _dbg: { S: function () { return S; }, FAULT: FAULT, startAsc: function () { startAsc(); }, ctl: function (re, arg) { var r = new RegExp(re), m = HITS.filter(function (h) { var o = h.userData.hit, t = typeof o.tip === 'function' ? o.tip() : o.tip; return t && r.test(t) && (o.act || o.hold); }); if (m.length !== 1) return 'match ' + m.length + ': ' + m.slice(0, 4).map(function (h) { var o = h.userData.hit; return typeof o.tip === 'function' ? o.tip() : o.tip; }).join(' | '); var o = m[0].userData.hit; if (o.act) o.act(arg); else { o.hold(true); o.hold(false); } return 'ok'; }, tips: function (re) { var r = new RegExp(re); return HITS.map(function (h) { var o = h.userData.hit; return typeof o.tip === 'function' ? o.tip() : o.tip; }).filter(function (t) { return t && r.test(t); }); }, MS: MS, ACT: ACT, ANNC: ANNC, NI: NI, D: D, CAM: CAM, goView: goView, showMe: showMe, setTS: setTS, step: function (sec, h) { h = h || 0.05; var p = S.p; for (var t = 0; t < sec; t += h) { plantStep(p, h); niTick(p, h); rps(p); permissives(p); oneMTick(p, h); derive(h); MS.tick(h); ANNC.tick(); if (p.sur > S.st.maxSur && !p.tripped) S.st.maxSur = p.sur; if (p.everCrit && S.st.critPc == null) { S.st.critPc = p.pc; S.st.predPc = ecpFromOneM(p); S.st.pts = Math.max(0, p.oneM.length - 1); } } },
+window.CRIT_PLANT = { open: open, close: close, _dbg: { S: function () { return S; }, FAULT: FAULT, CAR: CAR, careerMenu: function () { careerMenu(); }, startAsc: function () { startAsc(); }, ctl: function (re, arg) { var r = new RegExp(re), m = HITS.filter(function (h) { var o = h.userData.hit, t = typeof o.tip === 'function' ? o.tip() : o.tip; return t && r.test(t) && (o.act || o.hold); }); if (m.length !== 1) return 'match ' + m.length + ': ' + m.slice(0, 4).map(function (h) { var o = h.userData.hit; return typeof o.tip === 'function' ? o.tip() : o.tip; }).join(' | '); var o = m[0].userData.hit; if (o.act) o.act(arg); else { o.hold(true); o.hold(false); } return 'ok'; }, tips: function (re) { var r = new RegExp(re); return HITS.map(function (h) { var o = h.userData.hit; return typeof o.tip === 'function' ? o.tip() : o.tip; }).filter(function (t) { return t && r.test(t); }); }, MS: MS, ACT: ACT, ANNC: ANNC, NI: NI, D: D, CAM: CAM, goView: goView, showMe: showMe, setTS: setTS, step: function (sec, h) { h = h || 0.05; var p = S.p; for (var t = 0; t < sec; t += h) { plantStep(p, h); niTick(p, h); rps(p); permissives(p); oneMTick(p, h); derive(h); MS.tick(h); ANNC.tick(); CAR.tick(h, 0); if (p.sur > S.st.maxSur && !p.tripped) S.st.maxSur = p.sur; if (p.everCrit && S.st.critPc == null) { S.st.critPc = p.pc; S.st.predPc = ecpFromOneM(p); S.st.pts = Math.max(0, p.oneM.length - 1); } } },
   pick: function (x, y) { var hh = pick(x, y); return hh ? { tip: hh.object.userData.hit && (typeof hh.object.userData.hit.tip === 'function' ? hh.object.userData.hit.tip() : hh.object.userData.hit.tip), act: !!(hh.object.userData.hit && hh.object.userData.hit.act), hold: !!(hh.object.userData.hit && hh.object.userData.hit.hold) } : null; },
   click: function (x, y) { activate(pick(x, y)); }, verifyPre: verifyPre, startShutdown: startShutdown, PRE: PRE, SHUT: SHUT, EXP: EXP, shiftLeft: function () { return shiftLeft(); }, ofs: function () { return OFS; }, settled: function () { return !CAM.tw && Math.abs(OFS.cur - (OFS.want || 0)) < 0.5; }, R3: function () { return R3; }, desk: function (id, u, d, lift) { var v = SEC[id].desk.localToWorld(new THREE.Vector3(u, lift == null ? 0.0015 : lift, -d * SL)); v.project(R3.cam); var r = R3.ren.domElement.getBoundingClientRect(); return [r.left + (v.x + 1) / 2 * r.width, r.top + (1 - v.y) / 2 * r.height]; }, WG: WG, HITS: HITS, SEC: SEC, rho: function () { return rhoParts(S.p); }, ecp: function () { return ecpFromOneM(S.p); } } };
 })();
