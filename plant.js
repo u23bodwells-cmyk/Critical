@@ -636,7 +636,7 @@ function derive(dt) {
   D.stmF += (p.dump * 40 - D.stmF) * (1 - Math.exp(-dt / 3)); D.feedF += (D.stmF - D.feedF) * (1 - Math.exp(-dt / 12));
   D.rho = rhoPcm(p); D.keff = 1 / (1 - D.rho * 1e-5); var pr = (NI.pr[0] + NI.pr[1] + NI.pr[2] + NI.pr[3]) / 4; D.pr = pr;
   D.mode = D.keff < 0.99 ? (p.Tavg >= 177 ? 3 : p.Tavg > 93 ? 4 : 5) : pr <= 5 ? 2 : 1;
-  D.clock = (S.clock0 || 0) + p.t;
+  D.clock = (S.clock0 || 0) + p.t * 2; /* the station day runs twice real speed: 24 h passes in 12 h */
 }
 function clockStr(t) { t = ((Math.floor(t) % 86400) + 86400) % 86400; return String(Math.floor(t / 3600)).padStart(2, '0') + ':' + String(Math.floor(t / 60) % 60).padStart(2, '0') + ':' + String(t % 60).padStart(2, '0'); }
 
@@ -2496,11 +2496,29 @@ HAND.sign = -1;
    Phone calls, field operators who take real time, day and night shifts with handovers, weather and the grid, PA announcements,
    a first-out trip panel, and the paper procedure binder. */
 var WXN = { calm: '☀ Calm', wind: '💨 Windy', storm: '⛈ Storm' };
-var LIFE = { callT: 600, paT: 900, wxT: 1800, wx: 'calm', call: null, jobs: [], shiftH: null,
+var LIFE = { callT: 1800, paT: 900, wxT: 1800, wx: 'calm', call: null, jobs: [], shiftH: null,
   ring: function () { var c = AUD.ctx; if (!c || !S.cfg.snd) return; var t = c.currentTime; for (var i = 0; i < 2; i++) { AUD.tone(t + i * 0.45, 440, 0.35, 'sine', 0.07); AUD.tone(t + i * 0.45, 480, 0.35, 'sine', 0.07); } },
+  /* grid demand over the (12-hour real) day, as a share of the 1,250 MW turbine: lowest around 04:00, a morning rise as people wake,
+     a midday plateau, the teatime peak when everyone cooks (17:00-19:00), then falling through the evening. Storms and wind add a little. */
+  demandF: function () { var hr = ((D.clock % 86400) + 86400) % 86400 / 3600, K = [[0, 0.78], [2, 0.73], [4, 0.70], [6, 0.76], [8, 0.88], [10, 0.90], [12, 0.91], [14, 0.89], [16, 0.93], [17.5, 1.0], [19, 0.99], [21, 0.92], [23, 0.83], [24, 0.78]];
+    for (var i = 1; i < K.length; i++) if (hr <= K[i][0]) { var a = K[i - 1], b = K[i], k = (hr - a[0]) / (b[0] - a[0]); k = k * k * (3 - 2 * k); var f = a[1] + (b[1] - a[1]) * k; break; }
+    return Math.min(1, f + (LIFE.wx === 'storm' ? 0.02 : LIFE.wx === 'wind' ? 0.01 : 0)); },
+  demandMW: function () { return LIFE.demandF() * 1250; },
+  demandWhy: function () { var hr = ((D.clock % 86400) + 86400) % 86400 / 3600;
+    return hr >= 16 && hr < 19.5 ? 'Teatime peak coming: everyone is home cooking.' : hr >= 6 && hr < 9 ? 'Morning pick-up: the country is waking up.' : hr >= 9 && hr < 16 ? 'Daytime demand from offices and industry.' : hr >= 19.5 && hr < 23 ? 'Evening demand is dropping off.' : 'Overnight minimum: demand is low.'; },
+  /* big red station clock on the back wall above the boards, with grid demand underneath */
+  wallClock: function () { if (!R3 || !R3.scene) return; var W = LIFE.wc; if (!W) { var cv = document.createElement('canvas'); cv.width = 512; cv.height = 192; var tx = new THREE.CanvasTexture(cv); tx.colorSpace = THREE.SRGBColorSpace;
+      var m = new THREE.Mesh(new THREE.PlaneGeometry(1.9, 0.71), new THREE.MeshBasicMaterial({ map: tx, toneMapped: false })); m.position.set(0, 3.95, ZB + 0.06); m.userData.noColl = true; R3.scene.add(m);
+      var fr = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.8, 0.06), new THREE.MeshStandardMaterial({ color: 0x1a1d21, roughness: 0.5 })); fr.position.set(0, 3.95, ZB + 0.02); fr.userData.noColl = true; R3.scene.add(fr);
+      W = LIFE.wc = { cv: cv, tx: tx, k: '' }; }
+    var key = clockStr(D.clock).slice(0, 5) + Math.round(LIFE.demandF() * 100); if (key === W.k) return; W.k = key; var g = W.cv.getContext('2d');
+    g.fillStyle = '#060708'; g.fillRect(0, 0, 512, 192); g.textAlign = 'center'; g.fillStyle = '#ff3b2f'; g.shadowColor = '#ff3b2f'; g.shadowBlur = 14; g.font = 'bold 118px ui-monospace,Consolas,monospace'; g.fillText(clockStr(D.clock).slice(0, 5), 256, 118);
+    g.shadowBlur = 0; g.fillStyle = '#ffb347'; g.font = 'bold 30px ui-monospace,Consolas,monospace'; g.fillText('GRID DEMAND ' + Math.round(LIFE.demandMW()) + ' MW  ' + Math.round(LIFE.demandF() * 100) + '%', 256, 170); W.tx.needsUpdate = true; },
   calls: function () { var p = S.p, x = p.x, out = [];
     out.push({ who: '🧪 Chemistry lab', msg: 'Lab here. RCS boron came back at ' + Math.round(p.boron + gauss() * 3) + ' ppm, dose equivalent iodine ' + chem(p).i131.toFixed(3) + '. Everything in spec.', opts: [['Thanks, boron ' + Math.round(p.boron) + ' ppm, iodine in spec. Logging it.', 1], ['OK.', 0]], why: 'Repeat the key numbers back so both of you know they were heard right.' });
-    if (x.tb.gen) out.push({ who: '⚡ National Grid control', msg: 'Grid frequency is running low. Can Unit 1 give us another 30 megawatts within ten minutes?', opts: [['Raise 30 megawatts within ten minutes. I’ll confirm with my supervisor and call back.', 1], ['Yes, doing it now.', 0], ['No.', 0]], why: 'Load changes go through the supervisor: repeat the request back, then get it authorised.', then: function () { CREW.issue({ say: 'National Grid wants 30 more megawatts. Raise load by 30 megawatts at 10 megawatts per minute.', rb: ['Raise load by 30 MW at 10 MW per minute.', 'Raise load by 300 MW at 10 MW per minute.', 'Reduce load by 30 MW at 10 MW per minute.'], task: 'Turbine board: LOAD RATE 10, LOAD SET up by 30 MW.', t0l: x.tb.load, chk: function () { return x.tb.load >= this.t0l + 25 && x.tb.lrate === 10; }, now: function () { return 'Load set ' + Math.round(x.tb.load) + ' MW'; }, rep: 'Load raised by 30 megawatts for National Grid.', mins: 20, xp: 1500 }); } });
+    if (x.tb.gen) { var dm = LIFE.demandMW(), dl = dm - x.tb.load; if (Math.abs(dl) >= 30) { var up = dl > 0, amt = Math.round(Math.abs(dl) / 10) * 10, tgtMW = Math.round(dm / 10) * 10, why = LIFE.demandWhy();
+      out.push({ grid: 1, who: '⚡ National Grid control', msg: why + ' Can Unit 1 ' + (up ? 'raise' : 'reduce') + ' to ' + tgtMW + ' megawatts?', opts: [[(up ? 'Raise' : 'Reduce') + ' Unit 1 to ' + tgtMW + ' megawatts. I’ll confirm with my supervisor and call back.', 1], ['Yes, doing it now.', 0], ['We can’t change load right now.', 0]], why: 'Load changes go through the supervisor: repeat the request back, then get it authorised.',
+        then: function () { var wrong = up ? tgtMW - 2 * amt : tgtMW + 2 * amt; CREW.issue({ say: 'National Grid wants Unit 1 at ' + tgtMW + ' megawatts. ' + (up ? 'Raise' : 'Reduce') + ' load to ' + tgtMW + ' megawatts at 10 megawatts per minute.', rb: [(up ? 'Raise' : 'Reduce') + ' load to ' + tgtMW + ' MW at 10 MW per minute.', (up ? 'Raise' : 'Reduce') + ' load to ' + wrong + ' MW at 10 MW per minute.', (up ? 'Reduce' : 'Raise') + ' load to ' + tgtMW + ' MW at 10 MW per minute.'], task: 'Turbine board: LOAD RATE 10, LOAD SET to ' + tgtMW + ' MW.', chk: function () { return Math.abs(x.tb.load - tgtMW) <= 15 && x.tb.lrate === 10; }, now: function () { return 'Load set ' + Math.round(x.tb.load) + ' MW'; }, rep: 'Unit 1 load set to ' + tgtMW + ' megawatts for National Grid.', mins: 30, xp: 1500 }); } }); } }
     out.push({ who: '🔧 Turbine hall operator', msg: 'Rounds report: small oil weep on main feed pump A bearing, about a drop a minute. Want me to keep an eye on it?', opts: [['Monitor it every hour and raise a work order. Call me if it gets worse.', 1], ['Ignore it.', 0]], why: 'Small defects get a work order and a watch, so they don’t grow into trips.', bad: function () { if (Math.random() < 0.5) { FAULT.insert('mfpA', true); } } });
     out.push({ who: '🚒 Site security', msg: 'Fire alarm on the turbine hall roof detector, zone 14. Patrol is on the way. Probably a false alarm from the weather.', opts: [['Zone 14 turbine hall roof, patrol attending. Report back when you have checked it.', 1], ['Probably nothing, carry on.', 0]], why: 'Every fire alarm is treated as real until it’s checked.' });
     out.push({ who: '🧑‍🔧 Maintenance', msg: 'We’d like to work on charging pump B today. Can you take it out of service and give us a permit?', opts: [['I’ll check the Tech Specs first: if both charging pumps aren’t needed, I’ll isolate pump B and issue the permit.', 1], ['Yes, go ahead now.', 0]], why: 'Before taking equipment out of service, check what the Tech Specs need running.' });
@@ -2518,18 +2536,18 @@ var LIFE = { callT: 600, paT: 900, wxT: 1800, wx: 'calm', call: null, jobs: [], 
     else if (j.k === 'mfp') { msg = f.mfpA ? 'Can’t reset it: the thrust bearing is damaged. Pump A needs maintenance.' : 'Feed pump A trip reset locally. You can start it from the control room.'; }
     else msg = 'Seal leak-off on all four RCPs is normal, about 11 litres a minute each.';
     LIFE.radio('Field operator: “' + msg + ' Over.”'); CAR.add(8, 'Field operator job'); },
-  tick: function (dt, sim) { var p = S.p; if (!p) return; var x = p.x, h = Math.floor(((D.clock % 86400) + 86400) % 86400 / 3600);
+  tick: function (dt, sim) { var p = S.p; if (!p) return; LIFE.wallClock(); var x = p.x, h = Math.floor(((D.clock % 86400) + 86400) % 86400 / 3600);
     /* jobs */ LIFE.jobs = LIFE.jobs.filter(function (j) { if (!j.mid && p.t > j.due - 60) { j.mid = true; LIFE.radio('Field operator: “At the location now, checking. Over.”'); } if (p.t >= j.due) { LIFE.jobDone(j); return false; } return true; });
     /* shift handover at 07:00 and 19:00 */ var sh = h >= 7 && h < 19 ? 'day' : 'night'; if (LIFE.shiftH && LIFE.shiftH !== sh) { CREW.say('Shift handover: ' + (sh === 'day' ? 'day' : 'night') + ' shift taking over. Plant ' + MODEN[D.mode] + (TS.active().length ? ', ' + TS.active().length + ' LCO(s) open' : ', no LCOs') + '. Read the log before you carry on.', 'lco'); S.addLog('SHIFT HANDOVER to ' + sh + ' shift');
       /* a full 12-hour shift with no reactor trip earns 10,000 XP */ if ((LIFE.shOn || 0) >= 11 * 3600 && S.st.trips === LIFE.shTrips && !S.p.tripped) { CAR.add(10000, 'Full shift completed with no trip', true); toast('🏆 Full shift completed safely: +10,000 XP', 'ok'); }
       else if ((LIFE.shOn || 0) >= 11 * 3600) toast('Shift ended, but there was a reactor trip on your watch: no full-shift bonus', 'warn');
       LIFE.shOn = 0; LIFE.shTrips = S.st.trips; }
-    if (LIFE.shTrips == null) LIFE.shTrips = S.st.trips; LIFE.shOn = (LIFE.shOn || 0) + sim; LIFE.shiftH = sh; LIFE.night = sh === 'night';
+    if (LIFE.shTrips == null) LIFE.shTrips = S.st.trips; LIFE.shOn = (LIFE.shOn || 0) + sim * 2; LIFE.shiftH = sh; LIFE.night = sh === 'night';
     if (FEEL.people) FEEL.people.walk.visible = !LIFE.night || (h % 2 === 0);
     /* weather and the grid */ LIFE.wxT -= sim; if (LIFE.wxT < 0) { LIFE.wxT = 3600 * (2 + Math.random() * 4); var nw = ['calm', 'calm', 'wind', 'storm'][Math.floor(Math.random() * 4)]; if (nw !== LIFE.wx) { LIFE.wx = nw; S.addLog('Weather: ' + WXN[nw]); if (nw === 'storm') toast('⛈ Storm warning: expect grid frequency swings and possible loss of offsite power.', 'warn'); } }
     var gn = LIFE.wx === 'storm' ? 0.03 : LIFE.wx === 'wind' ? 0.012 : 0; if (gn) D.grid = clamp(D.grid + gauss() * gn * Math.sqrt(Math.max(sim, 1e-3)), 49.6, 50.4);
     if (LIFE.wx === 'storm' && S.cfg.randEv && MS.phase() === 'free' && !(x.f && x.f.grid) && Math.random() < sim / 14400) FEAT_grid();
-    /* phone calls and PA (free play, not during menus) */ if (MS.phase() === 'free' && !S.menu && !S.paused) { LIFE.callT -= Math.min(dt, 0.25); /* real time: the sim speed-up doesn't change how often the phone rings */ if (LIFE.callT < 0 && !LIFE.call && !CREW.q) { LIFE.callT = 480 + Math.random() * 240; var cs = LIFE.calls(); LIFE.call = cs[Math.floor(Math.random() * cs.length)]; LIFE.ring(); }
+    /* phone calls and PA (free play, not during menus) */ if (MS.phase() === 'free' && !S.menu && !S.paused) { LIFE.callT -= Math.min(dt, 0.25); /* real time: the sim speed-up doesn't change how often the phone rings */ if (LIFE.callT < 0 && !LIFE.call && !CREW.q) { LIFE.callT = 1500 + Math.random() * 600; var cs = LIFE.calls(), gc = cs.filter(function (c) { return c.grid; }); LIFE.call = gc.length && Math.random() < 0.7 ? gc[0] : cs[Math.floor(Math.random() * cs.length)]; LIFE.ring(); }
       LIFE.paT -= dt; if (LIFE.paT < 0) { LIFE.paT = 400 + Math.random() * 600; var pa = ['Attention all personnel. This is a test of the site alarm system. No action is required.', 'Would the shift chemist please contact the control room.', 'Attention. Maintenance work is starting in the turbine hall. Hearing protection is required.', 'Attention all personnel. The weather forecast is for high winds this evening. Secure loose items on site.']; var t = pa[Math.floor(Math.random() * pa.length)]; if (S.cfg.snd && AUD.ctx) AUD.tone(AUD.ctx.currentTime, 700, 0.5, 'sine', 0.06); setTimeout(function () { speak(t); }, 600); toast('📢 ' + t); } }
     LIFE.ui(); LIFE.fo(); RADIO.tick(); },
   /* the first-out panel: which trip came first, until the trip is reset */
@@ -3278,7 +3296,7 @@ function msCard(p) {
 }
 function hudTick(dt) {
   HUD.t += dt; if (!HUD.dirty && HUD.t < 0.2) return; HUD.t = 0; HUD.dirty = false; var E = HUD.el, p = S.p;
-  E.time.querySelector('[data-k=clk]').textContent = clockStr(D.clock);
+  E.time.querySelector('[data-k=clk]').textContent = '🕒 ' + clockStr(D.clock).slice(0, 5) + '  ·  Grid demand ' + Math.round(LIFE.demandMW()) + ' MW (' + Math.round(LIFE.demandF() * 100) + '%)';
   [].forEach.call(E.time.querySelectorAll('[data-ts]'), function (b) { var v = +b.dataset.ts; b.setAttribute('aria-pressed', String(v === 0 ? S.paused : !S.paused && S.ts === v)); });
   E.tools.querySelector('[data-b=snd]').textContent = S.cfg.snd ? '🔊' : '🔇'; E.tools.querySelector('[data-b=quick]').setAttribute('aria-pressed', String(!!S.cfg.quick)); E.tools.querySelector('[data-b=assist]').setAttribute('aria-pressed', String(!!S.cfg.assist));
   /* shift chip and explain button */
