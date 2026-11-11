@@ -1256,7 +1256,7 @@ function SWC(s, u, d, o) {
     ctext(g, o.l || 'STOP', X0 + W * 0.22, Y0 + H * 0.18, 13, '#e8e8e2', 'center', W * 0.42); ctext(g, o.r || 'START', X0 + W * 0.78, Y0 + H * 0.18, 13, '#e8e8e2', 'center', W * 0.42);
     var ls = o.t.split('\n'); ls.forEach(function (ln, k) { ctext(g, ln, X0 + W / 2, Y0 + H * (ls.length > 1 ? 0.8 : 0.88) + k * 14, 13, '#fff', 'center', W * 0.95); }); });
   DLP(s, u - 0.026, d + 0.115, function () { return !o.on(); }, 0x2bd14a); DLP(s, u + 0.026, d + 0.115, o.on, 0xff3324);
-  dHit(s, u, d + 0.02, 0.11, 0.13, 0.06, { tip: function () { return o.t.replace(/\n/g, ' ') + ': ' + (o.on() ? (o.onTxt || 'ON') + ' (red)' : (o.offTxt || 'OFF') + ' (green)') + (o.why ? '. ' + o.why() : ''); }, info: o.info,
+  dHit(s, u, d + 0.02, 0.11, 0.13, 0.06, { knob: { r: r, s: s, k: 'turn', y: 0.012, sw: 1 }, tip: function () { return o.t.replace(/\n/g, ' ') + ': ' + (o.on() ? (o.onTxt || 'ON') + ' (red)' : (o.offTxt || 'OFF') + ' (green)') + (o.why ? '. ' + o.why() : ''); }, info: o.info,
     act: function (h) { var right = !o.on(); if (h && h.uv && false) right = true; r.spring = right ? 1 : -1; S.sfx('switch'); o.act(right); HUD.dirty = true; } });
 }
 function swRow(s, u0, d, list, du) { list.forEach(function (o, i) { if (o) SWC(s, u0 + i * (du || 0.14), d, o); }); }
@@ -1267,7 +1267,7 @@ function PBN(s, u, d, o) { var b = be(s), r = { u: u, d: d, o: o, c: new THREE.C
 function ROT(s, u, d, o) { var b = be(s), n = o.pos.length, span = o.span || (n > 2 ? 200 : 90), ang = function (i) { return (-span / 2 + span * i / (n - 1)) * Math.PI / 180; }, r = { u: u, d: d, o: o, ang: ang, cur: ang(o.get()) }; b.rot.push(r);
   s.artD.push(function (g) { var cx = dx(u), cy = dy(d), R0 = dx(0.06) - dx(0); g.fillStyle = '#16191c'; g.beginPath(); g.arc(cx, cy, R0 * 1.25, 0, 6.3); g.fill(); ctext(g, o.t, cx, cy + R0 * 1.55, 13, '#1a1f24', 'center', R0 * 3.2);
     for (var i = 0; i < n; i++) { var a = ang(i); ctext(g, o.pos[i], cx + Math.sin(a) * R0 * 0.95, cy - Math.cos(a) * R0 * 0.95, 11, '#f2f2ee', 'center', R0 * 0.9); } });
-  var hb = dHit(s, u, d, 0.16, 0.16, 0.04, { tip: function () { return o.t.replace(/\n/g, ' ') + ': ' + o.pos[o.get()] + (o.tip ? '. ' + o.tip : ''); }, info: o.info,
+  var hb = dHit(s, u, d, 0.16, 0.16, 0.04, { knob: { r: r, s: s, k: 'cur', y: 0.008 }, tip: function () { return o.t.replace(/\n/g, ' ') + ': ' + o.pos[o.get()] + (o.tip ? '. ' + o.tip : ''); }, info: o.info,
     act: function (h) { var i = (o.get() + 1) % n; if (h && h.point) { var lp = s.desk.worldToLocal(h.point.clone()), a = Math.atan2(lp.x - u, -(lp.z + d * SL)), best = -1, bd = 0.5; if (Math.hypot(lp.x - u, lp.z + d * SL) > 0.02) for (var k = 0; k < n; k++) { var dd = Math.abs(a - ang(k)); if (dd < bd) { bd = dd; best = k; } } if (best >= 0) i = best; }
       if (i !== o.get()) { o.set(i); S.sfx('detent'); HUD.dirty = true; } } }); }
 /* ---------- build the instanced meshes once all items are declared ---------- */
@@ -1313,9 +1313,9 @@ function beTick(b, dt, force) {
     var yy = (m.y - m.h / 2) + m.h * (0.12 + 0.73 * f); V.set(m.x + m.w * 0.04, yy, 0); SC.set(m.w * 0.72, 0.0035, 1); M4.compose(V, Q.identity(), SC); b.ptr.setMatrixAt(i, M4); }); SC.set(1, 1, 1); if (ch) b.ptr.instanceMatrix.needsUpdate = true; }
   var lt = S.lampTest, lampUpd = function (arr, im) { if (!im) return; var c2 = false; arr.forEach(function (l, i) { var on = lt || !!l.on(); if (on === l.st && !force) return; l.st = on; im.setColorAt(i, on ? l.c : l.c.clone().multiplyScalar(0.15)); c2 = true; }); if (c2) im.instanceColor.needsUpdate = true; };
   lampUpd(b.plamp, b.pl); lampUpd(b.dlamp, b.dlm);
-  if (b.swg) { ch = false; b.sw.forEach(function (r, i) { var tgt = r.spring * 0.78; if (Math.abs(r.turn - tgt) < 0.002 && !force) { if (r.spring && Math.abs(r.turn - tgt) < 0.05) r.spring = 0; return; } r.turn += (tgt - r.turn) * (1 - Math.exp(-dt * 16)); if (r.spring && Math.abs(r.turn - tgt) < 0.05) r.spring = 0; E.set(0, -r.turn, 0); Q.setFromEuler(E); V.set(r.u, 0.012, -r.d * SL); M4.compose(V, Q, SC); b.swg.setMatrixAt(i, M4); ch = true; }); if (ch) b.swg.instanceMatrix.needsUpdate = true; }
+  if (b.swg) { ch = false; b.sw.forEach(function (r, i) { var tgt = r.spring * 0.78; if (r.lock) { if (r.lockLast === r.turn && !force) return; r.lockLast = r.turn; E.set(0, -r.turn, 0); Q.setFromEuler(E); V.set(r.u, 0.012, -r.d * SL); M4.compose(V, Q, SC); b.swg.setMatrixAt(i, M4); ch = true; return; } if (Math.abs(r.turn - tgt) < 0.002 && !force) { if (r.spring && Math.abs(r.turn - tgt) < 0.05) r.spring = 0; return; } r.turn += (tgt - r.turn) * (1 - Math.exp(-dt * 16)); if (r.spring && Math.abs(r.turn - tgt) < 0.05) r.spring = 0; E.set(0, -r.turn, 0); Q.setFromEuler(E); V.set(r.u, 0.012, -r.d * SL); M4.compose(V, Q, SC); b.swg.setMatrixAt(i, M4); ch = true; }); if (ch) b.swg.instanceMatrix.needsUpdate = true; }
   if (b.pbc) { ch = false; b.pb.forEach(function (r, i) { var lit = r.o.lit ? (lt || !!r.o.lit()) : true, k = (r.push > 0 ? 1 : 0) + (lit ? 2 : 0); if (r.push > 0) r.push -= dt; if (k === r.st && !force) return; r.st = k; V.set(r.u, r.push > 0 ? 0.017 : 0.022, -r.d * SL); M4.compose(V, Q.identity(), SC); b.pbc.setMatrixAt(i, M4); b.pbc.setColorAt(i, lit || !r.o.lit ? r.c : r.c.clone().multiplyScalar(0.35)); ch = true; }); if (ch) { b.pbc.instanceMatrix.needsUpdate = true; b.pbc.instanceColor.needsUpdate = true; } }
-  if (b.rk) { ch = false; b.rot.forEach(function (r, i) { var t = r.ang(r.o.get()); if (Math.abs(r.cur - t) < 0.002 && !force) return; r.cur += (t - r.cur) * (1 - Math.exp(-dt * 18)); E.set(0, -r.cur, 0); Q.setFromEuler(E); V.set(r.u, 0.008, -r.d * SL); M4.compose(V, Q, SC); b.rk.setMatrixAt(i, M4); ch = true; }); if (ch) b.rk.instanceMatrix.needsUpdate = true; }
+  if (b.rk) { ch = false; b.rot.forEach(function (r, i) { var t = r.ang(r.o.get()); if (r.lock) { if (r.lockLast === r.cur && !force) return; r.lockLast = r.cur; } else { if (Math.abs(r.cur - t) < 0.002 && !force) return; r.cur += (t - r.cur) * (1 - Math.exp(-dt * 18)); } E.set(0, -r.cur, 0); Q.setFromEuler(E); V.set(r.u, 0.008, -r.d * SL); M4.compose(V, Q, SC); b.rk.setMatrixAt(i, M4); ch = true; }); if (ch) b.rk.instanceMatrix.needsUpdate = true; }
   b.at += dt; if (b.at > 0.35 || force) { b.at = 0; beAtlas(b, force); }
 }
 var BEI = 0, BEN = 3; function beFrame(dt) { if (!BE.length) return; for (var k = 0; k < BEN; k++) { BEI = (BEI + 1) % BE.length; beTick(BE[BEI], dt * BE.length / BEN); } BE.forEach(function (b) { if (b.ramp && b.ramp.o.raise) b.ramp.o.raise(b.ramp.dir, dt); }); }
@@ -2453,7 +2453,11 @@ function handPose(k) { if (HAND.real) return realPose(k); var B = HAND.bones; if
   var th = B[4]; th[1].rotation.x = -(0.25 + (HAND.mode === 'press' ? 0.7 : 0.45) * k); th[2].rotation.x = -(0.2 + 0.5 * k); }
 function handReach(h) { var hd = FEEL.hand; if (!hd || !h || !h.point) return; var cam = R3.cam, hi = h.object.userData.hit || {}, tip = String(typeof hi.tip === 'function' ? hi.tip() : hi.tip || '');
   HAND.mode = /button|push|ACK|RESET|TRIP|BLOCK|LATCH|press/i.test(tip) ? 'press' : 'grip';
-  var tgt = h.point.clone(), toCam = cam.position.clone().sub(tgt).normalize();
+  if (HAND.knob) { HAND.knob.r.lock = false; HAND.knob = null; }
+  var tgt = h.point.clone(), kb = hi.knob;
+  if (kb && HAND.mode === 'grip') { var dk = kb.s.desk; dk.updateMatrixWorld(); var kc = dk.localToWorld(new THREE.Vector3(kb.r.u, kb.y + 0.012, -kb.r.d * SL)), ax = new THREE.Vector3(0, 1, 0).transformDirection(dk.matrixWorld).normalize();
+    HAND.knob = { r: kb.r, key: kb.k, sw: kb.sw, a0: kb.r[kb.k], c: kc, ax: ax, tgt: null }; kb.r.lock = true; tgt = kc.clone(); }
+  var toCam = cam.position.clone().sub(tgt).normalize();
   /* start low and to the right of the view, just out of shot */
   var right = new THREE.Vector3(1, 0, 0).applyQuaternion(cam.quaternion), up = new THREE.Vector3(0, 1, 0).applyQuaternion(cam.quaternion), fwd = new THREE.Vector3(0, 0, -1).applyQuaternion(cam.quaternion);
   HAND.from.copy(cam.position).addScaledVector(right, 0.28).addScaledVector(up, -0.32).addScaledVector(fwd, 0.25);
@@ -2464,14 +2468,21 @@ function handReach(h) { var hd = FEEL.hand; if (!hd || !h || !h.point) return; v
   HAND.to.copy(tgt).addScaledVector(toCam, 0.008).addScaledVector(dir, -(HAND.mode === 'press' ? 0.165 : 0.13)); HAND.press = dir.clone();
   var pp = S.p; HAND.rush = !!(ANNC.horn || (pp && pp.tripped && pp.t - (pp.tripT || -1e9) < 120) || /TRIP/i.test(tip) || (crx && crx().sub < 15)); HAND.leanDir = tgt.clone().sub(cam.position); HAND.reachX = clamp(HAND.leanDir.length() - 0.6, 0.08, 0.75); HAND.leanDir.normalize(); HAND.leanDir.y = Math.max(-0.5, Math.min(0.2, HAND.leanDir.y));
   hd.visible = true; HAND.t = 0; hd.position.copy(HAND.from); hd.quaternion.copy(HAND.q0); handPose(0); }
-function handTick(dt) { var hd = FEEL.hand; if (!hd || !hd.visible) { HAND.lean = 0; return; } HAND.t += dt / (HAND.rush ? 0.45 : 0.95); var t = HAND.t;
+function handTick(dt) { var hd = FEEL.hand; if (!hd || !hd.visible) { HAND.lean = 0; return; } HAND.t += dt / (HAND.knob ? (HAND.rush ? 0.65 : 1.3) : (HAND.rush ? 0.45 : 0.95)); var t = HAND.t;
   var ease = function (x) { return x < 0 ? 0 : x > 1 ? 1 : 1 - Math.pow(1 - x, 3); }, inO = function (x) { return x < 0 ? 0 : x > 1 ? 1 : x * x * (3 - 2 * x); };
   var a = t < 0.42 ? ease(t / 0.42) : t < 0.62 ? 1 : 1 - inO((t - 0.62) / 0.38), pose = t < 0.3 ? inO(t / 0.3) : t < 0.7 ? 1 : 1 - inO((t - 0.7) / 0.3);
   /* arc: rise a little on the way in */
   hd.position.lerpVectors(HAND.from, HAND.to, a); hd.position.y += Math.sin(a * Math.PI) * 0.035;
   /* the press itself: a small push forward and back while holding */
-  if (t > 0.42 && t < 0.62) { var pk = Math.sin((t - 0.42) / 0.2 * Math.PI); hd.position.addScaledVector(HAND.press, (HAND.mode === 'press' ? 0.012 : 0.005) * pk); if (HAND.mode === 'grip') hd.quaternion.copy(HAND.q1).multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(0, 0, -0.35 * pk))); }
+  var KN = HAND.knob;
+  if (t > 0.42 && t < 0.62) { var pk = Math.sin((t - 0.42) / 0.2 * Math.PI); hd.position.addScaledVector(HAND.press, (HAND.mode === 'press' ? 0.012 : 0.005) * pk); if (HAND.mode === 'grip' && !KN) hd.quaternion.copy(HAND.q1).multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(0, 0, -0.35 * pk))); else hd.quaternion.copy(HAND.q1); }
   else hd.quaternion.copy(HAND.q0).slerp(HAND.q1, a);
+  /* a real turn: fingers close on the knob, then the knob and the whole hand rotate together about the knob's own axis */
+  if (KN) { var r = KN.r; if (KN.tgt == null && t >= 0.42) KN.tgt = KN.sw ? r.spring * 0.78 : r.ang(r.o.get());
+    var kk = 0; if (KN.tgt != null) { if (KN.sw) kk = t < 0.53 ? inO((t - 0.43) / 0.1) : 1 - inO((t - 0.6) / 0.12); else kk = inO((t - 0.43) / 0.16); }
+    var ang = KN.a0 + ((KN.tgt == null ? KN.a0 : KN.tgt) - KN.a0) * kk; r[KN.key] = ang;
+    var Rq = new THREE.Quaternion().setFromAxisAngle(KN.ax, -(ang - KN.a0)); hd.position.sub(KN.c).applyQuaternion(Rq).add(KN.c); hd.quaternion.premultiply(Rq);
+    if (t >= 1) { r.lock = false; HAND.knob = null; } }
   handPose(pose); HAND.lean = a; armIK(); if (t >= 1) { hd.visible = false; HAND.lean = 0; armIK(); } }
 
 var QX, AX;
@@ -2485,11 +2496,11 @@ HAND.sign = -1;
    Phone calls, field operators who take real time, day and night shifts with handovers, weather and the grid, PA announcements,
    a first-out trip panel, and the paper procedure binder. */
 var WXN = { calm: '☀ Calm', wind: '💨 Windy', storm: '⛈ Storm' };
-var LIFE = { callT: 240, paT: 900, wxT: 1800, wx: 'calm', call: null, jobs: [], shiftH: null,
+var LIFE = { callT: 600, paT: 900, wxT: 1800, wx: 'calm', call: null, jobs: [], shiftH: null,
   ring: function () { var c = AUD.ctx; if (!c || !S.cfg.snd) return; var t = c.currentTime; for (var i = 0; i < 2; i++) { AUD.tone(t + i * 0.45, 440, 0.35, 'sine', 0.07); AUD.tone(t + i * 0.45, 480, 0.35, 'sine', 0.07); } },
   calls: function () { var p = S.p, x = p.x, out = [];
     out.push({ who: '🧪 Chemistry lab', msg: 'Lab here. RCS boron came back at ' + Math.round(p.boron + gauss() * 3) + ' ppm, dose equivalent iodine ' + chem(p).i131.toFixed(3) + '. Everything in spec.', opts: [['Thanks, boron ' + Math.round(p.boron) + ' ppm, iodine in spec. Logging it.', 1], ['OK.', 0]], why: 'Repeat the key numbers back so both of you know they were heard right.' });
-    if (x.tb.gen) out.push({ who: '⚡ National Grid control', msg: 'Grid frequency is running low. Can Unit 1 give us another 30 megawatts within ten minutes?', opts: [['Raise 30 megawatts within ten minutes. I’ll confirm with my supervisor and call back.', 1], ['Yes, doing it now.', 0], ['No.', 0]], why: 'Load changes go through the supervisor: repeat the request back, then get it authorised.', then: function () { CREW.issue({ say: 'National Grid wants 30 more megawatts. Raise load by 30 megawatts at 10 megawatts per minute.', rb: ['Raise load by 30 MW at 10 MW per minute.', 'Raise load by 300 MW at 10 MW per minute.', 'Reduce load by 30 MW at 10 MW per minute.'], task: 'Turbine board: LOAD RATE 10, LOAD SET up by 30 MW.', t0l: x.tb.load, chk: function () { return x.tb.load >= this.t0l + 25 && x.tb.lrate === 10; }, now: function () { return 'Load set ' + Math.round(x.tb.load) + ' MW'; }, rep: 'Load raised by 30 megawatts for National Grid.', mins: 20, xp: 30 }); } });
+    if (x.tb.gen) out.push({ who: '⚡ National Grid control', msg: 'Grid frequency is running low. Can Unit 1 give us another 30 megawatts within ten minutes?', opts: [['Raise 30 megawatts within ten minutes. I’ll confirm with my supervisor and call back.', 1], ['Yes, doing it now.', 0], ['No.', 0]], why: 'Load changes go through the supervisor: repeat the request back, then get it authorised.', then: function () { CREW.issue({ say: 'National Grid wants 30 more megawatts. Raise load by 30 megawatts at 10 megawatts per minute.', rb: ['Raise load by 30 MW at 10 MW per minute.', 'Raise load by 300 MW at 10 MW per minute.', 'Reduce load by 30 MW at 10 MW per minute.'], task: 'Turbine board: LOAD RATE 10, LOAD SET up by 30 MW.', t0l: x.tb.load, chk: function () { return x.tb.load >= this.t0l + 25 && x.tb.lrate === 10; }, now: function () { return 'Load set ' + Math.round(x.tb.load) + ' MW'; }, rep: 'Load raised by 30 megawatts for National Grid.', mins: 20, xp: 1500 }); } });
     out.push({ who: '🔧 Turbine hall operator', msg: 'Rounds report: small oil weep on main feed pump A bearing, about a drop a minute. Want me to keep an eye on it?', opts: [['Monitor it every hour and raise a work order. Call me if it gets worse.', 1], ['Ignore it.', 0]], why: 'Small defects get a work order and a watch, so they don’t grow into trips.', bad: function () { if (Math.random() < 0.5) { FAULT.insert('mfpA', true); } } });
     out.push({ who: '🚒 Site security', msg: 'Fire alarm on the turbine hall roof detector, zone 14. Patrol is on the way. Probably a false alarm from the weather.', opts: [['Zone 14 turbine hall roof, patrol attending. Report back when you have checked it.', 1], ['Probably nothing, carry on.', 0]], why: 'Every fire alarm is treated as real until it’s checked.' });
     out.push({ who: '🧑‍🔧 Maintenance', msg: 'We’d like to work on charging pump B today. Can you take it out of service and give us a permit?', opts: [['I’ll check the Tech Specs first: if both charging pumps aren’t needed, I’ll isolate pump B and issue the permit.', 1], ['Yes, go ahead now.', 0]], why: 'Before taking equipment out of service, check what the Tech Specs need running.' });
@@ -2509,12 +2520,16 @@ var LIFE = { callT: 240, paT: 900, wxT: 1800, wx: 'calm', call: null, jobs: [], 
     LIFE.radio('Field operator: “' + msg + ' Over.”'); CAR.add(8, 'Field operator job'); },
   tick: function (dt, sim) { var p = S.p; if (!p) return; var x = p.x, h = Math.floor(((D.clock % 86400) + 86400) % 86400 / 3600);
     /* jobs */ LIFE.jobs = LIFE.jobs.filter(function (j) { if (!j.mid && p.t > j.due - 60) { j.mid = true; LIFE.radio('Field operator: “At the location now, checking. Over.”'); } if (p.t >= j.due) { LIFE.jobDone(j); return false; } return true; });
-    /* shift handover at 07:00 and 19:00 */ var sh = h >= 7 && h < 19 ? 'day' : 'night'; if (LIFE.shiftH && LIFE.shiftH !== sh) { CREW.say('Shift handover: ' + (sh === 'day' ? 'day' : 'night') + ' shift taking over. Plant ' + MODEN[D.mode] + (TS.active().length ? ', ' + TS.active().length + ' LCO(s) open' : ', no LCOs') + '. Read the log before you carry on.', 'lco'); S.addLog('SHIFT HANDOVER to ' + sh + ' shift'); } LIFE.shiftH = sh; LIFE.night = sh === 'night';
+    /* shift handover at 07:00 and 19:00 */ var sh = h >= 7 && h < 19 ? 'day' : 'night'; if (LIFE.shiftH && LIFE.shiftH !== sh) { CREW.say('Shift handover: ' + (sh === 'day' ? 'day' : 'night') + ' shift taking over. Plant ' + MODEN[D.mode] + (TS.active().length ? ', ' + TS.active().length + ' LCO(s) open' : ', no LCOs') + '. Read the log before you carry on.', 'lco'); S.addLog('SHIFT HANDOVER to ' + sh + ' shift');
+      /* a full 12-hour shift with no reactor trip earns 10,000 XP */ if ((LIFE.shOn || 0) >= 11 * 3600 && S.st.trips === LIFE.shTrips && !S.p.tripped) { CAR.add(10000, 'Full shift completed with no trip', true); toast('🏆 Full shift completed safely: +10,000 XP', 'ok'); }
+      else if ((LIFE.shOn || 0) >= 11 * 3600) toast('Shift ended, but there was a reactor trip on your watch: no full-shift bonus', 'warn');
+      LIFE.shOn = 0; LIFE.shTrips = S.st.trips; }
+    if (LIFE.shTrips == null) LIFE.shTrips = S.st.trips; LIFE.shOn = (LIFE.shOn || 0) + sim; LIFE.shiftH = sh; LIFE.night = sh === 'night';
     if (FEEL.people) FEEL.people.walk.visible = !LIFE.night || (h % 2 === 0);
     /* weather and the grid */ LIFE.wxT -= sim; if (LIFE.wxT < 0) { LIFE.wxT = 3600 * (2 + Math.random() * 4); var nw = ['calm', 'calm', 'wind', 'storm'][Math.floor(Math.random() * 4)]; if (nw !== LIFE.wx) { LIFE.wx = nw; S.addLog('Weather: ' + WXN[nw]); if (nw === 'storm') toast('⛈ Storm warning: expect grid frequency swings and possible loss of offsite power.', 'warn'); } }
     var gn = LIFE.wx === 'storm' ? 0.03 : LIFE.wx === 'wind' ? 0.012 : 0; if (gn) D.grid = clamp(D.grid + gauss() * gn * Math.sqrt(Math.max(sim, 1e-3)), 49.6, 50.4);
     if (LIFE.wx === 'storm' && S.cfg.randEv && MS.phase() === 'free' && !(x.f && x.f.grid) && Math.random() < sim / 14400) FEAT_grid();
-    /* phone calls and PA (free play, not during menus) */ if (MS.phase() === 'free' && !S.menu && !S.paused) { LIFE.callT -= dt * Math.max(1, Math.min(4, S.ts / 5)); if (LIFE.callT < 0 && !LIFE.call && !CREW.q) { LIFE.callT = 200 + Math.random() * 300; var cs = LIFE.calls(); LIFE.call = cs[Math.floor(Math.random() * cs.length)]; LIFE.ring(); }
+    /* phone calls and PA (free play, not during menus) */ if (MS.phase() === 'free' && !S.menu && !S.paused) { LIFE.callT -= Math.min(dt, 0.25); /* real time: the sim speed-up doesn't change how often the phone rings */ if (LIFE.callT < 0 && !LIFE.call && !CREW.q) { LIFE.callT = 480 + Math.random() * 240; var cs = LIFE.calls(); LIFE.call = cs[Math.floor(Math.random() * cs.length)]; LIFE.ring(); }
       LIFE.paT -= dt; if (LIFE.paT < 0) { LIFE.paT = 400 + Math.random() * 600; var pa = ['Attention all personnel. This is a test of the site alarm system. No action is required.', 'Would the shift chemist please contact the control room.', 'Attention. Maintenance work is starting in the turbine hall. Hearing protection is required.', 'Attention all personnel. The weather forecast is for high winds this evening. Secure loose items on site.']; var t = pa[Math.floor(Math.random() * pa.length)]; if (S.cfg.snd && AUD.ctx) AUD.tone(AUD.ctx.currentTime, 700, 0.5, 'sine', 0.06); setTimeout(function () { speak(t); }, 600); toast('📢 ' + t); } }
     LIFE.ui(); LIFE.fo(); RADIO.tick(); },
   /* the first-out panel: which trip came first, until the trip is reset */
@@ -2953,7 +2968,7 @@ function viewTarget(id) {
   if (v[0]) { var g = SEC[v[0]].g; g.updateMatrixWorld(); P = g.localToWorld(P); L = g.localToWorld(L); }
   var d = L.clone().sub(P); return { x: P.x, y: P.y, z: P.z, yaw: Math.atan2(-d.x, -d.z), pitch: Math.atan2(d.y, Math.hypot(d.x, d.z)), fov: v[3] };
 }
-function goView(id, instant) { var t = viewTarget(id); if (!t) return; CAM.view = id; if (instant) { Object.assign(CAM, t); CAM.tw = null; return; }
+function goView(id, instant) { var t = viewTarget(id); if (!t) return; CAM.view = id; if (instant) { Object.assign(CAM, t); CAM.tw = null; HEADM.y = null; return; }
   var dy = t.yaw - CAM.yaw; while (dy > Math.PI) dy -= 2 * Math.PI; while (dy < -Math.PI) dy += 2 * Math.PI; t.yaw = CAM.yaw + dy;
   CAM.tw = { a: { x: CAM.x, y: CAM.y, z: CAM.z, yaw: CAM.yaw, pitch: CAM.pitch, fov: CAM.fov }, b: t, t: 0, dur: 0.85 }; HUD.dirty = true; }
 /* collision comes from the furniture you can actually see: each solid mesh between knee and chest height blocks a footprint
@@ -3055,7 +3070,7 @@ function onUp(e) {
 }
 function activate(h, touch) {
   var hi = hitInfo(h); if (!hi) return; hideExplain(); EXP.t0 = performance.now();
-  if (hi.act) { try { FEEL.reach(h); } catch (e) {} hi.act(h); HUD.dirty = true; return; }
+  if (hi.act) { try { FEEL.reach(h); } catch (e) { console.warn("hand", e); } hi.act(h); HUD.dirty = true; return; }
   if (hi.view) { goView(hi.view); return; }
   if (hi.tip) { showTip(typeof hi.tip === 'function' ? hi.tip() : hi.tip, touch ? null : PTR.hx, touch ? null : PTR.hy, true); }
 }
