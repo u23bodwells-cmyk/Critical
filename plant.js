@@ -32,14 +32,17 @@ function bankF(z) { var x = clamp(z / TOP, 0, 1); return x - Math.sin(2 * Math.P
 var RHO0 = WORTH.CD * (1 - bankF(ECP_D)) + BORON0 * BW; /* so the reactor goes critical with bank D at about 120 steps */
 function tsat(P) { var T = [[40, 250.4], [50, 263.9], [55, 270.0], [60, 275.6], [65, 280.9], [70, 285.8], [75, 290.5], [80, 295.0], [85, 299.3], [90, 303.3], [100, 311.0], [120, 324.7], [140, 336.7], [155, 344.8], [160, 347.4], [175, 354.7]]; if (P <= T[0][0]) return T[0][1]; for (var i = 1; i < T.length; i++) if (P <= T[i][0]) { var a = T[i - 1], b = T[i]; return a[1] + (b[1] - a[1]) * (P - a[0]) / (b[0] - a[0]); } return T[T.length - 1][1]; }
 function setOverlap(p) { p.rods.CA = clamp(p.pc, 0, TOP); p.rods.CB = clamp(p.pc - OVL, 0, TOP); p.rods.CC = clamp(p.pc - 2 * OVL, 0, TOP); p.rods.CD = clamp(p.pc - 3 * OVL, 0, TOP); }
-function rhoParts(p) { var rods = 0; BANKS.forEach(function (b) { rods -= WORTH[b] * (1 - bankF(p.rods[b])); }); return { base: RHO0, rods: rods, boron: -p.boron * BW, dop: AD * (p.Tf - T0), mod: AM * (p.Tavg - T0) }; }
+/* moderator temperature coefficient: boron makes it less negative (water expands, boron leaves the core), about -12 pcm/°C at 1200 ppm, -38 with no boron */
+function mtc(p) { return -38 + 0.022 * p.boron; }
+var DHF = [0.03, 0.02, 0.015], DHT = [10, 150, 3000];
+function rhoParts(p) { var rods = 0; BANKS.forEach(function (b) { rods -= WORTH[b] * (1 - bankF(p.rods[b])); }); return { base: RHO0, rods: rods, boron: -p.boron * BW, dop: AD * (p.Tf - T0), mod: mtc(p) * (p.Tavg - T0) }; }
 function rhoPcm(p) { var r = rhoParts(p); return r.base + r.rods + r.boron + r.dop + r.mod; }
 function pcName(pc) { if (pc <= 0) return 'all control banks in'; if (pc >= PCMAX) return 'all control banks out'; var b = pc >= 3 * OVL ? 'D' : pc >= 2 * OVL ? 'C' : pc >= OVL ? 'B' : 'A', z = b === 'D' ? pc - 3 * OVL : b === 'C' ? pc - 2 * OVL : b === 'B' ? pc - OVL : pc; return 'bank ' + b + ' at ' + Math.round(z) + ' steps'; }
 
 function freshPlant() {
   var p = { t: 0, n: 1e-10, c: [0, 0, 0, 0, 0, 0], rods: {}, pc: 0, rtb: [false, false], tripped: true, dropping: false, dropped: false, firstOut: '', boron: BORON0,
     Tavg: T0, Tf: T0, Ps: PSP, dI: 0.01, dump: 0, rcs: 155, pzr: 25, srBlk: [false, false], audio: true, sel: 'SA', lever: 0, stepAcc: 0, steps: 0,
-    sur: 0, lnPrev: null, srAvg: 0, oneM: [], c0: null, stillT: 0, lastPc: null, lastSdb: '', hist: [], histT: 0, everCrit: false, maxSur: 0, trips: 0 };
+    dh: [0, 0, 0], drop0: null, dropT: 0, sur: 0, lnPrev: null, srAvg: 0, oneM: [], c0: null, stillT: 0, lastPc: null, lastSdb: '', hist: [], histT: 0, everCrit: false, maxSur: 0, trips: 0 };
   BANKS.forEach(function (b) { p.rods[b] = 0; });
   var rho = rhoPcm(p) * 1e-5; p.n = SRC * GEN / -rho; for (var i = 0; i < 6; i++) p.c[i] = BI[i] * p.n / (GEN * LI[i]);
   for (var k = 0; k < 6000; k++) plantStep(p, 0.05, true); /* let temperatures and the steam dumps settle */
@@ -56,7 +59,7 @@ function kin(p, rho, dt) {
 }
 var SPM_S = 64, SPM_C = 48;
 function moveRods(p, dt) {
-  if (p.dropping) { var any = false; BANKS.forEach(function (b) { p.rods[b] = Math.max(0, p.rods[b] - TOP * dt / 1.7); if (p.rods[b] > 0) any = true; }); if (!any) { p.dropping = false; p.pc = 0; } return; }
+  if (p.dropping) { /* free fall under gravity: distance goes as time squared, a full-height rod takes 1.7 s */ p.dropT = (p.dropT || 0) + dt; var any = false, fall = TOP * Math.pow(p.dropT / 1.7, 2); BANKS.forEach(function (b) { p.rods[b] = Math.max(0, (p.drop0 ? p.drop0[b] : p.rods[b]) - fall); if (p.rods[b] > 0) any = true; }); if (!any) { p.dropping = false; p.pc = 0; } return; }
   if (!p.lever || !(p.rtb[0] && p.rtb[1]) || p.sel === 'AUTO') { p.stepAcc = 0; return; }
   p.stepAcc += (SDB.indexOf(p.sel) >= 0 ? SPM_S : SPM_C) / 60 * dt;
   while (p.stepAcc >= 1) { p.stepAcc -= 1; if (!stepOnce(p, p.sel, p.lever)) { p.stepAcc = 0; p.blocked = p.lever; break; } }
@@ -71,10 +74,12 @@ function plantStep(p, dt, quiet) {
   var rho = rhoPcm(p) * 1e-5, h = rho > 0.7 * BETA ? 0.0005 : rho > 0.3 * BETA ? 0.004 : dt;
   for (var tt = 0; tt < dt - 1e-9; tt += h) kin(p, rho, Math.min(h, dt - tt));
   /* heat: core power, 4 reactor coolant pumps (20 MW), the steam generators pull heat out to the steam side, the steam dumps hold steam pressure */
-  var Q = p.n * FULL, ts = tsat(p.Ps), qsg = UA * (p.Tavg - ts);
+  if (!p.dh) p.dh = [0, 0, 0]; var dhs = 0; for (var di = 0; di < 3; di++) { p.dh[di] += (DHF[di] * p.n - p.dh[di]) * (1 - Math.exp(-dt / DHT[di])); dhs += p.dh[di]; }
+  /* 6.5% of the heat comes late, from fission products decaying: it carries on after a trip */
+  var Q = FULL * (p.n * 0.935 + dhs), ts = tsat(p.Ps), qsg = UA * (p.Tavg - ts);
   p.Tf += ((p.Tavg + 460 * Math.min(p.n, 1.3)) - p.Tf) * (1 - Math.exp(-dt / 5));
   p.Tavg += (Q + 20 - qsg - 1.5) / CRCS * dt;
-  var err = p.Ps - PSP; p.dI = clamp(p.dI + err * dt * 0.015, 0, 1); p.dump = clamp(0.35 * err + p.dI, 0, 1);
+  var err = p.Ps - PSP; p.dI = clamp(p.dI + err * dt * 0.015, 0, 1); p.dump += (clamp(0.35 * err + p.dI, 0, 1) - p.dump) * (1 - Math.exp(-dt / 1.2)); /* valves take a moment to stroke */
   var relief = p.Ps > 84 ? (p.Ps - 84) * 600 : 0; /* steam generator safety valves */
   p.Ps += (qsg - p.dump * 0.4 * FULL - relief - 4) / 400 * dt;
   p.rcs += ((155 + (p.Tavg - T0) * 0.7) - p.rcs) * (1 - Math.exp(-dt / 8));
@@ -121,7 +126,7 @@ function rps(p) {
 }
 function doTrip(p, cause) {
   if (p.tripped) return; var out = BANKS.some(function (b) { return p.rods[b] > 0; });
-  p.tripped = true; p.rtb = [false, false]; p.lever = 0; p.firstOut = cause; p.trips++; if (out) { p.dropping = true; p.dropped = true; }
+  p.tripped = true; p.rtb = [false, false]; p.lever = 0; p.firstOut = cause; p.trips++; if (out) { p.dropping = true; p.dropped = true; p.dropT = 0; p.drop0 = {}; BANKS.forEach(function (b) { p.drop0[b] = p.rods[b]; }); }
   if (S && S.onTrip) S.onTrip(cause);
 }
 /* P-6 gone (power back below 1E-10 A): the source range blocks reset by themselves and the detectors come back on */
@@ -299,7 +304,7 @@ var SEC = {}, HITS = [], CTRL = [], LAMPS = [], MAT = {}, SCR = [];
 var D = { grid: 50.0, gridV: 401, sgL: [50, 50, 50, 50], vct: 46, chg: 17.8, ltd: 17.2, tgSpd: 31, bat: 82, rwst: 96, dT: 0, thot: T0, tcold: T0, sub: 53, stmF: 0, feedF: 0, keff: 0.95, mode: 3, rho: 0, clock: 0 };
 function derive(dt) {
   var p = S.p, q = Math.min(p.n, 1.2), wn = function (a) { return gauss() * a * Math.sqrt(Math.max(dt, 1e-3)); };
-  D.dT = 37 * q; D.thot = p.Tavg + D.dT / 2; D.tcold = p.Tavg - D.dT / 2; D.sub = tsat(p.rcs) - D.thot;
+  D.dT += (37 * q - D.dT) * (1 - Math.exp(-dt / 6)); D.thot = p.Tavg + D.dT / 2; D.tcold = p.Tavg - D.dT / 2; D.sub = tsat(p.rcs) - D.thot;
   D.grid = clamp(D.grid + (50 - D.grid) * dt * 0.08 + wn(0.006), 49.85, 50.15); D.gridV = clamp(D.gridV + (401 - D.gridV) * dt * 0.1 + wn(0.15), 396, 406);
   for (var i = 0; i < 4; i++) D.sgL[i] = clamp(D.sgL[i] + (50 - D.sgL[i]) * dt * 0.08 + wn(0.12), 40, 60);
   D.vct = clamp(D.vct + (46 - D.vct) * dt * 0.02 + wn(0.05), 40, 52); D.chg = clamp(D.chg + (17.8 - D.chg) * dt * 0.2 + wn(0.08), 15, 21); D.ltd = clamp(D.ltd + (17.2 - D.ltd) * dt * 0.2 + wn(0.05), 15, 20);
@@ -332,7 +337,7 @@ function buildRoom(scene) {
   /* raised access floor: 600 mm tiles */
   var ft = signTex(256, 256, function (g) { g.fillStyle = '#9a9fa3'; g.fillRect(0, 0, 256, 256); speck(g, 256, 256, 2600, 0.06); g.strokeStyle = 'rgba(25,28,32,.6)'; g.lineWidth = 3; g.strokeRect(1.5, 1.5, 253, 253); g.strokeStyle = 'rgba(255,255,255,.22)'; g.lineWidth = 1; g.strokeRect(4.5, 4.5, 247, 247); });
   ft.wrapS = ft.wrapT = THREE.RepeatWrapping; ft.repeat.set(22 / 0.6, 16 / 0.6);
-  var floor = new THREE.Mesh(new THREE.PlaneGeometry(22, 16), new THREE.MeshStandardMaterial({ map: ft, roughness: 0.32, metalness: 0.05 })); floor.rotation.x = -Math.PI / 2; scene.add(floor);
+  var floor = new THREE.Mesh(new THREE.PlaneGeometry(22, 16), new THREE.MeshStandardMaterial({ map: ft, roughness: 0.2, metalness: 0.12 })); floor.rotation.x = -Math.PI / 2; scene.add(floor);
   /* the 'at the controls' line: only the licensed operator on shift goes inside it without asking */
   var arc = new THREE.Mesh(new THREE.RingGeometry(5.62, 5.7, 64, 1, Math.PI * 0.5 - 1.42, 2.84), new THREE.MeshBasicMaterial({ color: 0xd6a51c })); arc.rotation.x = -Math.PI / 2; arc.rotation.z = 0; arc.position.set(0, 0.003, BCZ); scene.add(arc);
   var atc = new THREE.Mesh(new THREE.PlaneGeometry(2.2, 0.28), new THREE.MeshBasicMaterial({ map: signTex(512, 64, function (g) { g.clearRect(0, 0, 512, 64); ctext(g, 'AT THE CONTROLS AREA', 256, 32, 40, '#d6a51c', 'center', 500); }), transparent: true })); atc.rotation.x = -Math.PI / 2; atc.position.set(0, 0.004, BCZ - 5.95); scene.add(atc);
@@ -348,7 +353,9 @@ function buildRoom(scene) {
   var lg = new THREE.PlaneGeometry(1.2, 0.6);
   for (var x = -9; x <= 9; x += 3) for (var z = -6.6; z <= 6.6; z += 2.2) { var l = new THREE.Mesh(lg, MAT.lightP); l.rotation.x = Math.PI / 2; l.position.set(x, 3.595, z); scene.add(l); }
   /* lights: soft sky from the ceiling, a few lamps over the boards, and a dim fill */
-  scene.add(new THREE.HemisphereLight(0xf4f6ff, 0x4b4740, 1.05));
+  scene.add(new THREE.HemisphereLight(0xf4f6ff, 0x4b4740, 0.72));
+  var sun = new THREE.DirectionalLight(0xfff3e2, 1.25); sun.position.set(3, 12, 7.5); sun.target.position.set(0, 0, -1.5); scene.add(sun); scene.add(sun.target); R3.sun = sun;
+  [[22.1, 0.11, 0.03, 0, 0.055, -7.985], [22.1, 0.11, 0.03, 0, 0.055, 7.985], [0.03, 0.11, 16, -10.985, 0.055, 0], [0.03, 0.11, 16, 10.985, 0.055, 0]].forEach(function (q) { box(q[0], q[1], q[2], MAT.kick, q[3], q[4], q[5], scene); });
   [[-5, 3.2, -2.5], [0, 3.2, -3.4], [5, 3.2, -2.5], [0, 3.2, 3.5], [-7, 3.2, 4], [7, 3.2, 4]].forEach(function (q, i) { var pl = new THREE.PointLight(0xfff5ea, i < 3 ? 9 : 5, 0, 1.3); pl.position.set(q[0], q[1], q[2]); scene.add(pl); });
   /* back wall sign above the boards */
   var sg = new THREE.Mesh(new THREE.PlaneGeometry(6.4, 0.5), new THREE.MeshStandardMaterial({ map: signTex(1536, 120, function (g) { g.fillStyle = '#1e2a36'; g.fillRect(0, 0, 1536, 120); ctext(g, '☢  CRITICAL POINT POWER STATION  ·  UNIT 1  ·  MAIN CONTROL ROOM', 768, 62, 58, '#f4f4ef', 'center', 1500); }), roughness: 0.5 })); sg.position.set(0, 3.25, -7.98); scene.add(sg);
@@ -1233,12 +1240,12 @@ function moveCam(dt) {
   if (!(f || s)) return; var m = Math.hypot(f, s); if (m > 1) { f /= m; s /= m; }
   var sp = (KEYS.shift ? 3.6 : 2.0) * dt, nx = CAM.x + (-Math.sin(CAM.yaw) * f + Math.cos(CAM.yaw) * s) * sp, nz = CAM.z + (-Math.cos(CAM.yaw) * f - Math.sin(CAM.yaw) * s) * sp, was = blocked(CAM.x, CAM.z);
   if (!blocked(nx, nz) || was) { CAM.x = nx; CAM.z = nz; } else if (!blocked(nx, CAM.z)) CAM.x = nx; else if (!blocked(CAM.x, nz)) CAM.z = nz;
-  CAM.y += (1.65 - CAM.y) * (1 - Math.exp(-dt * 4)); CAM.fov += (60 - CAM.fov) * (1 - Math.exp(-dt * 3)); if (CAM.view !== 'walk') { CAM.view = 'walk'; HUD.dirty = true; }
+  CAM.bobT = (CAM.bobT || 0) + sp * 4.4; CAM.y += (1.65 + Math.sin(CAM.bobT) * 0.022 - CAM.y) * (1 - Math.exp(-dt * 9)); CAM.fov += (60 - CAM.fov) * (1 - Math.exp(-dt * 3)); if (CAM.view !== 'walk') { CAM.view = 'walk'; HUD.dirty = true; }
 }
 /* when the mission card covers the left of a wide screen, shift the picture right so what you're looking at sits in the clear part */
 var OFS = { cur: 0, w: 0, h: 0 };
 function applyCam(dt) { var c = R3.cam; if (c.position.x !== CAM.x || c.position.z !== CAM.z || c.rotation.y !== CAM.yaw || c.rotation.x !== CAM.pitch || OFS.f !== CAM.fov) { PTR.hoverDirty = true; OFS.f = CAM.fov; } c.position.set(CAM.x, CAM.y, CAM.z); c.rotation.order = 'YXZ'; c.rotation.y = CAM.yaw; c.rotation.x = CAM.pitch;
-  var W = root.clientWidth, H = Math.max(1, root.clientHeight), ms = HUD.el.ms, want = 0; if (W > 900 && ms && !ms.hidden && !ms.classList.contains('min') && CAM.view !== 'walk' && CAM.view !== 'start' && CAM.view !== 'room') want = Math.round((ms.offsetWidth + 16) / 2);
+  var W = root.clientWidth, H = Math.max(1, root.clientHeight), ms = HUD.el.ms, want = 0; if (W > 900 && ms && !ms.hidden && !ms.classList.contains('min') && CAM.view !== 'walk' && CAM.view !== 'start' && CAM.view !== 'room' && !locked()) want = Math.round((ms.offsetWidth + 16) / 2);
   OFS.want = want; OFS.cur += (want - OFS.cur) * (1 - Math.exp(-(dt || 0.016) * 6)); if (Math.abs(OFS.cur - want) < 0.5) OFS.cur = want; var d = Math.round(OFS.cur);
   var asp = W / H, fe = asp < 1 ? Math.min(88, 2 * Math.atan(Math.tan(CAM.fov * 0.92 * Math.PI / 360) / asp) * 180 / Math.PI) : CAM.fov;
   if (d !== OFS.d || W !== OFS.w || H !== OFS.h || Math.abs(c.fov - fe) > 0.01) { OFS.d = d; OFS.w = W; OFS.h = H; c.fov = fe; c.aspect = (W + 2 * d) / H; if (d) c.setViewOffset(W + 2 * d, H, 0, 0, W, H); else c.clearViewOffset(); c.updateProjectionMatrix(); } }
@@ -1252,8 +1259,12 @@ function showMe(k) { var s = SHOW[k] || (VIEWDEF[k] ? [k] : null); if (!s) retur
 
 /* ================================================================ pointer: drag to look, click a control, hold the rod lever ================================================================ */
 var RC = null, PTR = { down: null, hover: null, hx: 0, hy: 0, pts: {}, pinch: null }, JOY = { on: false, x: 0, y: 0, id: null };
+function locked() { return !!R3 && document.pointerLockElement === R3.ren.domElement; }
+function toggleLock() { if (locked()) { document.exitPointerLock(); return; } try { var pr = R3.ren.domElement.requestPointerLock(); if (pr && pr.catch) pr.catch(function () { toast('Click the 3D view once, then press L again.', 'warn'); }); } catch (e) {} }
+function lockChange() { var on = locked(); if (HUD.el.cross) HUD.el.cross.hidden = !on; hideTip(); hideExplain(); PTR.hoverDirty = true; PTR.down = null; if (S && !S.menu) toast(on ? 'Mouse locked to the centre: move to look, click to use what the dot is on. Press L to unlock.' : 'Mouse unlocked.'); }
 function pick(cx, cy) {
-  var r = R3.ren.domElement.getBoundingClientRect(), v = new THREE.Vector2((cx - r.left) / r.width * 2 - 1, -(cy - r.top) / r.height * 2 + 1);
+  var r = R3.ren.domElement.getBoundingClientRect(); if (locked()) { cx = r.left + r.width / 2; cy = r.top + r.height / 2; }
+  var v = new THREE.Vector2((cx - r.left) / r.width * 2 - 1, -(cy - r.top) / r.height * 2 + 1);
   RC.setFromCamera(v, R3.cam); RC.far = 14; var hs = RC.intersectObjects(HITS, false); return hs.length ? hs[0] : null;
 }
 function hitInfo(h) { return h && h.object.userData.hit; }
@@ -1270,11 +1281,12 @@ function onDown(e) {
 }
 function onMove(e) {
   if (PTR.pts[e.pointerId]) PTR.pts[e.pointerId] = { x: e.clientX, y: e.clientY };
+  if (locked()) { var k0 = 0.0021 * CAM.fov / 60; CAM.yaw -= (e.movementX || 0) * k0; CAM.pitch = clamp(CAM.pitch - (e.movementY || 0) * k0, -1.35, 1.35); CAM.tw = null; return; }
   if (PTR.pinch) { var ids = Object.keys(PTR.pts); if (ids.length === 2) { var a = PTR.pts[ids[0]], b = PTR.pts[ids[1]], d = Math.hypot(a.x - b.x, a.y - b.y); CAM.fov = clamp(PTR.pinch.fov * PTR.pinch.d / Math.max(20, d), 16, 75); CAM.tw = null; } return; }
   var D0 = PTR.down;
   if (D0 && D0.id === e.pointerId) { var dx = e.clientX - D0.lx, dy = e.clientY - D0.ly; if (Math.hypot(e.clientX - D0.x, e.clientY - D0.y) > 6) D0.moved = true;
     if (D0.moved && D0.lp) { clearTimeout(D0.lp); D0.lp = 0; }
-    if (D0.moved && !D0.hold) { var k = 0.0042 * CAM.fov / 60; CAM.yaw += dx * k; CAM.pitch = clamp(CAM.pitch + dy * k, -1.35, 1.35); CAM.tw = null; }
+    if (D0.moved && !D0.hold) { var k = 0.0042 * CAM.fov / 60; var sg = e.pointerType === 'mouse' ? -1 : 1; CAM.yaw += sg * dx * k; CAM.pitch = clamp(CAM.pitch + sg * dy * k, -1.35, 1.35); CAM.tw = null; }
     D0.lx = e.clientX; D0.ly = e.clientY; return; }
   if (e.pointerType === 'mouse') { PTR.hx = e.clientX; PTR.hy = e.clientY; PTR.hoverDirty = true; if (EXP.shown && !EXP.touch && Math.hypot(e.clientX - EXP.x, e.clientY - EXP.y) > 60) { hideExplain(); EXP.t0 = performance.now(); } }
 }
@@ -1295,6 +1307,7 @@ function activate(h, touch) {
 function onWheel(e) { e.preventDefault(); CAM.fov = clamp(CAM.fov * (1 + e.deltaY * 0.0012), 16, 75); CAM.tw = null; }
 function hover() {
   if (S.menu) { hideTip(); return; }
+  if (locked()) { var lr = R3.ren.domElement.getBoundingClientRect(); PTR.hx = lr.left + lr.width / 2; PTR.hy = lr.top + lr.height / 2; }
   if (!PTR.hoverDirty || PTR.down) return; PTR.hoverDirty = false; var h = pick(PTR.hx, PTR.hy), hi = hitInfo(h); PTR.hover = hi || null; PTR.hoverObj = hi ? h.object : null; if (EXP.shown && EXP.obj === PTR.hoverObj) return;
   R3.ren.domElement.style.cursor = hi && (hi.act || hi.hold || hi.view) ? 'pointer' : PTR.down ? 'grabbing' : 'grab';
   if (hi && hi.tip) showTip((typeof hi.tip === 'function' ? hi.tip() : hi.tip) + (hi.hold ? '  ·  hold' : hi.act ? '  ·  click' : hi.view ? '  ·  click to zoom in' : ''), PTR.hx, PTR.hy); else hideTip();
@@ -1308,7 +1321,7 @@ function onKey(e, down) {
   if (!down || e.repeat) return;
   if (k === 'escape') { e.preventDefault(); if (CAM.view !== 'start' && CAM.view !== 'walk') goView('start'); else pauseMenu(); }
   else if (k >= '1' && k <= '5') ACT.select(['SA', 'SB', 'SC', 'SD', 'MAN'][+k - 1]);
-  else if (k === 'k') ANNC.ack(); else if (k === 'l') ANNC.reset(); else if (k === 'j') ANNC.silence();
+  else if (k === 'k') ANNC.ack(); else if (k === 'r') ANNC.reset(); else if (k === 'l') toggleLock(); else if (k === 'j') ANNC.silence();
   else if (k === 't') setTS(S.ts === 1 ? 5 : S.ts === 5 ? 20 : 1); else if (k === 'p' || k === ' ') { e.preventDefault(); setPause(!S.paused); }
   else if (k === 'e') { var r = R3.ren.domElement.getBoundingClientRect(); activate(pick(r.left + r.width / 2, r.top + r.height / 2)); }
   else if (k === 'x') { S.cfg.explain = !S.cfg.explain; saveCfg(); toast(S.cfg.explain ? '💡 Explain mode on.' : 'Explain mode off.'); if (!S.cfg.explain) hideExplain(); }
@@ -1377,6 +1390,7 @@ var CSS = '.cpn{position:fixed;inset:0;z-index:2147480000;background:#0b0f14;col
   '.cpnjoy{position:absolute;left:max(18px,env(safe-area-inset-left));bottom:max(18px,env(safe-area-inset-bottom));width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.18);touch-action:none;display:none}.cpnjoy i{position:absolute;left:35px;top:35px;width:50px;height:50px;border-radius:50%;background:rgba(255,255,255,.3)}' +
   '.cpn.touch .cpnjoy{display:block}.cpn.touch .cpnas{bottom:150px}.cpnhint{position:absolute;left:50%;transform:translateX(-50%);bottom:max(14px,env(safe-area-inset-bottom));background:rgba(10,16,24,.8);padding:7px 14px;border-radius:999px;font-size:12.5px;color:#c5d2de;pointer-events:none;transition:opacity .6s;white-space:nowrap;max-width:calc(100% - 24px);overflow:hidden;text-overflow:ellipsis}' +
   '.cpnload{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;background:#0b0f14;z-index:20;font-weight:700;color:#9fc9ea}.cpnload i{width:46px;height:46px;border-radius:50%;border:4px solid rgba(255,211,74,.2);border-top-color:#ffd34a;animation:cpnsp 1s linear infinite}@keyframes cpnsp{to{transform:rotate(360deg)}}' +
+  '.cpnx{position:absolute;left:50%;top:50%;width:6px;height:6px;margin:-3px 0 0 -3px;border-radius:50%;background:#fff;box-shadow:0 0 0 2px rgba(0,0,0,.55);pointer-events:none;z-index:4}.cpnvig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 45%,rgba(0,0,0,0) 55%,rgba(0,0,0,.38) 100%)}' +
   '.cpnshift{font:800 13px ui-monospace,Menlo,Consolas,monospace;padding:9px 6px 9px 10px;color:#c5f2d4}.cpnshift.low{color:#ffd34a}.cpnshift.ot{color:#ff9f43}' +
   '.cpnms .tabs{display:flex;gap:4px;margin:6px 0 4px}.cpnms .tabs button{flex:1;background:rgba(255,255,255,.07);padding:7px 4px;font-weight:800;font-size:12.5px;min-height:34px}.cpnms .tabs button small{opacity:.7;font-weight:700}.cpnms .tabs button[aria-pressed=true]{background:#ffd34a;color:#1a1300}' +
   '.cpnms .sub{font-size:11.5px;color:#8ea6bc;margin:4px 0 2px}.cpnms ol.cl{list-style:none;margin:4px 0 0;padding:0;max-height:max(150px,min(52vh,calc(100vh - 410px)));overflow:auto;display:flex;flex-direction:column;gap:3px}' +
@@ -1401,8 +1415,8 @@ function buildHUD() {
   E.as = h('div', 'cpnas', null, root); E.qc = h('div', 'cpnqc', null, root); buildQC();
   E.tip = h('div', 'cpntip', null, root); E.tip.hidden = true; E.exp = h('div', 'cpnexp', null, root); E.exp.hidden = true;
   E.ring = h('div', 'cpnring', '<svg viewBox="0 0 20 20" width="22" height="22"><circle cx="10" cy="10" r="8" fill="rgba(5,9,14,.6)" stroke="rgba(255,255,255,.18)" stroke-width="2.5"/><circle cx="10" cy="10" r="8" fill="none" stroke="#ffd34a" stroke-width="2.5" stroke-dasharray="50.3" stroke-dashoffset="50.3" transform="rotate(-90 10 10)"/></svg>', root); E.ring.hidden = true; E.toasts = h('div', 'cpntoasts', null, root);
-  E.hint = h('div', 'cpnhint', 'Drag to look · WASD to walk · Click a control · Scroll to zoom · Rest on anything for 3 s to learn what it does', root);
-  E.joy = h('div', 'cpnjoy', '<i></i>', root);
+  E.hint = h('div', 'cpnhint', 'Drag to look · WASD to walk · Click a control · Scroll to zoom · L locks the mouse · Rest on anything for 3 s to learn what it does', root);
+  E.joy = h('div', 'cpnjoy', '<i></i>', root); E.cross = h('div', 'cpnx', null, root); E.cross.hidden = true; var vg = el('div', 'cpnvig'); root.insertBefore(vg, R3.ren.domElement.nextSibling);
   E.bar.addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; AUD.init();
     if (b.dataset.ts != null) { var v = +b.dataset.ts; if (v === 0) setPause(!S.paused); else { setTS(v); setPause(false); } }
     var k = b.dataset.b; if (k === 'explain') { S.cfg.explain = !S.cfg.explain; saveCfg(); toast(S.cfg.explain ? '💡 Explain mode on: rest the pointer on any control for 3 seconds' + (root.classList.contains('touch') ? ' (or press and hold it)' : '') + '.' : 'Explain mode off.'); if (!S.cfg.explain) hideExplain(); } if (k === 'views') viewsMenu(); else if (k === 'quick') { S.cfg.quick = !S.cfg.quick; saveCfg(); } else if (k === 'assist') { S.cfg.assist = !S.cfg.assist; saveCfg(); } else if (k === 'snd') { S.cfg.snd = !S.cfg.snd; AUD.vol(); saveCfg(); } else if (k === 'help') helpMenu(); else if (k === 'menu') pauseMenu(); else if (k === 'exit') close();
@@ -1500,7 +1514,7 @@ function hudTick(dt) {
 }
 
 /* ================================================================ menus ================================================================ */
-function menu(html, onclick) { closeMenu(true); var m = h('div', 'cpnmenu', '<div class="cpncard">' + html + '</div>', root); S.menu = m; m.addEventListener('click', function (e) { var b = e.target.closest('[data-a]'); if (b) { AUD.init(); onclick(b.dataset.a, b); } }); return m; }
+function menu(html, onclick) { if (document.pointerLockElement) { try { document.exitPointerLock(); } catch (e) {} } closeMenu(true); var m = h('div', 'cpnmenu', '<div class="cpncard">' + html + '</div>', root); S.menu = m; m.addEventListener('click', function (e) { var b = e.target.closest('[data-a]'); if (b) { AUD.init(); onclick(b.dataset.a, b); } }); return m; }
 function closeMenu(keepPause) { if (S.menu) { S.menu.remove(); S.menu = null; } if (!keepPause && S.wasPaused === false) setPause(false); }
 function roadHTML() { return '<div class="cpnroad">' + ROAD.map(function (r, i) { return '<div class="' + (i === 0 ? 'now' : '') + '"><b>' + (i + 1) + '. ' + esc(r.t) + (i === 0 ? ' · PLAY NOW' : ' · coming soon') + '</b>' + esc(r.d) + '</div>'; }).join('') + '</div>'; }
 function setHTML() { var c = S.cfg, ck = function (k, l) { return '<label><input type="checkbox" data-a="cfg" data-c="' + k + '"' + (c[k] ? ' checked' : '') + '>' + l + '</label>'; };
@@ -1551,8 +1565,8 @@ function viewsMenu() { if (!S.menu) S.wasPaused = S.paused;
     function (a, b) { if (a === 'v') { closeMenu(); goView(b.dataset.v); } if (a === 'x') closeMenu(); });
 }
 function helpMenu() { if (!S.menu) S.wasPaused = S.paused; setPause(true);
-  menu('<h1>Help</h1><h2>Moving around</h2><div class="cpnkeys"><kbd>Drag</kbd><span>Look around (mouse or finger)</span><kbd>W A S D</kbd><span>Walk (Shift to hurry). On a phone: the joystick</span><kbd>Scroll / pinch</kbd><span>Zoom in to read meters</span><kbd>Click</kbd><span>Use a control, or zoom in to a screen</span><kbd>V</kbd><span>Views menu</span><kbd>Esc</kbd><span>Step back / menu</span></div>' +
-    '<h2>Reactor shortcuts</h2><div class="cpnkeys"><kbd>O</kbd><span>Hold: rods OUT</span><kbd>I</kbd><span>Hold: rods IN</span><kbd>1 2 3 4</kbd><span>Select shutdown bank SA, SB, SC, SD</span><kbd>5</kbd><span>Select MAN (control banks)</span><kbd>K / J / L</kbd><span>Annunciator acknowledge / silence / reset</span><kbd>T</kbd><span>Time ×1 → ×5 → ×20</span><kbd>Space</kbd><span>Pause</span><kbd>C / G</kbd><span>Quick controls / instructor assist</span></div>' +
+  menu('<h1>Help</h1><h2>Moving around</h2><div class="cpnkeys"><kbd>Drag</kbd><span>Look around (mouse or finger)</span><kbd>L</kbd><span>Lock the mouse to the centre (move to look, click what the dot is on). L again unlocks</span><kbd>W A S D</kbd><span>Walk (Shift to hurry). On a phone: the joystick</span><kbd>Scroll / pinch</kbd><span>Zoom in to read meters</span><kbd>Click</kbd><span>Use a control, or zoom in to a screen</span><kbd>V</kbd><span>Views menu</span><kbd>Esc</kbd><span>Step back / menu</span></div>' +
+    '<h2>Reactor shortcuts</h2><div class="cpnkeys"><kbd>O</kbd><span>Hold: rods OUT</span><kbd>I</kbd><span>Hold: rods IN</span><kbd>1 2 3 4</kbd><span>Select shutdown bank SA, SB, SC, SD</span><kbd>5</kbd><span>Select MAN (control banks)</span><kbd>K / J / R</kbd><span>Annunciator acknowledge / silence / reset</span><kbd>T</kbd><span>Time ×1 → ×5 → ×20</span><kbd>Space</kbd><span>Pause</span><kbd>C / G</kbd><span>Quick controls / instructor assist</span></div>' +
     '<h2>Checklists, shifts and explain mode</h2><p><b>📋 Checklists:</b> the card at the top left shows the step you\u2019re on. Press 📋 to see all three procedures: <b>pre-startup</b> (you look at the right instrument and press ✔ to tick each check), <b>startup</b> and <b>shutdown</b> (these tick themselves when the plant gets there). 👁 flies you to the right place.</p><p><b>⏱ Shift length:</b> set it in the menu. Five minutes before the end you get a warning; at the end you hand over with a summary of your shift. Pick \u201cNo limit\u201d for none.</p><p><b>💡 Explain mode:</b> rest the pointer on any control or instrument for 3 seconds (a small ring fills up), or press and hold it on a touch screen. A card explains what it does and how it\u2019s used in a real plant. It never blocks clicks. Press <kbd>X</kbd> or 💡 to turn it off.</p>' +
     '<h2>Colours</h2><p>Lamps use the Westinghouse convention: <b style="color:#ff6b5b">red = closed / running / open valve</b>, <b style="color:#59e07a">green = open breaker / stopped / shut valve</b>. Annunciators: fast flash = new alarm (press ACK), steady = acknowledged, slow flash = cleared (press RESET).</p>' +
     '<div class="cpnbtns"><button class="cpnb" data-a="x">Got it</button></div>', function (a) { if (a === 'x') closeMenu(); });
@@ -1665,12 +1679,14 @@ function init() {
   if (hi) { try { var pm = new THREE.PMREMGenerator(ren), es = new THREE.Scene(), bx = new THREE.Mesh(new THREE.BoxGeometry(22, 3.6, 16), new THREE.MeshBasicMaterial({ color: 0x5d6268, side: THREE.BackSide })); bx.position.y = 1.8; es.add(bx);
     var lm = new THREE.MeshBasicMaterial({ color: 0xffffff }); lm.color.setScalar(5); for (var x = -9; x <= 9; x += 3) for (var z = -6; z <= 6; z += 3) { var l = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 0.6), lm); l.rotation.x = Math.PI / 2; l.position.set(x, 3.55, z); es.add(l); }
     scene.environment = pm.fromScene(es, 0.04).texture; scene.environmentIntensity = 0.55; pm.dispose(); } catch (e) {} }
+  if (hi) { ren.shadowMap.enabled = true; ren.shadowMap.type = THREE.PCFSoftShadowMap; var sn = R3.sun, sc = sn.shadow.camera; sn.castShadow = true; sn.shadow.mapSize.set(2048, 2048); sc.left = -13; sc.right = 13; sc.top = 12; sc.bottom = -12; sc.near = 1; sc.far = 32; sc.updateProjectionMatrix(); sn.shadow.bias = -0.0004; sn.shadow.normalBias = 0.04; sn.shadow.radius = 5;
+    scene.traverse(function (o) { if (!o.isMesh || !o.material || o.material.isMeshBasicMaterial) return; o.receiveShadow = true; var gt = o.geometry.type; if (gt !== 'PlaneGeometry' && gt !== 'RingGeometry' && !o.material.transparent) o.castShadow = true; }); }
   WG.forEach(function (w) { if (w.o.tiles) { w.isAnn = true; ANNW.push(w); } });
   S.ecpBand = ecpBand(); ANNC.init();
   buildHUD();
   var c = ren.domElement; c.addEventListener('pointerdown', onDown); c.addEventListener('pointermove', onMove); c.addEventListener('pointerup', onUp); c.addEventListener('pointercancel', onUp); c.addEventListener('wheel', onWheel, { passive: false }); c.addEventListener('contextmenu', function (e) { e.preventDefault(); });
   c.addEventListener('pointerleave', function () { hideTip(); PTR.hover = null; PTR.hoverObj = null; });
-  document.addEventListener('keydown', kd); document.addEventListener('keyup', ku);
+  document.addEventListener('keydown', kd); document.addEventListener('keyup', ku); document.addEventListener('pointerlockchange', lockChange);
   window.addEventListener('blur', function () { KEYS = {}; if (S && S.leverDir) ACT.lever(0); });
   document.addEventListener('visibilitychange', function () { if (document.hidden && S && root && !root.hidden) { save(); if (!S.menu) pauseMenu(); } });
   goView('start', true); WG.forEach(function (w) { redraw(w, true); });
