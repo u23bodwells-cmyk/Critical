@@ -2985,7 +2985,21 @@ function moveCam(dt) {
 }
 /* when the mission card covers the left of a wide screen, shift the picture right so what you're looking at sits in the clear part */
 var OFS = { cur: 0, w: 0, h: 0 };
-function applyCam(dt) { var c = R3.cam; if (c.position.x !== CAM.x || c.position.z !== CAM.z || c.rotation.y !== CAM.yaw || c.rotation.x !== CAM.pitch || OFS.f !== CAM.fov) { PTR.hoverDirty = true; OFS.f = CAM.fov; } c.position.set(CAM.x, CAM.y, CAM.z); c.rotation.order = 'YXZ'; c.rotation.y = CAM.yaw; c.rotation.x = CAM.pitch; if (HAND.lean > 0 && HAND.leanDir) { var ln = HAND.lean * (HAND.rush ? 1.25 : 1); c.position.addScaledVector(HAND.leanDir, (HAND.reachX || 0.13) * ln); c.position.y -= 0.05 * ln; c.rotation.x -= 0.07 * ln; c.rotation.z = (HAND.rush ? 0.02 : 0.01) * Math.sin(HAND.t * 9) * ln; } else c.rotation.z = 0;
+var HEADM = { y: null, p: 0, vy: 0, vp: 0, roll: 0, t: 0 };
+function applyCam(dt) { var c = R3.cam; if (c.position.x !== CAM.x || c.position.z !== CAM.z || c.rotation.y !== CAM.yaw || c.rotation.x !== CAM.pitch || OFS.f !== CAM.fov) { PTR.hoverDirty = true; OFS.f = CAM.fov; } /* a human head, not a tripod: the view follows the mouse through a quick spring (a touch of weight, slight overshoot), the eyes sit
+     ahead of and above the neck so turning and looking down swing the viewpoint, the head rolls into fast turns, and it breathes */
+  var hd = HEADM, ddt = Math.min(0.05, dt || 0.016); if (hd.y == null || CAM.tw) { hd.y = CAM.yaw; hd.p = CAM.pitch; hd.vy = hd.vp = 0; }
+  var dyw = CAM.yaw - hd.y; while (dyw > Math.PI) { dyw -= 2 * Math.PI; hd.y += 2 * Math.PI; } while (dyw < -Math.PI) { dyw += 2 * Math.PI; hd.y -= 2 * Math.PI; }
+  var K = 260, Dm = 27; hd.vy += (dyw * K - hd.vy * Dm) * ddt; hd.vp += ((CAM.pitch - hd.p) * K - hd.vp * Dm) * ddt; hd.y += hd.vy * ddt; hd.p += hd.vp * ddt;
+  hd.roll += (clamp(-hd.vy * 0.018, -0.05, 0.05) - hd.roll) * (1 - Math.exp(-ddt * 8)); hd.t += ddt;
+  var walkV = Math.hypot(CAM.vx || 0, CAM.vz || 0), br = CAM.view === 'walk' || CAM.view === 'room' ? 1 : 0.35;
+  var yy = hd.y + Math.sin(hd.t * 0.37) * 0.0025 * br, pp = hd.p + Math.sin(hd.t * 1.6) * 0.0018 * br + Math.sin((CAM.bobT || 0) * 2) * 0.004 * Math.min(1, walkV);
+  /* neck pivot: eyes 9 cm forward and 11 cm above it */
+  var cp = Math.cos(pp), nx = -Math.sin(yy) * cp * 0.09, nz = -Math.cos(yy) * cp * 0.09, ny = Math.sin(pp) * 0.09 + (Math.cos(pp) - 1) * 0.11;
+  c.position.set(CAM.x + nx + Math.sin(yy) * 0.09, CAM.y + ny, CAM.z + nz + Math.cos(yy) * 0.09); c.rotation.order = 'YXZ'; c.rotation.y = yy; c.rotation.x = pp;
+  var rz = hd.roll + Math.sin((CAM.bobT || 0)) * 0.006 * Math.min(1, walkV);
+  if (HAND.lean > 0 && HAND.leanDir) { var ln = HAND.lean * (HAND.rush ? 1.25 : 1); c.position.addScaledVector(HAND.leanDir, (HAND.reachX || 0.13) * ln); c.position.y -= 0.05 * ln; c.rotation.x -= 0.07 * ln; rz += (HAND.rush ? 0.02 : 0.01) * Math.sin(HAND.t * 9) * ln; }
+  c.rotation.z = rz; if (Math.abs(hd.vy) + Math.abs(hd.vp) > 0.002) PTR.hoverDirty = true;
   var W = root.clientWidth, H = Math.max(1, root.clientHeight), ms = HUD.el.ms, want = 0; if (W > 900 && ms && !ms.hidden && !ms.classList.contains('min') && CAM.view !== 'walk' && CAM.view !== 'start' && CAM.view !== 'room' && !locked()) want = Math.round((ms.offsetWidth + 16) / 2);
   OFS.want = want; OFS.cur += (want - OFS.cur) * (1 - Math.exp(-(dt || 0.016) * 6)); if (Math.abs(OFS.cur - want) < 0.5) OFS.cur = want; var d = Math.round(OFS.cur);
   var asp = W / H, fe = asp < 1 ? Math.min(88, 2 * Math.atan(Math.tan(CAM.fov * 0.92 * Math.PI / 360) / asp) * 180 / Math.PI) : CAM.fov;
