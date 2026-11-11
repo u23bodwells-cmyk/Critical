@@ -35,8 +35,8 @@ function setOverlap(p) { p.rods.CA = clamp(p.pc, 0, TOP); p.rods.CB = clamp(p.pc
 /* moderator temperature coefficient: boron makes it less negative (water expands, boron leaves the core), about -12 pcm/°C at 1200 ppm, -38 with no boron */
 function mtc(p) { return -38 + 0.022 * p.boron; }
 var DHF = [0.03, 0.02, 0.015], DHT = [10, 150, 3000];
-function rhoParts(p) { var rods = 0; BANKS.forEach(function (b) { rods -= WORTH[b] * (1 - bankF(p.rods[b])); }); return { base: RHO0, rods: rods, boron: -p.boron * BW, dop: AD * (p.Tf - T0), mod: mtc(p) * (p.Tavg - T0) }; }
-function rhoPcm(p) { var r = rhoParts(p); return r.base + r.rods + r.boron + r.dop + r.mod; }
+function rhoParts(p) { var rods = 0; BANKS.forEach(function (b) { rods -= WORTH[b] * (1 - bankF(p.rods[b])); }); return { base: RHO0, rods: rods, boron: -p.boron * BW, dop: AD * (p.Tf - T0), mod: mtc(p) * (p.Tavg - T0), xe: xeRho(p) }; }
+function rhoPcm(p) { var r = rhoParts(p); return r.base + r.rods + r.boron + r.dop + r.mod + r.xe; }
 function pcName(pc) { if (pc <= 0) return 'all control banks in'; if (pc >= PCMAX) return 'all control banks out'; var b = pc >= 3 * OVL ? 'D' : pc >= 2 * OVL ? 'C' : pc >= OVL ? 'B' : 'A', z = b === 'D' ? pc - 3 * OVL : b === 'C' ? pc - 2 * OVL : b === 'B' ? pc - OVL : pc; return 'bank ' + b + ' at ' + Math.round(z) + ' steps'; }
 
 function freshPlant() {
@@ -45,7 +45,7 @@ function freshPlant() {
     dh: [0, 0, 0], drop0: null, dropT: 0, sur: 0, lnPrev: null, srAvg: 0, oneM: [], c0: null, stillT: 0, lastPc: null, lastSdb: '', hist: [], histT: 0, everCrit: false, maxSur: 0, trips: 0 };
   BANKS.forEach(function (b) { p.rods[b] = 0; });
   var rho = rhoPcm(p) * 1e-5; p.n = SRC * GEN / -rho; for (var i = 0; i < 6; i++) p.c[i] = BI[i] * p.n / (GEN * LI[i]);
-  for (var k = 0; k < 6000; k++) plantStep(p, 0.05, true); /* let temperatures and the steam dumps settle */
+  p.x = bop0(); p._q = true; for (var k = 0; k < 6000; k++) plantStep(p, 0.05, true); /* let temperatures and the steam dumps settle */ p._q = false;
   p.t = 0; p.hist = []; p.srAvg = 3e11 * p.n; p.lnPrev = Math.log(p.n); p.sur = 0;
   return p;
 }
@@ -76,14 +76,9 @@ function plantStep(p, dt, quiet) {
   /* heat: core power, 4 reactor coolant pumps (20 MW), the steam generators pull heat out to the steam side, the steam dumps hold steam pressure */
   if (!p.dh) p.dh = [0, 0, 0]; var dhs = 0; for (var di = 0; di < 3; di++) { p.dh[di] += (DHF[di] * p.n - p.dh[di]) * (1 - Math.exp(-dt / DHT[di])); dhs += p.dh[di]; }
   /* 6.5% of the heat comes late, from fission products decaying: it carries on after a trip */
-  var Q = FULL * (p.n * 0.935 + dhs), ts = tsat(p.Ps), qsg = UA * (p.Tavg - ts);
-  p.Tf += ((p.Tavg + 460 * Math.min(p.n, 1.3)) - p.Tf) * (1 - Math.exp(-dt / 5));
-  p.Tavg += (Q + 20 - qsg - 1.5) / CRCS * dt;
-  var err = p.Ps - PSP; p.dI = clamp(p.dI + err * dt * 0.015, 0, 1); p.dump += (clamp(0.35 * err + p.dI, 0, 1) - p.dump) * (1 - Math.exp(-dt / 1.2)); /* valves take a moment to stroke */
-  var relief = p.Ps > 84 ? (p.Ps - 84) * 600 : 0; /* steam generator safety valves */
-  p.Ps += (qsg - p.dump * 0.4 * FULL - relief - 4) / 400 * dt;
-  p.rcs += ((155 + (p.Tavg - T0) * 0.7) - p.rcs) * (1 - Math.exp(-dt / 8));
-  p.pzr = clamp(25 + (p.Tavg - T0) * 2.3, 0, 100);
+  var Q = FULL * (p.n * 0.935 + dhs);
+  /* everything else (coolant pumps, steam generators, pressuriser, boron, feed, turbine, electrics...) lives in the balance-of-plant model */
+  bopStep(p, dt, Q);
   /* startup rate from how fast the neutron population is changing: SUR (decades per minute) = 26.06 / period */
   var ln = Math.log(p.n); if (p.lnPrev == null) p.lnPrev = ln; var raw = 26.06 * (ln - p.lnPrev) / dt; p.lnPrev = ln;
   p.sur += (raw - p.sur) * (1 - Math.exp(-dt / 2.5));
@@ -99,6 +94,8 @@ function srTrue(p, i) { return 3e11 * p.n * SRG[i]; }
 function irAmps(p, i) { return 1e-3 * p.n * IRG[i] + 4e-12; }
 function prPct(p, i) { return 100 * p.n * PRG[i]; }
 function p6(p) { return irAmps(p, 0) > 1e-10 || irAmps(p, 1) > 1e-10; }
+function p10(p) { var n = 0; for (var i = 0; i < 4; i++) if (prPct(p, i) > 10) n++; return n >= 2; }
+function blkd(p, k) { return !!(p[k] && p[k][0] && p[k][1]); }
 var NI = { sr: [80, 75], surSr: [0, 0], pr: [0, 0, 0, 0], ir: [1e-11, 1e-11] };
 function poisson(mu) { if (mu < 30) { var L = Math.exp(-mu), k = 0, q = 1; do { k++; q *= Math.random(); } while (q > L && k < 200); return k - 1; } return Math.max(0, Math.round(mu + Math.sqrt(mu) * gauss())); }
 function niTick(p, dt) {
@@ -118,19 +115,20 @@ function rps(p) {
   if (p.tripped) return null;
   var c = null, prs = [0, 1, 2, 3].map(function (i) { return prPct(p, i); }), over = function (v) { return prs.filter(function (x) { return x > v; }).length >= 2; };
   if ((srTrue(p, 0) > 1e5 && !p.srBlk[0]) || (srTrue(p, 1) > 1e5 && !p.srBlk[1])) c = 'SR';
-  else if (irAmps(p, 0) > 2.5e-4 || irAmps(p, 1) > 2.5e-4) c = 'IR';
+  else if ((irAmps(p, 0) > 2.5e-4 && !(p.irBlk && p.irBlk[0])) || (irAmps(p, 1) > 2.5e-4 && !(p.irBlk && p.irBlk[1]))) c = 'IR';
   else if (over(109)) c = 'PRH';
-  else if (over(25)) c = 'PRL';
-  if (c) doTrip(p, c);
+  else if (over(25) && !blkd(p, 'prBlk')) c = 'PRL';
+  if (c) doTrip(p, c); else c = rpsBop(p);
   return c;
 }
 function doTrip(p, cause) {
   if (p.tripped) return; var out = BANKS.some(function (b) { return p.rods[b] > 0; });
-  p.tripped = true; p.rtb = [false, false]; p.lever = 0; p.firstOut = cause; p.trips++; if (out) { p.dropping = true; p.dropped = true; p.dropT = 0; p.drop0 = {}; BANKS.forEach(function (b) { p.drop0[b] = p.rods[b]; }); }
+  p.tripped = true; p.rtb = [false, false]; p.lever = 0; p.firstOut = cause; p.trips++; if (p.x && p.x.tb.latched && cause !== 'TT') turbTrip(p, 'reactor trip'); if (out) { p.dropping = true; p.dropped = true; p.dropT = 0; p.drop0 = {}; BANKS.forEach(function (b) { p.drop0[b] = p.rods[b]; }); }
   if (S && S.onTrip) S.onTrip(cause);
 }
 /* P-6 gone (power back below 1E-10 A): the source range blocks reset by themselves and the detectors come back on */
-function permissives(p) { if (!p6(p) && (p.srBlk[0] || p.srBlk[1])) { p.srBlk = [false, false]; if (S && S.toast) S.toast('Below P-6: the source range detectors have switched back on by themselves.'); } }
+function permissives(p) { if (!p6(p) && (p.srBlk[0] || p.srBlk[1])) { p.srBlk = [false, false]; if (S && S.toast) S.toast('Below P-6: the source range detectors have switched back on by themselves.'); }
+  if (!p10(p) && ((p.irBlk && (p.irBlk[0] || p.irBlk[1])) || (p.prBlk && (p.prBlk[0] || p.prBlk[1])))) { p.irBlk = [false, false]; p.prBlk = [false, false]; if (S && S.toast) S.toast('Below P-10: the intermediate range and power range low trips have reset by themselves.'); } }
 
 /* ---------- 1/M: inverse count rate ratio, plotted against control bank withdrawal to predict where the reactor will go critical ---------- */
 function oneMTick(p, dt) {
@@ -142,6 +140,165 @@ function oneMTick(p, dt) {
   if (p.stillT > 25 && p.lastPc != null && Math.abs(p.pc - p.lastPc) >= 20 && p.pc > p.lastPc) { var m = clamp(p.c0 / Math.max(1, p.srAvg), 0, 1.2); p.oneM.push([p.pc, m]); p.lastPc = p.pc; if (S && S.toast) S.toast('1/M point plotted: ' + m.toFixed(2) + ' at ' + pcName(p.pc) + '.'); }
 }
 function ecpFromOneM(p) { var o = p.oneM; if (!o || o.length < 2) return null; var a = o[o.length - 2], b = o[o.length - 1]; if (!(a[1] > b[1])) return null; return b[0] + b[1] * (b[0] - a[0]) / (a[1] - b[1]); }
+
+/* ================================================================ the rest of the plant ================================================================
+   Everything outside the core: pressuriser, reactor coolant pumps, chemical & volume control (boron), steam generators,
+   feedwater, main steam, turbine, generator and grid, electrical buses and diesels, cooling water, instrument air,
+   safety injection, containment, xenon. Simple physics, but every switch on the boards changes something real here. */
+var GRIDF = 50, VRCS = 270, LPRG = function (T) { return clamp(25 + (T - T0) * 2.35, 25, 61); };
+function bop0() {
+  return {
+    rcp: [1, 1, 1, 1], rcpOn: [true, true, true, true], brgT: [55, 55, 55, 55],
+    pz: { P: 155, L: 25, prop: 0.45, backup: false, spray: 0, porv: [false, false], porvMode: ['AUTO', 'AUTO'], blk: [true, true], master: 'AUTO', manDem: 0.45, lvl: 'AUTO', heaters: true, bkup: 'AUTO', sprayMan: 'AUTO', sprayDem: 0, prt: 70, prtP: 0.3, safety: false, pI: 0 },
+    cv: { ccp: [true, false], pd: false, orif: [false, true, false], ltdIso: false, chg: 17.8, ltd: 17.0, chgMode: 'AUTO', chgDem: 17.8, lI: 0, vct: 46, mode: 'AUTO', run: false, dilF: 10, baF: 2, batch: 1000, done: 0, bat: 82, baPump: [true, false], seal: 3.1, mkup: 0, divert: false },
+    sg: [0, 1, 2, 3].map(function () { return { L: 50, Lm: 50, msiv: true, frv: 0, frvMode: 'AUTO', frvDem: 0, fI: 0, afwV: 0.3, afwMode: 'AUTO', afwDem: 0.3, porv: false, porvMode: 'AUTO', feed: 0, steam: 0, sf: 0, sfS: 0 }; }),
+    mfp: [false, false], mdafw: [true, true], tdafw: false, cond: [true, true], cw: [true, true, false, false], vac: 0.062, hotwell: 61,
+    dumpMode: 'PRESS', dumpCtl: 'AUTO', dumpDem: 0, sgPorvSet: 79,
+    tb: { latched: false, rpm: 31, set: 0, rate: 150, tg: true, sv: 0, gv: 0, steam: 0, mw: 0, load: 0, lrate: 30, gen: false, field: false, exc: 0, kv: 0, phase: 0, mvar: 0, mvarSet: 0, trip: true, tripWhy: '', syncSel: 'OFF' },
+    el: { stn: true, unitTx: false, busA: true, busB: true, esbA: true, esbB: true, tieA: true, tieB: true, edg: [{ run: false, rpm: 0, bkr: false, mode: 'AUTO', kw: 0 }, { run: false, rpm: 0, bkr: false, mode: 'AUTO', kw: 0 }], dc: [130, 130], chg: [true, true], grid: true },
+    aux: { ccw: [true, true, false], sw: [true, true, false, false], air: [true, false], airP: 7.0, fan: [true, true, true, false], ccwT: 31, swT: 12.4, hvac: true },
+    si: { on: false, at: -1, blkP: false, blkS: false, pumps: [false, false], rhr: [false, false], acc: [true, true, true, true], cs: [false, false], phaseA: false, rwst: 96, flow: 0 },
+    ct: { P: 0.0, T: 32, hum: 40, sump: 2 },
+    xe: { I: 0, X: 0 },
+    ar: 'MAN', rodAuto: 0, firstHeat: false, log: []
+  };
+}
+function bop(p) { if (!p.x) p.x = bop0(); return p.x; }
+function xeRho(p) { return -(p.x ? p.x.xe.X : 0); }
+/* which buses have power: everything on the unit boards needs the station transformer (grid) or the unit transformer (generator) */
+function busOn(x, b) { var e = x.el; if (b === 'A') return e.busA && (e.stn && e.grid || e.unitTx && x.tb.gen); if (b === 'B') return e.busB && (e.stn && e.grid || e.unitTx && x.tb.gen);
+  if (b === 'EA') return (e.tieA && busOn(x, 'A')) || (e.edg[0].bkr && e.edg[0].rpm > 2900); if (b === 'EB') return (e.tieB && busOn(x, 'B')) || (e.edg[1].bkr && e.edg[1].rpm > 2900); return true; }
+var PUMPBUS = { rcp: ['A', 'B', 'A', 'B'], ccp: ['EA', 'EB'], pd: 'A', mfp: ['A', 'B'], mdafw: ['EA', 'EB'], cond: ['A', 'B'], cw: ['A', 'B', 'A', 'B'], ccw: ['EA', 'EB', 'EA'], sw: ['EA', 'EB', 'EA', 'EB'], air: ['A', 'B'], sip: ['EA', 'EB'], rhr: ['EA', 'EB'], cs: ['EA', 'EB'], fan: ['EA', 'EB', 'EA', 'EB'], bap: ['EA', 'EB'] };
+function pwr(x, kind, i) { var b = PUMPBUS[kind]; return busOn(x, typeof b === 'string' ? b : b[i]); }
+function bopLog(p, t) { if (p._q) return; if (typeof S !== 'undefined' && S && S.addLog) S.addLog(t); }
+function trefC(x) { return T0 + 15.3 * clamp(x.tb.mw / 1150, 0, 1); }
+/* thermal-hydraulics + everything else, called from plantStep */
+function bopStep(p, dt, Q) {
+  var x = bop(p), pz = x.pz, cv = x.cv, tb = x.tb, i;
+  /* ---- reactor coolant pumps: coast down over ~40 s when stopped ---- */
+  var ccwOK = x.aux.ccw.some(function (c, k) { return c && pwr(x, 'ccw', k); }) && x.aux.sw.some(function (c, k) { return c && pwr(x, 'sw', k); });
+  for (i = 0; i < 4; i++) { var on = x.rcpOn[i] && pwr(x, 'rcp', i); if (x.rcpOn[i] && !pwr(x, 'rcp', i)) { x.rcpOn[i] = false; bopLog(p, 'RCP ' + (i + 1) + ' tripped: no power on its board'); }
+    x.rcp[i] += ((on ? 1 : 0) - x.rcp[i]) * (1 - Math.exp(-dt / (on ? 6 : 14)));
+    x.brgT[i] += ((on ? (ccwOK ? 55 : 120) : 40) - x.brgT[i]) * (1 - Math.exp(-dt / 180)); if (x.rcpOn[i] && x.brgT[i] > 95) { x.rcpOn[i] = false; bopLog(p, 'RCP ' + (i + 1) + ' tripped on high bearing temperature (no cooling water)'); } }
+  var W = Math.max(0.035, (x.rcp[0] + x.rcp[1] + x.rcp[2] + x.rcp[3]) / 4), rcpQ = 5 * (x.rcp[0] + x.rcp[1] + x.rcp[2] + x.rcp[3]);
+  /* ---- steam generators: heat goes into those with water, steam leaves through the MSIVs ---- */
+  var ts = tsat(p.Ps), wet = x.sg.filter(function (s) { return s.Lm > 3; }).length / 4, ua = UA * (0.35 + 0.65 * Math.sqrt(W)) * wet, qsg = ua * (p.Tavg - ts);
+  p.Tf += ((p.Tavg + 460 * Math.min(p.n, 1.3) / Math.sqrt(Math.max(W, 0.2))) - p.Tf) * (1 - Math.exp(-dt / 5));
+  var dT0 = p.Tavg; p.Tavg += (Q + rcpQ - qsg - 1.5 + (x.si.flow > 0 ? -x.si.flow * 0.08 : 0)) / CRCS * dt; var dTdt = (p.Tavg - dT0) / dt;
+  /* ---- turbine and generator ---- */
+  var anyMsiv = x.sg.some(function (s) { return s.msiv; }), vacOK = x.vac < 0.2;
+  if (tb.latched) { tb.tg = false;
+    if (!tb.gen) { var tgt = tb.set; tb.rpm += clamp(tgt - tb.rpm, -tb.rate / 60 * dt * 2, tb.rate / 60 * dt); tb.steam = (anyMsiv ? 1 : 0) * 0.02 * FULL * Math.pow(tb.rpm / 3000, 2); if (!anyMsiv || p.Ps < 20) { tb.rpm = Math.max(0, tb.rpm - 20 * dt); } }
+    else { tb.rpm = GRIDF * 60; var lim = p.Ps > 55 && anyMsiv ? 1 : clamp((p.Ps - 35) / 20, 0, 1); var tl = Math.min(tb.load, 1250 * lim); tb.mw += clamp(tl - tb.mw, -tb.lrate / 60 * dt * 3, tb.lrate / 60 * dt); tb.steam = (tb.mw / 0.335) + 0.02 * FULL; }
+    if (tb.rpm > 3300) turbTrip(p, 'overspeed'); if (!vacOK) turbTrip(p, 'low condenser vacuum'); }
+  else { tb.steam = 0; tb.mw += (0 - tb.mw) * (1 - Math.exp(-dt / 0.5)); if (!tb.gen) tb.rpm = Math.max(tb.tg ? 31 : 0, tb.rpm - (tb.rpm > 400 ? 6 : 2) * dt); if (tb.gen) tb.rpm = GRIDF * 60; }
+  tb.gv = tb.latched ? clamp(tb.steam / (FULL * 0.34), 0, 1) : 0; tb.sv = tb.latched ? 1 : 0;
+  if (tb.gen && !tb.latched) { tb.motT = (tb.motT || 0) + dt; if (tb.motT > 2) { tb.gen = false; x.el.unitTx = false; tb.motT = 0; bopLog(p, 'Generator breaker opened by reverse power protection (turbine tripped)'); } } else tb.motT = 0;
+  tb.exc += ((tb.field ? (tb.excSet == null ? 1 : tb.excSet) : 0) - tb.exc) * (1 - Math.exp(-dt / 2.5)); tb.kv = 22 * tb.exc * Math.min(1, tb.rpm / 3000);
+  if (!tb.gen) tb.phase = ((tb.phase + 360 * (tb.rpm / 60 - GRIDF) * dt) % 360 + 540) % 360 - 180; else tb.phase = 0;
+  tb.mvar += ((tb.gen ? tb.mvarSet : 0) - tb.mvar) * (1 - Math.exp(-dt / 3));
+  /* ---- steam dumps: STEAM PRESSURE mode holds 76.3 bar; TAVG mode opens on a hot-leg excess over Tref; blocked by P-12 (Tavg < 286 °C) and without condenser vacuum (C-9) ---- */
+  var c9 = vacOK && x.cw.filter(function (c, k) { return c && pwr(x, 'cw', k); }).length >= 1, p12 = p.Tavg < 286, dem = 0, err = p.Ps - PSP;
+  if (x.dumpMode === 'PRESS') { p.dI = clamp(p.dI + err * dt * 0.015, 0, 1); dem = x.dumpCtl === 'AUTO' ? clamp(0.35 * err + p.dI, 0, 1) : x.dumpDem; }
+  else if (x.dumpMode === 'TAVG') { p.dI = clamp(p.dI - dt * 0.02, 0, 1); dem = clamp((p.Tavg - trefC(x) - 1.7) / 8, 0, 1); }
+  if (!c9 || p12 || !anyMsiv || x.aux.airP < 4) dem = 0;
+  p.dump += (dem - p.dump) * (1 - Math.exp(-dt / 1.2));
+  var porvQ = 0; x.sg.forEach(function (s) { s.porv = s.porvMode === 'OPEN' || (s.porvMode === 'AUTO' && p.Ps > x.sgPorvSet + (s.porv ? -1 : 0)); if (s.porv) porvQ += 0.025 * FULL * clamp((p.Ps - 10) / 70, 0, 1.2); });
+  var relief = p.Ps > 84 ? (p.Ps - 84) * 600 : 0, steamOut = p.dump * 0.4 * FULL + tb.steam + porvQ + relief + (x.tdafw ? 6 : 0) + 4;
+  p.Ps += (qsg - steamOut) / 400 * dt; if (p.Ps < 1) p.Ps = 1;
+  /* ---- steam generator levels: feed in, steam out, with swell (level jumps up briefly when steam flow increases) ---- */
+  var stmPct = steamOut / FULL * 100, msivN = x.sg.filter(function (s) { return s.msiv; }).length || 1, airOK = x.aux.airP > 4;
+  var mfpN = x.mfp.filter(function (m, k) { return m && pwr(x, 'mfp', k) && x.cond.some(function (c, j) { return c && pwr(x, 'cond', j); }); }).length;
+  if (mfpN === 0) x.mfp.forEach(function (m, k) { if (m && !x.cond.some(function (c, j) { return c && pwr(x, 'cond', j); })) { x.mfp[k] = false; bopLog(p, 'Main feed pump ' + 'AB'[k] + ' tripped: no condensate pumps'); } });
+  x.sg.forEach(function (s, k) {
+    s.steam = s.msiv ? (stmPct - (s.porv ? 0 : 0)) / msivN * (msivN / 4) * 4 / 4 : (s.porv ? 2.5 : 0); if (!s.msiv && s.porv) s.steam = porvQ / FULL * 100 / 4;
+    if (s.msiv) s.steam = (p.dump * 0.4 * FULL + tb.steam + relief) / FULL * 100 / msivN + (s.porv ? 0.025 * 100 : 0) * clamp((p.Ps - 10) / 70, 0, 1.2) + 4 / FULL * 100 / 4;
+    s.sfS += (s.steam - s.sfS) * (1 - Math.exp(-dt / 25));
+    /* main feed through the feed regulating valve (3-element control: feed matches steam, trimmed by level) */
+    if (s.frvMode === 'AUTO') { s.fI = clamp(s.fI + (50 - s.L) * 0.0015 * dt, -0.3, 0.3); s.frvDem = clamp(s.steam / 28 + 0.04 * (50 - s.L) + s.fI, 0, 1); }
+    s.frv += ((airOK && !x.fwIso ? s.frvDem : 0) - s.frv) * (1 - Math.exp(-dt / 3));
+    var mf = mfpN ? s.frv * 14 * mfpN : 0;
+    var afwSrc = (x.mdafw[k < 2 ? 0 : 1] && pwr(x, 'mdafw', k < 2 ? 0 : 1) ? 3 : 0) + (x.tdafw && p.Ps > 8 ? 2.5 : 0);
+    if (s.afwMode === 'AUTO') s.afwDem = clamp(0.3 + (50 - s.L) * 0.05 + s.steam / 4, 0, 1);
+    s.afwV += ((airOK ? s.afwDem : 1) - s.afwV) * (1 - Math.exp(-dt / 4)); var af = afwSrc * s.afwV;
+    s.feed = mf + af; s.Lm = clamp(s.Lm + (s.feed - s.steam) * 0.02 * dt, 0, 100);
+    s.L = clamp(s.Lm + 6 * (s.steam - s.sfS) / 25, 0, 100);
+  });
+  /* ---- condenser, circulating water ---- */
+  var cwN = x.cw.filter(function (c, k) { return c && pwr(x, 'cw', k); }).length; x.vac += ((cwN >= 1 ? 0.062 + (steamOut / FULL) * 0.03 * (cwN >= 2 ? 1 : 2) : 1.0) - x.vac) * (1 - Math.exp(-dt / (cwN ? 30 : 60)));
+  /* ---- pressuriser: heaters raise pressure, spray (needs loops 1-2 pumps) lowers it, PORVs at 162 bar, safeties at 172 bar ---- */
+  var e = pz.P - 155;
+  if (pz.master === 'AUTO') { pz.pI = clamp(pz.pI - e * dt * 0.004, -0.5, 0.5); pz.prop = clamp(0.45 - e / 1.5 + pz.pI, 0, 1); if (pz.bkup === 'AUTO') pz.backup = e < -1.7 ? true : e > -0.7 ? false : pz.backup; if (pz.sprayMan === 'AUTO') pz.spray = clamp((e - 1.7) / 4, 0, 1); }
+  else { pz.prop = pz.manDem; if (pz.sprayMan === 'AUTO') pz.spray = clamp((e - 1.7) / 4, 0, 1); }
+  if (pz.sprayMan === 'MAN') pz.spray = pz.sprayDem;
+  if (pz.bkup === 'ON') pz.backup = true; if (pz.bkup === 'OFF') pz.backup = false;
+  var htrOK = pz.L > 17 && busOn(x, 'EA'), heatMW = htrOK && pz.heaters ? 1.8 * pz.prop + (pz.backup ? 1.6 : 0) : 0, sprayEff = pz.spray * Math.max(x.rcp[0], x.rcp[1]) * (airOK ? 1 : 0);
+  for (i = 0; i < 2; i++) { var o = pz.porvMode[i] === 'OPEN' || (pz.porvMode[i] === 'AUTO' && pz.P > (pz.porv[i] ? 160.5 : 162.3)); pz.porv[i] = o && airOK; }
+  var porvN = (pz.porv[0] && pz.blk[0] ? 1 : 0) + (pz.porv[1] && pz.blk[1] ? 1 : 0); pz.safety = pz.P > 172;
+  /* level: thermal expansion of the coolant plus charging minus letdown */
+  var sealIn = cv.ccp.some(Boolean) || cv.pd ? 2.0 : -1.2, siIn = x.si.flow;
+  var dLdt = 2.35 * dTdt + (cv.chg + sealIn + siIn - cv.ltd - porvN * 4 - (pz.safety ? 40 : 0)) / 3600 / 0.51;
+  pz.L = clamp(pz.L + dLdt * dt, 0, 100);
+  pz.P += (0.0062 * (heatMW - 0.6 - sprayEff * 15) + 0.55 * dLdt - porvN * 0.45 - (pz.safety ? 3 : 0)) * dt; pz.P = clamp(pz.P, 1, 185);
+  if (porvN || pz.safety) { pz.prt = Math.min(100, pz.prt + (porvN * 0.05 + (pz.safety ? 0.4 : 0)) * dt); pz.prtP = Math.min(7, pz.prtP + (porvN * 0.004 + (pz.safety ? 0.05 : 0)) * dt); }
+  p.rcs = pz.P; p.pzr = pz.L;
+  /* ---- chemical & volume control: charging holds pressuriser level on programme, letdown through the orifices ---- */
+  var chgPumps = cv.ccp.filter(function (c, k) { return c && pwr(x, 'ccp', k); }).length + (cv.pd && pwr(x, 'pd') ? 1 : 0);
+  if (cv.chgMode === 'AUTO') { var le = LPRG(p.Tavg) - pz.L; cv.lI = clamp(cv.lI + le * dt * 0.02, -15, 15); cv.chgDem = clamp(cv.ltd - 2 + le * 2.5 + cv.lI, 0, 30); }
+  cv.chg += ((chgPumps && airOK ? cv.chgDem : 0) - cv.chg) * (1 - Math.exp(-dt / 3));
+  if (!cv.ltdIso && (pz.L < 17 || !chgPumps || !airOK || x.si.phaseA)) { cv.ltdIso = true; bopLog(p, 'Letdown isolated' + (pz.L < 17 ? ' (pressuriser level low)' : !chgPumps ? ' (no charging flow)' : x.si.phaseA ? ' (containment isolation)' : ' (no instrument air)')); }
+  var orifQ = (cv.orif[0] ? 10.2 : 0) + (cv.orif[1] ? 17.0 : 0) + (cv.orif[2] ? 17.0 : 0); cv.ltd += ((cv.ltdIso ? 0 : orifQ * Math.sqrt(pz.P / 155)) - cv.ltd) * (1 - Math.exp(-dt / 2));
+  /* makeup: boration and dilution change the RCS boron concentration (mixing through 270 m³ of coolant) */
+  cv.mkup = 0; var cin = p.boron, rate = 0;
+  if (cv.run) { if (cv.mode === 'DIL' || cv.mode === 'ALTDIL') { rate = cv.dilF; cin = 0; } else if (cv.mode === 'BOR') { rate = cv.baF; cin = 7000; } else if (cv.mode === 'MAN') { rate = cv.dilF + cv.baF; cin = (cv.baF * 7000) / Math.max(0.1, rate); }
+    var bapOK = cv.baPump.some(function (b, k) { return b && pwr(x, 'bap', k); }); if (cin > 0 && !bapOK) { rate = cv.mode === 'MAN' ? cv.dilF : 0; cin = 0; }
+    cv.done += rate / 3.6 * dt; cv.mkup = rate; if (cin > 0) cv.bat = Math.max(0, cv.bat - (cv.mode === 'BOR' ? rate : cv.baF) * dt / 3600 * 2);
+    if (cv.done >= cv.batch) { cv.run = false; bopLog(p, 'Make-up batch complete: ' + Math.round(cv.done) + ' litres'); } }
+  if (cv.mode === 'AUTO' && cv.vct < 20) cv.autoMk = true; if (cv.vct > 40) cv.autoMk = false; if (cv.autoMk) { cv.mkup = 18; }
+  var chgEff = rate * (cv.mode === 'ALTDIL' ? 1.4 : 1); if (chgEff > 0 && cv.chg > 0) p.boron += (cin - p.boron) * Math.min(chgEff, cv.chg + 2) / VRCS / 3600 * dt;
+  if (siIn > 0) p.boron += (2400 - p.boron) * siIn / VRCS / 3600 * dt;
+  p.boron = clamp(p.boron, 0, 4000); if (cv.pb == null) cv.pb = p.boron; cv.bTr = (cv.bTr || 0) + ((p.boron - cv.pb) / dt * 60 - (cv.bTr || 0)) * (1 - Math.exp(-dt / 8)); cv.pb = p.boron;
+  cv.divert = cv.vct > 87; cv.vct = clamp(cv.vct + (cv.ltd + (sealIn < 0 ? 0 : 1.2) - cv.chg - (sealIn > 0 ? 3.1 : 0) + cv.mkup - (cv.divert ? 15 : 0)) / 0.1 / 3600 * 0.1 * dt * 10, 0, 100);
+  /* ---- safety injection: pressuriser pressure < 127 bar or steam pressure < 41 bar (unless blocked below P-11), or containment pressure high ---- */
+  var p11 = pz.P < 136; if (!p11) { x.si.blkP = false; x.si.blkS = false; }
+  if (!x.si.on && ((pz.P < 127 && !x.si.blkP) || (p.Ps < 41 && !x.si.blkS) || x.ct.P > 0.3)) siActuate(p, pz.P < 127 ? 'pressuriser pressure low' : p.Ps < 41 ? 'steam line pressure low' : 'containment pressure high');
+  var siHead = 0; if (x.si.on || x.si.pumps.some(Boolean)) { x.si.pumps.forEach(function (on2, k) { if (on2 && pwr(x, 'sip', k)) siHead += clamp((115 - pz.P) / 30, 0, 1) * 60; }); }
+  cv.ccp.forEach(function (on2, k) { if (on2 && pwr(x, 'ccp', k) && x.si.on) siHead += clamp((175 - pz.P) / 60, 0, 1) * 25; });
+  x.si.rhr.forEach(function (on2, k) { if (on2 && pwr(x, 'rhr', k)) siHead += clamp((14 - pz.P) / 10, 0, 1) * 300; });
+  x.si.flow = (x.si.on || siHead > 0) && x.si.rwst > 0 ? siHead : 0; x.si.rwst = Math.max(0, x.si.rwst - x.si.flow / 3600 / 18 * dt);
+  /* ---- containment ---- */
+  var leak = (pz.safety || porvN) && pz.prtP > 6 ? 1 : 0, fans = x.aux.fan.filter(function (f, k) { return f && pwr(x, 'fan', k); }).length, sprays = x.si.cs.filter(function (c, k) { return c && pwr(x, 'cs', k); }).length;
+  x.ct.T += ((32 + leak * 60) - x.ct.T - fans * 0.5 * (x.ct.T > 33 ? 1 : 0)) * (1 - Math.exp(-dt / 600)) - sprays * 0.01 * dt; x.ct.P = clamp(x.ct.P + (leak * 0.01 - sprays * 0.003 - fans * 0.0003) * dt, -0.02, 4); if (x.ct.P < 0) x.ct.P += 0.0005 * dt;
+  if (x.ct.P > 1.0 && !x.si.cs.every(Boolean)) { x.si.cs = [true, true]; bopLog(p, 'Containment spray actuated (containment pressure high-3)'); }
+  /* ---- electrical: diesels start on bus undervoltage or SI, come up to 3000 rpm (50 Hz) in about 10 s ---- */
+  x.el.edg.forEach(function (g, k) { var bus = k ? 'EB' : 'EA', dead = !((k ? x.el.tieB : x.el.tieA) && busOn(x, k ? 'B' : 'A'));
+    if (g.mode === 'AUTO' && !g.run && (dead || x.si.on)) { g.run = true; bopLog(p, 'Diesel generator ' + 'AB'[k] + ' auto-started (' + (dead ? 'bus undervoltage' : 'safety injection') + ')'); }
+    g.rpm += ((g.run ? 3000 : 0) - g.rpm) * (1 - Math.exp(-dt / (g.run ? 3 : 8))); if (g.mode === 'AUTO' && g.run && g.rpm > 2900 && dead && !g.bkr) { g.bkr = true; if (k) x.el.tieB = false; else x.el.tieA = false; bopLog(p, 'Diesel generator ' + 'AB'[k] + ' breaker closed onto the dead safety bus'); }
+    if (!g.run) g.bkr = false; g.kw = g.bkr ? 2100 + 300 * Math.sin(p.t / 7 + k) : g.run ? 80 : 0; });
+  x.el.dc.forEach(function (v, k) { x.el.dc[k] += (((x.el.chg[k] && busOn(x, k ? 'EB' : 'EA')) ? 131 : 118) - v) * (1 - Math.exp(-dt / 600)); });
+  /* ---- instrument air: compressors hold 7 bar; without them pressure bleeds away and air-operated valves fail safe ---- */
+  var airN = x.aux.air.filter(function (a, k) { return a && pwr(x, 'air', k); }).length; x.aux.airP = clamp(x.aux.airP + (airN ? (7.2 - x.aux.airP) * 0.05 : -0.004) * dt, 0, 7.5);
+  x.aux.ccwT += ((ccwOK ? 31 + p.n * 8 : 50) - x.aux.ccwT) * (1 - Math.exp(-dt / 300));
+  /* ---- xenon-135: builds up from iodine decay after power changes; worth about 2800 pcm at full power ---- */
+  var ph = Math.max(0, p.n), gI = 0.2418, gX = 0.0127; x.xe.I += (gI * ph - 2.87e-5 * x.xe.I) * dt; x.xe.X += (gX * ph + 2.87e-5 * x.xe.I - 2.09e-5 * x.xe.X - 7e-5 * ph * x.xe.X) * dt;
+  /* ---- automatic rod control: rods follow Tavg to Tref once the turbine is above 15% load (C-5) ---- */
+  if (p.sel === 'AUTO' && p.rtb[0] && p.rtb[1] && tb.mw > 170) { var te = p.Tavg - trefC(x), spm = Math.abs(te) < 0.8 ? 0 : clamp(8 + (Math.abs(te) - 0.8) * 24, 8, 72); x.rodAuto += spm / 60 * dt;
+    while (x.rodAuto >= 1) { x.rodAuto -= 1; stepOnce(p, 'MAN', te > 0 ? -1 : 1); } } else x.rodAuto = 0;
+}
+function turbTrip(p, why) { var x = bop(p), tb = x.tb; if (!tb.latched) return; tb.latched = false; tb.trip = true; tb.tripWhy = why; tb.set = 0; bopLog(p, 'TURBINE TRIP: ' + why);
+  if (typeof S !== 'undefined' && S && S.toast) S.toast('⚠ Turbine trip: ' + why, 'bad'); if (p.n > 0.5 && !p.tripped) doTrip(p, 'TT'); if (x.dumpMode === 'PRESS' && p.n > 0.1) { /* the dumps take the steam */ } }
+function siActuate(p, why) { var x = bop(p), si = x.si; if (si.on) return; si.on = true; si.at = p.t; si.pumps = [true, true]; si.rhr = [true, true]; x.cv.ccp = [true, true]; si.phaseA = true; x.mfp = [false, false]; x.fwIso = true; x.mdafw = [true, true]; x.tdafw = true;
+  bopLog(p, 'SAFETY INJECTION: ' + why); if (typeof S !== 'undefined' && S && S.toast) S.toast('⚠ Safety injection: ' + why, 'bad'); if (!p.tripped) doTrip(p, 'SI'); turbTrip(p, 'safety injection'); }
+/* extra reactor protection trips that need the rest of the plant */
+function rpsBop(p) {
+  if (p.tripped || !p.x) return null; var x = p.x, pr = p.n * 100, p7 = pr > 10 || x.tb.mw > 115, c = null, low = x.rcp.filter(function (r) { return r < 0.9; }).length;
+  if (p7 && x.pz.P < 134) c = 'PZRPL'; else if (x.pz.P > 166) c = 'PZRPH'; else if (p7 && x.pz.L > 92) c = 'PZRL';
+  else if ((pr > 30 && low >= 1) || (p7 && low >= 2)) c = 'LOFLOW'; else if (x.sg.some(function (s) { return s.L < 17; })) c = 'SGLL';
+  else if (p.Tavg > 312 && pr > 10) c = 'OTDT';
+  if (c) doTrip(p, c); if (x.sg.some(function (s) { return s.L > 85; }) && !x.p14) { x.p14 = true; x.mfp = [false, false]; x.fwIso = true; turbTrip(p, 'steam generator level high-high (P-14)'); } if (x.sg.every(function (s) { return s.L < 75; })) x.p14 = false;
+  return c;
+}
+Object.assign(TRIPS, { PZRPL: 'Pressuriser pressure low (134 bar)', PZRPH: 'Pressuriser pressure high (166 bar)', PZRL: 'Pressuriser level high (92%)', LOFLOW: 'Reactor coolant flow low', SGLL: 'Steam generator level low-low (17%)', OTDT: 'Overtemperature ΔT', TT: 'Turbine trip above P-9 (50% power)', SI: 'Safety injection' });
 
 /* ================================================================ drawing helpers ================================================================ */
 var ANISO = 4, S = null, root = null, R3 = null;
@@ -286,19 +443,26 @@ function chart(o) {
 function screen(o) { o.cw = o.cw || 1024; o.ch = o.ch || 640; o.glow = true; o.every = o.every || 0.5; o.key = function () { return Math.floor(performance.now() / (o.every * 1000)); }; return widget(o); }
 
 /* ================================================================ the control room ================================================================
-   A horseshoe of five benchboards around the operator, laid out like a real Westinghouse-style PWR control room.
-   Left to right: chemical & volume control, reactor coolant, REACTOR (centre), steam generators & feed, turbine-generator & grid.
+   A horseshoe of eleven benchboards around the operator, laid out like a real Westinghouse-style PWR control room:
+   primary side on the left, REACTOR in the centre, secondary side and electrics on the right.
    Each board: base cabinet, sloped desk with the controls, vertical panel with the instruments, annunciator windows on top. */
-var BR = 7, BCZ = 1.5, SW = 3.6, DESK_H = 0.9, PY0 = 1.12, PY1 = 2.40, PZ = -0.75, ANN_T = 0.2;
+var BR = 9.2, BCZ = 2.0, BSTEP = 23, SW = 3.6, RX = 12, ZB = -9.6, ZF = 11.4, CH = 4.4, RZC = (ZB + ZF) / 2, RDP = ZF - ZB, CZ = -1.0, SZ = 2.75, DESK_H = 0.9, PY0 = 1.12, PY1 = 2.40, PZ = -0.75, ANN_T = 0.2;
 var SL = Math.sqrt(PZ * PZ + (PY0 - DESK_H) * (PY0 - DESK_H)), SLOPE_A = Math.atan2(PY0 - DESK_H, -PZ);
-var PCW = 2048, PCH = Math.round(PCW * (PY1 - PY0) / SW), DCW = 2048, DCH = Math.round(DCW * SL / SW);
+var PCW = 2560, PCH = Math.round(PCW * (PY1 - PY0) / SW), DCW = 2560, DCH = Math.round(DCW * SL / SW);
 var SECDEF = [
-  { id: 'cvcs', a: -60, name: 'CHEMICAL & VOLUME CONTROL', short: 'CVCS & boron', sec: 2 },
-  { id: 'rcs', a: -30, name: 'REACTOR COOLANT SYSTEM', short: 'Reactor coolant', sec: 2 },
-  { id: 'rx', a: 0, name: 'REACTOR CONTROL  ·  NUCLEAR INSTRUMENTATION', short: 'Reactor', sec: 1 },
-  { id: 'sg', a: 30, name: 'STEAM GENERATORS & FEEDWATER', short: 'Steam & feed', sec: 3 },
-  { id: 'tg', a: 60, name: 'TURBINE  ·  GENERATOR  ·  GRID', short: 'Turbine & grid', sec: 4 }
+  { id: 'esf', name: 'SAFETY INJECTION  ·  CONTAINMENT  ·  RADIATION', short: 'Safety injection' },
+  { id: 'aux', name: 'COOLING WATER  ·  INSTRUMENT AIR  ·  HVAC', short: 'Cooling water & air' },
+  { id: 'cvcs', name: 'CHEMICAL & VOLUME CONTROL  ·  BORON', short: 'CVCS & boron' },
+  { id: 'pzr', name: 'PRESSURISER PRESSURE & LEVEL', short: 'Pressuriser' },
+  { id: 'rcs', name: 'REACTOR COOLANT SYSTEM', short: 'Reactor coolant' },
+  { id: 'rx', name: 'REACTOR CONTROL  ·  NUCLEAR INSTRUMENTATION', short: 'Reactor' },
+  { id: 'sg', name: 'STEAM GENERATORS & FEEDWATER', short: 'Steam & feed' },
+  { id: 'ms', name: 'MAIN STEAM  ·  STEAM DUMPS  ·  CONDENSER', short: 'Main steam' },
+  { id: 'tb', name: 'MAIN TURBINE', short: 'Turbine' },
+  { id: 'gen', name: 'GENERATOR  ·  SYNCHRONISING  ·  400 kV GRID', short: 'Generator & grid' },
+  { id: 'elec', name: 'ELECTRICAL DISTRIBUTION  ·  DIESEL GENERATORS', short: 'Electrical' }
 ];
+SECDEF.forEach(function (d, i) { d.a = (i - 5) * BSTEP; });
 var SEC = {}, HITS = [], CTRL = [], LAMPS = [], MAT = {}, SCR = [];
 /* things the other boards show that the Section 1 model doesn't calculate yet: they drift realistically around their hot standby values */
 var D = { grid: 50.0, gridV: 401, sgL: [50, 50, 50, 50], vct: 46, chg: 17.8, ltd: 17.2, tgSpd: 31, bat: 82, rwst: 96, dT: 0, thot: T0, tcold: T0, sub: 53, stmF: 0, feedF: 0, keff: 0.95, mode: 3, rho: 0, clock: 0 };
@@ -336,29 +500,29 @@ function signTex(w, h, fn) { var c = CV(w, h), g = c.getContext('2d'); fn(g, w, 
 function buildRoom(scene) {
   /* raised access floor: 600 mm tiles */
   var ft = signTex(256, 256, function (g) { g.fillStyle = '#9a9fa3'; g.fillRect(0, 0, 256, 256); speck(g, 256, 256, 2600, 0.06); g.strokeStyle = 'rgba(25,28,32,.6)'; g.lineWidth = 3; g.strokeRect(1.5, 1.5, 253, 253); g.strokeStyle = 'rgba(255,255,255,.22)'; g.lineWidth = 1; g.strokeRect(4.5, 4.5, 247, 247); });
-  ft.wrapS = ft.wrapT = THREE.RepeatWrapping; ft.repeat.set(22 / 0.6, 16 / 0.6);
-  var floor = new THREE.Mesh(new THREE.PlaneGeometry(22, 16), new THREE.MeshStandardMaterial({ map: ft, roughness: 0.2, metalness: 0.12 })); floor.rotation.x = -Math.PI / 2; scene.add(floor);
+  ft.wrapS = ft.wrapT = THREE.RepeatWrapping; ft.repeat.set(2 * RX / 0.6, RDP / 0.6);
+  var floor = new THREE.Mesh(new THREE.PlaneGeometry(2 * RX, RDP), new THREE.MeshStandardMaterial({ map: ft, roughness: 0.2, metalness: 0.12 })); floor.rotation.x = -Math.PI / 2; floor.position.z = RZC; floor.userData.floor = true; scene.add(floor);
   /* the 'at the controls' line: only the licensed operator on shift goes inside it without asking */
-  var arc = new THREE.Mesh(new THREE.RingGeometry(5.62, 5.7, 64, 1, Math.PI * 0.5 - 1.42, 2.84), new THREE.MeshBasicMaterial({ color: 0xd6a51c })); arc.rotation.x = -Math.PI / 2; arc.rotation.z = 0; arc.position.set(0, 0.003, BCZ); scene.add(arc);
-  var atc = new THREE.Mesh(new THREE.PlaneGeometry(2.2, 0.28), new THREE.MeshBasicMaterial({ map: signTex(512, 64, function (g) { g.clearRect(0, 0, 512, 64); ctext(g, 'AT THE CONTROLS AREA', 256, 32, 40, '#d6a51c', 'center', 500); }), transparent: true })); atc.rotation.x = -Math.PI / 2; atc.position.set(0, 0.004, BCZ - 5.95); scene.add(atc);
+  var arc = new THREE.Mesh(new THREE.RingGeometry(BR - 1.38, BR - 1.3, 128, 1, Math.PI * 0.5 - 2.2, 4.4), new THREE.MeshBasicMaterial({ color: 0xd6a51c })); arc.rotation.x = -Math.PI / 2; arc.rotation.z = 0; arc.position.set(0, 0.003, BCZ); scene.add(arc);
+  var atc = new THREE.Mesh(new THREE.PlaneGeometry(2.2, 0.28), new THREE.MeshBasicMaterial({ map: signTex(512, 64, function (g) { g.clearRect(0, 0, 512, 64); ctext(g, 'AT THE CONTROLS AREA', 256, 32, 40, '#d6a51c', 'center', 500); }), transparent: true })); atc.rotation.x = -Math.PI / 2; atc.position.set(0, 0.004, BCZ - (BR - 1.0)); scene.add(atc);
   /* walls: painted, with a darker dado */
   var wt = signTex(512, 512, function (g) { var gr = g.createLinearGradient(0, 0, 0, 512); gr.addColorStop(0, '#dcdedb'); gr.addColorStop(0.68, '#d3d6d2'); gr.addColorStop(0.69, '#56677a'); gr.addColorStop(0.7, '#3b4652'); gr.addColorStop(1, '#3b4652'); g.fillStyle = gr; g.fillRect(0, 0, 512, 512); speck(g, 512, 512, 3000, 0.03); });
   wt.wrapS = THREE.RepeatWrapping;
-  var wall = function (w, x, z, ry) { var t = wt.clone(); t.needsUpdate = true; t.repeat.set(w / 3.6, 1); var m = new THREE.Mesh(new THREE.PlaneGeometry(w, 3.6), new THREE.MeshStandardMaterial({ map: t, roughness: 0.85 })); m.position.set(x, 1.8, z); m.rotation.y = ry; scene.add(m); };
-  wall(22, 0, -8, 0); wall(22, 0, 8, Math.PI); wall(16, -11, 0, Math.PI / 2); wall(16, 11, 0, -Math.PI / 2);
+  var wall = function (w, x, z, ry) { var t = wt.clone(); t.needsUpdate = true; t.repeat.set(w / CH, 1); var m = new THREE.Mesh(new THREE.PlaneGeometry(w, CH), new THREE.MeshStandardMaterial({ map: t, roughness: 0.85 })); m.position.set(x, CH / 2, z); m.rotation.y = ry; scene.add(m); };
+  wall(2 * RX, 0, ZB, 0); wall(2 * RX, 0, ZF, Math.PI); wall(RDP, -RX, RZC, Math.PI / 2); wall(RDP, RX, RZC, -Math.PI / 2);
   /* suspended ceiling with recessed light panels */
   var ct = signTex(256, 256, function (g) { g.fillStyle = '#c9cac6'; g.fillRect(0, 0, 256, 256); speck(g, 256, 256, 4000, 0.05); g.strokeStyle = '#b9bcb8'; g.lineWidth = 5; g.strokeRect(0, 0, 256, 256); });
-  ct.wrapS = ct.wrapT = THREE.RepeatWrapping; ct.repeat.set(22 / 0.6, 16 / 0.6);
-  var ceil = new THREE.Mesh(new THREE.PlaneGeometry(22, 16), new THREE.MeshStandardMaterial({ map: ct, roughness: 0.95 })); ceil.rotation.x = Math.PI / 2; ceil.position.y = 3.6; scene.add(ceil);
+  ct.wrapS = ct.wrapT = THREE.RepeatWrapping; ct.repeat.set(2 * RX / 0.6, RDP / 0.6);
+  var ceil = new THREE.Mesh(new THREE.PlaneGeometry(2 * RX, RDP), new THREE.MeshStandardMaterial({ map: ct, roughness: 0.95 })); ceil.rotation.x = Math.PI / 2; ceil.position.set(0, CH, RZC); scene.add(ceil);
   var lg = new THREE.PlaneGeometry(1.2, 0.6);
-  for (var x = -9; x <= 9; x += 3) for (var z = -6.6; z <= 6.6; z += 2.2) { var l = new THREE.Mesh(lg, MAT.lightP); l.rotation.x = Math.PI / 2; l.position.set(x, 3.595, z); scene.add(l); }
+  for (var x = -10.5; x <= 10.5; x += 3) for (var z = ZB + 1.3; z <= ZF - 1; z += 2.2) { var l = new THREE.Mesh(lg, MAT.lightP); l.rotation.x = Math.PI / 2; l.position.set(x, CH - 0.005, z); scene.add(l); }
   /* lights: soft sky from the ceiling, a few lamps over the boards, and a dim fill */
   scene.add(new THREE.HemisphereLight(0xf4f6ff, 0x4b4740, 0.72));
-  var sun = new THREE.DirectionalLight(0xfff3e2, 1.25); sun.position.set(3, 12, 7.5); sun.target.position.set(0, 0, -1.5); scene.add(sun); scene.add(sun.target); R3.sun = sun;
-  [[22.1, 0.11, 0.03, 0, 0.055, -7.985], [22.1, 0.11, 0.03, 0, 0.055, 7.985], [0.03, 0.11, 16, -10.985, 0.055, 0], [0.03, 0.11, 16, 10.985, 0.055, 0]].forEach(function (q) { box(q[0], q[1], q[2], MAT.kick, q[3], q[4], q[5], scene); });
-  [[-5, 3.2, -2.5], [0, 3.2, -3.4], [5, 3.2, -2.5], [0, 3.2, 3.5], [-7, 3.2, 4], [7, 3.2, 4]].forEach(function (q, i) { var pl = new THREE.PointLight(0xfff5ea, i < 3 ? 9 : 5, 0, 1.3); pl.position.set(q[0], q[1], q[2]); scene.add(pl); });
+  var sun = new THREE.DirectionalLight(0xfff3e2, 1.25); sun.position.set(3, 14, 9); sun.target.position.set(0, 0, 0); scene.add(sun); scene.add(sun.target); R3.sun = sun;
+  [[2 * RX + 0.1, 0.11, 0.03, 0, 0.055, ZB + 0.015], [2 * RX + 0.1, 0.11, 0.03, 0, 0.055, ZF - 0.015], [0.03, 0.11, RDP, -RX + 0.015, 0.055, RZC], [0.03, 0.11, RDP, RX - 0.015, 0.055, RZC]].forEach(function (q) { box(q[0], q[1], q[2], MAT.kick, q[3], q[4], q[5], scene); });
+  [[-100, 7.2], [-55, 7.2], [-18, 7.2], [18, 7.2], [55, 7.2], [100, 7.2], [0, 0], [0, -9]].map(function (q) { var a = q[0] * Math.PI / 180; return [Math.sin(a) * q[1], CH - 0.4, BCZ - Math.cos(a) * q[1]]; }).forEach(function (q, i) { var pl = new THREE.PointLight(0xfff5ea, i < 6 ? 11 : 6, 0, 1.3); pl.position.set(q[0], q[1], q[2]); scene.add(pl); });
   /* back wall sign above the boards */
-  var sg = new THREE.Mesh(new THREE.PlaneGeometry(6.4, 0.5), new THREE.MeshStandardMaterial({ map: signTex(1536, 120, function (g) { g.fillStyle = '#1e2a36'; g.fillRect(0, 0, 1536, 120); ctext(g, '☢  CRITICAL POINT POWER STATION  ·  UNIT 1  ·  MAIN CONTROL ROOM', 768, 62, 58, '#f4f4ef', 'center', 1500); }), roughness: 0.5 })); sg.position.set(0, 3.25, -7.98); scene.add(sg);
+  var sg = new THREE.Mesh(new THREE.PlaneGeometry(6.4, 0.5), new THREE.MeshStandardMaterial({ map: signTex(1536, 120, function (g) { g.fillStyle = '#1e2a36'; g.fillRect(0, 0, 1536, 120); ctext(g, '☢  CRITICAL POINT POWER STATION  ·  UNIT 1  ·  MAIN CONTROL ROOM', 768, 62, 58, '#f4f4ef', 'center', 1500); }), roughness: 0.5 })); sg.position.set(0, CH - 0.5, ZB + 0.02); scene.add(sg);
   /* contact shadows under furniture */
   var sh = signTex(128, 128, function (g) { var gr = g.createRadialGradient(64, 64, 4, 64, 64, 64); gr.addColorStop(0, 'rgba(0,0,0,.55)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.fillRect(0, 0, 128, 128); });
   MAT.shadow = new THREE.MeshBasicMaterial({ map: sh, transparent: true, depthWrite: false });
@@ -389,11 +553,13 @@ function buildSection(def) {
   CONTENT[def.id](s);
   s.panel.material.map = texOf(panelBG(s)); s.panel.material.needsUpdate = true;
   s.deskP.material.map = texOf(deskBG(s)); s.deskP.material.needsUpdate = true;
+  if (s.be) beFinish(s);
   floorShadow(R3.scene, g.position.x + 0.45 * Math.sin(a), g.position.z - 0.45 * Math.cos(a), 4.4, 2.1, -a);
   return s;
 }
 function joints() {
-  for (var i = -75; i <= 75; i += 30) { var m = i * Math.PI / 180, end = Math.abs(i) === 75, r = end ? 7.5 : 7.48, g = new THREE.Group();
+  var A0 = (SECDEF[0].a - BSTEP / 2), A1 = (SECDEF[SECDEF.length - 1].a + BSTEP / 2);
+  for (var i = A0; i <= A1 + 0.01; i += BSTEP) { var m = i * Math.PI / 180, end = Math.abs(i - A0) < 0.01 || Math.abs(i - A1) < 0.01, r = BR + (end ? 0.5 : 0.48), g = new THREE.Group();
     g.position.set(Math.sin(m) * r, 0, BCZ - Math.cos(m) * r); g.rotation.y = -m; R3.scene.add(g);
     box(end ? 0.12 : 0.34, 2.98, 0.8, MAT.trim, 0, 1.49, -0.3, g); box(end ? 0.12 : 0.34, 0.05, 0.81, MAT.black, 0, 2.985, -0.3, g); }
 }
@@ -404,6 +570,7 @@ function panelBG(s) {
   s.mimic.forEach(function (m) { g.strokeStyle = m.col; g.lineWidth = m.w || 9; g.lineJoin = 'round'; g.lineCap = 'round'; g.beginPath(); m.pts.forEach(function (p, j) { var X = px(p[0]), Y = py(p[1]); if (j) g.lineTo(X, Y); else g.moveTo(X, Y); }); g.stroke(); });
   s.grp.forEach(function (b) { var x0 = px(b[0]), x1 = px(b[1]), y0 = py(b[3]), y1 = py(b[2]); g.fillStyle = 'rgba(255,255,255,.16)'; g.fillRect(x0, y0, x1 - x0, y1 - y0); g.strokeStyle = b[5] || '#26394d'; g.lineWidth = 4; g.strokeRect(x0, y0, x1 - x0, y1 - y0);
     var tw = Math.min(x1 - x0 - 20, Math.max(180, b[4].length * 15)); tag(g, b[4], (x0 + x1) / 2, y0, tw, 30, 20, b[5] || '#26394d', '#fff'); });
+  (s.artP || []).forEach(function (f) { f(g); });
   s.tag.forEach(function (t) { tag(g, t[2], px(t[0]), py(t[1]), t[3] || 120, t[4] || 26, t[5] || 16, t[6], t[7]); });
   return c;
 }
@@ -412,6 +579,7 @@ function deskBG(s) {
   var gr = g.createLinearGradient(0, 0, 0, DCH); gr.addColorStop(0, 'rgba(0,0,0,.06)'); gr.addColorStop(1, 'rgba(255,255,255,.08)'); g.fillStyle = gr; g.fillRect(0, 0, DCW, DCH);
   g.fillStyle = '#2a2f35'; g.fillRect(0, DCH - 26, DCW, 26);
   s.dgrp.forEach(function (b) { var x0 = dx(b[0]), x1 = dx(b[1]), y0 = dy(b[3]), y1 = dy(b[2]); g.strokeStyle = b[5] || '#26394d'; g.lineWidth = 4; g.strokeRect(x0, y0, x1 - x0, y1 - y0); tag(g, b[4], (x0 + x1) / 2, y0, Math.min(x1 - x0 - 16, Math.max(170, b[4].length * 15)), 28, 19, b[5] || '#26394d', '#fff'); });
+  (s.artD || []).forEach(function (f) { f(g); });
   s.dtag.forEach(function (t) { tag(g, t[2], dx(t[0]), dy(t[1]), t[3] || 120, t[4] || 30, t[5] || 17, t[6], t[7]); });
   return c;
 }
@@ -577,7 +745,7 @@ CONTENT.rx = function (s) {
     ['SR HI FLUX\nREACTOR TRIP', 'trip', function () { return p().tripped && p().firstOut === 'SR'; }], ['IR HI FLUX\nREACTOR TRIP', 'trip', function () { return p().tripped && p().firstOut === 'IR'; }], ['PR HI FLUX\nLO SETPT TRIP', 'trip', function () { return p().tripped && p().firstOut === 'PRL'; }], ['PR HI FLUX\nHI SETPT TRIP', 'trip', function () { return p().tripped && p().firstOut === 'PRH'; }],
     ['MANUAL\nREACTOR TRIP', 'trip', function () { return p().tripped && p().firstOut === 'MAN'; }], ['REACTOR TRIP\nBKR A OPEN', 'alarm', function () { return !p().rtb[0]; }], ['REACTOR TRIP\nBKR B OPEN', 'alarm', function () { return !p().rtb[1]; }], ['ROD BOTTOM\nROD DROP', 'alarm', function () { return p().dropping; }],
     ['SR HIGH\nFLUX LEVEL', 'alarm', function () { return (!p().srBlk[0] && NI.sr[0] > 5e4) || (!p().srBlk[1] && NI.sr[1] > 5e4); }], ['STARTUP RATE\nHIGH\n> 1 DPM', 'alarm', function () { return p().sur > 1; }], ['IR HI FLUX\nROD STOP', 'alarm', function () { return NI.ir[0] > 2e-4 || NI.ir[1] > 2e-4; }], ['ROD CONTROL\nURGENT\nFAILURE'], ['NIS PR\nCHANNEL\nDEVIATION'], ['SG SAFETY\nVALVE OPEN', 'alarm', function () { return p().Ps > 84; }],
-    ['P-6\nIR ABOVE\n1E-10 A', 'status', function () { return p6(p()); }], ['SR TRIP\nBLOCKED\nTRAIN A', 'status', function () { return p().srBlk[0]; }], ['SR TRIP\nBLOCKED\nTRAIN B', 'status', function () { return p().srBlk[1]; }], ['P-10\nPR ABOVE\n10%', 'status', function () { return D.pr > 10; }],
+    ['P-6\nIR ABOVE\n1E-10 A', 'status', function () { return p6(p()); }], ['SR TRIP\nBLOCKED\nTRAIN A', 'status', function () { return p().srBlk[0]; }], ['SR TRIP\nBLOCKED\nTRAIN B', 'status', function () { return p().srBlk[1]; }], ['P-10\nPR ABOVE\n10%', 'status', function () { return p10(p()); }],
     ['SHUTDOWN\nBANKS\nFULLY OUT', 'status', function () { return SDB.every(function (b) { return p().rods[b] >= TOP; }); }], ['ROD MOTION\nIN PROGRESS', 'status', function () { return p().t - (p().moveT || -9) < 1.6; }], ['STEAM DUMP\nVALVES OPEN', 'status', function () { return p().dump > 0.03; }], ['SR AUDIO\nMUTED', 'status', function () { return !p().audio; }],
     ['MODE 2\nSTARTUP', 'status', function () { return D.mode === 2; }], ['MODE 1\nPOWER\nOPERATION', 'status', function () { return D.mode === 1; }], [''], [''], [''], [''],
     ['NIS DETECTOR\nHV FAILURE'], ['NIS RACK\nPOWER LOSS'], ['ROD POSITION\nDEVIATION'], ['ROD INSERTION\nLIMIT LO'], ['ROD INSERTION\nLIMIT LO-LO'], ['DRPI\nNON-URGENT\nFAILURE'], ['PLANT\nCOMPUTER\nALARM'], [''], [''], [''], [''], [''], [''], ['']]));
@@ -603,141 +771,11 @@ CONTENT.rx = function (s) {
   mushroom(s, 1.6, 0.56, { tip: 'MANUAL REACTOR TRIP (train B): opens both trip breakers and drops every rod', act: function () { ACT.trip(); } });
   s.dtag.push([1.45, 0.36, 'REACTOR TRIP', 200, 32, 18, '#8f1a14', '#fff']);
   s.dtag.push([-0.82, 0.38, 'BLOCK ONLY WHEN P-6 IS LIT', 260, 24, 13, '#3a2a0a', '#ffd35a']);
-};
-/* ---------------------------------------------------------------- the other boards: live readings, controls arrive in later sections ---------------------------------------------------------------- */
-CONTENT.rcs = function (s) {
-  var p = function () { return S.p; };
-  s.grp.push([-1.76, -0.98, 1.42, 2.35, 'PRESSURISER'], [-0.94, 0.12, 1.42, 2.35, 'RCS LOOP TEMPERATURES'], [0.16, 0.7, 1.42, 2.35, 'RCS FLOW'], [0.74, 1.76, 1.42, 2.35, 'REACTOR COOLANT PUMPS']);
-  em(s, -1.685, 2.115, 'PZR P', 'BAR', 100, 180, function () { return p().rcs; }, { major: 4, minor: 5, name: 'Pressuriser pressure', w: 0.1, h: 0.29 });
-  em(s, -1.57, 2.115, 'PZR L', '% LEVEL', 0, 100, function () { return p().pzr; }, { name: 'Pressuriser level', w: 0.1, h: 0.29 });
-  em(s, -1.455, 2.115, 'PZR T', '°C', 300, 360, function () { return tsat(p().rcs); }, { major: 6, minor: 2, name: 'Pressuriser temperature (saturated)', w: 0.1, h: 0.29 });
-  dg(s, -1.17, 2.22, 'PZR PRESS BAR', function () { return p().rcs.toFixed(1); }, { w: 0.25 }); dg(s, -1.17, 2.12, 'PZR LEVEL %', function () { return p().pzr.toFixed(1); }, { w: 0.25 });
-  dg(s, -1.17, 2.02, 'SUBCOOLING °C', function () { return D.sub.toFixed(1); }, { w: 0.25, col: '#59e07a', name: 'Subcooling margin (how far the hottest coolant is below boiling)' });
-  lb(s, -1.37, 1.65, 0.6, 0.2, 'PRESSURISER HEATERS & SPRAY', 4, [tl('PROP\nHEATERS', YES, AMB), tl('BACKUP\nHEATERS', NO, AMB), tl('SPRAY\nVALVES', NO, AMB), tl('PORVs\nOPEN', NO, RED)]);
-  for (var i = 0; i < 4; i++) { (function (i) {
-    em(s, -0.875 + i * 0.26, 2.115, 'TH' + (i + 1), '°C', 260, 340, function () { return D.thot + (i - 1.5) * 0.08; }, { major: 4, minor: 4, name: 'Loop ' + (i + 1) + ' hot leg temperature', w: 0.1, h: 0.29, bands: [[0, 0.01, '#d64535']] });
-    em(s, -0.76 + i * 0.26, 2.115, 'TC' + (i + 1), '°C', 260, 340, function () { return D.tcold - (i - 1.5) * 0.06; }, { major: 4, minor: 4, name: 'Loop ' + (i + 1) + ' cold leg temperature', w: 0.1, h: 0.29 });
-    em(s, 0.235 + i * 0.115, 2.115, 'FLOW ' + (i + 1), '% FLOW', 0, 120, function () { return 100.2 - i * 0.3; }, { major: 6, minor: 2, name: 'Loop ' + (i + 1) + ' RCS flow', w: 0.1, h: 0.29 });
-    em(s, 0.815 + i * 0.115, 2.115, 'RCP ' + (i + 1), 'AMPS', 0, 1000, function () { return 612 + i * 4 + Math.sin(performance.now() / 1700 + i) * 2; }, { major: 5, minor: 2, name: 'RCP ' + (i + 1) + ' motor current', w: 0.1, h: 0.29 }); })(i); }
-  dg(s, -0.7, 1.62, 'LOOP TAVG °C', function () { return p().Tavg.toFixed(1); }, { w: 0.22 }); dg(s, -0.45, 1.62, 'T HOT °C', function () { return D.thot.toFixed(1); }, { w: 0.22 }); dg(s, -0.2, 1.62, 'T COLD °C', function () { return D.tcold.toFixed(1); }, { w: 0.22 });
-  dg(s, -0.45, 1.52, 'DELTA T °C', function () { return D.dT.toFixed(1); }, { w: 0.22 });
-  lb(s, 1.48, 2.15, 0.44, 0.26, 'RCP STATUS', 2, [tl('RCP 1\nRUNNING', YES, RED), tl('RCP 2\nRUNNING', YES, RED), tl('RCP 3\nRUNNING', YES, RED), tl('RCP 4\nRUNNING', YES, RED)]);
-  dg(s, 1.48, 1.9, 'SEAL INJ m³/h', function () { return (3.1 + Math.sin(performance.now() / 4100) * 0.04).toFixed(2); }, { w: 0.25 });
-  dg(s, 0.43, 1.62, 'RCS FLOW %', function () { return '100.0'; }, { w: 0.22 });
-  s.mimic.push({ col: '#c0392b', w: 12, pts: [[-1.7, 1.3], [0.2, 1.3]] }, { col: '#2e6db4', w: 12, pts: [[0.2, 1.24], [-1.7, 1.24]] }, { col: '#4c5a66', w: 7, pts: [[0.3, 1.36], [1.7, 1.36]] });
-  s.tag.push([-1.25, 1.17, 'HOT LEG  (REACTOR → STEAM GENERATORS)   ·   COLD LEG  (PUMPS → REACTOR)', 700, 22, 13], [1.0, 1.17, 'PUMPS AND LIVE CONTROLS: SECTION 2', 420, 22, 13, '#3a2a0a', '#ffd35a']);
-  addAnn(s, annTiles([['PZR PRESS\nHIGH', 'alarm', function () { return p().rcs > 162; }], ['PZR PRESS\nLOW', 'alarm', function () { return p().rcs < 148; }], ['PZR LEVEL\nHIGH', 'alarm', function () { return p().pzr > 70; }], ['PZR LEVEL\nLOW', 'alarm', function () { return p().pzr < 17; }], ['PZR PORV\nOPEN'], ['PZR SAFETY\nVALVE OPEN'], ['RCS\nSUBCOOLING\nLOW', 'alarm', function () { return D.sub < 15; }],
-    ['RCP 1 SEAL\nLEAKOFF HI'], ['RCP 2 SEAL\nLEAKOFF HI'], ['RCP 3 SEAL\nLEAKOFF HI'], ['RCP 4 SEAL\nLEAKOFF HI'], ['RCS FLOW\nLOW'], ['LOOP TAVG\nDEVIATION'], ['TAVG HIGH\n> 300 °C', 'alarm', function () { return p().Tavg > 300; }],
-    ['PZR PROP\nHEATERS ON', 'status', YES], ['RCPs\nALL RUNNING', 'status', YES], ['PZR SPRAY\nIN AUTO', 'status', YES], [''], ['PRT LEVEL\nHIGH'], ['PRT PRESS\nHIGH'], ['RCP BEARING\nTEMP HIGH'], ['RCP\nVIBRATION\nHIGH'], ['RCP CCW\nFLOW LOW'], [''], [''], [''], [''], ['']]));
-  s.dgrp.push([-1.74, -0.46, 0.25, 0.95, 'REACTOR COOLANT PUMPS'], [-0.42, 0.18, 0.25, 0.95, 'PZR HEATERS'], [0.22, 0.82, 0.25, 0.95, 'PRESSURISER PORVs'], [0.86, 1.74, 0.25, 0.95, 'PRESSURE CONTROL']);
-  for (i = 0; i < 4; i++) jhandle(s, -1.6 + i * 0.3, 0.52, { title: 'RCP ' + (i + 1), left: 'STOP', right: 'START', closed: YES, tip: 'Reactor coolant pump ' + (i + 1) + ': RUNNING (red lamp). Pump controls come in Section 2.', act: soon(2, 'Starting and stopping the reactor coolant pumps') });
-  toggle(s, -0.28, 0.6, { label: 'PROP HTRS', on: YES, tip: 'Proportional heaters: ON (controlled automatically)', act: soon(2, 'Pressuriser heater control') });
-  toggle(s, 0.04, 0.6, { label: 'BACKUP HTRS', on: NO, tip: 'Backup heaters: OFF', act: soon(2, 'Pressuriser heater control') });
-  jhandle(s, 0.37, 0.52, { title: 'PORV 455A', left: 'CLOSE', right: 'OPEN', closed: NO, tip: 'Pressuriser power-operated relief valve 455A: CLOSED (green)', act: soon(2, 'Pressuriser relief valves') });
-  jhandle(s, 0.67, 0.52, { title: 'PORV 456', left: 'CLOSE', right: 'OPEN', closed: NO, tip: 'Pressuriser power-operated relief valve 456: CLOSED (green)', act: soon(2, 'Pressuriser relief valves') });
-  rotary(s, 1.05, 0.6, { title: 'SPRAY', pos: ['MAN', 'AUTO'], span: 90, get: function () { return 1; }, set: soon(2, 'Pressuriser spray control'), tip: 'Pressuriser spray valve controller: AUTO' });
-  rotary(s, 1.45, 0.6, { title: 'PZR P MASTER', pos: ['MAN', 'AUTO'], span: 90, get: function () { return 1; }, set: soon(2, 'Pressuriser pressure control'), tip: 'Pressuriser pressure master controller: AUTO, set to 155 bar' });
-};
-CONTENT.cvcs = function (s) {
-  var p = function () { return S.p; };
-  s.grp.push([-1.76, -0.62, 1.42, 2.35, 'CHARGING & LETDOWN'], [-0.58, 0.58, 1.42, 2.35, 'BORON CONTROL'], [0.62, 1.76, 1.42, 2.35, 'RESIDUAL HEAT REMOVAL & COOLING WATER']);
-  em(s, -1.685, 2.115, 'CHG', 'm³/h', 0, 40, function () { return D.chg; }, { major: 4, minor: 5, name: 'Charging flow', w: 0.1, h: 0.29 });
-  em(s, -1.57, 2.115, 'LTDN', 'm³/h', 0, 40, function () { return D.ltd; }, { major: 4, minor: 5, name: 'Letdown flow', w: 0.1, h: 0.29 });
-  em(s, -1.455, 2.115, 'SEAL', 'm³/h', 0, 10, function () { return 3.1; }, { major: 5, minor: 2, name: 'Seal injection flow', w: 0.1, h: 0.29 });
-  em(s, -1.34, 2.115, 'VCT L', '% LEVEL', 0, 100, function () { return D.vct; }, { name: 'Volume control tank level', w: 0.1, h: 0.29 });
-  em(s, -1.225, 2.115, 'VCT P', 'BAR', 0, 5, function () { return 1.8; }, { major: 5, minor: 2, name: 'Volume control tank pressure', w: 0.1, h: 0.29 });
-  dg(s, -0.89, 2.22, 'CHARGING m³/h', function () { return D.chg.toFixed(1); }, { w: 0.22 }); dg(s, -0.89, 2.12, 'LETDOWN m³/h', function () { return D.ltd.toFixed(1); }, { w: 0.22 }); dg(s, -0.89, 2.02, 'VCT LEVEL %', function () { return D.vct.toFixed(1); }, { w: 0.22 });
-  lb(s, -1.19, 1.66, 0.62, 0.2, 'CHARGING PUMPS', 4, [tl('CCP A\nRUNNING', YES, RED), tl('CCP B\nSTANDBY', NO, RED), tl('PD PUMP\nRUNNING', NO, RED), tl('LETDOWN\nIN SERVICE', YES, WHT)]);
-  dg(s, -0.2, 2.21, 'RCS BORON PPM', function () { return String(Math.round(p().boron)); }, { big: 1, col: '#59e07a', name: 'RCS boron concentration (sampled)' });
-  em(s, 0.185, 2.115, 'BAT', '% LEVEL', 0, 100, function () { return D.bat; }, { name: 'Boric acid tank level', w: 0.1, h: 0.29 });
-  em(s, 0.3, 2.115, 'RWST', '% LEVEL', 0, 100, function () { return D.rwst; }, { name: 'Refuelling water storage tank level', w: 0.1, h: 0.29 });
-  em(s, 0.415, 2.115, 'BA FLOW', 'm³/h', 0, 20, function () { return 0; }, { major: 4, minor: 5, name: 'Boric acid flow to blender', w: 0.1, h: 0.29 });
-  dg(s, -0.33, 2.03, 'MAKE-UP MODE', function () { return 'AUTO'; }, { w: 0.22, col: '#ffd34a' }); dg(s, -0.08, 2.03, 'BA BATCH L', function () { return '0'; }, { w: 0.22 });
-  lb(s, 0, 1.66, 0.62, 0.2, 'REACTOR MAKE-UP', 4, [tl('AUTO\nMAKE-UP', YES, WHT), tl('BORATE', NO, AMB), tl('DILUTE', NO, AMB), tl('ALT\nDILUTE', NO, AMB)]);
-  em(s, 0.7, 2.115, 'RHR T', '°C', 0, 200, function () { return 44; }, { major: 4, minor: 5, name: 'RHR heat exchanger outlet temperature', w: 0.1, h: 0.29 });
-  em(s, 0.815, 2.115, 'RHR F', 'm³/h', 0, 1000, function () { return 0; }, { major: 5, minor: 2, name: 'RHR flow (isolated at hot standby)', w: 0.1, h: 0.29 });
-  em(s, 0.93, 2.115, 'CCW T', '°C', 10, 60, function () { return 31.5; }, { major: 5, minor: 2, name: 'Component cooling water temperature', w: 0.1, h: 0.29 });
-  em(s, 1.045, 2.115, 'SW T', '°C', 0, 30, function () { return 12.4; }, { major: 3, minor: 5, name: 'Sea water temperature', w: 0.1, h: 0.29 });
-  lb(s, 1.42, 2.15, 0.52, 0.26, 'RHR STATUS', 2, [tl('RHR A\nISOLATED', YES, GRN), tl('RHR B\nISOLATED', YES, GRN), tl('RHR PUMP A\nRUNNING', NO, RED), tl('RHR PUMP B\nRUNNING', NO, RED)]);
-  dg(s, 1.0, 1.66, 'CCW FLOW m³/h', function () { return '2410'; }, { w: 0.24 }); dg(s, 1.42, 1.66, 'SW PUMPS RUN', function () { return '2 / 4'; }, { w: 0.24 });
-  s.tag.push([0, 1.2, 'BORON (PPM) CONTROLS REACTIVITY SLOWLY: 9.5 PCM PER PPM. BORATING ADDS NEGATIVE REACTIVITY.', 900, 24, 14], [1.2, 1.2, 'CONTROLS: SECTION 2', 260, 24, 14, '#3a2a0a', '#ffd35a']);
-  addAnn(s, annTiles([['VCT LEVEL\nHIGH'], ['VCT LEVEL\nLOW'], ['CHARGING\nFLOW LOW'], ['LETDOWN\nISOLATED'], ['LETDOWN\nTEMP HIGH'], ['BA TANK\nLEVEL LOW'], ['RWST\nLEVEL LOW'], ['MAKE-UP\nDEVIATION'], ['BORON\nDILUTION\nIN PROGRESS'], ['CCW SURGE\nTANK LOW'], ['CCW TEMP\nHIGH'], ['SW PUMP\nTRIP'], ['RHR\nISOLATION\nVALVE OPEN'], [''],
-    ['CCP A\nRUNNING', 'status', YES], ['LETDOWN IN\nSERVICE', 'status', YES], ['AUTO\nMAKE-UP', 'status', YES], ['BA PUMP\nAVAILABLE', 'status', YES], ['RHR\nISOLATED', 'status', YES], [''], ['CHARGING\nPUMP\nOVERLOAD'], ['BORIC ACID\nHEAT TRACE\nFAULT'], [''], [''], [''], [''], [''], ['']]));
-  s.dgrp.push([-1.74, -0.82, 0.25, 0.95, 'CHARGING PUMPS & LETDOWN'], [-0.78, 0.46, 0.25, 0.95, 'REACTOR MAKE-UP CONTROL'], [0.5, 1.74, 0.25, 0.95, 'RHR & COOLING WATER']);
-  jhandle(s, -1.6, 0.52, { title: 'CCP A', left: 'STOP', right: 'START', closed: YES, tip: 'Centrifugal charging pump A: RUNNING', act: soon(2, 'Charging pump control') });
-  jhandle(s, -1.3, 0.52, { title: 'CCP B', left: 'STOP', right: 'START', closed: NO, tip: 'Centrifugal charging pump B: STANDBY', act: soon(2, 'Charging pump control') });
-  jhandle(s, -1.0, 0.52, { title: 'LETDOWN', left: 'ISOL', right: 'OPEN', closed: YES, tip: 'Letdown isolation valve: OPEN', act: soon(2, 'Letdown control') });
-  rotary(s, -0.48, 0.6, { title: 'MAKE-UP MODE', pos: ['DILUTE', 'ALT DIL', 'AUTO', 'BORATE', 'MAN'], span: 200, size: 0.17, get: function () { return 2; }, set: soon(2, 'Boration and dilution'), tip: 'Reactor make-up mode selector: AUTO (keeps the volume control tank topped up at the same boron concentration)' });
-  pushBtn(s, -0.1, 0.62, { col: 0x2bd14a, label: 'START', lw: 70, tip: 'Make-up batch START', act: soon(2, 'Boration and dilution') });
-  pushBtn(s, 0.06, 0.62, { col: 0xd8161a, label: 'STOP', lw: 70, tip: 'Make-up batch STOP', act: soon(2, 'Boration and dilution') });
-  rotary(s, 0.3, 0.6, { title: 'BA FLOW SET', pos: ['0', '5', '10', '15', '20'], span: 200, get: function () { return 0; }, set: soon(2, 'Boration and dilution'), tip: 'Boric acid flow setpoint (m³/h)' });
-  jhandle(s, 0.66, 0.52, { title: 'RHR PUMP A', left: 'STOP', right: 'START', closed: NO, tip: 'RHR pump A: STOPPED (RHR is isolated at hot standby)', act: soon(6, 'Residual heat removal') });
-  jhandle(s, 0.96, 0.52, { title: 'RHR PUMP B', left: 'STOP', right: 'START', closed: NO, tip: 'RHR pump B: STOPPED', act: soon(6, 'Residual heat removal') });
-  jhandle(s, 1.26, 0.52, { title: 'CCW PUMP A', left: 'STOP', right: 'START', closed: YES, tip: 'Component cooling water pump A: RUNNING', act: soon(6, 'Cooling water systems') });
-  jhandle(s, 1.56, 0.52, { title: 'SW PUMP A', left: 'STOP', right: 'START', closed: YES, tip: 'Sea water pump A: RUNNING', act: soon(6, 'Cooling water systems') });
-};
-CONTENT.sg = function (s) {
-  var p = function () { return S.p; };
-  s.grp.push([-1.76, -1.24, 1.42, 2.35, 'SG LEVEL (NARROW RANGE)'], [-1.2, -0.68, 1.42, 2.35, 'SG STEAM PRESSURE'], [-0.64, 0.46, 1.42, 2.35, 'STEAM FLOW & FEED FLOW'], [0.5, 1.14, 1.42, 2.35, 'STEAM DUMP'], [1.18, 1.76, 1.42, 2.35, 'FEEDWATER PUMPS']);
-  for (var i = 0; i < 4; i++) { (function (i) {
-    em(s, -1.685 + i * 0.115, 2.115, 'SG ' + (i + 1), '% LEVEL', 0, 100, function () { return D.sgL[i]; }, { name: 'Steam generator ' + (i + 1) + ' narrow range level', w: 0.1, h: 0.29, bands: [[0, 0.17, '#d64535'], [0.83, 1, '#d64535']] });
-    em(s, -1.125 + i * 0.115, 2.115, 'SG P' + (i + 1), 'BAR', 0, 100, function () { return p().Ps - 0.1 * i; }, { major: 5, minor: 2, name: 'Steam generator ' + (i + 1) + ' pressure', w: 0.1, h: 0.29 });
-    em(s, -0.575 + i * 0.26, 2.115, 'STM ' + (i + 1), '% FLOW', 0, 120, function () { return D.stmF; }, { major: 6, minor: 2, name: 'SG ' + (i + 1) + ' steam flow', w: 0.1, h: 0.29 });
-    em(s, -0.46 + i * 0.26, 2.115, 'FEED ' + (i + 1), '% FLOW', 0, 120, function () { return D.feedF; }, { major: 6, minor: 2, name: 'SG ' + (i + 1) + ' feed flow (auxiliary feed at hot standby)', w: 0.1, h: 0.29 }); })(i); }
-  em(s, 0.57, 2.115, 'DEMAND', '% OPEN', 0, 100, function () { return p().dump * 100; }, { name: 'Steam dump demand', w: 0.1, h: 0.29 });
-  em(s, 0.685, 2.115, 'HDR P', 'BAR', 60, 90, function () { return p().Ps; }, { major: 3, minor: 5, name: 'Steam header pressure', w: 0.1, h: 0.29, bands: [[24 / 30, 1, '#d64535']] });
-  dg(s, 0.93, 2.22, 'STEAM PRESS BAR', function () { return p().Ps.toFixed(1); }, { w: 0.24 }); dg(s, 0.93, 2.12, 'DUMP DEMAND %', function () { return (p().dump * 100).toFixed(1); }, { w: 0.24 }); dg(s, 0.93, 2.02, 'SETPOINT BAR', function () { return PSP.toFixed(1); }, { w: 0.24, col: '#ffd34a' });
-  lb(s, 0.82, 1.66, 0.6, 0.2, 'STEAM DUMP STATUS', 4, [tl('ARMED', YES, WHT), tl('STEAM\nPRESS MODE', YES, WHT), tl('VALVES\nOPEN', function () { return p().dump > 0.03; }, AMB), tl('SG SAFETY\nVALVE', function () { return p().Ps > 84; }, RED)]);
-  lb(s, 1.47, 2.11, 0.5, 0.34, 'FEED PUMPS', 2, [tl('MFP A\nTRIPPED', YES, AMB), tl('MFP B\nTRIPPED', YES, AMB), tl('AFW A\nRUNNING', YES, RED), tl('AFW B\nRUNNING', YES, RED), tl('TD AFW\nSTANDBY', YES, WHT), tl('COND PUMP\nRUNNING', YES, RED)]);
-  dg(s, 1.47, 1.8, 'COND VAC BAR A', function () { return '0.062'; }, { w: 0.25 }); dg(s, 1.47, 1.7, 'HOTWELL L %', function () { return '61.0'; }, { w: 0.25 });
-  dg(s, -1.5, 1.62, 'AVG SG LEVEL %', function () { return ((D.sgL[0] + D.sgL[1] + D.sgL[2] + D.sgL[3]) / 4).toFixed(1); }, { w: 0.25 }); dg(s, -0.94, 1.62, 'STEAM PRESS BAR', function () { return p().Ps.toFixed(1); }, { w: 0.25 }); dg(s, -0.32, 1.62, 'TOTAL STEAM %', function () { return D.stmF.toFixed(1); }, { w: 0.25 }); dg(s, 0.1, 1.62, 'TOTAL FEED %', function () { return D.feedF.toFixed(1); }, { w: 0.25 });
-  s.mimic.push({ col: '#8e44ad', w: 9, pts: [[-1.7, 1.3], [1.7, 1.3]] }, { col: '#2e86c1', w: 9, pts: [[1.7, 1.24], [-1.7, 1.24]] });
-  s.tag.push([-0.6, 1.17, 'STEAM (SG → TURBINE / DUMPS TO CONDENSER)  ·  FEEDWATER (CONDENSER → SG)', 760, 22, 13], [1.2, 1.17, 'CONTROLS: SECTION 3', 280, 22, 13, '#3a2a0a', '#ffd35a']);
-  addAnn(s, annTiles([['SG 1 LEVEL\nLO-LO'], ['SG 2 LEVEL\nLO-LO'], ['SG 3 LEVEL\nLO-LO'], ['SG 4 LEVEL\nLO-LO'], ['SG LEVEL\nHIGH', 'alarm', function () { return D.sgL.some(function (v) { return v > 75; }); }], ['STEAM\nPRESS HIGH', 'alarm', function () { return p().Ps > 80; }], ['STEAM\nPRESS LOW', 'alarm', function () { return p().Ps < 60; }],
-    ['MAIN FEED\nPUMPS\nTRIPPED', 'alarm', YES], ['COND\nVACUUM LOW'], ['SG SAFETY\nVALVE OPEN', 'alarm', function () { return p().Ps > 84; }], ['STEAM/FEED\nMISMATCH'], ['SG BLOWDOWN\nISOLATED'], ['MSIV\nCLOSED'], [''],
-    ['STEAM DUMP\nARMED', 'status', YES], ['AFW A\nRUNNING', 'status', YES], ['AFW B\nRUNNING', 'status', YES], ['STEAM DUMP\nVALVES OPEN', 'status', function () { return p().Ps > 0 && p().dump > 0.03; }], [''], ['FEED HEATER\nLEVEL HIGH'], ['DEAERATOR\nLEVEL LOW'], ['HOTWELL\nLEVEL LOW'], [''], [''], [''], [''], [''], ['']]));
-  s.dgrp.push([-1.74, -0.46, 0.25, 0.95, 'MAIN STEAM ISOLATION'], [-0.42, 0.52, 0.25, 0.95, 'FEEDWATER'], [0.56, 1.74, 0.25, 0.95, 'STEAM DUMP CONTROL']);
-  for (i = 0; i < 4; i++) jhandle(s, -1.6 + i * 0.3, 0.52, { title: 'MSIV ' + (i + 1), left: 'CLOSE', right: 'OPEN', closed: YES, tip: 'Main steam isolation valve ' + (i + 1) + ': OPEN', act: soon(3, 'Main steam isolation valves') });
-  jhandle(s, -0.28, 0.52, { title: 'AFW PUMP A', left: 'STOP', right: 'START', closed: YES, tip: 'Auxiliary feedwater pump A: RUNNING', act: soon(3, 'Feedwater control') });
-  jhandle(s, 0.02, 0.52, { title: 'AFW PUMP B', left: 'STOP', right: 'START', closed: YES, tip: 'Auxiliary feedwater pump B: RUNNING', act: soon(3, 'Feedwater control') });
-  jhandle(s, 0.32, 0.52, { title: 'MFP A', left: 'STOP', right: 'START', closed: NO, tip: 'Main feed pump A: TRIPPED (not needed at hot standby)', act: soon(3, 'Main feed pumps') });
-  rotary(s, 0.76, 0.6, { title: 'DUMP MODE', pos: ['OFF', 'STM PRESS', 'TAVG'], span: 160, get: function () { return 1; }, set: soon(3, 'Steam dump control modes'), tip: 'Steam dump mode: STEAM PRESSURE (holds the steam header at 76.3 bar, which holds Tavg at 291.7 °C)' });
-  rotary(s, 1.12, 0.6, { title: 'DUMP CTRL', pos: ['MAN', 'AUTO'], span: 90, get: function () { return 1; }, set: soon(3, 'Steam dump control'), tip: 'Steam dump controller: AUTO' });
-  pushBtn(s, 1.48, 0.62, { col: 0xd8161a, label: 'MSIV CLOSE ALL', lw: 170, tip: 'Close all main steam isolation valves', act: soon(3, 'Main steam isolation valves') });
-};
-CONTENT.tg = function (s) {
-  s.grp.push([-1.76, -0.64, 1.42, 2.35, 'TURBINE'], [-0.6, 0.6, 1.42, 2.35, 'GENERATOR'], [0.64, 1.76, 1.42, 2.35, 'GRID & STATION SUPPLIES']);
-  onPanel(s, meterR({ lbl: 'TURBINE RPM', unit: 'RPM', min: 0, max: 3600, major: 6, v: function () { return D.tgSpd; }, bands: [[2900 / 3600, 3100 / 3600, '#59b36b']], w: 0.17, h: 0.155, tip: function () { return 'Turbine speed: ' + Math.round(D.tgSpd) + ' rpm (on turning gear)'; } }), -1.6, 2.2);
-  em(s, -1.33, 2.115, 'HP SV', '% OPEN', 0, 100, function () { return 0; }, { name: 'HP stop valves', w: 0.1, h: 0.29 });
-  em(s, -1.215, 2.115, 'GOV V', '% OPEN', 0, 100, function () { return 0; }, { name: 'Governor valves', w: 0.1, h: 0.29 });
-  em(s, -1.1, 2.115, 'VIB', 'µm', 0, 150, function () { return 12 + Math.sin(performance.now() / 900) * 1.5; }, { major: 3, minor: 5, name: 'Turbine vibration', w: 0.1, h: 0.29 });
-  dg(s, -0.82, 2.22, 'SPEED RPM', function () { return String(Math.round(D.tgSpd)); }, { w: 0.25 }); dg(s, -0.82, 2.12, 'LUBE OIL BAR', function () { return '2.4'; }, { w: 0.25 }); dg(s, -0.82, 2.02, 'EXHAUST °C', function () { return '38'; }, { w: 0.25 });
-  lb(s, -1.2, 1.66, 0.62, 0.2, 'TURBINE STATUS', 4, [tl('TURBINE\nTRIPPED', YES, AMB), tl('TURNING\nGEAR ON', YES, WHT), tl('LATCHED', NO, WHT), tl('AT SPEED\n3000 RPM', NO, WHT)]);
-  onPanel(s, meterR({ lbl: 'SYNCHROSCOPE', unit: 'SLOW ←  → FAST', min: -1, max: 1, major: 2, v: function () { return 0; }, w: 0.17, h: 0.155, tip: 'Synchroscope: dead (generator not excited). Synchronising comes in Section 4.' }), 0, 2.2);
-  em(s, -0.5, 2.115, 'GEN MW', 'MW', 0, 1400, function () { return 0; }, { major: 7, minor: 2, name: 'Generator output', w: 0.1, h: 0.29 });
-  em(s, -0.385, 2.115, 'MVAR', 'MVAR', -400, 400, function () { return 0; }, { major: 4, minor: 2, name: 'Generator reactive power', w: 0.1, h: 0.29 });
-  em(s, 0.385, 2.115, 'GEN kV', 'kV', 0, 25, function () { return 0; }, { major: 5, minor: 5, name: 'Generator voltage', w: 0.1, h: 0.29 });
-  em(s, 0.5, 2.115, 'GEN Hz', 'Hz', 45, 55, function () { return 0; }, { major: 5, minor: 2, name: 'Generator frequency', w: 0.1, h: 0.29 });
-  dg(s, -0.2, 1.97, 'GEN MW', function () { return '0'; }, { w: 0.22 }); dg(s, 0.2, 1.97, 'GEN Hz', function () { return '0.00'; }, { w: 0.22 });
-  lb(s, 0, 1.66, 0.62, 0.2, 'GENERATOR STATUS', 4, [tl('GEN BKR\nOPEN', YES, GRN), tl('GEN BKR\nCLOSED', NO, RED), tl('FIELD BKR\nOPEN', YES, GRN), tl('AVR\nAUTO', YES, WHT)]);
-  em(s, 0.72, 2.115, 'GRID Hz', 'Hz', 49, 51, function () { return D.grid; }, { major: 4, minor: 5, fmt: function (v) { return v.toFixed(1); }, name: 'National Grid frequency', w: 0.1, h: 0.29, tipFmt: function (v) { return v.toFixed(3); }, bands: [[0, 0.1, '#d64535'], [0.9, 1, '#d64535']] });
-  em(s, 0.835, 2.115, 'GRID kV', 'kV', 380, 420, function () { return D.gridV; }, { major: 4, minor: 5, name: '400 kV grid voltage', w: 0.1, h: 0.29 });
-  dg(s, 1.1, 2.22, 'GRID Hz', function () { return D.grid.toFixed(3); }, { w: 0.25, col: '#59e07a' }); dg(s, 1.1, 2.12, 'GRID kV', function () { return D.gridV.toFixed(1); }, { w: 0.25 }); dg(s, 1.1, 2.02, 'GB DEMAND GW', function () { var h = (D.clock / 3600) % 24; return (27 + 7 * Math.sin((h - 9) / 24 * 2 * Math.PI) + Math.sin(D.clock / 700) * 0.2).toFixed(1); }, { w: 0.25, name: 'Great Britain electricity demand' });
-  lb(s, 1.49, 2.11, 0.5, 0.34, 'STATION SUPPLIES', 2, [tl('400 kV\nAVAILABLE', YES, WHT), tl('STATION\nTRANSF ON', YES, RED), tl('EDG A\nREADY', YES, WHT), tl('EDG B\nREADY', YES, WHT), tl('UNIT\nTRANSF ON', NO, RED), tl('BATTERIES\nFLOAT', YES, WHT)]);
-  dg(s, 1.2, 1.66, 'GRID LINES IN', function () { return '4 / 4'; }, { w: 0.25 });
-  s.tag.push([0, 1.27, 'THE GENERATOR IS SYNCHRONISED TO THE 50 Hz NATIONAL GRID IN SECTION 4. DIESELS (EDGs) ARE SECTION 6.', 960, 26, 14, '#3a2a0a', '#ffd35a']);
-  addAnn(s, annTiles([['TURBINE\nTRIPPED', 'alarm', YES], ['GEN BKR\nOPEN', 'alarm', YES], ['GRID FREQ\nLOW', 'alarm', function () { return D.grid < 49.8; }], ['GRID FREQ\nHIGH', 'alarm', function () { return D.grid > 50.2; }], ['TURBINE\nVIBRATION\nHIGH'], ['LUBE OIL\nPRESS LOW'], ['GEN H2\nPRESS LOW'], ['STATOR\nCOOLING\nFAULT'], ['EXCITER\nFAULT'], ['EDG A\nFAULT'], ['EDG B\nFAULT'], ['BATTERY\nCHARGER\nFAULT'], ['400 kV\nLINE TRIP'], [''],
-    ['TURNING\nGEAR\nENGAGED', 'status', YES], ['400 kV\nSUPPLY\nAVAILABLE', 'status', YES], ['EDG A\nREADY', 'status', YES], ['EDG B\nREADY', 'status', YES], ['STATION\nTRANSFORMER\nIN SERVICE', 'status', YES], [''], [''], ['COOLING\nTOWER FAN\nTRIP'], ['CW PUMP\nTRIP'], [''], [''], [''], [''], ['']]));
-  s.dgrp.push([-1.74, -0.7, 0.25, 0.95, 'TURBINE'], [-0.66, 0.66, 0.25, 0.95, 'GENERATOR'], [0.7, 1.74, 0.25, 0.95, 'EMERGENCY DIESEL GENERATORS']);
-  pushBtn(s, -1.6, 0.62, { col: 0x2bd14a, label: 'LATCH', lw: 80, tip: 'Turbine LATCH (resets the turbine trip)', act: soon(4, 'Rolling the turbine') });
-  pushBtn(s, -1.42, 0.62, { col: 0xd8161a, label: 'TRIP', lw: 70, tip: 'Turbine TRIP', act: soon(4, 'Rolling the turbine') });
-  rotary(s, -1.0, 0.6, { title: 'SPEED SET', pos: ['TG', '500', '1500', '3000'], span: 180, get: function () { return 0; }, set: soon(4, 'Rolling the turbine to 3000 rpm'), tip: 'Turbine speed setpoint: TURNING GEAR' });
-  jhandle(s, -0.42, 0.52, { title: 'GEN BKR', closed: NO, tip: 'Generator circuit breaker: OPEN', act: soon(4, 'Synchronising to the grid') });
-  rotary(s, -0.05, 0.6, { title: 'SYNC', pos: ['OFF', 'MAN', 'AUTO'], span: 160, get: function () { return 0; }, set: soon(4, 'Synchronising to the grid'), tip: 'Synchronising selector: OFF' });
-  jhandle(s, 0.36, 0.52, { title: 'FIELD BKR', closed: NO, tip: 'Generator field breaker: OPEN', act: soon(4, 'Generator excitation') });
-  jhandle(s, 0.9, 0.52, { title: 'EDG A', left: 'STOP', right: 'START', closed: NO, tip: 'Emergency diesel generator A: READY (on standby)', act: soon(6, 'Emergency diesel generators') });
-  jhandle(s, 1.2, 0.52, { title: 'EDG B', left: 'STOP', right: 'START', closed: NO, tip: 'Emergency diesel generator B: READY (on standby)', act: soon(6, 'Emergency diesel generators') });
-  pushBtn(s, 1.52, 0.62, { col: 0xf2c21b, label: 'EDG TEST', lw: 100, tip: 'Diesel test start', act: soon(6, 'Emergency diesel generators') });
+  /* P-10 blocks for power ascension: above 10% power the intermediate range and power range low trips must be blocked, or they trip the reactor at about 25% */
+  s.dgrp.push([-1.74, -0.42, 0.02, 0.25, 'P-10 BLOCKS  \u00b7  BLOCK ONLY ABOVE 10% POWER']);
+  [['irBlk', 0, 'IR TRIP\nBLOCK\nTRAIN A'], ['irBlk', 1, 'IR TRIP\nBLOCK\nTRAIN B'], ['prBlk', 0, 'PR LOW SP\nBLOCK\nTRAIN A'], ['prBlk', 1, 'PR LOW SP\nBLOCK\nTRAIN B']].forEach(function (q, k) {
+    litButton(s, -1.6 + k * 0.2 + (k > 1 ? 0.08 : 0), 0.12, { col: '#ffc94a', txt: q[2], lit: function () { return !!(S.p[q[0]] && S.p[q[0]][q[1]]); }, tip: function () { var on = !!(S.p[q[0]] && S.p[q[0]][q[1]]); return (q[0] === 'irBlk' ? 'Intermediate range' : 'Power range low setpoint') + ' trip BLOCK, train ' + 'AB'[q[1]] + ' (' + (on ? 'BLOCKED: press to reset' : p10(S.p) ? 'P-10 is lit: press to block' : 'needs P-10 first') + ')'; }, act: function () { ACT.blk10(q[0], q[1]); } }); });
+  lamp(s.desk, -0.62, 0, -0.12 * SL, 0xf5f2e6, function () { return p10(S.p); }, 'P-10 permissive lamp: lit when two of four power range channels are above 10%', 0.013); s.dtag.push([-0.62, 0.05, 'P-10', 60, 22, 13]);
 };
 
 /* ================================================================ computer screens, the wall mimic and the rest of the room ================================================================ */
@@ -828,8 +866,8 @@ function drawMimic(g) {
   g.strokeStyle = '#2e86c1'; g.lineWidth = 8; g.beginPath(); g.moveTo(1310, 600); g.lineTo(1420, 600); g.lineTo(1420, 680); g.lineTo(1310, 680); g.stroke(); ctext(g, 'SEA WATER', 1470, 640, 17, '#cfd8e0');
   val('REACTOR POWER', D.pr < 0.1 ? fmtSci(NI.ir[0], 2) + ' A' : D.pr.toFixed(2) + ' %', 90, 140, '#ff9f8f'); val('STARTUP RATE', p.sur.toFixed(2) + ' DPM', 90, 200, '#ffd34a');
   val('T HOT', D.thot.toFixed(1) + ' °C', 320, 395, '#ff9f8f'); val('T COLD', D.tcold.toFixed(1) + ' °C', 300, 590, '#9fd0ff');
-  val('RCS PRESSURE', p.rcs.toFixed(1) + ' bar', 470, 92); val('STEAM PRESSURE', p.Ps.toFixed(1) + ' bar', 690, 140, '#d7bde2'); val('TURBINE', Math.round(D.tgSpd) + ' rpm (turning gear)', 930, 330);
-  val('GENERATOR', '0 MW', 1210, 260); val('GRID', D.grid.toFixed(3) + ' Hz', 1370, 260, '#7dffa0'); val('BORON', Math.round(p.boron) + ' ppm', 90, 260);
+  val('RCS PRESSURE', p.rcs.toFixed(1) + ' bar', 470, 92); val('STEAM PRESSURE', p.Ps.toFixed(1) + ' bar', 690, 140, '#d7bde2'); val('TURBINE', Math.round(p.x.tb.rpm) + ' rpm' + (p.x.tb.tg ? ' (turning gear)' : ''), 930, 330);
+  val('GENERATOR', Math.round(p.x.tb.mw) + ' MW' + (p.x.tb.gen ? '' : ' (off line)'), 1210, 260); val('GRID', D.grid.toFixed(3) + ' Hz', 1370, 260, '#7dffa0'); val('BORON', Math.round(p.boron) + ' ppm', 90, 260);
   val('CONTROL RODS', pcName(p.pc), 1220, 380); val('SHUTDOWN RODS', SDB.every(function (b) { return p.rods[b] >= TOP; }) ? 'all out' : SDB.every(function (b) { return p.rods[b] <= 0; }) ? 'all in' : 'moving', 1220, 440);
   if (p.tripped) { g.fillStyle = 'rgba(200,30,20,.85)'; rr(g, 1050, 720, 520, 60, 10); g.fill(); ctext(g, p.trips ? 'REACTOR TRIPPED · ' + (TRIPS[p.firstOut] || 'RTBs open') : 'REACTOR SHUT DOWN · TRIP BREAKERS OPEN', 1310, 750, 22, '#fff', 'center', 500); }
   else if (D.keff >= 0.9995 && p.sur > -0.02) { g.fillStyle = 'rgba(30,140,70,.85)'; rr(g, 1050, 720, 520, 60, 10); g.fill(); ctext(g, 'REACTOR CRITICAL', 1310, 750, 26, '#fff'); }
@@ -851,56 +889,56 @@ function chair(scene, x, z, ry) {
 }
 function furniture(scene) {
   /* operator console in the middle of the horseshoe */
-  var con = new THREE.Group(); con.position.set(0, 0, 0.55); scene.add(con);
+  var con = new THREE.Group(); con.position.set(0, 0, CZ); scene.add(con);
   box(2.9, 0.05, 0.9, MAT.desk, 0, 0.74, 0, con); box(0.55, 0.715, 0.8, MAT.cab2, -1.1, 0.3575, -0.02, con); box(0.55, 0.715, 0.8, MAT.cab2, 1.1, 0.3575, -0.02, con); box(1.7, 0.5, 0.03, MAT.cab2, 0, 0.45, -0.4, con);
-  floorShadow(scene, 0, 0.55, 3.4, 1.4, 0);
+  floorShadow(scene, 0, CZ, 3.4, 1.4, 0);
   monitor(con, -0.82, -0.18, 0.32, drawTrends, function () { return 'Console screen: nuclear trends (log power, startup rate, Tavg)'; }, 'trends');
   monitor(con, 0, -0.25, 0, drawOneM, function () { return 'Console screen: 1/M plot. Predicts where the reactor will go critical.'; }, 'onem');
   monitor(con, 0.82, -0.18, -0.32, drawProc, function () { return 'Console screen: the procedure checklist you are on, and the alarm list'; }, 'proc');
   box(0.45, 0.02, 0.15, MAT.black, -0.1, 0.775, 0.18, con); box(0.07, 0.02, 0.1, MAT.black, 0.25, 0.775, 0.2, con);
-  var ph = box(0.2, 0.07, 0.18, new THREE.MeshStandardMaterial({ color: 0xa61b1b, roughness: 0.4 }), -1.2, 0.8, 0.12, con); hit(ph, { tip: 'Red phone: the direct line to the National Grid control centre (Section 4)' });
+  var ph = box(0.2, 0.07, 0.18, new THREE.MeshStandardMaterial({ color: 0xa61b1b, roughness: 0.4 }), -1.2, 0.8, 0.12, con); hit(ph, { tip: 'Red phone: the direct line to the National Grid control centre' });
   var bind = box(0.3, 0.05, 0.36, new THREE.MeshStandardMaterial({ color: 0xc4302b, roughness: 0.6 }), 1.15, 0.79, 0.1, con); hit(bind, { tip: 'GOP-301 Reactor Startup procedure binder. The same steps are on the right-hand console screen.' });
-  chair(scene, -0.95, 1.42, Math.PI + 0.25); chair(scene, 1.0, 1.45, Math.PI - 0.3);
+  chair(scene, -0.95, CZ + 0.87, Math.PI + 0.25); chair(scene, 1.0, CZ + 0.9, Math.PI - 0.3);
   /* supervisor's desk */
-  var sup = new THREE.Group(); sup.position.set(0, 0, 4.3); scene.add(sup);
+  var sup = new THREE.Group(); sup.position.set(0, 0, SZ); scene.add(sup);
   box(2.2, 0.05, 0.85, MAT.wood, 0, 0.74, 0, sup); box(0.5, 0.715, 0.75, MAT.cab2, -0.8, 0.3575, 0, sup); box(0.5, 0.715, 0.75, MAT.cab2, 0.8, 0.3575, 0, sup);
-  floorShadow(scene, 0, 4.3, 2.6, 1.3, 0);
+  floorShadow(scene, 0, SZ, 2.6, 1.3, 0);
   monitor(sup, -0.36, -0.2, 0.12, drawStatus, function () { return 'Supervisor screen: plant status'; }, 'status');
   monitor(sup, 0.36, -0.2, -0.12, drawLog, function () { return 'Supervisor screen: shift log'; }, 'log');
-  chair(scene, 0, 5.05, Math.PI);
+  chair(scene, 0, SZ + 0.75, Math.PI);
   /* wall mimic */
-  box(5.5, 2.75, 0.12, MAT.monitor, -10.93, 2.0, 0.5, scene).rotation.y = Math.PI / 2;
-  screenMesh(scene, 5.3, 2.65, 1600, 800, drawMimic, 1, -10.86, 2.0, 0.5, Math.PI / 2, function () { return 'Plant overview mimic: the whole station on one screen'; }, 'mimic');
+  box(5.5, 2.75, 0.12, MAT.monitor, -3.6, 2.1, ZF - 0.07, scene).rotation.y = Math.PI;
+  screenMesh(scene, 5.3, 2.65, 1600, 800, drawMimic, 1, -3.6, 2.1, ZF - 0.14, Math.PI, function () { return 'Plant overview mimic: the whole station on one screen'; }, 'mimic');
   /* alarm summary + clock on the east wall */
-  box(2.9, 1.7, 0.1, MAT.monitor, 10.94, 1.95, -1.2, scene).rotation.y = -Math.PI / 2;
-  screenMesh(scene, 2.76, 1.55, 1280, 720, drawAlarmWall, 0.3, 10.88, 1.95, -1.2, -Math.PI / 2, function () { return 'Alarm summary screen'; }, 'alarms');
-  var ck = digital({ lbl: 'STATION TIME (UTC)', txt: function () { return clockStr(D.clock); }, w: 1.0, h: 0.4, col: '#ff3b2f' }); ck.m.position.set(10.9, 3.1, -1.2); ck.m.rotation.y = -Math.PI / 2; scene.add(ck.m); hit(ck.m, { tip: function () { return 'Station clock: ' + clockStr(D.clock); } });
+  box(2.9, 1.7, 0.1, MAT.monitor, 3.4, 1.95, ZF - 0.06, scene).rotation.y = Math.PI;
+  screenMesh(scene, 2.76, 1.55, 1280, 720, drawAlarmWall, 0.3, 3.4, 1.95, ZF - 0.12, Math.PI, function () { return 'Alarm summary screen'; }, 'alarms');
+  var ck = digital({ lbl: 'STATION TIME (UTC)', txt: function () { return clockStr(D.clock); }, w: 1.0, h: 0.4, col: '#ff3b2f' }); ck.m.position.set(3.4, 3.15, ZF - 0.1); ck.m.rotation.y = Math.PI; scene.add(ck.m); hit(ck.m, { tip: function () { return 'Station clock: ' + clockStr(D.clock); } });
   var dw = widget({ cw: 512, ch: 300, w: 1.1, h: 0.64, glow: true, key: function () { return Math.floor(S.daysSince()) + ':' + S.p.trips; }, draw: function (g) { g.fillStyle = '#f2f2ee'; g.fillRect(0, 0, 512, 300); g.fillStyle = '#1f3b57'; g.fillRect(0, 0, 512, 64); ctext(g, 'DAYS WITHOUT A REACTOR TRIP', 256, 33, 30, '#fff', 'center', 490); g.fillStyle = '#111'; g.fillRect(146, 84, 220, 130); ctext(g, String(Math.floor(S.daysSince())), 256, 152, 104, '#ff3b2f', 'center', 210); ctext(g, 'SAFETY FIRST · QUESTIONING ATTITUDE', 256, 254, 22, '#1f3b57', 'center', 490); } });
-  dw.m.position.set(10.9, 1.8, 3.4); dw.m.rotation.y = -Math.PI / 2; scene.add(dw.m); hit(dw.m, { tip: function () { return 'Days without a reactor trip: ' + Math.floor(S.daysSince()) + '. Trip the reactor and it goes back to 0.'; } });
+  dw.m.position.set(6.4, 1.9, ZF - 0.05); dw.m.rotation.y = Math.PI; scene.add(dw.m); hit(dw.m, { tip: function () { return 'Days without a reactor trip: ' + Math.floor(S.daysSince()) + '. Trip the reactor and it goes back to 0.'; } });
   /* shift turnover whiteboard on the back wall */
   var wb = new THREE.Mesh(new THREE.PlaneGeometry(2.4, 1.3), new THREE.MeshStandardMaterial({ roughness: 0.3, map: signTex(1200, 650, function (g) { g.fillStyle = '#f7f7f4'; g.fillRect(0, 0, 1200, 650); g.strokeStyle = '#9aa0a6'; g.lineWidth = 16; g.strokeRect(0, 0, 1200, 650);
     g.font = 'bold 44px "Comic Sans MS","Segoe Print","Bradley Hand",cursive'; g.fillStyle = '#1f4fa8'; g.fillText('SHIFT TURNOVER – UNIT 1', 40, 72); g.font = '31px "Comic Sans MS","Segoe Print","Bradley Hand",cursive';
     ['• Hot standby (Mode 3). Tavg 291.7 °C, RCS 155 bar', '• All rods in. Boron 1200 ppm (sampled 06:00)', '• ECP: control bank D at 120 steps', '• SR N31 about 90 cps, N32 about 85 cps', '• Steam dumps: STEAM PRESS mode, 76.3 bar', '• Plan: reactor startup to POAH (GOP-301)'].forEach(function (t, i) { g.fillStyle = '#222'; g.fillText(t, 40, 140 + i * 56); });
     g.fillStyle = '#c0392b'; g.font = 'bold 34px "Comic Sans MS","Segoe Print","Bradley Hand",cursive'; g.fillText('→ KEEP SUR UNDER 1 DPM!   BLOCK SR AT P-6!', 40, 600); }) }));
-  wb.position.set(-6.5, 1.65, 7.97); wb.rotation.y = Math.PI; scene.add(wb); hit(wb, { tip: 'Shift turnover whiteboard: what the last shift handed over to you', view: 'board' });
+  wb.position.set(-RX + 0.03, 1.65, 9.9); wb.rotation.y = Math.PI / 2; scene.add(wb); hit(wb, { tip: 'Shift turnover whiteboard: what the last shift handed over to you', view: 'board' });
   /* bookshelf of procedures */
-  var sh = new THREE.Group(); sh.position.set(-2.4, 0, 7.75); sh.rotation.y = Math.PI; scene.add(sh); box(2.0, 2.0, 0.4, MAT.cab2, 0, 1.0, 0, sh);
+  var sh = new THREE.Group(); sh.position.set(-8.2, 0, ZF - 0.25); sh.rotation.y = Math.PI; scene.add(sh); box(2.0, 2.0, 0.4, MAT.cab2, 0, 1.0, 0, sh);
   var cols = [0xc0392b, 0x2471a3, 0xd4ac0d, 0x1e8449, 0x7d3c98, 0xca6f1e, 0x566573];
   for (var r = 0; r < 4; r++) for (var i = 0; i < 18; i++) box(0.085, 0.36, 0.3, new THREE.MeshStandardMaterial({ color: cols[(r * 5 + i * 3) % cols.length], roughness: 0.7 }), -0.92 + i * 0.106, 0.3 + r * 0.46, 0.06, sh);
   var shh = invis(2, 2, 0.5); shh.position.y = 1; sh.add(shh); hit(shh, { tip: 'Procedures: general operating (GOP), alarm response (ARP), abnormal (AOP) and emergency (EOP) procedures' });
   /* double doors */
-  var dr = new THREE.Group(); dr.position.set(4.5, 0, 7.96); dr.rotation.y = Math.PI; scene.add(dr); box(2.0, 2.3, 0.08, MAT.trim, 0, 1.15, 0, dr);
+  var dr = new THREE.Group(); dr.position.set(RX - 0.04, 0, 9.9); dr.rotation.y = -Math.PI / 2; scene.add(dr); box(2.0, 2.3, 0.08, MAT.trim, 0, 1.15, 0, dr);
   [-0.49, 0.49].forEach(function (k) { box(0.94, 2.2, 0.05, MAT.cab, k, 1.1, 0.03, dr); box(0.3, 0.5, 0.01, MAT.glass, k, 1.55, 0.06, dr); box(0.03, 0.25, 0.04, MAT.chrome, k * 0.15, 1.05, 0.08, dr); });
-  var ex = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.18), new THREE.MeshBasicMaterial({ map: signTex(256, 92, function (g) { g.fillStyle = '#0a8a3a'; g.fillRect(0, 0, 256, 92); ctext(g, '🏃 EXIT →', 128, 48, 46, '#fff', 'center', 240); }) })); ex.position.set(4.5, 2.5, 7.95); ex.rotation.y = Math.PI; scene.add(ex);
-  var dh = invis(2, 2.3, 0.3); dh.position.set(4.5, 1.15, 7.9); scene.add(dh); hit(dh, { tip: 'Door to the rest of the station: reactor building, turbine hall and cooling towers come in Section 8', act: soon(8, 'Walking the rest of the station') });
+  var ex = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.18), new THREE.MeshBasicMaterial({ map: signTex(256, 92, function (g) { g.fillStyle = '#0a8a3a'; g.fillRect(0, 0, 256, 92); ctext(g, '🏃 EXIT →', 128, 48, 46, '#fff', 'center', 240); }) })); ex.position.set(RX - 0.05, 2.5, 9.9); ex.rotation.y = -Math.PI / 2; scene.add(ex);
+  var dh = invis(2, 2.3, 0.3); dh.position.set(RX - 0.1, 1.15, 9.9); scene.add(dh); hit(dh, { tip: 'Door to the rest of the station: walking the reactor building, turbine hall and switchyard comes later', act: function () { S.toast('🔒 Walking the rest of the station comes later.', 'lock'); S.sfx('deny'); } });
   /* printer, plant, cooler */
-  box(0.6, 0.9, 0.5, MAT.wall, 8.5, 0.45, 7.5, scene); box(0.5, 0.25, 0.42, MAT.desk, 8.5, 1.02, 7.5, scene);
-  var pot = cyl(0.2, 0.15, 0.4, MAT.dark, 16); pot.position.set(-10.4, 0.2, 7.4); scene.add(pot);
-  for (var k2 = 0; k2 < 9; k2++) { var lf = new THREE.Mesh(new THREE.SphereGeometry(0.22, 8, 6), new THREE.MeshStandardMaterial({ color: 0x2e7d32, roughness: 0.8 })); lf.position.set(-10.4 + Math.cos(k2) * 0.15, 0.6 + (k2 % 3) * 0.22, 7.4 + Math.sin(k2) * 0.15); lf.scale.set(1, 1.4, 1); scene.add(lf); }
-  var cooler = cyl(0.14, 0.14, 0.4, MAT.glass, 16); cooler.position.set(9.6, 1.25, 7.55); scene.add(cooler); box(0.34, 1.05, 0.34, MAT.wall, 9.6, 0.525, 7.55, scene);
+  box(0.6, 0.9, 0.5, MAT.wall, 9.0, 0.45, ZF - 0.4, scene); box(0.5, 0.25, 0.42, MAT.desk, 9.0, 1.02, ZF - 0.4, scene);
+  var pot = cyl(0.2, 0.15, 0.4, MAT.dark, 16); pot.position.set(-RX + 0.6, 0.2, ZF - 0.6); scene.add(pot);
+  for (var k2 = 0; k2 < 9; k2++) { var lf = new THREE.Mesh(new THREE.SphereGeometry(0.22, 8, 6), new THREE.MeshStandardMaterial({ color: 0x2e7d32, roughness: 0.8 })); lf.position.set(-RX + 0.6 + Math.cos(k2) * 0.15, 0.6 + (k2 % 3) * 0.22, ZF - 0.6 + Math.sin(k2) * 0.15); lf.scale.set(1, 1.4, 1); scene.add(lf); }
+  var cooler = cyl(0.14, 0.14, 0.4, MAT.glass, 16); cooler.position.set(10.2, 1.25, ZF - 0.45); scene.add(cooler); box(0.34, 1.05, 0.34, MAT.wall, 10.2, 0.525, ZF - 0.45, scene);
   /* cabinets behind the boards */
-  for (var c2 = -9; c2 <= 9; c2 += 1.2) { if (Math.abs(c2) < 0.7) continue; box(1.1, 2.1, 0.6, MAT.cab2, c2, 1.05, -7.65, scene); }
-  var fe = cyl(0.08, 0.08, 0.5, new THREE.MeshStandardMaterial({ color: 0xc0392b, roughness: 0.3 }), 14); fe.position.set(10.75, 0.55, 6.5); scene.add(fe); hit(fe, { tip: 'Fire extinguisher (CO₂, safe on electrical equipment)' });
+  for (var c2 = -9.6; c2 <= 9.6; c2 += 1.2) box(1.1, 2.1, 0.6, MAT.cab2, c2, 1.05, ZB + 0.35, scene);
+  var fe = cyl(0.08, 0.08, 0.5, new THREE.MeshStandardMaterial({ color: 0xc0392b, roughness: 0.3 }), 14); fe.position.set(RX - 0.25, 0.55, 8.2); scene.add(fe); hit(fe, { tip: 'Fire extinguisher (CO₂, safe on electrical equipment)' });
 }
 
 /* ================================================================ realism pass (high graphics) ================================================================
@@ -925,10 +963,10 @@ function realism(scene) {
   /* --- floor: bevelled tile edges, scuffs, a polished but used finish --- */
   var tileH = heightTex(256, 256, function (g, w, h) { var gr = g.createLinearGradient(0, 0, 0, 6); g.fillStyle = '#c0c0c0'; g.fillRect(0, 0, w, h); g.fillStyle = '#202020'; g.fillRect(0, 0, w, 3); g.fillRect(0, 0, 3, h); g.fillStyle = '#707070'; g.fillRect(3, 3, w - 3, 3); g.fillRect(3, 3, 3, h - 3); blurNoise(g, w, h, 900, 4, 0.08); });
   var floorN = normalFrom(tileH, 3), floorR = dataTex(heightTex(512, 512, function (g, w, h) { g.fillStyle = '#4a4a4a'; g.fillRect(0, 0, w, h); blurNoise(g, w, h, 160, 60, 0.18); for (var i = 0; i < 70; i++) { g.strokeStyle = 'rgba(200,200,200,' + (0.05 + Math.random() * 0.1) + ')'; g.lineWidth = 1 + Math.random() * 2; g.beginPath(); var x = Math.random() * w, y = Math.random() * h; g.moveTo(x, y); g.lineTo(x + (Math.random() - 0.5) * 80, y + (Math.random() - 0.5) * 20); g.stroke(); } }));
-  floorN.repeat.set(22 / 0.6, 16 / 0.6); floorR.repeat.set(22 / 2.4, 16 / 2.4);
+  floorN.repeat.set(2 * RX / 0.6, RDP / 0.6); floorR.repeat.set(2 * RX / 2.4, RDP / 2.4);
   scene.traverse(function (o) {
     if (!o.isMesh || !o.material || o.material.isMeshBasicMaterial || !o.material.isMeshStandardMaterial) return; var m = o.material;
-    if (o.geometry.type === 'PlaneGeometry' && o.geometry.parameters.width === 22 && o.rotation.x < 0) { m.normalMap = floorN; m.normalScale.set(0.6, 0.6); m.roughnessMap = floorR; m.roughness = 0.55; m.metalness = 0.05; m.envMapIntensity = 1.4; m.needsUpdate = true; return; }
+    if (o.userData.floor) { m.normalMap = floorN; m.normalScale.set(0.6, 0.6); m.roughnessMap = floorR; m.roughness = 0.55; m.metalness = 0.05; m.envMapIntensity = 1.4; m.needsUpdate = true; return; }
     if (m.map && m.map.image && m.map.image.width >= 1500) { m.normalMap = peel; m.normalScale.set(0.12, 0.12); m.roughnessMap = smudge; m.roughness = 0.75; m.envMapIntensity = 0.6; m.needsUpdate = true; return; }
   });
   [MAT.cab, MAT.cab2, MAT.trim].forEach(function (m) { m.normalMap = peel; m.normalScale.set(0.25, 0.25); m.roughnessMap = smudge; m.roughness = 0.7; m.metalness = 0.25; m.envMapIntensity = 0.9; m.needsUpdate = true; });
@@ -937,16 +975,16 @@ function realism(scene) {
   MAT.fabric.normalMap = normalFrom(heightTex(128, 128, function (g, w, h) { g.fillStyle = '#808080'; g.fillRect(0, 0, w, h); for (var y = 0; y < h; y += 2) { g.fillStyle = y % 4 ? '#909090' : '#707070'; g.fillRect(0, y, w, 1); } for (var x = 0; x < w; x += 2) { g.fillStyle = 'rgba(0,0,0,.15)'; g.fillRect(x, 0, 1, h); } }), 1.5); MAT.fabric.normalMap.repeat.set(6, 6); MAT.fabric.needsUpdate = true;
   /* --- louvred light fittings instead of flat white rectangles --- */
   var louv = new THREE.MeshBasicMaterial({ map: dataTex(heightTex(256, 128, function (g, w, h) { g.fillStyle = '#c9c9c4'; g.fillRect(0, 0, w, h); var gr = g.createLinearGradient(0, 0, 0, h); g.fillStyle = '#ffffff'; g.fillRect(8, 8, w - 16, h - 16); g.strokeStyle = 'rgba(150,150,145,.9)'; g.lineWidth = 3; for (var x = 8; x < w - 8; x += 16) { g.beginPath(); g.moveTo(x, 8); g.lineTo(x, h - 8); g.stroke(); } for (var y = 8; y < h - 8; y += 30) { g.beginPath(); g.moveTo(8, y); g.lineTo(w - 8, y); g.stroke(); } }), true) });
-  louv.color.setScalar(4.2); scene.traverse(function (o) { if (o.isMesh && o.material === MAT.lightP && o.position.y > 3.5) o.material = louv; });
+  louv.color.setScalar(4.2); scene.traverse(function (o) { if (o.isMesh && o.material === MAT.lightP && o.position.y > CH - 0.2) o.material = louv; });
   /* --- acoustic fabric panels on the side walls, and cable trays along the back --- */
   var acM = new THREE.MeshStandardMaterial({ color: 0x46535f, roughness: 0.98, normalMap: MAT.fabric.normalMap });
-  for (var z = -5.4; z <= 5.4; z += 2.7) { box(0.05, 1.5, 2.4, acM, -10.97, 2.55, z + (Math.abs(z - 0.5) < 2 ? 99 : 0), scene); box(0.05, 1.5, 2.4, acM, 10.97, 2.55, z + (Math.abs(z + 1.2) < 2 ? 99 : 0), scene); }
-  var tray = new THREE.Group(); scene.add(tray); for (var xx = -10; xx <= 10; xx += 2.5) box(2.5, 0.02, 0.4, MAT.metal, xx + 1.25, 3.3, -7.6, tray); box(20.5, 0.08, 0.02, MAT.metal, 0, 3.34, -7.4, tray); box(20.5, 0.08, 0.02, MAT.metal, 0, 3.34, -7.8, tray);
+  for (var z = -7; z <= 6; z += 2.7) { box(0.05, 1.5, 2.4, acM, -RX + 0.03, 3.0, z, scene); box(0.05, 1.5, 2.4, acM, RX - 0.03, 3.0, z, scene); }
+  var tray = new THREE.Group(); scene.add(tray); tray.position.set(0, CH - 3.6 + 0.2, ZB + 0.6 + 7.6); for (var xx = -10; xx <= 10; xx += 2.5) box(2.5, 0.02, 0.4, MAT.metal, xx + 1.25, 3.3, -7.6, tray); box(20.5, 0.08, 0.02, MAT.metal, 0, 3.34, -7.4, tray); box(20.5, 0.08, 0.02, MAT.metal, 0, 3.34, -7.8, tray);
   for (var c = 0; c < 6; c++) { var cab = cyl(0.025, 0.025, 20.4, new THREE.MeshStandardMaterial({ color: [0x2b2b2b, 0x8a1c1c, 0x1c3f8a, 0x2b2b2b, 0xb38f00, 0x2b2b2b][c], roughness: 0.6 }), 8); cab.rotation.z = Math.PI / 2; cab.position.set(0, 3.335, -7.72 + c * 0.055); tray.add(cab); }
   /* --- ceiling vent grilles and sprinkler heads --- */
   var vent = new THREE.MeshStandardMaterial({ color: 0xdcdcd6, roughness: 0.5, metalness: 0.3, map: dataTex(heightTex(128, 128, function (g, w, h) { g.fillStyle = '#e6e6e0'; g.fillRect(0, 0, w, h); g.fillStyle = '#3a3a38'; for (var i = 12; i < w - 12; i += 8) g.fillRect(12, i, w - 24, 4); }), true) });
-  [[-4.5, -3.3], [4.5, -3.3], [-4.5, 3.3], [4.5, 3.3], [0, 6.2]].forEach(function (q) { var v = new THREE.Mesh(new THREE.PlaneGeometry(0.6, 0.6), vent); v.rotation.x = Math.PI / 2; v.position.set(q[0], 3.592, q[1]); scene.add(v); });
-  for (var sx = -7.5; sx <= 7.5; sx += 3) for (var sz = -5.5; sz <= 5.5; sz += 3.7) { var sp = cyl(0.012, 0.03, 0.04, MAT.chrome, 8); sp.position.set(sx, 3.58, sz); scene.add(sp); }
+  [[-4.5, -3.3], [4.5, -3.3], [-4.5, 3.3], [4.5, 3.3], [0, 6.2], [-7.5, 8.5], [7.5, 8.5], [0, -6.5]].forEach(function (q) { var v = new THREE.Mesh(new THREE.PlaneGeometry(0.6, 0.6), vent); v.rotation.x = Math.PI / 2; v.position.set(q[0], CH - 0.008, q[1]); scene.add(v); });
+  for (var sx = -9; sx <= 9; sx += 3) for (var sz = -7.5; sz <= 9.5; sz += 3.4) { var sp = cyl(0.012, 0.03, 0.04, MAT.chrome, 8); sp.position.set(sx, CH - 0.02, sz); scene.add(sp); }
   /* --- glass over every meter and digital display: catches the reflections of the room lights --- */
   var glass = new THREE.MeshStandardMaterial({ color: 0x0a0c0e, roughness: 0.04, metalness: 0, transparent: true, opacity: 0.16, envMapIntensity: 3, depthWrite: false });
   WG.forEach(function (w) { if (w.o.tiles || !w.o.lbl || !w.m.parent) return; var gm = new THREE.Mesh(w.m.geometry, glass); gm.position.z = 0.003; gm.raycast = function () {}; w.m.add(gm); });
@@ -989,18 +1027,439 @@ var POST = { on: false,
   }
 };
 
-/* ================================================================ the ten-section roadmap ================================================================ */
+/* ================================================================ board engine ================================================================
+   A real control room has well over a thousand controls, far too many to give each its own canvas and meshes.
+   So on these boards the meter scales, labels and switch plates are painted into the board's own texture, and only the
+   moving parts are 3D: one instanced mesh each for meter pointers, lamps, switch handles, buttons and knobs per board,
+   plus one small texture atlas per board for the digital displays and M/A controller stations. */
+var BE = [], BPCW = 2560;
+var X = function () { return S.p.x; }, P = function () { return S.p; };
+function be(s) { if (s.be) return s.be; var b = s.be = { s: s, met: [], plamp: [], dlamp: [], sw: [], pb: [], rot: [], cells: [], hitsP: [], shelfY: 0, shelfX: 0, shelfH: 0, t: 0, at: 0 }; s.pcw = BPCW; s.artP = []; s.artD = []; BE.push(b); return b; }
+function grp(s, x0, x1, y0, y1, lbl, col) { s.grp.push([x0, x1, y0, y1, lbl, col]); }
+function dgrp(s, u0, u1, d0, d1, lbl, col) { s.dgrp.push([u0, u1, d0, d1, lbl, col]); }
+function pHit(s, x, y, w, h, o) { var m = invis(w, h, 0.02); m.position.set(x, y, PZ + 0.012); s.g.add(m); hit(m, o); return m; }
+function dHit(s, u, d, w, dd, hgt, o) { var m = invis(w, hgt, dd); m.position.set(u, hgt / 2, -d * SL); s.desk.add(m); hit(m, o); return m; }
+function fmtV(v) { return Math.abs(v) >= 100 ? String(Math.round(v)) : Math.abs(v) >= 10 ? v.toFixed(1) : v.toFixed(2); }
+/* ---------- edgewise meter: face painted on the board, pointer is an instance ---------- */
+function MT(s, x, y, lbl, unit, min, max, v, o) {
+  o = o || {}; var b = be(s), w = o.w || 0.09, hgt = o.h || 0.32, m = { x: x, y: y, w: w, h: hgt, min: min, max: max, v: v, log: o.log, last: -1 };
+  s.artP.push(function (g) { var X0 = px(x - w / 2), Y0 = py(y + hgt / 2), W = px(x + w / 2) - X0, H = py(y - hgt / 2) - Y0, top = Y0 + H * 0.15, bot = Y0 + H * 0.88;
+    g.fillStyle = '#17191b'; g.fillRect(X0, Y0, W, H); g.fillStyle = '#f2f0e7'; g.fillRect(X0 + W * 0.1, top - H * 0.04, W * 0.8, bot - top + H * 0.08);
+    ctext(g, lbl, X0 + W / 2, Y0 + H * 0.065, Math.round(W * 0.2), '#fff', 'center', W * 0.95); ctext(g, unit, X0 + W / 2, Y0 + H * 0.95, Math.round(W * 0.15), '#cfd3d6', 'center', W * 0.95, '600');
+    if (o.bands) o.bands.forEach(function (bd) { var a = bot - (bot - top) * bd[0], c = bot - (bot - top) * bd[1]; g.fillStyle = bd[2]; g.fillRect(X0 + W * 0.13, c, W * 0.08, a - c); });
+    g.strokeStyle = '#111'; g.fillStyle = '#111'; var mj = o.major || 5, mn = o.minor || 2;
+    if (o.log) { var la = Math.log10(min), lb = Math.log10(max), nd = lb - la; for (var d = 0; d <= nd; d++) { var yy = bot - (bot - top) * d / nd; g.lineWidth = 1.6; g.beginPath(); g.moveTo(X0 + W * 0.13, yy); g.lineTo(X0 + W * 0.36, yy); g.stroke(); superExp(g, '10', String(la + d), X0 + W * 0.4, yy, Math.round(W * 0.16), '#111', 'left'); } }
+    else for (var i = 0; i <= mj * mn; i++) { var y2 = bot - (bot - top) * i / (mj * mn), M = i % mn === 0; g.lineWidth = M ? 1.6 : 1; g.beginPath(); g.moveTo(X0 + W * 0.13, y2); g.lineTo(X0 + W * (M ? 0.36 : 0.26), y2); g.stroke();
+      if (M) ctext(g, o.fmt ? o.fmt(min + (max - min) * i / (mj * mn)) : fmtTick(min + (max - min) * i / (mj * mn)), X0 + W * 0.62, y2, Math.round(W * 0.17), '#111', 'center', W * 0.42); }
+    m.top = top; m.bot = bot; });
+  b.met.push(m); pHit(s, x, y, w, hgt, { tip: o.tip || function () { var z = v(); return (o.name || lbl) + ': ' + (o.log ? fmtSci(z, 1) : fmtV(z)) + ' ' + unit; }, info: o.info || [/x/, o.name || lbl, 'An edgewise meter: the red pointer moves up the scale. Coloured bands mark where an alarm or trip setpoint is. This one reads ' + unit + '.', 'Real boards still use rows of edgewise meters because an operator can spot one pointer out of line with its neighbours at a glance.'] });
+  return m;
+}
+function fmtTick(v) { var a = Math.abs(v); return a >= 1000 ? (v / 1000) + 'k' : a >= 10 || v === 0 ? String(Math.round(v)) : v.toFixed(1); }
+function meterRow(s, x0, y, list, dx, o) { list.forEach(function (it, i) { MT(s, x0 + i * (dx || 0.098), y, it[0], it[1], it[2], it[3], it[4], Object.assign({ name: it[5], info: it[6] }, o || {}, it[7] || {})); }); }
+/* ---------- indicating lamps (panel or desk) with an engraved label ---------- */
+function LP(s, x, y, lbl, on, col, tip) { var b = be(s); b.plamp.push({ x: x, y: y, on: on, c: new THREE.Color(col || 0xffffff), st: null });
+  if (lbl) s.artP.push(function (g) { var ls = lbl.split('\n'); ls.forEach(function (ln, k) { ctext(g, ln, px(x), py(y - 0.032 - k * 0.017), 13, '#1a1f24', 'center', px(0.115) - px(0), '600'); }); g.fillStyle = '#9aa0a5'; g.beginPath(); g.arc(px(x), py(y), (px(0.023) - px(0)), 0, 6.3); g.fill(); g.fillStyle = '#26292c'; g.beginPath(); g.arc(px(x), py(y), (px(0.019) - px(0)), 0, 6.3); g.fill(); });
+  pHit(s, x, y - 0.01, 0.07, 0.06, { tip: tip || function () { return (lbl || 'Lamp').replace(/\n/g, ' ') + ': ' + (on() ? 'LIT' : 'off'); }, info: [/x/, (lbl || 'Status lamp').replace(/\n/g, ' '), 'A status lamp: lit means the condition on its label is true right now. Red usually means running or open, green stopped or closed, amber a warning, white a permissive or status.'] }); }
+function lampRow(s, x0, y, list, dx) { list.forEach(function (it, i) { LP(s, x0 + i * (dx || 0.085), y, it[0], it[1], it[2], it[3]); }); }
+function DLP(s, u, d, on, col) { be(s).dlamp.push({ u: u, d: d, on: on, c: new THREE.Color(col), st: null }); }
+/* ---------- digital readouts and M/A controller stations share one atlas per board ---------- */
+function cell(s, w, h) { var b = be(s); if (b.shelfX + w > 1024) { b.shelfX = 0; b.shelfY += b.shelfH; b.shelfH = 0; } var c = { x: b.shelfX, y: b.shelfY, w: w, h: h }; b.shelfX += w; b.shelfH = Math.max(b.shelfH, h); return c; }
+function DG(s, x, y, lbl, txt, o) { o = o || {}; var b = be(s), w = o.w || 0.16, hgt = w * 0.4, c = cell(s, 160, 64); c.kind = 'dg'; c.lbl = lbl; c.txt = txt; c.col = o.col || '#ff4a3a'; c.x3 = x; c.y3 = y; c.w3 = w; c.h3 = hgt; b.cells.push(c);
+  pHit(s, x, y, w, hgt, { tip: o.tip || function () { return (o.name || lbl) + ': ' + txt(); }, info: o.info }); return c; }
+function dgRow(s, x0, y, list, dx, o) { list.forEach(function (it, i) { DG(s, x0 + i * (dx || 0.175), y, it[0], it[1], Object.assign({ name: it[2], col: it[3], info: it[4] }, o || {})); }); }
+/* M/A station: output bar, process/setpoint digits, MAN and AUTO pushbuttons, lower/raise buttons. Hold raise/lower to ramp. */
+function MA(s, x, y, o) {
+  var b = be(s), w = 0.1, hgt = 0.2, c = cell(s, 128, 256); c.kind = 'ma'; c.o = o; c.x3 = x; c.y3 = y; c.w3 = w; c.h3 = hgt; b.cells.push(c);
+  var hz = function (dx, dy, ww, hh, oo) { pHit(s, x + dx * w, y + dy * hgt, ww * w, hh * hgt, oo); };
+  hz(-0.25, -0.27, 0.48, 0.14, { tip: function () { return o.t + ': MANUAL (you set the output with the arrows)'; }, act: function () { if (o.mode() !== 'MAN') { o.setMode('MAN'); S.sfx('btn'); } }, info: MAINFO });
+  hz(0.25, -0.27, 0.48, 0.14, { tip: function () { return o.t + ': AUTOMATIC (the controller adjusts the output itself)'; }, act: function () { if (o.mode() !== 'AUTO') { o.setMode('AUTO'); S.sfx('btn'); } }, info: MAINFO });
+  var ramp = function (dir) { return function (on) { b.ramp = on ? { o: o, dir: dir } : null; if (on) S.sfx('btn'); }; };
+  hz(-0.25, -0.42, 0.48, 0.14, { tip: function () { return o.t + ': hold to LOWER ' + (o.mode() === 'AUTO' && o.sp ? 'the setpoint' : 'the output'); }, hold: ramp(-1), info: MAINFO });
+  hz(0.25, -0.42, 0.48, 0.14, { tip: function () { return o.t + ': hold to RAISE ' + (o.mode() === 'AUTO' && o.sp ? 'the setpoint' : 'the output'); }, hold: ramp(1), info: MAINFO });
+  hz(0, 0.18, 1, 0.6, { tip: function () { return o.t + ': ' + o.mode() + ', output ' + Math.round(o.out() * 100) + '%' + (o.pv ? ', ' + o.pv() : '') + (o.sp ? ', setpoint ' + o.sp() : ''); }, info: MAINFO });
+  var bx = box(w + 0.012, hgt + 0.012, 0.03, MAT.black, x, y, PZ - 0.013, s.g); return c;
+}
+var MAINFO = [/x/, 'M/A controller station', 'Every automatic control loop has one. In AUTO the controller moves its valve or heater by itself to hold the setpoint; in MANUAL the operator drives the output directly with the raise and lower buttons. The bar shows the output (how open the valve is).', 'Operators take a controller to manual when it misbehaves, and back to auto once things are steady.'];
+/* ---------- desk controls ---------- */
+/* control switch (pistol grip): turn right = START / CLOSE / OPEN (red lamp), left = STOP / TRIP / CLOSE (green lamp) */
+function SWC(s, u, d, o) {
+  var b = be(s), r = { u: u, d: d, o: o, turn: 0, spring: 0 }; b.sw.push(r);
+  s.artD.push(function (g) { var X0 = dx(u - 0.055), Y0 = dy(d + 0.06), W = dx(u + 0.055) - X0, H = dy(d - 0.065) - Y0; g.fillStyle = '#16191c'; rr(g, X0, Y0, W, H, 8); g.fill();
+    ctext(g, o.l || 'STOP', X0 + W * 0.22, Y0 + H * 0.18, 13, '#e8e8e2', 'center', W * 0.42); ctext(g, o.r || 'START', X0 + W * 0.78, Y0 + H * 0.18, 13, '#e8e8e2', 'center', W * 0.42);
+    var ls = o.t.split('\n'); ls.forEach(function (ln, k) { ctext(g, ln, X0 + W / 2, Y0 + H * (ls.length > 1 ? 0.8 : 0.88) + k * 14, 13, '#fff', 'center', W * 0.95); }); });
+  DLP(s, u - 0.026, d + 0.115, function () { return !o.on(); }, 0x2bd14a); DLP(s, u + 0.026, d + 0.115, o.on, 0xff3324);
+  dHit(s, u, d + 0.02, 0.11, 0.13, 0.06, { tip: function () { return o.t.replace(/\n/g, ' ') + ': ' + (o.on() ? (o.onTxt || 'ON') + ' (red)' : (o.offTxt || 'OFF') + ' (green)') + (o.why ? '. ' + o.why() : ''); }, info: o.info,
+    act: function (h) { var right = !o.on(); if (h && h.uv && false) right = true; r.spring = right ? 1 : -1; S.sfx('switch'); o.act(right); HUD.dirty = true; } });
+}
+function swRow(s, u0, d, list, du) { list.forEach(function (o, i) { if (o) SWC(s, u0 + i * (du || 0.14), d, o); }); }
+function PBN(s, u, d, o) { var b = be(s), r = { u: u, d: d, o: o, c: new THREE.Color(o.col || 0xdddddd), st: null, push: 0 }; b.pb.push(r);
+  if (o.lbl) s.artD.push(function (g) { var ls = o.lbl.split('\n'); ls.forEach(function (ln, k) { tag(g, ln, dx(u), dy(d - 0.09 - k * 0.055), Math.max(70, ln.length * 11), 24, 12, o.tagBg, o.tagFg); }); });
+  dHit(s, u, d, 0.06, 0.06, 0.05, { tip: o.tip || o.lbl.replace(/\n/g, ' '), info: o.info || [/x/, (o.lbl || 'Pushbutton').replace(/\n/g, ' '), o.tip || 'A pushbutton.'], act: function () { r.push = 0.15; S.sfx('btn'); o.act && o.act(); HUD.dirty = true; }, hold: o.hold }); }
+/* rotary selector: click a position label (or the knob to step round) */
+function ROT(s, u, d, o) { var b = be(s), n = o.pos.length, span = o.span || (n > 2 ? 200 : 90), ang = function (i) { return (-span / 2 + span * i / (n - 1)) * Math.PI / 180; }, r = { u: u, d: d, o: o, ang: ang, cur: ang(o.get()) }; b.rot.push(r);
+  s.artD.push(function (g) { var cx = dx(u), cy = dy(d), R0 = dx(0.06) - dx(0); g.fillStyle = '#16191c'; g.beginPath(); g.arc(cx, cy, R0 * 1.25, 0, 6.3); g.fill(); ctext(g, o.t, cx, cy + R0 * 1.55, 13, '#1a1f24', 'center', R0 * 3.2);
+    for (var i = 0; i < n; i++) { var a = ang(i); ctext(g, o.pos[i], cx + Math.sin(a) * R0 * 0.95, cy - Math.cos(a) * R0 * 0.95, 11, '#f2f2ee', 'center', R0 * 0.9); } });
+  var hb = dHit(s, u, d, 0.16, 0.16, 0.04, { tip: function () { return o.t.replace(/\n/g, ' ') + ': ' + o.pos[o.get()] + (o.tip ? '. ' + o.tip : ''); }, info: o.info,
+    act: function (h) { var i = (o.get() + 1) % n; if (h && h.point) { var lp = s.desk.worldToLocal(h.point.clone()), a = Math.atan2(lp.x - u, -(lp.z + d * SL)), best = -1, bd = 0.5; if (Math.hypot(lp.x - u, lp.z + d * SL) > 0.02) for (var k = 0; k < n; k++) { var dd = Math.abs(a - ang(k)); if (dd < bd) { bd = dd; best = k; } } if (best >= 0) i = best; }
+      if (i !== o.get()) { o.set(i); S.sfx('detent'); HUD.dirty = true; } } }); }
+/* ---------- build the instanced meshes once all items are declared ---------- */
+var LENSG = null, BASEG = null, GRIPG = null, CAPG = null, KNOBG = null, PTRG = null;
+function beFinish(s) {
+  var b = s.be; if (!b) return; if (!LENSG) { LENSG = new THREE.CylinderGeometry(0.015, 0.015, 0.012, 16); BASEG = new THREE.CylinderGeometry(0.026, 0.03, 0.014, 18); GRIPG = new THREE.BoxGeometry(0.022, 0.024, 0.07); GRIPG.translate(0, 0.024, -0.01); CAPG = new THREE.CylinderGeometry(0.018, 0.018, 0.02, 18); KNOBG = new THREE.BoxGeometry(0.02, 0.022, 0.075); KNOBG.translate(0, 0.018, 0); PTRG = new THREE.PlaneGeometry(1, 1); }
+  var M4 = new THREE.Matrix4(), Q = new THREE.Quaternion(), V = new THREE.Vector3(), SC = new THREE.Vector3(1, 1, 1), E = new THREE.Euler();
+  var inst = function (geo, mat, n, parent) { var im = new THREE.InstancedMesh(geo, mat, Math.max(1, n)); im.count = n; im.instanceMatrix.setUsage(THREE.DynamicDrawUsage); parent.add(im); return im; };
+  if (b.met.length) { b.ptr = inst(PTRG, new THREE.MeshBasicMaterial({ color: 0xd0201a }), b.met.length, s.g); b.ptr.position.z = PZ + 0.004; }
+  var lensM = new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 0, roughness: 0.25 });
+  lensM.onBeforeCompile = function (sh) { sh.fragmentShader = sh.fragmentShader.replace('#include <emissivemap_fragment>', '#include <emissivemap_fragment>\n#ifdef USE_INSTANCING_COLOR\n totalEmissiveRadiance = vColor * step(0.5, max(vColor.r, max(vColor.g, vColor.b))) * 2.2;\n#endif'); };
+  if (b.plamp.length) { b.pl = inst(LENSG, lensM, b.plamp.length, s.g); b.plamp.forEach(function (l, i) { E.set(Math.PI / 2, 0, 0); Q.setFromEuler(E); V.set(l.x, l.y, PZ + 0.007); M4.compose(V, Q, SC); b.pl.setMatrixAt(i, M4); b.pl.setColorAt(i, l.c.clone().multiplyScalar(0.15)); }); }
+  var dl = b.dlamp.length; if (dl) { b.dlm = inst(LENSG, lensM, dl, s.desk); b.dlamp.forEach(function (l, i) { V.set(l.u, 0.006, -l.d * SL); M4.compose(V, Q.identity(), SC); b.dlm.setMatrixAt(i, M4); b.dlm.setColorAt(i, l.c.clone().multiplyScalar(0.15)); }); }
+  if (b.sw.length) { b.swb = inst(BASEG, MAT.black, b.sw.length, s.desk); b.swg = inst(GRIPG, MAT.black, b.sw.length, s.desk); b.sw.forEach(function (r, i) { V.set(r.u, 0.007, -r.d * SL); M4.compose(V, Q.identity(), SC); b.swb.setMatrixAt(i, M4); V.y = 0.012; b.swg.setMatrixAt(i, M4); }); }
+  if (b.pb.length) { b.pbb = inst(BASEG, MAT.metal, b.pb.length, s.desk); b.pbc = inst(CAPG, new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.3 }), b.pb.length, s.desk); b.pb.forEach(function (r, i) { V.set(r.u, 0.007, -r.d * SL); M4.compose(V, Q.identity(), SC); b.pbb.setMatrixAt(i, M4); V.y = 0.022; b.pbc.setMatrixAt(i, M4); b.pbc.setColorAt(i, r.c); }); }
+  if (b.rot.length) { b.rk = inst(KNOBG, MAT.black, b.rot.length, s.desk); }
+  b.M4 = M4; b.Q = Q; b.V = V; b.SC = SC; b.E = E;
+  if (b.cells.length) { var cv = CV(1024, Math.max(64, b.shelfY + b.shelfH)), tx = texOf(cv); tx.generateMipmaps = false; tx.minFilter = THREE.LinearFilter; b.atlas = cv; b.atlasG = cv.getContext('2d'); b.atex = tx;
+    var am = new THREE.MeshBasicMaterial({ map: tx, toneMapped: false });
+    b.cells.forEach(function (c) { var geo = new THREE.PlaneGeometry(c.w3, c.h3), uv = geo.attributes.uv, u0 = c.x / 1024, u1 = (c.x + c.w) / 1024, v1 = 1 - c.y / cv.height, v0 = 1 - (c.y + c.h) / cv.height;
+      for (var k = 0; k < uv.count; k++) uv.setXY(k, uv.getX(k) ? u1 : u0, uv.getY(k) ? v1 : v0); var mm = new THREE.Mesh(geo, am); mm.position.set(c.x3, c.y3, PZ + 0.006); s.g.add(mm); }); beAtlas(b, true); }
+  beTick(b, 0.016, true);
+}
+function drawCell(g, c) {
+  var x = c.x, y = c.y, w = c.w, h = c.h;
+  if (c.kind === 'dg') { g.fillStyle = '#0d0f10'; g.fillRect(x, y, w, h); g.fillStyle = '#26292c'; g.fillRect(x, y, w, 18); ctext(g, c.lbl, x + w / 2, y + 9, 12, '#e8e8e2', 'center', w - 6); g.fillStyle = '#050505'; g.fillRect(x + 5, y + 21, w - 10, h - 25); ctext(g, String(c.txt()), x + w - 10, y + 42, 30, c.col, 'right', w - 16, 'bold'); return; }
+  var o = c.o, out = clamp(o.out(), 0, 1), auto = o.mode() === 'AUTO';
+  g.fillStyle = '#2b2f33'; g.fillRect(x, y, w, h); g.fillStyle = '#e9e7de'; g.fillRect(x + 4, y + 4, w - 8, 30); var ls = o.t.split('\n'); ls.forEach(function (ln, k) { ctext(g, ln, x + w / 2, y + 13 + k * 13 - (ls.length - 1) * 4, 11, '#111', 'center', w - 12); });
+  g.fillStyle = '#050505'; g.fillRect(x + 8, y + 40, w - 16, 34); ctext(g, o.pv ? o.pv() : '', x + w - 14, y + 51, 15, '#59e07a', 'right', w - 24, 'bold'); ctext(g, o.sp ? 'SP ' + o.sp() : '', x + w - 14, y + 67, 12, '#ffd34a', 'right', w - 24, 'bold');
+  g.fillStyle = '#111'; g.fillRect(x + 20, y + 80, w - 40, 80); g.fillStyle = '#ff8a2a'; g.fillRect(x + 22, y + 158 - 76 * out, w - 44, 76 * out); ctext(g, 'OUT ' + Math.round(out * 100) + '%', x + w / 2, y + 170, 12, '#e8e8e2', 'center', w - 10, 'bold');
+  var btn = function (bx, by, t, lit, col) { g.fillStyle = lit ? col : '#3d4246'; g.fillRect(bx, by, 56, 32); g.strokeStyle = '#000'; g.lineWidth = 2; g.strokeRect(bx, by, 56, 32); ctext(g, t, bx + 28, by + 16, 13, lit ? '#111' : '#d7dbe0', 'center', 52, 'bold'); };
+  btn(x + 6, y + 182, 'MAN', !auto, '#ffd34a'); btn(x + 66, y + 182, 'AUTO', auto, '#7dffa0'); btn(x + 6, y + 218, '▼', false); btn(x + 66, y + 218, '▲', false);
+}
+function beAtlas(b, all) { if (!b.atlas) return; var g = b.atlasG; b.cells.forEach(function (c) { var k = c.kind === 'dg' ? c.txt() : [c.o.mode(), Math.round(c.o.out() * 200), c.o.pv && c.o.pv(), c.o.sp && c.o.sp()].join('|'); if (!all && k === c.last) return; c.last = k; drawCell(g, c); b.dirty = true; }); if (b.dirty) { b.atex.needsUpdate = true; b.dirty = false; } }
+function beTick(b, dt, force) {
+  var s = b.s, M4 = b.M4, Q = b.Q, V = b.V, SC = b.SC, E = b.E, ch;
+  if (b.ptr) { ch = false; b.met.forEach(function (m, i) { var v = m.v(), f = m.log ? (Math.log10(Math.max(v, m.min * 0.5)) - Math.log10(m.min)) / (Math.log10(m.max) - Math.log10(m.min)) : (v - m.min) / (m.max - m.min); f = clamp(f, -0.02, 1.02); var q = Math.round(f * 600); if (q === m.last && !force) return; m.last = q; ch = true;
+    var yy = (m.y - m.h / 2) + m.h * (0.12 + 0.73 * f); V.set(m.x + m.w * 0.04, yy, 0); SC.set(m.w * 0.72, 0.0035, 1); M4.compose(V, Q.identity(), SC); b.ptr.setMatrixAt(i, M4); }); SC.set(1, 1, 1); if (ch) b.ptr.instanceMatrix.needsUpdate = true; }
+  var lt = S.lampTest, lampUpd = function (arr, im) { if (!im) return; var c2 = false; arr.forEach(function (l, i) { var on = lt || !!l.on(); if (on === l.st && !force) return; l.st = on; im.setColorAt(i, on ? l.c : l.c.clone().multiplyScalar(0.15)); c2 = true; }); if (c2) im.instanceColor.needsUpdate = true; };
+  lampUpd(b.plamp, b.pl); lampUpd(b.dlamp, b.dlm);
+  if (b.swg) { ch = false; b.sw.forEach(function (r, i) { var tgt = r.spring * 0.78; if (Math.abs(r.turn - tgt) < 0.002 && !force) { if (r.spring && Math.abs(r.turn - tgt) < 0.05) r.spring = 0; return; } r.turn += (tgt - r.turn) * (1 - Math.exp(-dt * 16)); if (r.spring && Math.abs(r.turn - tgt) < 0.05) r.spring = 0; E.set(0, -r.turn, 0); Q.setFromEuler(E); V.set(r.u, 0.012, -r.d * SL); M4.compose(V, Q, SC); b.swg.setMatrixAt(i, M4); ch = true; }); if (ch) b.swg.instanceMatrix.needsUpdate = true; }
+  if (b.pbc) { ch = false; b.pb.forEach(function (r, i) { var lit = r.o.lit ? (lt || !!r.o.lit()) : true, k = (r.push > 0 ? 1 : 0) + (lit ? 2 : 0); if (r.push > 0) r.push -= dt; if (k === r.st && !force) return; r.st = k; V.set(r.u, r.push > 0 ? 0.017 : 0.022, -r.d * SL); M4.compose(V, Q.identity(), SC); b.pbc.setMatrixAt(i, M4); b.pbc.setColorAt(i, lit || !r.o.lit ? r.c : r.c.clone().multiplyScalar(0.35)); ch = true; }); if (ch) { b.pbc.instanceMatrix.needsUpdate = true; b.pbc.instanceColor.needsUpdate = true; } }
+  if (b.rk) { ch = false; b.rot.forEach(function (r, i) { var t = r.ang(r.o.get()); if (Math.abs(r.cur - t) < 0.002 && !force) return; r.cur += (t - r.cur) * (1 - Math.exp(-dt * 18)); E.set(0, -r.cur, 0); Q.setFromEuler(E); V.set(r.u, 0.008, -r.d * SL); M4.compose(V, Q, SC); b.rk.setMatrixAt(i, M4); ch = true; }); if (ch) b.rk.instanceMatrix.needsUpdate = true; }
+  b.at += dt; if (b.at > 0.35 || force) { b.at = 0; beAtlas(b, force); }
+}
+var BEI = 0; function beFrame(dt) { if (!BE.length) return; for (var k = 0; k < 3; k++) { BEI = (BEI + 1) % BE.length; beTick(BE[BEI], dt * BE.length / 3); } BE.forEach(function (b) { if (b.ramp && b.ramp.o.raise) b.ramp.o.raise(b.ramp.dir, dt); }); }
+/* helpers to make pumps, valves and breakers into switches quickly */
+var SWINFO = [/x/, 'Control switch', 'A pistol-grip switch: turn it right to START (or OPEN / CLOSE a breaker), left to STOP. It springs back to the middle. The red lamp above it means running or open, green means stopped or closed.', 'Many have a \u201cpull to lock\u201d position so a pump can\u2019t auto-start during maintenance.'];
+function pumpSW(t, arr, i, kind, extra) { extra = extra || {}; return Object.assign({ info: SWINFO, t: t, l: 'STOP', r: 'START', onTxt: 'RUNNING', offTxt: 'STOPPED', on: function () { var a = arr(); return !!a[i] && (!kind || pwr(X(), kind, i)); },
+  act: function (right) { var a = arr(); if (right && kind && !pwr(X(), kind, i)) { warnOnce('nopwr' + t, t.replace(/\n/g, ' ') + ' won’t start: its electrical board has no power.'); return; } if (right && extra.can) { var why = extra.can(); if (why) { warnOnce('can' + t, t.replace(/\n/g, ' ') + ': ' + why); return; } } a[i] = right; S.addLog(t.replace(/\n/g, ' ') + (right ? ' started' : ' stopped')); if (extra.after) extra.after(right); } }, extra); }
+function valveSW(t, get, set, extra) { return Object.assign({ info: SWINFO, t: t, l: 'CLOSE', r: 'OPEN', onTxt: 'OPEN', offTxt: 'CLOSED', on: get, act: function (right) { set(right); S.addLog(t.replace(/\n/g, ' ') + (right ? ' opened' : ' closed')); } }, extra || {}); }
+function bkrSW(t, get, set, extra) { return Object.assign({ info: [/x/, 'Breaker control switch', 'Turn right to CLOSE the circuit breaker (connect power), left to TRIP it open. Red lamp: closed. Green lamp: open.'], t: t, l: 'TRIP', r: 'CLOSE', onTxt: 'CLOSED', offTxt: 'OPEN', on: get, act: function (right) { if (extra && extra.can && right) { var why = extra.can(); if (why) { warnOnce('bk' + t, t.replace(/\n/g, ' ') + ': ' + why); return; } } set(right); S.sfx('breaker'); S.addLog(t.replace(/\n/g, ' ') + (right ? ' closed' : ' opened')); } }, extra || {}); }
+function maSimple(t, getMode, setMode, getOut, setOut, pv, sp, raiseSp) { return { t: t, mode: getMode, setMode: function (m) { setMode(m); S.addLog(t.replace(/\n/g, ' ') + ' to ' + (m === 'AUTO' ? 'AUTO' : 'MANUAL')); }, out: getOut, pv: pv, sp: sp,
+  raise: function (dir, dt) { if (getMode() === 'AUTO') { if (raiseSp) raiseSp(dir, dt); } else setOut(clamp(getOut() + dir * dt * 0.08, 0, 1)); } }; }
+
+/* ================================================================ the full board line-up ================================================================
+   Left to right round the horseshoe: safety injection & containment, cooling water & air, chemical & volume control,
+   pressuriser, reactor coolant, REACTOR (centre), steam generators & feed, main steam & condenser, turbine,
+   generator & grid, electrical distribution & diesels. Every control here works. */
+var RD = '#d64535', AM2 = '#e0b43a', GN = '#59b36b';
+var LOOPS = [0, 1, 2, 3], L4 = function (f) { return LOOPS.map(f); };
+var onoff = function (b) { return b ? 'ON' : 'OFF'; };
+/* --------------------------------------------------------------- 1. SAFETY INJECTION & CONTAINMENT --------------------------------------------------------------- */
+CONTENT.esf = function (s) { be(s); var x = X;
+  grp(s, -1.74, -0.3, 1.66, 2.33, 'EMERGENCY CORE COOLING'); grp(s, -0.26, 0.82, 1.66, 2.33, 'CONTAINMENT'); grp(s, 0.86, 1.74, 1.66, 2.33, 'RADIATION MONITORING'); grp(s, -1.74, 1.74, 1.18, 1.62, 'ESF STATUS');
+  meterRow(s, -1.68, 2.0, [['RWST', '% LEVEL', 0, 100, function () { return x().si.rwst; }, 'Refuelling water storage tank level'], ['SI FLOW', 'm³/h', 0, 400, function () { return x().si.flow; }, 'Total safety injection flow'],
+    ['SIP A', 'BAR', 0, 160, function () { return x().si.pumps[0] && pwr(x(), 'sip', 0) ? 115 : 0; }, 'SI pump A discharge pressure'], ['SIP B', 'BAR', 0, 160, function () { return x().si.pumps[1] && pwr(x(), 'sip', 1) ? 115 : 0; }, 'SI pump B discharge pressure'],
+    ['RHR A', 'm³/h', 0, 1000, function () { return x().si.rhr[0] && x().pz.P < 14 ? 800 : 0; }, 'RHR pump A flow'], ['RHR B', 'm³/h', 0, 1000, function () { return x().si.rhr[1] && x().pz.P < 14 ? 800 : 0; }, 'RHR pump B flow'],
+    ['ACC 1', 'BAR', 0, 60, function () { return x().si.acc[0] ? Math.min(45, x().pz.P) : 45; }, 'Accumulator 1 pressure'], ['ACC 2', 'BAR', 0, 60, function () { return x().si.acc[1] ? Math.min(45, x().pz.P) : 45; }, 'Accumulator 2 pressure'],
+    ['ACC 3', 'BAR', 0, 60, function () { return x().si.acc[2] ? Math.min(45, x().pz.P) : 45; }, 'Accumulator 3 pressure'], ['ACC 4', 'BAR', 0, 60, function () { return x().si.acc[3] ? Math.min(45, x().pz.P) : 45; }, 'Accumulator 4 pressure']], 0.098, { info: [/x/, 'Emergency core cooling', 'If the reactor coolant system loses water, safety injection pumps it back in from the refuelling water tank: high-head charging pumps first, then SI pumps as pressure falls, then the big RHR pumps. Accumulators are tanks of borated water held at 45 bar by nitrogen, which empty into the cold legs by themselves if pressure drops below that.', 'Safety injection water is heavily borated (2400 ppm), so it also shuts the reactor down.'] });
+  meterRow(s, -0.2, 2.0, [['CTMT P', 'BAR g', -0.1, 4, function () { return x().ct.P; }, 'Containment pressure', null, { major: 4, minor: 5, bands: [[0.1, 1, RD]] }], ['CTMT T', '°C', 0, 150, function () { return x().ct.T; }, 'Containment temperature'],
+    ['HUMID', '%', 0, 100, function () { return x().ct.hum; }, 'Containment humidity'], ['SUMP', '% LEVEL', 0, 100, function () { return x().ct.sump; }, 'Containment sump level'], ['CS A', 'm³/h', 0, 1500, function () { return x().si.cs[0] && pwr(x(), 'cs', 0) ? 1100 : 0; }, 'Containment spray A flow'], ['CS B', 'm³/h', 0, 1500, function () { return x().si.cs[1] && pwr(x(), 'cs', 1) ? 1100 : 0; }, 'Containment spray B flow'],
+    ['H₂', '%', 0, 10, function () { return 0.02; }, 'Containment hydrogen concentration']], 0.098, { info: [/x/, 'Containment', 'The steel-lined concrete building around the reactor coolant system. If steam escapes inside it, pressure and temperature rise; fan coolers and sprays bring them back down. Isolation valves shut every pipe that goes through the wall.', 'At 0.3 bar it starts safety injection; at 1 bar the sprays come on.'] });
+  dgRow(s, 0.98, 2.24, [['CTMT AREA mSv/h', function () { return (0.012 + Math.random() * 0.001).toFixed(3); }, 'Containment area radiation'], ['N-16 MAIN STEAM', function () { return (S.p.n * 12 + 0.01).toFixed(2); }, 'Main steam N-16 monitor (detects steam generator tube leaks)', '#59e07a']], 0.2);
+  dgRow(s, 0.98, 2.11, [['AIR EJECTOR cpm', function () { return String(Math.round(40 + Math.random() * 6)); }, 'Condenser air ejector radiation'], ['STACK kBq/m³', function () { return (0.31 + Math.random() * 0.02).toFixed(2); }, 'Stack discharge monitor', '#59e07a']], 0.2);
+  dgRow(s, 0.98, 1.98, [['CONTROL ROOM µSv/h', function () { return (0.08 + Math.random() * 0.01).toFixed(2); }, 'Control room area monitor', '#59e07a'], ['FUEL POOL mSv/h', function () { return (0.004 + Math.random() * 0.001).toFixed(3); }, 'Spent fuel pool area monitor']], 0.2);
+  dgRow(s, 0.98, 1.85, [['SG BLOWDOWN cpm', function () { return String(Math.round(22 + Math.random() * 4)); }, 'Steam generator blowdown monitor'], ['RCS LETDOWN cpm', function () { return String(Math.round(1800 + Math.random() * 60)); }, 'Letdown line gross activity']], 0.2);
+  lampRow(s, -1.62, 1.5, [['SI\nACTUATED', function () { return x().si.on; }, 0xff3324], ['SI BLOCK\nPZR PRESS', function () { return x().si.blkP; }, 0xffc94a], ['SI BLOCK\nSTM PRESS', function () { return x().si.blkS; }, 0xffc94a], ['P-11\n< 136 BAR', function () { return x().pz.P < 136; }, 0xf5f2e6], ['CTMT ISOL\nPHASE A', function () { return x().si.phaseA; }, 0xff3324],
+    ['FEEDWATER\nISOLATION', function () { return !!x().fwIso; }, 0xff3324], ['SI RESET\nPERMITTED', function () { return x().si.on && S.p.t - x().si.at > 60; }, 0xf5f2e6], ['CS\nACTUATED', function () { return x().si.cs.some(Boolean); }, 0xff3324], ['ACCUMS\nINJECTING', function () { return x().pz.P < 45 && x().si.acc.some(Boolean); }, 0xffc94a], ['RWST\nLO LEVEL', function () { return x().si.rwst < 30; }, 0xffc94a],
+    ['EDG A\nRUNNING', function () { return x().el.edg[0].run; }, 0xff3324], ['EDG B\nRUNNING', function () { return x().el.edg[1].run; }, 0xff3324], ['RHR A\nRUNNING', function () { return x().si.rhr[0]; }, 0xff3324], ['RHR B\nRUNNING', function () { return x().si.rhr[1]; }, 0xff3324], ['SIP A\nRUNNING', function () { return x().si.pumps[0]; }, 0xff3324], ['SIP B\nRUNNING', function () { return x().si.pumps[1]; }, 0xff3324],
+    ['CCP A\nRUNNING', function () { return x().cv.ccp[0]; }, 0xff3324], ['CCP B\nRUNNING', function () { return x().cv.ccp[1]; }, 0xff3324], ['AFW\nACTUATED', function () { return x().tdafw; }, 0xff3324], ['TURBINE\nTRIPPED', function () { return !x().tb.latched; }, 0xffc94a], ['REACTOR\nTRIPPED', function () { return S.p.tripped; }, 0xffc94a]], 0.163);
+  addAnn(s, annTiles([['SAFETY\nINJECTION', 'trip', function () { return x().si.on; }], ['CTMT PRESS\nHIGH', 'alarm', function () { return x().ct.P > 0.15; }], ['CTMT ISOL\nPHASE A', 'alarm', function () { return x().si.phaseA; }], ['CONTAINMENT\nSPRAY', 'alarm', function () { return x().si.cs.some(Boolean); }], ['RWST LEVEL\nLOW', 'alarm', function () { return x().si.rwst < 30; }], ['ACCUMULATOR\nPRESS LOW', 'alarm', function () { return x().pz.P < 45; }], ['SI PUMP\nRUNNING', 'alarm', function () { return x().si.pumps.some(Boolean); }],
+    ['RHR PUMP\nRUNNING', 'alarm', function () { return x().si.rhr.some(Boolean); }], ['N-16 HIGH\nSG TUBE LEAK'], ['CTMT AREA\nRAD HIGH'], ['STACK\nRAD HIGH'], ['CONTROL RM\nRAD HIGH'], ['SUMP LEVEL\nHIGH', 'alarm', function () { return x().ct.sump > 20; }], ['H₂\nHIGH'],
+    ['SI BLOCKED\nPZR PRESS', 'status', function () { return x().si.blkP; }], ['SI BLOCKED\nSTM PRESS', 'status', function () { return x().si.blkS; }], ['P-11\nPZR < 136', 'status', function () { return x().pz.P < 136; }], ['FEEDWATER\nISOLATED', 'status', function () { return !!x().fwIso; }], ['ACCUM ISOL\nVALVES OPEN', 'status', function () { return x().si.acc.every(Boolean); }]]));
+  dgrp(s, -1.74, -0.06, 0.18, 0.96, 'SAFETY INJECTION', '#8f1a14'); dgrp(s, -0.02, 1.74, 0.18, 0.96, 'PUMPS & VALVES');
+  PBN(s, -1.6, 0.66, { col: 0xd8161a, lbl: 'SI\nTRAIN A', tip: 'MANUAL SAFETY INJECTION, train A', act: function () { siActuate(S.p, 'manual actuation'); }, info: [/x/, 'Manual safety injection', 'Starts every emergency core cooling pump, isolates containment, trips the reactor and turbine and starts the diesels. Operators use it if a loss of coolant is happening and the automatic signal hasn’t come.', 'Once started it can only be reset after 60 seconds, and the pumps then have to be stopped one by one.'] });
+  PBN(s, -1.44, 0.66, { col: 0xd8161a, lbl: 'SI\nTRAIN B', tip: 'MANUAL SAFETY INJECTION, train B', act: function () { siActuate(S.p, 'manual actuation'); } });
+  PBN(s, -1.24, 0.66, { col: 0x2f6fd8, lbl: 'SI RESET', tip: 'Safety injection RESET (allowed 60 s after actuation)', act: function () { var si = x().si; if (!si.on) { S.toast('Safety injection isn’t actuated.'); return; } if (S.p.t - si.at < 60) { warnOnce('sir', 'SI can’t be reset until 60 seconds after it actuated.'); return; } si.on = false; S.addLog('Safety injection reset (pumps keep running until stopped)'); } });
+  PBN(s, -1.06, 0.66, { col: 0x2f6fd8, lbl: 'PHASE A\nRESET', tip: 'Containment isolation phase A RESET', act: function () { if (x().si.on) { warnOnce('par', 'Reset safety injection first.'); return; } x().si.phaseA = false; S.addLog('Containment isolation phase A reset'); } });
+  PBN(s, -0.86, 0.66, { col: 0xffc94a, lbl: 'BLOCK SI\nPZR PRESS', tip: 'Block the low pressuriser pressure SI signal (only allowed below P-11, 136 bar, for a cooldown)', lit: function () { return x().si.blkP; }, act: function () { if (x().pz.P >= 136) { warnOnce('blkp', 'Can’t block: pressuriser pressure is above P-11 (136 bar).'); return; } x().si.blkP = true; S.addLog('Low pressuriser pressure SI blocked'); } });
+  PBN(s, -0.66, 0.66, { col: 0xffc94a, lbl: 'BLOCK SI\nSTM PRESS', tip: 'Block the low steam line pressure SI signal (only below P-11)', lit: function () { return x().si.blkS; }, act: function () { if (x().pz.P >= 136) { warnOnce('blks', 'Can’t block: pressuriser pressure is above P-11 (136 bar).'); return; } x().si.blkS = true; S.addLog('Low steam line pressure SI blocked'); } });
+  PBN(s, -0.4, 0.66, { col: 0xd8161a, lbl: 'CTMT ISOL\nPHASE A', tip: 'Manual containment isolation phase A', act: function () { x().si.phaseA = true; S.addLog('Containment isolation phase A, manual'); } });
+  PBN(s, -0.22, 0.66, { col: 0xd8161a, lbl: 'CTMT\nSPRAY', tip: 'Manual containment spray actuation', act: function () { x().si.cs = [true, true]; S.addLog('Containment spray actuated manually'); } });
+  swRow(s, -1.6, 0.28, [pumpSW('SI PUMP A', function () { return x().si.pumps; }, 0, 'sip'), pumpSW('SI PUMP B', function () { return x().si.pumps; }, 1, 'sip'), pumpSW('RHR PUMP A', function () { return x().si.rhr; }, 0, 'rhr'), pumpSW('RHR PUMP B', function () { return x().si.rhr; }, 1, 'rhr'),
+    pumpSW('CS PUMP A', function () { return x().si.cs; }, 0, 'cs'), pumpSW('CS PUMP B', function () { return x().si.cs; }, 1, 'cs'), pumpSW('CCP A', function () { return x().cv.ccp; }, 0, 'ccp'), pumpSW('CCP B', function () { return x().cv.ccp; }, 1, 'ccp'),
+    valveSW('ACCUM 1\nISOL', function () { return x().si.acc[0]; }, function (v) { x().si.acc[0] = v; }), valveSW('ACCUM 2\nISOL', function () { return x().si.acc[1]; }, function (v) { x().si.acc[1] = v; }), valveSW('ACCUM 3\nISOL', function () { return x().si.acc[2]; }, function (v) { x().si.acc[2] = v; }), valveSW('ACCUM 4\nISOL', function () { return x().si.acc[3]; }, function (v) { x().si.acc[3] = v; })], 0.135);
+  swRow(s, 0.12, 0.66, [pumpSW('CTMT FAN\nCOOLER 1', function () { return x().aux.fan; }, 0, 'fan'), pumpSW('CTMT FAN\nCOOLER 2', function () { return x().aux.fan; }, 1, 'fan'), pumpSW('CTMT FAN\nCOOLER 3', function () { return x().aux.fan; }, 2, 'fan'), pumpSW('CTMT FAN\nCOOLER 4', function () { return x().aux.fan; }, 3, 'fan'),
+    valveSW('H₂\nRECOMBINER', function () { return !!x().h2r; }, function (v) { x().h2r = v; }, { l: 'OFF', r: 'ON', onTxt: 'ON', offTxt: 'OFF' }), valveSW('PURGE\nISOL', function () { return !x().si.phaseA; }, function (v) { if (v && x().si.phaseA) { warnOnce('pur', 'Containment isolation is active: reset phase A first.'); return; } }), valveSW('SUMP\nRECIRC A', function () { return !!x().recA; }, function (v) { x().recA = v; }), valveSW('SUMP\nRECIRC B', function () { return !!x().recB; }, function (v) { x().recB = v; })], 0.135);
+};
+/* --------------------------------------------------------------- 2. COOLING WATER, AIR, HVAC, FIRE --------------------------------------------------------------- */
+CONTENT.aux = function (s) { be(s); var x = X;
+  grp(s, -1.74, -0.52, 1.66, 2.33, 'COMPONENT COOLING WATER'); grp(s, -0.48, 0.5, 1.66, 2.33, 'SEA WATER'); grp(s, 0.54, 1.74, 1.66, 2.33, 'INSTRUMENT AIR & HVAC'); grp(s, -1.74, 1.74, 1.18, 1.62, 'RCP COOLING  ·  FIRE DETECTION');
+  var ccwN = function () { return x().aux.ccw.filter(function (c, k) { return c && pwr(x(), 'ccw', k); }).length; }, swN = function () { return x().aux.sw.filter(function (c, k) { return c && pwr(x(), 'sw', k); }).length; };
+  meterRow(s, -1.68, 2.0, [['CCW T', '°C', 10, 60, function () { return x().aux.ccwT; }, 'Component cooling water header temperature'], ['CCW F', 'm³/h', 0, 4000, function () { return ccwN() * 1200; }, 'Component cooling water flow'], ['CCW P', 'BAR', 0, 10, function () { return ccwN() ? 6.2 : 0.3; }, 'Component cooling water pressure'],
+    ['SURGE', '% LEVEL', 0, 100, function () { return 58; }, 'CCW surge tank level'], ['CCW HX', '°C', 10, 60, function () { return x().aux.ccwT + 9; }, 'CCW heat exchanger inlet temperature'], ['THERM BAR', 'm³/h', 0, 100, function () { return ccwN() ? 48 : 0; }, 'RCP thermal barrier cooling flow']], 0.098,
+    { info: [/x/, 'Component cooling water (CCW)', 'A closed loop of clean water that cools the pumps, coolers and heat exchangers around the plant, including the reactor coolant pump bearings and seals. CCW is itself cooled by sea water.', 'Lose CCW and the reactor coolant pumps overheat in a few minutes, so it is one of the systems operators watch closely.'] });
+  meterRow(s, -0.42, 2.0, [['SW P', 'BAR', 0, 6, function () { return swN() ? 3.1 : 0.1; }, 'Sea water header pressure'], ['SW F', 'm³/h', 0, 8000, function () { return swN() * 2500; }, 'Sea water flow'], ['SW T', '°C', 0, 30, function () { return x().aux.swT; }, 'Sea water temperature'], ['SCREEN ΔP', 'mBAR', 0, 200, function () { return 34; }, 'Drum screen differential pressure'],
+    ['BAY', 'm', -5, 5, function () { return 1.2 * Math.sin(S.p.t / 3000 + D.clock / 22000); }, 'Sea level in the intake bay (tide)']], 0.098, { info: [/x/, 'Sea water', 'Pumped in from the sea through screens, it cools the component cooling water and takes the plant’s waste heat away.', 'At coastal stations like Sizewell and Hinkley Point the tide changes the pump intake level all day.'] });
+  meterRow(s, 0.6, 2.0, [['AIR P', 'BAR', 0, 10, function () { return x().aux.airP; }, 'Instrument air header pressure', null, { bands: [[0, 0.4, RD]] }], ['DEWPT', '°C', -60, 20, function () { return -40; }, 'Instrument air dew point'], ['CR T', '°C', 10, 35, function () { return 21.3; }, 'Control room temperature'], ['CR ΔP', 'Pa', -50, 150, function () { return x().aux.hvac === 'EMERG' ? 60 : 12; }, 'Control room pressure above outside']], 0.098,
+    { info: [/x/, 'Instrument air', 'Compressors make dry air at 7 bar that drives hundreds of air-operated valves: feed regulating valves, letdown, sprays, steam dumps. Without air, those valves move to their fail-safe positions.', 'Loss of instrument air is a classic abnormal procedure: feed valves shut and steam generator levels start to fall.'] });
+  MA(s, 1.55, 2.02, maSimple('CR HVAC\nTEMP', function () { return 'AUTO'; }, function () {}, function () { return 0.42; }, function () {}, function () { return '21.3 °C'; }, function () { return '21.0'; }));
+  meterRow(s, -1.68, 1.42, L4(function (i) { return ['BRG ' + (i + 1), '°C', 20, 120, function () { return x().brgT[i]; }, 'RCP ' + (i + 1) + ' bearing temperature', [/x/, 'RCP bearing temperature', 'The reactor coolant pump motor bearings are cooled by component cooling water. If cooling is lost they heat up, and the pump trips at 95 °C.'], { h: 0.18, bands: [[0.79, 1, RD]] }]; }), 0.098);
+  lampRow(s, -1.2, 1.5, [['FIRE\nTURB HALL', NO, 0xff3324], ['FIRE\nCABLE SPREAD', NO, 0xff3324], ['FIRE\nDIESEL A', NO, 0xff3324], ['FIRE\nDIESEL B', NO, 0xff3324], ['FIRE\nSWITCHGEAR', NO, 0xff3324], ['FIRE\nAUX BLDG', NO, 0xff3324], ['FIRE\nTRANSFORMER', NO, 0xff3324], ['FIRE\nCONTROL BLDG', NO, 0xff3324],
+    ['FIRE SYSTEM\nHEALTHY', YES, 0x2bd14a], ['FIRE PUMP\nAVAILABLE', YES, 0x2bd14a], ['CCW\nLOW FLOW', function () { return ccwN() === 0; }, 0xffc94a], ['SW\nLOW PRESS', function () { return swN() === 0; }, 0xffc94a], ['AIR\nLOW PRESS', function () { return x().aux.airP < 5.5; }, 0xffc94a], ['HVAC\nEMERGENCY', function () { return x().aux.hvac === 'EMERG'; }, 0xffc94a]], 0.142);
+  addAnn(s, annTiles([['CCW\nFLOW LOW', 'alarm', function () { return ccwN() === 0; }], ['CCW TEMP\nHIGH', 'alarm', function () { return x().aux.ccwT > 40; }], ['CCW SURGE\nTANK LOW'], ['SW HEADER\nPRESS LOW', 'alarm', function () { return swN() === 0; }], ['DRUM SCREEN\nΔP HIGH'], ['INST AIR\nPRESS LOW', 'alarm', function () { return x().aux.airP < 5.5; }], ['INST AIR\nPRESS LO-LO', 'alarm', function () { return x().aux.airP < 4; }],
+    ['RCP BEARING\nTEMP HIGH', 'alarm', function () { return x().brgT.some(function (t) { return t > 80; }); }], ['FIRE\nALARM'], ['FIRE SYSTEM\nTROUBLE'], ['CR HVAC\nFAULT'], ['CR\nTEMP HIGH'], ['AIR DRYER\nFAULT'], [''],
+    ['CCW PUMPS\n2 RUNNING', 'status', function () { return ccwN() >= 2; }], ['SW PUMPS\n2 RUNNING', 'status', function () { return swN() >= 2; }], ['AIR COMP\nRUNNING', 'status', function () { return x().aux.air.some(Boolean); }], ['CR HVAC\nNORMAL', 'status', function () { return x().aux.hvac !== 'EMERG'; }]]));
+  dgrp(s, -1.74, 0.36, 0.18, 0.96, 'COOLING WATER PUMPS'); dgrp(s, 0.4, 1.74, 0.18, 0.96, 'AIR & HVAC');
+  swRow(s, -1.6, 0.66, [pumpSW('CCW PUMP A', function () { return x().aux.ccw; }, 0, 'ccw'), pumpSW('CCW PUMP B', function () { return x().aux.ccw; }, 1, 'ccw'), pumpSW('CCW PUMP C', function () { return x().aux.ccw; }, 2, 'ccw'), null, pumpSW('SW PUMP A', function () { return x().aux.sw; }, 0, 'sw'), pumpSW('SW PUMP B', function () { return x().aux.sw; }, 1, 'sw'), pumpSW('SW PUMP C', function () { return x().aux.sw; }, 2, 'sw'), pumpSW('SW PUMP D', function () { return x().aux.sw; }, 3, 'sw')], 0.135);
+  swRow(s, -1.6, 0.28, [valveSW('CCW HX A\nOUTLET', YES, function () {}), valveSW('CCW HX B\nOUTLET', YES, function () {}), valveSW('CCW TO\nRCPs', function () { return x().ccwRcp !== false; }, function (v) { x().ccwRcp = v; if (!v) { x().aux.ccw = x().aux.ccw.map(function () { return false; }); } }), null, valveSW('DRUM\nSCREEN A', YES, function () {}, { l: 'STOP', r: 'RUN', onTxt: 'RUNNING', offTxt: 'STOPPED' }), valveSW('DRUM\nSCREEN B', YES, function () {}, { l: 'STOP', r: 'RUN', onTxt: 'RUNNING', offTxt: 'STOPPED' })], 0.135);
+  swRow(s, 0.55, 0.66, [pumpSW('AIR COMP\nA', function () { return x().aux.air; }, 0, 'air'), pumpSW('AIR COMP\nB', function () { return x().aux.air; }, 1, 'air'), valveSW('AIR DRYER', YES, function () {}, { l: 'OFF', r: 'ON', onTxt: 'ON', offTxt: 'OFF' }), valveSW('SERVICE AIR\nISOL', YES, function () {})], 0.135);
+  ROT(s, 1.3, 0.6, { t: 'CR HVAC MODE', pos: ['NORMAL', 'EMERG'], get: function () { return x().aux.hvac === 'EMERG' ? 1 : 0; }, set: function (i) { x().aux.hvac = i ? 'EMERG' : true; S.addLog('Control room ventilation to ' + (i ? 'EMERGENCY (filtered, pressurised)' : 'NORMAL')); }, info: [/x/, 'Control room ventilation', 'In emergency mode the control room air is recirculated through charcoal filters and kept at slightly higher pressure than outside, so no radioactive or toxic gas can leak in.'] });
+  PBN(s, 1.58, 0.3, { col: 0xd8161a, lbl: 'FIRE\nALARM TEST', tip: 'Fire panel lamp test', act: function () {}, hold: function (on) { S.lampTest = on; } });
+};
+/* --------------------------------------------------------------- 3. CHEMICAL & VOLUME CONTROL --------------------------------------------------------------- */
+CONTENT.cvcs = function (s) { be(s); var x = X, cv = function () { return x().cv; };
+  grp(s, -1.74, -0.36, 1.66, 2.33, 'CHARGING & LETDOWN'); grp(s, -0.32, 1.74, 1.66, 2.33, 'BORON & REACTOR MAKE-UP'); grp(s, -1.74, 1.74, 1.18, 1.62, 'CONTROLLERS & STATUS');
+  meterRow(s, -1.68, 2.0, [['CHG', 'm³/h', 0, 40, function () { return cv().chg; }, 'Charging flow'], ['LTDN', 'm³/h', 0, 50, function () { return cv().ltd; }, 'Letdown flow'], ['SEAL', 'm³/h', 0, 10, function () { return cv().ccp.some(Boolean) || cv().pd ? 3.1 : 0; }, 'Seal injection flow'],
+    ['LTDN P', 'BAR', 0, 40, function () { return cv().ltdIso ? 2 : 24; }, 'Letdown pressure'], ['LTDN T', '°C', 0, 100, function () { return cv().ltdIso ? 30 : 46; }, 'Letdown heat exchanger outlet temperature'], ['VCT L', '% LEVEL', 0, 100, function () { return cv().vct; }, 'Volume control tank level'], ['VCT P', 'BAR', 0, 5, function () { return 1.8; }, 'Volume control tank pressure'],
+    ['CHG P', 'BAR', 0, 200, function () { return cv().chg > 0.5 ? 172 : 0; }, 'Charging header pressure']], 0.098);
+  meterRow(s, -0.26, 2.0, [['BAT', '% LEVEL', 0, 100, function () { return cv().bat; }, 'Boric acid tank level'], ['BA F', 'm³/h', 0, 10, function () { return cv().run && (cv().mode === 'BOR' || cv().mode === 'MAN') ? cv().baF : 0; }, 'Boric acid flow to the blender'],
+    ['DIL F', 'm³/h', 0, 50, function () { return cv().run && cv().mode !== 'BOR' ? cv().dilF : cv().autoMk ? 18 : 0; }, 'Make-up (dilution) water flow'], ['RWST', '% LEVEL', 0, 100, function () { return x().si.rwst; }, 'Refuelling water storage tank level']], 0.098);
+  DG(s, 0.32, 2.21, 'RCS BORON PPM', function () { return Math.round(S.p.boron); }, { w: 0.22, col: '#59e07a', name: 'RCS boron concentration' });
+  DG(s, 0.32, 2.08, 'BATCH LITRES', function () { return Math.round(cv().done) + '/' + cv().batch; }, { w: 0.22, name: 'Make-up batch counter' });
+  DG(s, 0.32, 1.95, 'MAKE-UP MODE', function () { return { DIL: 'DILUTE', ALTDIL: 'ALT DIL', AUTO: 'AUTO', BOR: 'BORATE', MAN: 'MANUAL' }[cv().mode]; }, { w: 0.22, col: '#ffd34a' });
+  DG(s, 0.32, 1.82, 'BORON TREND PPM/MIN', function () { var d = cv().bTr || 0; return (d >= 0 ? '+' : '') + d.toFixed(2); }, { w: 0.22, name: 'Rate of boron change' });
+  meterRow(s, 0.58, 2.0, [['XE', 'PCM', 0, 3500, function () { return x().xe.X; }, 'Xenon-135 reactivity worth (from the core monitoring computer)', [/x/, 'Xenon-135', 'A fission product that soaks up neutrons. It builds up over hours after a power increase and peaks about 10 hours after a trip, which can stop a restart. Operators dilute boron to compensate as it builds up.']],
+    ['I-135', 'REL', 0, 10000, function () { return x().xe.I; }, 'Iodine-135 inventory (it decays into xenon)'], ['PRZ B', 'PPM', 0, 2500, function () { return S.p.boron + 4; }, 'Pressuriser boron (sampled)']], 0.098);
+  lampRow(s, 0.9, 2.26, [['DILUTION\nIN PROGRESS', function () { return cv().run && (cv().mode === 'DIL' || cv().mode === 'ALTDIL'); }, 0xffc94a], ['BORATION\nIN PROGRESS', function () { return cv().run && cv().mode === 'BOR'; }, 0xffc94a]], 0.12);
+  lampRow(s, 1.18, 2.06, [['AUTO\nMAKE-UP', function () { return !!cv().autoMk; }, 0xf5f2e6], ['VCT\nDIVERT', function () { return cv().divert; }, 0xffc94a], ['BATCH\nCOMPLETE', function () { return !cv().run && cv().done >= cv().batch; }, 0x2bd14a], ['LETDOWN\nISOLATED', function () { return cv().ltdIso; }, 0xffc94a]], 0.12);
+  MA(s, -1.6, 1.4, { t: 'CHARGING\nFCV-121', mode: function () { return cv().chgMode; }, setMode: function (m) { cv().chgMode = m; S.addLog('Charging flow controller to ' + m); }, out: function () { return cv().chgDem / 30; }, pv: function () { return cv().chg.toFixed(1) + ' m³/h'; }, sp: function () { return 'PZR ' + LPRG(S.p.Tavg).toFixed(0) + '%'; }, raise: function (d, dt) { if (cv().chgMode === 'MAN') cv().chgDem = clamp(cv().chgDem + d * dt * 2, 0, 30); },
+    info: [/x/, 'Charging flow controller', 'In AUTO it holds pressuriser level on programme (25% at no load, rising with Tavg) by changing charging flow. In MANUAL you set charging flow yourself.'] });
+  MA(s, -1.46, 1.4, maSimple('LETDOWN\nPRESS PCV', function () { return 'AUTO'; }, function () {}, function () { return 0.48; }, function () {}, function () { return (cv().ltdIso ? 2 : 24) + ' bar'; }, function () { return '24'; }));
+  lampRow(s, -1.25, 1.5, [['CCP A\nRUNNING', function () { return cv().ccp[0]; }, 0xff3324], ['CCP B\nRUNNING', function () { return cv().ccp[1]; }, 0xff3324], ['PD PUMP\nRUNNING', function () { return cv().pd; }, 0xff3324], ['ORIFICE A\nOPEN', function () { return cv().orif[0]; }, 0xff3324], ['ORIFICE B\nOPEN', function () { return cv().orif[1]; }, 0xff3324], ['ORIFICE C\nOPEN', function () { return cv().orif[2]; }, 0xff3324],
+    ['BA PUMP A\nRUNNING', function () { return cv().baPump[0]; }, 0xff3324], ['BA PUMP B\nRUNNING', function () { return cv().baPump[1]; }, 0xff3324], ['SEAL INJ\nNORMAL', function () { return cv().ccp.some(Boolean) || cv().pd; }, 0x2bd14a], ['VCT LEVEL\nLOW', function () { return cv().vct < 20; }, 0xffc94a], ['VCT LEVEL\nHIGH', function () { return cv().vct > 80; }, 0xffc94a], ['BAT LEVEL\nLOW', function () { return cv().bat < 30; }, 0xffc94a]], 0.11);
+  DG(s, 1.6, 1.42, 'LETDOWN m³/h', function () { return cv().ltd.toFixed(1); }, { w: 0.18 });
+  addAnn(s, annTiles([['VCT LEVEL\nHIGH', 'alarm', function () { return cv().vct > 80; }], ['VCT LEVEL\nLOW', 'alarm', function () { return cv().vct < 20; }], ['CHARGING\nFLOW LOW', 'alarm', function () { return cv().chg < 3; }], ['LETDOWN\nISOLATED', 'alarm', function () { return cv().ltdIso; }], ['SEAL INJ\nFLOW LOW', 'alarm', function () { return !(cv().ccp.some(Boolean) || cv().pd); }], ['BA TANK\nLEVEL LOW', 'alarm', function () { return cv().bat < 30; }], ['RWST\nLEVEL LOW', 'alarm', function () { return x().si.rwst < 30; }],
+    ['BORON\nDILUTION', 'alarm', function () { return cv().run && (cv().mode === 'DIL' || cv().mode === 'ALTDIL'); }], ['MAKE-UP\nDEVIATION'], ['LETDOWN\nTEMP HIGH'], ['CHG PUMP\nTRIP'], ['VCT\nDIVERT', 'alarm', function () { return cv().divert; }], [''],
+    ['AUTO\nMAKE-UP', 'status', function () { return !!cv().autoMk; }], ['LETDOWN IN\nSERVICE', 'status', function () { return !cv().ltdIso; }], ['BATCH\nRUNNING', 'status', function () { return cv().run; }]]));
+  dgrp(s, -1.74, 0.0, 0.18, 0.96, 'CHARGING & LETDOWN'); dgrp(s, 0.04, 1.74, 0.18, 0.96, 'REACTOR MAKE-UP CONTROL');
+  swRow(s, -1.6, 0.66, [pumpSW('CCP A', function () { return cv().ccp; }, 0, 'ccp', { info: [/x/, 'Centrifugal charging pumps', 'Push water back into the reactor coolant system at 155 bar, and supply seal water to the reactor coolant pumps. They double as the high-head safety injection pumps.'] }), pumpSW('CCP B', function () { return cv().ccp; }, 1, 'ccp'), pumpSW('PD PUMP', function () { return [cv().pd]; }, 0, null, { after: function (v) { cv().pd = v; } }),
+    valveSW('LETDOWN\nLCV-459', function () { return !cv().ltdIso; }, function (v) { if (v) { if (x().pz.L < 17) { warnOnce('lt1', 'Letdown can’t open: pressuriser level is below 17%.'); return; } if (!(cv().ccp.some(Boolean) || cv().pd)) { warnOnce('lt2', 'Start a charging pump before opening letdown, or the letdown would flash to steam.'); return; } if (x().si.phaseA) { warnOnce('lt3', 'Containment isolation is active.'); return; } } cv().ltdIso = !v; }, { info: [/x/, 'Letdown isolation valve', 'Lets coolant out of the reactor coolant system to be cooled, cleaned and have its boron adjusted. It shuts automatically on low pressuriser level or if charging stops.'] }),
+    valveSW('ORIFICE A\n45 gpm', function () { return cv().orif[0]; }, function (v) { cv().orif[0] = v; }), valveSW('ORIFICE B\n75 gpm', function () { return cv().orif[1]; }, function (v) { cv().orif[1] = v; }), valveSW('ORIFICE C\n75 gpm', function () { return cv().orif[2]; }, function (v) { cv().orif[2] = v; }),
+    pumpSW('BA PUMP A', function () { return cv().baPump; }, 0, 'bap'), pumpSW('BA PUMP B', function () { return cv().baPump; }, 1, 'bap')], 0.135);
+  swRow(s, -1.6, 0.28, [valveSW('VCT OUTLET\nLCV-112C', YES, function () {}), valveSW('RWST TO\nCHG LCV-112D', function () { return !!cv().rwstSuct; }, function (v) { cv().rwstSuct = v; }), valveSW('SEAL INJ\nISOL', YES, function () {}), valveSW('REGEN HX\nBYPASS', NO, function () {}), valveSW('EXCESS\nLETDOWN', NO, function () {}), valveSW('VCT\nDIVERT', function () { return cv().divert; }, function () {})], 0.135);
+  ROT(s, 0.25, 0.62, { t: 'MAKE-UP MODE', pos: ['DIL', 'ALT DIL', 'AUTO', 'BORATE', 'MAN'], get: function () { return ['DIL', 'ALTDIL', 'AUTO', 'BOR', 'MAN'].indexOf(cv().mode); }, set: function (i) { cv().mode = ['DIL', 'ALTDIL', 'AUTO', 'BOR', 'MAN'][i]; cv().run = false; S.addLog('Make-up mode selector to ' + ['DILUTE', 'ALTERNATE DILUTE', 'AUTO', 'BORATE', 'MANUAL'][i]); },
+    info: [/x/, 'Reactor make-up mode', 'DILUTE adds pure water, which lowers boron and adds reactivity. BORATE adds strong boric acid, which removes reactivity. AUTO just tops up the volume control tank at the same concentration. Set the flow and batch size, then press START.', 'Dilution at 10 m³/h changes boron by under 1 ppm a minute: about 7 pcm a minute here, much slower than rods.'] });
+  ROT(s, 0.6, 0.62, { t: 'DIL FLOW m³/h', pos: ['5', '10', '20', '40'], get: function () { return [5, 10, 20, 40].indexOf(cv().dilF); }, set: function (i) { cv().dilF = [5, 10, 20, 40][i]; } });
+  ROT(s, 0.95, 0.62, { t: 'BA FLOW m³/h', pos: ['1', '2', '4', '8'], get: function () { return [1, 2, 4, 8].indexOf(cv().baF); }, set: function (i) { cv().baF = [1, 2, 4, 8][i]; } });
+  ROT(s, 1.3, 0.62, { t: 'BATCH LITRES', pos: ['250', '500', '1000', '2000', '5000'], get: function () { return [250, 500, 1000, 2000, 5000].indexOf(cv().batch); }, set: function (i) { cv().batch = [250, 500, 1000, 2000, 5000][i]; } });
+  PBN(s, 0.5, 0.26, { col: 0x2bd14a, lbl: 'MAKE-UP\nSTART', lit: function () { return cv().run; }, tip: 'Start the make-up batch', act: function () { var c = cv(); if (c.mode === 'AUTO') { S.toast('AUTO make-up runs by itself when the VCT level is low. Choose DILUTE, BORATE or MANUAL for a batch.'); return; } if (!(c.ccp.some(Boolean) || c.pd)) { warnOnce('mk', 'No charging pump running: the make-up won’t reach the reactor.'); } c.done = 0; c.run = true; S.addLog('Make-up batch started: ' + c.mode + ', ' + c.batch + ' litres'); } });
+  PBN(s, 0.72, 0.26, { col: 0xd8161a, lbl: 'MAKE-UP\nSTOP', tip: 'Stop the make-up batch', act: function () { cv().run = false; S.addLog('Make-up batch stopped at ' + Math.round(cv().done) + ' litres'); } });
+  PBN(s, 1.0, 0.26, { col: 0xd8161a, lbl: 'EMERG\nBORATE', tip: 'Emergency boration: boric acid straight to the charging pumps', act: function () { var c = cv(); c.mode = 'BOR'; c.baF = 8; c.batch = 5000; c.done = 0; c.run = true; S.addLog('EMERGENCY BORATION started'); } });
+};
+/* --------------------------------------------------------------- 4. PRESSURISER --------------------------------------------------------------- */
+CONTENT.pzr = function (s) { be(s); var x = X, pz = function () { return x().pz; };
+  grp(s, -1.74, -0.3, 1.66, 2.33, 'PRESSURISER PRESSURE & LEVEL'); grp(s, -0.26, 0.92, 1.66, 2.33, 'RELIEF & SPRAY'); grp(s, 0.96, 1.74, 1.66, 2.33, 'RELIEF TANK'); grp(s, -1.74, 1.74, 1.18, 1.62, 'CONTROLLERS');
+  var chs = [0.0, -0.3, 0.25, -0.15];
+  meterRow(s, -1.68, 2.0, chs.map(function (o, i) { return ['PT-45' + (5 + i), 'BAR', 100, 180, function () { return pz().P + o; }, 'Pressuriser pressure channel ' + (i + 1), null, { major: 4, minor: 4, bands: [[34 / 80, 35 / 80, AM2], [66 / 80, 1, RD]] }]; }).concat(
+    [0, 1, 2].map(function (i) { return ['LT-46' + (i + 1), '% LEVEL', 0, 100, function () { return pz().L + [0, 0.4, -0.3][i]; }, 'Pressuriser level channel ' + (i + 1), null, { bands: [[0.92, 1, RD]] }]; }), [['PZR T', '°C', 300, 360, function () { return tsat(pz().P); }, 'Pressuriser temperature (saturation)'], ['SPRAY T', '°C', 250, 360, function () { return pz().spray > 0.02 ? 288 : 260; }, 'Spray line temperature']]), 0.098);
+  meterRow(s, -0.2, 2.0, [['SPRAY', '% OPEN', 0, 100, function () { return pz().spray * 100; }, 'Spray valve position'], ['PROP H', '% POWER', 0, 100, function () { return pz().heaters ? pz().prop * 100 : 0; }, 'Proportional heater output'], ['HTR kW', 'kW', 0, 4000, function () { return (pz().heaters && pz().L > 17 ? 1800 * pz().prop + (pz().backup ? 1600 : 0) : 0); }, 'Total heater power'],
+    ['PORV T', '°C', 0, 350, function () { return pz().porv[0] || pz().porv[1] ? 330 : 48; }, 'PORV discharge line temperature', [/x/, 'PORV discharge temperature', 'A hot discharge line means a relief valve is open or leaking: it’s how operators spot a stuck-open PORV even if the position lights are wrong.']], ['SAFETY T', '°C', 0, 350, function () { return pz().safety ? 330 : 45; }, 'Safety valve discharge temperature']], 0.098);
+  lampRow(s, 0.42, 2.27, [['PORV 455A\nOPEN', function () { return pz().porv[0]; }, 0xff3324], ['PORV 456\nOPEN', function () { return pz().porv[1]; }, 0xff3324], ['SAFETY\nOPEN', function () { return pz().safety; }, 0xff3324]], 0.11);
+  lampRow(s, 0.42, 2.1, [['BLOCK V 1\nOPEN', function () { return pz().blk[0]; }, 0xff3324], ['BLOCK V 2\nOPEN', function () { return pz().blk[1]; }, 0xff3324], ['BACKUP\nHEATERS', function () { return pz().backup; }, 0xff3324]], 0.11);
+  lampRow(s, 0.42, 1.93, [['HEATERS\nTRIPPED LOW L', function () { return pz().L < 17; }, 0xffc94a], ['SPRAY\nAVAILABLE', function () { return Math.max(x().rcp[0], x().rcp[1]) > 0.5; }, 0x2bd14a], ['PZR LEVEL\nPROGRAMME', YES, 0xf5f2e6]], 0.11);
+  meterRow(s, 1.04, 2.0, [['PRT L', '% LEVEL', 0, 100, function () { return pz().prt; }, 'Pressuriser relief tank level'], ['PRT P', 'BAR g', 0, 8, function () { return pz().prtP; }, 'Pressuriser relief tank pressure', null, { major: 4, minor: 4 }], ['PRT T', '°C', 0, 150, function () { return 30 + pz().prtP * 12; }, 'Pressuriser relief tank temperature']], 0.098, { info: [/x/, 'Pressuriser relief tank', 'Relief and safety valves discharge into this tank of cold water, which condenses the steam. If it overfills, its rupture disc bursts into containment.'] });
+  DG(s, 1.4, 1.72, 'PZR L PROGRAMME %', function () { return LPRG(S.p.Tavg).toFixed(1); }, { w: 0.2, col: '#ffd34a' });
+  MA(s, -1.6, 1.4, { t: 'PZR PRESS\nMASTER', mode: function () { return pz().master; }, setMode: function (m) { pz().master = m; if (m === 'MAN') pz().manDem = pz().prop; S.addLog('Pressuriser pressure master controller to ' + m); }, out: function () { return pz().prop; }, pv: function () { return pz().P.toFixed(1) + ' bar'; }, sp: function () { return '155.0'; }, raise: function (d, dt) { if (pz().master === 'MAN') pz().manDem = clamp(pz().manDem + d * dt * 0.1, 0, 1); },
+    info: [/x/, 'Pressuriser pressure master controller', 'In AUTO it holds 155 bar: below the setpoint it turns heaters up (and backup heaters on at 153.3 bar), above it opens the spray valves (from 156.7 bar). In MANUAL you drive the proportional heaters yourself.'] });
+  MA(s, -1.46, 1.4, { t: 'SPRAY\nVALVES', mode: function () { return pz().sprayMan === 'MAN' ? 'MAN' : 'AUTO'; }, setMode: function (m) { pz().sprayMan = m; pz().sprayDem = pz().spray; S.addLog('Pressuriser spray to ' + m); }, out: function () { return pz().spray; }, pv: function () { return Math.round(pz().spray * 100) + '%'; }, raise: function (d, dt) { if (pz().sprayMan === 'MAN') pz().sprayDem = clamp(pz().sprayDem + d * dt * 0.15, 0, 1); },
+    info: [/x/, 'Pressuriser spray', 'Sprays cooler water from the cold legs into the steam bubble at the top of the pressuriser. Steam condenses and pressure falls. It needs reactor coolant pumps 1 or 2 running, because their pressure drives the spray.'] });
+  MA(s, -1.32, 1.4, maSimple('PZR LEVEL\nMASTER', function () { return x().cv.chgMode; }, function (m) { x().cv.chgMode = m; }, function () { return x().cv.chgDem / 30; }, function (v) { x().cv.chgDem = v * 30; }, function () { return pz().L.toFixed(1) + '%'; }, function () { return LPRG(S.p.Tavg).toFixed(1); }));
+  DG(s, -1.06, 1.52, 'PZR PRESS BAR', function () { return pz().P.toFixed(1); }, { w: 0.18 }); DG(s, -1.06, 1.4, 'PZR LEVEL %', function () { return pz().L.toFixed(1); }, { w: 0.18 }); DG(s, -1.06, 1.28, 'SUBCOOLING °C', function () { return D.sub.toFixed(1); }, { w: 0.18, col: '#59e07a' });
+  lampRow(s, -0.7, 1.5, [['PZR PRESS\nLOW 134', function () { return pz().P < 134; }, 0xffc94a], ['PZR PRESS\nHIGH 162', function () { return pz().P > 162; }, 0xffc94a], ['PZR LEVEL\nLOW 17%', function () { return pz().L < 17; }, 0xffc94a], ['PZR LEVEL\nHIGH 70%', function () { return pz().L > 70; }, 0xffc94a], ['SI\nP < 127', function () { return pz().P < 127; }, 0xff3324], ['P-11\n< 136', function () { return pz().P < 136; }, 0xf5f2e6]], 0.12);
+  addAnn(s, annTiles([['PZR PRESS\nLOW TRIP', 'trip', function () { return S.p.tripped && S.p.firstOut === 'PZRPL'; }], ['PZR PRESS\nHIGH TRIP', 'trip', function () { return S.p.tripped && S.p.firstOut === 'PZRPH'; }], ['PZR LEVEL\nHIGH TRIP', 'trip', function () { return S.p.tripped && S.p.firstOut === 'PZRL'; }], ['PZR PRESS\nHIGH', 'alarm', function () { return pz().P > 162; }], ['PZR PRESS\nLOW', 'alarm', function () { return pz().P < 148; }], ['PZR LEVEL\nHIGH', 'alarm', function () { return pz().L > 70; }], ['PZR LEVEL\nLOW', 'alarm', function () { return pz().L < 17; }],
+    ['PORV\nOPEN', 'alarm', function () { return pz().porv.some(Boolean); }], ['SAFETY\nVALVE OPEN', 'alarm', function () { return pz().safety; }], ['PRT LEVEL\nHIGH', 'alarm', function () { return pz().prt > 85; }], ['PRT PRESS\nHIGH', 'alarm', function () { return pz().prtP > 4; }], ['HEATERS\nTRIPPED', 'alarm', function () { return pz().L < 17; }], ['LEVEL\nDEVIATION', 'alarm', function () { return Math.abs(pz().L - LPRG(S.p.Tavg)) > 5; }], ['PRESS\nDEVIATION', 'alarm', function () { return Math.abs(pz().P - 155) > 3; }],
+    ['BACKUP\nHEATERS ON', 'status', function () { return pz().backup; }], ['SPRAY\nOPEN', 'status', function () { return pz().spray > 0.05; }], ['MASTER\nIN MANUAL', 'status', function () { return pz().master === 'MAN'; }]]));
+  dgrp(s, -1.74, 0.06, 0.18, 0.96, 'HEATERS & PORVs'); dgrp(s, 0.1, 1.74, 0.18, 0.96, 'RELIEF ISOLATION');
+  swRow(s, -1.6, 0.66, [valveSW('PROP\nHEATERS', function () { return pz().heaters; }, function (v) { pz().heaters = v; }, { l: 'OFF', r: 'ON', onTxt: 'ON', offTxt: 'OFF', info: [/x/, 'Pressuriser heaters', 'About 3.4 MW of electric heaters in the bottom of the pressuriser. Boiling more water raises the pressure. They trip off if level falls below 17%, so they can’t burn out uncovered.'] }), null,
+    valveSW('PORV 455A\nBLOCK V', function () { return pz().blk[0]; }, function (v) { pz().blk[0] = v; }, { info: [/x/, 'PORV block valve', 'A motor-operated valve in series with each relief valve. If a PORV sticks open, shutting its block valve stops the leak: the lesson of Three Mile Island in 1979.'] }), valveSW('PORV 456\nBLOCK V', function () { return pz().blk[1]; }, function (v) { pz().blk[1] = v; })], 0.15);
+  ROT(s, -1.15, 0.28, { t: 'BACKUP HTRS', pos: ['OFF', 'AUTO', 'ON'], get: function () { return ['OFF', 'AUTO', 'ON'].indexOf(pz().bkup); }, set: function (i) { pz().bkup = ['OFF', 'AUTO', 'ON'][i]; } });
+  ROT(s, -0.7, 0.28, { t: 'PORV 455A', pos: ['CLOSE', 'AUTO', 'OPEN'], get: function () { return ['CLOSE', 'AUTO', 'OPEN'].indexOf(pz().porvMode[0]); }, set: function (i) { pz().porvMode[0] = ['CLOSE', 'AUTO', 'OPEN'][i]; S.addLog('PORV 455A to ' + pz().porvMode[0]); }, info: [/x/, 'Power-operated relief valve (PORV)', 'Opens automatically at 162.3 bar to stop pressure reaching the safety valves, and recloses at 160.5. Operators can open it by hand to cut pressure fast.', 'At Three Mile Island a PORV stuck open, the light said it was shut, and the reactor lost a third of its coolant.'] });
+  ROT(s, -0.3, 0.28, { t: 'PORV 456', pos: ['CLOSE', 'AUTO', 'OPEN'], get: function () { return ['CLOSE', 'AUTO', 'OPEN'].indexOf(pz().porvMode[1]); }, set: function (i) { pz().porvMode[1] = ['CLOSE', 'AUTO', 'OPEN'][i]; S.addLog('PORV 456 to ' + pz().porvMode[1]); } });
+  swRow(s, 0.25, 0.66, [valveSW('PRT\nSPRAY', NO, function () {}), valveSW('PRT\nDRAIN', NO, function () {}), valveSW('PRT N₂\nSUPPLY', YES, function () {}), valveSW('AUX SPRAY\nCV-8145', function () { return !!pz().aux; }, function (v) { pz().aux = v; })], 0.135);
+  PBN(s, 0.4, 0.28, { col: 0x2f6fd8, lbl: 'PRT\nVENT', tip: 'Vent the pressuriser relief tank to the waste gas system', act: function () { pz().prtP = 0.3; } });
+};
+/* --------------------------------------------------------------- 5. REACTOR COOLANT --------------------------------------------------------------- */
+CONTENT.rcs = function (s) { be(s); var x = X;
+  grp(s, -1.74, 0.0, 1.66, 2.33, 'LOOP TEMPERATURES'); grp(s, 0.04, 1.74, 1.66, 2.33, 'REACTOR COOLANT PUMPS'); grp(s, -1.74, 1.74, 1.18, 1.62, 'LOOP FLOW  ·  CORE');
+  var th = function (i) { return function () { return D.thot + (i - 1.5) * 0.08; }; }, tc = function (i) { return function () { return D.tcold - (i - 1.5) * 0.06; }; };
+  meterRow(s, -1.68, 2.0, [].concat.apply([], L4(function (i) { return [['TH ' + (i + 1), '°C', 260, 340, th(i), 'Loop ' + (i + 1) + ' hot leg temperature', null, { major: 4, minor: 4 }], ['TC ' + (i + 1), '°C', 260, 340, tc(i), 'Loop ' + (i + 1) + ' cold leg temperature', null, { major: 4, minor: 4 }]]; })), 0.098);
+  dgRow(s, -1.6, 1.79, L4(function (i) { return ['LOOP ' + (i + 1) + ' TAVG', function () { return ((th(i)() + tc(i)()) / 2).toFixed(1); }]; }), 0.2);
+  meterRow(s, 0.1, 2.0, L4(function (i) { return ['AMPS ' + (i + 1), 'A', 0, 1000, function () { return x().rcp[i] * (612 + i * 4) + (x().rcp[i] > 0.05 && x().rcp[i] < 0.95 && x().rcpOn[i] ? 2500 * (1 - x().rcp[i]) : 0); }, 'RCP ' + (i + 1) + ' motor current']; }).concat(
+    L4(function (i) { return ['SEAL ' + (i + 1), 'l/min', 0, 30, function () { return x().rcpOn[i] ? 11.5 + i * 0.3 : 0.5; }, 'RCP ' + (i + 1) + ' seal leakoff', [/x/, 'RCP seal leakoff', 'Each pump shaft has a stack of seals; a little water deliberately leaks through them. Too much or too little leakoff means a seal is failing.']]; })), 0.098, { info: [/x/, 'Reactor coolant pumps', 'Four 6 MW pumps, one per loop, each moving about 5 tonnes of water a second. Starting one takes a huge current for about 30 seconds while it gets up to speed.', 'Before starting a pump, operators check oil lift pumps, seal injection and cooling water.'] });
+  meterRow(s, -1.68, 1.42, [].concat.apply([], L4(function (i) { return [['FLOW ' + (i + 1), '% FLOW', 0, 120, function () { return x().rcp[i] * 100 + (x().rcp[i] < 0.05 ? 3 : 0); }, 'Loop ' + (i + 1) + ' RCS flow', null, { h: 0.18, major: 6, minor: 2, bands: [[0, 0.75, RD]] }]]; })), 0.098);
+  meterRow(s, -1.25 + 0.07, 1.42, [['ΔT', '°C', 0, 50, function () { return D.dT; }, 'Core temperature rise (hot leg minus cold leg)', null, { h: 0.18 }], ['WR P', 'BAR', 0, 200, function () { return x().pz.P + 2; }, 'Wide-range RCS pressure', null, { h: 0.18 }]], 0.098);
+  DG(s, -0.75, 1.52, 'CORE EXIT TC MAX °C', function () { return (D.thot + 1.2 * S.p.n * 10).toFixed(1); }, { w: 0.22, name: 'Hottest core exit thermocouple' }); DG(s, -0.75, 1.4, 'SUBCOOLING °C', function () { return D.sub.toFixed(1); }, { w: 0.22, col: '#59e07a' });
+  DG(s, -0.75, 1.28, 'RVLIS % (VESSEL LEVEL)', function () { return x().pz.P > 30 ? '100' : '100'; }, { w: 0.22, name: 'Reactor vessel level' });
+  lampRow(s, -0.45, 1.5, L4(function (i) { return ['RCP ' + (i + 1) + '\nOIL LIFT', function () { return !!(x().oil && x().oil[i]); }, 0xff3324]; }).concat(L4(function (i) { return ['RCP ' + (i + 1) + '\nRUNNING', function () { return x().rcpOn[i]; }, 0xff3324]; })).concat([['NAT CIRC\nONLY', function () { return x().rcp.every(function (r) { return r < 0.1; }); }, 0xffc94a], ['LOW FLOW\nTRIP ARMED', function () { return S.p.n > 0.1; }, 0xf5f2e6]]), 0.106);
+  addAnn(s, annTiles([['RCS FLOW\nLOW TRIP', 'trip', function () { return S.p.tripped && S.p.firstOut === 'LOFLOW'; }], ['OT ΔT\nTRIP', 'trip', function () { return S.p.tripped && S.p.firstOut === 'OTDT'; }], ['RCP 1\nTRIPPED', 'alarm', function () { return !x().rcpOn[0]; }], ['RCP 2\nTRIPPED', 'alarm', function () { return !x().rcpOn[1]; }], ['RCP 3\nTRIPPED', 'alarm', function () { return !x().rcpOn[2]; }], ['RCP 4\nTRIPPED', 'alarm', function () { return !x().rcpOn[3]; }], ['RCS FLOW\nLOW', 'alarm', function () { return x().rcp.some(function (r) { return r < 0.9; }); }],
+    ['SUBCOOLING\nLOW', 'alarm', function () { return D.sub < 15; }], ['TAVG HIGH\n> 310', 'alarm', function () { return S.p.Tavg > 310; }], ['TAVG/TREF\nDEVIATION', 'alarm', function () { return Math.abs(S.p.Tavg - trefC(x())) > 3 && x().tb.mw > 50; }], ['RCP SEAL\nLEAKOFF HI'], ['RCP\nVIBRATION'], ['RCP BEARING\nTEMP HIGH', 'alarm', function () { return x().brgT.some(function (t) { return t > 80; }); }], [''],
+    ['RCPs ALL\nRUNNING', 'status', function () { return x().rcpOn.every(Boolean); }], ['NATURAL\nCIRCULATION', 'status', function () { return x().rcp.every(function (r) { return r < 0.1; }); }]]));
+  dgrp(s, -1.74, 1.74, 0.18, 0.96, 'REACTOR COOLANT PUMPS  ·  OIL LIFT PUMPS');
+  swRow(s, -1.55, 0.66, L4(function (i) { return pumpSW('RCP ' + (i + 1), function () { return X().rcpOn; }, i, 'rcp', { can: function () { var x2 = X(); if (!(x2.oil && x2.oil[i])) return 'start its oil lift pump first (the bearings need oil before the shaft turns).'; if (!(x2.cv.ccp.some(Boolean) || x2.cv.pd)) return 'no seal injection: start a charging pump first.'; return null; }, after: function (v) { if (v) S.toast('RCP ' + (i + 1) + ' starting: watch the motor current surge then settle.'); } }); }), 0.38);
+  swRow(s, -1.55, 0.28, L4(function (i) { return valveSW('RCP ' + (i + 1) + '\nOIL LIFT', function () { return !!(X().oil && X().oil[i]); }, function (v) { var x2 = X(); if (!x2.oil) x2.oil = [false, false, false, false]; x2.oil[i] = v; }, { l: 'OFF', r: 'ON', onTxt: 'RUNNING', offTxt: 'OFF' }); }), 0.38);
+};
+/* --------------------------------------------------------------- 6. STEAM GENERATORS & FEEDWATER --------------------------------------------------------------- */
+CONTENT.sg = function (s) { be(s); var x = X, sgi = function (i) { return x().sg[i]; };
+  grp(s, -1.74, 1.74, 1.66, 2.33, 'STEAM GENERATORS 1–4: LEVEL  ·  STEAM FLOW  ·  FEED FLOW'); grp(s, -1.74, 1.74, 1.18, 1.62, 'FEED REGULATING VALVES  ·  AUX FEED VALVES  ·  FEED PUMPS');
+  L4(function (i) { var x0 = -1.68 + i * 0.88; meterRow(s, x0, 2.0, [['NR ' + (i + 1), '% LEVEL', 0, 100, function () { return sgi(i).L; }, 'Steam generator ' + (i + 1) + ' narrow range level', null, { bands: [[0, 0.17, RD], [0.85, 1, RD]] }], ['WR ' + (i + 1), '% LEVEL', 0, 100, function () { return 35 + sgi(i).Lm * 0.45; }, 'Steam generator ' + (i + 1) + ' wide range level'],
+    ['STM ' + (i + 1), '% FLOW', 0, 30, function () { return sgi(i).steam; }, 'SG ' + (i + 1) + ' steam flow', null, { major: 3, minor: 5 }], ['FEED ' + (i + 1), '% FLOW', 0, 30, function () { return sgi(i).feed; }, 'SG ' + (i + 1) + ' feed flow', null, { major: 3, minor: 5 }], ['P ' + (i + 1), 'BAR', 0, 100, function () { return S.p.Ps - 0.1 * i; }, 'Steam generator ' + (i + 1) + ' pressure']], 0.098, { info: [/x/, 'Steam generator', 'A tall heat exchanger with about 5,000 U-shaped tubes. Reactor coolant flows inside the tubes and boils the feedwater outside them. Level must stay between 17% (trip: the tubes could uncover) and 85% (trip: water would reach the turbine).', 'Level shrinks and swells: open the steam valves and level jumps up for a moment as the bubbles grow, even though water is leaving.'] }); });
+  L4(function (i) { var x0 = -1.62 + i * 0.88;
+    MA(s, x0, 1.4, { t: 'FRV SG ' + (i + 1), mode: function () { return sgi(i).frvMode; }, setMode: function (m) { sgi(i).frvMode = m; sgi(i).frvDem = sgi(i).frv; }, out: function () { return sgi(i).frv; }, pv: function () { return sgi(i).L.toFixed(0) + '%'; }, sp: function () { return '50'; }, raise: function (d, dt) { if (sgi(i).frvMode === 'MAN') sgi(i).frvDem = clamp(sgi(i).frvDem + d * dt * 0.05, 0, 1); },
+      info: [/x/, 'Feed regulating valve controller', 'Three-element control: in AUTO it matches feed flow to steam flow and trims it to hold level at 50%. Needs a main feed pump running.'] });
+    MA(s, x0 + 0.11, 1.4, { t: 'AFW SG ' + (i + 1), mode: function () { return sgi(i).afwMode; }, setMode: function (m) { sgi(i).afwMode = m; sgi(i).afwDem = sgi(i).afwV; }, out: function () { return sgi(i).afwV; }, pv: function () { return sgi(i).feed.toFixed(1) + '%'; }, raise: function (d, dt) { if (sgi(i).afwMode === 'MAN') sgi(i).afwDem = clamp(sgi(i).afwDem + d * dt * 0.08, 0, 1); },
+      info: [/x/, 'Auxiliary feed flow valve', 'Throttles auxiliary feedwater into the steam generator. At hot standby AFW is the only feed, and it keeps level at 50% in AUTO.'] });
+    lampRow(s, x0 + 0.25, 1.5, [['LO-LO\n17%', function () { return sgi(i).L < 17; }, 0xff3324], ['HI-HI\n85%', function () { return sgi(i).L > 85; }, 0xff3324], ['FEED\nISOL', function () { return !!x().fwIso; }, 0xffc94a]], 0.09);
+    LP(s, x0 + 0.25, 1.33, 'MSIV\nOPEN', function () { return sgi(i).msiv; }, 0xff3324); LP(s, x0 + 0.34, 1.33, 'PORV\nOPEN', function () { return sgi(i).porv; }, 0xff3324); LP(s, x0 + 0.43, 1.33, 'AFW\nFLOW', function () { return sgi(i).feed > 0.3 && !(x().mfp.some(Boolean)); }, 0xf5f2e6); });
+  addAnn(s, annTiles([['SG LEVEL\nLO-LO TRIP', 'trip', function () { return S.p.tripped && S.p.firstOut === 'SGLL'; }], ['SG 1 LEVEL\nLOW', 'alarm', function () { return sgi(0).L < 30; }], ['SG 2 LEVEL\nLOW', 'alarm', function () { return sgi(1).L < 30; }], ['SG 3 LEVEL\nLOW', 'alarm', function () { return sgi(2).L < 30; }], ['SG 4 LEVEL\nLOW', 'alarm', function () { return sgi(3).L < 30; }], ['SG LEVEL\nHIGH', 'alarm', function () { return x().sg.some(function (q) { return q.L > 70; }); }], ['SG LEVEL\nHI-HI P-14', 'alarm', function () { return !!x().p14; }],
+    ['STEAM/FEED\nMISMATCH', 'alarm', function () { return x().sg.some(function (q) { return Math.abs(q.steam - q.feed) > 4; }); }], ['MFP A\nTRIPPED', 'alarm', function () { return !x().mfp[0]; }], ['MFP B\nTRIPPED', 'alarm', function () { return !x().mfp[1]; }], ['FEEDWATER\nISOLATION', 'alarm', function () { return !!x().fwIso; }], ['AFW PUMP\nRUNNING', 'alarm', function () { return x().mdafw.some(Boolean) || x().tdafw; }], ['FRV IN\nMANUAL', 'alarm', function () { return x().sg.some(function (q) { return q.frvMode === 'MAN'; }); }], [''],
+    ['MFP A\nRUNNING', 'status', function () { return x().mfp[0]; }], ['MFP B\nRUNNING', 'status', function () { return x().mfp[1]; }], ['MDAFW A\nRUNNING', 'status', function () { return x().mdafw[0]; }], ['MDAFW B\nRUNNING', 'status', function () { return x().mdafw[1]; }], ['TDAFW\nRUNNING', 'status', function () { return x().tdafw; }]]));
+  dgrp(s, -1.74, 0.0, 0.18, 0.96, 'FEED PUMPS'); dgrp(s, 0.04, 1.74, 0.18, 0.96, 'AUXILIARY FEEDWATER & CONDENSATE');
+  var mfpCan = function () { var x2 = X(); if (x2.fwIso) return 'feedwater isolation is active: reset it first.'; if (!x2.cond.some(Boolean)) return 'start a condensate pump first (it feeds the main feed pump suction).'; if (x2.p14) return 'SG level is high-high (P-14).'; return null; };
+  swRow(s, -1.6, 0.66, [pumpSW('MAIN FEED\nPUMP A', function () { return X().mfp; }, 0, 'mfp', { can: mfpCan, info: [/x/, 'Main feed pumps', 'Big turbine- or motor-driven pumps that push about 1,900 kg of feedwater a second into the steam generators at full power. Above about 5% power, auxiliary feed can’t keep up, so you need one.'] }), pumpSW('MAIN FEED\nPUMP B', function () { return X().mfp; }, 1, 'mfp', { can: mfpCan }),
+    pumpSW('COND\nPUMP A', function () { return X().cond; }, 0, 'cond'), pumpSW('COND\nPUMP B', function () { return X().cond; }, 1, 'cond'), valveSW('FEED\nHEATERS', YES, function () {}, { l: 'BYPASS', r: 'IN SERVICE', onTxt: 'IN SERVICE', offTxt: 'BYPASSED' })], 0.135);
+  PBN(s, -1.3, 0.28, { col: 0x2f6fd8, lbl: 'FEED ISOL\nRESET', tip: 'Reset feedwater isolation', act: function () { var x2 = X(); if (x2.si.on) { warnOnce('fwr', 'Reset safety injection first.'); return; } if (x2.p14) { warnOnce('fwr2', 'A steam generator is still above 75%.'); return; } x2.fwIso = false; S.addLog('Feedwater isolation reset'); } });
+  PBN(s, -1.05, 0.28, { col: 0xd8161a, lbl: 'FEED ISOL\nMANUAL', tip: 'Manual feedwater isolation', act: function () { X().fwIso = true; X().mfp = [false, false]; S.addLog('Feedwater isolated manually'); } });
+  swRow(s, 0.18, 0.66, [pumpSW('MD AFW\nPUMP A', function () { return X().mdafw; }, 0, 'mdafw', { info: [/x/, 'Auxiliary feedwater', 'Smaller pumps that feed the steam generators at hot standby and in emergencies. Two are electric (one per safety train) and one is driven by a small steam turbine, so it works even if all electrical power is lost.'] }), pumpSW('MD AFW\nPUMP B', function () { return X().mdafw; }, 1, 'mdafw'),
+    valveSW('TD AFW\nSTEAM ADM', function () { return X().tdafw; }, function (v) { X().tdafw = v; }, { l: 'STOP', r: 'START', onTxt: 'RUNNING', offTxt: 'STOPPED' }), valveSW('CST TO\nAFW', YES, function () {}), valveSW('SG BLOW-\nDOWN', YES, function () {}), valveSW('BLOWDOWN\nSAMPLE', YES, function () {})], 0.135);
+};
+/* --------------------------------------------------------------- 7. MAIN STEAM, DUMPS, CONDENSER --------------------------------------------------------------- */
+CONTENT.ms = function (s) { be(s); var x = X;
+  grp(s, -1.74, -0.36, 1.66, 2.33, 'MAIN STEAM'); grp(s, -0.32, 1.0, 1.66, 2.33, 'STEAM DUMP VALVES (12)'); grp(s, 1.04, 1.74, 1.66, 2.33, 'CONDENSER'); grp(s, -1.74, 1.74, 1.18, 1.62, 'CIRCULATING WATER  ·  INTERLOCKS');
+  meterRow(s, -1.68, 2.0, [['HDR P1', 'BAR', 0, 100, function () { return S.p.Ps; }, 'Steam header pressure channel 1'], ['HDR P2', 'BAR', 0, 100, function () { return S.p.Ps + 0.2; }, 'Steam header pressure channel 2'], ['HDR P3', 'BAR', 0, 100, function () { return S.p.Ps - 0.15; }, 'Steam header pressure channel 3'],
+    ['STEAM', '% FLOW', 0, 110, function () { return x().sg.reduce(function (a, q) { return a + q.steam; }, 0); }, 'Total steam flow'], ['DUMP D', '% DEMAND', 0, 100, function () { return x().dumpDem * 100; }, 'Steam dump manual demand'], ['DUMPS', '% OPEN', 0, 100, function () { return S.p.dump * 100; }, 'Steam dump valve position'],
+    ['1ST STG', 'BAR', 0, 70, function () { return x().tb.steam / FULL * 62; }, 'Turbine first stage pressure (measures turbine load)'], ['TREF', '°C', 285, 315, function () { return trefC(x()); }, 'Reference temperature (from turbine load)', null, { major: 3, minor: 5 }]], 0.098, { info: [/x/, 'Steam dumps', 'Twelve valves that send steam straight to the condenser, skipping the turbine. In STEAM PRESSURE mode they hold the header at 76.3 bar (hot standby). In TAVG mode they open on a big load drop, dumping up to 40% of full steam flow so the reactor doesn’t have to trip.', 'They need condenser vacuum (C-9) and are blocked when Tavg is below 286 °C (P-12), to stop them cooling the reactor down too far.'] });
+  for (var k = 0; k < 12; k++) (function (k) { LP(s, -0.24 + (k % 6) * 0.2, k < 6 ? 2.2 : 1.95, 'DUMP\nPCV-' + (500 + k), function () { return S.p.dump > (k + 0.5) / 12; }, 0xff3324); })(k);
+  meterRow(s, 1.1, 2.0, [['VAC', 'BAR a', 0, 1, function () { return x().vac; }, 'Condenser back pressure (vacuum)', [/x/, 'Condenser vacuum', 'Steam from the turbine condenses on tubes cooled by sea water, leaving a near vacuum (about 0.06 bar). That vacuum is what lets the turbine extract so much energy. Lose it and the turbine trips.'], { bands: [[0.2, 1, RD]] }], ['HOTWELL', '% LEVEL', 0, 100, function () { return x().hotwell; }, 'Condenser hotwell level'], ['CW IN', '°C', 0, 30, function () { return x().aux.swT; }, 'Circulating water inlet temperature'], ['CW OUT', '°C', 0, 40, function () { return x().aux.swT + 1 + 10 * S.p.dump + x().tb.mw / 120; }, 'Circulating water outlet temperature']], 0.098);
+  MA(s, -1.6, 1.4, { t: 'STEAM DUMP\nPRESS CTRL', mode: function () { return x().dumpCtl; }, setMode: function (m) { x().dumpCtl = m; x().dumpDem = S.p.dump; S.addLog('Steam dump pressure controller to ' + m); }, out: function () { return S.p.dump; }, pv: function () { return S.p.Ps.toFixed(1) + ' bar'; }, sp: function () { return PSP.toFixed(1); }, raise: function (d, dt) { if (x().dumpCtl === 'MAN') x().dumpDem = clamp(x().dumpDem + d * dt * 0.05, 0, 1); },
+    info: [/x/, 'Steam dump pressure controller', 'In AUTO it opens the dumps to hold steam pressure at 76.3 bar, which holds Tavg at 291.7 °C. In MANUAL you set the dump demand yourself: more steam out means the coolant cools down.'] });
+  L4(function (i) { LP(s, -1.38 + i * 0.1, 1.5, 'CW PUMP\n' + 'ABCD'[i], function () { return x().cw[i] && pwr(x(), 'cw', i); }, 0xff3324); });
+  lampRow(s, -0.9, 1.5, [['C-9 COND\nAVAILABLE', function () { return x().vac < 0.2 && x().cw.some(Boolean); }, 0xf5f2e6], ['P-12 TAVG\n< 286', function () { return S.p.Tavg < 286; }, 0xffc94a], ['C-7 LOAD\nREJECTION', function () { return false; }, 0xffc94a], ['DUMPS\nARMED', function () { return x().dumpMode !== 'OFF'; }, 0xf5f2e6], ['MSIVs ALL\nOPEN', function () { return x().sg.every(function (q) { return q.msiv; }); }, 0xff3324], ['MSIVs ALL\nCLOSED', function () { return x().sg.every(function (q) { return !q.msiv; }); }, 0x2bd14a], ['SG SAFETY\nVALVE OPEN', function () { return S.p.Ps > 84; }, 0xff3324], ['STM LINE\nPRESS LOW', function () { return S.p.Ps < 41; }, 0xff3324]], 0.12);
+  DG(s, 1.2, 1.52, 'STEAM PRESS BAR', function () { return S.p.Ps.toFixed(1); }, { w: 0.18 }); DG(s, 1.42, 1.52, 'VACUUM BAR a', function () { return x().vac.toFixed(3); }, { w: 0.18 }); DG(s, 1.2, 1.4, 'DUMP DEMAND %', function () { return (S.p.dump * 100).toFixed(1); }, { w: 0.18 }); DG(s, 1.42, 1.4, 'TREF °C', function () { return trefC(x()).toFixed(1); }, { w: 0.18, col: '#ffd34a' });
+  addAnn(s, annTiles([['STEAM LINE\nPRESS LOW', 'alarm', function () { return S.p.Ps < 41; }], ['STEAM\nPRESS HIGH', 'alarm', function () { return S.p.Ps > 80; }], ['SG SAFETY\nVALVE OPEN', 'alarm', function () { return S.p.Ps > 84; }], ['SG PORV\nOPEN', 'alarm', function () { return x().sg.some(function (q) { return q.porv; }); }], ['MSIV\nCLOSED', 'alarm', function () { return x().sg.some(function (q) { return !q.msiv; }); }], ['COND\nVACUUM LOW', 'alarm', function () { return x().vac > 0.15; }], ['CW PUMP\nTRIP', 'alarm', function () { return x().cw.filter(Boolean).length < 2; }],
+    ['STEAM DUMP\nBLOCKED', 'alarm', function () { return x().dumpMode !== 'OFF' && (x().vac > 0.2 || S.p.Tavg < 286); }], ['HOTWELL\nLEVEL LOW'], ['DUMP CTRL\nIN MANUAL', 'alarm', function () { return x().dumpCtl === 'MAN'; }], ['N-16\nHIGH'], [''], [''], [''],
+    ['STEAM DUMP\nARMED', 'status', function () { return x().dumpMode !== 'OFF'; }], ['STEAM\nPRESS MODE', 'status', function () { return x().dumpMode === 'PRESS'; }], ['TAVG\nMODE', 'status', function () { return x().dumpMode === 'TAVG'; }], ['DUMPS\nOPEN', 'status', function () { return S.p.dump > 0.03; }]]));
+  dgrp(s, -1.74, -0.06, 0.18, 0.96, 'MAIN STEAM ISOLATION'); dgrp(s, -0.02, 1.74, 0.18, 0.96, 'STEAM DUMPS & CIRCULATING WATER');
+  swRow(s, -1.6, 0.66, L4(function (i) { return valveSW('MSIV ' + (i + 1), function () { return X().sg[i].msiv; }, function (v) { if (v && Math.abs(S.p.Ps - 76) > 25) { warnOnce('msiv', 'Can’t open against a big pressure difference: warm the line through its bypass first.'); } X().sg[i].msiv = v; }, { info: [/x/, 'Main steam isolation valve', 'A huge fast-closing valve on each steam line, outside containment. It shuts in under 5 seconds to isolate a steam line break, so only one steam generator can blow down.'] }); }), 0.135);
+  PBN(s, -1.55, 0.28, { col: 0xd8161a, lbl: 'MSIV\nCLOSE ALL', tip: 'Close all four main steam isolation valves', act: function () { X().sg.forEach(function (q) { q.msiv = false; }); S.addLog('All MSIVs closed'); } });
+  L4(function (i) { ROT(s, -1.25 + i * 0.3, 0.28, { t: 'SG ' + (i + 1) + ' PORV', pos: ['CLOSE', 'AUTO', 'OPEN'], get: function () { return ['CLOSE', 'AUTO', 'OPEN'].indexOf(X().sg[i].porvMode); }, set: function (k) { X().sg[i].porvMode = ['CLOSE', 'AUTO', 'OPEN'][k]; S.addLog('SG ' + (i + 1) + ' PORV to ' + X().sg[i].porvMode); },
+    info: [/x/, 'Steam generator PORV', 'An atmospheric relief valve on each steam line (the plume of steam you see from outside). In AUTO it opens at 79 bar. With no condenser, it is how operators cool the plant down.'] }); });
+  ROT(s, 0.2, 0.62, { t: 'DUMP MODE', pos: ['OFF', 'STM PRESS', 'TAVG'], get: function () { return ['OFF', 'PRESS', 'TAVG'].indexOf(X().dumpMode); }, set: function (k) { X().dumpMode = ['OFF', 'PRESS', 'TAVG'][k]; S.addLog('Steam dump mode to ' + ['OFF', 'STEAM PRESSURE', 'TAVG'][k]); } });
+  swRow(s, 0.55, 0.66, L4(function (i) { return pumpSW('CW PUMP\n' + 'ABCD'[i], function () { return X().cw; }, i, 'cw', { info: [/x/, 'Circulating water pumps', 'Pump sea water through the condenser at about 60 tonnes a second. Without at least one, condenser vacuum is lost within a minute or two.'] }); }).concat([valveSW('AIR\nEJECTORS', YES, function () {}, { l: 'OFF', r: 'ON', onTxt: 'ON', offTxt: 'OFF' })]), 0.135);
+  swRow(s, 0.55, 0.28, [valveSW('GLAND\nSTEAM', YES, function () {}), valveSW('VAC\nBREAKER', NO, function (v) { if (v) { X().vac = 1; X().cw = [false, false, false, false]; } }), valveSW('HOTWELL\nMAKE-UP', NO, function () {}), valveSW('DUMP\nISOL', function () { return X().dumpMode !== 'OFF'; }, function (v) { X().dumpMode = v ? 'PRESS' : 'OFF'; })], 0.135);
+};
+/* --------------------------------------------------------------- 8. TURBINE --------------------------------------------------------------- */
+CONTENT.tb = function (s) { be(s); var x = X, tb = function () { return x().tb; };
+  grp(s, -1.74, -0.1, 1.66, 2.33, 'TURBINE SPEED & VALVES'); grp(s, -0.06, 1.74, 1.66, 2.33, 'TURBINE SUPERVISORY'); grp(s, -1.74, 1.74, 1.18, 1.62, 'LOAD CONTROL  ·  STATUS');
+  meterRow(s, -1.68, 2.0, [['SPEED', 'RPM', 0, 3600, function () { return tb().rpm; }, 'Turbine speed', [/x/, 'Turbine speed', 'Roll the turbine up with the speed setpoint: it holds at each target. At 3000 rpm the two-pole generator makes 50 Hz, the frequency of the grid. Above 3300 rpm the overspeed trip fires.'], { major: 6, minor: 2, bands: [[2950 / 3600, 3050 / 3600, GN], [3300 / 3600, 1, RD]] }],
+    ['STOP V', '% OPEN', 0, 100, function () { return tb().sv * 100; }, 'HP stop valves'], ['GV 1', '% OPEN', 0, 100, function () { return tb().gv * 100; }, 'Governor valve 1'], ['GV 2', '% OPEN', 0, 100, function () { return tb().gv * 98; }, 'Governor valve 2'], ['GV 3', '% OPEN', 0, 100, function () { return tb().gv * 95; }, 'Governor valve 3'], ['GV 4', '% OPEN', 0, 100, function () { return Math.max(0, tb().gv * 120 - 20); }, 'Governor valve 4'],
+    ['1ST STG', 'BAR', 0, 70, function () { return tb().steam / FULL * 62; }, 'First stage pressure'], ['REHEAT', '°C', 0, 300, function () { return tb().latched ? 265 : 60; }, 'Reheat steam temperature']], 0.098);
+  meterRow(s, 0.0, 2.0, [['VIB 1', 'µm', 0, 150, function () { return 10 + (tb().rpm > 1200 && tb().rpm < 1600 && !tb().gen ? 55 : 0) + tb().rpm / 300; }, 'Bearing 1 vibration (it rises passing through the critical speed around 1400 rpm)', [/x/, 'Turbine vibration', 'Each turbine rotor has critical speeds where it vibrates more. Operators roll through them quickly and never hold the speed there.']], ['VIB 2', 'µm', 0, 150, function () { return 12 + tb().rpm / 280; }, 'Bearing 2 vibration'], ['VIB 3', 'µm', 0, 150, function () { return 9 + tb().rpm / 320; }, 'Bearing 3 vibration'], ['ECCENT', 'µm', 0, 100, function () { return tb().rpm < 600 ? 25 - tb().rpm / 40 : 8; }, 'Rotor eccentricity'],
+    ['LUBE P', 'BAR', 0, 5, function () { return 2.4; }, 'Lube oil pressure'], ['OIL T', '°C', 0, 80, function () { return 42; }, 'Lube oil temperature'], ['EXH T', '°C', 0, 100, function () { return 38 + (tb().latched && !tb().gen ? 20 : 0); }, 'Exhaust hood temperature'], ['EXPAN', 'mm', -5, 15, function () { return tb().latched ? 4 + tb().mw / 300 : 1; }, 'Differential expansion'],
+    ['BRG T', '°C', 0, 120, function () { return 60 + tb().rpm / 200; }, 'Hottest bearing metal temperature'], ['HYD P', 'BAR', 0, 200, function () { return 140; }, 'Control oil (EHC) pressure']], 0.098);
+  DG(s, -1.6, 1.52, 'SPEED RPM', function () { return String(Math.round(tb().rpm)); }, { w: 0.18 }); DG(s, -1.6, 1.4, 'TARGET RPM', function () { return String(tb().set); }, { w: 0.18, col: '#ffd34a' }); DG(s, -1.6, 1.28, 'RATE RPM/MIN', function () { return String(tb().rate); }, { w: 0.18, col: '#ffd34a' });
+  MA(s, -1.32, 1.4, { t: 'LOAD SET\nMW', mode: function () { return 'AUTO'; }, setMode: function () {}, out: function () { return tb().load / 1250; }, pv: function () { return Math.round(tb().mw) + ' MW'; }, sp: function () { return String(Math.round(tb().load)); }, raise: function (d, dt) { tb().load = clamp(tb().load + d * dt * 25, 0, 1250); },
+    info: [/x/, 'Load setpoint', 'Once synchronised, raise the load setpoint and the governor valves open to send more steam to the turbine; it ramps at the loading rate. More steam taken means Tavg falls, so rods (in AUTO) or boron have to add reactivity to follow.', 'Real plants load at a few percent a minute so the fuel isn’t stressed.'] });
+  DG(s, -1.06, 1.52, 'GEN MW', function () { return String(Math.round(tb().mw)); }, { w: 0.18 }); DG(s, -1.06, 1.4, 'LOAD SET MW', function () { return String(Math.round(tb().load)); }, { w: 0.18, col: '#ffd34a' }); DG(s, -1.06, 1.28, 'LOAD RATE MW/MIN', function () { return String(tb().lrate); }, { w: 0.18, col: '#ffd34a' });
+  lampRow(s, -0.7, 1.5, [['TURBINE\nLATCHED', function () { return tb().latched; }, 0xff3324], ['TURBINE\nTRIPPED', function () { return !tb().latched; }, 0x2bd14a], ['TURNING\nGEAR', function () { return tb().tg; }, 0xf5f2e6], ['AT SPEED\n3000', function () { return Math.abs(tb().rpm - 3000) < 15; }, 0xf5f2e6], ['CRITICAL\nSPEED', function () { return tb().rpm > 1200 && tb().rpm < 1600 && !tb().gen; }, 0xffc94a], ['OVERSPEED\nTRIP 3300', function () { return tb().rpm > 3300; }, 0xff3324],
+    ['VACUUM\nLOW TRIP', function () { return x().vac > 0.2; }, 0xffc94a], ['P-9\n> 50% PWR', function () { return S.p.n > 0.5; }, 0xf5f2e6], ['C-5\n> 15% LOAD', function () { return tb().mw > 170; }, 0xf5f2e6], ['P-13\n> 10% LOAD', function () { return tb().mw > 115; }, 0xf5f2e6]], 0.12);
+  addAnn(s, annTiles([['TURBINE\nTRIP', 'alarm', function () { return !tb().latched && tb().tripWhy !== ''; }], ['TURBINE TRIP\nRX TRIP P-9', 'trip', function () { return S.p.tripped && S.p.firstOut === 'TT'; }], ['OVERSPEED', 'alarm', function () { return tb().rpm > 3200; }], ['VIBRATION\nHIGH', 'alarm', function () { return tb().rpm > 1200 && tb().rpm < 1600 && !tb().gen && tb().latched; }], ['LUBE OIL\nPRESS LOW'], ['EHC OIL\nPRESS LOW'], ['VACUUM\nLOW', 'alarm', function () { return x().vac > 0.15; }],
+    ['EXHAUST\nTEMP HIGH', 'alarm', function () { return tb().latched && !tb().gen && tb().rpm > 2500; }], ['ECCENTRICITY\nHIGH', 'alarm', function () { return tb().rpm > 100 && tb().rpm < 600; }], ['TURNING GEAR\nDISENGAGED', 'alarm', function () { return !tb().tg && !tb().latched && tb().rpm < 40; }], ['LOAD\nLIMITER'], [''], [''], [''],
+    ['TURBINE\nLATCHED', 'status', function () { return tb().latched; }], ['TURNING\nGEAR ON', 'status', function () { return tb().tg; }], ['AT SPEED', 'status', function () { return Math.abs(tb().rpm - 3000) < 15; }]]));
+  dgrp(s, -1.74, 0.0, 0.18, 0.96, 'TURBINE CONTROL'); dgrp(s, 0.04, 1.74, 0.18, 0.96, 'LOAD & AUXILIARIES');
+  PBN(s, -1.6, 0.66, { col: 0x2bd14a, lbl: 'LATCH', lit: function () { return tb().latched; }, tip: 'Turbine LATCH (resets the trip and opens the stop valves)', act: function () { var t = tb(); if (t.latched) return; if (x().vac > 0.2) { warnOnce('lat', 'Can’t latch: no condenser vacuum.'); return; } if (!x().sg.some(function (q) { return q.msiv; })) { warnOnce('lat2', 'Can’t roll the turbine with all MSIVs shut.'); return; } t.latched = true; t.trip = false; t.tripWhy = ''; t.tg = false; S.addLog('Turbine latched'); },
+    info: [/x/, 'Turbine latch', 'Resets the turbine trip mechanism and opens the stop valves. The turbine then rolls to whatever speed target you choose. The turning gear disengages automatically.'] });
+  PBN(s, -1.4, 0.66, { col: 0xd8161a, lbl: 'TURBINE\nTRIP', tip: 'Manual turbine TRIP', act: function () { turbTrip(S.p, 'manual'); } });
+  PBN(s, -1.2, 0.66, { col: 0xf5f2e6, lbl: 'TURNING\nGEAR', lit: function () { return tb().tg; }, tip: 'Engage the turning gear (only when the turbine is stopped)', act: function () { var t = tb(); if (t.latched || t.rpm > 50) { warnOnce('tg', 'The turning gear can only engage once the turbine has run down below 50 rpm.'); return; } t.tg = true; } });
+  ROT(s, -0.85, 0.62, { t: 'SPEED TARGET', pos: ['0', '500', '1500', '3000'], get: function () { var v = tb().set; return v >= 2900 ? 3 : v >= 1000 ? 2 : v > 0 ? 1 : 0; }, set: function (k) { tb().set = [0, 500, 1500, 3000][k]; S.addLog('Turbine speed target ' + tb().set + ' rpm'); } });
+  ROT(s, -0.45, 0.62, { t: 'ACCEL RPM/MIN', pos: ['100', '150', '300'], get: function () { return [100, 150, 300].indexOf(tb().rate); }, set: function (k) { tb().rate = [100, 150, 300][k]; } });
+  ROT(s, 0.2, 0.62, { t: 'LOAD RATE MW/MIN', pos: ['10', '30', '60', '120'], get: function () { return [10, 30, 60, 120].indexOf(tb().lrate); }, set: function (k) { tb().lrate = [10, 30, 60, 120][k]; } });
+  PBN(s, 0.55, 0.66, { col: 0x2f6fd8, lbl: 'LOAD\nHOLD', tip: 'Hold load where it is', act: function () { tb().load = Math.round(tb().mw); } });
+  swRow(s, 0.8, 0.66, [valveSW('LUBE OIL\nPUMP', YES, function () {}, { l: 'STOP', r: 'RUN', onTxt: 'RUNNING', offTxt: 'STOPPED' }), valveSW('JACKING\nOIL', function () { return tb().rpm < 600; }, function () {}, { l: 'STOP', r: 'RUN', onTxt: 'RUNNING', offTxt: 'STOPPED' }), valveSW('EHC\nPUMP', YES, function () {}, { l: 'STOP', r: 'RUN', onTxt: 'RUNNING', offTxt: 'STOPPED' }), valveSW('MSR\nSTEAM', function () { return tb().latched; }, function () {})], 0.135);
+  swRow(s, -1.6, 0.28, [valveSW('HP\nDRAINS', function () { return tb().mw < 100; }, function () {}), valveSW('LP\nDRAINS', function () { return tb().mw < 100; }, function () {}), valveSW('EXHAUST\nSPRAY', function () { return tb().latched && !tb().gen; }, function () {}), valveSW('OVERSPEED\nTEST', NO, function () {}, { l: 'NORMAL', r: 'TEST', onTxt: 'TEST', offTxt: 'NORMAL' })], 0.135);
+};
+/* --------------------------------------------------------------- 9. GENERATOR & GRID --------------------------------------------------------------- */
+CONTENT.gen = function (s) { be(s); var x = X, tb = function () { return x().tb; };
+  grp(s, -1.74, -0.36, 1.66, 2.33, 'SYNCHRONISING'); grp(s, -0.32, 1.04, 1.66, 2.33, 'GENERATOR'); grp(s, 1.08, 1.74, 1.66, 2.33, '400 kV GRID'); grp(s, -1.74, 1.74, 1.18, 1.62, 'EXCITATION  ·  STATUS');
+  onPanel(s, meterR({ lbl: 'SYNCHROSCOPE', unit: 'SLOW ←  → FAST', min: -180, max: 180, major: 2, w: 0.2, h: 0.18, v: function () { return tb().kv > 5 && x().tb.syncSel !== 'OFF' ? tb().phase : 0; }, fmt: function (v) { return v === 0 ? '12' : v > 0 ? '+' : '−'; }, tip: function () { var t = tb(); return 'Synchroscope: ' + (t.syncSel === 'OFF' ? 'off (turn the SYNC selector on)' : t.kv < 5 ? 'dead (generator not excited)' : 'phase ' + Math.round(t.phase) + '°, generator ' + (t.rpm / 60 > GRIDF ? 'fast' : 'slow') + ' by ' + Math.abs(t.rpm / 60 - GRIDF).toFixed(3) + ' Hz'); } }), -1.55, 2.1);
+  meterRow(s, -1.3, 2.0, [['GEN Hz', 'Hz', 45, 55, function () { return tb().rpm / 60; }, 'Incoming (generator) frequency', null, { major: 5, minor: 2 }], ['GRID Hz', 'Hz', 45, 55, function () { return D.grid; }, 'Running (grid) frequency', null, { major: 5, minor: 2 }], ['GEN kV', 'kV', 0, 25, function () { return tb().kv; }, 'Incoming voltage'], ['BUS kV', 'kV', 0, 25, function () { return 22 * D.gridV / 400; }, 'Running voltage (grid, stepped down)']], 0.098, { info: [/x/, 'Synchronising', 'Before the generator breaker can close, the generator has to match the grid in voltage, frequency and phase. Run it a little fast, set the voltage to match, then close the breaker as the synchroscope creeps clockwise through 12 o’clock.', 'Close it out of phase and the grid wrenches the generator into step: in real life that can twist the shaft.'] });
+  meterRow(s, -0.26, 2.0, [['MW', 'MW', 0, 1400, function () { return tb().mw; }, 'Generator output'], ['MVAR', 'MVAR', -400, 400, function () { return tb().mvar; }, 'Reactive power'], ['AMPS', 'kA', 0, 40, function () { return Math.hypot(tb().mw, tb().mvar) / (Math.sqrt(3) * 22) ; }, 'Stator current'], ['PF', 'COS φ', 0.5, 1, function () { var a = Math.hypot(tb().mw, tb().mvar); return a > 1 ? tb().mw / a : 1; }, 'Power factor', null, { fmt: function (v) { return v.toFixed(2); } }], ['FIELD', 'A', 0, 6000, function () { return tb().exc * 2400 + tb().mvar * 4; }, 'Field current'], ['H₂ P', 'BAR', 0, 6, function () { return 4.1; }, 'Generator hydrogen pressure'], ['STATOR T', '°C', 0, 120, function () { return 40 + tb().mw / 25; }, 'Stator winding temperature']], 0.098);
+  meterRow(s, 1.14, 2.0, [['GRID Hz', 'Hz', 49, 51, function () { return D.grid; }, 'National Grid frequency', null, { major: 4, minor: 5, fmt: function (v) { return v.toFixed(1); }, bands: [[0, 0.1, RD], [0.9, 1, RD]] }], ['GRID kV', 'kV', 380, 420, function () { return D.gridV; }, '400 kV grid voltage'], ['EXPORT', 'MW', 0, 1400, function () { return Math.max(0, tb().mw - 60); }, 'Net export to the grid (generator minus the station’s own load)']], 0.098);
+  DG(s, -1.6, 1.52, 'PHASE °', function () { return tb().gen ? 'LOCKED' : String(Math.round(tb().phase)); }, { w: 0.18 }); DG(s, -1.6, 1.4, 'SLIP Hz', function () { return (tb().rpm / 60 - GRIDF).toFixed(3); }, { w: 0.18, col: '#ffd34a' });
+  MA(s, -1.32, 1.4, { t: 'AVR\nMVAR SET', mode: function () { return tb().field ? 'AUTO' : 'MAN'; }, setMode: function () {}, out: function () { return tb().exc; }, pv: function () { return Math.round(tb().mvar) + ' MVAr'; }, sp: function () { return String(Math.round(tb().mvarSet)); }, raise: function (d, dt) { tb().mvarSet = clamp(tb().mvarSet + d * dt * 15, -300, 400); },
+    info: [/x/, 'Automatic voltage regulator', 'Controls the generator’s magnetic field. Before synchronising it sets the voltage; once connected, raising excitation pushes reactive power (MVAr) into the grid, which helps hold grid voltage up.'] });
+  lampRow(s, -1.0, 1.5, [['SYNC CHECK\nOK', function () { var t = tb(); return !t.gen && t.syncSel !== 'OFF' && Math.abs(t.rpm / 60 - GRIDF) < 0.15 && Math.abs(t.phase) < 15 && Math.abs(t.kv - 22 * D.gridV / 400) < 1.2; }, 0x2bd14a], ['GEN BKR\nCLOSED', function () { return tb().gen; }, 0xff3324], ['GEN BKR\nOPEN', function () { return !tb().gen; }, 0x2bd14a], ['FIELD BKR\nCLOSED', function () { return tb().field; }, 0xff3324], ['UNIT TX\nSUPPLYING', function () { return x().el.unitTx && tb().gen; }, 0xff3324], ['REVERSE\nPOWER', function () { return tb().gen && !tb().latched; }, 0xffc94a],
+    ['LOSS OF\nFIELD', function () { return tb().gen && !tb().field; }, 0xffc94a], ['GRID LINE 1\nIN SERVICE', YES, 0xff3324], ['GRID LINE 2\nIN SERVICE', YES, 0xff3324], ['GRID FREQ\nOUT OF RANGE', function () { return Math.abs(D.grid - 50) > 0.2; }, 0xffc94a]], 0.12);
+  addAnn(s, annTiles([['GEN BKR\nOPEN', 'alarm', function () { return !tb().gen; }], ['GEN\nPROTECTION\nTRIP', 'alarm', function () { return !!tb().protTrip; }], ['REVERSE\nPOWER', 'alarm', function () { return tb().gen && !tb().latched; }], ['LOSS OF\nEXCITATION', 'alarm', function () { return tb().gen && !tb().field; }], ['GRID FREQ\nLOW', 'alarm', function () { return D.grid < 49.8; }], ['GRID FREQ\nHIGH', 'alarm', function () { return D.grid > 50.2; }], ['H₂ PRESS\nLOW'],
+    ['STATOR\nCOOLING'], ['400 kV LINE\nTRIP'], ['OUT OF STEP'], ['AVR FAULT'], [''], [''], [''], ['GEN ON\nLINE', 'status', function () { return tb().gen; }], ['SYNC\nSELECTED', 'status', function () { return tb().syncSel !== 'OFF'; }], ['FIELD\nON', 'status', function () { return tb().field; }]]));
+  dgrp(s, -1.74, 0.36, 0.18, 0.96, 'GENERATOR CIRCUIT BREAKER & FIELD', '#8f1a14'); dgrp(s, 0.4, 1.74, 0.18, 0.96, 'SWITCHYARD');
+  ROT(s, -1.55, 0.62, { t: 'SYNC SELECTOR', pos: ['OFF', 'MAN'], get: function () { return tb().syncSel === 'OFF' ? 0 : 1; }, set: function (k) { tb().syncSel = k ? 'MAN' : 'OFF'; } });
+  SWC(s, -1.15, 0.62, bkrSW('FIELD\nBREAKER', function () { return tb().field; }, function (v) { tb().field = v; }, { can: function () { return tb().rpm < 2800 ? 'bring the turbine to 3000 rpm before exciting the generator.' : null; } }));
+  SWC(s, -0.85, 0.62, bkrSW('GENERATOR\nBREAKER', function () { return tb().gen; }, function (v) {
+    var t = tb(), x2 = X(); if (!v) { t.gen = false; x2.el.unitTx = false; S.addLog('Generator breaker opened'); return; }
+    var df = Math.abs(t.rpm / 60 - GRIDF), dv = Math.abs(t.kv - 22 * D.gridV / 400), ph = Math.abs(t.phase);
+    if (df < 0.15 && ph < 15 && dv < 1.2) { t.gen = true; t.load = Math.max(t.load, 60); t.mw = 0; x2.el.unitTx = true; S.toast('⚡ Synchronised to the National Grid!', 'ok'); speak('Generator synchronised.'); S.addLog('GENERATOR SYNCHRONISED to the 400 kV grid'); }
+    else { t.protTrip = true; AUD.sfx('trip'); S.toast('💥 Out-of-phase close! The grid yanked the generator into step and the protection tripped it (Δf ' + df.toFixed(2) + ' Hz, phase ' + Math.round(ph) + '°, ΔV ' + dv.toFixed(1) + ' kV).', 'bad'); S.addLog('Generator breaker closed out of phase: generator protection trip'); turbTrip(S.p, 'generator protection (out-of-phase close)'); t.field = false; setTimeout(function () { t.protTrip = false; }, 30000); }
+  }, { can: function () { var t = tb(); if (t.syncSel === 'OFF') return 'turn the SYNC SELECTOR to MAN first.'; if (!t.field) return 'the generator has no field: close the field breaker.'; if (!t.latched) return 'the turbine is tripped.'; return null; },
+    info: [/x/, 'Generator circuit breaker', 'Connects the 1,200 MW generator to the grid. Only close it when the sync check light is on: frequencies within 0.15 Hz, voltages matched and the synchroscope near 12 o’clock.'] }));
+  PBN(s, -0.5, 0.62, { col: 0x2bd14a, lbl: 'SPEED\nRAISE', tip: 'Raise the turbine speed target by 1 rpm (fine adjustment for synchronising: about 0.017 Hz)', act: function () { var t = tb(); if (t.latched && !t.gen && t.set >= 2900) t.set = Math.min(3060, t.set + 1); else if (t.latched && !t.gen) S.toast('Fine speed adjustment works once the speed target is 3000 rpm.'); } });
+  PBN(s, -0.3, 0.62, { col: 0xd8161a, lbl: 'SPEED\nLOWER', tip: 'Lower the turbine speed target by 1 rpm', act: function () { var t = tb(); if (t.latched && !t.gen && t.set >= 2900) t.set = Math.max(2940, t.set - 1); } });
+  PBN(s, -0.5, 0.28, { col: 0x2bd14a, lbl: 'VOLTS\nRAISE', tip: 'Raise generator voltage', act: function () { var t = tb(); t.excSet = Math.min(1.1, (t.excSet == null ? 1 : t.excSet) + 0.01); } });
+  PBN(s, -0.3, 0.28, { col: 0xd8161a, lbl: 'VOLTS\nLOWER', tip: 'Lower generator voltage', act: function () { var t = tb(); t.excSet = Math.max(0.85, (t.excSet == null ? 1 : t.excSet) - 0.01); } });
+  swRow(s, 0.55, 0.66, [bkrSW('400 kV\nLINE 1', YES, function () {}), bkrSW('400 kV\nLINE 2', YES, function () {}), bkrSW('BUS\nSECTION', YES, function () {}), bkrSW('GEN TX\nHV BKR', YES, function () {})], 0.135);
+  swRow(s, 0.55, 0.28, [valveSW('GEN H₂\nCOOLERS', YES, function () {}, { l: 'OFF', r: 'ON', onTxt: 'ON', offTxt: 'OFF' }), valveSW('SEAL OIL\nPUMP', YES, function () {}, { l: 'STOP', r: 'RUN', onTxt: 'RUNNING', offTxt: 'STOPPED' }), valveSW('STATOR\nWATER', YES, function () {}, { l: 'STOP', r: 'RUN', onTxt: 'RUNNING', offTxt: 'STOPPED' })], 0.135);
+};
+/* --------------------------------------------------------------- 10. ELECTRICAL DISTRIBUTION & DIESELS --------------------------------------------------------------- */
+CONTENT.elec = function (s) { be(s); var x = X, el = function () { return x().el; };
+  grp(s, -1.74, 0.2, 1.66, 2.33, 'STATION ELECTRICAL (ONE-LINE)'); grp(s, 0.24, 1.74, 1.66, 2.33, 'EMERGENCY DIESEL GENERATORS'); grp(s, -1.74, 1.74, 1.18, 1.62, 'DC SUPPLIES  ·  BUS STATUS');
+  s.mimic.push({ col: '#1f3b57', w: 7, pts: [[-1.6, 2.26], [-0.2, 2.26]] }, { col: '#1f3b57', w: 7, pts: [[-1.3, 2.26], [-1.3, 1.78]] }, { col: '#1f3b57', w: 7, pts: [[-0.5, 2.26], [-0.5, 1.78]] }, { col: '#7d3c98', w: 7, pts: [[-1.55, 1.78], [-0.25, 1.78]] });
+  lampRow(s, -1.5, 2.15, [['STATION TX\n(GRID)', function () { return el().stn && el().grid; }, 0xff3324], ['UNIT TX\n(GENERATOR)', function () { return el().unitTx && x().tb.gen; }, 0xff3324], ['11 kV\nBOARD A', function () { return busOn(x(), 'A'); }, 0xf5f2e6], ['11 kV\nBOARD B', function () { return busOn(x(), 'B'); }, 0xf5f2e6]], 0.3);
+  lampRow(s, -1.5, 1.9, [['TIE A', function () { return el().tieA; }, 0xff3324], ['3.3 kV SAFETY\nBUS A', function () { return busOn(x(), 'EA'); }, 0xf5f2e6], ['3.3 kV SAFETY\nBUS B', function () { return busOn(x(), 'EB'); }, 0xf5f2e6], ['TIE B', function () { return el().tieB; }, 0xff3324]], 0.3);
+  meterRow(s, 0.3, 2.0, [0, 1].map(function (k) { return [['EDG ' + 'AB'[k] + ' RPM', 'RPM', 0, 3600, function () { return el().edg[k].rpm; }, 'Diesel ' + 'AB'[k] + ' speed (a real diesel runs much slower and is geared, shown here as generator rpm)'], ['EDG ' + 'AB'[k] + ' kW', 'kW', 0, 8000, function () { return el().edg[k].kw; }, 'Diesel ' + 'AB'[k] + ' load'], ['EDG ' + 'AB'[k] + ' kV', 'kV', 0, 4, function () { return el().edg[k].rpm > 2800 ? 3.3 : el().edg[k].rpm / 900; }, 'Diesel ' + 'AB'[k] + ' voltage']]; }).reduce(function (a, b) { return a.concat(b); }, []), 0.098,
+    { info: [/x/, 'Emergency diesel generators', 'Each safety train has its own diesel, big enough to run every safety pump on that train. They start on loss of power to the safety bus or on safety injection, reach speed in about 10 seconds and close onto the dead bus by themselves.', 'They are test-run every month: a station blackout (no grid and no diesels) is one of the most serious events there is.'] });
+  meterRow(s, 0.9, 2.0, [['11kV A', 'kV', 0, 14, function () { return busOn(x(), 'A') ? 11.1 : 0; }, '11 kV unit board A voltage'], ['11kV B', 'kV', 0, 14, function () { return busOn(x(), 'B') ? 11.0 : 0; }, '11 kV unit board B voltage'], ['3.3 A', 'kV', 0, 4, function () { return busOn(x(), 'EA') ? 3.3 : 0; }, 'Safety bus A voltage'], ['3.3 B', 'kV', 0, 4, function () { return busOn(x(), 'EB') ? 3.3 : 0; }, 'Safety bus B voltage'], ['DC A', 'V', 100, 140, function () { return el().dc[0]; }, '125 V DC bus A'], ['DC B', 'V', 100, 140, function () { return el().dc[1]; }, '125 V DC bus B']], 0.085, { w: 0.078 });
+  lampRow(s, -1.55, 1.5, [['EDG A\nRUNNING', function () { return el().edg[0].run; }, 0xff3324], ['EDG A\nAT SPEED', function () { return el().edg[0].rpm > 2900; }, 0xf5f2e6], ['EDG A BKR\nCLOSED', function () { return el().edg[0].bkr; }, 0xff3324], ['EDG B\nRUNNING', function () { return el().edg[1].run; }, 0xff3324], ['EDG B\nAT SPEED', function () { return el().edg[1].rpm > 2900; }, 0xf5f2e6], ['EDG B BKR\nCLOSED', function () { return el().edg[1].bkr; }, 0xff3324],
+    ['OFFSITE\nPOWER', function () { return el().grid && el().stn; }, 0x2bd14a], ['BATT A\nCHARGING', function () { return el().chg[0]; }, 0xff3324], ['BATT B\nCHARGING', function () { return el().chg[1]; }, 0xff3324], ['UPS A\nNORMAL', YES, 0x2bd14a], ['UPS B\nNORMAL', YES, 0x2bd14a], ['STATION\nBLACKOUT', function () { return !busOn(x(), 'EA') && !busOn(x(), 'EB'); }, 0xff3324]], 0.13);
+  addAnn(s, annTiles([['11 kV BD A\nUNDERVOLT', 'alarm', function () { return !busOn(x(), 'A'); }], ['11 kV BD B\nUNDERVOLT', 'alarm', function () { return !busOn(x(), 'B'); }], ['SAFETY BUS A\nUNDERVOLT', 'alarm', function () { return !busOn(x(), 'EA'); }], ['SAFETY BUS B\nUNDERVOLT', 'alarm', function () { return !busOn(x(), 'EB'); }], ['EDG A\nRUNNING', 'alarm', function () { return el().edg[0].run; }], ['EDG B\nRUNNING', 'alarm', function () { return el().edg[1].run; }], ['LOSS OF\nOFFSITE PWR', 'alarm', function () { return !(el().stn && el().grid); }],
+    ['DC BUS A\nLOW VOLTS', 'alarm', function () { return el().dc[0] < 124; }], ['DC BUS B\nLOW VOLTS', 'alarm', function () { return el().dc[1] < 124; }], ['STATION\nBLACKOUT', 'alarm', function () { return !busOn(x(), 'EA') && !busOn(x(), 'EB'); }], ['EDG A\nFAIL TO START'], ['EDG B\nFAIL TO START'], ['TRANSFORMER\nFAULT'], [''],
+    ['EDG A\nIN AUTO', 'status', function () { return el().edg[0].mode === 'AUTO'; }], ['EDG B\nIN AUTO', 'status', function () { return el().edg[1].mode === 'AUTO'; }], ['OFFSITE\nAVAILABLE', 'status', function () { return el().grid; }]]));
+  dgrp(s, -1.74, 0.16, 0.18, 0.96, 'BREAKERS', '#8f1a14'); dgrp(s, 0.2, 1.74, 0.18, 0.96, 'DIESELS & BATTERIES');
+  swRow(s, -1.6, 0.66, [bkrSW('STATION TX\nBREAKER', function () { return el().stn; }, function (v) { el().stn = v; }, { info: [/x/, 'Station transformer breaker', 'Feeds the station’s own pumps and fans from the grid when the generator isn’t running. Open it with the generator off and you cause a loss of offsite power: reactor coolant pumps, feed pumps and condenser pumps all stop, and the diesels start.'] }),
+    bkrSW('UNIT TX\nBREAKER', function () { return el().unitTx; }, function (v) { el().unitTx = v; }, { can: function () { return !X().tb.gen ? 'the generator isn’t connected, so the unit transformer has nothing to supply.' : null; } }),
+    bkrSW('11 kV BD A\nINCOMER', function () { return el().busA; }, function (v) { el().busA = v; }), bkrSW('11 kV BD B\nINCOMER', function () { return el().busB; }, function (v) { el().busB = v; }),
+    bkrSW('SAFETY\nTIE A', function () { return el().tieA; }, function (v) { el().tieA = v; }, { can: function () { return el().edg[0].bkr ? 'diesel A is supplying the bus: open its breaker first (they aren’t synchronised).' : null; } }), bkrSW('SAFETY\nTIE B', function () { return el().tieB; }, function (v) { el().tieB = v; }, { can: function () { return el().edg[1].bkr ? 'diesel B is supplying the bus: open its breaker first.' : null; } })], 0.135);
+  swRow(s, 0.35, 0.66, [0, 1].map(function (k) { return valveSW('EDG ' + 'AB'[k], function () { return el().edg[k].run; }, function (v) { el().edg[k].run = v; if (!v) el().edg[k].bkr = false; }, { l: 'STOP', r: 'START', onTxt: 'RUNNING', offTxt: 'STOPPED' }); }).concat([0, 1].map(function (k) { return bkrSW('EDG ' + 'AB'[k] + '\nBREAKER', function () { return el().edg[k].bkr; }, function (v) { el().edg[k].bkr = v; if (v) { if (k) el().tieB = false; else el().tieA = false; } }, { can: function () { var g = el().edg[k]; if (g.rpm < 2900) return 'the diesel isn’t up to speed.'; if ((k ? el().tieB : el().tieA) && busOn(X(), k ? 'B' : 'A')) return 'the bus is live from offsite power: this diesel can only close onto a dead bus.'; return null; } }); })), 0.135);
+  [0, 1].forEach(function (k) { ROT(s, 0.45 + k * 0.32, 0.26, { t: 'EDG ' + 'AB'[k] + ' MODE', pos: ['MAN', 'AUTO'], get: function () { return el().edg[k].mode === 'AUTO' ? 1 : 0; }, set: function (i) { el().edg[k].mode = i ? 'AUTO' : 'MAN'; } }); });
+  swRow(s, 1.2, 0.28, [valveSW('CHARGER\nA', function () { return el().chg[0]; }, function (v) { el().chg[0] = v; }, { l: 'OFF', r: 'ON', onTxt: 'ON', offTxt: 'OFF' }), valveSW('CHARGER\nB', function () { return el().chg[1]; }, function (v) { el().chg[1] = v; }, { l: 'OFF', r: 'ON', onTxt: 'ON', offTxt: 'OFF' }), valveSW('UPS\nBYPASS', NO, function () {})], 0.135);
+};
+
+/* ================================================================ what's in the simulator ================================================================ */
 var ROAD = [
-  { t: 'Hot standby to critical', d: 'Trip breakers, rods, nuclear instruments, the 1/M plot, criticality, P-6 and the point of adding heat.' },
-  { t: 'Reactor coolant system', d: 'Pressuriser pressure and level, the four coolant pumps, boration and dilution.' },
-  { t: 'Steam generators & feedwater', d: 'Steam generator level control, feed pumps, steam dumps and main steam valves.' },
-  { t: 'Turbine & generator', d: 'Roll the turbine to 3000 rpm and synchronise to the 50 Hz National Grid.' },
-  { t: 'Reactor protection & alarms', d: 'The full set of trips and permissives, with alarm response procedures.' },
-  { t: 'Emergency systems', d: 'Safety injection, emergency diesel generators and auxiliary feedwater.' },
-  { t: 'Xenon, decay heat & burnup', d: 'Xenon after a trip, decay heat and fuel burnup through the cycle.' },
-  { t: 'Walk the station', d: 'The reactor building, turbine hall, cooling water and the switchyard.' },
-  { t: 'Faults & emergencies', d: 'Stuck rods, pump trips, steam leaks and meltdown scenarios, with emergency procedures.' },
-  { t: 'Shifts, missions & scoring', d: 'Full shifts from cold shutdown to full power, with scores and ranks.' }
+  { t: 'Reactor startup', s: 'now', d: 'Pre-startup checks, trip breakers, rods, nuclear instruments, the 1/M plot, criticality, P-6 and the point of adding heat. Guided checklist.' },
+  { t: 'Reactor shutdown', s: 'now', d: 'Rods in, source range back on, trip breakers open. Guided checklist.' },
+  { t: 'The full control room', s: 'now', d: '11 boards, every control working: safety injection, cooling water, boron, pressuriser, coolant pumps, steam generators, steam dumps, turbine, generator & grid, electrics and diesels.' },
+  { t: 'Power ascension', s: 'free', d: 'Main feed pump, roll the turbine to 3000 rpm, synchronise to the grid and load up with rods in AUTO. Works now in free play; a guided checklist comes next.' },
+  { t: 'Faults & emergencies', s: 'free', d: 'Loss of offsite power (open the station transformer breaker), stuck-open PORVs, feed pump trips, safety injection. Works now in free play; guided scenarios come next.' },
+  { t: 'Walk the station', s: 'soon', d: 'The reactor building, turbine hall, cooling water and the switchyard.' },
+  { t: 'Shifts & scoring', s: 'soon', d: 'Full shifts from cold shutdown to full power, with scores and ranks.' }
 ];
 
 /* ================================================================ the checklists ================================================================
@@ -1030,11 +1489,11 @@ var STEPS = [
 var PRE = [
   { t: 'Plant is in Mode 3 (hot standby)', show: 'params', h: 'Find the <b>PLANT MODE</b> display on the reactor parameters panel.', st: function () { return 'PLANT MODE reads MODE ' + D.mode; }, ok: function () { return D.mode === 3; } },
   { t: 'Tavg is at no-load temperature, 291–293 °C', show: 'params', h: 'Read the <b>TAVG</b> meter and display on the reactor board.', st: function (p) { return 'Tavg ' + p.Tavg.toFixed(1) + ' °C'; }, ok: function (p) { return p.Tavg >= 291 && p.Tavg <= 293; } },
-  { t: 'RCS pressure is normal, 153–157 bar', show: 'rcs', h: 'Read <b>PZR PRESS</b> on the reactor coolant board, just left of the reactor board.', st: function (p) { return 'Pressuriser pressure ' + p.rcs.toFixed(1) + ' bar'; }, ok: function (p) { return p.rcs >= 153 && p.rcs <= 157; } },
-  { t: 'Pressuriser level is on programme, 20–30%', show: 'rcs', h: 'Read <b>PZR LEVEL</b> on the reactor coolant board.', st: function (p) { return 'Pressuriser level ' + p.pzr.toFixed(1) + '%'; }, ok: function (p) { return p.pzr >= 20 && p.pzr <= 30; } },
-  { t: 'All four reactor coolant pumps are running', show: 'rcs', h: 'Check the red <b>RCP RUNNING</b> lights and the four pump currents on the reactor coolant board.', st: function () { return 'RCP 1, 2, 3 and 4 running'; }, ok: YES },
-  { t: 'Steam dumps in STEAM PRESSURE mode, holding 76.3 bar', show: 'sg', h: 'On the steam & feed board, check the <b>DUMP MODE</b> selector and the steam pressure.', st: function (p) { return 'Steam pressure ' + p.Ps.toFixed(1) + ' bar'; }, ok: function (p) { return Math.abs(p.Ps - PSP) < 1.5; } },
-  { t: 'RCS boron matches the ECP sheet: 1200 ppm', show: 'cvcs', h: 'Read <b>RCS BORON PPM</b> on the CVCS board (far left). The estimated critical position was worked out for 1200 ppm.', st: function (p) { return 'RCS boron ' + Math.round(p.boron) + ' ppm'; }, ok: function (p) { return Math.abs(p.boron - BORON0) < 10; } },
+  { t: 'RCS pressure is normal, 153–157 bar', show: 'pzr', h: 'Read the four <b>PT-455…458</b> pressure meters on the pressuriser board (second board left of the reactor).', st: function (p) { return 'Pressuriser pressure ' + p.rcs.toFixed(1) + ' bar'; }, ok: function (p) { return p.rcs >= 153 && p.rcs <= 157; } },
+  { t: 'Pressuriser level is on programme, 20–30%', show: 'pzr', h: 'Read the three <b>LT-461…463</b> level meters on the pressuriser board.', st: function (p) { return 'Pressuriser level ' + p.pzr.toFixed(1) + '%'; }, ok: function (p) { return p.pzr >= 20 && p.pzr <= 30; } },
+  { t: 'All four reactor coolant pumps are running', show: 'rcs', h: 'Check the red <b>RCP RUNNING</b> lights and the four pump currents on the reactor coolant board, just left of the reactor board.', st: function (p) { return p.x.rcpOn.filter(Boolean).length + ' of 4 RCPs running'; }, ok: function (p) { return p.x.rcpOn.every(Boolean); } },
+  { t: 'Steam dumps in STEAM PRESSURE mode, holding 76.3 bar', show: 'ms', h: 'On the main steam board, check the <b>DUMP MODE</b> selector is on STM PRESS, the controller is in AUTO, and steam pressure is 76.3 bar.', st: function (p) { return 'Dump mode ' + p.x.dumpMode + ' / ' + p.x.dumpCtl + ', steam pressure ' + p.Ps.toFixed(1) + ' bar'; }, ok: function (p) { return p.x.dumpMode === 'PRESS' && Math.abs(p.Ps - PSP) < 1.5; } },
+  { t: 'RCS boron matches the ECP sheet: 1200 ppm', show: 'cvcs', h: 'Read <b>RCS BORON PPM</b> on the chemical &amp; volume control board (third from the left). The estimated critical position was worked out for 1200 ppm.', st: function (p) { return 'RCS boron ' + Math.round(p.boron) + ' ppm'; }, ok: function (p) { return Math.abs(p.boron - BORON0) < 10; } },
   { t: 'Both source range channels are counting', show: 'nis', h: '<b>N31</b> and <b>N32</b> should both read tens of counts per second. You must be able to see neutrons before you pull any rods.', st: function () { return 'N31 ' + Math.round(NI.sr[0]) + ' cps · N32 ' + Math.round(NI.sr[1]) + ' cps'; }, ok: function (p) { return !p.srBlk[0] && !p.srBlk[1] && NI.sr[0] > 2 && NI.sr[1] > 2; } },
   { t: 'Source range audio is on', show: 'audio', h: 'The <b>SR AUDIO</b> switch on the reactor desk should be ON, so you can hear the count rate rise.', st: function (p) { return 'SR audio ' + (p.audio ? 'ON' : 'OFF'); }, ok: function (p) { return p.audio; } },
   { t: 'All rods at the bottom, trip breakers open', show: 'rods', h: 'On the DRPI every rod should show its red bottom light, and <b>RTB A</b> and <b>RTB B</b> should be open (green lamps).', st: function (p) { return (BANKS.every(function (b) { return p.rods[b] <= 0; }) ? 'all rods in' : 'rods NOT all in') + ' · RTBs ' + (p.rtb[0] || p.rtb[1] ? 'not both open' : 'both open'); }, ok: function (p) { return BANKS.every(function (b) { return p.rods[b] <= 0; }) && !p.rtb[0] && !p.rtb[1]; } },
@@ -1111,6 +1570,7 @@ function poahPlant() {
    Rest the pointer on any control or instrument for 3 seconds (or press and hold on a touch screen) and a card explains
    what it does and how it's used in a real plant. The card never takes clicks and sits to the side, away from what you're pointing at. */
 var INFO = [
+  [/(Intermediate range|Power range low setpoint) trip BLOCK/, 'P-10 trip blocks', 'During a startup the intermediate range trips at about 25% power and the power range low setpoint at 25%. Once P-10 lights (two power range channels above 10%) you block them on both trains so you can carry on raising power. The high setpoint (109%) stays armed.', 'Fall back below 10% and the blocks reset by themselves.'],
   [/P-6 permissive lamp/i, 'P-6 permissive', 'Lights when the intermediate range is above 1E-10 A. That proves power is high enough for the intermediate range to see it, so the source range can be blocked.'],
   [/PERMISSIVE \/ BYPASS/i, 'Permissive and bypass lights', 'Show which protection permissives are active (P-6, P-10) and which trips are blocked.', 'Permissives are interlocks: a trip can only be blocked once the plant has reached the point where that trip is no longer needed.'],
   [/Annunciator windows/i, 'Annunciator windows', 'Each window is one alarm. Fast flash: new, press ACK. Steady: acknowledged. Slow flash: cleared, press RESET. Amber is an alarm, red is the reactor trip that happened first, white is just status.'],
@@ -1122,7 +1582,7 @@ var INFO = [
   [/power range|NIS POWER/i, 'Power range (N41–N44)', 'Four ion chambers around the core that read reactor power directly, 0–120%.', 'They trip the reactor if 2 of the 4 read over 25% (the low setpoint used in startups) or 109%. Needing 2 out of 4 means one faulty channel can’t trip the reactor on its own, or stop a real trip.'],
   [/Rod positions/i, 'Digital rod position indication (DRPI)', 'Shows where each of the 53 control rods really is, measured by coils around its drive shaft, in 6-step dots. A red light at the bottom means that rod is fully in.', 'Operators compare DRPI with the demand counters. A rod that isn’t where it was told to go could be stuck or dropped.'],
   [/demand counters|CTRL BANK/i, 'Group demand counters', 'How many steps rod control has told each bank to move: 0 is fully in, 228 is fully out.', 'Each step is about 1.6 cm. Magnetic latches grip a grooved drive shaft and walk it up or down one step at a time.'],
-  [/Bank select/i, 'Bank selector', 'Picks which rods the lever moves. SA–SD move one shutdown bank each. MAN moves the four control banks A→B→C→D together, in overlap. AUTO (Section 4) lets the plant move rods to match the turbine.', 'Shutdown banks are pulled out first and put in last, so they are always ready to drop. In overlap the next bank starts moving when the one before reaches 128 steps.'],
+  [/Bank select/i, 'Bank selector', 'Picks which rods the lever moves. SA–SD move one shutdown bank each. MAN moves the four control banks A→B→C→D together, in overlap. AUTO lets the plant move rods to match the turbine.', 'Shutdown banks are pulled out first and put in last, so they are always ready to drop. In overlap the next bank starts moving when the one before reaches 128 steps.'],
   [/Rod motion lever|ROD SPEED/i, 'Rod motion lever (IN · HOLD · OUT)', 'Springs back to HOLD when you let go. Hold it up for OUT, down for IN. Shutdown banks move at 64 steps a minute, control banks at 48.', 'Pulling rods adds reactivity, so it is done in small amounts with a pause after each pull to watch what the reactor does.'],
   [/Rods moving/i, 'Rod motion lamps', 'Light while rods are actually stepping out (red) or in (green), so you know the lever did something.'],
   [/trip breaker/i, 'Reactor trip breakers (RTB A and B)', 'Two big breakers in series feeding power to the rod drive mechanisms. Closed (red lamp) means the latches can hold the rods. Open (green) means they let go and every rod falls into the core in under 2 seconds.', 'Every reactor trip, automatic or manual, works by opening these. You close them at the start of a startup and open them at the end of a shutdown.'],
@@ -1146,16 +1606,16 @@ var INFO = [
   [/Charging|Letdown|charging pump/i, 'Charging and letdown (CVCS)', 'Letdown takes a little coolant out to be cleaned and have its chemistry adjusted. Charging pumps push it back in. This is also how boron is added (borating) or removed (diluting).'],
   [/boron|Boric acid/i, 'Boron', 'Boric acid dissolved in the coolant soaks up neutrons evenly all through the core. Here 1 ppm is worth about 9.5 pcm. Changing it is slow, so boron is used for big, slow changes and rods for quick ones.'],
   [/Volume control tank/i, 'Volume control tank', 'A buffer tank between letdown and the charging pumps.'],
-  [/Refuelling water storage/i, 'Refuelling water storage tank (RWST)', 'A huge tank of borated water used for refuelling, and as the first water supply for emergency safety injection (Section 6).'],
+  [/Refuelling water storage/i, 'Refuelling water storage tank (RWST)', 'A huge tank of borated water used for refuelling, and as the first water supply for emergency safety injection.'],
   [/RHR|residual heat/i, 'Residual heat removal (RHR)', 'Pumps and heat exchangers that cool the reactor once it is cold and depressurised. Isolated at hot standby; they matter after a shutdown and in emergencies.'],
   [/narrow range level/i, 'Steam generator level', 'Water level in each steam generator. Too low and it can’t cool the reactor; too high and water is carried into the steam lines. Both will trip the reactor in later sections.'],
   [/steam flow|feed flow/i, 'Steam flow and feed flow', 'Steam leaving and feedwater entering each steam generator. They should match, or the level drifts.'],
   [/Main steam isolation|MSIV/i, 'Main steam isolation valves', 'Big fast-closing valves on each steam line. They shut to isolate a steam leak.'],
   [/Auxiliary feedwater|AFW/i, 'Auxiliary feedwater', 'Smaller pumps that keep the steam generators topped up at hot standby, and in emergencies when the main feed pumps are off.'],
-  [/Turbine speed/i, 'Turbine speed', 'On turning gear the turbine turns slowly (about 30 rpm) so its hot shaft doesn’t bend. In Section 4 you roll it up to 3000 rpm.', '3000 rpm with a two-pole generator makes exactly 50 Hz, the frequency of the GB grid.'],
+  [/Turbine speed/i, 'Turbine speed', 'On turning gear the turbine turns slowly (about 30 rpm) so its hot shaft doesn’t bend. Latch it on the turbine board and roll it up to 3000 rpm.', '3000 rpm with a two-pole generator makes exactly 50 Hz, the frequency of the GB grid.'],
   [/Synchroscope/i, 'Synchroscope', 'Shows whether the generator is turning slightly faster or slower than the grid. You close the generator breaker as the pointer creeps clockwise through 12 o’clock.'],
   [/grid frequency|National Grid|GRID Hz/i, 'Grid frequency', 'The whole GB grid runs at 50 Hz. If demand is bigger than supply every generator slows a little and the frequency falls, so this number shows the balance live.', 'National Grid keeps it between 49.8 and 50.2 Hz.'],
-  [/diesel/i, 'Emergency diesel generators', 'Back-up generators that start in about 10 seconds if off-site power is lost, to run the safety pumps (Section 6).'],
+  [/diesel/i, 'Emergency diesel generators', 'Back-up generators that start in about 10 seconds if off-site power is lost, to run the safety pumps.'],
   [/Generator circuit breaker/i, 'Generator breaker', 'Connects the generator to the 400 kV grid. It is closed only after synchronising.'],
   [/1\/M plot/i, '1/M plot', 'The reference count rate divided by the count rate now. As the reactor gets closer to critical the counts shoot up and 1/M falls towards zero. Draw a line through the last two points to where it hits zero: that predicts the critical rod position.'],
   [/relief valve/i, 'Pressuriser relief valves (PORVs)', 'Open to stop pressure rising too far, sending steam to the pressuriser relief tank.'],
@@ -1163,7 +1623,7 @@ var INFO = [
   [/Days without a reactor trip/i, 'Days without a reactor trip', 'Real stations track this with pride. Trip the reactor and it goes back to zero.']
 ];
 var EXP = { obj: null, t0: 0, info: null, shown: false };
-function infoFor(hi) { if (!hi || !hi.tip) return null; var t = typeof hi.tip === 'function' ? hi.tip() : hi.tip; for (var i = 0; i < INFO.length; i++) if (INFO[i][0].test(t)) return INFO[i]; return null; }
+function infoFor(hi) { if (!hi) return null; if (hi.info) return hi.info; if (!hi.tip) return null; var t = typeof hi.tip === 'function' ? hi.tip() : hi.tip; for (var i = 0; i < INFO.length; i++) if (INFO[i][0].test(t)) return INFO[i]; return null; }
 function showExplain(inf, x, y) {
   EXP.x = x; EXP.y = y; var E = HUD.el.exp; E.innerHTML = '<b>💡 ' + esc(inf[1]) + '</b><p>' + esc(inf[2]) + '</p>' + (inf[3] ? '<p class="r"><span>In a real plant:</span> ' + esc(inf[3]) + '</p>' : ''); E.hidden = false; EXP.shown = true; hideTip(); HUD.el.ring.hidden = true;
   var W = root.clientWidth, H = root.clientHeight, w = E.offsetWidth, hh = E.offsetHeight;
@@ -1182,7 +1642,7 @@ function explainTick(now) {
 
 /* ================================================================ controls: what each switch actually does ================================================================ */
 function tripSignal(p) { var prs = [0, 1, 2, 3].map(function (i) { return prPct(p, i); }), over = function (v) { return prs.filter(function (x) { return x > v; }).length >= 2; };
-  if ((srTrue(p, 0) > 1e5 && !p.srBlk[0]) || (srTrue(p, 1) > 1e5 && !p.srBlk[1])) return 'SR'; if (irAmps(p, 0) > 2.5e-4 || irAmps(p, 1) > 2.5e-4) return 'IR'; if (over(25)) return 'PRL'; return null; }
+  if ((srTrue(p, 0) > 1e5 && !p.srBlk[0]) || (srTrue(p, 1) > 1e5 && !p.srBlk[1])) return 'SR'; if ((irAmps(p, 0) > 2.5e-4 && !(p.irBlk && p.irBlk[0])) || (irAmps(p, 1) > 2.5e-4 && !(p.irBlk && p.irBlk[1]))) return 'IR'; if (over(25) && !blkd(p, 'prBlk')) return 'PRL'; if (p.x) { var x = p.x; if (x.si.on) return 'SI'; if (x.sg.some(function (s) { return s.L < 17; })) return 'SGLL'; if (x.pz.P > 166) return 'PZRPH'; } return null; }
 var once = {};
 function warnOnce(k, msg, secs) { var t = performance.now(); if (once[k] && t - once[k] < (secs || 6) * 1000) return; once[k] = t; S.toast(msg, 'warn'); S.sfx('deny'); }
 var ACT = {
@@ -1201,14 +1661,14 @@ var ACT = {
     }
     HUD.dirty = true;
   },
-  select: function (b) { var p = S.p; if (b === 'AUTO') { p.sel = 'AUTO'; ACT.lever(0); warnOnce('auto', '🔒 Automatic rod control needs turbine load, so it comes in Section 4. Use MAN or SA–SD.'); HUD.dirty = true; return; }
+  select: function (b) { var p = S.p; if (b === 'AUTO') { p.sel = 'AUTO'; ACT.lever(0); S.sfx('detent'); if (!(p.x && p.x.tb.mw > 170)) warnOnce('auto', 'Rods in AUTO: they follow Tavg to Tref, but only once the turbine is above 15% load (C-5). Until then they won\u2019t move.'); HUD.dirty = true; return; }
     if (p.sel !== b) { p.sel = b; ACT.lever(0); S.sfx('detent'); } HUD.dirty = true; },
   lever: function (dir) {
     var p = S.p; S.leverDir = dir;
     if (!dir) { p.lever = 0; return; }
     if (!(p.rtb[0] && p.rtb[1])) { warnOnce('rtbo', 'The rods won’t move: the reactor trip breakers are open. Close RTB A and RTB B first.'); p.lever = 0; return; }
-    if (p.sel === 'AUTO') { warnOnce('auto', 'The selector is on AUTO, which comes in Section 4. Pick MAN or a shutdown bank.'); p.lever = 0; return; }
-    if (dir > 0 && (NI.ir[0] > 2e-4 || NI.ir[1] > 2e-4)) { warnOnce('c1', 'Rod withdrawal blocked: intermediate range rod stop (C-1). Power is far too high: insert rods.'); p.lever = 0; return; }
+    if (p.sel === 'AUTO') { warnOnce('auto', 'The selector is on AUTO: the rod control system moves the control banks itself. Pick MAN to move them by hand.'); p.lever = 0; return; }
+    if (dir > 0 && (NI.ir[0] > 2e-4 || NI.ir[1] > 2e-4) && !blkd(p, 'irBlk')) { warnOnce('c1', 'Rod withdrawal blocked: intermediate range rod stop (C-1). Power is far too high: insert rods.'); p.lever = 0; return; }
     if (dir > 0 && p.sel === 'MAN' && !SDB.every(function (b) { return p.rods[b] >= TOP; })) warnOnce('sdfirst', 'Procedure: withdraw all four shutdown banks before the control banks.', 20);
     p.lever = dir; p.blocked = 0;
   },
@@ -1218,6 +1678,10 @@ var ACT = {
     if (!p6(p)) { warnOnce('p6', 'Can’t block yet: P-6 isn’t lit. P-6 comes on when the intermediate range reaches 1E-10 A.'); return; }
     p.srBlk[i] = true; S.addLog('Source range train ' + n + ' trip blocked at P-6 (' + det + ' high voltage off)'); S.toast('Source range train ' + n + ' trip blocked. ' + det + ' is switched off.', 'ok'); HUD.dirty = true;
   },
+  blk10: function (k, i) { var p = S.p, nm = k === 'irBlk' ? 'Intermediate range trip' : 'Power range low setpoint trip'; if (!p[k]) p[k] = [false, false];
+    if (p[k][i]) { p[k][i] = false; S.addLog(nm + ' block reset, train ' + 'AB'[i]); HUD.dirty = true; return; }
+    if (!p10(p)) { warnOnce('p10', 'Can\u2019t block yet: P-10 isn\u2019t lit. It lights when two of the four power range channels are above 10%.'); return; }
+    p[k][i] = true; S.addLog(nm + ' blocked at P-10, train ' + 'AB'[i]); S.toast(nm + ' blocked, train ' + 'AB'[i] + '.', 'ok'); HUD.dirty = true; },
   trip: function () { var p = S.p; if (p.tripped && !BANKS.some(function (b) { return p.rods[b] > 0; })) { S.toast('The reactor is already shut down with every rod in.'); return; } S.sfx('breaker'); doTrip(p, 'MAN'); }
 };
 
@@ -1286,8 +1750,8 @@ function speak(txt) { try { if (!S.cfg.voice || !window.speechSynthesis) return;
 /* ================================================================ camera, views and walking ================================================================ */
 var CAM = { x: 0, y: 1.65, z: 2.7, yaw: 0, pitch: -0.04, fov: 60, tw: null, view: 'start' };
 var VIEWDEF = {
-  start: [null, [0, 1.65, 2.7], [0, 1.45, -5], 60, 'Operator position'],
-  room: [null, [0, 2.3, 7.3], [0, 1.2, -3], 62, 'Whole control room'],
+  start: [null, [0, 1.65, CZ + 2.15], [0, 1.5, -6], 62, 'Operator position'],
+  room: [null, [0, 3.1, ZF - 1.0], [0, 1.0, -4], 70, 'Whole control room'],
   rx: ['rx', [0, 1.75, 2.45], [0, 1.55, -0.75], 54, 'Reactor board'],
   nis: ['rx', [-1.2, 1.92, 0.7], [-1.2, 1.88, -0.75], 40, 'Nuclear instruments (NIS)'],
   rods: ['rx', [0.05, 1.95, 0.7], [0.05, 1.9, -0.75], 40, 'Rod position (DRPI)'],
@@ -1295,15 +1759,14 @@ var VIEWDEF = {
   ann: ['rx', [-1.0, 1.68, 0.72], [-1.0, 0.98, -0.42], 54, 'Annunciator & source range desk'],
   rodctl: ['rx', [0.0, 1.66, 0.7], [0.0, 0.98, -0.42], 52, 'Rod control desk'],
   rtb: ['rx', [1.2, 1.68, 0.72], [1.2, 0.98, -0.42], 54, 'Trip breakers & trip buttons'],
-  cvcs: ['cvcs', [0, 1.75, 2.45], [0, 1.55, -0.75], 54, 'CVCS & boron board'], rcs: ['rcs', [0, 1.75, 2.45], [0, 1.55, -0.75], 54, 'Reactor coolant board'],
-  sg: ['sg', [0, 1.75, 2.45], [0, 1.55, -0.75], 54, 'Steam & feed board'], tg: ['tg', [0, 1.75, 2.45], [0, 1.55, -0.75], 54, 'Turbine & grid board'],
-  console: [null, [0, 1.4, 1.8], [0, 1.08, 0.3], 50, 'Console screens'],
-  onem: [null, [0, 1.15, 0.97], [0, 1.125, 0.3], 44, '1/M startup screen'], trends: [null, [-0.6, 1.15, 1.0], [-0.82, 1.125, 0.37], 44, 'Trends screen'], proc: [null, [0.6, 1.15, 1.0], [0.82, 1.125, 0.37], 44, 'Procedure & alarm list screen'],
-  status: [null, [-0.27, 1.16, 4.78], [-0.36, 1.125, 4.1], 46, 'Supervisor: plant status'], log: [null, [0.27, 1.16, 4.78], [0.36, 1.125, 4.1], 46, 'Supervisor: shift log'],
-  mimic: [null, [-6.4, 1.85, 0.5], [-10.86, 2.0, 0.5], 55, 'Plant overview wall'], alarms: [null, [8.1, 1.8, -1.2], [10.88, 1.95, -1.2], 52, 'Alarm summary wall'],
-  board: [null, [-6.5, 1.65, 6.0], [-6.5, 1.65, 8], 50, 'Shift turnover whiteboard']
+  console: [null, [0, 1.4, CZ + 1.25], [0, 1.08, CZ - 0.25], 50, 'Console screens'],
+  onem: [null, [0, 1.15, CZ + 0.42], [0, 1.125, CZ - 0.25], 44, '1/M startup screen'], trends: [null, [-0.6, 1.15, CZ + 0.45], [-0.82, 1.125, CZ - 0.18], 44, 'Trends screen'], proc: [null, [0.6, 1.15, CZ + 0.45], [0.82, 1.125, CZ - 0.18], 44, 'Procedure & alarm list screen'],
+  status: [null, [-0.27, 1.16, SZ + 0.48], [-0.36, 1.125, SZ - 0.2], 46, 'Supervisor: plant status'], log: [null, [0.27, 1.16, SZ + 0.48], [0.36, 1.125, SZ - 0.2], 46, 'Supervisor: shift log'],
+  mimic: [null, [-3.6, 1.95, ZF - 5.2], [-3.6, 2.05, ZF], 50, 'Plant overview wall'], alarms: [null, [3.4, 1.9, ZF - 3.4], [3.4, 1.95, ZF], 50, 'Alarm summary wall'],
+  board: [null, [-RX + 2.4, 1.65, 9.9], [-RX, 1.65, 9.9], 50, 'Shift turnover whiteboard']
 };
-var VIEWGROUPS = [['Reactor', ['rx', 'nis', 'rods', 'params', 'rodctl', 'ann', 'rtb']], ['Screens', ['console', 'onem', 'trends', 'proc', 'mimic', 'alarms', 'status', 'log', 'board']], ['Other boards', ['cvcs', 'rcs', 'sg', 'tg']], ['Room', ['start', 'room']]];
+SECDEF.forEach(function (d) { if (d.id !== 'rx') { VIEWDEF[d.id] = [d.id, [0, 1.75, 2.45], [0, 1.55, -0.75], 54, d.short + ' board']; VIEWDEF[d.id + 'D'] = [d.id, [0, 1.9, 1.25], [0, 0.95, -0.3], 58, d.short + ' desk controls']; } });
+var VIEWGROUPS = [['Reactor', ['rx', 'nis', 'rods', 'params', 'rodctl', 'ann', 'rtb']], ['Primary side boards', ['esf', 'aux', 'cvcs', 'pzr', 'rcs']], ['Secondary side boards', ['sg', 'ms', 'tb', 'gen', 'elec']], ['Desk close-ups', ['esfD', 'auxD', 'cvcsD', 'pzrD', 'rcsD', 'sgD', 'msD', 'tbD', 'genD', 'elecD']], ['Screens', ['console', 'onem', 'trends', 'proc', 'mimic', 'alarms', 'status', 'log', 'board']], ['Room', ['start', 'room']]];
 function viewTarget(id) {
   var v = VIEWDEF[id]; if (!v) return null; var P = new THREE.Vector3(v[1][0], v[1][1], v[1][2]), L = new THREE.Vector3(v[2][0], v[2][1], v[2][2]);
   if (v[0]) { var g = SEC[v[0]].g; g.updateMatrixWorld(); P = g.localToWorld(P); L = g.localToWorld(L); }
@@ -1313,10 +1776,10 @@ function goView(id, instant) { var t = viewTarget(id); if (!t) return; CAM.view 
   var dy = t.yaw - CAM.yaw; while (dy > Math.PI) dy -= 2 * Math.PI; while (dy < -Math.PI) dy += 2 * Math.PI; t.yaw = CAM.yaw + dy;
   CAM.tw = { a: { x: CAM.x, y: CAM.y, z: CAM.z, yaw: CAM.yaw, pitch: CAM.pitch, fov: CAM.fov }, b: t, t: 0, dur: 0.85 }; HUD.dirty = true; }
 function blocked(x, z) {
-  if (x < -10.6 || x > 10.6 || z < -7.25 || z > 7.6) return true;
-  var r = Math.hypot(x, z - BCZ), th = Math.atan2(x, -(z - BCZ)) * 180 / Math.PI; if (Math.abs(th) <= 77 && r > 6.5 && r < 8.05) return true;
-  if (Math.abs(x) < 1.75 && z > -0.1 && z < 1.2) return true; if (Math.abs(x) < 1.4 && z > 3.65 && z < 4.95) return true;
-  if (x > -3.65 && x < -1.15 && z > 7.2) return true; if (x > 8.0 && z > 6.9) return true; if (x < -9.9 && z > 6.9) return true; return false;
+  if (x < -RX + 0.4 || x > RX - 0.4 || z < ZB + 0.75 || z > ZF - 0.45) return true;
+  var r = Math.hypot(x, z - BCZ), th = Math.atan2(x, -(z - BCZ)) * 180 / Math.PI, A = Math.abs(SECDEF[0].a) + BSTEP / 2 + 2; if (Math.abs(th) <= A && r > BR - 0.5 && r < BR + 1.45) return true;
+  if (Math.abs(x) < 1.75 && z > CZ - 0.65 && z < CZ + 0.65) return true; if (Math.abs(x) < 1.4 && z > SZ - 0.65 && z < SZ + 0.65) return true;
+  if (x > -9.3 && x < -7.1 && z > ZF - 0.7) return true; return false;
 }
 var KEYS = {};
 function moveCam(dt) {
@@ -1588,7 +2051,7 @@ function hudTick(dt) {
     E.as.innerHTML = '<h3><span>🎓 Instructor assist</span><span>' + (S.paused ? 'PAUSED' : '×' + S.ts) + '</span></h3>' +
       '<div class="r"><span>k<sub>eff</sub></span><span class="k" style="color:' + (D.keff >= 1 ? '#ff9f43' : '#7fd1ff') + '">' + D.keff.toFixed(5) + '</span></div>' +
       '<div class="r"><span>Reactivity</span><span>' + f(tot) + ' pcm</span></div><div class="r"><span> fresh fuel (excess)</span><span>' + f(rp.base) + '</span></div><div class="r"><span> control rods</span><span>' + f(rp.rods) + '</span></div><div class="r"><span> boron</span><span>' + f(rp.boron) + '</span></div>' +
-      '<div class="r"><span> fuel temp (Doppler)</span><span>' + f(rp.dop) + '</span></div><div class="r"><span> coolant temp</span><span>' + f(rp.mod) + '</span></div>' +
+      '<div class="r"><span> fuel temp (Doppler)</span><span>' + f(rp.dop) + '</span></div><div class="r"><span> coolant temp</span><span>' + f(rp.mod) + '</span></div>' + '<div class="r"><span> xenon</span><span>' + f(rp.xe) + '</span></div>' +
       '<div class="r"><span>Period</span><span>' + (isFinite(per) && Math.abs(per) < 9999 ? per.toFixed(0) + ' s' : '∞') + '</span></div><div class="r"><span>Power</span><span>' + (p.n * 100 < 0.01 ? fmtSci(p.n * 100, 2) : (p.n * 100).toFixed(3)) + ' %</span></div>' +
       '<div class="r"><span>1/M prediction</span><span>' + (pr != null ? (pr > PCMAX ? 'beyond all out' : pcName(pr).replace('bank ', '')) : '—') + '</span></div><div class="r"><span>SR audio</span><span>' + (!p.audio ? 'off' : p.srBlk[0] && p.srBlk[1] ? 'silent (SR blocked)' : '1 click per ' + S.audDiv + ' counts') + '</span></div>'; }
   /* quick controls */
@@ -1602,7 +2065,7 @@ function hudTick(dt) {
 /* ================================================================ menus ================================================================ */
 function menu(html, onclick) { if (document.pointerLockElement) { try { document.exitPointerLock(); } catch (e) {} } closeMenu(true); var m = h('div', 'cpnmenu', '<div class="cpncard">' + html + '</div>', root); S.menu = m; m.addEventListener('click', function (e) { var b = e.target.closest('[data-a]'); if (b) { AUD.init(); onclick(b.dataset.a, b); } }); return m; }
 function closeMenu(keepPause) { if (S.menu) { S.menu.remove(); S.menu = null; } if (!keepPause && S.wasPaused === false) setPause(false); }
-function roadHTML() { return '<div class="cpnroad">' + ROAD.map(function (r, i) { return '<div class="' + (i === 0 ? 'now' : '') + '"><b>' + (i + 1) + '. ' + esc(r.t) + (i === 0 ? ' · PLAY NOW' : ' · coming soon') + '</b>' + esc(r.d) + '</div>'; }).join('') + '</div>'; }
+function roadHTML() { return '<div class="cpnroad">' + ROAD.map(function (r, i) { return '<div class="' + (r.s === 'now' ? 'now' : '') + '"><b>' + esc(r.t) + (r.s === 'now' ? ' · PLAY NOW' : r.s === 'free' ? ' · FREE PLAY' : ' · coming soon') + '</b>' + esc(r.d) + '</div>'; }).join('') + '</div>'; }
 function setHTML() { var c = S.cfg, ck = function (k, l) { return '<label><input type="checkbox" data-a="cfg" data-c="' + k + '"' + (c[k] ? ' checked' : '') + '>' + l + '</label>'; };
   return '<div class="cpnset">' + ck('snd', 'Sound') + ck('voice', 'Voice announcements') + ck('assist', 'Instructor assist panel') + ck('quick', 'Quick controls panel') + ck('explain', 'Explain mode (rest on a control for 3 s)') + '<label><input type="checkbox" data-a="cfg" data-c="gfxlo"' + (c.gfx === 'low' ? ' checked' : '') + '>Low graphics (faster)</label></div><div class="cpnseg"><span>Shift length</span>' + [15, 30, 45, 60, 0].map(function (m) { return '<button data-a="shift" data-v="' + m + '" aria-pressed="' + (c.shift === m) + '">' + (m ? m + ' min' : 'No limit') + '</button>'; }).join('') + '</div>'; }
 function shiftClick(b) { S.cfg.shift = +b.dataset.v; S.shiftWarn = false; S.shiftOver = false; saveCfg(); [].forEach.call(b.parentNode.querySelectorAll('button'), function (x) { x.setAttribute('aria-pressed', String(x === b)); }); }
@@ -1627,11 +2090,11 @@ function cfgClick(b) { var k = b.dataset.c; if (k === 'gfxlo') { S.cfg.gfx = b.c
 function startMenu() {
   var sv = rd(), canResume = !!(sv.p && sv.v === 1);
   S.wasPaused = true; setPause(true);
-  menu('<h1>☢ Critical Point Nuclear Power Station</h1><p class="cpnsub">Unit 1 main control room · Section 1 of 10: hot standby to critical</p>' +
+  menu('<h1>☢ Critical Point Nuclear Power Station</h1><p class="cpnsub">Unit 1 main control room · 11 boards, every control working</p>' +
     '<p>You are the reactor operator on shift. Unit 1 is a four-loop pressurised water reactor (3411 MW of heat, about 1200 MW of electricity), sitting at <b>hot standby</b>: 291.7 °C, 155 bar, every control rod in. Your job is to work through the <b>pre-startup checklist</b>, take it <b>critical</b> with the real startup procedure, level off at the point of adding heat, then <b>shut it down</b> again. Rest the pointer on any control for 3 seconds to find out what it does.</p>' +
     '<div class="cpnbtns">' + (canResume ? '<button class="cpnb" data-a="resume">▶ Resume shift</button><button class="cpnb2" data-a="new">↻ New startup</button>' : '<button class="cpnb" data-a="new">▶ Start the reactor startup</button>') + '<button class="cpnb2" data-a="shutp">⏬ Shutdown practice</button><button class="cpnb2" data-a="free">Free play</button><button class="cpnb2" data-a="learn">📘 How a PWR works</button><button class="cpnb2" data-a="exit">Exit</button></div>' +
-    '<h2>Settings</h2>' + setHTML() + '<h2>The 10 sections</h2>' + roadHTML() +
-    '<p style="font-size:12px;color:#7f93a6;margin-top:14px">Inspired by Roblox’s Oakridge Nuclear Power Station. Physics: point kinetics with six delayed-neutron groups, rod worth curves, boron, Doppler and moderator temperature feedback. Real plants differ in detail.</p>',
+    '<h2>Settings</h2>' + setHTML() + '<h2>What you can do</h2>' + roadHTML() +
+    '<p style="font-size:12px;color:#7f93a6;margin-top:14px">Inspired by Roblox’s Oakridge Nuclear Power Station. Physics: point kinetics with six delayed-neutron groups, rod worth curves, boron, Doppler, moderator and xenon feedback, plus a whole-plant model: pressuriser, coolant pumps, steam generators, feed, turbine, generator, grid and electrics. Real plants differ in detail.</p>',
     function (a, b) { if (a === 'cfg') return cfgClick(b); if (a === 'shift') return shiftClick(b);
       if (a === 'resume') { loadState(sv); begin(); } else if (a === 'new') { freshState(false); begin(); } else if (a === 'free') { freshState(true); begin(); } else if (a === 'shutp') { shutPractice(); begin(); } else if (a === 'learn') learnMenu(); else if (a === 'exit') close(); });
 }
@@ -1643,7 +2106,7 @@ function learnMenu() {
     '<p><b>Delayed neutrons</b> (0.65% of them) appear seconds after fission. They make the reactor slow enough to control. That’s why startup rate is measured in <b>decades per minute</b>.</p>' +
     '<p><b>Control rods</b> soak up neutrons. Pulling them out adds reactivity. <b>Boron</b> dissolved in the coolant does the same job slowly and evenly. Hot fuel (Doppler) and hot coolant both remove reactivity, which makes the reactor stable.</p>' +
     '<p><b>Hot standby to critical.</b> The source range detectors count neutrons from a start-up source. As rods come out the counts rise, because each neutron is multiplied more: count rate = source ÷ (1 − k). Plot <b>1/M</b> (reference counts ÷ counts now): it falls towards zero as you approach critical, and the line through the points predicts where.</p>' +
-    '<p><b>Heat to steam.</b> Water at 155 bar stays liquid at over 300 °C, carries heat to the steam generators, and boils the water in them to make steam for the turbine. In Section 1 the steam dumps send that steam straight to the condenser.</p>' +
+    '<p><b>Heat to steam.</b> Water at 155 bar stays liquid at over 300 °C, carries heat to the steam generators, and boils the water in them to make steam for the turbine. At hot standby the steam dumps send that steam straight to the condenser; once the turbine is synchronised it drives the 1,200 MW generator instead.</p><p><b>Two loops, one plant.</b> The <b>primary</b> side (left-hand boards) is the radioactive water: reactor, pressuriser, coolant pumps, boron, safety injection. The <b>secondary</b> side (right-hand boards) is clean water and steam: steam generators, feed pumps, turbine, condenser, generator, grid.</p>' +
     '<div class="cpnbtns"><button class="cpnb" data-a="back">← Back</button></div>', function (a) { if (a === 'back') startMenu(); });
 }
 function viewsMenu() { if (!S.menu) S.wasPaused = S.paused;
@@ -1654,6 +2117,8 @@ function helpMenu() { if (!S.menu) S.wasPaused = S.paused; setPause(true);
   menu('<h1>Help</h1><h2>Moving around</h2><div class="cpnkeys"><kbd>Drag</kbd><span>Look around (mouse or finger)</span><kbd>L</kbd><span>Lock the mouse to the centre (move to look, click what the dot is on). L again unlocks</span><kbd>W A S D</kbd><span>Walk (Shift to hurry). On a phone: the joystick</span><kbd>Scroll / pinch</kbd><span>Zoom in to read meters</span><kbd>Click</kbd><span>Use a control, or zoom in to a screen</span><kbd>V</kbd><span>Views menu</span><kbd>Esc</kbd><span>Step back / menu</span></div>' +
     '<h2>Reactor shortcuts</h2><div class="cpnkeys"><kbd>O</kbd><span>Hold: rods OUT</span><kbd>I</kbd><span>Hold: rods IN</span><kbd>1 2 3 4</kbd><span>Select shutdown bank SA, SB, SC, SD</span><kbd>5</kbd><span>Select MAN (control banks)</span><kbd>K / J / R</kbd><span>Annunciator acknowledge / silence / reset</span><kbd>T</kbd><span>Time ×1 → ×5 → ×20</span><kbd>Space</kbd><span>Pause</span><kbd>C / G</kbd><span>Quick controls / instructor assist</span></div>' +
     '<h2>Checklists, shifts and explain mode</h2><p><b>📋 Checklists:</b> the card at the top left shows the step you\u2019re on. Press 📋 to see all three procedures: <b>pre-startup</b> (you look at the right instrument and press ✔ to tick each check), <b>startup</b> and <b>shutdown</b> (these tick themselves when the plant gets there). 👁 flies you to the right place.</p><p><b>⏱ Shift length:</b> set it in the menu. Five minutes before the end you get a warning; at the end you hand over with a summary of your shift. Pick \u201cNo limit\u201d for none.</p><p><b>💡 Explain mode:</b> rest the pointer on any control or instrument for 3 seconds (a small ring fills up), or press and hold it on a touch screen. A card explains what it does and how it\u2019s used in a real plant. It never blocks clicks. Press <kbd>X</kbd> or 💡 to turn it off.</p>' +
+    '<h2>The boards, left to right</h2><div class="cpnkeys"><kbd>1</kbd><span>Safety injection, containment, radiation</span><kbd>2</kbd><span>Cooling water, instrument air, ventilation, fire</span><kbd>3</kbd><span>Chemical &amp; volume control: charging, letdown, boron</span><kbd>4</kbd><span>Pressuriser: heaters, spray, PORVs</span><kbd>5</kbd><span>Reactor coolant pumps and loop temperatures</span><kbd>6</kbd><span>REACTOR: rods, nuclear instruments, trip breakers</span><kbd>7</kbd><span>Steam generators and feedwater</span><kbd>8</kbd><span>Main steam, steam dumps, condenser</span><kbd>9</kbd><span>Turbine</span><kbd>10</kbd><span>Generator, synchronising, 400 kV grid</span><kbd>11</kbd><span>Electrical buses and diesel generators</span></div>' +
+    '<h2>Going to power (free play)</h2><p>From the point of adding heat: start a <b>main feed pump</b> (board 7). On the turbine board <b>LATCH</b>, set the speed target to 3000 and wait. On the generator board close the <b>field breaker</b>, turn the <b>sync selector</b> to MAN, use <b>speed raise</b> to make the synchroscope creep clockwise and close the <b>generator breaker</b> as it passes 12 o\u2019clock. Then put the dumps in <b>TAVG</b>, the rods in <b>AUTO</b>, block the IR and PR-low trips at <b>P-10</b>, and raise the load setpoint. Rods soon run out: dilute boron on board 3 to keep going. Use \u00d720 time: it takes hours, just like a real plant.</p>' +
     '<h2>Colours</h2><p>Lamps use the Westinghouse convention: <b style="color:#ff6b5b">red = closed / running / open valve</b>, <b style="color:#59e07a">green = open breaker / stopped / shut valve</b>. Annunciators: fast flash = new alarm (press ACK), steady = acknowledged, slow flash = cleared (press RESET).</p>' +
     '<div class="cpnbtns"><button class="cpnb" data-a="x">Got it</button></div>', function (a) { if (a === 'x') closeMenu(); });
 }
@@ -1667,7 +2132,15 @@ var TRIPWHY = {
   IR: 'The intermediate range trips the reactor at the current that matches about 25% power. Power rose far too high: level off at the point of adding heat by inserting rods.',
   PRL: 'The power range low setpoint trips the reactor at 25% power during startups. Level off at 0.5–5% by inserting rods as Tavg starts to rise.',
   PRH: 'The power range high setpoint trips at 109% power. That took a very large reactivity addition.',
-  MAN: 'You tripped the reactor by hand: both trip breakers opened, the rod drive mechanisms lost power and every rod fell into the core in about 1.7 seconds.' };
+  MAN: 'You tripped the reactor by hand: both trip breakers opened, the rod drive mechanisms lost power and every rod fell into the core in about 1.7 seconds.',
+  PZRPL: 'Pressuriser pressure fell below 134 bar with the reactor above 10% power. Low pressure means less margin to boiling in the core. Check heaters, sprays and PORVs on the pressuriser board.',
+  PZRPH: 'Pressuriser pressure rose above 166 bar. Heaters on too long, sprays not working, or the coolant heated up fast. The PORVs should have opened at 162 bar.',
+  PZRL: 'Pressuriser level went above 92%: the steam bubble was nearly gone, and a solid pressuriser can\u2019t control pressure. Usually too much charging flow.',
+  LOFLOW: 'Reactor coolant flow fell too low with the reactor at power (a coolant pump stopped). Without flow, the fuel can\u2019t get rid of its heat.',
+  SGLL: 'A steam generator level fell below 17%. Its tubes could uncover and it would stop cooling the reactor. Watch feed flow against steam flow on the steam generator board.',
+  OTDT: 'Overtemperature \u0394T: the coolant got too hot for the power level. Too little steam taken off, or the reactor ran away from the turbine.',
+  TT: 'The turbine tripped with the reactor above 50% power (P-9), so the reactor was tripped too: the steam dumps alone can\u2019t take that much heat.',
+  SI: 'Safety injection actuated (manually or on low pressure / high containment pressure). It always trips the reactor.' };
 function tripMenu(cause) { S.wasPaused = false; setPause(true);
   menu('<h1 style="color:#ff6b5b">⚠ Reactor trip</h1><p class="cpnsub">First out: ' + esc(TRIPS[cause]) + '</p><p>' + TRIPWHY[cause] + '</p>' +
     '<p>The reactor is safely shut down: every rod is in, power is falling at about −1/3 decade per minute, and the steam dumps are removing the heat. This happens in real plants too: the operators find out why, then start up again.</p>' +
@@ -1686,13 +2159,13 @@ function finish() {
   sv = rd(); sv.done1 = (sv.done1 || 0) + 1; sv.best1 = Math.max(sv.best1 || 0, score); wr(sv);
   AUD.sfx('done'); speak('The reactor is at the point of adding heat. Well done.'); S.addLog('Reactor at the point of adding heat. GOP-301 complete. Score ' + score);
   S.wasPaused = false; setPause(true);
-  menu('<h1>✅ Reactor at the point of adding heat</h1><p class="cpnsub">Section 1 complete · ' + Math.round(D.pr * 100) / 100 + '% power · Tavg ' + p.Tavg.toFixed(1) + ' °C · Mode ' + D.mode + '</p>' +
+  menu('<h1>✅ Reactor at the point of adding heat</h1><p class="cpnsub">Startup complete · ' + Math.round(D.pr * 100) / 100 + '% power · Tavg ' + p.Tavg.toFixed(1) + ' °C · Mode ' + D.mode + '</p>' +
     '<div class="cpnstars" aria-label="' + stars + ' stars">' + '★★★'.slice(0, stars) + '<span style="opacity:.25">' + '★★★'.slice(stars) + '</span></div>' +
     '<div class="cpnscore">' + rows.join('') + '<span><b>Score</b></span><span>' + score + ' / 100</span><span><b>XP earned</b></span><span>+' + xp + '</span></div>' +
     '<p>You did what real operators do on every startup: closed the trip breakers, pulled the shutdown banks, approached criticality with a 1/M plot, controlled the startup rate, blocked the source range at P-6 and levelled off where the reactor starts making heat.</p>' +
     '<h2>Now: shut it down</h2><p>The shutdown checklist (GOP-303) takes the reactor back to hot standby: rods in, source range back on, trip breakers open.</p>' +
     '<div class="cpnbtns"><button class="cpnb" data-a="shut">⏬ Start the shutdown checklist</button><button class="cpnb2" data-a="free">Keep running the plant</button><button class="cpnb2" data-a="again">↻ Do the startup again</button><button class="cpnb2" data-a="exit">Exit</button></div>' +
-    '<p style="font-size:12.5px;color:#9fb3c6">Next section: the reactor coolant system (pressuriser, coolant pumps, boron). Ask for Section 2 when you\u2019re ready.</p>',
+    '<p style="font-size:12.5px;color:#9fb3c6">Want more? Choose <b>Keep running the plant</b>: start a main feed pump, roll the turbine, synchronise to the grid and load up. Every board works.</p>',
     function (a) { if (a === 'shut') { closeMenu(); startShutdown(); } if (a === 'free') { closeMenu(); HUD.el.ms.dataset.cur = ''; HUD.dirty = true; } if (a === 'again') { freshState(false, true); begin(); } if (a === 'exit') close(); });
   save();
 }
@@ -1735,6 +2208,7 @@ function frame(now) {
   HL.forEach(function (q) { q.t += dt; var s = 1 + 0.15 * Math.sin(q.t * 6); q.m.scale.set(s, s, s); q.m.material.opacity = 0.55 + 0.45 * Math.sin(q.t * 6); }); if (HL.length && HL[0].t > 12) clearHL();
   /* widgets: annunciators every frame, the rest a slice at a time */
   ANNW.forEach(function (w) { redraw(w); });
+  beFrame(dt);
   var per = Math.max(10, Math.ceil(WG.length / 6)); for (var j = 0; j < per; j++) { rr0 = (rr0 + 1) % WG.length; var w = WG[rr0]; if (!w.isAnn) redraw(w); }
   AUD.tick(dt); hudTick(dt); explainTick(now);
   if (POST.on) POST.render(); else R3.ren.render(R3.scene, R3.cam);
@@ -1762,11 +2236,11 @@ function init() {
   var scene = new THREE.Scene(); scene.background = new THREE.Color(0x1d2126); var cam = new THREE.PerspectiveCamera(60, 1, 0.03, 60); R3 = { ren: ren, scene: scene, cam: cam }; RC = new THREE.Raycaster();
   S.p = newPlant(); derive(0.05);
   mats(); buildRoom(scene); SECDEF.forEach(buildSection); joints(); furniture(scene);
-  if (hi) { try { var pm = new THREE.PMREMGenerator(ren), es = new THREE.Scene(), bx = new THREE.Mesh(new THREE.BoxGeometry(22, 3.6, 16), new THREE.MeshBasicMaterial({ color: 0x5d6268, side: THREE.BackSide })); bx.position.y = 1.8; es.add(bx);
-    var lm = new THREE.MeshBasicMaterial({ color: 0xffffff }); lm.color.setScalar(5); for (var x = -9; x <= 9; x += 3) for (var z = -6; z <= 6; z += 3) { var l = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 0.6), lm); l.rotation.x = Math.PI / 2; l.position.set(x, 3.55, z); es.add(l); }
+  if (hi) { try { var pm = new THREE.PMREMGenerator(ren), es = new THREE.Scene(), bx = new THREE.Mesh(new THREE.BoxGeometry(2 * RX, CH, RDP), new THREE.MeshBasicMaterial({ color: 0x5d6268, side: THREE.BackSide })); bx.position.set(0, CH / 2, RZC); es.add(bx);
+    var lm = new THREE.MeshBasicMaterial({ color: 0xffffff }); lm.color.setScalar(5); for (var x = -10.5; x <= 10.5; x += 3) for (var z = ZB + 1.5; z <= ZF - 1; z += 3) { var l = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 0.6), lm); l.rotation.x = Math.PI / 2; l.position.set(x, CH - 0.05, z); es.add(l); }
     scene.environment = pm.fromScene(es, 0.04).texture; scene.environmentIntensity = 0.55; pm.dispose(); } catch (e) {} }
   if (hi) { try { realism(scene); } catch (e) { try { console.error(e); } catch (x) {} } }
-  if (hi) { ren.shadowMap.enabled = true; ren.shadowMap.type = THREE.PCFSoftShadowMap; var sn = R3.sun, sc = sn.shadow.camera; sn.castShadow = true; sn.shadow.mapSize.set(2048, 2048); sc.left = -13; sc.right = 13; sc.top = 12; sc.bottom = -12; sc.near = 1; sc.far = 32; sc.updateProjectionMatrix(); sn.shadow.bias = -0.0004; sn.shadow.normalBias = 0.04; sn.shadow.radius = 5;
+  if (hi) { ren.shadowMap.enabled = true; ren.shadowMap.type = THREE.PCFSoftShadowMap; var sn = R3.sun, sc = sn.shadow.camera; sn.castShadow = true; sn.shadow.mapSize.set(2048, 2048); sc.left = -14; sc.right = 14; sc.top = 14; sc.bottom = -14; sc.near = 1; sc.far = 40; sc.updateProjectionMatrix(); sn.shadow.bias = -0.0004; sn.shadow.normalBias = 0.04; sn.shadow.radius = 5;
     scene.traverse(function (o) { if (!o.isMesh || !o.material || o.material.isMeshBasicMaterial) return; o.receiveShadow = true; var gt = o.geometry.type; if (gt !== 'PlaneGeometry' && gt !== 'RingGeometry' && !o.material.transparent) o.castShadow = true; }); }
   WG.forEach(function (w) { if (w.o.tiles) { w.isAnn = true; ANNW.push(w); } });
   S.ecpBand = ecpBand(); ANNC.init();
@@ -1783,7 +2257,7 @@ function close() {
   if (!root) return; try { save(); } catch (e) {} cancelAnimationFrame(RAF); RAF = 0; root.hidden = true; document.removeEventListener('keydown', kd); document.removeEventListener('keyup', ku); KEYS = {};
   try { if (AUD.ctx) AUD.ctx.suspend(); } catch (e) {} try { if (window.speechSynthesis) speechSynthesis.cancel(); } catch (e) {} try { API.close(); } catch (e) {}
 }
-window.CRIT_PLANT = { open: open, close: close, _dbg: { S: function () { return S; }, MS: MS, ACT: ACT, ANNC: ANNC, NI: NI, D: D, CAM: CAM, goView: goView, showMe: showMe, setTS: setTS, step: function (sec, h) { h = h || 0.05; var p = S.p; for (var t = 0; t < sec; t += h) { plantStep(p, h); niTick(p, h); rps(p); permissives(p); oneMTick(p, h); derive(h); MS.tick(h); ANNC.tick(); if (p.sur > S.st.maxSur && !p.tripped) S.st.maxSur = p.sur; if (p.everCrit && S.st.critPc == null) { S.st.critPc = p.pc; S.st.predPc = ecpFromOneM(p); S.st.pts = Math.max(0, p.oneM.length - 1); } } },
+window.CRIT_PLANT = { open: open, close: close, _dbg: { S: function () { return S; }, ctl: function (re, arg) { var r = new RegExp(re), m = HITS.filter(function (h) { var o = h.userData.hit, t = typeof o.tip === 'function' ? o.tip() : o.tip; return t && r.test(t) && (o.act || o.hold); }); if (m.length !== 1) return 'match ' + m.length + ': ' + m.slice(0, 4).map(function (h) { var o = h.userData.hit; return typeof o.tip === 'function' ? o.tip() : o.tip; }).join(' | '); var o = m[0].userData.hit; if (o.act) o.act(arg); else { o.hold(true); o.hold(false); } return 'ok'; }, tips: function (re) { var r = new RegExp(re); return HITS.map(function (h) { var o = h.userData.hit; return typeof o.tip === 'function' ? o.tip() : o.tip; }).filter(function (t) { return t && r.test(t); }); }, MS: MS, ACT: ACT, ANNC: ANNC, NI: NI, D: D, CAM: CAM, goView: goView, showMe: showMe, setTS: setTS, step: function (sec, h) { h = h || 0.05; var p = S.p; for (var t = 0; t < sec; t += h) { plantStep(p, h); niTick(p, h); rps(p); permissives(p); oneMTick(p, h); derive(h); MS.tick(h); ANNC.tick(); if (p.sur > S.st.maxSur && !p.tripped) S.st.maxSur = p.sur; if (p.everCrit && S.st.critPc == null) { S.st.critPc = p.pc; S.st.predPc = ecpFromOneM(p); S.st.pts = Math.max(0, p.oneM.length - 1); } } },
   pick: function (x, y) { var hh = pick(x, y); return hh ? { tip: hh.object.userData.hit && (typeof hh.object.userData.hit.tip === 'function' ? hh.object.userData.hit.tip() : hh.object.userData.hit.tip), act: !!(hh.object.userData.hit && hh.object.userData.hit.act), hold: !!(hh.object.userData.hit && hh.object.userData.hit.hold) } : null; },
   click: function (x, y) { activate(pick(x, y)); }, verifyPre: verifyPre, startShutdown: startShutdown, PRE: PRE, SHUT: SHUT, EXP: EXP, shiftLeft: function () { return shiftLeft(); }, ofs: function () { return OFS; }, settled: function () { return !CAM.tw && Math.abs(OFS.cur - (OFS.want || 0)) < 0.5; }, R3: function () { return R3; }, desk: function (id, u, d, lift) { var v = SEC[id].desk.localToWorld(new THREE.Vector3(u, lift == null ? 0.0015 : lift, -d * SL)); v.project(R3.cam); var r = R3.ren.domElement.getBoundingClientRect(); return [r.left + (v.x + 1) / 2 * r.width, r.top + (1 - v.y) / 2 * r.height]; }, WG: WG, HITS: HITS, SEC: SEC, rho: function () { return rhoParts(S.p); }, ecp: function () { return ecpFromOneM(S.p); } } };
 })();
