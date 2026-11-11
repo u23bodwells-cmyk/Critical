@@ -193,9 +193,9 @@ function bopStep(p, dt, Q) {
     x.brgT[i] += ((on ? (ccwOK ? 55 : 120) : 40) - x.brgT[i]) * (1 - Math.exp(-dt / 180)); if (x.rcpOn[i] && x.brgT[i] > 95) { x.rcpOn[i] = false; bopLog(p, 'RCP ' + (i + 1) + ' tripped on high bearing temperature (no cooling water)'); } }
   var W = Math.max(0.035, (x.rcp[0] + x.rcp[1] + x.rcp[2] + x.rcp[3]) / 4), rcpQ = 5 * (x.rcp[0] + x.rcp[1] + x.rcp[2] + x.rcp[3]);
   /* ---- steam generators: heat goes into those with water, steam leaves through the MSIVs ---- */
-  var ts = tsat(p.Ps), wet = x.sg.filter(function (s) { return s.Lm > 3; }).length / 4, ua = UA * (0.35 + 0.65 * Math.sqrt(W)) * wet, qsg = ua * (p.Tavg - ts);
+  var ts = tsat(p.Ps), wet = x.sg.filter(function (s) { return s.Lm > 3; }).length / 4, ua = UA * (0.35 + 0.65 * Math.sqrt(W)) * wet, qsg = ua * Math.max(0, p.Tavg - ts);
   p.Tf += ((p.Tavg + 460 * Math.min(p.n, 1.3) / Math.sqrt(Math.max(W, 0.2))) - p.Tf) * (1 - Math.exp(-dt / 5));
-  var dT0 = p.Tavg; p.Tavg += (Q + rcpQ - qsg - 1.5 + (x.si.flow > 0 ? -x.si.flow * 0.08 : 0)) / CRCS * dt; var dTdt = (p.Tavg - dT0) / dt;
+  var dT0 = p.Tavg; p.Tavg += (Q + rcpQ - qsg - 1.5 - rhrQ(p) + (x.si.flow > 0 ? -x.si.flow * 0.08 : 0)) / CRCS * dt; var dTdt = (p.Tavg - dT0) / dt;
   /* ---- turbine and generator ---- */
   var anyMsiv = x.sg.some(function (s) { return s.msiv; }), vacOK = x.vac < 0.2;
   if (tb.latched) { tb.tg = false;
@@ -209,7 +209,7 @@ function bopStep(p, dt, Q) {
   if (!tb.gen) tb.phase = ((tb.phase + 360 * (tb.rpm / 60 - GRIDF) * dt) % 360 + 540) % 360 - 180; else tb.phase = 0;
   tb.mvar += ((tb.gen ? tb.mvarSet : 0) - tb.mvar) * (1 - Math.exp(-dt / 3));
   /* ---- steam dumps: STEAM PRESSURE mode holds 74.8 bar; TAVG mode opens on a hot-leg excess over Tref; blocked by P-12 (Tavg < 286 °C) and without condenser vacuum (C-9) ---- */
-  var c9 = vacOK && x.cw.filter(function (c, k) { return c && pwr(x, 'cw', k); }).length >= 1, p12 = p.Tavg < 286, dem = 0, err = p.Ps - PSP;
+  var c9 = vacOK && x.cw.filter(function (c, k) { return c && pwr(x, 'cw', k); }).length >= 1, p12 = p.Tavg < 286 && !x.p12b, dem = 0, err = p.Ps - (x.dumpSet || PSP);
   if (x.dumpMode === 'PRESS') { p.dI = clamp(p.dI + err * dt * 0.015, 0, 1); dem = x.dumpCtl === 'AUTO' ? clamp(0.35 * err + p.dI, 0, 1) : x.dumpDem; }
   else if (x.dumpMode === 'TAVG') { p.dI = clamp(p.dI - dt * 0.02, 0, 1); dem = clamp((p.Tavg - trefC(x) - 1.7) / 8, 0, 1); }
   if (!c9 || p12 || !anyMsiv || x.aux.airP < 4) dem = 0;
@@ -238,7 +238,7 @@ function bopStep(p, dt, Q) {
   /* ---- condenser, circulating water ---- */
   var cwN = x.cw.filter(function (c, k) { return c && pwr(x, 'cw', k); }).length; x.vac += ((cwN >= 1 ? 0.062 + (steamOut / FULL) * 0.03 * (cwN >= 2 ? 1 : 2) : 1.0) - x.vac) * (1 - Math.exp(-dt / (cwN ? 30 : 60)));
   /* ---- pressuriser: heaters raise pressure, spray (needs loops 1-2 pumps) lowers it, PORVs at 162 bar, safeties at 172 bar ---- */
-  var e = pz.P - 155;
+  var e = pz.P - (x.pzSet || 155);
   if (pz.master === 'AUTO') { pz.pI = clamp(pz.pI - e * dt * 0.004, -0.5, 0.5); pz.prop = clamp(0.45 - e / 1.5 + pz.pI, 0, 1); if (pz.bkup === 'AUTO') pz.backup = e < -1.7 ? true : e > -0.7 ? false : pz.backup; if (pz.sprayMan === 'AUTO') pz.spray = clamp((e - 1.7) / 4, 0, 1); }
   else { pz.prop = pz.manDem; if (pz.sprayMan === 'AUTO') pz.spray = clamp((e - 1.7) / 4, 0, 1); }
   if (pz.sprayMan === 'MAN') pz.spray = pz.sprayDem;
@@ -609,7 +609,7 @@ function derive(dt) {
   D.tgSpd = clamp(D.tgSpd + (31 - D.tgSpd) * dt * 0.3 + wn(0.2), 28, 34);
   D.stmF += (p.dump * 40 - D.stmF) * (1 - Math.exp(-dt / 3)); D.feedF += (D.stmF - D.feedF) * (1 - Math.exp(-dt / 12));
   D.rho = rhoPcm(p); D.keff = 1 / (1 - D.rho * 1e-5); var pr = (NI.pr[0] + NI.pr[1] + NI.pr[2] + NI.pr[3]) / 4; D.pr = pr;
-  D.mode = D.keff < 0.99 ? 3 : pr <= 5 ? 2 : 1;
+  D.mode = D.keff < 0.99 ? (p.Tavg >= 177 ? 3 : p.Tavg > 93 ? 4 : 5) : pr <= 5 ? 2 : 1;
   D.clock = (S.clock0 || 0) + p.t;
 }
 function clockStr(t) { t = ((Math.floor(t) % 86400) + 86400) % 86400; return String(Math.floor(t / 3600)).padStart(2, '0') + ':' + String(Math.floor(t / 60) % 60).padStart(2, '0') + ':' + String(t % 60).padStart(2, '0'); }
@@ -1746,9 +1746,9 @@ var TS = {
     { id: '3.1.3', t: 'Moderator temperature coefficient', lim: 'MTC no more positive than 0 pcm/°C', ap: 'MODES 1 and 2', cond: function (p) { return D.mode <= 2 && mtc(p) > 0; }, val: function (p) { return mtc(p).toFixed(1) + ' pcm/°C'; },
       act: [{ t: 'Set control rod withdrawal limits so the MTC stays negative', ct: 24 * H }, { t: 'Be in MODE 2 with keff below 1.0', ct: 6 * H, ok: function () { return D.keff < 1; } }] },
     { id: '3.1.5', t: 'Shutdown bank insertion limits', lim: 'Every shutdown bank fully withdrawn', ap: 'MODE 1, and MODE 2 with keff ≥ 1', cond: function (p) { return (D.mode === 1 || (D.mode === 2 && D.keff >= 1)) && SDB.some(function (b) { return p.rods[b] < TOP - 3; }); }, val: function (p) { return SDB.map(function (b) { return Math.round(p.rods[b]); }).join(' / ') + ' steps'; },
-      act: [{ t: 'Withdraw the shutdown banks fully', ct: 2 * H }, { t: 'Be in MODE 3', ct: 6 * H, ok: function () { return D.mode === 3; } }] },
+      act: [{ t: 'Withdraw the shutdown banks fully', ct: 2 * H }, { t: 'Be in MODE 3', ct: 6 * H, ok: function () { return D.mode >= 3; } }] },
     { id: '3.1.6', t: 'Control bank insertion limits', lim: 'Control banks above the rod insertion limit line for this power', ap: 'MODE 1, and MODE 2 with keff ≥ 1', cond: function (p) { return (D.mode === 1 || (D.mode === 2 && D.keff >= 1)) && p.pc < rilPc(rtp()) - 0.5; }, val: function (p) { return pcName(p.pc).replace('bank ', '') + ' · limit ' + pcName(rilPc(rtp())).replace('bank ', ''); },
-      act: [{ t: 'Borate to bring the control banks back above the insertion limit', ct: 2 * H }, { t: 'Be in MODE 3', ct: 6 * H, ok: function () { return D.mode === 3; } }] },
+      act: [{ t: 'Borate to bring the control banks back above the insertion limit', ct: 2 * H }, { t: 'Be in MODE 3', ct: 6 * H, ok: function () { return D.mode >= 3; } }] },
     { id: '3.2.1', t: 'Heat flux hot channel factor FQ(Z)', lim: 'FQ ≤ 2.50 ÷ fraction of power (above 50%)', ap: 'MODE 1', cond: function (p) { return D.mode === 1 && rtp() > 5 && crx().fq > fqLim(rtp()); }, val: function () { return crx().fq.toFixed(2) + ' (limit ' + fqLim(rtp()).toFixed(2) + ')'; },
       act: [{ t: 'Reduce power at least 1% for every 1% FQ is over the limit', ct: 15 * 60 }, { t: 'Be in MODE 2', ct: 6 * H, ok: function () { return D.mode >= 2; } }] },
     { id: '3.2.2', t: 'Nuclear enthalpy rise hot channel factor FΔH', lim: 'FΔH ≤ 1.65 × [1 + 0.3 (1 − fraction of power)]', ap: 'MODE 1', cond: function () { var P = rtp() / 100; return D.mode === 1 && crx().fdh > 1.65 * (1 + 0.3 * (1 - P)); }, val: function () { return crx().fdh.toFixed(3); },
@@ -1763,30 +1763,31 @@ var TS = {
       act: [{ t: 'Restore the DNB parameters to within limits', ct: 2 * H }, { t: 'Be in MODE 2', ct: 6 * H, ok: function () { return D.mode >= 2; } }] },
     { id: '3.4.2', t: 'RCS minimum temperature for criticality', lim: 'Every loop Tavg ≥ 286 °C while critical', ap: 'MODES 1 and 2 with keff ≥ 1', cond: function (p) { return D.mode <= 2 && D.keff >= 1 && p.Tavg < 286; }, val: function (p) { return p.Tavg.toFixed(1) + ' °C'; },
       act: [{ t: 'Be in MODE 2 with keff below 1.0 (insert rods)', ct: 30 * 60, ok: function () { return D.keff < 1; } }] },
+    { id: '3.4.3', t: 'RCS pressure/temperature limits', lim: 'Cooldown no faster than 55 °C per hour', ap: 'MODES 1 to 5', cond: function (p) { return cdRate(p) > 55; }, val: function (p) { return cdRate(p).toFixed(0) + ' °C/h'; }, act: [{ t: 'Slow the cooldown to within limits', ct: 30 * 60 }] },
     { id: '3.4.4', t: 'RCS loops in MODES 1 and 2', lim: 'All four loops with their reactor coolant pump running', ap: 'MODES 1 and 2', cond: function (p) { return D.mode <= 2 && p.x.rcpOn.filter(Boolean).length < 4; }, val: function (p) { return p.x.rcpOn.filter(Boolean).length + ' of 4 RCPs'; },
-      act: [{ t: 'Be in MODE 3', ct: 6 * H, ok: function () { return D.mode === 3; } }] },
+      act: [{ t: 'Be in MODE 3', ct: 6 * H, ok: function () { return D.mode >= 3; } }] },
     { id: '3.4.9', t: 'Pressuriser level', lim: 'Pressuriser level ≤ 92%', ap: 'MODES 1, 2 and 3', cond: function (p) { return D.mode <= 3 && p.x.pz.L > 92; }, val: function (p) { return p.x.pz.L.toFixed(1) + ' %'; },
       act: [{ t: 'Be in MODE 3 with the reactor trip breakers open', ct: 6 * H, ok: function (p) { return D.mode === 3 && !p.rtb[0] && !p.rtb[1]; } }] },
     { id: '3.4.9 B', t: 'Pressuriser heaters', lim: 'Two groups of heaters (≥ 150 kW each) with power', ap: 'MODES 1, 2 and 3', cond: function (p) { return D.mode <= 3 && !busOn(p.x, 'EA'); }, val: function (p) { return busOn(p.x, 'EA') ? 'available' : 'no power on safety bus A'; },
-      act: [{ t: 'Restore the heater group', ct: 72 * H }, { t: 'Be in MODE 3', ct: 6 * H, ok: function () { return D.mode === 3; } }] },
+      act: [{ t: 'Restore the heater group', ct: 72 * H }, { t: 'Be in MODE 3', ct: 6 * H, ok: function () { return D.mode >= 3; } }] },
     { id: '3.4.11', t: 'Pressuriser PORVs', lim: 'Each PORV shut (or its block valve shut)', ap: 'MODES 1, 2 and 3', cond: function (p) { var z = p.x.pz; return D.mode <= 3 && [0, 1].some(function (i) { return z.porv[i] && z.blk[i] && z.porvMode[i] !== 'OPEN' && z.P < 160; }); }, val: function (p) { var z = p.x.pz; return [0, 1].map(function (i) { return 'PORV ' + (i ? 'B' : 'A') + ' ' + (z.porv[i] ? 'OPEN' : 'shut') + ', block ' + (z.blk[i] ? 'open' : 'SHUT'); }).join(' · '); },
-      act: [{ t: 'Close the PORV block valve', ct: 60 * 60 }, { t: 'Be in MODE 3', ct: 6 * H, ok: function () { return D.mode === 3; } }] },
+      act: [{ t: 'Close the PORV block valve', ct: 60 * 60 }, { t: 'Be in MODE 3', ct: 6 * H, ok: function () { return D.mode >= 3; } }] },
     { id: '3.4.13', t: 'RCS operational leakage', lim: 'No pressure boundary leakage; primary-to-secondary leakage ≤ 150 litres a day per SG', ap: 'MODES 1 to 4', cond: function (p) { var f = p.x.f || {}; return D.mode <= 4 && (crx().brk > 0.2 || !!f.sgtl); }, val: function (p) { var f = p.x.f || {}; return crx().brk > 0.2 ? 'break ' + crx().brk.toFixed(0) + ' m³/h' : f.sgtl ? 'SG 1 tube leak' : 'none'; },
-      act: [{ t: 'Be in MODE 3', ct: 6 * H, ok: function () { return D.mode === 3; } }, { t: 'Be in MODE 5 (cold shutdown: the cooldown isn’t simulated yet)', ct: 36 * H }] },
+      act: [{ t: 'Be in MODE 3', ct: 6 * H, ok: function () { return D.mode >= 3; } }, { t: 'Be in MODE 5 (cold shutdown, GOP-305)', ct: 36 * H, ok: function () { return D.mode === 5; } }] },
     { id: '3.4.16', t: 'RCS specific activity', lim: 'Dose equivalent iodine-131 within limits (no failed fuel)', ap: 'MODES 1, 2 and 3', cond: function () { return D.mode <= 3 && crx().dmg; }, val: function () { return crx().dmg ? 'failed fuel: ' + (crx().dmgWhy || '') : 'normal'; },
       act: [{ t: 'Be in MODE 3 with Tavg below 260 °C', ct: 6 * H }] },
     { id: '3.5.1', t: 'Accumulators', lim: 'Four accumulators with their isolation valves open (RCS above 69 bar)', ap: 'MODES 1, 2 and 3', cond: function (p) { return D.mode <= 3 && p.x.pz.P > 69 && p.x.si.acc.some(function (a) { return !a; }); }, val: function (p) { return p.x.si.acc.filter(Boolean).length + ' of 4 valves open'; },
-      act: [{ t: 'Open the isolation valve', ct: 60 * 60 }, { t: 'Be in MODE 3', ct: 6 * H, ok: function () { return D.mode === 3; } }] },
+      act: [{ t: 'Open the isolation valve', ct: 60 * 60 }, { t: 'Be in MODE 3', ct: 6 * H, ok: function () { return D.mode >= 3; } }] },
     { id: '3.5.2', t: 'ECCS, MODES 1 to 3', lim: 'Two trains of emergency core cooling (charging, SI and RHR pumps) with power', ap: 'MODES 1, 2 and 3', cond: function (p) { return D.mode <= 3 && (!busOn(p.x, 'EA') || !busOn(p.x, 'EB')); }, val: function (p) { return (busOn(p.x, 'EA') ? 'A ok' : 'A dead') + ' · ' + (busOn(p.x, 'EB') ? 'B ok' : 'B dead'); },
-      act: [{ t: 'Restore the train', ct: 72 * H }, { t: 'Be in MODE 3', ct: 6 * H, ok: function () { return D.mode === 3; } }] },
+      act: [{ t: 'Restore the train', ct: 72 * H }, { t: 'Be in MODE 3', ct: 6 * H, ok: function () { return D.mode >= 3; } }] },
     { id: '3.7.5', t: 'Auxiliary feedwater', lim: 'Three AFW pumps able to run (two motor-driven, one turbine-driven)', ap: 'MODES 1, 2 and 3', cond: function (p) { return D.mode <= 3 && (!busOn(p.x, 'EA') || !busOn(p.x, 'EB') || p.Ps < 8); }, val: function (p) { return [busOn(p.x, 'EA'), busOn(p.x, 'EB'), p.Ps >= 8].filter(Boolean).length + ' of 3'; },
-      act: [{ t: 'Restore the AFW train', ct: 72 * H }, { t: 'Be in MODE 3', ct: 6 * H, ok: function () { return D.mode === 3; } }] },
+      act: [{ t: 'Restore the AFW train', ct: 72 * H }, { t: 'Be in MODE 3', ct: 6 * H, ok: function () { return D.mode >= 3; } }] },
     { id: '3.8.1', t: 'AC power sources', lim: 'Two offsite circuits and two diesel generators in AUTO', ap: 'MODES 1 to 4', cond: function (p) { var e = p.x.el; return D.mode <= 4 && (!e.grid || !e.stn || e.edg.some(function (g) { return g.mode !== 'AUTO'; })); }, val: function (p) { var e = p.x.el; return (e.grid && e.stn ? 'offsite ok' : 'offsite LOST') + ' · DG ' + e.edg.map(function (g) { return g.mode; }).join('/'); },
-      act: [{ t: 'Restore offsite power / put the diesels back in AUTO', ct: 24 * H }, { t: 'Be in MODE 3', ct: 6 * H, ok: function () { return D.mode === 3; } }] },
+      act: [{ t: 'Restore offsite power / put the diesels back in AUTO', ct: 24 * H }, { t: 'Be in MODE 3', ct: 6 * H, ok: function () { return D.mode >= 3; } }] },
     { id: '3.6.4', t: 'Containment pressure', lim: 'Containment pressure ≤ 0.10 bar g', ap: 'MODES 1 to 4', cond: function (p) { return D.mode <= 4 && p.x.ct.P > 0.1; }, val: function (p) { return p.x.ct.P.toFixed(3) + ' bar g'; },
-      act: [{ t: 'Restore containment pressure', ct: 60 * 60 }, { t: 'Be in MODE 3', ct: 6 * H, ok: function () { return D.mode === 3; } }] },
+      act: [{ t: 'Restore containment pressure', ct: 60 * 60 }, { t: 'Be in MODE 3', ct: 6 * H, ok: function () { return D.mode >= 3; } }] },
     { id: '3.6.5', t: 'Containment air temperature', lim: 'Average containment air temperature ≤ 49 °C', ap: 'MODES 1 to 4', cond: function (p) { return D.mode <= 4 && p.x.ct.T > 49; }, val: function (p) { return p.x.ct.T.toFixed(1) + ' °C'; },
-      act: [{ t: 'Restore containment air temperature', ct: 8 * H }, { t: 'Be in MODE 3', ct: 6 * H, ok: function () { return D.mode === 3; } }] },
+      act: [{ t: 'Restore containment air temperature', ct: 8 * H }, { t: 'Be in MODE 3', ct: 6 * H, ok: function () { return D.mode >= 3; } }] },
     { id: 'Licence 2.C(1)', t: 'Maximum power level', lim: 'Core thermal power ≤ 3411 MWt (100%) averaged over 8 hours, and never above 102%', ap: 'MODE 1', cond: function () { var cr = crx(), a = cr.avg8, m = 0; for (var i = 0; i < a.length; i++) m += a[i]; m = a.length ? m / a.length : 0; return D.mode === 1 && ((a.length >= 10 && m > FULL + 0.5) || cr.best > FULL * 1.02); }, val: function () { var cr = crx(), a = cr.avg8, m = 0; for (var i = 0; i < a.length; i++) m += a[i]; m = a.length ? m / a.length : cr.best; return Math.round(cr.best) + ' MWt now · ' + Math.round(m) + ' MWt 8-h average'; },
       act: [{ t: 'Reduce power to 100% or less', ct: 15 * 60, ok: function () { return crx().best <= FULL; } }] }
   ],
@@ -1843,7 +1844,7 @@ var CREW = { q: null, next: 150, msg: null, msgT: 0, queue: [], e0: false,
   issue: function (o) { var p = S.p; CREW.q = Object.assign({ ph: 'rb', t: p.t, tr: 0 }, o); var order = o.rb.map(function (r, k) { return { r: r, k: k }; }); for (var i = order.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), tmp = order[i]; order[i] = order[j]; order[j] = tmp; } CREW.q.opts = order; CREW.msg = null; speak(o.say); AUD.sfx('btn'); HUD.dirty = true; CREW.draw(); if (S.ts > 5) setTS(5); },
   tick: function (dtR, sim) { if (!S.cfg.crew || !S.p) { if (CREW.el && !CREW.el.hidden) CREW.el.hidden = true; return; } var p = S.p, x = p.x;
     if (CREW.msgT > 0) { CREW.msgT -= dtR; if (CREW.msgT <= 0) { CREW.msg = null; CREW.draw(); } }
-    if (p.tripped && !CREW.e0 && (x.tb.gen || (p.x.core && p.x.core.best > FULL * 0.1) || D.pr > 5) && MS.phase() === 'free') { CREW.e0 = true; CREW.queue = CREW.e0List(); CREW.q = null; }
+    if (p.tripped && !CREW.e0 && (x.tb.gen || (p.x.core && p.x.core.best > FULL * 0.1) || D.pr > 5) && MS.phase() === 'free') { CREW.e0 = true; PROC.start('E-0'); CREW.say('Reactor trip. Going to E-0: follow the procedure panel.', 'lco'); }
     if (!p.tripped) CREW.e0 = false;
     if (!CREW.q && CREW.queue.length) { CREW.issue(CREW.queue.shift()); return; }
     if (!CREW.q && MS.phase() === 'free' && !p.tripped && x.tb.gen) { CREW.next -= dtR * Math.min(4, Math.max(1, S.ts / 5)); if (CREW.next <= 0) { var os = CREW.orders(), tot = 0; os.forEach(function (o) { tot += o.w; }); var r = Math.random() * tot; for (var i = 0; i < os.length; i++) { r -= os[i].w; if (r <= 0) { CREW.issue(os[i]); break; } } CREW.next = 180 + Math.random() * 180; } }
@@ -1936,6 +1937,7 @@ var OPS_CSS = '.cpncrew{position:absolute;left:50%;transform:translateX(-50%);bo
   '.cmscroll{overflow-x:auto}.cmt{border-collapse:collapse;width:100%;font-size:12.5px;min-width:520px}.cmt th,.cmt td{padding:5px 7px;border-bottom:1px solid rgba(140,180,220,.15);text-align:right}.cmt th:first-child,.cmt td:first-child{text-align:left}.cmt tr.tot td{border-top:2px solid rgba(255,211,74,.5);color:#ffd34a}.cmt tr.bad td{color:#ff9f8f}.cmt button.mini{background:rgba(127,209,255,.12);border:1px solid rgba(127,209,255,.35);color:#e8f1f8;border-radius:7px;padding:3px 7px;margin-left:3px;font:inherit;font-size:11.5px;cursor:pointer}' +
   '@media (min-width:900px){.cpncrew{left:auto;right:max(8px,env(safe-area-inset-right));transform:none;bottom:max(8px,env(safe-area-inset-bottom));width:440px}.cpn.qcon .cpncrew{right:calc(max(8px,env(safe-area-inset-right)) + 352px)}}@media (max-width:899px){.cpn.crewon .cpntoasts{bottom:auto;top:calc(max(8px,env(safe-area-inset-top)) + 196px)}.cpnlco{top:calc(max(8px,env(safe-area-inset-top)) + 100px);width:calc(100% - 16px)}}' +
   '.mvsl{display:grid;grid-template-columns:minmax(0,1fr) minmax(120px,220px) 52px;gap:10px;align-items:center;margin:8px 0;font-size:13.5px}.mvsl b{font-family:ui-monospace,Menlo,Consolas,monospace;text-align:right}' +
+  '.cpnproc{left:max(8px,env(safe-area-inset-left));right:auto;transform:none;bottom:auto;top:calc(max(8px,env(safe-area-inset-top)) + 170px);width:min(380px,calc(100% - 16px))}' +
   '.cmok{color:#8fe8a8;font-weight:700}.cmbad{color:#ffb4a8;font-weight:700}.cpncard button[disabled]{opacity:.45;cursor:not-allowed}';
 
 /* ================================================================ multi-monitor ================================================================
@@ -1962,7 +1964,7 @@ var TRI = { cams: null, q: null, up: null, ang: 0,
 var MV = {
   canv: [['core', 'Core monitor', function (g) { drawCoreScr(g); }, 1280, 720], ['trends', 'Nuclear trends', function (g) { drawTrends(g); }, 1024, 640], ['mimic', 'Whole-plant mimic', function (g) { drawMimic(g); }, 1600, 800], ['alarms', 'Alarm summary', function (g) { drawAlarmWall(g); }, 1280, 720],
     ['onem', '1/M startup plot', function (g) { drawOneM(g); }, 1024, 640], ['proc', 'Procedure + alarm list', function (g) { drawProc(g); }, 1024, 640], ['status', 'Plant status', function (g) { drawStatus(g); }, 1024, 640], ['log', 'Shift log', function (g) { drawLog(g); }, 1024, 640]],
-  html: [['check', 'Checklist (live)'], ['nis', 'Reactor instruments'], ['ts', 'Tech Specs'], ['crew', 'Supervisor (crew orders)'], ['plant', 'Plant numbers']],
+  html: [['check', 'Checklist (live)'], ['nis', 'Reactor instruments'], ['ts', 'Tech Specs'], ['crew', 'Supervisor (crew orders)'], ['plant', 'Plant numbers'], ['eop', 'Procedure (EOP / cooldown)']],
   label: function (id) { var a = MV.canv.concat(MV.html); for (var i = 0; i < a.length; i++) if (a[i][0] === id) return a[i][1]; return id; },
   presets: { a: { n: 4, t: ['check', 'core', 'nis', 'ts'] }, b: { n: 4, t: ['alarms', 'trends', 'mimic', 'crew'] }, c: { n: 6, t: ['check', 'core', 'alarms', 'nis', 'trends', 'crew'] }, d: { n: 1, t: ['mimic'] }, e: { n: 2, t: ['check', 'core'] } }
 };
@@ -1994,6 +1996,7 @@ var MULTI = { wins: [], T: 0,
     if (b.dataset.rb != null || b.dataset.c) { CREW.click(b); MULTI.draw(o, true); return; }
     if (b.dataset.show) { showMe(b.dataset.show); toast('👁 Showing you where that is on the main screen.'); try { window.focus(); } catch (x) {} return; }
     if (b.dataset.ver != null) { verifyPre(+b.dataset.ver); MULTI.draw(o, true); return; }
+    if (b.dataset.pm) { procMenu(); try { window.focus(); } catch (x) {} return; } if (b.dataset.pq) { PROC.id = null; return; }
     if (b.dataset.go === 'core') { coreMenu(b.dataset.t || 'core'); try { window.focus(); } catch (x) {} } },
   fs: function (o) { var d = o.w.document; try { if (d.fullscreenElement) d.exitFullscreen(); else d.documentElement.requestFullscreen(); } catch (e) {} },
   tick: function (dt) { if (!MULTI.wins.length) return; MULTI.T += dt; if (MULTI.T < 0.25) return; MULTI.T = 0; if (!MULTI.count()) return; MULTI.wins.forEach(function (o) { try { MULTI.draw(o); } catch (e) {} }); },
@@ -2009,7 +2012,7 @@ var MULTI = { wins: [], T: 0,
       go(MULTI.rects); }).catch(function () { toast('No permission to place windows: they’ll open here. Drag each onto another monitor.', 'warn'); go(null); }); }
 };
 /* the live HTML panels */
-var MVH = {
+var MVH = { eop: function () { var h2 = PROC.html(); return h2 ? '<div class="crewx">' + h2 + '</div>' : '<h2>📘 Procedures</h2><p class="dim">No procedure running. E-0 starts by itself after a trip; start others from 📘 on the main screen.</p>'; },
   check: function () { var ph = MS.phase(), p = S.p; if (ph === 'free') { var a = TS.active(); return '<h2>Free play</h2><p class="big">' + esc(p.tripped ? 'Reactor shut down' : MODEN[D.mode]) + '</p><p>' + esc(pcName(p.pc)) + ' · ' + (p.x.tb.gen ? Math.round(p.x.tb.mw) + ' MW' : 'generator off line') + '</p>' + (a.length ? '<h3>📕 LCOs entered</h3>' + a.map(function (o) { return '<p class="lco"><b>' + esc(o.l.id) + '</b> ' + esc(o.l.act[o.a.k].t) + ' · <i>' + (o.a.viol ? 'VIOLATED' : o.a.okNow ? 'action met' : hms(o.a.due - p.t)) + '</i></p>'; }).join('') : '<p class="ok">All Tech Specs met</p>') + '<p class="dim">No procedure is running. Start the shutdown or the power ascension from the checklist card on the main screen.</p>'; }
     var P = phaseDef(ph), fl = MS[P.fl], cur = firstOpen(P.list, fl), s = P.list[cur], nw = s && s.now ? s.now(p) : null, n = countDone(fl, P.list.length);
     return '<h2>' + esc(P.t) + ' <small>' + esc(P.code) + '</small></h2><div class="bar"><i style="width:' + Math.round(n / P.list.length * 100) + '%"></i></div>' +
@@ -2054,6 +2057,88 @@ function multiMenu() { if (!S.menu) S.wasPaused = S.paused; setPause(true); var 
   [].forEach.call(S.menu.querySelectorAll('[data-sl]'), function (r) { r.addEventListener('input', function () { var k = r.dataset.sl; c[k] = +r.value; S.menu.querySelector('[data-v=' + k + ']').textContent = r.value + (k === 'triBezel' ? '°' : '×'); saveCfg(); }); });
 }
 window.addEventListener('beforeunload', function () { try { MULTI.closeAll(); } catch (e) {} });
+
+/* ================================================================ procedures: EOPs and the cooldown ================================================================
+   Westinghouse-style emergency operating procedures (E-0, ES-0.1, E-1, E-3, ES-1.1) and GOP-305 (hot standby to cold shutdown).
+   Steps tick themselves when the plant gets there; branch steps pick the next procedure the way the real diagnostic steps do. */
+function rhrQ(p) { var x = p.x; if (!x.sdc || x.pz.P > 30) return 0; var n = (busOn(x, 'EA') ? 1 : 0) + (busOn(x, 'EB') ? 1 : 0); return n * 0.12 * Math.max(0, p.Tavg - 35); }
+function cdRate(p) { var h = p.hist; if (h.length < 300) return 0; var a = h[Math.max(0, h.length - 600)], b = h[h.length - 1]; return (a[2] - b[2]) / Math.max(60, b[0] - a[0]) * 3600; }
+function sdmCold(p) { return sdmPcm(p) - mtc(p) * (60 - p.Tavg); }
+var X0 = function () { return S.p.x; };
+var PROCS = {
+  'E-0': { t: 'E-0 · Reactor trip or safety injection', s: [
+    ['Verify reactor trip', 'Rod bottom lights on, trip breakers open, power falling.', function (p) { return p.tripped && p.n < 0.05; }],
+    ['Verify turbine trip', 'All turbine stop valves shut (turbine board).', function (p) { return !p.x.tb.latched; }],
+    ['Verify power to the safety buses', 'Both safety buses live, from offsite or the diesels (board 11).', function (p) { return busOn(p.x, 'EA') && busOn(p.x, 'EB'); }],
+    ['Check if SI is actuated or required', 'SI lamps on board 1. Required if pressuriser pressure is below 127 bar or containment above 0.3 bar.', function () { return true; }, function (p) { var x = p.x; return !x.si.on && x.pz.P > 127 && x.ct.P < 0.3 ? 'ES-0.1' : null; }],
+    ['Verify SI and charging pumps running', 'Both SI pumps and both charging pumps (boards 1 and 3).', function (p) { var x = p.x; return x.si.pumps.every(Boolean) && x.cv.ccp.every(Boolean); }],
+    ['Verify feedwater isolation and AFW flow', 'Main feed isolated, auxiliary feed pumps running (board 7).', function (p) { var x = p.x; return !!x.fwIso && (x.mdafw.some(Boolean) || x.tdafw); }],
+    ['Verify containment isolation phase A', 'Phase A lamp on board 1.', function (p) { return p.x.si.phaseA; }],
+    ['Check RCS temperature controlled', 'Tavg held near 292 °C by the steam dumps or SG PORVs. Stop any uncontrolled cooldown (close MSIVs).', function (p) { return p.Tavg > 280 && p.Tavg < 298; }],
+    ['Check RCP trip criteria', 'If SI is injecting and subcooling is below 15 °C, stop all four RCPs (board 5).', function (p) { return !(crx().sub < 15 && p.x.si.flow > 5 && p.x.rcpOn.some(Boolean)); }],
+    ['Diagnose: faulted or ruptured SG, or LOCA?', 'Radiation on the steam side → E-3. Containment pressure, sump or radiation up → E-1. Neither → SI termination (ES-1.1).', function () { return true; }, function (p) { var f = p.x.f || {}; return f.sgtl ? 'E-3' : (crx().brk > 0.2 || p.x.ct.P > 0.1) ? 'E-1' : 'ES-1.1'; }]] },
+  'ES-0.1': { t: 'ES-0.1 · Reactor trip response', s: [
+    ['Check RCS temperature stabilising', 'Tavg within 3 °C of 291.7 on the steam dumps (STEAM PRESS mode).', function (p) { return Math.abs(p.Tavg - 291.7) < 3; }],
+    ['Check SG levels with feed', 'All four SG levels 25–65% with AFW or a main feed pump.', function (p) { return p.x.sg.every(function (s) { return s.L > 25 && s.L < 65; }); }],
+    ['Check pressuriser pressure and level', 'Pressure 150–160 bar, level above 17% with charging and letdown in service.', function (p) { var z = p.x.pz; return z.P > 150 && z.P < 160 && z.L > 17; }],
+    ['Check all rods fully inserted', 'Every rod on the bottom (DRPI).', function (p) { return BANKS.every(function (b) { return p.rods[b] <= 0; }); }],
+    ['Check shutdown margin', 'At least 1300 pcm. Borate if not.', function (p) { return sdmPcm(p) >= 1300; }],
+    ['Stabilise at hot standby', 'Plant steady in MODE 3. For a cooldown start GOP-305.', function () { return D.mode === 3; }]] },
+  'E-1': { t: 'E-1 · Loss of reactor or secondary coolant', s: [
+    ['Check RCP trip criteria', 'Subcooling below 15 °C with SI running: all RCPs stopped.', function (p) { return !(crx().sub < 15 && p.x.rcpOn.some(Boolean)); }],
+    ['Check SG levels', 'AFW feeding; narrow-range levels above 10%.', function (p) { return p.x.sg.every(function (s) { return s.L > 10; }); }],
+    ['Check PORVs and block valves', 'Both PORVs shut (or their block valves shut).', function (p) { var z = p.x.pz; return ![0, 1].some(function (i) { return z.porv[i] && z.blk[i]; }); }],
+    ['Cool down and depressurise the RCS', 'Lower the steam dump setpoint to cool at up to 55 °C/h: lower RCS pressure lets more SI water in. Target Tavg below 260 °C.', function (p) { return p.Tavg < 260; }],
+    ['Check core cooling', 'RVLIS above 62% (core covered) and core exit temperature below saturation.', function () { return crx().rvl > 62 && crx().sub > 0; }],
+    ['Check RWST level', 'Above 30%. Below that, switch to sump recirculation (ES-1.3).', function (p) { return p.x.si.rwst > 30; }],
+    ['Go to cold shutdown', 'When pressure is below 28 bar, place RHR in shutdown cooling (GOP-305).', function (p) { return p.x.pz.P < 28; }, function () { return 'GOP-305'; }]] },
+  'E-3': { t: 'E-3 · Steam generator tube rupture', s: [
+    ['Identify the ruptured SG', 'N-16 and air ejector radiation, SG 1 level rising with no feed: SG 1.', function () { return true; }],
+    ['Isolate the ruptured SG', 'Close MSIV 1 (board 8) and stop feeding SG 1.', function (p) { return !p.x.sg[0].msiv; }],
+    ['Cool down on the intact SGs', 'Dump steam from SGs 2–4 until Tavg is below 265 °C, so the RCS will be subcooled at the ruptured SG’s pressure.', function (p) { return p.Tavg < 265; }],
+    ['Depressurise the RCS to the ruptured SG pressure', 'Pressuriser spray or a PORV: RCS pressure within 10 bar of steam pressure stops the leak.', function (p) { return p.x.pz.P < p.Ps + 10; }],
+    ['Terminate SI', 'Subcooling above 15 °C and pressuriser level above 10%: reset SI and stop the SI pumps.', function (p) { return !p.x.si.pumps.some(Boolean); }],
+    ['Go to cold shutdown', 'Continue with GOP-305.', function () { return true; }, function () { return 'GOP-305'; }]] },
+  'ES-1.1': { t: 'ES-1.1 · SI termination', s: [
+    ['Check SI termination criteria', 'Subcooling above 15 °C, pressuriser level above 10%, pressure stable.', function (p) { return crx().sub > 15 && p.x.pz.L > 10; }],
+    ['Reset SI', 'SI RESET (board 1, or the procedure panel).', function (p) { return !p.x.si.on; }],
+    ['Stop the SI pumps', 'Leave the charging pumps running.', function (p) { return !p.x.si.pumps.some(Boolean); }],
+    ['Restore charging and letdown', 'Pressuriser level back on programme with letdown in service.', function (p) { return !p.x.cv.ltdIso; }],
+    ['Go to the trip response', '', function () { return true; }, function () { return 'ES-0.1'; }]] },
+  'GOP-305': { t: 'GOP-305 · Hot standby to cold shutdown', s: [
+    ['Borate to the cold shutdown boron', 'Shutdown margin must stay above 1300 pcm at 60 °C. Cooling adds reactivity (the moderator coefficient), so borate first.', function (p) { return sdmCold(p) >= 1300; }],
+    ['Lower pressuriser pressure below P-11 and block SI', 'Pressuriser pressure setpoint down; below 136 bar block low-pressure and steam-line SI.', function (p) { var s = p.x.si; return p.x.pz.P < 136 && s.blkP && s.blkS; }],
+    ['Bypass P-12 on the steam dumps', 'Otherwise the dumps lock out below 286 °C.', function (p) { return !!p.x.p12b; }],
+    ['Cool down to MODE 4 (below 177 °C)', 'Lower the steam dump pressure setpoint. Tech Spec 3.4.3: no faster than 55 °C/h.', function (p) { return p.Tavg < 177; }],
+    ['Isolate the accumulators below 69 bar', 'Otherwise they dump into the RCS as pressure falls.', function (p) { return p.x.pz.P < 69 && p.x.si.acc.every(function (a) { return !a; }); }],
+    ['Reduce RCS pressure below 28 bar', 'RHR suction valves are interlocked shut above it.', function (p) { return p.x.pz.P < 28; }],
+    ['Place RHR in shutdown cooling', 'Start both trains (procedure panel).', function (p) { return !!p.x.sdc; }],
+    ['Stop all but one RCP', 'Keep one running for mixing and pressuriser spray.', function (p) { return p.x.rcpOn.filter(Boolean).length <= 1; }],
+    ['Cool to MODE 5 (below 93 °C)', 'RHR takes it the rest of the way.', function () { return D.mode === 5; }]] }
+};
+var PROC = { id: null, i: 0, done: 0,
+  start: function (id) { PROC.id = id; PROC.i = 0; S.addLog('Procedure entered: ' + PROCS[id].t); toast('📘 ' + PROCS[id].t, 'warn'); PROC.draw(true); },
+  tick: function () { if (!PROC.id || !S.p) return; var P = PROCS[PROC.id], s = P.s[PROC.i], p = S.p, ok = false; if (!s) return; try { ok = s[2](p); } catch (e) {}
+    if (ok) { var nx = s[3] ? s[3](p) : null; S.addLog(PROC.id + ' step ' + (PROC.i + 1) + ' done: ' + s[0]); CAR.add(8, PROC.id + ' step'); if (nx) { PROC.start(nx); return; } PROC.i++; if (PROC.i >= P.s.length) { S.addLog(P.t + ' complete'); toast('✔ ' + P.t + ' complete', 'ok'); CAR.add(80, P.t); PROC.done++; PROC.id = null; } PROC.draw(true); } else PROC.draw(); },
+  html: function () { if (!PROC.id) return ''; var P = PROCS[PROC.id], s = P.s[PROC.i]; if (!s) return ''; var p = S.p, x = p.x;
+    return '<div class="crh">📘 <b>' + esc(P.t) + '</b><span>step ' + (PROC.i + 1) + '/' + P.s.length + '</span></div><div class="crm">' + esc(s[0]) + '</div><div class="crt">' + esc(s[1]) + '<em>Tavg ' + p.Tavg.toFixed(1) + ' °C · RCS ' + x.pz.P.toFixed(0) + ' bar · subcool ' + crx().sub.toFixed(0) + ' °C · cooldown ' + cdRate(p).toFixed(0) + ' °C/h · MODE ' + D.mode + '</em></div><div class="crb row"><button data-pm="1">🎛 Controls</button><button data-pq="1">✖ Exit procedure</button></div>'; },
+  draw: function (f) { var E = PROC.el; if (!E) return; E.hidden = !PROC.id || !!S.menu; if (E.hidden) return; PROC.T = (PROC.T || 0) + 1; if (!f && PROC.T % 5) return; var h2 = PROC.html(); if (E._h !== h2) { E._h = h2; E.innerHTML = h2; } }
+};
+function procBuild() { var E = PROC.el = h('div', 'cpncrew cpnproc', null, root); E.hidden = true; E.addEventListener('pointerdown', function (e) { e.stopPropagation(); }); E.addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; AUD.init(); if (b.dataset.pm) procMenu(); if (b.dataset.pq) { PROC.id = null; PROC.draw(true); } }); }
+function procMenu() { if (!S.menu) S.wasPaused = S.paused; setPause(true); var p = S.p, x = p.x, z = x.pz, sl = function (k, l, mn, mx, v, u) { return '<label class="mvsl"><span>' + l + '</span><input type="range" data-ps="' + k + '" min="' + mn + '" max="' + mx + '" step="1" value="' + Math.round(v) + '"><b data-pv="' + k + '">' + Math.round(v) + u + '</b></label>'; }, bt = function (a, l, on) { return '<button class="cpnb2" data-a="' + a + '"' + (on != null ? ' aria-pressed="' + !!on + '"' : '') + '>' + l + '</button>'; };
+  menu('<h1>📘 Procedures</h1><p class="cpnsub">MODE ' + D.mode + ' · ' + MODEN[D.mode] + ' · Tavg ' + p.Tavg.toFixed(1) + ' °C · RCS ' + z.P.toFixed(1) + ' bar · cooldown rate ' + cdRate(p).toFixed(0) + ' °C/h · cold SDM ' + Math.round(sdmCold(p)) + ' pcm</p>' +
+    '<p>E-0 starts by itself after a trip in free play and branches like the real one. Start any procedure here. Steps tick themselves when the plant gets there.</p><div class="cpnbtns">' + Object.keys(PROCS).map(function (k) { return bt('pr" data-p="' + k, (PROC.id === k ? '▶ ' : '') + esc(PROCS[k].t)); }).join('') + '</div>' +
+    '<h2>Cooldown controls</h2>' + sl('dump', 'Steam dump pressure setpoint', 1, 80, x.dumpSet || PSP, ' bar') + sl('pz', 'Pressuriser pressure setpoint', 15, 155, x.pzSet || 155, ' bar') +
+    '<div class="cpnbtns">' + bt('p12', 'P-12 bypass', x.p12b) + bt('blk', 'Block SI (P-11)', x.si.blkP && x.si.blkS) + bt('acc', 'Isolate accumulators', x.si.acc.every(function (a) { return !a; })) + bt('sdc', 'RHR shutdown cooling', x.sdc) + bt('sir', 'Reset SI') + bt('sip', 'Stop SI pumps') + '</div>' +
+    '<p class="cmnote">Real interlocks: SI blocks only below 136 bar (P-11); RHR suction only below 30 bar. Tech Spec 3.4.3 limits the cooldown to 55 °C/h. Below about 120 °C the steam generators stop working well and RHR has to take over.</p><div class="cpnbtns"><button class="cpnb" data-a="x">Back to the plant</button></div>', function (a, b) {
+    if (a === 'x') closeMenu(); if (a === 'pr') { PROC.start(b.dataset.p); closeMenu(); return; }
+    if (a === 'p12') x.p12b = !x.p12b; if (a === 'blk') { if (z.P < 136) { x.si.blkP = x.si.blkS = true; } else toast('Can’t block SI above P-11 (136 bar).', 'warn'); }
+    if (a === 'acc') { if (z.P < 69 || !x.si.acc.every(function (q) { return !q; })) x.si.acc = x.si.acc.map(function () { return z.P >= 69; }); if (z.P >= 69) toast('Accumulators stay open above 69 bar (Tech Spec 3.5.1).', 'warn'); }
+    if (a === 'sdc') { if (!x.sdc && z.P > 30) toast('RHR suction valves are interlocked shut above 30 bar.', 'warn'); else { x.sdc = !x.sdc; x.si.rhr = [false, false]; S.addLog('RHR shutdown cooling ' + (x.sdc ? 'started' : 'stopped')); } }
+    if (a === 'sir') { if (x.si.on && p.t - x.si.at < 60) toast('SI reset is allowed 60 s after actuation.', 'warn'); else { x.si.on = false; S.addLog('SI reset'); } } if (a === 'sip') { if (x.si.on) toast('Reset SI first.', 'warn'); else { x.si.pumps = [false, false]; S.addLog('SI pumps stopped'); } }
+    if (a !== 'x') procMenu(); });
+  [].forEach.call(S.menu.querySelectorAll('[data-ps]'), function (r) { r.addEventListener('input', function () { var v = +r.value; if (r.dataset.ps === 'dump') x.dumpSet = v; else x.pzSet = v; S.menu.querySelector('[data-pv=' + r.dataset.ps + ']').textContent = v + ' bar'; }); });
+}
 
 /* ================================================================ what's in the simulator ================================================================ */
 var ROAD = [
@@ -2676,7 +2761,7 @@ function buildHUD() {
   E.time = h('div', 'cpng', '<span class="cpnshift" data-k="shift" title="Time left on your shift"></span><span class="cpnclk" data-k="clk" title="Station time"></span><span class="cpnfps" data-k="fps" hidden></span><button data-ts="0" aria-label="Pause">❚❚</button><button data-ts="1">×1</button><button data-ts="5">×5</button><button data-ts="20">×20</button><button data-ts="60">×60</button>', E.bar);
   E.xpc = h('button', 'cpng cpnxpc', '<b data-k="lv"></b><span><i data-k="rk"></i><em><u data-k="xb"></u></em></span>', E.bar); E.xpc.title = 'Career: level, rank, achievements and daily challenges'; E.xpc.addEventListener('click', function (e) { e.stopPropagation(); AUD.init(); careerMenu(); });
   E.xpf = h('div', 'cpnxpf', null, root); E.fps = E.time.querySelector('[data-k=fps]');
-  E.tools = h('div', 'cpng', '<button data-b="views" title="Views (V)">🎥 Views</button><button data-b="explain" title="Explain mode: rest the pointer on anything for 3 seconds (X)">💡</button><button data-b="quick" title="Quick controls (C)">🎛</button><button data-b="assist" title="Instructor assist (G)">🎓</button><button data-b="snd" title="Sound">🔊</button><button data-b="multi" title="Multiple monitors">🖥</button><button data-b="core" title="Core monitor and heat balance">📈</button><button data-b="ts" title="Tech Specs">📕</button><button data-b="help" title="Help (H)">?</button><button data-b="menu" title="Menu (Esc)">☰</button><button data-b="exit" title="Exit">✕</button>', E.bar);
+  E.tools = h('div', 'cpng', '<button data-b="views" title="Views (V)">🎥 Views</button><button data-b="explain" title="Explain mode: rest the pointer on anything for 3 seconds (X)">💡</button><button data-b="quick" title="Quick controls (C)">🎛</button><button data-b="assist" title="Instructor assist (G)">🎓</button><button data-b="snd" title="Sound">🔊</button><button data-b="proc" title="Procedures and cooldown">📘</button><button data-b="multi" title="Multiple monitors">🖥</button><button data-b="core" title="Core monitor and heat balance">📈</button><button data-b="ts" title="Tech Specs">📕</button><button data-b="help" title="Help (H)">?</button><button data-b="menu" title="Menu (Esc)">☰</button><button data-b="exit" title="Exit">✕</button>', E.bar);
   E.ms = h('div', 'cpnms', null, root); E.urg = h('div', 'cpnurg', null, root); E.urg.hidden = true;
   E.as = h('div', 'cpnas', null, root); E.qc = h('div', 'cpnqc', null, root); buildQC();
   E.tip = h('div', 'cpntip', null, root); E.tip.hidden = true; E.exp = h('div', 'cpnexp', null, root); E.exp.hidden = true;
@@ -2685,7 +2770,7 @@ function buildHUD() {
   E.joy = h('div', 'cpnjoy', '<i></i>', root); E.cross = h('div', 'cpnx', null, root); E.cross.hidden = true; var vg = el('div', 'cpnvig'); root.insertBefore(vg, R3.ren.domElement.nextSibling);
   E.bar.addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; AUD.init();
     if (b.dataset.ts != null) { var v = +b.dataset.ts; if (v === 0) setPause(!S.paused); else { setTS(v); setPause(false); } }
-    var k = b.dataset.b; if (k === 'explain') { S.cfg.explain = !S.cfg.explain; saveCfg(); toast(S.cfg.explain ? '💡 Explain mode on: rest the pointer on any control for 3 seconds' + (root.classList.contains('touch') ? ' (or press and hold it)' : '') + '.' : 'Explain mode off.'); if (!S.cfg.explain) hideExplain(); } if (k === 'multi') multiMenu(); if (k === 'core') coreMenu('core'); if (k === 'ts') tsMenu(); if (k === 'views') viewsMenu(); else if (k === 'quick') { S.cfg.quick = !S.cfg.quick; saveCfg(); } else if (k === 'assist') { S.cfg.assist = !S.cfg.assist; saveCfg(); } else if (k === 'snd') { S.cfg.snd = !S.cfg.snd; AUD.vol(); saveCfg(); } else if (k === 'help') helpMenu(); else if (k === 'menu') pauseMenu(); else if (k === 'exit') close();
+    var k = b.dataset.b; if (k === 'explain') { S.cfg.explain = !S.cfg.explain; saveCfg(); toast(S.cfg.explain ? '💡 Explain mode on: rest the pointer on any control for 3 seconds' + (root.classList.contains('touch') ? ' (or press and hold it)' : '') + '.' : 'Explain mode off.'); if (!S.cfg.explain) hideExplain(); } if (k === 'proc') procMenu(); if (k === 'multi') multiMenu(); if (k === 'core') coreMenu('core'); if (k === 'ts') tsMenu(); if (k === 'views') viewsMenu(); else if (k === 'quick') { S.cfg.quick = !S.cfg.quick; saveCfg(); } else if (k === 'assist') { S.cfg.assist = !S.cfg.assist; saveCfg(); } else if (k === 'snd') { S.cfg.snd = !S.cfg.snd; AUD.vol(); saveCfg(); } else if (k === 'help') helpMenu(); else if (k === 'menu') pauseMenu(); else if (k === 'exit') close();
     HUD.dirty = true; });
   E.ms.addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; AUD.init(); var m = b.dataset.m, ph = MS.phase(), P, it;
     if (m === 'show' || m === 'verify') { P = phaseDef(ph); it = firstOpen(P.list, MS[P.fl]); if (m === 'show' && P.list[it]) showMe(P.list[it].show); if (m === 'verify') verifyPre(it); }
@@ -2699,7 +2784,7 @@ function buildHUD() {
   E.joy.addEventListener('pointerdown', function (e) { JOY.on = true; JOY.id = e.pointerId; try { E.joy.setPointerCapture(e.pointerId); } catch (x) {} jp(e); e.stopPropagation(); });
   E.joy.addEventListener('pointermove', function (e) { if (JOY.on && e.pointerId === JOY.id) jp(e); });
   var je = function () { JOY.on = false; JOY.x = JOY.y = 0; E.joy.firstChild.style.transform = ''; }; E.joy.addEventListener('pointerup', je); E.joy.addEventListener('pointercancel', je);
-  crewBuild();
+  crewBuild(); procBuild();
   setTimeout(function () { if (E.hint) E.hint.style.opacity = '0'; }, 14000);
 }
 function buildQC() {
@@ -2757,7 +2842,7 @@ function hudTick(dt) {
   /* shift chip and explain button */
   var sc = E.time.querySelector('[data-k=shift]'), left = shiftLeft(); sc.hidden = !S.cfg.shift; if (S.cfg.shift) { sc.textContent = left > 0 ? '⏱ ' + fmtMS(left) : 'OVERTIME +' + fmtMS(-left); sc.className = 'cpnshift' + (left <= 0 ? ' ot' : left <= 300 ? ' low' : ''); }
   E.tools.querySelector('[data-b=explain]').setAttribute('aria-pressed', String(!!S.cfg.explain));
-  msCard(p); lcoChip(); if (CREW.el) { var chid = !S.cfg.crew || (!CREW.q && !CREW.msg) || !!S.menu; if (chid !== CREW.el.hidden) CREW.draw(); }
+  msCard(p); lcoChip(); PROC.tick(); if (CREW.el) { var chid = !S.cfg.crew || (!CREW.q && !CREW.msg) || !!S.menu; if (chid !== CREW.el.hidden) CREW.draw(); }
   if (E.xpc && CAR.p) { var Lv = CAR.lvl(), x0 = lvlXp(Lv), x1 = lvlXp(Lv + 1); E.xpc.querySelector('[data-k=lv]').textContent = Lv; E.xpc.querySelector('[data-k=rk]').textContent = rankOf(Lv) + ' · ' + CAR.p.xp.toLocaleString('en-GB') + ' XP'; E.xpc.querySelector('[data-k=xb]').style.width = Math.round((CAR.p.xp - x0) / (x1 - x0) * 100) + '%'; }
   /* urgent banner */
   var u = '';
@@ -2849,6 +2934,7 @@ function helpMenu() { if (!S.menu) S.wasPaused = S.paused; setPause(true);
     '<h2>Core monitor and heat balance (\ud83d\udcc8)</h2><p>The wall screen between the mimic and the alarms (or \ud83d\udcc8 at the top) shows the axial shape, AFD against its Tech Spec envelope, FQ, F\u0394H, DNBR, fuel temperature, subcooling and RVLIS. The <b>Heat balance</b> tab is the daily <b>secondary calorimetric</b>: feed flow \u00d7 (steam enthalpy \u2212 feed enthalpy) for each SG, minus pump heat. Record it when the plant is steady and match the four power range channels to it. The venturis slowly foul and the detectors drift, just like a real plant.</p>' +
     '<h2>Tech Specs (\ud83d\udcd5)</h2><p>The licence rules are checked all the time. Break one and a yellow chip appears top right with the <b>Required Action</b> and its <b>Completion Time</b> counting down in plant time. Fix it in time and you exit the LCO (+XP). Miss it and the next action starts; miss the last and it\u2019s a violation.</p>' +
     '<h2>Multiple monitors (\ud83d\udda5)</h2><p><b>Screen windows</b> open on your other monitors: each is a grid of tiles showing any plant computer screen or a live panel (checklist, reactor instruments, Tech Specs, supervisor). <b>Triple view</b> draws the room across three monitors in true perspective when this window spans all three. Press \ud83d\udda5 at the top.</p>' +
+    '<h2>Procedures (\ud83d\udcd8)</h2><p>After a trip in free play <b>E-0</b> starts by itself and branches to ES-0.1, E-1 (LOCA), E-3 (tube rupture) or ES-1.1 like the real one. <b>GOP-305</b> takes the plant to cold shutdown: borate, block SI at P-11, bypass P-12, cool down at under 55 \u00b0C/h, isolate the accumulators, then RHR shutdown cooling down to MODE 5. The cooldown controls are in \ud83d\udcd8.</p>' + 
     '<h2>The crew (free play)</h2><p>Your Control Room Supervisor gives orders: load changes for National Grid, calorimetrics, AFD control, pump swaps. Pick the correct <b>repeat-back</b> (three-way communication, exactly as real operators do it), do the job, then press <b>Report complete</b>. After a trip she takes you through the first steps of <b>E-0</b>. Turn it off in the menu settings.</p>' +
     '<h2>Going to power (free play)</h2><p>From the point of adding heat: start a <b>main feed pump</b> (board 7). On the turbine board <b>LATCH</b>, set the speed target to 3000 and wait. On the generator board close the <b>field breaker</b>, turn the <b>sync selector</b> to MAN, use <b>speed raise</b> to make the synchroscope creep clockwise and close the <b>generator breaker</b> as it passes 12 o\u2019clock. Then put the dumps in <b>TAVG</b>, the rods in <b>AUTO</b>, block the IR and PR-low trips at <b>P-10</b>, and raise the load setpoint. Rods soon run out: dilute boron on board 3 to keep going. Use \u00d720 or \u00d760 time: it takes hours, just like a real plant. Or press <b>\u23eb Go to power</b> on the checklist card for the guided GOP-302 checklist.</p><p><b>\u26a0 Faults:</b> from the pause menu or the \u26a0 button on the checklist card. Start from <b>Free play at 50% power</b> for the most interesting ones.</p>' +
     '<h2>Colours</h2><p>Lamps use the Westinghouse convention: <b style="color:#ff6b5b">red = closed / running / open valve</b>, <b style="color:#59e07a">green = open breaker / stopped / shut valve</b>. Annunciators: fast flash = new alarm (press ACK), steady = acknowledged, slow flash = cleared (press RESET).</p>' +
@@ -2992,7 +3078,7 @@ function close() {
   if (!root) return; try { save(); } catch (e) {} try { MULTI.closeAll(); } catch (e) {} cancelAnimationFrame(RAF); RAF = 0; root.hidden = true; document.removeEventListener('keydown', kd); document.removeEventListener('keyup', ku); KEYS = {};
   try { if (AUD.ctx) AUD.ctx.suspend(); } catch (e) {} try { if (window.speechSynthesis) speechSynthesis.cancel(); } catch (e) {} try { API.close(); } catch (e) {}
 }
-window.CRIT_PLANT = { open: open, close: close, _dbg: { S: function () { return S; }, MULTI: MULTI, TRI: TRI, multiMenu: function () { multiMenu(); }, MVH: MVH, FAULT: FAULT, TS: TS, CREW: CREW, coreMenu: function (t) { coreMenu(t); }, tsMenu: function () { tsMenu(); }, crx: function () { return crx(); }, rtp: function () { return rtp(); }, CAR: CAR, careerMenu: function () { careerMenu(); }, startAsc: function () { startAsc(); }, ctl: function (re, arg) { var r = new RegExp(re), m = HITS.filter(function (h) { var o = h.userData.hit, t = typeof o.tip === 'function' ? o.tip() : o.tip; return t && r.test(t) && (o.act || o.hold); }); if (m.length !== 1) return 'match ' + m.length + ': ' + m.slice(0, 4).map(function (h) { var o = h.userData.hit; return typeof o.tip === 'function' ? o.tip() : o.tip; }).join(' | '); var o = m[0].userData.hit; if (o.act) o.act(arg); else { o.hold(true); o.hold(false); } return 'ok'; }, tips: function (re) { var r = new RegExp(re); return HITS.map(function (h) { var o = h.userData.hit; return typeof o.tip === 'function' ? o.tip() : o.tip; }).filter(function (t) { return t && r.test(t); }); }, MS: MS, ACT: ACT, ANNC: ANNC, NI: NI, D: D, CAM: CAM, goView: goView, showMe: showMe, setTS: setTS, step: function (sec, h) { h = h || 0.05; var p = S.p; for (var t = 0; t < sec; t += h) { plantStep(p, h); niTick(p, h); rps(p); permissives(p); oneMTick(p, h); derive(h); MS.tick(h); ANNC.tick(); CAR.tick(h, 0); TS.tick(h); if (p.sur > S.st.maxSur && !p.tripped) S.st.maxSur = p.sur; if (p.everCrit && S.st.critPc == null) { S.st.critPc = p.pc; S.st.predPc = ecpFromOneM(p); S.st.pts = Math.max(0, p.oneM.length - 1); } } },
+window.CRIT_PLANT = { open: open, close: close, _dbg: { S: function () { return S; }, PROC: PROC, procMenu: function () { procMenu(); }, MULTI: MULTI, TRI: TRI, multiMenu: function () { multiMenu(); }, MVH: MVH, FAULT: FAULT, TS: TS, CREW: CREW, coreMenu: function (t) { coreMenu(t); }, tsMenu: function () { tsMenu(); }, crx: function () { return crx(); }, rtp: function () { return rtp(); }, CAR: CAR, careerMenu: function () { careerMenu(); }, startAsc: function () { startAsc(); }, ctl: function (re, arg) { var r = new RegExp(re), m = HITS.filter(function (h) { var o = h.userData.hit, t = typeof o.tip === 'function' ? o.tip() : o.tip; return t && r.test(t) && (o.act || o.hold); }); if (m.length !== 1) return 'match ' + m.length + ': ' + m.slice(0, 4).map(function (h) { var o = h.userData.hit; return typeof o.tip === 'function' ? o.tip() : o.tip; }).join(' | '); var o = m[0].userData.hit; if (o.act) o.act(arg); else { o.hold(true); o.hold(false); } return 'ok'; }, tips: function (re) { var r = new RegExp(re); return HITS.map(function (h) { var o = h.userData.hit; return typeof o.tip === 'function' ? o.tip() : o.tip; }).filter(function (t) { return t && r.test(t); }); }, MS: MS, ACT: ACT, ANNC: ANNC, NI: NI, D: D, CAM: CAM, goView: goView, showMe: showMe, setTS: setTS, step: function (sec, h) { h = h || 0.05; var p = S.p; for (var t = 0; t < sec; t += h) { plantStep(p, h); niTick(p, h); rps(p); permissives(p); oneMTick(p, h); derive(h); MS.tick(h); ANNC.tick(); CAR.tick(h, 0); TS.tick(h); if (p.sur > S.st.maxSur && !p.tripped) S.st.maxSur = p.sur; if (p.everCrit && S.st.critPc == null) { S.st.critPc = p.pc; S.st.predPc = ecpFromOneM(p); S.st.pts = Math.max(0, p.oneM.length - 1); } } },
   pick: function (x, y) { var hh = pick(x, y); return hh ? { tip: hh.object.userData.hit && (typeof hh.object.userData.hit.tip === 'function' ? hh.object.userData.hit.tip() : hh.object.userData.hit.tip), act: !!(hh.object.userData.hit && hh.object.userData.hit.act), hold: !!(hh.object.userData.hit && hh.object.userData.hit.hold) } : null; },
   click: function (x, y) { activate(pick(x, y)); }, verifyPre: verifyPre, startShutdown: startShutdown, PRE: PRE, SHUT: SHUT, EXP: EXP, shiftLeft: function () { return shiftLeft(); }, ofs: function () { return OFS; }, settled: function () { return !CAM.tw && Math.abs(OFS.cur - (OFS.want || 0)) < 0.5; }, R3: function () { return R3; }, desk: function (id, u, d, lift) { var v = SEC[id].desk.localToWorld(new THREE.Vector3(u, lift == null ? 0.0015 : lift, -d * SL)); v.project(R3.cam); var r = R3.ren.domElement.getBoundingClientRect(); return [r.left + (v.x + 1) / 2 * r.width, r.top + (1 - v.y) / 2 * r.height]; }, WG: WG, HITS: HITS, SEC: SEC, rho: function () { return rhoParts(S.p); }, ecp: function () { return ecpFromOneM(S.p); } } };
 })();
