@@ -1630,6 +1630,24 @@ CONTENT.elec = function (s) { be(s); var x = X, el = function () { return x().el
   [0, 1].forEach(function (k) { ROT(s, 0.45 + k * 0.32, 0.26, { t: 'EDG ' + 'AB'[k] + ' MODE', pos: ['MAN', 'AUTO'], get: function () { return el().edg[k].mode === 'AUTO' ? 1 : 0; }, set: function (i) { el().edg[k].mode = i ? 'AUTO' : 'MAN'; } }); });
   swRow(s, 1.2, 0.28, [valveSW('CHARGER\nA', function () { return el().chg[0]; }, function (v) { el().chg[0] = v; }, { l: 'OFF', r: 'ON', onTxt: 'ON', offTxt: 'OFF' }), valveSW('CHARGER\nB', function () { return el().chg[1]; }, function (v) { el().chg[1] = v; }, { l: 'OFF', r: 'ON', onTxt: 'ON', offTxt: 'OFF' }), valveSW('UPS\nBYPASS', NO, function () {})], 0.135);
 };
+/* ---------------------------------------------------------------- mimic lines ----------------------------------------------------------------
+   Real boards have the system drawn on them as coloured pipes, with the controls sitting on the pipe they work. Colours follow
+   the usual convention: red hot coolant, blue cold water/feed, purple steam, orange borated water, green cooling water, yellow electrical. */
+var MIMC = { hot: '#c0392b', cold: '#2e6fb5', stm: '#8e44ad', bor: '#d9822b', cw: '#2f9e5b', el: '#c9a227' };
+var MIMIC = {
+  esf: [['bor', [[-1.72, 1.6], [-0.3, 1.6], [-0.3, 1.25], [1.72, 1.25]], 'RWST → SI PUMPS → COLD LEGS']],
+  aux: [['cw', [[-1.72, 1.6], [1.72, 1.6]], 'SEA WATER → CCW HEAT EXCHANGERS'], ['cw', [[-1.0, 1.6], [-1.0, 1.25], [1.0, 1.25], [1.0, 1.6]], '']],
+  cvcs: [['bor', [[-1.72, 1.62], [1.72, 1.62]], 'VCT → CHARGING PUMPS → RCS'], ['cold', [[1.72, 1.24], [-1.72, 1.24]], 'RCS → LETDOWN → VCT']],
+  pzr: [['hot', [[-1.7, 1.24], [0, 1.24], [0, 1.62]], 'SURGE LINE FROM HOT LEG 4'], ['cold', [[1.7, 1.62], [0.4, 1.62]], 'SPRAY FROM COLD LEGS'], ['stm', [[0, 1.62], [0, 1.64], [-1.2, 1.64]], 'TO PORVs / PRT']],
+  rcs: [['hot', [[-1.72, 1.97], [1.72, 1.97]], 'HOT LEGS: CORE → SGs'], ['cold', [[1.72, 1.24], [-1.72, 1.24]], 'COLD LEGS: SGs → RCPs → CORE'], ['cold', [[-1.3, 1.24], [-1.3, 1.6]], ''], ['cold', [[-0.45, 1.24], [-0.45, 1.6]], ''], ['cold', [[0.45, 1.24], [0.45, 1.6]], ''], ['cold', [[1.3, 1.24], [1.3, 1.6]], '']],
+  sg: [['stm', [[-1.72, 2.3], [1.72, 2.3]], 'STEAM TO MAIN STEAM HEADER'], ['cold', [[1.72, 1.24], [-1.72, 1.24]], 'FEED FROM FEED PUMPS'], ['cold', [[-1.3, 1.24], [-1.3, 2.3]], ''], ['cold', [[-0.45, 1.24], [-0.45, 2.3]], ''], ['cold', [[0.45, 1.24], [0.45, 2.3]], ''], ['cold', [[1.3, 1.24], [1.3, 2.3]], '']],
+  ms: [['stm', [[-1.72, 2.3], [1.72, 2.3]], 'MAIN STEAM HEADER → TURBINE'], ['stm', [[-0.9, 2.3], [-0.9, 1.25], [1.72, 1.25]], 'STEAM DUMPS → CONDENSER'], ['cw', [[-1.72, 1.6], [-1.2, 1.6]], 'CW']],
+  tb: [['stm', [[-1.72, 2.3], [0.6, 2.3], [0.6, 1.6]], 'STEAM IN → HP / LP TURBINE'], ['cold', [[0.6, 1.25], [-1.72, 1.25]], 'CONDENSATE → FEED HEATERS']],
+  gen: [['el', [[-1.72, 1.97], [0.4, 1.97]], 'GENERATOR 22 kV'], ['el', [[0.6, 1.97], [1.72, 1.97]], 'GEN TRANSFORMER → 400 kV GRID']],
+  elec: [['el', [[-1.72, 2.3], [1.72, 2.3]], '400 kV / STATION TRANSFORMER'], ['el', [[-1.2, 2.3], [-1.2, 1.25], [1.2, 1.25], [1.2, 2.3]], '11 kV UNIT BUSES → 6.6 kV SAFETY BUSES'], ['el', [[0, 1.25], [0, 1.05]], 'EDG A / B']]
+};
+Object.keys(MIMIC).forEach(function (id) { var f = CONTENT[id]; if (!f) return; CONTENT[id] = function (s) { MIMIC[id].forEach(function (m) { s.mimic.push({ col: MIMC[m[0]], w: 18, pts: m[1] }); }); var r = f.apply(this, arguments); s.artP = s.artP || [];
+  MIMIC[id].forEach(function (m) { if (!m[2]) return; var p0 = m[1][0], dx = m[1][1][0] - p0[0]; s.artP.push(function (g) { var X = px(p0[0] + (dx >= 0 ? 0.04 : -0.04)), Y = py(p0[1] + 0.028); g.font = 'bold 26px ' + FONT; g.textAlign = dx >= 0 ? 'left' : 'right'; g.textBaseline = 'middle'; g.lineWidth = 7; g.strokeStyle = 'rgba(236,237,233,.95)'; g.strokeText((dx >= 0 ? '▶ ' : '◀ ') + m[2], X, Y); g.fillStyle = MIMC[m[0]]; g.fillText((dx >= 0 ? '▶ ' : '◀ ') + m[2], X, Y); }); }); return r; }; });
 
 /* ================================================================ career: XP, levels, ranks, achievements, daily challenges ================================================================
    Everything you do in the control room earns XP: checklist steps, whole procedures, every megawatt-hour you send to the grid,
