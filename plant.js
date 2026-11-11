@@ -2195,6 +2195,10 @@ var INF = [
 function infOn(x, id) { var f = x.inF; return !!(f && f.id === id && !f.sel); }
 function infDetail() { var x = S.p.x; return x.inF ? INF.filter(function (q) { return q.id === x.inF.id; })[0] : null; }
 function infInsert(id) { var x = S.p.x; x.inF = { id: id, t: S.p.t, sel: false }; S.addLog('INSTRUCTOR: instrument failure inserted'); }
+/* random events: equipment faults and instrument failures that just happen in free play, if the setting allows */
+var RNDE = { T: 0, tick: function (sim) { if (!S.cfg.randEv || EXAM.on || !S.p || S.p.tripped || MS.phase() !== 'free') return; var x = S.p.x; if (FAULT.active().length || (x.inF && !x.inF.sel)) return;
+  RNDE.T += sim; if (RNDE.T < 600) return; RNDE.T = 0; if (Math.random() > 0.12) return; /* about one event every 1.5 hours of plant time */
+  var c = FAULT.list.filter(function (q) { return ['grid', 'lb'].indexOf(q.id) < 0 && !(x.f && x.f[q.id]); }); FAULT.insert(c[Math.floor(Math.random() * c.length)].id, true); } };
 var EXAM = { on: false,
   start: function () { atPowerStart(); var x = S.p.x, inf = INF[Math.floor(Math.random() * INF.length)], fl = FAULT.list.filter(function (q) { return ['porv', 'mfpA', 'sgtl', 'drop', 'ccw', 'air', 'loca'].indexOf(q.id) >= 0; }), ft = fl[Math.floor(Math.random() * fl.length)];
     EXAM.on = true; EXAM.t0 = S.p.t; EXAM.inf = inf.id; EXAM.f = ft.id; EXAM.ev = []; EXAM.trips0 = S.st.trips; EXAM.viol0 = TS.st().viol; EXAM.rb0 = CREW.stats().wrong; EXAM.done = false;
@@ -2962,7 +2966,7 @@ function menu(html, onclick) { if (document.pointerLockElement) { try { document
 function closeMenu(keepPause) { if (S.menu) { S.menu.remove(); S.menu = null; } if (!keepPause && S.wasPaused === false) setPause(false); }
 function roadHTML() { return '<div class="cpnroad">' + ROAD.map(function (r, i) { return '<div class="' + (r.s === 'now' ? 'now' : '') + '"><b>' + esc(r.t) + (r.s === 'now' ? ' · PLAY NOW' : r.s === 'free' ? ' · FREE PLAY' : ' · coming soon') + '</b>' + esc(r.d) + '</div>'; }).join('') + '</div>'; }
 function setHTML() { var c = S.cfg, ck = function (k, l) { return '<label><input type="checkbox" data-a="cfg" data-c="' + k + '"' + (c[k] ? ' checked' : '') + '>' + l + '</label>'; };
-  return '<div class="cpnset">' + ck('snd', 'Sound') + ck('voice', 'Voice announcements') + ck('assist', 'Instructor assist panel') + ck('quick', 'Quick controls panel') + ck('explain', 'Explain mode (rest on a control for 3 s)') + ck('guide', 'Guide ring on the next control') + ck('crew', 'Crew orders and three-way communication (free play)') + ck('fps', 'Show frame rate') + '</div><div class="cpnseg"><span>Graphics</span>' + [['lite', '\ud83e\udd54 Lite (phones, old laptops)'], ['low', 'Low'], ['high', 'High (shadows, reflections)']].map(function (q) { return '<button data-a="gfx" data-v="' + q[0] + '" aria-pressed="' + (c.gfx === q[0]) + '">' + q[1] + '</button>'; }).join('') + '</div><div class="cpnseg"><span>Shift length</span>' + [15, 30, 45, 60, 0].map(function (m) { return '<button data-a="shift" data-v="' + m + '" aria-pressed="' + (c.shift === m) + '">' + (m ? m + ' min' : 'No limit') + '</button>'; }).join('') + '</div>'; }
+  return '<div class="cpnset">' + ck('snd', 'Sound') + ck('voice', 'Voice announcements') + ck('assist', 'Instructor assist panel') + ck('quick', 'Quick controls panel') + ck('explain', 'Explain mode (rest on a control for 3 s)') + ck('guide', 'Guide ring on the next control') + ck('crew', 'Crew orders and three-way communication (free play)') + ck('randEv', 'Random faults and instrument failures (free play)') + ck('fps', 'Show frame rate') + '</div><div class="cpnseg"><span>Graphics</span>' + [['lite', '\ud83e\udd54 Lite (phones, old laptops)'], ['low', 'Low'], ['high', 'High (shadows, reflections)']].map(function (q) { return '<button data-a="gfx" data-v="' + q[0] + '" aria-pressed="' + (c.gfx === q[0]) + '">' + q[1] + '</button>'; }).join('') + '</div><div class="cpnseg"><span>Shift length</span>' + [15, 30, 45, 60, 0].map(function (m) { return '<button data-a="shift" data-v="' + m + '" aria-pressed="' + (c.shift === m) + '">' + (m ? m + ' min' : 'No limit') + '</button>'; }).join('') + '</div>'; }
 function shiftClick(b) { S.cfg.shift = +b.dataset.v; S.shiftWarn = false; S.shiftOver = false; saveCfg(); [].forEach.call(b.parentNode.querySelectorAll('button'), function (x) { x.setAttribute('aria-pressed', String(x === b)); }); }
 function shiftLeft() { return S.cfg.shift ? S.cfg.shift * 60 - S.shiftUsed : Infinity; }
 function fmtMS(t) { t = Math.max(0, Math.round(t)); return Math.floor(t / 60) + ':' + String(t % 60).padStart(2, '0'); }
@@ -3095,7 +3099,7 @@ function frame(now) {
   if (!S.paused && !S.menu) {
     var sim = dt * S.ts, n = Math.max(1, Math.ceil(sim / 0.05)), hh = sim / n;
     for (var i = 0; i < n; i++) { plantStep(p, hh); niTick(p, hh); rps(p); permissives(p); oneMTick(p, hh); }
-    derive(sim); MS.tick(sim); ANNC.tick(); CAR.tick(sim, dt); TS.tick(sim); CREW.tick(dt, sim);
+    derive(sim); MS.tick(sim); ANNC.tick(); CAR.tick(sim, dt); TS.tick(sim); CREW.tick(dt, sim); RNDE.tick(sim);
     if (p.sur > S.st.maxSur && !p.tripped) S.st.maxSur = p.sur;
     if (p.steps !== lastSteps) { var ds = p.steps - lastSteps; lastSteps = p.steps; if (ds > 0 && ds < 50) AUD.sfx('step'); }
     var np = p6(p); if (np && !wasP6 && !p.tripped) { S.addLog('P-6 permissive: intermediate range above 1E-10 A'); speak('P 6. Block the source range.'); if (S.ts > 1) setTS(1); } wasP6 = np;
