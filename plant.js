@@ -2330,6 +2330,61 @@ function saveMenu() { if (!S.menu) S.wasPaused = S.paused; setPause(true); var a
 addEventListener('pagehide', function () { try { if (S && S.p) save(); } catch (e) {} });
 document.addEventListener('visibilitychange', function () { try { if (document.hidden && S && S.p) save(); } catch (e) {} });
 
+/* ================================================================ look and feel ================================================================
+   Soundscape (turbine hall rumble with load, radio chatter, keyboards), heavier switch sounds, lamp flicker, blackout and
+   emergency lighting, labels/wear/mug, smooth camera momentum, a hand that reaches for controls, and two crew members. */
+var FEEL = { t: 0, chatT: 20, keyT: 5, flT: 8, lights: null, people: null, hand: null, hT: 0,
+  audio: function () { var c = AUD.ctx; if (!c || FEEL.rum) return; var s = c.createBufferSource(); s.buffer = AUD.nbuf; s.loop = true; var lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 90; FEEL.rum = c.createGain(); FEEL.rum.gain.value = 0; s.connect(lp); lp.connect(FEEL.rum); FEEL.rum.connect(AUD.master); s.start();
+    var o = c.createOscillator(); o.frequency.value = 50; FEEL.tg = c.createGain(); FEEL.tg.gain.value = 0; o.connect(FEEL.tg); FEEL.tg.connect(AUD.master); o.start(); },
+  chatter: function () { var c = AUD.ctx; if (!c) return; var t = c.currentTime + 0.02; AUD.noise(t, 0.08, 1400, 1, 0.12); AUD.tone(t, 1750, 0.06, 'sine', 0.04); var n = 3 + Math.floor(Math.random() * 5);
+    for (var i = 0; i < n; i++) { var st = t + 0.12 + i * 0.22 + Math.random() * 0.08; AUD.noise(st, 0.12 + Math.random() * 0.1, 700 + Math.random() * 900, 4, 0.06); AUD.tone(st, 140 + Math.random() * 80, 0.14, 'sawtooth', 0.012); } AUD.noise(t + 0.2 + n * 0.22, 0.1, 1600, 1, 0.1); },
+  keys: function () { var c = AUD.ctx; if (!c) return; var t = c.currentTime, n = 4 + Math.floor(Math.random() * 10); for (var i = 0; i < n; i++) AUD.noise(t + i * (0.07 + Math.random() * 0.09), 0.012, 3000 + Math.random() * 1500, 2, 0.05); },
+  build: function () { if (FEEL.lights || !R3) return; var sc = R3.scene; FEEL.lights = []; sc.traverse(function (o) { if (o.isLight) FEEL.lights.push([o, o.intensity]); }); FEEL.exp0 = R3.ren.toneMappingExposure;
+    var mk = function (g, col, x, y, z, ry) { var m = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ color: col, roughness: 0.8 })); m.position.set(x, y, z); m.rotation.y = ry || 0; sc.add(m); return m; };
+    var tex = function (w, h, draw) { var cv = document.createElement('canvas'); cv.width = w; cv.height = h; draw(cv.getContext('2d')); var t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; return t; };
+    var plane = function (w, h, t, x, y, z, ry, rz) { var m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshStandardMaterial({ map: t, roughness: 0.9, transparent: true })); m.position.set(x, y, z); m.rotation.y = ry || 0; m.rotation.z = rz || 0; sc.add(m); return m; };
+    /* coffee mug and papers on the console */
+    var mug = mk(new THREE.CylinderGeometry(0.04, 0.036, 0.1, 18), 0xe8e4dc, 0.62, 0.83, CZ + 0.12); mk(new THREE.TorusGeometry(0.026, 0.008, 8, 14), 0xe8e4dc, 0.665, 0.83, CZ + 0.12, Math.PI / 2);
+    mk(new THREE.CylinderGeometry(0.035, 0.035, 0.005, 16), 0x3b2412, 0.62, 0.877, CZ + 0.12);
+    var paper = tex(256, 340, function (g) { g.fillStyle = '#f4f1e8'; g.fillRect(0, 0, 256, 340); g.fillStyle = '#223'; g.font = 'bold 18px sans-serif'; g.fillText('SHIFT LOG', 16, 30); g.font = '14px sans-serif'; ['07:00 took over from B shift', 'Unit 1 hot standby, 1200 ppm', 'CCP B in standby', 'EDG B monthly run due', 'SG 3 level ch. noisy - WO raised'].forEach(function (l, i) { g.fillText(l, 16, 64 + i * 28); }); g.strokeStyle = '#8aa'; for (var i = 0; i < 9; i++) { g.beginPath(); g.moveTo(10, 70 + i * 28); g.lineTo(246, 70 + i * 28); g.stroke(); } });
+    plane(0.2, 0.27, paper, -0.55, 0.785, CZ + 0.2, 0, 0.12).rotation.x = -Math.PI / 2;
+    /* sticky notes, caution signs and a handwritten tag */
+    var note = function (txt, col) { return tex(200, 200, function (g) { g.fillStyle = col; g.fillRect(0, 0, 200, 200); g.fillStyle = '#222'; g.font = '26px "Comic Sans MS", cursive'; txt.split('\n').forEach(function (l, i) { g.fillText(l, 14, 50 + i * 36); }); }); };
+    plane(0.09, 0.09, note('ECP\nD @ 120\nsteps', '#ffe970'), -0.62, 1.32, CZ - 0.2, 0.32, 0.05);
+    plane(0.09, 0.09, note('Calorimetric\ndue 13:00', '#9ff0a0'), 1.05, 1.3, CZ - 0.14, -0.32, -0.06);
+    var caut = tex(512, 256, function (g) { g.fillStyle = '#ffcc00'; g.fillRect(0, 0, 512, 256); g.fillStyle = '#111'; g.fillRect(0, 0, 512, 70); g.fillStyle = '#ffcc00'; g.font = 'bold 50px sans-serif'; g.fillText('⚠ CAUTION', 120, 52); g.fillStyle = '#111'; g.font = 'bold 34px sans-serif'; g.fillText('THREE-WAY COMMUNICATION', 28, 130); g.fillText('FOR ALL PLANT ORDERS', 70, 180); });
+    plane(1.0, 0.5, caut, -RX + 0.03, 2.2, 4.5, Math.PI / 2);
+    var tag = tex(160, 320, function (g) { g.fillStyle = '#ff5a3c'; g.fillRect(0, 0, 160, 320); g.fillStyle = '#fff'; g.font = 'bold 30px sans-serif'; g.fillText('DANGER', 18, 50); g.font = 'bold 20px sans-serif'; ['DO NOT', 'OPERATE', '', 'WO 41187', 'J. Patel'].forEach(function (l, i) { g.fillText(l, 22, 110 + i * 34); }); });
+    plane(0.08, 0.16, tag, 6.2, 1.25, ZB + 3.1, -0.9, 0.08);
+    /* people: the supervisor at her desk and an operator doing rounds */
+    var person = function (shirt, seated) { var g = new THREE.Group(), skin = 0xd9a77f, pm = function (geo, col, x, y, z) { var m = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color: col, roughness: 0.85 })); m.position.set(x, y, z); g.add(m); return m; };
+      var hy = seated ? 0.45 : 0.9; pm(new THREE.CapsuleGeometry(0.17, 0.45, 4, 10), shirt, 0, hy + 0.36, 0); pm(new THREE.SphereGeometry(0.12, 16, 12), skin, 0, hy + 0.82, 0); pm(new THREE.SphereGeometry(0.125, 16, 12, 0, Math.PI * 2, 0, 1.3), 0x2b1d14, 0, hy + 0.85, 0.01);
+      var legs = [-0.08, 0.08].map(function (x) { var l = new THREE.Group(); l.position.set(x, hy, 0); var m = new THREE.Mesh(new THREE.CapsuleGeometry(0.065, seated ? 0.32 : 0.62, 4, 8), new THREE.MeshStandardMaterial({ color: 0x252a36, roughness: 0.9 })); m.position.y = seated ? -0.05 : -0.42; if (seated) { m.rotation.x = Math.PI / 2; m.position.z = -0.2; } l.add(m); g.add(l); return l; });
+      var arms = [-0.22, 0.22].map(function (x) { var a = new THREE.Group(); a.position.set(x, hy + 0.6, 0); var m = new THREE.Mesh(new THREE.CapsuleGeometry(0.05, 0.42, 4, 8), new THREE.MeshStandardMaterial({ color: shirt, roughness: 0.85 })); m.position.y = -0.25; a.add(m); g.add(a); return a; });
+      g.userData = { legs: legs, arms: arms }; sc.add(g); return g; };
+    var sup = person(0xf2f2f2, true); sup.position.set(0, 0, SZ + 0.45); sup.rotation.y = Math.PI;
+    var walker = person(0x2f5d9e, false); FEEL.people = { sup: sup, walk: walker, a: 0.2, dir: 1, pause: 0 };
+    /* the hand that reaches for controls */
+    var hg = new THREE.Group(), skinM = new THREE.MeshStandardMaterial({ color: 0xd9a77f, roughness: 0.7 }), slv = new THREE.MeshStandardMaterial({ color: 0x2f5d9e, roughness: 0.9 });
+    var palm = new THREE.Mesh(new THREE.BoxGeometry(0.075, 0.025, 0.09), skinM); hg.add(palm); [-0.027, -0.009, 0.009, 0.027].forEach(function (x, i) { var f = new THREE.Mesh(new THREE.CapsuleGeometry(0.009, 0.045 - Math.abs(i - 1.5) * 0.006, 3, 6), skinM); f.rotation.x = Math.PI / 2; f.position.set(x, 0, -0.07); hg.add(f); });
+    var th = new THREE.Mesh(new THREE.CapsuleGeometry(0.01, 0.035, 3, 6), skinM); th.rotation.set(Math.PI / 2, 0, 0.9); th.position.set(-0.05, 0, -0.02); hg.add(th); var arm = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.045, 0.35, 10), slv); arm.rotation.x = Math.PI / 2; arm.position.z = 0.22; hg.add(arm);
+    hg.visible = false; sc.add(hg); FEEL.hand = hg; },
+  reach: function (h) { if (!FEEL.hand || !h || !h.point) return; var hd = FEEL.hand, c = R3.cam.position, p = h.point.clone(), d = c.clone().sub(p).normalize(); FEEL.hFrom = p.clone().add(d.clone().multiplyScalar(0.45)).add(new THREE.Vector3(0.12, -0.18, 0)); FEEL.hTo = p.clone().add(d.multiplyScalar(0.06)); hd.position.copy(FEEL.hFrom); hd.lookAt(FEEL.hTo.clone().add(FEEL.hTo.clone().sub(FEEL.hFrom))); hd.visible = true; FEEL.hT = 0; },
+  tick: function (dt) { if (!R3 || !S || !S.p) return; FEEL.build(); FEEL.t += dt; var p = S.p, x = p.x;
+    /* sound */ if (AUD.ctx && S.cfg.snd) { FEEL.audio(); var ld = x.tb.latched ? clamp(x.tb.rpm / 3000, 0, 1) * (0.4 + 0.6 * clamp(x.tb.mw / 1150, 0, 1)) : 0, now = AUD.ctx.currentTime; FEEL.rum.gain.setTargetAtTime(0.05 + ld * 0.35, now, 0.6); FEEL.tg.gain.setTargetAtTime(x.tb.gen ? 0.006 + 0.01 * ld : 0, now, 0.6);
+      if (!S.paused && !S.menu) { if ((FEEL.chatT -= dt) < 0) { FEEL.chatT = 35 + Math.random() * 60; FEEL.chatter(); } if ((FEEL.keyT -= dt) < 0) { FEEL.keyT = 6 + Math.random() * 14; FEEL.keys(); } } }
+    /* lighting: blackout when the unit boards lose power; emergency lights on the safety buses; the odd flicker */
+    var unit = busOn(x, 'A') || busOn(x, 'B'), saf = busOn(x, 'EA') || busOn(x, 'EB'), lvl = unit ? 1 : saf ? 0.28 : 0.06, fl = 1;
+    if ((FEEL.flT -= dt) < 0) { FEEL.flT = 25 + Math.random() * 50; FEEL.flk = 0.25; } if (FEEL.flk > 0) { FEEL.flk -= dt; fl = Math.random() < 0.5 ? 0.82 : 1; }
+    FEEL.lv = (FEEL.lv == null ? 1 : FEEL.lv) + (lvl - (FEEL.lv == null ? 1 : FEEL.lv)) * (1 - Math.exp(-dt * (lvl < FEEL.lv ? 12 : 1.5))); var k = FEEL.lv * fl;
+    if (FEEL.lights && Math.abs(k - (FEEL.lk || 0)) > 0.002) { FEEL.lk = k; FEEL.lights.forEach(function (q) { q[0].intensity = q[1] * k; }); R3.ren.toneMappingExposure = FEEL.exp0 * (0.55 + 0.45 * k); if (lvl < 1 && !FEEL.bo) { FEEL.bo = true; S.addLog('Control room lighting lost: emergency lighting on'); } if (lvl === 1) FEEL.bo = false; }
+    /* people */ var P = FEEL.people; if (P) { var w = P.walk; if (P.pause > 0) P.pause -= dt; else { P.a += P.dir * dt * 0.12; if (P.a > 0.9 || P.a < -0.9) { P.dir *= -1; P.pause = 4 + Math.random() * 6; } }
+      var r = 6.2, ax = Math.sin(P.a) * r, az = BCZ - Math.cos(P.a) * r; w.position.set(ax, 0, az); w.rotation.y = P.pause > 0 ? Math.atan2(Math.sin(P.a), -Math.cos(P.a)) : Math.atan2(Math.cos(P.a) * P.dir, Math.sin(P.a) * P.dir);
+      var sw = P.pause > 0 ? 0 : Math.sin(FEEL.t * 7) * 0.45; w.userData.legs[0].rotation.x = sw; w.userData.legs[1].rotation.x = -sw; w.userData.arms[0].rotation.x = -sw * 0.7; w.userData.arms[1].rotation.x = sw * 0.7;
+      P.sup.userData.arms[1].rotation.x = -1.1 + Math.sin(FEEL.t * 9) * 0.05 * (Math.sin(FEEL.t * 0.7) > 0 ? 1 : 0); P.sup.userData.arms[0].rotation.x = -1.1; P.sup.children[1].rotation.y = Math.sin(FEEL.t * 0.3) * 0.4; }
+    /* hand */ if (FEEL.hand && FEEL.hand.visible) { FEEL.hT += dt / 0.5; var u = FEEL.hT < 0.5 ? FEEL.hT * 2 : 2 - FEEL.hT * 2, e = u * u * (3 - 2 * u); FEEL.hand.position.lerpVectors(FEEL.hFrom, FEEL.hTo, e); if (FEEL.hT >= 1) FEEL.hand.visible = false; } }
+};
+
 /* ================================================================ what's in the simulator ================================================================ */
 var ROAD = [
   { t: 'Reactor startup', s: 'now', d: 'Pre-startup checks, trip breakers, rods, nuclear instruments, the 1/M plot, criticality, P-6 and the point of adding heat. Guided checklist.' },
@@ -2694,9 +2749,9 @@ var AUD = { ctx: null,
   tone: function (t, f, dur, type, vol, f2) { var c = AUD.ctx; if (!c) return; var o = c.createOscillator(); o.type = type || 'sine'; o.frequency.setValueAtTime(f, t); if (f2) o.frequency.exponentialRampToValueAtTime(f2, t + dur); var g = c.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(vol, t + 0.005); g.gain.exponentialRampToValueAtTime(0.0005, t + dur); o.connect(g); g.connect(AUD.master); o.start(t); o.stop(t + dur + 0.02); },
   sfx: function (k) {
     var c = AUD.ctx; if (!c || !S.cfg.snd) return; var t = c.currentTime + 0.005;
-    if (k === 'btn') { AUD.noise(t, 0.025, 3200, 2, 0.25); AUD.tone(t, 1900, 0.03, 'square', 0.03); }
-    else if (k === 'switch') { AUD.noise(t, 0.04, 1800, 1.5, 0.45); AUD.noise(t + 0.03, 0.03, 2600, 2, 0.25); }
-    else if (k === 'detent') { AUD.noise(t, 0.03, 2200, 3, 0.35); }
+    if (k === 'btn') { AUD.noise(t, 0.025, 3200, 2, 0.25); AUD.tone(t, 1900, 0.03, 'square', 0.03); AUD.tone(t, 160, 0.05, 'sine', 0.08, 90); }
+    else if (k === 'switch') { AUD.noise(t, 0.04, 1800, 1.5, 0.45); AUD.noise(t + 0.03, 0.03, 2600, 2, 0.25); AUD.tone(t + 0.01, 110, 0.07, 'sine', 0.12, 60); AUD.noise(t + 0.01, 0.06, 300, 1, 0.25, 'lowpass'); }
+    else if (k === 'detent') { AUD.noise(t, 0.03, 2200, 3, 0.35); AUD.tone(t, 220, 0.04, 'sine', 0.06, 150); }
     else if (k === 'breaker') { AUD.tone(t, 70, 0.3, 'sine', 0.5, 40); AUD.noise(t, 0.12, 900, 0.8, 0.7, 'lowpass'); AUD.noise(t + 0.02, 0.08, 3000, 2, 0.3); }
     else if (k === 'deny') { AUD.tone(t, 240, 0.14, 'square', 0.05); AUD.tone(t + 0.15, 180, 0.18, 'square', 0.05); }
     else if (k === 'step') { AUD.noise(t, 0.035, 700, 2.5, 0.18); }
@@ -2759,8 +2814,9 @@ function moveCam(dt) {
   var f = 0, s = 0; if (KEYS.w || KEYS.arrowup) f += 1; if (KEYS.s || KEYS.arrowdown) f -= 1; if (KEYS.a || KEYS.arrowleft) s -= 1; if (KEYS.d || KEYS.arrowright) s += 1;
   if (JOY.on) { f += -JOY.y; s += JOY.x; }
   if (CAM.tw) { var tw = CAM.tw; tw.t += dt / tw.dur; var k = tw.t >= 1 ? 1 : tw.t * tw.t * (3 - 2 * tw.t); ['x', 'y', 'z', 'yaw', 'pitch', 'fov'].forEach(function (q) { CAM[q] = lerp(tw.a[q], tw.b[q], k); }); if (tw.t >= 1) CAM.tw = null; if (!(f || s)) return; CAM.tw = null; }
-  if (!(f || s)) return; var m = Math.hypot(f, s); if (m > 1) { f /= m; s /= m; }
-  var sp = (KEYS.shift ? 3.6 : 2.0) * dt, nx = CAM.x + (-Math.sin(CAM.yaw) * f + Math.cos(CAM.yaw) * s) * sp, nz = CAM.z + (-Math.cos(CAM.yaw) * f - Math.sin(CAM.yaw) * s) * sp, was = blocked(CAM.x, CAM.z);
+  var m = Math.hypot(f, s); if (m > 1) { f /= m; s /= m; } var vmax = KEYS.shift ? 3.6 : 2.0, tx = (-Math.sin(CAM.yaw) * f + Math.cos(CAM.yaw) * s) * vmax, tz = (-Math.cos(CAM.yaw) * f - Math.sin(CAM.yaw) * s) * vmax, ea = 1 - Math.exp(-dt * (m ? 6 : 8));
+  CAM.vx = (CAM.vx || 0) + (tx - (CAM.vx || 0)) * ea; CAM.vz = (CAM.vz || 0) + (tz - (CAM.vz || 0)) * ea; if (!m && Math.hypot(CAM.vx, CAM.vz) < 0.02) { CAM.vx = CAM.vz = 0; return; }
+  var sp = Math.hypot(CAM.vx, CAM.vz) * dt, nx = CAM.x + CAM.vx * dt, nz = CAM.z + CAM.vz * dt, was = blocked(CAM.x, CAM.z);
   if (!blocked(nx, nz) || was) { CAM.x = nx; CAM.z = nz; } else if (!blocked(nx, CAM.z)) CAM.x = nx; else if (!blocked(CAM.x, nz)) CAM.z = nz;
   CAM.bobT = (CAM.bobT || 0) + sp * 4.4; CAM.y += (1.65 + Math.sin(CAM.bobT) * 0.022 - CAM.y) * (1 - Math.exp(-dt * 9)); CAM.fov += (60 - CAM.fov) * (1 - Math.exp(-dt * 3)); if (CAM.view !== 'walk') { CAM.view = 'walk'; HUD.dirty = true; }
 }
@@ -2822,7 +2878,7 @@ function onUp(e) {
 }
 function activate(h, touch) {
   var hi = hitInfo(h); if (!hi) return; hideExplain(); EXP.t0 = performance.now();
-  if (hi.act) { hi.act(h); HUD.dirty = true; return; }
+  if (hi.act) { try { FEEL.reach(h); } catch (e) {} hi.act(h); HUD.dirty = true; return; }
   if (hi.view) { goView(hi.view); return; }
   if (hi.tip) { showTip(typeof hi.tip === 'function' ? hi.tip() : hi.tip, touch ? null : PTR.hx, touch ? null : PTR.hy, true); }
 }
@@ -3225,7 +3281,7 @@ function frame(now) {
   HL.forEach(function (q) { q.t += dt; var s = 1 + 0.15 * Math.sin(q.t * 6); q.m.scale.set(s, s, s); q.m.material.opacity = 0.55 + 0.45 * Math.sin(q.t * 6); }); if (HL.length && HL[0].t > 12) clearHL();
   /* widgets: annunciators every frame, the rest a slice at a time */
   ANNW.forEach(function (w) { redraw(w); });
-  beFrame(dt); guideTick(dt);
+  beFrame(dt); guideTick(dt); try { FEEL.tick(dt); } catch (e) {}
   var per = PERF.lite ? Math.max(3, Math.ceil(WG.length / 16)) : Math.max(10, Math.ceil(WG.length / 6)); for (var j = 0; j < per; j++) { rr0 = (rr0 + 1) % WG.length; var w = WG[rr0]; if (!w.isAnn) redraw(w); }
   AUD.tick(dt); hudTick(dt); explainTick(now);
   MULTI.tick(dt);
@@ -3276,7 +3332,7 @@ function close() {
   if (!root) return; try { save(); } catch (e) {} try { MULTI.closeAll(); } catch (e) {} cancelAnimationFrame(RAF); RAF = 0; root.hidden = true; document.removeEventListener('keydown', kd); document.removeEventListener('keyup', ku); KEYS = {};
   try { if (AUD.ctx) AUD.ctx.suspend(); } catch (e) {} try { if (window.speechSynthesis) speechSynthesis.cancel(); } catch (e) {} try { API.close(); } catch (e) {}
 }
-window.CRIT_PLANT = { open: open, close: close, _dbg: { S: function () { return S; }, TEACH: TEACH, EXAM: EXAM, PROC: PROC, procMenu: function () { procMenu(); }, MULTI: MULTI, TRI: TRI, multiMenu: function () { multiMenu(); }, MVH: MVH, FAULT: FAULT, TS: TS, CREW: CREW, coreMenu: function (t) { coreMenu(t); }, tsMenu: function () { tsMenu(); }, crx: function () { return crx(); }, rtp: function () { return rtp(); }, CAR: CAR, careerMenu: function () { careerMenu(); }, startAsc: function () { startAsc(); }, ctl: function (re, arg) { var r = new RegExp(re), m = HITS.filter(function (h) { var o = h.userData.hit, t = typeof o.tip === 'function' ? o.tip() : o.tip; return t && r.test(t) && (o.act || o.hold); }); if (m.length !== 1) return 'match ' + m.length + ': ' + m.slice(0, 4).map(function (h) { var o = h.userData.hit; return typeof o.tip === 'function' ? o.tip() : o.tip; }).join(' | '); var o = m[0].userData.hit; if (o.act) o.act(arg); else { o.hold(true); o.hold(false); } return 'ok'; }, tips: function (re) { var r = new RegExp(re); return HITS.map(function (h) { var o = h.userData.hit; return typeof o.tip === 'function' ? o.tip() : o.tip; }).filter(function (t) { return t && r.test(t); }); }, MS: MS, ACT: ACT, ANNC: ANNC, NI: NI, D: D, CAM: CAM, goView: goView, showMe: showMe, setTS: setTS, step: function (sec, h) { h = h || 0.05; var p = S.p; for (var t = 0; t < sec; t += h) { plantStep(p, h); niTick(p, h); rps(p); permissives(p); oneMTick(p, h); derive(h); MS.tick(h); ANNC.tick(); CAR.tick(h, 0); TS.tick(h); if (p.sur > S.st.maxSur && !p.tripped) S.st.maxSur = p.sur; if (p.everCrit && S.st.critPc == null) { S.st.critPc = p.pc; S.st.predPc = ecpFromOneM(p); S.st.pts = Math.max(0, p.oneM.length - 1); } } },
+window.CRIT_PLANT = { open: open, close: close, _dbg: { S: function () { return S; }, FEEL: FEEL, TEACH: TEACH, EXAM: EXAM, PROC: PROC, procMenu: function () { procMenu(); }, MULTI: MULTI, TRI: TRI, multiMenu: function () { multiMenu(); }, MVH: MVH, FAULT: FAULT, TS: TS, CREW: CREW, coreMenu: function (t) { coreMenu(t); }, tsMenu: function () { tsMenu(); }, crx: function () { return crx(); }, rtp: function () { return rtp(); }, CAR: CAR, careerMenu: function () { careerMenu(); }, startAsc: function () { startAsc(); }, ctl: function (re, arg) { var r = new RegExp(re), m = HITS.filter(function (h) { var o = h.userData.hit, t = typeof o.tip === 'function' ? o.tip() : o.tip; return t && r.test(t) && (o.act || o.hold); }); if (m.length !== 1) return 'match ' + m.length + ': ' + m.slice(0, 4).map(function (h) { var o = h.userData.hit; return typeof o.tip === 'function' ? o.tip() : o.tip; }).join(' | '); var o = m[0].userData.hit; if (o.act) o.act(arg); else { o.hold(true); o.hold(false); } return 'ok'; }, tips: function (re) { var r = new RegExp(re); return HITS.map(function (h) { var o = h.userData.hit; return typeof o.tip === 'function' ? o.tip() : o.tip; }).filter(function (t) { return t && r.test(t); }); }, MS: MS, ACT: ACT, ANNC: ANNC, NI: NI, D: D, CAM: CAM, goView: goView, showMe: showMe, setTS: setTS, step: function (sec, h) { h = h || 0.05; var p = S.p; for (var t = 0; t < sec; t += h) { plantStep(p, h); niTick(p, h); rps(p); permissives(p); oneMTick(p, h); derive(h); MS.tick(h); ANNC.tick(); CAR.tick(h, 0); TS.tick(h); if (p.sur > S.st.maxSur && !p.tripped) S.st.maxSur = p.sur; if (p.everCrit && S.st.critPc == null) { S.st.critPc = p.pc; S.st.predPc = ecpFromOneM(p); S.st.pts = Math.max(0, p.oneM.length - 1); } } },
   pick: function (x, y) { var hh = pick(x, y); return hh ? { tip: hh.object.userData.hit && (typeof hh.object.userData.hit.tip === 'function' ? hh.object.userData.hit.tip() : hh.object.userData.hit.tip), act: !!(hh.object.userData.hit && hh.object.userData.hit.act), hold: !!(hh.object.userData.hit && hh.object.userData.hit.hold) } : null; },
   click: function (x, y) { activate(pick(x, y)); }, verifyPre: verifyPre, startShutdown: startShutdown, PRE: PRE, SHUT: SHUT, EXP: EXP, shiftLeft: function () { return shiftLeft(); }, ofs: function () { return OFS; }, settled: function () { return !CAM.tw && Math.abs(OFS.cur - (OFS.want || 0)) < 0.5; }, R3: function () { return R3; }, desk: function (id, u, d, lift) { var v = SEC[id].desk.localToWorld(new THREE.Vector3(u, lift == null ? 0.0015 : lift, -d * SL)); v.project(R3.cam); var r = R3.ren.domElement.getBoundingClientRect(); return [r.left + (v.x + 1) / 2 * r.width, r.top + (1 - v.y) / 2 * r.height]; }, WG: WG, HITS: HITS, SEC: SEC, rho: function () { return rhoParts(S.p); }, ecp: function () { return ecpFromOneM(S.p); } } };
 })();
