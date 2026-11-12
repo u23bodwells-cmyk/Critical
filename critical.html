@@ -921,7 +921,7 @@ html.rpt .mt.mgo{background:linear-gradient(90deg,var(--glow),var(--glow2));colo
 </div>
 <div id="toasts" aria-live="polite"></div><div id="modal" class="modal"></div>
 <div id="bootMsg" style="position:fixed;inset:0;display:grid;place-items:center;font:600 16px system-ui,sans-serif;color:#cfe3ff;z-index:1">Loading Critical… <span id="bootN">0</span>/15</div>
-<script>(function(){var n=15,v='22028d0d',got=[],done=0,M=document.getElementById('bootMsg');
+<script>(function(){var n=15,v='dee70f01',got=[],done=0,M=document.getElementById('bootMsg');
 function one(i,t){return fetch('app/part-'+i+'.txt?v='+v,{cache:t>1?'reload':'default'}).then(function(r){if(!r.ok)throw 0;return r.text()}).catch(function(){if(t<6)return new Promise(function(r){setTimeout(r,600*t)}).then(function(){return one(i,t+1)});throw 0})}
 var ps=[];for(var i=0;i<n;i++)(function(i){ps.push(one(i,1).then(function(x){got[i]=x;document.getElementById('bootN').textContent=++done}))})(i);
 Promise.all(ps).then(function(){var sc=document.createElement('script');sc.text=got.join('');M.remove();document.body.appendChild(sc)}).catch(function(){M.innerHTML='<div style="text-align:center">Couldn\u2019t download Critical: the connection kept dropping.<br><br><button onclick="location.reload()" style="font:inherit;padding:10px 18px;border-radius:10px;border:0;background:#534AB7;color:#fff">Try again</button></div>'})})();</script>

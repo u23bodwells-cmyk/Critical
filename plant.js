@@ -1141,7 +1141,9 @@ function realism(scene) {
   louv.color.setScalar(4.2); scene.traverse(function (o) { if (o.isMesh && o.material === MAT.lightP && o.position.y > CH - 0.2) o.material = louv; });
   /* --- acoustic fabric panels on the side walls, and cable trays along the back --- */
   var acM = new THREE.MeshStandardMaterial({ color: 0x46535f, roughness: 0.98, normalMap: MAT.fabric.normalMap });
-  for (var z = -7; z <= 6; z += 2.7) { box(0.05, 1.5, 2.4, acM, -RX + 0.03, 3.0, z, scene); box(0.05, 1.5, 2.4, acM, RX - 0.03, 3.0, z, scene); }
+  /* the acoustic panels show the mountain view: a painted landscape on the face that looks into the room */
+  var landM = new THREE.MeshStandardMaterial({ map: signTex(1024, 640, drawLandscape), roughness: 0.9, emissive: 0x222222, emissiveMap: null });
+  for (var z = -7; z <= 6; z += 2.7) { box(0.05, 1.5, 2.4, [landM, acM, acM, acM, acM, acM], -RX + 0.03, 3.0, z, scene); box(0.05, 1.5, 2.4, [acM, landM, acM, acM, acM, acM], RX - 0.03, 3.0, z, scene); }
   var tray = new THREE.Group(); scene.add(tray); tray.position.set(0, CH - 3.6 + 0.2, ZB + 0.6 + 7.6); for (var xx = -10; xx <= 10; xx += 2.5) box(2.5, 0.02, 0.4, MAT.metal, xx + 1.25, 3.3, -7.6, tray); box(20.5, 0.08, 0.02, MAT.metal, 0, 3.34, -7.4, tray); box(20.5, 0.08, 0.02, MAT.metal, 0, 3.34, -7.8, tray);
   for (var c = 0; c < 6; c++) { var cab = cyl(0.025, 0.025, 20.4, new THREE.MeshStandardMaterial({ color: [0x2b2b2b, 0x8a1c1c, 0x1c3f8a, 0x2b2b2b, 0xb38f00, 0x2b2b2b][c], roughness: 0.6 }), 8); cab.rotation.z = Math.PI / 2; cab.position.set(0, 3.335, -7.72 + c * 0.055); tray.add(cab); }
   /* --- ceiling vent grilles and sprinkler heads --- */
