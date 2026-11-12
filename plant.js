@@ -669,7 +669,7 @@ function buildRoom(scene) {
   var wt = signTex(512, 512, function (g) { var gr = g.createLinearGradient(0, 0, 0, 512); gr.addColorStop(0, '#dcdedb'); gr.addColorStop(0.68, '#d3d6d2'); gr.addColorStop(0.69, '#56677a'); gr.addColorStop(0.7, '#3b4652'); gr.addColorStop(1, '#3b4652'); g.fillStyle = gr; g.fillRect(0, 0, 512, 512); speck(g, 512, 512, 3000, 0.03); });
   wt.wrapS = THREE.RepeatWrapping;
   var wall = function (w, x, z, ry) { var t = wt.clone(); t.needsUpdate = true; t.repeat.set(w / CH, 1); var m = new THREE.Mesh(new THREE.PlaneGeometry(w, CH), new THREE.MeshStandardMaterial({ map: t, roughness: 0.85 })); m.position.set(x, CH / 2, z); m.rotation.y = ry; scene.add(m); };
-  wall(2 * RX, 0, ZB, 0); wall(2 * RX, 0, ZF, Math.PI); wall(RDP, -RX, RZC, Math.PI / 2); wall(RDP, RX, RZC, -Math.PI / 2); addWindows(scene);
+  wall(2 * RX, 0, ZB, 0); wall(2 * RX, 0, ZF, Math.PI); wall(RDP / 2 - 0.65, -RX, RZC - (RDP / 4 + 0.325), Math.PI / 2); wall(RDP / 2 - 0.65, -RX, RZC + (RDP / 4 + 0.325), Math.PI / 2); wall(RDP, RX, RZC, -Math.PI / 2); addWindows(scene); addHall(scene);
   /* suspended ceiling with recessed light panels */
   var ct = signTex(256, 256, function (g) { g.fillStyle = '#c9cac6'; g.fillRect(0, 0, 256, 256); speck(g, 256, 256, 4000, 0.05); g.strokeStyle = '#b9bcb8'; g.lineWidth = 5; g.strokeRect(0, 0, 256, 256); });
   ct.wrapS = ct.wrapT = THREE.RepeatWrapping; ct.repeat.set(2 * RX / 0.6, RDP / 0.6);
@@ -1093,7 +1093,7 @@ function furniture(scene) {
   var dr = new THREE.Group(); dr.position.set(RX - 0.04, 0, 9.9); dr.rotation.y = -Math.PI / 2; scene.add(dr); box(2.0, 2.3, 0.08, MAT.trim, 0, 1.15, 0, dr);
   [-0.49, 0.49].forEach(function (k) { box(0.94, 2.2, 0.05, MAT.cab, k, 1.1, 0.03, dr); box(0.3, 0.5, 0.01, MAT.glass, k, 1.55, 0.06, dr); box(0.03, 0.25, 0.04, MAT.chrome, k * 0.15, 1.05, 0.08, dr); });
   var ex = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.18), new THREE.MeshBasicMaterial({ map: signTex(256, 92, function (g) { g.fillStyle = '#0a8a3a'; g.fillRect(0, 0, 256, 92); ctext(g, '🏃 EXIT →', 128, 48, 46, '#fff', 'center', 240); }) })); ex.position.set(RX - 0.05, 2.5, 9.9); ex.rotation.y = -Math.PI / 2; scene.add(ex);
-  var dh = invis(2, 2.3, 0.3); dh.position.set(RX - 0.1, 1.15, 9.9); scene.add(dh); hit(dh, { tip: 'Door to the rest of the station: walking the reactor building, turbine hall and switchyard comes later', act: function () { S.toast('🔒 Walking the rest of the station comes later.', 'lock'); S.sfx('deny'); } });
+  var dh = invis(2, 2.3, 0.3); dh.position.set(RX - 0.1, 1.15, 9.9); scene.add(dh); hit(dh, { tip: 'Door to the turbine hall and switchyard (coming later). The reactor building is through the door on the west wall, between the windows.', act: function () { S.toast('🔒 Walking the rest of the station comes later.', 'lock'); S.sfx('deny'); } });
   /* printer, plant, cooler */
   box(0.6, 0.9, 0.5, MAT.wall, 9.0, 0.45, ZF - 0.4, scene); box(0.5, 0.25, 0.42, MAT.desk, 9.0, 1.02, ZF - 0.4, scene);
   var pot = cyl(0.2, 0.15, 0.4, MAT.dark, 16); pot.position.set(-RX + 0.6, 0.2, ZF - 0.6); scene.add(pot);
@@ -1661,6 +1661,7 @@ var ACH = [
   ['crit', '☢️', 'First criticality', 'Take the reactor critical.', 50],
   ['star3', '⭐', 'Textbook startup', 'Get three stars on a reactor startup.', 100],
   ['shut', '⏬', 'Safe shutdown', 'Complete the shutdown checklist.', 50],
+  ['hall', '🚶', 'Plant walkdown', 'Walk through to the reactor hall and look into the cavity.', 40],
   ['sync', '⚡', 'On the grid', 'Synchronise the generator to the 400 kV grid.', 75],
   ['asc', '📈', 'Power ascension', 'Complete the GOP-302 checklist to 50% power.', 100],
   ['full', '🔥', 'Full power', 'Send 1,100 MW or more to the grid.', 150],
@@ -2221,7 +2222,7 @@ function infOn(x, id) { var f = x.inF; return !!(f && f.id === id && !f.sel); }
 function infDetail() { var x = S.p.x; return x.inF ? INF.filter(function (q) { return q.id === x.inF.id; })[0] : null; }
 function infInsert(id) { var x = S.p.x; x.inF = { id: id, t: S.p.t, sel: false }; S.addLog('INSTRUCTOR: instrument failure inserted'); }
 /* random events: equipment faults and instrument failures that just happen in free play, if the setting allows */
-var RNDE = { T: 0, tick: function (sim) { if (CRISIS.on || !S.cfg.randEv || EXAM.on || !S.p || S.p.tripped || MS.phase() !== 'free') return; var x = S.p.x; if (FAULT.active().length || (x.inF && !x.inF.sel)) return;
+var RNDE = { T: 0, tick: function (sim) { if (CRISIS.on || WATCH.on || !S.cfg.randEv || EXAM.on || !S.p || S.p.tripped || MS.phase() !== 'free') return; var x = S.p.x; if (FAULT.active().length || (x.inF && !x.inF.sel)) return;
   RNDE.T += sim; if (RNDE.T < 600) return; RNDE.T = 0; if (Math.random() > 0.12) return; /* about one event every 1.5 hours of plant time */
   var c = FAULT.list.filter(function (q) { return ['grid', 'lb'].indexOf(q.id) < 0 && !(x.f && x.f[q.id]); }); FAULT.insert(c[Math.floor(Math.random() * c.length)].id, true); } };
 var EXAM = { on: false,
@@ -2829,6 +2830,68 @@ function drawLandscape(g) { var W = 1024, H = 640, t = performance.now() / 1000,
 function addWindows(scene) { var frame = function (x, z, ry) { var m = new THREE.Mesh(new THREE.BoxGeometry(2.3, 1.45, 0.08), new THREE.MeshStandardMaterial({ color: 0x2a2e33, roughness: 0.6, metalness: 0.3 })); m.position.set(x, 2.45, z); m.rotation.y = ry; scene.add(m); };
   frame(-RX + 0.05, RZC - 2.6, Math.PI / 2); screenMesh(scene, 2.1, 1.3, 1024, 640, drawReactorWin, 0.5, -RX + 0.1, 2.45, RZC - 2.6, Math.PI / 2, function () { return 'Window into the reactor hall: the vessel head in its cavity. The blue glow is Cherenkov light, brighter with power.'; }, 'winr');
   frame(-RX + 0.05, RZC + 2.6, Math.PI / 2); screenMesh(scene, 2.1, 1.3, 1024, 640, drawLandscape, 0.12, -RX + 0.1, 2.45, RZC + 2.6, Math.PI / 2, function () { return 'The view outside: mountains, the cooling towers, and on a clear night the aurora. The scene follows the station clock.'; }, 'winl'); }
+/* ================================================================ the corridor and the reactor hall ================================================================
+   A door in the west wall, between the two windows, leads down a short corridor into the reactor hall: the vessel head in its
+   cavity, the refuelling pool, the polar crane overhead. Walk in with the reactor at power and the area monitors show it. */
+var HALL = { door: 1.3, cx: -RX - 8, cz: RZC, cw: 2.6, hx: -RX - 8, hw: 18, hd: 18, vx: -RX - 17, in: false, near: null, glow: null, mon: null };
+function inHallArea(x, z) { var m = 0.35; if (x > -RX + m && x < RX - m && z > ZB + m && z < ZF - m) return true; /* control room */
+  if (x <= -RX + m && x >= HALL.hx + 0.2 && Math.abs(z - HALL.cz) < HALL.cw / 2 - m) return true; /* corridor */
+  if (x <= HALL.hx + 0.3 && x >= HALL.hx - HALL.hw + m && Math.abs(z - HALL.cz) < HALL.hd / 2 - m) { if (Math.hypot(x - HALL.vx, z - HALL.cz) < 4.6) return false; return true; } /* hall, minus the cavity railing */
+  return false; }
+function addHall(scene) { var cz = HALL.cz, cw = HALL.cw, hx = HALL.hx, hw = HALL.hw, hd = HALL.hd, vx = HALL.vx, conc = new THREE.MeshStandardMaterial({ color: 0xb9bbb6, roughness: 0.95 }), fl = new THREE.MeshStandardMaterial({ color: 0x6f7a7c, roughness: 0.9 }), stl = new THREE.MeshStandardMaterial({ color: 0x8d9399, roughness: 0.35, metalness: 0.75 }), yel = new THREE.MeshStandardMaterial({ color: 0xe0b322, roughness: 0.5 }), liner = new THREE.MeshStandardMaterial({ color: 0xa8acb0, roughness: 0.5, metalness: 0.6 });
+  var pl = function (w, h, mat, x, y, z, rx, ry) { var m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), mat); m.position.set(x, y, z); m.rotation.set(rx || 0, ry || 0, 0); m.userData.noColl = true; scene.add(m); return m; };
+  /* door frame in the west wall and the lintel that fills the gap above it */
+  box(HALL.door + 0.3, 0.1, 0.25, stl, -RX, 2.35, cz, scene); [-1, 1].forEach(function (k) { box(0.1, 2.4, 0.25, stl, -RX, 1.2, cz + k * (HALL.door / 2 + 0.05), scene); });
+  pl(HALL.door + 0.4, CH - 2.3, conc, -RX + 0.01, (CH + 2.3) / 2, cz, 0, Math.PI / 2);
+  var sign = pl(1.1, 0.26, new THREE.MeshBasicMaterial({ map: signTex(512, 120, function (g) { g.fillStyle = '#1d3f7a'; g.fillRect(0, 0, 512, 120); ctext(g, '→ REACTOR BUILDING', 256, 60, 54, '#fff', 'center', 490); }) }), -RX + 0.03, 2.75, cz, 0, Math.PI / 2);
+  /* corridor: floor, ceiling, two walls, strip lights */
+  var cl = RX + hx; var cmx = (-RX + hx) / 2; pl(-cl, cw, fl, cmx, 0.001, cz, -Math.PI / 2); pl(-cl, cw, conc, cmx, 3.0, cz, Math.PI / 2);
+  pl(-cl, 3.0, conc, cmx, 1.5, cz - cw / 2, 0, 0); pl(-cl, 3.0, conc, cmx, 1.5, cz + cw / 2, 0, Math.PI);
+  box(-cl, 0.1, 0.12, yel, cmx, 1.0, cz - cw / 2 + 0.06, scene); box(-cl, 0.1, 0.12, yel, cmx, 1.0, cz + cw / 2 - 0.06, scene);
+  for (var i = 1; i < 4; i++) { var lx = -RX + (hx + RX) * i / 4; box(1.2, 0.06, 0.2, new THREE.MeshBasicMaterial({ color: 0xfff8e8 }), lx, 2.97, cz, scene); var l = new THREE.PointLight(0xfff5ea, 5, 0, 1.4); l.position.set(lx, 2.7, cz); scene.add(l); }
+  /* the hall: a tall concrete box with a steel-lined cavity in the middle */
+  var hmx = hx - hw / 2, HH = 14; pl(hw, hd, fl, hmx, 0.001, cz, -Math.PI / 2); pl(hw, hd, conc, hmx, HH, cz, Math.PI / 2);
+  pl(hw, HH, conc, hmx, HH / 2, cz - hd / 2, 0, 0); pl(hw, HH, conc, hmx, HH / 2, cz + hd / 2, 0, Math.PI); pl(hd, HH, conc, hx - hw, HH / 2, cz, 0, Math.PI / 2);
+  pl(hd / 2 - cw / 2, HH, conc, hx, HH / 2, cz - (hd / 4 + cw / 4), 0, -Math.PI / 2); pl(hd / 2 - cw / 2, HH, conc, hx, HH / 2, cz + (hd / 4 + cw / 4), 0, -Math.PI / 2); pl(cw, HH - 3, conc, hx, (HH + 3) / 2, cz, 0, -Math.PI / 2);
+  /* cavity: a ring of yellow railing at 4 m, the pool liner, the water, the vessel head below */
+  var ring = new THREE.Mesh(new THREE.RingGeometry(4.0, 4.6, 48), new THREE.MeshStandardMaterial({ color: 0xd6d8d2, roughness: 0.8 })); ring.rotation.x = -Math.PI / 2; ring.position.set(vx, 0.01, cz); ring.userData.noColl = true; scene.add(ring);
+  for (i = 0; i < 24; i++) { var a = i / 24 * Math.PI * 2, px = vx + Math.cos(a) * 4.05, pz = cz + Math.sin(a) * 4.05; var post = cyl(0.03, 0.03, 1.1, yel, 8); post.position.set(px, 0.55, pz); post.userData.noColl = true; scene.add(post); }
+  var rail = new THREE.Mesh(new THREE.TorusGeometry(4.05, 0.03, 8, 64), yel); rail.rotation.x = Math.PI / 2; rail.position.set(vx, 1.1, cz); rail.userData.noColl = true; scene.add(rail); var rail2 = rail.clone(); rail2.position.y = 0.6; scene.add(rail2);
+  var pool = cyl(4.0, 4.0, 7, liner, 48); pool.material.side = THREE.BackSide; pool.position.set(vx, -3.5, cz); pool.userData.noColl = true; scene.add(pool);
+  var vessel = cyl(2.2, 2.2, 5, stl, 40); vessel.position.set(vx, -4.5, cz); vessel.userData.noColl = true; scene.add(vessel);
+  var head = new THREE.Mesh(new THREE.SphereGeometry(2.2, 40, 20, 0, Math.PI * 2, 0, Math.PI / 2), stl); head.position.set(vx, -2.0, cz); head.userData.noColl = true; scene.add(head);
+  for (i = 0; i < 40; i++) { var ca = i / 40 * Math.PI * 2, cr = 0.5 + (i % 5) * 0.35; var st = cyl(0.05, 0.05, 1.2, stl, 6); st.position.set(vx + Math.cos(ca) * cr, -0.7 + Math.random() * 0.1, cz + Math.sin(ca) * cr); st.userData.noColl = true; scene.add(st); }
+  for (i = 0; i < 4; i++) { var na = i * Math.PI / 2 + Math.PI / 4; var noz = cyl(0.45, 0.45, 2.0, stl, 16); noz.rotation.z = Math.PI / 2; noz.rotation.y = -na; noz.position.set(vx + Math.cos(na) * 3.0, -3.2, cz + Math.sin(na) * 3.0); noz.userData.noColl = true; scene.add(noz); }
+  var water = new THREE.Mesh(new THREE.CircleGeometry(4.0, 48), new THREE.MeshStandardMaterial({ color: 0x3a8fe0, emissive: 0x1e5fcf, emissiveIntensity: 0.15, transparent: true, opacity: 0.55, roughness: 0.1 })); water.rotation.x = -Math.PI / 2; water.position.set(vx, -0.3, cz); water.userData.noColl = true; scene.add(water); HALL.glow = water;
+  var cg = new THREE.PointLight(0x4fa8ff, 0, 0, 1.6); cg.position.set(vx, 1.0, cz); scene.add(cg); HALL.light = cg;
+  /* polar crane overhead and the hall lights */
+  box(hw - 1, 0.6, 0.6, yel, hmx, HH - 2.5, cz - 6, scene); box(hw - 1, 0.6, 0.6, yel, hmx, HH - 2.5, cz + 6, scene); box(0.8, 0.8, 12.6, yel, vx, HH - 1.8, cz, scene); box(1.2, 1.0, 1.2, stl, vx + 2, HH - 3.0, cz, scene);
+  [[-5, -5], [-5, 5], [-13, -5], [-13, 5], [-9, 0]].forEach(function (q) { var l2 = new THREE.PointLight(0xfff5ea, 60, 0, 1.3); l2.position.set(hx + q[0], HH - 1.5, cz + q[1]); scene.add(l2); box(1.4, 0.1, 1.4, new THREE.MeshBasicMaterial({ color: 0xfff8e8 }), hx + q[0], HH - 0.1, cz + q[1], scene); });
+  /* area radiation monitor on the wall, and a warning sign */
+  HALL.mon = screenMesh(scene, 1.3, 0.8, 640, 400, drawAreaMon, 0.5, hx - 0.05, 1.9, cz - 4.5, -Math.PI / 2, function () { return 'Area radiation monitor: dose rate at the cavity edge, mostly N-16 from the coolant when the reactor is at power.'; }, 'arm');
+  pl(1.6, 1.0, new THREE.MeshBasicMaterial({ map: signTex(512, 320, function (g) { g.fillStyle = '#ffd400'; g.fillRect(0, 0, 512, 320); g.fillStyle = '#111'; g.font = 'bold 150px ' + FONT; g.textAlign = 'center'; g.fillText('☢', 256, 160); ctext(g, 'RADIATION CONTROLLED AREA', 256, 230, 34, '#111', 'center', 490); ctext(g, 'DOSIMETER REQUIRED · NO LONE WORKING', 256, 280, 26, '#111', 'center', 490); }) }), hx - 0.05, 1.9, cz + 4.5, 0, -Math.PI / 2);
+  var dr = cyl(0.04, 0.04, 1.6, stl, 8); dr.position.set(hx - 1.5, 0.8, cz - 3.0); dr.userData.noColl = true; scene.add(dr); }
+function hallDose() { var p = S.p; if (!p) return 0.2; var pw = clamp(D.pr / 100, 0, 1); return 0.2 + pw * 180 + (p.x && p.x.f && (p.x.f.loca || p.x.f.lb) ? 5000 : 0); }
+function drawAreaMon(g) { var W = 640, H = 400, d = hallDose(), hi = d > 100; g.fillStyle = hi ? '#3a0d0b' : '#0c1a10'; g.fillRect(0, 0, W, H); ctext(g, 'AREA MONITOR RM-12', 320, 40, 28, '#dfe6ea'); ctext(g, 'REACTOR CAVITY', 320, 72, 22, '#9fb3c8');
+  ctext(g, (d >= 1000 ? (d / 1000).toFixed(2) + ' mSv/h' : d.toFixed(d < 10 ? 2 : 0) + ' µSv/h'), 320, 190, 86, hi ? '#ff6b57' : '#7bffa0'); ctext(g, hi ? 'HIGH RADIATION · LIMIT STAY' : d > 5 ? 'ELEVATED · N-16' : 'NORMAL', 320, 290, 30, hi ? '#ffb3a8' : '#9fb3c8');
+  if (HALL.in && HALL.dose != null) ctext(g, 'YOUR DOSE THIS VISIT: ' + (HALL.dose < 1000 ? HALL.dose.toFixed(1) + ' µSv' : (HALL.dose / 1000).toFixed(2) + ' mSv'), 320, 350, 24, '#ffd34a'); }
+HALL.tick = function (dt) { var inside = CAM.x < HALL.hx + 0.3; if (inside && !HALL.in) { HALL.in = true; HALL.dose = 0; HALL.t0 = Date.now(); var d = hallDose(); S.addLog('Entered the reactor hall (' + (d < 1000 ? d.toFixed(1) + ' µSv/h' : (d / 1000).toFixed(1) + ' mSv/h') + ')'); toast(d > 100 ? '☢ Reactor hall: ' + Math.round(d) + ' µSv/h. The reactor is at power: keep the visit short.' : d > 5 ? '☢ Reactor hall: ' + d.toFixed(1) + ' µSv/h. Dosimeter on.' : '☢ Reactor hall: background only. Have a look round.', d > 100 ? 'warn' : 'ok'); CAR.unlock && CAR.unlock('hall'); AUD.sfx('chime'); }
+  if (!inside && HALL.in) { HALL.in = false; S.addLog('Left the reactor hall: dose ' + HALL.dose.toFixed(1) + ' µSv'); }
+  if (HALL.in) HALL.dose += hallDose() * dt / 3600;
+  if (HALL.glow) { var pw = clamp(D.pr / 100, 0, 1); HALL.glow.material.emissiveIntensity = 0.15 + pw * 1.6; if (HALL.light) HALL.light.intensity = pw * 90; } };
+/* ================================================================ crew watch: hand the board to the supervisor ================================================================
+   Once the unit is synchronised and above 25% power with nothing abnormal, you can hand the control room to the shift supervisor for up to
+   an hour of real time, to walk the plant or take a break. After that the crew needs two hours before they will cover again. */
+var WATCH = { on: false, left: 0, cd: 0, el: null, MAX: 3600, CD: 7200,
+  can: function () { var p = S.p, x = p && p.x; if (!x) return 'no plant'; if (WATCH.on) return null; if (WATCH.cd > 0) return 'the crew need ' + fmtT(WATCH.cd) + ' more before they cover again'; if (CRISIS.on) return 'not during a crisis shift'; if (p.tripped) return 'the reactor is tripped'; if (!x.tb.gen) return 'the generator must be synchronised first'; if (x.tb.mw < 300) return 'power must be above 25% (300 MW)'; if (FAULT.active().length || x.si.on) return 'there is a fault in the plant'; return null; },
+  start: function () { var why = WATCH.can(); if (why) { toast('👤 Supervisor: “Not yet: ' + why + '.”', 'warn'); AUD.sfx('deny'); return; } WATCH.on = true; WATCH.left = WATCH.MAX; S.addLog('Handed the board to the shift supervisor for up to 1 hour'); toast('👤 Supervisor has the board for 1 hour. Go and look at the plant; you will be called back if anything happens.', 'ok'); speak('I have the board. Back in an hour.'); WATCH.draw(); },
+  stop: function (why) { if (!WATCH.on) return; WATCH.on = false; WATCH.cd = WATCH.CD; S.addLog('Took the board back' + (why ? ' (' + why + ')' : '')); toast('👤 ' + (why ? 'Supervisor: “' + why + ' You have the board.”' : 'You have the board again.') + ' Crew can cover again in 2 h.', why ? 'warn' : 'ok'); if (why) speak(why + ' You have the board.'); WATCH.draw(); },
+  tick: function (dt) { if (WATCH.cd > 0 && !WATCH.on) { WATCH.cd = Math.max(0, WATCH.cd - dt); if (WATCH.cd === 0) toast('👤 The crew can cover the board again.', 'ok'); }
+    if (!WATCH.on) { if (WATCH.el && WATCH.el.classList.contains('show') && WATCH.cd <= 0) WATCH.el.classList.remove('show'); return; } WATCH.left -= dt; var p = S.p, x = p.x;
+    if (p.tripped) WATCH.stop('Reactor trip.'); else if (x.si.on) WATCH.stop('Safety injection.'); else if (FAULT.active().length) WATCH.stop('We have a fault.'); else if (!x.tb.gen) WATCH.stop('Generator is off the grid.'); else if (WATCH.left <= 0) WATCH.stop('That is your hour.');
+    if (WATCH.on && Math.floor(WATCH.left) % 2 === 0) WATCH.draw(); },
+  draw: function () { if (!WATCH.el) WATCH.el = h('div', 'cpnfact watch', null, root); var e = WATCH.el; if (WATCH.on) { e.textContent = '👤 Supervisor has the board · ' + fmtT(WATCH.left) + ' left · press H to take it back'; e.classList.add('show'); } else if (WATCH.cd > 0) { e.textContent = '👤 Crew cover available again in ' + fmtT(WATCH.cd); e.classList.add('show'); setTimeout(function () { if (!WATCH.on) e.classList.remove('show'); }, 6000); } else e.classList.remove('show'); }
+};
 function faultsMenu() { if (!S.menu) S.wasPaused = S.paused; setPause(true); var act = FAULT.active();
   menu('<h1>⚠ Faults</h1><p>You’re the instructor now. Put a fault into the plant, then go back to the control room and deal with it the way an operator would: read the alarms, work out what failed, act. Faults are best from power, so choose <b>Free play at 50% power</b> on the main menu first.</p>' +
     (act.length ? '<h2>Active</h2><p>' + act.map(function (q) { return '<b>' + esc(q.t) + '</b>'; }).join(', ') + '</p>' : '') +
@@ -3068,6 +3131,7 @@ var CAM = { x: 0, y: 1.65, z: 2.7, yaw: 0, pitch: -0.04, fov: 60, tw: null, view
 var VIEWDEF = {
   start: [null, [0, 1.65, CZ + 2.15], [0, 1.5, -6], 62, 'Operator position'],
   room: [null, [0, 3.1, ZF - 1.0], [0, 1.0, -4], 70, 'Whole control room'],
+  hall: [null, [-RX - 9, 1.65, RZC], [-RX - 17, 0.8, RZC], 62, 'Reactor hall'],
   rx: ['rx', [0, 1.75, 2.45], [0, 1.55, -0.75], 54, 'Reactor board'],
   nis: ['rx', [-1.2, 1.92, 0.7], [-1.2, 1.88, -0.75], 40, 'Nuclear instruments (NIS)'],
   rods: ['rx', [0.05, 1.95, 0.7], [0.05, 1.9, -0.75], 40, 'Rod position (DRPI)'],
@@ -3084,7 +3148,7 @@ var VIEWDEF = {
   core: [null, [0.53, 1.95, ZF - 3.2], [0.53, 2.0, ZF], 50, 'Core monitoring wall']
 };
 SECDEF.forEach(function (d) { if (d.id !== 'rx') { VIEWDEF[d.id] = [d.id, [0, 1.75, 2.45], [0, 1.55, -0.75], 54, d.short + ' board']; VIEWDEF[d.id + 'D'] = [d.id, [0, 1.9, 1.25], [0, 0.95, -0.3], 58, d.short + ' desk controls']; } });
-var VIEWGROUPS = [['Reactor', ['rx', 'nis', 'rods', 'params', 'rodctl', 'ann', 'rtb', 'p10']], ['Primary side boards', ['esf', 'aux', 'cvcs', 'pzr', 'rcs']], ['Secondary side boards', ['sg', 'ms', 'tb', 'gen', 'elec']], ['Desk close-ups', ['esfD', 'auxD', 'cvcsD', 'pzrD', 'rcsD', 'sgD', 'msD', 'tbD', 'genD', 'elecD']], ['Screens', ['console', 'onem', 'trends', 'proc', 'core', 'mimic', 'alarms', 'status', 'log', 'board']], ['Room', ['start', 'room']]];
+var VIEWGROUPS = [['Reactor hall', ['hall']], ['Reactor', ['rx', 'nis', 'rods', 'params', 'rodctl', 'ann', 'rtb', 'p10']], ['Primary side boards', ['esf', 'aux', 'cvcs', 'pzr', 'rcs']], ['Secondary side boards', ['sg', 'ms', 'tb', 'gen', 'elec']], ['Desk close-ups', ['esfD', 'auxD', 'cvcsD', 'pzrD', 'rcsD', 'sgD', 'msD', 'tbD', 'genD', 'elecD']], ['Screens', ['console', 'onem', 'trends', 'proc', 'core', 'mimic', 'alarms', 'status', 'log', 'board']], ['Room', ['start', 'room']]];
 function viewTarget(id) {
   var v = VIEWDEF[id]; if (!v) return null; var P = new THREE.Vector3(v[1][0], v[1][1], v[1][2]), L = new THREE.Vector3(v[2][0], v[2][1], v[2][2]);
   if (v[0]) { var g = SEC[v[0]].g; g.updateMatrixWorld(); P = g.localToWorld(P); L = g.localToWorld(L); }
@@ -3103,7 +3167,7 @@ function buildColl() { COLL = []; CLV = new THREE.Vector3(); var sc = R3.scene; 
     var sx = wb.max.x - wb.min.x, sz = wb.max.z - wb.min.z; if (wb.min.y > 1.1 || wb.max.y < 0.3 || sx * sz < 0.04 || sx > 12 || sz > 12) return;
     COLL.push({ inv: new THREE.Matrix4().copy(o.matrixWorld).invert(), b: gb, wb: wb }); }); }
 function blocked(x, z) {
-  if (x < -RX + 0.35 || x > RX - 0.35 || z < ZB + 0.35 || z > ZF - 0.35) return true; if (!R3 || !R3.scene) return false; var nc = R3.scene.children.length; if (!COLL || COLL.n !== nc) { buildColl(); COLL.n = nc; }
+  if (!inHallArea(x, z)) return true; if (!R3 || !R3.scene) return false; var nc = R3.scene.children.length; if (!COLL || COLL.n !== nc) { buildColl(); COLL.n = nc; }
   var r = 0.28; for (var i = 0; i < COLL.length; i++) { var c = COLL[i], w = c.wb; if (x < w.min.x - r || x > w.max.x + r || z < w.min.z - r || z > w.max.z + r) continue;
     for (var h = 0.35; h <= 1.1; h += 0.25) { CLV.set(x, h, z).applyMatrix4(c.inv); var b = c.b; if (CLV.y < b.min.y || CLV.y > b.max.y) continue;
       if (CLV.x > b.min.x - r && CLV.x < b.max.x + r && CLV.z > b.min.z - r && CLV.z < b.max.z + r) return true; } }
@@ -3114,7 +3178,7 @@ function moveCam(dt) {
   var f = 0, s = 0; if (KEYS.w || KEYS.arrowup) f += 1; if (KEYS.s || KEYS.arrowdown) f -= 1; if (KEYS.a || KEYS.arrowleft) s -= 1; if (KEYS.d || KEYS.arrowright) s += 1;
   if (JOY.on) { f += -JOY.y; s += JOY.x; }
   if (CAM.tw) { var tw = CAM.tw; tw.t += dt / tw.dur; var k = tw.t >= 1 ? 1 : tw.t * tw.t * (3 - 2 * tw.t); ['x', 'y', 'z', 'yaw', 'pitch', 'fov'].forEach(function (q) { CAM[q] = lerp(tw.a[q], tw.b[q], k); }); if (tw.t >= 1) CAM.tw = null; if (!(f || s)) return; CAM.tw = null; }
-  var m = Math.hypot(f, s); if (m > 1) { f /= m; s /= m; } var vmax = KEYS.shift ? 3.6 : 2.0, tx = (-Math.sin(CAM.yaw) * f + Math.cos(CAM.yaw) * s) * vmax, tz = (-Math.cos(CAM.yaw) * f - Math.sin(CAM.yaw) * s) * vmax, ea = 1 - Math.exp(-dt * (m ? 6 : 8));
+  var m = Math.hypot(f, s); if (m > 1) { f /= m; s /= m; } var vmax = KEYS.shift ? 4.4 : 2.5, tx = (-Math.sin(CAM.yaw) * f + Math.cos(CAM.yaw) * s) * vmax, tz = (-Math.cos(CAM.yaw) * f - Math.sin(CAM.yaw) * s) * vmax, ea = 1 - Math.exp(-dt * (m ? 10 : 12));
   CAM.vx = (CAM.vx || 0) + (tx - (CAM.vx || 0)) * ea; CAM.vz = (CAM.vz || 0) + (tz - (CAM.vz || 0)) * ea; if (!m && Math.hypot(CAM.vx, CAM.vz) < 0.02) { CAM.vx = CAM.vz = 0; return; }
   var sp = Math.hypot(CAM.vx, CAM.vz) * dt, nx = CAM.x + CAM.vx * dt, nz = CAM.z + CAM.vz * dt, was = blocked(CAM.x, CAM.z);
   if (!blocked(nx, nz) || was) { CAM.x = nx; CAM.z = nz; } else if (!blocked(nx, CAM.z)) CAM.x = nx; else if (!blocked(CAM.x, nz)) CAM.z = nz;
@@ -3139,7 +3203,7 @@ function applyCam(dt) { var c = R3.cam; if (c.position.x !== CAM.x || c.position
   c.rotation.z = rz; if (Math.abs(hd.vy) + Math.abs(hd.vp) > 0.002) PTR.hoverDirty = true;
   var W = root.clientWidth, H = Math.max(1, root.clientHeight), ms = HUD.el.ms, want = 0; if (W > 900 && ms && !ms.hidden && !ms.classList.contains('min') && CAM.view !== 'walk' && CAM.view !== 'start' && CAM.view !== 'room' && !locked()) want = Math.round((ms.offsetWidth + 16) / 2);
   OFS.want = want; OFS.cur += (want - OFS.cur) * (1 - Math.exp(-(dt || 0.016) * 6)); if (Math.abs(OFS.cur - want) < 0.5) OFS.cur = want; var d = Math.round(OFS.cur);
-  var asp = W / H, fe = asp < 1 ? Math.min(88, 2 * Math.atan(Math.tan(CAM.fov * 0.92 * Math.PI / 360) / asp) * 180 / Math.PI) : CAM.fov;
+  var asp = W / H, fe = asp < 1 ? Math.min(88, 2 * Math.atan(Math.tan(CAM.fov * 0.92 * Math.PI / 360) / asp) * 180 / Math.PI) : CAM.fov; if (CAM.kick) { CAM.kick = Math.max(0, CAM.kick - (dt || 0.016) * 7); fe -= CAM.kick * 1.4; }
   if (d !== OFS.d || W !== OFS.w || H !== OFS.h || Math.abs(c.fov - fe) > 0.01) { OFS.d = d; OFS.w = W; OFS.h = H; c.fov = fe; c.aspect = (W + 2 * d) / H; if (d) c.setViewOffset(W + 2 * d, H, 0, 0, W, H); else c.clearViewOffset(); c.updateProjectionMatrix(); } }
 
 /* ---------- 'show me': fly to the right board and ring the controls ---------- */
@@ -3192,7 +3256,7 @@ function onUp(e) {
 }
 function activate(h, touch) {
   var hi = hitInfo(h); if (!hi) return; hideExplain(); EXP.t0 = performance.now();
-  if (hi.act) { try { FEEL.reach(h); } catch (e) { console.warn("hand", e); } hi.act(h); HUD.dirty = true; return; }
+  if (hi.act) { try { FEEL.reach(h); } catch (e) { console.warn("hand", e); } hi.act(h); CAM.kick = 1; try { if (navigator.vibrate) navigator.vibrate(12); } catch (e2) {} HUD.dirty = true; return; }
   if (hi.view) { goView(hi.view); return; }
   if (hi.tip) { showTip(typeof hi.tip === 'function' ? hi.tip() : hi.tip, touch ? null : PTR.hx, touch ? null : PTR.hy, true); }
 }
@@ -3215,7 +3279,7 @@ function onKey(e, down) {
   if (k === 'escape') { e.preventDefault(); if (CAM.view !== 'start' && CAM.view !== 'walk') goView('start'); else pauseMenu(); }
   else if (k >= '1' && k <= '5') ACT.select(['SA', 'SB', 'SC', 'SD', 'MAN'][+k - 1]);
   else if (k === 'k') ANNC.ack(); else if (k === 'r') ANNC.reset(); else if (k === 'l') toggleLock(); else if (k === 'j') ANNC.silence();
-  else if (k === 't') setTS(S.ts === 1 ? 5 : S.ts === 5 ? 20 : 1); else if (k === 'p' || k === ' ') { e.preventDefault(); setPause(!S.paused); }
+  else if (k === 'h') { if (WATCH.on) WATCH.stop(); else WATCH.start(); } else if (k === 't') setTS(S.ts === 1 ? 5 : S.ts === 5 ? 20 : 1); else if (k === 'p' || k === ' ') { e.preventDefault(); setPause(!S.paused); }
   else if (k === 'e') { var r = R3.ren.domElement.getBoundingClientRect(); activate(pick(r.left + r.width / 2, r.top + r.height / 2)); }
   else if (k === 'x') { S.cfg.explain = !S.cfg.explain; saveCfg(); toast(S.cfg.explain ? '💡 Explain mode on.' : 'Explain mode off.'); if (!S.cfg.explain) hideExplain(); }
   else if (k === 'h') helpMenu(); else if (k === 'v') viewsMenu(); else if (k === 'g') { S.cfg.assist = !S.cfg.assist; HUD.dirty = true; saveCfg(); } else if (k === 'c') { S.cfg.quick = !S.cfg.quick; HUD.dirty = true; saveCfg(); }
@@ -3293,7 +3357,7 @@ var CSS = '.cpn{position:fixed;inset:0;z-index:2147480000;background:#0b0f14;col
   '.cpnmenu{position:absolute;inset:0;background:radial-gradient(1200px 700px at 50% 30%,rgba(10,30,50,.75),rgba(3,6,10,.94));display:flex;align-items:center;justify-content:center;padding:16px;z-index:10;overflow:auto}' +
   '.cpncard{width:min(760px,100%);max-height:100%;overflow:auto;background:linear-gradient(180deg,#101b27,#0b131c);border:1px solid rgba(140,180,220,.25);border-radius:20px;padding:22px;box-shadow:0 20px 60px rgba(0,0,0,.5)}' +
   '.cpncard h1{margin:0;font-size:clamp(22px,4vw,32px);line-height:1.15;letter-spacing:-.01em}.cpncard h2{margin:18px 0 8px;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:#9fc9ea}.cpncard p{color:#c5d2de;margin:8px 0}.cpnsub{color:#ffd34a!important;font-weight:800;margin-top:4px!important}' +
-  '.cpnfact{position:absolute;left:50%;top:50px;transform:translate(-50%,-20px);max-width:min(720px,92vw);padding:8px 16px;border-radius:10px;background:rgba(10,20,34,.9);border:1px solid rgba(127,209,255,.4);color:#dbe9f7;font:14px/1.4 system-ui,sans-serif;opacity:0;transition:all .5s;z-index:29;pointer-events:none}.cpnfact.show{opacity:1;transform:translate(-50%,0)}' +
+  '.cpnfact{position:absolute;left:50%;top:50px;transform:translate(-50%,-20px);max-width:min(720px,92vw);padding:8px 16px;border-radius:10px;background:rgba(10,20,34,.9);border:1px solid rgba(127,209,255,.4);color:#dbe9f7;font:14px/1.4 system-ui,sans-serif;opacity:0;transition:all .5s;z-index:29;pointer-events:none}.cpnfact.show{opacity:1;transform:translate(-50%,0)}.cpnfact.watch{top:84px;border-color:rgba(255,211,74,.5)}' +
   '.cpncrisis{position:absolute;left:50%;top:8px;transform:translateX(-50%);display:flex;align-items:center;gap:10px;padding:6px 14px;border-radius:12px;background:rgba(5,9,14,.82);border:1px solid rgba(255,90,60,.5);color:#fff;font-family:system-ui,sans-serif;z-index:30;pointer-events:none}.cpncrisis b{font-size:22px;color:#ffd34a}.cpncrisis em{font-style:normal;font-size:18px;font-weight:700}.cpncrisis span{font-size:10px;letter-spacing:1px;color:#9fb3c8;margin-right:6px}.cpncrisis i{font-style:normal;font-size:16px}.cpncrisis.hot{border-color:#ff5a3c;animation:cpnpulse .5s infinite alternate}@keyframes cpnpulse{from{box-shadow:0 0 0 0 rgba(255,90,60,0)}to{box-shadow:0 0 18px 4px rgba(255,90,60,.6)}}' +
   '.cpnbtns{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.cpnbtns .cpnb,.cpnbtns .cpnb2{padding:12px 18px;font-size:15px}' +
   '.cpnroad{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px}.cpnroad div{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:9px 11px;font-size:12.5px;color:#9fb3c6}.cpnroad div b{display:block;color:#e8eef4;font-size:13.5px;margin-bottom:2px}.cpnroad div.now{border-color:#ffd34a;background:rgba(255,211,74,.08)}.cpnroad div.now b{color:#ffd34a}' +
@@ -3511,8 +3575,8 @@ function helpMenu() { if (!S.menu) S.wasPaused = S.paused; setPause(true);
 }
 function pauseMenu() { S.wasPaused = S.paused; setPause(true); var ph = MS.phase(), P = phaseDef(ph);
   menu('<h1>Paused</h1><p class="cpnsub">' + (ph === 'free' ? 'Free play' : esc(P.t) + ' · ' + countDone(MS[P.fl], P.list.length) + ' of ' + P.list.length + ' done') + ' · ' + esc(pcName(S.p.pc)) + (S.cfg.shift ? ' · shift ' + (shiftLeft() > 0 ? fmtMS(shiftLeft()) + ' left' : 'in overtime') : '') + '</p>' +
-    '<div class="cpnbtns"><button class="cpnb" data-a="go">▶ Resume</button><button class="cpnb2" data-a="views">🎥 Views</button><button class="cpnb2" data-a="faults">⚠ Faults</button><button class="cpnb2" data-a="career">🏅 Career</button><button class="cpnb2" data-a="saves">💾 Save / load</button><button class="cpnb2" data-a="restart">↻ Restart from hot standby</button><button class="cpnb2" data-a="main">Main menu</button><button class="cpnb2" data-a="exit">Exit</button></div><h2>Settings</h2>' + setHTML() + '<h2>The 10 sections</h2>' + roadHTML(),
-    function (a, b) { if (a === 'cfg') return cfgClick(b); if (a === 'shift') return shiftClick(b); if (a === 'gfx') return gfxClick(b); if (a === 'uisz') return uiClick(b); if (a === 'go') closeMenu(); if (a === 'views') viewsMenu(); if (a === 'faults') faultsMenu(); if (a === 'career') careerMenu(); if (a === 'saves') saveMenu(); if (a === 'multi') multiMenu(); if (a === 'restart') { freshState(MS.free); begin(); } if (a === 'main') { save(); startMenu(); } if (a === 'exit') close(); });
+    '<div class="cpnbtns"><button class="cpnb" data-a="go">▶ Resume</button><button class="cpnb2" data-a="watch">' + (WATCH.on ? '👤 Take the board back' : '👤 Hand the board to the supervisor (1 h)') + '</button><button class="cpnb2" data-a="views">🎥 Views</button><button class="cpnb2" data-a="faults">⚠ Faults</button><button class="cpnb2" data-a="career">🏅 Career</button><button class="cpnb2" data-a="saves">💾 Save / load</button><button class="cpnb2" data-a="restart">↻ Restart from hot standby</button><button class="cpnb2" data-a="main">Main menu</button><button class="cpnb2" data-a="exit">Exit</button></div><h2>Settings</h2>' + setHTML() + '<h2>The 10 sections</h2>' + roadHTML(),
+    function (a, b) { if (a === 'cfg') return cfgClick(b); if (a === 'shift') return shiftClick(b); if (a === 'gfx') return gfxClick(b); if (a === 'uisz') return uiClick(b); if (a === 'go') closeMenu(); if (a === 'watch') { closeMenu(); if (WATCH.on) WATCH.stop(); else WATCH.start(); } if (a === 'views') viewsMenu(); if (a === 'faults') faultsMenu(); if (a === 'career') careerMenu(); if (a === 'saves') saveMenu(); if (a === 'multi') multiMenu(); if (a === 'restart') { freshState(MS.free); begin(); } if (a === 'main') { save(); startMenu(); } if (a === 'exit') close(); });
 }
 var TRIPWHY = {
   SR: 'The source range detectors trip the reactor at 100,000 counts per second. Once P-6 lights (intermediate range above 1E-10 A, about 30,000 cps) you have to press <b>SR TRIP BLOCK</b> on both trains, which switches the source range off.',
@@ -3560,10 +3624,10 @@ function finish() {
 
 /* ================================================================ save and load ================================================================ */
 function snap(p) { var o = {}; Object.keys(p).forEach(function (k) { o[k] = p[k]; }); o.hist = p.hist.slice(-300); o.c = p.c.slice(); o.rods = Object.assign({}, p.rods); o.lever = 0; o.dropping = false; return o; }
-function save() { if (!S || !S.p) return; CAR.save(); var sv = rd(); sv.v = 1; sv.p = snap(S.p); sv.pAt = Date.now(); sv.ms = { pre: MS.pre, done: MS.done, shut: MS.shut, surT: MS.surT, poT: MS.poT, complete: MS.complete, free: MS.free, shutOn: MS.shutOn, shutDone: MS.shutDone, preSkipped: MS.preSkipped, practice: MS.practice, orderBad: MS.orderBad, shutTrips: MS.shutTrips, asc: MS.asc, ascOn: MS.ascOn, ascDone: MS.ascDone }; sv.shiftUsed = S.shiftUsed; sv.full = FULL_SHIFT.on ? { s: FULL_SHIFT.starts0, h: FULL_SHIFT.shuts0, w: FULL_SHIFT.warned, at: FULL_SHIFT.at } : null; sv.st = S.st; sv.log = S.log.slice(-80); sv.cfg = S.cfg; sv.clock0 = S.clock0; sv.lastTrip = S.lastTrip; sv.cam = { x: CAM.x, y: CAM.y, z: CAM.z, yaw: CAM.yaw, pitch: CAM.pitch, fov: CAM.fov }; wr(sv); }
+function save() { if (!S || !S.p) return; CAR.save(); var sv = rd(); sv.v = 1; sv.p = snap(S.p); sv.pAt = Date.now(); sv.ms = { pre: MS.pre, done: MS.done, shut: MS.shut, surT: MS.surT, poT: MS.poT, complete: MS.complete, free: MS.free, shutOn: MS.shutOn, shutDone: MS.shutDone, preSkipped: MS.preSkipped, practice: MS.practice, orderBad: MS.orderBad, shutTrips: MS.shutTrips, asc: MS.asc, ascOn: MS.ascOn, ascDone: MS.ascDone }; sv.shiftUsed = S.shiftUsed; sv.watch = { on: WATCH.on, left: WATCH.left, cd: WATCH.cd, at: Date.now() }; sv.full = FULL_SHIFT.on ? { s: FULL_SHIFT.starts0, h: FULL_SHIFT.shuts0, w: FULL_SHIFT.warned, at: FULL_SHIFT.at } : null; sv.st = S.st; sv.log = S.log.slice(-80); sv.cfg = S.cfg; sv.clock0 = S.clock0; sv.lastTrip = S.lastTrip; sv.cam = { x: CAM.x, y: CAM.y, z: CAM.z, yaw: CAM.yaw, pitch: CAM.pitch, fov: CAM.fov }; wr(sv); }
 function saveCfg() { var sv = rd(); sv.cfg = S.cfg; wr(sv); HUD.dirty = true; }
 function loadState(sv) { var p = Object.assign(freshPlant(), sv.p); p.lever = 0; S.p = p; var m = sv.ms || {}; MS.reset(); MS.pre = m.pre || []; MS.done = m.done || []; MS.shut = m.shut || []; MS.surT = m.surT || 0; MS.poT = m.poT || 0; ['complete', 'free', 'shutOn', 'shutDone', 'preSkipped', 'practice', 'orderBad'].forEach(function (k) { MS[k] = !!m[k]; }); MS.shutTrips = m.shutTrips || 0; MS.asc = m.asc || []; MS.ascOn = !!m.ascOn; MS.ascDone = !!m.ascDone; MS.cur = firstOpen(STEPS, MS.done); MS.scur = firstOpen(SHUT, MS.shut);
-  S.shiftUsed = sv.shiftUsed || 0; if (sv.full) { FULL_SHIFT.on = true; FULL_SHIFT.starts0 = sv.full.s; FULL_SHIFT.shuts0 = sv.full.h; FULL_SHIFT.warned = sv.full.w || {}; FULL_SHIFT.at = sv.full.at; } else FULL_SHIFT.on = false; S.shiftWarn = shiftLeft() <= 300; S.shiftOver = shiftLeft() <= 0;
+  S.shiftUsed = sv.shiftUsed || 0; if (sv.watch) { var away = (Date.now() - (sv.watch.at || Date.now())) / 1000; WATCH.on = false; WATCH.cd = Math.max(0, (sv.watch.on ? WATCH.CD : sv.watch.cd || 0) - away); } if (sv.full) { FULL_SHIFT.on = true; FULL_SHIFT.starts0 = sv.full.s; FULL_SHIFT.shuts0 = sv.full.h; FULL_SHIFT.warned = sv.full.w || {}; FULL_SHIFT.at = sv.full.at; } else FULL_SHIFT.on = false; S.shiftWarn = shiftLeft() <= 300; S.shiftOver = shiftLeft() <= 0;
   S.st = Object.assign({ trips: 0, maxSur: 0, pts: 0, critPc: null, predPc: null }, sv.st || {}); S.log = sv.log || []; S.clock0 = sv.clock0 || S.clock0; if (sv.cam) Object.assign(CAM, sv.cam, { tw: null, view: 'walk' });
   for (var i = 0; i < 6; i++) niTick(p, 0.2); derive(0.05); ANNC.init(); ANNC.list = []; HUD.el.ms.dataset.cur = ''; }
 function shutPractice() { freshState(false); S.p = poahPlant(); MS.complete = true; MS.practice = true; MS.pre = PRE.map(function () { return true; }); MS.done = STEPS.map(function () { return true; }); S.st.critPc = S.p.pc;
@@ -3579,7 +3643,7 @@ function frame(now) {
   if (!S.paused && !S.menu) {
     var sim = dt * S.ts, n = Math.max(1, Math.ceil(sim / 0.05)), hh = sim / n;
     for (var i = 0; i < n; i++) { plantStep(p, hh); niTick(p, hh); rps(p); permissives(p); oneMTick(p, hh); }
-    derive(sim); MS.tick(sim); ANNC.tick(); CAR.tick(sim, dt); TS.tick(sim); CREW.tick(dt, sim); RNDE.tick(sim); CRISIS.tick(sim); FULL_SHIFT.tick(); LIFE2.tick(dt);
+    derive(sim); MS.tick(sim); ANNC.tick(); CAR.tick(sim, dt); TS.tick(sim); CREW.tick(dt, sim); RNDE.tick(sim); CRISIS.tick(sim); FULL_SHIFT.tick(); LIFE2.tick(dt); HALL.tick(dt); WATCH.tick(dt);
     if (p.sur > S.st.maxSur && !p.tripped) S.st.maxSur = p.sur;
     if (p.steps !== lastSteps) { var ds = p.steps - lastSteps; lastSteps = p.steps; if (ds > 0 && ds < 50) AUD.sfx('step'); }
     var np = p6(p); if (np && !wasP6 && !p.tripped) { S.addLog('P-6 permissive: intermediate range above 1E-10 A'); speak('P 6. Block the source range.'); if (S.ts > 1) setTS(1); } wasP6 = np;
