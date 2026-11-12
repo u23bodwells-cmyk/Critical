@@ -11,3 +11,5 @@ from the copyright holder. Being able to see the code or use the website does no
 Versions of this repository published before 7 November 2026 were released under the
 GNU General Public License v3.0. Copies obtained under that licence before that date remain
 covered by it. This notice applies to every version from 7 November 2026 onwards.
+
+models/arm-right.glb: derived from "FPS arms rigged" by Jaxx (OpenGameArt), CC0 / public domain; texture retouched.
