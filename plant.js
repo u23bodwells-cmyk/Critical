@@ -1143,7 +1143,18 @@ function realism(scene) {
   var acM = new THREE.MeshStandardMaterial({ color: 0x46535f, roughness: 0.98, normalMap: MAT.fabric.normalMap });
   /* the acoustic panels show the mountain view: a painted landscape on the face that looks into the room */
   var panelC = CV(1024, 640); drawLandscape(panelC.getContext('2d')); var landT = texOf(panelC); var landM = new THREE.MeshStandardMaterial({ map: landT, roughness: 0.9 }); AURORA_IMG.addEventListener('load', function () { drawLandscape(panelC.getContext('2d')); landT.needsUpdate = true; });
-  for (var z = -7; z <= 6; z += 2.7) { box(0.05, 1.5, 2.4, [landM, acM, acM, acM, acM, acM], -RX + 0.03, 3.0, z, scene); box(0.05, 1.5, 2.4, [acM, landM, acM, acM, acM, acM], RX - 0.03, 3.0, z, scene); }
+  /* side-wall windows: a white frame with mullions and a sill, glass showing a different part of the photo in each one */
+  var frM = new THREE.MeshStandardMaterial({ color: 0xe9ecef, roughness: 0.45 }), wi = 0;
+  for (var z = -7; z <= 6; z += 2.7, wi++) { [-1, 1].forEach(function (side) {
+    var inw = -side, px = side * (RX - 0.06), t = landT.clone(); t.needsUpdate = true; t.repeat.set(0.55, 1); t.offset.set((wi * 0.37 + (side > 0 ? 0.2 : 0)) % 0.45, 0);
+    var gm = new THREE.MeshStandardMaterial({ map: t, color: 0xffffff, roughness: 0.12, emissive: 0x1a2430, emissiveMap: t, emissiveIntensity: 0.5 });
+    var pane = new THREE.Mesh(new THREE.PlaneGeometry(2.0, 1.2), gm); pane.position.set(px, 3.0, z); pane.rotation.y = side > 0 ? -Math.PI / 2 : Math.PI / 2; scene.add(pane);
+    var fx = px + inw * 0.008;
+    box(0.02, 1.2, 0.03, frM, fx, 3.0, z, scene); box(0.02, 0.03, 2.0, frM, fx, 3.0, z, scene);
+    box(0.02, 1.36, 0.06, frM, fx, 3.0, z - 1.03, scene); box(0.02, 1.36, 0.06, frM, fx, 3.0, z + 1.03, scene);
+    box(0.02, 0.06, 2.12, frM, fx, 3.63, z, scene); box(0.02, 0.06, 2.12, frM, fx, 2.37, z, scene);
+    box(0.12, 0.04, 2.3, frM, px + inw * 0.05, 2.2, z, scene);
+  }); }
   var tray = new THREE.Group(); scene.add(tray); tray.position.set(0, CH - 3.6 + 0.2, ZB + 0.6 + 7.6); for (var xx = -10; xx <= 10; xx += 2.5) box(2.5, 0.02, 0.4, MAT.metal, xx + 1.25, 3.3, -7.6, tray); box(20.5, 0.08, 0.02, MAT.metal, 0, 3.34, -7.4, tray); box(20.5, 0.08, 0.02, MAT.metal, 0, 3.34, -7.8, tray);
   for (var c = 0; c < 6; c++) { var cab = cyl(0.025, 0.025, 20.4, new THREE.MeshStandardMaterial({ color: [0x2b2b2b, 0x8a1c1c, 0x1c3f8a, 0x2b2b2b, 0xb38f00, 0x2b2b2b][c], roughness: 0.6 }), 8); cab.rotation.z = Math.PI / 2; cab.position.set(0, 3.335, -7.72 + c * 0.055); tray.add(cab); }
   /* --- ceiling vent grilles and sprinkler heads --- */
