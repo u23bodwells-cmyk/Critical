@@ -1,4 +1,6 @@
-um</b>: the forward and reverse reactions happen at the <b>same rate</b>. Both are still going on, so the amounts stay constant.</p>`),
+>Exothermic reactions release energy; endothermic reactions take it in.</p>`),
+T(`<h3>Reversible reactions</h3><p>Some reactions can go both ways, shown by ⇌:</p><div class="eq">ammonium chloride ⇌ ammonia + hydrogen chloride</div><div class="eq">hydrated copper sulfate (blue) ⇌ anhydrous copper sulfate (white) + water</div><p>If it's endothermic one way, it's exothermic the other way, by the same amount of energy.</p>`),
+T(`<h3>Equilibrium</h3><p>In a <b>closed system</b> (nothing gets in or out), a reversible reaction reaches <b>equilibrium</b>: the forward and reverse reactions happen at the <b>same rate</b>. Both are still going on, so the amounts stay constant.</p>`),
 Q(`At equilibrium, what is true?`,[`The forward and reverse reactions happen at the same rate`,'Both reactions have stopped completely, so nothing changes',`There are equal amounts of reactants and products`,'Only the forward reaction happens, at a slow steady rate'],0,`It's dynamic: both still happen.`),
 T(`<h3>Le Chatelier's principle (Higher)</h3><p>If you change the conditions, the equilibrium shifts to <b>counteract</b> the change:</p><ul><li>Add more reactant → it shifts right, making more product.</li><li>Raise the temperature → it shifts in the <b>endothermic</b> direction.</li><li>Raise the pressure (gases) → it shifts to the side with <b>fewer molecules</b>.</li></ul>`),
 Q(`(Higher) N₂ + 3H₂ ⇌ 2NH₃. The pressure is increased. What happens?`,[`More ammonia is made: the right has fewer molecules`,'Less ammonia is made: the left has more molecules','Nothing changes: pressure never affects equilibrium','More ammonia is made: the right has more molecules'],0,`4 molecules on the left, 2 on the right.`),
@@ -830,6 +832,4 @@ ELSE IF temp &lt; 280 THEN
 ELSE
    OUTPUT 'Normal'
 ENDIF</pre>`),
-Q(`With the code above, what's output when temp is 320?`,[`Normal`,`HIGH`,`LOW`,`Nothing`],0,`320 isn't greater than 320, and it isn't less than 280.`),
-T(`<h3>Three kinds of loop</h3><ul><li><b>FOR</b>: count-controlled (definite). Runs a set number of times.</li><li><b>WHILE</b>: condition checked <b>before</b> each run. Might run zero times.</li><li><b>REPEAT…UNTIL</b>: condition checked <b>after</b> each run. Always runs at least once.</li></ul>`),
-Q(`You want to keep asking for a password until it's correct. Which loop fits best?`,[`REPEAT…UNTIL (it must ask at least once)`
+Q(`With the code above, what's output w

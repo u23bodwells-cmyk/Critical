@@ -908,7 +908,11 @@ function mergeState(A,B){var o=gmerge(A,B),k,d;
  return o}
 function mergeExtras(A,B){A=A||{};B=B||{};var o={};
  /* the simulator: the newest save wins, and each save slot keeps its newest copy */
- if(A.plant||B.plant)o.plant=((A.plant&&A.plant.at)||0)>=((B.plant&&B.plant.at)||0)?A.plant:B.plant;
+ /* settings and XP saves used to count as 'newer' and could replace a shift saved on another device, so the shift itself
+    (reactor state, log, checklist) now comes from whichever copy saved its shift most recently, and progress keeps the higher XP */
+ if(A.plant||B.plant){var pa=A.plant||{},pb=B.plant||{},base=Object.assign({},((pa.at||0)>=(pb.at||0))?pa:pb),sh=((pa.pAt||(pa.p?1:0))>=(pb.pAt||(pb.p?1:0)))?pa:pb;
+  ['v','p','pAt','ms','st','log','shiftUsed','cam'].forEach(function(k){if(sh[k]!==undefined)base[k]=sh[k];else delete base[k]});
+  if(pa.prog&&pb.prog)base.prog=((pa.prog.xp||0)>=(pb.prog.xp||0))?pa.prog:pb.prog;o.plant=base}
  if(A.pslots||B.pslots){var pa=Array.isArray(A.pslots)?A.pslots:[],pb=Array.isArray(B.pslots)?B.pslots:[];o.pslots=[0,1,2].map(function(i){var a=pa[i],b=pb[i];if(!a)return b||null;if(!b)return a;return ((a.d&&a.d.at)||0)>=((b.d&&b.d.at)||0)?a:b})}
  if(A.study||B.study){var sa=(A.study&&A.study.sessions)||[],sb=(B.study&&B.study.sessions)||[],seen={},ss=[];sa.concat(sb).forEach(function(x){if(!x)return;var k=x.c||JSON.stringify(x);if(seen[k]==null){seen[k]=ss.length;ss.push(x)}else if((+x.m||0)>(+ss[seen[k]].m||0))ss[seen[k]]=x});
   o.study=Object.assign({},B.study||{},A.study||{},{sessions:ss})}
@@ -1148,5 +1152,4 @@ WIDGETS.modRatio=function(box){var DEN=[[280,0.764],[290,0.746],[300,0.726],[310
   st.r.textContent=r.toFixed(2);st.k.textContent=k.toFixed(4);st.d.textContent=Math.round((k-1)/k*1e5)+' pcm'}
  onDraw(draw);draw();el('p','small','Illustrative curve. Hotter water is less dense, so there\'s effectively less moderator per unit of fuel.',box);return {}};
 
-WIDGETS.reactivityCalc=function(box,par){var st,s=slider(box,'k',0.99,1.01,0.0001,0.995,function(v){return v.toFixed(4)},function(){upd()}),r=row(box);btn(r,'− 0.0001',function(){s.set(Math.round((s.get()-0.0001)*1e4)/1e4)});btn(r,'+ 0.0001',function(){s.set(Math.round((s.get()+0.0001)*1e4)/1e4)});st=stats(box,[['r','ρ (Δk/k)'],['p','ρ (pcm)'],['d','ρ (dollars)'],['s','State']]);
- function rho(){var k=s.get();return (k-1)/k}function upd(){var p=rho();st.r.textContent=p.toFixed(5).replace('-','−');st.p.textContent=String(Math.round(p*1e5)).replace('-','−');st.d.textContent=(p/0.0065).toFixed(2).replace('-','−')+' $';st.s.textContent=Math.abs(p)<1e-7?'Critical':p<0?'Subcriti
+WIDGETS.reactivityCalc=function(box,par){var st,s=slider(box,'k',0.99,1.01,0.0001,0.995,function(v){return v.toFixed(4)},function(){upd

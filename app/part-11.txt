@@ -1,4 +1,6 @@
-,`FOR i ← 1 TO 10`,`IF…THEN`,`No loop is needed`],0,`You always need to ask once, then check.`),
+hen temp is 320?`,[`Normal`,`HIGH`,`LOW`,`Nothing`],0,`320 isn't greater than 320, and it isn't less than 280.`),
+T(`<h3>Three kinds of loop</h3><ul><li><b>FOR</b>: count-controlled (definite). Runs a set number of times.</li><li><b>WHILE</b>: condition checked <b>before</b> each run. Might run zero times.</li><li><b>REPEAT…UNTIL</b>: condition checked <b>after</b> each run. Always runs at least once.</li></ul>`),
+Q(`You want to keep asking for a password until it's correct. Which loop fits best?`,[`REPEAT…UNTIL (it must ask at least once)`,`FOR i ← 1 TO 10`,`IF…THEN`,`No loop is needed`],0,`You always need to ask once, then check.`),
 N(`<pre class="cs">count ← 0
 FOR i ← 3 TO 9
    count ← count + 1
@@ -1087,6 +1089,4 @@ function NSIM(w,h,rnd){
    if(mode==='atom'||mode==='isotope'){band(c,W,mode==='atom'?'INSIDE THE ATOM':'ISOTOPES · same element, different neutrons',mode==='isotope'?I[3]+'-'+A:N[0]);var shells=[2,8,18,32,32,18,8],left=Z,rr=[];for(var s=0;s<shells.length&&left>0;s++){rr.push(Math.min(left,shells[s]));left-=shells[s]}
     rr.forEach(function(ne,si){var R=Math.min(W,H)*(.2+si*.085)*(wide?.9:1),tilt=si*.9+.3;c.strokeStyle='rgba(120,170,255,.25)';c.lineWidth=1;c.beginPath();c.ellipse(nx,ny,R,R*.38,tilt,0,6.283);c.stroke();var show=Math.min(ne,10);for(var e=0;e<show;e++){var a=tt/1000*(1.6-si*.25)+e/show*6.283,ex=Math.cos(a)*R,ey=Math.sin(a)*R*.38,X=nx+ex*Math.cos(tilt)-ey*Math.sin(tilt),Y=ny+ex*Math.sin(tilt)+ey*Math.cos(tilt);glow(c,X,Y,6,CY,.6);c.fillStyle='#bff3ff';c.beginPath();c.arc(X,Y,1.8,0,6.283);c.fill()}});
     drawNuc(c,pts,nx,ny,sc*.55,yaw,.35);var tx=wide?W*.62:14,ty=wide?60:H*.72;hud(c,tx,ty,(mode==='isotope'?I[3]+'-'+A:N[0]),'#fff',16,'left',true);hud(c,tx,ty+20,Z+' protons · '+(A-Z)+' neutrons · '+Z+' electrons','rgba(220,235,255,.9)',10,'left');
-    hud(c,tx,ty+36,mode==='isotope'?((I[4][A-Z])||'very unstable'):N[5],mode==='isotope'?(/stable/.test(I[4][A-Z]||'')&&!/unstable/.test(I[4][A-Z]||'')?'#8dff9a':'#ffd65a'):'#ffd65a',10,'left',true);hud(c,tx,ty+52,nb?'Not to scale: atoms are 100,000× wider':'Not to scale: a real atom is about 100,000 times wider than its nucleus.','rgba(160,190,230,.7)',8.5,'left');
-    if(st){st.z.textContent=Z;st.n.textContent=A-Z;st.b.textContent=fx(N[3],2)+' MeV'}return}
-   if(mode==='binding'||mode==='stability'||mode==='emc2'){band(c,W,mode==='binding'?'BINDING ENERGY PER NUCLEON':mode==='stability'?'THE VALLEY OF STABILITY':'MASS DEFECT AND E = mc²',N[0]);var nx2=wide?W*.2:W*.22,ny2=wide?H*.55:H*.28;drawNuc(c,pts,nx2,ny2,Math.min(sc*.5,(wide?W*.15:W*.18)/Math.cbrt(A)/2),yaw
+    hud(c,tx,ty+36,mode==='isotope'?((I[4][A-Z])||'very unstable'):N[5],mode==='isotope'?(/stable/.test(I[4][A-Z]||'')&&!/unstable/.test(I[4][A-Z]||'')?'#8dff9a':'#ffd65a'):'#ffd65a',10,'left',true);hud(c,tx,ty+52,nb?'Not to sca

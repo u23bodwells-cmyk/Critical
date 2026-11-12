@@ -1,4 +1,6 @@
-lling means the rate is negative: −0.5 °C per second.`)]),
+w</span><span class="ku">W or %</span></div><div class="krow"><span class="ks">τ</span><span class="km">the reactor period</span><span class="ku">seconds (s)</span></div></div><p>The more power there is, the faster it grows. That's what makes exponentials run away.</p>`),
+N(`Power is 50% and the period is 100 s. How fast is power rising right now?`,0.5,0.02,'% per second',`dP/dt = P/τ = 50/100 = 0.5% per second.`),
+Q(`Coolant temperature is falling at 0.5 °C every second. Which is dT/dt?`,['+0.5 °C/s','−0.5 °C/s','0.5 s/°C','−2 °C/s'],1,`Falling means the rate is negative: −0.5 °C per second.`)]),
 L('m5','Differential equations',10,[
 T(`<h3>Equations about change</h3><p>A <b>differential equation</b> describes how something changes. For example:</p><div class="eq">dN/dt = −λN</div><div class="key"><div class="kt">What each part means</div><div class="krow"><span class="ks">dN/dt</span><span class="km">how fast the number of nuclei is changing (per second)</span><span class="ku">nuclei per second</span></div><div class="krow"><span class="ks">λ</span><span class="km">the decay constant</span><span class="ku">per second (s<sup>−1</sup>)</span></div><div class="krow"><span class="ks">N</span><span class="km">number of nuclei</span><span class="ku">a count</span></div><div class="kn">The minus sign means N is going <b>down</b>.</div></div><p>says "nuclei disappear at a rate proportional to how many are left". λ is a constant.</p>`),
 W('euler',{},`Step the equation forward in time yourself. Each step uses the current rate to predict the next value. Try a big step size, then a small one, and compare with the exact curve.`,null),
@@ -656,8 +658,4 @@ Q(`The reactor has tripped. Why must cooling continue?`,[`Fission products keep 
 Q(`About how much decay heat is there one hour after a trip?`,[`About 1.5% of full power`,`Zero`,`About 50% of full power`,`About 100% of full power`],0,`About 1.5%, which for a big reactor is still tens of megawatts.`),
 T(`<h3>Fukushima, 2011</h3><p>At Fukushima Daiichi in Japan, the reactors tripped correctly when the earthquake struck. <b>Control</b> worked.</p><p>Then a huge tsunami flooded the site and knocked out the emergency diesel generators and electrical equipment. With no power for the pumps, <b>cooling</b> was lost. Decay heat melted the fuel in three reactors, and hydrogen from overheated cladding exploded, damaging the buildings and weakening <b>containment</b>.</p><div class="callout">The lesson: decay heat never takes a day off. Cooling, and the power supplies it depends on, must survive even extreme events.</div>`),
 Q(`At Fukushima, which of the three safety jobs failed first?`,[`Cool`,`Control`,`Contain`,`None of them`],0,`The reactors shut down correctly. It was the loss of cooling (no power for the pumps) that led to the fuel melting.`),
-T(`<h3>Key points</h3><ul><li>The three safety jobs: <b>control, cool, contain</b>.</li><li><b>Decay heat</b> starts at about 6–7% of full power and falls slowly. Cooling must continue for days.</li><li>Fukushima: shutdown worked, but cooling was lost when power was lost.</li></ul>`)]),
-
-L('td2','Barriers and defence in depth',9,[
-T(`<h3>Layers between the fuel and the outside world</h3><p>Radioactive material is kept in by a series of <b>physical barriers</b>, one inside the other. Each one would have to fail before anything could escape.</p>`),
-W('tapLabels',{vb:'0 0 30
+T(`<h3>Key points</h3><ul><li>Th

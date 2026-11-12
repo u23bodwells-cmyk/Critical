@@ -1,4 +1,5 @@
-cal':'Supercritical'}upd();
+()}),r=row(box);btn(r,'− 0.0001',function(){s.set(Math.round((s.get()-0.0001)*1e4)/1e4)});btn(r,'+ 0.0001',function(){s.set(Math.round((s.get()+0.0001)*1e4)/1e4)});st=stats(box,[['r','ρ (Δk/k)'],['p','ρ (pcm)'],['d','ρ (dollars)'],['s','State']]);
+ function rho(){var k=s.get();return (k-1)/k}function upd(){var p=rho();st.r.textContent=p.toFixed(5).replace('-','−');st.p.textContent=String(Math.round(p*1e5)).replace('-','−');st.d.textContent=(p/0.0065).toFixed(2).replace('-','−')+' $';st.s.textContent=Math.abs(p)<1e-7?'Critical':p<0?'Subcritical':'Supercritical'}upd();
  return {check:function(){var p=rho()*1e5;return Math.abs(p-par.target)<=6?{ok:true}:{ok:false,msg:'That\'s '+Math.round(p)+' pcm. You want +100 pcm.'}},lock:function(){s.input.disabled=true}}};
 
 WIDGETS.reactivityBalance=function(box){var EV=[['Withdraw control rods',250],['Dilute boron',150],['Coolant heats up 5 °C',-150],['Xenon builds up',-250],['Borate',-100],['Fuel heats up',-50],['Coolant cools 2 °C',60]],on={},ch=el('div','chips',null,box),st=stats(box,[['t','Total reactivity'],['s','State']]);
@@ -1259,10 +1260,4 @@ var PLAN=(function(){
  function runSet(r){try{localStorage.setItem(RK,JSON.stringify(r))}catch(_){}}
  function runClear(){try{localStorage.removeItem(RK)}catch(_){}}
  function firstLeft(day,after){if(feOn(day))return -1;for(var j=0;j<DAY(day).length;j++){if(after!=null&&j<=after)continue;if(!isDone(day,j))return j}if(after!=null)for(j=0;j<after;j++)if(!isDone(day,j))return j;return -1}
- function arenaOpen(){return !!document.querySelector('.arn')}
- function busy(){return (!!document.querySelector('#player.open')&&!(typeof P!=='undefined'&&P&&P.finished))||arenaOpen()}
- var warmP=null;
- function fmtLeft(ms){return ms<60000?Math.max(0,Math.ceil(ms/1000))+' s':Math.ceil(ms/60000)+' min'}
- function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
- var css=document.createElement('style');css.textContent=
- '.plsheet{position:fixed;inset:0;z-index:3001;display:none;align-items:flex-end;
+ function arenaOpen(){re

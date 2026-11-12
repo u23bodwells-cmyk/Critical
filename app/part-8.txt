@@ -1,4 +1,8 @@
-egrate: x³ ÷ 3`,`Top limit: 3³ ÷ 3 = 9`,`Bottom limit: 0³ ÷ 3 = 0`,`Subtract: 9 − 0 = <b>9</b>. Exactly what the strips were heading towards!`]},`The exact area from the last lesson.`,`Integrate, then top minus bottom.`),
+)]),
+LH('c4-2-2','Definite integrals',10,'The shortcut: integrate, then subtract. No + C needed.',[
+RM(`<p>The area under a curve is the integral from a to b. To integrate: add 1 to the power, divide by the new power.</p>`),
+T(`<h3>The method</h3><div class="eq">∫ from a to b of f(x) dx = F(b) − F(a)</div>${KY([['F(x)','the integral of f(x) (without + C)',''],['a, b','the limits: where the area starts and stops','']],'Integrate, put in the top limit, put in the bottom limit, subtract.')}`),
+W('stepCalc',{steps:[`∫ from 0 to 3 of x² dx`,`Integrate: x³ ÷ 3`,`Top limit: 3³ ÷ 3 = 9`,`Bottom limit: 0³ ÷ 3 = 0`,`Subtract: 9 − 0 = <b>9</b>. Exactly what the strips were heading towards!`]},`The exact area from the last lesson.`,`Integrate, then top minus bottom.`),
 T(`<h3>Why no + C?</h3><p>If you included it: (F(b) + C) − (F(a) + C) = F(b) − F(a). The C always cancels, so definite integrals don't need it.</p>`),
 Q(`Why don't definite integrals need + C?`,[`It cancels when you subtract`,`C is always zero`,`Areas can't have constants`,`They do`],0,`C − C = 0.`),
 N(`Evaluate ∫ from 1 to 3 of 2x dx.`,8,0.001,'',`[x²] from 1 to 3 = 9 − 1 = 8.`),
@@ -841,5 +845,4 @@ T(`<h3>Half equations (Higher)</h3><div class="eq">cathode: 2H⁺ + 2e⁻ → H�
 T(`<h3>Key points</h3><ul><li>Positive ions → cathode (−). Negative ions → anode (+).</li><li>Aluminium: dissolved in cryolite; carbon anodes burn away.</li><li>Solutions: hydrogen unless the metal is less reactive; oxygen unless halide ions are present.</li><li>Cathode: reduction. Anode: oxidation.</li></ul>`)])
 ]});
 
-F('gc2-1-1',[Q(`Air is a…`,[`mixture`,`compound`,`element`,`pure substance`],0,`Gases not chemically combined.`),Q(`Which method separates an insoluble solid from a liquid?`,[`Filtration`,`Crystallisation`,`Distillation`,`Chromatography`],0,`The solid stays in the filter paper.`),Q(`Fractional distillation separates liquids with different…`,[`boiling points`,`colours`,`densities`,`masses`],0,`They condense at different heights.`),Q(`H₂O is a compound because…`,[`hydrogen and oxygen are chemically combined`,`it is a liquid`,`it contains one element`,`it can be filtered`],0,`Chemically bonded.`),Q(`Which method gets pure water from salt water?`,[`Simple distillation`,`Filtration`,`Chromatography`,`Crystallisation`],0,`Evaporate and condense.`)]);
-F('gc2-1-2',[GN('g_
+F('gc2-1-1',[Q(`Air is a…`,[`mixture`,`compound`,`element`,`pure substance`],0,`Gases not chemically combined.`),Q(`Which method separates an insoluble solid from a liquid?`,[`Filtration`,`Crystallisation`,`Distillation`,`Chroma
