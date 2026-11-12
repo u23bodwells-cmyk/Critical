@@ -2221,7 +2221,7 @@ function infOn(x, id) { var f = x.inF; return !!(f && f.id === id && !f.sel); }
 function infDetail() { var x = S.p.x; return x.inF ? INF.filter(function (q) { return q.id === x.inF.id; })[0] : null; }
 function infInsert(id) { var x = S.p.x; x.inF = { id: id, t: S.p.t, sel: false }; S.addLog('INSTRUCTOR: instrument failure inserted'); }
 /* random events: equipment faults and instrument failures that just happen in free play, if the setting allows */
-var RNDE = { T: 0, tick: function (sim) { if (!S.cfg.randEv || EXAM.on || !S.p || S.p.tripped || MS.phase() !== 'free') return; var x = S.p.x; if (FAULT.active().length || (x.inF && !x.inF.sel)) return;
+var RNDE = { T: 0, tick: function (sim) { if (CRISIS.on || !S.cfg.randEv || EXAM.on || !S.p || S.p.tripped || MS.phase() !== 'free') return; var x = S.p.x; if (FAULT.active().length || (x.inF && !x.inF.sel)) return;
   RNDE.T += sim; if (RNDE.T < 600) return; RNDE.T = 0; if (Math.random() > 0.12) return; /* about one event every 1.5 hours of plant time */
   var c = FAULT.list.filter(function (q) { return ['grid', 'lb'].indexOf(q.id) < 0 && !(x.f && x.f[q.id]); }); FAULT.insert(c[Math.floor(Math.random() * c.length)].id, true); } };
 var EXAM = { on: false,
@@ -2725,6 +2725,35 @@ var FAULT = {
     if (id === 'porv') S.p.x.pz.prtP = Math.max(S.p.x.pz.prtP, 0.3); toast(quiet ? '⚠ The instructor has put a fault into the plant. Watch the alarms.' : '⚠ Fault: ' + q.t, 'bad'); HUD.dirty = true; HUD.el.ms.dataset.cur = ''; },
   clear: function () { var x = S.p.x; Object.keys(x.fT || {}).forEach(function (id) { var inf = x.fT[id]; if (!inf.done && S.p.t - inf.t >= 300) { inf.done = true; CAR.rateFault(id, inf); } }); x.fT = {}; if (x.f && x.f.grid) x.el.grid = true; x.f = {}; x.inF = null; S.addLog('INSTRUCTOR: all faults cleared'); toast('All faults cleared. Systems can be restored.', 'ok'); HUD.dirty = true; HUD.el.ms.dataset.cur = ''; }
 };
+/* ================================================================ Crisis Shift: the arcade mode ================================================================
+   Ten minutes at 50% power. A fresh fault lands every minute or so, faster as the waves climb; from wave 4 some arrive unannounced.
+   Points for every megawatt you keep on the grid and a big bonus for each fault you ride out. Three reactor trips and the shift is over. */
+var CRISIS = { on: false, t: 0, dur: 600, wave: 0, next: 0, score: 0, lives: 3, trips0: 0, hud: null, acc: 0,
+  pool: ['grid', 'porv', 'mfpA', 'air', 'ccw', 'sgtl', 'loca', 'msb', 'drop', 'cw'],
+  best: function () { var c = rd(); return c.crisisBest || 0; },
+  start: function () { atPowerStart(); CRISIS.on = true; CRISIS.t = 0; CRISIS.wave = 0; CRISIS.next = 20; CRISIS.score = 0; CRISIS.lives = 3; CRISIS.trips0 = S.st.trips; CRISIS.acc = 0; setTS(1);
+    if (!CRISIS.hud) { CRISIS.hud = h('div', 'cpncrisis', null, root); } CRISIS.hud.hidden = false; CRISIS.draw();
+    S.addLog('CRISIS SHIFT started: keep Unit 1 on line through whatever comes'); toast('⚡ Crisis shift: first fault in 20 seconds. Keep the unit on line.', 'warn'); speak('Crisis shift. Stand by.'); },
+  reset: function () { S.p = atPowerPlant(575); S.p.x.f = {}; S.p.x.fT = {}; for (var i = 0; i < 8; i++) niTick(S.p, 0.2); derive(0.05); ANNC.init(); ANNC.list = []; S.addLog('Unit reset to 50% power by the instructor'); },
+  tick: function (sim) { if (!CRISIS.on) return; var p = S.p, x = p.x; CRISIS.t += sim; CRISIS.acc += sim;
+    if (x.tb.gen && x.tb.mw > 0) CRISIS.score += x.tb.mw / 1150 * 10 * sim;
+    if (S.st.trips > CRISIS.trips0) { CRISIS.trips0 = S.st.trips; CRISIS.lives--; AUD.sfx('deny'); if (CRISIS.lives <= 0) { CRISIS.end('Three reactor trips'); return; } toast('💥 Reactor trip! ' + CRISIS.lives + (CRISIS.lives === 1 ? ' life' : ' lives') + ' left. Resetting to 50% power…', 'bad'); speak('Reactor trip. ' + CRISIS.lives + ' left.'); CRISIS.reset(); CRISIS.next = Math.max(CRISIS.next, 25); return; }
+    var fT = x.fT || {}; Object.keys(fT).forEach(function (id) { var inf = fT[id]; if (inf.done || p.t - inf.t < 150) return; inf.done = true;
+      var safe = x.pz.P > 90 && x.sg.every(function (s) { return s.L > 5; }) && D.sub > 3 && p.Tavg < 315, kept = !p.tripped && x.tb.gen, pts = kept ? 400 + 100 * CRISIS.wave : safe ? 120 : 20; if (inf.quiet) pts = Math.round(pts * 1.5);
+      CRISIS.score += pts; var q = FAULT.list.filter(function (z) { return z.id === id; })[0]; toast('🛠 ' + (q ? q.t : 'Fault') + ' survived: +' + pts, kept ? 'ok' : 'warn'); AUD.sfx('step');
+      x.f[id] = false; delete fT[id]; if (id === 'grid') x.el.grid = true; });
+    if (CRISIS.t >= CRISIS.dur) { CRISIS.end('Shift complete'); return; }
+    CRISIS.next -= sim; if (CRISIS.next <= 0 && !p.tripped) { CRISIS.wave++; var live = x.f || {}, c = CRISIS.pool.filter(function (id) { return !live[id]; }); if (c.length) { var id = c[Math.floor(Math.random() * c.length)]; FAULT.insert(id, CRISIS.wave >= 4 && Math.random() < 0.5); speak('Wave ' + CRISIS.wave + '.'); } CRISIS.next = Math.max(35, 105 - CRISIS.wave * 10); }
+    if (CRISIS.acc >= 0.5) { CRISIS.acc = 0; CRISIS.draw(); } },
+  draw: function () { if (!CRISIS.hud) return; var left = Math.max(0, CRISIS.dur - CRISIS.t), hearts = '❤️'.repeat(CRISIS.lives) + '🖤'.repeat(3 - CRISIS.lives), nxt = Math.max(0, Math.ceil(CRISIS.next));
+    CRISIS.hud.innerHTML = '<b>' + Math.round(CRISIS.score).toLocaleString() + '</b><span>SCORE</span><em>' + fmtT(left) + '</em><span>LEFT</span><em>W' + CRISIS.wave + '</em><span>' + (nxt <= 10 ? 'FAULT IN ' + nxt + 's' : 'NEXT ' + nxt + 's') + '</span><i>' + hearts + '</i>'; CRISIS.hud.classList.toggle('hot', nxt <= 10 && !S.p.tripped); },
+  end: function (why) { CRISIS.on = false; if (CRISIS.hud) CRISIS.hud.hidden = true; var sc = Math.round(CRISIS.score), c = rd(), best = c.crisisBest || 0, nb = sc > best; if (nb) { c.crisisBest = sc; wr(c); }
+    var xp = Math.round(sc / 10); CAR.add(xp, 'Crisis shift: ' + sc + ' points', true); FAULT.clear(); setPause(true); S.wasPaused = true;
+    menu('<h1>⚡ ' + esc(why) + '</h1><p style="font-size:34px;margin:6px 0"><b>' + sc.toLocaleString() + '</b> points' + (nb ? ' · <span style="color:#ffd34a">NEW BEST</span>' : ' · best ' + best.toLocaleString()) + '</p>' +
+      '<p>' + CRISIS.wave + ' waves · ' + (3 - CRISIS.lives) + ' reactor trip' + (3 - CRISIS.lives === 1 ? '' : 's') + ' · ' + fmtT(Math.min(CRISIS.t, CRISIS.dur)) + ' survived · +' + xp + ' XP</p>' +
+      '<div class="cpnbtns"><button class="cpnb" data-a="again">⚡ Go again</button><button class="cpnb2" data-a="menu">Main menu</button></div>',
+      function (a) { if (a === 'again') { CRISIS.start(); begin(); } if (a === 'menu') startMenu(); }); }
+};
 function faultsMenu() { if (!S.menu) S.wasPaused = S.paused; setPause(true); var act = FAULT.active();
   menu('<h1>⚠ Faults</h1><p>You’re the instructor now. Put a fault into the plant, then go back to the control room and deal with it the way an operator would: read the alarms, work out what failed, act. Faults are best from power, so choose <b>Free play at 50% power</b> on the main menu first.</p>' +
     (act.length ? '<h2>Active</h2><p>' + act.map(function (q) { return '<b>' + esc(q.t) + '</b>'; }).join(', ') + '</p>' : '') +
@@ -3189,6 +3218,7 @@ var CSS = '.cpn{position:fixed;inset:0;z-index:2147480000;background:#0b0f14;col
   '.cpnmenu{position:absolute;inset:0;background:radial-gradient(1200px 700px at 50% 30%,rgba(10,30,50,.75),rgba(3,6,10,.94));display:flex;align-items:center;justify-content:center;padding:16px;z-index:10;overflow:auto}' +
   '.cpncard{width:min(760px,100%);max-height:100%;overflow:auto;background:linear-gradient(180deg,#101b27,#0b131c);border:1px solid rgba(140,180,220,.25);border-radius:20px;padding:22px;box-shadow:0 20px 60px rgba(0,0,0,.5)}' +
   '.cpncard h1{margin:0;font-size:clamp(22px,4vw,32px);line-height:1.15;letter-spacing:-.01em}.cpncard h2{margin:18px 0 8px;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:#9fc9ea}.cpncard p{color:#c5d2de;margin:8px 0}.cpnsub{color:#ffd34a!important;font-weight:800;margin-top:4px!important}' +
+  '.cpncrisis{position:absolute;left:50%;top:8px;transform:translateX(-50%);display:flex;align-items:center;gap:10px;padding:6px 14px;border-radius:12px;background:rgba(5,9,14,.82);border:1px solid rgba(255,90,60,.5);color:#fff;font-family:system-ui,sans-serif;z-index:30;pointer-events:none}.cpncrisis b{font-size:22px;color:#ffd34a}.cpncrisis em{font-style:normal;font-size:18px;font-weight:700}.cpncrisis span{font-size:10px;letter-spacing:1px;color:#9fb3c8;margin-right:6px}.cpncrisis i{font-style:normal;font-size:16px}.cpncrisis.hot{border-color:#ff5a3c;animation:cpnpulse .5s infinite alternate}@keyframes cpnpulse{from{box-shadow:0 0 0 0 rgba(255,90,60,0)}to{box-shadow:0 0 18px 4px rgba(255,90,60,.6)}}' +
   '.cpnbtns{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.cpnbtns .cpnb,.cpnbtns .cpnb2{padding:12px 18px;font-size:15px}' +
   '.cpnroad{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px}.cpnroad div{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:9px 11px;font-size:12.5px;color:#9fb3c6}.cpnroad div b{display:block;color:#e8eef4;font-size:13.5px;margin-bottom:2px}.cpnroad div.now{border-color:#ffd34a;background:rgba(255,211,74,.08)}.cpnroad div.now b{color:#ffd34a}' +
   '.cpnset{display:flex;gap:8px;flex-wrap:wrap}.cpnset label{display:flex;gap:8px;align-items:center;background:rgba(255,255,255,.05);padding:8px 12px;border-radius:10px;cursor:pointer;font-weight:600}.cpnset input{width:18px;height:18px;accent-color:#ffd34a}' +
@@ -3366,11 +3396,11 @@ function startMenu() {
   S.wasPaused = true; setPause(true);
   menu('<h1>☢ Critical Point Nuclear Power Station</h1><p class="cpnsub">Unit 1 main control room · 11 boards, every control working</p>' + '<div class="cpncar" style="margin:8px 0 12px"><div class="lv"><b>' + CAR.lvl() + '</b><span>LEVEL</span></div><div class="rk"><b>' + esc(rankOf(CAR.lvl())) + '</b><div class="xpbar"><i style="width:' + Math.round((CAR.p.xp - lvlXp(CAR.lvl())) / (lvlXp(CAR.lvl() + 1) - lvlXp(CAR.lvl())) * 100) + '%"></i></div><small>' + CAR.p.xp.toLocaleString('en-GB') + ' XP · ' + ACH.filter(function (q) { return CAR.p.ach[q[0]]; }).length + '/' + ACH.length + ' achievements</small></div><button class="cpnb2" data-a="career">🏅 Career</button><button class="cpnb2" data-a="saves">💾 Save / load</button><button class="cpnb2" data-a="exam">🎓 Simulator exam</button><button class="cpnb2" data-a="multi">🖥 Monitors</button></div>' +
     '<p>You are the reactor operator on shift. Unit 1 is a four-loop pressurised water reactor (3411 MW of heat, about 1200 MW of electricity), sitting at <b>hot standby</b>: 291.7 °C, 155 bar, every control rod in. Your job is to work through the <b>pre-startup checklist</b>, take it <b>critical</b> with the real startup procedure, level off at the point of adding heat, then <b>shut it down</b> again. Rest the pointer on any control for 3 seconds to find out what it does.</p>' +
-    '<div class="cpnbtns">' + (canResume ? '<button class="cpnb" data-a="resume">▶ Resume shift</button><button class="cpnb2" data-a="new">↻ New startup</button>' : '<button class="cpnb" data-a="new">▶ Start the reactor startup</button>') + '<button class="cpnb2" data-a="saves">💾 Load a save</button><button class="cpnb2" data-a="shutp">⏬ Shutdown practice</button><button class="cpnb2" data-a="ascp">⏫ Power ascension practice</button><button class="cpnb2" data-a="free">Free play (hot standby)</button><button class="cpnb2" data-a="atp">⚡ Free play at 50% power</button><button class="cpnb2" data-a="learn">📘 How a PWR works</button><button class="cpnb2" data-a="exit">Exit</button></div>' +
+    '<div class="cpnbtns">' + (canResume ? '<button class="cpnb" data-a="resume">▶ Resume shift</button><button class="cpnb2" data-a="new">↻ New startup</button>' : '<button class="cpnb" data-a="new">▶ Start the reactor startup</button>') + '<button class="cpnb" data-a="crisis" style="background:#ff5a3c;color:#fff">⚡ Crisis shift (10 min)' + (CRISIS.best() ? ' · best ' + CRISIS.best().toLocaleString() : '') + '</button><button class="cpnb2" data-a="saves">💾 Load a save</button><button class="cpnb2" data-a="shutp">⏬ Shutdown practice</button><button class="cpnb2" data-a="ascp">⏫ Power ascension practice</button><button class="cpnb2" data-a="free">Free play (hot standby)</button><button class="cpnb2" data-a="atp">⚡ Free play at 50% power</button><button class="cpnb2" data-a="learn">📘 How a PWR works</button><button class="cpnb2" data-a="exit">Exit</button></div>' +
     '<h2>Settings</h2>' + setHTML() + '<h2>What you can do</h2>' + roadHTML() +
     '<p style="font-size:12px;color:#7f93a6;margin-top:14px">Inspired by Roblox’s Oakridge Nuclear Power Station. Physics: point kinetics with six delayed-neutron groups, rod worth curves, boron, Doppler, moderator and xenon feedback, plus a whole-plant model: pressuriser, coolant pumps, steam generators, feed, turbine, generator, grid and electrics. Real plants differ in detail.</p>',
     function (a, b) { if (a === 'cfg') return cfgClick(b); if (a === 'shift') return shiftClick(b); if (a === 'gfx') return gfxClick(b); if (a === 'uisz') return uiClick(b);
-      if (a === 'resume') { loadState(sv); begin(); } else if (a === 'new') { freshState(false); begin(); } else if (a === 'free') { freshState(true); begin(); } else if (a === 'shutp') { shutPractice(); begin(); } else if (a === 'ascp') { shutPractice(); MS.shutOn = false; MS.practice = false; startAsc(); begin(); } else if (a === 'atp') { atPowerStart(); begin(); } else if (a === 'saves') saveMenu(); else if (a === 'learn') learnMenu(); else if (a === 'career') careerMenu(); if (a === 'saves') saveMenu(); if (a === 'exam') EXAM.start(); else if (a === 'exit') close(); });
+      if (a === 'resume') { loadState(sv); begin(); } else if (a === 'crisis') { CRISIS.start(); begin(); } else if (a === 'new') { freshState(false); begin(); } else if (a === 'free') { freshState(true); begin(); } else if (a === 'shutp') { shutPractice(); begin(); } else if (a === 'ascp') { shutPractice(); MS.shutOn = false; MS.practice = false; startAsc(); begin(); } else if (a === 'atp') { atPowerStart(); begin(); } else if (a === 'saves') saveMenu(); else if (a === 'learn') learnMenu(); else if (a === 'career') careerMenu(); if (a === 'saves') saveMenu(); if (a === 'exam') EXAM.start(); else if (a === 'exit') close(); });
 }
 function begin() { closeMenu(true); S.wasPaused = false; setPause(false); AUD.init(); HUD.dirty = true; HUD.el.ms.dataset.cur = '';
   if (!S.welcomed) { S.welcomed = true; setTimeout(function () { speak(MS.practice ? 'Unit 1 is at the point of adding heat. Begin the reactor shutdown.' : MS.free ? 'Free play. Unit 1 is at hot standby.' : 'Good morning. Unit 1 is at hot standby. Begin the pre-startup checks.'); }, 600); } }
@@ -3473,7 +3503,7 @@ function frame(now) {
   if (!S.paused && !S.menu) {
     var sim = dt * S.ts, n = Math.max(1, Math.ceil(sim / 0.05)), hh = sim / n;
     for (var i = 0; i < n; i++) { plantStep(p, hh); niTick(p, hh); rps(p); permissives(p); oneMTick(p, hh); }
-    derive(sim); MS.tick(sim); ANNC.tick(); CAR.tick(sim, dt); TS.tick(sim); CREW.tick(dt, sim); RNDE.tick(sim);
+    derive(sim); MS.tick(sim); ANNC.tick(); CAR.tick(sim, dt); TS.tick(sim); CREW.tick(dt, sim); RNDE.tick(sim); CRISIS.tick(sim);
     if (p.sur > S.st.maxSur && !p.tripped) S.st.maxSur = p.sur;
     if (p.steps !== lastSteps) { var ds = p.steps - lastSteps; lastSteps = p.steps; if (ds > 0 && ds < 50) AUD.sfx('step'); }
     var np = p6(p); if (np && !wasP6 && !p.tripped) { S.addLog('P-6 permissive: intermediate range above 1E-10 A'); speak('P 6. Block the source range.'); if (S.ts > 1) setTS(1); } wasP6 = np;
@@ -3538,7 +3568,7 @@ function init() {
   goView('start', true); WG.forEach(function (w) { redraw(w, true); });
   last = 0; RAF = requestAnimationFrame(frame); startMenu();
 }
-function close() {
+function close() { if (CRISIS.on) { CRISIS.on = false; if (CRISIS.hud) CRISIS.hud.hidden = true; }
   if (!root) return; try { save(); } catch (e) {} try { RADIO.stop(); } catch (e) {} try { MULTI.closeAll(); } catch (e) {} cancelAnimationFrame(RAF); RAF = 0; root.hidden = true; document.removeEventListener('keydown', kd); document.removeEventListener('keyup', ku); KEYS = {};
   try { if (AUD.ctx) AUD.ctx.suspend(); } catch (e) {} try { if (window.speechSynthesis) speechSynthesis.cancel(); } catch (e) {} try { API.close(); } catch (e) {}
 }
