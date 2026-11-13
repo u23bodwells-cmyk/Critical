@@ -1099,7 +1099,7 @@ function furniture(scene) {
   var dr = new THREE.Group(); dr.position.set(RX - 0.04, 0, 9.9); dr.rotation.y = -Math.PI / 2; scene.add(dr); box(2.0, 2.3, 0.08, MAT.trim, 0, 1.15, 0, dr);
   [-0.49, 0.49].forEach(function (k) { box(0.94, 2.2, 0.05, MAT.cab, k, 1.1, 0.03, dr); box(0.3, 0.5, 0.01, MAT.glass, k, 1.55, 0.06, dr); box(0.03, 0.25, 0.04, MAT.chrome, k * 0.15, 1.05, 0.08, dr); });
   var ex = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.18), new THREE.MeshBasicMaterial({ map: signTex(256, 92, function (g) { g.fillStyle = '#0a8a3a'; g.fillRect(0, 0, 256, 92); ctext(g, '🏃 EXIT →', 128, 48, 46, '#fff', 'center', 240); }) })); ex.position.set(RX - 0.05, 2.5, 9.9); ex.rotation.y = -Math.PI / 2; scene.add(ex);
-  var dh = invis(2, 2.3, 0.3); dh.position.set(RX - 0.1, 1.15, 9.9); scene.add(dh); hit(dh, { tip: 'Exit: straight through to the reactor hall (the turbine hall and switchyard come later)', act: function () { goHall(); } });
+  var dh = invis(2, 2.3, 0.3); dh.position.set(RX - 0.1, 1.15, 9.9); scene.add(dh); hit(dh, { tip: 'Door to the outside: click to open, then walk out into the snow', act: function () { DOORS.toggle(dr); } }); DOORS.reg(dr, 'east');
   /* printer, plant, cooler */
   box(0.6, 0.9, 0.5, MAT.wall, 9.0, 0.45, ZF - 0.4, scene); box(0.5, 0.25, 0.42, MAT.desk, 9.0, 1.02, ZF - 0.4, scene);
   var pot = cyl(0.2, 0.15, 0.4, MAT.dark, 16); pot.position.set(-RX + 0.6, 0.2, ZF - 0.6); scene.add(pot);
@@ -2887,7 +2887,7 @@ function addWindows(scene) { var frame = function (x, z, ry) { var m = new THREE
    A door in the west wall, between the two windows, leads down a short corridor into the reactor hall: the vessel head in its
    cavity, the refuelling pool, the polar crane overhead. Walk in with the reactor at power and the area monitors show it. */
 var HALL = { door: 1.3, cx: -RX - 8, cz: RZC, cw: 2.6, hx: -RX - 8, hw: 18, hd: 18, vx: -RX - 17, in: false, near: null, glow: null, mon: null };
-function inHallArea(x, z) { var m = 0.35; if (x > -RX + m && x < RX - m && z > ZB + m && z < ZF - m) return true; /* control room */
+function inHallArea(x, z) { var m = 0.35; if (x >= RX - 0.6 && x <= RX + 0.8 && z > 9.05 && z < 10.75) return true; if (x > RX + 0.3 && x < RX + 70 && z > -60 && z < 70) return true; if (x > -RX + m && x < RX - m && z > ZB + m && z < ZF - m) return true; /* control room */
   if (x <= -RX + m && x >= HALL.hx + 0.2 && Math.abs(z - HALL.cz) < HALL.cw / 2 - m) return true; /* corridor */
   if (x <= HALL.hx + 0.3 && x >= HALL.hx - HALL.hw + m && Math.abs(z - HALL.cz) < HALL.hd / 2 - m) { if (Math.hypot(x - HALL.vx, z - HALL.cz) < 4.6) return false; return true; } /* hall, minus the cavity railing */
   return false; }
@@ -2916,7 +2916,7 @@ function addHall(scene) { var cz = HALL.cz, cw = HALL.cw, hx = HALL.hx, hw = HAL
   box(cl, 0.12, 0.03, dark, cmx, 0.06, cz - cw / 2 + 0.015, scene); box(cl, 0.12, 0.03, dark, cmx, 0.06, cz + cw / 2 - 0.015, scene);
   box(cl, 0.1, 0.12, yel, cmx, 1.0, cz - cw / 2 + 0.06, scene); box(cl, 0.1, 0.12, yel, cmx, 1.0, cz + cw / 2 - 0.06, scene);
   [[0.08, -0.5, 0x8a8f94], [0.06, -0.3, 0xc63b2a], [0.05, 0.4, 0x2b5fb3], [0.04, 0.55, 0x8a8f94]].forEach(function (p) { var pp = cyl(p[0], p[0], cl, new THREE.MeshStandardMaterial({ color: p[2], roughness: 0.45, metalness: 0.5 }), 12); pp.rotation.z = Math.PI / 2; pp.position.set(cmx, 2.78, cz + p[1]); pp.userData.noColl = true; scene.add(pp); for (var k = 0; k < 5; k++) box(0.03, 0.22, 0.04, galv, -RX + (hx + RX) * (k + 0.5) / 5, 2.89, cz + p[1], scene); });
-  var i;
+  var i; (function () { var dg = new THREE.Group(); dg.position.set(-RX - 0.4, 0, cz); dg.rotation.y = Math.PI / 2; scene.add(dg); box(cw, 0.12, 0.12, stl, 0, 2.3, 0, dg); [-1, 1].forEach(function (k) { box(0.1, 2.3, 0.14, stl, k * (cw / 2 - 0.05), 1.15, 0, dg); }); var lf = new THREE.MeshStandardMaterial({ color: 0x5b6670, roughness: 0.5, metalness: 0.3 }); dg.userData.leaves = []; [-1, 1].forEach(function (k) { var piv = new THREE.Group(); piv.position.set(k * (cw / 2 - 0.1), 0, 0); dg.add(piv); box(cw / 2 - 0.1, 2.2, 0.05, lf, -k * (cw / 4 - 0.05), 1.1, 0, piv); box(0.3, 0.6, 0.01, MAT.glass, -k * (cw / 4 - 0.05), 1.55, 0.03, piv); piv.userData.k = k; dg.userData.leaves.push(piv); }); var hb = invis(cw, 2.3, 0.3); hb.position.set(-RX - 0.4, 1.15, cz); hb.rotation.y = Math.PI / 2; scene.add(hb); hit(hb, { tip: 'Corridor door: click to open or close', act: function () { DOORS.toggle(dg); } }); DOORS.reg(dg, 'corr'); })();
 
   /* ---- the hall: tall concrete box, panel-jointed, with a service gallery round it at 6 m ---- */
   var hmx = hx - hw / 2; (function () { /* hall floor with a round hole for the cavity */ var sh = new THREE.Shape(); sh.moveTo(-hw / 2, -hd / 2); sh.lineTo(hw / 2, -hd / 2); sh.lineTo(hw / 2, hd / 2); sh.lineTo(-hw / 2, hd / 2); sh.closePath(); var hole = new THREE.Path(); hole.absarc(vx - hmx, 0, 4.0, 0, Math.PI * 2, true); sh.holes.push(hole); var fg = new THREE.ShapeGeometry(sh, 64); var uv = fg.attributes.uv; for (var i = 0; i < uv.count; i++) uv.setXY(i, (uv.getX(i) + hw / 2) / 4, (uv.getY(i) + hd / 2) / 4); var fm = new THREE.Mesh(fg, flr(4, 4)); fm.rotation.x = -Math.PI / 2; fm.position.set(hmx, 0.001, cz); fm.userData.noColl = true; scene.add(fm); })(); pl(hw, hd, concW(hw, hd), hmx, HH, cz, Math.PI / 2);
@@ -3079,6 +3079,10 @@ HALL.fxTick = function (dt) { var F = HALL.fx; if (!F) return; F.t += dt; var pw
   if (F.water) { F.water.uniforms.t.value = F.t; F.water.uniforms.pw.value = pw; } if (F.caus) { F.caus.uniforms.t.value = F.t; F.caus.uniforms.pw.value = pw; } if (F.cher) { F.cher.uniforms.pw.value = pw; F.cher.uniforms.t.value = F.t; }
   if (F.beacon) F.beacon.visible = Math.sin(F.t * 4) > 0.2;
   if (F.dust && near) { var a = F.dust.geometry.attributes.position.array; for (var i = 0; i < a.length; i += 3) { a[i] += Math.sin(F.t * 0.3 + i) * 0.02 * dt; a[i + 1] += (Math.sin(F.t * 0.21 + i * 0.7) * 0.03 - 0.008) * dt; a[i + 2] += Math.cos(F.t * 0.27 + i * 1.3) * 0.02 * dt; if (a[i + 1] < 0.3) a[i + 1] = 13; } F.dust.geometry.attributes.position.needsUpdate = true; } };
+var DOORS = { list: [], reg: function (g) { g.userData.open = 0; g.userData.tgt = 0; this.list.push(g); if (!g.userData.leaves) g.userData.leaves = g.children.slice(1); },
+  toggle: function (g) { g.userData.tgt = g.userData.tgt ? 0 : 1; AUD.sfx('step'); },
+  tick: function (dt) { this.list.forEach(function (g) { var u = g.userData; if (u.open === u.tgt) return; u.open += Math.sign(u.tgt - u.open) * Math.min(Math.abs(u.tgt - u.open), dt * 2); u.leaves.forEach(function (l) { if (l.userData.k != null) l.rotation.y = l.userData.k * u.open * 1.5; else l.visible = u.open < 0.5; }); }); } };
+function goHall() { CAM.tw = null; CAM.view = null; CAM.x = HALL.hx - 3.2; CAM.z = HALL.cz; CAM.y = 1.65; CAM.yaw = Math.PI / 2; CAM.pitch = -0.32; }
 function hallDose() { var p = S.p; if (!p) return 0.2; var pw = clamp(D.pr / 100, 0, 1); return 0.2 + pw * 180 + (p.x && p.x.f && (p.x.f.loca || p.x.f.lb) ? 5000 : 0); }
 function drawAreaMon(g) { var W = 640, H = 400, d = hallDose(), hi = d > 100; g.fillStyle = hi ? '#3a0d0b' : '#0c1a10'; g.fillRect(0, 0, W, H); ctext(g, 'AREA MONITOR RM-12', 320, 40, 28, '#dfe6ea'); ctext(g, 'REACTOR CAVITY', 320, 72, 22, '#9fb3c8');
   ctext(g, (d >= 1000 ? (d / 1000).toFixed(2) + ' mSv/h' : d.toFixed(d < 10 ? 2 : 0) + ' µSv/h'), 320, 190, 86, hi ? '#ff6b57' : '#7bffa0'); ctext(g, hi ? 'HIGH RADIATION · LIMIT STAY' : d > 5 ? 'ELEVATED · N-16' : 'NORMAL', 320, 290, 30, hi ? '#ffb3a8' : '#9fb3c8');
@@ -3133,6 +3137,13 @@ function addOutside(scene) { var g = new THREE.Group(); g.position.set(RX, 0, RZ
   /* thin high cloud drifting across the sky */
   var cl = new THREE.Mesh(new THREE.PlaneGeometry(900, 900), new THREE.ShaderMaterial({ transparent: true, depthWrite: false, uniforms: { t: { value: 0 } }, vertexShader: 'varying vec2 vu; void main(){ vu = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }', fragmentShader: 'uniform float t; varying vec2 vu; float n(vec2 p){ return sin(p.x*3.1+t*0.02)*sin(p.y*2.7-t*0.013)*0.5+sin(p.x*7.3-p.y*5.1+t*0.03)*0.25+sin(p.x*13.0+p.y*11.0)*0.12; } void main(){ float v = n(vu+vec2(t*0.004,0.0)); float a = smoothstep(0.25,0.75,v)*0.22; float edge = smoothstep(0.0,0.2,vu.x)*smoothstep(1.0,0.8,vu.x)*smoothstep(0.0,0.2,vu.y)*smoothstep(1.0,0.8,vu.y); gl_FragColor = vec4(vec3(0.55,0.62,0.75)*a, a*edge); }' })); cl.rotation.x = -Math.PI / 2; cl.position.set(300, 260, 0); cl.frustumCulled = false; g.add(cl); EXT.cloud = cl;
   EXT.stars = stars; EXT.trees = []; g.children.forEach(function (o) { if (o.geometry && o.geometry.type === 'CylinderGeometry' && o.position.y > 1.5 && o.scale.x === 1) EXT.trees.push(o); });
+  /* the building seen from outside: ribbed cladding on the other three faces and the roof (the east face is the window wall itself) */
+  var rib = CV(256, 64), rg = rib.getContext('2d'); rg.fillStyle = '#9aa4ad'; rg.fillRect(0, 0, 256, 64); for (var r = 0; r < 256; r += 16) { rg.fillStyle = '#7f8992'; rg.fillRect(r, 0, 4, 64); rg.fillStyle = '#b3bcc4'; rg.fillRect(r + 5, 0, 2, 64); }
+  var ribT = new THREE.CanvasTexture(rib); ribT.wrapS = ribT.wrapT = THREE.RepeatWrapping; var BH = 14.4, W0 = -RX - 26.2 - RX, L = RX - W0;
+  var face = function (w, hgt, x, y, z, ry) { var t = ribT.clone(); t.needsUpdate = true; t.repeat.set(w / 2, 1); var m = new THREE.Mesh(new THREE.PlaneGeometry(w, hgt), new THREE.MeshStandardMaterial({ map: t, roughness: 0.6, metalness: 0.3 })); m.position.set(x - RX, y, z - RZC); m.rotation.y = ry; g.add(m); };
+  face(L, BH, (W0 + RX) / 2, BH / 2, ZB - 0.2, Math.PI); face(L, BH, (W0 + RX) / 2, BH / 2, ZF + 0.2, 0); face(RDP + 0.4, BH, W0 - 0.2, BH / 2, RZC, -Math.PI / 2);
+  var roof = new THREE.Mesh(new THREE.PlaneGeometry(L, RDP + 0.4), new THREE.MeshStandardMaterial({ color: 0x5a636b, roughness: 0.8 })); roof.rotation.x = -Math.PI / 2; roof.position.set((W0 + RX) / 2 - RX, BH, 0); g.add(roof);
+  face(RDP + 0.4, BH - CH, RX + 0.07, (BH + CH) / 2, RZC, Math.PI / 2);
   EXT.on = true; }
 EXT.tick = function (dt) { if (!EXT.on) return; EXT.t += dt; EXT.aur.forEach(function (m) { m.material.uniforms.t.value += dt; }); if (EXT.cloud) EXT.cloud.material.uniforms.t.value += dt;
   if (EXT.snow) { var P = EXT.snow.geometry.attributes.position, a = P.array, w = Math.sin(EXT.t * 0.4) * 0.6; for (var i = 0; i < EXT.sv.length; i++) { var j = i * 3; a[j + 1] -= EXT.sv[i] * dt; a[j] += (w + Math.sin(EXT.t * 1.7 + i) * 0.3) * dt; a[j + 2] += Math.cos(EXT.t * 1.3 + i * 0.7) * 0.25 * dt; if (a[j + 1] < -0.4) { a[j + 1] = 40; a[j] = Math.random() * 120; a[j + 2] = (Math.random() - 0.5) * 120; } if (a[j] > 120) a[j] -= 120; if (a[j] < 0) a[j] += 120; } P.needsUpdate = true; }
@@ -3898,7 +3909,7 @@ function frame(now) {
   if (!S.paused && !S.menu) {
     var sim = dt * S.ts, n = Math.max(1, Math.ceil(sim / 0.05)), hh = sim / n;
     for (var i = 0; i < n; i++) { plantStep(p, hh); niTick(p, hh); rps(p); permissives(p); oneMTick(p, hh); }
-    derive(sim); MS.tick(sim); ANNC.tick(); CAR.tick(sim, dt); TS.tick(sim); CREW.tick(dt, sim); RNDE.tick(sim); CRISIS.tick(sim); FULL_SHIFT.tick(); LIFE2.tick(dt); HALL.tick(dt); WATCH.tick(dt); EXT.tick(dt);
+    derive(sim); MS.tick(sim); ANNC.tick(); CAR.tick(sim, dt); TS.tick(sim); CREW.tick(dt, sim); RNDE.tick(sim); CRISIS.tick(sim); FULL_SHIFT.tick(); LIFE2.tick(dt); HALL.tick(dt); WATCH.tick(dt); EXT.tick(dt); DOORS.tick(dt);
     if (p.sur > S.st.maxSur && !p.tripped) S.st.maxSur = p.sur;
     if (p.steps !== lastSteps) { var ds = p.steps - lastSteps; lastSteps = p.steps; if (ds > 0 && ds < 50) AUD.sfx('step'); }
     var np = p6(p); if (np && !wasP6 && !p.tripped) { S.addLog('P-6 permissive: intermediate range above 1E-10 A'); speak('P 6. Block the source range.'); if (S.ts > 1) setTS(1); } wasP6 = np;
