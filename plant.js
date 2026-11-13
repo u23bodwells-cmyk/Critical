@@ -2472,8 +2472,8 @@ function loadRealHand(root, skin) { var go = function () { try { new THREE.GLTFL
    Loaded from models/arm-right.glb. Every frame the shoulder, elbow and wrist from the IK are written straight into the bones, the hand
    bone takes the hand's orientation, and the fingers are posed by rotating their bones from the rest pose. When it has loaded, the
    procedural arm and the old hand mesh are hidden. */
-var RIG = { on: false, b: null, rest: null, mesh: null, qMap: null, tmpM: new THREE.Matrix4(), tmpI: new THREE.Matrix4(), v: new THREE.Vector3(), q: new THREE.Quaternion(), s: new THREE.Vector3() };
-function loadRigArm() { var go = function () { try { new THREE.GLTFLoader().load('models/arm-right.glb?v=' + encodeURIComponent(String(window.CRIT_PLANT_V || Date.now())), function (g) { var sc = g.scene, b = {}; sc.traverse(function (o) { if (o.isBone) b[o.name] = o; if (o.isSkinnedMesh) { RIG.mesh = o; o.frustumCulled = false; o.renderOrder = 2; var mp = o.material.map; o.material = new THREE.MeshPhysicalMaterial({ map: mp, color: 0xfff2ea, roughness: 0.55, sheen: 0.6, sheenColor: new THREE.Color(0xffb59a), sheenRoughness: 0.5, clearcoat: 0.08, clearcoatRoughness: 0.6, specularIntensity: 0.35 }); if (mp) { mp.colorSpace = THREE.SRGBColorSpace; mp.anisotropy = 4; } } });
+var RIG = { on: false, b: null, rest: null, mesh: null, qMap: null, tmpM: null, tmpI: null, v: null, q: null, s: null }; /* the scratch objects are made in loadRigArm, once three.js is loaded */
+function loadRigArm() { RIG.tmpM = new THREE.Matrix4(); RIG.tmpI = new THREE.Matrix4(); RIG.v = new THREE.Vector3(); RIG.q = new THREE.Quaternion(); RIG.s = new THREE.Vector3(); var go = function () { try { new THREE.GLTFLoader().load('models/arm-right.glb?v=' + encodeURIComponent(String(window.CRIT_PLANT_V || Date.now())), function (g) { var sc = g.scene, b = {}; sc.traverse(function (o) { if (o.isBone) b[o.name] = o; if (o.isSkinnedMesh) { RIG.mesh = o; o.frustumCulled = false; o.renderOrder = 2; var mp = o.material.map; o.material = new THREE.MeshPhysicalMaterial({ map: mp, color: 0xfff2ea, roughness: 0.55, sheen: 0.6, sheenColor: new THREE.Color(0xffb59a), sheenRoughness: 0.5, clearcoat: 0.08, clearcoatRoughness: 0.6, specularIntensity: 0.35 }); if (mp) { mp.colorSpace = THREE.SRGBColorSpace; mp.anisotropy = 4; } } });
   if (!b.upper_armR || !b.forearmR || !b.handR) return; RIG.b = b; RIG.rest = {}; Object.keys(b).forEach(function (k) { RIG.rest[k] = b[k].quaternion.clone(); });
   /* bone axes: +y along the finger, +x towards the thumb, +z out of the palm. The hand group has fingers along -z, palm down (-y), thumb -x. */
   RIG.qMap = new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().makeBasis(new THREE.Vector3(-1, 0, 0), new THREE.Vector3(0, 0, -1), new THREE.Vector3(0, -1, 0)));
@@ -4077,18 +4077,27 @@ function frame(now) {
 var ANNW = [];
 
 /* ================================================================ open and close ================================================================ */
+var BOOT = { ok: false, t0: 0 };
 function open() {
-  if (root && !root.hidden) return;
-  if (root) { root.hidden = false; document.addEventListener('keydown', kd); document.addEventListener('keyup', ku); last = 0; RAF = requestAnimationFrame(frame); startMenu(); return; }
+  /* already up and working: just make sure it is in front */
+  if (root && !root.hidden && root.isConnected && BOOT.ok) { document.body.appendChild(root); return; }
+  /* a launch that never finished (engine download stalled, start-up error, page re-render): throw it away and start clean */
+  if (root && !BOOT.ok) { if (Date.now() - BOOT.t0 < 4000 && root.isConnected && !root.hidden) return; try { root.remove(); } catch (e) {} root = null; }
+  if (root) { if (!root.isConnected) document.body.appendChild(root); else document.body.appendChild(root); root.hidden = false; document.addEventListener('keydown', kd); document.addEventListener('keyup', ku); last = 0; RAF = requestAnimationFrame(frame); startMenu(); return; }
   if (!document.getElementById('cpnCss')) { var st = document.createElement('style'); st.id = 'cpnCss'; st.textContent = CSS + OPS_CSS; document.head.appendChild(st); }
   root = el('div', 'cpn'); root.setAttribute('role', 'application'); root.setAttribute('aria-label', 'Critical Point nuclear power station simulator'); document.body.appendChild(root);
-  var ld = h('div', 'cpnload', '<i></i><span>Powering up the control room…</span>', root);
-  loadThree(function (ok) {
-    if (!ok) { ld.innerHTML = '<span>Couldn’t load the 3D engine. Check your connection and try again.</span><button class="cpnb" style="margin-top:10px">Close</button>'; ld.querySelector('button').onclick = close; return; }
-    setTimeout(function () { try { init(); ld.remove(); } catch (e) { ld.innerHTML = '<span>Something went wrong starting the simulator: ' + esc(e && e.message) + '</span><button class="cpnb" style="margin-top:10px">Close</button>'; ld.querySelector('button').onclick = close; try { console.error(e); } catch (x) {} } }, 30);
+  var ld = h('div', 'cpnload', '<i></i><span>Powering up the control room…</span>', root); BOOT.t0 = Date.now(); BOOT.ok = false;
+  /* never leave a spinner that cannot be escaped: after 15 s offer Retry and Close */
+  var slow = setTimeout(function () { if (BOOT.ok || !ld.isConnected) return; ld.innerHTML = '<span>This is taking a while (slow connection?).</span><div style="display:flex;gap:8px;margin-top:10px"><button class="cpnb">Retry</button><button class="cpnb2">Close</button></div>'; var bs = ld.querySelectorAll('button'); bs[0].onclick = function () { try { root.remove(); } catch (e) {} root = null; open(); }; bs[1].onclick = function () { try { root.remove(); } catch (e) {} root = null; try { API.close(); } catch (e) {} }; }, 15000);
+  loadThree(function (ok) { clearTimeout(slow);
+    if (!ok) { ld.innerHTML = '<span>Couldn’t load the 3D engine. Check your connection and try again.</span><div style="display:flex;gap:8px;margin-top:10px"><button class="cpnb">Retry</button><button class="cpnb2">Close</button></div>'; var bs = ld.querySelectorAll('button'); bs[0].onclick = function () { try { root.remove(); } catch (e) {} root = null; open(); }; bs[1].onclick = function () { try { root.remove(); } catch (e) {} root = null; try { API.close(); } catch (e) {} }; return; }
+    setTimeout(function () { try { init(); ld.remove(); BOOT.ok = true; } catch (e) { ld.innerHTML = '<span>Something went wrong starting the simulator: ' + esc(e && e.message) + '</span><button class="cpnb" style="margin-top:10px">Close</button>'; ld.querySelector('button').onclick = function () { try { root.remove(); } catch (x) {} root = null; try { API.close(); } catch (x) {} }; try { console.error(e); } catch (x) {} } }, 30);
   });
 }
-function loadThree(cb) { if (window.THREE && THREE.WebGLRenderer) { cb(true); return; } var s = document.createElement('script'); s.src = 'vendor/three.min.js?v=160'; s.onload = function () { cb(!!(window.THREE && THREE.WebGLRenderer)); }; s.onerror = function () { cb(false); }; document.head.appendChild(s); }
+function loadThree(cb) { var done = false, fin = function (ok) { if (done) return; done = true; clearInterval(poll); clearTimeout(to); cb(ok); }, ready = function () { return !!(window.THREE && THREE.WebGLRenderer); };
+  if (ready()) { cb(true); return; }
+  var poll = setInterval(function () { if (ready()) fin(true); }, 200), to = setTimeout(function () { fin(ready()); }, 20000);
+  var s = document.createElement('script'); s.src = 'vendor/three.min.js?v=160&t=' + Date.now(); s.onload = function () { if (ready()) fin(true); }; s.onerror = function () { setTimeout(function () { fin(ready()); }, 1500); }; document.head.appendChild(s); }
 function init() {
   var sv = rd(); makeSession(sv); var hi = S.cfg.gfx === 'high', lite = S.cfg.gfx === 'lite'; root.classList.toggle('lite', lite); PERF.lite = lite; PERF.cap = lite ? 1 / 31 : 0; if (lite) { TEXS = 0.5; BEN = 1; }
   var ren = new THREE.WebGLRenderer({ antialias: hi, powerPreference: lite ? 'default' : 'high-performance', stencil: false }); PERF.prMax = Math.min(window.devicePixelRatio || 1, hi ? 2 : lite ? 0.85 : 1); PERF.pr = PERF.prMax; ren.setPixelRatio(PERF.pr); ren.toneMapping = THREE.ACESFilmicToneMapping; ren.toneMappingExposure = 0.92;
