@@ -192,7 +192,7 @@ body{min-height:100%;padding-left:max(16px,env(safe-area-inset-left,0px));paddin
     a.addEventListener("click",function(){try{localStorage.setItem("critical_last_app",a.getAttribute("data-app"));}catch(e){}});
   });
 })();
-if("serviceWorker" in navigator&&location.protocol==="https:")navigator.serviceWorker.register("sw.js").catch(function(){});
+if("serviceWorker" in navigator&&location.protocol==="https:"){var _swHad=!!navigator.serviceWorker.controller;navigator.serviceWorker.addEventListener("controllerchange",function(){if(_swHad&&!sessionStorage.getItem("crit_swr")){sessionStorage.setItem("crit_swr","1");location.reload();}});navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(function(r){r.update();}).catch(function(){});}
 </script>
 <script>(function(){function J(k){try{return JSON.parse(localStorage.getItem(k)||'null')}catch(e){return null}}function st(t){return '<span class="stat">'+t+'</span>'}
  var last=null;try{last=localStorage.getItem('critical_last_app')}catch(e){}

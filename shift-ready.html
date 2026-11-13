@@ -905,7 +905,7 @@ window.SR={S:function(){return S},addXP:addXP,save:save,toast:toast,qProg:qProg,
 })();
 </script>
 
-<script>if("serviceWorker" in navigator&&location.protocol==="https:")navigator.serviceWorker.register("sw.js").catch(function(){});</script>
+<script>if("serviceWorker" in navigator&&location.protocol==="https:"){var _swHad=!!navigator.serviceWorker.controller;navigator.serviceWorker.addEventListener("controllerchange",function(){if(_swHad&&!sessionStorage.getItem("crit_swr")){sessionStorage.setItem("crit_swr","1");location.reload();}});navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(function(r){r.update();}).catch(function(){});}</script>
 <script>
 /* today's plan from Critical: count down, then send you back for the next part (after you finish what you're in) */
 (function(){var K='critical_plan_run',ban=null,bt=null,key=null;
