@@ -3110,12 +3110,18 @@ var WATCH = { on: false, left: 0, cd: 0, el: null, MAX: 3600, CD: 7200,
 var EXT = { t: 0, aur: [], on: false };
 function addOutside(scene) { var g = new THREE.Group(); g.position.set(RX, 0, RZC); scene.add(g); EXT.g = g;
   /* terrain: flat snow near the building, mountains rising with distance; vertex colours darken the rock faces */
-  var N = 110, SZE = 900, geo = new THREE.PlaneGeometry(SZE, SZE, N, N); geo.rotateX(-Math.PI / 2); geo.translate(SZE / 2 - 20, 0, 0);
-  var P = geo.attributes.position, col = new Float32Array(P.count * 3), c1 = new THREE.Color(0xd7e2ee), c2 = new THREE.Color(0x3b4656), c = new THREE.Color();
-  var nz = function (x, z) { return Math.sin(x * 0.031) * Math.cos(z * 0.027) + 0.5 * Math.sin(x * 0.071 + z * 0.043) + 0.25 * Math.sin(x * 0.19 - z * 0.13) + 0.12 * Math.sin(x * 0.41 + z * 0.37); };
-  for (var i = 0; i < P.count; i++) { var x = P.getX(i), z = P.getZ(i), d = Math.hypot(x, z), rise = clamp((d - 60) / 220, 0, 1), h = -0.4 + rise * rise * (70 + 55 * nz(x, z)) + (d < 60 ? 0.3 * nz(x * 3, z * 3) : 0) + (d > 320 ? (d - 320) * 0.18 : 0); if (h < -0.4) h = -0.4; P.setY(i, h); var k = clamp((h - 25) / 60, 0, 1); c.copy(c1).lerp(c2, k * 0.75 + 0.25 * Math.max(0, nz(x * 0.7, z * 0.7))); col[i * 3] = c.r; col[i * 3 + 1] = c.g; col[i * 3 + 2] = c.b; }
-  geo.setAttribute('color', new THREE.BufferAttribute(col, 3)); geo.computeVertexNormals();
-  var ter = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ vertexColors: true, color: 0x4a5874, roughness: 0.95, flatShading: true })); ter.frustumCulled = false; g.add(ter);
+  var N = 220, SZE = 900, geo = new THREE.PlaneGeometry(SZE, SZE, N, N); geo.rotateX(-Math.PI / 2); geo.translate(SZE / 2 - 20, 0, 0);
+  /* ridged noise: sharp crests and summits like real alpine peaks, layered over a broad massif that rises away from the station */
+  var hsh = function (x, z) { var n = Math.sin(x * 127.1 + z * 311.7) * 43758.5453; return n - Math.floor(n); };
+  var vn = function (x, z) { var ix = Math.floor(x), iz = Math.floor(z), fx = x - ix, fz = z - iz; fx = fx * fx * (3 - 2 * fx); fz = fz * fz * (3 - 2 * fz); var a = hsh(ix, iz), b = hsh(ix + 1, iz), c = hsh(ix, iz + 1), d = hsh(ix + 1, iz + 1); return a + (b - a) * fx + (c - a) * fz + (a - b - c + d) * fx * fz; };
+  var ridge = function (x, z) { var sum = 0, amp = 1, f = 0.012, w = 1; for (var o = 0; o < 6; o++) { var r = 1 - Math.abs(vn(x * f, z * f) * 2 - 1); r = r * r * w; sum += r * amp; w = Math.min(1, r * 1.8); amp *= 0.5; f *= 2.05; } return sum; };
+  var P = geo.attributes.position;
+  for (var i = 0; i < P.count; i++) { var x = P.getX(i), z = P.getZ(i), d = Math.hypot(x, z), rise = clamp((d - 140) / 260, 0, 1), m = rise * rise * (3 - 2 * rise);
+    var h = -0.4 + m * (ridge(x + 500, z + 300) * 62 + 12) + (d > 400 ? (d - 400) * 0.12 : 0) + (d < 70 ? 0.25 * Math.sin(x * 0.3) * Math.cos(z * 0.27) : 0); P.setY(i, Math.max(-0.4, h)); }
+  geo.computeVertexNormals(); var Nn = geo.attributes.normal, col = new Float32Array(P.count * 3), snowC = new THREE.Color(0xe6eef6), rockC = new THREE.Color(0x3f4650), rock2 = new THREE.Color(0x5a5f66), c = new THREE.Color();
+  for (i = 0; i < P.count; i++) { var hh = P.getY(i), up = Nn.getY(i), steep = clamp((0.86 - up) / 0.3, 0, 1), alt = clamp((hh - 8) / 40, 0, 1), streak = vn(P.getX(i) * 0.08, hh * 0.4); c.copy(rockC).lerp(rock2, streak); c.lerp(snowC, 1 - steep * alt * (0.75 + 0.25 * streak)); col[i * 3] = c.r; col[i * 3 + 1] = c.g; col[i * 3 + 2] = c.b; }
+  geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
+  var ter = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ vertexColors: true, color: 0x6a7894, roughness: 0.95 })); ter.frustumCulled = false; g.add(ter);
   /* a line of birches and a fence along the valley floor */
   var twig = new THREE.MeshStandardMaterial({ color: 0x2a2520, roughness: 1 });
   /* snow-laden pines: three tiers of dark needles, each with a snow cap, instanced so hundreds cost almost nothing */
