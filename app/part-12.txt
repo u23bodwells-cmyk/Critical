@@ -1,4 +1,4 @@
-le: atoms are 100,000× wider':'Not to scale: a real atom is about 100,000 times wider than its nucleus.','rgba(160,190,230,.7)',8.5,'left');
+ud(c,tx,ty+52,nb?'Not to scale: atoms are 100,000× wider':'Not to scale: a real atom is about 100,000 times wider than its nucleus.','rgba(160,190,230,.7)',8.5,'left');
     if(st){st.z.textContent=Z;st.n.textContent=A-Z;st.b.textContent=fx(N[3],2)+' MeV'}return}
    if(mode==='binding'||mode==='stability'||mode==='emc2'){band(c,W,mode==='binding'?'BINDING ENERGY PER NUCLEON':mode==='stability'?'THE VALLEY OF STABILITY':'MASS DEFECT AND E = mc²',N[0]);var nx2=wide?W*.2:W*.22,ny2=wide?H*.55:H*.28;drawNuc(c,pts,nx2,ny2,Math.min(sc*.5,(wide?W*.15:W*.18)/Math.cbrt(A)/2),yaw,.35);
     var gx=wide?W*.42:16,gy=wide?36:H*.52,gw=W-gx-12,gh=wide?H-70:H-gy-30;
@@ -870,5 +870,4 @@ le: atoms are 100,000× wider':'Not to scale: a real atom is about 100,000 times
   butane:M((function(){var A=[],B=[];for(var i=0;i<4;i++){A.push([-.6+i*.4,0,(i%2?.12:-.12),'C'])}for(i=0;i<4;i++){A.push([-.6+i*.4,.36,(i%2?.36:-.36),'H']);A.push([-.6+i*.4,-.36,(i%2?.36:-.36),'H']);B.push([i,4+2*i]);B.push([i,5+2*i])}A.push([-.95,0,-.32,'H']);A.push([.95,0,.32,'H']);B.push([0,12]);B.push([3,13]);for(i=0;i<3;i++)B.push([i,i+1]);return A})(),null,{t:'BUTANE',ms:1.1,read:function(){return 'C₄H₁₀ · alkanes are saturated: single bonds only'},cap:'Butane, C₄H₁₀: a chain of four carbon atoms with only single bonds, so it is saturated. Alkanes get longer down the series, adding CH₂ each time, and their boiling points rise.'})};
  MOL.butane.bonds=(function(){var B=[];for(var i=0;i<4;i++){B.push([i,4+2*i]);B.push([i,5+2*i])}B.push([0,12]);B.push([3,13]);for(i=0;i<3;i++)B.push([i,i+1]);return B})();
  SC.mol=function(p){return MOL[p&&p.m]||MOL.water};
- SC.polymer=function(){var A=[],B=[];for(var i=0;i<10;i++){A.push([-1.1+i*.245,0,(i%2?.1:-.1),'C'])}for(i=0;i<10;i++){var z=(i%2?.1:-.1);A.push([-1.1+i*.245,.3,z*2.6,'H']);A.push([-1.1+i*.245,-.3,z*2.6,'H']);B.push([i,10+2*i]);B.push([i,11+2*i])}for(i=0;i<9;i++)B.push([i,i+1]);
-  return {k:'mol',bo
+ SC.polymer=function(){var A=[],B=[];for(var i=0;i<10;i++){A.push([-1.1+i*.245,0,(i%2?.1:-.1),'C'])}for(i=0;i<10;i++){var z=(i%2?.1:-.1);A.push([-1.1+i*.245,.3,z*2.6,'H']);A.push([-1.1+i*.245,-.3,z*2.6,'H']);B.push([i,10+2*i]);B.push([i,11+2*i])}for(i=0;i<9;i++)B.push([i

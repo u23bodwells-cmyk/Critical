@@ -1,4 +1,4 @@
-()}),r=row(box);btn(r,'− 0.0001',function(){s.set(Math.round((s.get()-0.0001)*1e4)/1e4)});btn(r,'+ 0.0001',function(){s.set(Math.round((s.get()+0.0001)*1e4)/1e4)});st=stats(box,[['r','ρ (Δk/k)'],['p','ρ (pcm)'],['d','ρ (dollars)'],['s','State']]);
+v.toFixed(4)},function(){upd()}),r=row(box);btn(r,'− 0.0001',function(){s.set(Math.round((s.get()-0.0001)*1e4)/1e4)});btn(r,'+ 0.0001',function(){s.set(Math.round((s.get()+0.0001)*1e4)/1e4)});st=stats(box,[['r','ρ (Δk/k)'],['p','ρ (pcm)'],['d','ρ (dollars)'],['s','State']]);
  function rho(){var k=s.get();return (k-1)/k}function upd(){var p=rho();st.r.textContent=p.toFixed(5).replace('-','−');st.p.textContent=String(Math.round(p*1e5)).replace('-','−');st.d.textContent=(p/0.0065).toFixed(2).replace('-','−')+' $';st.s.textContent=Math.abs(p)<1e-7?'Critical':p<0?'Subcritical':'Supercritical'}upd();
  return {check:function(){var p=rho()*1e5;return Math.abs(p-par.target)<=6?{ok:true}:{ok:false,msg:'That\'s '+Math.round(p)+' pcm. You want +100 pcm.'}},lock:function(){s.input.disabled=true}}};
 
@@ -1259,5 +1259,4 @@ var PLAN=(function(){
  function runGet(){try{var r=JSON.parse(localStorage.getItem(RK)||'null');if(r&&r.d!==ymdN()){localStorage.removeItem(RK);return null}return r}catch(_){return null}}
  function runSet(r){try{localStorage.setItem(RK,JSON.stringify(r))}catch(_){}}
  function runClear(){try{localStorage.removeItem(RK)}catch(_){}}
- function firstLeft(day,after){if(feOn(day))return -1;for(var j=0;j<DAY(day).length;j++){if(after!=null&&j<=after)continue;if(!isDone(day,j))return j}if(after!=null)for(j=0;j<after;j++)if(!isDone(day,j))return j;return -1}
- function arenaOpen(){re
+ function firstLeft(day,after){if(feOn(day))return -1;for(var j=0;j<DAY(day).length;j++){if(after!=null&&j<=after)continue;if(!isDone(day,j))return j}if(after!=null)for(j=0;j<after;j++)if(!isDone(day,j))return j;return 

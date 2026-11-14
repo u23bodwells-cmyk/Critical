@@ -502,7 +502,7 @@ function BADGES(){var dc=doneCount('all'),st=S.st,a=[
  bdg('m4','⏱️','Beat the xenon','Pass control room mission 4',function(){return [S.missions.m4?1:0,1]},'#D85A30')]);return a}
 function checkBadges(quiet){var nw=[];BADGES().forEach(function(b){if(S.badges[b.id])return;var p=b.prog();if(p[0]>=p[1]){S.badges[b.id]=today();nw.push(b)}});
  if(nw.length){save();if(P&&P.newBadges)P.newBadges=P.newBadges.concat(nw);
-  if(!quiet)nw.forEach(function(b){toast('<span class="tb" style="background:'+b.col+'">'+b.ic+'</span>','Badge earned: '+b.name,b.desc,'badge')})}return nw}
+  if(!quiet){nw.forEach(function(b){toast('<span class="tb" style="background:'+b.col+'">'+b.ic+'</span>','Badge earned: '+b.name,b.desc,'badge')});try{confetti()}catch(e){}}}return nw}
 /* ===== Career ladders: seven routes through a nuclear station. Chief Nuclear Officer needs everything. ===== */
 var LAD=(function(){
  var SR_TOTAL=32;
@@ -1152,4 +1152,4 @@ WIDGETS.modRatio=function(box){var DEN=[[280,0.764],[290,0.746],[300,0.726],[310
   st.r.textContent=r.toFixed(2);st.k.textContent=k.toFixed(4);st.d.textContent=Math.round((k-1)/k*1e5)+' pcm'}
  onDraw(draw);draw();el('p','small','Illustrative curve. Hotter water is less dense, so there\'s effectively less moderator per unit of fuel.',box);return {}};
 
-WIDGETS.reactivityCalc=function(box,par){var st,s=slider(box,'k',0.99,1.01,0.0001,0.995,function(v){return v.toFixed(4)},function(){upd
+WIDGETS.reactivityCalc=function(box,par){var st,s=slider(box,'k',0.99,1.01,0.0001,0.995,function(v){return 
