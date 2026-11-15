@@ -4038,9 +4038,18 @@ function addTurbine(scene) { var K = HALL.link; if (!K) return; var T = { x0: -4
         route([[x, 2.6, FPZ - 1.9], [x, 4.2, FPZ - 1.9], [x, 4.2, T.z0 + 0.5], [x, 6.0, T.z0 + 0.5]], 0.14, jack(10, 2), 0.3, 40); Cy(0.4, 0.8, jack(4, 2), x - 0.0, 0.8, FPZ - 2.6, 20); }
       /* suction from the tank above, discharge up and away to the HP heaters */ route([[x - 0.0, 1.6, FPZ + 1.6], [x, 5.0, FPZ + 1.6], [x, 5.0, pcz], [x + (-12.9 - x) * 0 , PY - 0.6, pcz]].slice(0, 2).concat([[x, 7.6, FPZ + 1.6], [-11.0 + i * 0.9, 7.6, FPZ + 1.6], [-11.0 + i * 0.9, 7.6, pcz], [-11.0 + i * 0.9, ty - 1.7, pcz]]), 0.22, jack(24, 3), 0.5, 100);
       flange(x, 1.65, FPZ + 1.6, 0.22); valve(x, 2.6, FPZ + 1.6, 0.2);
-      route([[x, 1.6, FPZ + 0.95], [x, 3.4, FPZ + 0.95], [x, 3.4, T.z0 + 1.0], [0.5 + i * 0.5, 3.4, T.z0 + 1.0]], 0.17, jack(22, 3), 0.4, 90); flange(x, 1.65, FPZ + 0.95, 0.17);
+      route([[x, 1.6, FPZ + 0.95], [x, 2.9 + i * 0.55, FPZ + 0.95], [x, 2.9 + i * 0.55, T.z0 + 1.0], [-1.0, 2.9 + i * 0.55, T.z0 + 1.0]], 0.17, jack(22, 3), 0.4, 90); flange(-1.6, 2.9 + i * 0.55, T.z0 + 1.0, 0.17, 'x'); flange(-4.5, 2.9 + i * 0.55, T.z0 + 1.0, 0.17, 'x'); flange(x, 1.65, FPZ + 0.95, 0.17);
       /* local gauge board and nameplate */ B(0.5, 0.6, 0.06, casingD, x - 0.55, 1.5, FPZ + 2.9); Cy(0.03, 1.2, galv, x - 0.55, 0.6, FPZ + 2.9, 8); [-0.12, 0.12].forEach(function (e) { A(new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.04, 20), white), x - 0.55 + e, 1.58, FPZ + 2.94, Math.PI / 2); A(new THREE.Mesh(new THREE.TorusGeometry(0.09, 0.012, 6, 20), chrome), x - 0.55 + e, 1.58, FPZ + 2.965); });
       sign(1.0, 0.2, function (g, w, h) { g.fillStyle = '#f3f3ee'; g.fillRect(0, 0, w, h); ctext(g, nm, w / 2, h / 2 + 1, h * 0.56, '#111', 'center', w - 8, '800'); }, x, 0.35 + 0.22, FPZ + 2.61, 0, 300); });
+    /* the three discharges join a common header by the south wall, which feeds HP heater 6A's channel head; 6A passes to 7A, and 7A's outlet goes
+       through the wall towards the steam generators */
+    (function () { var hz = T.z0 + 1.0, fw = jack(26, 3); Cy(0.32, 2.6, fw, -1.0, 3.45, hz, 24); [2.1, 4.8].forEach(function (y) { Cy(0.4, 0.2, steel, -1.0, y, hz, 24); });
+      route([[-1.0, 2.2, hz], [-1.0, 0.55, hz], [8.5, 0.55, hz], [8.5, 1.35, hz], [8.5, 1.35, 33.4]], 0.3, fw, 0.6, 120); flange(8.5, 1.35, 33.3, 0.3, 'z');
+      Cy(0.26, 1.2, fw, 8.5, 2.45, 34.1, 20); flange(8.5, 2.45, 34.1, 0.26);
+      route([[8.5, 4.3, 34.1], [8.5, 6.6, 34.1], [8.5, 6.6, T.z0 + 0.05]], 0.3, fw, 0.6, 80); Cz(0.46, 0.3, steel, 8.5, 6.6, T.z0 + 0.15, 24); flange(8.5, 5.4, 34.1, 0.3);
+      sign(2.2, 0.32, function (g, w, h) { g.fillStyle = '#1d3f7a'; g.fillRect(0, 0, w, h); ctext(g, 'FEEDWATER TO STEAM GENERATORS', w / 2, h / 2 + 2, h * 0.5, '#fff', 'center', w - 16, '900'); }, 8.5, 7.25, T.z0 + 0.08, 0, 160);
+      sign(1.5, 0.26, function (g, w, h) { g.fillStyle = '#f3f3ee'; g.fillRect(0, 0, w, h); ctext(g, 'MFP DISCHARGE HEADER', w / 2, h / 2 + 2, h * 0.52, '#111', 'center', w - 12, '800'); }, -1.0, 5.15, hz + 0.34, 0, 200);
+      noGo.push([-1.7, -0.3, T.z0, T.z0 + 1.6]); })();
     B(10.5, 0.02, 0.1, yel, -22.15, 0.012, 39.6).material = hazM; B(10.5, 0.02, 0.1, yel, -22.15, 0.012, 33.4).material = hazM;
     sign(3.0, 0.5, function (g, w, h) { g.fillStyle = '#1d3f7a'; g.fillRect(0, 0, w, h); ctext(g, 'MAIN FEEDWATER PUMPS', w / 2, h / 2 + 3, h * 0.5, '#fff', 'center', w - 20, '900'); }, -22, 4.6, T.z0 + 0.3, 0, 110);
     /* ---- feed heaters: two HP heaters on saddles by the south wall, east of the door ---- */
@@ -6164,6 +6173,21 @@ function addOutside(scene) { var g = new THREE.Group(); g.position.set(RX, 0, RZ
       var f0 = HALL.fxTick, flick = 1, fl = 0; HALL.fxTick = function (dt) { f0(dt); WAY.t += dt; var wv = 0.75 + 0.25 * Math.sin(WAY.t * 0.31) * Math.sin(WAY.t * 0.17 + 1); WAY.spin.forEach(function (s) { s[0].rotation.y += dt * s[1] * wv; });
         var on = (WAY.t % 1.5) < 0.75; WAY.obs.forEach(function (o) { o.visible = on; });
         fl -= dt; if (fl <= 0) { var r = Math.random(); flick = r < 0.12 ? 0.08 : r < 0.25 ? 0.45 : 1; fl = flick < 1 ? 0.04 + Math.random() * 0.09 : 0.3 + Math.random() * 2.2; } bhM.color.setScalar(flick); bhP.intensity = 6 * flick; };
+    })();
+    /* ================= cold breath =================
+       Outdoors, every breath out leaves a small cloud in front of your face: thicker the colder it is (live Hinkley temperature when the game has it),
+       quicker when you are moving fast, carried along with you and drifting in the wind. */
+    (function () { var N = 44, pool = [], bm = function () { return new THREE.SpriteMaterial({ map: EXT.puffT, color: 0xf4f7fa, transparent: true, opacity: 0, depthWrite: false, fog: false }); }, q;
+      for (q = 0; q < N; q++) { var sp = new THREE.Sprite(bm()); sp.visible = false; sp.frustumCulled = false; sp.renderOrder = 20; sp.userData.noColl = true; sp.userData.noCull = true; scene.add(sp); pool.push({ s: sp, life: 0, age: 0, v: new THREE.Vector3(), s0: 0.08, s1: 0.6, a: 0.2 }); }
+      var B = { t: 0, ph: 0, next: 0, lx: null, ly: 0, lz: 0, v: new THREE.Vector3(), k: 0 }; EXT.breath = B;
+      var f0 = HALL.fxTick; HALL.fxTick = function (dt) { f0(dt); if (!(dt > 0)) return; dt = Math.min(dt, 0.1); var i, p;
+        for (i = 0; i < N; i++) { p = pool[i]; if (!p.life) continue; p.age += dt; var u = p.age / p.life; if (u >= 1) { p.life = 0; p.s.visible = false; continue; } p.v.multiplyScalar(Math.exp(-dt * 1.6)); p.v.y += dt * 0.05; p.s.position.addScaledVector(p.v, dt); var sz = p.s0 + (p.s1 - p.s0) * (1 - Math.pow(1 - u, 2.2)); p.s.scale.set(sz, sz, 1); p.s.material.opacity = p.a * Math.min(1, u * 7) * Math.pow(1 - u, 1.4); }
+        var x = CAM.x, y = CAM.y, z = CAM.z; if (B.lx === null || Math.abs(x - B.lx) + Math.abs(z - B.lz) > 3) B.v.set(0, 0, 0); else { B.v.x += ((x - B.lx) / dt - B.v.x) * Math.min(1, dt * 8); B.v.y += ((y - B.ly) / dt - B.v.y) * Math.min(1, dt * 8); B.v.z += ((z - B.lz) / dt - B.v.z) * Math.min(1, dt * 8); } B.lx = x; B.ly = y; B.lz = z;
+        var T = WXL.d ? WXL.d.T : 2, cold = clamp((13 - T) / 13, 0, 1), out = !camIndoors() && !CAM.free && !S.menu; B.k = out ? cold : 0; if (!out || cold <= 0.02) { B.ph = 0; return; }
+        var spd = Math.hypot(B.v.x, B.v.z), per = spd > 3 ? 1.9 : spd > 0.6 ? 2.8 : 3.8; B.t += dt; if (B.t > per) { B.t -= per * (0.9 + Math.random() * 0.2); B.ph = 1.15; B.next = 0; }
+        if (B.ph > 0) { B.ph -= dt; B.next -= dt; if (B.next <= 0) { B.next = 0.06 + (1.15 - B.ph) * 0.05; for (i = 0; i < N && pool[i].life; i++); if (i < N) { p = pool[i]; var yw = CAM.yaw, fx = -Math.sin(yw), fz = -Math.cos(yw), pc = Math.cos(CAM.pitch || 0), push = 0.5 + Math.random() * 0.35, wd = typeof LIFE !== 'undefined' && LIFE.wx === 'storm' ? 1.2 : LIFE && LIFE.wx === 'wind' ? 0.6 : 0.15;
+          p.s.position.set(x + fx * 0.24 * pc, y - 0.12 + Math.sin(CAM.pitch || 0) * 0.1, z + fz * 0.24 * pc); p.v.set(B.v.x * 0.9 + fx * push * pc + wd * 0.7 + (Math.random() - 0.5) * 0.12, B.v.y * 0.5 + 0.04 + Math.sin(CAM.pitch || 0) * push * 0.5 + (Math.random() - 0.5) * 0.06, B.v.z * 0.9 + fz * push * pc + wd * 0.3 + (Math.random() - 0.5) * 0.12);
+          p.life = 1.3 + Math.random() * 0.7 + cold * 0.6; p.age = 0; p.s0 = 0.05 + Math.random() * 0.03; p.s1 = 0.45 + Math.random() * 0.3 + cold * 0.25; p.a = (0.1 + 0.16 * cold) * (0.7 + Math.random() * 0.5); p.s.material.rotation = Math.random() * 6.28; p.s.visible = true; p.s.scale.set(p.s0, p.s0, 1); } } } };
     })();
     if (EXT.flood) EXT.flood.forEach(function (f) { f.pool.position.y = Math.max(snowY(f.pool.position.x, f.pool.position.z), -0.36) + 0.03; f.pool.userData.noShadow = true; });
     /* tree shadows for Low and Lite graphics (High uses a real shadow map): one soft tapering blob per tree, laid on the snow and swung round with the sun */
