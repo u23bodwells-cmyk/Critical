@@ -2,6 +2,10 @@
 <html lang="en">
 <head>
 <script src="gate.js"></script>
+<script>/* the real Critical Point scene runs behind the timer as a backdrop only: it must never touch your simulator saves */
+(function(){var si=Storage.prototype.setItem,ri=Storage.prototype.removeItem,blk=function(k){k=String(k);return k.indexOf('critical_plant')===0||k.indexOf('critical_screen_')===0};
+Storage.prototype.setItem=function(k,v){if(this===window.localStorage&&blk(k))return;return si.apply(this,arguments)};Storage.prototype.removeItem=function(k){if(this===window.localStorage&&blk(k))return;return ri.apply(this,arguments)}})();
+window.CRIT_PLANT_API={xp:function(){},close:function(){}};</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <link rel="manifest" href="manifest.webmanifest">
@@ -17,6 +21,12 @@
 *{box-sizing:border-box}
 html,body{margin:0;height:100%;overflow:hidden;background:#04070f;color:#fff;font-family:"Space Grotesk",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased;user-select:none}
 #sky{position:fixed;inset:0;width:100%;height:100%;display:block}
+#sky{z-index:0;transition:opacity 1.6s}
+.cpn{z-index:1!important;pointer-events:none!important;opacity:0;transition:opacity 1.8s ease}
+.cpn.hwready{opacity:1}
+.cpn>:not(canvas){display:none!important}
+.veil{z-index:2}.ui{z-index:3}.top,.bar{z-index:4}.toast{z-index:5}
+.loadchip{opacity:.75}
 .fallback{position:fixed;inset:0;background:#04070f url(models/aurora.jpg) center/cover no-repeat}
 .veil{position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse 60% 45% at 50% 50%,rgba(2,5,12,.42),rgba(2,5,12,0) 70%),linear-gradient(to bottom,rgba(2,5,12,.25),rgba(2,5,12,0) 25%,rgba(2,5,12,0) 75%,rgba(2,5,12,.35))}
 .ui{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;pointer-events:none}
@@ -77,8 +87,10 @@ button:focus-visible,.lnk:focus-visible,input:focus-visible{outline:2px solid #2
 <div class="bar">
   <div class="chip" id="today">Today: 0 min</div>
   <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+    <button type="button" class="chip" id="scBtn" title="Full: the real Critical Point scene. Light: a simpler view for slow computers.">Scene: Full</button>
     <label class="chip">Aurora <input type="range" id="aurK" min="0" max="2" step="0.05" value="1" aria-label="Aurora brightness"></label>
     <label class="chip">Sway <input type="range" id="drift" min="0" max="2" step="0.05" value="1" aria-label="Camera drift speed"></label>
+    <span class="chip loadchip" id="ldChip" hidden>Loading Critical Point…</span>
     <span class="keys">Space start / pause · F full screen</span>
   </div>
 </div>
@@ -151,7 +163,8 @@ button:focus-visible,.lnk:focus-visible,input:focus-visible{outline:2px solid #2
   function fs() { try { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen(); } catch (e) {} }
   $('fsBtn').onclick = fs;
   document.addEventListener('fullscreenchange', function () { $('fsBtn').textContent = document.fullscreenElement ? 'Exit full screen' : 'Full screen'; });
-  document.addEventListener('keydown', function (e) { if (e.target && e.target.tagName === 'INPUT') return; if (e.code === 'Space') { e.preventDefault(); if (S.run && S.run.seg) pause(); else start(); } else if (e.key === 'f' || e.key === 'F') fs(); poke(); });
+  window.addEventListener('keydown', function (e) { var inp = e.target && e.target.tagName === 'INPUT'; e.stopImmediatePropagation(); if (inp) return; if (e.code === 'Space') { e.preventDefault(); if (S.run && S.run.seg) pause(); else start(); } else if (e.key === 'f' || e.key === 'F') fs(); poke(); }, true);
+  window.addEventListener('keyup', function (e) { e.stopImmediatePropagation(); }, true);
   var idleT = 0; function poke() { document.body.classList.remove('idle'); clearTimeout(idleT); idleT = setTimeout(function () { if (S.run && S.run.seg) document.body.classList.add('idle'); }, 4000); }
   ['mousemove', 'pointerdown', 'touchstart'].forEach(function (ev) { document.addEventListener(ev, poke, { passive: true }); });
   window.addEventListener('storage', function (e) { if (e.key === K || e.key === HWK) { S = load(); lastSig = ''; paint(); } });
@@ -337,7 +350,9 @@ button:focus-visible,.lnk:focus-visible,input:focus-visible{outline:2px solid #2
   window.addEventListener('resize', size); size();
 
   var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches, T = 0, ph = 0, last = performance.now(), acc = 0, step = lite ? 1 / 30 : 1 / 60;
-  function frame(now) { requestAnimationFrame(frame); var dt = Math.min(0.1, (now - last) / 1000); last = now; acc += dt; if (acc < step * 0.9) return; dt = acc; acc = 0;
+  var STOP = { on: false };
+  window.HW_LIGHT = { stop: function () { STOP.on = true; }, start: function () { if (STOP.on) { STOP.on = false; last = performance.now(); requestAnimationFrame(frame); } } };
+  function frame(now) { if (STOP.on) return; requestAnimationFrame(frame); var dt = Math.min(0.1, (now - last) / 1000); last = now; acc += dt; if (acc < step * 0.9) return; dt = acc; acc = 0;
     T += dt; var dk = reduce ? 0.15 : pref.d; ph += dt * dk; sx += (mx - sx) * Math.min(1, dt * 1.5); sy += (my - sy) * Math.min(1, dt * 1.5);
     /* standing in the yard, looking down the road to the pumphouse, swaying a little as if you were there */
     cam.position.set(-14 + Math.sin(ph * 0.05) * 1.2, 1.9 + Math.sin(ph * 0.37) * 0.03, 1 + Math.sin(ph * 0.031) * 2.2);
@@ -349,6 +364,51 @@ button:focus-visible,.lnk:focus-visible,input:focus-visible{outline:2px solid #2
     sky.material.uniforms.t.value = T; if (window._starM) window._starM.uniforms.t.value = T;
     ren.render(scene, cam); }
   requestAnimationFrame(frame);
+  window.HW_LIGHT_PREF = function () { return pref; };
+})();
+
+/* ================================================================ the real thing: Critical Point itself as the backdrop ================================================================
+   Loads plant.js and opens it hidden, then puts it in a backdrop-only mode: night on the station clock, the plant frozen (time ×0, so nothing
+   happens to the reactor), no sound, no HUD, a free camera standing in the yard looking down the road to the intake pumphouse, the same view as
+   in the simulator. Saves are blocked at the top of this page, so your Critical Point progress is never touched.
+   The light scene above shows first and stays as the fallback (and the "Scene: Light" choice for slow computers). */
+(function () {
+  var VK = 'critical_homework_view', ld = document.getElementById('ldChip'), sb = document.getElementById('scBtn');
+  function pv() { try { return JSON.parse(localStorage.getItem(VK) || 'null') || {}; } catch (e) { return {}; } }
+  function setSc(v) { var o = pv(); o.sc = v; try { localStorage.setItem(VK, JSON.stringify(o)); } catch (e) {} }
+  var mode = pv().sc === 'light' ? 'light' : 'full', BD = { on: false, t0: 0 };
+  sb.textContent = 'Scene: ' + (mode === 'full' ? 'Full' : 'Light');
+  sb.onclick = function () { setSc(mode === 'full' ? 'light' : 'full'); location.reload(); };
+  if (mode !== 'full' || !window.THREE) return;
+  var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  /* the view: stood in the yard by the Auxiliary Building, the diesel generator building on the left, the pumphouse at the end of the road */
+  var POSE = { x: 20, y: 1.75, z: 6, yaw: -1.63, pitch: 0.12, fov: 62 };
+  var mx = 0, my = 0, sx = 0, sy = 0; window.addEventListener('pointermove', function (e) { mx = e.clientX / innerWidth - 0.5; my = e.clientY / innerHeight - 0.5; }, { passive: true });
+  function D() { return window.CRIT_PLANT && window.CRIT_PLANT._dbg; }
+  function backdrop() { var d = D(), S = d.NEW.S(); if (S.menu) { try { S.menu.remove(); } catch (e) {} S.menu = null; }
+    S.cfg.snd = false; S.cfg.voice = false; S.ts = 0; S.paused = false; try { d.ADM.time(23); } catch (e) {} try { if (!d.CAM.free) d.ADM.fc(true); } catch (e) {} try { if (window.speechSynthesis) speechSynthesis.cancel(); } catch (e) {}
+    var C = d.CAM; C.tw = null; C.fl = 0; C.x = POSE.x; C.y = POSE.y; C.z = POSE.z; C.yaw = POSE.yaw; C.pitch = POSE.pitch; C.fov = POSE.fov; C.vx = C.vz = 0; }
+  function sway(now) { if (!BD.on) return; requestAnimationFrame(sway); var d = D(); if (!d) return; var S = d.NEW.S(), C = d.CAM;
+    /* anything that pops up in the sim (a menu, the clock moving on, pause) is put straight back */
+    if (S.menu || S.paused || S.ts !== 0) backdrop(); if (!C.free) try { d.ADM.fc(true); } catch (e) {}
+    var t = now / 1000, k = reduce ? 0.2 : ((window.HW_LIGHT_PREF && window.HW_LIGHT_PREF().d) != null ? window.HW_LIGHT_PREF().d : 1); BD.ph = (BD.ph || 0) + Math.min(0.1, (now - (BD.l || now)) / 1000) * k; BD.l = now; var ph = BD.ph;
+    sx += (mx - sx) * 0.03; sy += (my - sy) * 0.03; C.tw = null;
+    C.x = POSE.x + Math.sin(ph * 0.05) * 0.6; C.z = POSE.z + Math.sin(ph * 0.031) * 0.8; C.y = POSE.y + Math.sin(ph * 0.37) * 0.015;
+    C.yaw = POSE.yaw + Math.sin(ph * 0.043) * 0.035 - sx * 0.06; C.pitch = POSE.pitch + Math.sin(ph * 0.07) * 0.012 - sy * 0.03; C.fov = POSE.fov; C.vx = C.vz = 0; }
+  function ready() { var root = document.querySelector('.cpn'); if (!root) return fail(); backdrop(); BD.on = true; requestAnimationFrame(sway);
+    setTimeout(function () { root.classList.add('hwready'); document.getElementById('sky').style.opacity = '0'; ld.hidden = true; setTimeout(function () { if (window.HW_LIGHT) HW_LIGHT.stop(); }, 1900); }, 1200); }
+  function fail() { ld.hidden = true; BD.on = false; var r = document.querySelector('.cpn'); if (r) try { r.remove(); } catch (e) {} if (window.HW_LIGHT) HW_LIGHT.start(); document.getElementById('sky').style.opacity = '1'; }
+  function go() { ld.hidden = false; BD.t0 = Date.now();
+    /* silence: the sim's audio engine finds no AudioContext, so its hum, alarms and voice never start (this page makes no sound of its own) */
+    try { window.AudioContext = undefined; window.webkitAudioContext = undefined; } catch (e) {}
+    var sc = document.createElement('script'); sc.src = 'plant.js'; sc.onerror = fail;
+    sc.onload = function () { try { CRIT_PLANT.open(); } catch (e) { return fail(); }
+      /* wait until the station is built (it puts up its start menu when it is), then take over */
+      (function wait() { var d = D(), ok = false; try { ok = !!(d && d.NEW.S().menu && d.R3 && (typeof d.R3 === 'function' ? d.R3() : d.R3)); } catch (e) {}
+        if (ok) return ready(); if (Date.now() - BD.t0 > 90000) return fail(); setTimeout(wait, 400); })(); };
+    document.head.appendChild(sc); }
+  /* give the light scene a moment to appear first */
+  if (document.readyState === 'complete') setTimeout(go, 300); else window.addEventListener('load', function () { setTimeout(go, 300); });
 })();
 </script>
 </body>
