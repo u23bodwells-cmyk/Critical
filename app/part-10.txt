@@ -1,4 +1,6 @@
-lier\'s principle.',[
+ve enough energy.`),
+T(`<h3>Key points</h3><ul><li>Reaction needs a collision with enough energy.</li><li>Concentration, pressure and surface area: more frequent collisions.</li><li>Temperature: more frequent and more energetic.</li><li>Catalyst: lower activation energy, not used up.</li></ul>`)]),
+LH('gc3-2-3','Reversible reactions and equilibrium',10,'Reactions that go both ways, dynamic equilibrium, and (Higher) Le Chatelier\'s principle.',[
 RM(`<p>Exothermic reactions release energy; endothermic reactions take it in.</p>`),
 T(`<h3>Reversible reactions</h3><p>Some reactions can go both ways, shown by ⇌:</p><div class="eq">ammonium chloride ⇌ ammonia + hydrogen chloride</div><div class="eq">hydrated copper sulfate (blue) ⇌ anhydrous copper sulfate (white) + water</div><p>If it's endothermic one way, it's exothermic the other way, by the same amount of energy.</p>`),
 T(`<h3>Equilibrium</h3><p>In a <b>closed system</b> (nothing gets in or out), a reversible reaction reaches <b>equilibrium</b>: the forward and reverse reactions happen at the <b>same rate</b>. Both are still going on, so the amounts stay constant.</p>`),
@@ -823,14 +825,4 @@ T(`<h3>The five data types</h3><ul><li><b>Integer</b>: whole numbers, like 42 or
 W('sortIt',{bins:['Integer','Real','Boolean','String'],items:[['Number of lessons done: 12',0],['Year: 2028',0],['Coolant temperature: 307.4',1],['Price: 2.99',1],['Alarm active?',2],['Is the door locked?',2],['Name: "Sunny"',3],['Postcode: "TA5 1UD"',3]]},`Pick the best data type for each.`,`A postcode is a string even though it has digits: you never do maths with it.`),
 T(`<h3>Operators</h3><p><b>Arithmetic</b>: + − * / plus DIV and MOD.<br><b>Relational</b> (comparisons): = ≠ &lt; &gt; ≤ ≥. They give True or False.<br><b>Boolean</b>: AND, OR, NOT.</p>`),
 Q(`temp ← 330 and pumps ← True. What's (temp &gt; 320) AND NOT pumps?`,[`False`,`True`,`330`,`An error`],0,`temp &gt; 320 is True, NOT pumps is False. True AND False = False.`),
-Q(`Why store a phone number as a string, not an integer?`,[`It can start with 0 and you never do maths with it`,`Strings are faster`,`Integers can't be 11 digits`,`It saves memory`],0,`An integer would lose the leading 0.`),
-Q(`What's the data type of the result of 7 &gt; 3?`,[`Boolean`,`Integer`,`Real`,`String`],0,`Comparisons always give True or False.`)]),
-LH('gcs2-2-2','Selection and iteration in code',9,'IF, ELSE IF, WHILE, REPEAT and FOR, and when to use each.',[
-T(`<h3>Nested selection</h3><pre class="cs">IF temp &gt; 320 THEN
-   OUTPUT 'HIGH'
-ELSE IF temp &lt; 280 THEN
-   OUTPUT 'LOW'
-ELSE
-   OUTPUT 'Normal'
-ENDIF</pre>`),
-Q(`With the
+Q(`Why store a phone number as a string, not an integer?`,[`It can start with 0 and you never do maths with it`,`Strings are faster`,`Integers can't be 11 digits`,`It saves memory`],0,`An integer would lose the leading 0.`)

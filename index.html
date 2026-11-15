@@ -55,7 +55,7 @@ body{min-height:100%;padding-left:max(16px,env(safe-area-inset-left,0px));paddin
 .ah{display:flex;align-items:center;gap:12px}
 .ic{width:56px;height:56px;border-radius:16px;display:grid;place-items:center;flex:none}
 .cr .ic{background:#534AB7}
-.app.cm:hover,.app.cm:focus-visible{border-color:#1f8fb3}.app.ca:hover,.app.ca:focus-visible{border-color:#c9a227}.app.pl:hover,.app.pl:focus-visible{border-color:#0f8a64}.pl .ic{background:linear-gradient(135deg,#19c08a,#1a8fd0)}.app.cb:hover,.app.cb:focus-visible{border-color:#534AB7}.cb .ic{background:linear-gradient(135deg,#534AB7,#3a9be0)}.cb .tag{background:rgba(83,74,183,.14);color:#534AB7}.cb .go span.arrow{background:#534AB7;color:#fff}@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .cb .tag{color:#c9c3ff}}:root[data-theme="dark"] .cb .tag{color:#c9c3ff}.cm .ic{background:linear-gradient(135deg,#0b1430,#1f4f8f)}.ca .ic{background:linear-gradient(135deg,#8f80ff,#1aa7e0)}
+.app.cm:hover,.app.cm:focus-visible{border-color:#1f8fb3}.app.hw:hover,.app.hw:focus-visible{border-color:#27c97a}.hw .ic{background:linear-gradient(135deg,#0b1a3a,#1d8f6a 60%,#7a3cff)}.hw .tag{background:rgba(39,201,122,.15);color:#127a4c}.hw .go span.arrow{background:#127a4c;color:#fff}.app.ca:hover,.app.ca:focus-visible{border-color:#c9a227}.app.pl:hover,.app.pl:focus-visible{border-color:#0f8a64}.pl .ic{background:linear-gradient(135deg,#19c08a,#1a8fd0)}.app.cb:hover,.app.cb:focus-visible{border-color:#534AB7}.cb .ic{background:linear-gradient(135deg,#534AB7,#3a9be0)}.cb .tag{background:rgba(83,74,183,.14);color:#534AB7}.cb .go span.arrow{background:#534AB7;color:#fff}@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .cb .tag{color:#c9c3ff}}:root[data-theme="dark"] .cb .tag{color:#c9c3ff}.cm .ic{background:linear-gradient(135deg,#0b1430,#1f4f8f)}.ca .ic{background:linear-gradient(135deg,#8f80ff,#1aa7e0)}
 
 .sr .ic{background:#4F46B8}
 .ic svg{width:36px;height:36px}
@@ -63,7 +63,7 @@ body{min-height:100%;padding-left:max(16px,env(safe-area-inset-left,0px));paddin
 .tag{display:inline-block;font:700 11px var(--sans);letter-spacing:.06em;text-transform:uppercase;border-radius:999px;padding:3px 9px;margin-top:3px}
 .cr .tag{background:var(--accent-bg);color:var(--accent-text)}
 .cm .tag{background:rgba(31,143,179,.16);color:#1f8fb3}.ca .tag{background:rgba(201,162,39,.18);color:#9a7a12}.pl .tag{background:rgba(15,138,100,.15);color:#0b7a5c}.pl .go span.arrow{background:#0f8a64;color:#fff}.cm .go span.arrow{background:#1f8fb3;color:#fff}.ca .go span.arrow{background:#c9a227;color:#2B1D00}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .cm .tag{color:#7fe3ff}:root:not([data-theme="light"]) .ca .tag{color:#f2d36b}:root:not([data-theme="light"]) .pl .tag{color:#6ff0c0}}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .cm .tag{color:#7fe3ff}:root:not([data-theme="light"]) .ca .tag{color:#f2d36b}:root:not([data-theme="light"]) .pl .tag{color:#6ff0c0}:root:not([data-theme="light"]) .hw .tag{color:#6ff0b0}}
 
 .sr .tag{background:var(--gold-bg);color:var(--gold-text)}
 .desc{margin:0;color:var(--muted);font-size:15px;line-height:1.5}
@@ -117,6 +117,15 @@ body{min-height:100%;padding-left:max(16px,env(safe-area-inset-left,0px));paddin
       <p class="desc">Learn and practise numerical, verbal, logical, mechanical and checking tests, with timed tests and a full mock.</p>
       <div class="stats" id="apStats"></div>
       <div class="go"><span id="apLast"></span><span class="arrow" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></div>
+    </a>
+    <a class="app hw" href="homework.html" data-app="homework">
+      <div class="ah">
+        <span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9.5 2.5h5"/></svg></span>
+        <div><h2>Homework Timer</h2><span class="tag">Focus</span></div>
+      </div>
+      <p class="desc">A big clock and a timer for how long you've been doing homework, over a live night view from Critical Point: the mountains and the aurora.</p>
+      <div class="stats" id="hwStats"></div>
+      <div class="go"><span id="hwLast"></span><span class="arrow" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></div>
     </a>
     <a class="app cm" href="control-room.html" data-app="control">
       <div class="ah">
@@ -200,5 +209,9 @@ if("serviceWorker" in navigator&&location.protocol==="https:"){var _swHad=!!navi
  if(c){var w=J('cr_cold_won'),sv=J('cr_cold'),fb=J('cr_flood_best'),o=[];if(w)o.push(st('Cold start done'));else if(sv&&sv.S)o.push(st('Cold start: step '+((sv.i||0)+1)+' of 9'));if(fb)o.push(st('Flood best '+fb));if(!o.length)o.push(st('Try a cold start'));c.innerHTML=o.join('');document.getElementById('cmLast').innerHTML=last==='control'?'<span class="last">Last opened</span>':'Open Control Room'}
  if(a){var s=J('career-v1')||{},n=Object.keys(s.c||{}).length,q=Object.keys(s.q||{}).length,o2=[];if(n)o2.push(st(n+'/27 checkpoints'));if(q)o2.push(st(q+' questions practised'));if(!o2.length)o2.push(st('See your route'));a.innerHTML=o2.join('');document.getElementById('caLast').innerHTML=last==='career'?'<span class="last">Last opened</span>':'Open Career Route'}
  var pe=document.getElementById('plStats');if(pe){var ps=J('practicals-v1')||{},pn=0,px=0;Object.keys(ps.p||{}).forEach(function(k){var t=ps.p[k].st||{};pn+=Object.keys(t).length;if(t.ex)px++});var o3=[];if(pn)o3.push(st(Math.round(pn/60*100)+'% done'));if(px)o3.push(st(px+'/15 exam sets'));if(!o3.length)o3.push(st('15 practicals'));pe.innerHTML=o3.join('');document.getElementById('plLast').innerHTML=last==='practicals'?'<span class="last">Last opened</span>':'Open Practicals Lab'}})();</script>
+<script>(function(){try{var o=JSON.parse(localStorage.getItem('critical_homework_v1')||'null')||{},d=new Date(),k=d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate(),ms=(o.days&&o.days[k])||0,r=o.run,st=function(t){return '<span class="stat">'+t+'</span>'},a=[];
+ if(r){var e=r.acc+(r.seg?Date.now()-r.seg:0);a.push(st((r.seg?'Running: ':'Paused: ')+Math.floor(e/60000)+' min'))}
+ var m=Math.round(ms/60000);if(m)a.push(st('Today: '+(m<60?m+' min':Math.floor(m/60)+'h '+(m%60<10?'0':'')+m%60)));if(!a.length)a.push(st('Start when you sit down'));
+ document.getElementById('hwStats').innerHTML=a.join('');var last=localStorage.getItem('critical_last_app');document.getElementById('hwLast').innerHTML=last==='homework'?'<span class="last">Last opened</span>':'Open Homework Timer'}catch(e){}})();</script>
 </body>
 </html>

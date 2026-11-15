@@ -1,4 +1,6 @@
-h3>Key points</h3><ul><li>The three safety jobs: <b>control, cool, contain</b>.</li><li><b>Decay heat</b> starts at about 6–7% of full power and falls slowly. Cooling must continue for days.</li><li>Fukushima: shutdown worked, but cooling was lost when power was lost.</li></ul>`)]),
+and weakening <b>containment</b>.</p><div class="callout">The lesson: decay heat never takes a day off. Cooling, and the power supplies it depends on, must survive even extreme events.</div>`),
+Q(`At Fukushima, which of the three safety jobs failed first?`,[`Cool`,`Control`,`Contain`,`None of them`],0,`The reactors shut down correctly. It was the loss of cooling (no power for the pumps) that led to the fuel melting.`),
+T(`<h3>Key points</h3><ul><li>The three safety jobs: <b>control, cool, contain</b>.</li><li><b>Decay heat</b> starts at about 6–7% of full power and falls slowly. Cooling must continue for days.</li><li>Fukushima: shutdown worked, but cooling was lost when power was lost.</li></ul>`)]),
 
 L('td2','Barriers and defence in depth',9,[
 T(`<h3>Layers between the fuel and the outside world</h3><p>Radioactive material is kept in by a series of <b>physical barriers</b>, one inside the other. Each one would have to fail before anything could escape.</p>`),
@@ -1049,7 +1051,4 @@ WIDGETS.pidLineUp=function(box){var V={v1:false,v2:false,v3:false,v4:false,v5:fa
   g+='<text x="230" y="200" class="dl s">bypass</text><text x="356" y="200" class="dl s">drain</text>';
   g+='<g transform="translate(126 118)"><circle r="15" fill="'+(running?'var(--accent-bg)':'var(--panel)')+'" stroke="var(--text)" stroke-width="2"/><path d="M-5 -8L9 0L-5 8Z" fill="var(--text)"/></g><text x="126" y="148" class="dl">pump</text>';
   for(var k in POS){var p=POS[k],open=V[k];
-   g+='<g class="lu" data-v="'+k+'" tabindex="0" role="button" aria-label="Valve '+k.toUpperCase()+', '+(open?'open':'shut')+'" style="cursor:pointer" transform="translate('+p[0]+' '+p[1]+')'+(p[2]?' rotate(90)':'')+'"><rect x="-16" y="-14" width="32" height="28" fill="transparent"/><path d="M-11 -8L11 8V-8L-11 8Z" fill="'+(open?'var(--panel)':'var(--text)')+'" stroke="var(--text)" stroke-width="2" stroke-linejoin="round"/></g>'+
-    '<text x="'+(p[0]+(p[2]?18:0))+'" y="'+(p[1]+(p[2]?4:-14))+'" class="dl" style="font-weight:700'+(p[2]?';text-anchor:start':'')+'">'+k.toUpperCase()+'</text>';}
-  wrap.innerHTML=tSvg('0 0 424 210',g);
-  if(running)['a','top','bot','out','dr'].forEach(function(s){if(fl[s]){var e=wrap.querySelector('[data-s="'+s+'"]');e.setAttribute('stro
+   g+='<g class="lu" data-v="'+k+'" tabindex="0" role="button" aria-label="Valve '+k.toUpperCase()+', '+(open?'open':'shut')+'" style="cursor:pointer" transform="translate('+p[0]+' '+p[1]+')'+(p[2]?' rotate(90)':'')+'"><rect x="-16" y="-14" width="32" height="28" fill="transparent"/><path d="M-11 -8L11 8V-8L-11 8Z" fill="'+(open?'var(--panel)':'va
