@@ -28,6 +28,21 @@ html,body{margin:0;height:100%;overflow:hidden;background:#04070f;color:#fff;fon
 .veil{z-index:2}.ui{z-index:3}.top,.bar{z-index:4}.toast{z-index:5}
 .loadchip{opacity:.75}
 [hidden]{display:none!important}
+.radio{position:fixed;top:64px;right:16px;z-index:6;width:min(340px,calc(100vw - 32px));background:rgba(8,14,28,.82);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.2);border-radius:18px;padding:16px;box-shadow:0 18px 50px rgba(0,0,0,.45)}
+.radio h2{margin:0 0 4px;font-size:18px}.radio p{margin:0 0 12px;font-size:13px;opacity:.75;line-height:1.4}
+.radio .sts{display:flex;flex-direction:column;gap:6px}
+.radio .sts button{text-align:left;border-radius:12px;padding:10px 14px;font-size:15px;display:flex;justify-content:space-between;align-items:center}
+.radio .sts button[aria-pressed=true]{background:rgba(39,255,138,.18);border-color:rgba(39,255,138,.6)}
+.radio .eq{display:inline-flex;gap:2px;align-items:flex-end;height:14px}.radio .eq i{width:3px;background:#27ff8a;border-radius:1px;animation:eq .9s ease-in-out infinite}.radio .eq i:nth-child(2){animation-delay:.2s}.radio .eq i:nth-child(3){animation-delay:.45s}
+@keyframes eq{0%,100%{height:3px}50%{height:14px}}
+.radio .row{display:flex;align-items:center;gap:10px;margin-top:12px;font-size:14px}.radio .row input[type=range]{flex:1;accent-color:#27ff8a}
+.radio .row input[type=checkbox]{accent-color:#27ff8a;width:16px;height:16px}
+.radio .acts{display:flex;gap:8px;margin-top:12px}.radio .acts button{padding:8px 14px;font-size:14px}
+.radio .note{font-size:11.5px;opacity:.55;margin:10px 0 0}
+.radio .err{color:#ffb4a8;font-size:13px;min-height:0;margin-top:8px}
+#rBtn[aria-expanded=true]{background:rgba(30,46,80,.7)}
+.nowp{display:flex;align-items:center;gap:8px;cursor:pointer}
+@media (prefers-reduced-motion:reduce){.radio .eq i{animation:none;height:10px}}
 .fallback{position:fixed;inset:0;background:#04070f url(models/aurora.jpg) center/cover no-repeat}
 .veil{position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse 60% 45% at 50% 50%,rgba(2,5,12,.42),rgba(2,5,12,0) 70%),linear-gradient(to bottom,rgba(2,5,12,.25),rgba(2,5,12,0) 25%,rgba(2,5,12,0) 75%,rgba(2,5,12,.35))}
 .ui{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;pointer-events:none}
@@ -69,6 +84,7 @@ button:focus-visible,.lnk:focus-visible,input:focus-visible{outline:2px solid #2
 <div class="top">
   <a class="lnk" href="index.html">← Menu</a>
   <div style="display:flex;gap:8px">
+    <button type="button" id="rBtn" aria-expanded="false" aria-controls="radio" title="Radio (R)">📻 Radio</button>
     <a class="lnk" href="critical.html">Critical</a>
     <button type="button" id="fsBtn" title="Full screen (F)">Full screen</button>
   </div>
@@ -86,16 +102,26 @@ button:focus-visible,.lnk:focus-visible,input:focus-visible{outline:2px solid #2
 </main>
 
 <div class="bar">
-  <div class="chip" id="today">Today: 0 min</div>
+  <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><div class="chip" id="today">Today: 0 min</div><button type="button" class="chip nowp" id="nowP" hidden title="Open the radio"></button></div>
   <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
     <button type="button" class="chip" id="scBtn" title="Full: the real Critical Point scene. Light: a simpler view for slow computers.">Scene: Full</button>
     <label class="chip" id="aurChip">Aurora <input type="range" id="aurK" min="0" max="2" step="0.05" value="1" aria-label="Aurora brightness"></label>
     <label class="chip">Sway <input type="range" id="drift" min="0" max="2" step="0.05" value="1" aria-label="Camera drift speed"></label>
     <span class="chip loadchip" id="ldChip" hidden>Loading Critical Point…</span>
-    <span class="keys">Space start / pause · F full screen</span>
+    <span class="keys">Space start / pause · R radio · F full screen</span>
   </div>
 </div>
 <div class="toast" id="toast"></div>
+<section class="radio" id="radio" hidden aria-label="Radio">
+  <h2>📻 Radio</h2>
+  <p>Music while you do your homework, the same stations as the desk radio in Critical Point.</p>
+  <div class="sts" id="rSts"></div>
+  <label class="row"><span>Volume</span><input type="range" id="rVol" min="0" max="1" step="0.05" aria-label="Radio volume"><b id="rVolN" style="width:38px;text-align:right">50%</b></label>
+  <label class="row"><input type="checkbox" id="rAuto"><span>Play with the timer (pauses when you pause)</span></label>
+  <div class="err" id="rErr" role="status"></div>
+  <div class="acts"><button type="button" id="rOff" hidden>⏹ Turn off</button><button type="button" id="rClose">Close</button></div>
+  <p class="note">Stations: SomaFM and Radio Paradise, free listener-supported internet radio.</p>
+</section>
 
 <script src="vendor/three.min.js"></script>
 <script>
@@ -119,11 +145,11 @@ button:focus-visible,.lnk:focus-visible,input:focus-visible{outline:2px solid #2
   var hw = planHw();
   if (hw && !hw.done && !S.run && S.hwAt !== hw.at) { S.run = { start: hw.at, acc: 0, seg: hw.at, hwAt: hw.at }; S.hwAt = hw.at; save(); }
 
-  function start() { var n = Date.now(); if (!S.run) S.run = { start: n, acc: 0, seg: n }; else if (!S.run.seg) S.run.seg = n; save(); wake(true); paint(); }
-  function pause() { var r = S.run; if (!r || !r.seg) return; r.acc += Date.now() - r.seg; r.seg = null; save(); wake(false); paint(); }
+  function start() { var n = Date.now(); if (!S.run) S.run = { start: n, acc: 0, seg: n }; else if (!S.run.seg) S.run.seg = n; save(); wake(true); paint(); if (window.HW_RADIO) HW_RADIO.timer('run'); }
+  function pause() { var r = S.run; if (!r || !r.seg) return; r.acc += Date.now() - r.seg; r.seg = null; save(); wake(false); paint(); if (window.HW_RADIO) HW_RADIO.timer('pause'); }
   function finish(toCritical) { var r = S.run; if (!r) return; var ms = elapsed(), d = ymd(r.start); S.days[d] = (S.days[d] || 0) + ms; S.log.push({ d: d, at: r.start, ms: ms }); if (S.log.length > 120) S.log = S.log.slice(-120);
     var keys = Object.keys(S.days); if (keys.length > 60) keys.sort(function (a, b) { return new Date(a) - new Date(b); }).slice(0, keys.length - 60).forEach(function (k) { delete S.days[k]; });
-    S.run = null; save(); wake(false);
+    S.run = null; save(); wake(false); if (window.HW_RADIO) HW_RADIO.timer('stop');
     if (toCritical) { location.href = 'critical.html#hwdone'; return; }
     toast('Nice work: <b>' + mins(ms) + '</b> of homework. Today so far: <b>' + mins(S.days[ymd()] || 0) + '</b>.'); paint(); }
   function reset() { if (!S.run) return; if (elapsed() > 60000 && !confirmReset()) return; S.run = null; save(); wake(false); paint(); }
@@ -164,15 +190,46 @@ button:focus-visible,.lnk:focus-visible,input:focus-visible{outline:2px solid #2
   function fs() { try { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen(); } catch (e) {} }
   $('fsBtn').onclick = fs;
   document.addEventListener('fullscreenchange', function () { $('fsBtn').textContent = document.fullscreenElement ? 'Exit full screen' : 'Full screen'; });
-  window.addEventListener('keydown', function (e) { var inp = e.target && e.target.tagName === 'INPUT'; e.stopImmediatePropagation(); if (inp) return; if (e.code === 'Space') { e.preventDefault(); if (S.run && S.run.seg) pause(); else start(); } else if (e.key === 'f' || e.key === 'F') fs(); poke(); }, true);
+  window.addEventListener('keydown', function (e) { var inp = e.target && e.target.tagName === 'INPUT'; e.stopImmediatePropagation(); if (inp) return; if (e.code === 'Space') { e.preventDefault(); if (S.run && S.run.seg) pause(); else start(); } else if (e.key === 'f' || e.key === 'F') fs(); else if ((e.key === 'r' || e.key === 'R') && window.HW_RADIO) HW_RADIO.toggle(); else if (e.key === 'Escape' && window.HW_RADIO) HW_RADIO.close(); poke(); }, true);
   window.addEventListener('keyup', function (e) { e.stopImmediatePropagation(); }, true);
-  var idleT = 0; function poke() { document.body.classList.remove('idle'); clearTimeout(idleT); idleT = setTimeout(function () { if (S.run && S.run.seg) document.body.classList.add('idle'); }, 4000); }
+  var idleT = 0; function poke() { document.body.classList.remove('idle'); clearTimeout(idleT); idleT = setTimeout(function () { if (S.run && S.run.seg && document.getElementById('radio').hidden) document.body.classList.add('idle'); }, 4000); }
   ['mousemove', 'pointerdown', 'touchstart'].forEach(function (ev) { document.addEventListener(ev, poke, { passive: true }); });
   window.addEventListener('storage', function (e) { if (e.key === K || e.key === HWK) { S = load(); lastSig = ''; paint(); } });
 
   if (S.run && S.run.seg) wake(true);
   paint(); poke(); setInterval(tick, 250);
   window.HW_T = { start: start, pause: pause, finish: finish };
+})();
+
+/* ================================================================ the radio: the same stations as Critical Point's desk radio ================================================================ */
+(function () {
+  var ST = [['Groove Salad (chill)', 'https://ice1.somafm.com/groovesalad-128-mp3'], ['Indie Pop Rocks', 'https://ice1.somafm.com/indiepop-128-mp3'], ['Lush (vocals)', 'https://ice1.somafm.com/lush-128-mp3'], ['DEF CON (electronic)', 'https://ice1.somafm.com/defcon-128-mp3'], ['Secret Agent (lounge)', 'https://ice1.somafm.com/secretagent-128-mp3'], ['Radio Paradise (rock mix)', 'https://stream.radioparadise.com/mp3-128']];
+  var RK = 'critical_homework_radio', $ = function (id) { return document.getElementById(id); };
+  var P = { last: 0, vol: 0.5, auto: false }; try { Object.assign(P, JSON.parse(localStorage.getItem(RK) || '{}')); } catch (e) {}
+  function keep() { try { localStorage.setItem(RK, JSON.stringify(P)); } catch (e) {} }
+  var a = null, cur = -1, wasAuto = false;
+  function err(t) { $('rErr').textContent = t || ''; }
+  function play(i, quiet) { if (!a) { a = new Audio(); a.preload = 'none'; a.onerror = function () { if (cur >= 0) { err('That station isn’t reachable right now. Try another.'); cur = -1; paint(); } }; a.onplaying = function () { err(''); paint(); }; }
+    cur = i; P.last = i; keep(); a.src = ST[i][1]; a.volume = P.vol; err(quiet ? '' : 'Tuning in…');
+    var pr = a.play(); if (pr && pr.catch) pr.catch(function () { if (cur === i) { err('Couldn’t start the radio. Press the station again.'); cur = -1; paint(); } });
+    try { if ('mediaSession' in navigator) { navigator.mediaSession.metadata = new MediaMetadata({ title: ST[i][0], artist: 'Critical · Homework radio' }); navigator.mediaSession.setActionHandler('pause', function () { stop(); }); navigator.mediaSession.setActionHandler('play', function () { play(P.last); }); } } catch (e) {}
+    paint(); }
+  function stop() { if (a) { a.pause(); a.removeAttribute('src'); a.load(); } cur = -1; err(''); paint(); }
+  function paint() { var L = $('rSts'); L.innerHTML = '';
+    ST.forEach(function (q, i) { var b = document.createElement('button'); b.type = 'button'; b.setAttribute('aria-pressed', String(cur === i)); b.innerHTML = '<span>' + q[0] + '</span>' + (cur === i ? '<span class="eq" aria-hidden="true"><i></i><i></i><i></i></span>' : ''); b.onclick = function () { if (cur === i) stop(); else play(i); }; L.appendChild(b); });
+    $('rOff').hidden = cur < 0; var n = $('nowP'); n.hidden = cur < 0; if (cur >= 0) n.innerHTML = '📻 ' + ST[cur][0].replace(/ \(.*\)/, '') + ' <span style="opacity:.6">· tap to change</span>'; }
+  function open() { $('radio').hidden = false; $('rBtn').setAttribute('aria-expanded', 'true'); document.body.classList.remove('idle'); }
+  function close() { $('radio').hidden = true; $('rBtn').setAttribute('aria-expanded', 'false'); }
+  function toggle() { if ($('radio').hidden) open(); else close(); }
+  $('rBtn').onclick = toggle; $('nowP').onclick = open; $('rClose').onclick = close; $('rOff').onclick = stop;
+  var v = $('rVol'); v.value = P.vol; $('rVolN').textContent = Math.round(P.vol * 100) + '%';
+  v.oninput = function () { P.vol = +v.value; $('rVolN').textContent = Math.round(P.vol * 100) + '%'; if (a) a.volume = P.vol; keep(); };
+  var au = $('rAuto'); au.checked = !!P.auto; au.onchange = function () { P.auto = au.checked; keep(); };
+  document.addEventListener('pointerdown', function (e) { var r = $('radio'); if (!r.hidden && !r.contains(e.target) && e.target !== $('rBtn') && !$('nowP').contains(e.target)) close(); });
+  paint();
+  window.HW_RADIO = { toggle: toggle, close: close,
+    /* "play with the timer": Start/Resume plays your last station, Pause pauses it, Finish turns it off (only if the timer turned it on) */
+    timer: function (what) { if (!P.auto) return; if (what === 'run' && cur < 0) { play(P.last || 0, true); wasAuto = true; } else if ((what === 'pause' || what === 'stop') && cur >= 0 && wasAuto) { stop(); wasAuto = what === 'pause'; } } };
 })();
 
 /* ================================================================ the view: Critical Point's mountains and aurora at night ================================================================
