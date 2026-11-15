@@ -3671,7 +3671,7 @@ function addHall(scene) { var cz = HALL.cz, cw = HALL.cw, hx = HALL.hx, hw = HAL
   [0.7, -0.7].forEach(function (dz) { box(hw - 2, 0.05, 0.4, galv, hmx, 4.5, cz + (hd / 2 - 0.25) * Math.sign(dz), scene); box(0.4, 0.05, hd - 2, galv, hx - hw + 0.25, 4.5, cz, scene); });
   for (k = 0; k < 6; k++) { var cab2 = cyl(0.025, 0.025, hw - 2, new THREE.MeshStandardMaterial({ color: [0x2b2b2b, 0x8a1c1c, 0x1c3f8a, 0x2b2b2b, 0xb38f00, 0x2b2b2b][k], roughness: 0.6 }), 6); cab2.rotation.z = Math.PI / 2; cab2.position.set(hmx, 4.54, cz - hd / 2 + 0.1 + k * 0.05); cab2.userData.noColl = true; scene.add(cab2); }
   box(0.3, 0.5, 0.15, yel, hx - 3, 1.2, cz - hd / 2 + 0.1, scene); var dr = cyl(0.04, 0.04, 1.6, stl, 8); dr.position.set(hx - 1.5, 0.8, cz - 3.0); dr.userData.noColl = true; scene.add(dr);
-  addSurrounds(scene); addPersonnelLift(scene); addHallFX(scene); hallDetail(scene); addLink(scene); addTurbine(scene); try { addKit(scene); } catch (e) { try { console.error(e); } catch (x) {} } if (HALL.fx && HALL.fx.beacon && HALL.craneBeacon) HALL.fx.beacon.position.set(HALL.craneBeacon[0], HALL.craneBeacon[1], HALL.craneBeacon[2]); }
+  addSurrounds(scene); addPersonnelLift(scene); addWorkshopAndVehicles(scene); addHallFX(scene); hallDetail(scene); addLink(scene); addTurbine(scene); try { addKit(scene); } catch (e) { try { console.error(e); } catch (x) {} } if (HALL.fx && HALL.fx.beacon && HALL.craneBeacon) HALL.fx.beacon.position.set(HALL.craneBeacon[0], HALL.craneBeacon[1], HALL.craneBeacon[2]); }
 /* ================================================================ reactor hall: the look ================================================================
    Everything here is drawn in rather than computed by the renderer, so it looks the same on Lite graphics: soft corner shadows
    (baked ambient occlusion) where walls meet floors and ceilings, light shafts and warm pools under the lamps, drifting dust, a living
@@ -3705,6 +3705,112 @@ function gritScene(scene) { var hiQ = S.cfg.gfx === 'high'; var skip = function 
     var k = m.userData.gritK; if (!k) { var met = m.metalness > 0.45, tex = !!m.map; k = met ? [0.1, 0.3, 0.0005, 2.2] : tex ? [0.07, 0.16, 0.0005, 1.9] : [0.13, 0.26, 0.0008, 1.9]; if (m.emissiveIntensity > 0.5 && m.emissive && m.emissive.getHex()) k = [0.03, 0.05, 0, 1.9]; if (o.userData.floor) k = [0.12, 0.3, 0.0012, 1.7]; }
     var ck = m.userData.coat; if (!ck && hiQ && !m.map && m.metalness < 0.45 && !(m.emissiveIntensity > 0.5 && m.emissive && m.emissive.getHex()) && m.roughness < 0.8) ck = [0.4, 0.22]; if (!ck && o.userData.floor) ck = [0.4, 0.3]; if (ck) coatMat(m, ck[0], ck[1]);
     gritMat(m, k); }); }
+/* ================================================================ shutdown cutscene ================================================================
+   When GOP-303 is complete (or from the admin console) the station plays a short montage before the score card: shots of the
+   whole plant cut to media/shutdown-theme.mp4. The cut times are the reference edit's own (a slow 6.5 s opening shot, then a cut
+   on almost every beat at about 78 BPM, then a fade to black). The camera is driven from here instead of by moveCam, the sim stays
+   paused, the sun goes down over the montage, and it ends on "thank you, operator". Esc, Enter, Space or the Skip button end it early. */
+var CUT = { on: false, END: 34.6, SRC: 'media/shutdown-theme.mp4',
+  T: [0, 6.47, 7.23, 8.0, 8.81, 9.45, 11.85, 12.55, 13.4, 14.15, 15.65, 16.35, 17.31, 18.75, 19.45, 21.05, 21.94, 22.95, 23.35, 24.95, 26.45, 27.25, 27.75, 28.95, 29.55, 31.05, 31.85, 32.7],
+  /* one shot per cut, each a slow move from pose a to pose b: [x, y, z, yaw, pitch, fov] */
+  SHOTS: [
+    [[135, 38, 85, 0.95, -0.13, 48], [108, 30, 62, 0.95, -0.12, 48]],           /* the whole station from the air */
+    [[0, 3.1, 10.4, 0, -0.145, 70], [0, 2.8, 8.6, 0, -0.13, 68]],               /* control room, wide */
+    [[0, 1.65, 1.6, 0, -0.03, 62], [0, 1.6, 1.0, 0, -0.05, 60]],                /* the operator's seat */
+    [[-40, 6, -60, 1.0, 0.25, 60], [-38, 5, -58, 1.06, 0.3, 60]],               /* cooling towers from below */
+    [[-23.5, 1.65, -3.5, 2.3, -0.02, 60], [-24.3, 1.7, -2.8, 2.35, -0.05, 58]], /* reactor pool and refuelling machine */
+    [[-29, 7.65, -7.3, 2.95, -0.28, 62], [-29, 7.65, -7.3, 3.35, -0.22, 62]],   /* reactor hall from the gallery, slow pan */
+    [[-15.2, 1.65, 34, Math.PI, 0.02, 60], [-15.2, 1.65, 36.5, Math.PI, 0.04, 60]], /* turbine hall */
+    [[45, 1.7, 20, 1.2, 0.04, 55], [44, 1.7, 17, 1.25, 0.06, 55]],              /* containment dome and towers */
+    [[-15, 1.65, 0.9, Math.PI / 2, 0, 60], [-17.5, 1.65, 0.9, Math.PI / 2, 0, 60]], /* the corridor to the hall */
+    [[105.2, 1.65, 4.5, -1.2, 0, 60], [105.2, 1.65, 4.5, -1.05, 0.03, 60]],     /* intake pumphouse */
+    [[-23.5, 1.65, -3.5, 2.2, 0.45, 60], [-23.5, 1.65, -3.5, 2.4, 0.52, 60]],   /* up at the polar crane */
+    [[-3.6, 1.95, 6.6, Math.PI, 0.01, 50], [-3.6, 1.95, 7.2, Math.PI, 0.02, 50]], /* plant overview wall */
+    [[120, 34, 40, 1.15, -0.14, 50], [112, 32, 48, 1.05, -0.13, 50]],           /* aerial, drifting round */
+    [[0.53, 1.95, 8.0, Math.PI, 0, 50], [0.53, 1.95, 8.6, Math.PI, 0, 50]],     /* core monitoring wall */
+    [[-29, 7.65, -7.3, 2.6, -0.45, 60], [-29, 7.65, -7.3, 2.8, -0.42, 60]],     /* down into the pool */
+    [[30, 25, -30, 0.88, -0.15, 55], [27, 24, -32, 0.92, -0.14, 55]],           /* towers over the railway */
+    [[3.4, 1.9, 8.0, Math.PI, 0, 50], [3.4, 1.9, 8.5, Math.PI, 0, 50]],         /* alarm summary wall */
+    [[-30, 3, -80, 1.3, 0.35, 60], [-30, 3, -80, 1.32, 0.37, 60]],              /* tower, quick */
+    [[-15.2, 1.65, 36, Math.PI, 0.25, 60], [-15.2, 1.65, 36, 3.0, 0.28, 60]],   /* turbine hall roof */
+    [[-6, 2.4, 8.5, -0.45, -0.12, 62], [-3, 2.4, 8.5, -0.3, -0.12, 62]],        /* control room, tracking */
+    [[-16.5, 1.65, 0.9, Math.PI / 2, 0.1, 55], [-18, 1.65, 0.9, Math.PI / 2, 0.1, 55]], /* corridor */
+    [[-25, 1.7, -2, 2.0, -0.08, 55], [-25.3, 1.7, -1.8, 2.05, -0.08, 55]],      /* pool, quick */
+    [[110, 30, 60, 0.95, -0.12, 50], [104, 28, 55, 0.95, -0.11, 50]],           /* aerial */
+    [[-40, 6, -60, 0.9, 0.4, 55], [-40, 6, -60, 0.92, 0.42, 55]],               /* the plumes */
+    [[0, 1.4, 0.35, 0, -0.21, 50], [0, 1.35, 0.1, 0, -0.22, 48]],               /* console screens */
+    [[0, 3.1, 10.4, 0, -0.145, 70], [0, 3.0, 10.0, 0, -0.145, 70]],             /* control room as the lights go down */
+    [[0, 1.65, 2.6, 0, -0.12, 55], [0, 1.65, 2.3, 0, -0.12, 55]],               /* the empty chair */
+    [[150, 45, 110, 0.93, -0.12, 45], [140, 42, 100, 0.93, -0.12, 45]]          /* the station at dusk, fading out */
+  ] };
+CUT.CSS = '.cpncut{position:absolute;inset:0;z-index:60;overflow:hidden;cursor:none;color:#fff;font-family:"Space Grotesk",system-ui,sans-serif}' +
+  '.cpncut i{position:absolute;display:block;pointer-events:none}' +
+  '.cpncut-v{inset:0;background:radial-gradient(ellipse at center,rgba(0,0,0,0) 52%,rgba(0,0,0,.6) 100%)}' +
+  '.cpncut-dim,.cpncut-fade{inset:0;background:#000;opacity:0}.cpncut-flash{inset:0;background:#fff;opacity:0}' +
+  '.cpncut-bar{left:0;right:0;height:0;background:#000;transition:height 1s cubic-bezier(.2,.7,.2,1)}.cpncut-bar.t{top:0}.cpncut-bar.b{bottom:0}.cpncut.in .cpncut-bar{height:10.5vh}' +
+  '.cpncut-title{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);text-align:center;opacity:0;letter-spacing:.06em;transition:opacity 1.2s ease,letter-spacing 7s ease;text-shadow:0 2px 20px rgba(0,0,0,.65);padding:0 16px}' +
+  '.cpncut-title.on{opacity:1;letter-spacing:.16em}' +
+  '.cpncut-title small{display:block;font:600 clamp(10px,1.2vw,14px)/1 "JetBrains Mono",ui-monospace,monospace;letter-spacing:.38em;opacity:.8;margin-bottom:16px}' +
+  '.cpncut-title b{display:block;font-weight:700;font-size:clamp(26px,5.2vw,72px);line-height:1}' +
+  '.cpncut-title span{display:block;margin-top:16px;font:500 clamp(10px,1.1vw,13px)/1.4 "JetBrains Mono",ui-monospace,monospace;letter-spacing:.22em;opacity:.75;text-transform:uppercase}' +
+  '.cpncut-cap{position:absolute;left:16px;right:16px;bottom:calc(10.5vh + 26px);z-index:2;text-align:center;font-weight:600;font-size:clamp(16px,2.1vw,30px);letter-spacing:.07em;text-shadow:0 2px 14px rgba(0,0,0,.8);opacity:0;transform:translateY(10px);transition:opacity .45s ease,transform .7s ease}' +
+  '.cpncut-cap.on{opacity:1;transform:none}.cpncut-cap.end{bottom:auto;top:46%;font-size:clamp(18px,2.6vw,36px);letter-spacing:.12em}' +
+  '.cpncut-skip{position:absolute;right:16px;bottom:2.6vh;z-index:3;cursor:pointer;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.2);color:#d5dde6;font:600 12px system-ui,sans-serif;padding:7px 13px;border-radius:999px;opacity:.5}.cpncut-skip:hover,.cpncut-skip:focus-visible{opacity:1}';
+/* the captions count up what this operator has done, using career totals where they are big enough and plant facts where they aren't.
+   Each caption is [from, to, text, style, number]: a # in the text counts up to the number while the caption is on screen. */
+function cutCaps() { var p = CAR.p || {}, st = p.st || {}, shuts = Math.max(1, st.shuts || 0), starts = st.starts || 0, s = function (v) { return v === 1 ? '' : 's'; }, logN = S.log ? S.log.length : 0;
+  return [[6.6, 9.3, '# control rods back in the core', '', 53],
+    st.mwh >= 50 ? [9.6, 11.8, '# MWh sent to the grid', '', st.mwh] : [9.6, 11.8, '# megawatts, resting now', '', 1200],
+    st.onl >= 3600 ? [12.6, 15.6, '# hours on the grid', '', Math.round(st.onl / 3600)] : st.play >= 3600 ? [12.6, 15.6, '# hours at the controls', '', Math.round(st.play / 3600)] : [12.6, 15.6, '# bar, held all shift', '', 155],
+    [16.4, 19.4, starts ? '# startup' + s(starts) + ' · ' + shuts + ' shutdown' + s(shuts) : '# shutdown' + s(shuts) + ', done by the book', '', starts || shuts],
+    p.xp >= 100 ? [19.5, 22.9, '# XP as an operator', '', p.xp] : [19.5, 22.9, 'four loops · four pumps · one reactor'],
+    st.faults ? [23.4, 26.4, '# fault' + s(st.faults) + ' handled', '', st.faults] : [23.4, 26.4, 'enough power for a million homes'],
+    logN > 20 ? [26.5, 29.5, '# lines in the shift log', '', logN] : [26.5, 29.5, 'rods, boron, pressure, level: all yours'],
+    [29.6, 32.6, 'unit 1 is safe.'],
+    [32.95, 34.6, 'thank you, operator.', 'end']]; }
+CUT.play = function (done) {
+  if (CUT.on || !root || !R3 || !S || !S.p) { if (done) done(); return; }
+  CUT.on = true; CUT.t = 0; CUT.i = -1; CUT.ci = -1; CUT.fl = 0; CUT.wait = 0; CUT.synced = false; CUT.aOk = false; CUT.done = done; CUT.pz = S.paused; CUT.clk = S.clock0; CUT.caps = cutCaps();
+  CUT.sv = { x: CAM.x, y: CAM.y, z: CAM.z, yaw: CAM.yaw, pitch: CAM.pitch, fov: CAM.fov, fl: CAM.fl, view: CAM.view };
+  setPause(true); KEYS = {}; try { if (document.pointerLockElement) document.exitPointerLock(); } catch (e) {} try { if (window.speechSynthesis) speechSynthesis.cancel(); } catch (e) {} try { hideTip(); } catch (e) {}
+  if (AUD.master && AUD.ctx) AUD.master.gain.setTargetAtTime(0, AUD.ctx.currentTime, 0.25);
+  if (!document.getElementById('cpnCutCss')) { var cs = document.createElement('style'); cs.id = 'cpnCutCss'; cs.textContent = CUT.CSS; document.head.appendChild(cs); }
+  var o = CUT.el = h('div', 'cpncut', '<i class="cpncut-v"></i><i class="cpncut-dim"></i><i class="cpncut-bar t"></i><i class="cpncut-bar b"></i>' +
+    '<div class="cpncut-title"><small>Critical Point · Unit 1</small><b>REACTOR SHUT DOWN</b><span>GOP-303 complete · Mode 3 · every rod in</span></div>' +
+    '<i class="cpncut-flash"></i><i class="cpncut-fade"></i><div class="cpncut-cap" aria-live="polite"></div><button type="button" class="cpncut-skip">Skip ⏭</button>', root);
+  CUT.q = { dim: o.querySelector('.cpncut-dim'), fade: o.querySelector('.cpncut-fade'), flash: o.querySelector('.cpncut-flash'), title: o.querySelector('.cpncut-title'), cap: o.querySelector('.cpncut-cap') };
+  o.querySelector('.cpncut-skip').onclick = function () { CUT.stop(); }; o.addEventListener('wheel', function (e) { e.preventDefault(); }, { passive: false }); o.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+  root.classList.add('cpnnohud');
+  /* the music sets the clock, so the cuts stay on the beat; with the sound off (or if it can't play) the cutscene runs on its own clock */
+  CUT.au = null; if (S.cfg.snd) { try { var a = CUT.au = new Audio(CUT.SRC); a.preload = 'auto'; a.volume = 0.9; var pr = a.play(); if (pr && pr.then) pr.then(function () { CUT.aOk = true; }, function () { CUT.au = null; }); else CUT.aOk = true; } catch (e) { CUT.au = null; } }
+  requestAnimationFrame(function () { if (CUT.el) CUT.el.classList.add('in'); });
+};
+CUT.tick = function (dt) { var a = CUT.au, q = CUT.q;
+  if (a && CUT.aOk && !a.paused && !a.ended && a.currentTime > 0) { if (!CUT.synced) { CUT.synced = true; if (CUT.t > 0.3) { try { a.currentTime = CUT.t; } catch (e) {} } } else CUT.t = a.currentTime; }
+  else if (a && !CUT.aOk && (CUT.wait += dt) < 1.5) { /* give the song a moment to start */ }
+  else CUT.t += dt;
+  var t = CUT.t; if (t >= CUT.END || (a && a.ended)) { CUT.stop(); return; }
+  var T = CUT.T, i = T.length - 1; while (i > 0 && T[i] > t) i--;
+  var t1 = i + 1 < T.length ? T[i + 1] : CUT.END, k = clamp((t - T[i]) / (t1 - T[i]), 0, 1), e = 0.65 * k + 0.35 * k * (2 - k), A = CUT.SHOTS[i][0], B = CUT.SHOTS[i][1];
+  if (i !== CUT.i) { if (CUT.i >= 0 && i > 0) { CAM.kick = 0.8; CUT.fl = 0.22; } CUT.i = i; CUT.cut = true; }
+  CAM.x = lerp(A[0], B[0], e); CAM.y = lerp(A[1], B[1], e); CAM.z = lerp(A[2], B[2], e); CAM.yaw = lerp(A[3], B[3], e); CAM.pitch = lerp(A[4], B[4], e); CAM.fov = lerp(A[5], B[5], e);
+  CAM.fl = Math.max(0, CAM.y - 1.65); CAM.tw = null; CAM.vx = CAM.vy = CAM.vz = 0; CAM.view = 'walk'; HEADM.y = null;
+  /* the sun goes down over the montage */
+  var hr = 15.9 + 2.7 * t / CUT.END; S.clock0 = ((hr * 3600 - S.p.t * 2) % 86400 + 86400) % 86400; D.clock = hr * 3600;
+  try { EXT.tick(dt); } catch (x) {} try { DOORS.tick(dt); } catch (x) {}
+  CUT.fl = Math.max(0, CUT.fl - dt * 2.4); q.flash.style.opacity = CUT.fl.toFixed(3);
+  q.title.classList.toggle('on', t > 0.8 && t < 5.9);
+  q.dim.style.opacity = (clamp((t - 31.05) / 1.65, 0, 1) * 0.45).toFixed(3); q.fade.style.opacity = clamp((t - 32.7) / 0.6, 0, 1).toFixed(3);
+  var c = -1; CUT.caps.forEach(function (cp, j) { if (t >= cp[0] && t < cp[1]) c = j; });
+  if (c !== CUT.ci) { CUT.ci = c; CUT.ctx = null; q.cap.classList.remove('on'); if (c >= 0) { q.cap.classList.toggle('end', CUT.caps[c][3] === 'end'); void q.cap.offsetWidth; q.cap.classList.add('on'); } }
+  if (c >= 0) { var cp = CUT.caps[c], u = clamp((t - cp[0]) / 1.3, 0, 1), txt = cp[4] ? cp[2].replace('#', Math.round(cp[4] * (1 - Math.pow(1 - u, 3))).toLocaleString('en-GB')) : cp[2]; if (txt !== CUT.ctx) { CUT.ctx = txt; q.cap.textContent = txt; } }
+};
+CUT.stop = function () { if (!CUT.on) return; CUT.on = false; var a = CUT.au; CUT.au = null; if (a) { try { a.pause(); a.removeAttribute('src'); a.load(); } catch (e) {} }
+  if (CUT.el) { CUT.el.remove(); CUT.el = null; }
+  var sv = CUT.sv; CAM.x = sv.x; CAM.y = sv.y; CAM.z = sv.z; CAM.yaw = sv.yaw; CAM.pitch = sv.pitch; CAM.fov = sv.fov; CAM.fl = sv.fl; CAM.view = sv.view; CAM.tw = null; CAM.kick = 0; HEADM.y = null;
+  S.clock0 = CUT.clk; D.clock = (S.clock0 || 0) + S.p.t * 2; setPause(CUT.pz);
+  root.classList.toggle('cpnnohud', !!(CAM.free || S.hideHud)); try { AUD.vol(); } catch (e) {} HUD.dirty = true;
+  var d = CUT.done; CUT.done = null; if (d) d(); };
 /* ================================================================ admin console ================================================================
    For testing: jump the plant to a power level, set the time of day, teleport, fly a free camera, clear alarms, hide the HUD.
    Open with the ` key (above Tab) or from the pause menu. Using a power or time jump turns XP off for that run, so it can't be farmed. */
@@ -3733,6 +3839,7 @@ function adminMenu() { S.wasPaused = S.paused; setPause(true); var hr = (((D.clo
     '<div class="cpnseg"><span>Hour</span><input type="range" min="0" max="23.75" step="0.25" value="' + hr.toFixed(2) + '" data-r="tod" style="flex:1"></div>' +
     '<h2>Go to</h2><div class="cpnbtns">' + Object.keys(TELE).map(function (k) { return btn('tp', k, TELE[k][0]); }).join('') + '</div>' +
     '<h2>Camera and screen</h2><div class="cpnbtns">' + btn('fc', 1, CAM.free ? '🎥 Free camera: ON' : '🎥 Free camera (fly with WASD, Q/E, Shift; N to leave)', CAM.free) + btn('hud', 1, S.hideHud ? '🖥 HUD: hidden' : '🖥 HUD: shown', S.hideHud) + '</div>' +
+    '<h2>Cutscenes</h2><div class="cpnbtns">' + btn('cut', 1, '🎬 Play the shutdown cutscene now') + btn('cutcfg', 1, S.cfg.cutscene === false ? '🎬 After a shutdown: OFF' : '🎬 After a shutdown: ON', S.cfg.cutscene !== false) + '</div>' +
     '<h2>Plant</h2><div class="cpnbtns">' + btn('clr', 1, '🔕 Clear all alarms') + btn('trip', 1, '🔴 Trip the reactor') + btn('faults', 1, '⚠ Faults menu') + btn('ts', 1, '×1 time') + btn('ts', 20, '×20 time') + btn('ts', 60, '×60 time') + '</div>' +
     '<div class="cpnbtns" style="margin-top:14px"><button class="cpnb" data-a="x">Close</button></div>',
     function (a, b) { var v = b && b.dataset.v; if (a === 'x') closeMenu();
@@ -3741,6 +3848,8 @@ function adminMenu() { S.wasPaused = S.paused; setPause(true); var hr = (((D.clo
       if (a === 'tp') { closeMenu(); adminTele(v); }
       if (a === 'fc') { freecam(); closeMenu(); }
       if (a === 'hud') { S.hideHud = !S.hideHud; root.classList.toggle('cpnnohud', !!S.hideHud); adminMenu(); }
+      if (a === 'cut') { closeMenu(true); CUT.play(function () { if (S.wasPaused === false) setPause(false); }); }
+      if (a === 'cutcfg') { S.cfg.cutscene = S.cfg.cutscene === false; saveCfg(); adminMenu(); }
       if (a === 'clr') { ANN.forEach(function (t) { if (t.k !== 'status') { t.st = 'off'; t.was = !!(t.c && t.c()); } }); ANNC.horn = false; toast('🔕 All alarms cleared (any still true will come back)', 'ok'); }
       if (a === 'trip') { if (!S.p.tripped) doTrip(S.p, 'MAN'); closeMenu(); }
       if (a === 'faults') faultsMenu();
@@ -5066,6 +5175,15 @@ function addPersonnelLift(scene) { var x = HALL.hx - HALL.hw + 0.09, z = HALL.cz
   var plate = new THREE.Mesh(new THREE.PlaneGeometry(0.88, 0.18), new THREE.MeshBasicMaterial({ map: signTex(512, 90, function (g, w, h) { g.fillStyle = '#173a68'; g.fillRect(0, 0, w, h); ctext(g, 'PERSONNEL LIFT', w / 2, h / 2 + 2, 30, '#fff', 'center', w - 12); }) })); plate.position.set(x - 0.015, 2.98, z + 0.11); plate.rotation.y = Math.PI / 2; add(plate);
   /* Passive emergency wash station: visual safety detail only, with no effect on player movement or plant controls. */
   var wash = new THREE.MeshStandardMaterial({ color: 0xb7c734, roughness: 0.48, metalness: 0.12 }), wx = x - 0.22, wz = z - 2.25; var pipe = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 1.8, 12), wash); pipe.position.set(wx, 0.9, wz); add(pipe); var bowl = new THREE.Mesh(new THREE.CylinderGeometry(0.21, 0.13, 0.08, 20), wash); bowl.position.set(wx, 1.02, wz + 0.08); add(bowl); var shower = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.055, 0.10, 16), wash); shower.position.set(wx, 1.78, wz); add(shower); B(0.38, 0.32, 0.024, new THREE.MeshBasicMaterial({ color: 0x18874a }), wx - 0.04, 1.52, wz + 0.05);
+}
+/* A non-interactive service yard: it adds station life without changing any routes or simulation state. */
+function addWorkshopAndVehicles(scene) { var add = function (m) { m.userData.noColl = true; scene.add(m); return m; }, M = function (c, r, mt) { return new THREE.MeshStandardMaterial({ color: c, roughness: r == null ? 0.6 : r, metalness: mt || 0 }); }, B = function (w, h, d, m, x, y, z) { return add(box(w, h, d, m, x, y, z)); }, C = function (r, h, m, x, y, z, rx) { var o = cyl(r, r, h, m, 16); o.position.set(x, y, z); o.rotation.z = rx || 0; return add(o); };
+  var x = 42, z = 79, clad = M(0x71808a, 0.55, 0.35), roof = M(0x303a42, 0.7, 0.25), yellow = M(0xe0b322, 0.5), tyre = M(0x171b1e, 0.85), glass = M(0x7295a8, 0.16, 0.15);
+  B(10, 4.4, 6, clad, x, 2.2, z); B(10.4, 0.25, 6.4, roof, x, 4.5, z); B(4.2, 2.7, 0.06, M(0x26323a, 0.55), x - 1.6, 1.45, z - 3.03); for (var i = 0; i < 9; i++) B(0.04, 2.5, 4.05, M(0x9aa4ac, 0.45, 0.45), x - 3.6 + i * 0.45, 1.35, z - 3.08);
+  var sign = new THREE.Mesh(new THREE.PlaneGeometry(2.7, 0.44), new THREE.MeshBasicMaterial({ map: signTex(700, 120, function (g, w, h) { g.fillStyle = '#173a68'; g.fillRect(0, 0, w, h); ctext(g, 'MAINTENANCE WORKSHOP', w / 2, h / 2 + 3, 40, '#fff', 'center', w - 18); }) })); sign.position.set(x + 2.65, 3.35, z - 3.07); add(sign);
+  /* benches, tool chests and a pallet of spare valves visible through the open bay */ B(2.1, 0.78, 0.62, M(0x6d4c32, 0.75), x + 2.0, 0.45, z - 2.7); B(1.15, 0.82, 0.5, M(0x2f5f98, 0.48, 0.25), x + 3.4, 0.43, z - 2.68); for (i = 0; i < 3; i++) { C(0.28, 0.20, M(0x8c9399, 0.4, 0.6), x + 0.55 + i * 0.7, 0.30, z - 3.6, Math.PI / 2); }
+  /* parked service van */ B(3.7, 1.35, 1.65, M(0xf1f3f2, 0.4, 0.1), x - 7.2, 1.05, z - 0.8); B(1.45, 0.9, 1.64, M(0xf1f3f2, 0.4, 0.1), x - 6.1, 1.9, z - 0.8); B(1.05, 0.6, 0.02, glass, x - 5.42, 2.02, z - 0.8); [-1.15, 1.15].forEach(function (dx) { [-0.78, 0.78].forEach(function (dz) { C(0.33, 0.18, tyre, x - 7.2 + dx, 0.34, z - 0.8 + dz, Math.PI / 2); }); });
+  /* forklift and pallet jack */ B(1.0, 0.45, 1.1, yellow, x - 1.8, 0.48, z - 6.3); C(0.38, 0.10, tyre, x - 2.25, 0.25, z - 6.8, Math.PI / 2); C(0.38, 0.10, tyre, x - 1.35, 0.25, z - 6.8, Math.PI / 2); B(0.08, 2.5, 0.08, M(0x3a4248, 0.55, 0.5), x - 1.8, 1.55, z - 6.75); B(0.8, 0.05, 0.06, M(0x3a4248, 0.55, 0.5), x - 1.8, 0.32, z - 7.5); B(0.8, 0.05, 0.06, M(0x3a4248, 0.55, 0.5), x - 1.8, 0.42, z - 7.5);
 }
 function addHallFX(scene) { var cz = HALL.cz, cw = HALL.cw, hx = HALL.hx, hw = HALL.hw, hd = HALL.hd, vx = HALL.vx, HH = 14, FX = HALL.fx = { mats: [] };
   var tex = function (w, h, draw) { var c = CV(w, h); draw(c.getContext('2d'), w, h); var t = new THREE.CanvasTexture(c); return t; };
@@ -6592,12 +6710,13 @@ function finishShut() {
   if (MS.shutDone) return; MS.shutDone = true; var noTrip = MS.shutTrips === 0, order = !MS.orderBad, sv = rd(), first = !sv.doneShut, xp = (first ? 30 : 8) + (noTrip ? 10 : 0) + (order ? 10 : 0), rows = [];
   rows.push('<span>Reactor shut down to Mode 3 (GOP-303)</span><span>✔</span>', '<span>' + (noTrip ? '✔' : '✘') + ' Shut down with the rods, not a trip</span><span>' + (noTrip ? '+10' : '0') + '</span>', '<span>' + (order ? '✔' : '✘') + ' Control banks in before the shutdown banks</span><span>' + (order ? '+10' : '0') + '</span>');
   giveXP(xp, 'Critical Point: reactor shutdown'); CAR.event('shut'); sv = rd(); sv.doneShut = (sv.doneShut || 0) + 1; wr(sv);
-  AUD.sfx('done'); speak('The reactor is shut down. Well done.'); S.addLog('Reactor shut down. GOP-303 complete.'); S.wasPaused = false; setPause(true);
-  menu('<h1>✅ Reactor shut down</h1><p class="cpnsub">GOP-303 complete · Mode 3 · N31 ' + Math.round(NI.sr[0]) + ' cps</p><div class="cpnscore">' + rows.join('') + '<span><b>XP earned</b></span><span>+' + xp + '</span></div>' +
+  AUD.sfx('done'); S.addLog('Reactor shut down. GOP-303 complete.'); S.wasPaused = false; setPause(true);
+  /* the montage first (see CUT), then the score card */
+  var card = function () { menu('<h1>✅ Reactor shut down</h1><p class="cpnsub">GOP-303 complete · Mode 3 · N31 ' + Math.round(NI.sr[0]) + ' cps</p><div class="cpnscore">' + rows.join('') + '<span><b>XP earned</b></span><span>+' + xp + '</span></div>' +
     '<p>You brought power down with the control banks, let the source range come back on below P-6, put every rod in (control banks first, then the shutdown banks) and opened the trip breakers. The reactor is back at hot standby, ready for the next startup.</p>' +
     '<div class="cpnbtns"><button class="cpnb" data-a="again">▶ Start it up again from here</button><button class="cpnb2" data-a="free">Keep running the plant</button><button class="cpnb2" data-a="exit">Exit</button></div>',
-    function (a) { if (a === 'again') { againFromHere(); } if (a === 'free') { MS.free = true; closeMenu(); HUD.el.ms.dataset.cur = ''; } if (a === 'exit') close(); });
-  save();
+    function (a) { if (a === 'again') { againFromHere(); } if (a === 'free') { MS.free = true; closeMenu(); HUD.el.ms.dataset.cur = ''; } if (a === 'exit') close(); }); speak('The reactor is shut down. Well done.'); };
+  save(); if (S.cfg.cutscene === false) card(); else CUT.play(card);
 }
 function againFromHere() { var p = S.p; MS.reset(); p.everCrit = false; p.c0 = null; p.oneM = []; p.lastPc = null; S.st = { trips: 0, maxSur: 0, pts: 0, critPc: null, predPc: null }; S.addLog('New startup from hot standby'); closeMenu(); HUD.el.ms.dataset.cur = ''; HUD.dirty = true; speak('Begin the pre-startup checks.'); }
 /* a plant already sitting at the point of adding heat, for shutdown practice */
@@ -6983,7 +7102,9 @@ function hover() {
 }
 function onKey(e, down) {
   var k = (e.key || '').toLowerCase(); if (e.target && /input|select|textarea/i.test(e.target.tagName)) return;
-  if (!root || root.hidden) return; if (down) AUD.init();
+  if (!root || root.hidden) return;
+  if (CUT.on) { if (down && !e.repeat && (k === 'escape' || k === 'enter' || k === ' ')) { e.preventDefault(); CUT.stop(); } return; }
+  if (down) AUD.init();
   if (['w', 'a', 's', 'd', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright', 'shift'].indexOf(k) >= 0) { KEYS[k] = down; if (k.indexOf('arrow') === 0) e.preventDefault(); return; }
   if (CAM.free && ['q', 'e', ' ', 'control'].indexOf(k) >= 0 && !S.menu) { KEYS[k] = down; e.preventDefault(); return; }
   if (down && !e.repeat && (k === '`' || e.code === 'Backquote')) { e.preventDefault(); if (S.menu) closeMenu(); else adminGate(); return; }
@@ -7097,7 +7218,7 @@ var CSS = 'html:has(.cpn:not([hidden])),html:has(.cpn:not([hidden])) body{overfl
   '.cpnms ol.cl .bt{display:flex;gap:3px;flex:none}.cpnms ol.cl .bt button{background:rgba(255,255,255,.08);width:30px;height:28px;padding:0;font-size:13px}.cpnms ol.cl .bt button:hover{background:rgba(255,211,74,.25)}' +
   '.cpnexp{position:absolute;z-index:7;pointer-events:none;width:min(340px,calc(100% - 16px));background:rgba(8,14,22,.95);border:1px solid rgba(255,211,74,.45);border-radius:14px;padding:11px 13px;box-shadow:0 12px 30px rgba(0,0,0,.5);animation:cpnin .2s ease}' +
   '.cpnexp b{display:block;color:#ffd34a;font-size:14.5px;margin-bottom:4px}.cpnexp p{margin:4px 0 0;font-size:13px;color:#d9e4ee;line-height:1.4}.cpnexp p.r{color:#a9bccd}.cpnexp p.r span{color:#7fd1ff;font-weight:700}' +
-  '.cpnnohud > *:not(canvas):not(.cpnmenu){visibility:hidden!important}' +
+  '.cpnnohud > *:not(canvas):not(.cpnmenu):not(.cpncut){visibility:hidden!important}' +
   '.cpnring{position:absolute;z-index:7;pointer-events:none;width:22px;height:22px}.cpnseg{display:flex;gap:4px;flex-wrap:wrap;align-items:center;margin-top:8px}.cpnseg span{font-weight:700;margin-right:6px;color:#c5d2de}.cpnseg button{background:rgba(255,255,255,.07);padding:8px 12px;font-weight:700}.cpnseg button[aria-pressed=true]{background:#ffd34a;color:#1a1300}' +
   '.cpnlog{background:rgba(0,0,0,.25);border-radius:12px;padding:10px 12px;font-size:13px;color:#c5d2de;display:flex;flex-direction:column;gap:4px;max-height:220px;overflow:auto}.cpnlog b{font-family:ui-monospace,Menlo,monospace;color:#7fd1ff;margin-right:6px}' +
   '@media (max-height:520px){.cpnms .h{display:none}.cpnms{padding:8px 10px}.cpnms ol.cl{max-height:48vh}.cpnas{display:none!important}.cpnqc{padding:6px}.cpnqc h3{display:none}.cpnqc button{min-height:30px;padding:5px 3px}.cpnqc .hold{min-height:38px}}' +
@@ -7530,7 +7651,9 @@ function frame(now) {
     saveT += dt; if (saveT > 20) { saveT = 0; save(); }
     if (!document.hidden) shiftTick(dt);
   }
-  /* the mouse turns the view between frames, so the turn is measured from where the last frame was drawn */ var py0 = POST.py != null && Math.abs(CAM.yaw - POST.py) < 1.2 ? POST.py : CAM.yaw, pp0 = POST.pp != null ? POST.pp : CAM.pitch; moveCam(dt); applyCam(dt); HAZ.cam(dt); DRAMA.cam(); DBF.rtick(dt); hover();
+  /* the shutdown cutscene drives the camera itself; a hard cut must not smear into motion blur */
+  if (CUT.on) { CUT.tick(dt); if (CUT.cut) { CUT.cut = false; POST.py = CAM.yaw; POST.pp = CAM.pitch; if (POST.mbv) POST.mbv.set(0, 0); } }
+  /* the mouse turns the view between frames, so the turn is measured from where the last frame was drawn */ var py0 = POST.py != null && Math.abs(CAM.yaw - POST.py) < 1.2 ? POST.py : CAM.yaw, pp0 = POST.pp != null ? POST.pp : CAM.pitch; if (!CUT.on) moveCam(dt); applyCam(dt); HAZ.cam(dt); DRAMA.cam(); DBF.rtick(dt); if (!CUT.on) hover();
   if (POST.on) { var mv = POST.mbv || (POST.mbv = new THREE.Vector2()), st = S.cfg.mblur === false ? 0 : 1.0, fvr = Math.tan(R3.cam.fov * Math.PI / 360), fd = Math.max(dt, 1 / 240), sh = 1 / 30, dy = (CAM.yaw - py0) / fd * sh, dp = (CAM.pitch - pp0) / fd * sh, tx = -dy / (2 * fvr * R3.cam.aspect) * st, ty = dp / (2 * fvr) * st, ek = 1 - Math.exp(-fd * 30); /* blur = how far the view turns while a 1/30 s shutter is open */
     mv.x += (tx - mv.x) * ek; mv.y += (ty - mv.y) * ek; if (mv.length() < 0.0008) mv.set(0, 0); if (mv.length() > 0.16) mv.setLength(0.16); } POST.py = CAM.yaw; POST.pp = CAM.pitch;
   pressed = pressed.filter(function (q) { q.t -= dt; if (q.t <= 0) { q.m.position.y = q.y0; return false; } return true; });
@@ -7626,12 +7749,12 @@ function init() {
   c.addEventListener('pointerleave', function () { hideTip(); PTR.hover = null; PTR.hoverObj = null; });
   document.addEventListener('keydown', kd); document.addEventListener('keyup', ku); document.addEventListener('pointerlockchange', lockChange);
   window.addEventListener('blur', function () { KEYS = {}; if (S && S.leverDir) ACT.lever(0); });
-  document.addEventListener('visibilitychange', function () { if (document.hidden && S && root && !root.hidden) { save(); if (!S.menu) pauseMenu(); } });
+  document.addEventListener('visibilitychange', function () { if (document.hidden && S && root && !root.hidden) { save(); if (!S.menu && !CUT.on) pauseMenu(); } });
   goView('start', true); WG.forEach(function (w) { redraw(w, true); });
   try { ZONE.build(scene); } catch (e) { try { console.error(e); } catch (x) {} } try { BATCH.build(scene); FMU.seed(scene); scene.matrixWorldAutoUpdate = false; } catch (e) { try { console.error(e); } catch (x) {} scene.matrixWorldAutoUpdate = true; }
   last = 0; RAF = requestAnimationFrame(frame); startMenu();
 }
-function close() { ADMIN.ok = false; SHIFT.stop(); if (CRISIS.on) { CRISIS.on = false; if (CRISIS.hud) CRISIS.hud.hidden = true; }
+function close() { ADMIN.ok = false; SHIFT.stop(); if (CRISIS.on) { CRISIS.on = false; if (CRISIS.hud) CRISIS.hud.hidden = true; } if (CUT.on) { CUT.done = null; CUT.stop(); }
   if (!root) return; try { save(); } catch (e) {} try { RADIO.stop(); } catch (e) {} try { KIT.sounder(0); } catch (e) {} try { MULTI.closeAll(); } catch (e) {} cancelAnimationFrame(RAF); RAF = 0; root.hidden = true; document.removeEventListener('keydown', kd); document.removeEventListener('keyup', ku); KEYS = {};
   try { if (AUD.ctx) AUD.ctx.suspend(); } catch (e) {} try { if (window.speechSynthesis) speechSynthesis.cancel(); } catch (e) {} try { API.close(); } catch (e) {}
 }
@@ -7940,6 +8063,6 @@ var REFUEL = { on: false, el: null, grp: null,
       '<div class="cpnbtns"><button class="cpnb" data-a="again">🔄 Another outage</button><button class="cpnb2" data-a="menu">Main menu</button></div>', function (a) { if (a === 'again') { REFUEL.start(); begin(); } if (a === 'menu') { REFUEL.stop(); startMenu(); } }); }
 };
 
-window.CRIT_PLANT = { open: open, close: close, _dbg: { SHIFT: SHIFT, DRAMA: DRAMA, CALL: CALL, rbmkOrm: rbmkOrmRods, inHall: function (x, z) { return inHallArea(x, z); }, BF: BFENCE, CAM: CAM, KEYS: function () { return KEYS; }, move: function (dt) { moveCam(dt); }, build: function () { return buildColl(); }, blk: function (x, z) { return blocked(x, z); }, guideNow: function () { var ph = MS.phase(); if (ph === 'free' || ph === 'pre') return { ph: ph }; var P = phaseDef(ph), fl = MS[P.fl], i = firstOpen(P.list, fl), st = P.list[i]; var n = st && st.now ? st.now(S.p) : null; return { ph: ph, i: i, t: st && st.t, a: n && n.a }; }, p6: function () { return p6(S.p); }, NI: function () { return NI; }, p10: function () { return p10(S.p); }, BATCH: BATCH, ZONE: ZONE, MATD: MATD, FMU: FMU, LEQ: LEQ, NEW: { S: function () { return S; }, step: function (sec) { var p = S.p, hh = 0.05, n = Math.round(sec / hh); for (var i = 0; i < n; i++) { if (!REFUEL.on) { plantStep(p, hh); niTick(p, hh); rps(p); permissives(p); oneMTick(p, hh); } p = S.p; derive(hh); ATWS.tick(); GRIDI.tick(hh, hh); HAZ.tick(hh, hh); EPRP.tick(); DBF.tick(hh); REFUEL.tick(hh); LIFE.tick(hh, hh); } }, doTrip: function (c) { doTrip(S.p, c); }, sdm: function () { return D; }, DBF: DBF, ATWS: ATWS, GRIDI: GRIDI, HAZ: HAZ, REFUEL: REFUEL, EPRP: EPRP, FAULT: FAULT, LIFE: LIFE, applyUnit: applyUnit, unit: function () { return { FULL: FULL, MWE: MWE, KX: KX, TBMAX: TBMAX }; }, atPowerStart: atPowerStart, begin: begin, startMenu: startMenu, eprMenu: eprMenu, setTS: setTS, busOn: busOn, D: function () { return D; } }, BB: function (x, z) { return blockedBy(x, z); }, ADM: { menu: function () { adminMenu(); }, power: function (p) { adminPower(p); }, time: function (h) { adminTime(h); }, fc: function (o) { freecam(o); }, saves: function () { saveMenu(); }, reach: function (h) { handReach(h); }, D: function () { return D; }, MS: function () { return MS; }, KEYS: KEYS, sh: function () { return shaderCfg(); }, H: function () { return HAND; } }, HITS: HITS, KIT: KIT, goView: function (v) { goView(v); }, AGUIDE: AGUIDE, ANNC: ANNC, CAM: CAM, HALL: HALL, ANN: ANN, LIFE: LIFE, floorAt: function (x, z, c) { return floorAt(x, z, c); }, R3: function () { return R3; }, WATCH: WATCH, FAULT: FAULT, setTS: function (v) { setTS(v); }, pauseMenu: function () { pauseMenu(); }, goHall: function () { goHall(); }, DOORS: DOORS, inHallArea: function (x, z) { return inHallArea(x, z); }, blocked: function (x, z) { return blocked(x, z); }, S: function () { return S; }, HAND: HAND, handReach: function (h) { handReach(h); }, LIFE: LIFE, FEEL: FEEL, TEACH: TEACH, EXAM: EXAM, PROC: PROC, procMenu: function () { procMenu(); }, MULTI: MULTI, TRI: TRI, multiMenu: function () { multiMenu(); }, MVH: MVH, FAULT: FAULT, TS: TS, CREW: CREW, coreMenu: function (t) { coreMenu(t); }, tsMenu: function () { tsMenu(); }, crx: function () { return crx(); }, rtp: function () { return rtp(); }, CAR: CAR, careerMenu: function () { careerMenu(); }, startAsc: function () { startAsc(); }, ctl: function (re, arg) { var r = new RegExp(re), m = HITS.filter(function (h) { var o = h.userData.hit, t = typeof o.tip === 'function' ? o.tip() : o.tip; return t && r.test(t) && (o.act || o.hold); }); if (m.length !== 1) return 'match ' + m.length + ': ' + m.slice(0, 4).map(function (h) { var o = h.userData.hit; return typeof o.tip === 'function' ? o.tip() : o.tip; }).join(' | '); var o = m[0].userData.hit; if (o.act) o.act(arg); else { o.hold(true); o.hold(false); } return 'ok'; }, tips: function (re) { var r = new RegExp(re); return HITS.map(function (h) { var o = h.userData.hit; return typeof o.tip === 'function' ? o.tip() : o.tip; }).filter(function (t) { return t && r.test(t); }); }, MS: MS, ACT: ACT, ANNC: ANNC, NI: NI, D: D, CAM: CAM, goView: goView, showMe: showMe, setTS: setTS, step: function (sec, h) { h = h || 0.05; var p = S.p; for (var t = 0; t < sec; t += h) { plantStep(p, h); niTick(p, h); rps(p); permissives(p); oneMTick(p, h); derive(h); MS.tick(h); ANNC.tick(); CAR.tick(h, 0); TS.tick(h); WATCH.core(h); if (p.sur > S.st.maxSur && !p.tripped) S.st.maxSur = p.sur; if (p.everCrit && S.st.critPc == null) { S.st.critPc = p.pc; S.st.predPc = ecpFromOneM(p); S.st.pts = Math.max(0, p.oneM.length - 1); } } },  blocked: function (x, z) { return blocked(x, z); }, dbgColl: function () { var n = 0, f = [0,0,0,0]; R3.scene.traverse(function (o) { if (!o.isMesh) return; n++; if (!o.geometry.boundingBox) o.geometry.computeBoundingBox(); var wb = new THREE.Box3().copy(o.geometry.boundingBox).applyMatrix4(o.matrixWorld); if (wb.min.y > 1.1) f[0]++; else if (wb.max.y < 0.3) f[1]++; else f[2]++; }); return [n, f, R3.scene.children.length]; }, COLLn: function () { return COLL && COLL.length; }, pick: function (x, y) { var hh = pick(x, y); return hh ? { tip: hh.object.userData.hit && (typeof hh.object.userData.hit.tip === 'function' ? hh.object.userData.hit.tip() : hh.object.userData.hit.tip), act: !!(hh.object.userData.hit && hh.object.userData.hit.act), hold: !!(hh.object.userData.hit && hh.object.userData.hit.hold) } : null; },
+window.CRIT_PLANT = { open: open, close: close, _dbg: { CUT: CUT, SHIFT: SHIFT, DRAMA: DRAMA, CALL: CALL, rbmkOrm: rbmkOrmRods, inHall: function (x, z) { return inHallArea(x, z); }, BF: BFENCE, CAM: CAM, KEYS: function () { return KEYS; }, move: function (dt) { moveCam(dt); }, build: function () { return buildColl(); }, blk: function (x, z) { return blocked(x, z); }, guideNow: function () { var ph = MS.phase(); if (ph === 'free' || ph === 'pre') return { ph: ph }; var P = phaseDef(ph), fl = MS[P.fl], i = firstOpen(P.list, fl), st = P.list[i]; var n = st && st.now ? st.now(S.p) : null; return { ph: ph, i: i, t: st && st.t, a: n && n.a }; }, p6: function () { return p6(S.p); }, NI: function () { return NI; }, p10: function () { return p10(S.p); }, BATCH: BATCH, ZONE: ZONE, MATD: MATD, FMU: FMU, LEQ: LEQ, NEW: { S: function () { return S; }, step: function (sec) { var p = S.p, hh = 0.05, n = Math.round(sec / hh); for (var i = 0; i < n; i++) { if (!REFUEL.on) { plantStep(p, hh); niTick(p, hh); rps(p); permissives(p); oneMTick(p, hh); } p = S.p; derive(hh); ATWS.tick(); GRIDI.tick(hh, hh); HAZ.tick(hh, hh); EPRP.tick(); DBF.tick(hh); REFUEL.tick(hh); LIFE.tick(hh, hh); } }, doTrip: function (c) { doTrip(S.p, c); }, sdm: function () { return D; }, DBF: DBF, ATWS: ATWS, GRIDI: GRIDI, HAZ: HAZ, REFUEL: REFUEL, EPRP: EPRP, FAULT: FAULT, LIFE: LIFE, applyUnit: applyUnit, unit: function () { return { FULL: FULL, MWE: MWE, KX: KX, TBMAX: TBMAX }; }, atPowerStart: atPowerStart, begin: begin, startMenu: startMenu, eprMenu: eprMenu, setTS: setTS, busOn: busOn, D: function () { return D; } }, BB: function (x, z) { return blockedBy(x, z); }, ADM: { menu: function () { adminMenu(); }, power: function (p) { adminPower(p); }, time: function (h) { adminTime(h); }, fc: function (o) { freecam(o); }, saves: function () { saveMenu(); }, reach: function (h) { handReach(h); }, D: function () { return D; }, MS: function () { return MS; }, KEYS: KEYS, sh: function () { return shaderCfg(); }, H: function () { return HAND; } }, HITS: HITS, KIT: KIT, goView: function (v) { goView(v); }, AGUIDE: AGUIDE, ANNC: ANNC, CAM: CAM, HALL: HALL, ANN: ANN, LIFE: LIFE, floorAt: function (x, z, c) { return floorAt(x, z, c); }, R3: function () { return R3; }, WATCH: WATCH, FAULT: FAULT, setTS: function (v) { setTS(v); }, pauseMenu: function () { pauseMenu(); }, goHall: function () { goHall(); }, DOORS: DOORS, inHallArea: function (x, z) { return inHallArea(x, z); }, blocked: function (x, z) { return blocked(x, z); }, S: function () { return S; }, HAND: HAND, handReach: function (h) { handReach(h); }, LIFE: LIFE, FEEL: FEEL, TEACH: TEACH, EXAM: EXAM, PROC: PROC, procMenu: function () { procMenu(); }, MULTI: MULTI, TRI: TRI, multiMenu: function () { multiMenu(); }, MVH: MVH, FAULT: FAULT, TS: TS, CREW: CREW, coreMenu: function (t) { coreMenu(t); }, tsMenu: function () { tsMenu(); }, crx: function () { return crx(); }, rtp: function () { return rtp(); }, CAR: CAR, careerMenu: function () { careerMenu(); }, startAsc: function () { startAsc(); }, ctl: function (re, arg) { var r = new RegExp(re), m = HITS.filter(function (h) { var o = h.userData.hit, t = typeof o.tip === 'function' ? o.tip() : o.tip; return t && r.test(t) && (o.act || o.hold); }); if (m.length !== 1) return 'match ' + m.length + ': ' + m.slice(0, 4).map(function (h) { var o = h.userData.hit; return typeof o.tip === 'function' ? o.tip() : o.tip; }).join(' | '); var o = m[0].userData.hit; if (o.act) o.act(arg); else { o.hold(true); o.hold(false); } return 'ok'; }, tips: function (re) { var r = new RegExp(re); return HITS.map(function (h) { var o = h.userData.hit; return typeof o.tip === 'function' ? o.tip() : o.tip; }).filter(function (t) { return t && r.test(t); }); }, MS: MS, ACT: ACT, ANNC: ANNC, NI: NI, D: D, CAM: CAM, goView: goView, showMe: showMe, setTS: setTS, step: function (sec, h) { h = h || 0.05; var p = S.p; for (var t = 0; t < sec; t += h) { plantStep(p, h); niTick(p, h); rps(p); permissives(p); oneMTick(p, h); derive(h); MS.tick(h); ANNC.tick(); CAR.tick(h, 0); TS.tick(h); WATCH.core(h); if (p.sur > S.st.maxSur && !p.tripped) S.st.maxSur = p.sur; if (p.everCrit && S.st.critPc == null) { S.st.critPc = p.pc; S.st.predPc = ecpFromOneM(p); S.st.pts = Math.max(0, p.oneM.length - 1); } } },  blocked: function (x, z) { return blocked(x, z); }, dbgColl: function () { var n = 0, f = [0,0,0,0]; R3.scene.traverse(function (o) { if (!o.isMesh) return; n++; if (!o.geometry.boundingBox) o.geometry.computeBoundingBox(); var wb = new THREE.Box3().copy(o.geometry.boundingBox).applyMatrix4(o.matrixWorld); if (wb.min.y > 1.1) f[0]++; else if (wb.max.y < 0.3) f[1]++; else f[2]++; }); return [n, f, R3.scene.children.length]; }, COLLn: function () { return COLL && COLL.length; }, pick: function (x, y) { var hh = pick(x, y); return hh ? { tip: hh.object.userData.hit && (typeof hh.object.userData.hit.tip === 'function' ? hh.object.userData.hit.tip() : hh.object.userData.hit.tip), act: !!(hh.object.userData.hit && hh.object.userData.hit.act), hold: !!(hh.object.userData.hit && hh.object.userData.hit.hold) } : null; },
   click: function (x, y) { activate(pick(x, y)); }, verifyPre: verifyPre, startShutdown: startShutdown, PRE: PRE, SHUT: SHUT, EXP: EXP, shiftLeft: function () { return shiftLeft(); }, ofs: function () { return OFS; }, settled: function () { return !CAM.tw && Math.abs(OFS.cur - (OFS.want || 0)) < 0.5; }, R3: function () { return R3; }, desk: function (id, u, d, lift) { var v = SEC[id].desk.localToWorld(new THREE.Vector3(u, lift == null ? 0.0015 : lift, -d * SL)); v.project(R3.cam); var r = R3.ren.domElement.getBoundingClientRect(); return [r.left + (v.x + 1) / 2 * r.width, r.top + (1 - v.y) / 2 * r.height]; }, WG: WG, HITS: HITS, SEC: SEC, rho: function () { return rhoParts(S.p); }, ecp: function () { return ecpFromOneM(S.p); } } };
 })();

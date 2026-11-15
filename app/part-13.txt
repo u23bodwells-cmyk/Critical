@@ -1,4 +1,6 @@
-i,4+2*i]);B.push([i,5+2*i])}B.push([0,12]);B.push([3,13]);for(i=0;i<3;i++)B.push([i,i+1]);return B})();
+ The −OH group is what makes it an alcohol. It can be made by fermenting sugar or from ethene and steam, and oxidises to ethanoic acid.'}),
+  butane:M((function(){var A=[],B=[];for(var i=0;i<4;i++){A.push([-.6+i*.4,0,(i%2?.12:-.12),'C'])}for(i=0;i<4;i++){A.push([-.6+i*.4,.36,(i%2?.36:-.36),'H']);A.push([-.6+i*.4,-.36,(i%2?.36:-.36),'H']);B.push([i,4+2*i]);B.push([i,5+2*i])}A.push([-.95,0,-.32,'H']);A.push([.95,0,.32,'H']);B.push([0,12]);B.push([3,13]);for(i=0;i<3;i++)B.push([i,i+1]);return A})(),null,{t:'BUTANE',ms:1.1,read:function(){return 'C₄H₁₀ · alkanes are saturated: single bonds only'},cap:'Butane, C₄H₁₀: a chain of four carbon atoms with only single bonds, so it is saturated. Alkanes get longer down the series, adding CH₂ each time, and their boiling points rise.'})};
+ MOL.butane.bonds=(function(){var B=[];for(var i=0;i<4;i++){B.push([i,4+2*i]);B.push([i,5+2*i])}B.push([0,12]);B.push([3,13]);for(i=0;i<3;i++)B.push([i,i+1]);return B})();
  SC.mol=function(p){return MOL[p&&p.m]||MOL.water};
  SC.polymer=function(){var A=[],B=[];for(var i=0;i<10;i++){A.push([-1.1+i*.245,0,(i%2?.1:-.1),'C'])}for(i=0;i<10;i++){var z=(i%2?.1:-.1);A.push([-1.1+i*.245,.3,z*2.6,'H']);A.push([-1.1+i*.245,-.3,z*2.6,'H']);B.push([i,10+2*i]);B.push([i,11+2*i])}for(i=0;i<9;i++)B.push([i,i+1]);
   return {k:'mol',box:false,anim:1,t:'A POLYMER CHAIN',ms:1,atoms:function(){return A.map(function(q){return {p:q.slice(0,3),e:q[3]}})},bonds:B,read:function(){return 'poly(ethene): thousands of these units in one chain'},cap:'Part of a poly(ethene) chain. Ethene molecules open their double bonds and join end to end, thousands at a time. The long tangled chains are what make plastics strong and flexible.'}};
@@ -576,9 +578,4 @@ var MOT=(function(){
    else if(ty==='freeze')out.push((S.freeze||0)<2?{k:'freeze',r:r}:{k:'xp',r:r,n:{C:15,R:30,E:60,L:120}[r]});
    else if(ty==='boost')out.push({k:'boost',r:r});
    else{var p=pool(ty,r),id=p[Math.floor(Math.random()*p.length)],it=item(id);if(l.items[id]||out.some(function(o){return o.id===id}))out.push({k:'dup',id:id,r:it.r,n:DUPXP[it.r]});else out.push({k:'item',id:id,r:it.r})}}
-  out.push({k:'xp',r:tier,n:BASEXP[tier],base:1});return out}
- function grant(res){var l=Lget(),c=Cget(),xp=0;res.forEach(function(o){if(o.k==='item')l.items[o.id]=1;else if(o.k==='xp'||o.k==='dup')xp+=o.n;else if(o.k==='freeze'){S.freeze=Math.min(2,(S.freeze||0)+1);try{save()}catch(e){}}else if(o.k==='boost'){c.boost=(c.boost||0)+1}});
-  wrk(LK,l);try{SYNC.mark()}catch(e){}wrk(CK,c);if(xp){inCrate=true;try{addXP(xp)}catch(e){}inCrate=false}ui()}
- function resCard(o,i){var it=o.id?item(o.id):null,R=RAR[o.r]||RAR.C,ic,nm,sub;
-  if(o.k==='item'||o.k==='dup'){ic=icOf(it);nm=it.ty==='fact'?'Fact card':it.n;sub=o.k==='dup'?'Already yours: +'+o.n+' XP instead':it.ty==='fact'?esc(it.x):it.ty==='skin'?'Reactor glow skin':it.ty==='fx'?'Answer effect: plays every time you get one right':'Title'}
-  else if(o.k==='xp'){ic='✨';nm='+'+o.n+' XP';sub=o.base?'Crate bonus':'Bonus XP'}
+  out.push({k:'xp',r:tie
