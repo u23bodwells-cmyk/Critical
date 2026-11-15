@@ -637,8 +637,18 @@ function derive(dt) {
   D.stmF += (p.dump * 40 - D.stmF) * (1 - Math.exp(-dt / 3)); D.feedF += (D.stmF - D.feedF) * (1 - Math.exp(-dt / 12));
   D.rho = rhoPcm(p); D.keff = 1 / (1 - D.rho * 1e-5); var pr = (NI.pr[0] + NI.pr[1] + NI.pr[2] + NI.pr[3]) / 4; D.pr = pr;
   D.mode = D.keff < 0.99 ? (p.Tavg >= 177 ? 3 : p.Tavg > 93 ? 4 : 5) : pr <= 5 ? 2 : 1;
-  D.clock = (S.clock0 || 0) + p.t * 2; /* the station day runs twice real speed: 24 h passes in 12 h */
+  D.clock = realClock(); /* the station clock is real UK time (your computer's clock), so day and night match outside */
 }
+/* real time of day, plus an offset the admin console can set for testing */
+function realClock() { var d = new Date(Date.now() + (S.clockOff || 0) * 1000), day = Math.floor((d.getTime() - d.getTimezoneOffset() * 60000) / 864e5); return day * 86400 + d.getHours() * 3600 + d.getMinutes() * 60 + d.getSeconds() + d.getMilliseconds() / 1000; }
+/* where the sun really is over the station (Hinkley Point, Somerset) right now: short summer nights, long winter ones.
+   Low-precision solar position (good to a fraction of a degree): returns sin(elevation) and the azimuth from north, clockwise. */
+var SUN = { t: -1, el: 0, az: Math.PI };
+function sunNow() { var now = Date.now() + (S.clockOff || 0) * 1000; if (Math.abs(now - SUN.t) < 5000) return SUN; SUN.t = now;
+  var R = Math.PI / 180, lat = 51.21 * R, lon = -3.13, d = now / 864e5 - 10957.5, g = (357.529 + 0.98560028 * d) * R, q = 280.459 + 0.98564736 * d,
+    L = (q + 1.915 * Math.sin(g) + 0.020 * Math.sin(2 * g)) * R, e = (23.439 - 0.00000036 * d) * R, ra = Math.atan2(Math.cos(e) * Math.sin(L), Math.cos(L)), dec = Math.asin(Math.sin(e) * Math.sin(L)),
+    gmst = 18.697374558 + 24.06570982441908 * d, ha = ((gmst + lon / 15) * 15 * R - ra), se = Math.sin(lat) * Math.sin(dec) + Math.cos(lat) * Math.cos(dec) * Math.cos(ha);
+  SUN.el = clamp(se, -1, 1); SUN.az = Math.atan2(-Math.cos(dec) * Math.sin(ha), Math.sin(dec) * Math.cos(lat) - Math.cos(dec) * Math.cos(ha) * Math.sin(lat)); return SUN; }
 function clockStr(t) { t = ((Math.floor(t) % 86400) + 86400) % 86400; return String(Math.floor(t / 3600)).padStart(2, '0') + ':' + String(Math.floor(t / 60) % 60).padStart(2, '0') + ':' + String(t % 60).padStart(2, '0'); }
 
 /* ---------- shared materials ---------- */
@@ -1123,7 +1133,7 @@ function furniture(scene) {
   /* alarm summary + clock on the east wall */
   box(2.9, 1.7, 0.1, MAT.monitor, 3.4, 1.95, ZF - 0.06, scene).rotation.y = Math.PI;
   screenMesh(scene, 2.76, 1.55, 1280, 720, drawAlarmWall, 0.3, 3.4, 1.95, ZF - 0.12, Math.PI, function () { return 'Alarm summary screen. Click for the alarm response procedures.'; }, 'alarms'); SCR[SCR.length - 1].m.userData.hit.act = function () { arpMenu(); };
-  var ck = digital({ lbl: 'STATION TIME (UTC)', txt: function () { return clockStr(D.clock); }, w: 1.0, h: 0.4, col: '#ff3b2f' }); ck.m.position.set(3.4, 3.15, ZF - 0.1); ck.m.rotation.y = Math.PI; scene.add(ck.m); hit(ck.m, { tip: function () { return 'Station clock: ' + clockStr(D.clock); } });
+  var ck = digital({ lbl: 'STATION TIME (UK)', txt: function () { return clockStr(D.clock); }, w: 1.0, h: 0.4, col: '#ff3b2f' }); ck.m.position.set(3.4, 3.15, ZF - 0.1); ck.m.rotation.y = Math.PI; scene.add(ck.m); hit(ck.m, { tip: function () { return 'Station clock: ' + clockStr(D.clock); } });
   var dw = widget({ cw: 512, ch: 300, w: 1.1, h: 0.64, glow: true, key: function () { return Math.floor(S.daysSince()) + ':' + S.p.trips; }, draw: function (g) { g.fillStyle = '#f2f2ee'; g.fillRect(0, 0, 512, 300); g.fillStyle = '#1f3b57'; g.fillRect(0, 0, 512, 64); ctext(g, 'DAYS WITHOUT A REACTOR TRIP', 256, 33, 30, '#fff', 'center', 490); g.fillStyle = '#111'; g.fillRect(146, 84, 220, 130); ctext(g, String(Math.floor(S.daysSince())), 256, 152, 104, '#ff3b2f', 'center', 210); ctext(g, 'SAFETY FIRST · QUESTIONING ATTITUDE', 256, 254, 22, '#1f3b57', 'center', 490); } });
   dw.m.position.set(6.4, 1.9, ZF - 0.05); dw.m.rotation.y = Math.PI; scene.add(dw.m); hit(dw.m, { tip: function () { return 'Days without a reactor trip: ' + Math.floor(S.daysSince()) + '. Trip the reactor and it goes back to 0.'; } });
   /* shift turnover whiteboard on the back wall */
@@ -3017,14 +3027,15 @@ var FULL_SHIFT = { on: false, starts0: 0, shuts0: 0, warned: {}, at: 0,
     if (used >= 13 * 3600 && !W.fail) { W.fail = 1; FULL_SHIFT.on = false; if (!W.done) { S.addLog('FULL SHIFT: overrun exceeded, oncoming crew has taken over'); setPause(true); S.wasPaused = true; menu('<h1>🕐 Overrun exceeded</h1><p>13 hours in and the oncoming crew has taken the keys. ' + (FULL_SHIFT.started() ? 'The reactor was started but not shut down' : 'The reactor was never started') + ' in time.</p><div class="cpnbtns"><button class="cpnb" data-a="again">🕛 New full shift</button><button class="cpnb2" data-a="menu">Main menu</button></div>', function (a) { if (a === 'again') { FULL_SHIFT.start(); begin(); } if (a === 'menu') startMenu(); }); } } }
 };
 /* ================================================================ Shift Day: Saturdays only ================================================================
-   A full day shift, 08:00 to 18:00 on the station clock (about an hour at x5). Take the night shift's handover, then run Unit 1 through
+   A full 10-hour shift on its own shift clock (about an hour at x5; the wall clock shows real time). Take the night shift's handover, then run Unit 1 through
    a real-style day: the morning pick-up, planned work, a surprise fault, lunch cover, the solar dip, the teatime peak and the half-time
    kettle surge. You're paid for it in pounds: basic wage plus bonuses, minus deductions for trips and missed NESO instructions.
-   Then hand over to nights, get your payslip, and keep a Saturday streak going. Overtime to 22:00 pays time-and-a-half. */
+   Then hand over to nights, get your payslip, and keep a Saturday streak going. Two hours of overtime pay time-and-a-half. */
 var SDAY = { on: false, ot: false, hud: null, acc: 0, st: null, WAGE: 32,
-  EV: [[8.5, 'am', 'NESO morning pick-up'], [10, 'work', 'Planned work'], [11.25, 'fault', 'Something will go wrong…'], [12.25, 'lunch', 'Lunch cover'], [13, 'pm', 'NESO solar dip'], [14.5, 'order', 'Supervisor order'], [15.75, 'tea', 'NESO teatime peak'], [17.25, 'tv', 'Half-time TV pickup'], [17.75, 'hand', 'Hand over to nights'], [18, 'end', 'End of shift']],
-  NOTES: ['Quiet night. Unit 1 ran at 70% overnight because demand was low.', 'Charging pump B has a work order open for an oil weep: the swap is planned for 10:00.', 'Weather: sunny this afternoon, so expect NESO to ask for a cut when solar peaks.', 'England are playing tonight: watch for the half-time kettle surge around quarter past five.', 'Main feed pump A was noisy at 03:00. Field operators are keeping an eye on it.', 'Instrument air compressor B was swapped at 05:30, all normal since.', 'Chemistry took a boron sample at 06:00: in spec.', 'The turbine hall crane is out of service. No lifts today.', 'A contractor team is in the switchyard this morning. Expect radio traffic.'],
-  hr: function () { return (((D.clock % 86400) + 86400) % 86400) / 3600; },
+  EV: [[8.5, 'am', 'NESO: raise output'], [10, 'work', 'Planned work'], [11.25, 'fault', 'Something will go wrong…'], [12.25, 'lunch', 'Break cover'], [13, 'pm', 'NESO: cut output'], [14.5, 'order', 'Supervisor order'], [15.75, 'tea', 'NESO: big ramp up'], [17.25, 'tv', 'TV pickup'], [17.75, 'hand', 'Hand over to the next shift'], [18, 'end', 'End of shift']],
+  NOTES: ['Quiet shift. Unit 1 has been at 70% because demand was low.', 'Charging pump B has a work order open for an oil weep: the swap is planned for this shift.', 'Weather: sunny this afternoon, so expect NESO to ask for a cut when solar peaks.', 'England are playing tonight: watch for the half-time kettle surge late in the shift.', 'Main feed pump A was noisy at 03:00. Field operators are keeping an eye on it.', 'Instrument air compressor B was swapped at 05:30, all normal since.', 'Chemistry took a boron sample at 06:00: in spec.', 'The turbine hall crane is out of service. No lifts today.', 'A contractor team is in the switchyard this morning. Expect radio traffic.'],
+  /* shift hours: 8 + time on shift, running at twice plant speed, so a 10-hour shift is 5 plant hours (an hour at x5) */
+  hr: function () { var st = SDAY.st; return 8 + (S.p && st ? (S.p.t - (st.t0 || 0)) * 2 / 3600 : 0); },
   hm: function (h) { var m = Math.round(h * 60); return String(Math.floor(m / 60) % 24).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0'); },
   key: function (t) { var d = new Date(t || Date.now()); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); },
   isSat: function () { return new Date().getDay() === 6; }, daysTo: function () { return (6 - new Date().getDay() + 7) % 7; },
@@ -3034,26 +3045,26 @@ var SDAY = { on: false, ot: false, hud: null, acc: 0, st: null, WAGE: 32,
     return SDAY.isSat() ? '<button class="cpnb cpnsday" data-a="sday">🏭 SHIFT DAY · today only' + sub + '</button>' : '<button class="cpnb2" data-a="sdayno" style="opacity:.75">🔒 Shift Day · Saturdays (in ' + SDAY.daysTo() + ' day' + (SDAY.daysTo() === 1 ? '' : 's') + ')' + sub + '</button>'; },
   tot: function () { var P = SDAY.st.pay, t = 0; for (var k in P) t += P[k]; return t; },
   start: function () { atPowerStart(); var p = atPowerPlant(Math.round(MWE * 0.7 / 10) * 10); S.p = p; for (var i = 0; i < 8; i++) niTick(p, 0.2); derive(0.05); ANNC.init(); ANNC.list = []; S.log = []; DBF.snaps = []; DBF.tripT = null;
-    S.clock0 = 8 * 3600; D.clock = S.clock0; SDAY.on = true; SDAY.ot = false;
-    SDAY.st = { done: {}, pay: { wage: 0, gen: 0, neso: 0, orders: 0, calls: 0, faults: 0, hand: 0, pen: 0 }, mwh: 0, trips0: S.st.trips, nT: 0, fault: null, nF: 0, nN: 0, nNok: 0, fh: 11 + Math.random() * 0.9, resetAt: 0, banked: 0, counted: false, notes: [] };
+    SDAY.on = true; SDAY.ot = false;
+    SDAY.st = { done: {}, pay: { wage: 0, gen: 0, neso: 0, orders: 0, calls: 0, faults: 0, hand: 0, pen: 0 }, mwh: 0, trips0: S.st.trips, nT: 0, fault: null, nF: 0, nN: 0, nNok: 0, fh: 11 + Math.random() * 0.9, resetAt: 0, banked: 0, counted: false, notes: [], t0: p.t };
     var N = SDAY.NOTES.slice(); for (var j = 0; j < 3; j++) SDAY.st.notes.push(N.splice(Math.floor(Math.random() * N.length), 1)[0]);
-    S.addLog('SHIFT DAY: day shift 08:00 to 18:00, Unit 1 at ' + Math.round(p.x.tb.mw) + ' MW'); setTS(5); save(); SDAY.brief(); },
+    S.addLog('SHIFT DAY: 10-hour shift, Unit 1 at ' + Math.round(p.x.tb.mw) + ' MW'); setTS(5); save(); SDAY.brief(); },
   brief: function () { var st = SDAY.st, r = SDAY.rec(); setPause(true); S.wasPaused = true;
-    menu('<h1>🏭 Shift Day: Saturday day shift</h1><p class="cpnsub">08:00 → 18:00 on the station clock · about an hour at ×5 (press T to go faster in quiet spells)</p>' +
-      '<h2>📋 Handover from nights</h2><p>“Unit 1 at <b>' + Math.round(S.p.x.tb.mw) + ' MW</b>, rods in AUTO, no faults on the plant.”</p><ul>' + st.notes.map(function (n) { return '<li>' + esc(n) + '</li>'; }).join('') + '</ul>' +
-      '<h2>🗓 Today’s programme</h2><ul>' + SDAY.EV.map(function (e) { return '<li><b>' + SDAY.hm(e[1] === 'fault' ? 11 : e[0]) + (e[1] === 'fault' ? '-ish' : '') + '</b> · ' + esc(e[2]) + '</li>'; }).join('') + '</ul>' +
+    menu('<h1>🏭 Shift Day: Saturday shift</h1><p class="cpnsub">A 10-hour shift on the shift clock · about an hour at ×5 (press T to go faster in quiet spells) · the wall clock and daylight stay real</p>' +
+      '<h2>📋 Handover from the last shift</h2><p>“Unit 1 at <b>' + Math.round(S.p.x.tb.mw) + ' MW</b>, rods in AUTO, no faults on the plant.”</p><ul>' + st.notes.map(function (n) { return '<li>' + esc(n) + '</li>'; }).join('') + '</ul>' +
+      '<h2>🗓 Today’s programme</h2><ul>' + SDAY.EV.map(function (e) { return '<li><b>' + SDAY.hm((e[1] === 'fault' ? 11 : e[0]) - 8) + (e[1] === 'fault' ? '-ish' : '') + '</b> in · ' + esc(e[2]) + '</li>'; }).join('') + '</ul>' +
       '<h2>💷 Pay</h2><p>Basic £' + SDAY.WAGE + '/hour. Bonuses: £1 per 50 MWh sent out, up to £60 per NESO instruction (accuracy-based), £25 per order, £5 per good phone call, £90 for riding out the fault, £40 for a clear handover. Deductions: <b>−£150 per reactor trip</b>, −£40 for a missed NESO instruction. The supervisor will cover lunch (H) and handle the phone, load changes and orders, but you only get half the bonus for her work.</p>' +
       (r.runs ? '<p>🔥 Saturday streak: <b>' + r.streak + '</b> · best payslip £' + Math.round(r.best) + ' · ' + r.gold + ' five-star shift' + (r.gold === 1 ? '' : 's') + '. Every Saturday in a row adds +10% XP (up to +50%).</p>' : '<p>Come back every Saturday: each one in a row adds +10% XP (up to +50%).</p>') +
       '<div class="cpnbtns"><button class="cpnb" data-a="go">✍ Sign the log and take the board</button><button class="cpnb2" data-a="menu">Not now</button></div>',
-      function (a) { if (a === 'go') { begin(); S.addLog('Took the handover from the night shift'); speak('Good morning. You have the board.'); toast('🏭 You have the board. First up: NESO at 08:30.', 'ok'); SDAY.draw(); } if (a === 'menu') { SDAY.on = false; save(); startMenu(); } }); },
+      function (a) { if (a === 'go') { begin(); S.addLog('Took the handover from the night shift'); speak(greet() + '. You have the board.'); toast('🏭 You have the board. First up: NESO in half an hour of shift time.', 'ok'); SDAY.draw(); } if (a === 'menu') { SDAY.on = false; save(); startMenu(); } }); },
   earn: function (k, n, why, quiet) { if (!SDAY.on || !n) return; n = Math.round(n); SDAY.st.pay[k] = (SDAY.st.pay[k] || 0) + n; if (!quiet) toast('💷 ' + (n > 0 ? '+£' + n : '−£' + (-n)) + ' · ' + why, n > 0 ? 'ok' : 'bad'); SDAY.draw(); },
   neso: function (c, ok, q) { if (!SDAY.on) return; if (ok) { SDAY.st.nNok++; SDAY.earn('neso', 60 * q * (c.sup ? 0.5 : 1), 'NESO instruction delivered' + (c.sup ? ' (supervisor)' : '')); } else SDAY.earn('pen', -40, 'NESO non-delivery charge'); },
   busy: function () { var p = S.p; return p.tripped || !p.x.tb.gen || GRIDI.cur || CREW.q || (LIFE.call && !LIFE.call.st); },
   fire: function (id) { var p = S.p, x = p.x; if (LIFE.call && LIFE.call.st) { LIFE.call = null; LIFE.ui(); }
     if (/^(am|pm|tea|tv)$/.test(id)) { if (SDAY.busy()) return false; SDAY.st.nN++;
-      if (id === 'am') GRIDI.ring('bm', { tgt: 0.95 * MWE, why: 'Morning pick-up: the country is waking up and demand is climbing.' });
-      if (id === 'pm') GRIDI.ring(Math.random() < 0.5 ? 'emerg' : 'bm', { tgt: 0.62 * MWE, why: 'Sunny afternoon: solar output is huge and demand is low.' });
-      if (id === 'tea') GRIDI.ring('bm', { tgt: 0.97 * MWE, why: 'Teatime peak: everyone is getting home and cooking.' });
+      if (id === 'am') GRIDI.ring('bm', { tgt: 0.95 * MWE, why: 'Demand is climbing and the wind has dropped off across Scotland.' });
+      if (id === 'pm') GRIDI.ring(Math.random() < 0.5 ? 'emerg' : 'bm', { tgt: 0.62 * MWE, why: 'Wind and solar output are very high and demand is soft.' });
+      if (id === 'tea') GRIDI.ring('bm', { tgt: 0.97 * MWE, why: 'Another station has tripped and the interconnector to France is down.' });
       if (id === 'tv') GRIDI.ring('freq', { cause: 'Half-time in the England match: about two million kettles have just gone on' });
       return true; }
     if (id === 'work' || id === 'order') { if (!S.cfg.crew) return true; if (SDAY.busy()) return false; var os = CREW.orders().filter(function (o) { return id === 'work' ? o.order : !o.order; }); if (os.length) CREW.issue(os[Math.floor(Math.random() * os.length)]); return true; }
@@ -3061,13 +3072,13 @@ var SDAY = { on: false, ot: false, hud: null, acc: 0, st: null, WAGE: 32,
     if (id === 'lunch') { toast('🥪 Supervisor: “Go and grab some lunch, I’ll hold the board.” Press H to hand over: she takes the phone, NESO and any orders.', 'ok'); speak('Lunch time. I can cover the board.'); return true; }
     if (id === 'hand') { SDAY.handover(); return true; }
     if (id === 'end') { SDAY.finish(); return true; } return true; },
-  handover: function () { var p = S.p, x = p.x, st = SDAY.st; if (WATCH.on) WATCH.stop('The night shift is here.'); var mw = Math.round(x.tb.mw / 10) * 10, nf = st.nF, nt = st.nT;
+  handover: function () { var p = S.p, x = p.x, st = SDAY.st; if (WATCH.on) WATCH.stop('The next shift is here.'); var mw = Math.round(x.tb.mw / 10) * 10, nf = st.nF, nt = st.nT;
     var say = function (m, f, t, rods) { return 'Unit 1 at ' + m + ' MW, rods in ' + rods + '. ' + (f ? f + ' fault' + (f > 1 ? 's' : '') + ' today, now cleared' : 'No faults today') + ', ' + (t ? t + ' reactor trip' + (t > 1 ? 's' : '') : 'no trips') + '. ' + st.nNok + ' of ' + st.nN + ' NESO instructions delivered.'; };
     var opts = [[say(mw, nf, nt, p.sel), 1], [say(mw + (mw > 800 ? -200 : 200), nf, nt, p.sel), 0], [say(mw, nf + 1, nt ? 0 : 1, p.sel === 'AUTO' ? 'MANUAL' : 'AUTO'), 0]];
     for (var i = opts.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = opts[i]; opts[i] = opts[j]; opts[j] = t; }
-    setPause(true); S.wasPaused = true; speak('The night shift is here. Give them your handover.');
-    menu('<h1>🌙 Handover to the night shift</h1><p>The night supervisor walks in with a coffee. “Right then, what have I got?” Check the boards and pick the handover that’s actually true.</p><div class="cpnbtns" style="flex-direction:column;align-items:stretch">' + opts.map(function (o, k) { return '<button class="cpnb2" data-a="h" data-v="' + k + '" style="text-align:left">🗣 ' + esc(o[0]) + '</button>'; }).join('') + '</div>',
-      function (a, b) { if (a !== 'h') return; var good = opts[+b.dataset.v][1]; begin(); if (good) { SDAY.earn('hand', 40, 'Clear, accurate handover'); speak('Lovely. I have the board.'); } else { toast('✘ That wasn’t right. The true handover was: ' + opts.filter(function (o) { return o[1]; })[0][0], 'bad'); speak('That is not what the boards say.'); } S.addLog('Handover given to the night shift'); }); },
+    setPause(true); S.wasPaused = true; speak('The next shift is here. Give them your handover.');
+    menu('<h1>🌙 Handover to the next shift</h1><p>The oncoming supervisor walks in with a coffee. “Right then, what have I got?” Check the boards and pick the handover that’s actually true.</p><div class="cpnbtns" style="flex-direction:column;align-items:stretch">' + opts.map(function (o, k) { return '<button class="cpnb2" data-a="h" data-v="' + k + '" style="text-align:left">🗣 ' + esc(o[0]) + '</button>'; }).join('') + '</div>',
+      function (a, b) { if (a !== 'h') return; var good = opts[+b.dataset.v][1]; begin(); if (good) { SDAY.earn('hand', 40, 'Clear, accurate handover'); speak('Lovely. I have the board.'); } else { toast('✘ That wasn’t right. The true handover was: ' + opts.filter(function (o) { return o[1]; })[0][0], 'bad'); speak('That is not what the boards say.'); } S.addLog('Handover given to the oncoming shift'); }); },
   reset: function () { var t = S.p.t, st = SDAY.st; S.p = atPowerPlant(Math.round(MWE * 0.6 / 10) * 10); S.p.t = t; S.p.x.f = {}; S.p.x.fT = {}; for (var i = 0; i < 8; i++) niTick(S.p, 0.2); derive(0.05); ANNC.init(); ANNC.list = []; GRIDI.cancel(); if (st.fault) st.fault.done = true;
     S.addLog('Instructor: Unit 1 recovered to 60% power so the shift can carry on'); toast('🔁 Unit 1 is back on line at 60%. Carry on with the shift.', 'ok'); },
   tick: function (dt, sim) { if (!SDAY.on || !S.p || !SDAY.st) { if (SDAY.hud && !SDAY.hud.hidden) SDAY.hud.hidden = true; return; } var p = S.p, x = p.x, st = SDAY.st, h = SDAY.hr();
@@ -3076,25 +3087,24 @@ var SDAY = { on: false, ot: false, hud: null, acc: 0, st: null, WAGE: 32,
     if (S.st.trips > st.trips0) { st.trips0 = S.st.trips; st.nT++; SDAY.earn('pen', -150, 'Reactor trip: lost generation and an incident report'); st.resetAt = p.t + 20; }
     if (st.resetAt && p.t >= st.resetAt) { st.resetAt = 0; SDAY.reset(); return; }
     var f = st.fault; if (f && !f.done && p.t - f.t >= 300) { f.done = true; var kept = !p.tripped && x.tb.gen; SDAY.earn('faults', kept ? 90 : 30, kept ? 'Fault ridden through, unit kept on line' : 'Fault made safe'); if (x.f) x.f[f.id] = false; if (x.fT) delete x.fT[f.id]; S.addLog('Maintenance: fault repaired (' + f.id + ')'); }
-    if (!SDAY.ot) for (var i = 0; i < SDAY.EV.length; i++) { var e = SDAY.EV[i], id = e[1], at = id === 'fault' ? st.fh : e[0]; if (st.done[id] || h < at) continue; if (h > 23 || h < 7) continue;
-      if (SDAY.fire(id)) st.done[id] = 1; else if (h > at + 0.75) { st.done[id] = 1; S.addLog('Shift Day: ' + e[2] + ' skipped (the unit was busy)'); } if (!SDAY.on) return; break; }
-    else if (h >= 22 || h < 7) { SDAY.finish(); return; }
+    if (!SDAY.ot) for (var i = 0; i < SDAY.EV.length; i++) { var e = SDAY.EV[i], id = e[1], at = id === 'fault' ? st.fh : e[0]; if (st.done[id] || h < at) continue;       if (SDAY.fire(id)) st.done[id] = 1; else if (h > at + 0.75) { st.done[id] = 1; S.addLog('Shift Day: ' + e[2] + ' skipped (the unit was busy)'); } if (!SDAY.on) return; break; }
+    else if (h >= 20) { SDAY.finish(); return; }
     SDAY.acc += dt; if (SDAY.acc >= 0.5) { SDAY.acc = 0; SDAY.draw(); } },
   next: function () { var st = SDAY.st; for (var i = 0; i < SDAY.EV.length; i++) { var e = SDAY.EV[i]; if (!st.done[e[1]]) return [e[1] === 'fault' ? null : e[0], e[2]]; } return null; },
-  draw: function () { if (!SDAY.on || !SDAY.st) return; if (!SDAY.hud) SDAY.hud = h('div', 'cpncrisis sday', null, root); var E = SDAY.hud, nx = SDAY.ot ? [22, 'Overtime ends'] : SDAY.next(); E.hidden = !!S.menu;
-    E.innerHTML = '<b>£' + Math.round(SDAY.tot()).toLocaleString('en-GB') + '</b><span>' + (SDAY.ot ? 'PAY · OT ×1.5' : 'PAY') + '</span><em>' + SDAY.hm(SDAY.hr()) + '</em><span>🏭 SHIFT DAY</span>' + (nx ? '<span style="color:#ffd34a">NEXT ' + (nx[0] ? SDAY.hm(nx[0]) + ' ' : '') + esc(nx[1]).toUpperCase() + '</span>' : ''); },
+  draw: function () { if (!SDAY.on || !SDAY.st) return; if (!SDAY.hud) SDAY.hud = h('div', 'cpncrisis sday', null, root); var E = SDAY.hud, nx = SDAY.ot ? [20, 'Overtime ends'] : SDAY.next(); E.hidden = !!S.menu;
+    E.innerHTML = '<b>£' + Math.round(SDAY.tot()).toLocaleString('en-GB') + '</b><span>' + (SDAY.ot ? 'PAY · OT ×1.5' : 'PAY') + '</span><em>' + SDAY.hm(SDAY.hr() - 8) + '</em><span>OF ' + (SDAY.ot ? '12' : '10') + ':00 · 🏭 SHIFT DAY</span>' + (nx ? '<span style="color:#ffd34a">NEXT ' + (nx[0] ? 'AT ' + SDAY.hm(nx[0] - 8) + ' ' : '') + esc(nx[1]).toUpperCase() + '</span>' : ''); },
   bank: function () { var st = SDAY.st, amt = Math.round(SDAY.tot() - st.banked), r = SDAY.rec(), c = rd(), today = SDAY.key(); st.banked += amt;
     if (!st.counted) { st.counted = true; r.runs++; if (r.lastDay !== today) { r.streak = r.lastDay === SDAY.key(Date.now() - 7 * 864e5) ? r.streak + 1 : 1; r.lastDay = today; } r.bestStreak = Math.max(r.bestStreak, r.streak); }
     r.total += amt; r.best = Math.max(r.best, Math.round(SDAY.tot())); var mult = 1 + 0.1 * Math.min(5, Math.max(0, r.streak - 1)), xp = Math.max(0, Math.round(amt * 4 * mult)); c.sday = r; wr(c); if (xp) CAR.add(xp, 'Shift Day pay' + (mult > 1 ? ' (streak ×' + mult.toFixed(1) + ')' : ''), true); return { amt: amt, xp: xp, mult: mult, r: r }; },
   finish: function () { var st = SDAY.st, ot = SDAY.ot, P = st.pay, bonus = SDAY.tot() - P.wage, stars = bonus >= 420 ? 5 : bonus >= 300 ? 4 : bonus >= 200 ? 3 : bonus >= 100 ? 2 : 1; if (WATCH.on) WATCH.stop(); GRIDI.cancel(); var b = SDAY.bank();
     if (!ot && stars === 5) { var c = rd(); c.sday.gold = (c.sday.gold || 0) + 1; wr(c); b.r.gold = c.sday.gold; } SDAY.ot = false; SDAY.on = false; if (SDAY.hud) SDAY.hud.hidden = true; save(); setPause(true); S.wasPaused = true; AUD.sfx('done');
     var row = function (l, v) { return v ? '<tr><td>' + l + '</td><td style="text-align:right;color:' + (v < 0 ? '#ff7a6b' : '#e8eef4') + '">' + (v < 0 ? '−£' + (-Math.round(v)) : '£' + Math.round(v)) + '</td></tr>' : ''; };
-    menu('<h1>' + (ot ? '⏰ Overtime done' : '🧾 Payslip: Saturday day shift') + '</h1><p style="font-size:30px;margin:4px 0">' + (ot ? '' : '★★★★★'.slice(0, stars) + '<span style="opacity:.25">' + '★★★★★'.slice(stars) + '</span> ') + '<b>£' + Math.round(SDAY.tot()).toLocaleString('en-GB') + '</b></p>' +
+    menu('<h1>' + (ot ? '⏰ Overtime done' : '🧾 Payslip: Saturday shift') + '</h1><p style="font-size:30px;margin:4px 0">' + (ot ? '' : '★★★★★'.slice(0, stars) + '<span style="opacity:.25">' + '★★★★★'.slice(stars) + '</span> ') + '<b>£' + Math.round(SDAY.tot()).toLocaleString('en-GB') + '</b></p>' +
       '<table style="width:100%;max-width:420px;border-collapse:collapse;margin:8px 0">' + row('Basic pay' + (ot ? ' incl. overtime ×1.5' : ' (£' + SDAY.WAGE + '/h)'), P.wage) + row('Generation bonus', P.gen) + row('NESO instructions (' + st.nNok + '/' + st.nN + ')', P.neso) + row('Orders', P.orders) + row('Phone calls', P.calls) + row('Fault handling', P.faults) + row('Handover', P.hand) + row('Deductions (' + st.nT + ' trip' + (st.nT === 1 ? '' : 's') + ')', P.pen) + '</table>' +
       '<p>+' + b.xp.toLocaleString('en-GB') + ' XP' + (b.mult > 1 ? ' (🔥 ' + b.r.streak + '-Saturday streak ×' + b.mult.toFixed(1) + ')' : '') + ' · career Shift Day earnings £' + Math.round(b.r.total).toLocaleString('en-GB') + ' · best £' + Math.round(b.r.best) + '</p>' +
       (ot ? '' : '<p style="color:#9fb3c8">' + (stars >= 5 ? 'Five stars. The station manager wants to know your name.' : stars >= 4 ? 'A very good shift. ' : stars >= 3 ? 'Solid shift. ' : 'A tough day. ') + (stars < 5 ? 'More stars: deliver every NESO instruction accurately, take the orders yourself and don’t trip.' : '') + '</p>') +
-      '<div class="cpnbtns">' + (ot ? '' : '<button class="cpnb" data-a="ot">⏰ Stay for overtime till 22:00 (×1.5)</button>') + '<button class="cpnb2" data-a="dbf">📊 Debrief</button><button class="cpnb2" data-a="menu">Main menu</button></div>',
-      function (a) { if (a === 'ot') { SDAY.on = true; SDAY.ot = true; begin(); toast('⏰ Overtime: time-and-a-half until 22:00. Normal grid traffic is back on.', 'ok'); S.addLog('Stayed on for overtime'); SDAY.draw(); } if (a === 'dbf') DBF.open(); if (a === 'menu') startMenu(); }); }
+      '<div class="cpnbtns">' + (ot ? '' : '<button class="cpnb" data-a="ot">⏰ Stay for 2 hours’ overtime (×1.5)</button>') + '<button class="cpnb2" data-a="dbf">📊 Debrief</button><button class="cpnb2" data-a="menu">Main menu</button></div>',
+      function (a) { if (a === 'ot') { SDAY.on = true; SDAY.ot = true; begin(); toast('⏰ Overtime: 2 more shift hours at time-and-a-half. Normal grid traffic is back on.', 'ok'); S.addLog('Stayed on for overtime'); SDAY.draw(); } if (a === 'dbf') DBF.open(); if (a === 'menu') startMenu(); }); }
 };
 /* ================================================================ fun facts and station life ================================================================ */
 var FACTS = [
@@ -3144,7 +3154,7 @@ function drawReactorWin(g) { var W = 1024, H = 640, p = S.p, pw = clamp(D.pr / 1
   g.fillStyle = '#c9cdd2'; g.font = 'bold 26px ' + FONT; g.textAlign = 'left'; g.fillText('REACTOR HALL · UNIT 1', 30, 600); g.textAlign = 'right'; g.fillStyle = crit ? '#7fd1ff' : '#9fa8b2'; g.fillText(crit ? 'CRITICAL · ' + D.pr.toFixed(D.pr < 10 ? 2 : 0) + ' %' : 'SHUTDOWN', W - 30, 600);
   g.strokeStyle = '#1a1d21'; g.lineWidth = 22; g.strokeRect(0, 0, W, H); g.strokeStyle = 'rgba(255,255,255,.08)'; g.lineWidth = 6; g.beginPath(); g.moveTo(W / 2, 0); g.lineTo(W / 2, H); g.stroke(); }
 var AURORA_IMG = new Image(); AURORA_IMG.src = 'models/aurora.jpg';
-function drawLandscape(g) { if (AURORA_IMG.complete && AURORA_IMG.naturalWidth) { g.drawImage(AURORA_IMG, 0, 0, 1024, 640); return; } var W = 1024, H = 640, t = performance.now() / 1000, hr = ((D.clock || 0) / 3600) % 24, night = clamp(1 - Math.abs(hr - 13) / 7, 0, 1); night = 1 - night; /* 0 at 13:00, 1 at night */
+function drawLandscape(g) { if (AURORA_IMG.complete && AURORA_IMG.naturalWidth) { g.drawImage(AURORA_IMG, 0, 0, 1024, 640); return; } var W = 1024, H = 640, t = performance.now() / 1000, night = 1 - clamp(sunNow().el * 3 + 0.15, 0, 1); /* from the real sun: 0 in daylight, 1 at night */
   var sky = g.createLinearGradient(0, 0, 0, H); sky.addColorStop(0, night > 0.6 ? '#04071a' : night > 0.3 ? '#2a3360' : '#6fb0ff'); sky.addColorStop(0.7, night > 0.6 ? '#0b1a33' : night > 0.3 ? '#d97a4a' : '#bcdcff'); sky.addColorStop(1, night > 0.6 ? '#101c2e' : '#e9f2ff'); g.fillStyle = sky; g.fillRect(0, 0, W, H);
   if (night > 0.4) { g.fillStyle = 'rgba(255,255,255,' + (night - 0.4) + ')'; for (var i = 0; i < 90; i++) { var sx = (i * 137.5) % W, sy = (i * 71.3) % 330; g.fillRect(sx, sy, i % 3 ? 1.5 : 2.5, i % 3 ? 1.5 : 2.5); }
     g.globalCompositeOperation = 'lighter'; for (var b = 0; b < 4; b++) { g.beginPath(); for (var x = 0; x <= W; x += 16) { var y = 120 + b * 45 + Math.sin(x * 0.006 + t * 0.35 + b) * 55 + Math.sin(x * 0.021 - t * 0.5 + b * 2) * 22; if (!x) g.moveTo(x, y); else g.lineTo(x, y); }
@@ -3331,7 +3341,7 @@ function adminPower(pct) { var cam = { x: CAM.x, y: CAM.y, z: CAM.z, yaw: CAM.ya
   if (pct <= 0) { freshState(true, true); } else { freshState(true, true); S.p = atPowerPlant(Math.round(MWE * pct / 100)); MS.free = true; MS.complete = true; MS.ascDone = true; MS.asc = ASC.map(function () { return true; }); MS.pre = PRE.map(function () { return true; }); MS.done = STEPS.map(function () { return true; }); for (var i = 0; i < 8; i++) niTick(S.p, 0.2); derive(0.05); }
   ANNC.init(); ANNC.list = []; ANN.forEach(function (t) { t.st = 'off'; t.was = false; t.chg = 0; }); ANNC.horn = false; Object.assign(CAM, cam); ADMIN.used = true;
   S.addLog('Admin: plant set to ' + (pct <= 0 ? 'hot standby (0%)' : pct + '% power, ' + Math.round(S.p.x.tb.mw) + ' MW, rods in AUTO')); HUD.dirty = true; }
-function adminTime(h) { var p = S.p, t = p ? p.t : 0; S.clock0 = ((h * 3600 - t * 2) % 86400 + 86400) % 86400; D.clock = S.clock0 + t * 2; ADMIN.used = true; HUD.dirty = true; }
+function adminTime(h) { S.clockOff = 0; var now = realClock(), cur = ((now % 86400) + 86400) % 86400, off = h * 3600 - cur; if (off > 43200) off -= 86400; if (off < -43200) off += 86400; S.clockOff = off; D.clock = realClock(); ADMIN.used = true; HUD.dirty = true; }
 var TELE = { cr: ['Control room', 0, 0, 6.5, 0], corr: ['Corridor', -16, 0, 0.9, Math.PI / 2], hall: ['Reactor hall', -23.5, 0, -3.5, 2.3], gal: ['Hall gallery (6 m)', -29, 6, -7.3, 3.1416], lobby: ['Turbine lobby', -15.2, 0, 5.5, 3.1416], tb: ['Turbine hall', -15.2, 0, 34, 3.1416], out: ['Outside', 22, 0, 10, -1.5708], bas: ['Condenser basement', 13.5, -5.4, 42, 1.2], edg: ['Diesel generator building', 59, 0, -8, 0.35], aux: ['Auxiliary building', 40, 0, 16, 3.1416], fuel: ['Fuel building', -20.4, 0, -17.7, 1.2], pump: ['Intake pumphouse', 105.2, 0, 4.5, -1.2], sub: ['Substation (outside the fence)', 53, 0, 56, 3.1416] };
 function adminTele(k) { var q = TELE[k]; if (!q) return; if (k === 'lobby' || k === 'tb') { [DOORS.link, DOORS.tb].forEach(function (d) { if (d) { d.userData.tgt = 1; d.userData.open = 1; } }); }
   CAM.tw = null; CAM.x = q[1]; CAM.fl = q[2]; CAM.z = q[3]; CAM.y = q[2] + 1.65; CAM.yaw = q[4]; CAM.pitch = -0.05; CAM.vx = CAM.vz = 0; CAM.view = 'walk'; HUD.dirty = true; }
@@ -5832,9 +5842,9 @@ function addOutside(scene) { var g = new THREE.Group(); g.position.set(RX, 0, RZ
   OUTFOG.c = new THREE.Color(0x9fb4c8); INFOG.c = new THREE.Color(0x1d2126); EXT.duskC = new THREE.Color(1.0, 0.55, 0.3); EXT.hallC = new THREE.Color(0x121a22); EXT.roomC = new THREE.Color(0x1d2126);
   EXT.on = true; }
 EXT.tick = function (dt) { if (!EXT.on) return; EXT.t += dt; roomDustTick(dt, EXT.t); if (EXT.wind) EXT.wind.value = EXT.t;
-  /* day and night from the station clock: sun arc east to west, light colour, sky, stars, moon, aurora */
-  var hr = ((D.clock || 0) / 3600) % 24, ang = (hr - 6) / 12 * Math.PI, el = Math.sin(ang), day = clamp(el * 3 + 0.15, 0, 1), dusk = clamp(1 - Math.abs(el) * 5, 0, 1) * (el > -0.25 ? 1 : 0);
-  var sd = new THREE.Vector3(Math.cos(ang) * 0.9, Math.max(el, -0.3) * 0.8 + 0.02, -0.42).normalize(), sunUp = el > -0.05, LK = PERF.lite ? 0.8 : 1, vis = clamp((el + 0.05) * 7, 0, 1), mk = clamp((-el - 0.05) * 6, 0, 1);
+  /* day and night from the real sun over the station: it rises in the east (+x, through the windows), crosses the south (−z) and sets in the west */
+  var SN = sunNow(), el = SN.el, ce = Math.sqrt(Math.max(0, 1 - el * el)), day = clamp(el * 3 + 0.15, 0, 1), dusk = clamp(1 - Math.abs(el) * 5, 0, 1) * (el > -0.25 ? 1 : 0);
+  var sd = new THREE.Vector3(Math.sin(SN.az) * ce, Math.max(el, -0.3) * 0.8 + 0.02, Math.cos(SN.az) * ce).normalize(), sunUp = el > -0.05, LK = PERF.lite ? 0.8 : 1, vis = clamp((el + 0.05) * 7, 0, 1), mk = clamp((-el - 0.05) * 6, 0, 1);
   var ld = sunUp ? sd : (EXT.moonD || (EXT.moonD = new THREE.Vector3(1520, 920, -1040).normalize()));
   if (EXT.sky) { var U = EXT.sky.material.uniforms; U.day.value = day; U.dusk.value = dusk; U.sd.value.copy(sd); U.t.value = EXT.t; }
   if (EXT.sun) { EXT.sun.position.copy(EXT.sunT.position).addScaledVector(ld, 420);
@@ -6538,8 +6548,9 @@ function startMenu() {
       if (a === 'haz') { HAZ.start(); begin(); return; } if (a === 'refuel') { REFUEL.start(); begin(); return; } if (a === 'epr') { eprMenu(); return; }
       if (a === 'resume') { loadState(sv); begin(); } else if (a === 'crisis') { CRISIS.start(); begin(); } else if (a === 'full') { FULL_SHIFT.start(); begin(); } else if (a === 'new') { freshState(false); begin(); } else if (a === 'free') { freshState(true); begin(); } else if (a === 'shutp') { shutPractice(); begin(); } else if (a === 'ascp') { shutPractice(); MS.shutOn = false; MS.practice = false; startAsc(); begin(); } else if (a === 'atp') { atPowerStart(); begin(); } else if (a === 'saves') saveMenu(); else if (a === 'learn') learnMenu(); else if (a === 'career') careerMenu(); if (a === 'saves') saveMenu(); if (a === 'exam') EXAM.start(); else if (a === 'exit') close(); });
 }
+function greet() { var hr = new Date().getHours(); return hr < 12 ? 'Good morning' : hr < 18 ? 'Good afternoon' : 'Good evening'; }
 function begin() { closeMenu(true); S.wasPaused = false; setPause(false); AUD.init(); HUD.dirty = true; HUD.el.ms.dataset.cur = '';
-  if (!S.welcomed) { S.welcomed = true; setTimeout(function () { speak(MS.practice ? 'Unit 1 is at the point of adding heat. Begin the reactor shutdown.' : MS.free ? 'Free play. Unit 1 is at hot standby.' : 'Good morning. Unit 1 is at hot standby. Begin the pre-startup checks.'); }, 600); } }
+  if (!S.welcomed) { S.welcomed = true; setTimeout(function () { speak(MS.practice ? 'Unit 1 is at the point of adding heat. Begin the reactor shutdown.' : MS.free ? 'Free play. Unit 1 is at hot standby.' : greet() + '. Unit 1 is at hot standby. Begin the pre-startup checks.'); }, 600); } }
 function learnMenu() {
   menu('<h1>📘 How a PWR works</h1>' +
     '<p><b>Fission and neutrons.</b> Uranium-235 splits when it absorbs a slow neutron, releasing heat and 2–3 new neutrons. If on average exactly one of those causes another fission, the chain reaction is steady: the reactor is <b>critical</b> (k<sub>eff</sub> = 1). Less than one: subcritical, power dies away. More than one: supercritical, power rises.</p>' +
