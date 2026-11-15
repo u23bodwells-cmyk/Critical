@@ -1,4 +1,8 @@
-r(--text)')+'" stroke="var(--text)" stroke-width="2" stroke-linejoin="round"/></g>'+
+4" fill="none" stroke="var(--coral)" stroke-width="2"/><text x="242" y="26" class="dl">heat exchanger</text>';
+  g+='<text x="230" y="200" class="dl s">bypass</text><text x="356" y="200" class="dl s">drain</text>';
+  g+='<g transform="translate(126 118)"><circle r="15" fill="'+(running?'var(--accent-bg)':'var(--panel)')+'" stroke="var(--text)" stroke-width="2"/><path d="M-5 -8L9 0L-5 8Z" fill="var(--text)"/></g><text x="126" y="148" class="dl">pump</text>';
+  for(var k in POS){var p=POS[k],open=V[k];
+   g+='<g class="lu" data-v="'+k+'" tabindex="0" role="button" aria-label="Valve '+k.toUpperCase()+', '+(open?'open':'shut')+'" style="cursor:pointer" transform="translate('+p[0]+' '+p[1]+')'+(p[2]?' rotate(90)':'')+'"><rect x="-16" y="-14" width="32" height="28" fill="transparent"/><path d="M-11 -8L11 8V-8L-11 8Z" fill="'+(open?'var(--panel)':'var(--text)')+'" stroke="var(--text)" stroke-width="2" stroke-linejoin="round"/></g>'+
     '<text x="'+(p[0]+(p[2]?18:0))+'" y="'+(p[1]+(p[2]?4:-14))+'" class="dl" style="font-weight:700'+(p[2]?';text-anchor:start':'')+'">'+k.toUpperCase()+'</text>';}
   wrap.innerHTML=tSvg('0 0 424 210',g);
   if(running)['a','top','bot','out','dr'].forEach(function(s){if(fl[s]){var e=wrap.querySelector('[data-s="'+s+'"]');e.setAttribute('stroke',cssv('--accent'));e.style.strokeDasharray='7 6';e.style.animation='flow 1.1s linear infinite'}});
@@ -672,6 +676,4 @@ Q(`Why can't power fall faster than about a −80 s period after a trip?`,[`The 
 QE(`What is ρ = 0.0008 in pcm?`,[`80 pcm`,`8 pcm`,`800 pcm`,`0.8 pcm`],0,`× 100,000.`),
 T(`<h3>Key points</h3><ul><li><b>SUR = 26.06/τ</b> in decades per minute.</li><li>Startups: around 0.3–0.5 DPM; ~1 DPM is a typical limit.</li><li>After a trip: about −1/3 DPM (−80 s period), set by the longest-lived precursors.</li></ul>`)]),
 LH('m3-3-3','Prompt jump and prompt drop',10,'The instant step in power when reactivity changes suddenly, before the period takes over.',[
-RM(`<ul><li>Prompt neutrons appear instantly; delayed neutrons arrive over seconds to a minute.</li><li>After a trip, power drops to a few percent in seconds, then falls on a −80 s period.</li></ul>`),
-T(`<h3>The instant response</h3><p>When reactivity changes suddenly, the <b>prompt</b> neutron population adjusts almost instantly (in milliseconds), but the delayed neutrons haven't caught up yet. Power takes a quick step, then follows the period.</p><div class="eq">P₁ ÷ P₀ = β ÷ (β − ρ)</div>${KY([['P₀','power just before the change',''],['P₁','power just after the prompt step',''],['β','delayed neutron fraction',''],['ρ','reactivity added (decimal, + or −)','']])}`),
-W('stepCalc',{steps:['Add ρ = +100 pcm (0.001) with β = 0.0065. What is the prompt jump?','P₁/P₀ = β ÷ (β − ρ)','= 0.0065 ÷ (0.0065 − 0.001) = 0.0065 ÷ 0.0055','= <b>1.18</b>: power jumps up 18% almost instantly, then
+RM(`<ul><li>Prompt neutrons appear inst

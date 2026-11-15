@@ -1,4 +1,9 @@
-
+r,n:BASEXP[tier],base:1});return out}
+ function grant(res){var l=Lget(),c=Cget(),xp=0;res.forEach(function(o){if(o.k==='item')l.items[o.id]=1;else if(o.k==='xp'||o.k==='dup')xp+=o.n;else if(o.k==='freeze'){S.freeze=Math.min(2,(S.freeze||0)+1);try{save()}catch(e){}}else if(o.k==='boost'){c.boost=(c.boost||0)+1}});
+  wrk(LK,l);try{SYNC.mark()}catch(e){}wrk(CK,c);if(xp){inCrate=true;try{addXP(xp)}catch(e){}inCrate=false}ui()}
+ function resCard(o,i){var it=o.id?item(o.id):null,R=RAR[o.r]||RAR.C,ic,nm,sub;
+  if(o.k==='item'||o.k==='dup'){ic=icOf(it);nm=it.ty==='fact'?'Fact card':it.n;sub=o.k==='dup'?'Already yours: +'+o.n+' XP instead':it.ty==='fact'?esc(it.x):it.ty==='skin'?'Reactor glow skin':it.ty==='fx'?'Answer effect: plays every time you get one right':'Title'}
+  else if(o.k==='xp'){ic='✨';nm='+'+o.n+' XP';sub=o.base?'Crate bonus':'Bonus XP'}
   else if(o.k==='freeze'){ic='❄️';nm='Streak freeze';sub='Saves your streak if you miss a day'}
   else{ic='⚡';nm='2× XP boost';sub='Use it in Rewards for 20 minutes of double XP'}
   return '<div class="mloot" style="--rc:'+R.c+';animation-delay:'+(0.15+i*0.18)+'s"><div class="mrar">'+R.n+'</div><div class="mic">'+ic+'</div><b>'+esc(nm)+'</b><p>'+sub+'</p>'+(o.k==='item'&&(it.ty==='skin'||it.ty==='title'||it.ty==='fx')?'<button type="button" class="xbtn alt" data-eq="'+o.id+'">Use it</button>':'')+'</div>'}
@@ -109,6 +114,7 @@
  function chip(){var old=document.getElementById('motQs');if(old)old.remove();if(!qs||!popen())return;var c=document.createElement('div');c.id='motQs';c.className='mqs';$('player').appendChild(c);
   var iv=setInterval(function(){if(!popen()||!document.body.contains(c)){clearInterval(iv);c.remove();qs=null;return}var left=120000-(Date.now()-qs.t0);if(left>0){var s=Math.ceil(left/1000);c.textContent='⏱️ '+Math.floor(s/60)+':'+String(s%60).padStart(2,'0');return}
    clearInterval(iv);c.className='mqs done';c.innerHTML='<b>2 minutes done. You started, and that\'s the hardest bit.</b><span><button type="button" class="xbtn" data-a="k">Keep going</button><button type="button" class="xbtn alt" data-a="s">Stop here</button></span>';try{sfx('quest')}catch(e){}
+   try{if(typeof PLAN!=='undefined'&&PLAN.markQuick&&PLAN.markQuick())toast('⏱️','Today counts','Your 2-minute start keeps your plan streak going','quest')}catch(e){}
    c.querySelector('[data-a=k]').onclick=function(){c.remove();qs=null};c.querySelector('[data-a=s]').onclick=function(){c.remove();qs=null;try{closePlayer()}catch(e){}}},500)}
 
  /* ---------- season pass ---------- */

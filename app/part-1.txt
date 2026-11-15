@@ -1080,7 +1080,7 @@ var STUDY=(function(){
  function per(){var p={};st.sessions.forEach(function(s){p[s.d]=(p[s.d]||0)+s.m});return p}
  function todayMin(){return per()[ymd()]||0}
  function didToday(){if(todayMin()>0||st.run)return true;try{var t=ymd();if(S.hist&&S.hist[t]>0)return true;if(S.daily&&S.daily.d===t&&S.daily.xp>0)return true;
-  var wi=(new Date().getDay()+6)%7;if(S.plan&&S.plan.t)for(var k in S.plan.t)if(S.plan.t[k]&&k.indexOf(wi+'-')===0)return true}catch(_){}return false}
+  var wi=(new Date().getDay()+6)%7;if(S.plan&&S.plan.qs&&S.plan.qs[wi])return true;if(S.plan&&S.plan.t)for(var k in S.plan.t)if(S.plan.t[k]&&k.indexOf(wi+'-')===0)return true}catch(_){}return false}
  function streak(){var p=per(),d=new Date(),n=0;if(!p[ymd(d)])d.setDate(d.getDate()-1);while(p[ymd(d)]){n++;d.setDate(d.getDate()-1)}return n}
  function weekMin(){var mon=new Date();mon.setHours(0,0,0,0);mon.setDate(mon.getDate()-((mon.getDay()+6)%7));var k=ymd(mon);return st.sessions.filter(function(s){return s.d>=k}).reduce(function(a,s){return a+s.m},0)}
  function fmtM(m){return m>=60?Math.floor(m/60)+' h '+(m%60?m%60+' min':''):m+' min'}
@@ -1248,15 +1248,15 @@ var PLAN=(function(){
  function allMins(i){return DAY(i).reduce(function(s,b){return s+b[1]},0)}
  var TOTAL=D.reduce(function(s,_,i){return s+mins(i)},0);
  function wk(){var d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-((d.getDay()+6)%7));return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()}
- function PS(){if(!S.plan||typeof S.plan!=='object')S.plan={};var p=S.plan;if(p.wk!==wk()){p.wk=wk();p.t={};delete p.monClr;delete p.carry;delete p.fe;delete p.ext}if(!p.t||typeof p.t!=='object')p.t={};if(p.auto==null)p.auto=1;if(typeof p.topics!=='string')p.topics='';return p}
+ function PS(){if(!S.plan||typeof S.plan!=='object')S.plan={};var p=S.plan;if(p.wk!==wk()){p.wk=wk();p.t={};delete p.monClr;delete p.carry;delete p.fe;delete p.ext;delete p.qs}if(!p.t||typeof p.t!=='object')p.t={};if(p.auto==null)p.auto=1;if(typeof p.topics!=='string')p.topics='';return p}
  function todayI(){return (new Date().getDay()+6)%7}
  function isDone(i,j){return !!PS().t[i+'-'+j]}
  function feOn(i){var f=PS().fe;return !!(f&&f[i==null?todayI():i])}
  function allTicked(i){return DAY(i).every(function(b,j){return b[5]==='bonus'||isDone(i,j)})}
  function dayDone(i){return feOn(i)||allTicked(i)}
+ /* a finished 2-minute "Just start" counts as doing the day (shown yellow, not green) */
+ function qsOn(i){var q=PS().qs;return !!(q&&q[i==null?todayI():i])}
+ function markQuick(){var p=PS(),t=todayI();if(!p.qs||typeof p.qs!=='object')p.qs={};if(p.qs[t])return false;p.qs[t]=1;save();try{paint()}catch(e){}try{paintPill()}catch(e){}loop();return true}
  var RK='critical_plan_run',ban=null,banT=null,warned={},upKey=null;
  function ymdN(){var d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()}
- function runGet(){try{var r=JSON.parse(localStorage.getItem(RK)||'null');if(r&&r.d!==ymdN()){localStorage.removeItem(RK);return null}return r}catch(_){return null}}
- function runSet(r){try{localStorage.setItem(RK,JSON.stringify(r))}catch(_){}}
- function runClear(){try{localStorage.removeItem(RK)}catch(_){}}
- function firstLeft(day,after){if(feOn(day))return -1;for(var j=0;j<DAY(day).length;j++){if(after!=null&&j<=after)continue;if(!isDone(day,j))return j}if(after!=null)for(j=0;j<after;j++)if(!isDone(day,j))return j;return 
+ function runGet(){try{var r=JSON.parse(localStorage.getItem(RK)||'null');if(r&&r.d!==ymdN()){localStorage.removeIte

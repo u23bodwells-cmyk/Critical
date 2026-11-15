@@ -3156,7 +3156,7 @@ var STUDY=(function(){
  function per(){var p={};st.sessions.forEach(function(s){p[s.d]=(p[s.d]||0)+s.m});return p}
  function todayMin(){return per()[ymd()]||0}
  function didToday(){if(todayMin()>0||st.run)return true;try{var t=ymd();if(S.hist&&S.hist[t]>0)return true;if(S.daily&&S.daily.d===t&&S.daily.xp>0)return true;
-  var wi=(new Date().getDay()+6)%7;if(S.plan&&S.plan.t)for(var k in S.plan.t)if(S.plan.t[k]&&k.indexOf(wi+'-')===0)return true}catch(_){}return false}
+  var wi=(new Date().getDay()+6)%7;if(S.plan&&S.plan.qs&&S.plan.qs[wi])return true;if(S.plan&&S.plan.t)for(var k in S.plan.t)if(S.plan.t[k]&&k.indexOf(wi+'-')===0)return true}catch(_){}return false}
  function streak(){var p=per(),d=new Date(),n=0;if(!p[ymd(d)])d.setDate(d.getDate()-1);while(p[ymd(d)]){n++;d.setDate(d.getDate()-1)}return n}
  function weekMin(){var mon=new Date();mon.setHours(0,0,0,0);mon.setDate(mon.getDate()-((mon.getDay()+6)%7));var k=ymd(mon);return st.sessions.filter(function(s){return s.d>=k}).reduce(function(a,s){return a+s.m},0)}
  function fmtM(m){return m>=60?Math.floor(m/60)+' h '+(m%60?m%60+' min':''):m+' min'}
@@ -3324,12 +3324,15 @@ var PLAN=(function(){
  function allMins(i){return DAY(i).reduce(function(s,b){return s+b[1]},0)}
  var TOTAL=D.reduce(function(s,_,i){return s+mins(i)},0);
  function wk(){var d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-((d.getDay()+6)%7));return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()}
- function PS(){if(!S.plan||typeof S.plan!=='object')S.plan={};var p=S.plan;if(p.wk!==wk()){p.wk=wk();p.t={};delete p.monClr;delete p.carry;delete p.fe;delete p.ext}if(!p.t||typeof p.t!=='object')p.t={};if(p.auto==null)p.auto=1;if(typeof p.topics!=='string')p.topics='';return p}
+ function PS(){if(!S.plan||typeof S.plan!=='object')S.plan={};var p=S.plan;if(p.wk!==wk()){p.wk=wk();p.t={};delete p.monClr;delete p.carry;delete p.fe;delete p.ext;delete p.qs}if(!p.t||typeof p.t!=='object')p.t={};if(p.auto==null)p.auto=1;if(typeof p.topics!=='string')p.topics='';return p}
  function todayI(){return (new Date().getDay()+6)%7}
  function isDone(i,j){return !!PS().t[i+'-'+j]}
  function feOn(i){var f=PS().fe;return !!(f&&f[i==null?todayI():i])}
  function allTicked(i){return DAY(i).every(function(b,j){return b[5]==='bonus'||isDone(i,j)})}
  function dayDone(i){return feOn(i)||allTicked(i)}
+ /* a finished 2-minute "Just start" counts as doing the day (shown yellow, not green) */
+ function qsOn(i){var q=PS().qs;return !!(q&&q[i==null?todayI():i])}
+ function markQuick(){var p=PS(),t=todayI();if(!p.qs||typeof p.qs!=='object')p.qs={};if(p.qs[t])return false;p.qs[t]=1;save();try{paint()}catch(e){}try{paintPill()}catch(e){}loop();return true}
  var RK='critical_plan_run',ban=null,banT=null,warned={},upKey=null;
  function ymdN(){var d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()}
  function runGet(){try{var r=JSON.parse(localStorage.getItem(RK)||'null');if(r&&r.d!==ymdN()){localStorage.removeItem(RK);return null}return r}catch(_){return null}}
@@ -3350,6 +3353,7 @@ var PLAN=(function(){
  '.pldays{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}.pldays button{font:inherit;font-size:13px;font-weight:700;border:2px solid var(--line);background:var(--bg);color:var(--text);border-radius:10px;padding:8px 0 10px;cursor:pointer;position:relative;min-width:0}'+
  '.pldays button.on{border-color:var(--accent);background:var(--accent-bg);color:var(--accent-text)}.pldays button.td::after{content:"";position:absolute;left:50%;bottom:3px;width:14px;height:3px;margin-left:-7px;border-radius:2px;background:var(--accent)}'+
  '.pldays button.full::before{content:"✓";position:absolute;top:-7px;right:-5px;width:16px;height:16px;border-radius:50%;background:var(--good-line);color:#fff;font-size:10px;line-height:16px;text-align:center}'+
+ '.pldays button.quick::before{content:"✓";position:absolute;top:-7px;right:-5px;width:16px;height:16px;border-radius:50%;background:#f5c542;color:#3a2600;font-size:10px;line-height:16px;text-align:center}'+
  '.pldh{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}.pldh b{font-size:17px}.pldh span{font-size:13px;color:var(--muted)}'+
  '.plblks{display:flex;flex-direction:column;gap:8px}.plblk{display:flex;gap:12px;align-items:flex-start;background:var(--bg);border:1.5px solid var(--line);border-radius:14px;padding:12px;transition:background .2s,border-color .2s}.plblk.done{border-color:var(--good-line);background:var(--good-bg)}'+
  '.pltick{flex:none;width:32px;height:32px;border-radius:9px;border:2px solid var(--line);background:var(--panel);color:#fff;font-size:17px;font-weight:800;cursor:pointer;display:grid;place-items:center;padding:0;margin-top:1px}.plblk.done .pltick{border-color:var(--good-line);background:var(--good-line)}'+
@@ -3522,7 +3526,7 @@ var PLAN=(function(){
   $q('.plmain').hidden=view!=='plan';$q('.pldv').hidden=view!=='day';$q('.plhb').hidden=view!=='hab';$q('.plhd b').textContent=view==='day'?'Your school day':view==='hab'?'Your habits':'This week\'s plan';if(view==='day'){paintDay();return}if(view==='hab'){paintHab();return}
   D.forEach(function(_,i){DAY(i).forEach(function(b,j){if(isDone(i,j))m+=b[1]})});
   $q('[data-k=wk]').textContent=m+' / '+TOTAL+' min';$q('[data-k=bar]').style.width=Math.min(100,m/TOTAL*100)+'%';
-  [].forEach.call(days.children,function(b,i){b.className=(i===cur?'on':'')+(i===t?' td':'')+(dayDone(i)?' full':'');b.setAttribute('aria-selected',i===cur)});
+  [].forEach.call(days.children,function(b,i){b.className=(i===cur?'on':'')+(i===t?' td':'')+(dayDone(i)?' full':qsOn(i)?' quick':'');b.title=dayDone(i)?'Plan done':qsOn(i)?'2-minute start done: this day counts':'';b.setAttribute('aria-selected',i===cur)});
   $q('[data-k=dn]').textContent=(cur===t?'Today, ':'')+DAYS[cur];$q('[data-k=dt]').textContent=allMins(cur)+' min · '+(cur<5?(extOn(cur)?'school day, stretched to 45':'school day'):'weekend');
   var L=$q('.plblks');L.innerHTML='';var pn=DAY(cur).some(isFix)||(cur===1&&t===0)?pile():0;
   if(cur===1&&t===0&&!p.monClr&&pn>0){var nt=document.createElement('p');nt.className='plnote plcarry';nt.textContent='If Monday\'s Fix my mistakes isn\'t finished, the first 15 minutes of study here go to it (then a 7-minute Calculus slot).';L.appendChild(nt)}
@@ -3675,7 +3679,7 @@ var PLAN=(function(){
  if(location.hash==='#hwdone'){try{history.replaceState(null,'',location.pathname+location.search)}catch(_){}setTimeout(function(){try{hwDone()}catch(_){}},700)}
  if(location.hash==='#early'){try{history.replaceState(null,'',location.pathname+location.search)}catch(_){}setTimeout(function(){try{finishEarly()}catch(_){}},700)}
  if(location.hash==='#home'){try{history.replaceState(null,'',location.pathname+location.search)}catch(_){}setTimeout(function(){try{homeAuto();open('day')}catch(_){}},400)}
- return {wkKey:wk,wkMins:function(){var m=0;D.forEach(function(_,i){DAY(i).forEach(function(b,j){if(isDone(i,j))m+=b[1]})});return m},schoolMins:function(){var m=0;for(var i=0;i<5;i++)m+=mins(i);return m},TOTAL:TOTAL,dayMins:function(){return mins(todayI())},fullInfo:function(){var t=todayI(),full=allTicked(t),h=hwGet(),ks=h&&h.alloc?Object.keys(h.alloc):[],hf=ks.length>0&&ks.every(function(j){return isDone(t,+j)});return {t:t,full:full||hf,mins:full?DAY(t).reduce(function(a,b,j){return a+(isDone(t,j)?b[1]:0)},0):hf?ks.reduce(function(a,j){return a+h.alloc[j]},0):0,early:feOn(t)}},early:finishEarly,afterLesson:afterLesson,feOn:feOn,undoEarly:undoEarly,hideBan:hideBan,isDone:isDone,next:function(){var t=todayI(),j=firstLeft(t);return j<0?null:DAY(t)[j]},leftMins:function(){return leftMins(todayI())},open:open,close:close,paint:paint,paintPill:paintPill,start:startRun,stop:stopRun,loop:loop,running:function(){return !!runGet()},todayLeft:function(){return firstLeft(todayI())>=0},D:D,DAY:DAY,pile:pile,TUE_FIX:TUE_FIX,rows:rows,nowRow:nowRow,sched:sched,home:homeGet,habits:HS,streak:streak,hw:hwGet,hwStart:startHw,hwDone:hwDone,focusStatus:focusStatus,focus:function(){return focusOk}};
+ return {wkKey:wk,wkMins:function(){var m=0;D.forEach(function(_,i){DAY(i).forEach(function(b,j){if(isDone(i,j))m+=b[1]})});return m},schoolMins:function(){var m=0;for(var i=0;i<5;i++)m+=mins(i);return m},TOTAL:TOTAL,dayMins:function(){return mins(todayI())},fullInfo:function(){var t=todayI(),full=allTicked(t),h=hwGet(),ks=h&&h.alloc?Object.keys(h.alloc):[],hf=ks.length>0&&ks.every(function(j){return isDone(t,+j)});return {t:t,full:full||hf,mins:full?DAY(t).reduce(function(a,b,j){return a+(isDone(t,j)?b[1]:0)},0):hf?ks.reduce(function(a,j){return a+h.alloc[j]},0):0,early:feOn(t),quick:qsOn(t)}},early:finishEarly,qsOn:qsOn,markQuick:markQuick,afterLesson:afterLesson,feOn:feOn,undoEarly:undoEarly,hideBan:hideBan,isDone:isDone,next:function(){var t=todayI(),j=firstLeft(t);return j<0?null:DAY(t)[j]},leftMins:function(){return leftMins(todayI())},open:open,close:close,paint:paint,paintPill:paintPill,start:startRun,stop:stopRun,loop:loop,running:function(){return !!runGet()},todayLeft:function(){return firstLeft(todayI())>=0},D:D,DAY:DAY,pile:pile,TUE_FIX:TUE_FIX,rows:rows,nowRow:nowRow,sched:sched,home:homeGet,habits:HS,streak:streak,hw:hwGet,hwStart:startHw,hwDone:hwDone,focusStatus:focusStatus,focus:function(){return focusOk}};
 })();
 try{window.PLAN=PLAN}catch(_){}
 /* ===== just one question: a tiny way into a study session ===== */
@@ -3739,6 +3743,7 @@ var REW=(function(){
  function planTick(){flush();if(typeof PLAN==='undefined'||!PLAN.fullInfo)return;var f=PLAN.fullInfo(),k=ymdL(),r=R(),ch=false;if(!S.pdays||typeof S.pdays!=='object')S.pdays={};var cur=S.pdays[k];
   if(f.full){if(cur!=='f'){S.pdays[k]='f';ch=true}if(!r.bonus[k]){var b=Math.max(20,f.mins);r.bonus[k]=b;save();addXP(b);note('Whole plan done: +'+b+' bonus XP','For doing all of today\'s plan')}}
   else if(f.early){if(!cur){S.pdays[k]='e';ch=true}}
+  else if(f.quick){if(cur!=='q'){S.pdays[k]='q';ch=true}}
   else if(cur){delete S.pdays[k];ch=true}
   var st=streak();if(st>(r.best||0)){r.best=st;ch=true}
   var wk=PLAN.wkKey(),m=PLAN.wkMins();if(r.wk.k!==wk){r.wk={k:wk,got:{}};ch=true}
@@ -3779,7 +3784,7 @@ var REW=(function(){
    '<div class="stat"><p>Whole-plan bonus today</p><b>'+(r.bonus[k]?'+'+r.bonus[k]+' ✓':'+'+Math.max(20,PLAN.dayMins())+' XP')+'</b><span class="small">'+(r.bonus[k]?'Got it today':f.early?'Not with Finished early':'Do all of today\'s plan')+'</span></div>'+
    '<div class="stat"><p>Plan this week</p><b>'+wm+' min</b><span class="small">'+(nx?'Next: '+nx[0]+' min, +'+nx[1]+' XP':'Every milestone done ✓')+'</span></div></div>'+
    '<div class="rwms">'+ms.map(function(x){var ok=cw&&!!r.wk.got[x[0]];return '<span class="'+(ok?'ok':'')+'">'+(ok?'✓ ':'')+x[0]+' min: +'+x[1]+' XP'+(x[2]?' and a streak freeze':'')+'</span>'}).join('')+'</div>'+
-   '<p class="note">Your plan streak is how many school days in a row you\'ve done your plan (Finished early counts too). 3 days in a row gives ×1.1 XP on lessons, 5 days ×1.25 and 10 days ×1.5. Your best is '+(r.best||0)+'.</p>';
+   '<p class="note">Your plan streak is how many school days in a row you\'ve done your plan (Finished early and a finished 2-minute Just start count too). 3 days in a row gives ×1.1 XP on lessons, 5 days ×1.25 and 10 days ×1.5. Your best is '+(r.best||0)+'.</p>';
   h+='<h3>App colour</h3><div class="rwgrid">'+item(['c-purple','accent','purple',['xp',0]],lk.accent==='purple'||!r.unl['c-'+lk.accent])+UNL.filter(function(u){return u[1]==='accent'}).map(function(u){return item(u,lk.accent===u[2]&&!!r.unl[u[0]])}).join('')+'</div>';
   h+='<h3>Lesson celebration</h3><div class="rwgrid">'+item(['fx-confetti','fx','confetti',['xp',0]],lookFx()==='confetti')+UNL.filter(function(u){return u[1]==='fx'}).map(function(u){return item(u,lookFx()===u[2])}).join('')+'</div>';
   h+='<h3>Power station extras</h3><div class="rwgrid">'+UNL.filter(function(u){return u[1]==='ex'}).map(function(u){return item(u,on(u[2]))}).join('')+'</div></div>';
@@ -5188,7 +5193,7 @@ module.exports = QRCode;
 }},C={};function req(n){n=n.replace(/^\.\//,"./").replace(/\.js$/,"");if(n==="./index"||n===".")n="./index";if(C[n])return C[n].exports;var m={exports:{}};C[n]=m;M[n](m,m.exports,req);return m.exports}return req("./index")})();
 function qrSvg(text){var q=new QRMAKER(-1,0);q.addData(text);q.make();var n=q.getModuleCount(),pad=4,sz=n+pad*2,p='';for(var r=0;r<n;r++)for(var c=0;c<n;c++)if(q.isDark(r,c))p+='M'+(c+pad)+' '+(r+pad)+'h1v1h-1z';return '<svg viewBox="0 0 '+sz+' '+sz+'" width="240" height="240" shape-rendering="crispEdges" role="img" aria-label="QR code of your sync key"><rect width="'+sz+'" height="'+sz+'" fill="#fff"/><path d="'+p+'" fill="#000"/></svg>'}
 /* ===== sync: sign in once on each device and progress moves across by itself (a secret gist on your GitHub account) ===== */
-var APPV='206 (15 Nov 2026)';
+var APPV='207 (15 Nov 2026)';
 var SYNC=(function(){
  var KEY='critical_sync',DEV='critical_dev',FILE='critical-sync.json',DESC='Critical progress sync (used by the Critical app)',API='https://api.github.com';
  var css=document.createElement('style');css.textContent='.syncpill .sp-ok{display:none}.syncpill[data-st=on]{color:var(--accent)}.syncpill[data-st=on] .sp-ok{display:inline}.syncpill[data-st=on] .sp-off{display:none}.syncpill[data-st=off] .sp-off{display:none}.syncpill[data-st=err]{color:var(--amber)}.syncpill[data-st=busy] svg{animation:rwtw 1.2s ease-in-out infinite}.syncbox{border:1.5px solid var(--line);border-radius:14px;padding:12px 14px;margin:12px 0 4px;background:var(--soft)}.syncbox .synchd{display:flex;align-items:center;gap:8px;font-weight:700}.syncbox .synchd svg{color:var(--accent);flex:none}.syncbox .note{margin:6px 0 0}.syncbox.on{border-color:var(--accent);background:var(--accent-bg)}.syncbox .savebtns{margin-top:10px}'+
@@ -14694,6 +14699,7 @@ var MOT=(function(){
  function chip(){var old=document.getElementById('motQs');if(old)old.remove();if(!qs||!popen())return;var c=document.createElement('div');c.id='motQs';c.className='mqs';$('player').appendChild(c);
   var iv=setInterval(function(){if(!popen()||!document.body.contains(c)){clearInterval(iv);c.remove();qs=null;return}var left=120000-(Date.now()-qs.t0);if(left>0){var s=Math.ceil(left/1000);c.textContent='⏱️ '+Math.floor(s/60)+':'+String(s%60).padStart(2,'0');return}
    clearInterval(iv);c.className='mqs done';c.innerHTML='<b>2 minutes done. You started, and that\'s the hardest bit.</b><span><button type="button" class="xbtn" data-a="k">Keep going</button><button type="button" class="xbtn alt" data-a="s">Stop here</button></span>';try{sfx('quest')}catch(e){}
+   try{if(typeof PLAN!=='undefined'&&PLAN.markQuick&&PLAN.markQuick())toast('⏱️','Today counts','Your 2-minute start keeps your plan streak going','quest')}catch(e){}
    c.querySelector('[data-a=k]').onclick=function(){c.remove();qs=null};c.querySelector('[data-a=s]').onclick=function(){c.remove();qs=null;try{closePlayer()}catch(e){}}},500)}
 
  /* ---------- season pass ---------- */
