@@ -1,4 +1,6 @@
-ve enough energy.`),
+tion energy</b>. It isn't used up. Enzymes are biological catalysts.</li></ul>`),
+W('matchPairs',{pairs:[['Higher concentration','More particles in the same volume, so more frequent collisions'],['Powder instead of lumps','Bigger surface area, so more frequent collisions'],['Higher temperature','More frequent collisions, and more with enough energy'],['Adding a catalyst','Lower activation energy, so more collisions succeed']]},`Match each change to the reason it speeds things up.`,`Temperature is the only one that also increases the energy of collisions.`),
+Q(`Why does a catalyst speed up a reaction?`,[`It provides a pathway with a lower activation energy`,'It gives the particles more energy so they move faster','It increases the concentration of the reactants','It gets used up, adding its own energy to the reaction'],0,`More collisions now have enough energy.`),
 T(`<h3>Key points</h3><ul><li>Reaction needs a collision with enough energy.</li><li>Concentration, pressure and surface area: more frequent collisions.</li><li>Temperature: more frequent and more energetic.</li><li>Catalyst: lower activation energy, not used up.</li></ul>`)]),
 LH('gc3-2-3','Reversible reactions and equilibrium',10,'Reactions that go both ways, dynamic equilibrium, and (Higher) Le Chatelier\'s principle.',[
 RM(`<p>Exothermic reactions release energy; endothermic reactions take it in.</p>`),
@@ -822,7 +824,4 @@ Q(`What does a parallelogram mean in a flowchart?`,[`Input or output`,`A decisio
 U({id:'gcs2-2',track:'gcs',level:2,title:'Programming',icon:'</>',color:'#1D9E75',desc:'Data types, operators, selection, iteration, arrays, strings and subroutines: AQA 3.2.',lessons:[
 LH('gcs2-2-1','Data types and operators',9,'Every value has a type, and every type has rules.',[
 T(`<h3>The five data types</h3><ul><li><b>Integer</b>: whole numbers, like 42 or −7</li><li><b>Real</b> (float): numbers with decimals, like 3.14</li><li><b>Boolean</b>: True or False</li><li><b>Character</b>: one letter, digit or symbol</li><li><b>String</b>: text, a sequence of characters</li></ul>`),
-W('sortIt',{bins:['Integer','Real','Boolean','String'],items:[['Number of lessons done: 12',0],['Year: 2028',0],['Coolant temperature: 307.4',1],['Price: 2.99',1],['Alarm active?',2],['Is the door locked?',2],['Name: "Sunny"',3],['Postcode: "TA5 1UD"',3]]},`Pick the best data type for each.`,`A postcode is a string even though it has digits: you never do maths with it.`),
-T(`<h3>Operators</h3><p><b>Arithmetic</b>: + − * / plus DIV and MOD.<br><b>Relational</b> (comparisons): = ≠ &lt; &gt; ≤ ≥. They give True or False.<br><b>Boolean</b>: AND, OR, NOT.</p>`),
-Q(`temp ← 330 and pumps ← True. What's (temp &gt; 320) AND NOT pumps?`,[`False`,`True`,`330`,`An error`],0,`temp &gt; 320 is True, NOT pumps is False. True AND False = False.`),
-Q(`Why store a phone number as a string, not an integer?`,[`It can start with 0 and you never do maths with it`,`Strings are faster`,`Integers can't be 11 digits`,`It saves memory`],0,`An integer would lose the leading 0.`)
+W('sortIt',{bins:['Integer','Real','Boolean','String'],items:[['Number of lessons done: 12',0],['Year: 2028',0

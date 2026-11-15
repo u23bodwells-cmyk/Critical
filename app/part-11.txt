@@ -1,4 +1,7 @@
-,
+],['Coolant temperature: 307.4',1],['Price: 2.99',1],['Alarm active?',2],['Is the door locked?',2],['Name: "Sunny"',3],['Postcode: "TA5 1UD"',3]]},`Pick the best data type for each.`,`A postcode is a string even though it has digits: you never do maths with it.`),
+T(`<h3>Operators</h3><p><b>Arithmetic</b>: + − * / plus DIV and MOD.<br><b>Relational</b> (comparisons): = ≠ &lt; &gt; ≤ ≥. They give True or False.<br><b>Boolean</b>: AND, OR, NOT.</p>`),
+Q(`temp ← 330 and pumps ← True. What's (temp &gt; 320) AND NOT pumps?`,[`False`,`True`,`330`,`An error`],0,`temp &gt; 320 is True, NOT pumps is False. True AND False = False.`),
+Q(`Why store a phone number as a string, not an integer?`,[`It can start with 0 and you never do maths with it`,`Strings are faster`,`Integers can't be 11 digits`,`It saves memory`],0,`An integer would lose the leading 0.`),
 Q(`What's the data type of the result of 7 &gt; 3?`,[`Boolean`,`Integer`,`Real`,`String`],0,`Comparisons always give True or False.`)]),
 LH('gcs2-2-2','Selection and iteration in code',9,'IF, ELSE IF, WHILE, REPEAT and FOR, and when to use each.',[
 T(`<h3>Nested selection</h3><pre class="cs">IF temp &gt; 320 THEN
@@ -1095,7 +1098,4 @@ function NSIM(w,h,rnd){
   run(scr,function(dt){var c=scr.c,W=scr.W,H=scr.H,nb=narrow(),wide=W>=620;tt+=dt;yaw+=dt*.0006*(calm()?.3:1);bgf(c,W,H);grid(c,W,H,30);
    var N=NUCS[ni],Z=N[1],A=N[2];if(mode==='isotope'){var I=ISO[iso];Z=I[0];A=Z+dN}
    var k=Z+'/'+A+'/'+(mode==='drop'?'d':'');if(ptsK!==k){pts=nucPts(A,Z);ptsK=k}
-   var nx=wide?W*.3:W/2,ny=wide?H*.55:H*.36,sc=Math.min(wide?H*.075:H*.05,(wide?W*.22:W*.32)/Math.cbrt(A)/2.2)*(A<20?1.6:1);
-   if(mode==='atom'||mode==='isotope'){band(c,W,mode==='atom'?'INSIDE THE ATOM':'ISOTOPES · same element, different neutrons',mode==='isotope'?I[3]+'-'+A:N[0]);var shells=[2,8,18,32,32,18,8],left=Z,rr=[];for(var s=0;s<shells.length&&left>0;s++){rr.push(Math.min(left,shells[s]));left-=shells[s]}
-    rr.forEach(function(ne,si){var R=Math.min(W,H)*(.2+si*.085)*(wide?.9:1),tilt=si*.9+.3;c.strokeStyle='rgba(120,170,255,.25)';c.lineWidth=1;c.beginPath();c.ellipse(nx,ny,R,R*.38,tilt,0,6.283);c.stroke();var show=Math.min(ne,10);for(var e=0;e<show;e++){var a=tt/1000*(1.6-si*.25)+e/show*6.283,ex=Math.cos(a)*R,ey=Math.sin(a)*R*.38,X=nx+ex*Math.cos(tilt)-ey*Math.sin(tilt),Y=ny+ex*Math.sin(tilt)+ey*Math.cos(tilt);glow(c,X,Y,6,CY,.6);c.fillStyle='#bff3ff';c.beginPath();c.arc(X,Y,1.8,0,6.283);c.fill()}});
-    drawNuc(c,pts,nx,ny
+   var nx=wide?W*.3:W/2,ny=wide?H*.55:H*.36,sc=Math.min(wide?H*.075:H*.05,(wide?W*.22:W*.32)/Ma
