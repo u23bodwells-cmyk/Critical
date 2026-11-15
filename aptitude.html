@@ -1,0 +1,1066 @@
+<!doctype html>
+<html lang="en">
+<head>
+<script src="gate.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#ffffff">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Critical">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Aptitude Gym</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: one-column app in the Critical family. Home lists five test types; each opens a lesson, practice set or timed test in a full-width quiz card. */
+:root{
+  --bg:#F5F4EF; --card:#FFFFFF; --ink:#1D1B2E; --muted:#615E73; --line:#E4E2D9;
+  --brand:#4F46B8; --brand-soft:#E8E6FA; --on-brand:#FFFFFF;
+  --gold:#F2C46D; --gold-soft:#FBF0D6; --gold-ink:#7E5300; --on-gold:#3A2700;
+  --ok:#1F7A55; --ok-soft:#DCF1E6; --warn:#B4231A; --warn-soft:#FBE4E2;
+  --num:#2B5FC4; --num-soft:#E2EBFB; --verb:#7E5300; --verb-soft:#FBF0D6; --logic:#4F46B8; --logic-soft:#E8E6FA;
+  --mech:#0F6E56; --mech-soft:#DDF1EA; --check:#A8431F; --check-soft:#FBE5DC;
+  --code:#1C1A2B; --code-ink:#E8E6F5; --hero-track:rgba(255,255,255,.25);
+  --ui:"Lexend",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#121120; --card:#1B1A2B; --ink:#ECEAF7; --muted:#A4A1B9; --line:#2E2C44;
+  --brand:#9D96F2; --brand-soft:#29264F; --on-brand:#15132B;
+  --gold:#F2C46D; --gold-soft:#3A2E14; --gold-ink:#F2C46D; --on-gold:#2B1D00;
+  --ok:#62D3A2; --ok-soft:#153226; --warn:#FF8A80; --warn-soft:#3A1716;
+  --num:#8FB2F4; --num-soft:#1B2A4A; --verb:#F2C46D; --verb-soft:#3A2E14; --logic:#9D96F2; --logic-soft:#29264F;
+  --mech:#5DCAA5; --mech-soft:#10302A; --check:#F0997B; --check-soft:#3A1F14;
+  --code:#0D0C17; --code-ink:#E2E0F2; --hero-track:rgba(21,19,43,.22); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121120; --card:#1B1A2B; --ink:#ECEAF7; --muted:#A4A1B9; --line:#2E2C44;
+  --brand:#9D96F2; --brand-soft:#29264F; --on-brand:#15132B;
+  --gold:#F2C46D; --gold-soft:#3A2E14; --gold-ink:#F2C46D; --on-gold:#2B1D00;
+  --ok:#62D3A2; --ok-soft:#153226; --warn:#FF8A80; --warn-soft:#3A1716;
+  --num:#8FB2F4; --num-soft:#1B2A4A; --verb:#F2C46D; --verb-soft:#3A2E14; --logic:#9D96F2; --logic-soft:#29264F;
+  --mech:#5DCAA5; --mech-soft:#10302A; --check:#F0997B; --check-soft:#3A1F14;
+  --code:#0D0C17; --code-ink:#E2E0F2; --hero-track:rgba(21,19,43,.22); color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:400 16px/1.55 var(--ui);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:14px 48px}
+button{font:inherit;color:inherit}
+h1,h2,h3{margin:0;font-weight:600;text-wrap:balance;letter-spacing:-.01em}
+h1{font-size:26px;line-height:1.2} h2{font-size:19px} h3{font-size:16px}
+p{margin:0}
+.app{max-width:640px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)} .small{font-size:13px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:18px}
+.mark{width:34px;height:34px;border-radius:10px;background:#0F6E56;display:grid;place-items:center}
+.mark svg{width:22px;height:22px}
+@media (max-width:420px){.brand .bt{display:none}}
+.pills{display:flex;gap:6px}
+.pill{display:flex;align-items:center;gap:5px;font:600 13px var(--mono);padding:5px 10px;border-radius:999px;background:var(--card);border:1px solid var(--line)}
+.pill .fl{width:14px;height:14px;fill:var(--gold)}
+.pill .dot{width:8px;height:8px;border-radius:50%;background:var(--brand)}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.hero{background:#0F6E56;color:#fff;border:0}
+:root[data-theme="dark"] .hero{background:#5DCAA5;color:#06241C}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .hero{background:#5DCAA5;color:#06241C}}
+.eyebrow{font:600 11px var(--mono);letter-spacing:.1em;text-transform:uppercase}
+.hstats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.hstats div{background:rgba(255,255,255,.14);border-radius:12px;padding:8px 10px}
+:root[data-theme="dark"] .hstats div{background:rgba(6,36,28,.12)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .hstats div{background:rgba(6,36,28,.12)}}
+.hstats b{display:block;font:600 19px var(--mono)}
+.hstats span{font-size:11px}
+@media (max-width:420px){.hstats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;font-weight:600;font-size:15px;border-radius:12px;padding:10px 16px;border:1px solid var(--line);background:var(--card);cursor:pointer;min-height:44px}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--brand);color:var(--on-brand);border-color:transparent}
+.btn.gold{background:var(--gold);color:var(--on-gold);border-color:transparent}
+.btn.sm{padding:6px 12px;min-height:36px;font-size:14px}
+.btnrow{display:flex;gap:8px;flex-wrap:wrap}
+.back{display:flex;align-items:center;gap:6px;background:none;border:0;padding:4px 0;color:var(--muted);font-weight:600;cursor:pointer;align-self:flex-start}
+.chip{display:inline-flex;align-items:center;font:600 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:3px 9px;border-radius:999px;white-space:nowrap}
+.s-num{--c:var(--num);--cs:var(--num-soft)} .s-verb{--c:var(--verb);--cs:var(--verb-soft)} .s-logic{--c:var(--logic);--cs:var(--logic-soft)} .s-mech{--c:var(--mech);--cs:var(--mech-soft)} .s-check{--c:var(--check);--cs:var(--check-soft)} .s-mix{--c:var(--brand);--cs:var(--brand-soft)}
+.chip{background:var(--cs);color:var(--c)}
+.sec{display:grid;grid-template-columns:44px minmax(0,1fr);gap:12px;align-items:start}
+.sic{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font:600 14px var(--mono);background:var(--cs);color:var(--c)}
+.sic svg{width:24px;height:24px}
+.sec .meta{font-size:13px;color:var(--muted);margin:2px 0 10px}
+.bar{height:8px;border-radius:4px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;border-radius:4px;background:var(--c,var(--brand));transition:width .3s}
+.bars{display:flex;flex-direction:column;gap:8px}
+.br{display:grid;grid-template-columns:96px minmax(0,1fr) 44px;gap:10px;align-items:center;font-size:14px}
+.br .mono{text-align:right;font-size:13px}
+
+.qtop{display:flex;align-items:center;gap:12px}
+.qtop .back{padding:4px 0}
+.pbar{flex:1;height:10px;border-radius:5px;background:var(--line);overflow:hidden}
+.pbar i{display:block;height:100%;background:var(--brand);transition:width .3s}
+.clock{font:600 14px var(--mono);min-width:52px;text-align:right}
+.clock.low{color:var(--warn)}
+.qmeta{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.qbody{font-size:17px;line-height:1.6;min-width:0}
+.qbody p{margin:0 0 10px}.qbody p:last-child{margin-bottom:0}
+.passage{background:var(--bg);border-radius:12px;padding:12px 14px;font-size:15.5px;line-height:1.65;margin-bottom:12px}
+.passage h4{margin:0 0 4px;font-size:13px;color:var(--muted);font-weight:600}
+.stmt{font-weight:600;border-left:3px solid var(--gold);border-radius:0;padding-left:12px}
+.seq{font:600 22px var(--mono);margin:6px 0 2px;overflow-wrap:anywhere}
+.tbl{overflow-x:auto;margin:0 0 10px;background:var(--bg);border-radius:12px}
+table{border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums;width:100%}
+th,td{padding:7px 10px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+th:first-child{text-align:left}
+thead th{font-size:12px;color:var(--muted);font-weight:600}
+tbody tr:last-child th,tbody tr:last-child td{border-bottom:0}
+.frames{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:6px}
+.fr{width:64px;height:64px;display:block}
+.fr .frb{fill:var(--card);stroke:var(--line);stroke-width:1.5}
+.fr .arw{fill:none;stroke:var(--ink);stroke-width:3.5;stroke-linecap:round;stroke-linejoin:round}
+.fr .dt{fill:var(--logic)}
+.fr .sqf{fill:var(--gold-ink)}
+.fr .sqe{fill:none;stroke:var(--gold-ink);stroke-width:1.8}
+.fq{width:64px;height:64px;border:2px dashed var(--line);border-radius:8px;display:grid;place-items:center;font:600 22px var(--mono);color:var(--muted)}
+.diag{background:var(--bg);border-radius:12px;padding:8px;margin:4px 0 10px;overflow-x:auto}
+.diag svg{display:block;max-width:100%;height:auto;margin:0 auto}
+.diag .gb{fill:var(--mech-soft);stroke:var(--mech);stroke-width:2}
+.diag .gt{fill:none;stroke:var(--mech);stroke-width:6}
+.diag .gl{font:600 13px var(--mono);fill:var(--mech);text-anchor:middle;dominant-baseline:central}
+.diag .rot{font:600 22px var(--ui);fill:var(--ink);text-anchor:middle}
+.diag .beam{stroke:var(--ink);stroke-width:5;stroke-linecap:round}
+.diag .piv{fill:var(--muted)}
+.diag .load{fill:var(--gold-soft);stroke:var(--gold-ink);stroke-width:1.5}
+.diag .lt{font:600 12px var(--mono);fill:var(--ink);text-anchor:middle}
+.diag .eff{stroke:var(--warn);stroke-width:3;fill:none;stroke-linecap:round}
+.diag .dim{stroke:var(--muted);stroke-width:1;stroke-dasharray:3 3}
+.diag .dl{font:500 11px var(--mono);fill:var(--muted);text-anchor:middle}
+.pairs{display:flex;flex-direction:column;gap:6px;font:500 15px var(--mono)}
+.pr{display:grid;grid-template-columns:22px minmax(0,1fr) minmax(0,1fr);gap:10px;background:var(--bg);border-radius:8px;padding:8px 10px;overflow-wrap:anywhere}
+.pr b{color:var(--muted);font-weight:600}
+mark{background:var(--gold-soft);color:var(--gold-ink);border-radius:3px;padding:0 1px}
+
+.opts{display:flex;flex-direction:column;gap:8px;margin-top:4px}
+.opts.vis{flex-direction:row;flex-wrap:wrap}
+.opt{text-align:left;background:var(--card);border:2px solid var(--line);border-radius:14px;padding:12px 14px;font-size:16px;cursor:pointer;display:flex;align-items:center;gap:12px;min-height:50px}
+.opt .k{font:600 12px var(--mono);color:var(--muted);width:18px;flex:none}
+.opts.vis .opt{padding:8px 10px}
+.opt:hover{border-color:var(--muted)}
+.opt.sel{border-color:var(--brand);background:var(--brand-soft)}
+.opt.right{border-color:var(--ok);background:var(--ok-soft)}
+.opt.wrong{border-color:var(--warn);background:var(--warn-soft)}
+.opt[disabled]{cursor:default}
+.fb{border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.fb.ok{background:var(--ok-soft)} .fb.no{background:var(--warn-soft)}
+.fb h3{font-size:17px}
+.fb.ok h3{color:var(--ok)} .fb.no h3{color:var(--warn)}
+.fb p{margin:0}
+.expl{font-size:15px;line-height:1.6;display:flex;flex-direction:column;gap:6px}
+.ans{background:var(--bg);border-radius:12px;padding:10px 12px;font-size:15px;overflow-wrap:anywhere}
+.ans p{margin:0 0 6px}.ans p:last-child{margin:0}.ans ul{margin:4px 0;padding-left:18px}
+.ans code{font:500 13px var(--mono);background:var(--brand-soft);padding:1px 5px;border-radius:5px}
+.extlink{text-decoration:none;align-self:flex-start}
+
+.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;counter-reset:s}
+.steps li{display:grid;grid-template-columns:28px minmax(0,1fr);gap:10px;counter-increment:s;align-items:start}
+.steps li::before{content:counter(s);width:26px;height:26px;border-radius:50%;background:var(--cs);color:var(--c);display:grid;place-items:center;font:600 12px var(--mono)}
+.tips{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px}
+.exq{background:var(--bg);border-radius:12px;padding:12px 14px;font-weight:600;overflow-wrap:anywhere}
+
+.score{font:600 54px/1 var(--mono)}
+.rv{border:1px solid var(--line);border-radius:12px;background:var(--card)}
+.rv summary{cursor:pointer;display:grid;grid-template-columns:22px minmax(0,1fr);gap:8px;align-items:start;padding:10px 12px;list-style:none}
+.rv summary::-webkit-details-marker{display:none}
+.rv .mk{font-weight:700}
+.rv .mk.ok{color:var(--ok)} .rv .mk.no{color:var(--warn)}
+.rv .pv{font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rv .rb{padding:0 12px 12px;display:flex;flex-direction:column;gap:10px}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translate(-50%,12px);opacity:0;pointer-events:none;background:var(--ink);color:var(--bg);font-weight:600;font-size:14px;padding:10px 16px;border-radius:12px;max-width:calc(100% - 32px);transition:opacity .2s,transform .2s;z-index:30;text-align:center}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.ic{fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+.pill.menu{color:inherit;text-decoration:none;cursor:pointer}.pill.menu svg{width:15px;height:15px}
+</style>
+<style id="arcCss">
+/* ===== Critical's live look for Shift Ready and Aptitude Gym (html.arc). Critical's Settings → Look → Classic turns it off. ===== */
+html.arc{--glow:#0a9fd0;--glow2:#6a5af0;--hot:#ff7a2f;
+ --bg:#edf1f8;--card:#ffffff;--ink:#0c1324;--muted:#4a5571;--line:#d4dbea;
+ --np:rgba(255,255,255,.88);--nedge:rgba(255,255,255,.95);--nglass:rgba(246,249,255,.78);--gridc:rgba(40,70,150,.055);
+ --nsh:0 1px 2px rgba(20,35,80,.05),0 14px 34px -16px rgba(20,35,80,.22);
+ --display:"Space Grotesk",var(--ui);--ease:cubic-bezier(.2,.8,.2,1);--spring:cubic-bezier(.34,1.5,.64,1);
+ --heroa:#4f46e5;--herob:#0a9fd0;background:var(--bg)}
+html.arc[data-app="apt"]{--glow:#0aa37a;--glow2:#0a8fd0;--heroa:#0b7a5c;--herob:#0a8fd0}
+@media (prefers-color-scheme:dark){html.arc:not([data-theme="light"]){--glow:#3ad4ff;--glow2:#8f80ff;
+ --bg:#060a13;--card:#0e1525;--ink:#e8edf7;--muted:#9ca8c3;--line:#223050;
+ --np:rgba(13,20,36,.86);--nedge:rgba(160,190,255,.07);--nglass:rgba(7,12,23,.74);--gridc:rgba(120,160,255,.05);
+ --nsh:0 24px 48px -26px rgba(0,0,0,.85);--heroa:#5b4bff;--herob:#1aa7e0}
+ html.arc[data-app="apt"]:not([data-theme="light"]){--glow:#3ef0b8;--glow2:#3ad4ff;--heroa:#0e8f6c;--herob:#1286c9}}
+html.arc[data-theme="dark"]{--glow:#3ad4ff;--glow2:#8f80ff;
+ --bg:#060a13;--card:#0e1525;--ink:#e8edf7;--muted:#9ca8c3;--line:#223050;
+ --np:rgba(13,20,36,.86);--nedge:rgba(160,190,255,.07);--nglass:rgba(7,12,23,.74);--gridc:rgba(120,160,255,.05);
+ --nsh:0 24px 48px -26px rgba(0,0,0,.85);--heroa:#5b4bff;--herob:#1aa7e0}
+html.arc[data-app="apt"][data-theme="dark"]{--glow:#3ef0b8;--glow2:#3ad4ff;--heroa:#0e8f6c;--herob:#1286c9}
+
+/* backdrop: soft glow, faint instrument grid and the live particle canvas */
+html.arc body{background:radial-gradient(1100px 520px at 50% -170px,color-mix(in srgb,var(--glow) 16%,transparent),transparent 72%),radial-gradient(800px 460px at 105% 0,color-mix(in srgb,var(--glow2) 12%,transparent),transparent 70%),var(--bg);min-height:100vh}
+html.arc body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;background-image:linear-gradient(var(--gridc) 1px,transparent 1px),linear-gradient(90deg,var(--gridc) 1px,transparent 1px);background-size:44px 44px;-webkit-mask-image:radial-gradient(ellipse 85% 60% at 50% 0%,#000 25%,transparent 78%);mask-image:radial-gradient(ellipse 85% 60% at 50% 0%,#000 25%,transparent 78%)}
+#arcBg{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
+html:not(.arc) #arcBg{display:none}
+html.arc .app{position:relative;z-index:1}
+html.arc h1,html.arc h2{font-family:var(--display);letter-spacing:-.02em}
+html.arc h1{font-weight:700}
+
+/* glass cards */
+html.arc .card{background:var(--np);border:1px solid var(--line);box-shadow:var(--nsh),inset 0 1px 0 var(--nedge);border-radius:20px;-webkit-backdrop-filter:blur(14px) saturate(1.3);backdrop-filter:blur(14px) saturate(1.3)}
+html.arc .card:has(.btn:hover){border-color:color-mix(in srgb,var(--glow) 40%,var(--line))}
+html.arc .hero{position:relative;overflow:hidden;border:0;color:#fff!important;background:linear-gradient(125deg,var(--heroa),var(--herob))!important;box-shadow:0 22px 48px -24px color-mix(in srgb,var(--heroa) 80%,transparent)}
+html.arc .hero::after{content:"";position:absolute;inset:-40% -20%;background:linear-gradient(105deg,transparent 42%,rgba(255,255,255,.16) 50%,transparent 58%);transform:translateX(-60%);pointer-events:none}
+html.arc:not(.arccalm) .hero::after{animation:arcSheen 7s ease-in-out infinite}
+@keyframes arcSheen{0%,55%{transform:translateX(-60%)}85%,100%{transform:translateX(60%)}}
+html.arc .hero *{position:relative;z-index:1}
+html.arc .hero .muted,html.arc .hero .sub{color:rgba(255,255,255,.86)}
+html.arc .hstats div{background:rgba(255,255,255,.14)!important;border:1px solid rgba(255,255,255,.16)}
+html.arc .hero .bar{background:rgba(255,255,255,.22)}html.arc .hero .bar i{background:#fff}
+html.arc .eyebrow{opacity:.9}
+
+/* buttons, pills, chips */
+html.arc .btn{border-radius:12px;transition:transform .25s var(--spring),box-shadow .25s,background .2s,border-color .2s}
+html.arc .btn:active{transform:scale(.96)}
+html.arc .btn.primary{background:linear-gradient(135deg,var(--glow2),var(--glow));color:#fff;border:0;box-shadow:0 10px 24px -12px color-mix(in srgb,var(--glow) 90%,transparent)}
+html.arc .btn.primary:hover{box-shadow:0 14px 30px -12px color-mix(in srgb,var(--glow) 100%,transparent);transform:translateY(-1px)}
+html.arc .pill{background:var(--np);border-color:var(--line);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+html.arc .mark{box-shadow:0 0 18px -4px color-mix(in srgb,var(--glow) 80%,transparent)}
+html.arc .bar i{background:linear-gradient(90deg,var(--glow2),var(--glow))}
+html.arc .opt{border-radius:14px;transition:transform .2s var(--spring),border-color .2s,background .2s,box-shadow .2s}
+html.arc .opt:hover:not([disabled]){border-color:var(--glow);box-shadow:0 0 0 3px color-mix(in srgb,var(--glow) 18%,transparent)}
+html.arc .tabs{background:var(--nglass)!important;-webkit-backdrop-filter:blur(18px) saturate(1.5);backdrop-filter:blur(18px) saturate(1.5);border-top:1px solid var(--line)}
+html.arc .tabs button[aria-current="page"]{color:var(--glow)}
+html.arc .callsign{font-family:var(--mono);text-shadow:0 0 22px color-mix(in srgb,var(--glow) 55%,transparent)}
+html.arc .toast{box-shadow:0 12px 32px -12px rgba(0,0,0,.5)}
+
+/* things arrive with a little lift */
+html.arc:not(.arccalm) .arcin{animation:arcUp .55s var(--ease) both}
+@keyframes arcUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+
+/* ---------- arcade cards on the home screens ---------- */
+.arcsec{display:flex;flex-direction:column;gap:12px}
+.arch{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.arch span{font:600 12px var(--mono);color:var(--muted);letter-spacing:.04em}
+.arcgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:12px}
+.arcc{position:relative;overflow:hidden;cursor:pointer;text-align:left;font:inherit;color:inherit;border-radius:20px;padding:16px;border:1px solid var(--line);background:var(--card);display:flex;flex-direction:column;gap:8px;min-width:0;transition:transform .3s var(--spring),box-shadow .3s,border-color .3s}
+html.arc .arcc{background:var(--np);box-shadow:var(--nsh),inset 0 1px 0 var(--nedge)}
+.arcc:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--glow,#4F46B8) 55%,var(--line))}
+.arcc:active{transform:scale(.98)}
+.arcc .ai{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;color:#fff;background:linear-gradient(135deg,var(--glow2,#4F46B8),var(--glow,#4F46B8));box-shadow:0 8px 20px -10px var(--glow,#4F46B8)}
+.arcc .ai svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.arcc b{font:700 17px var(--display,inherit)}
+.arcc p{font-size:13.5px;color:var(--muted);margin:0;line-height:1.45}
+.arcc .am{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:auto;font:600 12px var(--mono);color:var(--muted)}
+.arcc .am .go{margin-left:auto;font:800 13px var(--ui);color:#fff;background:linear-gradient(135deg,var(--glow2,#4F46B8),var(--glow,#4F46B8));border-radius:999px;padding:6px 13px}
+.arcc.big{grid-column:1/-1;padding:20px;background:linear-gradient(135deg,#0b1430,#12204a 55%,#0b2a3f)!important;color:#eef3ff;border-color:rgba(120,170,255,.25)}
+.arcc.big p,.arcc.big .am{color:rgba(220,230,255,.8)}
+.arcc.big b{font-size:21px}
+.arcc.big::before{content:"";position:absolute;inset:0;background:radial-gradient(420px 160px at 85% 0,rgba(58,212,255,.25),transparent 70%),radial-gradient(300px 140px at 0 100%,rgba(143,128,255,.25),transparent 70%);pointer-events:none}
+.arcc.big>*{position:relative}
+.arcc.boss{border-color:color-mix(in srgb,#ff7a2f 35%,var(--line))}
+.arcc.boss .ai{background:linear-gradient(135deg,#ff4d6d,#ff9a3c);box-shadow:0 8px 20px -10px #ff6a3c}
+.arcc.boss .am .go{background:linear-gradient(135deg,#ff4d6d,#ff9a3c)}
+.arcc.boss.won .ai{background:linear-gradient(135deg,#f2c46d,#ffdf8a);color:#3a2700}
+.arcc.lock{cursor:default;opacity:.62}
+.arcc.lock:hover{transform:none;border-color:var(--line)}
+.arcc .tro{font:700 12px var(--mono);color:#b8860b}
+html.arc .arcc .tro,[data-theme="dark"] .arcc .tro{color:#f2c46d}
+@media (prefers-color-scheme:dark){.arcc .tro{color:#f2c46d}}
+.arcrow{display:flex;gap:8px;flex-wrap:wrap}
+.arcbtn{font:inherit;font-size:13px;font-weight:700;border-radius:999px;padding:7px 13px;cursor:pointer;border:1px solid var(--line);background:var(--card);color:var(--ink);display:inline-flex;align-items:center;gap:6px}
+.arcbtn.hot{background:linear-gradient(135deg,#ff4d6d,#ff9a3c);color:#fff;border:0}
+.arcbtn.play{background:linear-gradient(135deg,var(--glow2,#4F46B8),var(--glow,#4F46B8));color:#fff;border:0}
+.arcbtn[disabled]{opacity:.5;cursor:default}
+.arcbtn svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+
+/* ---------- the game screen: always a dark control-room look ---------- */
+.arcov{position:fixed;inset:0;z-index:9500;display:flex;flex-direction:column;overflow:hidden;color:#e8edf7;
+ --bg:#060a13;--card:#0f1729;--ink:#e8edf7;--muted:#9ca8c3;--line:#26355a;--brand:#9D96F2;--brand-soft:#29264F;--on-brand:#15132B;
+ --gold:#F2C46D;--gold-soft:#3A2E14;--gold-ink:#F2C46D;--on-gold:#2B1D00;--ok:#62D3A2;--ok-soft:#153226;--warn:#FF8A80;--warn-soft:#3A1716;
+ --num:#8FB2F4;--num-soft:#1B2A4A;--verb:#F2C46D;--verb-soft:#3A2E14;--logic:#9D96F2;--logic-soft:#29264F;--mech:#5DCAA5;--mech-soft:#10302A;--check:#F0997B;--check-soft:#3A1F14;
+ --code:#0b1020;--code-ink:#e2e8f8;--acc:#3ad4ff;--acc2:#8f80ff;color-scheme:dark;
+ background:radial-gradient(900px 500px at 50% 110%,color-mix(in srgb,var(--acc) 16%,transparent),transparent 70%),radial-gradient(700px 400px at 50% -10%,color-mix(in srgb,var(--acc2) 18%,transparent),transparent 70%),#050813;
+ font-family:var(--ui,system-ui);opacity:0;transition:opacity .3s ease}
+.arcov.on{opacity:1}
+.arcov.boss{--acc:#ff7a3c;--acc2:#ff3d6e}
+.arcov canvas.fx{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.arcov .scan{position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(255,255,255,.018) 0 1px,transparent 1px 3px);mix-blend-mode:overlay}
+.arcbar{position:relative;z-index:2;display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top,0px)) max(14px,env(safe-area-inset-right,0px)) 8px max(14px,env(safe-area-inset-left,0px))}
+.arcbar .ttl{flex:1;min-width:0;font:700 14px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:#cfd8f5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.arcx,.arcsnd{flex:none;width:40px;height:40px;border-radius:12px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);color:#dfe6ff;cursor:pointer;display:grid;place-items:center;font:700 14px var(--ui)}
+.arcx.armed{width:auto;padding:0 12px;background:#ff4d6d;border-color:#ff4d6d;color:#fff}
+.arcsnd svg,.arcx svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round}
+.archud{position:relative;z-index:2;display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:0 max(14px,env(safe-area-inset-right,0px)) 0 max(14px,env(safe-area-inset-left,0px))}
+.arcsc{font:700 30px var(--mono);font-variant-numeric:tabular-nums;color:#fff;text-shadow:0 0 18px color-mix(in srgb,var(--acc) 60%,transparent);min-width:0}
+.arcsc small{display:block;font:600 10.5px var(--mono);letter-spacing:.12em;color:#8e9bc0;text-shadow:none}
+.arccombo{font:800 14px var(--mono);padding:5px 11px;border-radius:999px;background:rgba(255,255,255,.07);color:#9fb0d8;border:1px solid rgba(255,255,255,.12);transition:transform .3s var(--spring,ease),background .3s}
+.arccombo.hot{background:linear-gradient(135deg,var(--acc2),var(--acc));color:#fff;border-color:transparent;box-shadow:0 0 20px -4px var(--acc)}
+.arccombo.bump{transform:scale(1.25)}
+.arclives{display:flex;gap:6px;margin-left:auto}
+.arclives i{width:16px;height:16px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fff,var(--acc) 45%,color-mix(in srgb,var(--acc) 40%,#000));box-shadow:0 0 12px var(--acc);transition:transform .4s,opacity .4s,filter .4s}
+.arclives i.gone{opacity:.25;filter:grayscale(1);box-shadow:none;transform:scale(.7)}
+.arcmeter{flex:1 1 100%;display:flex;align-items:center;gap:10px;font:600 11px var(--mono);letter-spacing:.1em;color:#9fb0d8;text-transform:uppercase}
+.arcmeter .mt{flex:1;height:10px;border-radius:6px;background:rgba(255,255,255,.08);overflow:hidden;border:1px solid rgba(255,255,255,.08)}
+.arcmeter .mt i{display:block;height:100%;width:100%;border-radius:6px;background:linear-gradient(90deg,var(--acc2),var(--acc));transition:width .5s var(--ease,ease)}
+.arcmeter.hp .mt i{background:linear-gradient(90deg,#ff3d6e,#ff9a3c)}
+.arcmeter.hl .mt i{background:linear-gradient(90deg,#3ef0b8,#3ad4ff)}
+.arcmeter.hl.warn .mt i{background:linear-gradient(90deg,#ff9a3c,#ffd65a)}
+.arcmeter.hl.bad .mt i{background:linear-gradient(90deg,#ff3d6e,#ff7a3c)}
+.arcmeter b{color:#fff;font-size:12px;min-width:3.2em;text-align:right}
+.arctime{position:relative;z-index:2;height:4px;margin:10px max(14px,env(safe-area-inset-right,0px)) 0 max(14px,env(safe-area-inset-left,0px));border-radius:3px;background:rgba(255,255,255,.07);overflow:hidden}
+.arctime i{position:absolute;inset:0 auto 0 0;width:100%;background:linear-gradient(90deg,#3ef0b8,var(--acc));box-shadow:0 0 12px var(--acc)}
+.arctime.low i{background:linear-gradient(90deg,#ff3d6e,#ff9a3c);box-shadow:0 0 12px #ff3d6e}
+.arcstage{position:relative;z-index:2;flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:14px max(14px,env(safe-area-inset-right,0px)) calc(18px + env(safe-area-inset-bottom,0px)) max(14px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;align-items:center}
+.arcin2{width:100%;max-width:680px;display:flex;flex-direction:column;gap:14px;margin:auto 0}
+.arcev{font:700 12px var(--mono);letter-spacing:.08em;color:var(--acc);text-transform:uppercase;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.arcev .tm{color:#fff;background:rgba(255,255,255,.08);border-radius:6px;padding:2px 7px}
+.arcstory{font-size:15px;color:#c9d3ef;margin:-6px 0 0;line-height:1.45}
+.arcqc{background:rgba(15,23,41,.82);border:1px solid rgba(140,170,255,.16);border-radius:20px;padding:18px;box-shadow:0 24px 60px -30px rgba(0,0,0,.9),inset 0 1px 0 rgba(255,255,255,.05);font-size:17px;line-height:1.5;display:flex;flex-direction:column;gap:12px;min-width:0}
+.arcqc p{margin:0}
+.arcqc .qbody{display:flex;flex-direction:column;gap:10px}
+.arcopts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:10px}
+.arcopts.vis{grid-template-columns:repeat(4,minmax(0,1fr))}
+.arco{position:relative;font:inherit;font-size:16px;font-weight:600;text-align:left;color:#eef2ff;background:rgba(255,255,255,.05);border:1.5px solid rgba(140,170,255,.2);border-radius:14px;padding:13px 14px 13px 48px;cursor:pointer;min-height:54px;transition:transform .18s var(--spring,ease),border-color .2s,background .2s,box-shadow .2s;min-width:0;overflow-wrap:anywhere}
+.arco .k{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:26px;height:26px;border-radius:8px;display:grid;place-items:center;font:700 12px var(--mono);background:rgba(255,255,255,.08);color:#9fb0d8}
+.arcopts.vis .arco{padding:8px;display:grid;place-items:center;min-height:0}
+.arcopts.vis .arco .k{top:8px;left:8px;transform:none}
+.arco:hover:not([disabled]){border-color:var(--acc);background:rgba(58,212,255,.08);box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 18%,transparent)}
+.arco:active:not([disabled]){transform:scale(.97)}
+.arco.right{border-color:#3ef0b8;background:rgba(62,240,184,.14);box-shadow:0 0 24px -6px #3ef0b8}
+.arco.right .k{background:#3ef0b8;color:#04261b}
+.arco.wrong{border-color:#ff4d6d;background:rgba(255,77,109,.14)}
+.arco.wrong .k{background:#ff4d6d;color:#fff}
+.arco[disabled]{cursor:default}
+.arcqc pre.arccode{margin:0;background:#070b18;border:1px solid rgba(140,170,255,.16);border-radius:12px;padding:12px 14px;overflow-x:auto;font:500 14.5px/1.55 var(--mono);color:#e2e8f8;white-space:pre;tab-size:4}
+.arccode .kw{color:#c792ea}.arccode .st{color:#c3e88d}.arccode .nu{color:#f78c6c}.arccode .cm{color:#697098;font-style:italic}.arccode .fn{color:#82aaff}
+.arcsay{font:700 clamp(22px,5.5vw,34px)/1.2 var(--mono);letter-spacing:.04em;color:#fff;text-align:center;padding:14px 8px;text-shadow:0 0 24px color-mix(in srgb,var(--acc) 60%,transparent)}
+.arcsay small{display:block;font:600 12px var(--mono);letter-spacing:.12em;color:#8e9bc0;text-shadow:none;margin-bottom:6px;text-transform:uppercase}
+.arcflash{position:absolute;inset:0;pointer-events:none;z-index:3;opacity:0}
+.arcflash.g{background:radial-gradient(circle at 50% 60%,rgba(62,240,184,.22),transparent 60%);animation:arcFl .5s ease}
+.arcflash.r{background:radial-gradient(circle at 50% 60%,rgba(255,61,110,.28),transparent 60%);animation:arcFl .6s ease}
+@keyframes arcFl{0%{opacity:0}20%{opacity:1}100%{opacity:0}}
+.arcov:not(.calm) .shake{animation:arcShake .4s ease}
+@keyframes arcShake{0%,100%{transform:none}20%{transform:translateX(-8px)}40%{transform:translateX(7px)}60%{transform:translateX(-5px)}80%{transform:translateX(3px)}}
+.arcpop{position:absolute;z-index:4;pointer-events:none;font:800 22px var(--mono);color:#fff;text-shadow:0 0 16px var(--acc);transform:translate(-50%,-50%);animation:arcPop 1s ease-out forwards;white-space:nowrap}
+.arcpop.big{font-size:30px;color:#ffd65a;text-shadow:0 0 22px #ff9a3c}
+.arcpop.bad{color:#ff8aa0;text-shadow:0 0 16px #ff3d6e}
+@keyframes arcPop{0%{opacity:0;transform:translate(-50%,-30%) scale(.7)}15%{opacity:1;transform:translate(-50%,-60%) scale(1.1)}100%{opacity:0;transform:translate(-50%,-160%) scale(1)}}
+.arcov.calm .arcpop{animation:arcPopC 1s ease-out forwards}
+@keyframes arcPopC{0%,70%{opacity:1}100%{opacity:0}}
+/* intro, countdown and results */
+.arcintro{text-align:center;display:flex;flex-direction:column;gap:14px;align-items:center}
+.arcintro .badge{font:700 12px var(--mono);letter-spacing:.14em;color:var(--acc);text-transform:uppercase}
+.arcintro h2{font:700 clamp(30px,8vw,54px)/1.05 var(--display,var(--ui));letter-spacing:-.02em;margin:0;background:linear-gradient(100deg,#fff 10%,color-mix(in srgb,var(--acc) 70%,#fff) 50%,color-mix(in srgb,var(--acc2) 70%,#fff) 90%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 20px color-mix(in srgb,var(--acc) 40%,transparent))}
+.arcintro p{margin:0;max-width:34em;color:#c9d3ef;font-size:16px;line-height:1.5}
+.arcrules{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.arcrules span{font:600 12.5px var(--mono);color:#dfe6ff;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:999px;padding:6px 12px}
+.arcgo{font:inherit;font-size:17px;font-weight:800;border:0;border-radius:14px;padding:14px 26px;cursor:pointer;color:#fff;background:linear-gradient(135deg,var(--acc2),var(--acc));box-shadow:0 14px 34px -12px var(--acc);transition:transform .2s var(--spring,ease)}
+.arcgo:hover{transform:translateY(-2px)}.arcgo:active{transform:scale(.97)}
+.arcgo.alt{background:rgba(255,255,255,.08);box-shadow:none;border:1px solid rgba(255,255,255,.16);font-size:15px;padding:12px 18px}
+.arcacts{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.arccount{font:800 clamp(80px,22vw,160px)/1 var(--mono);color:#fff;text-align:center;text-shadow:0 0 40px var(--acc);animation:arcCt .8s ease both}
+@keyframes arcCt{0%{opacity:0;transform:scale(1.6)}30%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(.8)}}
+.arcres{display:flex;flex-direction:column;gap:14px;align-items:center;text-align:center}
+.arcres .big{font:800 clamp(46px,13vw,84px)/1 var(--mono);color:#fff;text-shadow:0 0 30px var(--acc)}
+.arcres .nb{font:800 14px var(--mono);letter-spacing:.16em;color:#ffd65a;text-transform:uppercase;text-shadow:0 0 18px #ff9a3c}
+.arcres .gr{font:800 clamp(70px,20vw,120px)/1 var(--display,var(--ui));background:linear-gradient(160deg,#fff,var(--acc));-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 24px color-mix(in srgb,var(--acc) 50%,transparent))}
+.arcstats{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;width:100%}
+.arcstats div{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:10px 12px;text-align:left}
+.arcstats b{display:block;font:700 20px var(--mono);color:#fff}
+.arcstats span{font-size:11.5px;color:#9fb0d8;letter-spacing:.04em}
+.arcrep{width:100%;text-align:left;background:rgba(15,23,41,.8);border:1px solid rgba(140,170,255,.16);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:6px;font-size:14px}
+.arcrep h3{margin:0 0 4px;font:700 13px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--acc)}
+.arcrep .ln{display:flex;gap:10px;align-items:baseline}
+.arcrep .ln .tm{font:600 12px var(--mono);color:#8e9bc0;flex:none}
+.arcrep .ln .ok{color:#3ef0b8;font-weight:800}.arcrep .ln .no{color:#ff8aa0;font-weight:800}
+.arcrv{width:100%;text-align:left;display:flex;flex-direction:column;gap:8px}
+.arcrv details{background:rgba(15,23,41,.8);border:1px solid rgba(140,170,255,.14);border-radius:14px;padding:10px 12px}
+.arcrv summary{cursor:pointer;font-weight:700;color:#dfe6ff;list-style:none;display:flex;gap:8px}
+.arcrv summary::-webkit-details-marker{display:none}
+.arcrv summary .x{color:#ff8aa0}
+.arcrv .rb{margin-top:10px;display:flex;flex-direction:column;gap:8px;font-size:14.5px;color:#c9d3ef}
+.arcrv .rb p{margin:0}
+.arcov .expl b,.arcov .rb b{color:#fff}
+.arcwin{font:800 clamp(30px,8vw,52px)/1.05 var(--display,var(--ui));margin:0;color:#fff}
+.arcwin.lose{color:#ff8aa0}
+.arcbossart{width:min(190px,48vw);aspect-ratio:1;position:relative}
+.arcbossart canvas{width:100%;height:100%}
+.arcov .tbl{overflow-x:auto}
+.arcov table{border-collapse:collapse;font-size:14px}
+.arcov th,.arcov td{border:1px solid rgba(140,170,255,.18);padding:5px 8px;text-align:center}
+.arcov .passage{background:rgba(255,255,255,.04);border:1px solid rgba(140,170,255,.14);border-radius:12px;padding:12px;font-size:15px}
+.arcov .passage h4{margin:0 0 6px}
+.arcov .stmt{font-weight:700;font-size:17px}
+.arcov .seq{font:700 22px var(--mono);letter-spacing:.04em}
+.arcov .pairs{display:flex;flex-direction:column;gap:6px;font-family:var(--mono)}
+.arcov .pr{display:grid;grid-template-columns:28px 1fr 1fr;gap:8px;background:rgba(255,255,255,.04);border-radius:8px;padding:6px 8px}
+.arcov .frames{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.arcov .fr{width:64px;height:64px}
+.arcov .arcopts.vis .fr{width:100%;max-width:80px;height:auto}
+.arcov .diag{display:flex;justify-content:center;overflow-x:auto}
+.arcov .diag svg{max-width:100%;height:auto}
+.arcov mark{background:#ffd65a;color:#1c1500;border-radius:3px;padding:0 2px}
+@media (max-width:520px){.arcsc{font-size:24px}.arcqc{padding:14px;font-size:16px}.arco{font-size:15px}.arcopts.vis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (prefers-reduced-motion:reduce){.arcov *{animation-duration:.01ms!important}}
+</style>
+</head>
+<body>
+
+
+<div class="app">
+  <header class="top">
+    <div class="brand"><span class="mark" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="#fff" stroke-width="2"/><circle cx="12" cy="12" r="4.5" fill="none" stroke="#fff" stroke-width="2"/><circle cx="12" cy="12" r="1.6" fill="#F2C46D"/></svg></span><span class="bt">Aptitude Gym</span></div>
+    <div class="pills"><a class="pill menu" href="./" aria-label="Back to the app menu"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5"/></svg>Menu</a><span class="pill" id="p-streak"></span><span class="pill" id="p-xp"></span></div>
+  </header>
+  <main id="view" class="app"></main>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+/* ---------- helpers ---------- */
+function R(a,b){return a+Math.floor(Math.random()*(b-a+1));}
+function P(a){return a[Math.floor(Math.random()*a.length)];}
+function shuf(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function F(n){return Number(n).toLocaleString("en-GB",{maximumFractionDigits:2});}
+function esc(t){return String(t).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
+function strip(h){var d=document.createElement("div");d.innerHTML=h;return (d.textContent||"").replace(/\s+/g," ").trim();}
+function $(id){return document.getElementById(id);}
+var LET="ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+/* build a multiple-choice question; correct and wrongs are values, f formats them */
+function mk(sec,html,correct,wrongs,exp,f,o){f=f||function(x){return String(x);};o=o||{};
+  var seen={},opts=[];function add(v){if(typeof v==="number"&&(!isFinite(v)||(o.pos!==false&&v<=0&&correct>0)))return;var s=f(v);if(seen[s])return;seen[s]=1;opts.push(s);}
+  add(correct);wrongs.forEach(add);
+  if(typeof correct==="number"){var base=Math.max(1,Math.round(Math.abs(correct)*0.1)),st=[1,-1,2,-2,3,-3,4,-4];for(var i=0;i<st.length&&opts.length<4;i++)add(correct+st[i]*base);}
+  var c=f(correct);opts=opts.slice(0,4);if(o.order)opts.sort(function(a,b){return o.order.indexOf(a)-o.order.indexOf(b);});else if(o.num)opts.sort(function(a,b){return Number(a)-Number(b);});else if(!o.keep)shuf(opts);
+  return{sec:sec,html:html,opts:opts,ans:opts.indexOf(c),exp:exp,vis:!!o.vis};}
+
+/* ---------- numerical ---------- */
+function numQ(){var t=P(["pct","chg","ratio","rate","table","eff"]);
+  if(t==="pct"){var p=P([800,1200,1400,1600,2000]),pc=P([15,20,25,35,40,60,65,75,80,85,90]),a=p*pc/100;
+    return mk("num","<p>A unit is rated at <b>"+F(p)+" MW</b>. It's running at <b>"+pc+"%</b> power. What is its output?</p>",a,[p-a,a+p*0.05,a-p*0.1],
+      "<p>"+pc+"% of "+F(p)+" = "+F(p)+" × "+pc+" ÷ 100 = <b>"+F(a)+" MW</b>.</p><p>Shortcut: 10% of "+F(p)+" is "+F(p/10)+", so "+pc+"% is "+F(p/10)+" × "+F(pc/10)+".</p>",function(x){return F(x)+" MW";});}
+  if(t==="chg"){var a0=P([400,500,800,1000,1200,1600]),pc2=P([10,20,25,40,50]),up=Math.random()<0.6,b=up?a0*(1+pc2/100):a0*(1-pc2/100),wr=Math.round(Math.abs(b-a0)/b*1000)/10;
+    var lab=function(x){return (x<0?"Decrease of ":"Increase of ")+F(Math.abs(x))+"%";};
+    return mk("num","<p>Monthly output went from <b>"+F(a0)+" MWh</b> to <b>"+F(b)+" MWh</b>. What was the percentage change?</p>",up?pc2:-pc2,[up?-pc2:pc2,up?wr:-wr,up?pc2+5:-(pc2+5)],
+      "<p>Change = "+F(b)+" − "+F(a0)+" = "+F(b-a0)+" MWh.</p><p>Always divide by the <b>original</b> value: "+F(Math.abs(b-a0))+" ÷ "+F(a0)+" × 100 = <b>"+pc2+"%</b> "+(up?"increase":"decrease")+". Dividing by the new value gives the trap answer of "+F(wr)+"%.</p>",lab,{pos:false});}
+  if(t==="ratio"){var rr=P([[3,2],[7,2],[5,3],[4,1],[3,1],[5,2]]),k=R(3,12),tot=(rr[0]+rr[1])*k,a1=rr[1]*k;
+    return mk("num","<p>Water and concentrate are mixed in the ratio <b>"+rr[0]+" : "+rr[1]+"</b>. You need <b>"+tot+" litres</b> of mixture. How much concentrate is that?</p>",a1,[rr[0]*k,Math.round(tot/rr[1]),a1+k],
+      "<p>Total parts = "+rr[0]+" + "+rr[1]+" = "+(rr[0]+rr[1])+". One part = "+tot+" ÷ "+(rr[0]+rr[1])+" = "+k+" litres.</p><p>Concentrate = "+rr[1]+" parts × "+k+" = <b>"+a1+" litres</b>.</p>",function(x){return F(x)+" litres";});}
+  if(t==="rate"){var r=P([150,200,250,300,400,450,600]),m=R(4,40),v=r*m;
+    return mk("num","<p>A pump moves <b>"+F(r)+" litres per minute</b>. How long will it take to move <b>"+F(v)+" litres</b>?</p>",m,[m*2,m+10,Math.max(1,Math.round(m/2))],
+      "<p>Time = amount ÷ rate = "+F(v)+" ÷ "+F(r)+" = <b>"+m+" minutes</b>.</p><p>Check by multiplying back: "+F(r)+" × "+m+" = "+F(v)+".</p>",function(x){return x+(x===1?" minute":" minutes");});}
+  if(t==="table"){var days=["Mon","Tue","Wed","Thu","Fri"],A=days.map(function(){return R(30,39);}),B=days.map(function(){return R(26,38);}),q=P(["tot","diff","avg"]),di=R(0,4);
+    var sA=A.reduce(function(s,x){return s+x;},0);if(q==="avg"&&sA%5){A[4]+=5-sA%5;sA=A.reduce(function(s,x){return s+x;},0);}
+    if(A[di]===B[di])B[di]-=2;
+    var td=function(x){return "<td>"+x+"</td>";};
+    var tb='<div class="tbl"><table><thead><tr><th>Sent out (GWh)</th>'+days.map(function(d){return "<th>"+d+"</th>";}).join("")+'</tr></thead><tbody><tr><th>Unit 1</th>'+A.map(td).join("")+'</tr><tr><th>Unit 2</th>'+B.map(td).join("")+'</tr></tbody></table></div>';
+    var g=function(x){return F(x)+" GWh";};
+    if(q==="tot")return mk("num",tb+"<p>How much did <b>Unit 1</b> send out from Monday to Friday?</p>",sA,[sA+10,sA-10,sA+5],"<p>Add Unit 1's row: "+A.join(" + ")+" = <b>"+sA+" GWh</b>.</p><p>Tip: add in pairs to make round numbers.</p>",g);
+    if(q==="diff"){var dd=Math.abs(A[di]-B[di]);return mk("num",tb+"<p>On <b>"+days[di]+"</b>, how much more did the higher unit send out than the lower one?</p>",dd,[dd+2,A[di]+B[di]>60?dd+5:dd+3,Math.max(1,dd-1)],"<p>On "+days[di]+": Unit 1 = "+A[di]+", Unit 2 = "+B[di]+". Difference = <b>"+dd+" GWh</b>.</p>",g);}
+    var av=sA/5;return mk("num",tb+"<p>What was <b>Unit 1's</b> average daily output?</p>",av,[av+2,av-2,sA/4],"<p>Average = total ÷ number of days = "+sA+" ÷ 5 = <b>"+av+" GWh</b>.</p>",g);}
+  var pr=P([[3000,1050],[3400,1190],[4000,1600],[2500,850],[2000,660],[4500,1620],[3600,1260]]),e=Math.round(pr[1]/pr[0]*100);
+  return mk("num","<p>A reactor makes <b>"+F(pr[0])+" MW</b> of heat and <b>"+F(pr[1])+" MW</b> of electricity. What is its efficiency?</p>",e,[100-e,e+5,e-5],
+    "<p>Efficiency = useful output ÷ input × 100 = "+F(pr[1])+" ÷ "+F(pr[0])+" × 100 = <b>"+e+"%</b>.</p><p>The rest leaves as waste heat, mostly through the condenser.</p>",function(x){return x+"%";});}
+
+/* ---------- verbal ---------- */
+var PASS=[
+{t:"Refuelling outages",p:"During a refuelling outage the reactor is shut down and part of the fuel is replaced. Outages are planned many months ahead because hundreds of extra workers may be needed on site. While the reactor is offline, engineers also inspect and repair equipment that cannot be reached while the plant is running. If an inspection finds a serious problem, the outage can last longer than planned.",
+ s:[["Outages are planned well in advance.",0,"The passage says outages are planned many months ahead."],["All of the fuel is replaced during an outage.",1,"It says part of the fuel is replaced, which contradicts all of it."],["Workers are paid more during outages.",2,"Pay isn't mentioned at all."],["Some equipment can only be repaired while the reactor is offline.",0,"Engineers repair equipment that can't be reached while the plant is running."]]},
+{t:"Shift handover",p:"At the end of every shift, the outgoing operator briefs the incoming operator on the plant's condition. The briefing covers any alarms, equipment out of service and work planned for the next shift. Both operators then walk the control room panels together. The incoming operator only takes over once they are satisfied they understand the plant's state.",
+ s:[["Handovers include a walk round the control room panels.",0,"Both operators walk the panels together."],["The outgoing operator decides when the handover is complete.",1,"The incoming operator takes over once they're satisfied, so it isn't the outgoing operator's decision."],["Handovers usually take about half an hour.",2,"No length of time is given."]]},
+{t:"Seawater cooling",p:"Many coastal power stations use seawater to cool the steam leaving their turbines. The seawater passes through thousands of tubes in the condenser and is returned to the sea slightly warmer. Fish screens at the intake stop most marine life from being drawn into the system. The seawater never mixes with the water that passes through the reactor.",
+ s:[["Seawater is used to cool steam after it leaves the turbine.",0,"That's stated in the first sentence."],["Fish screens stop all marine life entering the system.",1,"They stop most marine life, not all of it."],["Seawater goes back to the sea colder than when it came in.",1,"It's returned slightly warmer."],["Inland power stations can't use this method.",2,"The passage only talks about coastal stations and says nothing about inland ones."]]},
+{t:"Decay heat",p:"When a reactor shuts down, the chain reaction stops within seconds, but the fuel keeps producing heat. This decay heat comes from radioactive products created during operation. It falls quickly at first and then more slowly over days and weeks. For this reason, cooling must continue long after shutdown.",
+ s:[["The fuel stops producing heat as soon as the chain reaction stops.",1,"The fuel keeps producing heat after the chain reaction stops."],["Decay heat falls fastest just after shutdown.",0,"It falls quickly at first, then more slowly."],["Decay heat is the main cause of reactor accidents.",2,"The passage doesn't say anything about what causes accidents."]]},
+{t:"Radiation monitoring",p:"Everyone who works in controlled areas of a nuclear site wears a personal dosimeter. The dosimeter records the radiation dose the wearer receives. Readings are checked regularly and compared with legal limits, which are set well below levels known to cause harm. Visitors to controlled areas are also given dosimeters.",
+ s:[["Visitors to controlled areas wear dosimeters.",0,"The last sentence says they're given dosimeters."],["Legal dose limits are set at the level where harm begins.",1,"Limits are set well below levels known to cause harm."],["People working in offices on the site wear dosimeters.",2,"Only controlled areas are mentioned. Offices aren't covered."]]},
+{t:"Apprenticeship scheme",p:"A power company runs a four-year engineering apprenticeship. Apprentices spend their first year at a training college before moving to a power station. Applicants must have GCSEs in maths and English, and a science qualification is preferred. Every year the scheme receives far more applications than it has places.",
+ s:[["Apprentices start at a power station in their first year.",1,"The first year is spent at a training college."],["A science qualification is required to apply.",1,"It's preferred, not required."],["Most applicants aren't offered a place.",0,"Far more applications than places means most applicants miss out."],["Apprentices are guaranteed a job when they finish.",2,"Nothing is said about what happens after the four years."]]}
+];
+function verbQ(){var ps=P(PASS),st=P(ps.s),L=["True","False","Cannot say"];
+  return{sec:"verb",html:'<div class="passage"><h4>'+ps.t+'</h4>'+ps.p+'</div><p class="stmt">'+st[0]+'</p>',opts:L.slice(),ans:st[1],
+    exp:"<p><b>"+L[st[1]]+".</b> "+st[2]+"</p>"+(st[1]===2?"<p>Remember: if the passage doesn't give enough information, the answer is Cannot say, even if you know the answer from real life.</p>":""),vis:false};}
+
+/* ---------- logical ---------- */
+function seqQ(){var k=P(["ar","geo","inc","alt","sq"]),s,ans,exp,d,i;
+  if(k==="ar"){var a=R(2,30);d=R(3,12)*(Math.random()<0.25?-1:1);if(d<0)a+=70;s=[0,1,2,3,4].map(function(i){return a+i*d;});ans=a+5*d;exp="Each number goes "+(d>0?"up":"down")+" by "+Math.abs(d)+".";}
+  if(k==="geo"){var g=R(1,5),r=P([2,3]);s=[0,1,2,3,4].map(function(i){return g*Math.pow(r,i);});ans=g*Math.pow(r,5);exp="Each number is multiplied by "+r+".";d=s[4];}
+  if(k==="inc"){var b=R(1,10),d0=R(1,4);s=[b];for(i=1;i<5;i++)s.push(s[i-1]+d0+i-1);ans=s[4]+d0+4;exp="The gaps grow by 1 each time: +"+d0+", +"+(d0+1)+", +"+(d0+2)+", +"+(d0+3)+". So the next gap is +"+(d0+4)+".";d=d0+4;}
+  if(k==="alt"){var a1=R(1,9),b1=R(30,45),x=R(2,5),y=-R(2,4);s=[a1,b1,a1+x,b1+y,a1+2*x,b1+2*y];ans=a1+3*x;exp="Two sequences take turns. One goes "+a1+", "+(a1+x)+", "+(a1+2*x)+" (+"+x+" each time); the other goes "+b1+", "+(b1+y)+", "+(b1+2*y)+" ("+y+" each time). The next number continues the first one.";d=x;}
+  if(k==="sq"){var n0=R(2,6),c=P([0,1,-1]),cs=c?(c>0?" + 1":" − 1"):"";s=[0,1,2,3,4].map(function(i){return (n0+i)*(n0+i)+c;});ans=(n0+5)*(n0+5)+c;exp="These are square numbers"+cs+": "+n0+"²"+cs+", "+(n0+1)+"²"+cs+" and so on. Next is "+(n0+5)+"²"+cs+".";d=2*(n0+5);}
+  return mk("logic","<p>What number comes next?</p><div class=\"seq\">"+s.join(", ")+", ?</div>",ans,[ans+Math.abs(d),ans-1,ans+2],"<p>"+exp+" Answer: <b>"+ans+"</b>.</p>",null,{pos:false});}
+function letQ(){var k=R(2,4),st=R(0,25-5*k),s=[0,1,2,3].map(function(i){return LET[st+i*k];}),ix=st+4*k;
+  return mk("logic","<p>What letter comes next?</p><div class=\"seq\">"+s.join(" ")+" ?</div>",LET[ix],[LET[ix-1],LET[ix+1],LET[ix+2]],
+    "<p>Each letter moves "+k+" places along the alphabet, skipping "+(k-1)+" letter"+(k>2?"s":"")+" each time. "+s[3]+" + "+k+" = <b>"+LET[ix]+"</b>.</p><p>Tip: number the letters (A = 1, B = 2…) and treat it like a number sequence.</p>");}
+function frame(th,c,f){var dots="",x0=32-(c-1)*3.5;for(var i=0;i<c;i++)dots+='<circle class="dt" cx="'+(x0+i*7)+'" cy="55" r="2.6"/>';
+  return '<svg class="fr" viewBox="0 0 64 64" aria-hidden="true"><rect class="frb" x="2" y="2" width="60" height="60" rx="8"/><g transform="rotate('+th+' 30 28)"><path class="arw" d="M30 41V15M22 23l8-8 8 8"/></g>'+dots+'<rect class="'+(f?"sqf":"sqe")+'" x="48" y="7" width="9" height="9" rx="2"/></svg>';}
+function shapeQ(){var step=P([45,90]),th0=P([0,45,90,135,180]),c0=R(1,3),f0=Math.random()<0.5,alt=Math.random()<0.6;
+  function fill(i){return alt?((i%2===0)===f0):f0;}
+  var cor={th:th0+4*step,c:c0+4,f:fill(4)},w=[{th:cor.th+step,c:cor.c,f:cor.f},{th:cor.th,c:cor.c+1,f:cor.f},alt?{th:cor.th,c:cor.c,f:!cor.f}:{th:cor.th-step,c:cor.c,f:cor.f}];
+  var opts=shuf([cor].concat(w)),ans=opts.indexOf(cor);
+  return{sec:"logic",vis:true,html:"<p>Which picture comes next?</p><div class=\"frames\">"+[0,1,2,3].map(function(i){return frame(th0+i*step,c0+i,fill(i));}).join("")+'<div class="fq">?</div></div>',
+    opts:opts.map(function(o){return frame(o.th,o.c,o.f);}),ans:ans,
+    exp:"<p>Track one feature at a time:</p><p>The arrow turns <b>"+step+"° clockwise</b> each step. The dots go up by <b>1</b> each step, so the next picture has "+cor.c+". The corner square "+(alt?"switches between filled and empty":"stays the same")+".</p><p>Only one option gets all three right.</p>"};}
+
+/* ---------- mechanical ---------- */
+function gearSVG(n,tri,cw){var g="",pos=[],W,H;
+  if(tri){pos=[[60,80],[118,80],[89,30]];W=180;H=120;}else{for(var i=0;i<n;i++)pos.push([36+i*58,48]);W=36*2+(n-1)*58;H=96;}
+  pos.forEach(function(p,i){g+='<circle class="gt" cx="'+p[0]+'" cy="'+p[1]+'" r="25" stroke-dasharray="5.2 5.2"/><circle class="gb" cx="'+p[0]+'" cy="'+p[1]+'" r="21"/><text class="gl" x="'+p[0]+'" y="'+p[1]+'">'+LET[i]+'</text>';});
+  g+='<text class="rot" x="'+pos[0][0]+'" y="'+(tri?pos[0][1]+50:pos[0][1]+46)+'">'+(cw?"↻":"↺")+'</text>';
+  return '<div class="diag"><svg viewBox="0 0 '+W+' '+(H+(tri?18:6))+'" width="'+W+'" role="img" aria-label="'+(tri?"Three gears touching in a triangle":n+" gears in a row")+', gear A turning '+(cw?"clockwise":"anticlockwise")+'">'+g+'</svg></div>';}
+function gearQ(){var cw=Math.random()<0.5;
+  if(Math.random()<0.2)return mk("mech",gearSVG(3,true,cw)+"<p>Three gears all touch each other in a triangle. Gear A is turned "+(cw?"clockwise":"anticlockwise")+". What happens?</p>","They jam and can't turn",["Gear C turns clockwise","Gear C turns anticlockwise"],
+    "<p>Touching gears turn in opposite directions. A turns B one way, B turns C the other way, but C also touches A and would have to turn both ways at once.</p><p><b>The gears jam.</b> That's why gear trains are laid out in lines, not closed loops of three.</p>",null,{keep:false});
+  var n=R(2,5),same=n%2===1,last=LET[n-1],dirs=[];for(var i=0;i<n;i++)dirs.push(LET[i]+" "+((i%2===0)===cw?"clockwise":"anticlockwise"));
+  var ansT=(same===cw)?"Clockwise":"Anticlockwise";
+  return mk("mech",gearSVG(n,false,cw)+"<p>Gear A turns <b>"+(cw?"clockwise":"anticlockwise")+"</b>. Which way does gear <b>"+last+"</b> turn?</p>",ansT,[ansT==="Clockwise"?"Anticlockwise":"Clockwise","It doesn't move"],
+    "<p>Each gear turns the opposite way to the one it touches, so the directions alternate along the row: "+dirs.join(", ")+".</p><p>Quick rule: gears A, C and E turn the same way as A; gears B and D turn the opposite way.</p>",null,{order:["Clockwise","Anticlockwise","It doesn't move"]});}
+function gearSpeedQ(){var T=[10,12,15,20,24,30,40,60],t1,t2,r1,r2,g=0;do{t1=P(T);t2=P(T);r1=P([30,60,90,120,180,240]);r2=r1*t1/t2;g++;}while((t1===t2||r2%1!==0)&&g<200);
+  return mk("mech","<p>Gear A has <b>"+t1+" teeth</b> and turns at <b>"+r1+" rpm</b>. It drives gear B, which has <b>"+t2+" teeth</b>. How fast does gear B turn?</p>",r2,[r1*t2/t1,r1,r2*2],
+    "<p>Teeth × speed is the same for both gears: "+t1+" × "+r1+" = "+F(t1*r1)+".</p><p>Gear B: "+F(t1*r1)+" ÷ "+t2+" = <b>"+F(r2)+" rpm</b>. "+(t2>t1?"B is bigger, so it turns slower.":"B is smaller, so it turns faster.")+"</p>",function(x){return F(x)+" rpm";});}
+function leverQ(){var L,d1,d2,e,g=0;do{L=P([20,30,40,50,60,80,90,120]);d1=P([0.5,1,1.5,2]);d2=P([1,2,3,4]);e=L*d1/d2;g++;}while((d1>=d2||(e*2)%1!==0)&&g<200);
+  var s=40,px=24+d1*s,ex=px+d2*s,W=ex+24;
+  var svg='<div class="diag"><svg viewBox="0 0 '+W+' 104" width="'+W+'" role="img" aria-label="Lever with the load '+d1+' metres from the pivot and the effort '+d2+' metres from it on the other side">'+
+    '<line class="beam" x1="14" y1="50" x2="'+(ex+10)+'" y2="50"/><path class="piv" d="M'+px+' 53l-11 20h22z"/>'+
+    '<rect class="load" x="10" y="22" width="28" height="25" rx="3"/><text class="lt" x="24" y="38">'+L+'kg</text>'+
+    '<path class="eff" d="M'+ex+' 14v30M'+(ex-6)+' 37l6 7 6-7"/>'+
+    '<line class="dim" x1="24" y1="88" x2="'+px+'" y2="88"/><line class="dim" x1="'+px+'" y1="88" x2="'+ex+'" y2="88"/>'+
+    '<text class="dl" x="'+((24+px)/2)+'" y="100">'+d1+' m</text><text class="dl" x="'+((px+ex)/2)+'" y="100">'+d2+' m</text></svg></div>';
+  return mk("mech",svg+"<p>A <b>"+L+" kg</b> load sits <b>"+d1+" m</b> from the pivot. You push down <b>"+d2+" m</b> from the pivot on the other side. How much force (in kg) balances it?</p>",e,[L*d2/d1,L,e*2],
+    "<p>A lever balances when load × its distance = effort × its distance.</p><p>"+L+" × "+d1+" = effort × "+d2+", so effort = "+F(L*d1)+" ÷ "+d2+" = <b>"+F(e)+" kg</b>. The longer arm on your side means you need less force.</p>",function(x){return F(x)+" kg";});}
+function pulleyQ(){var n=R(2,4),W=n*R(15,60),e=W/n;
+  return mk("mech","<p>A load of <b>"+W+" kg</b> hangs from a pulley system with <b>"+n+" rope sections</b> holding it up. Ignoring friction, how much force (in kg) do you need to lift it?</p>",e,[W,W/(n+1),e*2],
+    "<p>The load's weight is shared between the rope sections holding it up: "+W+" ÷ "+n+" = <b>"+F(e)+" kg</b>.</p><p>The trade-off: you have to pull "+n+" times as much rope.</p>",function(x){return F(x)+" kg";});}
+var MC=[
+["Water flows along a pipe that gets narrower. In the narrow part, the water flows…",["Faster","Slower","At the same speed"],"The same amount of water must pass every point each second, so it speeds up where the pipe is narrower."],
+["Two wheels are joined by a belt. The small wheel is half the diameter of the big one. When the big wheel turns once, the small wheel turns…",["Twice","Once","Half a turn"],"The belt moves the same distance round both wheels. The small wheel's rim is half as long, so it has to turn twice."],
+["A tank of water has two holes, one near the top and one near the bottom. Which jet of water comes out faster?",["The bottom one","The top one","Both the same"],"Pressure increases with depth, so water at the bottom is pushed out harder."],
+["You want to open a heavy door with the least force. Where should you push?",["At the edge furthest from the hinges","In the middle","Right next to the hinges"],"Turning effect = force × distance from the pivot. The further from the hinges, the less force you need."],
+["A sealed steel tank full of water is heated. What happens to the pressure inside?",["It rises","It falls","It stays the same"],"Water expands when it's heated but can't escape, so the pressure rises. That's why reactor cooling systems need careful pressure control."],
+["One ball rolls off a table at the same moment an identical ball is dropped from the same height. Which hits the floor first?",["They land at the same time","The dropped ball","The rolling ball"],"Moving sideways doesn't change how fast gravity pulls a ball down, so they land together."]];
+function conceptQ(){var m=P(MC);return mk("mech","<p>"+m[0]+"</p>",m[1][0],m[1].slice(1),"<p><b>"+m[1][0]+".</b> "+m[2]+"</p>");}
+
+/* ---------- checking ---------- */
+var TAGS=["RCP","FW","CVCS","SG","PZR","AFW","CCW","RHR"];
+function code(){return P(TAGS)+"-"+R(1,4)+P(["A","B","C","D"])+"-"+R(1000,9999);}
+function alter(c){for(var g=0;g<30;g++){var a=c.split(""),t=R(0,2),idx=[],j;
+  if(t===0){for(var i=0;i<a.length-1;i++)if(/\d/.test(a[i])&&/\d/.test(a[i+1])&&a[i]!==a[i+1])idx.push(i);if(!idx.length)continue;j=P(idx);var x=a[j];a[j]=a[j+1];a[j+1]=x;}
+  else if(t===1){a.forEach(function(ch,i){if(/\d/.test(ch))idx.push(i);});j=P(idx);a[j]=String((+a[j]+R(1,9))%10);}
+  else{a.forEach(function(ch,i){if(/[A-Z]/.test(ch))idx.push(i);});j=P(idx);a[j]=P("ABCDEFGHKLMNPRSTVW".split("").filter(function(l){return l!==a[j];}));}
+  var r=a.join("");if(r!==c)return r;}return c+"X";}
+function hl(a,b){var o="";for(var i=0;i<b.length;i++)o+=(a[i]!==b[i])?"<mark>"+b[i]+"</mark>":b[i];return o;}
+function checkQ(){
+  if(Math.random()<0.5){var same=R(0,5),rows=[];for(var i=0;i<5;i++){var c=code();rows.push([c,i<same?c:alter(c)]);}shuf(rows);
+    var wr=shuf([0,1,2,3,4,5].filter(function(x){return x!==same;})).slice(0,3);
+    var diffs=[];rows.forEach(function(r,i){if(r[0]!==r[1])diffs.push("Row "+(i+1)+": "+r[0]+" vs "+hl(r[0],r[1]));});
+    return mk("check","<p>How many of these pairs are <b>exactly</b> the same?</p><div class=\"pairs\">"+rows.map(function(r,i){return '<div class="pr"><b>'+(i+1)+'</b><span>'+r[0]+'</span><span>'+r[1]+'</span></div>';}).join("")+"</div>",same,wr,
+      "<p><b>"+same+"</b> pair"+(same===1?" is":"s are")+" identical.</p>"+(diffs.length?"<p>"+diffs.join("<br>")+"</p>":"")+"<p>Tip: compare in chunks, and watch for swapped digits.</p>",String,{pos:false,num:true});}
+  var base=[code(),code(),code(),code()],k=R(0,3),shown=base.map(function(c,i){return i===k?alter(c):c;}),labs=["A","B","C","D"];
+  return mk("check","<p>The log on the left should match the panel on the right. Which row has a mistake?</p><div class=\"pairs\">"+base.map(function(c,i){return '<div class="pr"><b>'+labs[i]+'</b><span>'+c+'</span><span>'+shown[i]+'</span></div>';}).join("")+"</div>",
+    "Row "+labs[k],labs.filter(function(l,i){return i!==k;}).map(function(l){return "Row "+l;}),"<p><b>Row "+labs[k]+"</b>: "+base[k]+" was shown as "+hl(base[k],shown[k])+".</p><p>Tip: read each code in chunks of 3 or 4 characters.</p>",null,{order:["Row A","Row B","Row C","Row D"]});}
+
+var GEN={num:numQ,verb:verbQ,
+  logic:function(){var r=Math.random();return r<0.5?seqQ():r<0.7?letQ():shapeQ();},
+  mech:function(){var r=Math.random();return r<0.3?gearQ():r<0.5?gearSpeedQ():r<0.65?leverQ():r<0.8?pulleyQ():conceptQ();},
+  check:checkQ};
+function build(sec,n){var out=[],seen={},g=0;while(out.length<n&&g<n*30){g++;var q=GEN[sec]();var key=strip(q.html).slice(0,160);if(seen[key]&&g<n*25)continue;seen[key]=1;out.push(q);}return out;}
+
+/* ---------- content ---------- */
+var ORDER=["num","verb","logic","mech","check"];
+var GEAR='<svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/></svg>';
+var LENS='<svg class="ic" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5 5"/></svg>';
+var SECS={num:{n:"Numerical",g:"%",d:"Percentages, ratios, rates and tables",spq:60},
+  verb:{n:"Verbal",g:"Aa",d:"True, False or Cannot say from a short passage",spq:45},
+  logic:{n:"Logical",g:"123",d:"Number, letter and shape patterns",spq:50},
+  mech:{n:"Mechanical",g:GEAR,d:"Gears, levers, pulleys and pressure",spq:45},
+  check:{n:"Checking",g:LENS,d:"Spotting differences in codes, fast",spq:30}};
+var LEARN={
+num:{why:"Numerical tests check you can work with numbers quickly and accurately: percentages, ratios, rates and data in tables. Operators do this all shift, reading flows, temperatures and power levels.",
+ tips:["Estimate before you calculate. 85% of 1,600 must be a bit less than 1,600, which rules out silly options straight away.","Use 10% as a building block: move the decimal point one place, then multiply.","Percentage change is always change ÷ original value. Dividing by the new value is the most common trap.","Read table titles and units carefully. MW and GW, or thousands and millions, catch people out."],
+ q:"Output went from 1,200 MWh to 1,500 MWh. What's the percentage change?",steps:["Find the change: 1,500 − 1,200 = 300 MWh.","Divide by the original value, 1,200, not the new one: 300 ÷ 1,200 = 0.25.","Turn it into a percentage: 0.25 × 100 = 25%.","Answer: an increase of 25%. The trap answer is 20%, which you'd get by dividing by 1,500."]},
+verb:{why:"Verbal tests check you can read carefully and only conclude what the text actually supports. That's exactly how operators have to read procedures: no assumptions.",
+ tips:["Only use the passage. If it doesn't say something, the answer is Cannot say, even if you know it's true in real life.","True means the passage says it, or it must follow from what's written.","False means the passage contradicts it.","Watch strong words like all, never and only. A passage that says most or part usually makes an all statement False."],
+ q:"Passage: \"Fish screens stop most marine life entering the cooling system.\" Statement: \"No marine life ever enters the system.\"",steps:["Find the sentence that matches: it says screens stop most marine life.","Compare: most isn't all, so some marine life can get in.","The passage contradicts the statement, so information isn't just missing.","Answer: False."]},
+logic:{why:"Logical reasoning tests check how quickly you spot patterns and rules. It's the same skill as working out a fault from a pattern of alarms.",
+ tips:["For number sequences, write down the gaps between numbers. If they aren't constant, look at the gaps between the gaps.","If nothing fits, check for two sequences taking turns: 1st, 3rd, 5th… and 2nd, 4th, 6th…","For shape sequences, track one feature at a time: rotation, then count, then shading.","Eliminate options as you go. Once one feature rules an option out, you don't need to check the rest."],
+ q:"2, 5, 9, 14, 20, ?",steps:["Write the gaps: +3, +4, +5, +6.","The gaps grow by 1 each time.","So the next gap is +7.","Answer: 20 + 7 = 27."]},
+mech:{why:"Mechanical reasoning tests check your feel for how machines and fluids behave: gears, levers, pulleys and pressure. Power stations are full of pumps, valves and turbines that follow these rules.",
+ tips:["Touching gears turn in opposite directions. In a row, they alternate.","Bigger gears turn slower: teeth × speed is the same on both gears.","A lever balances when load × distance = effort × distance from the pivot.","In a pulley system, count the rope sections holding the load. The force you need is the load divided by that number."],
+ q:"Gear A has 20 teeth and turns at 90 rpm. It drives gear B, which has 30 teeth. How fast does B turn?",steps:["Teeth × speed is the same for both gears.","Gear A: 20 × 90 = 1,800.","Gear B: 30 × speed = 1,800, so speed = 1,800 ÷ 30.","Answer: 60 rpm. B is bigger, so it should turn slower, which it does."]},
+check:{why:"Checking tests measure how fast and accurately you spot differences. Operators confirm equipment codes all the time, and one wrong digit can mean the wrong valve.",
+ tips:["Compare in chunks of 3 or 4 characters, not the whole code at once.","Look out for swapped digits like 4471 and 4417. They're the most common trap.","Check the letters as well as the numbers. A or B in the middle of a code is easy to skip.","Work steadily. These tests reward accuracy as much as speed."],
+ q:"Are these the same?   CVCS-2B-4471   and   CVCS-2B-4417",steps:["First chunk: CVCS matches CVCS.","Second chunk: 2B matches 2B.","Last chunk: 4471 against 4417. The last two digits are swapped.","Answer: they're different."]}};
+
+/* ---------- state ---------- */
+var KEY="aptitude-v1";
+function blank(){return{xp:0,streak:0,lastDay:null,sec:{},mockBest:null,warm:"",hist:[]};}
+var S=blank();try{var o=JSON.parse(localStorage.getItem(KEY)||"null");if(o)for(var k in o)S[k]=o[k];}catch(e){}
+ORDER.forEach(function(s){if(!S.sec[s])S.sec[s]={n:0,c:0,best:null};});
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+function ds(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
+function today(){return ds(new Date());}
+function pd(s){var a=s.split("-");return new Date(+a[0],+a[1]-1,+a[2]);}
+function gap(a,b){return Math.round((pd(b)-pd(a))/864e5);}
+function liveStreak(){if(!S.lastDay)return 0;return gap(S.lastDay,today())<=1?S.streak:0;}
+function touch(){var t=today();if(S.lastDay===t)return;S.streak=(S.lastDay&&gap(S.lastDay,t)===1)?S.streak+1:1;S.lastDay=t;}
+function addXP(n){if(n<=0)return;S.xp+=n;touch();save();header();}
+var FLAME='<svg class="fl" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5c1.2 3.6 5.5 5.6 5.5 10.6a5.5 5.5 0 0 1-11 0c0-2.8 1.6-4.4 2.7-5.5.3 2 1.3 2.9 2.2 3.3.6-3.3-1-6 .6-8.4z"/></svg>';
+function header(){var s=liveStreak();$("p-streak").innerHTML=FLAME+s+(s===1?" day":" days");$("p-xp").innerHTML='<span class="dot"></span>'+S.xp+" XP";}
+var tq=[],tshow=false;function toast(m){tq.push(m);if(!tshow)nt();}
+function nt(){var m=tq.shift(),el=$("toast");if(!m){tshow=false;el.classList.remove("show");return;}tshow=true;el.textContent=m;el.classList.add("show");setTimeout(function(){el.classList.remove("show");setTimeout(nt,220);},2300);}
+function acc(s){var x=S.sec[s];return x.n?Math.round(x.c/x.n*100):null;}
+
+/* ---------- views ---------- */
+var view="home",lsec=null,lstep=0,Q=null,quitArmed=false;
+function render(){header();var v=$("view");
+  if(view==="home")v.innerHTML=homeHTML();else if(view==="learn")v.innerHTML=learnHTML();else if(view==="quiz")v.innerHTML=quizHTML();else if(view==="results")v.innerHTML=resultsHTML();
+  tickUI();}
+function go(v){view=v;render();window.scrollTo(0,0);}
+function homeHTML(){var tn=0,tc=0;ORDER.forEach(function(s){tn+=S.sec[s].n;tc+=S.sec[s].c;});var warmDone=S.warm===today();
+  var h='<section class="card hero"><span class="eyebrow">Reasoning practice</span><h1>Train for the tests employers use</h1><p>Engineering apprenticeships often use aptitude tests. Practice makes you quicker and more accurate at every question type.</p>'+
+   '<div class="hstats"><div><b>'+S.xp+'</b><span>XP</span></div><div><b>'+liveStreak()+'</b><span>Day streak</span></div><div><b>'+tn+'</b><span>Answered</span></div><div><b>'+(tn?Math.round(tc/tn*100)+"%":"–")+'</b><span>Accuracy</span></div></div></section>';
+  h+=(window.APTX?APTX.top():'');
+  h+='<section class="card s-mix"><div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><div style="min-width:0"><h2>Daily warm-up</h2><p class="small muted">'+(warmDone?"Done today. Come back tomorrow for a new one.":"5 mixed questions with explanations. +15 XP bonus.")+'</p></div><button class="btn '+(warmDone?"":"gold")+'" data-act="warm">'+(warmDone?"Do another":"Start")+'</button></div></section>';
+  h+='<h2>Test types</h2>';
+  ORDER.forEach(function(s){var x=S.sec[s],a=acc(s),sec=SECS[s];
+    h+='<section class="card s-'+s+'"><div class="sec"><span class="sic" aria-hidden="true">'+sec.g+'</span><div style="min-width:0"><h3>'+sec.n+'</h3><p class="meta">'+sec.d+'</p>'+
+     '<p class="small" style="margin-bottom:10px">'+(x.n?"Accuracy "+a+"% · "+x.n+" answered":"Not started yet")+(x.best!=null?" · Best timed "+x.best+"/10":"")+'</p>'+
+     '<div class="btnrow"><button class="btn sm" data-act="learn" data-s="'+s+'">Learn</button><button class="btn sm primary" data-act="prac" data-s="'+s+'">Practise</button><button class="btn sm" data-act="timed" data-s="'+s+'">Timed test</button></div>'+(window.APTX?APTX.type(s):'')+'</div></div></section>';});
+  h+='<section class="card s-mix"><h2>Full mock test</h2><p class="small muted">20 questions from all five types in 18 minutes, like a real application test. No feedback until the end.</p>'+(S.mockBest!=null?'<p class="small">Best score: <b>'+S.mockBest+'/20</b></p>':'')+'<div class="btnrow"><button class="btn primary" data-act="mock">Start mock test</button></div></section>';
+  var have=ORDER.filter(function(s){return S.sec[s].n>=5;});
+  if(have.length){var low=have.slice().sort(function(a,b){return acc(a)-acc(b);})[0];
+    h+='<section class="card"><h2>Your strengths</h2><div class="bars">'+ORDER.map(function(s){var a=acc(s);return '<div class="br s-'+s+'"><span>'+SECS[s].n+'</span><div class="bar"><i style="width:'+(a||0)+'%"></i></div><span class="mono">'+(S.sec[s].n>=5?a+"%":"–")+'</span></div>';}).join("")+'</div>'+
+     (have.length>1?'<p class="small muted">Focus next: <b>'+SECS[low].n+'</b>. It\'s your lowest so far.</p>':'<p class="small muted">Answer at least 5 questions in a type to see it here.</p>')+'</section>';}
+  return h;}
+function learnHTML(){var s=lsec,L=LEARN[s],sec=SECS[s];
+  var h='<button class="back" data-act="home"><svg class="ic" viewBox="0 0 24 24" width="20" height="20"><path d="M15 5l-7 7 7 7"/></svg>All test types</button>'+
+   '<div class="s-'+s+'"><span class="chip">'+sec.n+' reasoning</span><h1 style="margin-top:8px">How to tackle '+sec.n.toLowerCase()+' questions</h1></div>'+
+   '<section class="card"><h2>What it tests</h2><p>'+L.why+'</p></section>'+
+   '<section class="card"><h2>Techniques</h2><ul class="tips">'+L.tips.map(function(t){return "<li>"+t+"</li>";}).join("")+'</ul></section>'+
+   '<section class="card s-'+s+'"><h2>Worked example</h2><div class="exq">'+esc(L.q)+'</div><ol class="steps">'+L.steps.slice(0,lstep).map(function(t){return "<li><span>"+esc(t)+"</span></li>";}).join("")+'</ol>'+
+   (lstep<L.steps.length?'<button class="btn" data-act="lnext">'+(lstep?"Next step":"Show the first step")+'</button>':'<p class="small muted">Now try some yourself.</p>')+'</section>'+
+   '<div class="btnrow"><button class="btn primary" data-act="prac" data-s="'+s+'">Practise 10 questions</button><button class="btn" data-act="timed" data-s="'+s+'">Timed test</button></div>';
+  return h;}
+
+/* ---------- quiz ---------- */
+var MODES={prac:{n:"Practice",fb:true},timed:{n:"Timed test",fb:false},warm:{n:"Warm-up",fb:true},mock:{n:"Mock test",fb:false}};
+function start(mode,sec){var items;
+  if(mode==="prac")items=build(sec,10);
+  else if(mode==="timed")items=build(sec,10);
+  else if(mode==="warm")items=shuf(ORDER.map(function(s){return GEN[s]();}));
+  else{items=[];ORDER.forEach(function(s){items=items.concat(build(s,4));});shuf(items);}
+  var lim=mode==="timed"?10*SECS[sec].spq*1000:mode==="mock"?18*60000:0;
+  Q={mode:mode,sec:sec||"mix",items:items,i:0,picks:[],shown:false,start:Date.now(),limit:lim,endAt:lim?Date.now()+lim:0,xp:0};quitArmed=false;go("quiz");}
+function quizHTML(){var q=Q.items[Q.i],m=MODES[Q.mode],sec=SECS[q.sec];
+  var h='<div class="qtop"><button class="back" data-act="quit" id="quitBtn">'+(quitArmed?"Tap again to quit":"Quit")+'</button><div class="pbar" aria-hidden="true"><i style="width:'+Math.round(Q.i/Q.items.length*100)+'%"></i></div><span class="clock" id="qclock">'+(Q.limit?"":(Q.i+1)+"/"+Q.items.length)+'</span></div>'+
+   '<section class="card s-'+q.sec+'"><div class="qmeta"><span class="chip">'+sec.n+'</span><span>'+m.n+' · Question '+(Q.i+1)+' of '+Q.items.length+'</span></div><div class="qbody">'+q.html+'</div>'+
+   '<div class="opts'+(q.vis?" vis":"")+'" role="group" aria-label="Answer options">'+q.opts.map(function(o,k){var cls="opt";
+     if(Q.shown){if(k===q.ans)cls+=" right";else if(k===Q.picks[Q.i])cls+=" wrong";}
+     return '<button class="'+cls+'" data-act="pick" data-k="'+k+'"'+(Q.shown?" disabled":"")+'>'+(q.vis?"":'<span class="k">'+LET[k]+'</span>')+'<span>'+o+'</span></button>';}).join("")+'</div>';
+  if(Q.shown){var ok=Q.picks[Q.i]===q.ans;
+    h+='<div class="fb '+(ok?"ok":"no")+'"><h3>'+(ok?"Correct. +5 XP":"Not quite")+'</h3><div class="expl">'+q.exp+'</div><div id="xbox"></div><div class="btnrow"><button class="btn primary" data-act="next">'+(Q.i+1<Q.items.length?"Next question":"See results")+'</button><button class="btn" data-act="explain" data-i="'+Q.i+'">Explain more</button></div></div>';}
+  return h+'</section>';}
+function pick(k){var q=Q.items[Q.i];if(Q.shown)return;Q.picks[Q.i]=k;var ok=k===q.ans,st=S.sec[q.sec];
+  if(MODES[Q.mode].fb){st.n++;if(ok){st.c++;Q.xp+=5;addXP(5);}save();Q.shown=true;render();}
+  else{var b=document.querySelector('[data-act="pick"][data-k="'+k+'"]');if(b)b.classList.add("sel");setTimeout(function(){next();},180);}}
+function next(){Q.shown=false;quitArmed=false;if(Q.i+1>=Q.items.length){finish(false);return;}Q.i++;render();window.scrollTo(0,0);}
+function finish(timeUp){if(!Q||Q.done)return;Q.done=true;Q.ms=Date.now()-Q.start;var right=0,bySec={};
+  Q.items.forEach(function(q,i){var ok=Q.picks[i]===q.ans;if(ok)right++;bySec[q.sec]=bySec[q.sec]||{n:0,c:0};bySec[q.sec].n++;if(ok)bySec[q.sec].c++;
+    if(!MODES[Q.mode].fb&&Q.picks[i]!=null){S.sec[q.sec].n++;if(ok)S.sec[q.sec].c++;}});
+  Q.right=right;Q.bySec=bySec;Q.timeUp=timeUp;var bonus=0;
+  if(!MODES[Q.mode].fb){Q.xp+=right*5;addXP(right*5);}
+  if(Q.mode==="timed"){bonus=20;if(S.sec[Q.sec].best==null||right>S.sec[Q.sec].best){if(S.sec[Q.sec].best!=null)toast("New best: "+right+"/10");S.sec[Q.sec].best=right;}}
+  if(Q.mode==="mock"){bonus=50;if(S.mockBest==null||right>S.mockBest){if(S.mockBest!=null)toast("New mock best: "+right+"/20");S.mockBest=right;}}
+  if(Q.mode==="warm"&&S.warm!==today()){bonus=15;S.warm=today();}
+  if(Q.mode==="prac")bonus=10;
+  Q.xp+=bonus;addXP(bonus);S.hist.push({at:Date.now(),m:Q.mode,s:Q.sec,r:right,t:Q.items.length});if(S.hist.length>40)S.hist=S.hist.slice(-40);save();go("results");}
+function resultsHTML(){var n=Q.items.length,pc=Math.round(Q.right/n*100),m=MODES[Q.mode];
+  var msg=pc>=80?"Excellent work. Keep it up to stay sharp.":pc>=60?"Good. Check the ones you missed below, then go again.":"Keep going. Read the explanations below, then try a practice set.";
+  var mins=Math.floor(Q.ms/60000),secs=Math.round((Q.ms%60000)/1000);
+  var h='<section class="card s-'+(Q.sec==="mix"?"mix":Q.sec)+'"><span class="chip">'+(Q.sec==="mix"?"Mixed":SECS[Q.sec].n)+' · '+m.n+'</span><div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap"><span class="score">'+Q.right+'/'+n+'</span><span class="mono muted">'+pc+'%</span></div>'+
+   '<p>'+(Q.timeUp?"Time ran out. ":"")+msg+'</p><p class="small muted">Time: '+mins+' min '+secs+' s · +'+Q.xp+' XP</p>';
+  if(Q.sec==="mix"&&Q.mode==="mock")h+='<div class="bars">'+ORDER.map(function(s){var b=Q.bySec[s]||{n:0,c:0};return '<div class="br s-'+s+'"><span>'+SECS[s].n+'</span><div class="bar"><i style="width:'+(b.n?Math.round(b.c/b.n*100):0)+'%"></i></div><span class="mono">'+b.c+'/'+b.n+'</span></div>';}).join("")+'</div>';
+  h+='<div class="btnrow"><button class="btn primary" data-act="again">Go again</button><button class="btn" data-act="home">Home</button></div></section><h2>Review your answers</h2>';
+  Q.items.forEach(function(q,i){var p=Q.picks[i],ok=p===q.ans;
+    h+='<details class="rv s-'+q.sec+'"><summary><span class="mk '+(ok?"ok":"no")+'">'+(ok?"✓":"✗")+'</span><span style="min-width:0"><span class="chip">'+SECS[q.sec].n+'</span> <span class="pv">'+esc(strip(q.html).slice(0,90)||"Picture sequence")+'</span></span></summary><div class="rb"><div class="qbody">'+q.html+'</div>'+
+     '<p><b>Your answer:</b> '+(p==null?"No answer":(q.vis?"Option "+LET[p]:q.opts[p]))+'<br><b>Correct:</b> '+(q.vis?"Option "+LET[q.ans]:q.opts[q.ans])+'</p>'+(q.vis?'<div class="opts vis">'+q.opts.map(function(o,k){return '<div class="opt'+(k===q.ans?" right":(k===p?" wrong":""))+'"><span class="k">'+LET[k]+'</span>'+o+'</div>';}).join("")+'</div>':'')+
+     '<div class="expl">'+q.exp+'</div><div id="xbox-'+i+'"></div><button class="btn sm" data-act="explain" data-i="'+i+'">Explain more</button></div></details>';});
+  return h;}
+function tickUI(){if(view!=="quiz"||!Q||!Q.limit)return;var left=Math.max(0,Q.endAt-Date.now()),el=$("qclock");
+  if(el){var t=Math.ceil(left/1000);el.textContent=Math.floor(t/60)+":"+String(t%60).padStart(2,"0");el.classList.toggle("low",left<60000);}
+  if(left<=0)finish(true);}
+setInterval(tickUI,250);
+
+/* ---------- explain more (uses the API key saved in Critical, or opens Claude) ---------- */
+var AKEY="critical_api_key",AMODEL="claude-haiku-5-5",ASYS='Tutor in "Aptitude Gym", a UK app where a secondary-school student practises aptitude test questions (numerical, verbal, logical, mechanical and checking) for engineering apprenticeships, aiming to become a nuclear reactor operator. British English. Explain the method simply and give a faster technique if there is one, under 120 words. Plain text with "- " bullets and **bold** only.';
+function akey(){try{return localStorage.getItem(AKEY)||"";}catch(e){return "";}}
+function inl(s){return esc(s).replace(/\*\*([^*]+)\*\*/g,"<b>$1</b>").replace(/`([^`]+)`/g,"<code>$1</code>");}
+function md(t){var out=[],list=null;t.split("\n").forEach(function(l){var m=l.match(/^\s*[-*] (.*)/);if(m){(list=list||[]).push("<li>"+inl(m[1])+"</li>");return;}if(list){out.push("<ul>"+list.join("")+"</ul>");list=null;}if(l.trim())out.push("<p>"+inl(l)+"</p>");});if(list)out.push("<ul>"+list.join("")+"</ul>");return out.join("");}
+function ctx(q,p){return "Question type: "+SECS[q.sec].n+" reasoning.\nQuestion: "+strip(q.html)+"\n"+(q.vis?"(Options are pictures.)":"Options: "+q.opts.map(function(o,k){return LET[k]+") "+strip(o);}).join("; "))+"\nCorrect answer: "+(q.vis?"option "+LET[q.ans]:strip(q.opts[q.ans]))+"\nMy answer: "+(p==null?"none":(q.vis?"option "+LET[p]:strip(q.opts[p])))+"\nExplanation shown: "+strip(q.exp);}
+function linkHTML(text,label){return '<a class="btn sm extlink" href="https://claude.ai/new?q='+encodeURIComponent(text)+'" target="_blank" rel="noopener">'+label+'</a>';}
+function trackUsage(i,o){try{var u=JSON.parse(localStorage.getItem("critical_api_usage")||"null")||{i:0,o:0};u.i=(u.i||0)+i;u.o=(u.o||0)+o;localStorage.setItem("critical_api_usage",JSON.stringify(u));}catch(e){}}
+function explain(i,btn){var q=Q.items[i],box=$("xbox-"+i)||$("xbox");if(!box)return;var c=ctx(q,Q.picks[i]);
+  var ask="I'm practising aptitude tests for an engineering apprenticeship. Please explain this question step by step, simply, and show me a quicker way if there is one.\n\n"+c;
+  if(btn)btn.remove();
+  if(!akey()){box.innerHTML='<div class="ans"><p>Open Claude to get a full explanation of this question.</p>'+linkHTML(ask,"Open in Claude ↗")+'</div>';return;}
+  box.innerHTML='<div class="ans"><p>Thinking…</p></div>';var a=box.firstChild,full="",ui=0,uo=0;
+  fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"content-type":"application/json","x-api-key":akey(),"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+    body:JSON.stringify({model:AMODEL,max_tokens:450,thinking:{type:"disabled"},output_config:{effort:"low"},system:ASYS,stream:true,messages:[{role:"user",content:c+"\n\nExplain how to get the right answer, and a quicker method if there is one."}]})})
+  .then(function(r){if(!r.ok)throw{st:r.status};var rd=r.body.getReader(),dec=new TextDecoder(),buf="";
+    function pump(){return rd.read().then(function(x){if(x.done)return;buf+=dec.decode(x.value,{stream:true});var parts=buf.split("\n");buf=parts.pop();
+      parts.forEach(function(line){if(line.indexOf("data:")!==0)return;var d;try{d=JSON.parse(line.slice(5));}catch(e){return;}
+        if(d.type==="message_start"&&d.message&&d.message.usage)ui=d.message.usage.input_tokens||0;
+        else if(d.type==="content_block_delta"&&d.delta&&d.delta.type==="text_delta"){full+=d.delta.text;a.innerHTML=md(full);}
+        else if(d.type==="message_delta"&&d.usage)uo=d.usage.output_tokens||uo;});return pump();});}
+    return pump();})
+  .then(function(){if(!full)a.innerHTML="<p>No answer came back. Try again.</p>";trackUsage(ui,uo);})
+  .catch(function(err){var s=err&&err.st;a.innerHTML="<p>"+(s===401?"That API key didn't work. Check it in Critical's Ask panel.":s===429?"Too many questions at once. Wait a minute, then try again.":"Couldn't reach Claude right now.")+"</p>"+linkHTML(ask,"Ask in Claude instead ↗");});}
+
+/* ---------- events ---------- */
+document.addEventListener("click",function(e){var a=e.target.closest("[data-act]");if(!a)return;var act=a.getAttribute("data-act"),s=a.getAttribute("data-s");
+  if(act==="home"){Q=null;go("home");}
+  else if(act==="learn"){lsec=s;lstep=0;go("learn");}
+  else if(act==="lnext"){lstep++;render();}
+  else if(act==="prac"||act==="timed")start(act,s);
+  else if(act==="warm")start("warm");
+  else if(act==="mock")start("mock");
+  else if(act==="pick")pick(+a.getAttribute("data-k"));
+  else if(act==="next")next();
+  else if(act==="again")start(Q.mode,Q.sec==="mix"?null:Q.sec);
+  else if(act==="explain")explain(+a.getAttribute("data-i"),a);
+  else if(act==="quit"){if(!quitArmed){quitArmed=true;a.textContent="Tap again to quit";return;}Q=null;quitArmed=false;go("home");}
+});
+document.addEventListener("keydown",function(e){if(view!=="quiz"||!Q||e.target.tagName==="INPUT"||e.target.tagName==="TEXTAREA")return;
+  var n=parseInt(e.key,10);if(n>=1&&n<=Q.items[Q.i].opts.length&&!Q.shown){pick(n-1);return;}
+  if(e.key==="Enter"&&Q.shown)next();});
+render();
+window.__busy=function(){return view==='quiz'||view==='learn'};
+window.APT={GEN:GEN,SECS:SECS,ORDER:ORDER,S:function(){return S},addXP:addXP,save:save,render:render,toast:toast,view:function(){return view}};
+})();
+</script>
+
+<script>if("serviceWorker" in navigator&&location.protocol==="https:"){var _swHad=!!navigator.serviceWorker.controller;navigator.serviceWorker.addEventListener("controllerchange",function(){if(_swHad&&!sessionStorage.getItem("crit_swr")){sessionStorage.setItem("crit_swr","1");location.reload();}});navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(function(r){r.update();}).catch(function(){});}</script>
+<script>
+/* today's plan from Critical: count down, then send you back for the next part (after you finish what you're in) */
+(function(){var K='critical_plan_run',ban=null,bt=null,key=null;
+ function ymd(){var d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()}
+ function rd(){try{var r=JSON.parse(localStorage.getItem(K)||'null');return r&&r.d===ymd()?r:null}catch(e){return null}}
+ function wr(r){try{localStorage.setItem(K,JSON.stringify(r))}catch(e){}}
+ function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+ var css=document.createElement('style');css.textContent='.prun{position:fixed;left:max(12px,env(safe-area-inset-left,0px));bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:9000;max-width:calc(100% - 24px);background:var(--card,#fff);color:var(--ink,#222);border:2px solid var(--brand,#534AB7);border-radius:999px;padding:6px 12px;font:700 13px var(--ui,system-ui,sans-serif);box-shadow:0 4px 16px rgba(0,0,0,.18)}.prun[hidden]{display:none}.prun{display:flex;align-items:center;gap:10px}.prun .pe{font:inherit;font-size:12px;font-weight:800;border:0;border-radius:999px;padding:5px 10px;cursor:pointer;background:var(--brand,#534AB7);color:var(--on-brand,#fff);white-space:nowrap}.prun .pe[hidden]{display:none}'+
+ '.pbn{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:9001;width:min(440px,calc(100% - 32px));background:var(--card,#fff);color:var(--ink,#222);border:2px solid var(--brand,#534AB7);border-radius:16px;padding:12px 14px;box-shadow:0 8px 30px rgba(0,0,0,.25);display:flex;flex-direction:column;gap:8px;font:15px var(--ui,system-ui,sans-serif)}.pbn p{margin:0;line-height:1.45}.pbn div{display:flex;gap:8px;flex-wrap:wrap}.pbn button{font:inherit;font-size:14px;font-weight:800;border:0;border-radius:10px;padding:9px 14px;cursor:pointer;background:var(--brand,#534AB7);color:var(--on-brand,#fff)}.pbn button.alt{background:var(--line,#ddd);color:var(--ink,#222)}';
+ document.head.appendChild(css);
+ var chip=document.createElement('div');chip.className='prun';chip.hidden=true;chip.setAttribute('role','status');chip.innerHTML='<span class="pt"></span><button type="button" class="pe">Finished early</button>';document.body.appendChild(chip);
+ var ct=chip.querySelector('.pt'),ce=chip.querySelector('.pe');
+ function lessons(){var n=0,t=new Date();function same(ms){var x=new Date(ms);return x.getFullYear()===t.getFullYear()&&x.getMonth()===t.getMonth()&&x.getDate()===t.getDate()}
+  try{var c=JSON.parse(localStorage.getItem('critical_state')||'null');if(c&&c.lday&&c.lday.d===ymd())n+=c.lday.n||0}catch(e){}
+  try{var s=JSON.parse(localStorage.getItem('shift-ready-v1')||'null');if(s&&s.done)for(var k in s.done){var v=s.done[k];if(v&&v.at&&same(v.at))n++}}catch(e){}
+  try{var a=JSON.parse(localStorage.getItem('aptitude-v1')||'null');if(a&&a.hist&&a.hist.forEach)a.hist.forEach(function(h){if(h&&h.at&&same(h.at))n++})}catch(e){}
+  return n}
+ function early(){if(lessons()<1){hide();ban=document.createElement('div');ban.className='pbn';ban.setAttribute('role','status');ban.innerHTML='<p><b>Do at least 1 lesson first.</b> Finishing one here counts. Then you can finish today\'s plan early.</p><div><button type="button" class="g">OK</button></div>';ban.querySelector('.g').onclick=hide;document.body.appendChild(ban);return}
+  try{if(parent!==window&&parent.__subEarly){parent.__subEarly();return}}catch(e){}location.href='critical.html#early'}
+ ce.onclick=early;
+ var nv=document.querySelector('nav.tabs');function pos(){var h=0;try{if(nv&&getComputedStyle(nv).position==='fixed')h=Math.round(nv.getBoundingClientRect().height)}catch(e){}chip.style.bottom=h?(h+10)+'px':''}pos();addEventListener('resize',pos);
+ function back(){location.href='critical.html#plannext'}
+ function hide(){if(ban){ban.remove();ban=null}clearInterval(bt);bt=null}
+ function more(){var r=rd();if(r){r.ends=Date.now()+5*60000;wr(r)}key=null;hide();loop()}
+ function show(r){hide();ban=document.createElement('div');ban.className='pbn';ban.setAttribute('role','status');var n=10;
+  ban.innerHTML='<p><b>Time\'s up for '+esc(r.t)+'.</b> Back to Critical for the next part of today\'s plan in <span class="pcd">10</span> s.</p><div><button type="button" class="g">Go now</button><button type="button" class="alt m">5 more minutes</button></div>';
+  ban.querySelector('.g').onclick=back;ban.querySelector('.m').onclick=more;document.body.appendChild(ban);
+  bt=setInterval(function(){if(typeof window.__busy==='function'&&window.__busy()){hide();key=null;return}n--;var c=ban&&ban.querySelector('.pcd');if(c)c.textContent=n;if(n<=0){hide();back()}},1000)}
+ function loop(){var r=rd();if(!r){chip.hidden=true;hide();return}var left=r.ends-Date.now();chip.hidden=false;
+  if(left>0){ce.hidden=false;ct.textContent='Today\'s plan: '+r.t+' · '+(left<60000?Math.ceil(left/1000)+' s':Math.ceil(left/60000)+' min')+' left';return}
+  ce.hidden=true;if(typeof window.__busy==='function'&&window.__busy()){ct.textContent='Time\'s up for '+r.t+'. Finish this, then you\'ll move on.';return}
+  ct.textContent='Time\'s up for '+r.t;var k=r.j+'-'+r.ends;if(!ban&&key!==k){key=k;show(r)}}
+ setInterval(loop,1000);loop();
+})();
+</script>
+<script id="arcJs">
+/* ===== Arcade: Critical's live look, plus the game engine for arcade rounds, boss fights and shift missions.
+   Shared by Shift Ready and Aptitude Gym. Works offline; nothing here talks to the internet. ===== */
+(function(){
+var R=document.documentElement;
+function lg(k){try{return localStorage.getItem(k)}catch(_){return null}}
+function ls(k,v){try{localStorage.setItem(k,v)}catch(_){}}
+function classic(){return lg('critical_look')==='classic'}
+function calm(){var m=lg('critical_motion');if(m==='less')return true;if(m==='full')return false;try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(_){return false}}
+function esc(t){return String(t).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+function el(tag,cls,html){var e=document.createElement(tag);if(cls)e.className=cls;if(html!=null)e.innerHTML=html;return e}
+function fmt(n){return Math.round(n).toLocaleString('en-GB')}
+var IC={x:'<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>',son:'<svg viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/></svg>',soff:'<svg viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M17 9l5 6M22 9l-5 6"/></svg>'};
+
+/* ---------- the look ---------- */
+function initLook(app){R.setAttribute('data-app',app||'');if(classic())return;R.classList.add('arc');if(calm())R.classList.add('arccalm');
+ if(!document.getElementById('arcFonts')){var l=el('link');l.id='arcFonts';l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&display=swap';document.head.appendChild(l)}
+ bg();entrances()}
+function bg(){var cv=el('canvas');cv.id='arcBg';cv.setAttribute('aria-hidden','true');document.body.insertBefore(cv,document.body.firstChild);
+ var c=cv.getContext('2d'),W=0,H=0,dpr=Math.min(2,window.devicePixelRatio||1),P=[],col='58,212,255';
+ function rgb(){try{var v=getComputedStyle(R).getPropertyValue('--glow').trim(),m=/^#?([0-9a-f]{6})$/i.exec(v);if(m){var n=parseInt(m[1],16);col=(n>>16)+','+(n>>8&255)+','+(n&255)}}catch(_){}}
+ function size(){W=innerWidth;H=innerHeight;cv.width=W*dpr;cv.height=H*dpr;c.setTransform(dpr,0,0,dpr,0,0);var n=Math.round(Math.min(70,W*H/26000));P=[];for(var i=0;i<n;i++)P.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.18,vy:-.05-Math.random()*.22,r:.6+Math.random()*1.6,a:.25+Math.random()*.5})}
+ function draw(){c.clearRect(0,0,W,H);for(var i=0;i<P.length;i++){var p=P[i];for(var j=i+1;j<P.length;j++){var q=P[j],dx=p.x-q.x,dy=p.y-q.y,d=dx*dx+dy*dy;if(d<9000){c.strokeStyle='rgba('+col+','+(.12*(1-d/9000)).toFixed(3)+')';c.lineWidth=1;c.beginPath();c.moveTo(p.x,p.y);c.lineTo(q.x,q.y);c.stroke()}}
+  c.fillStyle='rgba('+col+','+p.a+')';c.beginPath();c.arc(p.x,p.y,p.r,0,6.283);c.fill()}}
+ function step(){if(!document.hidden&&!G&&R.classList.contains('arc')&&!R.classList.contains('arccalm')){P.forEach(function(p){p.x+=p.vx;p.y+=p.vy;if(p.y<-10){p.y=H+10;p.x=Math.random()*W}if(p.x<-10)p.x=W+10;if(p.x>W+10)p.x=-10});draw()}requestAnimationFrame(step)}
+ rgb();size();draw();addEventListener('resize',function(){size();draw()});try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){rgb();draw()})}catch(_){}
+ requestAnimationFrame(step)}
+function entrances(){var v=document.getElementById('view');if(!v||!window.MutationObserver)return;
+ new MutationObserver(function(ms){if(R.classList.contains('arccalm'))return;var k=0;ms.forEach(function(m){[].forEach.call(m.addedNodes,function(n){if(n.nodeType!==1||k>12)return;n.classList.add('arcin');n.style.animationDelay=(k++*45)+'ms'})})}).observe(v,{childList:true})}
+
+/* ---------- sound ---------- */
+var ac=null;function sndOn(){return lg('arc_sound')!=='off'}
+function tone(f,t0,d,type,vol,f2){if(!sndOn())return;try{if(!ac){var A=window.AudioContext||window.webkitAudioContext;if(!A)return;ac=new A()}if(ac.state==='suspended')ac.resume();var t=ac.currentTime+t0,o=ac.createOscillator(),g=ac.createGain();o.type=type||'sine';o.frequency.setValueAtTime(f,t);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d);g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(vol||.05,t+.012);g.gain.exponentialRampToValueAtTime(0.0001,t+d);o.connect(g);g.connect(ac.destination);o.start(t);o.stop(t+d+.02)}catch(_){}}
+function sfx(k,n){n=n||0;
+ if(k==='ok'){var b=523*Math.pow(1.0595,Math.min(12,n*2));tone(b,0,.12,'triangle',.05);tone(b*1.5,.07,.16,'triangle',.045)}
+ else if(k==='bad'){tone(220,0,.28,'sawtooth',.035,110)}
+ else if(k==='tick'){tone(1100,0,.05,'square',.02)}
+ else if(k==='go'){tone(392,0,.12,'triangle',.05);tone(523,.12,.12,'triangle',.05);tone(784,.24,.25,'triangle',.05)}
+ else if(k==='count'){tone(660,0,.09,'square',.03)}
+ else if(k==='win'){[523,659,784,1047].forEach(function(f,i){tone(f,i*.11,.3,'triangle',.05)})}
+ else if(k==='lose'){[392,330,262,196].forEach(function(f,i){tone(f,i*.14,.32,'sawtooth',.03)})}
+ else if(k==='hit'){tone(180,0,.16,'square',.04,60);tone(900,0,.08,'triangle',.04)}
+ else if(k==='combo'){tone(880,0,.1,'triangle',.05);tone(1320,.08,.18,'triangle',.05)}}
+
+/* ---------- Python code, nicely coloured ---------- */
+function code(src){var re=/(#[^\n]*)|(f?"[^"\n]*"|f?'[^'\n]*')|\b(\d+(?:\.\d+)?)\b|\b(if|elif|else|for|in|while|def|return|import|break|and|or|not|True|False|None)\b|\b(print|range|len|max|min|sum|sorted|input|int|str|round|float|abs|append)\b/g,out='',last=0,m;
+ while((m=re.exec(src))){out+=esc(src.slice(last,m.index));out+='<span class="'+(m[1]?'cm':m[2]?'st':m[3]?'nu':m[4]?'kw':'fn')+'">'+esc(m[0])+'</span>';last=re.lastIndex}
+ return '<pre class="arccode"><code>'+out+esc(src.slice(last))+'</code></pre>'}
+
+/* ---------- the game ---------- */
+var G=null;
+function play(cfg){if(G)return;var cm=calm();
+ G={cfg:cfg,i:0,score:0,combo:0,bestCombo:0,lives:cfg.lives||3,right:0,wrong:0,log:[],fr:[],hp:cfg.boss?cfg.boss.hp:0,health:100,t0:0,q:null,lock:false,timer:0,paused:null,phase:1,mult:1};
+ var ov=el('div','arcov'+(cfg.kind==='boss'?' boss':'')+(cm?' calm':''));ov.setAttribute('role','dialog');ov.setAttribute('aria-modal','true');ov.setAttribute('aria-label',cfg.title);
+ if(cfg.acc)ov.style.setProperty('--acc',cfg.acc);if(cfg.acc2)ov.style.setProperty('--acc2',cfg.acc2);
+ ov.innerHTML='<canvas class="fx" aria-hidden="true"></canvas><div class="scan"></div><div class="arcflash"></div>'+
+  '<div class="arcbar"><button type="button" class="arcx" aria-label="Quit">'+IC.x+'</button><div class="ttl"></div><button type="button" class="arcsnd" aria-label="Sound"></button></div>'+
+  '<div class="archud" hidden></div><div class="arctime" hidden><i></i></div><div class="arcstage"><div class="arcin2"></div></div>';
+ document.body.appendChild(ov);document.body.style.overflow='hidden';G.ov=ov;
+ var $=function(s){return ov.querySelector(s)},stage=$('.arcin2'),hud=$('.archud'),tbar=$('.arctime'),tfill=tbar.querySelector('i');
+ $('.ttl').textContent=cfg.title;
+ function sndBtn(){var b=$('.arcsnd');b.innerHTML=sndOn()?IC.son:IC.soff;b.setAttribute('aria-pressed',sndOn()?'true':'false')}sndBtn();
+ $('.arcsnd').onclick=function(){ls('arc_sound',sndOn()?'off':'on');sndBtn()};
+ var armed=false,xb=$('.arcx');
+ function quitArm(){if(G.ended){close();return}if(!armed){armed=true;xb.classList.add('armed');xb.textContent='Quit?';setTimeout(function(){if(!G)return;armed=false;xb.classList.remove('armed');xb.innerHTML=IC.x},2600);return}close()}
+ xb.onclick=quitArm;
+ requestAnimationFrame(function(){ov.classList.add('on')});
+
+
+ /* sparks in the background, bursts on a right answer */
+ var cv=$('canvas.fx'),cx=cv.getContext('2d'),SP=[],BU=[],W=0,H=0,dpr=Math.min(2,window.devicePixelRatio||1);
+
+ for(var i=0;i<40;i++)SP.push({x:Math.random(),y:Math.random(),r:.5+Math.random()*1.6,v:.01+Math.random()*.04,a:.2+Math.random()*.5});
+ function acc(){var v=getComputedStyle(ov).getPropertyValue('--acc').trim(),m=/^#?([0-9a-f]{6})$/i.exec(v);if(!m)return '58,212,255';var n=parseInt(m[1],16);return (n>>16)+','+(n>>8&255)+','+(n&255)}
+ var AC=acc();
+ function burst(x,y,n,gold){if(cm)return;for(var k=0;k<n;k++){var an=Math.random()*6.283,sp=2+Math.random()*5;BU.push({x:x,y:y,vx:Math.cos(an)*sp,vy:Math.sin(an)*sp-1.5,l:1,c:gold?(Math.random()<.5?'255,214,90':'255,154,60'):(Math.random()<.5?AC:'62,240,184')})}}
+ G.burst=burst;
+ function frame(){if(!G||G.ov!==ov)return;var w=cv.clientWidth,h=cv.clientHeight;if(w!==W||h!==H){W=w;H=h;cv.width=W*dpr;cv.height=H*dpr;cx.setTransform(dpr,0,0,dpr,0,0)}
+  cx.clearRect(0,0,W,H);SP.forEach(function(p){if(!cm){p.y-=p.v/60;if(p.y<-.02){p.y=1.02;p.x=Math.random()}}cx.fillStyle='rgba('+AC+','+p.a+')';cx.beginPath();cx.arc(p.x*W,p.y*H,p.r,0,6.283);cx.fill()});
+  for(var k=BU.length-1;k>=0;k--){var b=BU[k];b.x+=b.vx;b.y+=b.vy;b.vy+=.18;b.l-=.022;if(b.l<=0){BU.splice(k,1);continue}cx.fillStyle='rgba('+b.c+','+b.l.toFixed(2)+')';cx.fillRect(b.x-2,b.y-2,4,4)}
+  requestAnimationFrame(frame)}
+ requestAnimationFrame(frame);
+
+ function flash(c){var f=$('.arcflash');f.className='arcflash';void f.offsetWidth;f.className='arcflash '+c}
+ function pop(txt,x,y,cls){var p=el('div','arcpop'+(cls?' '+cls:''),esc(txt));p.style.left=x+'px';p.style.top=y+'px';ov.appendChild(p);setTimeout(function(){p.remove()},1100)}
+
+ /* ----- HUD ----- */
+ function hudHTML(){var h='';
+  if(cfg.kind!=='boss')h+='<div class="arcsc"><small>SCORE</small><span data-k="sc">'+fmt(G.score)+'</span></div>';
+  h+='<span class="arccombo" data-k="cb">×1</span>';
+  if(cfg.kind!=='mission'){h+='<div class="arclives" aria-label="Lives">';for(var i=0;i<(cfg.lives||3);i++)h+='<i></i>';h+='</div>'}
+  if(cfg.kind==='boss')h+='<div class="arcmeter hp"><span>'+esc(cfg.boss.name)+'</span><div class="mt"><i data-k="hp"></i></div><b data-k="hpn"></b></div>';
+  if(cfg.kind==='mission')h+='<div class="arcmeter hl" data-k="hlw"><span>Plant health</span><div class="mt"><i data-k="hl"></i></div><b data-k="hln"></b></div>';
+  if(cfg.kind==='arcade'&&cfg.best)h+='<div class="arcmeter"><span>Best</span><div class="mt" style="opacity:.0;flex:0 0 0"></div><b>'+fmt(cfg.best)+'</b></div>';
+  hud.innerHTML=h;hud.hidden=false;upd()}
+ function upd(){var s=hud.querySelector('[data-k=sc]');if(s)s.textContent=fmt(G.score);
+  var cb=hud.querySelector('[data-k=cb]');if(cb){cb.textContent='×'+G.mult+(G.combo>=2?' · '+G.combo+' in a row':'');cb.classList.toggle('hot',G.mult>1)}
+  [].forEach.call(hud.querySelectorAll('.arclives i'),function(x,i){x.classList.toggle('gone',i>=G.lives)});
+  if(cfg.kind==='boss'){var f=G.hp/cfg.boss.hp;hud.querySelector('[data-k=hp]').style.width=(f*100)+'%';hud.querySelector('[data-k=hpn]').textContent=Math.max(0,G.hp)+' HP'}
+  if(cfg.kind==='mission'){hud.querySelector('[data-k=hl]').style.width=G.health+'%';hud.querySelector('[data-k=hln]').textContent=G.health+'%';var w=hud.querySelector('[data-k=hlw]');w.classList.toggle('warn',G.health<=50&&G.health>25);w.classList.toggle('bad',G.health<=25)}}
+
+ /* ----- intro ----- */
+ function intro(){G.stage='intro';var i=cfg.intro||{};
+  stage.innerHTML='<div class="arcintro">'+(cfg.kind==='boss'?'<div class="arcbossart"><canvas width="380" height="380" aria-hidden="true"></canvas></div>':'')+'<span class="badge">'+esc(i.badge||'')+'</span><h2>'+esc(i.h||cfg.title)+'</h2>'+(i.p?'<p>'+i.p+'</p>':'')+
+   (i.rules?'<div class="arcrules">'+i.rules.map(function(r){return '<span>'+esc(r)+'</span>'}).join('')+'</div>':'')+
+   '<div class="arcacts"><button type="button" class="arcgo" data-a="start">'+esc(i.go||'Start')+'</button><button type="button" class="arcgo alt" data-a="close">Not now</button></div>'+(i.foot?'<p style="font-size:13px;color:#8e9bc0">'+i.foot+'</p>':'')+'</div>';
+  stage.querySelector('[data-a=start]').onclick=countdown;stage.querySelector('[data-a=close]').onclick=close;
+  if(cfg.kind==='boss')bossArt(stage.querySelector('.arcbossart canvas'),cfg.boss.col||'#ff5a3c');
+  setTimeout(function(){try{stage.querySelector('[data-a=start]').focus({preventScroll:true})}catch(_){}},60)}
+ function countdown(){G.stage='count';hudHTML();if(cm){sfx('go');G.t0=Date.now();ask();return}var n=3;
+  (function t(){if(!G||G.ov!==ov)return;if(n===0){sfx('go');G.t0=Date.now();ask();return}stage.innerHTML='<div class="arccount">'+n+'</div>';sfx('count');n--;setTimeout(t,700)})()}
+
+ /* ----- a question ----- */
+ function ask(){if(!G||G.ov!==ov)return;G.stage='q';G.lock=false;armed=false;
+  var ev=cfg.kind==='mission'?cfg.events[G.i]:null,q=ev?ev.q:cfg.next(G.i,G);G.q=q;
+  var h='';
+  if(ev)h+='<div class="arcev"><span class="tm">'+esc(ev.tm)+'</span><span>'+esc(ev.ev)+'</span><span style="color:#8e9bc0">Event '+(G.i+1)+' of '+cfg.events.length+'</span></div>'+(ev.story?'<p class="arcstory">'+ev.story+'</p>':'');
+  else if(cfg.kind==='boss')h+='<div class="arcev"><span>'+esc(cfg.boss.name)+(G.phase>1?' · phase 2':'')+'</span><span style="color:#8e9bc0">Question '+(G.i+1)+'</span></div>';
+  else h+='<div class="arcev"><span>'+esc(q.tag||cfg.title)+'</span><span style="color:#8e9bc0">Question '+(G.i+1)+'</span></div>';
+  h+='<div class="arcqc"><div class="qbody">'+q.html+'</div><div class="arcopts'+(q.vis?' vis':'')+'" role="group" aria-label="Answers">'+q.opts.map(function(o,k){return '<button type="button" class="arco" data-k="'+k+'"><span class="k">'+(k+1)+'</span><span>'+o+'</span></button>'}).join('')+'</div></div>';
+  stage.innerHTML=h;stage.parentNode.scrollTop=0;
+  [].forEach.call(stage.querySelectorAll('.arco'),function(b){b.onclick=function(e){pick(+b.getAttribute('data-k'),e)}});
+  var lim=cfg.time?cfg.time(G.i,G):20000;if(cfg.kind==='boss'&&G.phase>1)lim*=.8;G.lim=lim;G.qs=Date.now();G.left=lim;tbar.hidden=false;tbar.classList.remove('low');runTimer()}
+ function runTimer(){cancelAnimationFrame(G.timer);var lastTick=null;
+  (function t(){if(!G||G.ov!==ov||G.lock||G.paused!=null)return;var left=Math.max(0,G.lim-(Date.now()-G.qs));G.left=left;tfill.style.width=(left/G.lim*100)+'%';var low=left<Math.min(4000,G.lim*.3);tbar.classList.toggle('low',low);
+   var s=Math.ceil(left/1000);if(low&&s!==lastTick&&s<=3){lastTick=s;sfx('tick')}
+   if(left<=0){pick(-1);return}G.timer=requestAnimationFrame(t)})()}
+ function onVis(){if(!G||G.ov!==ov||G.stage!=='q'||G.lock)return;if(document.hidden){G.paused=G.left;cancelAnimationFrame(G.timer)}else if(G.paused!=null){G.qs=Date.now()-(G.lim-G.paused);G.paused=null;runTimer()}}
+ document.addEventListener('visibilitychange',onVis);G.onVis=onVis;
+
+ function pick(k,e){if(!G||G.lock||G.stage!=='q')return;G.lock=true;cancelAnimationFrame(G.timer);var q=G.q,ok=k===q.ans,frac=Math.max(0,G.left/G.lim),bs=stage.querySelectorAll('.arco');
+  [].forEach.call(bs,function(b,i){b.disabled=true;if(i===q.ans)b.classList.add('right');else if(i===k)b.classList.add('wrong')});
+  var r=(e&&e.currentTarget?e.currentTarget:bs[q.ans]||stage).getBoundingClientRect(),px=r.left+r.width/2,py=r.top+r.height/2;
+  G.log.push({q:q,k:k,ok:ok,frac:frac,ev:cfg.kind==='mission'?cfg.events[G.i]:null});G.fr.push(frac);
+  if(ok){G.right++;G.combo++;if(G.combo>G.bestCombo)G.bestCombo=G.combo;var m=Math.min(5,1+Math.floor(G.combo/3));if(m>G.mult){G.mult=m;sfx('combo');var cb=hud.querySelector('[data-k=cb]');if(cb){cb.classList.add('bump');setTimeout(function(){cb.classList.remove('bump')},300)}pop('COMBO ×'+m,innerWidth/2,innerHeight*.3,'big')}else sfx('ok',G.combo);
+   var pts=Math.round((100+100*frac)*G.mult);G.score+=pts;flash('g');burst(px,py,cm?0:18+G.mult*4);
+   if(cfg.kind==='boss'){var crit=frac>=.6,dmg=crit?2:1;G.hp=Math.max(0,G.hp-dmg);sfx('hit');pop(crit?'CRITICAL HIT −2':'HIT −1',px,py-30,crit?'big':'');if(G.phase===1&&G.hp<=cfg.boss.hp/2&&G.hp>0){G.phase=2;setTimeout(function(){pop('PHASE 2: it\'s speeding up',innerWidth/2,innerHeight*.38,'bad')},500)}}
+   else pop('+'+pts,px,py-30)}
+  else{G.wrong++;G.combo=0;G.mult=1;sfx('bad');flash('r');var qc=stage.querySelector('.arcqc');if(qc){qc.classList.remove('shake');void qc.offsetWidth;qc.classList.add('shake')}
+   if(cfg.kind==='mission'){G.health=Math.max(0,G.health-25);pop(k<0?'Too slow: −25%':'−25% plant health',px,py-30,'bad')}
+   else{G.lives--;pop(k<0?'Out of time':'Life lost',px,py-30,'bad')}}
+  upd();if(cfg.onAnswer)try{cfg.onAnswer(q,ok)}catch(_){}
+  var over=cfg.kind==='boss'?(G.hp<=0||G.lives<=0):cfg.kind==='mission'?(G.health<=0||G.i+1>=cfg.events.length):(G.lives<=0||(cfg.n&&G.i+1>=cfg.n));
+  if(ok){setTimeout(function(){next(over)},cm?500:680)}
+  else{var nb=el('div','arcacts','<button type="button" class="arcgo alt" data-a="next">'+(over?'See how you did':'Next')+' ▸</button>');stage.querySelector('.arcqc').appendChild(nb);var go=nb.querySelector('button');go.onclick=function(){next(over)};try{go.focus({preventScroll:true})}catch(_){}
+   G.auto=setTimeout(function(){if(G&&G.ov===ov&&G.stage==='q'&&G.lock)next(over)},over?3200:2600)}}
+ function next(over){clearTimeout(G.auto);if(!G||G.ov!==ov||G.stage!=='q')return;if(over){end();return}G.i++;ask()}
+
+ /* ----- the end ----- */
+ function end(){G.stage='end';G.ended=true;tbar.hidden=true;cancelAnimationFrame(G.timer);var res={kind:cfg.kind,score:G.score,right:G.right,wrong:G.wrong,answered:G.log.length,bestCombo:G.bestCombo,ms:Date.now()-G.t0,log:G.log};
+  res.acc=res.answered?Math.round(res.right/res.answered*100):0;var af=G.fr.length?G.fr.reduce(function(a,b){return a+b},0)/G.fr.length:0;res.speed=af;
+  if(cfg.kind==='boss')res.won=G.hp<=0;
+  if(cfg.kind==='mission'){res.health=G.health;res.tripped=G.health<=0;res.grade=res.tripped?'U':G.health===100?(af>=.45?'A*':'A'):G.health>=75?'B':G.health>=50?'C':'D';res.events=cfg.events.length}
+  var out={};try{out=cfg.onEnd(res)||{}}catch(e){if(window.console)console.error(e)}
+  var win=cfg.kind==='boss'?res.won:cfg.kind==='mission'?!res.tripped:true;sfx(win?'win':'lose');
+  var h='<div class="arcres">';
+  if(cfg.kind==='arcade'){h+='<span class="badge" style="font:700 12px var(--mono);letter-spacing:.14em;color:var(--acc)">GAME OVER</span><div class="big">'+fmt(res.score)+'</div>'+(out.newBest?'<div class="nb">New best score</div>':out.best?'<div style="color:#9fb0d8;font:600 13px var(--mono)">Best: '+fmt(out.best)+'</div>':'')}
+  if(cfg.kind==='boss')h+='<span class="badge" style="font:700 12px var(--mono);letter-spacing:.14em;color:var(--acc)">'+esc(cfg.boss.name)+'</span><h2 class="arcwin'+(res.won?'':' lose')+'">'+(res.won?'Boss beaten':'Not this time')+'</h2><p style="margin:0;color:#c9d3ef;max-width:30em">'+(res.won?(out.first?'You earned the <b>'+esc(cfg.boss.badge||'boss')+'</b> trophy.':'Rematch won.'):'It had '+G.hp+' HP left. Every attempt makes you faster. Have another go.')+'</p>';
+  if(cfg.kind==='mission')h+='<span class="badge" style="font:700 12px var(--mono);letter-spacing:.14em;color:var(--acc)">'+(res.tripped?'REACTOR TRIP':'SHIFT COMPLETE')+'</span><div class="gr">'+res.grade+'</div>'+(out.newBest?'<div class="nb">Best shift yet</div>':'')+'<p style="margin:0;color:#c9d3ef;max-width:30em">'+(res.tripped?'Plant health hit zero, so the reactor tripped. Read the report, then take the next shift.':res.grade==='A*'?'Flawless and fast. That\'s a shift supervisor\'s night.':res.grade==='A'?'Nothing went wrong all shift. Go faster for an A*.':'The plant is safe. Check what went wrong in the report.')+'</p>';
+  h+='<div class="arcstats"><div><b>'+res.right+'/'+res.answered+'</b><span>Right</span></div><div><b>'+res.acc+'%</b><span>Accuracy</span></div><div><b>'+res.bestCombo+'</b><span>Best run</span></div><div><b>+'+(out.xp||0)+'</b><span>XP</span></div></div>';
+  if(cfg.kind==='mission'){h+='<div class="arcrep"><h3>Shift report</h3>'+G.log.map(function(l){return '<div class="ln"><span class="tm">'+esc(l.ev.tm)+'</span><span>'+esc(l.ev.ev)+'</span><span class="'+(l.ok?'ok':'no')+'" style="margin-left:auto">'+(l.ok?'Handled':l.k<0?'Too slow':'Wrong call')+'</span></div>'}).join('')+'<div class="ln" style="margin-top:4px;border-top:1px solid rgba(255,255,255,.08);padding-top:6px"><span class="tm">End</span><span>Plant health '+res.health+'%</span></div></div>'}
+  if(out.html)h+=out.html;
+  var miss=G.log.filter(function(l){return !l.ok});
+  h+='<div class="arcacts"><button type="button" class="arcgo" data-a="again">'+(cfg.kind==='boss'?(res.won?'Rematch':'Try again'):cfg.kind==='mission'?'Another shift':'Play again')+'</button>'+(miss.length?'<button type="button" class="arcgo alt" data-a="rev">Review '+miss.length+' mistake'+(miss.length===1?'':'s')+'</button>':'')+'<button type="button" class="arcgo alt" data-a="close">Done</button></div><div class="arcrv" hidden></div></div>';
+  stage.innerHTML=h;stage.parentNode.scrollTop=0;
+  if(win&&!cm){var r=stage.getBoundingClientRect();burst(innerWidth/2,r.top+80,out.newBest||res.won||res.grade==='A*'?90:40,true)}
+  stage.querySelector('[data-a=close]').onclick=close;
+  stage.querySelector('[data-a=again]').onclick=function(){var c=cfg.again?cfg.again():cfg;close(true);setTimeout(function(){play(c)},60)};
+  var rv=stage.querySelector('[data-a=rev]');if(rv)rv.onclick=function(){var box=stage.querySelector('.arcrv');box.hidden=false;rv.remove();
+   box.innerHTML=miss.map(function(l){var q=l.q;return '<details><summary><span class="x">✗</span><span>'+esc((l.ev?l.ev.ev+': ':'')+(strip(q.html).slice(0,80)||'Picture question'))+'</span></summary><div class="rb"><div class="qbody">'+q.html+'</div><p><b>Right answer:</b> '+(q.vis?'option '+(q.ans+1):q.opts[q.ans])+'</p>'+(q.vis?'<div class="arcopts vis">'+q.opts.map(function(o,i){return '<div class="arco'+(i===q.ans?' right':i===l.k?' wrong':'')+'"><span class="k">'+(i+1)+'</span>'+o+'</div>'}).join('')+'</div>':'')+(q.exp?'<div class="expl">'+q.exp+'</div>':'')+'</div></details>'}).join('');
+   var d=box.querySelector('details');if(d)d.open=true};
+  setTimeout(function(){try{stage.querySelector('[data-a=again]').focus({preventScroll:true})}catch(_){}},80)}
+ function strip(h){var d=document.createElement('div');d.innerHTML=h;return (d.textContent||'').replace(/\s+/g,' ').trim()}
+
+ function key(e){if(!G||G.ov!==ov)return;if(e.key==='Escape'){e.preventDefault();quitArm();return}
+  if(G.stage==='q'&&!G.lock){var n=parseInt(e.key,10);if(n>=1&&n<=G.q.opts.length){e.preventDefault();var b=stage.querySelectorAll('.arco')[n-1];pick(n-1,{currentTarget:b})}}
+  else if(e.key==='Enter'){var t=stage.querySelector('[data-a=next],[data-a=start],[data-a=again]');if(t&&document.activeElement!==t){e.preventDefault();t.click()}}}
+ document.addEventListener('keydown',key);G.key=key;
+ function close(again){if(!G)return;cancelAnimationFrame(G.timer);clearTimeout(G.auto);document.removeEventListener('keydown',G.key);document.removeEventListener('visibilitychange',G.onVis);
+  var o=G.ov,done=G.ended;G=null;o.classList.remove('on');document.body.style.overflow='';setTimeout(function(){o.remove()},again?0:300);if(cfg.onClose&&!again)try{cfg.onClose(done)}catch(_){}}
+ intro()}
+
+/* a menacing reactor core for the boss screen */
+function bossArt(cv,col){if(!cv)return;var c=cv.getContext('2d'),t0=performance.now(),cm=calm();
+ (function f(t){if(!cv.isConnected)return;var s=(t-t0)/1000,W=cv.width,H=cv.height,x=W/2,y=H/2;c.clearRect(0,0,W,H);
+  var g=c.createRadialGradient(x,y,10,x,y,W*.48);g.addColorStop(0,col);g.addColorStop(.35,col+'88');g.addColorStop(1,'rgba(0,0,0,0)');c.fillStyle=g;c.beginPath();c.arc(x,y,W*.48,0,6.283);c.fill();
+  c.save();c.translate(x,y);c.rotate(cm?0:s*.6);c.strokeStyle=col;c.lineWidth=5;for(var i=0;i<12;i++){c.rotate(Math.PI/6);c.beginPath();c.moveTo(W*.2,0);c.lineTo(W*.3+(cm?0:Math.sin(s*4+i)*10),0);c.stroke()}c.restore();
+  c.save();c.translate(x,y);c.rotate(cm?0:-s*1.1);c.setLineDash([18,14]);c.lineWidth=4;c.strokeStyle='rgba(255,255,255,.75)';c.beginPath();c.arc(0,0,W*.17,0,6.283);c.stroke();c.restore();
+  var p=cm?1:1+Math.sin(s*5)*.08;c.fillStyle='#fff';c.beginPath();c.arc(x,y,W*.07*p,0,6.283);c.fill();
+  c.fillStyle='rgba(10,10,20,.9)';c.beginPath();c.arc(x-16,y-6,6,0,6.283);c.arc(x+16,y-6,6,0,6.283);c.fill();
+  if(!cm)requestAnimationFrame(f)})(t0)}
+
+/* shuffle helpers the apps share */
+function shuf(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t}return a}
+function pick1(a){return a[Math.floor(Math.random()*a.length)]}
+function mcq(html,correct,wrongs,exp,tag){var seen={},opts=[];[correct].concat(wrongs).forEach(function(o){o=String(o);if(seen[o]||opts.length>=4)return;seen[o]=1;opts.push(o)});var c=opts[0];shuf(opts);return {html:html,opts:opts,ans:opts.indexOf(c),exp:exp||'',tag:tag||''}}
+function clock(h,m){return String(h%24).padStart(2,'0')+':'+String(m).padStart(2,'0')}
+
+window.ARC={init:initLook,play:play,active:function(){return !!G},peek:function(){return G},calm:calm,code:code,esc:esc,shuf:shuf,pick:pick1,mcq:mcq,clock:clock,fmt:fmt,sfx:sfx};
+})();
+/* ===== Aptitude Gym: arcade rounds, boss fights and shift missions ===== */
+(function(){if(!window.APT||!window.ARC)return;
+var A=window.APT,X=ARC,ORDER=A.ORDER,SECS=A.SECS;
+ARC.init('apt');
+function st(){var S=A.S();if(!S.arc||typeof S.arc!=='object')S.arc={};var a=S.arc;if(!a.best)a.best={};if(!a.boss)a.boss={};if(!a.miss)a.miss={n:0,best:null};return a}
+var GR=['U','D','C','B','A','A*'];function grBetter(a,b){return GR.indexOf(a)>GR.indexOf(b)}
+var BOSS={num:{name:'Overload',col:'#ff7a3c',p:'The grid is overloading and it wants numbers, fast. Percentages, ratios and rates, against the clock.'},
+ verb:{name:'The Misreader',col:'#ffb03c',p:'It twists every passage. Only what\'s written counts: True, False or Cannot say.'},
+ logic:{name:'Pattern Storm',col:'#c06bff',p:'Sequences flying at you. Spot the rule before the storm hits.'},
+ mech:{name:'Gearbox Jam',col:'#2fd6a0',p:'Gears, levers and pulleys, all seizing up. Free them before it locks.'},
+ check:{name:'Tag Twister',col:'#ff4d8a',p:'One wrong digit means the wrong valve. Spot every swapped character.'},
+ all:{name:'The Inspector',col:'#ff3d3d',p:'The regulator\'s inspector tests everything at once. Beat this and you\'re ready for the real test.'}};
+var ICON={play:'<svg viewBox="0 0 24 24"><path d="M7 5l12 7-12 7z"/></svg>',boss:'<svg viewBox="0 0 24 24"><path d="M12 3l2.5 5 5.5.8-4 3.9 1 5.5L12 15.6 7 18.2l1-5.5-4-3.9 5.5-.8z"/></svg>',
+ lock:'<svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>',shift:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3.5 2.2"/></svg>',
+ cup:'<svg viewBox="0 0 24 24"><path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4M12 14v4M8 21h8"/></svg>'};
+
+/* questions without repeats in a round */
+function feeder(secs){var seen=[];return function(){var q,g=0;do{q=A.GEN[X.pick(secs)]();g++}while(seen.indexOf(key(q))>-1&&g<25);seen.push(key(q));if(seen.length>14)seen.shift();q.tag=SECS[q.sec].n;return q}}
+function key(q){var d=document.createElement('div');d.innerHTML=q.html;return (d.textContent||'').slice(0,140)}
+function spq(q){return (SECS[q.sec]||{spq:45}).spq*1000}
+function count(q,ok){var S=A.S(),s=S.sec[q.sec];if(!s)return;s.n++;if(ok)s.c++;A.save()}
+function hist(m,sec,res){var S=A.S();if(res.answered<3)return;S.hist.push({at:Date.now(),m:m,s:sec,r:res.right,t:res.answered});if(S.hist.length>40)S.hist=S.hist.slice(-40)}
+function done(xp){if(xp>0)A.addXP(xp);A.save();if(A.view()==='home')A.render()}
+
+/* ----- arcade: endless, 3 lives, faster every question ----- */
+function arcade(sec){var a=st(),secs=sec==='mix'?ORDER:[sec],nm=sec==='mix'?'Mixed':SECS[sec].n;
+ return {kind:'arcade',title:nm+' arcade',acc:'#3ef0b8',acc2:'#3ad4ff',best:a.best[sec]||0,lives:3,next:feeder(secs),
+  time:function(i,G){return Math.max(spq(G.q)*.42,spq(G.q)*.8*Math.pow(.965,i))},onAnswer:count,
+  intro:{badge:'Arcade',h:nm+' arcade',p:'Answer as fast as you can. Every question is quicker than the last. Three wrong or too slow and it\'s game over.',rules:['3 lives','Speed bonus','Combos up to ×5','Keys 1 to 4'],go:'Start',foot:a.best[sec]?'Your best: '+X.fmt(a.best[sec]):''},
+  again:function(){return arcade(sec)},
+  onEnd:function(r){var a=st(),b=a.best[sec]||0,nb=r.score>b&&r.score>0;if(nb)a.best[sec]=r.score;var xp=Math.min(60,Math.round(r.score/120));hist('arcade',sec,r);done(xp);return {xp:xp,best:Math.max(b,r.score),newBest:nb&&b>0}}}}
+
+/* ----- bosses ----- */
+function unlocked(s){if(s==='all')return ORDER.every(function(x){return st().boss[x]});return A.S().sec[s].n>=10}
+function boss(sec){var B=BOSS[sec],secs=sec==='all'?ORDER:[sec],hp=sec==='all'?20:12,first=!st().boss[sec];
+ return {kind:'boss',title:'Boss: '+B.name,acc:B.col,acc2:'#ff3d6e',lives:3,boss:{name:B.name,hp:hp,col:B.col,badge:B.name},next:feeder(secs),
+  time:function(i,G){return spq(G.q)*.7},onAnswer:count,
+  intro:{badge:sec==='all'?'Final boss':SECS[sec].n+' boss',h:B.name,p:B.p,rules:[hp+' HP','3 lives','Fast answer = critical hit (2 damage)','Phase 2 at half HP'],go:'Fight',foot:first?'Beat it for a trophy and +100 XP.':'Already beaten. Rematch for +30 XP.'},
+  again:function(){return boss(sec)},
+  onEnd:function(r){var a=st(),xp=r.right*3;if(r.won){if(!a.boss[sec]){a.boss[sec]={at:Date.now()};xp+=100;A.toast('Trophy: '+B.name+' beaten')}else xp+=30}hist('boss',sec==='all'?'mix':sec,r);done(xp);return {xp:xp,first:r.won&&first}}}}
+
+/* ----- shift mission: a night at Hinkley Point C ----- */
+var EV={num:[['Grid control','National Grid is on the phone and wants a figure now.'],['Turbine hall','A reading needs working out before the next round.'],['Fuel route','Logistics need a rate worked out, fast.']],
+ verb:[['Procedure memo','A new memo has come in. Act only on what it actually says.'],['Night order book','The shift manager left notes. Don\'t assume anything.']],
+ logic:[['Sensor trend','A sensor is logging an odd sequence. What comes next?'],['Alarm pattern','The alarms are lighting up in a pattern.']],
+ mech:[['Cooling water pump','Maintenance want a second opinion before they start.'],['Crane lift','The lifting team need a quick check before the lift.']],
+ check:[['Valve line-up','Check the tags match the procedure before anything moves.'],['Permit check','The work permit and the panel must match exactly.']]};
+function mission(){var types=X.shuf(ORDER.slice()).concat(X.shuf(ORDER.slice()).slice(0,3)),f=feeder(ORDER),m=19*60,ev=[];X.shuf(types);
+ types.forEach(function(s){m+=50+Math.floor(Math.random()*45);var e=X.pick(EV[s]),q,g=0;do{q=A.GEN[s]();g++}while(ev.some(function(x){return key(x.q)===key(q)})&&g<20);q.tag=SECS[s].n;ev.push({tm:X.clock(Math.floor(m/60),m%60),ev:e[0],story:e[1],q:q})});
+ var a=st();
+ return {kind:'mission',title:'Night shift · Unit 1',acc:'#3ad4ff',acc2:'#8f80ff',events:ev,onAnswer:count,
+  time:function(i,G){return spq(G.q)*.9},
+  intro:{badge:'Shift mission',h:'Night shift',p:'19:00 to 07:00 on the Unit 1 desk at Hinkley Point C. Eight things will happen tonight. Every wrong call or slow answer costs 25% plant health. Hit zero and the reactor trips.',rules:['8 events','All five test types','Graded A* to D'],go:'Take the shift',foot:a.miss.best?'Best grade so far: '+a.miss.best:''},
+  again:mission,
+  onEnd:function(r){var a=st(),nb=!a.miss.best||grBetter(r.grade,a.miss.best);if(nb)a.miss.best=r.grade;a.miss.n=(a.miss.n||0)+1;var xp={'A*':80,A:65,B:50,C:35,D:25,U:10}[r.grade]||10;hist('mission','mix',r);done(xp);return {xp:xp,newBest:nb&&a.miss.n>1}}}}
+
+/* ----- cards on the home screen ----- */
+function top(){var a=st(),won=Object.keys(BOSS).filter(function(k){return a.boss[k]}).length,fin=unlocked('all');
+ return '<section class="arcsec"><div class="arch"><h2>Arcade</h2><span>'+won+'/6 bosses beaten'+(a.miss.best?' · best shift '+a.miss.best:'')+'</span></div><div class="arcgrid">'+
+  '<button type="button" class="arcc big" data-arc="mission"><span class="ai">'+ICON.shift+'</span><b>Shift mission: night shift</b><p>Eight events at Hinkley Point C, from every test type. Keep the plant healthy and get graded.</p><span class="am">'+(a.miss.best?'Best grade '+a.miss.best:'New')+'<span class="go">Take the shift</span></span></button>'+
+  '<button type="button" class="arcc" data-arc="arcade" data-s="mix"><span class="ai">'+ICON.play+'</span><b>Mixed arcade</b><p>All five types, three lives, faster every question.</p><span class="am">'+(a.best.mix?'Best '+X.fmt(a.best.mix):'No score yet')+'<span class="go">Play</span></span></button>'+
+  '<button type="button" class="arcc boss'+(a.boss.all?' won':'')+(fin?'':' lock')+'" data-arc="boss" data-s="all"'+(fin?'':' aria-disabled="true"')+'><span class="ai">'+(fin?(a.boss.all?ICON.cup:ICON.boss):ICON.lock)+'</span><b>Final boss: The Inspector</b><p>'+(fin?'Every type at once, 20 HP.':'Beat all five type bosses to unlock.')+'</p><span class="am">'+(a.boss.all?'<span class="tro">Trophy won</span>':'')+(fin?'<span class="go">Fight</span>':'')+'</span></button>'+
+  '</div></section>'}
+function type(s){var a=st(),u=unlocked(s),b=BOSS[s],n=A.S().sec[s].n;
+ return '<div class="arcrow" style="margin-top:8px"><button type="button" class="arcbtn play" data-arc="arcade" data-s="'+s+'">'+ICON.play+'Arcade'+(a.best[s]?' · '+X.fmt(a.best[s]):'')+'</button>'+
+  '<button type="button" class="arcbtn'+(u?' hot':'')+'" data-arc="boss" data-s="'+s+'"'+(u?'':' disabled')+'>'+(u?(a.boss[s]?ICON.cup:ICON.boss):ICON.lock)+'Boss: '+b.name+(a.boss[s]?' ✓':u?'':' ('+Math.max(0,10-n)+' more to unlock)')+'</button></div>'}
+window.APTX={top:top,type:type};
+
+document.addEventListener('click',function(e){var t=e.target.closest('[data-arc]');if(!t||t.disabled||t.getAttribute('aria-disabled')==='true')return;var k=t.getAttribute('data-arc'),s=t.getAttribute('data-s');
+ if(k==='arcade')X.play(arcade(s));else if(k==='boss'&&unlocked(s))X.play(boss(s));else if(k==='mission')X.play(mission())});
+var ob=window.__busy;window.__busy=function(){return X.active()||(typeof ob==='function'&&ob())};
+if(A.view()==='home')A.render();
+})();
+</script>
+</body>
+</html>

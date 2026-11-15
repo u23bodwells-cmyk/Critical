@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src * data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self'">
+<title>Critical Browser</title>
+<link rel="stylesheet" href="ui.css">
+</head>
+<body>
+<header id="top">
+  <div class="brand" title="Critical Browser"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="2" fill="currentColor" stroke="none"/><ellipse cx="12" cy="12" rx="10" ry="4"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(120 12 12)"/></svg></div>
+  <div id="tabs" role="tablist" aria-label="Tabs"></div>
+  <button id="newTab" class="ib" title="New tab (Ctrl+T)" aria-label="New tab"></button>
+  <div class="drag"></div>
+</header>
+<nav id="bar">
+  <button id="back" class="ib" title="Back (Alt+←)" aria-label="Back"></button>
+  <button id="fwd" class="ib" title="Forward (Alt+→)" aria-label="Forward"></button>
+  <button id="reload" class="ib" title="Reload (Ctrl+R)" aria-label="Reload"></button>
+  <button id="home" class="ib" title="Critical (Alt+Home)" aria-label="Go to Critical"></button>
+  <form id="omni" autocomplete="off"><span id="sec" aria-hidden="true"></span><input id="addr" spellcheck="false" placeholder="Search Google or type a web address" aria-label="Address and search bar"></form>
+  <button id="pill" class="pill" aria-haspopup="dialog"></button>
+  <button id="askBtn" class="tb" title="Ask Claude about what you've selected (Ctrl+Shift+A)"><span class="ic" id="askIc"></span><span>Ask Claude</span></button>
+  <button id="claudeBtn" class="tb" title="Claude panel (Ctrl+Shift+C)" aria-pressed="false"><span class="ic" id="clIc"></span><span>Claude</span></button>
+  <button id="menuBtn" class="ib" title="Menu" aria-label="Menu" aria-haspopup="menu"></button>
+</nav>
+<div id="banner" hidden></div>
+<main id="main">
+  <div id="views"></div>
+  <div id="rz" hidden title="Drag to resize"></div>
+  <aside id="claude" hidden aria-label="Claude">
+    <div class="chead"><b><span class="ic" id="clIc2"></span> Claude</b><span class="grow"></span>
+      <button class="ib sm" id="clNew" title="New chat" aria-label="New chat"></button>
+      <button class="ib sm" id="clMode" title="Claude mode: Critical and Claude side by side" aria-label="Claude mode"></button>
+      <button class="ib sm" id="clClose" title="Close (Ctrl+Shift+C)" aria-label="Close Claude"></button></div>
+    <div id="claudeBody"></div>
+  </aside>
+</main>
+<div id="find" hidden><input id="findIn" placeholder="Find in page" aria-label="Find in page"><span id="findN"></span><button class="ib sm" id="findUp" aria-label="Previous match"></button><button class="ib sm" id="findDn" aria-label="Next match"></button><button class="ib sm" id="findX" aria-label="Close find"></button></div>
+<div id="menu" class="pop" role="menu" hidden></div>
+<div id="statusPop" class="pop" role="dialog" aria-label="Today's plan" hidden></div>
+<div id="sheet" role="dialog" aria-label="Settings" hidden></div>
+<div id="lock" role="dialog" aria-modal="true" aria-labelledby="lockH" hidden></div>
+<div id="toasts" aria-live="polite"></div>
+<script src="ui.js"></script>
+</body>
+</html>

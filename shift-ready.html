@@ -1,0 +1,1409 @@
+<!doctype html>
+<html lang="en">
+<head>
+<script src="gate.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#ffffff">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Critical">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Shift Ready</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: a one-column mobile app (same family as Critical). Header with XP and streak, a view area, and a bottom tab bar. */
+:root{
+  --bg:#F5F4EF; --card:#FFFFFF; --ink:#1D1B2E; --muted:#615E73; --line:#E4E2D9;
+  --brand:#4F46B8; --brand-soft:#E8E6FA; --on-brand:#FFFFFF;
+  --gold:#F2C46D; --gold-soft:#FBF0D6; --gold-ink:#7E5300; --on-gold:#3A2700;
+  --ok:#1F7A55; --ok-soft:#DCF1E6; --warn:#B4231A;
+  --code:#1C1A2B; --code-ink:#E8E6F5; --hero-track:rgba(255,255,255,.25);
+  --ui:"Lexend",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#121120; --card:#1B1A2B; --ink:#ECEAF7; --muted:#A4A1B9; --line:#2E2C44;
+  --brand:#9D96F2; --brand-soft:#29264F; --on-brand:#15132B;
+  --gold:#F2C46D; --gold-soft:#3A2E14; --gold-ink:#F2C46D; --on-gold:#2B1D00;
+  --ok:#62D3A2; --ok-soft:#153226; --warn:#FF8A80;
+  --code:#0D0C17; --code-ink:#E2E0F2; --hero-track:rgba(21,19,43,.22); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121120; --card:#1B1A2B; --ink:#ECEAF7; --muted:#A4A1B9; --line:#2E2C44;
+  --brand:#9D96F2; --brand-soft:#29264F; --on-brand:#15132B;
+  --gold:#F2C46D; --gold-soft:#3A2E14; --gold-ink:#F2C46D; --on-gold:#2B1D00;
+  --ok:#62D3A2; --ok-soft:#153226; --warn:#FF8A80;
+  --code:#0D0C17; --code-ink:#E2E0F2; --hero-track:rgba(21,19,43,.22); color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:400 16px/1.55 var(--ui);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:14px 104px}
+button{font:inherit;color:inherit}
+h1,h2,h3{margin:0;font-weight:600;text-wrap:balance;letter-spacing:-.01em}
+h1{font-size:26px;line-height:1.2} h2{font-size:19px} h3{font-size:15px}
+p{margin:0}
+.app{max-width:620px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:18px}
+.mark{width:34px;height:34px;border-radius:10px;background:var(--brand);display:grid;place-items:center}
+.mark svg{width:22px;height:22px}
+.pills{display:flex;gap:6px}
+.pill{display:flex;align-items:center;gap:5px;font:600 13px var(--mono);padding:5px 10px;border-radius:999px;background:var(--card);border:1px solid var(--line)}
+.pill .dot{width:8px;height:8px;border-radius:50%;background:var(--gold)}
+.pill.xp .dot{background:var(--brand)}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.hero{background:var(--brand);color:var(--on-brand);border:0}
+.hero .muted{color:var(--on-brand);opacity:1}
+.hero .sub{font-size:14px}
+.eyebrow{font:600 11px var(--mono);letter-spacing:.1em;text-transform:uppercase}
+.bar{height:8px;border-radius:4px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--gold);border-radius:4px;transition:width .4s}
+.hero .bar{background:rgba(255,255,255,.22)}
+.rankrow{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:13px}
+
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 12px}
+.stat b{display:block;font:600 22px var(--mono);font-variant-numeric:tabular-nums}
+.stat span{font-size:12px;color:var(--muted)}
+
+.chip{display:inline-flex;align-items:center;gap:5px;font:600 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:3px 9px;border-radius:999px;white-space:nowrap}
+.chip.py{background:var(--brand-soft);color:var(--brand)}
+.chip.cm{background:var(--gold-soft);color:var(--gold-ink)}
+.chip.ok{background:var(--ok-soft);color:var(--ok)}
+.next{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center}
+.next .t{font-weight:600;font-size:17px}
+.next .m{font-size:13px;color:var(--muted);display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:4px}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;font-weight:600;font-size:15px;border-radius:12px;padding:11px 18px;border:1px solid var(--line);background:var(--card);cursor:pointer;min-height:44px}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--brand);color:var(--on-brand);border-color:transparent}
+.btn.gold{background:var(--gold);color:var(--on-gold);border-color:transparent}
+.btn.block{width:100%}
+.btn.sm{padding:7px 12px;min-height:36px;font-size:13px}
+.link{background:none;border:0;padding:4px 0;color:var(--brand);font-weight:600;font-size:14px;cursor:pointer}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+
+.banner{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--gold-soft);color:var(--gold-ink);border-radius:14px;padding:10px 14px;font-weight:600;font-size:14px}
+
+.back{display:flex;align-items:center;gap:6px;background:none;border:0;padding:4px 0;color:var(--muted);font-weight:600;cursor:pointer;align-self:flex-start}
+.timer{display:flex;flex-direction:column;align-items:center;gap:14px;padding:6px 0}
+.ring{position:relative;width:200px;height:200px;max-width:100%}
+.ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring .tval{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ring .tval b{font:600 44px var(--mono);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.ring .tval span{font-size:12px;color:var(--muted)}
+.trow{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+
+.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;counter-reset:s}
+.steps li{display:grid;grid-template-columns:28px minmax(0,1fr);gap:10px;padding:10px 0;border-top:1px solid var(--line);counter-increment:s}
+.steps li:first-child{border-top:0}
+.steps input{position:absolute;opacity:0;pointer-events:none}
+.steps .num{width:26px;height:26px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font:600 12px var(--mono);cursor:pointer}
+.steps .num::after{content:counter(s)}
+.steps input:checked + .num{background:var(--ok);border-color:var(--ok);color:var(--card)}
+.steps input:checked + .num::after{content:"\2713"}
+.steps input:focus-visible + .num{outline:3px solid var(--gold);outline-offset:2px}
+.steps label.txt{cursor:pointer;min-width:0;overflow-wrap:anywhere}
+.steps input:checked ~ label.txt{color:var(--muted)}
+
+.code{position:relative}
+pre{margin:0;background:var(--code);color:var(--code-ink);border-radius:12px;padding:14px;font:500 13px/1.6 var(--mono);overflow-x:auto;white-space:pre}
+.copy{position:absolute;top:8px;right:8px;font:600 11px var(--mono);background:rgba(255,255,255,.08);color:var(--code-ink);border:1px solid rgba(255,255,255,.2);border-radius:8px;padding:4px 9px;cursor:pointer}
+.chal{display:flex;gap:10px;align-items:flex-start;background:var(--gold-soft);border-radius:14px;padding:12px 14px}
+.chal input{width:20px;height:20px;margin:2px 0 0;accent-color:var(--brand);flex:none}
+.chal label{cursor:pointer;font-size:15px}
+.chal b{color:var(--gold-ink)}
+textarea,input[type=text]{width:100%;font:400 16px var(--ui);color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:11px 12px}
+textarea{min-height:84px;resize:vertical}
+.lbl{font-size:13px;font-weight:600;color:var(--muted)}
+.err{font-size:13px;color:var(--warn);min-height:1em}
+
+.drill{display:flex;flex-direction:column;gap:10px}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button{font-size:13px;font-weight:600;padding:6px 12px;border-radius:999px;border:1px solid var(--line);background:var(--card);cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--brand);color:var(--on-brand);border-color:transparent}
+.callsign{font:600 clamp(44px,13vw,64px)/1 var(--mono);letter-spacing:.14em;color:var(--brand);text-align:center;padding:8px 0}
+.drill-in{display:flex;gap:8px}
+.drill-in input{flex:1;min-width:0}
+.fb{font-size:14px;min-height:1.5em;font-weight:500}
+.fb.ok{color:var(--ok)} .fb.no{color:var(--warn)}
+.drill-foot{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;font-size:13px}
+.alpha{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:4px 10px;font:500 13px var(--mono);background:var(--bg);border-radius:12px;padding:10px 12px}
+.alpha b{color:var(--brand);display:inline-block;width:1.4em}
+
+.week h2{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.week h2 .mono{font-size:13px;color:var(--muted);font-weight:500}
+.days{display:flex;flex-direction:column}
+.day{display:grid;grid-template-columns:40px minmax(0,1fr);gap:10px;padding:8px 0;border-top:1px solid var(--line);align-items:start}
+.day .dl{font:600 12px var(--mono);color:var(--muted);padding-top:9px;text-transform:uppercase}
+.day .ss{display:flex;flex-direction:column;gap:6px;min-width:0}
+.sbtn{display:grid;grid-template-columns:10px minmax(0,1fr) auto;gap:10px;align-items:center;text-align:left;background:var(--bg);border:1px solid transparent;border-radius:10px;padding:8px 10px;cursor:pointer;width:100%}
+.sbtn:hover{border-color:var(--line)}
+.sbtn .k{width:10px;height:10px;border-radius:50%;background:var(--brand)}
+.sbtn.cm .k{background:var(--gold)}
+.sbtn .st{font:500 12px var(--mono);color:var(--muted)}
+.sbtn.done{opacity:1}
+.sbtn.done .tt{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--line)}
+.sbtn.done .st{color:var(--ok)}
+.sbtn.nx{border-color:var(--brand)}
+
+.logs{display:flex;flex-direction:column;gap:10px}
+.entry .when{font:500 12px var(--mono);color:var(--muted)}
+.entry p.txt{white-space:pre-wrap;overflow-wrap:anywhere}
+
+.badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+.badge{display:flex;flex-direction:column;gap:6px;align-items:flex-start;padding:12px;border-radius:14px;background:var(--bg)}
+.hex{width:44px;height:44px;clip-path:polygon(25% 4%,75% 4%,100% 50%,75% 96%,25% 96%,0 50%);background:var(--line);display:grid;place-items:center;font:600 13px var(--mono);color:var(--muted)}
+.badge.on .hex{background:var(--gold);color:var(--on-gold)}
+.badge b{font-size:14px;font-weight:600}
+.badge span{font-size:12px;color:var(--muted);line-height:1.4}
+.badge:not(.on) b{color:var(--muted)}
+
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--card);border-top:1px solid var(--line);display:flex;justify-content:center;
+  padding:6px max(8px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px))}
+.tabs .in{display:flex;width:100%;max-width:620px;justify-content:space-around}
+.tabs button{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:0;color:var(--muted);font-size:11px;font-weight:600;padding:6px 0;cursor:pointer;border-radius:10px}
+.tabs button svg{width:24px;height:24px}
+.tabs button[aria-current="page"]{color:var(--brand)}
+.toast{position:fixed;left:50%;bottom:calc(80px + env(safe-area-inset-bottom,0px));transform:translate(-50%,12px);opacity:0;pointer-events:none;background:var(--ink);color:var(--bg);font-weight:600;font-size:14px;padding:10px 16px;border-radius:12px;max-width:calc(100% - 32px);transition:opacity .2s,transform .2s;z-index:30;text-align:center}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.ic{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media (max-width:480px){.brand .bt{display:none}}
+.pill.ask{cursor:pointer;font-weight:700;font-family:var(--ui);padding:5px 12px}
+.pill .fl{width:14px;height:14px;fill:var(--gold);stroke:none}
+.herog{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;align-items:center}
+.gring{position:relative;width:96px;height:96px}
+.gring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.gring .gv{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.15;text-align:center}
+.gring .gv b{font:600 20px var(--mono);font-variant-numeric:tabular-nums}
+.gring .gv span{font-size:11px}
+.gsteps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.gs{display:grid;grid-template-columns:30px minmax(0,1fr);gap:10px;padding:9px 0;border-top:1px solid var(--line);align-items:start}
+.gs:first-child{border-top:0}
+.gdot{width:28px;height:28px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font:600 11px var(--mono);color:var(--muted)}
+.gs.done .gdot{background:var(--ok);border-color:var(--ok);color:var(--card)}
+.gs.now .gdot{border-color:var(--brand);color:var(--brand)}
+.gs.final .gdot{border-style:dashed}
+.gs.final.done .gdot{background:var(--gold);border:0;color:var(--on-gold)}
+.gtx{min-width:0}.gtx b{display:block;font-weight:600;font-size:15px}.gtx span{font-size:13px;color:var(--muted)}
+.gtx .bar,.quest .bar{height:6px;margin-top:6px}
+.quest{display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:10px;align-items:center;padding:9px 0;border-top:1px solid var(--line)}
+.quest:first-child{border-top:0}
+.qi{width:30px;height:30px;border-radius:9px;background:var(--brand-soft);color:var(--brand);display:grid;place-items:center}
+.qi svg{width:18px;height:18px}
+.quest .qt{font-size:14.5px;font-weight:600}
+.quest .qp{font:500 12px var(--mono);color:var(--muted);white-space:nowrap}
+.quest.done .qt{color:var(--muted);text-decoration:line-through}
+.quest.done .qp{color:var(--ok);font-weight:600}
+.quest.done .qi{background:var(--ok-soft);color:var(--ok)}
+.quest.chest .qi{background:var(--gold-soft);color:var(--gold-ink)}
+.quest.chest .qt{text-decoration:none;font-weight:500;color:var(--muted)}
+.quest.chest.done .qt{color:var(--ok);font-weight:600}
+.setrow{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+select{font:inherit;font-size:15px;padding:8px 10px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+.ask-bg{position:fixed;inset:0;z-index:40;background:rgba(10,8,30,.5);display:flex;align-items:flex-end;justify-content:center}
+.ask-sh{background:var(--card);color:var(--ink);width:100%;max-width:620px;max-height:86vh;display:flex;flex-direction:column;gap:10px;border-radius:20px 20px 0 0;
+  padding:16px max(16px,env(safe-area-inset-right,0px)) calc(16px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.ask-h{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.ask-log{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px;min-height:40px}
+.askq{align-self:flex-end;background:var(--brand);color:var(--on-brand);border-radius:14px 14px 4px 14px;padding:8px 12px;max-width:85%;overflow-wrap:anywhere}
+.aska{align-self:flex-start;background:var(--bg);border-radius:14px 14px 14px 4px;padding:10px 12px;max-width:94%;font-size:15px;overflow-wrap:anywhere;min-width:0}
+.aska p{margin:0 0 6px}.aska p:last-child{margin-bottom:0}.aska ul{margin:4px 0 6px;padding-left:18px}
+.aska pre{font-size:12px;padding:10px;margin:6px 0}
+.aska code{font:500 13px var(--mono);background:var(--brand-soft);padding:1px 5px;border-radius:5px}
+.aska pre code{background:none;padding:0;color:inherit}
+.askext{margin-top:8px;text-decoration:none}
+.askchips{display:flex;flex-wrap:wrap;gap:6px}
+.askchip{font-size:13px;font-weight:600;padding:6px 11px;border-radius:999px;border:1px solid var(--line);background:var(--card);cursor:pointer;text-align:left}
+.askform{display:flex;gap:8px;align-items:flex-end}
+.askform textarea{min-height:46px;height:46px;flex:1;min-width:0;resize:none}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+.pill.menu{color:inherit;text-decoration:none;cursor:pointer}.pill.menu svg{width:15px;height:15px}
+</style>
+<style id="arcCss">
+/* ===== Critical's live look for Shift Ready and Aptitude Gym (html.arc). Critical's Settings → Look → Classic turns it off. ===== */
+html.arc{--glow:#0a9fd0;--glow2:#6a5af0;--hot:#ff7a2f;
+ --bg:#edf1f8;--card:#ffffff;--ink:#0c1324;--muted:#4a5571;--line:#d4dbea;
+ --np:rgba(255,255,255,.88);--nedge:rgba(255,255,255,.95);--nglass:rgba(246,249,255,.78);--gridc:rgba(40,70,150,.055);
+ --nsh:0 1px 2px rgba(20,35,80,.05),0 14px 34px -16px rgba(20,35,80,.22);
+ --display:"Space Grotesk",var(--ui);--ease:cubic-bezier(.2,.8,.2,1);--spring:cubic-bezier(.34,1.5,.64,1);
+ --heroa:#4f46e5;--herob:#0a9fd0;background:var(--bg)}
+html.arc[data-app="apt"]{--glow:#0aa37a;--glow2:#0a8fd0;--heroa:#0b7a5c;--herob:#0a8fd0}
+@media (prefers-color-scheme:dark){html.arc:not([data-theme="light"]){--glow:#3ad4ff;--glow2:#8f80ff;
+ --bg:#060a13;--card:#0e1525;--ink:#e8edf7;--muted:#9ca8c3;--line:#223050;
+ --np:rgba(13,20,36,.86);--nedge:rgba(160,190,255,.07);--nglass:rgba(7,12,23,.74);--gridc:rgba(120,160,255,.05);
+ --nsh:0 24px 48px -26px rgba(0,0,0,.85);--heroa:#5b4bff;--herob:#1aa7e0}
+ html.arc[data-app="apt"]:not([data-theme="light"]){--glow:#3ef0b8;--glow2:#3ad4ff;--heroa:#0e8f6c;--herob:#1286c9}}
+html.arc[data-theme="dark"]{--glow:#3ad4ff;--glow2:#8f80ff;
+ --bg:#060a13;--card:#0e1525;--ink:#e8edf7;--muted:#9ca8c3;--line:#223050;
+ --np:rgba(13,20,36,.86);--nedge:rgba(160,190,255,.07);--nglass:rgba(7,12,23,.74);--gridc:rgba(120,160,255,.05);
+ --nsh:0 24px 48px -26px rgba(0,0,0,.85);--heroa:#5b4bff;--herob:#1aa7e0}
+html.arc[data-app="apt"][data-theme="dark"]{--glow:#3ef0b8;--glow2:#3ad4ff;--heroa:#0e8f6c;--herob:#1286c9}
+
+/* backdrop: soft glow, faint instrument grid and the live particle canvas */
+html.arc body{background:radial-gradient(1100px 520px at 50% -170px,color-mix(in srgb,var(--glow) 16%,transparent),transparent 72%),radial-gradient(800px 460px at 105% 0,color-mix(in srgb,var(--glow2) 12%,transparent),transparent 70%),var(--bg);min-height:100vh}
+html.arc body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;background-image:linear-gradient(var(--gridc) 1px,transparent 1px),linear-gradient(90deg,var(--gridc) 1px,transparent 1px);background-size:44px 44px;-webkit-mask-image:radial-gradient(ellipse 85% 60% at 50% 0%,#000 25%,transparent 78%);mask-image:radial-gradient(ellipse 85% 60% at 50% 0%,#000 25%,transparent 78%)}
+#arcBg{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
+html:not(.arc) #arcBg{display:none}
+html.arc .app{position:relative;z-index:1}
+html.arc h1,html.arc h2{font-family:var(--display);letter-spacing:-.02em}
+html.arc h1{font-weight:700}
+
+/* glass cards */
+html.arc .card{background:var(--np);border:1px solid var(--line);box-shadow:var(--nsh),inset 0 1px 0 var(--nedge);border-radius:20px;-webkit-backdrop-filter:blur(14px) saturate(1.3);backdrop-filter:blur(14px) saturate(1.3)}
+html.arc .card:has(.btn:hover){border-color:color-mix(in srgb,var(--glow) 40%,var(--line))}
+html.arc .hero{position:relative;overflow:hidden;border:0;color:#fff!important;background:linear-gradient(125deg,var(--heroa),var(--herob))!important;box-shadow:0 22px 48px -24px color-mix(in srgb,var(--heroa) 80%,transparent)}
+html.arc .hero::after{content:"";position:absolute;inset:-40% -20%;background:linear-gradient(105deg,transparent 42%,rgba(255,255,255,.16) 50%,transparent 58%);transform:translateX(-60%);pointer-events:none}
+html.arc:not(.arccalm) .hero::after{animation:arcSheen 7s ease-in-out infinite}
+@keyframes arcSheen{0%,55%{transform:translateX(-60%)}85%,100%{transform:translateX(60%)}}
+html.arc .hero *{position:relative;z-index:1}
+html.arc .hero .muted,html.arc .hero .sub{color:rgba(255,255,255,.86)}
+html.arc .hstats div{background:rgba(255,255,255,.14)!important;border:1px solid rgba(255,255,255,.16)}
+html.arc .hero .bar{background:rgba(255,255,255,.22)}html.arc .hero .bar i{background:#fff}
+html.arc .eyebrow{opacity:.9}
+
+/* buttons, pills, chips */
+html.arc .btn{border-radius:12px;transition:transform .25s var(--spring),box-shadow .25s,background .2s,border-color .2s}
+html.arc .btn:active{transform:scale(.96)}
+html.arc .btn.primary{background:linear-gradient(135deg,var(--glow2),var(--glow));color:#fff;border:0;box-shadow:0 10px 24px -12px color-mix(in srgb,var(--glow) 90%,transparent)}
+html.arc .btn.primary:hover{box-shadow:0 14px 30px -12px color-mix(in srgb,var(--glow) 100%,transparent);transform:translateY(-1px)}
+html.arc .pill{background:var(--np);border-color:var(--line);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+html.arc .mark{box-shadow:0 0 18px -4px color-mix(in srgb,var(--glow) 80%,transparent)}
+html.arc .bar i{background:linear-gradient(90deg,var(--glow2),var(--glow))}
+html.arc .opt{border-radius:14px;transition:transform .2s var(--spring),border-color .2s,background .2s,box-shadow .2s}
+html.arc .opt:hover:not([disabled]){border-color:var(--glow);box-shadow:0 0 0 3px color-mix(in srgb,var(--glow) 18%,transparent)}
+html.arc .tabs{background:var(--nglass)!important;-webkit-backdrop-filter:blur(18px) saturate(1.5);backdrop-filter:blur(18px) saturate(1.5);border-top:1px solid var(--line)}
+html.arc .tabs button[aria-current="page"]{color:var(--glow)}
+html.arc .callsign{font-family:var(--mono);text-shadow:0 0 22px color-mix(in srgb,var(--glow) 55%,transparent)}
+html.arc .toast{box-shadow:0 12px 32px -12px rgba(0,0,0,.5)}
+
+/* things arrive with a little lift */
+html.arc:not(.arccalm) .arcin{animation:arcUp .55s var(--ease) both}
+@keyframes arcUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+
+/* ---------- arcade cards on the home screens ---------- */
+.arcsec{display:flex;flex-direction:column;gap:12px}
+.arch{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.arch span{font:600 12px var(--mono);color:var(--muted);letter-spacing:.04em}
+.arcgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:12px}
+.arcc{position:relative;overflow:hidden;cursor:pointer;text-align:left;font:inherit;color:inherit;border-radius:20px;padding:16px;border:1px solid var(--line);background:var(--card);display:flex;flex-direction:column;gap:8px;min-width:0;transition:transform .3s var(--spring),box-shadow .3s,border-color .3s}
+html.arc .arcc{background:var(--np);box-shadow:var(--nsh),inset 0 1px 0 var(--nedge)}
+.arcc:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--glow,#4F46B8) 55%,var(--line))}
+.arcc:active{transform:scale(.98)}
+.arcc .ai{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;color:#fff;background:linear-gradient(135deg,var(--glow2,#4F46B8),var(--glow,#4F46B8));box-shadow:0 8px 20px -10px var(--glow,#4F46B8)}
+.arcc .ai svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.arcc b{font:700 17px var(--display,inherit)}
+.arcc p{font-size:13.5px;color:var(--muted);margin:0;line-height:1.45}
+.arcc .am{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:auto;font:600 12px var(--mono);color:var(--muted)}
+.arcc .am .go{margin-left:auto;font:800 13px var(--ui);color:#fff;background:linear-gradient(135deg,var(--glow2,#4F46B8),var(--glow,#4F46B8));border-radius:999px;padding:6px 13px}
+.arcc.big{grid-column:1/-1;padding:20px;background:linear-gradient(135deg,#0b1430,#12204a 55%,#0b2a3f)!important;color:#eef3ff;border-color:rgba(120,170,255,.25)}
+.arcc.big p,.arcc.big .am{color:rgba(220,230,255,.8)}
+.arcc.big b{font-size:21px}
+.arcc.big::before{content:"";position:absolute;inset:0;background:radial-gradient(420px 160px at 85% 0,rgba(58,212,255,.25),transparent 70%),radial-gradient(300px 140px at 0 100%,rgba(143,128,255,.25),transparent 70%);pointer-events:none}
+.arcc.big>*{position:relative}
+.arcc.boss{border-color:color-mix(in srgb,#ff7a2f 35%,var(--line))}
+.arcc.boss .ai{background:linear-gradient(135deg,#ff4d6d,#ff9a3c);box-shadow:0 8px 20px -10px #ff6a3c}
+.arcc.boss .am .go{background:linear-gradient(135deg,#ff4d6d,#ff9a3c)}
+.arcc.boss.won .ai{background:linear-gradient(135deg,#f2c46d,#ffdf8a);color:#3a2700}
+.arcc.lock{cursor:default;opacity:.62}
+.arcc.lock:hover{transform:none;border-color:var(--line)}
+.arcc .tro{font:700 12px var(--mono);color:#b8860b}
+html.arc .arcc .tro,[data-theme="dark"] .arcc .tro{color:#f2c46d}
+@media (prefers-color-scheme:dark){.arcc .tro{color:#f2c46d}}
+.arcrow{display:flex;gap:8px;flex-wrap:wrap}
+.arcbtn{font:inherit;font-size:13px;font-weight:700;border-radius:999px;padding:7px 13px;cursor:pointer;border:1px solid var(--line);background:var(--card);color:var(--ink);display:inline-flex;align-items:center;gap:6px}
+.arcbtn.hot{background:linear-gradient(135deg,#ff4d6d,#ff9a3c);color:#fff;border:0}
+.arcbtn.play{background:linear-gradient(135deg,var(--glow2,#4F46B8),var(--glow,#4F46B8));color:#fff;border:0}
+.arcbtn[disabled]{opacity:.5;cursor:default}
+.arcbtn svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+
+/* ---------- the game screen: always a dark control-room look ---------- */
+.arcov{position:fixed;inset:0;z-index:9500;display:flex;flex-direction:column;overflow:hidden;color:#e8edf7;
+ --bg:#060a13;--card:#0f1729;--ink:#e8edf7;--muted:#9ca8c3;--line:#26355a;--brand:#9D96F2;--brand-soft:#29264F;--on-brand:#15132B;
+ --gold:#F2C46D;--gold-soft:#3A2E14;--gold-ink:#F2C46D;--on-gold:#2B1D00;--ok:#62D3A2;--ok-soft:#153226;--warn:#FF8A80;--warn-soft:#3A1716;
+ --num:#8FB2F4;--num-soft:#1B2A4A;--verb:#F2C46D;--verb-soft:#3A2E14;--logic:#9D96F2;--logic-soft:#29264F;--mech:#5DCAA5;--mech-soft:#10302A;--check:#F0997B;--check-soft:#3A1F14;
+ --code:#0b1020;--code-ink:#e2e8f8;--acc:#3ad4ff;--acc2:#8f80ff;color-scheme:dark;
+ background:radial-gradient(900px 500px at 50% 110%,color-mix(in srgb,var(--acc) 16%,transparent),transparent 70%),radial-gradient(700px 400px at 50% -10%,color-mix(in srgb,var(--acc2) 18%,transparent),transparent 70%),#050813;
+ font-family:var(--ui,system-ui);opacity:0;transition:opacity .3s ease}
+.arcov.on{opacity:1}
+.arcov.boss{--acc:#ff7a3c;--acc2:#ff3d6e}
+.arcov canvas.fx{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.arcov .scan{position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(255,255,255,.018) 0 1px,transparent 1px 3px);mix-blend-mode:overlay}
+.arcbar{position:relative;z-index:2;display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top,0px)) max(14px,env(safe-area-inset-right,0px)) 8px max(14px,env(safe-area-inset-left,0px))}
+.arcbar .ttl{flex:1;min-width:0;font:700 14px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:#cfd8f5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.arcx,.arcsnd{flex:none;width:40px;height:40px;border-radius:12px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);color:#dfe6ff;cursor:pointer;display:grid;place-items:center;font:700 14px var(--ui)}
+.arcx.armed{width:auto;padding:0 12px;background:#ff4d6d;border-color:#ff4d6d;color:#fff}
+.arcsnd svg,.arcx svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round}
+.archud{position:relative;z-index:2;display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:0 max(14px,env(safe-area-inset-right,0px)) 0 max(14px,env(safe-area-inset-left,0px))}
+.arcsc{font:700 30px var(--mono);font-variant-numeric:tabular-nums;color:#fff;text-shadow:0 0 18px color-mix(in srgb,var(--acc) 60%,transparent);min-width:0}
+.arcsc small{display:block;font:600 10.5px var(--mono);letter-spacing:.12em;color:#8e9bc0;text-shadow:none}
+.arccombo{font:800 14px var(--mono);padding:5px 11px;border-radius:999px;background:rgba(255,255,255,.07);color:#9fb0d8;border:1px solid rgba(255,255,255,.12);transition:transform .3s var(--spring,ease),background .3s}
+.arccombo.hot{background:linear-gradient(135deg,var(--acc2),var(--acc));color:#fff;border-color:transparent;box-shadow:0 0 20px -4px var(--acc)}
+.arccombo.bump{transform:scale(1.25)}
+.arclives{display:flex;gap:6px;margin-left:auto}
+.arclives i{width:16px;height:16px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fff,var(--acc) 45%,color-mix(in srgb,var(--acc) 40%,#000));box-shadow:0 0 12px var(--acc);transition:transform .4s,opacity .4s,filter .4s}
+.arclives i.gone{opacity:.25;filter:grayscale(1);box-shadow:none;transform:scale(.7)}
+.arcmeter{flex:1 1 100%;display:flex;align-items:center;gap:10px;font:600 11px var(--mono);letter-spacing:.1em;color:#9fb0d8;text-transform:uppercase}
+.arcmeter .mt{flex:1;height:10px;border-radius:6px;background:rgba(255,255,255,.08);overflow:hidden;border:1px solid rgba(255,255,255,.08)}
+.arcmeter .mt i{display:block;height:100%;width:100%;border-radius:6px;background:linear-gradient(90deg,var(--acc2),var(--acc));transition:width .5s var(--ease,ease)}
+.arcmeter.hp .mt i{background:linear-gradient(90deg,#ff3d6e,#ff9a3c)}
+.arcmeter.hl .mt i{background:linear-gradient(90deg,#3ef0b8,#3ad4ff)}
+.arcmeter.hl.warn .mt i{background:linear-gradient(90deg,#ff9a3c,#ffd65a)}
+.arcmeter.hl.bad .mt i{background:linear-gradient(90deg,#ff3d6e,#ff7a3c)}
+.arcmeter b{color:#fff;font-size:12px;min-width:3.2em;text-align:right}
+.arctime{position:relative;z-index:2;height:4px;margin:10px max(14px,env(safe-area-inset-right,0px)) 0 max(14px,env(safe-area-inset-left,0px));border-radius:3px;background:rgba(255,255,255,.07);overflow:hidden}
+.arctime i{position:absolute;inset:0 auto 0 0;width:100%;background:linear-gradient(90deg,#3ef0b8,var(--acc));box-shadow:0 0 12px var(--acc)}
+.arctime.low i{background:linear-gradient(90deg,#ff3d6e,#ff9a3c);box-shadow:0 0 12px #ff3d6e}
+.arcstage{position:relative;z-index:2;flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:14px max(14px,env(safe-area-inset-right,0px)) calc(18px + env(safe-area-inset-bottom,0px)) max(14px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;align-items:center}
+.arcin2{width:100%;max-width:680px;display:flex;flex-direction:column;gap:14px;margin:auto 0}
+.arcev{font:700 12px var(--mono);letter-spacing:.08em;color:var(--acc);text-transform:uppercase;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.arcev .tm{color:#fff;background:rgba(255,255,255,.08);border-radius:6px;padding:2px 7px}
+.arcstory{font-size:15px;color:#c9d3ef;margin:-6px 0 0;line-height:1.45}
+.arcqc{background:rgba(15,23,41,.82);border:1px solid rgba(140,170,255,.16);border-radius:20px;padding:18px;box-shadow:0 24px 60px -30px rgba(0,0,0,.9),inset 0 1px 0 rgba(255,255,255,.05);font-size:17px;line-height:1.5;display:flex;flex-direction:column;gap:12px;min-width:0}
+.arcqc p{margin:0}
+.arcqc .qbody{display:flex;flex-direction:column;gap:10px}
+.arcopts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:10px}
+.arcopts.vis{grid-template-columns:repeat(4,minmax(0,1fr))}
+.arco{position:relative;font:inherit;font-size:16px;font-weight:600;text-align:left;color:#eef2ff;background:rgba(255,255,255,.05);border:1.5px solid rgba(140,170,255,.2);border-radius:14px;padding:13px 14px 13px 48px;cursor:pointer;min-height:54px;transition:transform .18s var(--spring,ease),border-color .2s,background .2s,box-shadow .2s;min-width:0;overflow-wrap:anywhere}
+.arco .k{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:26px;height:26px;border-radius:8px;display:grid;place-items:center;font:700 12px var(--mono);background:rgba(255,255,255,.08);color:#9fb0d8}
+.arcopts.vis .arco{padding:8px;display:grid;place-items:center;min-height:0}
+.arcopts.vis .arco .k{top:8px;left:8px;transform:none}
+.arco:hover:not([disabled]){border-color:var(--acc);background:rgba(58,212,255,.08);box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 18%,transparent)}
+.arco:active:not([disabled]){transform:scale(.97)}
+.arco.right{border-color:#3ef0b8;background:rgba(62,240,184,.14);box-shadow:0 0 24px -6px #3ef0b8}
+.arco.right .k{background:#3ef0b8;color:#04261b}
+.arco.wrong{border-color:#ff4d6d;background:rgba(255,77,109,.14)}
+.arco.wrong .k{background:#ff4d6d;color:#fff}
+.arco[disabled]{cursor:default}
+.arcqc pre.arccode{margin:0;background:#070b18;border:1px solid rgba(140,170,255,.16);border-radius:12px;padding:12px 14px;overflow-x:auto;font:500 14.5px/1.55 var(--mono);color:#e2e8f8;white-space:pre;tab-size:4}
+.arccode .kw{color:#c792ea}.arccode .st{color:#c3e88d}.arccode .nu{color:#f78c6c}.arccode .cm{color:#697098;font-style:italic}.arccode .fn{color:#82aaff}
+.arcsay{font:700 clamp(22px,5.5vw,34px)/1.2 var(--mono);letter-spacing:.04em;color:#fff;text-align:center;padding:14px 8px;text-shadow:0 0 24px color-mix(in srgb,var(--acc) 60%,transparent)}
+.arcsay small{display:block;font:600 12px var(--mono);letter-spacing:.12em;color:#8e9bc0;text-shadow:none;margin-bottom:6px;text-transform:uppercase}
+.arcflash{position:absolute;inset:0;pointer-events:none;z-index:3;opacity:0}
+.arcflash.g{background:radial-gradient(circle at 50% 60%,rgba(62,240,184,.22),transparent 60%);animation:arcFl .5s ease}
+.arcflash.r{background:radial-gradient(circle at 50% 60%,rgba(255,61,110,.28),transparent 60%);animation:arcFl .6s ease}
+@keyframes arcFl{0%{opacity:0}20%{opacity:1}100%{opacity:0}}
+.arcov:not(.calm) .shake{animation:arcShake .4s ease}
+@keyframes arcShake{0%,100%{transform:none}20%{transform:translateX(-8px)}40%{transform:translateX(7px)}60%{transform:translateX(-5px)}80%{transform:translateX(3px)}}
+.arcpop{position:absolute;z-index:4;pointer-events:none;font:800 22px var(--mono);color:#fff;text-shadow:0 0 16px var(--acc);transform:translate(-50%,-50%);animation:arcPop 1s ease-out forwards;white-space:nowrap}
+.arcpop.big{font-size:30px;color:#ffd65a;text-shadow:0 0 22px #ff9a3c}
+.arcpop.bad{color:#ff8aa0;text-shadow:0 0 16px #ff3d6e}
+@keyframes arcPop{0%{opacity:0;transform:translate(-50%,-30%) scale(.7)}15%{opacity:1;transform:translate(-50%,-60%) scale(1.1)}100%{opacity:0;transform:translate(-50%,-160%) scale(1)}}
+.arcov.calm .arcpop{animation:arcPopC 1s ease-out forwards}
+@keyframes arcPopC{0%,70%{opacity:1}100%{opacity:0}}
+/* intro, countdown and results */
+.arcintro{text-align:center;display:flex;flex-direction:column;gap:14px;align-items:center}
+.arcintro .badge{font:700 12px var(--mono);letter-spacing:.14em;color:var(--acc);text-transform:uppercase}
+.arcintro h2{font:700 clamp(30px,8vw,54px)/1.05 var(--display,var(--ui));letter-spacing:-.02em;margin:0;background:linear-gradient(100deg,#fff 10%,color-mix(in srgb,var(--acc) 70%,#fff) 50%,color-mix(in srgb,var(--acc2) 70%,#fff) 90%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 20px color-mix(in srgb,var(--acc) 40%,transparent))}
+.arcintro p{margin:0;max-width:34em;color:#c9d3ef;font-size:16px;line-height:1.5}
+.arcrules{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.arcrules span{font:600 12.5px var(--mono);color:#dfe6ff;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:999px;padding:6px 12px}
+.arcgo{font:inherit;font-size:17px;font-weight:800;border:0;border-radius:14px;padding:14px 26px;cursor:pointer;color:#fff;background:linear-gradient(135deg,var(--acc2),var(--acc));box-shadow:0 14px 34px -12px var(--acc);transition:transform .2s var(--spring,ease)}
+.arcgo:hover{transform:translateY(-2px)}.arcgo:active{transform:scale(.97)}
+.arcgo.alt{background:rgba(255,255,255,.08);box-shadow:none;border:1px solid rgba(255,255,255,.16);font-size:15px;padding:12px 18px}
+.arcacts{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.arccount{font:800 clamp(80px,22vw,160px)/1 var(--mono);color:#fff;text-align:center;text-shadow:0 0 40px var(--acc);animation:arcCt .8s ease both}
+@keyframes arcCt{0%{opacity:0;transform:scale(1.6)}30%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(.8)}}
+.arcres{display:flex;flex-direction:column;gap:14px;align-items:center;text-align:center}
+.arcres .big{font:800 clamp(46px,13vw,84px)/1 var(--mono);color:#fff;text-shadow:0 0 30px var(--acc)}
+.arcres .nb{font:800 14px var(--mono);letter-spacing:.16em;color:#ffd65a;text-transform:uppercase;text-shadow:0 0 18px #ff9a3c}
+.arcres .gr{font:800 clamp(70px,20vw,120px)/1 var(--display,var(--ui));background:linear-gradient(160deg,#fff,var(--acc));-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 24px color-mix(in srgb,var(--acc) 50%,transparent))}
+.arcstats{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;width:100%}
+.arcstats div{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:10px 12px;text-align:left}
+.arcstats b{display:block;font:700 20px var(--mono);color:#fff}
+.arcstats span{font-size:11.5px;color:#9fb0d8;letter-spacing:.04em}
+.arcrep{width:100%;text-align:left;background:rgba(15,23,41,.8);border:1px solid rgba(140,170,255,.16);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:6px;font-size:14px}
+.arcrep h3{margin:0 0 4px;font:700 13px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--acc)}
+.arcrep .ln{display:flex;gap:10px;align-items:baseline}
+.arcrep .ln .tm{font:600 12px var(--mono);color:#8e9bc0;flex:none}
+.arcrep .ln .ok{color:#3ef0b8;font-weight:800}.arcrep .ln .no{color:#ff8aa0;font-weight:800}
+.arcrv{width:100%;text-align:left;display:flex;flex-direction:column;gap:8px}
+.arcrv details{background:rgba(15,23,41,.8);border:1px solid rgba(140,170,255,.14);border-radius:14px;padding:10px 12px}
+.arcrv summary{cursor:pointer;font-weight:700;color:#dfe6ff;list-style:none;display:flex;gap:8px}
+.arcrv summary::-webkit-details-marker{display:none}
+.arcrv summary .x{color:#ff8aa0}
+.arcrv .rb{margin-top:10px;display:flex;flex-direction:column;gap:8px;font-size:14.5px;color:#c9d3ef}
+.arcrv .rb p{margin:0}
+.arcov .expl b,.arcov .rb b{color:#fff}
+.arcwin{font:800 clamp(30px,8vw,52px)/1.05 var(--display,var(--ui));margin:0;color:#fff}
+.arcwin.lose{color:#ff8aa0}
+.arcbossart{width:min(190px,48vw);aspect-ratio:1;position:relative}
+.arcbossart canvas{width:100%;height:100%}
+.arcov .tbl{overflow-x:auto}
+.arcov table{border-collapse:collapse;font-size:14px}
+.arcov th,.arcov td{border:1px solid rgba(140,170,255,.18);padding:5px 8px;text-align:center}
+.arcov .passage{background:rgba(255,255,255,.04);border:1px solid rgba(140,170,255,.14);border-radius:12px;padding:12px;font-size:15px}
+.arcov .passage h4{margin:0 0 6px}
+.arcov .stmt{font-weight:700;font-size:17px}
+.arcov .seq{font:700 22px var(--mono);letter-spacing:.04em}
+.arcov .pairs{display:flex;flex-direction:column;gap:6px;font-family:var(--mono)}
+.arcov .pr{display:grid;grid-template-columns:28px 1fr 1fr;gap:8px;background:rgba(255,255,255,.04);border-radius:8px;padding:6px 8px}
+.arcov .frames{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.arcov .fr{width:64px;height:64px}
+.arcov .arcopts.vis .fr{width:100%;max-width:80px;height:auto}
+.arcov .diag{display:flex;justify-content:center;overflow-x:auto}
+.arcov .diag svg{max-width:100%;height:auto}
+.arcov mark{background:#ffd65a;color:#1c1500;border-radius:3px;padding:0 2px}
+@media (max-width:520px){.arcsc{font-size:24px}.arcqc{padding:14px;font-size:16px}.arco{font-size:15px}.arcopts.vis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (prefers-reduced-motion:reduce){.arcov *{animation-duration:.01ms!important}}
+</style>
+</head>
+<body>
+
+
+<div class="app">
+  <header class="top">
+    <div class="brand"><span class="mark" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="#fff" stroke-width="2"/><path d="M12 6.5V12l3.5 2.2" fill="none" stroke="#F2C46D" stroke-width="2.2" stroke-linecap="round"/></svg></span><span class="bt">Shift Ready</span></div>
+    <div class="pills"><a class="pill menu" href="./" aria-label="Back to the app menu"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5"/></svg>Menu</a><button class="pill ask" id="askBtn" data-act="ask" aria-label="Ask a question about this page">?</button><span class="pill" id="p-streak"><span class="dot"></span>0 days</span><span class="pill xp" id="p-xp"><span class="dot"></span>0 XP</span></div>
+  </header>
+  <main id="view" class="app" style="gap:16px"></main>
+</div>
+
+<nav class="tabs" aria-label="Main">
+  <div class="in">
+    <button data-tab="today"><svg class="ic" viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v9h-5v-6H9v6H4z"/></svg>Today</button>
+    <button data-tab="plan"><svg class="ic" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>Plan</button>
+    <button data-tab="drill"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="2"/><path d="M8.2 8.2a5.4 5.4 0 0 0 0 7.6M15.8 8.2a5.4 5.4 0 0 1 0 7.6M5.3 5.3a9.5 9.5 0 0 0 0 13.4M18.7 5.3a9.5 9.5 0 0 1 0 13.4"/></svg>Drill</button>
+    <button data-tab="log"><svg class="ic" viewBox="0 0 24 24"><path d="M6 4h11a2 2 0 0 1 2 2v14H8a2 2 0 0 1-2-2z"/><path d="M6 18a2 2 0 0 1 2-2h11M10 8h5M10 11h5"/></svg>Logbook</button>
+    <button data-tab="me"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>Me</button>
+  </div>
+</nav>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+var PY={
+1:[
+{d:"Mon",t:"Install Thonny",steps:["Go to thonny.org and download the Windows installer. Check with a parent first if your laptop needs permission to install things.","Install it with the default options, then open Thonny.","In the Shell box at the bottom, type print(\"Hello, control room\") and press Enter.","Use the Shell as a calculator: try 12 * 60, then 2 ** 10, then 1630 * 2."],ch:"Print your name five times on one line using print(\"Name \" * 5)."},
+{d:"Wed",t:"Variables and input",steps:["In Thonny, click New and paste the code below.","Save it as hello.py, then press the green Run button.","Answer the questions in the Shell and check the output.","Change the messages so they sound like a real control room welcome."],code:'name = input("What\'s your name? ")\nshift = input("Day or night shift? ")\nprint("Welcome to the control room,", name)\nprint("You are on", shift, "shift.")',ch:"Add a third question and print one sentence that uses all three answers."},
+{d:"Fri",t:"Maths with real numbers",steps:["Hinkley Point C is planned to have two reactors of about 1,630 MW each. Paste the code, save it as power.py and run it.","Change the number of units and watch the total change.","Add a line that works out how many minutes are in a 12-hour shift.","Read any error message out loud and fix it. That's normal coding."],code:'units = 2\nmw_per_unit = 1630\ntotal = units * mw_per_unit\nprint(f"{units} reactors x {mw_per_unit} MW = {total} MW")\nprint(f"That is {total / 1000} GW")',ch:"Work out how many minutes of sleep you get between 21:45 and 07:00."}
+],
+2:[
+{d:"Mon",t:"If statements: alarms",steps:["Paste the code, save it as alarm.py and run it three times.","Try 250, then 300, then 330. Check each message is right.","Notice the indentation: the 4 spaces tell Python which lines belong to each if.","Change the limits and predict the output before you run it."],code:'temp = int(input("Coolant temperature (C): "))\n\nif temp > 320:\n    print("ALARM: temperature HIGH")\nelif temp < 280:\n    print("Warning: temperature low")\nelse:\n    print("Normal")',ch:"Add a CRITICAL level for anything above 340."},
+{d:"Wed",t:"For loops",steps:["Paste the countdown code and run it.","Change it to count down from 20 instead of 10.","Write a second loop that prints the 7 times table up to 12 x 7.","Work out what each of the three numbers in range() does."],code:'for i in range(10, -1, -1):\n    print(i)\nprint("Reactor online")',ch:"Print only the even numbers from 0 to 20 with one loop."},
+{d:"Fri",t:"While loop monitor",steps:["Paste the code and run it.","Type a few temperatures, then type stop.","Find the line that ends the loop. That's break.","Add your LOW warning from Monday."],code:'while True:\n    entry = input("Temperature (or stop): ")\n    if entry == "stop":\n        break\n    temp = int(entry)\n    if temp > 320:\n        print("ALARM: HIGH")\n    else:\n        print("ok")\nprint("Monitoring ended")',ch:"Count how many alarms happened and print the total when you type stop."}
+],
+3:[
+{d:"Mon",t:"Lists of readings",steps:["Paste the code and run it.","Add a new reading with readings.append(325).","Print how many readings there are with len(readings).","Change the numbers and check the average makes sense."],code:'readings = [298, 301, 305, 299, 318, 322, 310]\n\nprint("Highest:", max(readings))\nprint("Lowest:", min(readings))\nprint("Average:", round(sum(readings) / len(readings), 1))',ch:"Print the readings in order using sorted(readings)."},
+{d:"Wed",t:"Functions",steps:["Paste the code and run it.","Read the def line: it creates a check you can reuse.","Call print(check(335)) on its own.","Change a limit in one place and watch every result update."],code:'readings = [298, 301, 305, 299, 318, 322, 310]\n\ndef check(temp):\n    if temp > 320:\n        return "HIGH"\n    elif temp < 280:\n        return "LOW"\n    return "normal"\n\nfor r in readings:\n    print(r, check(r))',ch:"Write a function that converts Celsius to Fahrenheit (C x 9 / 5 + 32)."},
+{d:"Fri",t:"Physics quiz game",steps:["Paste the starter quiz and run it.","Add three more questions from your GCSE physics topics.","Test it on someone at home.","Fix any answer that was marked wrong unfairly, like a capital letter."],code:'questions = [\n    ("What particle has no charge?", "neutron"),\n    ("What is the unit of power?", "watt"),\n    ("What splits in nuclear fission?", "nucleus"),\n]\nscore = 0\nfor q, a in questions:\n    answer = input(q + " ").strip().lower()\n    if answer == a:\n        print("Correct")\n        score += 1\n    else:\n        print("The answer was", a)\nprint(f"You scored {score}/{len(questions)}")',ch:"Show the score as a percentage at the end."}
+],
+4:[
+{d:"Mon",t:"Reactor simulator",steps:["Paste the code, save it as monitor.py and run it.","Watch the temperature drift each minute.","Change time.sleep(0.5) to 0.2 to speed it up.","Change randint(-4, 6) and see how the reactor behaves."],code:'import random, time\n\ntemp = 300\nfor minute in range(1, 21):\n    temp += random.randint(-4, 6)\n    if temp > 320:\n        status = "HIGH ALARM"\n    elif temp < 280:\n        status = "LOW"\n    else:\n        status = "normal"\n    print(f"Min {minute:02}: {temp} C  {status}")\n    time.sleep(0.5)',ch:"Make the starting temperature random between 290 and 310."},
+{d:"Wed",t:"Add an operator action",steps:["Open monitor.py from Monday.","Paste the code below inside the loop, just after the temp += line.","Run it and respond to every alarm.","Try to stay out of the HIGH band for all 20 minutes."],code:'    if temp > 320:\n        choice = input("HIGH ALARM. Insert control rods? (y/n) ")\n        if choice == "y":\n            temp -= 15\n            print("Rods in. Temperature falling.")',ch:"Add a LOW alarm that asks whether to withdraw rods and raises the temperature by 10."},
+{d:"Fri",t:"Shift report",steps:["Before the loop, make an empty list: log = []","Inside the loop, add log.append(temp) each minute.","After the loop, paste the report code below.","Run a full shift and read your report."],code:'print("--- Shift report ---")\nprint("Highest:", max(log))\nprint("Lowest:", min(log))\nalarms = 0\nfor t in log:\n    if t > 320:\n        alarms += 1\nprint("Minutes in HIGH alarm:", alarms)',ch:"Save the report to report.txt using with open(\"report.txt\", \"w\") as f: and f.write(...)."}
+]};
+var CM={
+1:[
+{d:"Mon",t:"Learn A to M",warm:"am",steps:["Read the A to M list out loud twice.","Cover it and say each letter's word from memory.","Spell your first name out loud in phonetics."],log:"Which letters kept tripping you up?"},
+{d:"Tue",t:"Learn N to Z",warm:"nz",steps:["Read the N to Z list out loud twice.","Cover it and test yourself.","Spell your surname and your street name out loud."],log:"Which letters are still slow?"},
+{d:"Wed",t:"The repeat-back rule",warm:"all",steps:["Operators use three-way communication: one person gives the instruction, the other repeats it back, then the first says \"correct\".","Tonight, repeat back every request someone at home gives you before you do it: \"Bins out before 8. Got it.\"","Notice whether repeating it back caught any mix-up."],log:"Did repeating back catch anything?"},
+{d:"Thu",t:"Spell it under pressure",warm:"all",steps:["Spell your postcode, a friend's name and your Gorilla Tag username in phonetics.","Do it again faster, with no pauses.","Get someone to call out random words for you to spell."],log:"How fast can you spell without stopping?"},
+{d:"Fri",t:"Phonetic speed run",warm:"all",steps:["Use the warm-up drill for the whole session.","Aim for 10 correct in a row.","If you break the run, start again calmly. Staying calm is the skill."],log:"What was your best run?"}
+],
+2:[
+{d:"Mon",t:"60-second explainer",warm:"all",steps:["Pick a science topic from this week's lessons.","Write three bullet points: what it is, how it works, why it matters.","Explain it out loud with a 60-second timer on your phone. Stop when it beeps."],log:"Which topic did you pick, and did you finish in time?"},
+{d:"Tue",t:"Record and replay",warm:"all",steps:["Record your explainer as a voice note.","Play it back and count the ums.","Pick one thing to improve: slower, clearer, or better structured."],log:"What will you change in the re-record?"},
+{d:"Wed",t:"One clear question",warm:"all",steps:["Look at tomorrow's lessons and find something you're unsure about.","Write one short, specific question, like \"Why does current stay the same in a series circuit?\"","Say it out loud a few times so you ask it confidently tomorrow."],log:"Write the question you'll ask."},
+{d:"Thu",t:"Re-record",warm:"all",steps:["Record the same explainer again, using your improvement note.","Play both recordings back to back.","Notice what got better."],log:"What got better between the two recordings?"},
+{d:"Fri",t:"Explain your code",warm:"all",steps:["Explain your alarm program to someone at home.","Rule: no code words like \"if\", \"loop\" or \"variable\".","Ask them to explain it back. If they can, you nailed it."],log:"Could they explain it back?"}
+],
+3:[
+{d:"Mon",t:"Teach it",warm:"all",steps:["Teach a family member one physics idea in 5 minutes.","Use an everyday example to explain it.","Check they understood by asking them a question at the end."],log:"What example did you use?"},
+{d:"Tue",t:"Instructions test",warm:"all",steps:["Write 5 numbered steps for making toast.","Someone follows them exactly, word for word, without guessing.","Rewrite any step that went wrong. Procedures have to work for anyone."],log:"Which step failed, and how did you fix it?"},
+{d:"Wed",t:"Active listening",warm:"all",steps:["Have a 5-minute conversation without interrupting once.","Before each reply, sum up what they said in one sentence.","Notice how the other person reacts."],log:"Was it harder than you expected?"},
+{d:"Thu",t:"Phonetic numbers",warm:"num",steps:["Numbers have radio words too: Zero, One, Two, and Niner for 9 so it isn't confused with five on a noisy radio.","Read a phone number out loud the operator way.","Read five numbers from your maths homework the same way."],log:"Which numbers felt odd to say?"},
+{d:"Fri",t:"Quiz host",warm:"all",steps:["Run your Python quiz out loud for someone.","Read each question clearly, then pause.","Repeat back each answer before you mark it."],log:"How did your quiz go?"}
+],
+4:[
+{d:"Mon",t:"Write a procedure",warm:"all",steps:["Write 5 numbered steps for \"What to do when HIGH ALARM shows\" in your simulator.","Start each step with a verb: Check, Insert, Confirm, Record.","Read it back. Could someone who's never seen your code follow it?"],log:"Write your procedure here."},
+{d:"Tue",t:"Shift handover",warm:"all",steps:["Give someone a 30-second handover about your day.","Cover three things: what happened, anything still open, what to watch.","Ask them to repeat back the key point."],log:"What was your handover?"},
+{d:"Wed",t:"Run a drill",warm:"all",steps:["Run your simulator with someone else reading out the readings.","Give orders with repeat-back: \"Insert control rods.\" \"Inserting control rods.\" \"Correct.\"","Swap roles once."],log:"How did the drill go?"},
+{d:"Thu",t:"Plan your demo",warm:"all",steps:["Plan a 2-minute demo of your reactor monitor.","Three parts: what it does, how it works, what you'd add next.","Run through it once against a timer."],log:"What would you add next to the program?"},
+{d:"Fri",t:"Present it",warm:"all",steps:["Present your reactor monitor to someone for 2 minutes.","Take one question at the end and answer it clearly.","Keep this project in mind. It's a great example for a work experience interview."],log:"What question did they ask?"}
+]};
+var WEEK_T=["","Set up and say hello","Decisions and alarms","Lists and functions","Build a reactor monitor"];
+var DAYS=["Mon","Tue","Wed","Thu","Fri"];
+var SESS=[],BY={};
+for(var w=1;w<=4;w++){var p=0;for(var k=0;k<5;k++){var d=DAYS[k];
+  if(d==="Mon"||d==="Wed"||d==="Fri"){var a=PY[w][p];var s={id:"py-"+w+"-"+p,kind:"py",w:w,mins:25};for(var x in a)s[x]=a[x];SESS.push(s);p++;}
+  var b=CM[w][k];var c={id:"cm-"+w+"-"+k,kind:"cm",w:w,mins:15};for(var y in b)c[y]=b[y];SESS.push(c);}}
+SESS.forEach(function(s){BY[s.id]=s;});
+
+var RANKS=[["Trainee",0],["Junior operator",200],["Operator",500],["Senior operator",900],["Shift supervisor",1400]];
+var BADGES=[
+{id:"first-py",g:"Py",n:"Hello, world",d:"Finish your first Python session"},
+{id:"first-cm",g:"Cm",n:"Comms check",d:"Finish your first comms session"},
+{id:"w1",g:"W1",n:"Week 1 cleared",d:"Every session in week 1"},
+{id:"w2",g:"W2",n:"Week 2 cleared",d:"Every session in week 2"},
+{id:"w3",g:"W3",n:"Week 3 cleared",d:"Every session in week 3"},
+{id:"w4",g:"W4",n:"Week 4 cleared",d:"Every session in week 4"},
+{id:"drill10",g:"10",n:"Clear transmission",d:"10 phonetic codes right in a row"},
+{id:"full10",g:"25",n:"Full shift",d:"Run the timer to zero in 10 sessions"},
+{id:"streak5",g:"5d",n:"Five-day streak",d:"Train 5 school days in a row"},
+{id:"monitor",g:"RM",n:"Reactor monitor",d:"Build the week 4 shift report"},
+{id:"logger",g:"Lg",n:"Logbook keeper",d:"Write 5 log entries"},
+{id:"grad",g:"SR",n:"Shift ready",d:"Finish all 32 sessions"}
+];
+var NATO={A:"Alfa",B:"Bravo",C:"Charlie",D:"Delta",E:"Echo",F:"Foxtrot",G:"Golf",H:"Hotel",I:"India",J:"Juliett",K:"Kilo",L:"Lima",M:"Mike",N:"November",O:"Oscar",P:"Papa",Q:"Quebec",R:"Romeo",S:"Sierra",T:"Tango",U:"Uniform",V:"Victor",W:"Whiskey",X:"X-ray",Y:"Yankee",Z:"Zulu","0":"Zero","1":"One","2":"Two","3":"Three","4":"Four","5":"Five","6":"Six","7":"Seven","8":"Eight","9":"Niner"};
+var ALT={alpha:"alfa",juliet:"juliett",whisky:"whiskey",xray:"x-ray",x:"x-ray",nine:"niner"};
+
+var KEY="shift-ready-v1";
+function blank(){return{done:{},full:{},ch:{},steps:{},drafts:{},xp:0,streak:0,lastDay:null,drill:{total:0,run:0,best:0},logs:[],badges:{},timer:null,goal:50,daily:{d:"",xp:0},freeze:0,quests:null};}
+var S=blank();
+try{var raw=localStorage.getItem(KEY);if(raw){var o=JSON.parse(raw);for(var kk in o)S[kk]=o[kk];}}catch(e){}
+function fix(){if(S.goal==null)S.goal=50;if(!S.daily)S.daily={d:"",xp:0};if(S.freeze==null)S.freeze=0;if(!S.drill)S.drill={total:0,run:0,best:0};}
+fix();
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+
+function esc(t){return String(t).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
+function $(id){return document.getElementById(id);}
+function ds(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
+function today(){return ds(new Date());}
+function pd(s){var a=s.split("-");return new Date(+a[0],+a[1]-1,+a[2]);}
+/* school days missed strictly between two dates; weekends never count */
+function missed(a,b){var d=pd(a),e=pd(b),n=0,g=0;d.setDate(d.getDate()+1);while(d<e&&g<400){var w=d.getDay();if(w!==0&&w!==6)n++;d.setDate(d.getDate()+1);g++;}return n;}
+function liveStreak(){if(!S.lastDay)return 0;var t=today();if(S.lastDay===t)return S.streak;return missed(S.lastDay,t)<=(S.freeze||0)?S.streak:0;}
+function touchStreak(){var t=today();if(S.lastDay===t)return;if(!S.lastDay||!S.streak)S.streak=1;else{var m=missed(S.lastDay,t);if(m===0)S.streak++;else if(m<=(S.freeze||0)){S.freeze-=m;S.streak++;toast("Streak freeze used. Your "+S.streak+"-day streak is safe.");}else S.streak=1;}S.lastDay=t;}
+function addXP(n){if(n<=0)return;var t=today();if(!S.daily||S.daily.d!==t)S.daily={d:t,xp:0};var before=S.daily.xp;S.xp+=n;S.daily.xp+=n;touchStreak();
+  if(before<S.goal&&S.daily.xp>=S.goal)toast("Daily goal reached! "+S.goal+" XP today.");save();qProg("xp",n);checkBadges();save();header();refreshToday();}
+function dayXP(){return (S.daily&&S.daily.d===today())?S.daily.xp:0;}
+function rank(xp){var i=0;while(i<RANKS.length-1&&xp>=RANKS[i+1][1])i++;return{name:RANKS[i][0],cur:RANKS[i][1],next:RANKS[i+1]?RANKS[i+1]:null};}
+function doneCount(){var n=0;SESS.forEach(function(s){if(S.done[s.id])n++;});return n;}
+function weekDone(w){return SESS.filter(function(s){return s.w===w;}).every(function(s){return S.done[s.id];});}
+function nextOf(kind){for(var i=0;i<SESS.length;i++){var s=SESS[i];if(s.kind===kind&&!S.done[s.id])return s;}return null;}
+function fmt(ms){var t=Math.ceil(ms/1000);var m=Math.floor(t/60),s=t%60;return String(m).padStart(2,"0")+":"+String(s).padStart(2,"0");}
+
+var TESTS={
+"first-py":function(){return SESS.some(function(s){return s.kind==="py"&&S.done[s.id];});},
+"first-cm":function(){return SESS.some(function(s){return s.kind==="cm"&&S.done[s.id];});},
+w1:function(){return weekDone(1);},w2:function(){return weekDone(2);},w3:function(){return weekDone(3);},w4:function(){return weekDone(4);},
+drill10:function(){return S.drill.best>=10;},
+full10:function(){return Object.keys(S.full).filter(function(id){return S.done[id];}).length>=10;},
+streak5:function(){return S.streak>=5;},
+monitor:function(){return !!S.done["py-4-2"];},
+logger:function(){return S.logs.length>=5;},
+grad:function(){return doneCount()===SESS.length;}
+};
+function checkBadges(){BADGES.forEach(function(b){if(!S.badges[b.id]&&TESTS[b.id]()){S.badges[b.id]=Date.now();toast("Badge unlocked: "+b.n);}});}
+
+var tq=[],tshow=false;
+function toast(m){tq.push(m);if(!tshow)nextToast();}
+function nextToast(){var m=tq.shift();var el=$("toast");if(!m){tshow=false;el.classList.remove("show");return;}tshow=true;el.textContent=m;el.classList.add("show");setTimeout(function(){el.classList.remove("show");setTimeout(nextToast,220);},2400);}
+
+var view="today",cur=null,prevView="today",pendingImport=false,pendingReset=false;
+var VIEWS=["today","plan","drill","log","me"];
+function fromHash(){var h=location.hash.replace("#","");return VIEWS.indexOf(h)>-1?h:"today";}
+
+var FLAME='<svg class="fl" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5c1.2 3.6 5.5 5.6 5.5 10.6a5.5 5.5 0 0 1-11 0c0-2.8 1.6-4.4 2.7-5.5.3 2 1.3 2.9 2.2 3.3.6-3.3-1-6 .6-8.4z"/></svg>';
+function refreshToday(){if(!cur&&view==="today"&&$("view")){var y=window.scrollY;$("view").innerHTML=todayHTML();window.scrollTo(0,y);}}
+function header(){$("p-streak").innerHTML=FLAME+liveStreak()+(liveStreak()===1?" day":" days");$("p-xp").innerHTML='<span class="dot"></span>'+S.xp+" XP";}
+function render(){
+  document.querySelectorAll(".tabs button").forEach(function(b){if(b.getAttribute("data-tab")===view&&!cur)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current");});
+  header();
+  var v=$("view");
+  if(cur){v.innerHTML=sessionHTML(BY[cur]);afterSession(BY[cur]);return;}
+  if(view==="today")v.innerHTML=todayHTML();
+  else if(view==="plan")v.innerHTML=planHTML();
+  else if(view==="drill"){v.innerHTML='<h1>Drills and games</h1>'+(window.SRX?SRX.drill():'')+'<h2>Phonetic drill</h2><p class="muted">Operators read codes like "Charlie Victor Two" so nothing is misheard over noise. Each right answer is worth 2 XP.</p><section class="card">'+drillHTML(true)+'</section>';mountDrill(D.mode||"all");}
+  else if(view==="log")v.innerHTML=logHTML();
+  else if(view==="me")v.innerHTML=meHTML();
+  updTimer();
+}
+
+function nightInfo(){var wd=new Date().getDay();
+  if(wd===1||wd===3||wd===5)return["Python and comms night","40 minutes tonight: 25 of Python, then 15 of comms."];
+  if(wd===2||wd===4)return["Comms night","15 minutes tonight. Keep the streak going."];
+  return["Rest day","Take the night off, or catch up on anything you missed."];}
+function rankBlock(onHero){var r=rank(S.xp);var pct=r.next?Math.round((S.xp-r.cur)/(r.next[1]-r.cur)*100):100;
+  return '<div class="rankrow"><span><b>'+r.name+'</b></span><span class="mono">'+(r.next?S.xp+" / "+r.next[1]+" XP to "+r.next[0]:S.xp+" XP · top rank")+'</span></div><div class="bar"><i style="width:'+pct+'%"></i></div>';}
+function nextCard(s,label){
+  if(!s)return '<section class="card"><span class="chip ok">'+label+' complete</span><p>Every '+label.toLowerCase()+' session is done. Brilliant work.</p></section>';
+  return '<section class="card next"><div style="min-width:0"><div class="m"><span class="chip '+s.kind+'">'+(s.kind==="py"?"Python":"Comms")+'</span><span>Week '+s.w+' · '+s.d+' · '+s.mins+' min</span></div><p class="t" style="margin-top:6px">'+esc(s.t)+'</p></div><button class="btn primary" data-act="open" data-id="'+s.id+'">Start</button></section>';}
+function timerBanner(){if(!S.timer||!S.timer.endAt||!BY[S.timer.id])return "";
+  return '<div class="banner"><span>Timer running: '+esc(BY[S.timer.id].t)+' <span class="mono" data-tleft>'+fmt(S.timer.endAt-Date.now())+'</span></span><button class="btn sm" data-act="open" data-id="'+S.timer.id+'">Open</button></div>';}
+function ringSVG(f){var C=2*Math.PI*42;f=Math.max(0,Math.min(1,f));return '<svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="42" fill="none" stroke="var(--hero-track)" stroke-width="9"/><circle cx="50" cy="50" r="42" fill="none" stroke="var(--gold)" stroke-width="9" stroke-linecap="round" stroke-dasharray="'+C.toFixed(2)+'" stroke-dashoffset="'+(C*(1-f)).toFixed(2)+'"/></svg>';}
+function todayHTML(){var n=nightInfo(),dc=doneCount(),mins=0,dx=dayXP();SESS.forEach(function(s){if(S.done[s.id])mins+=s.mins;});
+  return timerBanner()+
+  '<section class="card hero"><div class="herog"><div style="min-width:0;display:flex;flex-direction:column;gap:6px"><span class="eyebrow">'+new Date().toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"})+'</span><h1>'+n[0]+'</h1><p class="sub">'+n[1]+'</p></div>'+
+  '<div class="gring" role="img" aria-label="'+dx+' of '+S.goal+' XP today">'+ringSVG(dx/S.goal)+'<div class="gv"><b>'+dx+'</b><span>of '+S.goal+' XP</span></div></div></div>'+
+  '<p class="sub" style="font-weight:600">'+(dx>=S.goal?'Daily goal reached. Nice work.':'Daily goal: '+(S.goal-dx)+' XP to go')+'</p>'+rankBlock(true)+'</section>'+
+  '<h2>Next up</h2>'+nextCard(nextOf("py"),"Python")+nextCard(nextOf("cm"),"Comms")+(window.SRX?SRX.today():'')+
+  questCard()+goalCard()+
+  '<div class="stats"><div class="stat"><b>'+liveStreak()+'</b><span>Day streak</span></div><div class="stat"><b>'+dc+'/32</b><span>Sessions</span></div><div class="stat"><b>'+mins+'</b><span>Minutes trained</span></div></div>'+
+  '<p class="small muted">Each week: three 25-minute Python sessions and five 15-minute comms sessions, 75 minutes of each. Weekends never break your streak.</p>';}
+
+/* daily quests */
+var QDEF={xp:["Earn {n} XP today","bolt"],session:["Finish a session","check"],timer:["Run a session timer to zero","clock"],drill:["Get {n} phonetic codes right","radio"],run:["Get a drill run of {n} in a row","radio"],log:["Write a log entry","book"],steps:["Tick off every step in a session","list"],challenge:["Do a Python bonus challenge","star"]};
+function qsvg(p){return '<svg class="ic" viewBox="0 0 24 24">'+p+'</svg>';}
+var QIC={bolt:qsvg('<path d="M13 3 5 14h6l-1 7 8-11h-6z"/>'),check:qsvg('<path d="M5 12l5 5 9-10"/>'),clock:qsvg('<circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/>'),radio:qsvg('<circle cx="12" cy="12" r="2"/><path d="M8.2 8.2a5.4 5.4 0 0 0 0 7.6M15.8 8.2a5.4 5.4 0 0 1 0 7.6"/>'),book:qsvg('<path d="M6 4h11a2 2 0 0 1 2 2v14H8a2 2 0 0 1-2-2z"/><path d="M10 8h5M10 11h5"/>'),list:qsvg('<path d="M9 7h10M9 12h10M9 17h10M5 7h.01M5 12h.01M5 17h.01"/>'),star:qsvg('<path d="m12 3 2.7 5.6 6.1.8-4.5 4.2 1.1 6L12 16.8l-5.4 2.8 1.1-6-4.5-4.2 6.1-.8z"/>'),chest:qsvg('<rect x="4" y="9" width="16" height="10" rx="2"/><path d="M4 13h16M12 11.5v3M6 9a6 4 0 0 1 12 0"/>')};
+function seedRand(s){var h=2166136261;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return function(){h+=0x6D2B79F5;var x=h;x=Math.imul(x^(x>>>15),x|1);x^=x+Math.imul(x^(x>>>7),x|61);return((x^(x>>>14))>>>0)/4294967296;};}
+function quests(){var t=today();if(S.quests&&S.quests.d===t)return S.quests;var r=seedRand("q"+t),wd=new Date().getDay(),school=wd>=1&&wd<=5,py=wd===1||wd===3||wd===5;
+  var pool=[["drill",r()<0.5?5:10],["run",5]];if(school)pool.push(["session",1],["timer",1],["log",1],["steps",1]);if(py)pool.push(["challenge",1]);
+  for(var i=pool.length-1;i>0;i--){var j=Math.floor(r()*(i+1)),tmp=pool[i];pool[i]=pool[j];pool[j]=tmp;}
+  var dx=dayXP();S.quests={d:t,chest:false,list:[{k:"xp",n:S.goal,p:Math.min(S.goal,dx),done:dx>=S.goal}].concat(pool.slice(0,2).map(function(q){return{k:q[0],n:q[1],p:0,done:false};}))};save();return S.quests;}
+function qText(q){return QDEF[q.k][0].replace("{n}",q.n);}
+function qProg(k,v){var q=quests(),hit=[];q.list.forEach(function(it){if(it.k!==k||it.done)return;if(k==="xp")it.p=Math.min(it.n,dayXP());else if(k==="run")it.p=Math.max(it.p,v);else it.p+=v;
+    if(it.p>=it.n){it.p=it.n;it.done=true;hit.push(it);}});save();
+  hit.forEach(function(it){toast("Quest complete: "+qText(it)+". +10 XP");addXP(10);});
+  if(!q.chest&&q.list.every(function(it){return it.done;})){q.chest=true;var fz=(S.freeze||0)<2;if(fz)S.freeze=(S.freeze||0)+1;save();toast("Daily chest opened! +30 XP"+(fz?" and a streak freeze":""));addXP(30);}
+  var ql=$("questList");if(ql)ql.innerHTML=questsHTML();}
+function questsHTML(){var q=quests();return q.list.map(function(it){var pct=Math.round(it.p/it.n*100);
+    return '<div class="quest'+(it.done?' done':'')+'"><span class="qi">'+QIC[QDEF[it.k][1]]+'</span><div style="min-width:0"><div class="qt">'+esc(qText(it))+'</div><div class="bar"><i style="width:'+pct+'%"></i></div></div><span class="qp">'+(it.done?"Done":Math.floor(it.p)+"/"+it.n)+'</span></div>';}).join("")+
+  '<div class="quest chest'+(q.chest?' done':'')+'"><span class="qi">'+QIC.chest+'</span><div class="qt">'+(q.chest?"Chest opened. See you tomorrow.":"Finish all three for a chest: +30 XP and a streak freeze")+'</div><span class="qp">'+(q.chest?"Done":"")+'</span></div>';}
+function questCard(){var now=new Date(),mid=new Date(now);mid.setHours(24,0,0,0);var m=Math.max(1,Math.round((mid-now)/60000));
+  return '<section class="card"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap"><h2>Daily quests</h2><span class="small muted">New in '+(m>=60?Math.floor(m/60)+' h '+(m%60)+' min':m+' min')+'</span></div><div id="questList">'+questsHTML()+'</div>'+
+  '<p class="small muted">'+((S.freeze||0)>0?S.freeze+' streak freeze'+(S.freeze===1?'':'s')+' ready. If you miss a school day, one is used automatically.':'Earn a streak freeze from the daily chest. It saves your streak if you miss a school day.')+'</p></section>';}
+
+/* 4-week goal */
+function goalCard(){var cur=-1,done=0,rows="";for(var w=1;w<=4;w++){var ws=SESS.filter(function(s){return s.w===w;}),d=ws.filter(function(s){return S.done[s.id];}).length,st=d===ws.length?"done":"todo";
+    if(st==="done")done++;else if(cur<0){cur=w;st="now";}
+    rows+='<li class="gs '+st+'"><span class="gdot">'+(st==="done"?"\u2713":"W"+w)+'</span><div class="gtx"><b>'+WEEK_T[w]+'</b><span>Week '+w+' · '+d+'/'+ws.length+' sessions</span>'+(st==="now"&&d>0?'<div class="bar"><i style="width:'+Math.round(d/ws.length*100)+'%"></i></div>':'')+'</div></li>';}
+  var all=done===4;rows+='<li class="gs final'+(all?' done':'')+'"><span class="gdot">SR</span><div class="gtx"><b>Shift ready</b><span>'+(all?"Achieved!":"Present your reactor monitor to finish the goal")+'</span></div></li>';
+  return '<section class="card"><span class="eyebrow" style="color:var(--brand)">4-week goal</span><h2>Build and present a reactor monitor</h2><p class="small muted">Go from installing Python to running your own reactor monitor and presenting it like an operator handing over a shift.</p><p class="small"><b>'+done+' of 4</b> stages complete</p><ol class="gsteps">'+rows+'</ol></section>';}
+
+function planHTML(){var nxp=nextOf("py"),ncm=nextOf("cm");var h='<h1>Your 4 weeks</h1><p class="muted">Tap any session to open it. You can go in any order, but the plan builds up week by week.</p>';
+  for(var w=1;w<=4;w++){var ws=SESS.filter(function(s){return s.w===w;});var d=ws.filter(function(s){return S.done[s.id];}).length;
+    h+='<section class="card week"><h2><span>Week '+w+': '+WEEK_T[w]+'</span><span class="mono">'+d+'/'+ws.length+'</span></h2><div class="days">';
+    DAYS.forEach(function(dy){h+='<div class="day"><span class="dl">'+dy+'</span><div class="ss">';
+      ws.filter(function(s){return s.d===dy;}).forEach(function(s){var dn=!!S.done[s.id];var nx=(nxp&&s.id===nxp.id)||(ncm&&s.id===ncm.id);
+        h+='<button class="sbtn '+s.kind+(dn?" done":"")+(nx&&!dn?" nx":"")+'" data-act="open" data-id="'+s.id+'"><span class="k"></span><span class="tt">'+esc(s.t)+'</span><span class="st">'+(dn?"Done":s.mins+" min")+'</span></button>';});
+      h+='</div></div>';});
+    h+='</div></section>';}
+  return h;}
+
+function logHTML(){var h='<h1>Logbook</h1><p class="muted">Operators log every shift. Add a short entry when you finish a session and it lands here.</p>';
+  if(!S.logs.length)return h+'<section class="card"><h2>No entries yet</h2><p class="muted">Finish a session and write a line in its log box. Your first entry will show up here.</p><button class="btn primary" data-tab-go="today">Go to today</button></section>';
+  h+='<div class="logs">';S.logs.slice().reverse().forEach(function(e){var s=BY[e.id];h+='<section class="card entry"><div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><span class="chip '+(s?s.kind:"py")+'">'+(s?(s.kind==="py"?"Python":"Comms"):"Session")+'</span><span class="when">'+new Date(e.at).toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short"})+'</span></div><h3>'+(s?esc(s.t)+' <span class="muted small">Week '+s.w+' · '+s.d+'</span>':"")+'</h3><p class="txt">'+esc(e.text)+'</p></section>';});
+  return h+'</div>';}
+
+function meHTML(){var dc=doneCount();var mins=0,fulls=0;SESS.forEach(function(s){if(S.done[s.id]){mins+=s.mins;if(S.full[s.id])fulls++;}});
+  var h='<h1>Your progress</h1><section class="card">'+rankBlock(false)+'</section>'+
+  '<div class="stats"><div class="stat"><b>'+dc+'</b><span>Sessions done</span></div><div class="stat"><b>'+(S.freeze||0)+'/2</b><span>Streak freezes</span></div><div class="stat"><b>'+S.drill.best+'</b><span>Best drill run</span></div></div>'+
+  '<section class="card"><h2>Badges</h2><div class="badges">';
+  BADGES.forEach(function(b){var on=!!S.badges[b.id];h+='<div class="badge'+(on?" on":"")+'"><span class="hex">'+b.g+'</span><b>'+b.n+'</b><span>'+b.d+'</span></div>';});
+  h+='</div></section>'+
+  '<section class="card"><h2>Settings</h2><div class="setrow"><label class="lbl" for="goalSel" style="font-size:15px;color:var(--ink)">Daily XP goal</label><select id="goalSel">'+[30,50,80,120].map(function(g){return '<option value="'+g+'"'+(S.goal===g?' selected':'')+'>'+g+' XP</option>';}).join("")+'</select></div><p class="small muted">50 XP is about one Python session, or a comms session plus a quick drill.</p></section>'+
+  '<section class="card"><h2>How XP works</h2><p class="small muted">Python session 50 XP, comms session 30 XP. +10 XP if you let the timer run to zero, +20 XP for a Python bonus challenge, +2 XP per drill answer. Each daily quest is +10 XP, and finishing all three opens a chest worth +30 XP and a streak freeze (you can hold 2).</p></section>'+
+  '<section class="card"><h2>Move your progress</h2><p class="small muted">Progress saves on this device. To move it to another device, copy your save code here and paste it in there.</p>'+
+  '<button class="btn" data-act="exp">Copy save code</button><textarea id="savebox" aria-label="Save code" placeholder="Paste a save code here"></textarea><p class="err" id="saveerr"></p><button class="btn" data-act="imp" id="impbtn">Load save code</button></section>'+
+  '<section class="card"><h2>Start over</h2><p class="small muted">Clears all sessions, XP, badges and logbook entries on this device.</p><button class="btn" data-act="reset" id="resetbtn">Reset progress</button></section>';
+  return h;}
+
+function sessionHTML(s){ensureTimer(s);var dn=S.done[s.id];var steps=S.steps[s.id]||[];
+  var h='<button class="back" data-act="back"><svg class="ic" viewBox="0 0 24 24" width="20" height="20"><path d="M15 5l-7 7 7 7"/></svg>Back</button>'+
+  '<div><div class="m" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:13px;color:var(--muted)"><span class="chip '+s.kind+'">'+(s.kind==="py"?"Python":"Comms")+'</span><span>Week '+s.w+' · '+s.d+'</span>'+(dn?'<span class="chip ok">Done</span>':'')+'</div><h1 style="margin-top:8px">'+esc(s.t)+'</h1></div>'+
+  '<section class="card timer"><div class="ring"><svg viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="52" fill="none" stroke="var(--line)" stroke-width="8"/><circle id="tarc" cx="60" cy="60" r="52" fill="none" stroke="'+(s.kind==="py"?"var(--brand)":"var(--gold)")+'" stroke-width="8" stroke-linecap="round" stroke-dasharray="326.73" stroke-dashoffset="0"/></svg><div class="tval"><b id="tleft">'+s.mins+':00</b><span id="tsub">'+s.mins+'-minute session</span></div></div><div class="trow"><button class="btn primary" data-act="tgo" id="tbtn">Start</button><button class="btn" data-act="treset">Reset</button></div></section>';
+  if(s.kind==="cm")h+='<section class="card"><h2>Warm-up: 5 min drill</h2>'+drillHTML(false)+'</section>';
+  if(s.kind==="py")h+=learnHTML(s);else h+=learnCm(s);
+  h+='<section class="card"><h2>'+(s.kind==="cm"?"Main task":"Steps")+'</h2><ol class="steps">';
+  s.steps.forEach(function(t,i){var id="st-"+s.id+"-"+i;h+='<li><input type="checkbox" id="'+id+'" data-step="'+i+'"'+(steps[i]?" checked":"")+'><label class="num" for="'+id+'" aria-hidden="true"></label><label class="txt" for="'+id+'">'+esc(s.kind==="py"?t.replace(/\bPaste\b/g,'Type').replace(/\bpaste\b/g,'type'):t)+'</label></li>';});
+  h+='</ol>';
+  if(s.code)h+=(s.kind==="py"?'<details><summary><b>Stuck? Show the example code</b> <span class="small muted">(try first: type it yourself, don\'t paste)</span></summary>':'')+'<div class="code"><pre>'+esc(s.code)+'</pre><button class="copy" data-act="copy">Copy</button></div>'+(s.kind==="py"?'</details>':'');
+  h+='</section>';
+  if(s.kind==="py"&&window.SRCHK)h+=SRCHK.html(s);
+  if(s.kind==="cm")h+=cmMarkHTML(s);
+  if(s.ch)h+='<div class="chal"><input type="checkbox" id="ch-'+s.id+'"'+(S.ch[s.id]?" checked":"")+(dn?" disabled":"")+'><label for="ch-'+s.id+'"><b>Bonus challenge, +20 XP.</b> '+esc(s.ch)+'</label></div>';
+  if(dn){h+='<section class="card"><p><b>Session complete.</b> You earned '+dn.xp+' XP.</p><div class="trow" style="justify-content:flex-start"><button class="btn primary" data-act="back">Back</button><button class="btn" data-act="undo">Mark as not done</button></div></section>';}
+  else{h+='<section class="card"><label class="lbl" for="logtxt">Log entry (optional)</label><textarea id="logtxt" placeholder="'+esc(s.log||"What did you build? Anything that confused you?")+'">'+esc(S.drafts[s.id]||"")+'</textarea>'+(s.kind==="py"?((S.chk&&S.chk[s.id+':main']&&S.chk[s.id+':main'].ok)?'<p class="fb ok">✅ Your work has been marked correct.</p>':'<p class="small muted">Not marked yet: paste your code into <b>Check my code</b> above and press <b>Mark my work</b> before completing.</p>'):'')+'<button class="btn gold block" data-act="complete">Complete session</button><p class="small muted" id="xpprev"></p></section>';}
+  return h;}
+
+var LEARN=[
+ [/print\s*\(/,'print() shows things on the screen','print() takes whatever is inside its brackets and shows it in the Shell. Text goes in quotes; numbers and variables don\'t. Commas put a space between items.','print("Reactor power:", 98, "%")','Reactor power: 98 %','Operators read values off screens all shift. print() is how your program reports to you.'],
+ [/=\s*[^=]/,'Variables store values','A variable is a labelled box. power = 98 puts 98 in a box called power. Use the name later and Python fetches what\'s inside. Putting a new value in replaces the old one.','power = 98\npower = power + 2\nprint(power)','100','A real plant computer holds thousands of values like Tavg and pressure, each in its own named variable.'],
+ [/input\s*\(/,'input() asks the user','input("Question ") prints the question, waits for typing, and gives you what was typed, always as text. To do maths with it, turn it into a number with int() or float().','name = input("Name? ")\ntemp = float(input("Temperature? "))\nprint(name, "logged", temp + 1)','(if you type Sam and 290) Sam logged 291.0','Operators enter readings and setpoints into systems; input() is the simplest version.'],
+ [/\bif\s[^\n]*:/,'if makes decisions','if checks whether something is True. If it is, the indented lines under it run. elif checks another condition; else runs when nothing above was true. Every if line ends with a colon, and the lines it controls are indented 4 spaces.','pressure = 160\nif pressure > 162:\n    print("PORV opens")\nelif pressure > 158:\n    print("High pressure alarm")\nelse:\n    print("Normal")','High pressure alarm','Every alarm on a control room board is an if: if the reading crosses a setpoint, the alarm comes in.'],
+ [/\bfor\s+\w+\s+in\b/,'for loops repeat for each item','for x in something: runs the indented lines once for every item, with x holding each item in turn. range(5) gives 0, 1, 2, 3, 4.','for loop in range(1, 5):\n    print("Checking loop", loop)','Checking loop 1 ... Checking loop 4 (four lines)','A PWR has four coolant loops: checking each one the same way is a loop.'],
+ [/\bwhile\s[^\n]*:/,'while loops repeat until something changes','while condition: keeps running the indented lines as long as the condition is True. Something inside must change, or it loops for ever.','temp = 300\nwhile temp > 290:\n    temp = temp - 4\nprint("Cooled to", temp)','Cooled to 288','A cooldown is a while loop: keep lowering temperature until you reach the target.'],
+ [/=\s*\[/,'Lists hold many values','A list is one variable holding several values in order, in square brackets. Items are numbered from 0. len() tells you how many there are; append() adds one.','levels = [50, 48, 51, 49]\nprint(levels[0], len(levels))\nlevels.append(52)','50 4','Four steam generator levels, four loop temperatures: lists keep related readings together.'],
+ [/\bdef\b/,'Functions are reusable jobs','def name(inputs): creates a function: a named set of lines you can run whenever you like. return sends a result back.','def to_fahrenheit(c):\n    return c * 9 / 5 + 32\nprint(to_fahrenheit(100))','212.0','Plant software is built from functions like check_alarms() and calc_power(), each doing one job well.'],
+ [/f"|f'/,'f-strings put values into text','Put f before the quotes and write variables in {curly brackets}: Python swaps in their values. {x:.1f} rounds to 1 decimal place.','tavg = 291.66\nprint(f"Tavg is {tavg:.1f} °C")','Tavg is 291.7 °C','Neat, rounded readings are what operators expect on a display.'],
+ [/import/,'import borrows ready-made tools','import random or import time loads a module: extra tools other people wrote. random.randint(1, 6) picks a random whole number; time.sleep(1) waits a second.','import random\nprint(random.randint(48, 52))','a random number from 48 to 52','Simulators like Critical use random noise so instruments flicker like real ones.']];
+function learnHTML(s){var t=(s.code||'')+' '+s.steps.join(' ')+' '+(s.ch||''),c=LEARN.filter(function(q){return q[0].test(t)}).reverse().slice(0,2);if(!c.length)return '';
+ return '<section class="card"><h2>📖 Learn it first</h2><p class="small muted">Read these, predict the answers, then do the steps yourself. Only look at the example code if you\'re stuck.</p>'+c.map(function(q,i){return '<div style="margin-top:12px"><h3 style="margin:0 0 4px">'+esc(q[1])+'</h3><p>'+esc(q[2])+'</p><div class="code"><pre>'+esc(q[3])+'</pre></div><details><summary><b>🤔 Predict:</b> what does this print? Think, then tap.</summary><p><b>'+esc(q[4])+'</b></p></details><p class="small muted">⚛ Why operators care: '+esc(q[5])+'</p></div>'}).join('')+'</section>';}
+
+var NATO='Alpha Bravo Charlie Delta Echo Foxtrot Golf Hotel India Juliett Kilo Lima Mike November Oscar Papa Quebec Romeo Sierra Tango Uniform Victor Whiskey Xray Yankee Zulu'.split(' ');
+var CLEARN=[
+ [/A to M|N to Z|phonetic|spell/i,'The phonetic alphabet','Letters like B, D and P, or M and N, sound alike over a radio or a noisy plant. So every letter gets a word: A is Alpha, B is Bravo. Numbers are said digit by digit, and 9 is "niner" so it isn\'t mistaken for the German "nein".','Valve 3RC-152 becomes: "Three, Romeo, Charlie, dash, one, five, two."','Spot the mistake: "Valve Bravo-Delta-Pee 4." ','"Pee" isn\'t phonetic: it should be Papa. Every letter needs its word.','Operators read equipment labels like 2SI-8801A to each other all shift. One wrong letter is the wrong valve.'],
+ [/repeat|three-way|order/i,'Three-way communication','1. The sender gives the order. 2. The receiver repeats it back, word for word, including numbers and units. 3. The sender confirms ("That\'s correct") or corrects it. Only then is the order carried out.','CRS: "Reduce load to 950 megawatts." RO: "Reduce load to 950 megawatts." CRS: "That\'s correct."','Spot the mistake: CRS: "Open valve 452." RO: "Got it, opening now."','"Got it" isn\'t a repeat-back. The RO must say "Open valve four-five-two" and wait for "That\'s correct".','It\'s the rule in every UK control room. It stops wrong-valve and wrong-number errors before they happen.'],
+ [/explain|60-second|teach|present/i,'Explaining clearly in 60 seconds','Use a simple shape: WHAT it is (one sentence), HOW it works (two or three steps), WHY it matters (one sentence). Short sentences. No "um", "like" or "basically". About 130 to 160 words fills a minute.','"A control rod absorbs neutrons. Pushing it in slows the chain reaction; pulling it out speeds it up. That\'s how operators control power, and dropping them all in stops the reactor in seconds."','Spot the mistake: "So basically it\'s like, um, a rod that kind of does neutron stuff?"','Filler words and vagueness. Say exactly what it does: "A control rod absorbs neutrons."','At shift handover and in exams you have to brief people quickly and accurately.'],
+ [/question/i,'Asking one clear question','Say who you\'re asking, ask ONE thing, and say why you need it. Avoid stacking two questions together.','"CRS, can I confirm the target Tavg is 307 degrees before I dilute?"','Spot the mistake: "Is the pump running and should I start the other one and what about the valve?"','Three questions at once. Split them and ask the most important first.','Unclear questions in a control room lead to people answering a different question to the one you meant.'],
+ [/record|replay|re-record|pressure|instructions/i,'Reviewing yourself','Record yourself, play it back and score it: was every number clear? Any fillers? Was it in a sensible order? Then do it again, fixing the biggest problem first.','Score sheet: numbers clear ✓, fillers ✗ (4 "ums"), order ✓. Next take: pause instead of saying "um".','Spot the mistake: re-recording straight away without listening to the first one.','You can\'t fix what you haven\'t heard. Always replay and pick one thing to improve.','Simulator assessments are recorded and debriefed the same way: playback, score, improve.']];
+function learnCm(s){var t=s.t+' '+s.steps.join(' '),c=CLEARN.filter(function(q){return q[0].test(t)}).slice(0,2);if(!c.length)c=[CLEARN[2]];
+ return '<section class="card"><h2>📖 Learn it first</h2>'+c.map(function(q){return '<div style="margin-top:10px"><h3 style="margin:0 0 4px">'+esc(q[1])+'</h3><p>'+esc(q[2])+'</p><div class="code"><pre style="white-space:pre-wrap">'+esc(q[3])+'</pre></div><details><summary><b>🔎 '+esc(q[4])+'</b> Tap for the answer.</summary><p>'+esc(q[5])+'</p></details><p class="small muted">⚛ Why operators care: '+esc(q[6])+'</p></div>'}).join('')+'</section>';}
+function cmMarkHTML(s){var k=s.id,r=(S.cmk&&S.cmk[k])||{};return '<section class="card" id="cmCard"><h2>📝 Mark my answer</h2><p class="small muted">Type what you said or wrote (or the transcript of your recording). It gets marked straight away.</p><textarea id="cmIn" placeholder="Type your answer here">'+esc(r.txt||'')+'</textarea><div class="trow" style="justify-content:flex-start"><button class="btn primary" data-act="cmmark">Mark my answer</button></div><div id="cmRes">'+(r.html||'')+'</div></section>';}
+function cmMark(s,txt){var t=s.t+' '+s.steps.join(' '),ok=[],bad=[],sc=100,w=(txt.match(/[A-Za-z0-9']+/g)||[]),low=txt.toLowerCase();
+ if(w.length<5)return {sc:0,ok:[],bad:['Write a bit more: at least a sentence or two.']};
+ var fill=(low.match(/\b(um+|uh+|er+m?|like|basically|kind of|sort of|you know)\b/g)||[]);if(fill.length){bad.push('Filler words: '+fill.slice(0,5).join(', ')+'. Pause instead.');sc-=Math.min(25,fill.length*6)}else ok.push('No filler words.');
+ if(/A to M|N to Z|phonetic|spell/i.test(t)){var words=txt.split(/[\s,.\-]+/).filter(Boolean),lett=words.filter(function(x){return /^[A-Za-z]$/.test(x)}),nato=words.filter(function(x){return NATO.some(function(n){return n.toLowerCase()===x.toLowerCase()||(n==='Xray'&&/^x-?ray$/i.test(x))||(n==='Juliett'&&/^juliet$/i.test(x))||(n==='Alpha'&&/^alfa$/i.test(x))})});
+   var wrong=words.filter(function(x){return /^(apple|boy|cat|dog|pee|bee|see|dee)$/i.test(x)});
+   if(lett.length){bad.push('Bare letters found ('+lett.slice(0,5).join(', ')+'): say the phonetic word instead.');sc-=Math.min(30,lett.length*8)}
+   if(wrong.length){bad.push('Not phonetic: '+wrong.join(', ')+'.');sc-=20}
+   if(nato.length)ok.push('Used '+nato.length+' phonetic word'+(nato.length>1?'s':'')+' correctly.');else{bad.push('No phonetic alphabet words found.');sc-=30}
+   if(/\b9\b|nine\b/i.test(txt)&&!/niner/i.test(txt)){bad.push('Say 9 as "niner".');sc-=10}}
+ if(/repeat|three-way|order/i.test(t)){if(/that'?s correct|correct\b/i.test(txt))ok.push('Includes the confirmation ("That\'s correct").');else{bad.push('Missing step 3: the sender confirms "That\'s correct".');sc-=20}
+   var nums=txt.match(/\d+/g)||[];if(nums.length>=2&&nums.some(function(n,i){return nums.indexOf(n)!==i}))ok.push('Numbers repeated back exactly.');else{bad.push('Repeat the numbers back exactly, with units.');sc-=20}
+   if(/got it|ok\b|okay|will do|on it/i.test(txt)){bad.push('"Got it" or "OK" isn\'t a repeat-back.');sc-=15}}
+ if(/explain|60-second|teach|present/i.test(t)){if(w.length<90){bad.push('Only '+w.length+' words: a minute is about 130 to 160.');sc-=15}else if(w.length>190){bad.push(w.length+' words: too long for a minute. Cut to about 150.');sc-=10}else ok.push(w.length+' words: about right for a minute.');
+   var sent=txt.split(/[.!?]+/).filter(function(x){return x.trim()}),avg=w.length/Math.max(1,sent.length);if(avg>22){bad.push('Long sentences (about '+Math.round(avg)+' words each). Aim for under 18.');sc-=10}else ok.push('Short, clear sentences.');
+   if(/\bbecause\b|\bso\b|\bthat'?s why\b|matters|important/i.test(txt))ok.push('Says why it matters.');else{bad.push('Add a WHY sentence: why does it matter?');sc-=10}}
+ if(/question/i.test(t)){var q=(txt.match(/\?/g)||[]).length;if(q===1)ok.push('One clear question.');else{bad.push(q?q+' questions: ask just one.':'No question mark: make it a question.');sc-=20}}
+ return {sc:Math.max(0,sc),ok:ok,bad:bad};}
+function xpPreview(s){var b=s.kind==="py"?50:30,f=S.full[s.id]?10:0,c=S.ch[s.id]?20:0;return{t:b+f+c,txt:b+" XP"+(f?" + 10 full timer":" (+10 if the timer reaches zero)")+(s.ch?(c?" + 20 challenge":""):"")};}
+function afterSession(s){if(s.kind==="py"&&window.SRCHK)try{SRCHK.after(s)}catch(_){}if(s.kind==="cm"&&!S.done[s.id])mountDrill(s.warm);else if(s.kind==="cm")mountDrill(s.warm);var p=$("xpprev");if(p){var x=xpPreview(s);p.textContent="You'll earn "+x.t+" XP: "+x.txt+".";}updTimer();}
+
+/* timer */
+var actx=null,wl=null;
+function ensureTimer(s){if(!S.timer||S.timer.id!==s.id){if(S.timer&&S.timer.endAt&&BY[S.timer.id]&&S.timer.id!==s.id){/* another session's timer was running; it stops */}
+  S.timer={id:s.id,dur:s.mins*60000,left:s.mins*60000,endAt:null};save();}}
+function audio(){try{if(!actx){var A=window.AudioContext||window.webkitAudioContext;if(A)actx=new A();}if(actx&&actx.resume)actx.resume();}catch(e){}}
+function ding(){try{if(!actx)return;var t=actx.currentTime;[0,0.35,0.7].forEach(function(o,i){var g=actx.createGain(),os=actx.createOscillator();os.type="sine";os.frequency.value=i===2?988:784;g.gain.setValueAtTime(0.0001,t+o);g.gain.exponentialRampToValueAtTime(0.25,t+o+0.02);g.gain.exponentialRampToValueAtTime(0.0001,t+o+0.3);os.connect(g);g.connect(actx.destination);os.start(t+o);os.stop(t+o+0.32);});}catch(e){}
+  try{if(navigator.vibrate)navigator.vibrate([200,100,200]);}catch(e){}}
+function lock(){try{if(navigator.wakeLock)navigator.wakeLock.request("screen").then(function(l){wl=l;}).catch(function(){});}catch(e){}}
+function unlock(){try{if(wl){wl.release();wl=null;}}catch(e){}}
+function tick(){var T=S.timer;if(!T)return;if(T.endAt){T.left=Math.max(0,T.endAt-Date.now());if(T.left===0){T.endAt=null;S.full[T.id]=true;save();unlock();ding();toast("Time's up. Full-timer bonus unlocked.");qProg("timer",1);if(cur===T.id){var p=$("xpprev");if(p){var x=xpPreview(BY[cur]);p.textContent="You'll earn "+x.t+" XP: "+x.txt+".";}}}}updTimer();}
+function updTimer(){var T=S.timer;document.querySelectorAll("[data-tleft]").forEach(function(el){if(T&&T.endAt)el.textContent=fmt(T.endAt-Date.now());});
+  if(!cur||!T||T.id!==cur)return;var el=$("tleft");if(!el)return;el.textContent=fmt(T.left);
+  var arc=$("tarc");if(arc)arc.setAttribute("stroke-dashoffset",String((326.73*(1-T.left/T.dur)).toFixed(2)));
+  var b=$("tbtn"),sub=$("tsub");if(b){b.textContent=T.endAt?"Pause":(T.left===0?"Finished":(T.left===T.dur?"Start":"Resume"));}
+  if(sub)sub.textContent=T.endAt?"Focus. Phone face down.":(T.left===0?"Full timer done":(T.left===T.dur?BY[cur].mins+"-minute session":"Paused"));}
+setInterval(tick,250);
+document.addEventListener("visibilitychange",function(){if(!document.hidden&&S.timer&&S.timer.endAt)lock();});
+
+/* drill */
+var D={mode:"all",code:"",shown:false};
+function gen(m){var A="ABCDEFGHIJKLM",Z="NOPQRSTUVWXYZ",N="0123456789";function r(s){return s.charAt(Math.floor(Math.random()*s.length));}
+  if(m==="am")return r(A)+r(A)+r(A);if(m==="nz")return r(Z)+r(Z)+r(Z);if(m==="num")return r(N)+r(N)+r(N)+r(N);return r(A+Z)+r(A+Z)+r(N);}
+function drillHTML(modes){var segs=[["all","Mixed"],["am","A to M"],["nz","N to Z"],["num","Numbers"]];
+  return '<div class="drill">'+(modes?'<div class="seg" role="group" aria-label="Drill type">'+segs.map(function(x){return '<button data-act="dmode" data-m="'+x[0]+'" aria-pressed="false">'+x[1]+'</button>';}).join("")+'</div>':'')+
+  '<div class="callsign" id="dr-code" aria-live="polite"></div><label class="lbl" for="dr-in">Type it in phonetics</label><div class="drill-in"><input type="text" id="dr-in" autocomplete="off" autocapitalize="words" spellcheck="false" placeholder="Kilo X-ray Seven"><button class="btn primary" data-act="dcheck">Check</button></div>'+
+  '<p class="fb" id="dr-fb"></p><div class="drill-foot"><span class="mono muted" id="dr-run"></span><span style="display:flex;gap:14px"><button class="link" data-act="dskip">Skip</button><button class="link" data-act="dalpha" id="dr-ab">Show alphabet</button></span></div><div class="alpha" id="dr-alpha" hidden></div></div>';}
+function mountDrill(m){D.mode=m;D.code=gen(m);var c=$("dr-code");if(!c)return;c.textContent=D.code;
+  document.querySelectorAll('[data-act="dmode"]').forEach(function(b){b.setAttribute("aria-pressed",b.getAttribute("data-m")===m?"true":"false");});
+  var keys=Object.keys(NATO).filter(function(k){if(m==="am")return k>="A"&&k<="M";if(m==="nz")return k>="N"&&k<="Z";if(m==="num")return /\d/.test(k);return true;});
+  $("dr-alpha").innerHTML=keys.map(function(k){return '<span><b>'+k+'</b>'+NATO[k]+'</span>';}).join("");runText();}
+function runText(){var r=$("dr-run");if(r)r.textContent="Run "+S.drill.run+" · Best "+S.drill.best+" · Total "+S.drill.total;}
+function norm(w){w=w.toLowerCase().replace(/[^a-z-]/g,"");if(w==="x-ray")return w;return ALT[w]||w;}
+function dcheck(){var inp=$("dr-in"),fb=$("dr-fb");var v=inp.value.trim();if(!v){fb.className="fb no";fb.textContent="Type the phonetic words first.";return;}
+  var words=v.split(/\s+/).map(norm).filter(Boolean);var want=D.code.split("").map(function(c){return NATO[c].toLowerCase();});
+  var ok=words.length===want.length&&want.every(function(w,i){return words[i]===w;});var say=D.code.split("").map(function(c){return NATO[c];}).join(" ");
+  if(ok){S.drill.total++;S.drill.run++;if(S.drill.run>S.drill.best)S.drill.best=S.drill.run;save();addXP(2);qProg("drill",1);qProg("run",S.drill.run);fb.className="fb ok";fb.textContent="Correct. "+say+". +2 XP";runText();
+    setTimeout(function(){if(!$("dr-code"))return;D.code=gen(D.mode);$("dr-code").textContent=D.code;inp.value="";fb.textContent="";inp.focus();},700);}
+  else{S.drill.run=0;save();fb.className="fb no";fb.textContent="Not quite. It's "+say+". Type it to carry on.";runText();}}
+
+/* ask panel: answers with the API key saved in Critical, or opens Claude */
+var ASK={hist:[],busy:false,c:null};
+var AKEY="critical_api_key",AMODEL="claude-haiku-5-5",AMAX=450;
+var ASYS='Coach in "Shift Ready", a UK app where a secondary-school student practises beginner Python (in Thonny on Windows) and control-room communication on the way to becoming a nuclear reactor operator. British English. Explain simply, under 120 words. Plain text with "- " bullets, **bold** and `code` only; short code examples in ``` blocks are fine. For bonus challenges or drills, give a hint first rather than the full answer unless asked. Stay on Python, communication, study and nuclear topics.';
+function akey(){try{return localStorage.getItem(AKEY)||"";}catch(e){return "";}}
+function askCtx(){var np=nextOf("py"),nc=nextOf("cm"),state="Today: "+dayXP()+"/"+S.goal+" XP, streak "+liveStreak()+" days. Next Python: "+(np?"Week "+np.w+" "+np.d+" "+np.t:"all done")+". Next comms: "+(nc?"Week "+nc.w+" "+nc.d+" "+nc.t:"all done")+".";
+  if(cur){var s=BY[cur];return{label:(s.kind==="py"?"Python":"Comms")+" · Week "+s.w+" "+s.d+": "+s.t,
+    text:"Session: "+s.t+" ("+(s.kind==="py"?"Python, 25 min":"communication, 15 min")+")\nSteps:\n- "+s.steps.join("\n- ")+(s.code?"\nCode:\n"+s.code:"")+(s.ch?"\nBonus challenge: "+s.ch:"")+"\n"+state,
+    chips:s.kind==="py"?["Explain this code line by line","I got an error message","Give me a hint for the challenge","Why would an operator use this?"]:["Show me an example of how to do this","How do real operators do this?","Help me plan what to say","Quiz me on the phonetic alphabet"]};}
+  var m={today:"Today: daily goal, quests and next sessions",plan:"The 4-week plan",drill:"Phonetic alphabet drill",log:"Logbook of session notes",me:"Progress, badges and settings"}[view]||"Shift Ready";
+  return{label:m,text:"Screen: "+m+"\n"+state,chips:["What should I do tonight?","How do streak freezes work?","Quiz me on the phonetic alphabet","Why does this help me become an operator?"]};}
+function askOpen(){if($("askBg"))return;ASK.c=askCtx();ASK.hist=[];var c=ASK.c,k=akey();var el=document.createElement("div");el.className="ask-bg";el.id="askBg";
+  el.innerHTML='<div class="ask-sh" role="dialog" aria-modal="true" aria-labelledby="askT"><div class="ask-h"><div style="min-width:0"><h2 id="askT">Ask about this</h2><p class="small muted" style="overflow-wrap:anywhere">'+esc(c.label)+'</p></div><button class="btn sm" data-act="askclose">Close</button></div>'+
+  '<div class="ask-log" id="askLog"></div><div class="askchips" id="askChips">'+c.chips.map(function(q){return '<button class="askchip" data-act="askchip">'+esc(q)+'</button>';}).join("")+'</div>'+
+  '<form class="askform" id="askForm"><label for="askIn" class="sr">Your question</label><textarea id="askIn" placeholder="Type your question"></textarea><button class="btn primary" type="submit">Send</button></form>'+
+  '<p class="small muted">'+(k?"Answered by Claude using the API key you added in Critical.":"Opens Claude with your question. Add an API key in Critical's Ask panel to get answers right here.")+'</p></div>';
+  document.body.appendChild(el);document.body.style.overflow="hidden";setTimeout(function(){var i=$("askIn");if(i)i.focus();},60);}
+function askClose(){var el=$("askBg");if(el)el.remove();document.body.style.overflow="";var b=$("askBtn");if(b)b.focus();}
+function inl(s){return esc(s).replace(/`([^`]+)`/g,"<code>$1</code>").replace(/\*\*([^*]+)\*\*/g,"<b>$1</b>");}
+function md(txt){var out=[],code=null,list=null;function fl(){if(list){out.push("<ul>"+list.join("")+"</ul>");list=null;}}
+  txt.split("\n").forEach(function(l){if(/^\s*```/.test(l)){if(code!==null){out.push("<pre><code>"+esc(code.join("\n"))+"</code></pre>");code=null;}else{fl();code=[];}return;}
+    if(code!==null){code.push(l);return;}var m=l.match(/^\s*[-*] (.*)/);if(m){(list=list||[]).push("<li>"+inl(m[1])+"</li>");return;}fl();if(l.trim())out.push("<p>"+inl(l)+"</p>");});
+  fl();if(code!==null)out.push("<pre><code>"+esc(code.join("\n"))+"</code></pre>");return out.join("");}
+function bubble(cls,html){var d=document.createElement("div");d.className=cls;d.innerHTML=html;var l=$("askLog");if(l){l.appendChild(d);l.scrollTop=l.scrollHeight;}return d;}
+function askPrompt(q){return "I'm using Shift Ready, an app where I practise Python and control-room communication to become a nuclear reactor operator. I'm a secondary-school student in the UK, so please explain simply.\n\n---\n"+ASK.c.text.slice(0,1500)+"\n---\n\nMy question: "+q;}
+function askLinkHTML(q,label){return '<a class="btn sm askext" href="https://claude.ai/new?q='+encodeURIComponent(askPrompt(q))+'" target="_blank" rel="noopener">'+label+'</a>';}
+function askSend(q){q=(q||"").trim();var i=$("askIn");if(!q||ASK.busy)return;if(i)i.value="";var ch=$("askChips");if(ch)ch.innerHTML="";bubble("askq",esc(q));
+  if(akey())askApi(q);else bubble("aska","<p>Your question is ready to send.</p>"+askLinkHTML(q,"Open in Claude ↗"));}
+function trackUsage(i,o){try{var u=JSON.parse(localStorage.getItem("critical_api_usage")||"null")||{i:0,o:0};u.i=(u.i||0)+i;u.o=(u.o||0)+o;localStorage.setItem("critical_api_usage",JSON.stringify(u));}catch(e){}}
+function askApi(q){ASK.busy=true;var a=bubble("aska","<p>Thinking…</p>");var first=!ASK.hist.length;var content=(first?"On screen:\n"+ASK.c.text.slice(0,1500)+"\n\n":"")+q;
+  var msgs=ASK.hist.slice(-4).concat([{role:"user",content:content}]);var full="",ui=0,uo=0;
+  fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"content-type":"application/json","x-api-key":akey(),"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+    body:JSON.stringify({model:AMODEL,max_tokens:AMAX,thinking:{type:"disabled"},output_config:{effort:"low"},system:ASYS,stream:true,messages:msgs})})
+  .then(function(r){if(!r.ok)return r.json().catch(function(){return null;}).then(function(b){throw{st:r.status,b:b};});
+    var rd=r.body.getReader(),dec=new TextDecoder(),buf="";
+    function pump(){return rd.read().then(function(x){if(x.done)return;buf+=dec.decode(x.value,{stream:true});var parts=buf.split("\n");buf=parts.pop();
+      parts.forEach(function(line){if(line.indexOf("data:")!==0)return;var d;try{d=JSON.parse(line.slice(5));}catch(e){return;}
+        if(d.type==="message_start"&&d.message&&d.message.usage)ui=d.message.usage.input_tokens||0;
+        else if(d.type==="content_block_delta"&&d.delta&&d.delta.type==="text_delta"){full+=d.delta.text;a.innerHTML=md(full);var l=$("askLog");if(l)l.scrollTop=l.scrollHeight;}
+        else if(d.type==="message_delta"&&d.usage)uo=d.usage.output_tokens||uo;
+        else if(d.type==="error")throw{st:529,b:d};});
+      return pump();});}
+    return pump();})
+  .then(function(){if(!full){a.innerHTML="<p>No answer came back. Try asking again.</p>";}else{ASK.hist.push({role:"user",content:content});ASK.hist.push({role:"assistant",content:full});}trackUsage(ui,uo);})
+  .catch(function(err){var s=err&&err.st;a.innerHTML="<p>"+(s===401?"That API key didn't work. Check it in Critical's Ask panel.":s===429?"Too many questions at once. Wait a minute, then try again.":s===400?"Claude couldn't answer that request.":(s===500||s===529)?"Claude is busy right now. Try again in a moment.":"Couldn't reach Claude. Check your internet connection.")+"</p>"+askLinkHTML(q,"Ask in Claude instead ↗");})
+  .then(function(){ASK.busy=false;});}
+
+/* actions */
+function openS(id){if(!cur)prevView=view;cur=id;render();window.scrollTo(0,0);}
+function complete(){var s=BY[cur];if(S.done[s.id])return;var x=xpPreview(s);var lt=$("logtxt");var txt=lt?lt.value.trim():"";
+  S.done[s.id]={at:Date.now(),xp:x.t,day:today()};if(txt)S.logs.push({id:s.id,at:Date.now(),text:txt});delete S.drafts[s.id];
+  if(S.timer&&S.timer.id===s.id){S.timer=null;unlock();}save();toast("+"+x.t+" XP. "+s.t+" complete.");addXP(x.t);qProg("session",1);if(txt)qProg("log",1);if(S.ch[s.id])qProg("challenge",1);render();window.scrollTo(0,0);}
+function undo(){var s=BY[cur];var dn=S.done[s.id];if(!dn)return;S.xp=Math.max(0,S.xp-dn.xp);if(dn.day===today()&&S.daily&&S.daily.d===today())S.daily.xp=Math.max(0,S.daily.xp-dn.xp);delete S.done[s.id];save();render();}
+function copyText(t,btn,label,fallbackEl){function ok(){btn.textContent="Copied";setTimeout(function(){btn.textContent=label;},1500);}
+  function fb(){if(fallbackEl){fallbackEl.focus();fallbackEl.select&&fallbackEl.select();}btn.textContent="Selected. Copy it now";}
+  try{navigator.clipboard.writeText(t).then(ok,fb);}catch(e){fb();}}
+function saveCode(){var o={};for(var k in S)o[k]=S[k];o.timer=null;return "SR1."+btoa(unescape(encodeURIComponent(JSON.stringify(o))));}
+
+document.addEventListener("click",function(e){
+  var tab=e.target.closest("[data-tab]");if(tab){var t=tab.getAttribute("data-tab");cur=null;if(location.hash!=="#"+t)location.hash=t;else{view=t;render();}window.scrollTo(0,0);return;}
+  var tg=e.target.closest("[data-tab-go]");if(tg){location.hash=tg.getAttribute("data-tab-go");return;}
+  if(e.target&&e.target.id==="askBg"){askClose();return;}
+  var a=e.target.closest("[data-act]");if(!a)return;var act=a.getAttribute("data-act");
+  if(act==="ask"){askOpen();return;}if(act==="askclose"){askClose();return;}if(act==="askchip"){askSend(a.textContent);return;}
+  if(act==="open")openS(a.getAttribute("data-id"));
+  else if(act==="back"){cur=null;view=prevView;render();window.scrollTo(0,0);}
+  else if(act==="tgo"){var T=S.timer;if(!T)return;if(T.endAt){T.left=Math.max(0,T.endAt-Date.now());T.endAt=null;unlock();}else if(T.left>0){audio();T.endAt=Date.now()+T.left;lock();}save();updTimer();}
+  else if(act==="treset"){var T2=S.timer;if(!T2)return;T2.endAt=null;T2.left=T2.dur;unlock();save();updTimer();}
+  else if(act==="cmmark"){var cs=BY[cur],tx=($("cmIn").value||"").trim(),m=cmMark(cs,tx),pass=m.sc>=70;S.cmk=S.cmk||{};var prev=S.cmk[cs.id]||{};var hh='<div class="fb '+(pass?'ok':'no')+'"><b>'+(pass?'✅ Good: ':'❌ Not quite yet: ')+m.sc+'/100</b></div>'+(m.ok.length?'<p><b>✓ What you did well</b></p><ul>'+m.ok.map(function(x){return '<li>'+esc(x)+'</li>'}).join('')+'</ul>':'')+(m.bad.length?'<p><b>🔧 What to improve</b></p><ul>'+m.bad.map(function(x){return '<li>'+esc(x)+'</li>'}).join('')+'</ul>':'');S.cmk[cs.id]={txt:tx,html:hh,ok:prev.ok||pass};if(pass&&!prev.ok){addXP(10);toast('Marked good! +10 XP');}save();$("cmRes").innerHTML=hh;}
+  else if(act==="complete")complete();
+  else if(act==="undo")undo();
+  else if(act==="copy"){copyText(BY[cur].code,a,"Copy",null);}
+  else if(act==="dcheck")dcheck();
+  else if(act==="dskip"){S.drill.run=0;save();runText();D.code=gen(D.mode);$("dr-code").textContent=D.code;$("dr-in").value="";$("dr-fb").textContent="";}
+  else if(act==="dalpha"){var al=$("dr-alpha");al.hidden=!al.hidden;a.textContent=al.hidden?"Show alphabet":"Hide alphabet";}
+  else if(act==="dmode"){mountDrill(a.getAttribute("data-m"));$("dr-in").value="";$("dr-fb").textContent="";}
+  else if(act==="exp"){var box=$("savebox");var code=saveCode();box.value=code;copyText(code,a,"Copy save code",box);}
+  else if(act==="imp"){var v=$("savebox").value.trim(),er=$("saveerr");er.textContent="";
+    if(!v){er.textContent="Paste a save code into the box first.";return;}
+    var obj=null;try{obj=JSON.parse(decodeURIComponent(escape(atob(v.replace(/^SR1\./,"")))));}catch(x){}
+    if(!obj||typeof obj.done!=="object"){er.textContent="That code doesn't look right. Copy the whole save code and try again.";return;}
+    if(!pendingImport){pendingImport=true;a.textContent="Tap again to replace your progress";return;}
+    pendingImport=false;S=blank();for(var k in obj)S[k]=obj[k];S.timer=null;save();toast("Save loaded");render();}
+  else if(act==="reset"){if(!pendingReset){pendingReset=true;a.textContent="Tap again to delete everything";return;}pendingReset=false;S=blank();save();toast("Progress reset");render();}
+});
+document.addEventListener("change",function(e){var t=e.target;
+  if(t.id==="goalSel"){S.goal=+t.value;var q=quests();q.list.forEach(function(it){if(it.k==="xp"&&!it.done)it.n=S.goal;});save();toast("Daily goal set to "+S.goal+" XP");qProg("xp",0);return;}
+  if(!cur)return;
+  if(t.hasAttribute("data-step")){var arr=S.steps[cur]||[];arr[+t.getAttribute("data-step")]=t.checked;S.steps[cur]=arr;save();var ss=BY[cur];if(ss.steps.every(function(_,i){return !!arr[i];}))qProg("steps",1);}
+  else if(t.id==="ch-"+cur){S.ch[cur]=t.checked;save();var p=$("xpprev");if(p){var x=xpPreview(BY[cur]);p.textContent="You'll earn "+x.t+" XP: "+x.txt+".";}}});
+document.addEventListener("input",function(e){if(e.target.id==="logtxt"&&cur){S.drafts[cur]=e.target.value;save();}
+  if(e.target.id==="dr-in"){var fb=$("dr-fb");if(fb&&fb.classList.contains("no")&&fb.textContent.indexOf("Type the")===0)fb.textContent="";}});
+document.addEventListener("keydown",function(e){if(e.key==="Enter"&&e.target.id==="dr-in"){e.preventDefault();dcheck();}
+  if(e.key==="Enter"&&!e.shiftKey&&e.target.id==="askIn"){e.preventDefault();askSend(e.target.value);}
+  if(e.key==="Escape"&&$("askBg"))askClose();});
+document.addEventListener("submit",function(e){if(e.target.id==="askForm"){e.preventDefault();askSend($("askIn").value);}});
+window.addEventListener("hashchange",function(){cur=null;view=fromHash();pendingImport=false;pendingReset=false;render();});
+
+view=fromHash();render();
+window.__busy=function(){return !!cur&&!!BY[cur]&&!S.done[BY[cur].id]};
+window.SR={S:function(){return S},addXP:addXP,save:save,toast:toast,qProg:qProg,NATO:NATO,nextOf:nextOf,cur:function(){return cur},BY:BY,inl:inl,model:AMODEL,track:trackUsage,openS:openS,refresh:function(){if(!cur&&(view==="today"||view==="drill")){var y=window.scrollY;render();window.scrollTo(0,y);}}};
+})();
+</script>
+
+<script>if("serviceWorker" in navigator&&location.protocol==="https:"){var _swHad=!!navigator.serviceWorker.controller;navigator.serviceWorker.addEventListener("controllerchange",function(){if(_swHad&&!sessionStorage.getItem("crit_swr")){sessionStorage.setItem("crit_swr","1");location.reload();}});navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(function(r){r.update();}).catch(function(){});}</script>
+<script>
+/* today's plan from Critical: count down, then send you back for the next part (after you finish what you're in) */
+(function(){var K='critical_plan_run',ban=null,bt=null,key=null;
+ function ymd(){var d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()}
+ function rd(){try{var r=JSON.parse(localStorage.getItem(K)||'null');return r&&r.d===ymd()?r:null}catch(e){return null}}
+ function wr(r){try{localStorage.setItem(K,JSON.stringify(r))}catch(e){}}
+ function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+ var css=document.createElement('style');css.textContent='.prun{position:fixed;left:max(12px,env(safe-area-inset-left,0px));bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:9000;max-width:calc(100% - 24px);background:var(--card,#fff);color:var(--ink,#222);border:2px solid var(--brand,#534AB7);border-radius:999px;padding:6px 12px;font:700 13px var(--ui,system-ui,sans-serif);box-shadow:0 4px 16px rgba(0,0,0,.18)}.prun[hidden]{display:none}.prun{display:flex;align-items:center;gap:10px}.prun .pe{font:inherit;font-size:12px;font-weight:800;border:0;border-radius:999px;padding:5px 10px;cursor:pointer;background:var(--brand,#534AB7);color:var(--on-brand,#fff);white-space:nowrap}.prun .pe[hidden]{display:none}'+
+ '.pbn{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:9001;width:min(440px,calc(100% - 32px));background:var(--card,#fff);color:var(--ink,#222);border:2px solid var(--brand,#534AB7);border-radius:16px;padding:12px 14px;box-shadow:0 8px 30px rgba(0,0,0,.25);display:flex;flex-direction:column;gap:8px;font:15px var(--ui,system-ui,sans-serif)}.pbn p{margin:0;line-height:1.45}.pbn div{display:flex;gap:8px;flex-wrap:wrap}.pbn button{font:inherit;font-size:14px;font-weight:800;border:0;border-radius:10px;padding:9px 14px;cursor:pointer;background:var(--brand,#534AB7);color:var(--on-brand,#fff)}.pbn button.alt{background:var(--line,#ddd);color:var(--ink,#222)}';
+ document.head.appendChild(css);
+ var chip=document.createElement('div');chip.className='prun';chip.hidden=true;chip.setAttribute('role','status');chip.innerHTML='<span class="pt"></span><button type="button" class="pe">Finished early</button>';document.body.appendChild(chip);
+ var ct=chip.querySelector('.pt'),ce=chip.querySelector('.pe');
+ function lessons(){var n=0,t=new Date();function same(ms){var x=new Date(ms);return x.getFullYear()===t.getFullYear()&&x.getMonth()===t.getMonth()&&x.getDate()===t.getDate()}
+  try{var c=JSON.parse(localStorage.getItem('critical_state')||'null');if(c&&c.lday&&c.lday.d===ymd())n+=c.lday.n||0}catch(e){}
+  try{var s=JSON.parse(localStorage.getItem('shift-ready-v1')||'null');if(s&&s.done)for(var k in s.done){var v=s.done[k];if(v&&v.at&&same(v.at))n++}}catch(e){}
+  try{var a=JSON.parse(localStorage.getItem('aptitude-v1')||'null');if(a&&a.hist&&a.hist.forEach)a.hist.forEach(function(h){if(h&&h.at&&same(h.at))n++})}catch(e){}
+  return n}
+ function early(){if(lessons()<1){hide();ban=document.createElement('div');ban.className='pbn';ban.setAttribute('role','status');ban.innerHTML='<p><b>Do at least 1 lesson first.</b> Finishing one here counts. Then you can finish today\'s plan early.</p><div><button type="button" class="g">OK</button></div>';ban.querySelector('.g').onclick=hide;document.body.appendChild(ban);return}
+  try{if(parent!==window&&parent.__subEarly){parent.__subEarly();return}}catch(e){}location.href='critical.html#early'}
+ ce.onclick=early;
+ var nv=document.querySelector('nav.tabs');function pos(){var h=0;try{if(nv&&getComputedStyle(nv).position==='fixed')h=Math.round(nv.getBoundingClientRect().height)}catch(e){}chip.style.bottom=h?(h+10)+'px':''}pos();addEventListener('resize',pos);
+ function back(){location.href='critical.html#plannext'}
+ function hide(){if(ban){ban.remove();ban=null}clearInterval(bt);bt=null}
+ function more(){var r=rd();if(r){r.ends=Date.now()+5*60000;wr(r)}key=null;hide();loop()}
+ function show(r){hide();ban=document.createElement('div');ban.className='pbn';ban.setAttribute('role','status');var n=10;
+  ban.innerHTML='<p><b>Time\'s up for '+esc(r.t)+'.</b> Back to Critical for the next part of today\'s plan in <span class="pcd">10</span> s.</p><div><button type="button" class="g">Go now</button><button type="button" class="alt m">5 more minutes</button></div>';
+  ban.querySelector('.g').onclick=back;ban.querySelector('.m').onclick=more;document.body.appendChild(ban);
+  bt=setInterval(function(){if(typeof window.__busy==='function'&&window.__busy()){hide();key=null;return}n--;var c=ban&&ban.querySelector('.pcd');if(c)c.textContent=n;if(n<=0){hide();back()}},1000)}
+ function loop(){var r=rd();if(!r){chip.hidden=true;hide();return}var left=r.ends-Date.now();chip.hidden=false;
+  if(left>0){ce.hidden=false;ct.textContent='Today\'s plan: '+r.t+' · '+(left<60000?Math.ceil(left/1000)+' s':Math.ceil(left/60000)+' min')+' left';return}
+  ce.hidden=true;if(typeof window.__busy==='function'&&window.__busy()){ct.textContent='Time\'s up for '+r.t+'. Finish this, then you\'ll move on.';return}
+  ct.textContent='Time\'s up for '+r.t;var k=r.j+'-'+r.ends;if(!ban&&key!==k){key=k;show(r)}}
+ setInterval(loop,1000);loop();
+})();
+</script>
+<script id="arcJs">
+/* ===== Arcade: Critical's live look, plus the game engine for arcade rounds, boss fights and shift missions.
+   Shared by Shift Ready and Aptitude Gym. Works offline; nothing here talks to the internet. ===== */
+(function(){
+var R=document.documentElement;
+function lg(k){try{return localStorage.getItem(k)}catch(_){return null}}
+function ls(k,v){try{localStorage.setItem(k,v)}catch(_){}}
+function classic(){return lg('critical_look')==='classic'}
+function calm(){var m=lg('critical_motion');if(m==='less')return true;if(m==='full')return false;try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(_){return false}}
+function esc(t){return String(t).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+function el(tag,cls,html){var e=document.createElement(tag);if(cls)e.className=cls;if(html!=null)e.innerHTML=html;return e}
+function fmt(n){return Math.round(n).toLocaleString('en-GB')}
+var IC={x:'<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>',son:'<svg viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/></svg>',soff:'<svg viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M17 9l5 6M22 9l-5 6"/></svg>'};
+
+/* ---------- the look ---------- */
+function initLook(app){R.setAttribute('data-app',app||'');if(classic())return;R.classList.add('arc');if(calm())R.classList.add('arccalm');
+ if(!document.getElementById('arcFonts')){var l=el('link');l.id='arcFonts';l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&display=swap';document.head.appendChild(l)}
+ bg();entrances()}
+function bg(){var cv=el('canvas');cv.id='arcBg';cv.setAttribute('aria-hidden','true');document.body.insertBefore(cv,document.body.firstChild);
+ var c=cv.getContext('2d'),W=0,H=0,dpr=Math.min(2,window.devicePixelRatio||1),P=[],col='58,212,255';
+ function rgb(){try{var v=getComputedStyle(R).getPropertyValue('--glow').trim(),m=/^#?([0-9a-f]{6})$/i.exec(v);if(m){var n=parseInt(m[1],16);col=(n>>16)+','+(n>>8&255)+','+(n&255)}}catch(_){}}
+ function size(){W=innerWidth;H=innerHeight;cv.width=W*dpr;cv.height=H*dpr;c.setTransform(dpr,0,0,dpr,0,0);var n=Math.round(Math.min(70,W*H/26000));P=[];for(var i=0;i<n;i++)P.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.18,vy:-.05-Math.random()*.22,r:.6+Math.random()*1.6,a:.25+Math.random()*.5})}
+ function draw(){c.clearRect(0,0,W,H);for(var i=0;i<P.length;i++){var p=P[i];for(var j=i+1;j<P.length;j++){var q=P[j],dx=p.x-q.x,dy=p.y-q.y,d=dx*dx+dy*dy;if(d<9000){c.strokeStyle='rgba('+col+','+(.12*(1-d/9000)).toFixed(3)+')';c.lineWidth=1;c.beginPath();c.moveTo(p.x,p.y);c.lineTo(q.x,q.y);c.stroke()}}
+  c.fillStyle='rgba('+col+','+p.a+')';c.beginPath();c.arc(p.x,p.y,p.r,0,6.283);c.fill()}}
+ function step(){if(!document.hidden&&!G&&R.classList.contains('arc')&&!R.classList.contains('arccalm')){P.forEach(function(p){p.x+=p.vx;p.y+=p.vy;if(p.y<-10){p.y=H+10;p.x=Math.random()*W}if(p.x<-10)p.x=W+10;if(p.x>W+10)p.x=-10});draw()}requestAnimationFrame(step)}
+ rgb();size();draw();addEventListener('resize',function(){size();draw()});try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){rgb();draw()})}catch(_){}
+ requestAnimationFrame(step)}
+function entrances(){var v=document.getElementById('view');if(!v||!window.MutationObserver)return;
+ new MutationObserver(function(ms){if(R.classList.contains('arccalm'))return;var k=0;ms.forEach(function(m){[].forEach.call(m.addedNodes,function(n){if(n.nodeType!==1||k>12)return;n.classList.add('arcin');n.style.animationDelay=(k++*45)+'ms'})})}).observe(v,{childList:true})}
+
+/* ---------- sound ---------- */
+var ac=null;function sndOn(){return lg('arc_sound')!=='off'}
+function tone(f,t0,d,type,vol,f2){if(!sndOn())return;try{if(!ac){var A=window.AudioContext||window.webkitAudioContext;if(!A)return;ac=new A()}if(ac.state==='suspended')ac.resume();var t=ac.currentTime+t0,o=ac.createOscillator(),g=ac.createGain();o.type=type||'sine';o.frequency.setValueAtTime(f,t);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d);g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(vol||.05,t+.012);g.gain.exponentialRampToValueAtTime(0.0001,t+d);o.connect(g);g.connect(ac.destination);o.start(t);o.stop(t+d+.02)}catch(_){}}
+function sfx(k,n){n=n||0;
+ if(k==='ok'){var b=523*Math.pow(1.0595,Math.min(12,n*2));tone(b,0,.12,'triangle',.05);tone(b*1.5,.07,.16,'triangle',.045)}
+ else if(k==='bad'){tone(220,0,.28,'sawtooth',.035,110)}
+ else if(k==='tick'){tone(1100,0,.05,'square',.02)}
+ else if(k==='go'){tone(392,0,.12,'triangle',.05);tone(523,.12,.12,'triangle',.05);tone(784,.24,.25,'triangle',.05)}
+ else if(k==='count'){tone(660,0,.09,'square',.03)}
+ else if(k==='win'){[523,659,784,1047].forEach(function(f,i){tone(f,i*.11,.3,'triangle',.05)})}
+ else if(k==='lose'){[392,330,262,196].forEach(function(f,i){tone(f,i*.14,.32,'sawtooth',.03)})}
+ else if(k==='hit'){tone(180,0,.16,'square',.04,60);tone(900,0,.08,'triangle',.04)}
+ else if(k==='combo'){tone(880,0,.1,'triangle',.05);tone(1320,.08,.18,'triangle',.05)}}
+
+/* ---------- Python code, nicely coloured ---------- */
+function code(src){var re=/(#[^\n]*)|(f?"[^"\n]*"|f?'[^'\n]*')|\b(\d+(?:\.\d+)?)\b|\b(if|elif|else|for|in|while|def|return|import|break|and|or|not|True|False|None)\b|\b(print|range|len|max|min|sum|sorted|input|int|str|round|float|abs|append)\b/g,out='',last=0,m;
+ while((m=re.exec(src))){out+=esc(src.slice(last,m.index));out+='<span class="'+(m[1]?'cm':m[2]?'st':m[3]?'nu':m[4]?'kw':'fn')+'">'+esc(m[0])+'</span>';last=re.lastIndex}
+ return '<pre class="arccode"><code>'+out+esc(src.slice(last))+'</code></pre>'}
+
+/* ---------- the game ---------- */
+var G=null;
+function play(cfg){if(G)return;var cm=calm();
+ G={cfg:cfg,i:0,score:0,combo:0,bestCombo:0,lives:cfg.lives||3,right:0,wrong:0,log:[],fr:[],hp:cfg.boss?cfg.boss.hp:0,health:100,t0:0,q:null,lock:false,timer:0,paused:null,phase:1,mult:1};
+ var ov=el('div','arcov'+(cfg.kind==='boss'?' boss':'')+(cm?' calm':''));ov.setAttribute('role','dialog');ov.setAttribute('aria-modal','true');ov.setAttribute('aria-label',cfg.title);
+ if(cfg.acc)ov.style.setProperty('--acc',cfg.acc);if(cfg.acc2)ov.style.setProperty('--acc2',cfg.acc2);
+ ov.innerHTML='<canvas class="fx" aria-hidden="true"></canvas><div class="scan"></div><div class="arcflash"></div>'+
+  '<div class="arcbar"><button type="button" class="arcx" aria-label="Quit">'+IC.x+'</button><div class="ttl"></div><button type="button" class="arcsnd" aria-label="Sound"></button></div>'+
+  '<div class="archud" hidden></div><div class="arctime" hidden><i></i></div><div class="arcstage"><div class="arcin2"></div></div>';
+ document.body.appendChild(ov);document.body.style.overflow='hidden';G.ov=ov;
+ var $=function(s){return ov.querySelector(s)},stage=$('.arcin2'),hud=$('.archud'),tbar=$('.arctime'),tfill=tbar.querySelector('i');
+ $('.ttl').textContent=cfg.title;
+ function sndBtn(){var b=$('.arcsnd');b.innerHTML=sndOn()?IC.son:IC.soff;b.setAttribute('aria-pressed',sndOn()?'true':'false')}sndBtn();
+ $('.arcsnd').onclick=function(){ls('arc_sound',sndOn()?'off':'on');sndBtn()};
+ var armed=false,xb=$('.arcx');
+ function quitArm(){if(G.ended){close();return}if(!armed){armed=true;xb.classList.add('armed');xb.textContent='Quit?';setTimeout(function(){if(!G)return;armed=false;xb.classList.remove('armed');xb.innerHTML=IC.x},2600);return}close()}
+ xb.onclick=quitArm;
+ requestAnimationFrame(function(){ov.classList.add('on')});
+
+
+ /* sparks in the background, bursts on a right answer */
+ var cv=$('canvas.fx'),cx=cv.getContext('2d'),SP=[],BU=[],W=0,H=0,dpr=Math.min(2,window.devicePixelRatio||1);
+
+ for(var i=0;i<40;i++)SP.push({x:Math.random(),y:Math.random(),r:.5+Math.random()*1.6,v:.01+Math.random()*.04,a:.2+Math.random()*.5});
+ function acc(){var v=getComputedStyle(ov).getPropertyValue('--acc').trim(),m=/^#?([0-9a-f]{6})$/i.exec(v);if(!m)return '58,212,255';var n=parseInt(m[1],16);return (n>>16)+','+(n>>8&255)+','+(n&255)}
+ var AC=acc();
+ function burst(x,y,n,gold){if(cm)return;for(var k=0;k<n;k++){var an=Math.random()*6.283,sp=2+Math.random()*5;BU.push({x:x,y:y,vx:Math.cos(an)*sp,vy:Math.sin(an)*sp-1.5,l:1,c:gold?(Math.random()<.5?'255,214,90':'255,154,60'):(Math.random()<.5?AC:'62,240,184')})}}
+ G.burst=burst;
+ function frame(){if(!G||G.ov!==ov)return;var w=cv.clientWidth,h=cv.clientHeight;if(w!==W||h!==H){W=w;H=h;cv.width=W*dpr;cv.height=H*dpr;cx.setTransform(dpr,0,0,dpr,0,0)}
+  cx.clearRect(0,0,W,H);SP.forEach(function(p){if(!cm){p.y-=p.v/60;if(p.y<-.02){p.y=1.02;p.x=Math.random()}}cx.fillStyle='rgba('+AC+','+p.a+')';cx.beginPath();cx.arc(p.x*W,p.y*H,p.r,0,6.283);cx.fill()});
+  for(var k=BU.length-1;k>=0;k--){var b=BU[k];b.x+=b.vx;b.y+=b.vy;b.vy+=.18;b.l-=.022;if(b.l<=0){BU.splice(k,1);continue}cx.fillStyle='rgba('+b.c+','+b.l.toFixed(2)+')';cx.fillRect(b.x-2,b.y-2,4,4)}
+  requestAnimationFrame(frame)}
+ requestAnimationFrame(frame);
+
+ function flash(c){var f=$('.arcflash');f.className='arcflash';void f.offsetWidth;f.className='arcflash '+c}
+ function pop(txt,x,y,cls){var p=el('div','arcpop'+(cls?' '+cls:''),esc(txt));p.style.left=x+'px';p.style.top=y+'px';ov.appendChild(p);setTimeout(function(){p.remove()},1100)}
+
+ /* ----- HUD ----- */
+ function hudHTML(){var h='';
+  if(cfg.kind!=='boss')h+='<div class="arcsc"><small>SCORE</small><span data-k="sc">'+fmt(G.score)+'</span></div>';
+  h+='<span class="arccombo" data-k="cb">×1</span>';
+  if(cfg.kind!=='mission'){h+='<div class="arclives" aria-label="Lives">';for(var i=0;i<(cfg.lives||3);i++)h+='<i></i>';h+='</div>'}
+  if(cfg.kind==='boss')h+='<div class="arcmeter hp"><span>'+esc(cfg.boss.name)+'</span><div class="mt"><i data-k="hp"></i></div><b data-k="hpn"></b></div>';
+  if(cfg.kind==='mission')h+='<div class="arcmeter hl" data-k="hlw"><span>Plant health</span><div class="mt"><i data-k="hl"></i></div><b data-k="hln"></b></div>';
+  if(cfg.kind==='arcade'&&cfg.best)h+='<div class="arcmeter"><span>Best</span><div class="mt" style="opacity:.0;flex:0 0 0"></div><b>'+fmt(cfg.best)+'</b></div>';
+  hud.innerHTML=h;hud.hidden=false;upd()}
+ function upd(){var s=hud.querySelector('[data-k=sc]');if(s)s.textContent=fmt(G.score);
+  var cb=hud.querySelector('[data-k=cb]');if(cb){cb.textContent='×'+G.mult+(G.combo>=2?' · '+G.combo+' in a row':'');cb.classList.toggle('hot',G.mult>1)}
+  [].forEach.call(hud.querySelectorAll('.arclives i'),function(x,i){x.classList.toggle('gone',i>=G.lives)});
+  if(cfg.kind==='boss'){var f=G.hp/cfg.boss.hp;hud.querySelector('[data-k=hp]').style.width=(f*100)+'%';hud.querySelector('[data-k=hpn]').textContent=Math.max(0,G.hp)+' HP'}
+  if(cfg.kind==='mission'){hud.querySelector('[data-k=hl]').style.width=G.health+'%';hud.querySelector('[data-k=hln]').textContent=G.health+'%';var w=hud.querySelector('[data-k=hlw]');w.classList.toggle('warn',G.health<=50&&G.health>25);w.classList.toggle('bad',G.health<=25)}}
+
+ /* ----- intro ----- */
+ function intro(){G.stage='intro';var i=cfg.intro||{};
+  stage.innerHTML='<div class="arcintro">'+(cfg.kind==='boss'?'<div class="arcbossart"><canvas width="380" height="380" aria-hidden="true"></canvas></div>':'')+'<span class="badge">'+esc(i.badge||'')+'</span><h2>'+esc(i.h||cfg.title)+'</h2>'+(i.p?'<p>'+i.p+'</p>':'')+
+   (i.rules?'<div class="arcrules">'+i.rules.map(function(r){return '<span>'+esc(r)+'</span>'}).join('')+'</div>':'')+
+   '<div class="arcacts"><button type="button" class="arcgo" data-a="start">'+esc(i.go||'Start')+'</button><button type="button" class="arcgo alt" data-a="close">Not now</button></div>'+(i.foot?'<p style="font-size:13px;color:#8e9bc0">'+i.foot+'</p>':'')+'</div>';
+  stage.querySelector('[data-a=start]').onclick=countdown;stage.querySelector('[data-a=close]').onclick=close;
+  if(cfg.kind==='boss')bossArt(stage.querySelector('.arcbossart canvas'),cfg.boss.col||'#ff5a3c');
+  setTimeout(function(){try{stage.querySelector('[data-a=start]').focus({preventScroll:true})}catch(_){}},60)}
+ function countdown(){G.stage='count';hudHTML();if(cm){sfx('go');G.t0=Date.now();ask();return}var n=3;
+  (function t(){if(!G||G.ov!==ov)return;if(n===0){sfx('go');G.t0=Date.now();ask();return}stage.innerHTML='<div class="arccount">'+n+'</div>';sfx('count');n--;setTimeout(t,700)})()}
+
+ /* ----- a question ----- */
+ function ask(){if(!G||G.ov!==ov)return;G.stage='q';G.lock=false;armed=false;
+  var ev=cfg.kind==='mission'?cfg.events[G.i]:null,q=ev?ev.q:cfg.next(G.i,G);G.q=q;
+  var h='';
+  if(ev)h+='<div class="arcev"><span class="tm">'+esc(ev.tm)+'</span><span>'+esc(ev.ev)+'</span><span style="color:#8e9bc0">Event '+(G.i+1)+' of '+cfg.events.length+'</span></div>'+(ev.story?'<p class="arcstory">'+ev.story+'</p>':'');
+  else if(cfg.kind==='boss')h+='<div class="arcev"><span>'+esc(cfg.boss.name)+(G.phase>1?' · phase 2':'')+'</span><span style="color:#8e9bc0">Question '+(G.i+1)+'</span></div>';
+  else h+='<div class="arcev"><span>'+esc(q.tag||cfg.title)+'</span><span style="color:#8e9bc0">Question '+(G.i+1)+'</span></div>';
+  h+='<div class="arcqc"><div class="qbody">'+q.html+'</div><div class="arcopts'+(q.vis?' vis':'')+'" role="group" aria-label="Answers">'+q.opts.map(function(o,k){return '<button type="button" class="arco" data-k="'+k+'"><span class="k">'+(k+1)+'</span><span>'+o+'</span></button>'}).join('')+'</div></div>';
+  stage.innerHTML=h;stage.parentNode.scrollTop=0;
+  [].forEach.call(stage.querySelectorAll('.arco'),function(b){b.onclick=function(e){pick(+b.getAttribute('data-k'),e)}});
+  var lim=cfg.time?cfg.time(G.i,G):20000;if(cfg.kind==='boss'&&G.phase>1)lim*=.8;G.lim=lim;G.qs=Date.now();G.left=lim;tbar.hidden=false;tbar.classList.remove('low');runTimer()}
+ function runTimer(){cancelAnimationFrame(G.timer);var lastTick=null;
+  (function t(){if(!G||G.ov!==ov||G.lock||G.paused!=null)return;var left=Math.max(0,G.lim-(Date.now()-G.qs));G.left=left;tfill.style.width=(left/G.lim*100)+'%';var low=left<Math.min(4000,G.lim*.3);tbar.classList.toggle('low',low);
+   var s=Math.ceil(left/1000);if(low&&s!==lastTick&&s<=3){lastTick=s;sfx('tick')}
+   if(left<=0){pick(-1);return}G.timer=requestAnimationFrame(t)})()}
+ function onVis(){if(!G||G.ov!==ov||G.stage!=='q'||G.lock)return;if(document.hidden){G.paused=G.left;cancelAnimationFrame(G.timer)}else if(G.paused!=null){G.qs=Date.now()-(G.lim-G.paused);G.paused=null;runTimer()}}
+ document.addEventListener('visibilitychange',onVis);G.onVis=onVis;
+
+ function pick(k,e){if(!G||G.lock||G.stage!=='q')return;G.lock=true;cancelAnimationFrame(G.timer);var q=G.q,ok=k===q.ans,frac=Math.max(0,G.left/G.lim),bs=stage.querySelectorAll('.arco');
+  [].forEach.call(bs,function(b,i){b.disabled=true;if(i===q.ans)b.classList.add('right');else if(i===k)b.classList.add('wrong')});
+  var r=(e&&e.currentTarget?e.currentTarget:bs[q.ans]||stage).getBoundingClientRect(),px=r.left+r.width/2,py=r.top+r.height/2;
+  G.log.push({q:q,k:k,ok:ok,frac:frac,ev:cfg.kind==='mission'?cfg.events[G.i]:null});G.fr.push(frac);
+  if(ok){G.right++;G.combo++;if(G.combo>G.bestCombo)G.bestCombo=G.combo;var m=Math.min(5,1+Math.floor(G.combo/3));if(m>G.mult){G.mult=m;sfx('combo');var cb=hud.querySelector('[data-k=cb]');if(cb){cb.classList.add('bump');setTimeout(function(){cb.classList.remove('bump')},300)}pop('COMBO ×'+m,innerWidth/2,innerHeight*.3,'big')}else sfx('ok',G.combo);
+   var pts=Math.round((100+100*frac)*G.mult);G.score+=pts;flash('g');burst(px,py,cm?0:18+G.mult*4);
+   if(cfg.kind==='boss'){var crit=frac>=.6,dmg=crit?2:1;G.hp=Math.max(0,G.hp-dmg);sfx('hit');pop(crit?'CRITICAL HIT −2':'HIT −1',px,py-30,crit?'big':'');if(G.phase===1&&G.hp<=cfg.boss.hp/2&&G.hp>0){G.phase=2;setTimeout(function(){pop('PHASE 2: it\'s speeding up',innerWidth/2,innerHeight*.38,'bad')},500)}}
+   else pop('+'+pts,px,py-30)}
+  else{G.wrong++;G.combo=0;G.mult=1;sfx('bad');flash('r');var qc=stage.querySelector('.arcqc');if(qc){qc.classList.remove('shake');void qc.offsetWidth;qc.classList.add('shake')}
+   if(cfg.kind==='mission'){G.health=Math.max(0,G.health-25);pop(k<0?'Too slow: −25%':'−25% plant health',px,py-30,'bad')}
+   else{G.lives--;pop(k<0?'Out of time':'Life lost',px,py-30,'bad')}}
+  upd();if(cfg.onAnswer)try{cfg.onAnswer(q,ok)}catch(_){}
+  var over=cfg.kind==='boss'?(G.hp<=0||G.lives<=0):cfg.kind==='mission'?(G.health<=0||G.i+1>=cfg.events.length):(G.lives<=0||(cfg.n&&G.i+1>=cfg.n));
+  if(ok){setTimeout(function(){next(over)},cm?500:680)}
+  else{var nb=el('div','arcacts','<button type="button" class="arcgo alt" data-a="next">'+(over?'See how you did':'Next')+' ▸</button>');stage.querySelector('.arcqc').appendChild(nb);var go=nb.querySelector('button');go.onclick=function(){next(over)};try{go.focus({preventScroll:true})}catch(_){}
+   G.auto=setTimeout(function(){if(G&&G.ov===ov&&G.stage==='q'&&G.lock)next(over)},over?3200:2600)}}
+ function next(over){clearTimeout(G.auto);if(!G||G.ov!==ov||G.stage!=='q')return;if(over){end();return}G.i++;ask()}
+
+ /* ----- the end ----- */
+ function end(){G.stage='end';G.ended=true;tbar.hidden=true;cancelAnimationFrame(G.timer);var res={kind:cfg.kind,score:G.score,right:G.right,wrong:G.wrong,answered:G.log.length,bestCombo:G.bestCombo,ms:Date.now()-G.t0,log:G.log};
+  res.acc=res.answered?Math.round(res.right/res.answered*100):0;var af=G.fr.length?G.fr.reduce(function(a,b){return a+b},0)/G.fr.length:0;res.speed=af;
+  if(cfg.kind==='boss')res.won=G.hp<=0;
+  if(cfg.kind==='mission'){res.health=G.health;res.tripped=G.health<=0;res.grade=res.tripped?'U':G.health===100?(af>=.45?'A*':'A'):G.health>=75?'B':G.health>=50?'C':'D';res.events=cfg.events.length}
+  var out={};try{out=cfg.onEnd(res)||{}}catch(e){if(window.console)console.error(e)}
+  var win=cfg.kind==='boss'?res.won:cfg.kind==='mission'?!res.tripped:true;sfx(win?'win':'lose');
+  var h='<div class="arcres">';
+  if(cfg.kind==='arcade'){h+='<span class="badge" style="font:700 12px var(--mono);letter-spacing:.14em;color:var(--acc)">GAME OVER</span><div class="big">'+fmt(res.score)+'</div>'+(out.newBest?'<div class="nb">New best score</div>':out.best?'<div style="color:#9fb0d8;font:600 13px var(--mono)">Best: '+fmt(out.best)+'</div>':'')}
+  if(cfg.kind==='boss')h+='<span class="badge" style="font:700 12px var(--mono);letter-spacing:.14em;color:var(--acc)">'+esc(cfg.boss.name)+'</span><h2 class="arcwin'+(res.won?'':' lose')+'">'+(res.won?'Boss beaten':'Not this time')+'</h2><p style="margin:0;color:#c9d3ef;max-width:30em">'+(res.won?(out.first?'You earned the <b>'+esc(cfg.boss.badge||'boss')+'</b> trophy.':'Rematch won.'):'It had '+G.hp+' HP left. Every attempt makes you faster. Have another go.')+'</p>';
+  if(cfg.kind==='mission')h+='<span class="badge" style="font:700 12px var(--mono);letter-spacing:.14em;color:var(--acc)">'+(res.tripped?'REACTOR TRIP':'SHIFT COMPLETE')+'</span><div class="gr">'+res.grade+'</div>'+(out.newBest?'<div class="nb">Best shift yet</div>':'')+'<p style="margin:0;color:#c9d3ef;max-width:30em">'+(res.tripped?'Plant health hit zero, so the reactor tripped. Read the report, then take the next shift.':res.grade==='A*'?'Flawless and fast. That\'s a shift supervisor\'s night.':res.grade==='A'?'Nothing went wrong all shift. Go faster for an A*.':'The plant is safe. Check what went wrong in the report.')+'</p>';
+  h+='<div class="arcstats"><div><b>'+res.right+'/'+res.answered+'</b><span>Right</span></div><div><b>'+res.acc+'%</b><span>Accuracy</span></div><div><b>'+res.bestCombo+'</b><span>Best run</span></div><div><b>+'+(out.xp||0)+'</b><span>XP</span></div></div>';
+  if(cfg.kind==='mission'){h+='<div class="arcrep"><h3>Shift report</h3>'+G.log.map(function(l){return '<div class="ln"><span class="tm">'+esc(l.ev.tm)+'</span><span>'+esc(l.ev.ev)+'</span><span class="'+(l.ok?'ok':'no')+'" style="margin-left:auto">'+(l.ok?'Handled':l.k<0?'Too slow':'Wrong call')+'</span></div>'}).join('')+'<div class="ln" style="margin-top:4px;border-top:1px solid rgba(255,255,255,.08);padding-top:6px"><span class="tm">End</span><span>Plant health '+res.health+'%</span></div></div>'}
+  if(out.html)h+=out.html;
+  var miss=G.log.filter(function(l){return !l.ok});
+  h+='<div class="arcacts"><button type="button" class="arcgo" data-a="again">'+(cfg.kind==='boss'?(res.won?'Rematch':'Try again'):cfg.kind==='mission'?'Another shift':'Play again')+'</button>'+(miss.length?'<button type="button" class="arcgo alt" data-a="rev">Review '+miss.length+' mistake'+(miss.length===1?'':'s')+'</button>':'')+'<button type="button" class="arcgo alt" data-a="close">Done</button></div><div class="arcrv" hidden></div></div>';
+  stage.innerHTML=h;stage.parentNode.scrollTop=0;
+  if(win&&!cm){var r=stage.getBoundingClientRect();burst(innerWidth/2,r.top+80,out.newBest||res.won||res.grade==='A*'?90:40,true)}
+  stage.querySelector('[data-a=close]').onclick=close;
+  stage.querySelector('[data-a=again]').onclick=function(){var c=cfg.again?cfg.again():cfg;close(true);setTimeout(function(){play(c)},60)};
+  var rv=stage.querySelector('[data-a=rev]');if(rv)rv.onclick=function(){var box=stage.querySelector('.arcrv');box.hidden=false;rv.remove();
+   box.innerHTML=miss.map(function(l){var q=l.q;return '<details><summary><span class="x">✗</span><span>'+esc((l.ev?l.ev.ev+': ':'')+(strip(q.html).slice(0,80)||'Picture question'))+'</span></summary><div class="rb"><div class="qbody">'+q.html+'</div><p><b>Right answer:</b> '+(q.vis?'option '+(q.ans+1):q.opts[q.ans])+'</p>'+(q.vis?'<div class="arcopts vis">'+q.opts.map(function(o,i){return '<div class="arco'+(i===q.ans?' right':i===l.k?' wrong':'')+'"><span class="k">'+(i+1)+'</span>'+o+'</div>'}).join('')+'</div>':'')+(q.exp?'<div class="expl">'+q.exp+'</div>':'')+'</div></details>'}).join('');
+   var d=box.querySelector('details');if(d)d.open=true};
+  setTimeout(function(){try{stage.querySelector('[data-a=again]').focus({preventScroll:true})}catch(_){}},80)}
+ function strip(h){var d=document.createElement('div');d.innerHTML=h;return (d.textContent||'').replace(/\s+/g,' ').trim()}
+
+ function key(e){if(!G||G.ov!==ov)return;if(e.key==='Escape'){e.preventDefault();quitArm();return}
+  if(G.stage==='q'&&!G.lock){var n=parseInt(e.key,10);if(n>=1&&n<=G.q.opts.length){e.preventDefault();var b=stage.querySelectorAll('.arco')[n-1];pick(n-1,{currentTarget:b})}}
+  else if(e.key==='Enter'){var t=stage.querySelector('[data-a=next],[data-a=start],[data-a=again]');if(t&&document.activeElement!==t){e.preventDefault();t.click()}}}
+ document.addEventListener('keydown',key);G.key=key;
+ function close(again){if(!G)return;cancelAnimationFrame(G.timer);clearTimeout(G.auto);document.removeEventListener('keydown',G.key);document.removeEventListener('visibilitychange',G.onVis);
+  var o=G.ov,done=G.ended;G=null;o.classList.remove('on');document.body.style.overflow='';setTimeout(function(){o.remove()},again?0:300);if(cfg.onClose&&!again)try{cfg.onClose(done)}catch(_){}}
+ intro()}
+
+/* a menacing reactor core for the boss screen */
+function bossArt(cv,col){if(!cv)return;var c=cv.getContext('2d'),t0=performance.now(),cm=calm();
+ (function f(t){if(!cv.isConnected)return;var s=(t-t0)/1000,W=cv.width,H=cv.height,x=W/2,y=H/2;c.clearRect(0,0,W,H);
+  var g=c.createRadialGradient(x,y,10,x,y,W*.48);g.addColorStop(0,col);g.addColorStop(.35,col+'88');g.addColorStop(1,'rgba(0,0,0,0)');c.fillStyle=g;c.beginPath();c.arc(x,y,W*.48,0,6.283);c.fill();
+  c.save();c.translate(x,y);c.rotate(cm?0:s*.6);c.strokeStyle=col;c.lineWidth=5;for(var i=0;i<12;i++){c.rotate(Math.PI/6);c.beginPath();c.moveTo(W*.2,0);c.lineTo(W*.3+(cm?0:Math.sin(s*4+i)*10),0);c.stroke()}c.restore();
+  c.save();c.translate(x,y);c.rotate(cm?0:-s*1.1);c.setLineDash([18,14]);c.lineWidth=4;c.strokeStyle='rgba(255,255,255,.75)';c.beginPath();c.arc(0,0,W*.17,0,6.283);c.stroke();c.restore();
+  var p=cm?1:1+Math.sin(s*5)*.08;c.fillStyle='#fff';c.beginPath();c.arc(x,y,W*.07*p,0,6.283);c.fill();
+  c.fillStyle='rgba(10,10,20,.9)';c.beginPath();c.arc(x-16,y-6,6,0,6.283);c.arc(x+16,y-6,6,0,6.283);c.fill();
+  if(!cm)requestAnimationFrame(f)})(t0)}
+
+/* shuffle helpers the apps share */
+function shuf(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t}return a}
+function pick1(a){return a[Math.floor(Math.random()*a.length)]}
+function mcq(html,correct,wrongs,exp,tag){var seen={},opts=[];[correct].concat(wrongs).forEach(function(o){o=String(o);if(seen[o]||opts.length>=4)return;seen[o]=1;opts.push(o)});var c=opts[0];shuf(opts);return {html:html,opts:opts,ans:opts.indexOf(c),exp:exp||'',tag:tag||''}}
+function clock(h,m){return String(h%24).padStart(2,'0')+':'+String(m).padStart(2,'0')}
+
+window.ARC={init:initLook,play:play,active:function(){return !!G},peek:function(){return G},calm:calm,code:code,esc:esc,shuf:shuf,pick:pick1,mcq:mcq,clock:clock,fmt:fmt,sfx:sfx};
+})();
+/* ===== Shift Ready: Radio Rush, Bug Hunt, weekly bosses and the night-shift mission ===== */
+(function(){if(!window.SR||!window.ARC)return;
+var A=window.SR,X=ARC,NATO=A.NATO;
+ARC.init('sr');
+function R(a,b){return a+Math.floor(Math.random()*(b-a+1))}
+function P(a){return a[Math.floor(Math.random()*a.length)]}
+function st(){var S=A.S();if(!S.arc||typeof S.arc!=='object')S.arc={};var a=S.arc;if(!a.best)a.best={};if(!a.boss)a.boss={};if(!a.miss)a.miss={n:0,best:null};return a}
+function curWeek(){var s=A.nextOf('py')||A.nextOf('cm');return s?s.w:4}
+function pyf(x){return Number.isInteger(x)?x+'.0':String(x)}
+function mq(html,c,w,exp,tag,t,kind){var q=X.mcq(html,c,w,exp,tag);q.t=t||20;q.kind=kind||'py';return q}
+
+/* ---------- comms ---------- */
+var LETS='ABCDEFGHIJKLMNOPQRSTUVWXYZ',DIG='0123456789';
+var CF={A:'EH',B:'DPVT',C:'GZ',D:'BT',E:'IB',F:'S',G:'CJ',H:'A',I:'EY',J:'G',K:'Q',L:'R',M:'N',N:'M',O:'U',P:'BT',Q:'K',R:'L',S:'FX',T:'DP',U:'O',V:'BZ',W:'V',X:'S',Y:'I',Z:'CV','0':'6','1':'7','2':'3','3':'8','4':'1','5':'9','6':'0','7':'1','8':'3','9':'5'};
+function say(c){return c.split('').map(function(x){return NATO[x]}).join(' ')}
+function tagCode(){var n=R(3,4),s='';for(var i=0;i<n;i++)s+=(i===n-1||Math.random()<.6)?P(LETS):P(DIG);if(!/\d/.test(s))s=s.slice(0,1)+P(DIG)+s.slice(2);return s}
+function mutate(c){for(var g=0;g<40;g++){var a=c.split(''),i=R(0,a.length-1);if(Math.random()<.75){var o=CF[a[i]];if(!o)continue;a[i]=P(o.split(''))}else{if(i>=a.length-1||a[i]===a[i+1])continue;var t=a[i];a[i]=a[i+1];a[i+1]=t}var r=a.join('');if(r!==c)return r}return c+'X'}
+function wrongs(c){var w=[],g=0;while(w.length<3&&g<60){g++;var m=mutate(c);if(m!==c&&w.indexOf(m)<0)w.push(m)}return w}
+function encodeQ(){var c=tagCode();return mq('<div class="arcsay"><small>Read this tag over the radio</small>'+c+'</div>',say(c),wrongs(c).map(say),'<p><b>'+c+'</b> is <b>'+say(c)+'</b>.</p><p>The wrong options swap a letter for one that sounds similar, or switch two round. That\'s exactly the mistake the phonetic alphabet stops.</p>','Radio out',12,'ph')}
+function decodeQ(){var c=tagCode();return mq('<div class="arcsay"><small>Field operator on the radio</small>“'+say(c)+'”</div><p>Which tag did they read?</p>',c,wrongs(c),'<p>'+say(c)+' is <b>'+c+'</b>.</p>','Radio in',12,'ph')}
+function letterQ(){var l=P(LETS.split('')),o=(CF[l]||'').split('').concat(X.shuf(LETS.split(''))).filter(function(x,i,arr){return x!==l&&arr.indexOf(x)===i});return mq('<div class="arcsay"><small>Quick</small>'+l+'</div><p>What\'s the radio word for this letter?</p>',NATO[l],o.slice(0,3).map(function(x){return NATO[x]}),'<p><b>'+l+'</b> is <b>'+NATO[l]+'</b>.</p>','Alphabet',7,'al')}
+function numQ(){var s='';for(var i=0;i<4;i++)s+=P(DIG);if(!/[09]/.test(s))s=s.slice(0,R(0,3))+P(['0','9'])+s.slice(1);s=s.slice(0,4);
+ var w=say(s),wr=[];var sw=s.split('');var i2=R(0,2);if(sw[i2]!==sw[i2+1]){var t=sw[i2];sw[i2]=sw[i2+1];sw[i2+1]=t;wr.push(say(sw.join('')))}
+ if(/0/.test(s))wr.push(say(s).replace(/Zero/,'Oh'));for(var g=0;g<30&&wr.length<5;g++){var m=mutate(s);if(/^\d+$/.test(m)&&m!==s&&wr.indexOf(say(m))<0)wr.push(say(m))}
+ return mq('<div class="arcsay"><small>Read this number the operator way</small>'+s+'</div>',w,wr.filter(function(x){return x!==w}),'<p><b>'+s+'</b> is <b>'+w+'</b>. Each digit is said on its own: Zero (not Oh) and Niner for 9, so it can\'t be misheard as five on a noisy line.</p>','Numbers',12,'ph')}
+var ACT=[['Open','Close','valve'],['Close','Open','valve'],['Start','Stop','pump'],['Stop','Start','pump']];
+var TAGP=['CV','FW','SG','RHR','CCW','AFW'];
+function repeatQ(){var k=R(0,2),ins,ok,bad;
+ if(k===0){var a=P(ACT),pre=P(TAGP),dg=R(1,4),lt=P(['A','B','C','D']),tg=pre+'-'+dg+lt,wt=Math.random()<.5?pre+'-'+dg+P(['A','B','C','D'].filter(function(x){return x!==lt})):pre+'-'+(dg%4+1)+lt;ins=a[0]+' '+a[2]+' '+tg+'.';ok=ins;bad=[a[0]+' '+a[2]+' '+wt+'.',a[1]+' '+a[2]+' '+tg+'.','Got it, on my way.']}
+ else if(k===1){var p=P([50,60,70,75,80,85,90]);ins='Reduce power to '+p+' percent.';ok=ins;bad=['Reduce power to '+(p===90?85:p+5)+' percent.','Raise power to '+p+' percent.','Will do.']}
+ else{var s=R(4,30);ins='Insert control rods to step '+s+'.';ok=ins;bad=['Insert control rods to step '+(s+10)+'.','Withdraw control rods to step '+s+'.','Rods going in now.']}
+ return mq('<div class="arcsay" style="font-size:clamp(18px,4.6vw,26px)"><small>Supervisor</small>“'+ins+'”</div><p>What do you say back?</p>','“'+ok+'”',bad.map(function(b){return '“'+b+'”'}),'<p>Three-way communication: repeat the instruction back <b>exactly</b>, then the supervisor says “That\'s correct” before you act. “Got it” proves nothing, and one wrong word or number can mean the wrong valve.</p>','Repeat-back',16,'cm')}
+var CON=[
+ ['After you repeat an instruction back, what should the person who gave it do?',['Confirm it: “That\'s correct”, or correct you','Nothing. You just do it','Say “over and out”','Ask you to say it again'],'That\'s the third step of three-way communication. Nothing happens until they confirm.'],
+ ['Why do operators say “Niner” for 9?',['So it can\'t be misheard as five on a noisy line','It\'s quicker to say','Nine isn\'t allowed in codes','It sounds more official'],'On a crackly radio, nine and five sound alike. Niner doesn\'t.'],
+ ['You didn\'t hear an instruction clearly. What do you do?',['Ask them to say it again','Guess the most likely one and start','Wait and do nothing','Do the last thing you were told'],'Never guess in a control room. Ask again, then repeat it back.'],
+ ['A good shift handover covers…',['What happened, anything still open, and what to watch','Only the good news','The time you\'re leaving','Whatever you remember on the way out'],'Those three things are what the next operator needs to take over safely.'],
+ ['Which of these is written like a proper procedure step?',['Check the coolant temperature is below 320 °C.','Maybe have a look at the temperature.','Temperature stuff.','Sort the temperature out if needed.'],'Procedure steps start with a verb and say exactly what to check, so anyone can follow them.'],
+ ['When should the incoming operator take over the desk?',['Once they\'re sure they understand the plant\'s state','As soon as the clock says the shift has started','When the outgoing operator leaves the room','After their first cup of tea'],'Handover is only complete when the incoming operator is satisfied.'],
+ ['The best way to explain your code to someone who doesn\'t code is to…',['Use everyday words and an example','Read the code out line by line','Use as many technical words as possible','Skip the hard bits'],'If they can explain it back to you, you explained it well.']];
+function conceptQ(){var c=P(CON);return mq('<p style="font-size:18px;font-weight:700">'+c[0]+'</p>',c[1][0],c[1].slice(1),'<p><b>'+c[1][0]+'.</b> '+c[2]+'</p>','Comms',16,'cm')}
+
+/* ---------- Python ---------- */
+function code(s){return X.code(s)}
+var W1=[
+ function(){var a=R(3,12),b=R(3,12);return mq(code('print('+a+' * '+b+')')+'<p>What does this print?</p>',a*b,[a+b,a*b+a,a+' * '+b],'<p>Python works the sum out first, then prints it: '+a+' × '+b+' = <b>'+a*b+'</b>. With quotes round it, it would print the text instead.</p>','Week 1 · maths')},
+ function(){var n=R(3,6),p=Math.pow(2,n);return mq(code('print(2 ** '+n+')')+'<p>What does this print?</p>',p,[2*n,n*n,Math.pow(2,n+1),Math.pow(2,n-1)].filter(function(x){return x!==p}),'<p><b>**</b> means “to the power of”. 2 ** '+n+' is 2 multiplied by itself '+n+' times = <b>'+p+'</b>.</p>','Week 1 · maths')},
+ function(){var b=R(3,7),a;do{a=R(13,45)}while(a%b===0);var mod=Math.random()<.5,c=mod?a%b:Math.floor(a/b);return mq(code('print('+a+(mod?' % ':' // ')+b+')')+'<p>What does this print?</p>',c,mod?[Math.floor(a/b),b-a%b,0,a%b+1]:[Math.floor(a/b)+1,a%b,(a/b).toFixed(1)],mod?'<p><b>%</b> gives the remainder. '+a+' ÷ '+b+' = '+Math.floor(a/b)+' remainder <b>'+(a%b)+'</b>.</p>':'<p><b>//</b> divides and throws the remainder away. '+a+' ÷ '+b+' = '+(a/b).toFixed(2)+', so it prints <b>'+c+'</b>.</p>','Week 1 · maths')},
+ function(){var w=P(['Go','Hi','Ok','Beep']),n=R(2,4),r=new Array(n+1).join(w);return mq(code('print("'+w+'" * '+n+')')+'<p>What does this print?</p>',r,[new Array(n).fill(w).join(' '),w+n,'An error'],'<p>Multiplying text repeats it with no spaces: <b>'+r+'</b>.</p>','Week 1 · print')},
+ function(){var u=R(2,4),mw=P([1630,1200,1000,660]);return mq(code('units = '+u+'\nmw = '+mw+'\nprint(f"{units * mw} MW")')+'<p>What does this print?</p>',(u*mw)+' MW',['{units * mw} MW','units * mw MW',u+' * '+mw+' MW'],'<p>The <b>f</b> before the quotes makes it an f-string: anything in {curly brackets} is worked out. '+u+' × '+mw+' = <b>'+u*mw+' MW</b>.</p>','Week 1 · variables')},
+ function(){var x=R(2,9),y=R(2,9);return mq(code('x = '+x+'\nx = x + '+y+'\nprint(x)')+'<p>What does this print?</p>',x+y,[x,y,''+x+y],'<p>The second line works out x + '+y+' using the old x ('+x+'), then stores the answer back in x. So x is <b>'+(x+y)+'</b>.</p>','Week 1 · variables')},
+ function(){var b=P([2,4]),a=P([5,7,9,10,12,14,15,18]),r=a/b;return mq(code('print('+a+' / '+b+')')+'<p>What does this print?</p>',pyf(r),[String(Math.floor(r)),String(Math.round(r)+1),pyf(r*2)].filter(function(x){return x!==pyf(r)}),'<p>In Python 3, <b>/</b> always gives a decimal number (a float), even when it divides exactly. So it prints <b>'+pyf(r)+'</b>. Use // for a whole number.</p>','Week 1 · maths')},
+ function(){var v=R(12,16);return mq(code('age = input("Age? ")   # you type '+v+'\nprint(age + 1)')+'<p>What happens?</p>','An error (TypeError)',[String(v+1),v+'1',v+' 1'],'<p><b>input()</b> always gives you text, even if you type a number. Text + a number crashes with a <b>TypeError</b>. Fix it with int(input("Age? ")).</p>','Week 1 · input')}];
+var W2=[
+ function(){var t=P([250,279,280,300,320,321,335,281]),o=t>320?'ALARM: temperature HIGH':t<280?'Warning: temperature low':'Normal';return mq(code('temp = '+t+'\n\nif temp > 320:\n    print("ALARM: temperature HIGH")\nelif temp < 280:\n    print("Warning: temperature low")\nelse:\n    print("Normal")')+'<p>What does this print?</p>',o,['ALARM: temperature HIGH','Warning: temperature low','Normal','Nothing is printed'].filter(function(x){return x!==o}),'<p>Python checks each condition in order and runs the first one that\'s true. '+t+' > 320 is '+(t>320?'true':'false')+(t>320?'':', and '+t+' < 280 is '+(t<280?'true':'false'))+'. So it prints <b>'+o+'</b>.'+(t===320||t===280?' Careful: '+t+' isn\'t bigger or smaller than itself.':'')+'</p>','Week 2 · if statements')},
+ function(){var a=R(0,3),b=R(6,12);return mq(code('for i in range('+a+', '+b+'):\n    print(i)')+'<p>How many numbers does this print?</p>',b-a,[b-a+1,b,b-a-1],'<p>range('+a+', '+b+') starts at '+a+' and stops <b>before</b> '+b+', so it prints '+a+' to '+(b-1)+': <b>'+(b-a)+'</b> numbers.</p>','Week 2 · for loops')},
+ function(){var a=R(0,3),b=R(6,12);return mq(code('for i in range('+a+', '+b+'):\n    print(i)')+'<p>What\'s the last number printed?</p>',b-1,[b,b-2,a],'<p>range stops <b>before</b> the end number, so the last one is <b>'+(b-1)+'</b>.</p>','Week 2 · for loops')},
+ function(){var s=R(5,20);return mq(code('for i in range('+s+', -1, -1):\n    print(i)\nprint("Reactor online")')+'<p>How many lines are printed altogether?</p>',s+2,[s+1,s,s+3],'<p>It counts '+s+' down to 0 (it stops before -1). That\'s '+(s+1)+' numbers, plus the “Reactor online” line: <b>'+(s+2)+'</b>.</p>','Week 2 · for loops')},
+ function(){var n=P([10,12,14,16,18,20]);return mq(code('for i in range(0, '+n+', 2):\n    print(i)')+'<p>What\'s the last number printed?</p>',n-2,[n,n-1,n-3],'<p>The third number is the step: 0, 2, 4… It stops before '+n+', so the last is <b>'+(n-2)+'</b>.</p>','Week 2 · for loops')},
+ function(){var st=P([3,4,5]),k;do{k=R(10,25)}while(k%st===0);var n=0;while(n<k)n+=st;return mq(code('n = 0\nwhile n < '+k+':\n    n += '+st+'\nprint(n)')+'<p>What does this print?</p>',n,[n-st,k,n+st],'<p>n goes up by '+st+' until it\'s no longer less than '+k+'. The first number that isn\'t is <b>'+n+'</b>, so the loop stops there.</p>','Week 2 · while loops')},
+ function(){var v=R(0,2),src,c,w;
+  if(v===0){src='temp = 330\nif temp > 320\n    print("ALARM")';c='The if line needs a colon (:) at the end';}
+  else if(v===1){src='temp = 330\nif temp > 320:\nprint("ALARM")';c='The print line must be indented under the if';}
+  else{src='temp = 330\nif temp = 330:\n    print("ALARM")';c='Comparing needs == (a single = sets a value)';}
+  w=['The if line needs a colon (:) at the end','The print line must be indented under the if','Comparing needs == (a single = sets a value)','print needs a capital P','320 needs quotes round it'].filter(function(x){return x!==c});
+  return mq(code(src)+'<p>Why won\'t this run?</p>',c,X.shuf(w).slice(0,3),'<p><b>'+c+'.</b> Those three are the most common Python errors, so it\'s worth spotting them fast.</p>','Week 2 · bug hunt',25)},
+ function(){var c=R(3,9);return mq(code('count = 0\nwhile True:\n    count += 1\n    if count == '+c+':\n        break\nprint(count)')+'<p>What does this print?</p>',c,[c-1,c+1,'Nothing. It runs forever'],'<p><b>break</b> jumps out of the loop as soon as count reaches '+c+', so it prints <b>'+c+'</b>.</p>','Week 2 · while loops')}];
+function rlist(n){var a=[];while(a.length<n){var x=R(285,330);if(a.indexOf(x)<0)a.push(x)}return a}
+var W3=[
+ function(){var r=rlist(R(5,7)),f=P(['max','min','len','sum','first','last']),c,ex,w;var s=r.slice().sort(function(a,b){return a-b});
+  if(f==='max'){c=s[s.length-1];w=[s[0],s[s.length-2],r[r.length-1]];ex='max() gives the biggest value'}else if(f==='min'){c=s[0];w=[s[s.length-1],s[1],r[0]];ex='min() gives the smallest value'}
+  else if(f==='len'){c=r.length;w=[r.length-1,r.length+1,s[0]];ex='len() counts the items'}else if(f==='sum'){c=r.reduce(function(a,b){return a+b},0);w=[c-10,c+10,r.length];ex='sum() adds them all up'}
+  else if(f==='first'){c=r[0];w=[r[1],r[r.length-1],s[0]];ex='Lists count from 0, so readings[0] is the first'}else{c=r[r.length-1];w=[r[0],r[r.length-2],s[s.length-1]];ex='readings[-1] counts from the end: the last item'}
+  var call=f==='first'?'readings[0]':f==='last'?'readings[-1]':f+'(readings)';return mq(code('readings = ['+r.join(', ')+']\nprint('+call+')')+'<p>What does this print?</p>',c,w,'<p>'+ex+': <b>'+c+'</b>.</p>','Week 3 · lists')},
+ function(){var r=rlist(R(4,6)),x=R(300,340);return mq(code('readings = ['+r.join(', ')+']\nreadings.append('+x+')\nprint(len(readings))')+'<p>What does this print?</p>',r.length+1,[r.length,r.length+2,x],'<p>append() adds one item to the end, so the list now has <b>'+(r.length+1)+'</b> items.</p>','Week 3 · lists')},
+ function(){var t=P([279,280,300,320,321,335,250]),o=t>320?'HIGH':t<280?'LOW':'normal';return mq(code('def check(temp):\n    if temp > 320:\n        return "HIGH"\n    elif temp < 280:\n        return "LOW"\n    return "normal"\n\nprint(check('+t+'))')+'<p>What does this print?</p>',o,['HIGH','LOW','normal','None'].filter(function(x){return x!==o}),'<p>The function returns the first result that matches. For '+t+' that\'s <b>'+o+'</b>.</p>','Week 3 · functions')},
+ function(){var c=P([0,10,20,25,30,40,50,100]),f=c*9/5+32;return mq(code('def to_f(c):\n    return c * 9 / 5 + 32\n\nprint(to_f('+c+'))')+'<p>What does this print?</p>',pyf(f),[String(f),pyf(c*9/5),pyf(f+32)].filter(function(x){return x!==pyf(f)}),'<p>'+c+' × 9 ÷ 5 + 32 = '+f+'. Because / makes a decimal, Python prints <b>'+pyf(f)+'</b>.</p>','Week 3 · functions')},
+ function(){var r=rlist(5),s=r.slice().sort(function(a,b){return a-b});return mq(code('readings = ['+r.join(', ')+']\nprint(sorted(readings)[0])')+'<p>What does this print?</p>',s[0],[r[0],s[4],5].filter(function(x){return x!==s[0]}),'<p>sorted() puts them smallest first, and [0] takes the first one: <b>'+s[0]+'</b>.</p>','Week 3 · lists')},
+ function(){var crew=['Ali','Ben','Cara','Dev'],i=P([0,1,2,-1]),c=crew[i<0?3:i];return mq(code('crew = ["Ali", "Ben", "Cara", "Dev"]\nprint(crew['+i+'])')+'<p>What does this print?</p>',c,crew.filter(function(x){return x!==c}),'<p>Lists count from 0, and -1 means the last item. crew['+i+'] is <b>'+c+'</b>.</p>','Week 3 · lists')}];
+var W4=[
+ function(){var log=[];for(var i=0;i<6;i++)log.push(P([300,312,318,320,322,325,331,309]));var n=log.filter(function(t){return t>320}).length;return mq(code('log = ['+log.join(', ')+']\nalarms = 0\nfor t in log:\n    if t > 320:\n        alarms += 1\nprint(alarms)')+'<p>What does this print?</p>',n,[n+1,n>0?n-1:n+2,log.length,n+2,n+3].filter(function(x){return x!==n}),'<p>Count the readings above 320'+(log.indexOf(320)>-1?' (320 itself doesn\'t count)':'')+': <b>'+n+'</b>.</p>','Week 4 · reactor monitor')},
+ function(){var m=R(1,9);return mq(code('minute = '+m+'\nprint(f"Min {minute:02}")')+'<p>What does this print?</p>','Min 0'+m,['Min '+m,'Min 02','Min '+m+'0'],'<p><b>:02</b> pads the number to 2 digits with a zero in front, so '+m+' becomes <b>0'+m+'</b>.</p>','Week 4 · reactor monitor')},
+ function(){var t=R(321,340);return mq(code('temp = '+t+'\nif temp > 320:\n    temp -= 15\nprint(temp)')+'<p>What does this print?</p>',t-15,[t,t+15,15],'<p>'+t+' is over 320, so the rods go in and 15 comes off: <b>'+(t-15)+'</b>.</p>','Week 4 · operator action')},
+ function(){return mq(code('import random\nprint(random.randint(-4, 6))')+'<p>Which of these can it <b>never</b> print?</p>',7,[-4,6,0],'<p>randint(-4, 6) can give any whole number from -4 to 6, including both ends. <b>7</b> is outside that.</p>','Week 4 · reactor monitor')},
+ function(){var n=P([10,15,20,30]);return mq(code('for minute in range(1, '+(n+1)+'):\n    print("Minute", minute)')+'<p>How many minutes does it print?</p>',n,[n+1,n-1,1],'<p>range(1, '+(n+1)+') goes 1 to '+n+': <b>'+n+'</b> minutes.</p>','Week 4 · reactor monitor')},
+ function(){var d=R(2,6);return mq(code('temp = 300\nfor m in range(3):\n    temp += '+d+'\nprint(temp)')+'<p>What does this print?</p>',300+3*d,[300+d,300+2*d,300+4*d],'<p>range(3) runs the loop 3 times, adding '+d+' each time: 300 + '+(3*d)+' = <b>'+(300+3*d)+'</b>.</p>','Week 4 · reactor monitor')},
+ function(){return mq(code('log = [298, 322, 310]\nprint("Highest: " + max(log))')+'<p>What happens?</p>','An error: you can\'t add text and a number',['Highest: 322','Highest: 298','Highest: max(log)'],'<p>"Highest: " is text and max(log) is a number, so + crashes with a TypeError. Use a comma instead: print("Highest:", max(log)).</p>','Week 4 · bug hunt',25)}];
+var PYW=[null,W1,W2,W3,W4];
+function pyQ(w){var q=P(PYW[w])();q.kind='py';if(!q.t||q.t===20)q.t=28;return q}
+function pyUpTo(w){return pyQ(R(1,w))}
+
+/* ---------- rounds ---------- */
+function feeder(fn){var seen=[];return function(i){var q,g=0;do{q=fn(i);g++}while(seen.indexOf(q.html)>-1&&g<20);seen.push(q.html);if(seen.length>12)seen.shift();return q}}
+function onAns(q,ok){if(ok&&q.kind==='ph'){try{A.qProg('drill',1)}catch(_){}}}
+function done(xp){if(xp>0)A.addXP(xp);A.save();try{A.refresh()}catch(_){}}
+var RADIO=function(){var r=Math.random();return r<.3?encodeQ():r<.55?decodeQ():r<.68?letterQ():r<.8?numQ():r<.93?repeatQ():conceptQ()};
+function arcade(id){var a=st(),G=id==='radio'?{t:'Radio Rush',p:'Tags, numbers and instructions coming over the radio. Read them right, fast. Every call is quicker than the last.',f:RADIO,acc:'#ffd65a',acc2:'#ff9a3c'}:{t:'Bug Hunt',p:'Python on the screen. Say what it prints, or spot why it won\'t run, before the clock runs out.',f:function(){return pyUpTo(Math.min(4,curWeek()+1))},acc:'#3ef0b8',acc2:'#8f80ff'};
+ return {kind:'arcade',title:G.t,acc:G.acc,acc2:G.acc2,best:a.best[id]||0,lives:3,next:feeder(G.f),onAnswer:onAns,
+  time:function(i,g){var t=(g.q.t||20)*1000;return Math.max(t*.5,t*Math.pow(.965,i))},
+  intro:{badge:'Arcade',h:G.t,p:G.p,rules:['3 lives','Speed bonus','Combos up to ×5','Keys 1 to 4'],go:'Start',foot:a.best[id]?'Your best: '+X.fmt(a.best[id]):''},
+  again:function(){return arcade(id)},
+  onEnd:function(r){var a=st(),b=a.best[id]||0,nb=r.score>b&&r.score>0;if(nb)a.best[id]=r.score;var xp=Math.min(30,Math.round(r.score/200));done(xp);return {xp:xp,best:Math.max(b,r.score),newBest:nb&&b>0}}}}
+var BOSS=[null,{name:'First Night',col:'#ff9a3c',p:'Your first night on the desk. Phonetics, print() and maths, all at once.',py:1,cm:function(){return P([encodeQ,decodeQ,letterQ])()}},
+ {name:'Alarm Flood',col:'#ff4d6d',p:'Alarms everywhere. If statements, loops and repeat-backs under pressure.',py:2,cm:function(){return P([repeatQ,repeatQ,conceptQ])()}},
+ {name:'Data Storm',col:'#c06bff',p:'Readings pouring in. Lists, functions and numbers read the operator way.',py:3,cm:function(){return P([numQ,numQ,decodeQ])()}},
+ {name:'Station Blackout',col:'#ff3d3d',p:'The final test. Your reactor monitor, procedures and the handover, with everything on the line.',py:4,cm:function(){return P([repeatQ,conceptQ,encodeQ])()}}];
+function bossOpen(w){return w===1||!!st().boss[w-1]}
+function boss(w){var B=BOSS[w],first=!st().boss[w];
+ return {kind:'boss',title:'Week '+w+' boss: '+B.name,acc:B.col,acc2:'#ff3d6e',lives:3,boss:{name:B.name,hp:12,col:B.col,badge:B.name},
+  next:feeder(function(){return Math.random()<.6?pyQ(B.py):B.cm()}),onAnswer:onAns,time:function(i,g){return (g.q.t||20)*1000*.85},
+  intro:{badge:'Week '+w+' boss',h:B.name,p:B.p,rules:['12 HP','3 lives','Fast answer = critical hit','Phase 2 at half HP'],go:'Fight',foot:first?'Beat it for a trophy and +60 XP'+(w<4?', and unlock the Week '+(w+1)+' boss.':'.'):'Already beaten. Rematch for +15 XP.'},
+  again:function(){return boss(w)},
+  onEnd:function(r){var a=st(),xp=r.right;if(r.won){if(!a.boss[w]){a.boss[w]={at:Date.now()};xp+=60;A.toast('Trophy: '+B.name+' beaten')}else xp+=15}done(xp);return {xp:xp,first:r.won&&first}}}}
+var EVS=[['Radio call','The field operator reads you a tag over the radio.',decodeQ],['Radio out','Send a tag to the field team.',encodeQ],['Instruction','The supervisor gives you an instruction.',repeatQ],
+ ['Monitor alarm','Your reactor monitor script is running. What will it show?',null],['Code review','A colleague\'s script is on your screen.',null],['Number check','Read a reading back over the phone.',numQ],['Handover','The day shift is arriving.',conceptQ]];
+var GR=['U','D','C','B','A','A*'];
+function mission(){var w=Math.min(4,curWeek()+1),pick=[0,1,2,3,4,X.pick([5,0,1]),3,6],m=22*60,ev=[];
+ pick.forEach(function(k,i){m+=35+Math.floor(Math.random()*35);var e=EVS[k],q=e[2]?e[2]():pyUpTo(w);q.tag=e[0];ev.push({tm:X.clock(Math.floor(m/60),m%60),ev:e[0],story:e[1],q:q})});
+ var a=st();
+ return {kind:'mission',title:'Night shift · control desk',acc:'#3ad4ff',acc2:'#8f80ff',events:ev,onAnswer:onAns,time:function(i,g){return (g.q.t||20)*1000},
+  intro:{badge:'Shift mission',h:'Night shift',p:'22:00 to 06:00 on the control desk. Radio calls, instructions, your monitor code and a handover at the end. Every wrong call or slow answer costs 25% plant health.',rules:['8 events','Comms and Python','Graded A* to D'],go:'Take the shift',foot:a.miss.best?'Best grade so far: '+a.miss.best:''},
+  again:mission,
+  onEnd:function(r){var a=st(),nb=!a.miss.best||GR.indexOf(r.grade)>GR.indexOf(a.miss.best);if(nb)a.miss.best=r.grade;a.miss.n=(a.miss.n||0)+1;var xp={'A*':50,A:40,B:30,C:22,D:15,U:6}[r.grade]||6;done(xp);return {xp:xp,newBest:nb&&a.miss.n>1}}}}
+
+/* ---------- cards ---------- */
+var ICON={radio:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2"/><path d="M8.2 8.2a5.4 5.4 0 0 0 0 7.6M15.8 8.2a5.4 5.4 0 0 1 0 7.6M5.3 5.3a9.5 9.5 0 0 0 0 13.4M18.7 5.3a9.5 9.5 0 0 1 0 13.4"/></svg>',bug:'<svg viewBox="0 0 24 24"><rect x="8" y="7" width="8" height="12" rx="4"/><path d="M12 7V4M9 4l1 2M15 4l-1 2M8 11H4M8 15H4M16 11h4M16 15h4"/></svg>',
+ boss:'<svg viewBox="0 0 24 24"><path d="M12 3l2.5 5 5.5.8-4 3.9 1 5.5L12 15.6 7 18.2l1-5.5-4-3.9 5.5-.8z"/></svg>',lock:'<svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>',
+ cup:'<svg viewBox="0 0 24 24"><path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4M12 14v4M8 21h8"/></svg>',shift:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3.5 2.2"/></svg>'};
+function bossCard(w){var a=st(),B=BOSS[w],o=bossOpen(w),won=!!a.boss[w];
+ return '<button type="button" class="arcc boss'+(won?' won':'')+(o?'':' lock')+'" data-arc="boss" data-w="'+w+'"'+(o?'':' aria-disabled="true"')+'><span class="ai">'+(won?ICON.cup:o?ICON.boss:ICON.lock)+'</span><b>Week '+w+' boss: '+B.name+'</b><p>'+(o?B.p:'Beat the Week '+(w-1)+' boss to unlock.')+'</p><span class="am">'+(won?'<span class="tro">Trophy won</span>':'')+(o?'<span class="go">'+(won?'Rematch':'Fight')+'</span>':'')+'</span></button>'}
+function missionCard(){var a=st();return '<button type="button" class="arcc big" data-arc="mission"><span class="ai">'+ICON.shift+'</span><b>Shift mission: night shift</b><p>Eight events on the control desk: radio calls, instructions, your monitor code and a handover. Get graded A* to D.</p><span class="am">'+(a.miss.best?'Best grade '+a.miss.best:'New')+'<span class="go">Take the shift</span></span></button>'}
+function gameCard(id){var a=st(),r=id==='radio';return '<button type="button" class="arcc" data-arc="arcade" data-g="'+id+'"><span class="ai">'+(r?ICON.radio:ICON.bug)+'</span><b>'+(r?'Radio Rush':'Bug Hunt')+'</b><p>'+(r?'Phonetic tags, numbers and repeat-backs against the clock.':'Read the Python. What does it print? Why won\'t it run?')+'</p><span class="am">'+(a.best[id]?'Best '+X.fmt(a.best[id]):'No score yet')+'<span class="go">Play</span></span></button>'}
+function trophies(){var a=st(),n=0;for(var w=1;w<=4;w++)if(a.boss[w])n++;return n}
+function today(){var w=curWeek(),nextBoss=1;while(nextBoss<4&&st().boss[nextBoss])nextBoss++;
+ return '<section class="arcsec"><div class="arch"><h2>Arcade</h2><span>'+trophies()+'/4 bosses beaten</span></div><div class="arcgrid">'+missionCard()+gameCard('radio')+gameCard('bug')+bossCard(nextBoss)+'</div></section>'}
+function drill(){return '<section class="arcsec"><div class="arch"><h2>Games</h2><span>Scores and trophies save on this device</span></div><div class="arcgrid">'+missionCard()+gameCard('radio')+gameCard('bug')+'</div></section>'+
+ '<section class="arcsec"><div class="arch"><h2>Weekly bosses</h2><span>'+trophies()+'/4 beaten</span></div><div class="arcgrid">'+[1,2,3,4].map(bossCard).join('')+'</div></section>'}
+window.SRX={today:today,drill:drill};
+document.addEventListener('click',function(e){var t=e.target.closest('[data-arc]');if(!t||t.getAttribute('aria-disabled')==='true')return;var k=t.getAttribute('data-arc');
+ if(k==='arcade')X.play(arcade(t.getAttribute('data-g')));else if(k==='boss'){var w=+t.getAttribute('data-w');if(bossOpen(w))X.play(boss(w))}else if(k==='mission')X.play(mission())});
+var ob=window.__busy;window.__busy=function(){return X.active()||(typeof ob==='function'&&ob())};
+try{A.refresh()}catch(_){}
+window.__srq={encodeQ:encodeQ,decodeQ:decodeQ,letterQ:letterQ,numQ:numQ,repeatQ:repeatQ,conceptQ:conceptQ,pyQ:pyQ};
+})();
+</script>
+<script id="chkJs">
+/* ===== Shift Ready: check my code ===== */
+/* Paste your code from Thonny; Claude checks what you've done, what's wrong and what to change.
+   Three wrong checks on the same task and it shows you the answer. Instant "quick checks" spot common slips first. */
+(function(){if(!window.SR)return;
+var A=window.SR;function $(id){return document.getElementById(id)}function inl(t){return A.inl?A.inl(t):t}
+function st(){var S=A.S();if(!S.chk||typeof S.chk!=='object')S.chk={};return S.chk}
+function key(s,part){return s.id+':'+part}
+function rec(k){var c=st();if(!c[k])c[k]={n:0,wrong:0,ok:0,rev:0,code:'',out:'',fb:null};return c[k]}
+function hasCh(s){return !!(s&&s.ch)}
+var part={};   // which task is picked per session: 'main' or 'ch'
+
+/* ---------- instant checks for common beginner slips ---------- */
+function quick(code){var out=[],lines=code.split('\n');
+  if(/[‘’“”]/.test(code))out.push('Your code has curly quotes (‘ ’ “ ”). Python needs straight quotes: \' and ". Retype them in Thonny.');
+  var tabs=/^\t/m.test(code),spaces=/^ +\S/m.test(code);if(tabs&&spaces)out.push('You\'ve mixed tabs and spaces for indenting. Use 4 spaces everywhere.');
+  lines.forEach(function(l,i){var t=l.replace(/#.*$/,'').replace(/(["'])(?:\\.|(?!\1).)*\1/g,'""').trimEnd();if(!t.trim())return;var n=i+1;
+    if(/^\s*(if|elif|else|for|while|def|try|except|finally|with|class)\b/.test(t)&&!/:/.test(t))out.push('Line '+n+' starts with "'+t.trim().split(/[\s(:]/)[0]+'" but doesn\'t end with a colon (:).');
+    if(/^\s*(if|elif|while)\b[^=!<>]*[^=!<>]=[^=]/.test(t))out.push('Line '+n+': to compare two things use == (two equals signs). A single = stores a value.');
+    if(/^\s*print\s+["'\w]/.test(t))out.push('Line '+n+': print needs brackets, like print("hello").');
+    if(/:\s*$/.test(t)&&/^\s*(if|elif|else|for|while|def|try|except|finally|with|class)\b/.test(t)){var nx=lines.slice(i+1).find(function(x){return x.trim()&&!/^\s*#/.test(x)});var ind=function(x){return (x.match(/^\s*/)||[''])[0].replace(/\t/g,'    ').length};if(nx!=null&&ind(nx)<=ind(l))out.push('The line after line '+n+' should be indented (moved right by 4 spaces), because line '+n+' ends with a colon.');}
+  });
+  var bal={'(':0,'[':0,'{':0},pairs={')':'(',']':'[','}':'{'},stripped=code.replace(/#.*$/gm,'').replace(/(["'])(?:\\.|(?!\1).)*\1/g,'""');
+  for(var i=0;i<stripped.length;i++){var ch=stripped[i];if(bal[ch]!=null)bal[ch]++;else if(pairs[ch])bal[pairs[ch]]--;}
+  if(bal['(']>0)out.push('There '+(bal['(']===1?'is 1 bracket ( that isn\'t':'are '+bal['(']+' brackets ( that aren\'t')+' closed. Every ( needs a ).');
+  if(bal['(']<0)out.push('There are more ) than ( brackets somewhere.');
+  if(bal['[']!==0)out.push('Your square brackets [ ] don\'t match up.');
+  if(!/"""|'''/.test(code))lines.some(function(l,i){var q=null;for(var j=0;j<l.length;j++){var c=l[j];if(q){if(c==='\\'){j++;continue}if(c===q)q=null}else{if(c==='#')break;if(c==='"'||c==="'")q=c}}if(q){out.push('Line '+(i+1)+' has a '+(q==='"'?'double':'single')+' quote that\'s opened but never closed.');return true}return false});
+  return out.slice(0,5)}
+
+/* ---------- asking Claude ---------- */
+var SYS='You check beginner Python for "Shift Ready", a UK app where a Year 10 student (14 to 15) learns Python in Thonny on Windows, on the way to becoming a nuclear reactor operator. Check the student\'s code against the task they were set. Be kind, specific and brief. British English, simple words. Refer to line numbers like "line 3".\n'+
+ 'Verdict: "correct" if the code would run without errors in Python 3 and does what the task asks (different wording, variable names or extra features are fine); otherwise "incorrect". input() is allowed. If they pasted an error message or output, use it.\n'+
+ 'Reply with ONLY a JSON object and nothing else: {"verdict":"correct" or "incorrect","done":[up to 3 short points about what they did well],"wrong":[each mistake, saying what and where; empty if correct],"change":[specific steps to fix or improve, as hints],"answer":"","explain":""}\n'+
+ 'Rules: in "change", never write the whole corrected program; a one-line example at most. Only when REVEAL is yes and the verdict is incorrect, put a complete working solution in "answer" (plain Python, kept as close to the student\'s own code as possible) and 2 to 4 short sentences in "explain" saying what was wrong and why the fix works. Otherwise leave "answer" and "explain" empty. Keep each point under 25 words.';
+function taskText(s,p){return 'Session: Week '+s.w+' '+s.d+': '+s.t+'\n'+(p==='ch'?'The student is doing the BONUS CHALLENGE: '+s.ch+'\n(Context, the main steps were:\n- '+s.steps.join('\n- ')+')':'Task steps:\n- '+s.steps.join('\n- '))+(s.code?'\nStarter code they were given:\n'+s.code:'')}
+function prompt(s,p,code,out,reveal,n){return taskText(s,p)+'\n\nSTUDENT\'S CODE:\n```python\n'+code+'\n```'+(out?'\n\nWhat happened when they ran it:\n'+out:'')+'\n\nAttempt: '+n+'. REVEAL: '+(reveal?'yes':'no')}
+function apiKey(){try{return localStorage.getItem('critical_api_key')||''}catch(e){return ''}}
+function call(sys,content,max){return fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'content-type':'application/json','x-api-key':apiKey(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+  body:JSON.stringify({model:A.model||'claude-haiku-5-5',max_tokens:max||900,thinking:{type:'disabled'},output_config:{effort:'low'},system:sys,messages:[{role:'user',content:content}]})})
+ .then(function(r){return r.json().then(function(j){if(!r.ok)throw{st:r.status,b:j};try{if(A.track&&j.usage)A.track(j.usage.input_tokens||0,j.usage.output_tokens||0)}catch(e){}return (j.content||[]).filter(function(c){return c.type==='text'}).map(function(c){return c.text}).join('')})})}
+function parse(t){var a=t.indexOf('{'),b=t.lastIndexOf('}');if(a<0||b<a)return null;try{var j=JSON.parse(t.slice(a,b+1));}catch(e){return null}
+  var L=function(x){return Array.isArray(x)?x.filter(function(y){return typeof y==='string'&&y.trim()}).slice(0,6):[]};
+  if(j.verdict!=='correct'&&j.verdict!=='incorrect')return null;return {verdict:j.verdict,done:L(j.done),wrong:L(j.wrong),change:L(j.change),answer:typeof j.answer==='string'?j.answer.replace(/^```(?:python)?\n?|```$/g,'').trim():'',explain:typeof j.explain==='string'?j.explain.trim():''}}
+function errText(e){var st=e&&e.st;return st===401?'Your API key wasn\'t accepted. Check it in Critical\'s Ask panel.':st===429?'Too many checks at once. Wait a minute and try again.':st===400&&e.b&&e.b.error&&/credit/i.test(e.b.error.message||'')?'Your API account is out of credit.':st?'Claude had a problem ('+st+'). Try again in a moment.':'Couldn\'t reach Claude. Check the internet and try again.'}
+
+/* ---------- local marker: runs the code in real Python (Pyodide, in a worker so endless loops can be stopped) and marks it ---------- */
+var PYW=null,PYREADY=0;
+function pyRun(code){return new Promise(function(res,rej){
+  if(!PYW){var src="importScripts('https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js');var P=loadPyodide({indexURL:'https://cdn.jsdelivr.net/pyodide/v0.26.4/full/'});onmessage=async function(e){var py=await P;var out=[];py.setStdout({batched:function(t){out.push(t)}});py.setStderr({batched:function(t){out.push(t)}});py.setStdin({stdin:function(){return '5'}});try{await py.runPythonAsync(e.data);postMessage({ok:1,out:out.join('\\n')})}catch(err){postMessage({ok:0,out:out.join('\\n'),err:String(err.message||err).split('\\n').filter(Boolean).slice(-1)[0]})}}";
+    PYW=new Worker(URL.createObjectURL(new Blob([src],{type:'text/javascript'})));}
+  var w=PYW,t=setTimeout(function(){w.terminate();PYW=null;res({ok:0,out:'',err:PYREADY?'It ran for over 15 seconds. Is there a loop that never ends?':'Python took too long to load. Check the internet and try again.'})},PYREADY?15000:90000);
+  w.onmessage=function(e){clearTimeout(t);PYREADY=1;res(e.data)};w.onerror=function(e){clearTimeout(t);w.terminate();PYW=null;rej(e)};w.postMessage(code)})}
+function needs(s,p){var t=(p==='ch'?s.ch:s.steps.join(' '))+' '+(s.code||''),n=[];[['if','an if statement',/\bif\b/],['for','a for loop',/\bfor\b/],['while','a while loop',/\bwhile\b/],['def','a function (def)',/\bdef\b|\bfunction\b/],['input','input()',/\binput\b/],['[','a list',/\blist\b|\[/],['import','an import',/\bimport\b/]].forEach(function(q){if(q[2].test(t))n.push(q)});return n}
+function localMark(s,p,code,qk){return pyRun(code).then(function(r){var done=[],wrong=[],change=[],sc=0;
+  if(r.ok){sc+=45;done.push('Your code runs with no errors.')}else{wrong.push('Python stopped with an error: '+(r.err||'error'));change.push('Read the last line of the error: it says what went wrong and the line number.')}
+  if((r.out||'').trim()){sc+=20;done.push('It printed: '+r.out.trim().split('\n').slice(0,3).join(' / ').slice(0,120))}else if(r.ok){wrong.push('It ran but printed nothing.');change.push('Use print() to show the result.')}
+  var nd=needs(s,p),miss=nd.filter(function(q){return code.indexOf(q[0])<0});sc+=nd.length?Math.round(25*(nd.length-miss.length)/nd.length):25;
+  if(nd.length&&!miss.length)done.push('Uses everything the task asks for: '+nd.map(function(q){return q[1]}).join(', ')+'.');miss.forEach(function(q){wrong.push('The task needs '+q[1]+', but your code doesn\'t have one.')});
+  if(!qk.length)sc+=10;
+  var ok=r.ok&&sc>=80&&!miss.length;return {verdict:ok?'correct':'incorrect',done:done,wrong:wrong,change:change,answer:'',explain:'',score:sc}})}
+
+/* ---------- the card ---------- */
+var busy=false;
+function strikes(r){var w=Math.min(3,r.wrong);return '<span class="chk-st" aria-label="'+w+' of 3 wrong checks">'+[0,1,2].map(function(i){return '<i class="'+(i<w?'x':'')+'"></i>'}).join('')+'</span>'}
+function meta(r){return r.ok?'✓ Done'+(r.rev?' (after seeing the answer)':''):r.rev?'Answer unlocked':r.wrong?r.wrong+' wrong · answer after '+(3-r.wrong)+' more':'Answer appears after 3 wrong checks'}
+function cardHTML(s){var p=part[s.id]||'main',k=key(s,p),r=rec(k),ak=!!apiKey(),esc2=window.ARC?ARC.esc:function(t){return String(t)};
+  var h='<section class="card chk" id="chkCard"><div class="chk-h"><h2>🧪 Check my code</h2>'+strikes(r)+'</div>'+
+   '<p class="small muted">Paste your code from Thonny. '+(ak?'Claude checks what you\'ve done, what\'s wrong and what to change. Get it wrong 3 times and it shows you the answer.':'Quick checks run here straight away. Claude can check the rest.')+'</p>';
+  if(hasCh(s))h+='<div class="seg chk-seg" role="group" aria-label="What are you checking?"><button type="button" data-act="chkpart" data-p="main" aria-pressed="'+(p==='main')+'">Main task</button><button type="button" data-act="chkpart" data-p="ch" aria-pressed="'+(p==='ch')+'">Bonus challenge</button></div>';
+  h+='<label class="sr" for="chkCode">Your code</label><textarea id="chkCode" class="chk-code" spellcheck="false" autocapitalize="off" autocomplete="off" placeholder="Paste your code here (Ctrl+V)">'+esc2(r.code||'')+'</textarea>'+
+   '<details class="chk-out"'+(r.out?' open':'')+'><summary>What happened when you ran it? <span class="small muted">(optional)</span></summary><label class="sr" for="chkOut">Output or error</label><textarea id="chkOut" spellcheck="false" placeholder="Paste the output or the red error message from the Shell">'+esc2(r.out||'')+'</textarea></details>'+
+   '<div class="trow chk-row"><button class="btn primary" type="button" data-act="chkgo" id="chkGo">'+(ak?'Check my code':'Mark my work')+'</button><span class="small muted" id="chkMeta">'+meta(r)+'</span></div><div id="chkRes" aria-live="polite">'+resHTML(s,r,null)+'</div></section>';
+  return h}
+function list(cls,ic,title,a){return a&&a.length?'<div class="chk-sec '+cls+'"><b>'+ic+' '+title+'</b><ul>'+a.map(function(x){return '<li>'+inl(x)+'</li>'}).join('')+'</ul></div>':''}
+function resHTML(s,r,qk){var f=r.fb,h='';
+  if(qk&&qk.length)h+=list('qk','⚡','Spotted straight away',qk);
+  if(f){h+='<div class="chk-v '+(f.verdict==='correct'?'ok':'no')+'">'+(f.verdict==='correct'?'✅ That works!':'❌ Not quite yet')+(f.score!=null?' · mark '+f.score+'/100':'')+(f.verdict==='correct'?(f.xp?' <span>+'+f.xp+' XP</span>':''):' <span>'+(r.rev?'Answer unlocked below':'Wrong check '+Math.min(3,r.wrong)+' of 3')+'</span>')+'</div>'+
+    list('dn','✓','What you\'ve done',f.done)+list('wr','✗','What\'s wrong',f.wrong)+list('ch','🔧','What to change',f.change);}
+  if(r.rev&&r.ans)h+='<div class="chk-ans"><b>💡 The answer</b>'+(r.ansx?'<p>'+inl(r.ansx)+'</p>':'')+'<div class="code"><pre>'+(window.ARC?ARC.esc(r.ans):r.ans)+'</pre><button class="copy" type="button" data-act="chkcopy">Copy</button></div><p class="small muted">Type it into Thonny yourself rather than pasting, run it, then check again to finish the task.</p></div>';
+  if(!apiKey()&&(qk||r.code)){var q=prompt(s,part[s.id]||'main',(r.code||'').slice(0,3500),(r.out||'').slice(0,800),false,1);
+    h+='<div class="chk-nokey"><p class="small">'+(qk&&!qk.length?'No common slips spotted. ':'')+'To check whether it does the task, ask Claude:</p><a class="btn sm" target="_blank" rel="noopener" href="https://claude.ai/new?q='+encodeURIComponent('Please check my Python code for this task. Tell me what I\'ve done well, what\'s wrong and what to change, but don\'t give me the full answer yet.\n\n'+q)+'">Check with Claude ↗</a><p class="small muted">Add an API key in Critical\'s Ask panel to get checks right here, with the answer after 3 wrong tries.</p></div>';}
+  return h}
+function save(){try{A.save()}catch(e){}}
+function go(s){if(busy)return;var p=part[s.id]||'main',k=key(s,p),r=rec(k),code=($('chkCode').value||'').replace(/\s+$/,''),out=($('chkOut').value||'').trim();
+  var res=$('chkRes'),btn=$('chkGo');if(!code.trim()){res.innerHTML='<p class="fb no">Paste your code into the box first.</p>';$('chkCode').focus();return}
+  r.code=code.slice(0,8000);r.out=out.slice(0,2000);save();var qk=quick(code);
+  if(!apiKey()){busy=true;btn.disabled=true;btn.textContent='Marking…';res.innerHTML='<p class="small muted chk-wait">Running your code and marking it…</p>';
+    localMark(s,p,code,qk).then(function(f){r.n++;if(f.verdict==='incorrect')r.wrong++;else if(!r.ok){r.ok=Date.now();f.xp=10;try{A.addXP(10);A.toast('Marked correct! +10 XP')}catch(e){}}r.fb=f;save();res.innerHTML=resHTML(s,r,qk);var m=$('chkMeta');if(m)m.textContent=meta(r);var sc=document.querySelector('#chkCard .chk-st');if(sc)sc.outerHTML=strikes(r);})
+    .catch(function(){r.fb=null;res.innerHTML=resHTML(s,r,qk)+'<p class="fb no">Couldn\'t load the Python marker (needs internet the first time).</p>'}).then(function(){busy=false;btn.disabled=false;btn.textContent='Mark my work'});return}
+  busy=true;btn.disabled=true;btn.textContent='Checking…';res.innerHTML=(qk.length?list('qk','⚡','Spotted straight away',qk):'')+'<p class="small muted chk-wait">Claude is reading your code…</p>';
+  var reveal=r.wrong>=2,n=r.n+1;
+  call(SYS,prompt(s,p,r.code,r.out,reveal,n)).then(function(t){var f=parse(t);if(!f)throw{parse:1};r.n=n;
+    if(f.verdict==='incorrect'){r.wrong++;if(r.wrong>=3){r.rev=1;if(f.answer){r.ans=f.answer;r.ansx=f.explain}}}
+    else if(!r.ok){r.ok=Date.now();f.xp=r.rev?5:10;try{A.addXP(f.xp);A.toast(r.rev?'Task checked: +5 XP':'Correct first time'+(r.wrong?'':'!')+' +10 XP')}catch(e){}}
+    r.fb=f;save();
+    if(r.rev&&!r.ans&&f.verdict==='incorrect')return call(SYS,prompt(s,p,r.code,r.out,true,n)+'\nThe student has now had 3 wrong checks: give the answer.',1100).then(function(t2){var f2=parse(t2);if(f2&&f2.answer){r.ans=f2.answer;r.ansx=f2.explain;save()}});})
+  .catch(function(e){res.innerHTML=(qk.length?list('qk','⚡','Spotted straight away',qk):'')+'<p class="fb no">'+(e&&e.parse?'Claude\'s reply came back in the wrong format. Press Check again.':errText(e))+'</p>';throw e})
+  .then(function(){res.innerHTML=resHTML(s,r,qk);var m=$('chkMeta');if(m)m.textContent=meta(r);var sc=document.querySelector('#chkCard .chk-st');if(sc)sc.outerHTML=strikes(r);if(r.ok)res.scrollIntoView({block:'nearest',behavior:'smooth'})},function(){})
+  .then(function(){busy=false;btn.disabled=false;btn.textContent='Check again'})}
+
+/* ---------- plug into the session screen (Shift Ready calls SRCHK.html and SRCHK.after) ---------- */
+function bind(s){var ta=$('chkCode');if(!ta)return;var k=function(){return key(s,part[s.id]||'main')};
+  ta.addEventListener('keydown',function(e){if(e.key==='Tab'&&!e.shiftKey&&!e.ctrlKey&&!e.altKey){e.preventDefault();var a=ta.selectionStart,b=ta.selectionEnd;ta.setRangeText('    ',a,b,'end')}
+    if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)){e.preventDefault();go(s)}});
+  var keep=function(){var r=rec(k());r.code=ta.value.slice(0,8000);var o=$('chkOut');if(o)r.out=o.value.slice(0,2000);save()};ta.addEventListener('change',keep);var o=$('chkOut');if(o)o.addEventListener('change',keep)}
+document.addEventListener('click',function(e){var a=e.target.closest('[data-act]');if(!a)return;var act=a.getAttribute('data-act');if(act.indexOf('chk')!==0)return;var c0=A.cur&&A.cur(),s=c0&&A.BY?A.BY[c0]:null;if(!s)return;
+  if(act==='chkgo')go(s);
+  else if(act==='chkpart'){part[s.id]=a.getAttribute('data-p');var c=$('chkCard');if(c){c.outerHTML=cardHTML(s);bind(s)}}
+  else if(act==='chkcopy'){var r=rec(key(s,part[s.id]||'main'));try{navigator.clipboard.writeText(r.ans||'').then(function(){a.textContent='Copied';setTimeout(function(){a.textContent='Copy'},1500)})}catch(_){}}});
+var css=document.createElement('style');css.textContent='.chk-h{display:flex;align-items:center;justify-content:space-between;gap:10px}.chk-h h2{margin:0}.chk-st{display:inline-flex;gap:5px}.chk-st i{width:12px;height:12px;border-radius:50%;border:2px solid var(--line);display:block}.chk-st i.x{background:var(--warn,#c2410c);border-color:var(--warn,#c2410c)}'+
+ '.chk-seg{margin:10px 0 4px}.chk .chk-code{font:500 13.5px/1.55 var(--mono);min-height:150px;tab-size:4;white-space:pre;overflow-x:auto;margin-top:8px;background:var(--code);color:var(--code-ink);border-color:transparent}.chk-out{margin-top:8px}.chk-out summary{cursor:pointer;font-weight:600;font-size:14px}.chk-out textarea{font:500 13px/1.5 var(--mono);min-height:70px;margin-top:6px}'+
+ '.chk-row{justify-content:flex-start;align-items:center;margin-top:10px;flex-wrap:wrap}.chk-v{font-weight:800;font-size:16px;margin-top:12px;padding:10px 12px;border-radius:12px}.chk-v span{font-weight:600;font-size:13px;opacity:.85;margin-left:6px}.chk-v.ok{background:var(--ok-soft);color:var(--ok)}.chk-v.no{background:var(--check-soft,var(--gold-soft));color:var(--check,var(--gold-ink))}'+
+ '.chk-sec{margin-top:10px;border:1px solid var(--line);border-radius:12px;padding:10px 12px}.chk-sec ul{margin:6px 0 0;padding-left:20px}.chk-sec li{margin:3px 0;line-height:1.5}.chk-sec.dn b{color:var(--ok)}.chk-sec.wr b{color:var(--check,var(--warn))}.chk-sec.ch b{color:var(--brand)}.chk-sec.qk{border-style:dashed}.chk-sec code{font-family:var(--mono);font-size:.92em;background:var(--brand-soft);padding:1px 5px;border-radius:5px}'+
+ '.chk-ans{margin-top:12px;border:2px solid var(--gold);background:var(--gold-soft);border-radius:14px;padding:12px}.chk-ans>b{color:var(--gold-ink)}.chk-ans p{margin:6px 0}.chk-ans .code{margin-top:8px}.chk-nokey{margin-top:12px;border-top:1px solid var(--line);padding-top:10px}.chk-nokey p{margin:4px 0}.chk-wait{margin-top:10px}';
+document.head.appendChild(css);
+window.SRCHK={html:cardHTML,after:bind,quick:quick,parse:parse};
+})();
+</script>
+</body>
+</html>

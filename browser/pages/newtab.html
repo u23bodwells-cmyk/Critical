@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; img-src 'self' data:">
+<title>New tab</title>
+<link rel="stylesheet" href="pages.css">
+<style>
+.top{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.clock{font:600 clamp(44px,8vw,72px)/1 "Segoe UI Variable Display","Segoe UI",system-ui,sans-serif;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.date{color:var(--muted);margin-top:6px}
+.hello{font-size:18px;font-weight:700;text-align:right}
+form.search{display:flex;align-items:center;gap:10px;background:var(--panel);border:1.5px solid var(--line);border-radius:999px;padding:0 8px 0 20px;height:54px;box-shadow:var(--shadow)}
+form.search:focus-within{border-color:var(--accent)}
+form.search input{flex:1;min-width:0;border:0;background:none;outline:none;font:inherit;font-size:16.5px;color:var(--text)}
+form.search button{height:40px;border-radius:999px}
+.status{display:flex;gap:14px;align-items:center}
+.status .ic{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;flex:none;background:var(--warn-bg);color:var(--warn)}
+.status.done .ic{background:var(--good-bg);color:var(--good)}
+.status.plan .ic{background:var(--accent-bg);color:var(--accent)}
+.status .ic svg{width:24px;height:24px}
+.status .tx{flex:1;min-width:0}
+.status b{display:block;font-size:16px}
+.status span{color:var(--muted);font-size:13.5px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.tile{display:flex;flex-direction:column;gap:10px;align-items:flex-start;padding:14px;border-radius:16px;border:1px solid var(--line);background:var(--panel);color:var(--text);text-decoration:none;cursor:pointer;font:inherit;text-align:left;min-width:0}
+.tile:hover{border-color:var(--accent);transform:translateY(-1px)}
+.tile .lg{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;font-weight:800;font-size:17px;color:#fff}
+.tile b{font-size:14px}
+.tile small{color:var(--muted);font-size:12px;line-height:1.3}
+.tile.big{grid-column:span 2;background:linear-gradient(135deg,var(--accent),color-mix(in srgb,var(--accent) 55%,var(--glow)));color:var(--on-accent);border-color:transparent}
+.tile.big small{color:inherit;opacity:.85}
+.tile.big .lg{background:rgba(255,255,255,.2)}
+@media (max-width:520px){.tile.big{grid-column:span 1}.hello{text-align:left}}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="top"><div><div class="clock" id="clock">--:--</div><div class="date" id="date"></div></div><div class="hello" id="hello"></div></div>
+  <form class="search" id="search" role="search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="q" placeholder="Search Google or type a web address" aria-label="Search Google or type a web address" autofocus><button class="btn pri" type="submit">Search</button></form>
+  <section class="card status" id="status" aria-live="polite"><div class="ic" id="sIc"></div><div class="tx"><b id="sH">Checking today's plan…</b><span id="sP"></span></div><button class="btn" id="sBtn" type="button">Go to Critical</button></section>
+  <section class="tiles" id="tiles" aria-label="Shortcuts"></section>
+</main>
+<script src="newtab.js"></script>
+</body>
+</html>
