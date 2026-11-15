@@ -27,6 +27,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:#04070f;color:#fff;fon
 .cpn>:not(canvas){display:none!important}
 .veil{z-index:2}.ui{z-index:3}.top,.bar{z-index:4}.toast{z-index:5}
 .loadchip{opacity:.75}
+[hidden]{display:none!important}
 .fallback{position:fixed;inset:0;background:#04070f url(models/aurora.jpg) center/cover no-repeat}
 .veil{position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse 60% 45% at 50% 50%,rgba(2,5,12,.42),rgba(2,5,12,0) 70%),linear-gradient(to bottom,rgba(2,5,12,.25),rgba(2,5,12,0) 25%,rgba(2,5,12,0) 75%,rgba(2,5,12,.35))}
 .ui{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;pointer-events:none}
@@ -88,7 +89,7 @@ button:focus-visible,.lnk:focus-visible,input:focus-visible{outline:2px solid #2
   <div class="chip" id="today">Today: 0 min</div>
   <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
     <button type="button" class="chip" id="scBtn" title="Full: the real Critical Point scene. Light: a simpler view for slow computers.">Scene: Full</button>
-    <label class="chip">Aurora <input type="range" id="aurK" min="0" max="2" step="0.05" value="1" aria-label="Aurora brightness"></label>
+    <label class="chip" id="aurChip">Aurora <input type="range" id="aurK" min="0" max="2" step="0.05" value="1" aria-label="Aurora brightness"></label>
     <label class="chip">Sway <input type="range" id="drift" min="0" max="2" step="0.05" value="1" aria-label="Camera drift speed"></label>
     <span class="chip loadchip" id="ldChip" hidden>Loading Critical Point…</span>
     <span class="keys">Space start / pause · F full screen</span>
@@ -396,8 +397,8 @@ button:focus-visible,.lnk:focus-visible,input:focus-visible{outline:2px solid #2
     C.x = POSE.x + Math.sin(ph * 0.05) * 0.6; C.z = POSE.z + Math.sin(ph * 0.031) * 0.8; C.y = POSE.y + Math.sin(ph * 0.37) * 0.015;
     C.yaw = POSE.yaw + Math.sin(ph * 0.043) * 0.035 - sx * 0.06; C.pitch = POSE.pitch + Math.sin(ph * 0.07) * 0.012 - sy * 0.03; C.fov = POSE.fov; C.vx = C.vz = 0; }
   function ready() { var root = document.querySelector('.cpn'); if (!root) return fail(); backdrop(); BD.on = true; requestAnimationFrame(sway);
-    setTimeout(function () { root.classList.add('hwready'); document.getElementById('sky').style.opacity = '0'; ld.hidden = true; setTimeout(function () { if (window.HW_LIGHT) HW_LIGHT.stop(); }, 1900); }, 1200); }
-  function fail() { ld.hidden = true; BD.on = false; var r = document.querySelector('.cpn'); if (r) try { r.remove(); } catch (e) {} if (window.HW_LIGHT) HW_LIGHT.start(); document.getElementById('sky').style.opacity = '1'; }
+    setTimeout(function () { root.classList.add('hwready'); document.getElementById('sky').style.opacity = '0'; ld.hidden = true; document.getElementById('aurChip').hidden = true; setTimeout(function () { if (window.HW_LIGHT) HW_LIGHT.stop(); }, 1900); }, 1200); }
+  function fail() { ld.hidden = true; document.getElementById('aurChip').hidden = false; BD.on = false; var r = document.querySelector('.cpn'); if (r) try { r.remove(); } catch (e) {} if (window.HW_LIGHT) HW_LIGHT.start(); document.getElementById('sky').style.opacity = '1'; }
   function go() { ld.hidden = false; BD.t0 = Date.now();
     /* silence: the sim's audio engine finds no AudioContext, so its hum, alarms and voice never start (this page makes no sound of its own) */
     try { window.AudioContext = undefined; window.webkitAudioContext = undefined; } catch (e) {}
