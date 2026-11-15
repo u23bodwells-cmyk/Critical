@@ -94,30 +94,6 @@ body.solo .solo-note{display:block}
 .order{display:flex;flex-direction:column;gap:6px}.order .opt .k{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:6px;background:var(--acc);color:#03202b;font:800 12px var(--mono);margin-right:8px}
 .hide{display:none!important}
 @media (prefers-reduced-motion:reduce){.an.fl{animation-duration:1.4s}}
-
-/* premium visual polish: glows, animated borders, glass refinement */
-.pan{border-image:linear-gradient(135deg,var(--acc2),var(--acc),rgba(58,212,255,0)) 1;box-shadow:0 24px 50px -30px #000,inset 0 1px 0 rgba(58,212,255,.1)}
-.pan::before{content:"";position:absolute;inset:0;border-radius:18px;padding:1px;background:linear-gradient(135deg,var(--acc2),var(--acc));-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:destination-out;mask-composite:exclude;pointer-events:none}
-.mimic{filter:drop-shadow(0 2px 8px rgba(0,0,0,.3))}
-.rd{position:relative;overflow:hidden;background:#070d1c;border:1px solid var(--line)}
-.rd::after{content:"";position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(58,212,255,.08),transparent);transition:none}
-.cb{position:relative;overflow:hidden}.cb::after{content:"";position:absolute;inset:0;border-radius:10px;padding:1px;background:linear-gradient(135deg,var(--acc2),var(--acc));-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:destination-out;mask-composite:exclude;pointer-events:none}
-.cb.on::after{background:linear-gradient(135deg,#fff,#a5f3fc)}
-.an{position:relative;overflow:hidden}
-.an.fl::after{content:"";position:absolute;inset:0;background:rgba(255,255,255,.15);opacity:0;animation:anflash .5s infinite alternate}
-@keyframes anflash{to{opacity:0.35}}
-.lamp i{position:relative;box-shadow:0 0 0 0 var(--ok)}
-.lamp i.g{animation:lampPulse 2s ease-in-out infinite}
-.lamp i.r{animation:lampPulse 1.2s ease-in-out infinite}
-.lamp i.a{animation:lampPulse 1.6s ease-in-out infinite}
-@keyframes lampPulse{0%,100%{box-shadow:0 0 8px currentColor}50%{box-shadow:0 0 20px currentColor,0 0 35px currentColor}}
-.opt:hover:not([disabled]){box-shadow:0 0 16px rgba(58,212,255,.25),inset 0 1px 0 rgba(58,212,255,.3)}
-.go{box-shadow:0 10px 24px -10px var(--acc);position:relative;overflow:hidden}
-.go::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.35) 50%,transparent 70%);transform:translateX(-130%);transition:transform .8s ease;pointer-events:none}
-.go:hover::after{transform:translateX(130%)}
-.meter{position:relative;overflow:hidden;box-shadow:inset 0 1px 3px rgba(0,0,0,.5)}
-.meter::after{content:"";position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.15),transparent);animation:meterShine 3s infinite}
-@keyframes meterShine{0%{left:-100%}60%,100%{left:100%}}
 </style>
 </head>
 <body>

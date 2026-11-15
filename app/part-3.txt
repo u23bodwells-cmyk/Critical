@@ -1,4 +1,4 @@
-w</span><span class="ku">W or %</span></div><div class="krow"><span class="ks">τ</span><span class="km">the reactor period</span><span class="ku">seconds (s)</span></div></div><p>The more power there is, the faster it grows. That's what makes exponentials run away.</p>`),
+an class="km">power right now</span><span class="ku">W or %</span></div><div class="krow"><span class="ks">τ</span><span class="km">the reactor period</span><span class="ku">seconds (s)</span></div></div><p>The more power there is, the faster it grows. That's what makes exponentials run away.</p>`),
 N(`Power is 50% and the period is 100 s. How fast is power rising right now?`,0.5,0.02,'% per second',`dP/dt = P/τ = 50/100 = 0.5% per second.`),
 Q(`Coolant temperature is falling at 0.5 °C every second. Which is dT/dt?`,['+0.5 °C/s','−0.5 °C/s','0.5 s/°C','−2 °C/s'],1,`Falling means the rate is negative: −0.5 °C per second.`)]),
 L('m5','Differential equations',10,[
@@ -658,4 +658,4 @@ Q(`The reactor has tripped. Why must cooling continue?`,[`Fission products keep 
 Q(`About how much decay heat is there one hour after a trip?`,[`About 1.5% of full power`,`Zero`,`About 50% of full power`,`About 100% of full power`],0,`About 1.5%, which for a big reactor is still tens of megawatts.`),
 T(`<h3>Fukushima, 2011</h3><p>At Fukushima Daiichi in Japan, the reactors tripped correctly when the earthquake struck. <b>Control</b> worked.</p><p>Then a huge tsunami flooded the site and knocked out the emergency diesel generators and electrical equipment. With no power for the pumps, <b>cooling</b> was lost. Decay heat melted the fuel in three reactors, and hydrogen from overheated cladding exploded, damaging the buildings and weakening <b>containment</b>.</p><div class="callout">The lesson: decay heat never takes a day off. Cooling, and the power supplies it depends on, must survive even extreme events.</div>`),
 Q(`At Fukushima, which of the three safety jobs failed first?`,[`Cool`,`Control`,`Contain`,`None of them`],0,`The reactors shut down correctly. It was the loss of cooling (no power for the pumps) that led to the fuel melting.`),
-T(`<h3>Key points</h3><ul><li>Th
+T(`<

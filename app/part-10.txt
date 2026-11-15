@@ -1,4 +1,5 @@
->Exothermic reactions release energy; endothermic reactions take it in.</p>`),
+lier\'s principle.',[
+RM(`<p>Exothermic reactions release energy; endothermic reactions take it in.</p>`),
 T(`<h3>Reversible reactions</h3><p>Some reactions can go both ways, shown by ⇌:</p><div class="eq">ammonium chloride ⇌ ammonia + hydrogen chloride</div><div class="eq">hydrated copper sulfate (blue) ⇌ anhydrous copper sulfate (white) + water</div><p>If it's endothermic one way, it's exothermic the other way, by the same amount of energy.</p>`),
 T(`<h3>Equilibrium</h3><p>In a <b>closed system</b> (nothing gets in or out), a reversible reaction reaches <b>equilibrium</b>: the forward and reverse reactions happen at the <b>same rate</b>. Both are still going on, so the amounts stay constant.</p>`),
 Q(`At equilibrium, what is true?`,[`The forward and reverse reactions happen at the same rate`,'Both reactions have stopped completely, so nothing changes',`There are equal amounts of reactants and products`,'Only the forward reaction happens, at a slow steady rate'],0,`It's dynamic: both still happen.`),
@@ -832,4 +833,4 @@ ELSE IF temp &lt; 280 THEN
 ELSE
    OUTPUT 'Normal'
 ENDIF</pre>`),
-Q(`With the code above, what's output w
+Q(`With the

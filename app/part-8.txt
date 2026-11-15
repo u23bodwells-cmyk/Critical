@@ -1,4 +1,4 @@
-)]),
+the exact answer.</li></ul>`)]),
 LH('c4-2-2','Definite integrals',10,'The shortcut: integrate, then subtract. No + C needed.',[
 RM(`<p>The area under a curve is the integral from a to b. To integrate: add 1 to the power, divide by the new power.</p>`),
 T(`<h3>The method</h3><div class="eq">∫ from a to b of f(x) dx = F(b) − F(a)</div>${KY([['F(x)','the integral of f(x) (without + C)',''],['a, b','the limits: where the area starts and stops','']],'Integrate, put in the top limit, put in the bottom limit, subtract.')}`),
@@ -845,4 +845,4 @@ T(`<h3>Half equations (Higher)</h3><div class="eq">cathode: 2H⁺ + 2e⁻ → H�
 T(`<h3>Key points</h3><ul><li>Positive ions → cathode (−). Negative ions → anode (+).</li><li>Aluminium: dissolved in cryolite; carbon anodes burn away.</li><li>Solutions: hydrogen unless the metal is less reactive; oxygen unless halide ions are present.</li><li>Cathode: reduction. Anode: oxidation.</li></ul>`)])
 ]});
 
-F('gc2-1-1',[Q(`Air is a…`,[`mixture`,`compound`,`element`,`pure substance`],0,`Gases not chemically combined.`),Q(`Which method separates an insoluble solid from a liquid?`,[`Filtration`,`Crystallisation`,`Distillation`,`Chroma
+F('gc2-1-1',[Q(`Air is a…`,[`mixture`,`compound`,`element`,`pure substance`],0,`Gases not chemically combined.`),Q(`Which method separates an insoluble solid from a liquid?`,[`Filtration`,`Crystallisa

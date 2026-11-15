@@ -793,7 +793,6 @@ function start(c, opts) {
   R3.outputColorSpace = THREE.SRGBColorSpace; R3.toneMapping = THREE.ACESFilmicToneMapping; R3.toneMappingExposure = 1.05; R3.autoClear = false;
   R3.shadowMap.enabled = c.gfx !== 'low'; R3.shadowMap.type = THREE.PCFSoftShadowMap; R3.setPixelRatio(gfxPR(c));
   ANISO = Math.min(c.gfx === 'high' ? 8 : 4, R3.capabilities.getMaxAnisotropy());
-  if (c.gfx !== 'low') { try { arenaPostInit(R3); } catch (e) {} }
   var M = MAPS[c.map], grid = M.grid.map(function (r) { return r.split('').map(function (ch) { return CODE[ch] || 0; }); });
   var lad = c.ladder === 'mine' && c.owned.length >= 3 ? c.owned.concat(['rod']) : (LADDERS[c.ladder] || LADDERS.full);
   st = { c: c, mode: c.mode, M: M, grid: grid, gw: grid[0].length, gh: grid.length, lad: lad, ents: [], proj: [], feed: [], t: 0, paused: false, q: null, over: false, result: false,
@@ -845,7 +844,7 @@ function onVis() { if (document.hidden && st && !st.q && !st.result && !st.pause
 function goFull() { try { var p = root.requestFullscreen ? root.requestFullscreen({ navigationUI: 'hide' }) : root.webkitRequestFullscreen ? root.webkitRequestFullscreen() : null; if (p && p.then) p.then(function () { try { var o = screen.orientation && screen.orientation.lock && screen.orientation.lock('landscape'); if (o && o.catch) o.catch(function () {}); } catch (e) {} }).catch(function () {}); } catch (e) {} }
 function exitFull() { try { if (document.fullscreenElement && document.exitFullscreen) { var p = document.exitFullscreen(); if (p && p.catch) p.catch(function () {}); } } catch (e) {} }
 function onBlur() { keys = {}; mouseDown = false; rmb = false; }
-function resize() { if (!st || !root) return; var w = root.clientWidth, h = root.clientHeight; R3.setSize(w, h, false); st.camera.aspect = w / Math.max(1, h); st.camera.updateProjectionMatrix(); st.vm.cam.aspect = st.camera.aspect; st.vm.cam.updateProjectionMatrix(); var d = Math.min(2, window.devicePixelRatio || 1); st.hud.width = Math.round(w * d); st.hud.height = Math.round(h * d); st.hdpr = d; st.sizeW = w; st.sizeH = h; st.uiS = clamp(Math.min(w / 1100, h / 620), 0.6, 1); if (ARENA_POST.on) arenaPostResize(w, h); }
+function resize() { if (!st || !root) return; var w = root.clientWidth, h = root.clientHeight; R3.setSize(w, h, false); st.camera.aspect = w / Math.max(1, h); st.camera.updateProjectionMatrix(); st.vm.cam.aspect = st.camera.aspect; st.vm.cam.updateProjectionMatrix(); var d = Math.min(2, window.devicePixelRatio || 1); st.hud.width = Math.round(w * d); st.hud.height = Math.round(h * d); st.hdpr = d; st.sizeW = w; st.sizeH = h; st.uiS = clamp(Math.min(w / 1100, h / 620), 0.6, 1); }
 function onMouse(e) { if (!st || st.q || st.paused || st.result || document.pointerLockElement !== st.canvas) return; if (Math.abs(e.movementX) > 250 || Math.abs(e.movementY) > 250) return; var z = st.camera.fov / st.c.fov, s = (0.0009 + st.c.sens * 0.00045) * z; if (st.c.aimAssist) { var na = nearestAim(); if (na.o && na.ang < 0.12) s *= 0.5; } st.me.a -= e.movementX * s; st.me.pitch = clamp(st.me.pitch - e.movementY * s, -1.45, 1.45); st.swayX = (st.swayX || 0) + e.movementX * 0.00025; st.swayY = (st.swayY || 0) + e.movementY * 0.00025; }
 function onUp(e) { if (e.button === 0) mouseDown = false; if (e.button === 2) rmb = false; }
 function onWheel() { if (st && st.mode === 'dm' && !st.q && !st.paused && st.t - st.lastSwap > 0.25) { st.lastSwap = st.t; swapGun(); } }
@@ -1191,63 +1190,6 @@ function buildFX() {
   F.boomL = [new THREE.PointLight('#ff8a3d', 0, 22, 2), new THREE.PointLight('#ff8a3d', 0, 22, 2)]; F.boomL.forEach(function (l) { l.userData.t = 9; sc.add(l); }); F.bi = 0;
   F.beam = new THREE.Mesh(trG, new THREE.MeshBasicMaterial({ color: '#f0abfc', transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false })); F.beam.visible = false; F.beam.frustumCulled = false; sc.add(F.beam);
   F.fb = new THREE.Sprite(new THREE.SpriteMaterial({ map: T('glowdot'), color: '#e0f7ff', blending: THREE.AdditiveBlending, depthWrite: false, transparent: true })); F.fb.visible = false; sc.add(F.fb); F.fbT = 9;
-}
-
-/* ============================================================ arena post-processing: bloom, chromatic aberration, damage vignette ============================================================ */
-var ARENA_POST = { on: false, rt: null, rt2: null, bright: null, blurH: null, blurV: null, comp: null, quad: null, sc: null, cam: null, dirt: null };
-function arenaPostInit(r) {
-  if (!window.THREE || !r.capabilities.isWebGL2) return;
-  var opt = { type: THREE.HalfFloatType, depthBuffer: false, stencilBuffer: false };
-  ARENA_POST.rt = new THREE.WebGLRenderTarget(4, 4, opt); ARENA_POST.rt.texture.colorSpace = THREE.SRGBColorSpace;
-  ARENA_POST.rt2 = new THREE.WebGLRenderTarget(4, 4, opt); ARENA_POST.rt2.texture.colorSpace = THREE.SRGBColorSpace;
-  var vs = 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position, 1.0); }';
-  ARENA_POST.bright = new THREE.ShaderMaterial({ uniforms: { t: { value: null }, th: { value: 0.5 } }, vertexShader: vs, fragmentShader: 'uniform sampler2D t; uniform float th; varying vec2 vUv; void main(){ vec3 c = texture2D(t, vUv).rgb; float l = dot(c, vec3(0.2126,0.7152,0.0722)); float k = smoothstep(th, th + 0.5, l); gl_FragColor = vec4(c * k * 2.0, 1.0); }', depthTest: false });
-  ARENA_POST.blurH = new THREE.ShaderMaterial({ uniforms: { t: { value: null }, px: { value: new THREE.Vector2(1, 0) } }, vertexShader: vs, fragmentShader: 'uniform sampler2D t; uniform vec2 px; varying vec2 vUv; void main(){ vec3 s = texture2D(t, vUv).rgb * 0.4; s += texture2D(t, vUv + px * 1.0).rgb * 0.25; s += texture2D(t, vUv - px * 1.0).rgb * 0.25; s += texture2D(t, vUv + px * 2.0).rgb * 0.06; s += texture2D(t, vUv - px * 2.0).rgb * 0.06; gl_FragColor = vec4(s, 1.0); }', depthTest: false });
-  ARENA_POST.blurV = ARENA_POST.blurH.clone(); ARENA_POST.blurV.uniforms.px.value.set(0, 1); ARENA_POST.blurV.fragmentShader = 'uniform sampler2D t; uniform vec2 px; varying vec2 vUv; void main(){ vec3 s = texture2D(t, vUv).rgb * 0.4; s += texture2D(t, vUv + px * 1.0).rgb * 0.25; s += texture2D(t, vUv - px * 1.0).rgb * 0.25; s += texture2D(t, vUv + px * 2.0).rgb * 0.06; s += texture2D(t, vUv - px * 2.0).rgb * 0.06; gl_FragColor = vec4(s, 1.0); }';
-  ARENA_POST.comp = new THREE.ShaderMaterial({ uniforms: { t: { value: null }, b: { value: null }, dirt: { value: null }, time: { value: 0 }, res: { value: new THREE.Vector2(1, 1) }, shake: { value: new THREE.Vector2() }, dam: { value: 0.0 }, ca: { value: 0.0 } }, vertexShader: vs, fragmentShader: [
-    'uniform sampler2D t; uniform sampler2D b; uniform sampler2D dirt; uniform vec2 shake; uniform float dam; uniform float ca; uniform float time; uniform vec2 res; varying vec2 vUv;',
-    'vec3 srgb(vec3 c){ return mix(c * 12.92, 1.055 * pow(c, vec3(1.0/2.4)) - 0.055, step(0.0031308, c)); }',
-    'float hash(vec2 p){ return fract(sin(dot(p, vec2(12.9898, 78.233)) + time) * 43758.5453); }',
-    'void main(){ vec2 uv = vUv + shake; vec3 c = texture2D(t, uv).rgb; vec3 bl = texture2D(b, uv).rgb; c = mix(c, c + bl * 1.8, bl); float d = length(vUv - 0.5) * 1.3; c *= 1.0 - d * 0.3; c *= mix(0.78, 1.0, 1.0 - d * 0.85);' +
-    ' if (dam > 0.0) { c *= 1.0 - dam * 0.5; c.r *= 1.0 + dam * 0.4; c.g *= 1.0 - dam * 0.3; c += vec3(dam * 0.15, 0, 0); }' +
-    ' if (ca > 0.0) { vec2 of = ca * (vUv - 0.5); c.r = texture2D(t, uv + of).r; c.b = texture2D(t, uv - of).b; }' +
-    ' if (dirt != null) { float dt = texture2D(dirt, vUv).r; c *= mix(1.0, 0.6 + 0.3 * dt, 0.3); c += dt * 0.1; }' +
-    ' c += (hash(vUv * res * 2.0) - 0.5) * 0.014; gl_FragColor = vec4(srgb(c), 1.0); }'].join('\n'), depthTest: false });
-  ARENA_POST.quad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2)); ARENA_POST.sc = new THREE.Scene(); ARENA_POST.sc.add(ARENA_POST.quad); ARENA_POST.cam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
-  /* lens dirt */
-  var dc = document.createElement('canvas'); dc.width = 512; dc.height = 512; var dg = dc.getContext('2d'); dg.fillStyle = '#000'; dg.fillRect(0, 0, 512, 512); dg.fillStyle = 'rgba(255,255,255,0.05)'; for (var i = 0; i < 30; i++) { var x = Math.random() * 512, y = Math.random() * 512, r = 50 + Math.random() * 180; var gr = dg.createRadialGradient(x, y, 2, x, y, r); gr.addColorStop(0, 'rgba(255,248,230,0.14)'); gr.addColorStop(1, 'rgba(255,248,230,0)'); dg.fillStyle = gr; dg.beginPath(); dg.arc(x, y, r, 0, Math.PI * 2); dg.fill(); } dg.fillStyle = 'rgba(20,25,30,0.3)'; dg.fillRect(0, 0, 512, 50); dg.fillRect(0, 462, 512, 50); ARENA_POST.dirt = new THREE.CanvasTexture(dc); ARENA_POST.dirt.needsUpdate = true;
-  ARENA_POST.on = true;
-}
-function arenaPostResize(w, h) { if (!ARENA_POST.on) return; var dpr = Math.min(2, window.devicePixelRatio || 1); ARENA_POST.rt.setSize(Math.max(4, Math.round(w * dpr)), Math.max(4, Math.round(h * dpr))); ARENA_POST.rt2.setSize(Math.max(4, Math.round(w * dpr)), Math.max(4, Math.round(h * dpr))); ARENA_POST.comp.uniforms.res.value.set(w, h); }
-function arenaPostRender(r, scene, cam, st) {
-  if (!ARENA_POST.on) return;
-  r.setRenderTarget(ARENA_POST.rt); r.clear(); r.render(scene, cam);
-  /* bright pass */
-  ARENA_POST.quad.material = ARENA_POST.bright; ARENA_POST.bright.uniforms.t.value = ARENA_POST.rt.texture;
-  r.setRenderTarget(ARENA_POST.rt2); r.clear(); r.render(ARENA_POST.sc, ARENA_POST.cam);
-  /* blur horizontal */
-  ARENA_POST.quad.material = ARENA_POST.blurH; ARENA_POST.blurH.uniforms.t.value = ARENA_POST.rt2.texture; ARENA_POST.blurH.uniforms.px.value.set(1.5 / Math.max(1, ARENA_POST.rt.width), 0);
-  r.setRenderTarget(ARENA_POST.rt); r.clear(); r.render(ARENA_POST.sc, ARENA_POST.cam);
-  /* blur vertical */
-  ARENA_POST.quad.material = ARENA_POST.blurV; ARENA_POST.blurV.uniforms.t.value = ARENA_POST.rt.texture; ARENA_POST.blurV.uniforms.px.value.set(0, 1.5 / Math.max(1, ARENA_POST.rt.height));
-  r.setRenderTarget(ARENA_POST.rt2); r.clear(); r.render(ARENA_POST.sc, ARENA_POST.cam);
-  /* second blur pass */
-  ARENA_POST.quad.material = ARENA_POST.blurH; ARENA_POST.blurH.uniforms.t.value = ARENA_POST.rt2.texture; ARENA_POST.blurH.uniforms.px.value.set(3 / Math.max(1, ARENA_POST.rt.width), 0);
-  r.setRenderTarget(ARENA_POST.rt); r.clear(); r.render(ARENA_POST.sc, ARENA_POST.cam);
-  ARENA_POST.quad.material = ARENA_POST.blurV; ARENA_POST.blurV.uniforms.t.value = ARENA_POST.rt.texture; ARENA_POST.blurV.uniforms.px.value.set(0, 3 / Math.max(1, ARENA_POST.rt.height));
-  r.setRenderTarget(ARENA_POST.rt2); r.clear(); r.render(ARENA_POST.sc, ARENA_POST.cam);
-  /* composite */
-  var hp = st && st.me && st.me.hp < 40 ? (40 - st.me.hp) / 40 : 0;
-  var rad = st && st.me && st.me.radT > 0 ? Math.min(1, st.me.radT / 1.2) : 0;
-  var shake = st && st.shake > 0 ? new THREE.Vector2((Math.random() - 0.5) * st.shake * 0.02, (Math.random() - 0.5) * st.shake * 0.02) : new THREE.Vector2(0, 0);
-  ARENA_POST.comp.uniforms.t.value = ARENA_POST.rt.texture;
-  ARENA_POST.comp.uniforms.b.value = ARENA_POST.rt2.texture;
-  ARENA_POST.comp.uniforms.dirt.value = ARENA_POST.dirt;
-  ARENA_POST.comp.uniforms.shake.value.copy(shake);
-  ARENA_POST.comp.uniforms.dam.value = hp;
-  ARENA_POST.comp.uniforms.ca.value = rad * 0.01;
-  ARENA_POST.comp.uniforms.time.value = (performance.now() % 10000) / 1000;
-  r.setRenderTarget(null); r.clear(); r.render(ARENA_POST.sc, ARENA_POST.cam);
 }
 function tracer(a, b, color, width, life) { var F = st.fx, t = F.tracers.shift(); F.tracers.push(t); var len = a.distanceTo(b); if (len < 0.05) return; t.m.position.copy(a).add(b).multiplyScalar(0.5); t.m.lookAt(b); t.m.scale.set(width || 0.012, width || 0.012, len); t.m.material.color.set(color || '#ffe08a'); t.m.material.opacity = 0.9; t.m.visible = true; t.t = 0; t.life = life || 0.06; }
 function sparks(p, n, color, speed, up) { var S = st.fx.sparks, c = new THREE.Color(color || '#ffd27a'); for (var k = 0; k < n; k++) { var i = S.i; S.i = (S.i + 1) % S.n; S.pos[i * 3] = p.x; S.pos[i * 3 + 1] = p.y; S.pos[i * 3 + 2] = p.z; var sp = speed || 5; S.vel[i * 3] = rnd(-1, 1) * sp; S.vel[i * 3 + 1] = rnd(0, 1) * sp * (up || 1); S.vel[i * 3 + 2] = rnd(-1, 1) * sp; S.life[i] = rnd(0.25, 0.5); S.col[i * 3] = c.r; S.col[i * 3 + 1] = c.g; S.col[i * 3 + 2] = c.b; } }
@@ -2103,8 +2045,7 @@ function render(dt) {
   if (st.beamT > 0) { st.beamT -= dt; if (st.beamT <= 0) st.fx.beam.visible = false; }
   radLook(dt);
   var mbk = st.c.mblur > 0 ? mbPrep(dt) : 0;
-  if (ARENA_POST.on) { arenaPostRender(R3, st.scene, cam, st); }
-  else if (mbk) { var MB = st.mb; R3.setRenderTarget(MB.rt); R3.clear(); R3.render(st.scene, cam); R3.setRenderTarget(null); R3.clear(); R3.render(MB.scene, MB.cam); }
+  if (mbk) { var MB = st.mb; R3.setRenderTarget(MB.rt); R3.clear(); R3.render(st.scene, cam); R3.setRenderTarget(null); R3.clear(); R3.render(MB.scene, MB.cam); }
   else { R3.clear(); R3.render(st.scene, cam); }
   R3.clearDepth(); if (me.alive) R3.render(st.vm.scene, st.vm.cam);
   hud();
