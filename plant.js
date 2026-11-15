@@ -4833,7 +4833,7 @@ var OUTFOG = { c: null, d: 0.0011 }, INFOG = { c: null, d: 0.0004 };
 /* Performance: the station has ~7,500 separate parts. Small ones far from the camera are switched off (a valve handle 40 m away is less than a pixel), checked a slice at a time so the check itself costs nothing.
    Only parts this code hid are ever switched back on, so anything the simulator shows or hides itself is left alone. */
 var CULL = { list: null, i: 0, v: null, n: 0,
-  build: function () { var L = []; R3.scene.traverse(function (o) { if (!o.isMesh || o.isInstancedMesh || o.isSkinnedMesh || !o.geometry) return; for (var q = o; q; q = q.parent) if (q.userData && q.userData.noCull) return; if (!o.geometry.boundingSphere) o.geometry.computeBoundingSphere(); var bs = o.geometry.boundingSphere; if (!bs || !(bs.radius < 1.6)) return; L.push(o); }); CULL.list = L; CULL.v = new THREE.Vector3(); CULL.n = R3.scene.children.length; },
+  build: function () { var L = []; R3.scene.traverse(function (o) { if (!o.isMesh || o.isInstancedMesh || o.isSkinnedMesh || !o.geometry || o.userData._mg) return; for (var q = o; q; q = q.parent) if (q.userData && q.userData.noCull) return; if (!o.geometry.boundingSphere) o.geometry.computeBoundingSphere(); var bs = o.geometry.boundingSphere; if (!bs || !(bs.radius < 1.6)) return; L.push(o); }); CULL.list = L; CULL.v = new THREE.Vector3(); CULL.n = R3.scene.children.length; },
   tick: function () { if (!R3 || !R3.scene) return; if (!CULL.list || CULL.n !== R3.scene.children.length) { if (!BOOT.ok && !CULL.list) return; CULL.build(); } var L = CULL.list, N = L.length; if (!N) return; var per = Math.min(N, 700), v = CULL.v, g = S.cfg.gfx, k = g === 'lite' ? 0.6 : g === 'low' ? 0.8 : 1, cx = CAM.x, cy = CAM.y, cz = CAM.z;
     for (var c = 0; c < per; c++) { var o = L[CULL.i = (CULL.i + 1) % N], bs = o.geometry.boundingSphere, e = o.matrixWorld.elements, sc = Math.max(Math.abs(e[0]) + Math.abs(e[1]) + Math.abs(e[2]), Math.abs(e[4]) + Math.abs(e[5]) + Math.abs(e[6]), Math.abs(e[8]) + Math.abs(e[9]) + Math.abs(e[10])); v.copy(bs.center).applyMatrix4(o.matrixWorld);
       var r = bs.radius * Math.min(sc, 3), out = o.layers.mask & 2, lim = ((out ? 55 : 20) + r * (out ? 160 : 75)) * k, dx = v.x - cx, dy = v.y - cy, dz = v.z - cz, far = dx * dx + dy * dy + dz * dz > lim * lim;
@@ -4850,8 +4850,8 @@ function camIndoors() { var x = CAM.x, y = CAM.y, z = CAM.z, m = 0.25, inB = fun
   return false; }
 function renderScene(cam) { var ren = R3.ren, sc = R3.scene; if (!EXT.on || !OUTFOG.c) { ren.render(sc, cam); return; }
   var fg = sc.fog, ac = ren.autoClear, bg = sc.background;
-  cam.layers.set(1); if (fg) { fg.color.copy(OUTFOG.c); fg.density = OUTFOG.d; } ren.autoClear = true; ren.render(sc, cam);
-  cam.layers.set(0); if (fg) { fg.color.copy(INFOG.c); fg.density = INFOG.d; } ren.autoClear = false; sc.background = null; var clr = camIndoors(), far0 = cam.far; if (clr) { ren.clearDepth(); /* indoors the rooms get their own short depth range: with a 5 km far plane, panels a few cm apart flickered through each other */ cam.far = 260; cam.updateProjectionMatrix(); } ren.render(sc, cam); if (clr) { cam.far = far0; cam.updateProjectionMatrix(); } sc.background = bg; ren.autoClear = ac; }
+  cam.layers.set(1); if (fg) { fg.color.copy(OUTFOG.c); fg.density = OUTFOG.d; } ren.autoClear = true; ren.state.useProgram(null); ren.render(sc, cam);
+  cam.layers.set(0); if (fg) { fg.color.copy(INFOG.c); fg.density = INFOG.d; } ren.autoClear = false; sc.background = null; var clr = camIndoors(), far0 = cam.far; if (clr) { ren.clearDepth(); /* indoors the rooms get their own short depth range: with a 5 km far plane, panels a few cm apart flickered through each other */ cam.far = 260; cam.updateProjectionMatrix(); } ren.state.useProgram(null); /* the two passes share shaders now: make the first one re-read this pass's lights */ ren.render(sc, cam); if (clr) { cam.far = far0; cam.updateProjectionMatrix(); } sc.background = bg; ren.autoClear = ac; }
 function addOutside(scene) { var g = new THREE.Group(); g.position.set(RX, 0, RZC); scene.add(g); EXT.g = g;
   /* terrain: flat snow near the building, mountains rising with distance; vertex colours darken the rock faces */
   var N = 360, SZE = 1120, geo = new THREE.PlaneGeometry(SZE, SZE, N, N); geo.rotateX(-Math.PI / 2);
@@ -6917,6 +6917,118 @@ function shutPractice() { freshState(false); S.p = poahPlant(); MS.complete = tr
 function freshState(free, keepCam) { FULL_SHIFT.on = false; SDAY.on = false; SDAY.ot = false; if (SDAY.hud) SDAY.hud.hidden = true; S.p = newPlant(); MS.reset(); MS.complete = false; MS.free = !!free; S.shiftUsed = 0; S.shiftWarn = false; S.shiftOver = false; S.st = { trips: 0, maxSur: 0, pts: 0, critPc: null, predPc: null }; S.log = []; S.clock0 = 7 * 3600 + 12 * 60 + Math.floor(Math.random() * 600);
   for (var i = 0; i < 6; i++) niTick(S.p, 0.2); derive(0.05); ANNC.init(); ANNC.list = []; S.addLog('Shift start: Unit 1 at hot standby (Mode 3), all rods in, boron ' + BORON0 + ' ppm'); if (!keepCam) goView('start', true); HUD.el.ms.dataset.cur = ''; clearHL(); save(); }
 
+/* ================================================================ speed: same picture, less work ================================================================
+   Three things make the room cheap to draw without changing a single pixel:
+   1. LIGHTS: point and spot lights that can't reach a pixel (out of range or outside the cone) are skipped in the shader instead of being
+      worked out and multiplied by zero. The maths for every light that does reach is exactly the same.
+   2. MATRICES: three.js recomputes every object's matrix on every render pass (twice a frame when the outside is drawn). FMU does it once a
+      frame and only for things that actually moved.
+   3. BATCHES: the room is ~12,000 meshes, so drawing it took ~3,000 draw calls a frame (plus the same again for the shadow map). Static meshes
+      that share a material and a parent are joined into one mesh per 6 m cell. The originals stay in the scene (clicks, collisions and code
+      that looks them up all still work) but are moved to a layer no camera draws. Every frame each original is checked: the moment one moves,
+      hides, changes material or leaves the scene it is taken out of its batch and drawn on its own again, so nothing can ever look stuck. */
+var FAST = {
+  chunks: function () { if (FAST.chunked || !THREE.ShaderChunk) return; FAST.chunked = true; var c = THREE.ShaderChunk.lights_fragment_begin, call = 'RE_Direct( directLight, geometryPosition, geometryNormal, geometryViewDir, geometryClearcoatNormal, material, reflectedLight );';
+    if (typeof c !== 'string') return; var a = c.indexOf('#if ( NUM_POINT_LIGHTS > 0 )'), b = c.indexOf('#if ( NUM_DIR_LIGHTS > 0 )'); if (a < 0 || b < 0) return; var mid = c.slice(a, b);
+    if (mid.indexOf(call) < 0) return; THREE.ShaderChunk.lights_fragment_begin = c.slice(0, a) + mid.split(call).join('if ( directLight.visible ) ' + call) + c.slice(b); }
+};
+var FMU = { P: null, H: 1 << 31,
+  run: function (sc) { if (!FMU.P) FMU.P = THREE.Object3D.prototype.updateMatrixWorld; FMU.go(sc, false); },
+  /* give every object the same extra fields up front, so the per-frame walk below never looks up a field that isn't there (that is slow) */
+  seed: function (sc) { FMU.P = THREE.Object3D.prototype.updateMatrixWorld; sc.traverse(function (o) { var p = o.position, q = o.quaternion, s = o.scale; o._fm = [p.x, p.y, p.z, q.x, q.y, q.z, q.w, s.x, s.y, s.z]; o._fp = o.parent; o._fx = o.updateMatrixWorld !== FMU.P; if (o._mq === undefined) o._mq = null; if (o._mgs === undefined) { o._mgs = null; o._mgn = 0; } }); },
+  go: function (o, force) {
+    var fx = o._fx; if (fx === undefined) fx = o._fx = o.updateMatrixWorld !== FMU.P;
+    if (fx) { o.updateMatrixWorld(force); return; } /* cameras and anything else with its own version */
+    var bq = o._mq;
+    if (o.matrixAutoUpdate) { var c = o._fm, p = o.position, q = o.quaternion, s = o.scale; if (c === undefined) c = o._fm = [NaN, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+      if (c[0] !== p.x || c[1] !== p.y || c[2] !== p.z || c[3] !== q._x || c[4] !== q._y || c[5] !== q._z || c[6] !== q._w || c[7] !== s.x || c[8] !== s.y || c[9] !== s.z) { c[0] = p.x; c[1] = p.y; c[2] = p.z; c[3] = q._x; c[4] = q._y; c[5] = q._z; c[6] = q._w; c[7] = s.x; c[8] = s.y; c[9] = s.z; o.matrix.compose(p, q, s); force = true; if (bq) { BATCH.evict(bq); bq = null; } }
+    } else { force = true; if (bq) { BATCH.evict(bq); bq = null; } } /* a hand-set matrix: always pass it on, as three.js would */
+    /* a batched mesh that was hidden, given a new material or geometry, or put on another layer: draw it on its own from now on */
+    if (bq && (!o.visible || o.material !== bq.m || o.geometry !== bq.g || o.layers.mask !== FMU.H || bq.g.attributes.position.version !== bq.gv || (bq.g.index ? bq.g.index.version : -1) !== bq.gi)) BATCH.evict(bq);
+    if (force || o.matrixWorldNeedsUpdate || o._fp !== o.parent) { if (o.parent === null) o.matrixWorld.copy(o.matrix); else o.matrixWorld.multiplyMatrices(o.parent.matrixWorld, o.matrix); o.matrixWorldNeedsUpdate = false; o._fp = o.parent; force = true; }
+    var ch = o.children, n = ch.length; if (n === 0) return;
+    if (o._mgs) { var nm = 0; for (var i = 0; i < n; i++) { var k = ch[i]; if (k._mq) nm++; if (k.matrixWorldAutoUpdate === true || force === true) FMU.go(k, force); } if (nm !== o._mgn) BATCH.lost(o); } /* a batched mesh was removed from here (or moved to another parent) */
+    else for (var j = 0; j < n; j++) { var k2 = ch[j]; if (k2.matrixWorldAutoUpdate === true || force === true) FMU.go(k2, force); }
+  }
+};
+/* every light type has to be the same count in the outside pass and the inside pass, or three.js rebuilds ~400 shader settings every frame.
+   The shorter pass gets black, zero-intensity stand-ins (which the shader now skips), so nothing it draws changes. */
+var LEQ = { pool: { P1: [], P2: [], S1: [], S2: [] }, lights: null,
+  tick: function () { var sc = R3.scene, c = { P1: 0, P2: 0, S1: 0, S2: 0 };
+    if (!LEQ.lights) { LEQ.lights = []; sc.traverse(function (o) { if ((o.isPointLight || o.isSpotLight) && !o.userData._leq) LEQ.lights.push(o); }); }
+    LEQ.lights.forEach(function (l) { var q = l; for (; q.parent; q = q.parent) if (!q.visible) return; if (q !== sc || !l.visible) return; var t = l.isSpotLight ? 'S' : 'P'; if (l.layers.mask & 1) c[t + '1']++; if (l.layers.mask & 2) c[t + '2']++; });
+    ['P', 'S'].forEach(function (t) { var d = c[t + '1'] - c[t + '2']; LEQ.want(t + '2', Math.max(0, d)); LEQ.want(t + '1', Math.max(0, -d)); }); },
+  want: function (k, n) { var P = LEQ.pool[k]; while (P.length < n) { var l = k[0] === 'S' ? new THREE.SpotLight(0x000000, 0) : new THREE.PointLight(0x000000, 0, 1, 2); l.layers.set(+k[1] - 1); l.userData._leq = 1; l.userData.noColl = true; l.position.set(0, -900, 0); R3.scene.add(l); P.push(l); }
+    for (var i = 0; i < P.length; i++) P[i].visible = i < n; }
+};
+var BATCH = { HIDE: 1 << 31, CELL: 12, CELL_OUT: 40, src: [], list: [], out: 0, v: null, on: false,
+  noop: function () {},
+  /* can this mesh be joined to others? */
+  ok: function (o, hits, skipRoots) {
+    if (!o.isMesh || o.isInstancedMesh || o.isSkinnedMesh || o.userData._mg || o.userData._mgx || o.userData._batch || !o.visible || !o.parent) return false;
+    var m = o.material, g = o.geometry; if (!m || Array.isArray(m) || m.transparent || m.isShaderMaterial || m.isRawShaderMaterial || !m.visible) return false;
+    if (hits.has(o) || o.userData.hit || o.customDepthMaterial || o.customDistanceMaterial || o.onBeforeRender !== THREE.Object3D.prototype.onBeforeRender || o.onAfterRender !== THREE.Object3D.prototype.onAfterRender) return false;
+    if (!g || !g.isBufferGeometry || !g.attributes.position || g.morphAttributes && Object.keys(g.morphAttributes).length || g.drawRange.start !== 0 || g.drawRange.count !== Infinity) return false;
+    for (var k in g.attributes) { var a = g.attributes[k]; if (a.isInterleavedBufferAttribute || a.isInstancedBufferAttribute || !a.array) return false; }
+    if (g.index && g.index.isInterleavedBufferAttribute) return false;
+    for (var q = o; q; q = q.parent) if (skipRoots.indexOf(q) >= 0) return false;
+    return true;
+  },
+  sig: function (g) { return Object.keys(g.attributes).sort().map(function (k) { var a = g.attributes[k]; return k + a.itemSize + (a.normalized ? 'n' : '') + a.array.constructor.name; }).join(','); },
+  /* the same test CULL uses to decide a mesh is small enough to hide when far away */
+  cullable: function (o) { for (var q = o; q; q = q.parent) if (q.userData && q.userData.noCull) return false; if (!o.geometry.boundingSphere) o.geometry.computeBoundingSphere(); var bs = o.geometry.boundingSphere; return !!(bs && bs.radius < 1.6); },
+  build: function (sc) {
+    if (!sc) return; var t0 = performance.now(), hits = new Set(HITS), skip = [], cands = [], groups = new Map(), V = new THREE.Vector3(), M = new THREE.Matrix4();
+    try { if (HAND && HAND.root) skip.push(HAND.root); } catch (e) {} try { if (FEEL.people) { if (FEEL.people.sup) skip.push(FEEL.people.sup); if (FEEL.people.walk) skip.push(FEEL.people.walk); } } catch (e) {}
+    sc.updateMatrixWorld(true);
+    sc.traverse(function (o) { if (BATCH.ok(o, hits, skip)) cands.push(o); });
+    cands.forEach(function (o) { var g = o.geometry; if (!g.boundingSphere) g.computeBoundingSphere(); V.copy(g.boundingSphere.center).applyMatrix4(o.matrix); var C = (o.layers.mask & 2) ? BATCH.CELL_OUT : BATCH.CELL, cell = Math.floor(V.x / C) + ',' + Math.floor(V.y / C) + ',' + Math.floor(V.z / C), cu = BATCH.cullable(o);
+      var key = o.parent.id + '|' + o.material.id + '|' + o.layers.mask + '|' + (o.castShadow ? 1 : 0) + (o.receiveShadow ? 1 : 0) + (o.frustumCulled ? 1 : 0) + (cu ? 1 : 0) + '|' + o.renderOrder + '|' + BATCH.sig(g) + '|' + cell;
+      var L = groups.get(key); if (!L) groups.set(key, L = []); L.push(o); });
+    var nb = 0, nm = 0; groups.forEach(function (L) { if (L.length < 2) return; try { BATCH.merge(L, M); nb++; nm += L.length; } catch (e) { try { console.error(e); } catch (x) {} } });
+    if (nb) { BATCH.on = true; CULL.list = null; }
+    BATCH.stat = { batches: BATCH.list.length, meshes: BATCH.src.length, ms: Math.round(performance.now() - t0) };
+  },
+  merge: function (L, M) {
+    var o0 = L[0], par = o0.parent, g0 = o0.geometry, names = Object.keys(g0.attributes), nv = 0, ni = 0, i, j;
+    L.forEach(function (o) { var g = o.geometry, n = g.attributes.position.count; nv += n; ni += g.index ? g.index.count : n; });
+    var attrs = {}; names.forEach(function (k) { var a = g0.attributes[k]; attrs[k] = new a.array.constructor(nv * a.itemSize); });
+    var idx = nv > 65535 ? new Uint32Array(ni) : new Uint16Array(ni), vo = 0, io = 0, NM = new THREE.Matrix3(), V = new THREE.Vector3(), b = { mesh: null, src: [], cull: null };
+    var cs = BATCH.cullable(o0), cen = new THREE.Vector3(), rad = [];
+    L.forEach(function (o) { var g = o.geometry, n = g.attributes.position.count, m = o.matrix, flip = m.determinant() < 0; NM.getNormalMatrix(m);
+      names.forEach(function (k) { var a = g.attributes[k], s = a.itemSize, src = a.array, dst = attrs[k], base = vo * s;
+        if (k === 'position') { for (i = 0; i < n; i++) { V.fromBufferAttribute(a, i).applyMatrix4(m); dst[base + i * 3] = V.x; dst[base + i * 3 + 1] = V.y; dst[base + i * 3 + 2] = V.z; } }
+        else if (k === 'normal') { for (i = 0; i < n; i++) { V.fromBufferAttribute(a, i).applyMatrix3(NM).normalize(); dst[base + i * 3] = V.x; dst[base + i * 3 + 1] = V.y; dst[base + i * 3 + 2] = V.z; } }
+        else if (k === 'tangent') { for (i = 0; i < n; i++) { V.set(a.getX(i), a.getY(i), a.getZ(i)).transformDirection(m); dst[base + i * 4] = V.x; dst[base + i * 4 + 1] = V.y; dst[base + i * 4 + 2] = V.z; dst[base + i * 4 + 3] = a.getW(i); } }
+        else if (a.normalized || src.constructor === dst.constructor && src.length === n * s) dst.set(src.subarray(0, n * s), base);
+        else for (i = 0; i < n * s; i++) dst[base + i] = src[i]; });
+      var i0 = io; if (g.index) { var ia = g.index.array, c = g.index.count; for (j = 0; j < c; j++) idx[io++] = ia[j] + vo; } else { for (j = 0; j < n; j++) idx[io++] = vo + j; }
+      if (flip) for (j = i0; j + 2 < io; j += 3) { var t = idx[j + 1]; idx[j + 1] = idx[j + 2]; idx[j + 2] = t; } /* a mirrored mesh: keep the faces pointing out */
+      if (!g.boundingSphere) g.computeBoundingSphere();
+      b.src.push({ o: o, v0: vo, v1: vo + n, m: o.material, g: g, gv: g.attributes.position.version, gi: g.index ? g.index.version : -1, p: par, lm: o.layers.mask, t: [o.position.x, o.position.y, o.position.z, o.quaternion.x, o.quaternion.y, o.quaternion.z, o.quaternion.w, o.scale.x, o.scale.y, o.scale.z] });
+      vo += n; });
+    var geo = new THREE.BufferGeometry(); names.forEach(function (k) { var a = g0.attributes[k]; geo.setAttribute(k, new THREE.BufferAttribute(attrs[k], a.itemSize, a.normalized)); }); geo.setIndex(new THREE.BufferAttribute(idx, 1)); geo.computeBoundingSphere(); geo.computeBoundingBox();
+    var mesh = new THREE.Mesh(geo, o0.material); mesh.castShadow = o0.castShadow; mesh.receiveShadow = o0.receiveShadow; mesh.frustumCulled = o0.frustumCulled; mesh.renderOrder = o0.renderOrder; mesh.layers.mask = o0.layers.mask;
+    mesh.raycast = BATCH.noop; mesh.userData = { _batch: true, noColl: true, noCull: true }; mesh.name = 'batch';
+    /* small things: hide the whole cell only when CULL would have hidden every one of them (never hides anything CULL would have drawn) */
+    if (cs) { var out = o0.layers.mask & 2, bc = geo.boundingSphere.center, ws = new THREE.Vector3(); b.cull = { c: bc.clone(), out: out, d: [], L: [] };
+      b.src.forEach(function (q) { var o = q.o, bs = q.g.boundingSphere, e = o.matrixWorld.elements, sc = Math.max(Math.abs(e[0]) + Math.abs(e[1]) + Math.abs(e[2]), Math.abs(e[4]) + Math.abs(e[5]) + Math.abs(e[6]), Math.abs(e[8]) + Math.abs(e[9]) + Math.abs(e[10])), r = bs.radius * Math.min(sc, 3);
+        ws.copy(bs.center).applyMatrix4(o.matrix); b.cull.d.push(ws.distanceTo(bc)); b.cull.L.push([(out ? 55 : 20), r * (out ? 160 : 75)]); }); b.cull.lim = {}; }
+    par.add(mesh); mesh.updateMatrixWorld(true); b.mesh = mesh; b.live = L.length;
+    if (!par._mgs) { par._mgs = []; par._mgn = 0; } b.src.forEach(function (q) { q.b = b; q.o.userData._mg = 1; q.o._mq = q; var P0 = q.o.position, Q0 = q.o.quaternion, S0 = q.o.scale; q.o._fm = [P0.x, P0.y, P0.z, Q0.x, Q0.y, Q0.z, Q0.w, S0.x, S0.y, S0.z]; q.o.layers.mask = BATCH.HIDE; BATCH.src.push(q); par._mgs.push(q); par._mgn++; }); BATCH.list.push(b);
+  },
+  /* take one mesh back out of its batch and draw it on its own again */
+  evict: function (q) { if (!q.b) return; var o = q.o, b = q.b; q.b = null; o._mq = null; o.userData._mg = 0; o.userData._mgx = 1; if (o.layers.mask === BATCH.HIDE) o.layers.mask = q.lm;
+    var pa = b.mesh.geometry.attributes.position, A = pa.array, x = A[q.v0 * 3], y = A[q.v0 * 3 + 1], z = A[q.v0 * 3 + 2]; for (var k = q.v0; k < q.v1; k++) { A[k * 3] = x; A[k * 3 + 1] = y; A[k * 3 + 2] = z; } pa.needsUpdate = true;
+    if (--b.live <= 0) b.mesh.visible = false; q.p._mgn--; BATCH.out++; CULL.list = null; },
+  lost: function (par) { par._mgs = par._mgs.filter(function (q) { if (!q.b) return false; if (q.o.parent !== par) { BATCH.evict(q); return false; } return true; }); par._mgn = par._mgs.length; },
+  /* small things: a whole cell is hidden only when CULL would have hidden every mesh in it */
+  tick: function () {
+    if (!BATCH.on) return; var g = S.cfg.gfx, k = g === 'lite' ? 0.6 : g === 'low' ? 0.8 : 1, v = BATCH.v || (BATCH.v = new THREE.Vector3()), L = BATCH.list;
+    for (var j = 0; j < L.length; j++) { var b = L[j], c = b.cull; if (!c || b.live <= 0) continue; var lim = c.lim[k]; if (lim == null) { lim = 0; for (var n = 0; n < c.d.length; n++) lim = Math.max(lim, c.d[n] + (c.L[n][0] + c.L[n][1]) * k); c.lim[k] = lim; }
+      v.copy(c.c).applyMatrix4(b.mesh.matrixWorld); var dx = v.x - CAM.x, dy = v.y - CAM.y, dz = v.z - CAM.z; b.mesh.visible = dx * dx + dy * dy + dz * dz <= lim * lim; }
+  }
+};
 /* ================================================================ the loop ================================================================ */
 var RAF = 0, last = 0, rr0 = 0, saveT = 0, lastSteps = 0, wasP6 = false, wasCrit = false, lastPts = 0, sizeK = '';
 function frame(now) {
@@ -6947,6 +7059,7 @@ function frame(now) {
   var per = PERF.lite ? Math.max(3, Math.ceil(WG.length / 16)) : Math.max(10, Math.ceil(WG.length / 6)); for (var j = 0; j < per; j++) { rr0 = (rr0 + 1) % WG.length; var w = WG[rr0]; if (!w.isAnn) redraw(w); }
   AUD.tick(dt); try { KIT.frame(dt); } catch (e) {} hudTick(dt); explainTick(now);
   MULTI.tick(dt);
+  LEQ.tick(); BATCH.tick(); if (R3.scene.matrixWorldAutoUpdate === false) FMU.run(R3.scene);
   if (TRI.on()) TRI.render(); else if (POST.on) POST.render(); else renderScene(R3.cam);
 }
 var ANNW = [];
@@ -6974,7 +7087,7 @@ function loadThree(cb) { var done = false, fin = function (ok) { if (done) retur
   var poll = setInterval(function () { if (ready()) fin(true); }, 200), to = setTimeout(function () { fin(ready()); }, 20000);
   var s = document.createElement('script'); s.src = 'vendor/three.min.js?v=160&t=' + Date.now(); s.onload = function () { if (ready()) fin(true); }; s.onerror = function () { setTimeout(function () { fin(ready()); }, 1500); }; document.head.appendChild(s); }
 function init() {
-  var sv = rd(); makeSession(sv); var hi = S.cfg.gfx === 'high', lite = S.cfg.gfx === 'lite'; root.classList.toggle('lite', lite); PERF.lite = lite; PERF.cap = lite ? 1 / 31 : 0; if (lite) { TEXS = 0.5; BEN = 1; }
+  FAST.chunks(); var sv = rd(); makeSession(sv); var hi = S.cfg.gfx === 'high', lite = S.cfg.gfx === 'lite'; root.classList.toggle('lite', lite); PERF.lite = lite; PERF.cap = lite ? 1 / 31 : 0; if (lite) { TEXS = 0.5; BEN = 1; }
   var ren = new THREE.WebGLRenderer({ antialias: hi, powerPreference: lite ? 'default' : 'high-performance', stencil: false }); PERF.prMax = Math.min(window.devicePixelRatio || 1, hi ? 2 : lite ? 0.85 : 1); PERF.pr = PERF.prMax; ren.setPixelRatio(PERF.pr); ren.toneMapping = THREE.ACESFilmicToneMapping; ren.toneMappingExposure = 0.84;
   ren.domElement.className = 'cpn3d'; ren.domElement.tabIndex = 0; root.insertBefore(ren.domElement, root.firstChild);
   ANISO = Math.min(hi ? 8 : 2, ren.capabilities.getMaxAnisotropy ? ren.capabilities.getMaxAnisotropy() : 4);
@@ -6998,6 +7111,7 @@ function init() {
   window.addEventListener('blur', function () { KEYS = {}; if (S && S.leverDir) ACT.lever(0); });
   document.addEventListener('visibilitychange', function () { if (document.hidden && S && root && !root.hidden) { save(); if (!S.menu) pauseMenu(); } });
   goView('start', true); WG.forEach(function (w) { redraw(w, true); });
+  try { BATCH.build(scene); FMU.seed(scene); scene.matrixWorldAutoUpdate = false; } catch (e) { try { console.error(e); } catch (x) {} scene.matrixWorldAutoUpdate = true; }
   last = 0; RAF = requestAnimationFrame(frame); startMenu();
 }
 function close() { ADMIN.ok = false; if (CRISIS.on) { CRISIS.on = false; if (CRISIS.hud) CRISIS.hud.hidden = true; }
@@ -7309,6 +7423,6 @@ var REFUEL = { on: false, el: null, grp: null,
       '<div class="cpnbtns"><button class="cpnb" data-a="again">🔄 Another outage</button><button class="cpnb2" data-a="menu">Main menu</button></div>', function (a) { if (a === 'again') { REFUEL.start(); begin(); } if (a === 'menu') { REFUEL.stop(); startMenu(); } }); }
 };
 
-window.CRIT_PLANT = { open: open, close: close, _dbg: { NEW: { S: function () { return S; }, step: function (sec) { var p = S.p, hh = 0.05, n = Math.round(sec / hh); for (var i = 0; i < n; i++) { if (!REFUEL.on) { plantStep(p, hh); niTick(p, hh); rps(p); permissives(p); oneMTick(p, hh); } p = S.p; derive(hh); ATWS.tick(); GRIDI.tick(hh, hh); HAZ.tick(hh, hh); EPRP.tick(); DBF.tick(hh); REFUEL.tick(hh); LIFE.tick(hh, hh); } }, doTrip: function (c) { doTrip(S.p, c); }, sdm: function () { return D; }, DBF: DBF, ATWS: ATWS, GRIDI: GRIDI, HAZ: HAZ, REFUEL: REFUEL, EPRP: EPRP, FAULT: FAULT, LIFE: LIFE, applyUnit: applyUnit, unit: function () { return { FULL: FULL, MWE: MWE, KX: KX, TBMAX: TBMAX }; }, atPowerStart: atPowerStart, begin: begin, startMenu: startMenu, eprMenu: eprMenu, setTS: setTS, busOn: busOn, D: function () { return D; } }, BB: function (x, z) { return blockedBy(x, z); }, ADM: { menu: function () { adminMenu(); }, power: function (p) { adminPower(p); }, time: function (h) { adminTime(h); }, fc: function (o) { freecam(o); }, saves: function () { saveMenu(); }, reach: function (h) { handReach(h); }, D: function () { return D; }, MS: function () { return MS; }, KEYS: KEYS, sh: function () { return shaderCfg(); }, H: function () { return HAND; } }, HITS: HITS, KIT: KIT, goView: function (v) { goView(v); }, AGUIDE: AGUIDE, ANNC: ANNC, CAM: CAM, HALL: HALL, ANN: ANN, LIFE: LIFE, floorAt: function (x, z, c) { return floorAt(x, z, c); }, R3: function () { return R3; }, WATCH: WATCH, FAULT: FAULT, setTS: function (v) { setTS(v); }, pauseMenu: function () { pauseMenu(); }, goHall: function () { goHall(); }, DOORS: DOORS, inHallArea: function (x, z) { return inHallArea(x, z); }, blocked: function (x, z) { return blocked(x, z); }, S: function () { return S; }, HAND: HAND, handReach: function (h) { handReach(h); }, LIFE: LIFE, FEEL: FEEL, TEACH: TEACH, EXAM: EXAM, PROC: PROC, procMenu: function () { procMenu(); }, MULTI: MULTI, TRI: TRI, multiMenu: function () { multiMenu(); }, MVH: MVH, FAULT: FAULT, TS: TS, CREW: CREW, coreMenu: function (t) { coreMenu(t); }, tsMenu: function () { tsMenu(); }, crx: function () { return crx(); }, rtp: function () { return rtp(); }, CAR: CAR, careerMenu: function () { careerMenu(); }, startAsc: function () { startAsc(); }, ctl: function (re, arg) { var r = new RegExp(re), m = HITS.filter(function (h) { var o = h.userData.hit, t = typeof o.tip === 'function' ? o.tip() : o.tip; return t && r.test(t) && (o.act || o.hold); }); if (m.length !== 1) return 'match ' + m.length + ': ' + m.slice(0, 4).map(function (h) { var o = h.userData.hit; return typeof o.tip === 'function' ? o.tip() : o.tip; }).join(' | '); var o = m[0].userData.hit; if (o.act) o.act(arg); else { o.hold(true); o.hold(false); } return 'ok'; }, tips: function (re) { var r = new RegExp(re); return HITS.map(function (h) { var o = h.userData.hit; return typeof o.tip === 'function' ? o.tip() : o.tip; }).filter(function (t) { return t && r.test(t); }); }, MS: MS, ACT: ACT, ANNC: ANNC, NI: NI, D: D, CAM: CAM, goView: goView, showMe: showMe, setTS: setTS, step: function (sec, h) { h = h || 0.05; var p = S.p; for (var t = 0; t < sec; t += h) { plantStep(p, h); niTick(p, h); rps(p); permissives(p); oneMTick(p, h); derive(h); MS.tick(h); ANNC.tick(); CAR.tick(h, 0); TS.tick(h); WATCH.core(h); if (p.sur > S.st.maxSur && !p.tripped) S.st.maxSur = p.sur; if (p.everCrit && S.st.critPc == null) { S.st.critPc = p.pc; S.st.predPc = ecpFromOneM(p); S.st.pts = Math.max(0, p.oneM.length - 1); } } },  blocked: function (x, z) { return blocked(x, z); }, dbgColl: function () { var n = 0, f = [0,0,0,0]; R3.scene.traverse(function (o) { if (!o.isMesh) return; n++; if (!o.geometry.boundingBox) o.geometry.computeBoundingBox(); var wb = new THREE.Box3().copy(o.geometry.boundingBox).applyMatrix4(o.matrixWorld); if (wb.min.y > 1.1) f[0]++; else if (wb.max.y < 0.3) f[1]++; else f[2]++; }); return [n, f, R3.scene.children.length]; }, COLLn: function () { return COLL && COLL.length; }, pick: function (x, y) { var hh = pick(x, y); return hh ? { tip: hh.object.userData.hit && (typeof hh.object.userData.hit.tip === 'function' ? hh.object.userData.hit.tip() : hh.object.userData.hit.tip), act: !!(hh.object.userData.hit && hh.object.userData.hit.act), hold: !!(hh.object.userData.hit && hh.object.userData.hit.hold) } : null; },
+window.CRIT_PLANT = { open: open, close: close, _dbg: { BATCH: BATCH, FMU: FMU, LEQ: LEQ, NEW: { S: function () { return S; }, step: function (sec) { var p = S.p, hh = 0.05, n = Math.round(sec / hh); for (var i = 0; i < n; i++) { if (!REFUEL.on) { plantStep(p, hh); niTick(p, hh); rps(p); permissives(p); oneMTick(p, hh); } p = S.p; derive(hh); ATWS.tick(); GRIDI.tick(hh, hh); HAZ.tick(hh, hh); EPRP.tick(); DBF.tick(hh); REFUEL.tick(hh); LIFE.tick(hh, hh); } }, doTrip: function (c) { doTrip(S.p, c); }, sdm: function () { return D; }, DBF: DBF, ATWS: ATWS, GRIDI: GRIDI, HAZ: HAZ, REFUEL: REFUEL, EPRP: EPRP, FAULT: FAULT, LIFE: LIFE, applyUnit: applyUnit, unit: function () { return { FULL: FULL, MWE: MWE, KX: KX, TBMAX: TBMAX }; }, atPowerStart: atPowerStart, begin: begin, startMenu: startMenu, eprMenu: eprMenu, setTS: setTS, busOn: busOn, D: function () { return D; } }, BB: function (x, z) { return blockedBy(x, z); }, ADM: { menu: function () { adminMenu(); }, power: function (p) { adminPower(p); }, time: function (h) { adminTime(h); }, fc: function (o) { freecam(o); }, saves: function () { saveMenu(); }, reach: function (h) { handReach(h); }, D: function () { return D; }, MS: function () { return MS; }, KEYS: KEYS, sh: function () { return shaderCfg(); }, H: function () { return HAND; } }, HITS: HITS, KIT: KIT, goView: function (v) { goView(v); }, AGUIDE: AGUIDE, ANNC: ANNC, CAM: CAM, HALL: HALL, ANN: ANN, LIFE: LIFE, floorAt: function (x, z, c) { return floorAt(x, z, c); }, R3: function () { return R3; }, WATCH: WATCH, FAULT: FAULT, setTS: function (v) { setTS(v); }, pauseMenu: function () { pauseMenu(); }, goHall: function () { goHall(); }, DOORS: DOORS, inHallArea: function (x, z) { return inHallArea(x, z); }, blocked: function (x, z) { return blocked(x, z); }, S: function () { return S; }, HAND: HAND, handReach: function (h) { handReach(h); }, LIFE: LIFE, FEEL: FEEL, TEACH: TEACH, EXAM: EXAM, PROC: PROC, procMenu: function () { procMenu(); }, MULTI: MULTI, TRI: TRI, multiMenu: function () { multiMenu(); }, MVH: MVH, FAULT: FAULT, TS: TS, CREW: CREW, coreMenu: function (t) { coreMenu(t); }, tsMenu: function () { tsMenu(); }, crx: function () { return crx(); }, rtp: function () { return rtp(); }, CAR: CAR, careerMenu: function () { careerMenu(); }, startAsc: function () { startAsc(); }, ctl: function (re, arg) { var r = new RegExp(re), m = HITS.filter(function (h) { var o = h.userData.hit, t = typeof o.tip === 'function' ? o.tip() : o.tip; return t && r.test(t) && (o.act || o.hold); }); if (m.length !== 1) return 'match ' + m.length + ': ' + m.slice(0, 4).map(function (h) { var o = h.userData.hit; return typeof o.tip === 'function' ? o.tip() : o.tip; }).join(' | '); var o = m[0].userData.hit; if (o.act) o.act(arg); else { o.hold(true); o.hold(false); } return 'ok'; }, tips: function (re) { var r = new RegExp(re); return HITS.map(function (h) { var o = h.userData.hit; return typeof o.tip === 'function' ? o.tip() : o.tip; }).filter(function (t) { return t && r.test(t); }); }, MS: MS, ACT: ACT, ANNC: ANNC, NI: NI, D: D, CAM: CAM, goView: goView, showMe: showMe, setTS: setTS, step: function (sec, h) { h = h || 0.05; var p = S.p; for (var t = 0; t < sec; t += h) { plantStep(p, h); niTick(p, h); rps(p); permissives(p); oneMTick(p, h); derive(h); MS.tick(h); ANNC.tick(); CAR.tick(h, 0); TS.tick(h); WATCH.core(h); if (p.sur > S.st.maxSur && !p.tripped) S.st.maxSur = p.sur; if (p.everCrit && S.st.critPc == null) { S.st.critPc = p.pc; S.st.predPc = ecpFromOneM(p); S.st.pts = Math.max(0, p.oneM.length - 1); } } },  blocked: function (x, z) { return blocked(x, z); }, dbgColl: function () { var n = 0, f = [0,0,0,0]; R3.scene.traverse(function (o) { if (!o.isMesh) return; n++; if (!o.geometry.boundingBox) o.geometry.computeBoundingBox(); var wb = new THREE.Box3().copy(o.geometry.boundingBox).applyMatrix4(o.matrixWorld); if (wb.min.y > 1.1) f[0]++; else if (wb.max.y < 0.3) f[1]++; else f[2]++; }); return [n, f, R3.scene.children.length]; }, COLLn: function () { return COLL && COLL.length; }, pick: function (x, y) { var hh = pick(x, y); return hh ? { tip: hh.object.userData.hit && (typeof hh.object.userData.hit.tip === 'function' ? hh.object.userData.hit.tip() : hh.object.userData.hit.tip), act: !!(hh.object.userData.hit && hh.object.userData.hit.act), hold: !!(hh.object.userData.hit && hh.object.userData.hit.hold) } : null; },
   click: function (x, y) { activate(pick(x, y)); }, verifyPre: verifyPre, startShutdown: startShutdown, PRE: PRE, SHUT: SHUT, EXP: EXP, shiftLeft: function () { return shiftLeft(); }, ofs: function () { return OFS; }, settled: function () { return !CAM.tw && Math.abs(OFS.cur - (OFS.want || 0)) < 0.5; }, R3: function () { return R3; }, desk: function (id, u, d, lift) { var v = SEC[id].desk.localToWorld(new THREE.Vector3(u, lift == null ? 0.0015 : lift, -d * SL)); v.project(R3.cam); var r = R3.ren.domElement.getBoundingClientRect(); return [r.left + (v.x + 1) / 2 * r.width, r.top + (1 - v.y) / 2 * r.height]; }, WG: WG, HITS: HITS, SEC: SEC, rho: function () { return rhoParts(S.p); }, ecp: function () { return ecpFromOneM(S.p); } } };
 })();
