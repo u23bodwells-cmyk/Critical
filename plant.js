@@ -200,7 +200,7 @@ function bopStep(p, dt, Q) {
   var anyMsiv = x.sg.some(function (s) { return s.msiv; }), vacOK = x.vac < 0.2;
   if (tb.latched) { tb.tg = false;
     if (!tb.gen) { var tgt = tb.set; tb.rpm += clamp(tgt - tb.rpm, -tb.rate / 60 * dt * 2, tb.rate / 60 * dt); tb.steam = (anyMsiv ? 1 : 0) * 0.02 * FULL * Math.pow(tb.rpm / 3000, 2); if (!anyMsiv || p.Ps < 20) { tb.rpm = Math.max(0, tb.rpm - 20 * dt); } }
-    else { tb.rpm = GRIDF * 60; if (p.runback) { tb.load = Math.max(200, tb.load - 17 * dt); tb.mw = Math.max(tb.load, tb.mw - 17 * dt); } var lim = p.Ps > 55 && anyMsiv ? 1 : clamp((p.Ps - 35) / 20, 0, 1); var tl = Math.min(tb.load, TBMAX * lim); tb.mw += clamp(tl - tb.mw, -tb.lrate / 60 * dt * 3, tb.lrate / 60 * dt); tb.steam = tb.mw * ETA_I + 0.02 * FULL; }
+    else { tb.rpm = GRIDF * 60; if (p.runback) { tb.load = Math.max(200, tb.load - 17 * dt); tb.mw = Math.max(tb.load, tb.mw - 17 * dt); } var lim = p.Ps > 55 && anyMsiv ? 1 : clamp((p.Ps - 35) / 20, 0, 1); var tl = Math.min(tb.load, TBMAX * lim); tb.mw += clamp(tl - tb.mw, -tb.lrate / 60 * dt * 3, tb.lrate / 60 * dt); tb.steam = tb.mw * ETA_I * heatRateK(x, tb.mw) + 0.02 * FULL; }
     if (tb.rpm > 3300) turbTrip(p, 'overspeed'); if (!vacOK) turbTrip(p, 'low condenser vacuum'); }
   else { tb.steam = 0; tb.mw += (0 - tb.mw) * (1 - Math.exp(-dt / 0.5)); if (!tb.gen) tb.rpm = Math.max(tb.tg ? 31 : 0, tb.rpm - (tb.rpm > 400 ? 6 : 2) * dt); if (tb.gen) tb.rpm = GRIDF * 60; }
   tb.gv = tb.latched ? clamp(tb.steam / (FULL * 0.34), 0, 1) : 0; tb.sv = tb.latched ? 1 : 0;
@@ -216,7 +216,8 @@ function bopStep(p, dt, Q) {
   p.dump += (dem - p.dump) * (1 - Math.exp(-dt / 1.2));
   var porvQ = 0; x.sg.forEach(function (s) { s.porv = s.porvMode === 'OPEN' || (s.porvMode === 'AUTO' && p.Ps > x.sgPorvSet + (s.porv ? -1 : 0)); if (s.porv) porvQ += 0.025 * FULL * clamp((p.Ps - 10) / 70, 0, 1.2); });
   var relief = p.Ps > 84 ? (p.Ps - 84) * 600 * KX : 0, steamOut = p.dump * 0.4 * FULL + tb.steam + porvQ + relief + (x.tdafw ? 6 : 0) * KX + 4 * KX + x.sg.reduce(function (a, s) { return a + (s.msiv ? s.brk || 0 : 0); }, 0);
-  p.Ps += (qsg - steamOut) / (400 * KX) * dt; if (p.Ps < 1) p.Ps = 1;
+  /* loss of feedwater heating: feed arrives ~40 °C colder, so making the same steam takes about 7.5 % more heat out of the primary */
+  p.Ps += (qsg - steamOut - (f.fwh ? tb.steam * 0.075 : 0)) / (400 * KX) * dt; if (p.Ps < 1) p.Ps = 1;
   /* ---- steam generator levels: feed in, steam out, with swell (level jumps up briefly when steam flow increases) ---- */
   var stmPct = steamOut / FULL * 100, msivN = x.sg.filter(function (s) { return s.msiv; }).length || 1, airOK = x.aux.airP > 4;
   var mfpN = x.mfp.filter(function (m, k) { return m && pwr(x, 'mfp', k) && x.cond.some(function (c, j) { return c && pwr(x, 'cond', j); }); }).length;
@@ -237,7 +238,7 @@ function bopStep(p, dt, Q) {
     s.L = clamp(s.Lm + 6 * (s.steam - s.sfS) / 25, 0, 100);
   });
   /* ---- condenser, circulating water ---- */
-  var cwN = x.cw.filter(function (c, k) { return c && pwr(x, 'cw', k); }).length; x.vac += ((cwN >= 1 ? 0.062 + (steamOut / FULL) * 0.03 * (cwN >= 2 ? 1 : 2) : 1.0) - x.vac) * (1 - Math.exp(-dt / (cwN ? 30 : 60)));
+  var cwN = x.cw.filter(function (c, k) { return c && pwr(x, 'cw', k); }).length; x.vac += ((cwN >= 1 ? vac0(x) + (steamOut / FULL) * 0.03 * (cwN >= 2 ? 1 : 2) : 1.0) - x.vac) * (1 - Math.exp(-dt / (cwN ? 30 : 60)));
   /* ---- pressuriser: heaters raise pressure, spray (needs loops 1-2 pumps) lowers it, PORVs at 162 bar, safeties at 172 bar ---- */
   var e = pz.P + (infOn(x, 'pzp') ? 12 : 0) - (x.pzSet || 155);
   if (pz.master === 'AUTO') { pz.pI = clamp(pz.pI - e * dt * 0.004, -0.5, 0.5); pz.prop = clamp(0.45 - e / 1.5 + pz.pI, 0, 1); if (pz.bkup === 'AUTO') pz.backup = e < -1.7 ? true : e > -0.7 ? false : pz.backup; if (pz.sprayMan === 'AUTO') pz.spray = clamp((e - 1.7) / 4, 0, 1); }
@@ -637,6 +638,7 @@ function derive(dt) {
   D.stmF += (p.dump * 40 - D.stmF) * (1 - Math.exp(-dt / 3)); D.feedF += (D.stmF - D.feedF) * (1 - Math.exp(-dt / 12));
   D.rho = rhoPcm(p); D.keff = 1 / (1 - D.rho * 1e-5); var pr = (NI.pr[0] + NI.pr[1] + NI.pr[2] + NI.pr[3]) / 4; D.pr = pr;
   D.mode = D.keff < 0.99 ? (p.Tavg >= 177 ? 3 : p.Tavg > 93 ? 4 : 5) : pr <= 5 ? 2 : 1;
+  if (p.x && p.x.aux) p.x.aux.swT = seaT();
   D.clock = realClock(); /* the station clock is real UK time (your computer's clock), so day and night match outside */
 }
 /* real time of day, plus an offset the admin console can set for testing */
@@ -649,6 +651,26 @@ function sunNow() { var now = Date.now() + (S.clockOff || 0) * 1000; if (Math.ab
     L = (q + 1.915 * Math.sin(g) + 0.020 * Math.sin(2 * g)) * R, e = (23.439 - 0.00000036 * d) * R, ra = Math.atan2(Math.cos(e) * Math.sin(L), Math.cos(L)), dec = Math.asin(Math.sin(e) * Math.sin(L)),
     gmst = 18.697374558 + 24.06570982441908 * d, ha = ((gmst + lon / 15) * 15 * R - ra), se = Math.sin(lat) * Math.sin(dec) + Math.cos(lat) * Math.cos(dec) * Math.cos(ha);
   SUN.el = clamp(se, -1, 1); SUN.az = Math.atan2(-Math.cos(dec) * Math.sin(ha), Math.sin(dec) * Math.cos(lat) - Math.cos(dec) * Math.cos(ha) * Math.sin(lat)); return SUN; }
+
+/* Bristol Channel sea temperature through the year: about 7.5 °C in late February, 17.5 °C in late August. The condenser is cooled by it,
+   so in winter vacuum is better and every MW of steam makes more electricity; in summer the unit loses a little output. */
+var SEAC = { t: 0, v: 12.4 };
+function seaT() { var n = Date.now(); if (n - SEAC.t < 60000) return SEAC.v; SEAC.t = n; var d = new Date(n), doy = (Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) - Date.UTC(d.getFullYear(), 0, 0)) / 864e5; return (SEAC.v = 12.5 - 5 * Math.cos(2 * Math.PI * (doy - 50) / 365)); }
+/* condenser back pressure with no steam flow: saturation pressure about 25 °C above the sea (0.062 bar a at the 12.4 °C design sea) */
+function vac0(x) { var T = (x.aux && x.aux.swT != null ? x.aux.swT : 12.4) + 25; return 0.062 * Math.exp(17.27 * T / (T + 237.3) - 17.27 * 37.4 / 274.7); }
+/* turbine heat rate: about 0.9 % more steam per MW for every 0.01 bar the back pressure is above design */
+function heatRateK(x, mw) { return clamp(1 + 0.9 * (x.vac - (0.062 + 0.03 * mw / MWE)), 0.97, 1.15); }
+/* live weather at Hinkley Point from Open-Meteo (free, no key), checked every 30 minutes. If it can't be reached (school filter, offline)
+   the simulator falls back to its own random weather. Wind sets calm / windy / storm, cloud dims the daylight, cold raises grid demand. */
+var WXL = { d: null, t: 0, busy: false,
+  get: function () { var n = Date.now(); if (WXL.busy || n - WXL.t < 30 * 60000 || !window.fetch) return; WXL.busy = true; WXL.t = n;
+    fetch('https://api.open-meteo.com/v1/forecast?latitude=51.21&longitude=-3.13&current=temperature_2m,wind_speed_10m,wind_gusts_10m,precipitation,cloud_cover,weather_code&wind_speed_unit=mph&timezone=Europe%2FLondon')
+      .then(function (r) { return r.json(); }).then(function (j) { var c = j && j.current; if (!c || c.temperature_2m == null) throw 0; var first = !WXL.d; WXL.d = { T: c.temperature_2m, w: c.wind_speed_10m || 0, g: c.wind_gusts_10m || 0, rain: c.precipitation || 0, cl: (c.cloud_cover || 0) / 100, code: c.weather_code || 0 }; WXL.apply(first); })
+      .catch(function () { WXL.t = n - 25 * 60000; }).then(function () { WXL.busy = false; }); },
+  icon: function () { var c = WXL.d.code; return c >= 95 ? '⛈' : c >= 71 && c <= 86 && !(c >= 80 && c <= 82) ? '🌨' : (c >= 51 && c <= 67) || (c >= 80 && c <= 82) ? '🌧' : c >= 45 && c <= 48 ? '🌫' : WXL.d.cl > 0.7 ? '☁' : WXL.d.cl > 0.3 ? '⛅' : '☀'; },
+  desc: function () { var d = WXL.d; return WXL.icon() + ' ' + Math.round(d.T) + ' °C, wind ' + Math.round(d.w) + ' mph' + (d.g > d.w + 8 ? ' gusting ' + Math.round(d.g) : ''); },
+  apply: function (first) { var d = WXL.d; if (!d || typeof LIFE === 'undefined') return; var nw = d.g >= 55 || d.w >= 38 ? 'storm' : d.w >= 18 || d.g >= 35 ? 'wind' : 'calm';
+    if (nw !== LIFE.wx || first) { var was = LIFE.wx; LIFE.wx = nw; if (S && S.addLog && S.p) S.addLog('Weather at the station (live): ' + WXL.desc()); if (nw === 'storm' && was !== 'storm') toast('⛈ Real storm over the Severn Estuary: expect grid frequency swings and possible loss of offsite power.', 'warn'); } } };
 function clockStr(t) { t = ((Math.floor(t) % 86400) + 86400) % 86400; return String(Math.floor(t / 3600)).padStart(2, '0') + ':' + String(Math.floor(t / 60) % 60).padStart(2, '0') + ':' + String(t % 60).padStart(2, '0'); }
 
 /* ---------- shared materials ---------- */
@@ -2316,6 +2338,8 @@ function infInsert(id) { var x = S.p.x; x.inF = { id: id, t: S.p.t, sel: false }
 /* random events: equipment faults and instrument failures that just happen in free play, if the setting allows */
 var RNDE = { T: 0, tick: function (sim) { if (CRISIS.on || (SDAY.on && !SDAY.ot) || WATCH.on || !S.cfg.randEv || EXAM.on || !S.p || S.p.tripped || MS.phase() !== 'free') return; var x = S.p.x; if (FAULT.active().length || (x.inF && !x.inF.sel)) return;
   RNDE.T += sim; if (RNDE.T < 600) return; RNDE.T = 0; if (Math.random() > 0.12) return; /* about one event every 1.5 hours of plant time */
+  /* the sea fights back: jellyfish swarms in summer and storm-torn seaweed block the cooling-water intake screens (real causes of UK shutdowns) */
+  var mo = new Date().getMonth(), jelly = mo >= 5 && mo <= 8; if (!(x.f && x.f.cw) && ((jelly && Math.random() < 0.25) || (LIFE.wx === 'storm' && Math.random() < 0.35))) { FAULT.insert('cw', true); toast(jelly ? '🪼 Intake: a jellyfish swarm is blocking the cooling-water screens!' : '🌊 Intake: storm-torn seaweed is choking the cooling-water screens!', 'bad'); S.addLog(jelly ? 'Intake screens blocked by jellyfish' : 'Intake screens blocked by seaweed after the storm'); return; }
   var c = FAULT.list.filter(function (q) { return ['grid', 'lb'].indexOf(q.id) < 0 && !(x.f && x.f[q.id]); }); FAULT.insert(c[Math.floor(Math.random() * c.length)].id, true); } };
 var EXAM = { on: false,
   start: function () { atPowerStart(); var x = S.p.x, inf = INF[Math.floor(Math.random() * INF.length)], fl = FAULT.list.filter(function (q) { return ['porv', 'mfpA', 'sgtl', 'drop', 'ccw', 'air', 'loca'].indexOf(q.id) >= 0; }), ft = fl[Math.floor(Math.random() * fl.length)];
@@ -2762,7 +2786,10 @@ var LIFE = { callT: 1800, paT: 900, wxT: 1800, wx: 'calm', call: null, jobs: [],
      a midday plateau, the teatime peak when everyone cooks (17:00-19:00), then falling through the evening. Storms and wind add a little. */
   demandF: function () { var hr = ((D.clock % 86400) + 86400) % 86400 / 3600, K = [[0, 0.78], [2, 0.73], [4, 0.70], [6, 0.76], [8, 0.88], [10, 0.90], [12, 0.91], [14, 0.89], [16, 0.93], [17.5, 1.0], [19, 0.99], [21, 0.92], [23, 0.83], [24, 0.78]];
     for (var i = 1; i < K.length; i++) if (hr <= K[i][0]) { var a = K[i - 1], b = K[i], k = (hr - a[0]) / (b[0] - a[0]); k = k * k * (3 - 2 * k); var f = a[1] + (b[1] - a[1]) * k; break; }
-    return Math.min(1, f + (LIFE.wx === 'storm' ? 0.02 : LIFE.wx === 'wind' ? 0.01 : 0)); },
+    /* GB demand is far higher in winter, lower at weekends, and rises when it's cold (heating) */
+    var dd = new Date(), doy = (Date.UTC(dd.getFullYear(), dd.getMonth(), dd.getDate()) - Date.UTC(dd.getFullYear(), 0, 0)) / 864e5, wd = dd.getDay();
+    f += 0.05 * Math.cos(2 * Math.PI * (doy - 15) / 365) - (wd === 6 ? 0.05 : wd === 0 ? 0.07 : 0) + (WXL.d ? clamp((12 - WXL.d.T) * 0.004, -0.03, 0.06) : 0);
+    return clamp(f + (LIFE.wx === 'storm' ? 0.02 : LIFE.wx === 'wind' ? 0.01 : 0), 0.5, 1); },
   demandMW: function () { return LIFE.demandF() * TBMAX; },
   demandWhy: function () { var hr = ((D.clock % 86400) + 86400) % 86400 / 3600;
     return hr >= 16 && hr < 19.5 ? 'Teatime peak coming: everyone is home cooking.' : hr >= 6 && hr < 9 ? 'Morning pick-up: the country is waking up.' : hr >= 9 && hr < 16 ? 'Daytime demand from offices and industry.' : hr >= 19.5 && hr < 23 ? 'Evening demand is dropping off.' : 'Overnight minimum: demand is low.'; },
@@ -2791,7 +2818,7 @@ var LIFE = { callT: 1800, paT: 900, wxT: 1800, wx: 'calm', call: null, jobs: [],
   job: function (k) { var p = S.p, J = LIFE.JOBS.filter(function (q) { return q[0] === k; })[0]; LIFE.jobs.push({ k: k, t: J[1], due: p.t + 120 + Math.random() * 180, mid: false }); LIFE.radio('Field operator: “' + J[2] + ' Over.”'); },
   radio: function (t) { S.addLog(t); toast('📻 ' + t); var c = AUD.ctx; if (c && S.cfg.snd) { AUD.noise(c.currentTime, 0.15, 1500, 1, 0.12); } },
   jobDone: function (j) { var x = S.p.x, f = x.f || {}, msg;
-    if (j.k === 'look') { var a = FAULT.active()[0]; msg = a ? 'At the scene. ' + ({ porv: 'PRT is hot and the PORV tailpipe is roaring: a PORV is passing.', mfpA: 'Main feed pump A is stopped with its trip flag dropped. Bearing smells hot.', air: 'Both air compressors tripped. Receiver pressure falling.', ccw: 'Component cooling pumps are off, the motor breakers tripped.', sgtl: 'Air ejector radiation monitor is alarming locally, SG 1 blowdown reads high.', cw: 'The sea-water pumps have stopped: screens look blocked with seaweed.', drop: 'Rod drive cabinet shows an urgent failure on rod H-08.', msb: 'Loud steam noise in the containment annulus near loop 2.', loca: 'Containment sump pumps running, humidity high.', lb: 'Can’t get near containment: huge steam release.', grid: 'Switchyard breakers are open.', inst: 'Found a failed transmitter card in the instrument rack.' }[a.id] || 'Something’s not right here.') : (x.inF && !x.inF.sel ? 'Found a failed transmitter in the rack. Recommend you bypass that channel.' : 'Walked down the plant: nothing abnormal found.'); }
+    if (j.k === 'look') { var a = FAULT.active()[0]; msg = a ? 'At the scene. ' + ({ porv: 'PRT is hot and the PORV tailpipe is roaring: a PORV is passing.', mfpA: 'Main feed pump A is stopped with its trip flag dropped. Bearing smells hot.', air: 'Both air compressors tripped. Receiver pressure falling.', ccw: 'Component cooling pumps are off, the motor breakers tripped.', sgtl: 'Air ejector radiation monitor is alarming locally, SG 1 blowdown reads high.', cw: 'The sea-water pumps have stopped: screens look blocked with seaweed.', drop: 'Rod drive cabinet shows an urgent failure on rod H-08.', msb: 'Loud steam noise in the containment annulus near loop 2.', loca: 'Containment sump pumps running, humidity high.', lb: 'Can’t get near containment: huge steam release.', grid: 'Switchyard breakers are open.', fwh: 'Feed heaters 6A and 6B are isolated: their drain valve has failed shut. The feedwater is running cold.', inst: 'Found a failed transmitter card in the instrument rack.' }[a.id] || 'Something’s not right here.') : (x.inF && !x.inF.sel ? 'Found a failed transmitter in the rack. Recommend you bypass that channel.' : 'Walked down the plant: nothing abnormal found.'); }
     else if (j.k === 'edg') { var g = x.el.edg[0]; g.run = true; msg = 'Diesel A started locally and running at 50 hertz. Ready for you to load it.'; }
     else if (j.k === 'mfp') { msg = f.mfpA ? 'Can’t reset it: the thrust bearing is damaged. Pump A needs maintenance.' : 'Feed pump A trip reset locally. You can start it from the control room.'; }
     else msg = 'Seal leak-off on all four RCPs is normal, about 11 litres a minute each.';
@@ -2804,7 +2831,7 @@ var LIFE = { callT: 1800, paT: 900, wxT: 1800, wx: 'calm', call: null, jobs: [],
       LIFE.shOn = 0; LIFE.shTrips = S.st.trips; }
     if (LIFE.shTrips == null) LIFE.shTrips = S.st.trips; LIFE.shOn = (LIFE.shOn || 0) + sim * 2; LIFE.shiftH = sh; LIFE.night = sh === 'night';
     if (FEEL.people) FEEL.people.walk.visible = !LIFE.night || (h % 2 === 0);
-    /* weather and the grid */ LIFE.wxT -= sim; if (LIFE.wxT < 0) { LIFE.wxT = 3600 * (2 + Math.random() * 4); var nw = ['calm', 'calm', 'wind', 'storm'][Math.floor(Math.random() * 4)]; if (nw !== LIFE.wx) { LIFE.wx = nw; S.addLog('Weather: ' + WXN[nw]); if (nw === 'storm') toast('⛈ Storm warning: expect grid frequency swings and possible loss of offsite power.', 'warn'); } }
+    /* weather and the grid */ WXL.get(); LIFE.wxT -= sim; if (!WXL.d && LIFE.wxT < 0) { LIFE.wxT = 3600 * (2 + Math.random() * 4); var nw = ['calm', 'calm', 'wind', 'storm'][Math.floor(Math.random() * 4)]; if (nw !== LIFE.wx) { LIFE.wx = nw; S.addLog('Weather: ' + WXN[nw]); if (nw === 'storm') toast('⛈ Storm warning: expect grid frequency swings and possible loss of offsite power.', 'warn'); } }
     var gn = LIFE.wx === 'storm' ? 0.03 : LIFE.wx === 'wind' ? 0.012 : 0; if (gn) D.grid = clamp(D.grid + gauss() * gn * Math.sqrt(Math.max(sim, 1e-3)), 49.6, 50.4);
     if (LIFE.wx === 'storm' && S.cfg.randEv && MS.phase() === 'free' && !(x.f && x.f.grid) && Math.random() < sim / 14400) FEAT_grid();
     /* phone calls and PA (free play, not during menus) */ if (MS.phase() === 'free' && !S.menu && !S.paused && !REFUEL.on) { LIFE.callT -= Math.min(dt, 0.25); /* real time: the sim speed-up doesn't change how often the phone rings */ if (LIFE.callT < 0 && !LIFE.call && !CREW.q) { LIFE.callT = 1500 + Math.random() * 600; var cs = LIFE.calls(), gc = cs.filter(function (c) { return c.grid; }); LIFE.call = gc.length && Math.random() < 0.7 ? gc[0] : cs[Math.floor(Math.random() * cs.length)]; LIFE.ring(); }
@@ -2972,6 +2999,7 @@ var FAULT = {
     { id: 'mfpA', t: 'Main feed pump A trips', d: 'Main feed pump A trips and won’t restart.', see: 'Feed flow drops below steam flow and steam generator levels fall towards the 17% low-low trip.', resp: 'If only one feed pump was running, reduce turbine load fast (below about 50%) and start main feed pump B. Watch SG levels on board 7. If levels keep falling, trip the reactor before the automatic trip.' },
     { id: 'air', t: 'Loss of instrument air', d: 'Both air compressors fail.', see: 'Instrument air pressure falls slowly. Below 4 bar air-operated valves go to their safe positions: feed regulating valves shut, letdown isolates, sprays and steam dumps are lost, PORVs can’t open.', resp: 'Watch AIR P on board 2. Before the feed valves shut, trip the reactor and turbine and feed the steam generators with auxiliary feed, which fails open.' },
     { id: 'ccw', t: 'Loss of component cooling water', d: 'All component cooling water pumps trip.', see: 'RCP bearing temperatures climb (board 2 and 5). At 95 °C the pumps trip on their own.', resp: 'Try to restart a CCW pump (it won’t while the fault is in). Trip the reactor, then stop all four reactor coolant pumps before their bearings are damaged. Natural circulation will cool the core.' },
+    { id: 'fwh', t: 'Loss of feedwater heating', d: 'The high-pressure feedwater heaters trip out when their drain valve fails.', see: 'Feedwater reaches the steam generators about 40 °C colder. Each kilogram of steam now takes more heat to make, so the primary cools, and the negative moderator coefficient and the AUTO rods push reactor power up. Thermal power climbs several percent while generator MW hardly moves, so at full load the reactor goes over its 100% licence limit without any alarm on the MW meter.', resp: 'Watch reactor thermal power (📈 Core monitor, ΔT), not MW. Reduce turbine load on board 9 until thermal power is back at or below 100%, then hold it there until the heaters are restored.' },
     { id: 'sgtl', t: 'Steam generator tube leak', d: 'A tube in steam generator 1 starts leaking reactor coolant into the steam side.', see: 'The N-16 main steam monitor and air ejector radiation go up (board 1). Pressuriser level falls slowly and charging rises to make up. SG 1 level creeps up.', resp: 'Raise charging to hold pressuriser level. Reduce power, trip the reactor, then isolate SG 1: close MSIV 1 (board 8) and stop feeding it. Cool down on the other three SGs.' },
     { id: 'loca', t: 'Small-break LOCA', d: 'A 3 cm crack opens in a reactor coolant cold leg inside containment.', see: 'Charging can’t keep up: pressuriser level and pressure fall, containment pressure, humidity, sump level and area radiation rise. At 127 bar safety injection starts. Pressure then hangs at saturation while steam forms in the loops: watch subcooling, RVLIS and core exit temperatures on the core monitor (board 5 too).', resp: 'E-0: trip the reactor (or check it tripped), check SI. When SI is running and subcooling is lost, trip all four RCPs so the water isn’t pumped out of the break. Keep feeding the steam generators and cool down on the steam dumps or SG PORVs to bring RCS pressure down so more SI water gets in. Watch RVLIS: the core must stay covered.' },
     { id: 'msb', t: 'Steam line break (SG 2)', d: 'Main steam line 2 breaks inside containment, upstream of its MSIV.', see: 'Steam flow jumps, SG 2 pressure collapses, the RCS cools fast (and the cold water can push power up), containment pressure rises, SI on low steam pressure.', resp: 'E-0, then E-2: close all MSIVs if needed, isolate SG 2 (MSIV 2 shut, feed and AFW to it off) and let it boil dry. Watch for the RCS cooling too fast.' },
@@ -2989,7 +3017,7 @@ var FAULT = {
    Ten minutes at 50% power. A fresh fault lands every minute or so, faster as the waves climb; from wave 4 some arrive unannounced.
    Points for every megawatt you keep on the grid and a big bonus for each fault you ride out. Three reactor trips and the shift is over. */
 var CRISIS = { on: false, t: 0, dur: 600, wave: 0, next: 0, score: 0, lives: 3, trips0: 0, hud: null, acc: 0,
-  pool: ['grid', 'porv', 'mfpA', 'air', 'ccw', 'sgtl', 'loca', 'msb', 'drop', 'cw'],
+  pool: ['grid', 'porv', 'mfpA', 'air', 'ccw', 'sgtl', 'loca', 'msb', 'drop', 'cw', 'fwh'],
   best: function () { var c = rd(); return c.crisisBest || 0; },
   start: function () { atPowerStart(); CRISIS.on = true; CRISIS.t = 0; CRISIS.wave = 0; CRISIS.next = 20; CRISIS.score = 0; CRISIS.lives = 3; CRISIS.trips0 = S.st.trips; CRISIS.acc = 0; setTS(1);
     if (!CRISIS.hud) { CRISIS.hud = h('div', 'cpncrisis', null, root); } CRISIS.hud.hidden = false; CRISIS.draw();
@@ -3068,7 +3096,7 @@ var SDAY = { on: false, ot: false, hud: null, acc: 0, st: null, WAGE: 32,
       if (id === 'tv') GRIDI.ring('freq', { cause: 'Half-time in the England match: about two million kettles have just gone on' });
       return true; }
     if (id === 'work' || id === 'order') { if (!S.cfg.crew) return true; if (SDAY.busy()) return false; var os = CREW.orders().filter(function (o) { return id === 'work' ? o.order : !o.order; }); if (os.length) CREW.issue(os[Math.floor(Math.random() * os.length)]); return true; }
-    if (id === 'fault') { if (p.tripped || FAULT.active().length || !x.tb.gen || GRIDI.cur) return false; var f = x.f || {}, pool = ['mfpA', 'air', 'ccw', 'porv', 'drop'].filter(function (q) { return !f[q]; }); if (!pool.length) return true; var fid = pool[Math.floor(Math.random() * pool.length)]; FAULT.insert(fid, Math.random() < 0.4); SDAY.st.fault = { id: fid, t: p.t }; SDAY.st.nF++; speak('Something is wrong. Check your alarms.'); return true; }
+    if (id === 'fault') { if (p.tripped || FAULT.active().length || !x.tb.gen || GRIDI.cur) return false; var f = x.f || {}, pool = ['mfpA', 'air', 'ccw', 'porv', 'drop', 'fwh'].filter(function (q) { return !f[q]; }); if (!pool.length) return true; var fid = pool[Math.floor(Math.random() * pool.length)]; FAULT.insert(fid, Math.random() < 0.4); SDAY.st.fault = { id: fid, t: p.t }; SDAY.st.nF++; speak('Something is wrong. Check your alarms.'); return true; }
     if (id === 'lunch') { toast('🥪 Supervisor: “Go and grab some lunch, I’ll hold the board.” Press H to hand over: she takes the phone, NESO and any orders.', 'ok'); speak('Lunch time. I can cover the board.'); return true; }
     if (id === 'hand') { SDAY.handover(); return true; }
     if (id === 'end') { SDAY.finish(); return true; } return true; },
@@ -6118,12 +6146,12 @@ function addOutside(scene) { var g = new THREE.Group(); g.position.set(RX, 0, RZ
   EXT.on = true; }
 EXT.tick = function (dt) { if (!EXT.on) return; EXT.t += dt; roomDustTick(dt, EXT.t); if (EXT.wind) EXT.wind.value = EXT.t;
   /* day and night from the real sun over the station: it rises in the east (+x, through the windows), crosses the south (−z) and sets in the west */
-  var SN = sunNow(), el = SN.el, ce = Math.sqrt(Math.max(0, 1 - el * el)), day = clamp(el * 3 + 0.15, 0, 1), dusk = clamp(1 - Math.abs(el) * 5, 0, 1) * (el > -0.25 ? 1 : 0);
+  var SN = sunNow(), el = SN.el, ce = Math.sqrt(Math.max(0, 1 - el * el)), day = clamp(el * 3 + 0.15, 0, 1) * (1 - 0.3 * (WXL.d ? WXL.d.cl : 0)), dusk = clamp(1 - Math.abs(el) * 5, 0, 1) * (el > -0.25 ? 1 : 0), cloudK = 1 - 0.7 * (WXL.d ? WXL.d.cl : 0);
   var sd = new THREE.Vector3(Math.sin(SN.az) * ce, Math.max(el, -0.3) * 0.8 + 0.02, Math.cos(SN.az) * ce).normalize(), sunUp = el > -0.05, LK = PERF.lite ? 0.8 : 1, vis = clamp((el + 0.05) * 7, 0, 1), mk = clamp((-el - 0.05) * 6, 0, 1);
   var ld = sunUp ? sd : (EXT.moonD || (EXT.moonD = new THREE.Vector3(1520, 920, -1040).normalize()));
   if (EXT.sky) { var U = EXT.sky.material.uniforms; U.day.value = day; U.dusk.value = dusk; U.sd.value.copy(sd); U.t.value = EXT.t; }
   if (EXT.sun) { EXT.sun.position.copy(EXT.sunT.position).addScaledVector(ld, 420);
-    if (sunUp) { EXT.sun.color.setRGB(1, 0.72 + 0.24 * day * (1 - dusk * 0.5), 0.45 + 0.47 * day * (1 - dusk * 0.6)); EXT.sun.intensity = (PERF.lite ? Math.min(3.4, 1.5 / Math.max(ld.y, 0.12)) : Math.min(6.2, 2.0 / Math.max(ld.y, 0.12))) * vis; }
+    if (sunUp) { EXT.sun.color.setRGB(1, 0.72 + 0.24 * day * (1 - dusk * 0.5), 0.45 + 0.47 * day * (1 - dusk * 0.6)); EXT.sun.intensity = (PERF.lite ? Math.min(3.4, 1.5 / Math.max(ld.y, 0.12)) : Math.min(6.2, 2.0 / Math.max(ld.y, 0.12))) * vis * cloudK; }
     else { EXT.sun.color.setRGB(0.62, 0.74, 1.0); EXT.sun.intensity = 1.5 * mk * LK; }
     EXT.sunDirU.value.copy(ld); EXT.sunKU.value = sunUp ? vis : 0.25 * mk;
     if (!EXT.ld0) EXT.ld0 = new THREE.Vector3(9, 9, 9); if (EXT.ld0.distanceTo(ld) > 0.012 || Math.abs((EXT.sk0 || 0) - vis - mk) > 0.05) { EXT.ld0.copy(ld); EXT.sk0 = vis + mk; if (EXT.hi && EXT.sun.shadow) EXT.sun.shadow.needsUpdate = true; if (EXT.tshUpd) EXT.tshUpd(ld, sunUp ? vis * 0.42 : 0.2 * mk); } }
@@ -6741,7 +6769,7 @@ function msCard(p) {
 }
 function hudTick(dt) {
   HUD.t += dt; if (!HUD.dirty && HUD.t < 0.2) return; HUD.t = 0; HUD.dirty = false; var E = HUD.el, p = S.p;
-  E.time.querySelector('[data-k=clk]').textContent = '🕒 ' + clockStr(D.clock).slice(0, 5) + '  ·  Grid demand ' + Math.round(LIFE.demandMW()) + ' MW (' + Math.round(LIFE.demandF() * 100) + '%)';
+  E.time.querySelector('[data-k=clk]').textContent = '🕒 ' + clockStr(D.clock).slice(0, 5) + '  ·  Grid demand ' + Math.round(LIFE.demandMW()) + ' MW (' + Math.round(LIFE.demandF() * 100) + '%)  ·  🌊 Sea ' + seaT().toFixed(1) + ' °C' + (WXL.d ? '  ·  ' + WXL.desc() : '');
   [].forEach.call(E.time.querySelectorAll('[data-ts]'), function (b) { var v = +b.dataset.ts; b.setAttribute('aria-pressed', String(v === 0 ? S.paused : !S.paused && S.ts === v)); });
   E.tools.querySelector('[data-b=snd]').textContent = S.cfg.snd ? '🔊' : '🔇'; E.tools.querySelector('[data-b=quick]').setAttribute('aria-pressed', String(!!S.cfg.quick)); E.tools.querySelector('[data-b=assist]').setAttribute('aria-pressed', String(!!S.cfg.assist));
   /* shift chip and explain button */
@@ -7262,7 +7290,7 @@ var GRIDI = { T: 480, cur: null, el: null, ph: null, phT: 0,
     if (MS.phase() !== 'free' || S.menu || S.paused || CRISIS.on || (SDAY.on && !SDAY.ot) || REFUEL.on || (x.haz && !x.haz.res) || !x.tb.gen || p.tripped || x.tb.mw < 0.35 * MWE) return;
     GRIDI.T -= Math.min(dt, 0.25); if (GRIDI.T > 0 || LIFE.call || CREW.q) return; GRIDI.T = 600 + Math.random() * 480; GRIDI.ring(); },
   ring: function (kind, opt) { opt = opt || {}; var p = S.p, x = p.x, mw = Math.round(x.tb.mw / 10) * 10, lo = Math.round(0.45 * MWE / 10) * 10, hi = Math.round(0.97 * MWE / 10) * 10, r = Math.random();
-    kind = kind || (r < 0.4 ? 'bm' : r < 0.7 ? 'freq' : 'emerg'); var c = { kind: kind, t: 0, ph: 'ramp', err: 0, holdT: 0, comms: true, mw0: mw, trips0: S.st.trips }, msg, ok, wrong1, wrong2;
+    var windy = WXL.d && WXL.d.w >= 20; kind = kind || (windy ? (r < 0.3 ? 'bm' : r < 0.5 ? 'freq' : 'emerg') : (r < 0.4 ? 'bm' : r < 0.7 ? 'freq' : 'emerg')); var c = { kind: kind, t: 0, ph: 'ramp', err: 0, holdT: 0, comms: true, mw0: mw, trips0: S.st.trips }, msg, ok, wrong1, wrong2;
     if (kind === 'emerg' && mw - 200 < lo) kind = c.kind = 'bm';
     if (kind === 'bm') { var up = mw + 150 <= hi && (mw - 150 < lo || Math.random() < 0.5), d = (10 + Math.floor(Math.random() * 16)) * 10; if (up) d = Math.min(d, hi - mw); else d = Math.min(d, mw - lo); if (opt.tgt) { var tg = clamp(Math.round(opt.tgt / 10) * 10, lo, hi); if (Math.abs(tg - mw) < 60) tg = clamp(mw + (tg >= mw && mw + 100 <= hi ? 100 : -100), lo, hi); up = tg > mw; d = Math.abs(tg - mw); } c.tgt = mw + (up ? d : -d); c.dl = Math.round(d / 10 * 60 + 240); c.rate = 10;
       msg = 'NESO control. This is a bid-offer acceptance for Unit 1: ' + (up ? 'increase' : 'decrease') + ' to ' + c.tgt + ' megawatts within ' + Math.round(c.dl / 60) + ' minutes, then hold. Please repeat back.';
