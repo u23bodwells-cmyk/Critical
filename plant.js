@@ -6675,7 +6675,24 @@ function roomAlarmTint(dt) {
   var tgt = (CAM.x > -RX && CAM.x < RX && CAM.z > ZB && CAM.z < ZF) ? (un > 0 ? clamp(0.3 + un / 8, 0.3, 0.8) : on >= 4 ? 0.25 : 0) : 0; ATINT.k += (tgt - ATINT.k) * Math.min(1, dt * (tgt > ATINT.k ? 2 : 0.8));
   if (ATINT.k < 0.004 && !ATINT.on) return; ATINT.on = ATINT.k >= 0.004; var m = ATINT.k * (0.22 + 0.06 * Math.sin(EXT.t * 2.2)); H.color.copy(ATINT.base).lerp(ATINT.a, m);
 }
-EXT.tick = function (dt) { if (!EXT.on) return; EXT.t += dt; roomDustTick(dt, EXT.t); tripAlarmTick(); try { plantFxTick(dt); } catch (e) {} try { trailTick(dt); } catch (e) {} try { vanLightsTick(dt); } catch (e) {} try { roomPowerTick(dt); } catch (e) {} try { roomAlarmTint(dt); } catch (e) {} if (EXT.wind) EXT.wind.value = EXT.t;
+/* warm light shafts through the control room window while the low morning sun is in the east: five soft additive shafts (two crossed slabs each) that follow the sun's direction, fade with elevation and cloud,
+   and only exist while you are standing in the room. No lights, no shadow cost; skipped in lite. */
+var SHAFT = { m: [], k: 0, t: -9, mat: null };
+function roomShaftTick(dt) {
+  if (typeof scene === 'undefined' || !scene || !(dt > 0) || (typeof PERF !== 'undefined' && PERF.lite)) return;
+  var inRoom = CAM.x > -RX && CAM.x < RX && CAM.z > ZB && CAM.z < ZF, S0 = SHAFT, i;
+  if (!inRoom) { if (S0.k > 0) { S0.k = 0; S0.m.forEach(function (o) { o.visible = false; }); } return; }
+  if (EXT.t - S0.t < 1.5) return; S0.t = EXT.t; var SN = sunNow(), el = SN.el, ce = Math.sqrt(Math.max(0, 1 - el * el)), sx = Math.sin(SN.az) * ce, sy = Math.max(el, -0.3) * 0.8 + 0.02, sz = Math.cos(SN.az) * ce, cl = WXL.d ? WXL.d.cl : 0, WV = WXV();
+  var k = clamp(el * 10, 0, 1) * clamp((0.55 - el) * 5, 0, 1) * clamp((sx - 0.1) * 4, 0, 1) * (1 - clamp(cl * 1.3, 0, 1)) * (WV && (WV.I > 0 || WV.fog) ? 0.2 : 1);
+  if (k < 0.01) { if (S0.k > 0) { S0.k = 0; S0.m.forEach(function (o) { o.visible = false; }); } return; }
+  if (!S0.mat) { var c = CV(128, 64), x = c.getContext('2d'), id = x.createImageData(128, 64); for (var v = 0; v < 64; v++) for (var u = 0; u < 128; u++) { var a = Math.pow(1 - u / 127, 0.7) * Math.min(1, u / 8) * Math.pow(Math.sin(Math.PI * (v + 0.5) / 64), 1.6), o = (v * 128 + u) * 4; id.data[o] = id.data[o + 1] = id.data[o + 2] = 255; id.data[o + 3] = Math.round(255 * a); } x.putImageData(id, 0, 0);
+    S0.mat = new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(c), color: 0xffd9a0, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide, fog: false });
+    [-7.2, -3.6, 0.2, 3.9, 7.3].forEach(function (z0) { [0, 1].forEach(function (ty) { var m = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), S0.mat); m.matrixAutoUpdate = false; m.frustumCulled = false; m.renderOrder = 7; m.userData.noColl = true; m.userData.noShadow = true; m.userData.z0 = z0; m.userData.ty = ty; scene.add(m); S0.m.push(m); }); }); }
+  var r = new THREE.Vector3(-sx, -sy, -sz).normalize(), up = new THREE.Vector3(0, 1, 0), yA = up.clone().addScaledVector(r, -up.dot(r)).normalize(), yB = new THREE.Vector3().crossVectors(r, up).normalize(), t = clamp((2.2 - 0.1) / Math.max(0.08, sy), 3, 24), X = new THREE.Vector3(), Y = new THREE.Vector3(), Z = new THREE.Vector3();
+  S0.m.forEach(function (o) { var A = !o.userData.ty; X.copy(r).multiplyScalar(t); Y.copy(A ? yA : yB).multiplyScalar(A ? 3.4 : 1.3); Z.crossVectors(X, Y).normalize(); o.matrix.makeBasis(X, Y, Z); o.matrix.setPosition(RX - 0.08 + r.x * t / 2, 2.2 + r.y * t / 2, o.userData.z0 + r.z * t / 2); o.matrixWorldNeedsUpdate = true; o.visible = true; });
+  S0.k = k; S0.mat.opacity = 0.11 * k; S0.mat.color.setRGB(1, 0.78 + 0.14 * clamp(el * 2, 0, 1), 0.5 + 0.3 * clamp(el * 2, 0, 1));
+}
+EXT.tick = function (dt) { if (!EXT.on) return; EXT.t += dt; roomDustTick(dt, EXT.t); tripAlarmTick(); try { plantFxTick(dt); } catch (e) {} try { trailTick(dt); } catch (e) {} try { vanLightsTick(dt); } catch (e) {} try { roomPowerTick(dt); } catch (e) {} try { roomAlarmTint(dt); } catch (e) {} try { roomShaftTick(dt); } catch (e) {} if (EXT.wind) EXT.wind.value = EXT.t;
   /* day and night from the real sun over the station: it rises in the east (+x, through the windows), crosses the south (−z) and sets in the west */
   var SN = sunNow(), el = SN.el, ce = Math.sqrt(Math.max(0, 1 - el * el)), day = clamp(el * 3 + 0.15, 0, 1) * (1 - 0.3 * (WXL.d ? WXL.d.cl : 0)), dusk = clamp(1 - Math.abs(el) * 5, 0, 1) * (el > -0.25 ? 1 : 0), cloudK = 1 - 0.7 * (WXL.d ? WXL.d.cl : 0);
   var sd = new THREE.Vector3(Math.sin(SN.az) * ce, Math.max(el, -0.3) * 0.8 + 0.02, Math.cos(SN.az) * ce).normalize(), sunUp = el > -0.05, LK = PERF.lite ? 0.8 : 1, vis = clamp((el + 0.05) * 7, 0, 1), mk = clamp((-el - 0.05) * 6, 0, 1);
