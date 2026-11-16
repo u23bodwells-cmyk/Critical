@@ -1,4 +1,195 @@
-+j]}
+ol=poolFor(tid,uids);if(missOnly)pool=pool.filter(function(c){return R().miss[c._rk]});
+  if(!pool.length){toast(BOLT,missOnly?'Nothing left to fix':'No questions yet',missOnly?'You\'ve fixed every revision mistake. Nice.':'Add topics or flashcards to this test first.');if(missOnly)back(tid);return}
+  var cs=pick(pool,10).map(function(c){return c.t==='RF'&&Math.random()<.5?(asMC(c)||c):c});
+  startP({mode:'review',rev:{tid:tid,uids:uids||null,miss:!!missOnly},cards:cs,title:'Revision',unit:'Revision'})}
+ function mock(tid){var t=testOf(tid),pool=poolFor(tid,null);if(!pool.length){toast(BOLT,'No questions yet','Add topics or flashcards to this test first.');return}
+  var cs=shuffle(pool).slice(0,Math.min(15,pool.length)).map(function(c){return c.t==='RF'?(asMC(c)||c):c}),u0=t&&t.units&&t.units.length?uIdx(t.units[0]):-1;
+  startP({mode:'test',rev:{tid:tid,mock:1},ui:u0>=0?u0:undefined,cards:cs,title:'Mini mock',unit:'Mini mock',answers:[],t0:Date.now()},true)}
+ /* your own flashcards: think of the answer, show it, say if you knew it */
+ function rf(c,b,test){if(!test)P.asked++;var p=el('div','qprompt',null,b);p.textContent=c.q;var ans=el('div','prose rvans',null,b);ans.textContent=c.b;ans.style.display='none';
+  var row=el('div','opts',null,b);row.style.display='none';row.innerHTML='<button class="opt" data-k="1">✓ I knew it</button><button class="opt" data-k="0">✗ Not yet</button>';
+  mainBtn('Show answer',function(){ans.style.display='block';row.style.display='grid';mainBtn('Choose one',function(){},true)});if(test)skipBtn(testSkip,'Skip');
+  [].forEach.call(row.querySelectorAll('.opt'),function(o){o.onclick=function(){var ok=o.getAttribute('data-k')==='1';[].forEach.call(row.querySelectorAll('.opt'),function(x){x.disabled=true});o.classList.add(ok?'right':'wrong');
+   if(test){testRecord(c,ok,ok?'I knew it':'Not yet');return}
+   if(ok){gotRight(c);foot('ok',praise(),'')}else{P.st.tries=1;gotWrong(c);foot('no','It\'ll come up again','It goes to the front of your next round.')}mainBtn('Continue',nextCard)}})}
+ function tick(){return '<svg width="90" height="90" viewBox="0 0 90 90" class="dicon"><circle cx="45" cy="45" r="42" fill="var(--good-bg)"/><path d="M27 46l12 12 24-26" stroke="var(--good-line)" stroke-width="8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>'}
+ function timerLine(){try{var ms=PLAN.runLeft();if(ms==null)return '';return '<p class="note">Today\'s plan: <b>'+(ms>0?Math.ceil(ms/60000)+' min left':'time\'s up')+'</b>.</p>'}catch(_){return ''}}
+ function planLeft(){try{var ms=PLAN.runLeft();return ms==null?'':' · plan timer: <b>'+(ms>0?Math.ceil(ms/60000)+' min left':'time\'s up')+'</b>'}catch(_){return ''}}
+ function endPractice(){P.finished=true;lcount();P.quiet=true;$('pBar').style.width='100%';var rv=P.rev,t=testOf(rv.tid),acc=P.asked?Math.round(P.right/P.asked*100):100,left=missN(poolFor(rv.tid,null));
+  S.st.reviews=(S.st.reviews||0)+1;bonusXP(10);save();checkBadges(true);
+  $('pBody').innerHTML='<div class="done-screen">'+tick()+'<h2>Round done</h2><p class="note" style="font-size:16px">'+esc(t?tName(t):'Revision')+'</p>'+
+   '<div class="done-stats"><div class="dstat"><b>'+P.right+'/'+P.asked+'</b><span>right first time</span></div><div class="dstat"><b>'+acc+'%</b><span>accuracy</span></div><div class="dstat"><b>'+left+'</b><span>still to fix</span></div></div>'+timerLine()+'</div>';
+  $('pScroll').scrollTop=0;$('pXP').textContent='+'+P.xp+' XP';foot('','','');
+  mainBtn('Another round',function(){closePlayer();practice(rv.tid,rv.miss&&!left?null:rv.uids,rv.miss&&left>0)});skipBtn(function(){closePlayer();back(rv.tid)},'Back to revision');sfx('done');confetti()}
+ function endMock(){P.finished=true;lcount();P.quiet=true;stopTimer();$('pBar').style.width='100%';
+  var rv=P.rev,t=testOf(rv.tid),r=R(),n=P.answers.length,ok=P.answers.filter(function(a){return a.ok}).length,pct=n?Math.round(ok/n*100):0,secs=Math.round((Date.now()-P.t0)/1000);
+  var ms=r.mocks[rv.tid]||(r.mocks[rv.tid]=[]);ms.push({d:today(),pct:pct});while(ms.length>20)ms.shift();if(ok)bonusXP(ok*5);save();checkBadges(true);
+  var weak={},order=[];P.answers.forEach(function(a){var id=a.c._uid;if(!a.ok&&id){if(!weak[id]){weak[id]=0;order.push(id)}weak[id]++}});
+  var rr=48,C=2*Math.PI*rr,col=pct>=70?'var(--good-line)':pct>=50?'#EF9F27':'#e8742a';
+  var h='<div class="done-screen"><svg width="120" height="120" viewBox="0 0 120 120" class="dicon"><circle cx="60" cy="60" r="'+rr+'" fill="none" stroke="var(--soft2)" stroke-width="11"/><circle cx="60" cy="60" r="'+rr+'" fill="none" stroke="'+col+'" stroke-width="11" stroke-linecap="round" stroke-dasharray="'+(C*pct/100)+' '+C+'" transform="rotate(-90 60 60)"/><text x="60" y="60" text-anchor="middle" dy=".35em" font-size="26" font-weight="800" fill="var(--text)" font-family="system-ui">'+pct+'%</text></svg>'+
+   '<h2>'+(pct>=85?'You\'re ready for it':pct>=60?'Nearly there':'Worth some more practice')+'</h2><p class="note" style="font-size:16px">Mini mock · '+esc(t?tName(t):'')+(t?' · test '+inDays(t.date):'')+'</p>'+
+   '<div class="done-stats"><div class="dstat"><b>'+ok+'/'+n+'</b><span>correct</span></div><div class="dstat"><b>'+fmtClock(secs)+'</b><span>time</span></div><div class="dstat"><b id="dsXP">+0</b><span>XP</span></div></div>';
+  if(order.length)h+='<div class="dblock"><div class="dbt">Topics to work on</div>'+order.map(function(id){var i=uIdx(id);return i>=0?'<div class="weak"><span><b>'+esc(UNITS[i].title)+'</b><span class="note"> · '+weak[id]+' missed</span></span></div>':''}).join('')+'</div>';
+  h+='<div class="treview"><div class="dbt">Your answers</div>'+P.answers.map(function(a,i){return '<details class="tq '+(a.ok?'ok':'no')+'"'+(a.ok?'':' open')+'><summary><span class="tqn">'+(i+1)+'</span><span class="tqm">'+(a.ok?'✓':'✗')+'</span><span class="tqp">'+a.c.p+'</span></summary><div class="tqb"><p><b>Your answer:</b> '+a.given+'</p>'+(a.ok?'':'<p><b>Correct answer:</b> '+a.correct+'</p>')+(a.c.e?'<p class="note">'+a.c.e+'</p>':'')+'</div></details>'}).join('')+'</div>';
+  $('pBody').innerHTML=h+timerLine()+'</div>';$('pScroll').scrollTop=0;$('pXP').innerHTML='<span class="ttime">'+fmtClock(secs)+'</span>';countUp($('dsXP'),0,P.xp,'+');foot('','','');
+  if(n-ok>0){mainBtn('Practise what I got wrong',function(){closePlayer();practice(rv.tid,null,true)});skipBtn(function(){closePlayer();back(rv.tid)},'Back to revision')}else{mainBtn('Back to revision',function(){closePlayer();back(rv.tid)});skipBtn(null)}
+  sfx('done');if(pct>=60)confetti()}
+ /* ----- the revision screen ----- */
+ var hubEl=null;
+ function closeHub(){if(hubEl){hubEl.remove();hubEl=null}}
+ document.addEventListener('keydown',function(e){if(e.key==='Escape'&&hubEl)closeHub()});
+ function back(tid){var inf=null;try{var b=PLAN.DAY(tdI())[0];if(b&&b[5]==='rev'&&b[6].tid===tid)inf=b[6]}catch(_){}hub(inf||tid)}
+ function dayChips(t){var D=sched(t),pl=plan(t),td=today(),lg=R().log[t.id]||{};if(!D.length)return '';
+  return '<div class="rvdays">'+D.map(function(d){var st=lg[d]&&lg[d].done?'done':d===td?'now':d<td?'miss':'';return '<span class="rvday '+st+'" title="'+nice(d)+'"><b>'+short(d)+'</b><i>'+(pl[d].mock?'Mock':'Day '+pl[d].k)+'</i></span>'}).join('')+'<span class="rvday test" title="'+nice(t.date)+'"><b>'+short(t.date)+'</b><i>Test</i></span></div>'}
+ function hub(x){var info=x&&typeof x==='object'?x:null,tid=info?info.tid:x,t=testOf(tid);if(!t&&!info)return;closeHub();
+  var subj=t?t.subj:info.pin.subj,own=subj==='own',name=t?tName(t):info.name,date=t?t.date:info.pin.date,day=info&&!info.mock?info.units:null,mockDay=!!(info&&info.mock),
+   allPool=poolFor(tid,null),pool=day?poolFor(tid,day):allPool,mn=missN(allPool),lg=(R().log[tid]||{})[today()]||{q:0,r:0},mocked=(R().mocks[tid]||[]).some(function(m){return m.d===today()}),
+   shown=day||(t?t.units:info.units)||[];
+  var h='<div class="plbox rvbox" role="dialog" aria-modal="true" aria-label="Revision"><div class="plhd"><b>Revision</b><button class="plx" type="button" aria-label="Close">✕</button></div>'+
+   '<div class="rvhead"><p class="rvk">'+esc(t?subjName(t):'Revision')+(info?' · '+(info.mock?'last day before the test':'revision day '+info.pin.k+' of '+info.pin.n):'')+'</p><h3>'+esc(name)+'</h3><p>'+nice(date)+' · <b>'+inDays(date)+'</b></p>'+(t?dayChips(t):'')+'</div>';
+  if(own)h+='<p class="plnote">'+allPool.length+' flashcard'+(allPool.length===1?'':'s')+'. You get a mix of "do you know it?" cards and multiple choice.</p>';
+  else h+='<div><p class="plgt">'+(day?'Today\'s topics':'Topics in the test')+'</p><div class="rvchips">'+uTitles(shown).map(function(s){return '<span>'+esc(s)+'</span>'}).join('')+'</div></div>';
+  h+='<div class="rvacts"></div><p class="plnote">Today: <b>'+lg.q+'</b> question'+(lg.q===1?'':'s')+(lg.q?', '+Math.round(lg.r/lg.q*100)+'% right first time':'')+(mn?' · <b>'+mn+'</b> still to fix':'')+planLeft()+'</p>';
+  if(!own){var ls=[];shown.forEach(function(id){var ui=uIdx(id);if(ui>=0)UNITS[ui].lessons.forEach(function(l,li){ls.push([ui,li,l.title])})});
+   if(ls.length)h+='<details class="rvread"><summary>Re-read a lesson first</summary><div>'+ls.map(function(x){return '<button type="button" class="plgo alt" data-ui="'+x[0]+'" data-li="'+x[1]+'">'+esc(x[2])+'</button>'}).join('')+'</div></details>'}
+  var ov=document.createElement('div');ov.className='plsheet open rvsheet';ov.innerHTML=h+'</div>';document.body.appendChild(ov);hubEl=ov;
+  ov.querySelector('.plx').onclick=closeHub;ov.addEventListener('click',function(e){if(e.target===ov)closeHub()});
+  var A=ov.querySelector('.rvacts');function btn(l,f,big){var b=document.createElement('button');b.type='button';b.className=big?'plbig':'plgo alt';b.textContent=l;b.onclick=f;A.appendChild(b)}
+  var mq=Math.min(15,allPool.length),pq=Math.min(10,pool.length);
+  if(!allPool.length)A.innerHTML='<p class="plnote">'+(own?'This test has no flashcards yet. Add some in the Tests tab.':'No questions found for these topics.')+'</p>';
+  else if(mockDay&&!mocked){btn('Mini mock test ('+mq+' questions, about 15 min)',function(){mock(tid)},1);btn('Warm up with a practice round first',function(){practice(tid,null)})}
+  else{btn('Practice round ('+pq+' questions)',function(){practice(tid,day)},1);if(mn)btn('Fix my revision mistakes ('+mn+')',function(){practice(tid,null,true)});btn(mockDay?'Another mini mock':'Mini mock test ('+mq+' questions)',function(){mock(tid)})}
+  [].forEach.call(ov.querySelectorAll('.rvread [data-ui]'),function(b){b.onclick=function(){closeHub();startLesson(+b.dataset.ui,+b.dataset.li)}})}
+ /* ----- the Tests tab in This week's plan ----- */
+ var ed=null,delAsk=null;
+ function blank(){return {name:'',subj:'gp',sname:'',date:addD(today(),7),days:3,units:[],cards:[]}}
+ function add(A,label,cls,fn){var b=document.createElement('button');b.type='button';b.className='plgo'+(cls?' '+cls:'');b.textContent=label;b.onclick=fn;A.appendChild(b);return b}
+ function removeT(id,full){var r=R(),t=testOf(id);if(!t)return;if(full){r.tests.splice(r.tests.indexOf(t),1);delete r.log[id];delete r.mocks[id];Object.keys(r.miss).forEach(function(k){if(k.indexOf('O'+id+'#')===0)delete r.miss[k]})}else t.gone=today();save()}
+ function paintTab(box,again){var r=R(),td=today();
+  r.tests.slice().forEach(function(t){if(t.gone&&t.gone<addD(td,-14)&&t.date<td)removeT(t.id,true)});
+  box.innerHTML='';if(ed)return form(box,again);
+  var up=r.tests.filter(function(t){return !t.gone&&t.date>=td}).sort(function(a,b){return a.date<b.date?-1:1}),past=r.tests.filter(function(t){return !t.gone&&t.date<td}).sort(function(a,b){return a.date<b.date?1:-1});
+  var now=el('div','pldnow','<b>Revise for a test</b>Add a test and Critical turns the days before it into revision days. Each one quizzes you on that day\'s topics, and the last day before the test is a mini mock. They take the same time as your normal plan.',box);
+  if(!up.length)el('p','plnote','No tests coming up.',box);
+  up.forEach(function(t){var sub=t.subj==='own'?cards(t).length+' flashcard'+(cards(t).length===1?'':'s'):uTitles(t.units).join(', '),c=el('div','plblk rvtest',null,box);
+   c.innerHTML='<div class="plbody"><p class="plt"><span>'+esc(tName(t))+'</span><span class="plm">'+inDays(t.date)+'</span></p><p class="plh">'+esc(subjName(t))+' · '+nice(t.date)+'</p><p class="plh">'+esc(sub)+'</p>'+
+    (sched(t).length?dayChips(t):t.date===td?'<p class="plh"><b>It\'s today. Good luck!</b></p>':'<p class="plh">Added too late for revision days, but you can still revise now.</p>')+'<div class="placts"></div></div>';
+   var A=c.querySelector('.placts');add(A,'Revise now →','',function(){hub(t.id)});add(A,'Edit','alt',function(){ed=JSON.parse(JSON.stringify(t));ed._edit=t.id;delAsk=null;again()});
+   add(A,delAsk===t.id?'Tap again to delete':'Delete','alt',function(){if(delAsk!==t.id){delAsk=t.id;again();return}delAsk=null;removeT(t.id,false);again()})});
+  add(box,'+ Add a test','',function(){ed=blank();delAsk=null;again()}).className='plbig';
+  if(past.length){el('p','plgt','Past tests',box);var L=el('div','pldl',null,box);past.slice(0,6).forEach(function(t){var m=(r.mocks[t.id]||[]).slice(-1)[0],row=el('div','pldr',null,L);
+   row.innerHTML='<span class="tm">'+short(t.date)+' '+s2d(t.date).getDate()+'</span><span class="lb">'+esc(tName(t))+(m?' <span class="plm">mock '+m.pct+'%</span>':'')+'</span>';add(row,'Remove','alt',function(){removeT(t.id,true);again()})})}}
+ function prevTxt(f){if(!f.date||f.date<=today())return 'Pick a date after today.';var D=sched({date:f.date,days:+f.days||3,from:today()}),n=D.length;
+  return 'Revision days: '+D.map(function(d,k){return nice(d)+(k===n-1?' (mini mock)':'')}).join(', ')+'.'}
+ function parse(txt){var out=[];String(txt||'').split(/\r?\n/).forEach(function(line){line=line.trim();if(!line)return;var m=line.split(/\t| \| |\|| - | – | = /);if(m.length<2){var i=line.indexOf(': ');if(i>0)m=[line.slice(0,i),line.slice(i+2)]}
+  if(m.length>=2){var q=m[0].trim(),a=m.slice(1).join(' - ').trim();if(q&&a)out.push({q:q.slice(0,300),a:a.slice(0,300)})}});return out}
+ function form(box,again){var f=ed;if(!Array.isArray(f.units))f.units=[];if(!Array.isArray(f.cards))f.cards=[];
+  var h='<div class="pldnow"><b>'+(f._edit?'Edit your test':'Add a test')+'</b>Critical turns the days before it into revision days.</div><div class="rvf">'+
+   '<label>What\'s the test?<input type="text" data-f="name" maxlength="50" placeholder="e.g. Physics end-of-topic test"></label>'+
+   '<label>Subject<select data-f="subj"><option value="gm">GCSE Maths</option><option value="gp">GCSE Physics</option><option value="gc">GCSE Chemistry</option><option value="gcs">GCSE Computer Science</option><option value="own">Another subject (your own flashcards)</option></select></label>'+
+   (f.subj==='own'?'<label>Which subject?<input type="text" data-f="sname" maxlength="30" placeholder="e.g. Biology, History, French"></label>':'')+
+   '<div class="rvrow"><label>Date of the test<input type="date" data-f="date"></label><label>Revise on<select data-f="days">'+[1,2,3,4,5,6,7].map(function(n){return '<option value="'+n+'">the '+(n===1?'day':n+' days')+' before</option>'}).join('')+'</select></label></div>'+
+   '<p class="plnote" data-k="prev"></p>';
+  if(f.subj!=='own'){h+='<div class="rvunits"><p class="plgt">Topics in the test</p>';for(var lv=1;lv<=5;lv++){var us=[];UNITS.forEach(function(u,ui){if(trk(ui)===f.subj&&lvOf(ui)===lv)us.push(ui)});if(!us.length)continue;
+    h+='<p class="rvlv">'+esc(GLV[f.subj]&&GLV[f.subj][lv]?GLV[f.subj][lv][0]:'Level '+lv)+'</p>'+us.map(function(ui){var u=UNITS[ui];return '<label class="plpk"><input type="checkbox" data-u="'+esc(u.id)+'"'+(f.units.indexOf(u.id)>=0?' checked':'')+'> '+esc(u.title)+'</label>'}).join('')}h+='</div>'}
+  else h+='<div class="rvcards"><p class="plgt">Flashcards <span data-k="cn"></span></p><div class="rvcl"></div><div class="placts"><button type="button" class="plgo alt" data-a="addc">+ Add a card</button></div>'+
+   '<details class="rvpaste"><summary>Paste a list instead</summary><textarea maxlength="20000" placeholder="One card per line, question then answer, split by a dash, | or a tab:&#10;Where does respiration happen? - Mitochondria&#10;When did WW2 end? | 1945"></textarea><button type="button" class="plgo" data-a="paste">Add these cards</button></details></div>';
+  h+='<p class="plderr" data-k="err" hidden></p><div class="placts"><button type="button" class="plgo" data-a="save">Save test</button><button type="button" class="plgo alt" data-a="cancel">Cancel</button></div></div>';
+  box.innerHTML=h;var q=function(s){return box.querySelector(s)};
+  q('[data-f=name]').value=f.name||'';q('[data-f=subj]').value=f.subj;q('[data-f=date]').value=f.date||'';q('[data-f=date]').min=addD(today(),1);q('[data-f=days]').value=String(f.days||3);
+  function prev(){q('[data-k=prev]').textContent=prevTxt(f)}prev();
+  q('[data-f=name]').oninput=function(){f.name=this.value};q('[data-f=date]').oninput=function(){f.date=this.value;prev()};q('[data-f=days]').onchange=function(){f.days=+this.value;prev()};
+  q('[data-f=subj]').onchange=function(){f.subj=this.value;f.units=[];again()};
+  if(q('[data-f=sname]')){q('[data-f=sname]').value=f.sname||'';q('[data-f=sname]').oninput=function(){f.sname=this.value}}
+  [].forEach.call(box.querySelectorAll('[data-u]'),function(cb){cb.onchange=function(){var id=cb.dataset.u,i=f.units.indexOf(id);if(cb.checked&&i<0)f.units.push(id);else if(!cb.checked&&i>=0)f.units.splice(i,1);f.units.sort(function(a,b){return uIdx(a)-uIdx(b)})}});
+  function paintCards(){var L=q('.rvcl');if(!L)return;L.innerHTML='';f.cards.forEach(function(c,i){var r=el('div','rvc',null,L);r.innerHTML='<input type="text" maxlength="300" placeholder="Question" aria-label="Question"><input type="text" maxlength="300" placeholder="Answer" aria-label="Answer"><button type="button" aria-label="Remove this card">✕</button>';
+    var ins=r.querySelectorAll('input');ins[0].value=c.q||'';ins[1].value=c.a||'';ins[0].oninput=function(){c.q=this.value;cn()};ins[1].oninput=function(){c.a=this.value;cn()};r.querySelector('button').onclick=function(){f.cards.splice(i,1);paintCards()}});cn()}
+  function cn(){var e=q('[data-k=cn]');if(e){var n=f.cards.filter(function(c){return c.q&&c.a&&c.q.trim()&&c.a.trim()}).length;e.textContent='('+n+')'}}
+  if(f.subj==='own'){if(!f.cards.length)f.cards.push({q:'',a:''});paintCards();
+   q('[data-a=addc]').onclick=function(){f.cards.push({q:'',a:''});paintCards();var ins=box.querySelectorAll('.rvc input');if(ins.length)ins[ins.length-2].focus()};
+   q('[data-a=paste]').onclick=function(){var ta=q('.rvpaste textarea'),got=parse(ta.value);if(!got.length){err('Couldn\'t find any cards. Put the question and answer on one line, split by a dash, | or a tab.');return}
+    f.cards=f.cards.filter(function(c){return c.q&&c.a&&c.q.trim()&&c.a.trim()}).concat(got);ta.value='';q('.rvpaste').open=false;paintCards();err('')}}
+  function err(m){var e=q('[data-k=err]');e.hidden=!m;e.textContent=m}
+  q('[data-a=cancel]').onclick=function(){ed=null;again()};
+  q('[data-a=save]').onclick=function(){if(!f.date||f.date<=today())return err('Pick a date after today.');
+   var cs=f.cards.filter(function(c){return c.q&&c.a&&c.q.trim()&&c.a.trim()}).map(function(c){return {id:c.id||Math.random().toString(36).slice(2,8),q:c.q.trim(),a:c.a.trim()}});
+   if(f.subj==='own'&&!cs.length)return err('Add at least one flashcard: a question and its answer.');if(f.subj!=='own'&&!f.units.length)return err('Tick at least one topic that\'s in the test.');
+   var r=R(),old=f._edit?testOf(f._edit):null,t={id:old?old.id:'t'+Date.now().toString(36),name:(f.name||'').trim(),subj:f.subj,sname:f.subj==='own'?(f.sname||'').trim():'',date:f.date,days:+f.days||3,units:f.subj==='own'?[]:f.units.slice(),cards:f.subj==='own'?cs:[],from:old&&old.from?old.from:today()};
+   if(old)r.tests[r.tests.indexOf(old)]=t;else r.tests.push(t);save();ed=null;again();try{PLAN.paintPill()}catch(_){}}}
+ function banner(){var td=today(),t=R().tests.filter(function(t){return !t.gone&&t.date>=td&&diff(td,t.date)<=21}).sort(function(a,b){return a.date<b.date?-1:1})[0];if(!t)return '';
+  var D=sched(t).filter(function(d){return d>=td});return '<span>📚 <b>'+esc(tName(t))+'</b> '+inDays(t.date)+' ('+nice(t.date)+').'+(D.length?' Revision: '+D.map(short).join(', ')+'.':'')+'</span>'}
+ var css=document.createElement('style');css.textContent=
+  '.rvhead h3{margin:2px 0;font-size:20px}.rvhead>p{margin:0;color:var(--muted);font-size:14px}.rvhead .rvk{font:800 12px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:#7F77DD}'+
+  '.rvdays{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.rvday{display:flex;flex-direction:column;align-items:center;min-width:48px;border:1.5px solid var(--line);border-radius:10px;padding:5px 6px;background:var(--panel);font-size:12px;line-height:1.3}.rvday b{font-size:13px}.rvday i{font-style:normal;color:var(--muted);font-size:11px}'+
+  '.rvday.done{border-color:var(--good-line);background:var(--good-bg)}.rvday.done b::after{content:" ✓";color:var(--good)}.rvday.now{border-color:#7F77DD;box-shadow:0 0 0 2px rgba(127,119,221,.3)}.rvday.miss{opacity:.5}.rvday.test{border-style:dashed;border-color:#7F77DD}'+
+  '.rvchips{display:flex;flex-wrap:wrap;gap:6px}.rvchips span{background:rgba(127,119,221,.15);color:var(--text);border-radius:999px;padding:4px 10px;font-size:13px;font-weight:700}'+
+  '.rvacts{display:flex;flex-direction:column;gap:8px}.rvacts .plgo{justify-content:center;padding:10px 12px;font-size:14px}.rvread summary,.rvpaste summary{cursor:pointer;font-weight:700;font-size:14px}.rvread>div{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}'+
+  '.rvf{display:flex;flex-direction:column;gap:10px}.rvf label{display:flex;flex-direction:column;gap:4px;font-size:13px;font-weight:700;color:var(--muted)}.rvf input[type=text],.rvf input[type=date],.rvf select,.rvf textarea{font:inherit;font-size:15px;color:var(--text);background:var(--panel);border:1.5px solid var(--line);border-radius:10px;padding:8px 10px;width:100%;box-sizing:border-box}'+
+  '.rvf label.plpk{flex-direction:row;font-weight:400;color:var(--text);font-size:14px}.rvrow{display:grid;grid-template-columns:1fr 1fr;gap:8px}@media(max-width:420px){.rvrow{grid-template-columns:1fr}}'+
+  '.rvunits{display:flex;flex-direction:column;gap:6px;max-height:300px;overflow:auto;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px 12px}.rvunits .plgt{margin:0}.rvlv{margin:6px 0 0;font-size:12px;font-weight:800;color:#7F77DD}'+
+  '.rvcl{display:flex;flex-direction:column;gap:6px;margin-bottom:6px}.rvc{display:grid;grid-template-columns:1fr 1fr 32px;gap:6px;align-items:center}.rvf .rvc input{font-size:14px;padding:7px 8px}.rvc button{border:0;background:none;color:var(--muted);font-size:18px;cursor:pointer;height:32px}'+
+  '.rvpaste{margin-top:8px}.rvpaste textarea{min-height:110px;margin:8px 0}.rvans{border:1.5px solid var(--line);border-radius:14px;padding:12px 14px;margin-top:10px;white-space:pre-wrap}'+
+  '.pldays button.rv{border-style:dashed;border-color:#7F77DD}.pldays button.rv.on{border-style:solid}'+
+  '.rvnext{display:flex;gap:10px;align-items:center;justify-content:space-between;background:rgba(127,119,221,.13);border-radius:12px;padding:10px 12px;font-size:14px;line-height:1.4}.rvnext[hidden]{display:none}.rvnext .plgo{flex:none}'+
+  '.pltv{display:flex;flex-direction:column;gap:12px}.pltv[hidden]{display:none}.rvtest .plbody{display:flex;flex-direction:column;gap:2px}';
+ document.head.appendChild(css);
+ return {dayInfo:dayInfo,byPin:build,hub:hub,closeHub:closeHub,paintTab:paintTab,banner:banner,doneDay:doneDay,mark:mark,rf:rf,endPractice:endPractice,endMock:endMock,practice:practice,mock:mock,sched:sched,plan:plan,tests:function(){return R().tests}};
+})();
+try{window.REV=REV}catch(_){}
+/* ===== weekly plan (calendar button next to the study timer) ===== */
+var PLAN=(function(){
+ var MG='https://www.mathsgenie.co.uk/',SEN='https://senecalearning.com/',COG='https://cognitoedu.org/',SR='shift-ready.html',AG='aptitude.html';
+ var DAYS=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'],AB=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+ /* [title, minutes, what to do, buttons [label, kind, target], shows the topic list] */
+ var D=[
+  [['Fix my mistakes',15,'Clear the Fix my mistakes pile in Critical: the questions you got wrong, 10 at a time. Read the explanation again on any you miss. Empty it early and you move straight on. If it isn\'t empty after 15 minutes, the first 15 minutes of Tuesday go to it too. Nothing to fix? Do your next GCSE Maths lesson.',[['Fix my mistakes','fix'],['GCSE Maths','gm']]],
+   ['Aptitude',7,'One practice set in Aptitude Gym.',[['Aptitude Gym','app',AG]]]],
+  [['Calculus',22,'Your next Calculus lesson and its drill. Only move on when the drill says Mastered.',[['Next lesson','calc']]]],
+  [['Python',15,'Your next Python session in Shift Ready.',[['Shift Ready','app',SR]]],
+   ['Communication',7,'The comms drill in Shift Ready. Say your answers out loud, not in your head.',[['Shift Ready','app',SR]]]],
+  [['GCSE science',15,'Your next GCSE Physics or Chemistry lesson in Critical, matching what you\'re doing in class this week. Seneca and Cognito are good for extra practice.',[['GCSE Physics','gp'],['GCSE Chemistry','gc'],['Seneca','url',SEN],['Cognito','url',COG]]],
+   ['Calculus drill',7,'Practice questions on your last Calculus lesson.',[['Practise','calcfu']]]],
+  [['Nuclear',15,'The fun one: the Theory track or the Control room.',[['Theory','theory'],['Control room','sim']]],
+   ['Communication',7,'The comms drill in Shift Ready.',[['Shift Ready','app',SR]]]],
+  [['GCSE maths',25,'25 minutes of mixed questions from a Maths Genie Edexcel paper, timed like an exam. Mark it, and add the topic of every question you dropped marks on to your list below.',[['Maths Genie','url',MG]],1],
+   ['GCSE science',15,'Exam-style questions on Thursday\'s topic: the follow-up and unit test in Critical, or Seneca.',[['GCSE Physics','gp'],['GCSE Chemistry','gc'],['Seneca','url',SEN]]],
+   ['Aptitude',5,'One short timed set in Aptitude Gym.',[['Aptitude Gym','app',AG]]]],
+  [['Python',20,'Your next Python session in Shift Ready.',[['Shift Ready','app',SR]]],
+   ['Calculus',20,'Your next Calculus lesson.',[['Next lesson','calc']]],
+   ['Weekly review',5,'Look at your list below. Move the topic you\'re worst at to the top and practise it first next Saturday. Delete topics you\'ve fixed.',[],1]]];
+ var TUE_FIX=[['Fix my mistakes',15,'Monday\'s Fix my mistakes wasn\'t finished, so it gets the first 15 minutes today. Empty the pile early and you move straight on.',[['Fix my mistakes','fix']]],
+  ['Calculus',7,'A shorter Calculus slot today: carry on with your next lesson, or practise your last one if its drill isn\'t Mastered yet.',[['Next lesson','calc'],['Practise','calcfu']]]];
+ function pile(){try{return reviewPool(true).length}catch(_){return 0}}
+ /* Tuesday's first 20 minutes become Fix my mistakes if Monday's pile wasn't emptied. Decided once on Tuesday, then kept for the week. */
+ var ready=false;setTimeout(function(){ready=true},0);
+ function carry(){var p=PS(),t=todayI();if(p.carry==null){if(t!==1||!ready)return false;p.carry=(!p.monClr&&!rvOn(0)&&pile()>0)?1:0;save()}return p.carry===1}
+ /* every day starts with a warm-up and ends with Critical Clash (block[5] says which). On a school day you're asked, after the study part,
+    if you want to keep going to 45 minutes: that adds a 10-minute bonus of the day's main subject and makes Clash 10 minutes. */
+ function CORE(i){return i===1&&carry()?TUE_FIX:D[i]}
+ function WARM(i){return ['Warm-up',i<5?3:5,'Memory refresh: quick questions on things you learnt before, to get your brain going. When you finish them, your plan moves on by itself.',[['Warm up','warm']],0,'warm']}
+ function CLASH(i,x){return ['Critical Clash',i<5&&!x?5:10,'Your reward for the plan: a match of Critical Clash 3D. Every kill is a question, so it still counts. When the time\'s up, finish your match and close the game.',[['Play Critical Clash','clash']],0,'clash']}
+ function mainOf(c){return c.slice().sort(function(a,b){return b[1]-a[1]})[0]}
+ function BONUS(c){var m=mainOf(c);return ['Bonus: '+m[0],10,'You chose to keep going. 10 more minutes of '+m[0]+', carrying on from where you got to.',m[3],0,'bonus']}
+ function extOn(i){var e=PS().ext;return !!(e&&e[i])}
+ function setExt(i,v){var p=PS();if(!p.ext||typeof p.ext!=='object')p.ext={};p.ext[i]=v;save()}
+ function extAsked(i){var e=PS().ext;return !!(e&&e[i]!=null)}
+ /* revision days (Tests tab): the days before a test swap the plan for one revision block, as long as that day's normal plan.
+    Once a day is started it's pinned, so editing a test later can't change a day you're part-way through. */
+ function wkDate(i){var d=new Date();d.setHours(12,0,0,0);d.setDate(d.getDate()-((d.getDay()+6)%7)+i);return d}
+ function anyTick(i){var t=PS().t;for(var k in t)if(t[k]&&k.indexOf(i+'-')===0)return true;return false}
+ function RVD(i){if(typeof REV==='undefined')return null;var p=PS();if(p.rvpin&&p.rvpin[i])return REV.byPin(p.rvpin[i]);if(anyTick(i))return null;
+  if(i===todayI()){var rr=runGet();if(rr&&rr.day===i)return null;if(hwGet())return null}try{return REV.dayInfo(dstr(wkDate(i)))}catch(_){return null}}
+ function pinRv(i){var p=PS();if(p.rvpin&&p.rvpin[i])return;var r=RVD(i);if(!r)return;if(!p.rvpin||typeof p.rvpin!=='object')p.rvpin={};p.rvpin[i]=r.pin;save()}
+ function rvOn(i){var b=DAY(i);return b.length===1&&b[0][5]==='rev'}
+ function DAY(i){var rv=RVD(i);if(rv)return [['Revise: '+rv.name,mins(i),rv.desc,[['Start revision','rev']],0,'rev',rv]];var c=CORE(i),x=i<5&&extOn(i);return [WARM(i)].concat(c,x?[BONUS(c)]:[],[CLASH(i,x)])}
+ function isFix(b){return !!(b&&b[3]&&b[3][0]&&b[3][0][1]==='fix')}
+ function mins(i){return [WARM(i)].concat(CORE(i),[CLASH(i,false)]).reduce(function(s,b){return s+b[1]},0)}
+ function allMins(i){return DAY(i).reduce(function(s,b){return s+b[1]},0)}
+ var TOTAL=D.reduce(function(s,_,i){return s+mins(i)},0);
+ function wk(){var d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-((d.getDay()+6)%7));return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()}
+ function PS(){if(!S.plan||typeof S.plan!=='object')S.plan={};var p=S.plan;if(p.wk!==wk()){p.wk=wk();p.t={};delete p.monClr;delete p.carry;delete p.fe;delete p.ext;delete p.qs;delete p.rvpin}if(!p.t||typeof p.t!=='object')p.t={};if(p.auto==null)p.auto=1;if(typeof p.topics!=='string')p.topics='';return p}
+ function todayI(){return (new Date().getDay()+6)%7}
+ function isDone(i,j){return !!PS().t[i+'-'+j]}
  function feOn(i){var f=PS().fe;return !!(f&&f[i==null?todayI():i])}
  function allTicked(i){return DAY(i).every(function(b,j){return b[5]==='bonus'||isDone(i,j)})}
  function dayDone(i){return feOn(i)||allTicked(i)}
@@ -38,7 +229,7 @@
  '.pldl{display:flex;flex-direction:column;gap:6px}.pldr{display:flex;gap:10px;align-items:center;background:var(--bg);border:1.5px solid var(--line);border-radius:12px;padding:9px 12px;min-width:0}.pldr .tm{font:700 13px var(--mono);min-width:62px;color:var(--muted);font-variant-numeric:tabular-nums}.pldr .lb{flex:1;min-width:0;font-weight:700;font-size:15px}.pldr.past{opacity:.55}.pldr.now{border-color:var(--accent);background:var(--accent-bg)}.pldr.now .tm,.pldr.now .lb{color:var(--accent-text)}'+
  '.pldr .dot{width:10px;height:10px;border-radius:50%;flex:none;background:var(--muted)}.pldr .dot.k-plan,.pldr .dot.k-study{background:var(--accent)}.pldr .dot.k-eat{background:var(--amber)}.pldr .dot.k-free{background:var(--good-line)}.pldr .dot.k-read{background:#7F77DD}.pldr .dot.k-sleep{background:var(--line)}.pldr .nowb{font:800 11px var(--mono);background:var(--accent);color:var(--on-accent);border-radius:999px;padding:2px 8px;flex:none}.pldr .plgo{padding:6px 10px;flex:none}'+
  '.pldr input{font:inherit;font-size:14px;color:var(--text);background:var(--panel);border:1.5px solid var(--line);border-radius:8px;padding:6px 8px;min-width:0}.pldr input[type=time]{width:130px;flex:none}.pldr input[type=text]{flex:1}.pldr .pldel{border:0;background:none;color:var(--muted);font-size:18px;width:32px;height:32px;cursor:pointer;flex:none}.plderr{color:var(--bad);font-size:13px;margin:0}'+
- '.plseg{grid-template-columns:repeat(3,1fr)}@media(max-width:380px){.plseg button{font-size:13px;padding:8px 2px}}.plhb{display:flex;flex-direction:column;gap:12px}.plhb[hidden]{display:none}'+
+ '.plseg{grid-template-columns:repeat(4,1fr)}@media(max-width:440px){.plseg button{font-size:13px;padding:8px 2px}}.plhb{display:flex;flex-direction:column;gap:12px}.plhb[hidden]{display:none}'+
  '.plhl{display:flex;flex-direction:column;gap:8px}.plh1{display:flex;gap:12px;align-items:flex-start;background:var(--bg);border:1.5px solid var(--line);border-radius:14px;padding:12px}.plh1.done{border-color:var(--good-line);background:var(--good-bg)}.plh1.half{border-color:var(--good-line)}'+
  '.plhk{flex:none;width:40px;height:40px;border-radius:12px;border:2px solid var(--line);background:var(--panel);color:#fff;font-size:19px;font-weight:800;cursor:pointer;display:grid;place-items:center;padding:0}.plh1.done .plhk{background:var(--good-line);border-color:var(--good-line)}.plh1.half .plhk{background:linear-gradient(135deg,var(--good-line) 50%,var(--panel) 50%);border-color:var(--good-line);color:var(--text)}'+
  '.plhb .plbody{flex:1;min-width:0}.plhn{font-weight:800;font-size:15px;margin:0}.plht{font-size:13.5px;color:var(--muted);margin:3px 0 0;line-height:1.4}.plhs{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;margin-top:7px;font-size:13px}.plhs b{font-family:var(--mono)}.plhp{display:flex;align-items:center;gap:6px;flex:1 1 150px;min-width:130px}.plhbar{flex:1;height:6px;background:var(--soft2);border-radius:3px;overflow:hidden;min-width:60px}.plhbar i{display:block;height:100%;background:#7F77DD}.plhw{font-size:13px;color:var(--warn);margin:6px 0 0}'+
@@ -47,7 +238,6 @@
  '.plpick{display:flex;flex-direction:column;gap:6px}.plpick .plgt{margin:0}.plpk{display:flex;gap:10px;align-items:center;font-size:14px;cursor:pointer}.plpk input{width:20px;height:20px;accent-color:var(--accent);flex:none}'+
  'body:has(.plban) .plbox{padding-bottom:calc(150px + env(safe-area-inset-bottom))}'+
  '.plcarry{background:var(--warn-bg);color:var(--text);border-radius:10px;padding:8px 10px}.plfixn{color:var(--text)}'+
- '.plsd{background:var(--bg);border:1.5px dashed var(--line);border-radius:12px;padding:10px 12px}.plsd.on{border-style:solid;border-color:var(--accent);background:var(--accent-bg);color:var(--accent-text)}.plsd.off{opacity:.55;cursor:default}.plsdw{display:block;width:100%;box-sizing:border-box;font:inherit;font-size:14px;color:var(--text);background:var(--panel);border:1.5px solid var(--line);border-radius:10px;padding:8px 10px;margin-top:9px}'+
  '.plopt{display:flex;gap:10px;align-items:center;font-size:14px;cursor:pointer}.plopt input{width:20px;height:20px;accent-color:var(--accent);flex:none}.plnote{font-size:13px;color:var(--muted);margin:0;line-height:1.45}.pldone{font-size:14px;font-weight:800;color:var(--good);margin:0}'+
  '.plrun:empty{display:none}.plrun{background:var(--accent-bg);border:2px solid var(--accent);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:8px}.plrun p{margin:0;font-size:14px;line-height:1.45}.plrun b{font-size:16px}.plrun .placts{margin-top:0}.plbig{font:inherit;font-size:16px;font-weight:800;border:0;border-radius:12px;padding:12px 16px;cursor:pointer;background:var(--accent);color:var(--on-accent);width:100%}'+
  '.plban{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom));z-index:3500;width:min(460px,calc(100% - 32px));background:var(--panel);color:var(--text);border:2px solid var(--accent);border-radius:16px;padding:12px 14px;box-shadow:0 8px 30px rgba(0,0,0,.25);display:flex;flex-direction:column;gap:8px}.plban p{margin:0;font-size:15px;line-height:1.45}.plban .placts{margin-top:0}'+
@@ -56,18 +246,17 @@
  document.head.appendChild(css);
  var sh=document.createElement('div');sh.className='plsheet';
  sh.innerHTML='<div class="plbox" role="dialog" aria-modal="true" aria-label="This week\'s plan"><div class="plhd"><b>This week\'s plan</b><button class="plx" type="button" aria-label="Close">✕</button></div>'+
-  '<div class="plseg" role="tablist" aria-label="View"><button type="button" role="tab" data-v="plan">Study plan</button><button type="button" role="tab" data-v="day">School day</button><button type="button" role="tab" data-v="hab">Habits</button></div>'+
-  '<div class="plmain"><div class="plwk"><div class="plwkt"><span>Ticked off this week</span><b data-k="wk"></b></div><div class="plbar"><i data-k="bar"></i></div></div>'+
+  '<div class="plseg" role="tablist" aria-label="View"><button type="button" role="tab" data-v="plan">Study plan</button><button type="button" role="tab" data-v="day">School day</button><button type="button" role="tab" data-v="hab">Habits</button><button type="button" role="tab" data-v="tst">Tests</button></div>'+
+  '<div class="plmain"><div class="plwk"><div class="plwkt"><span>Ticked off this week</span><b data-k="wk"></b></div><div class="plbar"><i data-k="bar"></i></div></div><div class="rvnext" data-k="tnext" hidden></div>'+
   '<div class="pldays" role="tablist" aria-label="Day"></div>'+
   '<div class="pldh"><b data-k="dn"></b><span data-k="dt"></span></div>'+
-  '<label class="plopt plsd"><input type="checkbox" data-k="sd"> <span><b>Study day</b>: study for school instead of doing Critical <span data-k="sdt"></span></span></label>'+
   '<div class="plrun" data-k="run"></div><div class="plblks"></div><p class="pldone" data-k="done" hidden>That\'s today\'s plan done. Nice work.</p>'+
   '<label class="plopt"><input type="checkbox" data-k="auto"> Start the study timer when I tap a button</label>'+
   '<p class="plnote">Homework comes first. Missed a day? Don\'t double up the next day. Do that day\'s plan and carry on.</p></div>'+
   '<div class="pldv" hidden><div class="pldnow" data-k="now"></div><div class="pldl"></div>'+
   '<label class="plopt"><input type="checkbox" data-k="nudge"> <span data-k="nudget">Nudge me when it\'s time (while Critical is open)</span></label>'+
   '<div class="placts" data-k="dacts"></div><p class="plnote">Monday to Friday. At weekends your plan is 1 hour, whenever suits you.</p></div>'+
-  '<div class="plhb" hidden><div class="pldnow" data-k="hnow"></div><div class="plhl"></div><div class="plgrid" data-k="grid"></div><div class="plpick" data-k="pick"></div></div></div>';
+  '<div class="plhb" hidden><div class="pldnow" data-k="hnow"></div><div class="plhl"></div><div class="plgrid" data-k="grid"></div><div class="plpick" data-k="pick"></div></div><div class="pltv" hidden></div></div>';
  document.body.appendChild(sh);
  var $q=function(s){return sh.querySelector(s)},cur=todayI(),days=$q('.pldays');
  AB.forEach(function(a,i){var b=document.createElement('button');b.type='button';b.setAttribute('role','tab');b.textContent=a;b.setAttribute('aria-label',DAYS[i]);b.onclick=function(){cur=i;paint()};days.appendChild(b)});
@@ -75,6 +264,7 @@
   if(a[1]==='url'){if(openUrl)try{window.open(a[2],'_blank','noopener')}catch(_){}return}close();if(document.querySelector('#player.open')&&typeof closePlayer==='function')closePlayer();
   if(a[1]==='app'){location.href=a[2];return}
   if(a[1]==='warm'){var mc=null;try{mc=MEM.counts()}catch(_){}if(mc&&mc.total)MEM.start();else ONE.start();warmP=typeof P!=='undefined'?P:null;return}
+  if(a[1]==='rev'){var rr2=runGet(),bl=DAY(rr2?rr2.day:cur)[0];try{REV.hub(bl&&bl[5]==='rev'?bl[6]:null)}catch(e){if(window.console)console.error(e)}return}
   if(a[1]==='clash'){try{ARENA.open()}catch(_){}return}
   if(a[1]==='sim'){showPage('sim');return}
   if(a[1]==='fix'){var n=pile(),rr=runGet();if(n>0){showPage('review');startReview(true);return}
@@ -116,7 +306,7 @@
   all.forEach(function(r){if(r.m-end>=10&&r.m>A)R.push([end,'Free time','free']);R.push([r.m,r.l,r.k]);end=Math.max(end,r.k==='sleep'?r.m:r.e)});
   info.shift=A-T[0].m;info.rows=R;return info}
  function nowRow(){if(todayI()>4)return -1;var R=sched().rows,m=nowMin(),k=-1;for(var i=0;i<R.length;i++)if(R[i][0]<=m)k=i;return k}
- var view=(S.plView==='day'||S.plView==='hab')?S.plView:'plan',editing=null;
+ var view=(S.plView==='day'||S.plView==='hab'||S.plView==='tst')?S.plView:'plan',editing=null;
  function setView(v){view=v;S.plView=v;save();editing=null;paint()}
  [].forEach.call(sh.querySelectorAll('.plseg button'),function(b){b.onclick=function(){setView(b.dataset.v)}});
  function paintDay(){var D2=$q('.pldv'),SC=sched(),R=SC.rows,t=todayI(),school=t<5,k=nowRow(),L=$q('.pldl'),now=$q('[data-k=now]'),A=$q('[data-k=dacts]'),hm=homeGet();L.innerHTML='';A.innerHTML='';
@@ -153,7 +343,7 @@
   R.forEach(function(r,i){var k=r[2];if((k!=='plan'&&k!=='read')||o.s[k]||ban)return;var st=r[0];if(m<st||m>=st+30)return;
    if(k==='plan'){if(runGet()||hwGet()||firstLeft(todayI())<0||busy())return;o.s[k]=1;try{localStorage.setItem(NK,JSON.stringify(o))}catch(_){}
     var left=DAY(todayI()).filter(function(_,j){return !isDone(todayI(),j)}).reduce(function(a,b){return a+b[1]},0);
-    var sd0=sdOn(todayI());showBan('<b>'+m12(r[0])+': time for today\'s '+(sd0?'study':'plan')+'.</b> '+left+' minutes'+(sd0?' of studying (study day).':'.'),(sd0?[]:[['Just one question',function(){hideBan();ONE.start()}]]).concat([[sd0?'Start studying':'Start today\'s plan',function(){hideBan();startRun()}],['Homework first',function(){hideBan();startHw()}],['Later',hideBan]]))}
+    var rv0=rvOn(todayI());showBan('<b>'+m12(r[0])+': time for today\'s '+(rv0?'revision':'plan')+'.</b> '+left+' minutes'+(rv0?' of revising for your test.':'.'),(rv0?[]:[['Just one question',function(){hideBan();ONE.start()}]]).concat([[rv0?'Start revision':'Start today\'s plan',function(){hideBan();startRun()}],['Homework first',function(){hideBan();startHw()}],['Later',hideBan]]))}
    else{o.s[k]=1;try{localStorage.setItem(NK,JSON.stringify(o))}catch(_){}var nx=R[i+1];var hb=[['Good night',hideBan]];if(HS().on.indexOf('scr')>=0)hb.unshift(['Phone\'s away ✓',function(){hset(dstr(new Date()),'scr',1);hideBan();if(sh.classList.contains('open'))paint()}]);showBan('<b>'+m12(r[0])+': '+esc(r[1]).replace(/^./,function(c){return c.toLowerCase()})+'.</b>'+(nx?' '+esc(nx[1])+' at '+m12(nx[0])+'.':'')+' Good night.',hb)}})}
  /* ----- habit tracker (school days) ----- */
  var HAB=[['hw','Homework on time','When I\'ve finished my snack, I sit at my desk and open my homework.','Just start the piece that\'s due soonest.'],
@@ -197,24 +387,21 @@
   var young=on.filter(function(x){return kept(x[0])<10}).length;var nt=document.createElement('p');nt.className='plnote';nt.textContent=on.length>2&&young>2?'That\'s a lot of new habits at once. Two at a time is easier: add the next when these feel normal.':'Start with two. Add another once these feel normal, usually after a few weeks.';K.appendChild(nt)}
  function paint(){var p=PS(),t=todayI(),m=0;
   [].forEach.call(sh.querySelectorAll('.plseg button'),function(b){var on=b.dataset.v===view;b.classList.toggle('on',on);b.setAttribute('aria-selected',on)});
-  $q('.plmain').hidden=view!=='plan';$q('.pldv').hidden=view!=='day';$q('.plhb').hidden=view!=='hab';$q('.plhd b').textContent=view==='day'?'Your school day':view==='hab'?'Your habits':'This week\'s plan';if(view==='day'){paintDay();return}if(view==='hab'){paintHab();return}
+  $q('.plmain').hidden=view!=='plan';$q('.pldv').hidden=view!=='day';$q('.plhb').hidden=view!=='hab';$q('.pltv').hidden=view!=='tst';$q('.plhd b').textContent=view==='day'?'Your school day':view==='hab'?'Your habits':view==='tst'?'Your tests':'This week\'s plan';if(view==='day'){paintDay();return}if(view==='hab'){paintHab();return}if(view==='tst'){REV.paintTab($q('.pltv'),paint);return}
   D.forEach(function(_,i){DAY(i).forEach(function(b,j){if(isDone(i,j))m+=b[1]})});
   $q('[data-k=wk]').textContent=m+' / '+TOTAL+' min';$q('[data-k=bar]').style.width=Math.min(100,m/TOTAL*100)+'%';
-  [].forEach.call(days.children,function(b,i){b.className=(i===cur?'on':'')+(i===t?' td':'')+(dayDone(i)?' full':qsOn(i)?' quick':'');b.title=dayDone(i)?'Plan done':qsOn(i)?'2-minute start done: this day counts':'';b.setAttribute('aria-selected',i===cur)});
-  $q('[data-k=dn]').textContent=(cur===t?'Today, ':'')+DAYS[cur];$q('[data-k=dt]').textContent=allMins(cur)+' min · '+(sdOn(cur)?'study day':cur<5?(extOn(cur)?'school day, stretched to 45':'school day'):'weekend');
-  var sdc=$q('[data-k=sd]'),sdl=sdc.parentNode,rr0=runGet(),lockSd=dayDone(cur)||(rr0&&rr0.day===cur)||(cur===t&&hwOn());sdc.checked=sdOn(cur);sdc.disabled=!!lockSd;sdl.classList.toggle('on',sdOn(cur));sdl.classList.toggle('off',!!lockSd);
-  $q('[data-k=sdt]').textContent='('+mins(cur)+' min'+(lockSd?(rr0&&rr0.day===cur?', can\'t change while the plan is running':cur===t&&hwOn()?', can\'t change during homework first':', day already done'):'')+')';
+  [].forEach.call(days.children,function(b,i){var rv=rvOn(i);b.className=(i===cur?'on':'')+(i===t?' td':'')+(dayDone(i)?' full':qsOn(i)?' quick':'')+(rv?' rv':'');b.title=(dayDone(i)?'Plan done':qsOn(i)?'2-minute start done: this day counts':'')+(rv?(dayDone(i)||qsOn(i)?' · ':'')+'Revision day':'');b.setAttribute('aria-selected',i===cur)});
+  $q('[data-k=dn]').textContent=(cur===t?'Today, ':'')+DAYS[cur];$q('[data-k=dt]').textContent=allMins(cur)+' min · '+(rvOn(cur)?'revision day':cur<5?(extOn(cur)?'school day, stretched to 45':'school day'):'weekend');
+  var tn=$q('[data-k=tnext]'),bh='';try{bh=REV.banner()}catch(_){}tn.hidden=!bh;tn.innerHTML=bh;if(bh){var tb=document.createElement('button');tb.type='button';tb.className='plgo alt';tb.textContent='Tests';tb.onclick=function(){setView('tst')};tn.appendChild(tb)}
   var L=$q('.plblks');L.innerHTML='';var pn=DAY(cur).some(isFix)||(cur===1&&t===0)?pile():0;
   if(cur===1&&t===0&&!p.monClr&&pn>0){var nt=document.createElement('p');nt.className='plnote plcarry';nt.textContent='If Monday\'s Fix my mistakes isn\'t finished, the first 15 minutes of study here go to it (then a 7-minute Calculus slot).';L.appendChild(nt)}
   DAY(cur).forEach(function(b,j){var dn=isDone(cur,j),e=document.createElement('div');e.className='plblk'+(dn?' done':'');
    e.innerHTML='<button class="pltick" type="button" role="checkbox" aria-checked="'+dn+'" aria-label="'+esc(b[0])+' done">'+(dn?'✓':'')+'</button><div class="plbody"><p class="plt"><span>'+esc(b[0])+'</span><span class="plm">'+b[1]+' min</span></p><p class="plh">'+esc(b[2])+(isFix(b)?' <b class="plfixn">'+(pn?pn+' to fix right now.':'Nothing to fix right now.')+'</b>':'')+'</p><div class="placts"></div></div>';
-   e.querySelector('.pltick').onclick=function(){var k=cur+'-'+j;if(PS().t[k])delete PS().t[k];else PS().t[k]=1;save();var r=runGet();if(r&&PS().t[k]&&r.day===cur&&r.j===j){r.ends=Date.now();r.early=1;runSet(r);loop()}paint();paintPill()};
+   e.querySelector('.pltick').onclick=function(){var k=cur+'-'+j;if(PS().t[k])delete PS().t[k];else{pinRv(cur);PS().t[k]=1;if(b[5]==='rev')try{REV.doneDay(b[6].pin)}catch(_){}}save();var r=runGet();if(r&&PS().t[k]&&r.day===cur&&r.j===j){r.ends=Date.now();r.early=1;runSet(r);loop()}paint();paintPill()};
    var A=e.querySelector('.placts');
    b[3].forEach(function(a,ai){var x;if(a[1]==='url'){x=document.createElement('a');x.href=a[2];x.target='_blank';x.rel='noopener'}else{x=document.createElement('button');x.type='button'}
     x.className='plgo'+(ai?' alt':'');x.innerHTML=esc(a[0])+(a[1]==='url'?' ↗':' →');x.onclick=function(){go(a,b[0])};A.appendChild(x)});
    if(!b[3].length)A.remove();
-   if(b[5]==='study'){var sw=document.createElement('input');sw.type='text';sw.className='plsdw';sw.maxLength=60;sw.placeholder='What are you studying? e.g. Biology test on cells';sw.setAttribute('aria-label','What are you studying?');sw.value=sdWhat(cur);
-    sw.oninput=function(){var p=PS();if(!p.sdw||typeof p.sdw!=='object')p.sdw={};p.sdw[cur]=sw.value;save();e.querySelector('.plt>span').textContent=STUDYB(cur)[0];var rr=runGet();if(rr&&rr.day===cur){rr.t=STUDYB(cur)[0];runSet(rr)}};e.querySelector('.plbody').appendChild(sw)}
    if(b[4]){var tp=document.createElement('div');tp.className='pltop';tp.innerHTML='<label for="plTopics">Topics to fix</label><textarea id="plTopics" maxlength="600" placeholder="e.g. Circle theorems, iteration, vectors"></textarea>';
     var ta=tp.querySelector('textarea');ta.value=p.topics;ta.oninput=function(){PS().topics=ta.value;save()};e.querySelector('.plbody').appendChild(tp)}
    L.appendChild(e)});
@@ -224,17 +411,17 @@
    var A0=R.querySelector('.placts'),d1=document.createElement('button');d1.type='button';d1.className='plgo';d1.textContent='Homework done → Critical';d1.onclick=hwDone;A0.appendChild(d1);
    var d3=document.createElement('button');d3.type='button';d3.className='plgo alt';d3.textContent='Homework timer';d3.onclick=function(){location.href='homework.html'};A0.appendChild(d3);
    var d2=document.createElement('button');d2.type='button';d2.className='plgo alt';d2.textContent='Cancel';d2.onclick=function(){hwSet(null);paintPill();paint();setTimeout(function(){try{focusSend(true)}catch(_){}},50)};A0.appendChild(d2);return}
-  if(r){var b=DAY(r.day)[r.j]||D[r.day][r.j],left=r.ends-Date.now();var isSt=b[5]==='study';R.innerHTML='<p>'+(isSt?'Study day: timer running':'Today\'s plan is running')+'</p><b>'+esc(r.t||b[0])+' · '+(left>0?fmtLeft(left)+' left':'time\'s up')+'</b><p>'+(isSt?'Get your books out and study. When the time\'s up, today\'s plan is done and your study time is saved.':'When the time is up you\'ll move to the next part. If you\'re in the middle of a lesson, you can finish it first. Done at least 1 lesson and not up for more? Press Finished early.')+'</p><div class="placts"></div>';
-   var A=R.querySelector('.placts'),x1=document.createElement('button');x1.type='button';x1.className='plgo';x1.textContent='Go to it →';x1.onclick=function(){var a=b[3][0];if(a)go(a,b[0],true);else close()};if(b[3].length)A.appendChild(x1);
-   var x2=document.createElement('button');x2.type='button';x2.className='plgo alt';x2.textContent='Next part now';x2.onclick=function(){var rr=runGet();if(rr){rr.ends=Date.now();runSet(rr);loop();paint()}};if(!isSt)A.appendChild(x2);
-   var x4=document.createElement('button');x4.type='button';x4.className='plgo alt';x4.textContent='Finished early';x4.onclick=function(){finishEarly()};if(!isSt)A.appendChild(x4);
+  if(r){var b=DAY(r.day)[r.j]||D[r.day][r.j],left=r.ends-Date.now();var isRv=b[5]==='rev';R.innerHTML='<p>'+(isRv?'Revision day: timer running':'Today\'s plan is running')+'</p><b>'+esc(r.t||b[0])+' · '+(left>0?fmtLeft(left)+' left':'time\'s up')+'</b><p>'+(isRv?'Do practice rounds on today\'s topics until the time\'s up. If you\'re in the middle of a round, you can finish it first.':'When the time is up you\'ll move to the next part. If you\'re in the middle of a lesson, you can finish it first. Done at least 1 lesson and not up for more? Press Finished early.')+'</p><div class="placts"></div>';
+   var A=R.querySelector('.placts'),x1=document.createElement('button');x1.type='button';x1.className='plgo';x1.textContent=isRv?'Open revision →':'Go to it →';x1.onclick=function(){var a=b[3][0];if(a)go(a,b[0],true);else close()};if(b[3].length)A.appendChild(x1);
+   var x2=document.createElement('button');x2.type='button';x2.className='plgo alt';x2.textContent='Next part now';x2.onclick=function(){var rr=runGet();if(rr){rr.ends=Date.now();runSet(rr);loop();paint()}};if(!isRv)A.appendChild(x2);
+   var x4=document.createElement('button');x4.type='button';x4.className='plgo alt';x4.textContent='Finished early';x4.onclick=function(){finishEarly()};if(!isRv)A.appendChild(x4);
    var x3=document.createElement('button');x3.type='button';x3.className='plgo alt';x3.textContent='Stop the plan';x3.onclick=function(){stopRun(false)};A.appendChild(x3);return}
   var j=firstLeft(t);if(j<0){if(feOn(t)){var fz0=PS().fe[t],fn=fz0.n||1;R.innerHTML='<p>Finished early today ✓</p><b>'+fn+' lesson'+(fn===1?'':'s')+' done</b><p>Today\'s plan is finished. Changed your mind? You can carry on with it.</p><div class="placts"></div>';
    var uu=document.createElement('button');uu.type='button';uu.className='plgo alt';uu.textContent='Undo: carry on with the plan';uu.onclick=undoEarly;R.querySelector('.placts').appendChild(uu)}return}
-  var bb=document.createElement('button');bb.type='button';bb.className='plbig';bb.textContent=(sdOn(t)?'Start studying':DAY(t).some(function(_,k){return isDone(t,k)})?'Carry on with today\'s plan':'Start today\'s plan')+' ('+DAY(t).slice(j).filter(function(_,k){return !isDone(t,j+k)}).reduce(function(s2,x){return s2+x[1]},0)+' min)';
+  var bb=document.createElement('button');bb.type='button';bb.className='plbig';var rvT=rvOn(t);bb.textContent=(rvT?'Start revision':DAY(t).some(function(_,k){return isDone(t,k)})?'Carry on with today\'s plan':'Start today\'s plan')+' ('+DAY(t).slice(j).filter(function(_,k){return !isDone(t,j+k)}).reduce(function(s2,x){return s2+x[1]},0)+' min)';
   bb.onclick=function(){startRun()};R.appendChild(bb);
   var o1=document.createElement('button');o1.type='button';o1.className='plgo alt';o1.textContent='Just one question';o1.onclick=function(){close();ONE.start()};
-  var hf=document.createElement('button');hf.type='button';hf.className='plgo alt';hf.textContent='Homework first';hf.onclick=startHw;var hr=document.createElement('div');hr.className='placts';if(!sdOn(t))hr.appendChild(o1);hr.appendChild(hf);if(lessonsN()>=1&&!sdOn(t)){var fe1=document.createElement('button');fe1.type='button';fe1.className='plgo alt';fe1.textContent='Finished early';fe1.onclick=function(){finishEarly()};hr.appendChild(fe1)}R.appendChild(hr);
+  var hf=document.createElement('button');hf.type='button';hf.className='plgo alt';hf.textContent='Homework first';hf.onclick=startHw;var hr=document.createElement('div');hr.className='placts';if(!rvT)hr.appendChild(o1);hr.appendChild(hf);if(lessonsN()>=1&&!rvT){var fe1=document.createElement('button');fe1.type='button';fe1.className='plgo alt';fe1.textContent='Finished early';fe1.onclick=function(){finishEarly()};hr.appendChild(fe1)}R.appendChild(hr);
   if(!focusOk&&/Windows|Macintosh|CrOS|Linux x86/.test(navigator.userAgent)&&!/Mobile|Android/.test(navigator.userAgent)&&window.chrome){var fg=document.createElement('p');fg.className='plnote';fg.innerHTML='Strict mode: <a href="https://u23bodwells-cmyk.github.io/Critical/reminders/critical-focus.zip" target="_blank" rel="noopener">get the Critical Focus extension for Chrome</a>. It closes TikTok at plan time and keeps Critical on screen until you\'re done.';R.appendChild(fg)}
   if(focusOk){var fz=document.createElement('p');fz.className='plnote';fz.textContent=focusOk.locked?'Critical Focus is locked on: TikTok is blocked and Critical stays on screen until today\'s plan is done.':'Critical Focus is on: from plan time, TikTok is closed and blocked until today\'s plan is done.';R.appendChild(fz)}
   var n=document.createElement('p');n.className='plnote';n.textContent=hw&&hw.done&&!hw.alloc?'Homework used up today\'s Critical time. You can still start it if you want to.':'It times each part and moves you on when it\'s time. Got homework that\'s running over? Press Homework first: Critical gets whatever time is left when you\'ve finished.';R.appendChild(n)}
@@ -245,7 +432,7 @@
  function hwOn(){var h=hwGet();return !!(h&&!h.done)}
  function leftMins(t){return DAY(t).filter(function(_,j){return !isDone(t,j)}).reduce(function(a,b){return a+b[1]},0)}
  function hhmm(ms){var d=new Date(ms),h=d.getHours(),m=d.getMinutes();return (h%12||12)+':'+(m<10?'0':'')+m+(h>=12?'pm':'am')}
- function startHw(){var t=todayI();if(runGet()||firstLeft(t)<0)return;var L=leftMins(t),now=Date.now();hwSet({d:ymdN(),at:now,end:now+L*60000,mins:L});setTimeout(function(){try{focusSend(true)}catch(_){}},50);warned={};hideBan();paintPill();
+ function startHw(){var t=todayI();if(runGet()||firstLeft(t)<0)return;pinRv(t);var L=leftMins(t),now=Date.now();hwSet({d:ymdN(),at:now,end:now+L*60000,mins:L});setTimeout(function(){try{focusSend(true)}catch(_){}},50);warned={};hideBan();paintPill();
   if(sh.classList.contains('open')){cur=t;view='plan';paint()}else showBan('<b>Homework first.</b> When you\'ve finished, tap the calendar button and press Homework done. Critical gets whatever\'s left until '+hhmm(now+L*60000)+'.',[['Open homework timer',function(){hideBan();location.href='homework.html'}],['OK',hideBan]])}
  function hwDone(){var h=hwGet(),t=todayI();if(!h||h.done)return;setTimeout(function(){try{focusSend(true)}catch(_){}},80);var rem=Math.floor((h.end-Date.now())/60000);h.done=Date.now();
   var idx=DAY(t).map(function(_,j){return j}).filter(function(j){return !isDone(t,j)});
@@ -253,7 +440,7 @@
   var tot=idx.reduce(function(a,j){return a+DAY(t)[j][1]},0),f=Math.min(1,rem/tot),alloc={},acc=0;
   idx.forEach(function(j){var m=Math.round(DAY(t)[j][1]*f);if(m>=5){alloc[j]=m;acc+=m}});
   var ks=Object.keys(alloc);if(!ks.length){alloc[idx[0]]=Math.min(rem,DAY(t)[idx[0]][1]);ks=[String(idx[0])]}else if(f<1)alloc[ks[0]]=Math.max(5,alloc[ks[0]]+rem-acc);
-  h.alloc=alloc;hwSet(h);var go2=function(){if(typeof STUDY!=='undefined'&&STUDY.start)STUDY.start('Weekly plan · '+DAYS[t]);begin(t,+ks[0],true)};if(!sdOn(t)&&typeof SHIFT!=='undefined'&&SHIFT.brief(go2))return;go2()}
+  h.alloc=alloc;hwSet(h);var go2=function(){if(typeof STUDY!=='undefined'&&STUDY.start)STUDY.start('Weekly plan · '+DAYS[t]);begin(t,+ks[0],true)};if(!rvOn(t)&&typeof SHIFT!=='undefined'&&SHIFT.brief(go2))return;go2()}
  function hwNext(day,j){var h=hwGet();if(!h||!h.alloc||day!==todayI())return firstLeft(day,j);var ks=Object.keys(h.alloc).map(Number).sort(function(a,b){return a-b});for(var i=0;i<ks.length;i++)if(ks[i]>j&&!isDone(day,ks[i]))return ks[i];return -1}
  /* ----- Critical Focus (Chrome extension): tell it today's plan time and when the plan is done ----- */
  var FOCUS_ID='dofdocaillphcjghjdjodhippjldkibo',focusOk=null,lastFocus=0,GUARD_ID='ophdjhoiolnmepbdhbdjgcgnfpdogfnp';
@@ -289,15 +476,15 @@
  function undoEarly(){var t=todayI(),p=PS();if(p.fe){delete p.fe[t];save()}
   try{if(window.chrome&&chrome.runtime&&chrome.runtime.sendMessage)chrome.runtime.sendMessage(FOCUS_ID,{type:'unearly'},function(){try{void chrome.runtime.lastError}catch(_){}})}catch(_){}
   setTimeout(function(){try{focusSend(true)}catch(_){}},300);paintPill();if(sh.classList.contains('open'))paint()}
- function afterLesson(){setTimeout(function(){try{focusSend(true)}catch(_){}},50);
+ function afterLesson(){setTimeout(function(){try{focusSend(true)}catch(_){}},50);if(rvOn(todayI()))return;
   var r=runGet(),b=document.getElementById('pBody'),ds=b&&b.querySelector('.done-screen');if(!r||!ds||feOn(todayI())||ds.querySelector('.plearly'))return;
   var left=r.ends-Date.now(),d=document.createElement('div');d.className='dblock plearly';d.style.textAlign='center';
   d.innerHTML='<p class="note" style="margin:0 0 8px">Today\'s plan: <b>'+esc(r.t)+'</b>'+(left>0?', '+fmtLeft(left)+' left on this part.':'.')+' Not up for any more today?</p><button type="button" class="wbtn">Finished early: that\'s enough for today</button>';
   d.querySelector('button').onclick=function(){if(typeof closePlayer==='function')closePlayer();finishEarly()};var an=ds.querySelector('.dblock');if(an)ds.insertBefore(d,an);else ds.appendChild(d)}
- function startRun(go){var t=todayI(),j=firstLeft(t);if(j<0)return;if(go!==true&&!sdOn(t)&&typeof SHIFT!=='undefined'&&SHIFT.brief(function(){startRun(true)}))return;
+ function startRun(go){var t=todayI(),j=firstLeft(t);if(j<0)return;if(go!==true&&!rvOn(t)&&typeof SHIFT!=='undefined'&&SHIFT.brief(function(){startRun(true)}))return;
   try{if('Notification' in window&&Notification.permission==='default')Notification.requestPermission()}catch(_){}
   if(typeof STUDY!=='undefined'&&STUDY.start)STUDY.start('Weekly plan · '+DAYS[t]);begin(t,j,true)}
- function begin(day,j,gesture){var b=DAY(day)[j],hh=hwGet(),mn=(hh&&hh.alloc&&hh.alloc[j]!=null&&day===todayI())?hh.alloc[j]:b[1];runSet({d:ymdN(),day:day,j:j,t:b[0],ends:Date.now()+mn*60000,mins:mn});warned={};hideBan();paintPill();
+ function begin(day,j,gesture){pinRv(day);var b=DAY(day)[j],hh=hwGet(),mn=(hh&&hh.alloc&&hh.alloc[j]!=null&&day===todayI())?hh.alloc[j]:b[1];runSet({d:ymdN(),day:day,j:j,t:b[0],ends:Date.now()+mn*60000,mins:mn});warned={};hideBan();paintPill();
   var a=b[3][0];if(!a){cur=day;paint();sh.classList.add('open');return}
   if(a[1]==='url'&&!gesture){cur=day;paint();sh.classList.add('open');return}
   go(a,b[0],true);if(sh.classList.contains('open'))paint()}
@@ -306,7 +493,7 @@
  function showBan(html,btns,auto){hideBan();ban=document.createElement('div');ban.className='plban';ban.setAttribute('role','status');ban.innerHTML='<p>'+html+'</p><div class="placts"></div>';var A=ban.querySelector('.placts');
   btns.forEach(function(x,i){var b=document.createElement('button');b.type='button';b.className='plgo'+(i?' alt':'');b.textContent=x[0];b.onclick=x[1];A.appendChild(b)});document.body.appendChild(ban);
   if(auto){var n=auto[0],cd=ban.querySelector('.plcd');banT=setInterval(function(){n--;if(cd)cd.textContent=n;if(n<=0){clearInterval(banT);banT=null;auto[1]()}},1000)}}
- function timeUp(r){var k=r.day+'-'+r.j;if(!PS().t[k]){PS().t[k]=1;save();if(sh.classList.contains('open'))paint()}
+ function timeUp(r){var k=r.day+'-'+r.j;if(!PS().t[k]){pinRv(r.day);var ob0=DAY(r.day)[r.j];PS().t[k]=1;if(ob0&&ob0[5]==='rev')try{REV.doneDay(ob0[6].pin)}catch(_){}save();if(sh.classList.contains('open'))paint()}
   var nj=hwNext(r.day,r.j);if(nj<0){stopRun(true);return}
   var hx=hwGet(),ob=DAY(r.day)[r.j],left0=isFix(ob)&&!r.clr&&!r.gm?pile():0,nb=DAY(r.day)[nj],na=nb[3][0],ext=na&&na[1]==='url',title=(r.clr?'<b>Your mistakes pile is empty.</b> ':r.early?'':'Time\'s up for '+esc(r.t)+'. '+(left0&&r.day===0?left0+' left, so they\'ll come first on Tuesday. ':''))+'Next: <b>'+esc(nb[0])+'</b> ('+(hx&&hx.alloc&&hx.alloc[nj]!=null?hx.alloc[nj]:nb[1])+' min).';
   if(document.hidden&&!warned.n){warned.n=1;try{if('Notification' in window&&Notification.permission==='granted')new Notification('Time for '+nb[0],{body:'Come back to Critical for the next part of your plan.',tag:'critical-plan'})}catch(_){}}
@@ -323,7 +510,7 @@
   if(!r||r.gm||r.ends<=now)return;var b=DAY(r.day)[r.j];if(!isFix(b)||busy())return;if(n<0)n=pile();
   if(n===0){if(r.day===0){p.monClr=1;save()}r.ends=now;r.early=1;r.clr=1;runSet(r);return}
   if(typeof P!=='undefined'&&P&&P.finished&&P.mode==='review'&&!P._plAsk&&!ban){P._plAsk=1;showBan('<b>'+n+' mistake'+(n===1?'':'s')+' left to fix.</b> '+fmtLeft(r.ends-now)+' to go on this part.',[['Next round →',function(){hideBan();go(b[3][0],b[0])}],['Not now',hideBan]])}}
- function highChk(r,left){if(r.high||left>5*60000||ban||busy())return;var hk=(DAY(r.day)[r.j]||[])[5];if(hk==='clash'||hk==='study')return;if(hwNext(r.day,r.j)>=0)return;var mn=r.mins||(DAY(r.day)[r.j]||[0,0])[1];if(mn<10)return;r.high=1;runSet(r);
+ function highChk(r,left){if(r.high||left>5*60000||ban||busy())return;var hk=(DAY(r.day)[r.j]||[])[5];if(hk==='clash'||hk==='rev')return;if(hwNext(r.day,r.j)>=0)return;var mn=r.mins||(DAY(r.day)[r.j]||[0,0])[1];if(mn<10)return;r.high=1;runSet(r);
   var lapOk=typeof HIGH!=='undefined'&&HIGH.canLap();
   showBan('<b>Last 5 minutes: end on a high.</b> Finish today with something fun.',(lapOk?[['Victory lap',function(){hideBan();HIGH.lap()}]]:[]).concat([['Control room',function(){hideBan();if(document.querySelector('#player.open')&&typeof closePlayer==='function')closePlayer();close();showPage('sim')}],['Keep going',hideBan]]))}
  var lastDayPaint=-1;
@@ -336,9 +523,8 @@
   var key=r.day+'-'+r.j+'-'+r.ends;if(!ban&&upKey!==key){upKey=key;timeUp(r)}}
  function toastIn(t){var d=document.createElement('div');d.className='plban';d.style.bottom='calc(96px + env(safe-area-inset-bottom))';d.setAttribute('role','status');d.innerHTML='<p>'+esc(t)+'</p>';document.body.appendChild(d);setTimeout(function(){d.remove()},6000)}
  $q('[data-k=auto]').onchange=function(){PS().auto=this.checked?1:0;save()};
- $q('[data-k=sd]').onchange=function(){var r=runGet(),v=this.checked;if((r&&r.day===cur)||dayDone(cur)||(cur===todayI()&&hwOn())){this.checked=!v;return}setSd(cur,v);paint();paintPill();setTimeout(function(){try{focusSend(true)}catch(_){}},50)};
  function close(){sh.classList.remove('open')}
- function open(v){if(v==='day'||v==='plan'||v==='hab')view=v;editing=null;cur=todayI();paint();sh.classList.add('open')}
+ function open(v){if(v==='day'||v==='plan'||v==='hab'||v==='tst')view=v;editing=null;cur=todayI();paint();sh.classList.add('open')}
  $q('.plx').onclick=close;sh.addEventListener('click',function(e){if(e.target===sh)close()});
  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&sh.classList.contains('open'))close()});
  var CAL='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4M8 14l1.6 1.6L13 12.2"/></svg>';
@@ -354,11 +540,11 @@
  if(location.hash==='#setup'){try{history.replaceState(null,'',location.pathname+location.search)}catch(_){}setTimeout(function(){try{if(window.chrome&&chrome.runtime&&chrome.runtime.sendMessage)chrome.runtime.sendMessage(FOCUS_ID,{type:'setup'},function(){try{void chrome.runtime.lastError}catch(_){}open('plan')});else open('plan')}catch(_){open('plan')}},400)}
  if(location.hash==='#focus'){try{history.replaceState(null,'',location.pathname+location.search)}catch(_){}setTimeout(function(){try{if(!runGet()&&!hwOn()&&firstLeft(todayI())>=0&&typeof ONE!=='undefined')ONE.start();else open('plan')}catch(_){}},600)}
  if(location.hash==='#start'){try{history.replaceState(null,'',location.pathname+location.search)}catch(_){}setTimeout(function(){try{var t=todayI();if(t>4||runGet()||hwOn()||firstLeft(t)<0){open('plan');return}
-  showBan('<b>4:45: time to start.</b> '+(sdOn(t)?'It\'s a study day: '+restMins(t)+' minutes of studying.':'Today\'s plan is '+restMins(t)+' minutes.')+' Got homework due? Do that first and Critical gets whatever time is left.',[['Start today\'s plan',function(){hideBan();startRun()}],['Homework first',function(){hideBan();startHw()}],['Just one question',function(){hideBan();ONE.start()}]])}catch(e){if(window.console)console.error(e)}},600)}
+  showBan('<b>4:45: time to start.</b> '+(rvOn(t)?'It\'s a revision day: '+restMins(t)+' minutes of revising for your test.':'Today\'s plan is '+restMins(t)+' minutes.')+' Got homework due? Do that first and Critical gets whatever time is left.',[['Start today\'s plan',function(){hideBan();startRun()}],['Homework first',function(){hideBan();startHw()}],['Just one question',function(){hideBan();ONE.start()}]])}catch(e){if(window.console)console.error(e)}},600)}
  if(location.hash==='#hwdone'){try{history.replaceState(null,'',location.pathname+location.search)}catch(_){}setTimeout(function(){try{hwDone()}catch(_){}},700)}
  if(location.hash==='#early'){try{history.replaceState(null,'',location.pathname+location.search)}catch(_){}setTimeout(function(){try{finishEarly()}catch(_){}},700)}
  if(location.hash==='#home'){try{history.replaceState(null,'',location.pathname+location.search)}catch(_){}setTimeout(function(){try{homeAuto();open('day')}catch(_){}},400)}
- return {wkKey:wk,wkMins:function(){var m=0;D.forEach(function(_,i){DAY(i).forEach(function(b,j){if(isDone(i,j))m+=b[1]})});return m},schoolMins:function(){var m=0;for(var i=0;i<5;i++)m+=mins(i);return m},TOTAL:TOTAL,dayMins:function(){return mins(todayI())},fullInfo:function(){var t=todayI(),full=allTicked(t),h=hwGet(),ks=h&&h.alloc?Object.keys(h.alloc):[],hf=ks.length>0&&ks.every(function(j){return isDone(t,+j)});return {t:t,full:full||hf,mins:full?DAY(t).reduce(function(a,b,j){return a+(isDone(t,j)?b[1]:0)},0):hf?ks.reduce(function(a,j){return a+h.alloc[j]},0):0,early:feOn(t),quick:qsOn(t)}},early:finishEarly,qsOn:qsOn,markQuick:markQuick,afterLesson:afterLesson,feOn:feOn,undoEarly:undoEarly,hideBan:hideBan,isDone:isDone,next:function(){var t=todayI(),j=firstLeft(t);return j<0?null:DAY(t)[j]},leftMins:function(){return leftMins(todayI())},open:open,close:close,paint:paint,paintPill:paintPill,start:startRun,stop:stopRun,loop:loop,running:function(){return !!runGet()},todayLeft:function(){return firstLeft(todayI())>=0},D:D,DAY:DAY,pile:pile,TUE_FIX:TUE_FIX,rows:rows,nowRow:nowRow,sched:sched,home:homeGet,habits:HS,streak:streak,hw:hwGet,hwStart:startHw,hwDone:hwDone,focusStatus:focusStatus,focus:function(){return focusOk},studyDay:sdOn,setStudyDay:setSd};
+ return {wkKey:wk,wkMins:function(){var m=0;D.forEach(function(_,i){DAY(i).forEach(function(b,j){if(isDone(i,j))m+=b[1]})});return m},schoolMins:function(){var m=0;for(var i=0;i<5;i++)m+=mins(i);return m},TOTAL:TOTAL,dayMins:function(){return mins(todayI())},fullInfo:function(){var t=todayI(),full=allTicked(t),h=hwGet(),ks=h&&h.alloc?Object.keys(h.alloc):[],hf=ks.length>0&&ks.every(function(j){return isDone(t,+j)});return {t:t,full:full||hf,mins:full?DAY(t).reduce(function(a,b,j){return a+(isDone(t,j)?b[1]:0)},0):hf?ks.reduce(function(a,j){return a+h.alloc[j]},0):0,early:feOn(t),quick:qsOn(t)}},early:finishEarly,qsOn:qsOn,markQuick:markQuick,afterLesson:afterLesson,feOn:feOn,undoEarly:undoEarly,hideBan:hideBan,isDone:isDone,next:function(){var t=todayI(),j=firstLeft(t);return j<0?null:DAY(t)[j]},leftMins:function(){return leftMins(todayI())},open:open,close:close,paint:paint,paintPill:paintPill,start:startRun,stop:stopRun,loop:loop,running:function(){return !!runGet()},todayLeft:function(){return firstLeft(todayI())>=0},D:D,DAY:DAY,pile:pile,TUE_FIX:TUE_FIX,rows:rows,nowRow:nowRow,sched:sched,home:homeGet,habits:HS,streak:streak,hw:hwGet,hwStart:startHw,hwDone:hwDone,focusStatus:focusStatus,focus:function(){return focusOk},rvOn:rvOn,runLeft:function(){var r=runGet();return r?r.ends-Date.now():null}};
 })();
 try{window.PLAN=PLAN}catch(_){}
 /* ===== just one question: a tiny way into a study session ===== */
@@ -2024,156 +2210,4 @@ var SYNC=(function(){
    '<div class="shacts">'+(isGS(c)&&c.err==='key'?'<button type="button" class="wbtn pri" data-a="fix">Fix the key</button>':'')+'<button type="button" class="wbtn'+(isGS(c)&&c.err==='key'?'':' pri')+'" data-a="now">Sync now</button><button type="button" class="wbtn" data-a="link">Link another device</button>'+(isGS(c)?'':'<button type="button" class="wbtn" data-a="gsw">Switch to Google (for school)</button>')+'<button type="button" class="skip" data-a="off">Turn off sync</button><button type="button" class="skip" data-a="x">Close</button></div>');
   M.querySelector('[data-a=now]').onclick=function(){var st=M.querySelector('[data-k=st]');st.textContent='Syncing…';sync(true).then(function(){if(st)st.textContent=state})};M.querySelector('[data-a=link]').onclick=link;var sw=M.querySelector('[data-a=gsw]');if(sw)sw.onclick=choose;var fx=M.querySelector('[data-a=fix]');if(fx)fx.onclick=function(){gsFix(c.url)};M.querySelector('[data-a=off]').onclick=function(){closeM();signOut()};M.querySelector('[data-a=x]').onclick=closeM}
  function signOut(){setCfg(null);mount();try{toast(BOLT,'Sync is off','Your progress stays on this device')}catch(_){}}
- function block(){var c=cfg();if(!c)return '<div class="syncbox" id="syncBox"><div class="synchd">'+CLOUD+'Sync between your devices</div><p class="note">Set it up once and your progress moves across by itself: lessons, XP, streak, plan, habits, Shift Ready and Aptitude Gym. Choose Google sync for school Chromebooks.</p><div class="savebtns"><button class="wbtn pri" id="syncOn">Turn on sync</button></div></div>';
-  return '<div class="syncbox on" id="syncBox"><div class="synchd">'+CLOUD+'Sync is on</div><p class="note">'+(isGS(c)?'Syncing through your <b>Google</b> account.':'Signed in to GitHub as <b>'+escH(c.user||'you')+'</b>.')+' <span id="syncSt">'+escH(state||(c.last?'Synced '+ago(c.last):'Not synced yet'))+'</span></p><div class="savebtns">'+(isGS(c)&&c.err==='key'?'<button class="wbtn pri" id="syncFix">Fix the key</button>':'')+'<button class="wbtn" id="syncNow">Sync now</button><button class="wbtn" id="syncLink">Link another device</button><button class="skip" id="syncOff">Turn off sync</button></div></div>'}
- function mount(){try{pill()}catch(_){}var card=document.getElementById('saveCard');if(!card)return;var old=document.getElementById('syncBox');if(old)old.remove();var hd=card.querySelector('.savehead');var w=document.createElement('div');w.innerHTML=block();var el=w.firstChild;if(hd&&hd.nextSibling)card.insertBefore(el,hd.nextSibling);else card.appendChild(el);
-  var b;if((b=document.getElementById('syncOn')))b.onclick=choose;if((b=document.getElementById('syncNow')))b.onclick=function(){sync(true)};if((b=document.getElementById('syncFix')))b.onclick=function(){var c=cfg();gsFix(c&&c.url)};if((b=document.getElementById('syncLink')))b.onclick=link;if((b=document.getElementById('syncOff')))b.onclick=signOut}
- var SAVE0=save;
- setTimeout(function(){var b=document.getElementById('syncPill');if(b)b.onclick=function(){panel()};pill()},0);
- return {choose:choose,gsSetup:gsSetup,isGS:function(){return isGS(cfg())},closePush:closePush,dirty:function(){return dirty},panel:panel,pill:pill,sync:sync,mark:mark,mount:mount,merge:merge,cfg:cfg,signIn:signIn,link:link,pending:function(){return pending},saveRaw:function(){SAVE0()},boot:function(){if(cfg())setTimeout(function(){sync(true)},1200)}}
-})();
-try{window.SYNC=SYNC}catch(_){}
-/* every save marks sync as needed; the sync box sits in the Your progress card */
-(function(){var sv=save;save=function(){sv.apply(this,arguments);try{SYNC.mark()}catch(_){}}})();
-(function(){var wp=wireProgress;wireProgress=function(){var o=wp.apply(this,arguments);try{SYNC.mount()}catch(e){if(window.console)console.error(e)}return o}})();
-(function(){var cp=closePlayer;closePlayer=function(){var o=cp.apply(this,arguments);try{if(SYNC.pending())setTimeout(function(){SYNC.sync(true)},400)}catch(_){}return o}})();
-SYNC.boot();
-(function(){var rl=renderLearn;renderLearn=function(){var out=rl.apply(this,arguments);try{MYS.mount()}catch(e){if(window.console)console.error(e)}return out}})();
-/* unlocks are checked whenever XP goes up */
-(function(){var ax=addXP;addXP=function(n,el){ax(n,el);try{REW.check()}catch(_){}}})();
-/* ===== exam practice: real past papers, a countdown timer and an answer sheet to send to Claude ===== */
-var EXAM=(function(){
- var PMT='https://pmt.physicsandmathstutor.com/download/',SCI=['June 2025','June 2024','June 2023','June 2022','June 2021','June 2020','June 2019','June 2018','Specimen'];
- var SUBJ={
-  gp:{name:'Physics',full:'AQA GCSE Physics (8463), Higher',dir:'Physics/GCSE/Past-Papers/AQA/',lab:'01.1',list:['https://www.physicsandmathstutor.com/past-papers/gcse-physics/aqa-paper-1/','https://www.physicsandmathstutor.com/past-papers/gcse-physics/aqa-paper-2/'],
-   papers:[{n:1,label:'Paper 1',sub:'Energy, electricity, particles, atomic structure',mins:105,marks:100,now:1},{n:2,label:'Paper 2',sub:'Forces, waves, magnetism, space',mins:105,marks:100}],series:SCI,up:{'June 2020':1,'June 2021':1,'June 2022':1}},
-  gc:{name:'Chemistry',full:'AQA GCSE Chemistry (8462), Higher',dir:'Chemistry/GCSE/Past-Papers/AQA/',lab:'01.1',list:['https://www.physicsandmathstutor.com/past-papers/gcse-chemistry/aqa-paper-1/','https://www.physicsandmathstutor.com/past-papers/gcse-chemistry/aqa-paper-2'],
-   papers:[{n:1,label:'Paper 1',sub:'Atoms, bonding, quantitative, chemical and energy changes',mins:105,marks:100,now:1},{n:2,label:'Paper 2',sub:'Rates, organic, analysis, atmosphere, resources',mins:105,marks:100}],series:SCI,up:{}},
-  gm:{name:'Maths',full:'Edexcel GCSE Maths (1MA1), Higher',dir:'Maths/GCSE/Past-Papers/Edexcel/',lab:'1',list:['https://www.physicsandmathstutor.com/past-papers/gcse-maths/edexcel-paper-1','https://www.physicsandmathstutor.com/past-papers/gcse-maths/edexcel-paper-2/','https://www.physicsandmathstutor.com/past-papers/gcse-maths/edexcel-paper-3/'],
-   papers:[{n:1,label:'Paper 1',sub:'Non-calculator',mins:90,marks:80},{n:2,label:'Paper 2',sub:'Calculator',mins:90,marks:80},{n:3,label:'Paper 3',sub:'Calculator',mins:90,marks:80}],
-   series:['June 2025','Nov 2024','June 2024','Nov 2023','June 2023','Nov 2022','June 2022','Nov 2021','Nov 2020','June 2020','Nov 2019','June 2019','Nov 2018','June 2018','Nov 2017','June 2017','Specimen 1','Specimen 2'],up:{}}};
- function pdf(s,n,ser,kind){var X=SUBJ[s];return PMT+X.dir+'Paper-'+n+'H/'+kind+'/'+encodeURIComponent(ser+' '+kind)+(X.up[ser]?'.PDF':'.pdf')}
- function E(){if(!S.exam||typeof S.exam!=='object')S.exam={};if(!Array.isArray(S.exam.hist))S.exam.hist=[];return S.exam}
- function C(){return E().cur||null}
- function now(){return Date.now()}
- function used(c){if(!c.start)return 0;var t=c.end||c.paused||now();return Math.max(0,t-c.start-(c.pausedMs||0))}
- function limit(c){return (c.mins+(c.extra||0))*60000}
- function hms(ms){var neg=ms<0;ms=Math.abs(ms);var s=Math.floor(ms/1000),h=Math.floor(s/3600),m=Math.floor(s/60)%60,x=s%60;return (neg?'+':'')+(h?h+':':'')+String(m).padStart(h?2:1,'0')+':'+String(x).padStart(2,'0')}
- function hm(ms){var m=Math.round(ms/60000);return m>=60?Math.floor(m/60)+' h '+(m%60?m%60+' min':''):m+' min'}
- function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
- var sel={s:'gp',n:1},saveT=null;
- function keep(){clearTimeout(saveT);saveT=setTimeout(save,300)}
- var css=document.createElement('style');css.textContent=
- '.exw{display:flex;flex-direction:column;gap:16px;max-width:820px;margin:0 auto}.exw h1{margin:0}.exw .lead{margin:4px 0 0;color:var(--muted);font-size:15px;line-height:1.5}'+
- '.exchips{display:flex;gap:8px;flex-wrap:wrap}.exchip{font:inherit;font-size:14px;font-weight:700;border:2px solid var(--line);background:var(--panel);color:var(--text);border-radius:12px;padding:9px 14px;cursor:pointer;text-align:left}.exchip span{display:block;font-size:12px;font-weight:600;color:var(--muted)}.exchip.on{border-color:var(--accent);background:var(--accent-bg);color:var(--accent-text)}.exchip.on span{color:var(--accent-text)}'+
- '.exnow{display:inline-block;font:800 10px var(--sans);letter-spacing:.06em;text-transform:uppercase;background:var(--good-bg);color:var(--good);border-radius:999px;padding:2px 7px;margin-left:6px;vertical-align:2px}'+
- '.exser{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}.exser button{font:inherit;font-size:14px;font-weight:700;border:1.5px solid var(--line);background:var(--bg);color:var(--text);border-radius:12px;padding:10px 12px;cursor:pointer;text-align:left}.exser button span{display:block;font-size:12px;font-weight:600;color:var(--muted)}.exser button.did{border-color:var(--good-line)}'+
- '.exclock{font-family:var(--mono);font-size:56px;font-weight:700;text-align:center;font-variant-numeric:tabular-nums;letter-spacing:.02em;line-height:1.1}.exclock.warn{color:#e8742a}.exclock.over{color:var(--bad,#c33)}.exsub{text-align:center;color:var(--muted);font-size:14px;margin:4px 0 0}'+
- '.exbar{height:10px;background:var(--soft2);border-radius:5px;overflow:hidden;margin:12px 0 4px}.exbar i{display:block;height:100%;background:var(--accent);border-radius:5px;transition:width .5s}.exbar i.warn{background:#e8742a}.exbar i.over{background:var(--bad,#c33)}'+
- '.exrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.exbtn{font:inherit;font-size:15px;font-weight:800;border:0;border-radius:12px;padding:11px 16px;cursor:pointer;background:var(--accent);color:var(--on-accent);text-decoration:none;display:inline-flex;align-items:center;gap:6px}.exbtn.alt{background:var(--soft);color:var(--text)}.exbtn.bad{background:var(--bad,#c33);color:#fff}.exbtn:disabled{opacity:.45;cursor:default}'+
- '.exans{display:flex;flex-direction:column;gap:8px}.exa{display:grid;grid-template-columns:76px minmax(0,1fr) 32px;gap:8px;align-items:start}.exa input,.exa textarea,.exin{font:inherit;font-size:15px;color:var(--text);background:var(--bg);border:1.5px solid var(--line);border-radius:10px;padding:8px 10px;min-width:0;box-sizing:border-box}.exa input{font-family:var(--mono);font-weight:700;width:100%}.exa textarea{width:100%;min-height:44px;resize:vertical;line-height:1.4}.exa button{border:0;background:none;color:var(--muted);font-size:18px;cursor:pointer;padding:8px 0}'+
- '.exnote{font-size:13px;color:var(--muted);margin:0;line-height:1.45}.exopt{display:flex;gap:10px;align-items:center;font-size:14px;cursor:pointer}.exopt input{width:20px;height:20px;accent-color:var(--accent)}'+
- '.exhist{display:flex;flex-direction:column}.exhist div{display:flex;gap:10px;align-items:center;padding:8px 0;border-top:1px solid var(--line);font-size:14px}.exhist div span:first-child{flex:1;min-width:0}.exhist b{font-family:var(--mono)}.extag{font-size:12px;color:var(--muted)}'+
- '.excopy{width:100%;min-height:120px;font-family:var(--mono);font-size:12px}';
- document.head.appendChild(css);
- function title(c){return c.custom?(c.what||'Custom practice'):SUBJ[c.s].full+', '+SUBJ[c.s].papers[c.n-1].label+', '+c.ser}
- function short(c){return c.custom?(c.what||'Custom practice'):SUBJ[c.s].name+' '+SUBJ[c.s].papers[c.n-1].label+' · '+c.ser}
- function nextLab(prev,newQ){var c=C(),def=(c&&!c.custom&&SUBJ[c.s])?SUBJ[c.s].lab:'1';if(!prev)return def;
-  var m=prev.match(/^(\d+)\.(\d+)$/);if(m)return newQ?String(+m[1]+1).padStart(m[1].length,'0')+'.1':m[1]+'.'+(+m[2]+1);
-  m=prev.match(/^(\d+)\s*(?:\(([a-z])\))?$/i);if(m){if(newQ)return String(+m[1]+1);return m[1]+'('+(m[2]?String.fromCharCode(m[2].toLowerCase().charCodeAt(0)+1):'b')+')'}
-  return prev}
- function startPaper(s,n,ser){var p=SUBJ[s].papers[n-1];E().cur={id:now(),s:s,n:n,ser:ser,mins:p.mins,marks:p.marks,start:0,paused:null,pausedMs:0,extra:0,ans:[{q:SUBJ[s].lab,a:''}],end:null,photos:false,warn:{}};save();render()}
- function startCustom(mins,what){E().cur={id:now(),custom:1,what:what,mins:mins,marks:0,start:0,paused:null,pausedMs:0,extra:0,ans:[{q:'1',a:''}],end:null,photos:false,warn:{}};save();render()}
- function go(){var c=C();if(!c)return;c.start=now();c.warn={};save();if(!c.custom){try{window.open(pdf(c.s,c.n,c.ser,'QP'),'_blank','noopener')}catch(_){}}
-  try{if('Notification' in window&&Notification.permission==='default')Notification.requestPermission()}catch(_){}
-  if(typeof STUDY!=='undefined'&&STUDY.start)STUDY.start('Past paper: '+short(c));render()}
- function pause(){var c=C();if(!c||!c.start||c.end)return;if(c.paused){c.pausedMs+=now()-c.paused;c.paused=null}else c.paused=now();save();render()}
- function finish(){var c=C();if(!c||c.end)return;if(c.paused){c.pausedMs+=now()-c.paused;c.paused=null}c.end=now();if(!c.start)c.start=c.end;var h=E().hist;h.unshift({id:c.id,t:short(c),s:c.s||'',n:c.n||0,ser:c.ser||'',used:used(c),allow:limit(c),marks:c.marks,score:null,d:new Date().toISOString()});E().hist=h.slice(0,40);save();if(typeof STUDY!=='undefined'&&STUDY.stop)STUDY.stop();render()}
- function quit(){E().cur=null;save();render()}
- function copyText(c){var L=['Please mark my past paper using the official mark scheme. Give me a mark for each question, what I missed, and my total.',''];
-  if(c.custom)L.push('Practice: '+title(c));else{L.push('Paper: '+title(c));L.push('Question paper: '+pdf(c.s,c.n,c.ser,'QP'));L.push('Mark scheme: '+pdf(c.s,c.n,c.ser,'MS'));L.push('Total marks: '+c.marks)}
-  L.push('Time used: '+hm(used(c))+' (allowed '+hm(limit(c))+')','','My answers:');
-  c.ans.forEach(function(r){if(r.q||r.a)L.push((r.q||'?')+': '+(r.a||'(no answer)').replace(/\n+/g,' / '))});
-  if(c.photos)L.push('','Some of my answers are written on paper: I\'ll send photos.');return L.join('\n')}
- var tick=null,lastTab='';
- function tabTime(ms){var neg=ms<0;ms=Math.abs(ms);var m=Math.ceil(ms/60000);return (neg?'+':'')+(m>=60?Math.floor(m/60)+':'+String(m%60).padStart(2,'0'):m+'m')}
- function loop(){var c=C(),tab=document.querySelector('.tab[data-p=exam]');
-  if(tab){var t=(c&&c.start&&!c.end)?'Exams · '+(c.paused?'paused':tabTime(limit(c)-used(c))):'Exams';if(t!==lastTab){tab.textContent=t;lastTab=t}}
-  if(!c||!c.start||c.end||c.paused)return;var rem=limit(c)-used(c);
-  [[600000,'10 minutes left.'],[300000,'5 minutes left. Start checking your answers.'],[0,'Time\'s up. Finish the sentence you\'re on, then press Finish.']].forEach(function(w){if(rem<=w[0]&&!c.warn[w[0]]){c.warn[w[0]]=1;save();alertOut(w[1])}});
-  var k=document.getElementById('exClock');if(k){k.textContent=hms(rem);k.className='exclock'+(rem<0?' over':rem<600000?' warn':'')}
-  var b=document.getElementById('exBar');if(b){b.style.width=Math.min(100,used(c)/limit(c)*100)+'%';b.className=rem<0?'over':rem<600000?'warn':''}
-  var pc=document.getElementById('exPace');if(pc&&!c.custom&&c.marks){var mk=Math.min(c.marks,Math.floor(used(c)/60000*c.marks/c.mins));pc.textContent=rem<0?'Overtime: in the real exam you\'d have to stop now.':'To finish on time you should be around mark '+mk+' of '+c.marks+' by now.'}}
- function alertOut(t){try{var A=new (window.AudioContext||window.webkitAudioContext)(),o=A.createOscillator(),g=A.createGain();o.frequency.value=880;g.gain.value=0.08;o.connect(g);g.connect(A.destination);o.start();setTimeout(function(){o.stop();A.close()},350)}catch(_){}
-  try{if(document.hidden&&'Notification' in window&&Notification.permission==='granted')new Notification('Exam timer',{body:t,tag:'critical-exam'})}catch(_){}
-  var d=document.createElement('div');d.className='plban';d.setAttribute('role','alert');d.innerHTML='<p><b>'+esc(t)+'</b></p>';document.body.appendChild(d);setTimeout(function(){d.remove()},7000)}
- function render(){var el=document.getElementById('page-exam');if(!el)return;var c=C(),h='<div class="exw">';
-  if(c&&!c.end){var X=c.custom?null:SUBJ[c.s],started=!!c.start;
-   h+='<div><h1>'+esc(short(c))+'</h1><p class="lead">'+(c.custom?'Custom timer':esc(X.full))+(c.custom?'':' · '+c.marks+' marks')+' · '+hm(c.mins*60000)+(c.extra?' + '+c.extra+' min extra':'')+'</p></div>';
-   h+='<div class="card"><div class="exclock" id="exClock">'+hms(limit(c)-used(c))+'</div><p class="exsub">'+(started?(c.paused?'Paused':'Time remaining'):'Ready when you are')+'</p><div class="exbar"><i id="exBar" style="width:'+Math.min(100,used(c)/limit(c)*100)+'%"></i></div><p class="exnote" id="exPace">'+(started?'':c.custom?'':'About '+(c.mins/c.marks).toFixed(2).replace(/0$/,'')+' minutes per mark. Pressing Start opens the question paper in a new tab.')+'</p>'+
-    '<div class="exrow" style="margin-top:12px">'+(started?'<button class="exbtn alt" data-a="pause">'+(c.paused?'Resume':'Pause')+'</button><button class="exbtn alt" data-a="extra">+5 min</button><button class="exbtn" data-a="finish">Finish</button>':'<button class="exbtn" data-a="go">Start the timer</button><button class="exbtn alt" data-a="quit">Back</button>')+(c.custom?'':'<a class="exbtn alt" href="'+pdf(c.s,c.n,c.ser,'QP')+'" target="_blank" rel="noopener">Question paper ↗</a>')+'</div></div>';
-   h+='<div class="card"><h2 style="margin-top:0">Your answers</h2><p class="exnote">Type each answer next to its question number. Show your working for calculations. For diagrams and graphs, write on paper and tick the box below.</p><div class="exans" id="exAns"></div><div class="exrow" style="margin-top:10px"><button class="exbtn alt" data-a="part">+ Next part</button><button class="exbtn alt" data-a="q">+ Next question</button></div>'+
-    '<label class="exopt" style="margin-top:12px"><input type="checkbox" id="exPhotos"'+(c.photos?' checked':'')+'> Some answers are on paper (I\'ll send photos)</label></div>';
-   if(started)h+='<p class="exnote">The timer keeps going if you switch to the paper or close the app. <button class="exbtn alt" data-a="quit" style="padding:6px 10px;font-size:13px">Abandon this paper</button></p>';}
-  else if(c&&c.end){h+='<div><h1>Finished: '+esc(short(c))+'</h1><p class="lead">Time used: <b>'+hm(used(c))+'</b> of '+hm(limit(c))+(used(c)>limit(c)?' (over time)':'')+'.</p></div>';
-   var txt=copyText(c),q=encodeURIComponent(txt);
-   h+='<div class="card"><h2 style="margin-top:0">Get it marked</h2><p class="exnote">Copy your answers and paste them into our chat. I\'ll open the official mark scheme and mark every question. If you wrote some answers on paper, send photos too.</p><div class="exrow" style="margin:10px 0"><button class="exbtn" data-a="copy">Copy for Claude</button>'+(q.length<7000?'<a class="exbtn alt" href="https://claude.ai/new?q='+q+'" target="_blank" rel="noopener">Open in a new Claude chat ↗</a>':'')+'</div><textarea class="exin excopy" id="exTxt" readonly>'+esc(txt)+'</textarea><p class="exnote" id="exMsg"></p></div>';
-   var hh=E().hist.filter(function(x){return x.id===c.id})[0];
-   h+='<div class="card"><h2 style="margin-top:0">Once it\'s marked</h2><p class="exnote">Enter your score to track your progress.</p><div class="exrow" style="margin-top:8px"><input class="exin" id="exScore" type="number" min="0" max="'+(c.marks||200)+'" style="width:110px" placeholder="Score" value="'+(hh&&hh.score!=null?hh.score:'')+'">'+(c.marks?'<span>out of '+c.marks+'</span>':'')+'<button class="exbtn alt" data-a="score">Save score</button></div></div>';
-   h+='<div class="exrow"><button class="exbtn" data-a="quit">Start another paper</button></div>';}
-  else{var X2=SUBJ[sel.s],P=X2.papers[sel.n-1],did={};E().hist.forEach(function(x){if(x.s===sel.s&&x.n===sel.n)did[x.ser]=x});
-   h+='<div><h1>Exam practice</h1><p class="lead">Real past papers with a countdown timer. Do the paper, type your answers here, then send them to me and I\'ll mark them against the official mark scheme.</p></div>';
-   h+='<div class="card"><h2 style="margin-top:0">1. Subject</h2><div class="exchips">'+['gp','gc','gm'].map(function(s){return '<button class="exchip'+(s===sel.s?' on':'')+'" data-s="'+s+'">'+SUBJ[s].name+'<span>'+(s==='gm'?'Edexcel':'AQA')+' Higher</span></button>'}).join('')+'</div>'+
-    '<h2>2. Paper</h2><div class="exchips">'+X2.papers.map(function(p){return '<button class="exchip'+(p.n===sel.n?' on':'')+'" data-n="'+p.n+'">'+p.label+(p.now?'<i class="exnow">Year 10</i>':'')+'<span>'+p.sub+'</span></button>'}).join('')+'</div>'+
-    '<p class="exnote" style="margin-top:8px">'+P.mins+' minutes · '+P.marks+' marks'+(sel.s!=='gm'?(P.now?' · covers the topics you\'re doing in Year 10.':' · mostly Year 11 topics.'):' · each paper can test any topic, so some questions may be ones you haven\'t learned yet.')+'</p>'+
-    '<h2>3. Pick a paper</h2><div class="exser">'+X2.series.map(function(ser){var d=did[ser];return '<button data-ser="'+esc(ser)+'"'+(d?' class="did"':'')+'>'+ser+'<span>'+(d?(d.score!=null?'Scored '+d.score+'/'+d.marks:'Done'):(/2020|2021/.test(ser)?'Practice paper':'Start'))+'</span></button>'}).join('')+'</div>'+
-    '<p class="exnote" style="margin-top:10px">Papers from Physics &amp; Maths Tutor. June 2020 and 2021 papers weren\'t sat (exams were cancelled), but they\'re real papers. <a href="'+X2.list[sel.n-1]+'" target="_blank" rel="noopener">All '+X2.name+' '+P.label+' papers ↗</a></p></div>';
-   h+='<div class="card"><h2 style="margin-top:0">Just a timer</h2><p class="exnote">For topic questions or half a paper.</p><div class="exrow" style="margin-top:8px"><input class="exin" id="exWhat" maxlength="80" placeholder="What are you doing? e.g. Maths Genie: circle theorems" style="flex:1 1 220px"><input class="exin" id="exMins" type="number" min="5" max="180" value="30" style="width:84px" aria-label="Minutes"><span>min</span><button class="exbtn alt" data-a="custom">Set up</button></div></div>';
-   if(E().hist.length){h+='<div class="card"><h2 style="margin-top:0">Your papers</h2><div class="exhist">'+E().hist.slice(0,12).map(function(x){return '<div><span>'+esc(x.t)+'<br><span class="extag">'+new Date(x.d).toLocaleDateString('en-GB',{day:'numeric',month:'short'})+' · '+hm(x.used)+'</span></span><b>'+(x.score!=null?x.score+'/'+x.marks+' ('+Math.round(x.score/x.marks*100)+'%)':'–')+'</b></div>'}).join('')+'</div></div>'}}
-  el.innerHTML=h+'</div>';wire(el)}
- function drawAns(){var c=C(),box=document.getElementById('exAns');if(!c||!box)return;box.innerHTML='';
-  c.ans.forEach(function(r,i){var row=document.createElement('div');row.className='exa';row.innerHTML='<input aria-label="Question number" maxlength="12"><textarea aria-label="Answer" rows="1"></textarea><button type="button" aria-label="Remove">✕</button>';
-   var q=row.children[0],a=row.children[1];q.value=r.q;a.value=r.a;q.oninput=function(){r.q=q.value;keep()};a.oninput=function(){r.a=a.value;a.style.height='auto';a.style.height=Math.min(240,a.scrollHeight)+'px';keep()};
-   row.children[2].onclick=function(){c.ans.splice(i,1);if(!c.ans.length)c.ans.push({q:SUBJ[c.s]?SUBJ[c.s].lab:'1',a:''});save();drawAns()};box.appendChild(row)})}
- function add(newQ){var c=C();if(!c)return;var last=c.ans[c.ans.length-1];if(!newQ&&last&&/^\d+$/.test(last.q))last.q=last.q+'(a)';c.ans.push({q:nextLab(last&&last.q,newQ),a:''});save();drawAns();var t=document.querySelectorAll('#exAns textarea');if(t.length)try{t[t.length-1].focus()}catch(_){}}
- function wire(el){[].forEach.call(el.querySelectorAll('[data-s]'),function(b){b.onclick=function(){sel.s=b.dataset.s;sel.n=1;render()}});
-  [].forEach.call(el.querySelectorAll('[data-n]'),function(b){b.onclick=function(){sel.n=+b.dataset.n;render()}});
-  [].forEach.call(el.querySelectorAll('[data-ser]'),function(b){b.onclick=function(){startPaper(sel.s,sel.n,b.dataset.ser)}});
-  var A={go:go,pause:pause,finish:finish,quit:quit,part:function(){add(false)},q:function(){add(true)},extra:function(){var c=C();if(c){c.extra=(c.extra||0)+5;c.warn={};save();render()}},
-   custom:function(){var m=parseInt(document.getElementById('exMins').value,10);if(!(m>=5&&m<=180))m=30;startCustom(m,document.getElementById('exWhat').value.trim())},
-   copy:function(){var t=document.getElementById('exTxt'),m=document.getElementById('exMsg');function ok(){m.textContent='Copied. Paste it into our chat.'}try{navigator.clipboard.writeText(t.value).then(ok,function(){t.select();m.textContent='Press Ctrl+C to copy.'})}catch(_){t.select();m.textContent='Press Ctrl+C to copy.'}},
-   score:function(){var c=C(),v=parseInt(document.getElementById('exScore').value,10);if(!c||isNaN(v))return;E().hist.forEach(function(x){if(x.id===c.id)x.score=Math.max(0,Math.min(c.marks||v,v))});save();render()}};
-  [].forEach.call(el.querySelectorAll('[data-a]'),function(b){var f=A[b.dataset.a];if(f)b.onclick=f});
-  var ph=document.getElementById('exPhotos');if(ph)ph.onchange=function(){var c=C();if(c){c.photos=ph.checked;save()}};drawAns()}
- /* page and tab */
- var main=document.querySelector('main');if(main&&!document.getElementById('page-exam')){var sec=document.createElement('section');sec.className='page';sec.id='page-exam';main.appendChild(sec)}
- var tabs=document.querySelector('.tabs');if(tabs&&!tabs.querySelector('[data-p=exam]')){var tb=document.createElement('button');tb.className='tab';tb.dataset.p='exam';tb.textContent='Exams';tb.onclick=function(){showPage('exam')};var ref=tabs.querySelector('[data-p=ref]');tabs.insertBefore(tb,ref)}
- tick=setInterval(loop,1000);setTimeout(loop,300);
- return {render:render,state:E,pdf:pdf,SUBJ:SUBJ,copyText:copyText};
-})();
-try{window.EXAM=EXAM}catch(_){}
-
-
-
-U({id:'maths',title:'Maths for operators',icon:'√x',color:'#7F77DD',desc:'Powers of ten, exponentials, logs, rates of change and counting statistics.',lessons:[
-L('m1','Powers of ten and units',8,[
-T(`<h3>Tiny numbers and huge numbers</h3><p>A reactor deals with numbers from tiny to enormous. A neutron in a reactor core lives for about <b>0.00002 seconds</b>. The core makes about <b>3,000,000,000 watts</b> of heat.</p><p>Scientific notation keeps these readable: 2 × 10<sup>−5</sup> s and 3 × 10<sup>9</sup> W.</p>`),
-Q(`Which of these is 3 × 10<sup>9</sup> W?`,['3 MW','3 GW','300 MW','30 GW'],1,`Giga means 10<sup>9</sup>, so 3 × 10<sup>9</sup> W = 3 GW. That's about the heat output of one large reactor core.`),
-T(`<h3>Prefixes</h3><table><tr><th>Prefix</th><th>Symbol</th><th>Multiply by</th></tr><tr><td>nano</td><td>n</td><td>10<sup>−9</sup></td></tr><tr><td>micro</td><td>µ</td><td>10<sup>−6</sup></td></tr><tr><td>milli</td><td>m</td><td>10<sup>−3</sup></td></tr><tr><td>kilo</td><td>k</td><td>10<sup>3</sup></td></tr><tr><td>mega</td><td>M</td><td>10<sup>6</sup></td></tr><tr><td>giga</td><td>G</td><td>10<sup>9</sup></td></tr></table><p>On a calculator, use the <b>×10<sup>x</sup></b> or <b>EXP</b> button.</p>`),
-N(`A source range detector reads 4.5 × 10<sup>4</sup> counts per second. Write that as an ordinary number.`,45000,0.001,'counts per second',`10<sup>4</sup> = 10,000, so 4.5 × 10<sup>4</sup> = 45,000.`),
-T(`<h3>A unit you'll use every shift: pcm</h3><p>You'll meet <b>reactivity</b> properly in unit 4. For now, all you need to know is that it's a small fraction, written Δk/k.</p><p>Because the numbers are so small, operators use <b>pcm</b> ("per cent mille"):</p><div class="eq">1 pcm = 10<sup>−5</sup> Δk/k = 0.001 %Δk/k</div><div class="key"><div class="kt">What each part means</div><div class="krow"><span class="ks">pcm</span><span class="km">“per cent mille”: one hundred-thousandth</span><span class="ku">1 pcm = 0.00001</span></div><div class="krow"><span class="ks">Δk/k</span><span class="km">the fractional change in k (Δ means “change in”)</span><span class="ku">no unit</span></div><div class="krow"><span class="ks">%Δk/k</span><span class="km">the same thing written as a percentage</span><span class="ku">%</span></div></div>`),
-W('unitConvert',{target:250},`Move the slider until the reactivity is <b>0.25 %Δk/k</b>. How many pcm is that?`,`0.25 % = 0.0025 Δk/k = 250 pcm. To convert Δk/k to pcm, multiply by 100,000.`),
-N(`A boron change adds 0.0042 Δk/k. How many pcm is that?`,420,0.01,'pcm',`0.0042 × 100,000 = 420 pcm.`),
-Q(`Which is the biggest reactivity?`,['500 pcm','0.004 Δk/k','0.45 %Δk/k','4 × 10<sup>−3</sup> Δk/k'],0,`Convert everything to pcm: 500, 400, 450 and 400. So 500 pcm is the biggest.`)]),
-L('m2','Exponential growth',10,[
-T(`<h3>Power multiplies</h3><p>When reactor power rises, it doesn't go up by the same <i>amount</i> each second. It goes up by the same <i>percentage</i>. That means it multiplies, which is called <b>exponential growth</b>.</p><p>Exponential growth starts slowly, then becomes explosive. Let's feel how fast.</p>`),
-W('doubling',{},`Start at 1 watt. Keep doubling until you reach <b>1 gigawatt</b> (10<sup>9</sup> W), the scale of a reactor.`,`It only takes 30 doublings to go from 1 W to over 1 GW. If power doubled every minute, that's half an hour. That's why rates of change matter so much in a control room.`),
-Q(`How many doublings take you from 1 W to over 1 GW?`,['About 10','About 30','About 300','About 1,000,000'],1,`2<sup>30</sup> ≈ 1.07 × 10<sup>9</sup>. Ten doublings multiply by about 1000, so thirty multiply by about 1000 × 1000 × 1000.`),
-T(`<h3>The number e and the reactor period</h3><p>Physicists write exponential growth using the number <b>e ≈ 2.718</b>:</p><div class="eq">P = P<sub>0</sub> e<sup>t/τ</sup></div><div class="key"><div class="kt">What each part means</div><div class="krow"><span class="ks">P</span><span class="km">reactor power right now</span><span class="ku">watts (W), or % of full power</span></div><div class="krow"><span class="ks">P<sub>0</sub></span><span class="km">the power you started at</span><span class="ku">same unit as P</span></div><div class="krow"><span class="ks">e</span><span class="km">a special number, about 2.718 (it’s on your calculator as e<sup>x</sup>)</span><span class="ku">no unit</span></div><div class="krow"><span class="ks">t</span><span class="km">time since you started</span><span class="ku">seconds (s)</span></div><div class="krow"><span class="ks">τ</span><span class="km">“tau”, the reactor <b>period</b>: the time for power to grow by a factor of e (×2.718)</span><span class="ku">seconds (s)</span></div></div><p>τ (tau) is the <b>reactor period</b>: the time for power to grow by a factor of e. A short period means a fast rise.</p>`),
-N(`Power starts at 1% and the reactor period is τ = 60 s. What's the power after 60 s?`,2.718,0.02,'%',`After one period, power multiplies by e: 1% × 2.718 = 2.72%.`),
-W('periodPlot',{lo:47,hi:57},`Find the period that takes power from 1% to 10% in about <b>2 minutes</b> (120 s).`,`Power rises ×10 when t/τ = ln 10 = 2.30, so τ = 120 ÷ 2.30 ≈ 52 s.`),
-T(`<h3>Doubling time</h3><p>Power doubles every <b>0.693 τ</b> (because e<sup>0.693</sup> = 2). So a 100 s period means power doubles every 69 s.</p>`),
-N(`The reactor period is 100 s. What's the doubling time?`,69.3,0.02,'s',`Doubling time = 0.693 × 100 = 69.3 s.`),
-Q(`Which period would make an operator act straight away?`,['500 s','100 s','60 s','5 s'],3,`A 5 s period means power multiplies by e every 5 seconds: ×10 in about 11.5 s. Controlled startups use periods of around a minute or longer.`)]),
-L('m3','Logarithms and log scales',10,[
-T(`<h3>"What power?"</h3><p>A logarithm answers the question "what power?"
+ fun
