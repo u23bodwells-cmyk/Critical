@@ -6585,6 +6585,28 @@ function plantFxTick(dt) {
     if (t0 === 0) for (i = 0; i < 4; i++) put(cxk + (R() - 0.5) * 0.4, 12.5, -21.6 + (R() - 0.5) * 0.4, wnd * 0.3 + (R() - 0.5), 3.5 + R() * 2, (R() - 0.5), 2.6 + R(), 0.6, 4 + R() * 2, 0.5, 0.22, 1.2);
     if (free > 6) { F.acc[2] += dt * (st ? 4.5 : 2.2 + 2.5 * clamp((+G2.kw || 0) / 8000, 0, 1)); while (F.acc[2] >= 1) { F.acc[2] -= 1; put(cxk + (R() - 0.5) * 0.3, 12.5, -21.6 + (R() - 0.5) * 0.3, wnd * 0.3 + (R() - 0.5) * 0.8, 2.6 + R() * 1.4, (R() - 0.5) * 0.8, 2.2 + R() * 1.0, st ? 0.6 : 0.4, st ? 4.5 : 3, st ? 0.45 : 0.17, st ? 0.26 : 0.55, 1.0); } } }
 }
+/* visuals check panel: off by default, press F9 to show or hide it. Jumps the sun clock (dusk, night, dawn, day), forces a weather type, trips the reactor or turbine and
+   opens or closes SG 1's PORV so the yard effects can be checked quickly. It uses the sim's own clock offset and weather record, and 'Live' puts the real ones back. */
+var FXDBG = { el: null,
+  skyAt: function (kind) { /* find the next moment (within 24 h, 10-minute steps) when the sun does what the button says; leaves the offset set */
+    var keep = S.clockOff || 0, best = null, prev = null, off, el; for (off = 0; off <= 86400; off += 600) { S.clockOff = off; SUN.t = -1; el = sunNow().el;
+      if (prev !== null) { if (kind === 'dusk' && prev > 0 && el <= 0) { best = off; break; } if (kind === 'dawn' && prev < -0.02 && el >= -0.02) { best = off; break; } if (kind === 'night' && el < -0.3) { best = off; break; } if (kind === 'day' && (best === null || el > FXDBG.bestEl)) { best = off; FXDBG.bestEl = el; } } prev = el; if (kind === 'day' && best === null) { best = off; FXDBG.bestEl = el; } }
+    S.clockOff = best === null ? keep : best; SUN.t = -1; return best !== null; },
+  wx: function (o) { WXL.d = Object.assign({ T: 8, w: 6, g: 9, rain: 0, cl: 0.2, code: 0 }, o); WXL.t = Date.now(); try { WXL.apply(true); } catch (e) {} },
+  say: function (m) { try { toast('🛠 ' + m); } catch (e) {} },
+  acts: function () { return [
+    ['Dusk', function () { FXDBG.say(FXDBG.skyAt('dusk') ? 'Clock jumped to sunset' : 'No sunset found'); }], ['Night', function () { FXDBG.say(FXDBG.skyAt('night') ? 'Clock jumped to night' : 'No night found'); }],
+    ['Dawn', function () { FXDBG.say(FXDBG.skyAt('dawn') ? 'Clock jumped to sunrise' : 'No sunrise found'); }], ['Midday', function () { FXDBG.say(FXDBG.skyAt('day') ? 'Clock jumped to midday' : 'Midday not found'); }],
+    ['Clear', function () { FXDBG.wx({ code: 0, cl: 0.05 }); FXDBG.say('Weather: clear'); }], ['Rain', function () { FXDBG.wx({ code: 63, rain: 2.5, cl: 0.9, T: 9, w: 15, g: 22 }); FXDBG.say('Weather: rain'); }],
+    ['Snow', function () { FXDBG.wx({ code: 73, rain: 1.5, cl: 0.9, T: -2, w: 10, g: 14 }); FXDBG.say('Weather: snow'); }], ['Storm', function () { FXDBG.wx({ code: 95, rain: 5, cl: 1, T: 8, w: 40, g: 60 }); FXDBG.say('Weather: thunderstorm'); }],
+    ['Fog', function () { FXDBG.wx({ code: 45, cl: 0.8, T: 3, w: 2, g: 4 }); FXDBG.say('Weather: fog'); }], ['Live clock+weather', function () { S.clockOff = 0; SUN.t = -1; WXL.t = 0; WXL.get(); FXDBG.say('Back to the real clock and weather'); }],
+    ['Reactor trip', function () { if (S.p && !S.p.tripped) doTrip(S.p, 'MAN'); else FXDBG.say('Already tripped'); }], ['Turbine trip', function () { if (S.p && S.p.x.tb.latched) turbTrip(S.p, 'visuals check'); else FXDBG.say('Turbine is not latched'); }],
+    ['SG1 PORV open/auto', function () { var s = S.p && S.p.x.sg[0]; if (s) { s.porvMode = s.porvMode === 'OPEN' ? 'AUTO' : 'OPEN'; FXDBG.say('SG 1 PORV: ' + s.porvMode); } }]]; },
+  toggle: function () { var e = FXDBG.el; if (!e) { e = FXDBG.el = document.createElement('div'); e.style.cssText = 'position:fixed;left:10px;bottom:10px;z-index:99999;max-width:340px;padding:8px 10px;border-radius:10px;background:rgba(10,14,20,.9);color:#cfe3ff;font:12px system-ui,sans-serif;display:none;box-shadow:0 4px 18px rgba(0,0,0,.5)';
+      var t = document.createElement('div'); t.textContent = 'Visuals check (F9 hides)'; t.style.cssText = 'font-weight:700;margin-bottom:6px;opacity:.8'; e.appendChild(t);
+      FXDBG.acts().forEach(function (a) { var b = document.createElement('button'); b.textContent = a[0]; b.style.cssText = 'margin:2px;padding:4px 8px;border:0;border-radius:6px;background:#2b3a55;color:#fff;font:inherit;cursor:pointer'; b.onclick = function (ev) { ev.stopPropagation(); try { a[1](); } catch (x) { FXDBG.say('Could not do that: ' + x); } b.blur(); }; e.appendChild(b); }); document.body.appendChild(e); }
+    e.style.display = e.style.display === 'none' ? 'block' : 'none'; } };
+addEventListener('keydown', function (e) { if (e.key === 'F9' && !e.ctrlKey && !e.metaKey && !e.altKey) { e.preventDefault(); try { FXDBG.toggle(); } catch (x) {} } });
 EXT.tick = function (dt) { if (!EXT.on) return; EXT.t += dt; roomDustTick(dt, EXT.t); tripAlarmTick(); try { plantFxTick(dt); } catch (e) {} if (EXT.wind) EXT.wind.value = EXT.t;
   /* day and night from the real sun over the station: it rises in the east (+x, through the windows), crosses the south (−z) and sets in the west */
   var SN = sunNow(), el = SN.el, ce = Math.sqrt(Math.max(0, 1 - el * el)), day = clamp(el * 3 + 0.15, 0, 1) * (1 - 0.3 * (WXL.d ? WXL.d.cl : 0)), dusk = clamp(1 - Math.abs(el) * 5, 0, 1) * (el > -0.25 ? 1 : 0), cloudK = 1 - 0.7 * (WXL.d ? WXL.d.cl : 0);
