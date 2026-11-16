@@ -1,4 +1,11 @@
-een(box,300,380);
+h.round((fat.leak-f0[4])/tot*100)+'%'}if(st.p){st.p.textContent=fmtInt(fat.cap);var fw=fat.fis-f0[1];st.c.textContent=fw>0?fx((fat.cap-f0[2])/fw,2):'–'}}
+  });
+  if(par.goal!=='critical')return {};
+  return {check:function(){if(done)return {ok:true,head:'Critical!'};var k=sim.k;return {ok:false,msg:!moved?(BOR?'Change the boron first: drag the slider and watch what happens to k.':'Move the control rods first: drag the slider and watch what happens to k.'):sim.ns.length<15?'There are only '+sim.ns.length+' neutrons. '+(BOR?'Dilute some boron out':'Pull the rods out a bit')+' so the chain reaction can build up.':k>1.05?'k is '+k.toFixed(2)+', so the neutrons keep multiplying. '+(BOR?'Add a little boron':'Push the rods in a little')+' and wait for k to settle.':k<.95?'k is '+k.toFixed(2)+', so the chain reaction is dying away. '+(BOR?'Dilute a little boron out':'Pull the rods out a little')+' and give it a few seconds.':'Nearly there: hold k close to 1 until the bar at the top fills.'}},lock:function(){rs.input.disabled=true}}};
+
+ /* ---------- collision lab: one neutron, one nucleus, real momentum ---------- */
+ WIDGETS.scatterLab=function(box,par){par=par||{};var NUC=[['Hydrogen-1 (in water)',1,'H-1'],['Deuterium (heavy water)',2,'H-2'],['Carbon-12 (graphite)',12,'C-12'],['Uranium-238',238,'U-238']],ti=0,aim=.35,mom=true,pts=[],fired=0,t=-1,lastAim=null,lastTi=null;
+  var scr=screen(box,300,380);
   var sel=select(box,'Target nucleus',NUC.map(function(n){return n[0]}),function(i){ti=i;pts=[];t=-1;upd()});
   var sa=slider(box,'Aim: how far off centre',0,95,1,35,function(v){return v===0?'dead centre':v+'%'},function(v){aim=v/100;t=-1;upd()});
   var r=row(box),bF=btn(r,'Fire',function(){t=0;fired++;lastAim=aim;lastTi=ti;pts.push(calc(NUC[ti][1],aim));if(pts.length>300)pts.shift()},'pri'),bR=btn(r,'Fire 100 at random',spray),bM=btn(r,'Momentum arrows',function(){mom=!mom;tog(bM,mom)});tog(bM,mom);
@@ -835,12 +842,4 @@ een(box,300,380);
     prims.push({k:'l',p:[[p[0]+ox,p[1]+oy],[mx[0]+ox,mx[1]+oy]],s:col(ca,.9),w:wd,d:(p[2]*.75+q[2]*.25)});prims.push({k:'l',p:[[mx[0]+ox,mx[1]+oy],[q[0]+ox,q[1]+oy]],s:col(cb,.9),w:wd,d:(p[2]*.25+q[2]*.75)})}});
   A.forEach(function(a,i){var e=EL[a.e]||EL.X,r=(a.r||e[1])*.16*P[i][3]*sc;prims.push({k:'b',x:P[i][0],y:P[i][1],r:r,c:a.c||e[0],a:a.a,glow:a.glow||a.e==='e',lab:a.lab,d:P[i][2]})})}
 
- function rdT(c,W,H,t){var z=W<500?8.5:9.5,F='700 '+z+'px "JetBrains Mono",ui-monospace,monospace';c.font=F;var w=c.measureText(t).width;if(w>W-20){z=Math.max(7,z*(W-20)/w);c.font='700 '+z+'px "JetBrains Mono",ui-monospace,monospace';while(t.length>8&&c.measureText(t).width>W-20)t=t.slice(0,-2);if(c.measureText(t).width>W-20||t.length<8){}}c.fillStyle='rgba(3,8,18,.55)';c.fillRect(0,H-26,Math.min(W,c.measureText(t).width+20),26);hud(c,10,H-10,t,'rgba(255,235,160,.95)',z,'left',true)}
- /* ---- the widget ---- */
- function mount(box,spec,opts){opts=opts||{};var nb=narrow(),scr=screen(box,opts.h||340,opts.hn||300),cam={yaw:spec.yaw!=null?spec.yaw:-.72,pitch:spec.pitch!=null?spec.pitch:.5,zoom:spec.zoom||(spec.k==='mol'?1.55:spec.box===false?1.3:1),dy:spec.k==='mol'||spec.box===false?.07:0},drag0=null,idle=99,tt=0,still=calm(),G=null,Gt=-1,n=spec.n||(nb?20:28);
-  var cv=scr.cv;cv.style.touchAction='pan-y';cv.style.cursor='grab';
-  cv.addEventListener('pointerdown',function(e){drag0={x:e.clientX,y:e.clientY,yaw:cam.yaw,pitch:cam.pitch};idle=0;try{cv.setPointerCapture(e.pointerId)}catch(_){}cv.style.cursor='grabbing'});
-  cv.addEventListener('pointermove',function(e){if(!drag0)return;cam.yaw=drag0.yaw+(e.clientX-drag0.x)*.011;cam.pitch=cl(drag0.pitch+(e.clientY-drag0.y)*.008,.06,1.35);idle=0});
-  function up(){drag0=null;cv.style.cursor='grab'}cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
-  var st={grow:0};if(spec.init)spec.init(st);
-  run(scr,function(dt,tm){var c=scr.c,W=scr.W,H=scr.H;if(!W)return;dt=dt/1000;idle+=dt;if(!still){tt+=dt;if(!drag0&&idle>2.5&&spec.sp
+ function rdT(c,W,H,t){var z=W<500?8.5:9.5,F='700 '+z+'px "JetBrains Mono",ui-monospace,monospace';c.font=F;var w=c.measureText(t).width;if(w>W-20){z=Math.max(7,z*(W-20)/w);c.font='700 '+z+'px "JetBrains Mono",ui-mo

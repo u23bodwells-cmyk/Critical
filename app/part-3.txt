@@ -1,4 +1,46 @@
-ern.PATTERN010 : return j % 3 === 0;
+ (1 << 10) | (1 << 8) | (1 << 5) | (1 << 4) | (1 << 2) | (1 << 1) | (1 << 0),
+    G18 : (1 << 12) | (1 << 11) | (1 << 10) | (1 << 9) | (1 << 8) | (1 << 5) | (1 << 2) | (1 << 0),
+    G15_MASK : (1 << 14) | (1 << 12) | (1 << 10)    | (1 << 4) | (1 << 1),
+
+    getBCHTypeInfo : function(data) {
+        var d = data << 10;
+        while (QRUtil.getBCHDigit(d) - QRUtil.getBCHDigit(QRUtil.G15) >= 0) {
+            d ^= (QRUtil.G15 << (QRUtil.getBCHDigit(d) - QRUtil.getBCHDigit(QRUtil.G15) ) );    
+        }
+        return ( (data << 10) | d) ^ QRUtil.G15_MASK;
+    },
+
+    getBCHTypeNumber : function(data) {
+        var d = data << 12;
+        while (QRUtil.getBCHDigit(d) - QRUtil.getBCHDigit(QRUtil.G18) >= 0) {
+            d ^= (QRUtil.G18 << (QRUtil.getBCHDigit(d) - QRUtil.getBCHDigit(QRUtil.G18) ) );    
+        }
+        return (data << 12) | d;
+    },
+
+    getBCHDigit : function(data) {
+
+        var digit = 0;
+
+        while (data !== 0) {
+            digit++;
+            data >>>= 1;
+        }
+
+        return digit;
+    },
+
+    getPatternPosition : function(typeNumber) {
+        return QRUtil.PATTERN_POSITION_TABLE[typeNumber - 1];
+    },
+
+    getMask : function(maskPattern, i, j) {
+        
+        switch (maskPattern) {
+            
+        case QRMaskPattern.PATTERN000 : return (i + j) % 2 === 0;
+        case QRMaskPattern.PATTERN001 : return i % 2 === 0;
+        case QRMaskPattern.PATTERN010 : return j % 3 === 0;
         case QRMaskPattern.PATTERN011 : return (i + j) % 3 === 0;
         case QRMaskPattern.PATTERN100 : return (Math.floor(i / 2) + Math.floor(j / 3) ) % 2 === 0;
         case QRMaskPattern.PATTERN101 : return (i * j) % 2 + (i * j) % 3 === 0;
@@ -1330,8 +1372,4 @@ T(`<h3>Barriers</h3><p>Radioactive material is kept in by several barriers, one 
 O(`Put the barriers in order, from the inside out.`,['Ceramic fuel pellet','Fuel cladding','Reactor coolant pressure boundary','Containment building'],`Each barrier backs up the others. Defence in depth also includes good design, operations, automatic protection and emergency planning.`),
 T(`<h3>Reactor protection system</h3><p>The protection system trips the reactor automatically on dangerous conditions: high power, high startup rate, low or high pressure, low coolant flow, low steam generator level, high temperature and more.</p><p>It's built to be <b>redundant</b> (several channels), <b>diverse</b> (different ways of detecting a problem) and <b>fail-safe</b> (loss of power causes a trip). Channels often vote <b>2 out of 4</b>.</p>`),
 W('voting',{},`Each channel trips when it sees a problem. Using 2-out-of-4 logic, cause a reactor trip with the <b>minimum</b> number of tripped channels.`,`Two channels are needed. One faulty channel can't trip the reactor on its own (no spurious trips), and one failed channel can't stop a real trip.`),
-T(`<h3>Emergency core cooling</h3><p>If coolant is lost, emergency core cooling systems inject borated water: high-pressure pumps, pressurised accumulators, and low-pressure pumps for long-term recirculation. Hinkley Point C's EPRs have <b>four independent safety trains</b>, each able to cool the core on its own, plus a core catcher and a double-walled containment.</p>`),
-Q(`Why use 2-out-of-4 voting rather than 1-out-of-1?`,['It\'s cheaper, because it needs fewer cables than one channel','It avoids trips from a single faulty channel and still trips if one channel fails','It\'s faster, because four channels share the work and react to a real fault sooner than one','Regulations ban single channels, but they work just as well'],1,`It balances safety (no single failure can stop a trip) and reliability (no single fault causes a trip).`)]),
-L('s6','Materials and chemistry',10,[
-T(`<h3>Embrittlement</h3><p>Steel becomes brittle when cold. Years of neutron bombardment raise the temperature below which the reactor vessel steel behaves in a brittle way. So:</p><ul><li><b>Pressure–temperature limits</b>: when the vessel is cold, pressure must be kept low</li><li><b>Heat-up and cool-down rates</b> are limited (typically about 55 °C per hour) to limit thermal stress</li><li><b>Pressurised thermal shock</b>, cold water hitting a hot vessel at high pressure, must be avoided</li></ul>`),
-Q(`Why must pressure be kept low when the reactor vessel is cold?`,['Cold water is heavier, so it presses harder on the 
+T(`<h3>Emergency core cooling</h3><p>If coolant is lost, emergency core cooling systems inject borated water: high-

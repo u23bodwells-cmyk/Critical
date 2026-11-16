@@ -1,4 +1,10 @@
-n.</li><li>ṁ = ρAv.</li></ul>`),
+t is its velocity, in m/s?`,13.8,0.01,'m/s',`v = ṁ ÷ (ρA) = 5,950 ÷ (720 × 0.6) = 5,950 ÷ 432 = 13.8 m/s.`),
+T(`<h3>Bernoulli: energy along a streamline</h3><p>For a steady, frictionless flow:</p><div class="eq">p + ½ρv² + ρgz = constant</div>${KY([['p','pressure','Pa'],['½ρv²','dynamic pressure (kinetic energy per m³)','Pa'],['ρgz','height term (potential energy per m³)','Pa']])}<p>Where the fluid speeds up, its pressure drops. That's how a <b>venturi</b> flowmeter works: measure the pressure drop at a narrowing, and calculate the flow.</p>`),
+W('stepCalc',{steps:['A venturi narrows from v₁ = 5 m/s to v₂ = 10 m/s. ρ = 1000 kg/m³, same height.','p₁ + ½ρv₁² = p₂ + ½ρv₂²','p₁ − p₂ = ½ × 1000 × (10² − 5²)','= 500 × 75 = <b>37,500 Pa</b> (0.375 bar)','Measuring that 0.375 bar drop tells you the flow.']},`Use Bernoulli for a venturi.`),
+QE(`If the number density N doubles, Σ = Nσ…`,[`doubles`,`halves`,`stays the same`,`quadruples`],0,`Σ is proportional to N (Last-but-one unit).`),
+T(`<h3>Key points</h3><ul><li><b>Continuity: ṁ = ρAv</b>. Narrower → faster.</li><li><b>Bernoulli: p + ½ρv² + ρgz = constant</b> (no friction).</li><li>Faster flow → lower pressure: the venturi principle.</li></ul>`)]),
+LH('m4-5-2','Friction and the Reynolds number',10,'Real flows lose pressure to friction. Whether the flow is smooth or turbulent decides how much.',[
+RM(`<ul><li>Bernoulli assumes no friction.</li><li>ṁ = ρAv.</li></ul>`),
 T(`<h3>Laminar or turbulent?</h3><p>Slow, smooth flow moves in neat layers: <b>laminar</b>. Fast flow swirls and mixes: <b>turbulent</b>. Which one you get depends on the <b>Reynolds number</b>:</p><div class="eq">Re = ρ v D ÷ μ</div>${KY([['Re','Reynolds number','no unit'],['D','pipe or channel diameter','m'],['μ','dynamic viscosity','Pa·s']],'Re below about 2,300: laminar. Above about 4,000: turbulent.')}`),
 N(`PWR core: ρ = 725 kg/m³, v = 5 m/s, D = 0.012 m, μ = 9 × 10⁻⁵ Pa·s. What is Re? Give the number in front of × 10⁵.`,4.83,0.01,'× 10⁵',`725 × 5 × 0.012 ÷ 9 × 10⁻⁵ = 43.5 ÷ 9 × 10⁻⁵ = 4.83 × 10⁵: strongly turbulent.`),
 T(`<h3>Pressure drop from friction</h3><div class="eq">Δp = f (L/D) (½ρv²)</div>${KY([['Δp','pressure lost to friction','Pa'],['f','Darcy friction factor (about 0.01–0.03 for turbulent flow)',''],['L','length of pipe','m']])}<p>Because Δp ∝ v², doubling the flow roughly <b>quadruples</b> the pressure drop. Pumps must supply it.</p>`),
@@ -741,13 +747,4 @@ W('calcDrill',{skill:'flin',need:4},`Practise substituting. Get 4 right in a row
 T(`<h3>Key points</h3><ul><li>A <b>function</b> turns an input into an output.</li><li><b>f(x)</b> means "the output of f when the input is x".</li><li>To find f(4), <b>substitute</b>: replace every x with 4.</li><li>Put negative numbers in <b>brackets</b>.</li></ul>`)]),
 LH('c1-1-2','Squares and order of operations',8,'Substituting into functions with x², including negative numbers, without tripping up.',[
 RM(`<p>A function turns an input into an output. To find <b>f(3)</b>, replace every x with 3. Put negatives in brackets.</p>`),
-T(`<h3>Functions with x²</h3><p>Calculus uses lots of functions with powers, like:</p><div class="eq">f(x) = x² + 1</div><p>x² means x × x. So f(3) = 3 × 3 + 1 = 10.</p>`),
-N(`f(x) = x² + 1. Find f(4).`,17,0.001,'',`4² = 16, plus 1 is 17.`),
-T(`<h3>The order matters</h3><p>Always do things in this order: <b>brackets</b>, then <b>powers</b>, then <b>multiply and divide</b>, then <b>add and subtract</b>.</p><p>So 3x² with x = 2 means: square first (2² = 4), <i>then</i> times 3 = 12. It isn't (3 × 2)² = 36.</p>`),
-Q(`f(x) = 3x². What is f(2)?`,[`12`,`36`,`6`,`18`],0,`Square first: 2² = 4. Then × 3 = 12.`),
-T(`<h3>The big trap: squaring negatives</h3><p>A negative number squared is <b>positive</b>, because minus times minus is plus:</p><div class="eq">(−3)² = (−3) × (−3) = 9</div><p>That's why the brackets matter. On a calculator, type (−3)² with the brackets, or you may get −9.</p>`),
-Q(`What is (−5)²?`,[`25`,`−25`,`−10`,`10`],0,`(−5) × (−5) = +25.`),
-N(`f(x) = x² − 2x. Find f(−3).`,15,0.001,'',`(−3)² − 2 × (−3) = 9 + 6 = 15.`),
-W('stepCalc',{steps:[`f(x) = 2x² − 3x + 1. We want f(−2).`,`Replace every x with (−2): 2(−2)² − 3(−2) + 1`,`Powers first: (−2)² = 4, so 2 × 4 = 8`,`Next term: −3 × (−2) = +6`,`Add them up: 8 + 6 + 1 = <b>15</b>`]},`Work through this example one step at a time.`,`Brackets, powers, then multiply, then add.`),
-W('calcDrill',{skill:'fsub',need:5},`Your turn. Get 5 right in a row.`,`You can substitute into any function with x² now.`),
-T(`<h3>Key po
+T(`<h3>Functions with x²</h3><p>Calculus uses lots of functions with powers, like:</p><d

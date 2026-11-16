@@ -1,4 +1,15 @@
-),
+come out further.`),
+N(`During the approach, the count rate rises from 40 cps to 160 cps. What's 1/M?`,0.25,0.01,'',`40 ÷ 160 = 0.25.`),
+Q(`During a startup, the startup rate is normally kept below about…`,['1 DPM','10 DPM','0 DPM','100 DPM'],0,`That gives operators plenty of time to respond.`),
+Q(`Above the point of adding heat, with rods stopped, the startup rate…`,['falls off as temperature feedback acts','rises sharply','stays constant forever'],0,`Heat raises temperatures, and the negative coefficients take reactivity away.`),
+Q(`The ECP must allow for…`,['boron, xenon, samarium and temperature','the weather','turbine speed','generator voltage'],0,`Each of these changes the reactivity the rods have to provide.`)]);
+
+/* ---------- unit test question pools (12 per unit; each test draws 10 of these + 5 from the unit's lessons and follow-ups) ---------- */
+TT('maths',[
+x('m1',N(`Convert 0.0072 Δk/k to pcm.`,720,0.01,'pcm',`0.0072 × 100,000 = 720 pcm.`)),
+x('m1',Q(`Which of these is 2.5 MW?`,['2.5 × 10<sup>6</sup> W','2.5 × 10<sup>3</sup> W','2.5 × 10<sup>9</sup> W','2.5 × 10<sup>−6</sup> W'],0,`Mega = 10<sup>6</sup>.`)),
+x('m2',N(`The period is 80 s. Starting at 1%, what's the power after 160 s?`,7.39,0.02,'%',`t/τ = 2, so P = 1 × e<sup>2</sup> = 7.39%.`)),
+x('m2',N(`The doubling time is 35 s. What's the period?`,50.5,0.02,'s',`τ = doubling time ÷ 0.693 = 35 ÷ 0.693 = 50.5 s.`)),
 x('m3',N(`How long does power take to rise from 10<sup>−5</sup>% to 10<sup>−1</sup>% on a 100 s period?`,921,0.02,'s',`t = 100 × ln(10<sup>4</sup>) = 100 × 9.21 = 921 s.`)),
 x('m3',N(`What is log<sub>10</sub>(10<sup>−4</sup> × 10<sup>9</sup>)?`,5,0.001,'',`10<sup>−4</sup> × 10<sup>9</sup> = 10<sup>5</sup>, so the log is 5.`)),
 x('m4',N(`Power is 40% on a steady 200 s period. How fast is it rising, in % per second?`,0.2,0.01,'% per second',`dP/dt = P/τ = 40/200 = 0.2% per second.`)),
@@ -916,7 +927,4 @@ TT('m2-5',[x('m2-5-1',N(`T½ = 5 days. λ per day?`,0.1386,0.01,'per day',`0.693
 /* ========== LEVEL 2 · THEORY (A-level) ========== */
 U({id:'t2-1',track:'theory',level:2,title:'Inside the nucleus',icon:'⚛︎',color:'#7F77DD',desc:'Why some nuclei are stable and others aren\'t, the different ways they decay, and decay chains.',lessons:[
 LH('t2-1-1','What makes a nucleus stable?',9,'Why carbon-12 lasts for ever but carbon-14 doesn\'t: the balance inside the nucleus.',[
-RM(`<ul><li>A nucleus contains <b>protons</b> (positive) and <b>neutrons</b> (no charge).</li><li>The <b>strong nuclear force</b> pulls them together, but only over tiny distances. Protons also <b>push each other apart</b> electrically.</li><li><b>Isotopes</b> of an element have the same protons but different numbers of neutrons.</li></ul>`),
-T(`<h3>A balancing act</h3><p>Every nucleus is a balance between two forces:</p><ul><li>the <b>strong force</b>, pulling all protons and neutrons together (short range: only between near neighbours)</li><li>the <b>electric push</b> between protons (long range: every proton pushes on every other proton)</li></ul><p>Neutrons add pull without adding push. So the right number of neutrons keeps a nucleus together. Too few or too many, and it's <b>unstable</b>.</p>`),
-T(`<h3>The line of stability</h3><p>If you plot every known nucleus by its number of neutrons (N) against protons (Z), the stable ones form a narrow band called the <b>line of stability</b>.</p><ul><li>Light nuclei are stable with about <b>equal</b> numbers: carbon-12 has 6 protons and 6 neutrons.</li><li>Heavy nuclei need <b>more neutrons than protons</b> to dilute the push: lead-208 has 82 protons and 126 neutrons.</li><li>Above lead (82 protons), no nucleus is truly stable. Uranium is radioactive, just very slowly.</li></ul>`),
-W('fnPlot',{x:[0,150],y:[0,100],xl:'neutrons (N)',yl:'protons (Z)',sl:[['z','Element (protons, Z)',6,92,2,26,function(v){return v}]],curves:function(p){return [[function(n){return n},'--muted',1.5,[6,5]],[function(n){return stableZ(n)},'--accent',3]]},marks:function(p,P,col){var n=stableN(p.z),c=P.c;c.fillStyle=col('--cora
+RM(`<ul><li>A nucleus contains <b>protons</b> (positive) and <b>neutrons</b> (no charge).</li><li>The <b>strong nuclear force</b> pulls them together, but only over tiny distances. Protons also <b>push each other apart</b> electrically.</li><li><b>Isotopes</b> of an eleme

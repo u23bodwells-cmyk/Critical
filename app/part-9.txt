@@ -1,4 +1,10 @@
-=== GCSE PHYSICS (AQA 8463) · LEVEL 2 · Year 10 ========== */
+GOALS.gm1={icon:'🧱',title:'Fill the gaps from Year 9',story:'Only do the units you need. Each one rebuilds the KS3 maths that GCSE Higher builds on.',final:'Ready for GCSE Higher',steps:['Number skills','Algebra basics','Fractions, decimals and percentages','Shapes and angles']};
+GOALS.gm2={icon:'📐',title:'Master Year 10 maths',story:'Each unit is one strand of the Edexcel Higher course. Finish all five and you\'ve covered the Year 10 content.',final:'Year 10 maths complete',steps:['Number','Algebra','Ratio, proportion and rates','Geometry and trigonometry','Constructions and loci']};
+GOALS.gm3={icon:'📈',title:'Master Year 11 maths',story:'The harder Higher-tier topics. Finish them and you\'ve covered the whole course.',final:'Year 11 maths complete',steps:['Graphs and harder algebra','Circles, vectors and similarity','Probability','Statistics']};
+GOALS.gm4={icon:'🎯',title:'Reach grade 7–8 in maths',story:'Each unit trains problem solving across topics, the way the three papers test it.',final:'Grade 7–8 standard',steps:['Number and algebra problems','Geometry problems','Statistics and probability problems','Mixed exam questions']};
+GOALS.gm5={icon:'🏆',title:'Go for a grade 9 in maths',story:'The hardest questions on the Higher papers. Each unit takes on one kind.',final:'Grade 9 standard',steps:['Proof','Functions and graphs','Hardest geometry','Hardest problems']};
+
+/* ========== GCSE PHYSICS (AQA 8463) · LEVEL 2 · Year 10 ========== */
 U({id:'gp2-1',track:'gp',level:2,title:'Energy',icon:'E',color:'#D85A30',desc:'Energy stores and transfers, kinetic, gravitational and elastic energy, specific heat capacity, power, efficiency and energy resources.',lessons:[
 LH('gp2-1-1','Energy stores and kinetic energy',9,'Energy is never used up, only moved between stores. Meet the stores, and the first equation you must learn.',[
 T(`<h3>Energy stores</h3><p>Energy is stored in different ways. Physicists call them <b>stores</b>:</p><ul><li><b>Kinetic</b>: anything moving</li><li><b>Gravitational potential</b>: anything raised up</li><li><b>Elastic potential</b>: anything stretched or squashed</li><li><b>Thermal</b> (internal): anything hot</li><li><b>Chemical</b>: food, fuel, batteries</li><li><b>Magnetic</b>, <b>electrostatic</b> and <b>nuclear</b></li></ul>`),
@@ -860,9 +866,4 @@ Q(`Sulfur dioxide dissolves in rainwater. What kind of solution does it make?`,[
 T(`<h3>Key points</h3><ul><li>Metals: shiny, conductors, malleable. Non-metals: dull, insulators, brittle.</li><li>Metals on the left, non-metals on the right.</li><li>Metal oxides are basic; non-metal oxides are acidic.</li></ul>`)])
 ]});
 U({id:'gc1-3',track:'gc',level:1,title:'Word and symbol equations',icon:'→',color:'#BA7517',desc:'Chemical and physical changes, signs of a reaction, word equations, and balancing symbol equations.',lessons:[
-LH('gc1-3-1','Chemical reactions and word equations',8,'How to tell a chemical reaction from a physical change, and how to write word equations.',[
-T(`<h3>Chemical or physical?</h3><ul><li>A <b>chemical change</b> makes new substances. It's usually hard to reverse.</li><li>A <b>physical change</b> (melting, dissolving) makes no new substance and is easy to reverse.</li></ul><p>Signs of a chemical reaction: <b>fizzing</b> (a gas is made), a <b>colour change</b>, a <b>temperature change</b>, or a <b>precipitate</b> (a solid forms in a solution).</p>`),
-W('sortIt',{bins:['Chemical change','Physical change'],items:[['Burning wood',0],['Iron rusting',0],['Baking a cake',0],['Ice melting',1],['Salt dissolving in water',1],['Water boiling',1]]},`Chemical or physical change?`,`New substance made: chemical.`),
-T(`<h3>Word equations</h3><p>Reactants on the left, products on the right, with an arrow meaning "react to make":</p><div class="eq">magnesium + oxygen → magnesium oxide</div><p>Common types: <b>combustion</b> (burning in oxygen), <b>thermal decomposition</b> (breaking down when heated), <b>oxidation</b> (gaining oxygen).</p>`),
-Q(`Methane burns completely in oxygen. What are the products?`,[`Carbon dioxide and water`,'Carbon and hydrogen gas','Carbon monoxide only','Oxygen and water vapour'],0,`Hydrocarbon + oxygen → carbon dioxide + water.`),
-Q(`Copper carbonate is heated and breaks down into copper oxide and carbon dioxide. What type of reaction is it?`,[`Thermal decompos
+LH('gc1-3-1','Chemical reactions and word equations',8,'How to tell a chemical reaction from a 

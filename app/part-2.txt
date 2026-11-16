@@ -200,7 +200,7 @@ try{window.REV=REV}catch(_){}
 /* ===== big past paper: an hour of exam-style questions written and marked by Claude. Type or handwrite your answers;
    after each one is marked, the next question goes after whatever you dropped marks on, until the time's up ===== */
 var PP=(function(){
- var KK='critical_api_key',MODEL='claude-haiku-5-5',SK='critical_pp',PW=1000,PH=620,
+ var ART='https://claude.ai/artifact/AsFGW6Ut3XQ8tBmmUTeCq4',KK='critical_api_key',MODEL='claude-haiku-5-5',SK='critical_pp',PW=1000,PH=620,
   BOARD={gp:'AQA',gc:'AQA',gm:'Edexcel',gcs:'AQA'},SUBJ={gp:'GCSE Physics',gc:'GCSE Chemistry',gm:'GCSE Maths',gcs:'GCSE Computer Science'},
   COLS={blue:'#2f6fdb',red:'#d64545',green:'#1f9d62'};
  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
@@ -338,29 +338,33 @@ var PP=(function(){
  /* ----- setting up a paper ----- */
  function keyBox(){return '<div class="ppkey"><p class="plnote">AI marking uses your own Claude API key, the same one the Ask button uses. It stays on this device. Marking a whole hour costs about 1–3p.</p><div class="pprow2"><input type="password" data-k="key" placeholder="sk-ant-…" autocomplete="off" aria-label="Claude API key"><button type="button" class="plgo" data-a="savekey">Save key</button></div><p class="plnote" data-k="kst"></p><p class="plnote">Get one at <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com</a>.</p></div>'}
  function wireKey(b){var sbt=b.querySelector('[data-a=savekey]');if(!sbt)return;sbt.onclick=function(){var k=b.querySelector('[data-k=key]').value.trim(),m=b.querySelector('[data-k=kst]');if(!/^sk-ant-[A-Za-z0-9_\-]{20,}$/.test(k)){m.textContent='That doesn\'t look like an Anthropic key (it starts sk-ant-).';return}try{localStorage.setItem(KK,k)}catch(_){}m.textContent='Key saved.';setTimeout(render,500)}}
+ /* the same paper as a Claude artifact: runs on your Claude account, no API key. Only a plain #name reaches it, so lessons go as ids joined by -- */
+ function artUrl(c){var ids=[];(c.lids||[]).forEach(function(id){UNITS.forEach(function(u){if(u.id===id)u.lessons.forEach(function(l){ids.push(l.id)});u.lessons.forEach(function(l){if(l.id===id)ids.push(l.id)})})});
+  ids=ids.filter(function(x,i){return /^[a-z0-9-]+$/.test(x)&&ids.indexOf(x)===i}).slice(0,12);var h=ids.length?ids.join('--'):(c.subj&&c.subj!=='own'?c.subj:'');return ART+(h?'#'+h:'')}
  function openSetup(pre){setup=Object.assign({subj:'gp',sname:'',tier:'Higher',topics:'',lids:[],extra:'',mins:60},pre||{});if(!Array.isArray(setup.lids))setup.lids=[];open();render()}
  function renderSetup(){var c=setup,hk=!!key();
   var tests=[];try{tests=REV.tests().filter(function(t){return !t.gone&&t.date>=today()})}catch(_){}
   var h='<div class="ppset"><div class="pldnow"><b>An hour of past-paper questions, marked for you</b>Claude writes exam-style questions on your topics. Type or write your answers, and it marks them like an examiner. The next question goes after whatever you dropped marks on, and it keeps going until the time\'s up.</div>'+
-   (hk?'':keyBox())+
+   '<div class="ppclaude"><a class="'+(hk?'plgo alt':'plbig')+' pplink" data-k="art" href="'+esc(artUrl(c))+'" target="_blank" rel="noopener">Do it in Claude: no API key needed ↗</a><p class="plnote">Opens Big Past Paper on claude.ai, where it runs on your Claude account. Lessons you pick below carry over; anything else, type in there.</p></div>'+
+   (hk?'':'<details class="ppor"><summary>Or use an API key here instead</summary>'+keyBox()+'</details>')+
    (tests.length?'<div><p class="plgt">From your tests</p><div class="rvchips ppchips">'+tests.map(function(t,i){return '<button type="button" data-tt="'+i+'">'+esc(t.name||'Test')+'</button>'}).join('')+'</div></div>':'')+
    '<div class="rvf"><div class="rvrow"><label>Subject<select data-f="subj"><option value="gp">GCSE Physics</option><option value="gc">GCSE Chemistry</option><option value="gm">GCSE Maths</option><option value="gcs">GCSE Computer Science</option><option value="own">Another subject</option></select></label>'+
    '<label>Tier<select data-f="tier"><option>Higher</option><option>Foundation</option></select></label></div>'+
    (c.subj==='own'?'<label>Which subject?<input type="text" data-f="sname" maxlength="40" placeholder="e.g. Biology, Geography"></label>':'')+
    '<label>Topics<input type="text" data-f="topics" maxlength="160" placeholder="e.g. scalars and vectors, resultant forces"></label><div class="ppsug" data-k="sug"></div>'+
    '<label>How long<select data-f="mins"><option value="60">1 hour</option><option value="45">45 minutes</option><option value="30">30 minutes</option></select></label></div>'+
-   '<p class="plderr" data-k="err" hidden></p><div class="ppact"><button type="button" class="plbig" data-a="go">Start the paper</button></div></div>';
-  var b=body(h),q=function(s){return b.querySelector(s)};wireKey(b);
+   '<p class="plderr" data-k="err" hidden></p>'+(hk?'<div class="ppact"><button type="button" class="plbig" data-a="go">Start the paper here</button></div>':'')+'</div>';
+  var b=body(h),q=function(s){return b.querySelector(s)};wireKey(b);function upd(){var a=q('[data-k=art]');if(a)a.href=artUrl(c)}
   q('[data-f=subj]').value=c.subj;q('[data-f=tier]').value=c.tier;q('[data-f=topics]').value=c.topics;q('[data-f=mins]').value=String(c.mins);
   q('[data-f=subj]').onchange=function(){c.subj=this.value;c.lids=[];renderSetup()};q('[data-f=tier]').onchange=function(){c.tier=this.value};q('[data-f=mins]').onchange=function(){c.mins=+this.value};
   if(q('[data-f=sname]')){q('[data-f=sname]').value=c.sname;q('[data-f=sname]').oninput=function(){c.sname=this.value}}
   function sug(){var box=q('[data-k=sug]'),words=c.topics.split(',').pop().trim(),m=[];if(words.length>=3&&c.subj!=='own')UNITS.forEach(function(u,ui){if(trk(ui)!==c.subj)return;u.lessons.forEach(function(l){var ok=false;try{ok=REV.match(words,l.title)}catch(_){ok=l.title.toLowerCase().indexOf(words.toLowerCase())>=0}if(ok&&c.lids.indexOf(l.id)<0)m.push(l)})});
    box.innerHTML=m.length?'<span class="plnote">Critical lessons:</span> '+m.slice(0,5).map(function(l){return '<button type="button" class="plgo alt" data-l="'+esc(l.id)+'">+ '+esc(l.title)+'</button>'}).join(''):'';
-   [].forEach.call(box.querySelectorAll('[data-l]'),function(bt){bt.onclick=function(){var l=null;UNITS.forEach(function(u){u.lessons.forEach(function(x){if(x.id===bt.dataset.l)l=x})});if(!l)return;c.lids.push(l.id);var parts=c.topics.split(',');parts.pop();parts.push(' '+l.title);c.topics=parts.join(',').replace(/^\s*,?\s*/,'').trim();q('[data-f=topics]').value=c.topics;sug()}})}
+   [].forEach.call(box.querySelectorAll('[data-l]'),function(bt){bt.onclick=function(){var l=null;UNITS.forEach(function(u){u.lessons.forEach(function(x){if(x.id===bt.dataset.l)l=x})});if(!l)return;c.lids.push(l.id);var parts=c.topics.split(',');parts.pop();parts.push(' '+l.title);c.topics=parts.join(',').replace(/^\s*,?\s*/,'').trim();q('[data-f=topics]').value=c.topics;sug();upd()}})}
   q('[data-f=topics]').oninput=function(){c.topics=this.value;sug()};sug();
   [].forEach.call(b.querySelectorAll('[data-tt]'),function(bt){bt.onclick=function(){var t=tests[+bt.dataset.tt];c.subj=t.subj;c.sname=t.sname||'';c.lids=(t.units||[]).slice();var tl=[];try{c.lids.forEach(function(id){UNITS.forEach(function(u){if(u.id===id)tl.push(u.title);u.lessons.forEach(function(l){if(l.id===id)tl.push(l.title)})})})}catch(_){}
    c.topics=t.subj==='own'?(t.name||t.sname||''):tl.join(', ');c.extra=t.subj==='own'?(t.cards||[]).slice(0,40).map(function(x){return 'Q: '+x.q+' A: '+x.a}).join('\n'):'';renderSetup()}});
-  q('[data-a=go]').onclick=function(){var e=q('[data-k=err]');if(!key()){e.hidden=false;e.textContent='Add your Claude API key first (above).';return}if(!c.topics.trim()&&c.subj==='own'){e.hidden=false;e.textContent='Say which topics the paper should cover.';return}
+  if(q('[data-a=go]'))q('[data-a=go]').onclick=function(){var e=q('[data-k=err]');if(!key()){e.hidden=false;e.textContent='Add your Claude API key first (above).';return}if(!c.topics.trim()&&c.subj==='own'){e.hidden=false;e.textContent='Say which topics the paper should cover.';return}
    var now=Date.now();st={v:1,subj:c.subj,sname:(c.sname||'').trim(),tier:c.tier,topics:c.topics.trim(),lids:c.lids,extra:c.extra||'',mins:c.mins||60,start:now,ends:now+(c.mins||60)*60000,qs:[],cur:0,phase:'gen',next:null};
    try{st.study=STUDY.start('Big past paper')?1:0}catch(_){st.study=0}setup=null;sv();gen()}}
  function resume(){if(!st)return;open();if(st.phase==='gen'){busy=false;gen();return}if(st.phase==='marking'){busy=false;st.phase='answer'}render()}
@@ -396,6 +400,7 @@ var PP=(function(){
   '.ppdone{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}.ppdone h2{margin:4px 0 0}.ppstats{display:flex;gap:10px;margin-top:8px}.ppstats div{background:var(--panel);border:1.5px solid var(--line);border-radius:12px;padding:8px 14px;display:flex;flex-direction:column}.ppstats b{font:800 20px var(--mono)}.ppstats span{font-size:12px;color:var(--muted)}'+
   '.ppbox{background:var(--panel);border:1.5px solid var(--line);border-radius:14px;padding:12px 14px}.ppbox ul{margin:0;padding-left:20px}.pprow{display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-bottom:1px solid var(--line);font-size:14.5px}.pprow:last-child{border-bottom:0}.pprow b{font-family:var(--mono)}'+
   '.ppset{display:flex;flex-direction:column;gap:14px}.ppkey{background:var(--warn-bg);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:6px}.ppkey p{margin:0}.pprow2{display:flex;gap:6px}.pprow2 input{flex:1;font:inherit;font-size:15px;padding:8px 10px;border:1.5px solid var(--line);border-radius:10px;background:var(--panel);color:var(--text)}'+
+  '.pplink{display:block;text-align:center;text-decoration:none;box-sizing:border-box}.ppclaude{display:flex;flex-direction:column;gap:6px}.ppor summary{cursor:pointer;font-weight:700;font-size:14px;color:var(--muted)}.ppor .ppkey{margin-top:8px}'+
   '.ppchips button{border:0;cursor:pointer;font:inherit}.ppsug{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.ppsug:empty{display:none}.pphist{margin-top:10px}';
  document.head.appendChild(css);
  return {setup:openSetup,resume:resume,card:card,state:function(){return st},_png:png,_fmt:fmt};
@@ -1632,46 +1637,4 @@ var QRUtil = {
         [6, 30, 58, 86, 114, 142, 170]
     ],
 
-    G15 : (1 << 10) | (1 << 8) | (1 << 5) | (1 << 4) | (1 << 2) | (1 << 1) | (1 << 0),
-    G18 : (1 << 12) | (1 << 11) | (1 << 10) | (1 << 9) | (1 << 8) | (1 << 5) | (1 << 2) | (1 << 0),
-    G15_MASK : (1 << 14) | (1 << 12) | (1 << 10)    | (1 << 4) | (1 << 1),
-
-    getBCHTypeInfo : function(data) {
-        var d = data << 10;
-        while (QRUtil.getBCHDigit(d) - QRUtil.getBCHDigit(QRUtil.G15) >= 0) {
-            d ^= (QRUtil.G15 << (QRUtil.getBCHDigit(d) - QRUtil.getBCHDigit(QRUtil.G15) ) );    
-        }
-        return ( (data << 10) | d) ^ QRUtil.G15_MASK;
-    },
-
-    getBCHTypeNumber : function(data) {
-        var d = data << 12;
-        while (QRUtil.getBCHDigit(d) - QRUtil.getBCHDigit(QRUtil.G18) >= 0) {
-            d ^= (QRUtil.G18 << (QRUtil.getBCHDigit(d) - QRUtil.getBCHDigit(QRUtil.G18) ) );    
-        }
-        return (data << 12) | d;
-    },
-
-    getBCHDigit : function(data) {
-
-        var digit = 0;
-
-        while (data !== 0) {
-            digit++;
-            data >>>= 1;
-        }
-
-        return digit;
-    },
-
-    getPatternPosition : function(typeNumber) {
-        return QRUtil.PATTERN_POSITION_TABLE[typeNumber - 1];
-    },
-
-    getMask : function(maskPattern, i, j) {
-        
-        switch (maskPattern) {
-            
-        case QRMaskPattern.PATTERN000 : return (i + j) % 2 === 0;
-        case QRMaskPattern.PATTERN001 : return i % 2 === 0;
-        case QRMaskPatt
+    G15 :
