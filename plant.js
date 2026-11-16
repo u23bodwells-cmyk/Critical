@@ -496,7 +496,16 @@ function crtFinish(w) { var g = w.g, W = w.c.width, H = w.c.height; if (!CRT_PAT
   var vg = g.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.35, W / 2, H / 2, Math.max(W, H) * 0.75); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,0.38)'); g.fillStyle = vg; g.fillRect(0, 0, W, H);
   g.globalCompositeOperation = 'lighter'; g.strokeStyle = 'rgba(255,170,60,0.22)'; g.lineWidth = Math.max(2, W / 400); g.strokeRect(g.lineWidth, g.lineWidth, W - 2 * g.lineWidth, H - 2 * g.lineWidth); g.fillStyle = 'rgba(30,70,40,0.05)'; g.fillRect(0, 0, W, H);
   /* glass sheen: a soft diagonal reflection band with a crisp lower edge, plus a faint corner glare */
-  var sh = g.createLinearGradient(0, 0, W * 0.95, H * 0.95); sh.addColorStop(0, 'rgba(210,225,255,0.075)'); sh.addColorStop(0.3, 'rgba(210,225,255,0.03)'); sh.addColorStop(0.34, 'rgba(210,225,255,0)'); sh.addColorStop(1, 'rgba(210,225,255,0)'); g.fillStyle = sh; g.fillRect(0, 0, W, H); var cg = g.createRadialGradient(W * 0.12, H * 0.1, 0, W * 0.12, H * 0.1, Math.max(W, H) * 0.35); cg.addColorStop(0, 'rgba(235,242,255,0.06)'); cg.addColorStop(1, 'rgba(235,242,255,0)'); g.fillStyle = cg; g.fillRect(0, 0, W, H); g.restore(); }
+  var sh = g.createLinearGradient(0, 0, W * 0.95, H * 0.95); sh.addColorStop(0, 'rgba(210,225,255,0.075)'); sh.addColorStop(0.3, 'rgba(210,225,255,0.03)'); sh.addColorStop(0.34, 'rgba(210,225,255,0)'); sh.addColorStop(1, 'rgba(210,225,255,0)'); g.fillStyle = sh; g.fillRect(0, 0, W, H); var cg = g.createRadialGradient(W * 0.12, H * 0.1, 0, W * 0.12, H * 0.1, Math.max(W, H) * 0.35); cg.addColorStop(0, 'rgba(235,242,255,0.06)'); cg.addColorStop(1, 'rgba(235,242,255,0)'); g.fillStyle = cg; g.fillRect(0, 0, W, H); crtSmudge(g, w, W, H); g.restore(); }
+/* fingerprints, a couple of wipe marks and a scatter of dust on the screen glass: the same marks every redraw (a per-screen seed), very faint, a dozen cheap strokes */
+var CRT_SEED = 0;
+function crtSmudge(g, w, W, H) {
+  if (W < 120 || H < 60) return; var s = w._sd || (w._sd = ++CRT_SEED * 7919 + 13), r = function () { s = (s * 9301 + 49297) % 233280; return s / 233280; }, u = Math.max(1.5, Math.min(W, H) / 110), i, k, x, y, a;
+  g.globalCompositeOperation = 'lighter';
+  for (i = 0; i < 3; i++) { x = W * (0.12 + 0.76 * r()); y = H * (0.2 + 0.7 * r()); a = (r() - 0.5) * 0.9; var rx = u * (4.5 + 3 * r()), ry = rx * 1.35; g.save(); g.translate(x, y); g.rotate(a); g.fillStyle = 'rgba(255,255,255,0.022)'; g.beginPath(); g.ellipse(0, 0, rx, ry, 0, 0, 6.3); g.fill(); g.strokeStyle = 'rgba(255,255,255,0.04)'; g.lineWidth = Math.max(1, u * 0.3); for (k = 1; k <= 3; k++) { g.beginPath(); g.ellipse(0, 0, rx * k / 3.4, ry * k / 3.4, 0, 0.3 * k, 6.3 - 0.4 * k); g.stroke(); } g.restore(); }
+  g.strokeStyle = 'rgba(255,255,255,0.02)'; g.lineWidth = u * 3; g.lineCap = 'round'; for (i = 0; i < 2; i++) { x = W * (0.1 + 0.5 * r()); y = H * (0.15 + 0.7 * r()); g.beginPath(); g.moveTo(x, y); g.quadraticCurveTo(x + W * 0.2, y - H * (0.05 + 0.1 * r()), x + W * (0.3 + 0.2 * r()), y + H * 0.04); g.stroke(); }
+  for (i = 0; i < 26; i++) { x = W * r(); y = H * r(); g.fillStyle = 'rgba(235,240,255,' + (0.035 + 0.07 * r()).toFixed(3) + ')'; g.fillRect(x, y, u * 0.55, u * 0.55); }
+}
 /* edgewise vertical meter (the classic tall narrow control-board meter) */
 function meterE(o) {
   o.cw = 104; o.ch = 300; o.w = o.w || 0.078; o.h = o.h || 0.225;
