@@ -8226,7 +8226,7 @@ function frame(now) {
     mv.x += (tx - mv.x) * ek; mv.y += (ty - mv.y) * ek; if (mv.length() < 0.0008) mv.set(0, 0); if (mv.length() > 0.16) mv.setLength(0.16); } POST.py = CAM.yaw; POST.pp = CAM.pitch;
   pressed = pressed.filter(function (q) { q.t -= dt; if (q.t <= 0) { q.m.position.y = q.y0; return false; } return true; });
   CTRL.forEach(function (f) { f(dt); });
-  var lt = S.lampTest; LAMPS.forEach(function (L) { var on = lt || !!L.on(); if (on !== L.st) { L.st = on; L.m.emissiveIntensity = on ? (POST.on ? 4 : 1.6) : (L.lo || 0); L.m.color.copy(on ? L.c : L.off); } });
+  var lt = S.lampTest, LEDT = performance.now(); LAMPS.forEach(function (L) { var on = lt || !!L.on(); if (on !== L.st) { L.st = on; L.m.emissiveIntensity = on ? (POST.on ? 4 : 1.6) : (L.lo || 0); L.m.color.copy(on ? L.c : L.off); } /* status LEDs: about a third of the lit ones breathe gently, each at its own slightly different speed (state stays obvious; skipped in lite and during lamp test) */ if (L.st && !lt && !PERF.lite) { if (L.dp == null) { L.dp = Math.random() < 0.35; L.sp = 0.0006 + Math.random() * 0.0012; L.ph = Math.random() * 6.283; } if (L.dp) L.m.emissiveIntensity = (POST.on ? 4 : 1.6) * (0.55 + 0.45 * (0.5 + 0.5 * Math.sin(LEDT * L.sp + L.ph))); } });
   HL.forEach(function (q) { q.t += dt; var s = 1 + 0.15 * Math.sin(q.t * 6); q.m.scale.set(s, s, s); q.m.material.opacity = 0.55 + 0.45 * Math.sin(q.t * 6); }); if (HL.length && HL[0].t > 12) clearHL();
   /* widgets: annunciators every frame, the rest a slice at a time */
   ANNW.forEach(function (w) { redraw(w); });
