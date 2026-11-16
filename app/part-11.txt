@@ -1,4 +1,46 @@
-eight.</p><h3>Angle with a plane</h3><p>Find the right-angled triangle that contains the line and its "shadow" on the base. Use trig in that triangle.</p>`),
+ss="eq">type of structure → what holds it together → how strong → energy needed → property</div><p>Name the particles (ions, atoms, molecules, delocalised electrons) and the forces (electrostatic attraction, covalent bonds, intermolecular forces).</p>`),
+O(`Explain why diamond has a very high melting point. Put the points in order.`,[`Diamond has a giant covalent structure`,`Each carbon atom is joined to four others by covalent bonds`,`Covalent bonds are very strong`,`A lot of energy is needed to break the many bonds`,`So diamond has a very high melting point`],`Structure, bonds, strength, energy, property.`),
+O(`Explain why sodium chloride conducts when molten but not when solid. Put the points in order.`,[`Sodium chloride is made of Na⁺ and Cl⁻ ions in a giant lattice`,`In the solid, the ions are held in fixed positions by strong electrostatic forces`,`So they can't move to carry charge`,`When molten, the ions are free to move`,`So they can carry charge, and it conducts`],`Charged particles must be free to move.`),
+Q(`A student writes "methane has a low boiling point because its covalent bonds are weak". What's wrong?`,[`The covalent bonds are strong; it's the intermolecular forces that are weak`,'Methane actually has a high boiling point, because its covalent bonds are strong','Methane is ionic, so it\'s the ionic bonds that are weak','Nothing: weak covalent bonds are why methane boils easily'],0,`A classic way to lose marks.`),
+T(`<h3>Key points</h3><ul><li>Name the structure, the particles and the forces.</li><li>Strong forces → lots of energy → high melting point.</li><li>Simple molecules: weak intermolecular forces, not weak bonds.</li></ul>`)]),
+LH('gc4-3-2','Explaining processes',11,'Fractional distillation, electrolysis of brine, the Haber compromise and cracking, in logical order.',[
+RM(`<p>Level 3: a logical sequence with linked reasoning.</p>`),
+O(`Describe how crude oil is separated by fractional distillation. Put the points in order.`,[`Crude oil is heated until most of it evaporates`,`The vapours enter the bottom of a fractionating column`,`The column is hot at the bottom and cooler at the top`,`Vapours rise and cool; each fraction condenses at the level matching its boiling point`,`The fractions are collected; small molecules at the top, large ones at the bottom`],`Heat, rise, cool, condense, collect.`),
+O(`Explain the products of electrolysing sodium chloride solution. Put the points in order.`,[`The solution contains Na⁺, Cl⁻, H⁺ and OH⁻ ions`,`At the cathode, hydrogen forms because sodium is more reactive than hydrogen`,`At the anode, chlorine forms because halide ions are present`,`Na⁺ and OH⁻ ions are left in solution`,`So sodium hydroxide solution is also produced`],`Three useful products from one solution.`),
+O(`(Higher) Explain why 450 °C is used in the Haber process. Put the points in order.`,[`The forward reaction is exothermic`,`A lower temperature would shift the equilibrium right, giving a higher yield`,`But a lower temperature makes the reaction too slow`,`450 °C is a compromise between a reasonable yield and a fast enough rate`,`An iron catalyst is used to speed it up further`],`Yield versus rate: always mention both.`),
+T(`<h3>Key points</h3><ul><li>Describe processes in time order.</li><li>Explain choices with competing factors (yield vs rate vs cost).</li><li>Use the chemistry words: condense, cathode, exothermic, equilibrium.</li></ul>`)])
+]});
+U({id:'gc4-4',track:'gc',level:4,title:'Mixed exam questions',icon:'📝',color:'#D4537E',desc:'Mixed chemistry calculation practice across Paper 1 and Paper 2.',lessons:[
+LH('gc4-4-1','Paper 1 mix',12,'Atoms, bonding, quantitative chemistry and chemical changes, mixed.',[
+W('calcDrill',{skill:GC1MIX,need:10},`Paper 1 mixed calculations. Get 10 right in a row.`,`Work out which topic each question is from before you start.`),
+Q(`Which is a weak acid?`,[`Ethanoic acid`,`Hydrochloric acid`,`Sulfuric acid`,`Nitric acid`],0,`It only partially ionises.`),
+Q(`At the cathode in the electrolysis of copper sulfate solution…`,[`copper forms`,`hydrogen forms`,`oxygen forms`,`sulfur forms`],0,`Copper is less reactive than hydrogen.`),
+T(`<h3>Key points</h3><ul><li>Mixed practice builds speed and accuracy.</li><li>Moles are behind almost every Paper 1 calculation.</li></ul>`)]),
+LH('gc4-4-2','Paper 2 mix',12,'Energy changes, rates, organic chemistry and analysis, mixed.',[
+W('calcDrill',{skill:GC2MIX,need:8},`Paper 2 mixed calculations. Get 8 right in a row.`,`Read units carefully: cm³/s, g/s, kJ/mol.`),
+Q(`What increases both the frequency and the energy of collisions?`,[`Raising the temperature`,`Adding a catalyst`,`Increasing concentration`,`Using a powder`],0,`The only factor that does both.`),
+Q(`Which gas bleaches damp litmus paper?`,[`Chlorine`,`Oxygen`,`Hydrogen`,`Carbon dioxide`],0,`Chlorine test.`),
+T(`<h3>Key points</h3><ul><li>Temperature affects collision frequency and energy.</li><li>Know the four gas tests cold.</li></ul>`)])
+]});
+
+U({id:'gm4-1',track:'gm',level:4,title:'Number and algebra problems',icon:'∴',color:'#1D9E75',desc:'Quadratic inequalities, simultaneous equations with a quadratic, bounds in calculations, rationalising harder surds and reverse percentages.',lessons:[
+LH('gm4-1-1','Harder algebra',11,'Quadratic inequalities and solving a linear and a quadratic equation together.',[
+T(`<h3>Quadratic inequalities</h3><ol><li>Solve the equation = 0 to find the roots.</li><li><b>Sketch</b> the U-shaped graph through the roots.</li><li>&lt; 0 means below the axis: <b>between</b> the roots. &gt; 0 means above: <b>outside</b> the roots.</li></ol>`),
+W('calcDrill',{skill:'g_quadineq',need:4},`Quadratic inequalities. Get 4 right in a row.`,`Always sketch: between for < 0, outside for > 0.`),
+T(`<h3>Linear and quadratic together</h3><p>Substitute the linear equation into the quadratic (or set the two y's equal), rearrange to = 0, and solve. Then find each y from the linear equation. There are usually <b>two</b> pairs of answers.</p>`),
+W('calcDrill',{skill:'g_simulquad',need:4},`Line meets curve. Get 4 right in a row.`,`Set equal, rearrange to 0, factorise.`),
+T(`<h3>Key points</h3><ul><li>Quadratic inequality: roots, sketch, then between or outside.</li><li>Line and curve: substitute, = 0, solve, find both y values.</li></ul>`)]),
+LH('gm4-1-2','Bounds, surds and percentages',11,'Bounds in calculations, rationalising with conjugates, and reverse percentage problems.',[
+RM(`<p>Upper bound of a ÷ b = upper a ÷ lower b. To rationalise 1/√a, multiply by √a/√a.</p>`),
+W('calcDrill',{skill:'g_bounds2',need:4},`Bounds in calculations. Get 4 right in a row.`,`Biggest top, smallest bottom for an upper bound.`),
+T(`<h3>Rationalising with a conjugate</h3><p>For a denominator like 3 + √5, multiply top and bottom by <b>3 − √5</b>. The bottom becomes 3² − (√5)² = 9 − 5 = 4: no surd left.</p>`),
+W('calcDrill',{skill:'g_surdrat',need:4},`Rationalise the denominator. Get 4 right in a row.`,`Change the sign in the middle.`),
+W('calcDrill',{skill:'g_reversepct',need:4},`Reverse percentages and compound interest. Get 4 right in a row.`,`Divide by the multiplier.`),
+T(`<h3>Key points</h3><ul><li>Bounds: think about which combination makes it biggest or smallest.</li><li>(a + √b)(a − √b) = a² − b.</li><li>Reverse percentage: ÷ multiplier.</li></ul>`)])
+]});
+U({id:'gm4-2',track:'gm',level:4,title:'Geometry problems',icon:'⬚',color:'#7F77DD',desc:'3D Pythagoras and trigonometry, segments, and multi-step area, volume and similarity problems.',lessons:[
+LH('gm4-2-1','3D Pythagoras and trigonometry',11,'Diagonals of cuboids and angles between a line and a plane.',[
+T(`<h3>3D Pythagoras</h3><p>The longest diagonal of a cuboid: <b>d = √(a² + b² + c²)</b>. You can also do it in two steps: find the base diagonal first, then use it with the height.</p><h3>Angle with a plane</h3><p>Find the right-angled triangle that contains the line and its "shadow" on the base. Use trig in that triangle.</p>`),
 W('calcDrill',{skill:'g_pythag3d',need:5},`3D Pythagoras and angles. Get 5 right in a row.`,`Base diagonal first.`),
 T(`<h3>Key points</h3><ul><li>d = √(a² + b² + c²).</li><li>Angle with the base: tan θ = height ÷ base diagonal.</li></ul>`)]),
 LH('gm4-2-2','Area, volume and similarity problems',11,'Segments, composite volumes and similar solids in context.',[
@@ -963,69 +1005,4 @@ var NEO=(function(){
   document.addEventListener('visibilitychange',function(){bgKick();coreKick()});
   try{var mq=matchMedia('(prefers-reduced-motion: reduce)'),f=function(){calmUpd();bgKick()};if(mq.addEventListener)mq.addEventListener('change',f)}catch(_){}
  }
- function boot(){hook();if(on()){fonts();bgInit();cols()}calmUpd();setTimeout(function(){tabInd();navBuild()},0);introLater()}
- return {boot:boot,on:on,apply:apply,look:look,calm:calm,burst:burst,coreMount:coreMount,fullPower:fullPower,intro:intro}
-})();
-try{window.NEO=NEO}catch(_){}
-NEO.boot();
-/* ===== Live labs inside lessons: collision lab (momentum), live reactor core, 3D flux ===== */
-(function(){
- var LE0=Math.log10(0.025),LE1=Math.log10(2e6);
- /* neutron transport toy: 2D, real elastic-scattering kinematics off hydrogen, moderation, resonance capture, fission, control rods, leakage */
-function NSIM(w,h,rnd){
- rnd=rnd||Math.random;
- var LE0=Math.log10(0.025),LE1=Math.log10(2e6),A=1;
- var S={w:w,h:h,ns:[],ev:[],fuel:[],rods:[],ins:.5,born:0,lost:0,fis:0,cap:0,leak:0,col:0,abs:0,srcT:0,max:260,lastCol:null,t:0,
-  win:[],k:1,knum:0,kden:0,P:{refl:.8,sR:[.6,.25,.08],sF:[.16,.006,.01],ff:.84,lamT:24,lamF:28,hAbs:.0008}};
- function lay(w,h){S.w=w;S.h=h;var cols=Math.max(4,Math.round(w/74)),rows=Math.max(3,Math.round(h/74)),px=w/cols,py=h/rows,r=Math.min(px,py)*.2;S.fuel=[];S.px=px;S.py=py;S.cols=cols;S.rows=rows;S.fr=r;
-  for(var j=0;j<rows;j++)for(var i=0;i<cols;i++)S.fuel.push({x:(i+.5)*px,y:(j+.5)*py,heat:0});
-  S.rods=[];for(var c=1;c<cols;c+=2)S.rods.push({x:c*px,w:Math.max(5,px*.09)})}
- lay(w,h);
- function sp(E){var l=(Math.log10(Math.max(E,1e-3))-LE0)/(LE1-LE0);l=l<0?0:l>1?1:l;return .5+4.4*Math.pow(l,.85)}
- function add(x,y,E,ux,uy){if(S.ns.length>=S.max)return false;if(ux==null){var a=rnd()*6.2832;ux=Math.cos(a);uy=Math.sin(a)}S.ns.push({x:x,y:y,ux:ux,uy:uy,E:E,tr:[],age:0});return true}
- function watt(){var E=0;for(var i=0;i<3;i++)E+=rnd();return (0.35+E*0.75)*1e6}
- function fission(n,fi){var nu=rnd()<.43?3:2,b=0;for(var i=0;i<nu;i++)if(add(n.x,n.y,watt()))b++;S.born+=b;S.fis++;S.knum+=nu;var a=rnd()*6.2832;S.ev.push({k:'fis',x:n.x,y:n.y,t:0,a:a});if(fi!=null)S.fuel[fi].heat=Math.min(6,S.fuel[fi].heat+1)}
- function scatter(n){var v=Math.sqrt(n.E),vx=n.ux*v,vy=n.uy*v;
-  if(n.E<0.2){var E1=0.0125*(-Math.log(rnd()+1e-9)-Math.log(rnd()+1e-9)),a=rnd()*6.2832;n.E=Math.max(0.004,E1);n.ux=Math.cos(a);n.uy=Math.sin(a);S.col++;return null}
-  var Vx=vx/(A+1),Vy=vy/(A+1),ux=vx-Vx,uy=vy-Vy,th=rnd()*6.2832,c=Math.cos(th),s=Math.sin(th),wx=Vx+ux*c-uy*s,wy=Vy+ux*s+uy*c,E1=wx*wx+wy*wy;if(E1<1e-12)E1=1e-12;
-  var rx=(vx-wx)/A,ry=(vy-wy)/A,v1=Math.sqrt(E1),cosL=(vx*wx+vy*wy)/(v*v1||1);
-  var rec={E0:n.E,E1:E1,ang:Math.acos(Math.max(-1,Math.min(1,cosL)))*180/Math.PI,p0:v,p1:v1,pr:Math.sqrt(rx*rx+ry*ry)*A,x:n.x,y:n.y,vx:vx/v,vy:vy/v,wx:wx/v,wy:wy/v,rx:rx/v,ry:ry/v};
-  n.E=E1;n.ux=wx/v1;n.uy=wy/v1;S.col++;S.lastCol=rec;return rec}
- function lose(n,kind){S.lost++;S.kden++;if(kind==='leak')S.leak++;else S.abs++;if(kind==='cap')S.cap++}
- function step(dt){var k=dt/16,out=[],ns=S.ns,i,fx=S.px,fy=S.py,r2=S.fr*S.fr,ins=S.ins*S.h;S.t+=dt;
-  S.srcT-=dt;if(S.srcT<=0){S.srcT=(S.P.src||1050)*(.67+rnd()*.66);var f=S.fuel[Math.floor(rnd()*S.fuel.length)];if(add(f.x+(rnd()-.5)*4,f.y+(rnd()-.5)*4,watt()))S.born++}
-  for(i=0;i<S.fuel.length;i++)S.fuel[i].heat*=Math.pow(.985,k);
-  for(i=0;i<ns.length;i++){var n=ns[i],s=sp(n.E)*k,gone=null;n.age+=dt;
-   n.x+=n.ux*s;n.y+=n.uy*s;
-   if(n.x<0||n.x>S.w||n.y<0||n.y>S.h){if(rnd()<S.P.refl){if(n.x<0){n.x=-n.x;n.ux=Math.abs(n.ux)}if(n.x>S.w){n.x=2*S.w-n.x;n.ux=-Math.abs(n.ux)}if(n.y<0){n.y=-n.y;n.uy=Math.abs(n.uy)}if(n.y>S.h){n.y=2*S.h-n.y;n.uy=-Math.abs(n.uy)}}else gone='leak'}
-   if(!gone){var inRod=false;if(n.y<ins)for(var q=0;q<S.rods.length;q++){if(Math.abs(n.x-S.rods[q].x)<S.rods[q].w/2){inRod=true;break}}
-    if(inRod){var R=S.P.sR,sr=n.E<1?R[0]:n.E<1e4?R[1]:R[2];if(rnd()<sr*s)gone='rod'}
-    else{var ci=Math.floor(n.x/fx),cj=Math.floor(n.y/fy),fi=cj*S.cols+ci,f2=S.fuel[fi],inF=false;if(f2){var dx=n.x-f2.x,dy=n.y-f2.y;inF=dx*dx+dy*dy<r2}
-     if(inF){var F=S.P.sF,sf=n.E<1?F[0]:n.E<1e4?F[1]:F[2];if(rnd()<sf*s){if(n.E<1){if(rnd()<S.P.ff){fission(n,fi);gone='fis'}else gone='cap'}else if(n.E<1e4)gone='cap';else{fission(n,fi);gone='fis'}}}
-     else{var lam=n.E<1?S.P.lamT:S.P.lamF;if(rnd()<s/lam){var rc=scatter(n);if(rc)out.push(rc)}if(n.E<1&&rnd()<S.P.hAbs*k)gone='h'}}}
-   if(gone){if(gone==='fis'){S.lost++;S.kden++;S.abs++}else lose(n,gone==='leak'?'leak':gone==='cap'?'cap':'abs');S.ev.push({k:gone,x:n.x,y:n.y,t:0});ns.splice(i,1);i--}}
-  // measured k over a sliding window
-  S.win.push([dt,S.knum,S.kden]);S.knum=0;S.kden=0;var T=0,a=0,b=0;for(i=S.win.length-1;i>=0;i--){T+=S.win[i][0];a+=S.win[i][1];b+=S.win[i][2];if(T>8000){S.win.splice(0,i);break}}
-  if(b>=6)S.k=S.k+(a/b-S.k)*Math.min(1,dt/1500);
-  return out}
- function auto(dt,target){S.nsm=S.nsm==null?S.ns.length:S.nsm+(S.ns.length-S.nsm)*Math.min(1,dt/1500);var e=Math.log(Math.max(1,S.nsm)/Math.max(4,target)),rate=.05*e+.22*(S.k-1);rate=Math.max(-.07,Math.min(.07,rate));S.ins=Math.max(0,Math.min(1,S.ins+rate*dt/1000))}
- S.auto=auto;S.lay=lay;S.step=step;S.add=add;S.sp=sp;S.watt=watt;return S}
-
-
- function dpr(){return Math.min(2,window.devicePixelRatio||1)}
- function narrow(){return innerWidth<=560}
- function calm(){try{return NEO.calm()}catch(_){return false}}
- function screen(box,h,hn){var w=el('div','labscr',null,box),cv=document.createElement('canvas');w.appendChild(cv);var o={wrap:w,cv:cv,c:cv.getContext('2d'),W:0,H:0,d:0};
-  o.fit=function(){var Wd=Math.max(220,Math.round(w.clientWidth||600)),Hd=narrow()?(hn||h):h,d=dpr();if(Wd===o.W&&Hd===o.H&&d===o.d)return false;o.W=Wd;o.H=Hd;o.d=d;cv.style.height=Hd+'px';cv.width=Math.round(Wd*d);cv.height=Math.round(Hd*d);o.c.setTransform(d,0,0,d,0,0);return true};o.fit();return o}
- function run(scr,f){var last=performance.now();function L(t){if(!scr.cv.isConnected)return;requestAnimationFrame(L);var dt=Math.max(0,Math.min(50,t-last));last=t;if(document.visibilityState!=='visible')return;var rs=scr.fit();f(dt,t,rs)}requestAnimationFrame(L)}
- var EC=[];(function(){var st=[[0,[58,212,255]],[.34,[110,255,175]],[.67,[255,206,70]],[1,[255,80,64]]];for(var i=0;i<64;i++){var u=i/63,a=st[0],b=st[1];for(var k=1;k<st.length;k++)if(u<=st[k][0]){a=st[k-1];b=st[k];break}var f=(u-a[0])/(b[0]-a[0]||1);EC.push([0,1,2].map(function(j){return Math.round(a[1][j]+(b[1][j]-a[1][j])*f)}))}})();
- function eIdx(E){var l=(Math.log10(Math.max(E,1e-3))-LE0)/(LE1-LE0);return Math.max(0,Math.min(63,Math.round(l*63)))}
- function rgba(c,a){return 'rgba('+c[0]+','+c[1]+','+c[2]+','+(+a).toFixed(3)+')'}
- function fmtE(E){return E>=1e6?(E/1e6).toFixed(E>=1e7?0:2)+' MeV':E>=1e3?(E/1e3).toFixed(E>=1e5?0:1)+' keV':E>=1?E.toFixed(E>=100?0:1)+' eV':E.toFixed(3)+' eV'}
- function arrow(c,x0,y0,x1,y1,col,w,dash){var dx=x1-x0,dy=y1-y0,L=Math.hypot(dx,dy);if(L<2)return;c.strokeStyle=col;c.fillStyle=col;c.lineWidth=w||2;c.setLineDash(dash||[]);c.beginPath();c.moveTo(x0,y0);c.lineTo(x1-dx/L*5,y1-dy/L*5);c.stroke();c.setLineDash([]);var a=Math.atan2(dy,dx),h=Math.min(9,4+L*.15);c.beginPath();c.moveTo(x1,y1);c.lineTo(x1-Math.cos(a-.42)*h,y1-Math.sin(a-.42)*h);c.lineTo(x1-Math.cos(a+.42)*h,y1-Math.sin(a+.42)*h);c.closePath();c.fill()}
- function hud(c,x,y,t,col,size,align,bold){c.font=(bold?'700 ':'600 ')+(size||10)+'px "JetBrains Mono",ui-monospace,Consolas,monospace';c.textAlign=align||'left';c.fillStyle=col||'rgba(200,220,255,.8)';c.fillText(t,x,y);c.textAlign='left'}
- function tog(b,v){b.classList.toggle('on',!!v);b.setAttribute('aria-pressed',v?'true':'false')}
-
- /* ---------- live reactor core: a Monte Carlo chain reaction you control ---------- */
- WIDGETS.reactorSim=function(box,par){par=par||{};var scr=screen(box,310,260),sim=NSIM(scr.W,scr.H),tgt=par.rods==null?.62:par.rods,mom=true,slow=false,paused=calm(),bgc=null,arrows=[],recoils=[],hist=new Float32Array(26),hold=0,done=false,moved=false,fisW=[],fps=0,tStat=0,blink=0;
-  var BOR=par.control==='boron',ppm=par.boron!=null?par.boron:1400,fb=!!par.feedback,fuelT=300,fast=false,
+ function boot(){h

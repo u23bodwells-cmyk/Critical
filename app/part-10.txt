@@ -1,4 +1,43 @@
- if you do it again. <b>Reproducible</b>: someone else gets the same results.</li><li><b>Resolution</b>: the smallest change an instrument can show (1 mm on a ruler).</li></ul>`),
+ form',icon:'SI',color:'#378ADD',desc:'SI units and prefixes, converting units, standard form and significant figures.',lessons:[
+LH('gp1-1-1','SI units and prefixes',8,'The units physicists use, and how kilo, mega and milli change them.',[
+T(`<h3>SI units</h3><p>Scientists everywhere use the same units, called <b>SI units</b>. The ones you'll use most:</p><div class="tbl"><table class="wtable"><tr><th>Quantity</th><th>Unit</th></tr><tr><td>length</td><td>metre (m)</td></tr><tr><td>mass</td><td>kilogram (kg)</td></tr><tr><td>time</td><td>second (s)</td></tr><tr><td>current</td><td>ampere (A)</td></tr><tr><td>temperature</td><td>kelvin (K) or °C</td></tr><tr><td>force</td><td>newton (N)</td></tr><tr><td>energy</td><td>joule (J)</td></tr><tr><td>power</td><td>watt (W)</td></tr></table></div><p>Physics equations only work if you put the numbers in using these units.</p>`),
+W('matchPairs',{pairs:[['Force','newton (N)'],['Energy','joule (J)'],['Power','watt (W)'],['Potential difference','volt (V)'],['Resistance','ohm (Ω)'],['Mass','kilogram (kg)']]},`Match each quantity to its unit.`,`Learn these: they come up in every topic.`),
+T(`<h3>Prefixes</h3><p>A prefix multiplies the unit:</p><ul><li><b>giga</b> (G) = 10⁹ = 1 000 000 000</li><li><b>mega</b> (M) = 10⁶ = 1 000 000</li><li><b>kilo</b> (k) = 10³ = 1000</li><li><b>centi</b> (c) = 10⁻² = 0.01</li><li><b>milli</b> (m) = 10⁻³ = 0.001</li><li><b>micro</b> (µ) = 10⁻⁶ &nbsp; <b>nano</b> (n) = 10⁻⁹</li></ul><p>So 3 kW = 3000 W, and 250 mA = 0.25 A.</p>`),
+Q(`How many watts is 2 MW?`,[`2 000 000 W`,'2 000 W','200 000 W','20 000 000 W'],0,`Mega means a million.`),
+W('calcDrill',{skill:'g_units',need:6},`Convert the units. Get 6 right in a row.`,`Bigger unit to smaller: multiply. Smaller to bigger: divide.`),
+T(`<h3>Key points</h3><ul><li>Use SI units in equations: m, kg, s, A, N, J, W.</li><li>k = ×1000, M = ×1 000 000, m = ÷1000, c = ÷100.</li><li>Minutes to seconds: × 60. Hours to seconds: × 3600.</li></ul>`)]),
+LH('gp1-1-2','Standard form and significant figures',8,'Writing very big and very small numbers, and rounding answers sensibly.',[
+RM(`<p>Prefixes: k = 10³, M = 10⁶, m = 10⁻³. SI units: m, kg, s.</p>`),
+T(`<h3>Standard form</h3><p>Physics numbers can be enormous or tiny. Standard form writes them as <b>A × 10ⁿ</b>, where A is between 1 and 10.</p><ul><li>The speed of light: 300 000 000 m/s = 3 × 10⁸ m/s</li><li>The radius of an atom: 0.0000000001 m = 1 × 10⁻¹⁰ m</li></ul><p>Big numbers have a positive power; numbers less than 1 have a negative power.</p>`),
+W('calcDrill',{skill:'g_stdform',need:4},`Standard form. Get 4 right in a row.`,`Type A first, then the power.`),
+T(`<h3>Significant figures</h3><p>Start counting at the first digit that isn't zero:</p><ul><li>0.004<b>56</b>7 to 2 s.f. is 0.0046</li><li>1234.5 to 2 s.f. is 1200</li></ul><p>In an exam, give your answer to the same number of significant figures as the data in the question (usually 2 or 3).</p>`),
+W('calcDrill',{skill:'g_sigfig',need:5},`Round to significant figures. Get 5 right in a row.`,`Zeros at the start don't count. Keep the place value.`),
+T(`<h3>Key points</h3><ul><li>Standard form: A × 10ⁿ, with A between 1 and 10.</li><li>Significant figures start at the first non-zero digit.</li><li>Match the s.f. of the data in the question.</li></ul>`)])
+]});
+U({id:'gp1-2',track:'gp',level:1,title:'Using equations',icon:'=',color:'#1D9E75',desc:'Substituting into physics equations step by step, and rearranging them.',lessons:[
+LH('gp1-2-1','Substituting into equations',8,'A four-step method for every physics calculation.',[
+T(`<h3>The four steps</h3><ol><li><b>Write the equation</b>.</li><li><b>Convert</b> every value into SI units.</li><li><b>Substitute</b> the numbers in.</li><li><b>Calculate</b>, and write the <b>unit</b>.</li></ol><p>Writing the equation first usually earns a mark even if you slip up later.</p>`),
+W('stepCalc',{steps:[`A car travels 3 km in 2 minutes. Find its average speed.`,`1) Equation: speed = distance ÷ time`,`2) Units: 3 km = 3000 m; 2 min = 120 s`,`3) Substitute: speed = 3000 ÷ 120`,`4) Calculate: <b>25 m/s</b>`]},`A worked example.`,`Convert first, then calculate.`),
+W('calcDrill',{skill:'g_speed',need:4},`Speed, distance and time. Get 4 right in a row.`,`s = vt.`),
+T(`<h3>Weight</h3><p>Weight is a force, caused by gravity pulling on a mass:</p><div class="eq">W = m g</div>${KY([['W','weight','N'],['m','mass','kg'],['g','gravitational field strength (9.8 on Earth)','N/kg']],'Mass is the amount of stuff (kg). Weight is a force (N), and it changes on the Moon.')}`),
+W('calcDrill',{skill:'g_weight',need:4},`Weight calculations. Get 4 right in a row.`,`W = mg, with g = 9.8 N/kg.`),
+Q(`An astronaut goes to the Moon. What happens?`,[`Her mass stays the same, but her weight is less`,`Her mass and weight both fall`,`Her weight stays the same, but her mass falls`,`Nothing changes`],0,`The Moon's g is about 1.6 N/kg, but she's still made of the same stuff.`),
+T(`<h3>Key points</h3><ul><li>Write the equation, convert, substitute, calculate with units.</li><li>W = mg. Mass in kg, weight in N.</li></ul>`)]),
+LH('gp1-2-2','Rearranging equations',9,'Getting the letter you want on its own, so any equation works for you.',[
+RM(`<p>Four steps: equation, convert, substitute, calculate. V = IR, ρ = m ÷ V.</p>`),
+T(`<h3>Doing the same to both sides</h3><p>To get a letter on its own, undo what's being done to it, and do the same to both sides:</p><ul><li>If it's multiplied, divide. If it's divided, multiply.</li><li>If something's added, subtract. If it's squared, square-root.</li></ul>`),
+W('stepCalc',{steps:[`Rearrange V = IR to make R the subject.`,`R is multiplied by I`,`Divide both sides by I: V ÷ I = R`,`So <b>R = V ÷ I</b>`]},`A worked example.`,`Undo the multiplication by dividing.`),
+W('stepCalc',{steps:[`Rearrange E = ½mv² to make v the subject.`,`Multiply both sides by 2: 2E = mv²`,`Divide both sides by m: 2E ÷ m = v²`,`Square-root both sides: <b>v = √(2E ÷ m)</b>`]},`A harder one.`,`Undo the steps in reverse order.`),
+Q(`Rearrange ρ = m ÷ V to make m the subject.`,[`m = ρV`,`m = ρ ÷ V`,`m = V ÷ ρ`,`m = ρ + V`],0,`m is divided by V, so multiply both sides by V.`),
+Q(`Rearrange P = E ÷ t to make t the subject.`,[`t = E ÷ P`,`t = P ÷ E`,`t = PE`,`t = E − P`],0,`Multiply by t, then divide by P.`),
+W('calcDrill',{skill:['g_vir','g_density'],need:5},`Calculations that need rearranging. Get 5 right in a row.`,`Rearrange first, then put the numbers in.`),
+T(`<h3>Key points</h3><ul><li>Do the same to both sides.</li><li>Undo multiplying by dividing, and squaring by square-rooting.</li><li>Rearrange first, then substitute.</li></ul>`)])
+]});
+U({id:'gp1-3',track:'gp',level:1,title:'Graphs and practical skills',icon:'📈',color:'#BA7517',desc:'Variables, accuracy and precision, anomalies and means, lines of best fit and gradients.',lessons:[
+LH('gp1-3-1','Variables and good experiments',8,'The words examiners expect: variables, accuracy, precision, resolution and anomalies.',[
+T(`<h3>Variables</h3><ul><li><b>Independent variable</b>: the one you change.</li><li><b>Dependent variable</b>: the one you measure.</li><li><b>Control variables</b>: everything you keep the same, so it's a fair test.</li></ul>`),
+W('sortIt',{bins:['Independent','Dependent','Control'],items:[['The length of wire you choose',0],['The resistance you calculate from your readings',1],['The type of wire',2],['The temperature of the wire',2]]},`An experiment tests how the length of a wire affects its resistance. Sort the variables.`,`You change the length, measure the resistance, and keep everything else the same.`),
+T(`<h3>Good data</h3><ul><li><b>Accurate</b>: close to the true value.</li><li><b>Precise</b>: repeat readings are close to each other.</li><li><b>Repeatable</b>: you get the same results if you do it again. <b>Reproducible</b>: someone else gets the same results.</li><li><b>Resolution</b>: the smallest change an instrument can show (1 mm on a ruler).</li></ul>`),
 Q(`Three readings are 5.1, 5.2 and 5.1 s, but the true value is 6.0 s. The readings are…`,[`precise but not accurate`,`accurate but not precise`,`accurate and precise`,`neither`],0,`They're close together (precise) but far from the true value.`),
 T(`<h3>Anomalies and means</h3><p>An <b>anomaly</b> is a result that doesn't fit the pattern. Leave it out, then find the <b>mean</b> of the rest: add them up and divide by how many there are.</p>`),
 W('calcDrill',{skill:'g_meanrep',need:3},`Spot the anomaly and find the mean. Get 3 right in a row.`,`Ignore the odd one out.`),
@@ -778,46 +817,4 @@ T(`<h3>Key points</h3><ul><li>Three routes to moles: mass, solution, gas.</li><l
 ]});
 U({id:'gc4-3',track:'gc',level:4,title:'Six-mark answers',icon:'✎',color:'#7F77DD',desc:'Explaining properties with bonding and structure, and explaining industrial and laboratory processes in a logical order.',lessons:[
 LH('gc4-3-1','Explaining with structure and bonding',10,'Linking properties to particles, bonds and forces, the way level 3 answers do.',[
-T(`<h3>The structure → property chain</h3><p>Every bonding explanation follows the same chain:</p><div class="eq">type of structure → what holds it together → how strong → energy needed → property</div><p>Name the particles (ions, atoms, molecules, delocalised electrons) and the forces (electrostatic attraction, covalent bonds, intermolecular forces).</p>`),
-O(`Explain why diamond has a very high melting point. Put the points in order.`,[`Diamond has a giant covalent structure`,`Each carbon atom is joined to four others by covalent bonds`,`Covalent bonds are very strong`,`A lot of energy is needed to break the many bonds`,`So diamond has a very high melting point`],`Structure, bonds, strength, energy, property.`),
-O(`Explain why sodium chloride conducts when molten but not when solid. Put the points in order.`,[`Sodium chloride is made of Na⁺ and Cl⁻ ions in a giant lattice`,`In the solid, the ions are held in fixed positions by strong electrostatic forces`,`So they can't move to carry charge`,`When molten, the ions are free to move`,`So they can carry charge, and it conducts`],`Charged particles must be free to move.`),
-Q(`A student writes "methane has a low boiling point because its covalent bonds are weak". What's wrong?`,[`The covalent bonds are strong; it's the intermolecular forces that are weak`,'Methane actually has a high boiling point, because its covalent bonds are strong','Methane is ionic, so it\'s the ionic bonds that are weak','Nothing: weak covalent bonds are why methane boils easily'],0,`A classic way to lose marks.`),
-T(`<h3>Key points</h3><ul><li>Name the structure, the particles and the forces.</li><li>Strong forces → lots of energy → high melting point.</li><li>Simple molecules: weak intermolecular forces, not weak bonds.</li></ul>`)]),
-LH('gc4-3-2','Explaining processes',11,'Fractional distillation, electrolysis of brine, the Haber compromise and cracking, in logical order.',[
-RM(`<p>Level 3: a logical sequence with linked reasoning.</p>`),
-O(`Describe how crude oil is separated by fractional distillation. Put the points in order.`,[`Crude oil is heated until most of it evaporates`,`The vapours enter the bottom of a fractionating column`,`The column is hot at the bottom and cooler at the top`,`Vapours rise and cool; each fraction condenses at the level matching its boiling point`,`The fractions are collected; small molecules at the top, large ones at the bottom`],`Heat, rise, cool, condense, collect.`),
-O(`Explain the products of electrolysing sodium chloride solution. Put the points in order.`,[`The solution contains Na⁺, Cl⁻, H⁺ and OH⁻ ions`,`At the cathode, hydrogen forms because sodium is more reactive than hydrogen`,`At the anode, chlorine forms because halide ions are present`,`Na⁺ and OH⁻ ions are left in solution`,`So sodium hydroxide solution is also produced`],`Three useful products from one solution.`),
-O(`(Higher) Explain why 450 °C is used in the Haber process. Put the points in order.`,[`The forward reaction is exothermic`,`A lower temperature would shift the equilibrium right, giving a higher yield`,`But a lower temperature makes the reaction too slow`,`450 °C is a compromise between a reasonable yield and a fast enough rate`,`An iron catalyst is used to speed it up further`],`Yield versus rate: always mention both.`),
-T(`<h3>Key points</h3><ul><li>Describe processes in time order.</li><li>Explain choices with competing factors (yield vs rate vs cost).</li><li>Use the chemistry words: condense, cathode, exothermic, equilibrium.</li></ul>`)])
-]});
-U({id:'gc4-4',track:'gc',level:4,title:'Mixed exam questions',icon:'📝',color:'#D4537E',desc:'Mixed chemistry calculation practice across Paper 1 and Paper 2.',lessons:[
-LH('gc4-4-1','Paper 1 mix',12,'Atoms, bonding, quantitative chemistry and chemical changes, mixed.',[
-W('calcDrill',{skill:GC1MIX,need:10},`Paper 1 mixed calculations. Get 10 right in a row.`,`Work out which topic each question is from before you start.`),
-Q(`Which is a weak acid?`,[`Ethanoic acid`,`Hydrochloric acid`,`Sulfuric acid`,`Nitric acid`],0,`It only partially ionises.`),
-Q(`At the cathode in the electrolysis of copper sulfate solution…`,[`copper forms`,`hydrogen forms`,`oxygen forms`,`sulfur forms`],0,`Copper is less reactive than hydrogen.`),
-T(`<h3>Key points</h3><ul><li>Mixed practice builds speed and accuracy.</li><li>Moles are behind almost every Paper 1 calculation.</li></ul>`)]),
-LH('gc4-4-2','Paper 2 mix',12,'Energy changes, rates, organic chemistry and analysis, mixed.',[
-W('calcDrill',{skill:GC2MIX,need:8},`Paper 2 mixed calculations. Get 8 right in a row.`,`Read units carefully: cm³/s, g/s, kJ/mol.`),
-Q(`What increases both the frequency and the energy of collisions?`,[`Raising the temperature`,`Adding a catalyst`,`Increasing concentration`,`Using a powder`],0,`The only factor that does both.`),
-Q(`Which gas bleaches damp litmus paper?`,[`Chlorine`,`Oxygen`,`Hydrogen`,`Carbon dioxide`],0,`Chlorine test.`),
-T(`<h3>Key points</h3><ul><li>Temperature affects collision frequency and energy.</li><li>Know the four gas tests cold.</li></ul>`)])
-]});
-
-U({id:'gm4-1',track:'gm',level:4,title:'Number and algebra problems',icon:'∴',color:'#1D9E75',desc:'Quadratic inequalities, simultaneous equations with a quadratic, bounds in calculations, rationalising harder surds and reverse percentages.',lessons:[
-LH('gm4-1-1','Harder algebra',11,'Quadratic inequalities and solving a linear and a quadratic equation together.',[
-T(`<h3>Quadratic inequalities</h3><ol><li>Solve the equation = 0 to find the roots.</li><li><b>Sketch</b> the U-shaped graph through the roots.</li><li>&lt; 0 means below the axis: <b>between</b> the roots. &gt; 0 means above: <b>outside</b> the roots.</li></ol>`),
-W('calcDrill',{skill:'g_quadineq',need:4},`Quadratic inequalities. Get 4 right in a row.`,`Always sketch: between for < 0, outside for > 0.`),
-T(`<h3>Linear and quadratic together</h3><p>Substitute the linear equation into the quadratic (or set the two y's equal), rearrange to = 0, and solve. Then find each y from the linear equation. There are usually <b>two</b> pairs of answers.</p>`),
-W('calcDrill',{skill:'g_simulquad',need:4},`Line meets curve. Get 4 right in a row.`,`Set equal, rearrange to 0, factorise.`),
-T(`<h3>Key points</h3><ul><li>Quadratic inequality: roots, sketch, then between or outside.</li><li>Line and curve: substitute, = 0, solve, find both y values.</li></ul>`)]),
-LH('gm4-1-2','Bounds, surds and percentages',11,'Bounds in calculations, rationalising with conjugates, and reverse percentage problems.',[
-RM(`<p>Upper bound of a ÷ b = upper a ÷ lower b. To rationalise 1/√a, multiply by √a/√a.</p>`),
-W('calcDrill',{skill:'g_bounds2',need:4},`Bounds in calculations. Get 4 right in a row.`,`Biggest top, smallest bottom for an upper bound.`),
-T(`<h3>Rationalising with a conjugate</h3><p>For a denominator like 3 + √5, multiply top and bottom by <b>3 − √5</b>. The bottom becomes 3² − (√5)² = 9 − 5 = 4: no surd left.</p>`),
-W('calcDrill',{skill:'g_surdrat',need:4},`Rationalise the denominator. Get 4 right in a row.`,`Change the sign in the middle.`),
-W('calcDrill',{skill:'g_reversepct',need:4},`Reverse percentages and compound interest. Get 4 right in a row.`,`Divide by the multiplier.`),
-T(`<h3>Key points</h3><ul><li>Bounds: think about which combination makes it biggest or smallest.</li><li>(a + √b)(a − √b) = a² − b.</li><li>Reverse percentage: ÷ multiplier.</li></ul>`)])
-]});
-U({id:'gm4-2',track:'gm',level:4,title:'Geometry problems',icon:'⬚',color:'#7F77DD',desc:'3D Pythagoras and trigonometry, segments, and multi-step area, volume and similarity problems.',lessons:[
-LH('gm4-2-1','3D Pythagoras and trigonometry',11,'Diagonals of cuboids and angles between a line and a plane.',[
-T(`<h3>3D Pythagoras</h3><p>The longest diagonal of a cuboid: <b>d = √(a² + b² + c²)</b>. You can also do it in two steps: find the base diagonal first, then use it with the h
+T(`<h3>The structure → property chain</h3><p>Every bonding explanation follows the same chain:</p><div cla

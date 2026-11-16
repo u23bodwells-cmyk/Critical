@@ -1,4 +1,69 @@
-fat={fis:0,cap:0,abs:0,leak:0},fatW=[],trip=false;if(BOR)tgt=0;if(par.source)sim.P.src=par.source;
+ook();if(on()){fonts();bgInit();cols()}calmUpd();setTimeout(function(){tabInd();navBuild()},0);introLater()}
+ return {boot:boot,on:on,apply:apply,look:look,calm:calm,burst:burst,coreMount:coreMount,fullPower:fullPower,intro:intro}
+})();
+try{window.NEO=NEO}catch(_){}
+NEO.boot();
+/* ===== Live labs inside lessons: collision lab (momentum), live reactor core, 3D flux ===== */
+(function(){
+ var LE0=Math.log10(0.025),LE1=Math.log10(2e6);
+ /* neutron transport toy: 2D, real elastic-scattering kinematics off hydrogen, moderation, resonance capture, fission, control rods, leakage */
+function NSIM(w,h,rnd){
+ rnd=rnd||Math.random;
+ var LE0=Math.log10(0.025),LE1=Math.log10(2e6),A=1;
+ var S={w:w,h:h,ns:[],ev:[],fuel:[],rods:[],ins:.5,born:0,lost:0,fis:0,cap:0,leak:0,col:0,abs:0,srcT:0,max:260,lastCol:null,t:0,
+  win:[],k:1,knum:0,kden:0,P:{refl:.8,sR:[.6,.25,.08],sF:[.16,.006,.01],ff:.84,lamT:24,lamF:28,hAbs:.0008}};
+ function lay(w,h){S.w=w;S.h=h;var cols=Math.max(4,Math.round(w/74)),rows=Math.max(3,Math.round(h/74)),px=w/cols,py=h/rows,r=Math.min(px,py)*.2;S.fuel=[];S.px=px;S.py=py;S.cols=cols;S.rows=rows;S.fr=r;
+  for(var j=0;j<rows;j++)for(var i=0;i<cols;i++)S.fuel.push({x:(i+.5)*px,y:(j+.5)*py,heat:0});
+  S.rods=[];for(var c=1;c<cols;c+=2)S.rods.push({x:c*px,w:Math.max(5,px*.09)})}
+ lay(w,h);
+ function sp(E){var l=(Math.log10(Math.max(E,1e-3))-LE0)/(LE1-LE0);l=l<0?0:l>1?1:l;return .5+4.4*Math.pow(l,.85)}
+ function add(x,y,E,ux,uy){if(S.ns.length>=S.max)return false;if(ux==null){var a=rnd()*6.2832;ux=Math.cos(a);uy=Math.sin(a)}S.ns.push({x:x,y:y,ux:ux,uy:uy,E:E,tr:[],age:0});return true}
+ function watt(){var E=0;for(var i=0;i<3;i++)E+=rnd();return (0.35+E*0.75)*1e6}
+ function fission(n,fi){var nu=rnd()<.43?3:2,b=0;for(var i=0;i<nu;i++)if(add(n.x,n.y,watt()))b++;S.born+=b;S.fis++;S.knum+=nu;var a=rnd()*6.2832;S.ev.push({k:'fis',x:n.x,y:n.y,t:0,a:a});if(fi!=null)S.fuel[fi].heat=Math.min(6,S.fuel[fi].heat+1)}
+ function scatter(n){var v=Math.sqrt(n.E),vx=n.ux*v,vy=n.uy*v;
+  if(n.E<0.2){var E1=0.0125*(-Math.log(rnd()+1e-9)-Math.log(rnd()+1e-9)),a=rnd()*6.2832;n.E=Math.max(0.004,E1);n.ux=Math.cos(a);n.uy=Math.sin(a);S.col++;return null}
+  var Vx=vx/(A+1),Vy=vy/(A+1),ux=vx-Vx,uy=vy-Vy,th=rnd()*6.2832,c=Math.cos(th),s=Math.sin(th),wx=Vx+ux*c-uy*s,wy=Vy+ux*s+uy*c,E1=wx*wx+wy*wy;if(E1<1e-12)E1=1e-12;
+  var rx=(vx-wx)/A,ry=(vy-wy)/A,v1=Math.sqrt(E1),cosL=(vx*wx+vy*wy)/(v*v1||1);
+  var rec={E0:n.E,E1:E1,ang:Math.acos(Math.max(-1,Math.min(1,cosL)))*180/Math.PI,p0:v,p1:v1,pr:Math.sqrt(rx*rx+ry*ry)*A,x:n.x,y:n.y,vx:vx/v,vy:vy/v,wx:wx/v,wy:wy/v,rx:rx/v,ry:ry/v};
+  n.E=E1;n.ux=wx/v1;n.uy=wy/v1;S.col++;S.lastCol=rec;return rec}
+ function lose(n,kind){S.lost++;S.kden++;if(kind==='leak')S.leak++;else S.abs++;if(kind==='cap')S.cap++}
+ function step(dt){var k=dt/16,out=[],ns=S.ns,i,fx=S.px,fy=S.py,r2=S.fr*S.fr,ins=S.ins*S.h;S.t+=dt;
+  S.srcT-=dt;if(S.srcT<=0){S.srcT=(S.P.src||1050)*(.67+rnd()*.66);var f=S.fuel[Math.floor(rnd()*S.fuel.length)];if(add(f.x+(rnd()-.5)*4,f.y+(rnd()-.5)*4,watt()))S.born++}
+  for(i=0;i<S.fuel.length;i++)S.fuel[i].heat*=Math.pow(.985,k);
+  for(i=0;i<ns.length;i++){var n=ns[i],s=sp(n.E)*k,gone=null;n.age+=dt;
+   n.x+=n.ux*s;n.y+=n.uy*s;
+   if(n.x<0||n.x>S.w||n.y<0||n.y>S.h){if(rnd()<S.P.refl){if(n.x<0){n.x=-n.x;n.ux=Math.abs(n.ux)}if(n.x>S.w){n.x=2*S.w-n.x;n.ux=-Math.abs(n.ux)}if(n.y<0){n.y=-n.y;n.uy=Math.abs(n.uy)}if(n.y>S.h){n.y=2*S.h-n.y;n.uy=-Math.abs(n.uy)}}else gone='leak'}
+   if(!gone){var inRod=false;if(n.y<ins)for(var q=0;q<S.rods.length;q++){if(Math.abs(n.x-S.rods[q].x)<S.rods[q].w/2){inRod=true;break}}
+    if(inRod){var R=S.P.sR,sr=n.E<1?R[0]:n.E<1e4?R[1]:R[2];if(rnd()<sr*s)gone='rod'}
+    else{var ci=Math.floor(n.x/fx),cj=Math.floor(n.y/fy),fi=cj*S.cols+ci,f2=S.fuel[fi],inF=false;if(f2){var dx=n.x-f2.x,dy=n.y-f2.y;inF=dx*dx+dy*dy<r2}
+     if(inF){var F=S.P.sF,sf=n.E<1?F[0]:n.E<1e4?F[1]:F[2];if(rnd()<sf*s){if(n.E<1){if(rnd()<S.P.ff){fission(n,fi);gone='fis'}else gone='cap'}else if(n.E<1e4)gone='cap';else{fission(n,fi);gone='fis'}}}
+     else{var lam=n.E<1?S.P.lamT:S.P.lamF;if(rnd()<s/lam){var rc=scatter(n);if(rc)out.push(rc)}if(n.E<1&&rnd()<S.P.hAbs*k)gone='h'}}}
+   if(gone){if(gone==='fis'){S.lost++;S.kden++;S.abs++}else lose(n,gone==='leak'?'leak':gone==='cap'?'cap':'abs');S.ev.push({k:gone,x:n.x,y:n.y,t:0});ns.splice(i,1);i--}}
+  // measured k over a sliding window
+  S.win.push([dt,S.knum,S.kden]);S.knum=0;S.kden=0;var T=0,a=0,b=0;for(i=S.win.length-1;i>=0;i--){T+=S.win[i][0];a+=S.win[i][1];b+=S.win[i][2];if(T>8000){S.win.splice(0,i);break}}
+  if(b>=6)S.k=S.k+(a/b-S.k)*Math.min(1,dt/1500);
+  return out}
+ function auto(dt,target){S.nsm=S.nsm==null?S.ns.length:S.nsm+(S.ns.length-S.nsm)*Math.min(1,dt/1500);var e=Math.log(Math.max(1,S.nsm)/Math.max(4,target)),rate=.05*e+.22*(S.k-1);rate=Math.max(-.07,Math.min(.07,rate));S.ins=Math.max(0,Math.min(1,S.ins+rate*dt/1000))}
+ S.auto=auto;S.lay=lay;S.step=step;S.add=add;S.sp=sp;S.watt=watt;return S}
+
+
+ function dpr(){return Math.min(2,window.devicePixelRatio||1)}
+ function narrow(){return innerWidth<=560}
+ function calm(){try{return NEO.calm()}catch(_){return false}}
+ function screen(box,h,hn){var w=el('div','labscr',null,box),cv=document.createElement('canvas');w.appendChild(cv);var o={wrap:w,cv:cv,c:cv.getContext('2d'),W:0,H:0,d:0};
+  o.fit=function(){var Wd=Math.max(220,Math.round(w.clientWidth||600)),Hd=narrow()?(hn||h):h,d=dpr();if(Wd===o.W&&Hd===o.H&&d===o.d)return false;o.W=Wd;o.H=Hd;o.d=d;cv.style.height=Hd+'px';cv.width=Math.round(Wd*d);cv.height=Math.round(Hd*d);o.c.setTransform(d,0,0,d,0,0);return true};o.fit();return o}
+ function run(scr,f){var last=performance.now();function L(t){if(!scr.cv.isConnected)return;requestAnimationFrame(L);var dt=Math.max(0,Math.min(50,t-last));last=t;if(document.visibilityState!=='visible')return;var rs=scr.fit();f(dt,t,rs)}requestAnimationFrame(L)}
+ var EC=[];(function(){var st=[[0,[58,212,255]],[.34,[110,255,175]],[.67,[255,206,70]],[1,[255,80,64]]];for(var i=0;i<64;i++){var u=i/63,a=st[0],b=st[1];for(var k=1;k<st.length;k++)if(u<=st[k][0]){a=st[k-1];b=st[k];break}var f=(u-a[0])/(b[0]-a[0]||1);EC.push([0,1,2].map(function(j){return Math.round(a[1][j]+(b[1][j]-a[1][j])*f)}))}})();
+ function eIdx(E){var l=(Math.log10(Math.max(E,1e-3))-LE0)/(LE1-LE0);return Math.max(0,Math.min(63,Math.round(l*63)))}
+ function rgba(c,a){return 'rgba('+c[0]+','+c[1]+','+c[2]+','+(+a).toFixed(3)+')'}
+ function fmtE(E){return E>=1e6?(E/1e6).toFixed(E>=1e7?0:2)+' MeV':E>=1e3?(E/1e3).toFixed(E>=1e5?0:1)+' keV':E>=1?E.toFixed(E>=100?0:1)+' eV':E.toFixed(3)+' eV'}
+ function arrow(c,x0,y0,x1,y1,col,w,dash){var dx=x1-x0,dy=y1-y0,L=Math.hypot(dx,dy);if(L<2)return;c.strokeStyle=col;c.fillStyle=col;c.lineWidth=w||2;c.setLineDash(dash||[]);c.beginPath();c.moveTo(x0,y0);c.lineTo(x1-dx/L*5,y1-dy/L*5);c.stroke();c.setLineDash([]);var a=Math.atan2(dy,dx),h=Math.min(9,4+L*.15);c.beginPath();c.moveTo(x1,y1);c.lineTo(x1-Math.cos(a-.42)*h,y1-Math.sin(a-.42)*h);c.lineTo(x1-Math.cos(a+.42)*h,y1-Math.sin(a+.42)*h);c.closePath();c.fill()}
+ function hud(c,x,y,t,col,size,align,bold){c.font=(bold?'700 ':'600 ')+(size||10)+'px "JetBrains Mono",ui-monospace,Consolas,monospace';c.textAlign=align||'left';c.fillStyle=col||'rgba(200,220,255,.8)';c.fillText(t,x,y);c.textAlign='left'}
+ function tog(b,v){b.classList.toggle('on',!!v);b.setAttribute('aria-pressed',v?'true':'false')}
+
+ /* ---------- live reactor core: a Monte Carlo chain reaction you control ---------- */
+ WIDGETS.reactorSim=function(box,par){par=par||{};var scr=screen(box,310,260),sim=NSIM(scr.W,scr.H),tgt=par.rods==null?.62:par.rods,mom=true,slow=false,paused=calm(),bgc=null,arrows=[],recoils=[],hist=new Float32Array(26),hold=0,done=false,moved=false,fisW=[],fps=0,tStat=0,blink=0;
+  var BOR=par.control==='boron',ppm=par.boron!=null?par.boron:1400,fb=!!par.feedback,fuelT=300,fast=false,fat={fis:0,cap:0,abs:0,leak:0},fatW=[],trip=false;if(BOR)tgt=0;if(par.source)sim.P.src=par.source;
   sim.ins=tgt;sim.max=narrow()?170:260;for(var i=0;i<(par.n||40);i++){var f0=sim.fuel[Math.floor(Math.random()*sim.fuel.length)];sim.add(f0.x,f0.y,sim.watt())}
   var rs=BOR?slider(box,'Boron in the water',0,2000,10,ppm,function(v){return v+' ppm'},function(v){ppm=v;moved=true}):slider(box,'Control rods',0,100,1,Math.round(tgt*100),function(v){return v+'% in'},function(v){tgt=v/100;moved=true});
   function setBoron(){sim.P.hAbs=fast?0:.0008+(BOR?ppm*5e-6:0)}setBoron();
@@ -798,28 +863,4 @@ fat={fis:0,cap:0,abs:0,leak:0},fatW=[],trip=false;if(BOR)tgt=0;if(par.source)sim
   if(mode==='loading'){var ps=select(box,'Loading pattern',['All new fuel in the middle','New fuel round the edge','Checkerboard (low leakage)'],function(i){pat=i;moved++});var st=stats(box,[['p','Peaking factor'],['l','Neutrons leaking']])}
   if(mode==='refuel'){var rr=row(box);btn(rr,'Next refuelling',function(){cyc++;moved++},'pri')}
   if(mode==='pellet'){slider(box,'Zoom out',0,3,.01,0,function(v){return ['pellet','fuel rod','fuel assembly','whole core'][Math.round(v)]},function(v){zoom=v;auto=false;moved++})}
-  drag(scr.cv,function(x,y){drg={x:x,y:y,yaw:yaw,pitch:pitch};auto=false},function(x,y,on){if(on&&drg){yaw=drg.yaw+(x-drg.x)*.01;pitch=Math.max(.2,Math.min(1.3,drg.pitch+(y-drg.y)*.006))}},function(){drg=null});scr.cv.style.touchAction='pan-y';
-  // a 15-wide core map with corners cut (193 assemblies)
-  var MAP=[];for(var j=0;j<15;j++)for(var i=0;i<15;i++){var dx=Math.abs(i-7),dy=Math.abs(j-7);if(dx+dy<=10&&Math.max(dx,dy)<=7&&!(dx===7&&dy>3)&&!(dy===7&&dx>3))MAP.push([i-7,j-7])}
-  function P3(x,y,z,W,H,F){var cy=Math.cos(yaw),sy=Math.sin(yaw),cp=Math.cos(pitch),sp=Math.sin(pitch),X=x*cy-z*sy,Z=x*sy+z*cy,Y=y*cp-Z*sp,Z2=y*sp+Z*cp,f=F/(9-Z2);return [W/2+X*f,H*.62-Y*f,Z2]}
-  function cube(c,pts,col){var F=[[0,1,2,3],[4,5,6,7],[0,1,5,4],[1,2,6,5],[2,3,7,6],[3,0,4,7]].map(function(fc){return {f:fc,z:(pts[fc[0]][2]+pts[fc[1]][2]+pts[fc[2]][2]+pts[fc[3]][2])/4}}).sort(function(a,b){return a.z-b.z});F.forEach(function(q,k){var sh=k===5?1.15:k%2?.75:.9;c.fillStyle='rgb('+Math.min(255,col[0]*sh|0)+','+Math.min(255,col[1]*sh|0)+','+Math.min(255,col[2]*sh|0)+')';c.beginPath();q.f.forEach(function(n,i){var p=pts[n];if(i)c.lineTo(p[0],p[1]);else c.moveTo(p[0],p[1])});c.closePath();c.fill();c.strokeStyle='rgba(255,255,255,.08)';c.stroke()})}
-  run(scr,function(dt){var c=scr.c,W=scr.W,H=scr.H,nb=narrow(),F=Math.min(W,H*1.3)*.95;tt+=dt;if(auto)yaw+=dt*.00018;bgf(c,W,H);
-   if(mode==='assembly'){band(c,W,'A FUEL ASSEMBLY IN 3D · 17 × 17','drag to turn');var Hh=3.2,s=.15,rods=[];for(var j=0;j<17;j++)for(var i=0;i<17;i++){var gt=[[2,5],[2,8],[2,11],[3,3],[3,13],[5,2],[5,5],[5,8],[5,11],[5,14],[8,2],[8,5],[8,11],[8,14],[11,2],[11,5],[11,8],[11,11],[11,14],[13,3],[13,13],[14,5],[14,8],[14,11]].some(function(q){return q[0]===i&&q[1]===j}),ins2=i===8&&j===8;var x=(i-8)*s,z=(j-8)*s,top=P3(x,Hh/2,z,W,H,F),bot=P3(x,-Hh/2,z,W,H,F);rods.push({t:top,b:bot,z:top[2],g:gt,it:ins2,x:x,zz:z})}
-    rods.sort(function(a,b){return a.z-b.z});rods.forEach(function(r){c.strokeStyle=r.g?'rgba(255,214,90,.75)':r.it?'rgba(120,235,140,.8)':'rgba(150,170,210,.42)';c.lineWidth=r.g?2:1.2;c.beginPath();c.moveTo(r.t[0],r.t[1]);c.lineTo(r.b[0],r.b[1]);c.stroke();if(r.g&&ins>0){var tip=P3(r.x,Hh/2-ins*Hh,r.zz,W,H,F),up=P3(r.x,Hh/2+.35,r.zz,W,H,F);c.strokeStyle='rgba(255,255,255,.95)';c.lineWidth=2.6;c.beginPath();c.moveTo(up[0],up[1]);c.lineTo(tip[0],tip[1]);c.stroke()}});
-    for(var p=0;p<30;p++){var u=((tt/1800)+p/30)%1,px=((p*7)%17-8)*s+s/2,pz=((p*11)%17-8)*s+s/2,q=P3(px,-Hh/2+u*Hh,pz,W,H,F);c.fillStyle='rgba(58,212,255,'+(.8*(1-u)).toFixed(2)+')';c.beginPath();c.arc(q[0],q[1],1.8,0,6.283);c.fill()}
-    hud(c,12,H-28,'grey: 264 fuel rods · yellow: 24 guide tubes for the control rods · green: instrument tube','rgba(200,225,255,.8)',nb?7.5:9,'left');hud(c,12,H-12,'blue dots: water flowing up through the assembly','rgba(150,220,255,.8)',nb?7.5:9,'left');return}
-   if(mode==='core'||mode==='loading'||mode==='refuel'){band(c,W,mode==='refuel'?'REFUELLING · a third of the fuel changes each time':mode==='loading'?'LOADING PATTERNS':'THE CORE IN 3D · 193 fuel assemblies','drag to turn');var s2=.42,bs=s2*.46,list=[],tot=0,mx=0;
-    MAP.forEach(function(m,k){var r=Math.hypot(m[0],m[1])/7.6,batch=mode==='refuel'?((k*7+cyc)%3):pat===0?(r<.45?0:r<.75?1:2):pat===1?(r>.72?0:r>.42?2:1):((m[0]+m[1])%2===0?0:1+((k)%2)),ff=Math.cos(r*Math.PI/2*.95)*(batch===0?1.25:batch===1?1:.78);if(mode==='core')ff=Math.cos(r*Math.PI/2*.95);list.push({m:m,b:batch,f:ff});tot+=ff;mx=Math.max(mx,ff)});
-    var avg=tot/list.length,pk=mx/avg,BC=[[255,170,80],[143,128,255],[90,120,170]];list.forEach(function(q){var x=q.m[0]*s2,z=q.m[1]*s2,h=.12+q.f/avg*.55,pts=[[-1,0,-1],[1,0,-1],[1,0,1],[-1,0,1],[-1,1,-1],[1,1,-1],[1,1,1],[-1,1,1]].map(function(v){return P3(x+v[0]*bs,v[1]*h,z+v[2]*bs,W,H,F*.62)});q.pts=pts;q.z=(pts[0][2]+pts[6][2])/2});list.sort(function(a,b){return a.z-b.z});
-    list.forEach(function(q){var col=mode==='core'?hot(.2+q.f*.6):BC[q.b];cube(c,q.pts,col)});if(mode!=='core'){[['new fuel',0],['one cycle old',1],['two cycles old',2]].forEach(function(l,i){c.fillStyle=rgba(BC[l[1]],1);c.fillRect(12,H-48+i*14,10,10);hud(c,26,H-39+i*14,l[0],'rgba(220,235,255,.85)',9)})}else hud(c,12,H-12,'height and colour = power: highest in the middle','rgba(200,225,255,.8)',9,'left');
-    if(st){st.p.textContent=fx(pk,2);st.l.textContent=pat===1?'more (new fuel at the edge)':pat===2?'less':'some'}if(mode==='refuel')hud(c,W-12,H-12,'refuellings: '+cyc,'#ffd65a',10,'right',true);return}
-   if(mode==='vessel'){band(c,W,'INSIDE THE REACTOR VESSEL · follow the water','');var cx=W/2,top=40,bot=H-20,vw=Math.min(W*.42,190),hw=vw/2;c.strokeStyle='rgba(200,220,255,.7)';c.lineWidth=3;c.beginPath();c.moveTo(cx-hw,top+30);c.lineTo(cx-hw,bot-30);c.quadraticCurveTo(cx-hw,bot,cx,bot);c.quadraticCurveTo(cx+hw,bot,cx+hw,bot-30);c.lineTo(cx+hw,top+30);c.stroke();c.lineWidth=1.5;c.strokeStyle='rgba(160,190,230,.55)';c.strokeRect(cx-hw+16,top+50,vw-32,bot-top-110);
-    c.fillStyle='rgba(255,150,70,.35)';c.fillRect(cx-hw+24,top+(bot-top)*.45,vw-48,(bot-top)*.28);hud(c,cx,top+(bot-top)*.6,'CORE','#ffaa50',11,'center',true);for(var r2=0;r2<5;r2++){var rx=cx-hw+34+r2*(vw-68)/4;c.strokeStyle='rgba(255,255,255,.6)';c.beginPath();c.moveTo(rx,top+6);c.lineTo(rx,top+(bot-top)*.5);c.stroke()}hud(c,cx,top-2,'control rod drives','rgba(220,235,255,.75)',8.5,'center');
-    var path=[[cx-hw-40,top+70],[cx-hw+8,top+70],[cx-hw+8,bot-40],[cx,bot-14],[cx,top+(bot-top)*.45],[cx,top+60],[cx+hw+40,top+70]];function dots2(pts,n){var L=0,sg=[];for(var k=1;k<pts.length;k++){var l=Math.hypot(pts[k][0]-pts[k-1][0],pts[k][1]-pts[k-1][1]);sg.push(l);L+=l}for(var i2=0;i2<n;i2++){var u2=(tt/4000+i2/n)%1,d=u2*L;for(var k2=1;k2<pts.length;k2++){if(d<=sg[k2-1]){var fr=d/sg[k2-1],x=pts[k2-1][0]+(pts[k2][0]-pts[k2-1][0])*fr,y=pts[k2-1][1]+(pts[k2][1]-pts[k2-1][1])*fr,col=u2<.55?[90,160,255]:[255,130,90];glow(c,x,y,6,col,.4);c.fillStyle=rgba(col,1);c.beginPath();c.arc(x,y,2.2,0,6.283);c.fill();break}d-=sg[k2-1]}}}dots2(path,26);
-    hud(c,cx-hw-44,top+60,'cold in 292 °C','#7fb0ff',8.5,'left',true);hud(c,cx+hw+44,top+60,'hot out 328 °C','#ff9070',8.5,'right',true);hud(c,cx-hw-6,(top+bot)/2,'down the downcomer','rgba(200,225,255,.75)',8,'right');hud(c,cx+hw-20,top+(bot-top)*.36,'up through the core','rgba(200,225,255,.75)',8,'right');return}
-   if(mode==='pellet'){if(auto)zoom=1.5-1.5*Math.cos(tt/9000*Math.PI*2)/1;var z=Math.max(0,Math.min(3,zoom)),lvl=Math.round(z),NAMES=['ONE FUEL PELLET','ONE FUEL ROD','ONE FUEL ASSEMBLY','THE WHOLE CORE'],INFO=['About 8 mm across: as much energy as a tonne of coal','About 4 m long, holding around 360 pellets','264 rods in a 17 × 17 square','193 assemblies: about 18 million pellets'];band(c,W,NAMES[lvl],INFO[lvl]);var cx2=W/2,cy2=H/2+10,sc=Math.pow(10,(1.5-z)*.8);
-    if(lvl===0){var R=Math.min(W,H)*.22;ball(c,cx2,cy2,R,[90,80,70]);c.strokeStyle='rgba(255,255,255,.3)';c.beginPath();c.ellipse(cx2,cy2-R*.1,R*.95,R*.3,0,0,6.283);c.stroke()}
-    else if(lvl===1){c.fillStyle='rgba(170,180,200,.8)';c.fillRect(20,cy2-9,W-40,18);for(var p2=0;p2<40;p2++){c.strokeStyle='rgba(60,60,70,.6)';c.beginPath();c.moveTo(20+p2*(W-40)/40,cy2-9);c.lineTo(20+p2*(W-40)/40,cy2+9);c.stroke()}hud(c,W/2,cy2+30,'zirconium alloy tube, sealed at both ends','rgba(200,225,255,.8)',9,'center')}
-    else if(lvl===2){var g=Math.min(W,H)*.6/17;for(var j2=0;j2<17;j2++)for(var i3=0;i3<17;i3++){c.fillStyle='rgba(170,180,200,.75)';c.beginPath();c.arc(cx2-8.5*g+i3*g+g/2,cy2-8.5*g+j2*g+g/2,g*.38,0,6.283);c.fill()}}
-    else{var g2=Math.min(W,H)*.65/15;MAP.forEach(function(m){c.fillStyle=rgba(hot(.25+Math.cos(Math.hypot(m[0],m[1])/7.6*Math.PI/2)*.55),1);c.fillRect(cx2+m[0]*g2-g2/2+1,cy2+m[1]*g2-g2/2+1,g2-2,g2-2)})}}});
-  if(!par.goal)return {};return {check:function(){if(par.goal==='checker')return pat===2?{ok:true,head:'Low leakage!',msg:'Spreading 
+  drag(
