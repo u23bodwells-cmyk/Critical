@@ -6561,7 +6561,7 @@ function* addOutside(scene) { var g = new THREE.Group(); g.position.set(RX, 0, R
   OUTFOG.c = new THREE.Color(0x9fb4c8); INFOG.c = new THREE.Color(0x1d2126); EXT.duskC = new THREE.Color(1.0, 0.55, 0.3); EXT.hallC = new THREE.Color(0x121a22); EXT.roomC = new THREE.Color(0x1d2126);
   EXT.on = true; }
 /* reactor trip: the control room washes slowly red for the first 40 s after a trip (only a new trip; the plant starts shut down) */
-function tripAlarmTick() { var p = (typeof S !== 'undefined' && S) ? S.p : null; if (!p || typeof scene === 'undefined' || !scene) { EXT.tripK = 0; return; } if (!EXT.tripL) { var L = new THREE.PointLight(0xff2010, 0, 0, 1.4); L.position.set(0, CH - 0.7, RZC); scene.add(L); EXT.tripL = L; }
+function tripAlarmTick() { var p = (typeof S !== 'undefined' && S) ? S.p : null; if (!p || typeof R3 === 'undefined' || !R3 || !R3.scene) { EXT.tripK = 0; return; } if (!EXT.tripL) { var L = new THREE.PointLight(0xff2010, 0, 0, 1.4); L.position.set(0, CH - 0.7, RZC); R3.scene.add(L); EXT.tripL = L; }
   var age = p.tripped && p.trips > 0 ? p.t - p.tripT : 1e9, k = age < 40 ? (1 - age / 40) * (0.55 + 0.45 * Math.sin(age * 5.2)) : 0; EXT.tripL.intensity += (k * 38 - EXT.tripL.intensity) * 0.25; EXT.tripK = Math.max(0, k); }
 /* plant-state effects in the yard, all from one shared pool of soft puffs: steam from a roof vent stack while a relief valve is lifted (SG PORV, main steam safety valve, pressuriser PORV or safety),
    a burst from the turbine hall roof vents when the turbine trips, and exhaust from the diesel building while an emergency diesel runs. Idle cost: a few comparisons per frame. */
@@ -6669,12 +6669,12 @@ function vanLightsTick(dt) {
 /* loss of power in the control room: the ceiling lights follow the unit boards (full on offsite or generator power, about half on the diesels only, flickering off when the boards are lost),
    while battery lamps and the exit sign over the door stay lit as long as a DC supply holds. Uses the room's existing lights only (no new ones). */
 function roomPowerTick(dt) {
-  var p = (typeof S !== 'undefined' && S) ? S.p : null, x = p && p.x, H = (typeof R3 !== 'undefined' && R3) ? R3.hemiL : null, sp = R3 && R3.roomSpots; if (!x || !x.el || !H || !sp || !(dt > 0) || typeof scene === 'undefined' || !scene) return; dt = Math.min(dt, 0.1);
+  var p = (typeof S !== 'undefined' && S) ? S.p : null, x = p && p.x, H = (typeof R3 !== 'undefined' && R3) ? R3.hemiL : null, sp = R3 && R3.roomSpots; if (!x || !x.el || !H || !sp || !(dt > 0) || !R3.scene) return; dt = Math.min(dt, 0.1);
   var E = EXT.rp, el = x.el, i;
   if (!E) { var lm = new THREE.MeshBasicMaterial({ color: 0x23272b }), xm = new THREE.MeshBasicMaterial({ map: signTex(240, 80, function (g, w, h) { g.fillStyle = '#0c5a2c'; g.fillRect(0, 0, w, h); g.strokeStyle = '#fff'; g.lineWidth = 4; g.strokeRect(4, 4, w - 8, h - 8); ctext(g, 'EXIT', w / 2, h / 2 + 4, h * 0.55, '#fff', 'center', w - 20, '900'); }), color: 0xffffff });
     E = EXT.rp = { k: 1, hk: 1, fl: 0, ft: 0, fv: 1, lm: lm, xm: xm, on: false, done: true };
-    [[-5.4, -5.5], [5.4, -5.5], [-5.4, 8.5], [5.4, 8.5]].forEach(function (q) { var b = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.1, 0.2), lm); b.position.set(q[0], CH - 0.07, q[1]); b.userData.noColl = true; scene.add(b); });
-    var xs = new THREE.Mesh(new THREE.PlaneGeometry(0.56, 0.19), xm); xs.position.set(-RX + 0.012, 3.68, HALL.cz); xs.rotation.y = Math.PI / 2; xs.userData.noColl = true; scene.add(xs); }
+    [[-5.4, -5.5], [5.4, -5.5], [-5.4, 8.5], [5.4, 8.5]].forEach(function (q) { var b = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.1, 0.2), lm); b.position.set(q[0], CH - 0.07, q[1]); b.userData.noColl = true; R3.scene.add(b); });
+    var xs = new THREE.Mesh(new THREE.PlaneGeometry(0.56, 0.19), xm); xs.position.set(-RX + 0.012, 3.68, HALL.cz); xs.rotation.y = Math.PI / 2; xs.userData.noColl = true; R3.scene.add(xs); }
   var tgt = (busOn(x, 'A') || busOn(x, 'B')) ? 1 : (busOn(x, 'EA') || busOn(x, 'EB')) ? 0.55 : 0, dcOk = Math.max(el.dc ? el.dc[0] : 130, el.dc ? el.dc[1] : 130) > 106;
   if (Math.abs(tgt - E.k) > 0.3 && E.fl <= 0) E.fl = tgt < E.k ? 0.9 : 0.5;
   E.k += (tgt - E.k) * Math.min(1, dt * (tgt < E.k ? 8 : 1.2));
@@ -6698,7 +6698,7 @@ function roomAlarmTint(dt) {
    and only exist while you are standing in the room. No lights, no shadow cost; skipped in lite. */
 var SHAFT = { m: [], k: 0, t: -9, mat: null };
 function roomShaftTick(dt) {
-  if (typeof scene === 'undefined' || !scene || !(dt > 0) || (typeof PERF !== 'undefined' && PERF.lite)) return;
+  if (typeof R3 === 'undefined' || !R3 || !R3.scene || !(dt > 0) || (typeof PERF !== 'undefined' && PERF.lite)) return;
   var inRoom = CAM.x > -RX && CAM.x < RX && CAM.z > ZB && CAM.z < ZF, S0 = SHAFT, i;
   if (!inRoom) { if (S0.k > 0) { S0.k = 0; S0.m.forEach(function (o) { o.visible = false; }); } return; }
   if (EXT.t - S0.t < 1.5) return; S0.t = EXT.t; var SN = sunNow(), el = SN.el, ce = Math.sqrt(Math.max(0, 1 - el * el)), sx = Math.sin(SN.az) * ce, sy = Math.max(el, -0.3) * 0.8 + 0.02, sz = Math.cos(SN.az) * ce, cl = WXL.d ? WXL.d.cl : 0, WV = WXV();
@@ -6706,7 +6706,7 @@ function roomShaftTick(dt) {
   if (k < 0.01) { if (S0.k > 0) { S0.k = 0; S0.m.forEach(function (o) { o.visible = false; }); } return; }
   if (!S0.mat) { var c = CV(128, 64), x = c.getContext('2d'), id = x.createImageData(128, 64); for (var v = 0; v < 64; v++) for (var u = 0; u < 128; u++) { var a = Math.pow(1 - u / 127, 0.7) * Math.min(1, u / 8) * Math.pow(Math.sin(Math.PI * (v + 0.5) / 64), 1.6), o = (v * 128 + u) * 4; id.data[o] = id.data[o + 1] = id.data[o + 2] = 255; id.data[o + 3] = Math.round(255 * a); } x.putImageData(id, 0, 0);
     S0.mat = new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(c), color: 0xffd9a0, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide, fog: false });
-    [-7.2, -3.6, 0.2, 3.9, 7.3].forEach(function (z0) { [0, 1].forEach(function (ty) { var m = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), S0.mat); m.matrixAutoUpdate = false; m.frustumCulled = false; m.renderOrder = 7; m.userData.noColl = true; m.userData.noShadow = true; m.userData.z0 = z0; m.userData.ty = ty; scene.add(m); S0.m.push(m); }); }); }
+    [-7.2, -3.6, 0.2, 3.9, 7.3].forEach(function (z0) { [0, 1].forEach(function (ty) { var m = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), S0.mat); m.matrixAutoUpdate = false; m.frustumCulled = false; m.renderOrder = 7; m.userData.noColl = true; m.userData.noShadow = true; m.userData.z0 = z0; m.userData.ty = ty; R3.scene.add(m); S0.m.push(m); }); }); }
   var r = new THREE.Vector3(-sx, -sy, -sz).normalize(), up = new THREE.Vector3(0, 1, 0), yA = up.clone().addScaledVector(r, -up.dot(r)).normalize(), yB = new THREE.Vector3().crossVectors(r, up).normalize(), t = clamp((2.2 - 0.1) / Math.max(0.08, sy), 3, 24), X = new THREE.Vector3(), Y = new THREE.Vector3(), Z = new THREE.Vector3();
   S0.m.forEach(function (o) { var A = !o.userData.ty; X.copy(r).multiplyScalar(t); Y.copy(A ? yA : yB).multiplyScalar(A ? 3.4 : 1.3); Z.crossVectors(X, Y).normalize(); o.matrix.makeBasis(X, Y, Z); o.matrix.setPosition(RX - 0.08 + r.x * t / 2, 2.2 + r.y * t / 2, o.userData.z0 + r.z * t / 2); o.matrixWorldNeedsUpdate = true; o.visible = true; });
   S0.k = k; S0.mat.opacity = 0.11 * k; S0.mat.color.setRGB(1, 0.78 + 0.14 * clamp(el * 2, 0, 1), 0.5 + 0.3 * clamp(el * 2, 0, 1));
