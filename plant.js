@@ -1249,7 +1249,7 @@ function realism(scene) {
 var POST = { on: false,
   init: function () {
     var ren = R3.ren, gl = ren.getContext(); if (!ren.capabilities.isWebGL2) return;
-    var opt = { type: THREE.HalfFloatType, depthBuffer: true, samples: 4 }; POST.main = new THREE.WebGLRenderTarget(4, 4, opt);
+    var opt = { type: THREE.HalfFloatType, depthBuffer: true, samples: PHONE ? 0 : 4 }; POST.main = new THREE.WebGLRenderTarget(4, 4, opt);
     POST.lv = []; for (var i = 0; i < 5; i++) POST.lv.push(new THREE.WebGLRenderTarget(4, 4, { type: THREE.HalfFloatType, depthBuffer: false }));
     POST.cam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1); POST.quad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2)); POST.sc = new THREE.Scene(); POST.sc.add(POST.quad);
     var vs = 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }';
@@ -7391,8 +7391,8 @@ var TEXDIET = { n: 0, saved: 0, w: [],
   one: function (t, cap, capA, WR) { var c = t.image; if (!c || !c.getContext || t.isVideoTexture || (t.userData && t.userData.live)) return; var w = c.width, h = c.height; if (!(w > 0 && h > 0)) return;
     var k = Math.min(1, cap / Math.max(w, h), Math.sqrt(capA / (w * h))); if (k > 0.9) return; var nw = Math.max(8, Math.round(w * k)), nh = Math.max(8, Math.round(h * k)), sm = document.createElement('canvas'); sm.width = nw; sm.height = nh; var g = sm.getContext('2d'); if (!g) return; g.drawImage(c, 0, 0, nw, nh);
     for (var key in c) if (key.charAt(0) === '_' && key.charAt(1) === '_') try { sm[key] = c[key]; } catch (e) {}
-    t.image = sm; t.needsUpdate = true; TEXDIET.n++; TEXDIET.saved += w * h - nw * nh; var big = WR ? new WeakRef(c) : null; c = null; if (big) TEXDIET.w.push(big);
-    Object.defineProperty(t, 'needsUpdate', { configurable: true, set: function (v) { if (v === true) { if (big) { var c0 = big.deref(); big = null; if (c0 && c0.width) this.image = c0; } this.version++; this.source.needsUpdate = true; } } }); }
+    t.dispose(); t.image = sm; t.needsUpdate = true; TEXDIET.n++; TEXDIET.saved += w * h - nw * nh; var big = WR ? new WeakRef(c) : null; c = null; if (big) TEXDIET.w.push(big);
+    Object.defineProperty(t, 'needsUpdate', { configurable: true, set: function (v) { if (v === true) { if (big) { var c0 = big.deref(); big = null; if (c0 && c0.width) { this.dispose(); this.image = c0; } } /* a different size needs fresh storage on the graphics chip */ this.version++; this.source.needsUpdate = true; } } }); }
 };
 var AMBS = { z: null,
   DEF: [{ box: [18, 38, 20, 36], parts: [{ f: 100, g: 0.012 }, { f: 200, g: 0.004 }, { n: 1, f: 420, q: 0.6, g: 0.05 }], lvl: function (X) { var n = X.aux.ccw.filter(Boolean).length + X.cv.ccp.filter(Boolean).length + X.si.pumps.filter(Boolean).length + X.si.rhr.filter(Boolean).length; return 0.35 + 0.16 * n; } },
@@ -7745,10 +7745,10 @@ var BATCH = { HIDE: 1 << 31, CELL: 12, CELL_OUT: 40, src: [], list: [], out: 0, 
   }
 };
 /* ================================================================ the loop ================================================================ */
-var RAF = 0, last = 0, rr0 = 0, saveT = 0, lastSteps = 0, wasP6 = false, wasCrit = false, lastPts = 0, sizeK = '';
+var RAF = 0, last = 0, rr0 = 0, saveT = 0, lastSteps = 0, wasP6 = false, wasCrit = false, lastPts = 0, sizeK = '', sizeP = '', sizeT = 0;
 function frame(now) {
   RAF = requestAnimationFrame(frame); if (PERF.cap && last && (now - last) / 1000 < PERF.cap - 0.004) return; var dt = Math.min(0.1, Math.max(0.001, (now - (last || now)) / 1000)); last = now; var p = S.p; perfTick(dt);
-  var k = root.clientWidth + 'x' + root.clientHeight; if (k !== sizeK) { sizeK = k; R3.ren.setSize(root.clientWidth, root.clientHeight, false); POST.size(root.clientWidth, root.clientHeight); OFS.w = -1; }
+  var k = root.clientWidth + 'x' + root.clientHeight; if (k !== sizeP) { sizeP = k; sizeT = now; } /* turning a phone fires a run of in-between sizes: wait until the size has settled before rebuilding the render buffers, or the phone runs out of memory */ if (k !== sizeK && (!sizeK || now - sizeT > 400)) { sizeK = k; R3.ren.setSize(root.clientWidth, root.clientHeight, false); POST.size(root.clientWidth, root.clientHeight); OFS.w = -1; }
   if (!S.paused && !S.menu) {
     var sim = dt * S.ts, n = Math.max(1, Math.ceil(sim / 0.05)), hh = sim / n;
     if (!REFUEL.on) for (var i = 0; i < n; i++) { plantStep(p, hh); niTick(p, hh); rps(p); permissives(p); oneMTick(p, hh); }
@@ -7838,7 +7838,7 @@ var DOCK = { L: null, R: null, C: null, act: { L: null, R: null }, iv: 0,
 function init() {
   if (!DOCK.iv) DOCK.iv = setInterval(function () { try { DOCK.tick(); } catch (e) {} }, 250);
   FAST.chunks(); var sv = rd(); makeSession(sv); var hi = S.cfg.gfx === 'high', lite = S.cfg.gfx === 'lite'; root.classList.toggle('lite', lite); PERF.lite = lite; PERF.cap = lite ? 1 / 31 : 0; if (lite) { TEXS = 0.5; BEN = 1; } if (PHONE) TEXS = 0.38;
-  var ren = new THREE.WebGLRenderer({ antialias: hi, powerPreference: lite ? 'default' : 'high-performance', stencil: false }); PERF.prMax = Math.min(window.devicePixelRatio || 1, hi ? 2 : lite ? 0.85 : 1); PERF.pr = PERF.prMax; ren.setPixelRatio(PERF.pr); ren.toneMapping = THREE.ACESFilmicToneMapping; ren.toneMappingExposure = 0.84;
+  var ren = new THREE.WebGLRenderer({ antialias: hi && !PHONE, powerPreference: lite ? 'default' : 'high-performance', stencil: false }); PERF.prMax = Math.min(window.devicePixelRatio || 1, hi ? (PHONE ? 1.5 : 2) : lite ? 0.85 : 1); PERF.pr = PERF.prMax; ren.setPixelRatio(PERF.pr); ren.toneMapping = THREE.ACESFilmicToneMapping; ren.toneMappingExposure = 0.84;
   ren.domElement.className = 'cpn3d'; ren.domElement.tabIndex = 0; root.insertBefore(ren.domElement, root.firstChild);
   ANISO = Math.min(hi ? 8 : 2, ren.capabilities.getMaxAnisotropy ? ren.capabilities.getMaxAnisotropy() : 4);
   var scene = new THREE.Scene(); scene.background = new THREE.Color(0x1d2126); var cam = new THREE.PerspectiveCamera(60, 1, 0.03, 5000); scene.fog = new THREE.FogExp2(0x1d2126, 0.0004); R3 = { ren: ren, scene: scene, cam: cam }; RC = new THREE.Raycaster();
