@@ -466,6 +466,9 @@ var ANISO = 4, S = null, root = null, R3 = null;
 function CV(w, h) { var c = document.createElement('canvas'); c.width = w; c.height = h; return c; }
 /* phones and tablets: Safari caps how much canvas memory a page may hold, and past the cap new canvases come out blank (black panels) or the tab is closed */
 var PHONE = !!(window.matchMedia && matchMedia('(pointer: coarse)').matches);
+/* low-memory devices: phones and tablets, every Chromebook (school ones usually have 4 GB shared with the graphics chip), and anything reporting 4 GB or less.
+   These get the same smaller painted textures as phones, otherwise the plant needs ~670 MB of canvas memory plus the same again on the graphics chip. */
+var CROS = /\bCrOS\b/.test(navigator.userAgent || ''), LOWMEM = PHONE || CROS || (navigator.deviceMemory || 8) <= 4;
 function shrinkC(c, cap, capA) { var w = c.width, h = c.height, k = Math.min(1, cap / Math.max(w, h), Math.sqrt(capA / (w * h))); if (k > 0.9) return c; var sm = CV(Math.max(8, Math.round(w * k)), Math.max(8, Math.round(h * k))), g = sm.getContext('2d'); if (!g) return c; g.drawImage(c, 0, 0, sm.width, sm.height); for (var key in c) if (key.charAt(0) === '_' && key.charAt(1) === '_') try { sm[key] = c[key]; } catch (e) {} c.width = c.height = 0; return sm; }
 function texOf(c) { var t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = ANISO; t.generateMipmaps = true; t.minFilter = THREE.LinearMipmapLinearFilter; return t; }
 function rr(g, x, y, w, h, r) { g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); }
@@ -481,7 +484,7 @@ function superExp(g, base, ex, x, y, px, col, align) { g.save(); g.fillStyle = c
    Every instrument is its own small mesh with its own canvas, redrawn only when what it shows has changed. */
 var WG = [];
 function widget(opts) {
-  var a0 = opts.cw * opts.ch, k = PHONE ? (a0 > 200000 ? 0.5 : a0 > 50000 ? 0.7 : 1) : 1, c = CV(Math.max(8, Math.round(opts.cw * k)), Math.max(8, Math.round(opts.ch * k))), t = texOf(c), mt = opts.glow ? new THREE.MeshBasicMaterial({ map: t, toneMapped: false }) : new THREE.MeshStandardMaterial({ map: t, roughness: opts.rough == null ? 0.55 : opts.rough, metalness: 0.0 });
+  var a0 = opts.cw * opts.ch, k = LOWMEM ? (a0 > 200000 ? 0.5 : a0 > 50000 ? 0.7 : 1) : 1, c = CV(Math.max(8, Math.round(opts.cw * k)), Math.max(8, Math.round(opts.ch * k))), t = texOf(c), mt = opts.glow ? new THREE.MeshBasicMaterial({ map: t, toneMapped: false }) : new THREE.MeshStandardMaterial({ map: t, roughness: opts.rough == null ? 0.55 : opts.rough, metalness: 0.0 });
   var m = new THREE.Mesh(new THREE.PlaneGeometry(opts.w, opts.h), mt), w = { m: m, c: c, k: k, g: c.getContext('2d'), t: t, last: null, draw: opts.draw, key: opts.key, every: opts.every || 0, acc: 0, o: opts };
   m.userData.tip = opts.tip; m.userData.w = w; WG.push(w); return w;
 }
@@ -690,7 +693,7 @@ function cyl(rt, rb, h, mat, seg, open) { return new THREE.Mesh(new THREE.Cylind
 function hit(mesh, o) { mesh.userData.hit = o; HITS.push(mesh); return mesh; }
 function invis(w, h, d) { var m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), new THREE.MeshBasicMaterial({ visible: false })); return m; }
 function soon(n, what) { return function () { S.toast('🔒 ' + what + ' comes in Section ' + n + ' (' + ROAD[n - 1].t + ').', 'lock'); S.sfx('deny'); }; }
-function signTex(w, h, fn) { var c = CV(w, h), g = c.getContext('2d'); fn(g, w, h); if (PHONE && w * h > 65536 && !/^function\s*\(\)\s*\{\s*\}$/.test(String(fn))) c = shrinkC(c, 512, 65536); return texOf(c); }
+function signTex(w, h, fn) { var c = CV(w, h), g = c.getContext('2d'); fn(g, w, h); if (LOWMEM && w * h > 65536 && !/^function\s*\(\)\s*\{\s*\}$/.test(String(fn))) c = shrinkC(c, 512, 65536); return texOf(c); }
 
 /* ---------- the room ---------- */
 function buildRoom(scene) {
@@ -711,7 +714,9 @@ function buildRoom(scene) {
     box(0.12, Y1 - Y0, W0 - ZB, wm, RX, (Y0 + Y1) / 2, (ZB + W0) / 2, scene); box(0.12, Y1 - Y0, D0 - W1, wm, RX, (Y0 + Y1) / 2, (W1 + D0) / 2, scene); box(0.12, Y1 - Y0, ZF - D1, wm, RX, (Y0 + Y1) / 2, (D1 + ZF) / 2, scene); box(0.12, Y1 - DH, D1 - D0, wm, RX, (DH + Y1) / 2, (D0 + D1) / 2, scene);
     var gl = new THREE.Mesh(new THREE.PlaneGeometry(W1 - W0, Y1 - Y0), new THREE.MeshPhysicalMaterial({ color: 0xcfe0ee, transparent: true, opacity: 0.06, roughness: 0.02, metalness: 0, clearcoat: 1, clearcoatRoughness: 0.02, side: THREE.DoubleSide, depthWrite: false })); gl.renderOrder = 5; gl.position.set(RX, (Y0 + Y1) / 2, (W0 + W1) / 2); gl.rotation.y = -Math.PI / 2; scene.add(gl);
     var rv = new THREE.MeshStandardMaterial({ color: 0x1c2026, roughness: 0.4, metalness: 0.6 }); box(0.14, 0.03, W1 - W0, rv, RX, Y0, (W0 + W1) / 2, scene); box(0.14, 0.03, W1 - W0, rv, RX, Y1, (W0 + W1) / 2, scene); box(0.14, Y1 - Y0, 0.03, rv, RX, (Y0 + Y1) / 2, W0, scene); box(0.14, Y1 - Y0, 0.03, rv, RX, (Y0 + Y1) / 2, W1, scene);
-    box(0.3, 0.03, W1 - W0, new THREE.MeshStandardMaterial({ color: 0xe8eaec, roughness: 0.5 }), RX - 0.15, Y0 - 0.01, (W0 + W1) / 2, scene); })(); addOutside(scene); addWindows(scene); addHall(scene);
+    box(0.3, 0.03, W1 - W0, new THREE.MeshStandardMaterial({ color: 0xe8eaec, roughness: 0.5 }), RX - 0.15, Y0 - 0.01, (W0 + W1) / 2, scene); })();
+}
+function buildRoom2(scene) {
   /* suspended ceiling with recessed light panels */
   var ct = signTex(256, 256, function (g) { g.fillStyle = '#c9cac6'; g.fillRect(0, 0, 256, 256); speck(g, 256, 256, 4000, 0.05); g.strokeStyle = '#b9bcb8'; g.lineWidth = 5; g.strokeRect(0, 0, 256, 256); });
   ct.wrapS = ct.wrapT = THREE.RepeatWrapping; ct.repeat.set(2 * RX / 0.6, RDP / 0.6); ct.image.__ceil = true;
@@ -1249,7 +1254,7 @@ function realism(scene) {
 var POST = { on: false,
   init: function () {
     var ren = R3.ren, gl = ren.getContext(); if (!ren.capabilities.isWebGL2) return;
-    var opt = { type: THREE.HalfFloatType, depthBuffer: true, samples: PHONE ? 0 : 4 }; POST.main = new THREE.WebGLRenderTarget(4, 4, opt);
+    var opt = { type: THREE.HalfFloatType, depthBuffer: true, samples: LOWMEM ? 0 : 4 }; POST.main = new THREE.WebGLRenderTarget(4, 4, opt);
     POST.lv = []; for (var i = 0; i < 5; i++) POST.lv.push(new THREE.WebGLRenderTarget(4, 4, { type: THREE.HalfFloatType, depthBuffer: false }));
     POST.cam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1); POST.quad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2)); POST.sc = new THREE.Scene(); POST.sc.add(POST.quad);
     var vs = 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }';
@@ -3734,7 +3739,7 @@ var PROP = (function () { var M = {}, mt = function (k, c, r, m) { if (!M[k]) M[
 /* ================================================================ turbine hall access: PPE lobby and the link bridge ================================================================
    Through the double doors on the north side of the corridor: a lobby where you kit up (lockers, benches, hard hats, hi-vis, ear defenders, a live
    turbine status screen), then a 20 m glazed link bridge across the yard to the turbine hall's personnel door. */
-function paintWallMat(Wm, Hm, o) { o = o || {}; var PPM = (o.ppm || 110) * (PHONE ? 0.45 : 1), W = Math.round(Wm * PPM), H = Math.round(Hm * PPM), c = CV(W, H), g = c.getContext('2d'), hc = CV(W, H), hg = hc.getContext('2d'), rc = CV(W, H), rg = rc.getContext('2d'), rnd = function (a, b) { return a + Math.random() * (b - a); };
+function paintWallMat(Wm, Hm, o) { o = o || {}; var PPM = (o.ppm || 110) * (LOWMEM ? 0.45 : 1), W = Math.round(Wm * PPM), H = Math.round(Hm * PPM), c = CV(W, H), g = c.getContext('2d'), hc = CV(W, H), hg = hc.getContext('2d'), rc = CV(W, H), rg = rc.getContext('2d'), rnd = function (a, b) { return a + Math.random() * (b - a); };
   var dadoY = H - (o.dado || 1.2) * PPM; g.fillStyle = o.top || '#d9d6cb'; g.fillRect(0, 0, W, dadoY); g.fillStyle = o.low || '#5d7480'; g.fillRect(0, dadoY, W, H - dadoY); g.fillStyle = o.band || '#2f4756'; g.fillRect(0, dadoY - 5, W, 7);
   hg.fillStyle = '#c4c4c4'; hg.fillRect(0, 0, W, H); rg.fillStyle = 'rgb(185,185,185)'; rg.fillRect(0, 0, W, dadoY); rg.fillStyle = 'rgb(78,78,78)'; rg.fillRect(0, dadoY, W, H - dadoY);
   var bw = 0.45 * PPM, bh = 0.225 * PPM, row = 0; for (var y = H; y > -bh; y -= bh, row++) { var off = (row % 2) * bw / 2; for (var x = -off; x < W; x += bw) { var tv = rnd(-5, 5); g.fillStyle = 'rgba(' + (tv > 0 ? '255,255,250,' : '40,40,30,') + Math.abs(tv) / 170 + ')'; g.fillRect(x + 1, y - bh + 1, bw - 2, bh - 2); }
@@ -3880,7 +3885,7 @@ function tbBayMat(H) { var W = 256, HP = 1024, c = CV(W, HP), g = c.getContext('
   for (i = 0; i < 50; i++) { sx = rnd(0, W); var sy = Y(rnd(0.03, 0.5)); g.strokeStyle = 'rgba(25,25,25,' + rnd(0.1, 0.3) + ')'; g.lineWidth = 1; g.beginPath(); g.moveTo(sx, sy); g.lineTo(sx + rnd(4, 20), sy + rnd(-1, 1)); g.stroke(); }
   var ao = g.createLinearGradient(0, HP, 0, HP - 26); ao.addColorStop(0, 'rgba(15,18,20,.55)'); ao.addColorStop(1, 'rgba(15,18,20,0)'); g.fillStyle = ao; g.fillRect(0, HP - 26, W, 26); ao = g.createLinearGradient(0, 0, 0, 110); ao.addColorStop(0, 'rgba(15,18,20,.55)'); ao.addColorStop(1, 'rgba(15,18,20,0)'); g.fillStyle = ao; g.fillRect(0, 0, W, 110);
   var t = texOf(c), bt = new THREE.CanvasTexture(hc), rt = new THREE.CanvasTexture(rc); [t, bt, rt].forEach(function (q) { q.wrapS = THREE.RepeatWrapping; }); var m = new THREE.MeshStandardMaterial({ map: t, bumpMap: bt, bumpScale: 1.4, roughnessMap: rt, roughness: 1, metalness: 0.1, envMapIntensity: 0.4 }); m.userData.own = true; m.userData.gritK = [0.1, 0.16, 0.0008, 1.4]; return m; }
-function tbFloorMat(T, noGo) { var P = PHONE ? 18 : 32, W = Math.round((T.x1 - T.x0) * P), H = Math.round((T.z1 - T.z0) * P), c = CV(W, H), g = c.getContext('2d'), rc = CV(W, H), rg = rc.getContext('2d'), X = function (x) { return (x - T.x0) * P; }, Z = function (z) { return (z - T.z0) * P; }, rnd = function (a, b) { return a + Math.random() * (b - a); };
+function tbFloorMat(T, noGo) { var P = LOWMEM ? 18 : 32, W = Math.round((T.x1 - T.x0) * P), H = Math.round((T.z1 - T.z0) * P), c = CV(W, H), g = c.getContext('2d'), rc = CV(W, H), rg = rc.getContext('2d'), X = function (x) { return (x - T.x0) * P; }, Z = function (z) { return (z - T.z0) * P; }, rnd = function (a, b) { return a + Math.random() * (b - a); };
   g.fillStyle = '#7b8480'; g.fillRect(0, 0, W, H); rg.fillStyle = 'rgb(150,150,150)'; rg.fillRect(0, 0, W, H);
   for (var i = 0; i < 900; i++) { var r = rnd(20, 150), x = rnd(0, W), y = rnd(0, H), q = g.createRadialGradient(x, y, 0, x, y, r), v = Math.random() < 0.5 ? '50,56,54' : '170,178,174'; q.addColorStop(0, 'rgba(' + v + ',.1)'); q.addColorStop(1, 'rgba(' + v + ',0)'); g.fillStyle = q; g.fillRect(x - r, y - r, 2 * r, 2 * r); var q2 = rg.createRadialGradient(x, y, 0, x, y, r); q2.addColorStop(0, 'rgba(' + (Math.random() < 0.5 ? '95,95,95' : '215,215,215') + ',.4)'); q2.addColorStop(1, 'rgba(128,128,128,0)'); rg.fillStyle = q2; rg.fillRect(x - r, y - r, 2 * r, 2 * r); }
   var id = g.getImageData(0, 0, W, H), d = id.data; for (i = 0; i < d.length; i += 4) { var n = (Math.random() - 0.5) * 17, rr = Math.random(); if (rr < 0.012) n += 24; else if (rr < 0.022) n -= 30; d[i] += n; d[i + 1] += n; d[i + 2] += n; } g.putImageData(id, 0, 0);
@@ -4519,7 +4524,7 @@ function addKit(scene) { var cz = HALL.cz, cw = HALL.cw, zL = cz - cw / 2, zR = 
    walkways, laydown areas, hazard banding round the cavity and stencilling; a ribbed steel roof deck. Then the kit: a polar crane on wall brackets,
    a refuelling machine on rails over the pool, the equipment hatch, high-bay lights, gallery grating, toe boards and braces, laydown gear,
    a health physics point, services, safety equipment and signs. */
-var HD = { PPM: PHONE ? 40 : 96 };
+var HD = { PPM: LOWMEM ? 40 : 96 };
 function hallWallMat(Wm, Hm, gal, label, u0, u1, v0, v1) { var PPM = HD.PPM, W = Math.round(Wm * PPM), H = Math.round(Hm * PPM), c = CV(W, H), g = c.getContext('2d'), hc = CV(W, H), hg = hc.getContext('2d'), rc = CV(W, H), rg = rc.getContext('2d');
   var rnd = function (a, b) { return a + Math.random() * (b - a); }, Y = function (m) { return H - m * PPM; }, PB = 2.4;
   /* raw cast concrete: warm grey, panel by panel a slightly different pour */
@@ -4558,7 +4563,7 @@ function hallWallMat(Wm, Hm, gal, label, u0, u1, v0, v1) { var PPM = HD.PPM, W =
   [0, W].forEach(function (ex) { var a2 = g.createLinearGradient(ex, 0, ex + (ex ? -1 : 1) * 0.9 * PPM, 0); a2.addColorStop(0, 'rgba(20,20,18,.4)'); a2.addColorStop(1, 'rgba(20,20,18,0)'); g.fillStyle = a2; g.fillRect(ex ? W - 0.9 * PPM : 0, 0, 0.9 * PPM, H); });
   var mt = new THREE.MeshStandardMaterial({ map: texOf(c), bumpMap: new THREE.CanvasTexture(hc), bumpScale: 1.1, roughnessMap: new THREE.CanvasTexture(rc), roughness: 1, metalness: 0, envMapIntensity: 0.45 }); mt.userData.own = true; mt.userData.gritK = [0.16, 0.2, 0.0014, 1.3]; return mt; }
 function subPlane(w, h, mtl, u0, u1, v0, v1) { var gq = new THREE.PlaneGeometry(w, h), uv = gq.attributes.uv; for (var i = 0; i < uv.count; i++) uv.setXY(i, u0 + uv.getX(i) * (u1 - u0), v0 + uv.getY(i) * (v1 - v0)); return new THREE.Mesh(gq, mtl); }
-function hallFloorMat() { var cz = HALL.cz, hx = HALL.hx, hw = HALL.hw, hd = HALL.hd, vx = HALL.vx, PPM = PHONE ? 45 : 100, W = Math.round(hw * PPM), H = Math.round(hd * PPM), c = CV(W, H), g = c.getContext('2d'), rc = CV(W, H), rg = rc.getContext('2d');
+function hallFloorMat() { var cz = HALL.cz, hx = HALL.hx, hw = HALL.hw, hd = HALL.hd, vx = HALL.vx, PPM = LOWMEM ? 45 : 100, W = Math.round(hw * PPM), H = Math.round(hd * PPM), c = CV(W, H), g = c.getContext('2d'), rc = CV(W, H), rg = rc.getContext('2d');
   var X = function (x) { return (x - (hx - hw)) * PPM; }, Z = function (z) { return (z - (cz - hd / 2)) * PPM; }, cx = X(vx), cy = Z(cz), rnd = function (a, b) { return a + Math.random() * (b - a); };
   g.fillStyle = '#737d78'; g.fillRect(0, 0, W, H); rg.fillStyle = 'rgb(150,150,150)'; rg.fillRect(0, 0, W, H); for (var ri = 0; ri < 320; ri++) { var rr0 = 30 + Math.random() * 200, rx0 = Math.random() * W, ry0 = Math.random() * H, rq = rg.createRadialGradient(rx0, ry0, 0, rx0, ry0, rr0), rv = Math.random() < 0.5 ? '95,95,95' : '215,215,215'; rq.addColorStop(0, 'rgba(' + rv + ',.4)'); rq.addColorStop(1, 'rgba(' + rv + ',0)'); rg.fillStyle = rq; rg.fillRect(rx0 - rr0, ry0 - rr0, 2 * rr0, 2 * rr0); }
   for (var i = 0; i < 260; i++) { var r = rnd(40, 220), x = rnd(0, W), y = rnd(0, H), gr = g.createRadialGradient(x, y, 0, x, y, r), v = Math.random() < 0.5 ? '60,66,62' : '165,172,168'; gr.addColorStop(0, 'rgba(' + v + ',.1)'); gr.addColorStop(1, 'rgba(' + v + ',0)'); g.fillStyle = gr; g.fillRect(x - r, y - r, 2 * r, 2 * r); }
@@ -4745,7 +4750,7 @@ function hallDetail(scene) { var cz = HALL.cz, hx = HALL.hx, hw = HALL.hw, hd = 
    Painted blockwork walls (440 × 215 mm blocks, joints showing through the paint), a gloss grey-green dado to 1.2 m, an epoxy floor with walkway lines,
    coved skirting, crash rails, steel corner guards, proper doorsets, battens in the soffit and every bit of kit a real plant corridor has on its walls.
    The walls and floor are one-off textures for this corridor, so the dirt, scuffs and corner shading sit where they would really be. */
-function corridorShell(scene) { var cz = HALL.cz, cw = HALL.cw, hx = HALL.hx, x0 = -RX, CL = x0 - hx, cmx = (x0 + hx) / 2, zL = cz - cw / 2, zR = cz + cw / 2, CH3 = 3.0, PPM = PHONE ? 96 : 256;
+function corridorShell(scene) { var cz = HALL.cz, cw = HALL.cw, hx = HALL.hx, x0 = -RX, CL = x0 - hx, cmx = (x0 + hx) / 2, zL = cz - cw / 2, zR = cz + cw / 2, CH3 = 3.0, PPM = LOWMEM ? 96 : 256;
   var S = function (m) { m.userData.noColl = true; scene.add(m); return m; };
   var rnd = function (a, b) { return a + Math.random() * (b - a); };
   /* doors and fittings on each wall, in metres along the wall from its left end as you face it (used for hand marks and keeping rails clear) */
@@ -5079,7 +5084,8 @@ function renderScene(cam) { var ren = R3.ren, sc = R3.scene; if (!EXT.on || !OUT
   var fg = sc.fog, ac = ren.autoClear, bg = sc.background;
   cam.layers.set(1); if (fg) { fg.color.copy(OUTFOG.c); fg.density = OUTFOG.d; } ren.autoClear = true; ren.state.useProgram(null); ren.render(sc, cam);
   cam.layers.set(0); if (fg) { fg.color.copy(INFOG.c); fg.density = INFOG.d; } ren.autoClear = false; sc.background = null; var clr = camIndoors(), far0 = cam.far; if (clr) { ren.clearDepth(); /* indoors the rooms get their own short depth range: with a 5 km far plane, panels a few cm apart flickered through each other */ cam.far = 260; cam.updateProjectionMatrix(); } ren.state.useProgram(null); /* the two passes share shaders now: make the first one re-read this pass's lights */ ren.render(sc, cam); if (clr) { cam.far = far0; cam.updateProjectionMatrix(); } sc.background = bg; ren.autoClear = ac; }
-function addOutside(scene) { var g = new THREE.Group(); g.position.set(RX, 0, RZC); scene.add(g); EXT.g = g;
+/* a generator, so the build can hand control back to the browser between the big outdoor blocks (see init) */
+function* addOutside(scene) { var g = new THREE.Group(); g.position.set(RX, 0, RZC); scene.add(g); EXT.g = g;
   /* terrain: flat snow near the building, mountains rising with distance; vertex colours darken the rock faces */
   var N = S.cfg.gfx === 'high' ? 360 : S.cfg.gfx === 'low' ? 250 : 200, SZE = 1120, geo = new THREE.PlaneGeometry(SZE, SZE, N, N); geo.rotateX(-Math.PI / 2);
   /* ridged noise: sharp crests and summits like real alpine peaks, layered over a broad massif that rises away from the station */
@@ -5231,7 +5237,7 @@ function addOutside(scene) { var g = new THREE.Group(); g.position.set(RX, 0, RZ
     fb(0.1, 0.08, GW1 - GW0 + 0.16, XO + 0.03, GY0 - 0.02, (GW0 + GW1) / 2); fb(0.1, 0.08, GW1 - GW0 + 0.16, XO + 0.03, GY1 + 0.02, (GW0 + GW1) / 2); fb(0.1, GY1 - GY0 + 0.12, 0.08, XO + 0.03, (GY0 + GY1) / 2, GW0 - 0.04); fb(0.1, GY1 - GY0 + 0.12, 0.08, XO + 0.03, (GY0 + GY1) / 2, GW1 + 0.04);
     fb(0.26, 0.04, GW1 - GW0 + 0.3, XO + 0.12, GY0 - 0.07, (GW0 + GW1) / 2); /* sill flashing */ fb(0.08, GDH + 0.06, 0.08, XO + 0.03, GDH / 2, GD0 - 0.04); fb(0.08, GDH + 0.06, 0.08, XO + 0.03, GDH / 2, GD1 + 0.04); fb(0.08, 0.08, GD1 - GD0 + 0.16, XO + 0.03, GDH + 0.03, (GD0 + GD1) / 2); })();
   /* ================================================================ the site: what a reactor building looks like from outside ================================================================ */
-  (function () { var G = g, mat = function (c, r, m) { return new THREE.MeshStandardMaterial({ color: c, roughness: r == null ? 0.7 : r, metalness: m || 0 }); };
+  yield; yield* (function* () { var G = g, mat = function (c, r, m) { return new THREE.MeshStandardMaterial({ color: c, roughness: r == null ? 0.7 : r, metalness: m || 0 }); };
     var concC = CV(512, 512), cg = concC.getContext('2d'); cg.fillStyle = '#b9bcb8'; cg.fillRect(0, 0, 512, 512); for (var q = 0; q < 12000; q++) { var cv2 = 150 + Math.random() * 60; cg.fillStyle = 'rgba(' + cv2 + ',' + cv2 + ',' + (cv2 - 4) + ',.3)'; cg.fillRect(Math.random() * 512, Math.random() * 512, 2, 2); }
     cg.strokeStyle = 'rgba(70,72,70,.5)'; cg.lineWidth = 3; cg.strokeRect(1, 1, 254, 254); cg.strokeRect(257, 1, 254, 254); cg.strokeRect(1, 257, 254, 254); cg.strokeRect(257, 257, 254, 254); cg.fillStyle = 'rgba(60,62,60,.55)'; [40, 216, 296, 472].forEach(function (x) { [40, 216, 296, 472].forEach(function (y) { cg.beginPath(); cg.arc(x, y, 5, 0, 6.3); cg.fill(); }); });
     for (q = 0; q < 28; q++) { var wx = Math.random() * 512, wg = cg.createLinearGradient(0, 0, 0, 120 + Math.random() * 300); wg.addColorStop(0, 'rgba(60,64,70,.28)'); wg.addColorStop(1, 'rgba(60,64,70,0)'); cg.fillStyle = wg; cg.fillRect(wx, 0, 4 + Math.random() * 10, 512); }
@@ -5258,6 +5264,7 @@ function addOutside(scene) { var g = new THREE.Group(); g.position.set(RX, 0, RZ
       var wornT = [null, null, null], wornMat = function (hex, floor, rough, metal) { var k = floor === 2 ? 2 : floor ? 1 : 0; if (!wornT[k]) wornT[k] = wornTex(floor); var m = new THREE.MeshStandardMaterial({ map: wornT[k], color: hex, roughness: rough == null ? (floor ? 0.6 : 0.92) : rough, metalness: metal || 0 });
         m.onBeforeCompile = function (sh) { sh.vertexShader = 'varying vec3 vWuP; varying vec3 vWuN;\n' + sh.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\n vWuP = (modelMatrix * vec4(transformed, 1.0)).xyz; vWuN = normalize(mat3(modelMatrix) * objectNormal);');
           sh.fragmentShader = 'varying vec3 vWuP; varying vec3 vWuN;\n' + sh.fragmentShader.replace('#include <map_fragment>', 'vec3 wuA = abs(vWuN); vec2 wuv = wuA.y > 0.7 ? vWuP.xz : (wuA.x > wuA.z ? vWuP.zy : vWuP.xy); diffuseColor *= texture2D(map, wuv * 0.25);'); }; m.customProgramCacheKey = function () { return 'wornuv'; }; return m; }; EXT.wornMat = wornMat;
+    yield;
     /* containment: a 30 m concrete drum with a hemispherical dome over the reactor hall, ring beams, a dark plinth, a red beacon on top */
     var CX = -2 * RX - 17, CR = 14.5, CHt = 30; P(new THREE.CylinderGeometry(CR, CR, CHt, 64, 1, true), conc, CX, CHt / 2, 0); P(new THREE.SphereGeometry(CR, 64, 32, 0, Math.PI * 2, 0, Math.PI / 2), conc, CX, CHt, 0);
     P(new THREE.CylinderGeometry(CR + 0.6, CR + 0.6, 2.2, 64), concD, CX, 1.1, 0); [10, 20, 29.4].forEach(function (y) { P(new THREE.TorusGeometry(CR + 0.15, 0.35, 8, 72), concD, CX, y, 0).rotation.x = Math.PI / 2; });
@@ -5268,6 +5275,7 @@ function addOutside(scene) { var g = new THREE.Group(); g.position.set(RX, 0, RZ
     /* vent stack: 90 m, red and white bands, beacon */
     var SX = -2 * RX - 48, SZ = -34; for (k = 0; k < 9; k++) P(new THREE.CylinderGeometry(1.6 - k * 0.05, 1.65 - k * 0.05, 10, 24), k % 2 ? white : red, SX, 5 + k * 10, SZ); P(new THREE.CylinderGeometry(2.6, 2.6, 4, 24), concD, SX, 2, SZ); EXT.beacon2 = P(new THREE.SphereGeometry(0.5, 10, 8), new THREE.MeshBasicMaterial({ color: 0xff2a1a }), SX, 91, SZ);
     /* turbine hall: a long clad shed beyond the control room, with roof vents and a transformer yard */
+    yield;
     /* link bridge from the control building to the turbine hall: clad box with a ribbon of windows each side, on concrete piers, snow on the roof */
     (function () { var lx = -RX - 3.2 - RX, z0 = ZF + 0.2 - RZC, z1 = ZF + 20 - RZC, len = z1 - z0, hw2 = 1.72, y0 = -0.6, y1 = 3.45, hh = y1 - y0;
       var c = CV(256, 512), q = c.getContext('2d'); q.fillStyle = '#dfe3e6'; q.fillRect(0, 0, 256, 512); for (var i = 0; i < 256; i += 16) { q.fillStyle = 'rgba(120,128,136,.35)'; q.fillRect(i, 0, 2, 512); q.fillStyle = 'rgba(255,255,255,.4)'; q.fillRect(i + 3, 0, 1, 512); }
@@ -5276,6 +5284,7 @@ function addOutside(scene) { var g = new THREE.Group(); g.position.set(RX, 0, RZ
       var w1 = P(new THREE.PlaneGeometry(len, hh), wm, lx - hw2, (y0 + y1) / 2, (z0 + z1) / 2); w1.rotation.y = -Math.PI / 2; var w2 = P(new THREE.PlaneGeometry(len, hh), wm, lx + hw2, (y0 + y1) / 2, (z0 + z1) / 2); w2.rotation.y = Math.PI / 2;
       var rf = P(new THREE.PlaneGeometry(2 * hw2 + 0.3, len), new THREE.MeshStandardMaterial({ color: 0xf2f5f8, roughness: 0.95 }), lx, y1 + 0.06, (z0 + z1) / 2); rf.rotation.x = -Math.PI / 2; P(new THREE.BoxGeometry(2 * hw2 + 0.3, 0.14, len), dark, lx, y1 - 0.02, (z0 + z1) / 2);
       for (i = 0; i < 4; i++) P(new THREE.BoxGeometry(2 * hw2 + 0.2, 1.2, 0.5), concD, lx, -0.9, z0 + 2 + i * (len - 4) / 3); })();
+    yield;
     /* turbine hall shell, seen from outside: a concrete plinth, profiled steel cladding in two tones with sheet laps every 6 m, a band of louvres up high,
        a flashing at the eaves, the station name on the east gable and a goods door. (It was a plain box with the control-room rib picture stretched over it, which read as a blank white wall.) */
     (function () { var X0 = -57, X1 = 13, Z0 = 30.5, Z1 = 66.5, CY0 = 2.4, CY1 = 21.2, CHh = CY1 - CY0, noC = function (o) { o.userData.noColl = true; return o; };
@@ -5304,6 +5313,7 @@ function addOutside(scene) { var g = new THREE.Group(); g.position.set(RX, 0, RZ
       /* north wall: where the generator's three isolated phase busducts come out */ [-15.3, -14.0, -12.7].forEach(function (bx) { noC(P(new THREE.BoxGeometry(1.15, 1.15, 0.12), mat(0x7d858a, 0.6, 0.4), bx, 5.4, Z1 + 0.06)); });
     })();
     P(new THREE.BoxGeometry(70.4, 1.2, 36.4), dark, -2 * RX + 2, 22.4, ZF - RZC + 38); for (k = 0; k < 6; k++) P(new THREE.BoxGeometry(3, 1.5, 3), galv, -2 * RX - 28 + k * 12, 23.6, ZF - RZC + 38);
+    yield;
     /* transformer yard: three main transformers, each on a bunded gravel plinth with radiator banks, fans, a conservator tank, porcelain bushings, surge arresters and firewalls between them */
     (function () { var tkM = mat(0x56636b, 0.55, 0.35), finM = mat(0x5e6b73, 0.5, 0.4), porc = new THREE.MeshStandardMaterial({ color: 0x6b3a22, roughness: 0.18, metalness: 0 }), capM = mat(0x9aa1a6, 0.35, 0.8), grav = wornMat(0x8a8c8f, 2, 0.97), oilM = mat(0x2a2d30, 0.6, 0.3), yel = mat(0xe0b020, 0.5, 0);
       var shed = function (h, r, n) { var pts = [new THREE.Vector2(0.001, 0), new THREE.Vector2(r * 1.3, 0), new THREE.Vector2(r * 1.3, 0.12)]; for (var i = 0; i < n; i++) { var y = 0.12 + (h - 0.24) * i / n, dy = (h - 0.24) / n; pts.push(new THREE.Vector2(r, y), new THREE.Vector2(r * 1.75, y + dy * 0.35), new THREE.Vector2(r * 1.7, y + dy * 0.48), new THREE.Vector2(r, y + dy * 0.6)); } pts.push(new THREE.Vector2(r * 0.8, h - 0.12), new THREE.Vector2(r * 0.8, h), new THREE.Vector2(0.001, h)); return new THREE.LatheGeometry(pts, S.cfg.gfx === 'high' ? 14 : 9); };
@@ -5525,6 +5535,7 @@ function addOutside(scene) { var g = new THREE.Group(); g.position.set(RX, 0, RZ
         var im = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1), stl, I.length); I.forEach(function (m, i) { im.setMatrixAt(i, m); }); im.frustumCulled = false; G.add(im);
       })();
     })();
+    yield;
     /* cooling towers: two hyperboloids to the north with vapour plumes */
     var prof = []; for (k = 0; k <= 16; k++) { var t = k / 16, y = t * 80, r = 30 - 34 * t + 26 * t * t; prof.push(new THREE.Vector2(r, y)); } var twrG = new THREE.LatheGeometry(prof, S.cfg.gfx === 'high' ? 96 : S.cfg.gfx === 'low' ? 64 : 48); twrG.computeVertexNormals();
     /* cast concrete shell: 1.2 m pour lifts, formwork panel seams, rain streaks running down from the rim, a sooty band at the top, green-grey grime at the base */
@@ -5542,6 +5553,7 @@ function addOutside(scene) { var g = new THREE.Group(); g.position.set(RX, 0, RZ
       var pond = P(new THREE.CircleGeometry(32.4, 96), new THREE.MeshStandardMaterial({ color: 0x1a2128, roughness: 0.15, metalness: 0.2 }), q[0], 0.05, q[1]); pond.rotation.x = -Math.PI / 2; pond.userData.noShadow = true;
       var PN = 500, pp = new Float32Array(PN * 3), pl = new Float32Array(PN); for (i = 0; i < PN; i++) { pl[i] = Math.random(); var rr = Math.random() * 18, aa = Math.random() * 6.3; pp[i * 3] = q[0] + Math.cos(aa) * rr + pl[i] * 40; pp[i * 3 + 1] = 89 + pl[i] * 70; pp[i * 3 + 2] = q[1] + Math.sin(aa) * rr; }
       var pg = new THREE.BufferGeometry(); pg.setAttribute('position', new THREE.BufferAttribute(pp, 3)); var pm = new THREE.Points(pg, new THREE.PointsMaterial({ color: 0xdfe6ee, size: 14, transparent: true, opacity: 0.16, depthWrite: false, map: EXT.puffT })); pm.frustumCulled = false; G.add(pm); EXT.plumes.push({ m: pm, l: pl, x: q[0], z: q[1] }); });
+    yield;
     /* ================= circulating water: four big steel pipes, two per tower =================
        Cold water leaves each tower's basin, runs on concrete saddles to the turbine hall, goes through the condenser and comes back warm to the tower.
        The warm pipes have no snow on them (they're at about 35 °C), the cold ones carry a snow cap. Welded 12 m lengths, flanged joints, elbows,
@@ -5587,6 +5599,7 @@ function addOutside(scene) { var g = new THREE.Group(); g.position.set(RX, 0, RZ
       var sgm = new THREE.BufferGeometry(); sgm.setAttribute('position', new THREE.BufferAttribute(sp, 3)); var spm = new THREE.Points(sgm, new THREE.PointsMaterial({ color: 0xe8eef3, size: 3.2, transparent: true, opacity: 0.07, depthWrite: false, map: EXT.puffT })); spm.frustumCulled = false; G.add(spm);
     })();
     /* yard: tarmac apron and road, snow banks, floodlight masts, perimeter fence and gate, window light spill */
+    yield;
     /* ================= roads and apron: real surfaces =================
        Asphalt: dark aggregate with pale stones, darker polished wheel paths, a salt film, tar-sealed cracks, a patch repair, worn edge lines and centre dashes.
        Apron: cast concrete slabs with a brushed finish, sawn joints, stains and hairline cracks. Both get a normal map made from their own picture, so the
@@ -5630,6 +5643,7 @@ function addOutside(scene) { var g = new THREE.Group(); g.position.set(RX, 0, RZ
     overlay(27, 61, 13, 9, false, function (X, Z) { var n = VN(X * 0.10, Z * 0.10) * 0.55 + VN(X * 0.33 + 5, Z * 0.33) * 0.3 + VN(X * 1.3, Z * 1.3 + 2) * 0.15, cover = SST(0.40, 0.58, n) * 0.94, pw = 3.3 + 1.6 * VN(X * 0.2, 3), clear = SST(pw - 0.9, pw + 1.3, Math.abs(Z - 9 - 0.8 * Math.sin(X * 0.21)));
         var eb = Math.min(Z + 21.5, 39.5 - Z); if (Z < 4 || Z > 14) eb = Math.min(eb, 26.5 - X); var edge = 1 - SST(0.5, 2.4, eb + 1.3 * VN(X * 0.3, Z * 0.3)), wall = Math.abs(Z - 9) > 1.7 ? 1 - SST(0.5, 1.9, X + 0.6 * VN(Z * 0.5, 1)) : 0;
         var A = Math.max(cover * clear, edge, wall); if (X < 3.2 && Math.abs(Z - 9) < 1.9) A *= 0.2; A = SST(0.30, 0.70, A + (VN(X * 3.1, Z * 3.1) - 0.5) * 0.5) * 0.96; return A + 0.06 * VN(X * 0.9, Z * 0.9); }, 15);
+    yield;
     /* snow that takes the light like snow: soft grain and wind ripples in the normal map, and crystals that glint as you move, brightest facing the sun */
     var snowMat = function (rep) { var st2 = snowT.clone(); st2.needsUpdate = true; st2.repeat.set(rep, rep); var sn2 = snowNrm.clone(); sn2.needsUpdate = true; sn2.repeat.set(rep * 2.6, rep * 2.6);
       var m = new THREE.MeshStandardMaterial({ map: st2, normalMap: sn2, normalScale: new THREE.Vector2(0.45, 0.45), color: 0xe1e7ef, roughness: 0.88, metalness: 0 });
@@ -5642,6 +5656,7 @@ function addOutside(scene) { var g = new THREE.Group(); g.position.set(RX, 0, RZ
           '  gl_FragColor.rgb += vec3(1.0, 0.97, 0.92) * gl * 2.6 * sunK * smoothstep(38.0, 3.0, dist) * step(0.3, h1); }',
           '#include <tonemapping_fragment>'].join('\n')); };
       return m; };
+    yield;
     /* snow drifts: a continuous strip along each edge, sculpted by noise. The cross-section is a wind drift: a long gentle slope on the windward side, a steep face on the lee side,
        with a crest that wanders, breaks and re-forms along its length, the whole thing feathering to nothing at the edges so it blends into the ground */
     var driftMat = new THREE.MeshStandardMaterial({ map: snowT.clone(), bumpMap: snowT, bumpScale: 0.5, color: 0xf3f6fa, roughness: 0.9 }); driftMat.map.needsUpdate = true; driftMat.map.repeat.set(6, 1.2);
@@ -5673,6 +5688,7 @@ function addOutside(scene) { var g = new THREE.Group(); g.position.set(RX, 0, RZ
     fence(60, -40, 60, -6); fence(60, 15, 60, 60); fence(-70, -40, 60, -40); fence(-70, 60, 60, 60); var gate = P(new THREE.BoxGeometry(0.3, 2.4, 12), galv, 60.35, 0.8, 21.3); gate.material = fenceM; gate.userData.noColl = true; /* the sliding gate stands open */
     var DN = 1800, dpos = new Float32Array(DN * 3); for (q = 0; q < DN; q++) { dpos[q * 3] = Math.random() * 110 - 10; dpos[q * 3 + 1] = Math.random() * 1.6 - 0.3; dpos[q * 3 + 2] = (Math.random() - 0.5) * 140; }
     var dgeo = new THREE.BufferGeometry(); dgeo.setAttribute('position', new THREE.BufferAttribute(dpos, 3)); EXT.drift = new THREE.Points(dgeo, new THREE.PointsMaterial({ color: 0xffffff, size: 0.05, transparent: true, opacity: 0.55, depthWrite: false })); EXT.drift.frustumCulled = false; G.add(EXT.drift);
+    yield;
     /* ---- the snow layer: real depth over the yard ----
        A 0.5 m mesh sitting 15-25 cm above the graded ground, with wind-sculpted ridges, cut down sharply at the ploughed tarmac edges and round the lake
        (so you see the thickness of the snow), banked up against the building wall, and lit through a normal map of soft lumps and ripples. */
@@ -5689,14 +5705,16 @@ function addOutside(scene) { var g = new THREE.Group(); g.position.set(RX, 0, RZ
         /* wind drifts: smooth elongated mounds lying along the wind */
         for (var mi = 0; mi < mounds.length; mi++) { var M = mounds[mi], ca = Math.cos(M[5]), sa = Math.sin(M[5]), lx = (x - M[0]) * ca + (z - M[1]) * sa, lz = -(x - M[0]) * sa + (z - M[1]) * ca, q = (lx * lx) / (M[2] * M[2]) + (lz * lz) / (M[3] * M[3]); if (q < 4) lip += M[4] * Math.exp(-q * 1.6) * (lz > 0 ? 1 : 0.75 + 0.25 * Math.exp(lz)); }
         return -0.4 + (depth + lip) * edge * yard - 0.05 * (1 - edge); };
-    (function () { var X0 = -2, X1 = 98, Z0 = -48, Z1 = 68, S = 0.5, NX = Math.round((X1 - X0) / S), NZ = Math.round((Z1 - Z0) / S), pos = new Float32Array((NX + 1) * (NZ + 1) * 3), uv = new Float32Array((NX + 1) * (NZ + 1) * 2), idx = [];
+    (function () { var X0 = -2, X1 = 98, Z0 = -48, Z1 = 68, S = LOWMEM ? 0.7 : 0.5, NX = Math.round((X1 - X0) / S), NZ = Math.round((Z1 - Z0) / S), pos = new Float32Array((NX + 1) * (NZ + 1) * 3), uv = new Float32Array((NX + 1) * (NZ + 1) * 2), idx = [];
       for (var j = 0; j <= NZ; j++) for (var i = 0; i <= NX; i++) { var k = j * (NX + 1) + i, x = X0 + i * S, z = Z0 + j * S; pos[k * 3] = x; pos[k * 3 + 1] = snowY(x, z); pos[k * 3 + 2] = z; uv[k * 2] = x / 9; uv[k * 2 + 1] = z / 9; }
       for (j = 0; j < NZ; j++) for (i = 0; i < NX; i++) { var a = j * (NX + 1) + i, b = a + 1, c2 = a + NX + 1, d2 = c2 + 1; idx.push(a, c2, b, b, c2, d2); }
       var sg = new THREE.BufferGeometry(); sg.setAttribute('position', new THREE.BufferAttribute(pos, 3)); sg.setAttribute('uv', new THREE.BufferAttribute(uv, 2)); sg.setIndex(idx); sg.computeVertexNormals();
       var st = snowT.clone(); st.needsUpdate = true; st.repeat.set(1, 1); var sn = snowNrm.clone(); sn.needsUpdate = true; sn.repeat.set(2.2, 2.2);
       var sm = snowMat(1);
       var blanket = new THREE.Mesh(sg, sm); blanket.frustumCulled = false; blanket.userData.noColl = true; G.add(blanket); EXT.blanket = blanket; EXT.snowY = snowY; })();
+    yield;
     /* floodlight pools sit on whatever is under them: snow, or the road surface */
+    yield;
     /* ================= fuel building =================
        Hard against the south side of containment, because fuel moves between the two under water through the transfer tube. Inside: the spent fuel pool
        with its storage racks, the transfer canal, the cask loading pit, the fuel handling machine on rails across the pool, the 125 t cask crane overhead,
@@ -5822,6 +5840,7 @@ function addOutside(scene) { var g = new THREE.Group(); g.position.set(RX, 0, RZ
       /* the glow breathes very slightly with the convection over the hot module */
       var f0 = HALL.fxTick, gt = 0; HALL.fxTick = function (dt) { f0(dt); gt += dt; glow.material.opacity = 0.5 + 0.06 * Math.sin(gt * 1.7) + 0.03 * Math.sin(gt * 4.3); };
     })();
+    yield;
     /* ================= intake pumphouse on the lake shore =================
        Lake water comes in under a skimmer wall, through the trash racks in the forebay, through two drum screens, and into the pump suction bays.
        Four service water pumps (the safety-related cooling for the CCW heat exchangers, as on board 2) and two make-up pumps that replace what the cooling
@@ -5895,6 +5914,7 @@ function addOutside(scene) { var g = new THREE.Group(); g.position.set(RX, 0, RZ
       /* drums turn; the run lamps on the service water and circulating water pumps follow the plant */
       var f0 = HALL.fxTick, lt = 0; HALL.fxTick = function (dt) { f0(dt); drums[0].rotation.x += dt * 0.22; drums[1].rotation.x += dt * 0.22; lt += dt; if (lt < 0.5) return; lt = 0; var x = S.p && S.p.x; if (!x) return; lamps.forEach(function (l) { var on = !l[1] ? l[2] === 0 : l[1] === 'sw' ? x.aux.sw[l[2]] && pwr(x, 'sw', l[2]) : x.cw[l[2]] && pwr(x, 'cw', l[2]); l[0].color.setHex(on ? 0xff3324 : 0x1e7a33); }); };
     })();
+    yield;
     /* ================= lived-in detail for the outbuildings =================
        What a working plant collects: oil and water marks under the machines, boric acid crust, tyre marks, fire extinguishers, exit lights, phones, eyewash
        stations, spill kits, hazard stripes at the shutters. And run lamps on the pumps and diesels that follow the plant (red = running, as on the boards). */
@@ -5933,6 +5953,7 @@ function addOutside(scene) { var g = new THREE.Group(); g.position.set(RX, 0, RZ
       EXT.dress = function (parent, fy, fn) { var p0 = par, f1 = FY; par = parent; FY = fy; try { fn({ stain: stain, oil: oil, wet: wet, extinguisher: extinguisher, exitSign: exitSign, phone: phone, spillKit: spillKit, hazard: hazard, beacon: beacon }); } finally { par = p0; FY = f1; } };
       var f0 = HALL.fxTick, lt = 9; HALL.fxTick = function (dt) { f0(dt); lt += dt; if (lt < 0.5) return; lt = 0; var X = S.p && S.p.x; if (!X) return; lamps.forEach(function (l) { var on = false; try { on = !!l[1](X); } catch (e) {} l[0].color.setHex(on ? l[2] : l[3]); }); };
     })();
+    yield;
     /* ================= site entrance and yard services =================
        The way in: a security gatehouse astride the perimeter fence with the visitor badge desk, search lane and turnstile, a central island with lifting
        barriers and a road blocker under a canopy, a visitor car park outside. Inside the fence: service roads to the diesel bays and the services building,
@@ -6074,6 +6095,7 @@ function addOutside(scene) { var g = new THREE.Group(); g.position.set(RX, 0, RZ
         if (!spawned && EXT.person) { spawned = true; var gd = EXT.person(0x1c2633, true, { hair: 0x2b1d14, skin: 0xc68e6a, trou: 0x1b1e24 }); gd.position.set(57.9, FY, 1.2); gd.rotation.y = Math.PI / 2; G.add(gd); gd.traverse(function (o) { o.userData.noColl = true; o.layers.set(1); }); var vest = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.42, 0.24), new THREE.MeshStandardMaterial({ color: 0xd8f02a, roughness: 0.7 })); vest.position.set(57.92, FY + 0.92, 1.2); vest.userData.noColl = true; vest.layers.set(1); G.add(vest); }
       };
     })();
+    yield;
     /* ================= services building: maintenance workshop, canteen and rest room, shift briefing room =================
        Just inside the gate, north of the road, where the van and the forklift work. The workshop is a high bay with a 5 t crane; the amenities are single storey. */
     (function () { var FY = -0.3, q, k, X0 = 41, X1 = 57, XM = 50, Z0 = 17, Z1 = 31, ZM = 24.6, HW = 6.5, HA = 3.6, SV = EXT.svc = {};
@@ -6189,6 +6211,7 @@ function addOutside(scene) { var g = new THREE.Group(); g.position.set(RX, 0, RZ
       };
       drawBrief(); drawTV();
     })();
+    yield;
     /* ================= visitor and training centre =================
        Outside the gate beside the visitor car park, so visitors never need a pass to reach it. A glazed hall with a cutaway model of the plant's
        reactor coolant system (coolant flows round it), a full-size fuel assembly, information panels, a touch screen, and a classroom at the back. */
@@ -6270,6 +6293,7 @@ function addOutside(scene) { var g = new THREE.Group(); g.position.set(RX, 0, RZ
       if (EXT.dress) EXT.dress(G, FY, function (K) { K.exitSign(MX, FY + 3.0, Z1 - 0.2, Math.PI); K.exitSign(X0 + 0.18, FY + 2.6, -33.4, Math.PI / 2); K.extinguisher(X1 - 0.16, -32.9, -Math.PI / 2); K.extinguisher(X0 + 0.16, -24.3, Math.PI / 2); });
       var t9 = 0, f0 = HALL.fxTick; HALL.fxTick = function (dt) { f0(dt); t9 += dt; VC.flow.forEach(function (t) { t.offset.x -= dt * 0.9; }); var gl = 0.55 + 0.12 * Math.sin(t9 * 2.1) + 0.05 * Math.sin(t9 * 7.3); VC.core[0].emissiveIntensity = gl; VC.core[1].emissiveIntensity = gl * 0.85; var lx = CAM.x - RX, lz = CAM.z - RZC; if (Math.hypot(lx - 75.8, lz + 21.6) < 3.2) { VC.kt += dt; if (VC.kt > 5) { VC.kt = 0; VC.kn++; VC.drawK(); } } };
     })();
+    yield;
     /* ================= wayfinding and small moving things =================
        Fire evacuation plans (drawn from each building's real outline and turned to face the way you are looking), assembly points, stair signs,
        tactile paving (blister at the kerbs, corduroy at the stair heads, a ribbed guide path to reception), turbine ventilators turning on the roofs,
@@ -6343,6 +6367,7 @@ function addOutside(scene) { var g = new THREE.Group(); g.position.set(RX, 0, RZ
         var on = (WAY.t % 1.5) < 0.75; WAY.obs.forEach(function (o) { o.visible = on; });
         fl -= dt; if (fl <= 0) { var r = Math.random(); flick = r < 0.12 ? 0.08 : r < 0.25 ? 0.45 : 1; fl = flick < 1 ? 0.04 + Math.random() * 0.09 : 0.3 + Math.random() * 2.2; } bhM.color.setScalar(flick); bhP.intensity = 6 * flick; };
     })();
+    yield;
     /* ================= cold breath =================
        Outdoors, every breath out leaves a small cloud in front of your face: thicker the colder it is (live Hinkley temperature when the game has it),
        quicker when you are moving fast, carried along with you and drifting in the wind. */
@@ -6358,6 +6383,7 @@ function addOutside(scene) { var g = new THREE.Group(); g.position.set(RX, 0, RZ
           p.s.position.set(x + fx * 0.24 * pc, y - 0.12 + Math.sin(CAM.pitch || 0) * 0.1, z + fz * 0.24 * pc); p.v.set(B.v.x * 0.9 + fx * push * pc + wd * 0.7 + (Math.random() - 0.5) * 0.12, B.v.y * 0.5 + 0.04 + Math.sin(CAM.pitch || 0) * push * 0.5 + (Math.random() - 0.5) * 0.06, B.v.z * 0.9 + fz * push * pc + wd * 0.3 + (Math.random() - 0.5) * 0.12);
           p.life = 1.3 + Math.random() * 0.7 + cold * 0.6; p.age = 0; p.s0 = 0.07 + Math.random() * 0.04; p.s1 = 0.6 + Math.random() * 0.35 + cold * 0.35; p.a = (0.22 + 0.26 * cold) * (0.75 + Math.random() * 0.45); p.s.material.rotation = Math.random() * 6.28; p.s.visible = true; p.s.scale.set(p.s0, p.s0, 1); } } } };
     })();
+    yield;
     /* ================= field jobs: the 3D parts (the logic is in OPS) =================
        The remote shutdown room (a small fire-separated annex north of the auxiliary building), the local isolator for CCW pump C, and the
        field jobs board in the briefing room. */
@@ -6393,6 +6419,7 @@ function addOutside(scene) { var g = new THREE.Group(); g.position.set(RX, 0, RZ
       var jb = sg(1.05, 0.8, function (g, w, h) { g.fillStyle = '#f4f5f1'; g.fillRect(0, 0, w, h); g.fillStyle = '#12314f'; g.fillRect(0, 0, w, h * 0.16); ctext(g, 'FIELD JOBS', w / 2, h * 0.08 + 3, h * 0.1, '#fff', 'center', w - 20, '900'); ['Operator rounds', 'Isolate CCW pump C', 'Fire drill', 'Control room evacuation', 'New fuel into the pool'].forEach(function (t, i) { g.fillStyle = '#1d3f7a'; g.fillRect(16, h * (0.22 + i * 0.15), 12, 12); ctext(g, t, 38, h * (0.22 + i * 0.15) + 11, h * 0.065, '#15191c', 'left', w - 50, '800'); }); g.strokeStyle = '#59636b'; g.lineWidth = 5; g.strokeRect(2, 2, w - 4, h - 4); }, 55.6, FY + 1.6, 30.8, Math.PI, 260);
       EXT.jobsBoard = [55.6, 30.8];
     })();
+    yield;
     /* ================= electrical building: switchgear, cable spreading room, batteries =================
        South of the yard (x 11-29, z -37 to -23). The 6.6 kV and 415 V essential switchboards with live breaker lamps, the cable spreading room where
        every control cable is sorted onto trays, and the two 125 V DC battery rooms (trains A and B) with live voltage on their chargers. */
@@ -6448,6 +6475,7 @@ function addOutside(scene) { var g = new THREE.Group(); g.position.set(RX, 0, RZ
         LIVE.lamps.forEach(function (l) { if (!l.k) { l.r.color.setHex(0x40100c); l.g.color.setHex(0x0c3018); return; } var on = !!st[l.k]; l.r.color.setHex(on ? 0xff3324 : 0x40100c); l.g.color.setHex(on ? 0x0c3018 : 0x35d06a); });
         LIVE.shows.forEach(function (s) { var g = s.c.getContext('2d'); s.draw(g, s.c.width, s.c.height, X); s.t.needsUpdate = true; }); };
     })();
+    yield;
     /* ================= people and traffic: a security patrol, a fitter going between the workshop and the auxiliary building, and the maintenance van on its rounds ================= */
     (function () { var RY = -0.37, peeps = [], van = null, vp = null, spawned = false;
       var DY = EXT.dyn = []; /* moving things that block you: [x, z, r] in station coordinates */
@@ -6971,7 +6999,7 @@ var kd = function (e) { onKey(e, true); }, ku = function (e) { onKey(e, false); 
 /* ================================================================ the session ================================================================ */
 function newPlant() { var p = freshPlant(); p.audio = true; return p; }
 function autoGfx() { var n = navigator, coarse = !!(window.matchMedia && matchMedia('(pointer: coarse)').matches), small = Math.min(screen.width, screen.height) < 820, cores = n.hardwareConcurrency || 4, mem = n.deviceMemory || 4;
-  if ((coarse && small) || cores <= 2 || mem <= 2) return 'lite'; if (coarse || cores <= 4 || mem <= 4) return 'low'; return 'high'; }
+  if ((coarse && small) || cores <= 2 || mem <= 2 || CROS) return 'lite'; if (coarse || cores <= 4 || mem <= 4) return 'low'; return 'high'; }
 /* Lite graphics: for low-end laptops and phones. Half-size board textures, no shadows, reflections or bloom, simple (Lambert) lighting,
    one light plus sky, 30 fps cap, slower widget refresh, and the resolution drops by itself if frames get slow. */
 var PERF = { lite: false, cap: 0, pr: 1, prMax: 1, acc: 0, n: 0, t: 0, fps: 0, lastR: 0 };
@@ -7051,7 +7079,7 @@ var CSS = 'html:has(.cpn:not([hidden])),html:has(.cpn:not([hidden])) body{overfl
   '.cpnstars{font-size:40px;letter-spacing:6px}.cpnscore{display:grid;grid-template-columns:1fr auto;gap:4px 16px;font-size:14px;background:rgba(0,0,0,.25);border-radius:12px;padding:12px 14px}.cpnscore span:nth-child(even){font-weight:800;text-align:right}' +
   '.cpnjoy{position:absolute;z-index:9;left:max(18px,env(safe-area-inset-left));bottom:max(18px,env(safe-area-inset-bottom));width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.18);touch-action:none;display:none}.cpnjoy i{position:absolute;left:35px;top:35px;width:50px;height:50px;border-radius:50%;background:rgba(255,255,255,.3)}' +
   '.cpn.touch .cpnjoy{display:block}.cpn.touch .cpnas{bottom:150px}.cpnhint{position:absolute;left:50%;transform:translateX(-50%);bottom:max(14px,env(safe-area-inset-bottom));background:rgba(10,16,24,.8);padding:7px 14px;border-radius:999px;font-size:12.5px;color:#c5d2de;pointer-events:none;transition:opacity .6s;white-space:nowrap;max-width:calc(100% - 24px);overflow:hidden;text-overflow:ellipsis}' +
-  '.cpnload{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;background:#0b0f14;z-index:20;font-weight:700;color:#9fc9ea}.cpnload i{width:46px;height:46px;border-radius:50%;border:4px solid rgba(255,211,74,.2);border-top-color:#ffd34a;animation:cpnsp 1s linear infinite}@keyframes cpnsp{to{transform:rotate(360deg)}}' +
+  '.cpnload{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;background:#0b0f14;z-index:20;font-weight:700;color:#9fc9ea}.cpnload i{width:46px;height:46px;border-radius:50%;border:4px solid rgba(255,211,74,.2);border-top-color:#ffd34a;animation:cpnsp 1s linear infinite}@keyframes cpnsp{to{transform:rotate(360deg)}}.cpnlbar{width:min(260px,70vw);height:6px;border-radius:3px;background:rgba(255,211,74,.15);overflow:hidden}.cpnlbar b{display:block;height:100%;width:0;background:#ffd34a;transition:width .3s}.cpnload small{font-weight:500;color:#7f9bb3}' +
   '.cpnx{position:absolute;left:50%;top:50%;width:6px;height:6px;margin:-3px 0 0 -3px;border-radius:50%;background:#fff;box-shadow:0 0 0 2px rgba(0,0,0,.55);pointer-events:none;z-index:4}.cpnvig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 45%,rgba(0,0,0,0) 55%,rgba(0,0,0,.38) 100%)}' +
   '.cpnshift{font:800 13px ui-monospace,Menlo,Consolas,monospace;padding:9px 6px 9px 10px;color:#c5f2d4}.cpnshift.low{color:#ffd34a}.cpnshift.ot{color:#ff9f43}' +
   '.cpnms .tabs{display:flex;gap:4px;margin:6px 0 4px}.cpnms .tabs button{flex:1;background:rgba(255,255,255,.07);padding:7px 4px;font-weight:800;font-size:12.5px;min-height:34px}.cpnms .tabs button small{opacity:.7;font-weight:700}.cpnms .tabs button[aria-pressed=true]{background:#ffd34a;color:#1a1300}' +
@@ -7785,12 +7813,12 @@ function frame(now) {
 var ANNW = [];
 
 /* ================================================================ open and close ================================================================ */
-var BOOT = { ok: false, t0: 0 };
+var BOOT = { ok: false, t0: 0, busy: false, safe: false };
 function open() {
   /* already up and working: just make sure it is in front */
   if (root && !root.hidden && root.isConnected && BOOT.ok) { document.body.appendChild(root); return; }
   /* a launch that never finished (engine download stalled, start-up error, page re-render): throw it away and start clean */
-  if (root && !BOOT.ok) { if (Date.now() - BOOT.t0 < 4000 && root.isConnected && !root.hidden) return; try { root.remove(); } catch (e) {} root = null; }
+  if (root && !BOOT.ok) { if ((BOOT.busy || Date.now() - BOOT.t0 < 4000) && root.isConnected && !root.hidden) return; try { root.remove(); } catch (e) {} root = null; }
   if (root) { if (!root.isConnected) document.body.appendChild(root); else document.body.appendChild(root); root.hidden = false; document.addEventListener('keydown', kd); document.addEventListener('keyup', ku); last = 0; RAF = requestAnimationFrame(frame); startMenu(); return; }
   if (!document.getElementById('cpnCss')) { var st = document.createElement('style'); st.id = 'cpnCss'; st.textContent = CSS + OPS_CSS + XP_CSS; document.head.appendChild(st); }
   root = el('div', 'cpn'); root.setAttribute('role', 'application'); root.setAttribute('aria-label', 'Critical Point nuclear power station simulator'); document.body.appendChild(root);
@@ -7799,7 +7827,13 @@ function open() {
   var slow = setTimeout(function () { if (BOOT.ok || !ld.isConnected) return; ld.innerHTML = '<span>This is taking a while (slow connection?).</span><div style="display:flex;gap:8px;margin-top:10px"><button class="cpnb">Retry</button><button class="cpnb2">Close</button></div>'; var bs = ld.querySelectorAll('button'); bs[0].onclick = function () { try { root.remove(); } catch (e) {} root = null; open(); }; bs[1].onclick = function () { try { root.remove(); } catch (e) {} root = null; try { API.close(); } catch (e) {} }; }, 15000);
   loadThree(function (ok) { clearTimeout(slow);
     if (!ok) { ld.innerHTML = '<span>Couldn’t load the 3D engine. Check your connection and try again.</span><div style="display:flex;gap:8px;margin-top:10px"><button class="cpnb">Retry</button><button class="cpnb2">Close</button></div>'; var bs = ld.querySelectorAll('button'); bs[0].onclick = function () { try { root.remove(); } catch (e) {} root = null; open(); }; bs[1].onclick = function () { try { root.remove(); } catch (e) {} root = null; try { API.close(); } catch (e) {} }; return; }
-    setTimeout(function () { try { init(); ld.remove(); BOOT.ok = true; } catch (e) { ld.innerHTML = '<span>Something went wrong starting the simulator: ' + esc(e && e.message) + '</span><button class="cpnb" style="margin-top:10px">Close</button>'; ld.querySelector('button').onclick = function () { try { root.remove(); } catch (x) {} root = null; try { API.close(); } catch (x) {} }; try { console.error(e); } catch (x) {} } }, 30);
+    /* a launch that started but never finished (the tab was killed for memory, or it froze) means the next one starts on Lite graphics */
+    var BK = 'critical_plant_boot'; BOOT.safe = false; try { BOOT.safe = LOWMEM && !!localStorage.getItem(BK); localStorage.setItem(BK, String(Date.now())); } catch (e) {}
+    ld.innerHTML = '<i></i><span>Powering up the control room…</span><div class="cpnlbar"><b></b></div>' + (BOOT.safe ? '<small>The last launch didn’t finish, so this one uses Lite graphics.</small>' : '');
+    var lt = ld.querySelector('span'), lb = ld.querySelector('.cpnlbar b'); BOOT.busy = true;
+    var fail = function (e) { BOOT.busy = false; ld.innerHTML = '<span>Something went wrong starting the simulator: ' + esc(e && e.message) + '</span><button class="cpnb" style="margin-top:10px">Close</button>'; ld.querySelector('button').onclick = function () { try { root.remove(); } catch (x) {} root = null; try { API.close(); } catch (x) {} }; try { console.error(e); } catch (x) {} };
+    setTimeout(function () { try { init(function (label, f) { if (lt) lt.textContent = label + '…'; if (lb) lb.style.width = Math.round(100 * Math.min(1, f)) + '%'; },
+      function (e) { if (e) { fail(e); return; } BOOT.busy = false; try { localStorage.removeItem(BK); } catch (x) {} ld.remove(); BOOT.ok = true; }); } catch (e) { fail(e); } }, 30);
   });
 }
 function loadThree(cb) { var done = false, fin = function (ok) { if (done) return; done = true; clearInterval(poll); clearTimeout(to); cb(ok); }, ready = function () { return !!(window.THREE && THREE.WebGLRenderer); };
@@ -7838,15 +7872,28 @@ var DOCK = { L: null, R: null, C: null, act: { L: null, R: null }, iv: 0,
     /* on a narrow screen the panels sit at the bottom, so messages pop up just above them */
     var T = root.querySelector(':scope > .cpntoasts'); if (T) T.style.bottom = DOCK.wide ? '' : (8 / z + DOCK.L.offsetHeight + 8) + 'px'; }
 };
-function init() {
+/* The plant is built in steps, handing control back to the browser between them, so the page never freezes for long (on a low-end Chromebook
+   the old one-go build plus first frame locked the tab for well over a minute). Then every texture is sent to the graphics chip a few at a time
+   and the shaders are compiled in the background, instead of all of it landing in the first frame. prog(label, 0..1) drives the loading screen. */
+function init(prog, done) {
+  prog = prog || function () {}; done = done || function (e) { if (e) throw e; };
+  var sv, hi, lite, ren, scene, cam, c, steps = [], add = function (label, fn) { steps.push([label, fn]); };
+  add('Starting the 3D engine', function () {
   if (!DOCK.iv) DOCK.iv = setInterval(function () { try { DOCK.tick(); } catch (e) {} }, 250);
-  FAST.chunks(); var sv = rd(); makeSession(sv); var hi = S.cfg.gfx === 'high', lite = S.cfg.gfx === 'lite'; root.classList.toggle('lite', lite); PERF.lite = lite; PERF.cap = lite ? 1 / 31 : 0; if (lite) { TEXS = 0.5; BEN = 1; } if (PHONE) TEXS = 0.38;
-  var ren = new THREE.WebGLRenderer({ antialias: hi && !PHONE, powerPreference: lite ? 'default' : 'high-performance', stencil: false }); PERF.prMax = Math.min(window.devicePixelRatio || 1, hi ? (PHONE ? 1.5 : 2) : lite ? 0.85 : 1); PERF.pr = PERF.prMax; ren.setPixelRatio(PERF.pr); ren.toneMapping = THREE.ACESFilmicToneMapping; ren.toneMappingExposure = 0.84;
+  FAST.chunks(); sv = rd(); makeSession(sv); if (BOOT.safe && S.cfg.gfx !== 'lite') { S.cfg.gfx = 'lite'; try { saveCfg(); } catch (e) {} } hi = S.cfg.gfx === 'high', lite = S.cfg.gfx === 'lite'; root.classList.toggle('lite', lite); PERF.lite = lite; PERF.cap = lite ? 1 / 31 : 0; if (lite) { TEXS = 0.5; BEN = 1; } if (LOWMEM) TEXS = 0.38;
+  ren = new THREE.WebGLRenderer({ antialias: hi && !PHONE, powerPreference: lite ? 'default' : 'high-performance', stencil: false }); PERF.prMax = Math.min(window.devicePixelRatio || 1, hi ? (PHONE ? 1.5 : 2) : lite ? 0.85 : 1); PERF.pr = PERF.prMax; ren.setPixelRatio(PERF.pr); ren.toneMapping = THREE.ACESFilmicToneMapping; ren.toneMappingExposure = 0.84;
   ren.domElement.className = 'cpn3d'; ren.domElement.tabIndex = 0; root.insertBefore(ren.domElement, root.firstChild);
   ANISO = Math.min(hi ? 8 : 2, ren.capabilities.getMaxAnisotropy ? ren.capabilities.getMaxAnisotropy() : 4);
-  var scene = new THREE.Scene(); scene.background = new THREE.Color(0x1d2126); var cam = new THREE.PerspectiveCamera(60, 1, 0.03, 5000); scene.fog = new THREE.FogExp2(0x1d2126, 0.0004); R3 = { ren: ren, scene: scene, cam: cam }; RC = new THREE.Raycaster();
+  scene = new THREE.Scene(); scene.background = new THREE.Color(0x1d2126); cam = new THREE.PerspectiveCamera(60, 1, 0.03, 5000); scene.fog = new THREE.FogExp2(0x1d2126, 0.0004); R3 = { ren: ren, scene: scene, cam: cam }; RC = new THREE.Raycaster();
   applyUnit(S.cfg.unit); S.p = newPlant(); derive(0.05);
-  mats(); buildRoom(scene); SECDEF.forEach(buildSection); joints(); furniture(scene); try { polishRoom(scene); } catch (e) { try { console.error(e); } catch (x) {} }
+  });
+  add('Building the control room', function () { mats(); buildRoom(scene); });
+  add('Building the site outside', function () { return addOutside(scene); });
+  add('Building the turbine hall', function () { addWindows(scene); addHall(scene); buildRoom2(scene); });
+  add('Fitting the control boards', function () {
+  SECDEF.forEach(buildSection); joints(); furniture(scene); try { polishRoom(scene); } catch (e) { try { console.error(e); } catch (x) {} }
+  });
+  add('Setting up the lighting', function () {
   if (hi) { try { var pm = new THREE.PMREMGenerator(ren), es = new THREE.Scene(), bx = new THREE.Mesh(new THREE.BoxGeometry(2 * RX, CH, RDP), new THREE.MeshBasicMaterial({ color: 0x5d6268, side: THREE.BackSide })); bx.position.set(0, CH / 2, RZC); es.add(bx);
     var lm = new THREE.MeshBasicMaterial({ color: 0xffffff }); lm.color.setScalar(5); for (var x = -10.5; x <= 10.5; x += 3) for (var z = ZB + 1.5; z <= ZF - 1; z += 3) { var l = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 0.6), lm); l.rotation.x = Math.PI / 2; l.position.set(x, CH - 0.05, z); es.add(l); }
     scene.environment = pm.fromScene(es, 0.04).texture; scene.environmentIntensity = 0.55; pm.dispose(); } catch (e) {} }
@@ -7855,18 +7902,47 @@ function init() {
   if (lite) { ren.toneMapping = THREE.NoToneMapping; try { liteScene(scene); } catch (e) { try { console.error(e); } catch (x) {} } }
   if (hi) { ren.shadowMap.enabled = true; ren.shadowMap.type = THREE.PCFSoftShadowMap; var sn = R3.sun, sc = sn.shadow.camera; sn.castShadow = true; sn.shadow.mapSize.set(4096, 4096); sc.left = -14; sc.right = 14; sc.top = 14; sc.bottom = -14; sc.near = 1; sc.far = 40; sc.updateProjectionMatrix(); sn.shadow.bias = -0.0004; sn.shadow.normalBias = 0.04; sn.shadow.radius = 5;
     scene.traverse(function (o) { if (!o.isMesh || !o.material || o.material.isMeshBasicMaterial) return; o.receiveShadow = true; var gt = o.geometry.type; if (gt !== 'PlaneGeometry' && gt !== 'RingGeometry' && !o.material.transparent) o.castShadow = true; }); }
+  });
+  add('Wiring up the controls', function () {
   WG.forEach(function (w) { if (w.o.tiles) { w.isAnn = true; ANNW.push(w); } });
   S.ecpBand = ecpBand(); ANNC.init();
   buildHUD();
-  var c = ren.domElement; c.addEventListener('pointerdown', onDown); c.addEventListener('pointermove', onMove); c.addEventListener('pointerup', onUp); c.addEventListener('pointercancel', onUp); c.addEventListener('wheel', onWheel, { passive: false }); c.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+  c = ren.domElement; c.addEventListener('pointerdown', onDown); c.addEventListener('pointermove', onMove); c.addEventListener('pointerup', onUp); c.addEventListener('pointercancel', onUp); c.addEventListener('wheel', onWheel, { passive: false }); c.addEventListener('contextmenu', function (e) { e.preventDefault(); });
   c.addEventListener('pointerleave', function () { hideTip(); PTR.hover = null; PTR.hoverObj = null; });
   document.addEventListener('keydown', kd); document.addEventListener('keyup', ku); document.addEventListener('pointerlockchange', lockChange);
   window.addEventListener('blur', function () { KEYS = {}; if (S && S.leverDir) ACT.lever(0); });
   document.addEventListener('visibilitychange', function () { if (document.hidden && S && root && !root.hidden) { save(); if (!S.menu && !CUT.on) pauseMenu(); } });
   goView('start', true); WG.forEach(function (w) { redraw(w, true); });
+  });
+  add('Building the plant buildings', function () {
   try { OPS.build(scene); } catch (e) { try { console.error(e); } catch (x) {} } try { ZONE.build(scene); } catch (e) { try { console.error(e); } catch (x) {} } try { BATCH.build(scene); FMU.seed(scene); scene.matrixWorldAutoUpdate = false; } catch (e) { try { console.error(e); } catch (x) {} scene.matrixWorldAutoUpdate = true; }
-  try { var coarse = !!(window.matchMedia && matchMedia('(pointer: coarse)').matches); if (coarse) TEXDIET.run(scene, 512, 65536); else if (S.cfg.gfx === 'lite') TEXDIET.run(scene, 1024, 262144); } catch (e) { try { console.error(e); } catch (x) {} }
+  });
+  add('Packing the textures', function () {
+  try { if (LOWMEM) TEXDIET.run(scene, 512, 65536); else if (S.cfg.gfx === 'lite') TEXDIET.run(scene, 1024, 262144); } catch (e) { try { console.error(e); } catch (x) {} }
+  });
+  var n = steps.length + 2, run = function (k) {
+    if (k >= steps.length) { warm(); return; }
+    prog(steps[k][0], k / n);
+    setTimeout(function () { var it; try { it = steps[k][1](); } catch (e) { done(e); return; }
+      if (!it || typeof it.next !== 'function') { run(k + 1); return; }
+      var pump = function () { var r; try { r = it.next(); } catch (e) { done(e); return; } if (r.done) run(k + 1); else setTimeout(pump, 0); }; pump(); }, 16);
+  };
+  /* textures to the graphics chip ~50 ms at a time */
+  var warm = function () { var list = [], seen = new Set(), keys = ['map', 'emissiveMap', 'roughnessMap', 'metalnessMap', 'normalMap', 'bumpMap', 'alphaMap', 'aoMap', 'lightMap', 'specularColorMap', 'clearcoatMap', 'displacementMap'];
+    try { scene.traverseVisible(function (o) { var ms = o.material ? (Array.isArray(o.material) ? o.material : [o.material]) : []; ms.forEach(function (m) { keys.forEach(function (key) { var t = m[key]; if (t && t.isTexture && !seen.has(t)) { seen.add(t); list.push(t); } }); if (m.uniforms) for (var u in m.uniforms) { var v = m.uniforms[u] && m.uniforms[u].value; if (v && v.isTexture && !seen.has(v)) { seen.add(v); list.push(v); } } }); }); } catch (e) {}
+    list = list.filter(function (t) { return t.image && !t.isRenderTargetTexture && !t.isVideoTexture && !t.isCubeTexture; });
+    var i = 0, tick = function () { var t0 = performance.now();
+      while (i < list.length && performance.now() - t0 < 50) { try { ren.initTexture(list[i]); } catch (e) {} i++; }
+      prog('Loading textures ' + Math.round(100 * i / Math.max(1, list.length)) + '%', (steps.length + i / Math.max(1, list.length)) / n);
+      if (i < list.length) setTimeout(tick, 16); else compile(); };
+    tick(); };
+  /* shaders: compiled in the background where the browser supports it; never wait more than 25 s */
+  var compile = function () { prog('Compiling shaders', (n - 1) / n); var fin = false, go = function () { if (fin) return; fin = true; start(); };
+    setTimeout(function () { try { if (ren.compileAsync) { ren.compileAsync(scene, cam).then(go, go); setTimeout(go, 25000); } else go(); } catch (e) { go(); } }, 16); };
+  var start = function () { try {
   last = 0; RAF = requestAnimationFrame(frame); startMenu();
+    } catch (e) { done(e); return; } done(); };
+  run(0);
 }
 function close() { ADMIN.ok = false; if (CRISIS.on) { CRISIS.on = false; if (CRISIS.hud) CRISIS.hud.hidden = true; } if (CUT.on) { CUT.done = null; CUT.stop(); }
   if (!root) return; try { save(); } catch (e) {} try { RADIO.stop(); } catch (e) {} try { KIT.sounder(0); } catch (e) {} try { MULTI.closeAll(); } catch (e) {} cancelAnimationFrame(RAF); RAF = 0; root.hidden = true; document.removeEventListener('keydown', kd); document.removeEventListener('keyup', ku); KEYS = {};
