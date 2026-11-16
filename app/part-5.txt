@@ -1,4 +1,7 @@
-ver use relief valves','always reduce emergency cooling','turn off alarms'],0,`The light showed the command, not the valve's actual position.`)]);
+urn the heaters down'],0,`Heaters boil more water into steam, raising the pressure.`),
+Q(`Where does pressuriser spray water come from?`,['A cold leg','The sea','The condenser','The turbine'],0,`Cooler cold-leg water is sprayed into the steam space to condense steam.`),
+Q(`The pressuriser contains…`,['water and steam at saturation','only water','only nitrogen gas','only steam'],0,`Keeping water and steam together at saturation is what lets temperature control the pressure.`),
+Q(`A key lesson from the relief valve at Three Mile Island was…`,['show the valve\'s real position, and train operators to check other symptoms','never use relief valves','always reduce emergency cooling','turn off alarms'],0,`The light showed the command, not the valve's actual position.`)]);
 
 F('s3',[
 T(`<h3>Quick recap</h3><ul><li>Steam generator level is controlled with feedwater. Too low: lose the heat sink. Too high: water carried into the turbine.</li><li><b>Swell</b> (demand up) and <b>shrink</b> (demand down) make level control tricky</li><li>Generator speed: <b>rpm = 120 × f ÷ poles</b></li></ul>`),
@@ -935,5 +938,4 @@ Q(`What does the area under an activity–time graph tell you?`,[`The total numb
 NE(`Rearrange A = λN for N. If A = 6000 Bq and λ = 0.002 s⁻¹, what is N? Give the number in front of × 10⁶.`,3,0.01,'× 10⁶',`N = A / λ = 6000 / 0.002 = 3 × 10⁶.`),
 T(`<h3>Key points</h3><ul><li>Integrating P₀ e<sup>−t/τ</sup> from 0 to ∞ gives <b>P₀ τ</b>.</li><li>The area under activity-time is the number of decays; in total it's N₀ = A₀/λ.</li><li>Integration turns rates into totals.</li></ul>`)])
 ]});
-F('m2-4-1',[T(`<h3>Quick recap</h3><p>Area under power-time = energy. Integration adds up infinitely thin slices.</p>`),N(`A steady 20 MW for 30 s. Energy in MJ?`,600,0.01,'MJ',`20 × 30.`),Q(`More, thinner rectangles make the area estimate…`,[`more accurate`,`less accurate`,`no different`,`negative`],0,`They fit the curve better.`),Q(`What does ∫ mean?`,[`Add up (integrate)`,`Differentiate`,`Multiply`,`Square root`],0,`A long S for "sum".`)]);
-F('m2-4-2',[T(`<h3>Quick recap</h3><p>∫ xⁿ dx = xⁿ⁺¹/(n+1) + C. With limits: top − bottom.</p>`),Q(`∫ x dx =`,[`x²/2 + C`,`1 + C`,`x² + C`,`2x + C`],0,`Power up, divide by new power.`),N(`Area under y = x² from 0 to 6?`,72,0.001,'',`6³/3 = 72.`),Q(`∫ e<sup>2x</sup> dx =`,[`½ e<sup>2x</sup> + C`,`2e<sup>2x</sup> + C`,
+F('m2-4-1',[T(`<h3>Quick recap</h3><p>Area under power-time = energy. Integration adds up infinitely thin slices.</p>`),N(`A steady 20 MW

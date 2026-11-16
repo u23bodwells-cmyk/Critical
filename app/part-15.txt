@@ -1,4 +1,5 @@
-Card')||el.querySelector('.hero');if(at&&at.parentNode)at.parentNode.insertBefore(c,at.nextSibling);else el.insertBefore(c,el.firstChild);
+max(8,n.due))*0.3))+' minutes.':n.fresh?'You\'re up to date. Warm up with questions from older lessons.':'All caught up. Next reminders tomorrow.')+'</span><span class="memmeter" aria-label="'+n.strong+' of '+n.total+' things learnt well"><i style="width:'+Math.round(n.strong/Math.max(1,n.total)*100)+'%"></i></span><em>'+n.strong+' of '+n.total+' remembered well</em></div><div class="membtns"><button type="button" class="xbtn" id="memGo"'+(go?'':' disabled')+'>'+(n.due?'Start':'Warm up')+'</button><button type="button" class="xbtn alt" id="memKeys">🔢 Key numbers</button></div></div>';
+  var at=document.getElementById('motCard')||el.querySelector('.hero');if(at&&at.parentNode)at.parentNode.insertBefore(c,at.nextSibling);else el.insertBefore(c,el.firstChild);
   c.querySelector('#memGo').onclick=start;c.querySelector('#memKeys').onclick=keys}
  function popen2(){var p=$('player');return !!(p&&p.classList.contains('open'))}
  /* key numbers sheet: tap to reveal, see how well each is remembered */

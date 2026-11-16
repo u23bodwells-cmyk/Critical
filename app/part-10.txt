@@ -1,4 +1,7 @@
-ge in x.</li></ul>`)])
+ds','You can\'t tell without knowing the units'],0,`Proportional needs the line to go through (0, 0) as well.`),
+T(`<h3>Gradient</h3><div class="eq">gradient = change in y ÷ change in x</div><p>Pick two points far apart on the line. The gradient often means something: on a distance–time graph, it's the <b>speed</b>.</p>`),
+W('calcDrill',{skill:'gradpts',need:4},`Gradients from two points. Get 4 right in a row.`,`(y₂ − y₁) ÷ (x₂ − x₁).`),
+T(`<h3>Key points</h3><ul><li>Label axes with units. Draw a smooth line of best fit.</li><li>Straight line through the origin: directly proportional.</li><li>Gradient = change in y ÷ change in x.</li></ul>`)])
 ]});
 U({id:'gp1-4',track:'gp',level:1,title:'Forces and motion basics',icon:'→',color:'#D85A30',desc:'Contact and non-contact forces, balanced and unbalanced forces, speed, and distance–time graphs.',lessons:[
 LH('gp1-4-1','Forces',8,'Pushes and pulls, contact and non-contact forces, and what balanced forces do.',[
@@ -821,8 +824,4 @@ T(`<h3>Key points</h3><ul><li>Segment = sector − triangle.</li><li>Scale facto
 ]});
 U({id:'gm4-3',track:'gm',level:4,title:'Statistics and probability problems',icon:'⚄',color:'#D4537E',desc:'Harder probability, algebraic probability, and interpreting statistical diagrams.',lessons:[
 LH('gm4-3-1','Harder probability',11,'Conditional probability from tables, trees and Venn diagrams, and probability with algebra.',[
-T(`<h3>Probability with algebra</h3><p>Some questions give probabilities in terms of x. Use the fact that probabilities add to 1, or set up an equation from what you're told, then solve.</p><p>Example: a bag has n counters, 3 red. Two are taken without replacement. P(both red) = 1/15. So 3/n × 2/(n − 1) = 1/15 → 6 × 15 = n(n − 1) → n² − n − 90 = 0 → n = 10.</p>`),
-Q(`P(A) = 2x, P(B) = 3x, P(C) = x + 0.1. A, B and C are the only outcomes. Find x.`,[`0.15`,'0.1','0.2','0.25'],0,`6x + 0.1 = 1, so x = 0.15.`),
-W('calcDrill',{skill:['g_condprob','g_venn'],need:6},`Conditional probability. Get 6 right in a row.`,`"Given that" restricts which group you look at.`),
-T(`<h3>Key points</h3><ul><li>Probabilities sum to 1: use it to form equations.</li><li>Without replacement: n then n − 1.</li><li>Given that: only count inside that group.</li></ul>`)]),
-LH('gm4-3-2','Interpreting data',11,'Getting fu
+T(`<h3>Probability with algebra</h3><p>Some questions give probabilities in terms of x. Use the fact that probabilities add to 1, or set up an equation from what you're told, then solve.</p><p>Example: a bag has n counters, 3 red. Two are taken without replacement. P(both

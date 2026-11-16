@@ -1,4 +1,8 @@
-ll marks on histograms, box plots and comparisons.',[
+ red) = 1/15. So 3/n × 2/(n − 1) = 1/15 → 6 × 15 = n(n − 1) → n² − n − 90 = 0 → n = 10.</p>`),
+Q(`P(A) = 2x, P(B) = 3x, P(C) = x + 0.1. A, B and C are the only outcomes. Find x.`,[`0.15`,'0.1','0.2','0.25'],0,`6x + 0.1 = 1, so x = 0.15.`),
+W('calcDrill',{skill:['g_condprob','g_venn'],need:6},`Conditional probability. Get 6 right in a row.`,`"Given that" restricts which group you look at.`),
+T(`<h3>Key points</h3><ul><li>Probabilities sum to 1: use it to form equations.</li><li>Without replacement: n then n − 1.</li><li>Given that: only count inside that group.</li></ul>`)]),
+LH('gm4-3-2','Interpreting data',11,'Getting full marks on histograms, box plots and comparisons.',[
 RM(`<p>Histogram area = frequency. Compare medians and IQRs, in context.</p>`),
 W('calcDrill',{skill:['g_hist','g_groupmean','g_median'],need:6},`Statistics calculations. Get 6 right in a row.`,`Frequency density × width = frequency.`),
 Q(`Why might the estimated mean from grouped data be different from the true mean?`,[`It uses midpoints, not the actual values`,'It uses a different formula from the real mean','It leaves out the highest group of values','It rounds every value down to the nearest group'],0,`Classic 1-mark question.`),
@@ -1020,8 +1024,4 @@ function NSIM(w,h,rnd){
   if(par.trip){var bT=btn(r,'Trip!',function(){trip=true;tgt=1;moved=true;try{rs.set(100)}catch(_){}},'pri')}
   var SL=[['n','Neutrons now'],['k','k, measured']];if(par.rho)SL.push(['r','Reactivity ρ']);if(par.source)SL.push(['m','Multiplication 1/(1 − k)']);if(fb)SL.push(['T','Fuel temperature']);if(par.breed)SL.push(['p','Plutonium-239 made'],['c','Conversion ratio']);if(SL.length<4)SL.push(['f','Fissions a second']);if(SL.length<4)SL.push(['t','Slow (thermal)']);var st=stats(box,SL),stF=par.fates?stats(box,[['a','Cause fission'],['b','Caught by U-238'],['c','Soaked up (rods, boron, water)'],['d','Leak out']]):null,m=msg(box);
   m.set(par.goal==='critical'?'Tap the core to fire in more neutrons. Get k to stay near <b>1.00</b>.':'Tap the core to fire in more neutrons.');
-  function fire(x,y,n){for(var i=0;i<n;i++)if(sim.add(x+(Math.random()-.5)*6,y+(Math.random()-.5)*6,sim.watt()))sim.born++;sim.ev.push({k:'tap',x:x,y:y,t:0})}
-  scr.cv.addEventListener('pointerdown',function(e){var b=scr.cv.getBoundingClientRect();fire(e.clientX-b.left,e.clientY-b.top,3)});scr.cv.style.cursor='crosshair';
-  function bg(){var o=document.createElement('canvas');o.width=scr.cv.width;o.height=scr.cv.height;var c=o.getContext('2d'),W=scr.W,H=scr.H;c.setTransform(scr.d,0,0,scr.d,0,0);
-   var g=c.createLinearGradient(0,0,0,H);g.addColorStop(0,'#071631');g.addColorStop(1,'#040a17');c.fillStyle=g;c.fillRect(0,0,W,H);
-   c.strokeStyle='rgba(90,150,255,.06)';c.l
+  function fire(x,y,n){for(var i=0;i<n;i++)if(s

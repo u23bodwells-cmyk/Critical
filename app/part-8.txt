@@ -1,4 +1,7 @@
-t.head.appendChild(css)})();
+sform:uppercase}.cdq .qprompt{font-size:18px;margin:0}.cdline{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font:20px var(--serif);margin:12px 0}'+
+ '.cdline .cdbox{width:76px;font-size:18px;padding:8px 8px;font-family:var(--mono)}.cdgrp{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}.cdline .sgnb{min-width:40px;height:40px;margin-right:0;font-size:20px;border-radius:10px}'+
+ '.cdsupg{align-self:flex-start;margin-top:-10px}.cdline .cdbox.cdsup{width:54px;font-size:14px;padding:5px 6px}.cdsupg .sgnb{min-width:32px;height:32px;font-size:16px;border-radius:8px}.cdin .opt{margin-top:8px}';
+ document.head.appendChild(css)})();
 WIDGETS.calcDrill=function(box,par){var need=par.need||5,gens=[].concat(par.skill),streak=0,done=false,q=null,answered=false,count=0;
  var top=el('div','cdtop',null,box),qb=el('div','cdq',null,box),inRow=el('div','cdin',null,box),r=row(box),chkB=btn(r,'Submit answer',check,'pri'),nxt=btn(r,'Next question',next),m=msg(box);
  function dots(){var h='<span class="small">Get '+need+' right in a row'+(count?' · question '+count:'')+'</span><span class="cddots" aria-label="'+streak+' in a row">';for(var i=0;i<need;i++)h+='<i class="'+(i<Math.min(streak,need)?'on':'')+'"></i>';top.innerHTML=h+'</span>'+(done?'<span class="cdok">Mastered</span>':'')}
@@ -996,6 +999,4 @@ CGEN.g_func=function(){var a=cR(2,5),b=cR(-6,6),c=cR(-5,5),x=cR(-3,4),k=cR(0,2),
  var fs='f(x) = '+a+'x'+gTm(b,''),gs='g(x) = x²'+gTm(c,'');
  var X=cNum(x);if(k===0)return {p:fs+' and '+gs+'. Find fg('+X+').',b:[cB(f(g(x)),'fg('+X+') = ','','value')],e:'Do g first (the one nearest the bracket): g('+X+') = '+cBr(x)+'²'+gTm(c,'')+' = '+cNum(g(x))+'. Then f('+cNum(g(x))+') = '+a+' × '+cBr(g(x))+gTm(b,'')+' = '+cNum(f(g(x)))+'.'};
  if(k===1)return {p:fs+' and '+gs+'. Find gf('+X+').',b:[cB(g(f(x)),'gf('+X+') = ','','value')],e:'Do f first: f('+X+') = '+a+' × '+cBr(x)+gTm(b,'')+' = '+cNum(f(x))+'. Then g('+cNum(f(x))+') = '+cBr(f(x))+'²'+gTm(c,'')+' = '+cNum(g(f(x)))+'.'};
- var y=f(x),Y=cNum(y);return {p:fs+'. Find f⁻¹('+Y+').',b:[cB(x,'f⁻¹('+Y+') = ','','value')],e:'f⁻¹ undoes f. Solve '+a+'x'+gTm(b,'')+' = '+Y+': '+a+'x = '+cNum(y-b)+', x = '+X+'. (Or find f⁻¹(x) = (x'+gTm(-b,'')+') ÷ '+a+' and put '+Y+' in.)'}};
-CGEN.g_iter=function(){var P=cP([[2,5,2],[3,1,1],[1,7,2],[4,2,1.5]]),a=P[0],b=P[1],x=P[2],xs=[x];for(var i=0;i<3;i++){x=Math.cbrt(a*x+b);xs.push(x)}var x3=Math.round(xs[3]*10000)/10000;
- return {p:'Use x<sub>n+1</sub> = ∛('+(a>1?a:'')+'x<sub>n</sub> + '+b+') with x<sub>0</sub> = '+P[2]+' to find x<sub>3</sub>. (4 decimal places)',b:[cB(x3,'x<sub>3</sub> = ','','x3',false,0.00005)],e
+ va

@@ -100,7 +100,8 @@ Displacement is how far <i>in a straight line in a given direction</i>.`),
  var ed=null,delAsk=null;
  /* link to Big Past Paper in Claude (runs on your Claude account, no API key); ticked lessons ride along in the link */
  function bppUrl(subj,ids){try{return PP.artUrl({subj:subj,lids:ids||[]})}catch(_){return 'https://claude.ai/artifact/AsFGW6Ut3XQ8tBmmUTeCq4'}}
- function bppRow(href,note){return '<div class="rvbpp"><a class="plgo" data-k="bpp" href="'+esc(href)+'" target="_blank" rel="noopener">📝 Big Past Paper in Claude ↗</a><span class="plnote">'+note+'</span></div>'}
+ function tmrUrl(name){return 'homework.html?mode=revise'+(name?'&t='+encodeURIComponent(String(name).slice(0,80)):'')}
+ function bppRow(href,note,tname){return '<div class="rvbpp"><a class="plgo" data-k="bpp" href="'+esc(href)+'" target="_blank" rel="noopener">📝 Big Past Paper in Claude ↗</a><a class="plgo alt" data-k="tmr" href="'+esc(tmrUrl(tname))+'">⏱ Start timer</a><span class="plnote">'+note+'</span></div>'}
  function blank(){return {name:'',subj:'gp',sname:'',date:addD(today(),7),days:3,units:[],cards:[]}}
  function add(A,label,cls,fn){var b=document.createElement('button');b.type='button';b.className='plgo'+(cls?' '+cls:'');b.textContent=label;b.onclick=fn;A.appendChild(b);return b}
  function removeT(id,full){var r=R(),t=testOf(id);if(!t)return;if(full){r.tests.splice(r.tests.indexOf(t),1);delete r.log[id];delete r.mocks[id];Object.keys(r.miss).forEach(function(k){if(k.indexOf('O'+id+'#')===0)delete r.miss[k]})}else t.gone=today();save()}
@@ -109,12 +110,12 @@ Displacement is how far <i>in a straight line in a given direction</i>.`),
   box.innerHTML='';if(ed)return form(box,again);
   var up=r.tests.filter(function(t){return !t.gone&&t.date>=td}).sort(function(a,b){return a.date<b.date?-1:1}),past=r.tests.filter(function(t){return !t.gone&&t.date<td}).sort(function(a,b){return a.date<b.date?1:-1});
   var now=el('div','pldnow','<b>Revise for a test</b>Add a test and Critical turns the days before it into revision days. Each one quizzes you on that day\'s topics, and the last day before the test is a mini mock. They take the same time as your normal plan.',box);
-  el('div',null,bppRow(bppUrl(up[0]?up[0].subj:'gp',up[0]&&up[0].subj!=='own'?up[0].units:[]),'An hour of exam questions, marked by Claude. Do one any time, no API key needed.'+(up[0]&&up[0].subj!=='own'?' Opens with your next test\'s topics.':'')),box);
+  el('div',null,bppRow(bppUrl(up[0]?up[0].subj:'gp',up[0]&&up[0].subj!=='own'?up[0].units:[]),'Big Past Paper: an hour of exam questions marked by Claude, any time, no API key. Start timer: the big revision clock with the Critical Point yard behind it; the time goes into your study log.',up[0]?tName(up[0]):''),box);
   if(!up.length)el('p','plnote','No tests coming up.',box);
   up.forEach(function(t){var sub=t.subj==='own'?cards(t).length+' flashcard'+(cards(t).length===1?'':'s'):uTitles(t.units).join(', '),c=el('div','plblk rvtest',null,box);
    c.innerHTML='<div class="plbody"><p class="plt"><span>'+esc(tName(t))+'</span><span class="plm">'+inDays(t.date)+'</span></p><p class="plh">'+esc(subjName(t))+' · '+nice(t.date)+'</p><p class="plh">'+esc(sub)+'</p>'+
     (sched(t).length?dayChips(t):t.date===td?'<p class="plh"><b>It\'s today. Good luck!</b></p>':'<p class="plh">Added too late for revision days, but you can still revise now.</p>')+'<div class="placts"></div></div>';
-   var A=c.querySelector('.placts');add(A,'Revise now →','',function(){hub(t.id)});add(A,'Edit','alt',function(){ed=JSON.parse(JSON.stringify(t));ed._edit=t.id;delAsk=null;again()});
+   var A=c.querySelector('.placts');add(A,'Revise now →','',function(){hub(t.id)});add(A,'⏱ Start timer','alt',function(){location.href=tmrUrl(tName(t))});add(A,'Edit','alt',function(){ed=JSON.parse(JSON.stringify(t));ed._edit=t.id;delAsk=null;again()});
    add(A,delAsk===t.id?'Tap again to delete':'Delete','alt',function(){if(delAsk!==t.id){delAsk=t.id;again();return}delAsk=null;removeT(t.id,false);again()})});
   add(box,'+ Add a test','',function(){ed=blank();delAsk=null;again()}).className='plbig';
   if(past.length){el('p','plgt','Past tests',box);var L=el('div','pldl',null,box);past.slice(0,6).forEach(function(t){var m=(r.mocks[t.id]||[]).slice(-1)[0],row=el('div','pldr',null,L);
@@ -128,7 +129,7 @@ Displacement is how far <i>in a straight line in a given direction</i>.`),
  function parse(txt){var out=[];String(txt||'').split(/\r?\n/).forEach(function(line){line=line.trim();if(!line)return;var m=line.split(/\t| \| |\|| - | – | = /);if(m.length<2){var i=line.indexOf(': ');if(i>0)m=[line.slice(0,i),line.slice(i+2)]}
   if(m.length>=2){var q=m[0].trim(),a=m.slice(1).join(' - ').trim();if(q&&a)out.push({q:q.slice(0,300),a:a.slice(0,300)})}});return out}
  function form(box,again){var f=ed;if(!Array.isArray(f.units))f.units=[];if(!Array.isArray(f.cards))f.cards=[];
-  var h='<div class="pldnow"><b>'+(f._edit?'Edit your test':'Add a test')+'</b>Critical turns the days before it into revision days.</div>'+bppRow(bppUrl(f.subj,f.units),'Practise for it any time with an hour of exam questions marked by Claude. No API key needed. Topics you tick below carry over.')+'<div class="rvf">'+
+  var h='<div class="pldnow"><b>'+(f._edit?'Edit your test':'Add a test')+'</b>Critical turns the days before it into revision days.</div>'+bppRow(bppUrl(f.subj,f.units),'Practise for it any time with an hour of exam questions marked by Claude (no API key; topics you tick below carry over), or start the revision timer.',f.name||'')+'<div class="rvf">'+
    '<label>What\'s the test?<input type="text" data-f="name" maxlength="50" placeholder="e.g. Physics end-of-topic test"></label>'+
    '<label>Subject<select data-f="subj"><option value="gm">GCSE Maths</option><option value="gp">GCSE Physics</option><option value="gc">GCSE Chemistry</option><option value="gcs">GCSE Computer Science</option><option value="own">Another subject (your own flashcards)</option></select></label>'+
    (f.subj==='own'?'<label>Which subject?<input type="text" data-f="sname" maxlength="30" placeholder="e.g. Biology, History, French"></label>':'')+
@@ -140,8 +141,8 @@ Displacement is how far <i>in a straight line in a given direction</i>.`),
   h+='<p class="plderr" data-k="err" hidden></p><div class="placts"><button type="button" class="plgo" data-a="save">Save test</button><button type="button" class="plgo alt" data-a="cancel">Cancel</button></div></div>';
   box.innerHTML=h;var q=function(s){return box.querySelector(s)};
   q('[data-f=name]').value=f.name||'';q('[data-f=subj]').value=f.subj;q('[data-f=date]').value=f.date||'';q('[data-f=date]').min=addD(today(),1);q('[data-f=days]').value=String(f.days||3);
-  function prev(){q('[data-k=prev]').textContent=prevTxt(f);var bl=q('[data-k=bpp]');if(bl)bl.href=bppUrl(f.subj,f.subj==='own'?[]:f.units)}prev();
-  q('[data-f=name]').oninput=function(){f.name=this.value};q('[data-f=date]').oninput=function(){f.date=this.value;prev()};q('[data-f=days]').onchange=function(){f.days=+this.value;prev()};
+  function prev(){q('[data-k=prev]').textContent=prevTxt(f);var bl=q('[data-k=bpp]');if(bl)bl.href=bppUrl(f.subj,f.subj==='own'?[]:f.units);var tl=q('[data-k=tmr]');if(tl)tl.href=tmrUrl(f.name||(f.subj==='own'?f.sname:''))}prev();
+  q('[data-f=name]').oninput=function(){f.name=this.value;prev()};q('[data-f=date]').oninput=function(){f.date=this.value;prev()};q('[data-f=days]').onchange=function(){f.days=+this.value;prev()};
   q('[data-f=subj]').onchange=function(){f.subj=this.value;f.units=[];again()};
   if(q('[data-f=sname]')){q('[data-f=sname]').value=f.sname||'';q('[data-f=sname]').oninput=function(){f.sname=this.value}}
   if(q('.rvtl')){var openU={},qy='';f.units.forEach(function(id){var x=tInfo(id);if(x&&x.li>=0)openU[UNITS[x.ui].id]=1});
@@ -857,6 +858,7 @@ var PLAN=(function(){
   showBan('<b>4:45: time to start.</b> '+(rvOn(t)?'It\'s a revision day: '+restMins(t)+' minutes of revising for your test.':'Today\'s plan is '+restMins(t)+' minutes.')+' Got homework due? Do that first and Critical gets whatever time is left.',[['Start today\'s plan',function(){hideBan();startRun()}],['Homework first',function(){hideBan();startHw()}],['Just one question',function(){hideBan();ONE.start()}]])}catch(e){if(window.console)console.error(e)}},600)}
  if(location.hash==='#hwdone'){try{history.replaceState(null,'',location.pathname+location.search)}catch(_){}setTimeout(function(){try{hwDone()}catch(_){}},700)}
  if(location.hash==='#early'){try{history.replaceState(null,'',location.pathname+location.search)}catch(_){}setTimeout(function(){try{finishEarly()}catch(_){}},700)}
+ if(location.hash==='#tests'){try{history.replaceState(null,'',location.pathname+location.search)}catch(_){}setTimeout(function(){try{open('tst')}catch(_){}},400)}
  if(location.hash==='#home'){try{history.replaceState(null,'',location.pathname+location.search)}catch(_){}setTimeout(function(){try{homeAuto();open('day')}catch(_){}},400)}
  return {wkKey:wk,wkMins:function(){var m=0;D.forEach(function(_,i){DAY(i).forEach(function(b,j){if(isDone(i,j))m+=b[1]})});return m},schoolMins:function(){var m=0;for(var i=0;i<5;i++)m+=mins(i);return m},TOTAL:TOTAL,dayMins:function(){return mins(todayI())},fullInfo:function(){var t=todayI(),full=allTicked(t),h=hwGet(),ks=h&&h.alloc?Object.keys(h.alloc):[],hf=ks.length>0&&ks.every(function(j){return isDone(t,+j)});return {t:t,full:full||hf,mins:full?DAY(t).reduce(function(a,b,j){return a+(isDone(t,j)?b[1]:0)},0):hf?ks.reduce(function(a,j){return a+h.alloc[j]},0):0,early:feOn(t),quick:qsOn(t)}},early:finishEarly,qsOn:qsOn,markQuick:markQuick,afterLesson:afterLesson,feOn:feOn,undoEarly:undoEarly,hideBan:hideBan,isDone:isDone,next:function(){var t=todayI(),j=firstLeft(t);return j<0?null:DAY(t)[j]},leftMins:function(){return leftMins(todayI())},open:open,close:close,paint:paint,paintPill:paintPill,start:startRun,stop:stopRun,loop:loop,running:function(){return !!runGet()},todayLeft:function(){return firstLeft(todayI())>=0},D:D,DAY:DAY,pile:pile,TUE_FIX:TUE_FIX,rows:rows,nowRow:nowRow,sched:sched,home:homeGet,habits:HS,streak:streak,hw:hwGet,hwStart:startHw,hwDone:hwDone,focusStatus:focusStatus,focus:function(){return focusOk},rvOn:rvOn,runLeft:function(){var r=runGet();return r?r.ends-Date.now():null}};
 })();
@@ -1132,38 +1134,4 @@ QR8bitByte.prototype = {
 	write : function(buffer) {
 		for (var i = 0; i < this.data.length; i++) {
 			// not JIS ...
-			buffer.put(this.data.charCodeAt(i), 8);
-		}
-	}
-};
-
-module.exports = QR8bitByte;
-
-},
-"./QRBitBuffer":function(module,exports,require){
-function QRBitBuffer() {
-	this.buffer = [];
-	this.length = 0;
-}
-
-QRBitBuffer.prototype = {
-
-	get : function(index) {
-		var bufIndex = Math.floor(index / 8);
-		return ( (this.buffer[bufIndex] >>> (7 - index % 8) ) & 1) == 1;
-	},
-	
-	put : function(num, length) {
-		for (var i = 0; i < length; i++) {
-			this.putBit( ( (num >>> (length - i - 1) ) & 1) == 1);
-		}
-	},
-	
-	getLengthInBits : function() {
-		return this.length;
-	},
-	
-	putBit : function(bit) {
-	
-		var bufIndex = Math.floor(this.length / 8);
-		if (this.buffer.len
+			buffer.put(this.data.charC

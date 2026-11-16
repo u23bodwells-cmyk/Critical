@@ -82,7 +82,7 @@ button:focus-visible,.lnk:focus-visible,input:focus-visible{outline:2px solid #2
 <div class="veil"></div>
 
 <div class="top">
-  <a class="lnk" href="index.html">← Menu</a>
+  <a class="lnk" id="backLnk" href="index.html">← Menu</a>
   <div style="display:flex;gap:8px">
     <button type="button" id="rBtn" aria-expanded="false" aria-controls="radio" title="Radio (R)">📻 Radio</button>
     <a class="lnk" href="critical.html">Critical</a>
@@ -94,7 +94,7 @@ button:focus-visible,.lnk:focus-visible,input:focus-visible{outline:2px solid #2
   <div class="clock" id="clock" aria-live="off">--:--</div>
   <div class="date" id="date"></div>
   <div class="hw" id="hwBox">
-    <div class="lbl" id="hwLbl">Homework</div>
+    <div class="lbl" id="hwLbl">Timer</div>
     <div class="el" id="el" role="timer" aria-label="Time spent on homework">0:00:00</div>
     <div class="sub" id="sub"></div>
   </div>
@@ -129,12 +129,19 @@ button:focus-visible,.lnk:focus-visible,input:focus-visible{outline:2px solid #2
    A big white clock with how long you've been doing homework underneath. Runs across reloads (saved on this device).
    If you pressed Homework first in Critical's plan, the timer picks up from when you pressed it, and Finish hands the time left back to Critical. */
 (function () {
-  var K = 'critical_homework_v1', HWK = 'critical_plan_hw';
+  /* ?mode=revise&t=<test> (from Critical's Tests tab): the same timer for revision, with its own totals, and finished sessions go into Critical's study log */
+  var QS = (function () { try { return new URLSearchParams(location.search); } catch (e) { return { get: function () { return null; } }; } })(),
+    REV = QS.get('mode') === 'revise', RT = String(QS.get('t') || '').slice(0, 80),
+    W = REV ? { k: 'Revision', ing: 'Revising for', go: 'Start revising', done: 'revision', idle: 'Press Start when you sit down to revise.', page: 'Revision timer' } : { k: 'Homework', ing: 'Doing homework for', go: 'Start homework', done: 'homework', idle: 'Press Start when you sit down to your homework.', page: 'Homework timer' };
+  var K = REV ? 'critical_revise_v1' : 'critical_homework_v1', HWK = 'critical_plan_hw';
+  function studyLog(ms) { if (!REV) return; var m = Math.min(600, Math.floor(ms / 60000)); if (m < 1) return; try { var o = JSON.parse(localStorage.getItem('critical_study') || 'null') || { sessions: [], run: null, linked: false }; if (!Array.isArray(o.sessions)) o.sessions = [];
+    var d = new Date(), y = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); o.sessions.push({ d: y, m: m, t: 'Revision' + (RT ? ': ' + RT : ''), c: new Date(Date.now() - ms).toISOString() }); localStorage.setItem('critical_study', JSON.stringify(o)); } catch (e) {} }
   function ymd(t) { var d = t ? new Date(t) : new Date(); return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); }
   function load() { try { var o = JSON.parse(localStorage.getItem(K) || 'null'); if (o && typeof o === 'object') { o.days = o.days || {}; o.log = o.log || []; return o; } } catch (e) {} return { days: {}, log: [], run: null }; }
   function save() { try { localStorage.setItem(K, JSON.stringify(S)); } catch (e) {} }
-  function planHw() { try { var o = JSON.parse(localStorage.getItem(HWK) || 'null'); return o && o.d === ymd() ? o : null; } catch (e) { return null; } }
+  function planHw() { if (REV) return null; try { var o = JSON.parse(localStorage.getItem(HWK) || 'null'); return o && o.d === ymd() ? o : null; } catch (e) { return null; } }
   var S = load(), $ = function (id) { return document.getElementById(id); };
+  if (REV) { try { var bl = $('backLnk'); bl.href = 'critical.html#tests'; bl.textContent = '← Tests'; $('el').setAttribute('aria-label', 'Time spent revising'); } catch (e) {} }
   function pad(n) { return (n < 10 ? '0' : '') + n; }
   function fmt(ms) { var s = Math.max(0, Math.floor(ms / 1000)); return Math.floor(s / 3600) + ':' + pad(Math.floor(s / 60) % 60) + ':' + pad(s % 60); }
   function mins(ms) { var m = Math.round(ms / 60000); if (m < 60) return m + ' min'; return Math.floor(m / 60) + 'h ' + pad(m % 60); }
@@ -150,8 +157,9 @@ button:focus-visible,.lnk:focus-visible,input:focus-visible{outline:2px solid #2
   function finish(toCritical) { var r = S.run; if (!r) return; var ms = elapsed(), d = ymd(r.start); S.days[d] = (S.days[d] || 0) + ms; S.log.push({ d: d, at: r.start, ms: ms }); if (S.log.length > 120) S.log = S.log.slice(-120);
     var keys = Object.keys(S.days); if (keys.length > 60) keys.sort(function (a, b) { return new Date(a) - new Date(b); }).slice(0, keys.length - 60).forEach(function (k) { delete S.days[k]; });
     S.run = null; save(); wake(false); if (window.HW_RADIO) HW_RADIO.timer('stop');
+    studyLog(ms);
     if (toCritical) { location.href = 'critical.html#hwdone'; return; }
-    toast('Nice work: <b>' + mins(ms) + '</b> of homework. Today so far: <b>' + mins(S.days[ymd()] || 0) + '</b>.'); paint(); }
+    toast('Nice work: <b>' + mins(ms) + '</b> of ' + W.done + '.' + (REV ? ' Added to your study log in Critical.' : '') + ' Today so far: <b>' + mins(S.days[ymd()] || 0) + '</b>.'); paint(); }
   function reset() { if (!S.run) return; if (elapsed() > 60000 && !confirmReset()) return; S.run = null; save(); wake(false); paint(); }
   var armed = 0; function confirmReset() { if (Date.now() - armed < 3000) return true; armed = Date.now(); toast('Press Reset again to throw this session away.'); return false; }
 
@@ -161,9 +169,9 @@ button:focus-visible,.lnk:focus-visible,input:focus-visible{outline:2px solid #2
   var lastSig = '';
   function paint() { var r = S.run, h = planHw(), linked = !!(h && !h.done && r && r.hwAt === h.at), sig = (r ? (r.seg ? 'run' : 'pause') : 'idle') + (linked ? 'L' : '');
     $('hwBox').classList.toggle('paused', !!(r && !r.seg));
-    $('hwLbl').textContent = !r ? 'Homework' : r.seg ? 'Doing homework for' : 'Paused';
+    $('hwLbl').textContent = (!r ? W.k : r.seg ? W.ing : 'Paused') + (REV && RT ? ' · ' + RT : '');
     if (sig !== lastSig) { lastSig = sig; var B = $('btns'); B.innerHTML = '';
-      if (!r) B.appendChild(btn('Start homework', 'main', start));
+      if (!r) B.appendChild(btn(W.go, 'main', start));
       else { B.appendChild(r.seg ? btn('Pause', '', pause) : btn('Resume', 'main', start));
         if (linked) B.appendChild(btn('Homework done → Critical', 'main', function () { finish(true); }));
         else B.appendChild(btn('Finish', '', function () { finish(false); }));
@@ -177,10 +185,10 @@ button:focus-visible,.lnk:focus-visible,input:focus-visible{outline:2px solid #2
     if (p && !p.done && r && r.hwAt === p.at) { var lf = p.end - Date.now(); sub = lf > 0 ? 'Homework first: Critical gets what’s left, ' + Math.ceil(lf / 60000) + ' min (until ' + hhmm(p.end) + ')' : 'Homework first: today’s Critical time is used up, and that’s fine.'; }
     else if (r) sub = 'Started at ' + hhmm(r.start) + (r.seg ? '' : ' · paused');
     else if (S.days[ymd()]) sub = 'Ready for the next piece?';
-    else sub = 'Press Start when you sit down to your homework.';
+    else sub = W.idle;
     $('sub').textContent = sub;
     var today = (S.days[ymd()] || 0) + (r && ymd(r.start) === ymd() ? e : 0); $('today').textContent = 'Today: ' + mins(today);
-    document.title = (r ? fmt(e).replace(/^0:/, '') + (r.seg ? '' : ' (paused)') + ' · ' : '') + 'Homework timer · Critical'; }
+    document.title = (r ? fmt(e).replace(/^0:/, '') + (r.seg ? '' : ' (paused)') + ' · ' : '') + W.page + ' · Critical'; }
 
   /* keep the screen on while timing */
   var lock = null; function wake(on) { try { if (on && navigator.wakeLock && !lock) navigator.wakeLock.request('screen').then(function (l) { lock = l; l.addEventListener('release', function () { lock = null; }); }).catch(function () {}); else if (!on && lock) { lock.release(); lock = null; } } catch (e) {} }
