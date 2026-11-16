@@ -6601,7 +6601,7 @@ var FXDBG = { el: null,
     ['Snow', function () { FXDBG.wx({ code: 73, rain: 1.5, cl: 0.9, T: -2, w: 10, g: 14 }); FXDBG.say('Weather: snow'); }], ['Storm', function () { FXDBG.wx({ code: 95, rain: 5, cl: 1, T: 8, w: 40, g: 60 }); FXDBG.say('Weather: thunderstorm'); }],
     ['Fog', function () { FXDBG.wx({ code: 45, cl: 0.8, T: 3, w: 2, g: 4 }); FXDBG.say('Weather: fog'); }], ['Live clock+weather', function () { S.clockOff = 0; SUN.t = -1; WXL.t = 0; WXL.get(); FXDBG.say('Back to the real clock and weather'); }],
     ['Reactor trip', function () { if (S.p && !S.p.tripped) doTrip(S.p, 'MAN'); else FXDBG.say('Already tripped'); }], ['Turbine trip', function () { if (S.p && S.p.x.tb.latched) turbTrip(S.p, 'visuals check'); else FXDBG.say('Turbine is not latched'); }],
-    ['SG1 PORV open/auto', function () { var s = S.p && S.p.x.sg[0]; if (s) { s.porvMode = s.porvMode === 'OPEN' ? 'AUTO' : 'OPEN'; FXDBG.say('SG 1 PORV: ' + s.porvMode); } }]]; },
+    ['Tremor on/off', function () { S.cfg.noTremor = !S.cfg.noTremor; try { saveCfg(); } catch (e) {} FXDBG.say('Turbine hall tremor: ' + (S.cfg.noTremor ? 'off' : 'on')); }], ['SG1 PORV open/auto', function () { var s = S.p && S.p.x.sg[0]; if (s) { s.porvMode = s.porvMode === 'OPEN' ? 'AUTO' : 'OPEN'; FXDBG.say('SG 1 PORV: ' + s.porvMode); } }]]; },
   toggle: function () { var e = FXDBG.el; if (!e) { e = FXDBG.el = document.createElement('div'); e.style.cssText = 'position:fixed;left:10px;bottom:10px;z-index:99999;max-width:340px;padding:8px 10px;border-radius:10px;background:rgba(10,14,20,.9);color:#cfe3ff;font:12px system-ui,sans-serif;display:none;box-shadow:0 4px 18px rgba(0,0,0,.5)';
       var t = document.createElement('div'); t.textContent = 'Visuals check (F9 hides)'; t.style.cssText = 'font-weight:700;margin-bottom:6px;opacity:.8'; e.appendChild(t);
       FXDBG.acts().forEach(function (a) { var b = document.createElement('button'); b.textContent = a[0]; b.style.cssText = 'margin:2px;padding:4px 8px;border:0;border-radius:6px;background:#2b3a55;color:#fff;font:inherit;cursor:pointer'; b.onclick = function (ev) { ev.stopPropagation(); try { a[1](); } catch (x) { FXDBG.say('Could not do that: ' + x); } b.blur(); }; e.appendChild(b); }); document.body.appendChild(e); }
@@ -6692,7 +6692,16 @@ function roomShaftTick(dt) {
   S0.m.forEach(function (o) { var A = !o.userData.ty; X.copy(r).multiplyScalar(t); Y.copy(A ? yA : yB).multiplyScalar(A ? 3.4 : 1.3); Z.crossVectors(X, Y).normalize(); o.matrix.makeBasis(X, Y, Z); o.matrix.setPosition(RX - 0.08 + r.x * t / 2, 2.2 + r.y * t / 2, o.userData.z0 + r.z * t / 2); o.matrixWorldNeedsUpdate = true; o.visible = true; });
   S0.k = k; S0.mat.opacity = 0.11 * k; S0.mat.color.setRGB(1, 0.78 + 0.14 * clamp(el * 2, 0, 1), 0.5 + 0.3 * clamp(el * 2, 0, 1));
 }
-EXT.tick = function (dt) { if (!EXT.on) return; EXT.t += dt; roomDustTick(dt, EXT.t); tripAlarmTick(); try { plantFxTick(dt); } catch (e) {} try { trailTick(dt); } catch (e) {} try { vanLightsTick(dt); } catch (e) {} try { roomPowerTick(dt); } catch (e) {} try { roomAlarmTint(dt); } catch (e) {} try { roomShaftTick(dt); } catch (e) {} if (EXT.wind) EXT.wind.value = EXT.t;
+/* gentle floor tremor in the turbine hall: a tiny, fast shake of the viewpoint that grows with turbine speed and load, only while you stand in the hall. Off with S.cfg.noTremor (button in the F9 panel) or when the device asks for reduced motion. */
+var TREM = { k: 0, t: 0, dy: 0, dr: 0, rm: null };
+function tremorTick(dt) {
+  if (TREM.rm === null) { try { TREM.rm = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches); } catch (e) { TREM.rm = false; } }
+  var T = HALL.tb, tb = S && S.p && S.p.x && S.p.x.tb, tgt = 0;
+  if (T && tb && !TREM.rm && !(S.cfg && S.cfg.noTremor) && CAM.z > T.z0 && CAM.z < (T.z1 != null ? T.z1 : 1e9) && CAM.x > T.x0 && CAM.x < T.x1) tgt = clamp((tb.rpm || 0) / 3000, 0, 1) * (0.25 + 0.75 * clamp((tb.mw || 0) / MWE, 0, 1));
+  TREM.k += (tgt - TREM.k) * Math.min(1, dt * 2); if (TREM.k < 0.003) { TREM.k = 0; TREM.dy = TREM.dr = 0; return; }
+  TREM.t += dt; TREM.dy = TREM.k * 0.0016 * (Math.sin(TREM.t * 37) + 0.6 * Math.sin(TREM.t * 53.1)); TREM.dr = TREM.k * 0.0007 * Math.sin(TREM.t * 29.3 + 1);
+}
+EXT.tick = function (dt) { if (!EXT.on) return; EXT.t += dt; roomDustTick(dt, EXT.t); tripAlarmTick(); try { plantFxTick(dt); } catch (e) {} try { trailTick(dt); } catch (e) {} try { vanLightsTick(dt); } catch (e) {} try { roomPowerTick(dt); } catch (e) {} try { roomAlarmTint(dt); } catch (e) {} try { roomShaftTick(dt); } catch (e) {} try { tremorTick(dt); } catch (e) {} if (EXT.wind) EXT.wind.value = EXT.t;
   /* day and night from the real sun over the station: it rises in the east (+x, through the windows), crosses the south (−z) and sets in the west */
   var SN = sunNow(), el = SN.el, ce = Math.sqrt(Math.max(0, 1 - el * el)), day = clamp(el * 3 + 0.15, 0, 1) * (1 - 0.3 * (WXL.d ? WXL.d.cl : 0)), dusk = clamp(1 - Math.abs(el) * 5, 0, 1) * (el > -0.25 ? 1 : 0), cloudK = 1 - 0.7 * (WXL.d ? WXL.d.cl : 0);
   var sd = new THREE.Vector3(Math.sin(SN.az) * ce, Math.max(el, -0.3) * 0.8 + 0.02, Math.cos(SN.az) * ce).normalize(), sunUp = el > -0.05, LK = PERF.lite ? 0.8 : 1, vis = clamp((el + 0.05) * 7, 0, 1), mk = clamp((-el - 0.05) * 6, 0, 1);
@@ -7081,7 +7090,7 @@ function applyCam(dt) { var c = R3.cam; if (c.position.x !== CAM.x || c.position
   /* neck pivot: eyes 9 cm forward and 11 cm above it */
   var cp = Math.cos(pp), nx = -Math.sin(yy) * cp * 0.09, nz = -Math.cos(yy) * cp * 0.09, ny = Math.sin(pp) * 0.09 + (Math.cos(pp) - 1) * 0.11;
   c.position.set(CAM.x + nx + Math.sin(yy) * 0.09, CAM.y + ny, CAM.z + nz + Math.cos(yy) * 0.09); c.rotation.order = 'YXZ'; c.rotation.y = yy; c.rotation.x = pp;
-  var rz = hd.roll + Math.sin((CAM.bobT || 0) * 0.5) * 0.0022 * Math.min(1, walkV) * (S.cfg.bob === false ? 0 : 1);
+  var rz = hd.roll + Math.sin((CAM.bobT || 0) * 0.5) * 0.0022 * Math.min(1, walkV) * (S.cfg.bob === false ? 0 : 1); rz += TREM.dr; c.position.y += TREM.dy;
   if (HAND.lean > 0 && HAND.leanDir && !S.cfg.lockReach) { var ln = HAND.lean * (HAND.rush ? 1.25 : 1); c.position.addScaledVector(HAND.leanDir, (HAND.reachX || 0.13) * ln); c.position.y -= 0.05 * ln; c.rotation.x -= 0.07 * ln; rz += (HAND.rush ? 0.02 : 0.01) * Math.sin(HAND.t * 9) * ln; var cr = (HAND.crouch || 0) * ln; if (cr > 0) { var kb = cr * cr * (3 - 2 * cr); c.position.y -= 0.46 * kb; c.position.addScaledVector(new THREE.Vector3(0, 0, -1).applyQuaternion(c.quaternion).setY(0).normalize(), 0.06 * kb); c.rotation.x -= 0.42 * kb; rz += 0.03 * Math.sin(HAND.t * 5.5) * kb + 0.02 * kb; c.position.y += 0.012 * Math.sin(HAND.t * 11) * kb; } }
   c.rotation.z = rz; if (Math.abs(hd.vy) + Math.abs(hd.vp) > 0.002) PTR.hoverDirty = true;
   var W = root.clientWidth, H = Math.max(1, root.clientHeight), ms = HUD.el.ms, want = 0; if (W > 900 && ms && !ms.hidden && !ms.classList.contains('min') && CAM.view !== 'walk' && CAM.view !== 'start' && CAM.view !== 'room' && !locked()) want = Math.round((ms.offsetWidth + 16) / 2);
