@@ -732,10 +732,10 @@ function buildRoom2(scene) {
   var lg = new THREE.PlaneGeometry(1.2, 0.6);
   for (var x = -10.8; x <= 10.81; x += 3.6) for (var z = -8.1; z <= ZF - 1; z += 2.4) { var l = new THREE.Mesh(lg, MAT.lightP); l.rotation.x = Math.PI / 2; l.position.set(x, CH - 0.005, z); scene.add(l); }
   /* lights: soft sky from the ceiling, a few lamps over the boards, and a dim fill */
-  scene.add(new THREE.HemisphereLight(0xf4f6ff, 0x8f8b84, 0.72));
+  R3.hemiL = new THREE.HemisphereLight(0xf4f6ff, 0x8f8b84, 0.72); scene.add(R3.hemiL);
   var sun = new THREE.DirectionalLight(0xfff3e2, 1.25); sun.position.set(3, 14, 9); sun.target.position.set(0, 0, 0); scene.add(sun); scene.add(sun.target); R3.sun = sun;
   [[2 * RX + 0.1, 0.11, 0.03, 0, 0.055, ZB + 0.015], [2 * RX + 0.1, 0.11, 0.03, 0, 0.055, ZF - 0.015], [0.03, 0.11, RDP, -RX + 0.015, 0.055, RZC], [0.03, 0.11, RDP, RX - 0.015, 0.055, RZC]].forEach(function (q) { box(q[0], q[1], q[2], MAT.kick, q[3], q[4], q[5], scene); });
-  [[-100, 7.2], [-55, 7.2], [-18, 7.2], [18, 7.2], [55, 7.2], [100, 7.2], [0, 0], [0, -9]].map(function (q) { var a = q[0] * Math.PI / 180; return [Math.sin(a) * q[1], CH - 0.4, BCZ - Math.cos(a) * q[1]]; }).forEach(function (q, i) { var pl = new THREE.SpotLight(0xfff5ea, (i < 6 ? 11 : 6) * 1.6, 0, 1.25, 0.75, 1.3); pl.position.set(q[0], CH - 0.05, q[2]); pl.target.position.set(q[0], 0, q[2]); scene.add(pl); scene.add(pl.target); });
+  [[-100, 7.2], [-55, 7.2], [-18, 7.2], [18, 7.2], [55, 7.2], [100, 7.2], [0, 0], [0, -9]].map(function (q) { var a = q[0] * Math.PI / 180; return [Math.sin(a) * q[1], CH - 0.4, BCZ - Math.cos(a) * q[1]]; }).forEach(function (q, i) { var pl = new THREE.SpotLight(0xfff5ea, (i < 6 ? 11 : 6) * 1.6, 0, 1.25, 0.75, 1.3); pl.position.set(q[0], CH - 0.05, q[2]); pl.target.position.set(q[0], 0, q[2]); scene.add(pl); scene.add(pl.target); if (i === 0) R3.roomSpots = []; R3.roomSpots.push({ l: pl, i: pl.intensity, em: i >= 6 }); });
   /* back wall sign above the boards */
   var sg = new THREE.Mesh(new THREE.PlaneGeometry(6.4, 0.5), new THREE.MeshStandardMaterial({ map: signTex(1536, 120, function (g) { g.fillStyle = '#1e2a36'; g.fillRect(0, 0, 1536, 120); ctext(g, '☢  CRITICAL POINT POWER STATION  ·  UNIT 1  ·  MAIN CONTROL ROOM', 768, 62, 58, '#f4f4ef', 'center', 1500); }), roughness: 0.5 })); sg.position.set(0, CH - 0.5, ZB + 0.02); scene.add(sg);
   /* contact shadows under furniture */
@@ -6647,7 +6647,27 @@ function vanLightsTick(dt) {
     beam.rotation.x = -Math.PI / 2; beam.position.set(7.2, 0.1, 0); beam.renderOrder = 6; beam.userData.noColl = true; beam.userData.noShadow = true; van.add(beam); V = EXT.vanL = { hm: hm, tm: tm, bm: bm }; }
   var night = EXT.plumeLit ? clamp(EXT.plumeLit.value / 0.85, 0, 1) : 0; V.hm.opacity = 0.9 * night; V.tm.opacity = 0.8 * night; V.bm.opacity = 0.5 * night;
 }
-EXT.tick = function (dt) { if (!EXT.on) return; EXT.t += dt; roomDustTick(dt, EXT.t); tripAlarmTick(); try { plantFxTick(dt); } catch (e) {} try { trailTick(dt); } catch (e) {} try { vanLightsTick(dt); } catch (e) {} if (EXT.wind) EXT.wind.value = EXT.t;
+/* loss of power in the control room: the ceiling lights follow the unit boards (full on offsite or generator power, about half on the diesels only, flickering off when the boards are lost),
+   while battery lamps and the exit sign over the door stay lit as long as a DC supply holds. Uses the room's existing lights only (no new ones). */
+function roomPowerTick(dt) {
+  var p = (typeof S !== 'undefined' && S) ? S.p : null, x = p && p.x, H = (typeof R3 !== 'undefined' && R3) ? R3.hemiL : null, sp = R3 && R3.roomSpots; if (!x || !x.el || !H || !sp || !(dt > 0) || typeof scene === 'undefined' || !scene) return; dt = Math.min(dt, 0.1);
+  var E = EXT.rp, el = x.el, i;
+  if (!E) { var lm = new THREE.MeshBasicMaterial({ color: 0x23272b }), xm = new THREE.MeshBasicMaterial({ map: signTex(240, 80, function (g, w, h) { g.fillStyle = '#0c5a2c'; g.fillRect(0, 0, w, h); g.strokeStyle = '#fff'; g.lineWidth = 4; g.strokeRect(4, 4, w - 8, h - 8); ctext(g, 'EXIT', w / 2, h / 2 + 4, h * 0.55, '#fff', 'center', w - 20, '900'); }), color: 0xffffff });
+    E = EXT.rp = { k: 1, hk: 1, fl: 0, ft: 0, fv: 1, lm: lm, xm: xm, on: false, done: true };
+    [[-5.4, -5.5], [5.4, -5.5], [-5.4, 8.5], [5.4, 8.5]].forEach(function (q) { var b = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.1, 0.2), lm); b.position.set(q[0], CH - 0.07, q[1]); b.userData.noColl = true; scene.add(b); });
+    var xs = new THREE.Mesh(new THREE.PlaneGeometry(0.56, 0.19), xm); xs.position.set(-RX + 0.012, 3.68, HALL.cz); xs.rotation.y = Math.PI / 2; xs.userData.noColl = true; scene.add(xs); }
+  var tgt = (busOn(x, 'A') || busOn(x, 'B')) ? 1 : (busOn(x, 'EA') || busOn(x, 'EB')) ? 0.55 : 0, dcOk = Math.max(el.dc ? el.dc[0] : 130, el.dc ? el.dc[1] : 130) > 106;
+  if (Math.abs(tgt - E.k) > 0.3 && E.fl <= 0) E.fl = tgt < E.k ? 0.9 : 0.5;
+  E.k += (tgt - E.k) * Math.min(1, dt * (tgt < E.k ? 8 : 1.2));
+  var inRoom = CAM.x > -RX && CAM.x < RX && CAM.z > ZB && CAM.z < ZF, steady = E.k > 0.998 && tgt === 1 && E.fl <= 0 && E.hk > 0.998 && !E.dirty;
+  if (steady) return;
+  var fk = 1; if (E.fl > 0) { E.fl -= dt; E.ft -= dt; if (E.ft <= 0) { E.ft = 0.05 + Math.random() * 0.1; E.fv = 0.2 + Math.random() * 0.8; } fk = E.fv; }
+  var k = E.k * fk, em = dcOk ? clamp((0.6 - E.k) / 0.5, 0, 1) : 0; E.hk += ((inRoom ? Math.max(k, 0.06) : 1) - E.hk) * Math.min(1, dt * 5); E.dirty = E.k < 0.998 || E.hk < 0.998;
+  H.intensity = 0.72 * E.hk; if (R3.sun) R3.sun.intensity = 1.25 * E.hk; MAT.lightP.color.setScalar(1.6 * k);
+  for (i = 0; i < sp.length; i++) { var s = sp[i]; s.l.intensity = s.i * (s.em ? Math.max(k, 0.22 * em) : k); }
+  E.lm.color.setScalar(em > 0.02 ? 0.14 + 1.3 * em : 0.14); E.xm.color.setScalar(dcOk ? 1 : 0.12);
+}
+EXT.tick = function (dt) { if (!EXT.on) return; EXT.t += dt; roomDustTick(dt, EXT.t); tripAlarmTick(); try { plantFxTick(dt); } catch (e) {} try { trailTick(dt); } catch (e) {} try { vanLightsTick(dt); } catch (e) {} try { roomPowerTick(dt); } catch (e) {} if (EXT.wind) EXT.wind.value = EXT.t;
   /* day and night from the real sun over the station: it rises in the east (+x, through the windows), crosses the south (−z) and sets in the west */
   var SN = sunNow(), el = SN.el, ce = Math.sqrt(Math.max(0, 1 - el * el)), day = clamp(el * 3 + 0.15, 0, 1) * (1 - 0.3 * (WXL.d ? WXL.d.cl : 0)), dusk = clamp(1 - Math.abs(el) * 5, 0, 1) * (el > -0.25 ? 1 : 0), cloudK = 1 - 0.7 * (WXL.d ? WXL.d.cl : 0);
   var sd = new THREE.Vector3(Math.sin(SN.az) * ce, Math.max(el, -0.3) * 0.8 + 0.02, Math.cos(SN.az) * ce).normalize(), sunUp = el > -0.05, LK = PERF.lite ? 0.8 : 1, vis = clamp((el + 0.05) * 7, 0, 1), mk = clamp((-el - 0.05) * 6, 0, 1);
