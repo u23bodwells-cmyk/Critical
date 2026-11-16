@@ -1,4 +1,26 @@
-lar strips</b> and add them up.</p>`),
++ C</b>.</li><li>Check by differentiating your answer.</li></ul>`)]),
+LH('c4-1-2','Integrating xⁿ',10,'The reverse power rule: add one to the power, then divide by the new power.',[
+RM(`<p>Integration reverses differentiation. Always + C. Check by differentiating.</p>`),
+T(`<h3>Reversing the power rule</h3><p>Differentiating: multiply by the power, then subtract 1. To reverse it, do the opposite moves in the opposite order:</p><div class="eq">∫ xⁿ dx = xⁿ⁺¹ ÷ (n + 1) + C</div><p><b>Add 1 to the power</b>, then <b>divide by the new power</b>.</p>`),
+W('stepCalc',{steps:[`∫ 6x² dx`,`Add 1 to the power: 2 + 1 = 3`,`Divide by the new power: 6 ÷ 3 = 2`,`Answer: <b>2x³ + C</b>`,`Check: d/dx (2x³) = 6x² ✓`]},`Watch the two moves.`,`Up one, divide by the new power, + C.`),
+Q(`∫ x⁴ dx = …`,[`x⁵/5 + C`,`4x³ + C`,`x⁵ + C`,`5x⁵ + C`],0,`Power 5, divide by 5.`),
+T(`<h3>Constants and sums</h3><ul><li>∫ 7 dx = 7x + C (a constant is 7x⁰; the power goes up to 1).</li><li>Integrate sums <b>term by term</b>, with one + C at the end.</li></ul><p>∫ (3x² + 4x + 5) dx = x³ + 2x² + 5x + C.</p>`),
+W('calcDrill',{skill:'intpow',need:8},`Integrate. Get 8 right in a row.`,`Add one to the power, divide by the new power.`),
+T(`<h3>Key points</h3><ul><li><b>∫ axⁿ dx = axⁿ⁺¹ ÷ (n + 1) + C</b>.</li><li>Constants: ∫ k dx = kx + C.</li><li>Term by term; one + C.</li></ul>`)]),
+LH('c4-1-3','Negative and fractional powers',10,'Rewrite first, then the reverse power rule still works. The one exception: x⁻¹.',[
+RM(`<p>∫ xⁿ dx = xⁿ⁺¹ ÷ (n + 1) + C. Rewrite fractions and roots as powers first.</p>`),
+T(`<h3>Rewrite, then integrate</h3><p>∫ 6/x³ dx: rewrite as ∫ 6x⁻³ dx. Add 1 to the power: −3 + 1 = −2. Divide by −2: 6 ÷ (−2) = −3. Answer: <b>−3x⁻² + C</b>.</p>`),
+T(`<h3>The one exception</h3><p>For x⁻¹ (that's 1/x), adding 1 gives x⁰, and dividing by 0 is impossible. So 1/x needs a different rule. You'll meet it in the next unit: it involves ln x.</p>`),
+Q(`Why doesn't the reverse power rule work for 1/x?`,[`It would mean dividing by zero`,'1/x has no graph to find the area under','It does work, giving ln x every time','Because x can never be negative'],0,`x⁻¹ → x⁰ ÷ 0.`),
+W('calcDrill',{skill:['intneg','intfrac'],need:6},`Rewrite and integrate. Get 6 right in a row.`,`Careful with negatives: −3 + 1 = −2.`),
+W('calcDrill',{skill:['intpow','intneg','intfrac'],need:8},`All powers, mixed. Get 8 right in a row.`,`You can integrate any power of x except 1/x.`),
+T(`<h3>Key points</h3><ul><li>Rewrite fractions and roots as powers first.</li><li>−3 + 1 = −2: watch the signs.</li><li><b>1/x is the exception</b>: it needs ln x.</li></ul>`)])
+]});
+
+U({id:'c4-2',track:'calc',level:4,title:'Definite integrals and area',icon:'∫ₐᵇ',color:'#1D9E75',desc:'Why integration finds areas, evaluating definite integrals, and areas above and below the axis.',lessons:[
+LH('c4-2-1','Area as thin strips',9,'Chop the area under a curve into strips, then make them infinitely thin.',[
+RM(`<p>In Level 1, shrinking a chord gave the exact gradient. The same "make it tiny" idea works for areas.</p>`),
+T(`<h3>Area under a curve</h3><p>How much area is under y = x² between x = 0 and x = 3? It's curved, so there's no simple formula. But we can split it into thin <b>rectangular strips</b> and add them up.</p>`),
 W('riemann',{f:function(x){return x*x},a:0,b:3,exact:9,y:[0,10],n0:3,goalN:30,mid:true},`Drag the slider to use more and more strips.`,`With more and thinner strips, the total gets closer to exactly 9.`),
 T(`<h3>Infinitely thin strips</h3><p>As the strips get thinner, the total gets closer and closer to the exact area. In the limit, the sum of infinitely many, infinitely thin strips is written:</p><div class="eq">∫ from 0 to 3 of x² dx</div><p>The ∫ sign is a stretched S, for "sum". The dx is the strip width, shrunk to nothing.</p>`),
 Q(`What does the ∫ symbol originally stand for?`,[`A sum (a stretched S)`,'An integer (a curly I)','A slope (a tilted line)','Infinity (a bent 8)'],0,`Adding up infinitely many strips.`),
@@ -832,15 +854,4 @@ LH('gc2-4-2','Acids, bases and salts',10,'What acids react with, naming salts, m
 RM(`<p>A more reactive metal displaces a less reactive one. Oxidation is loss of electrons; reduction is gain.</p>`),
 T(`<h3>Reactions of acids</h3><ul><li>metal + acid → salt + <b>hydrogen</b></li><li>acid + alkali → salt + <b>water</b> (neutralisation)</li><li>acid + base (metal oxide or hydroxide) → salt + water</li><li>acid + metal carbonate → salt + water + <b>carbon dioxide</b></li></ul>`),
 T(`<h3>Naming salts</h3><p>The first part comes from the metal; the second from the acid:</p><ul><li>Hydro<b>chlor</b>ic acid → <b>chlorides</b></li><li><b>Sulf</b>uric acid → <b>sulfates</b></li><li><b>Nitr</b>ic acid → <b>nitrates</b></li></ul><p>Zinc + sulfuric acid → <b>zinc sulfate</b> + hydrogen.</p>`),
-W('matchPairs',{pairs:[['Magnesium + hydrochloric acid','Magnesium chloride + hydrogen'],['Copper oxide + sulfuric acid','Copper sulfate + water'],['Sodium hydroxide + nitric acid','Sodium nitrate + water'],['Calcium carbonate + hydrochloric acid','Calcium chloride + water + carbon dioxide']]},`Match the reactants to the products.`,`Metal → hydrogen. Carbonate → CO₂ as well.`),
-T(`<h3>Required practical: making a soluble salt</h3><ol><li>Add an insoluble base (like copper oxide) to warm acid until no more dissolves, so it's <b>in excess</b>.</li><li><b>Filter</b> to remove the leftover solid.</li><li>Heat the solution to evaporate some water, then leave it to <b>crystallise</b>.</li></ol>`),
-Q(`Why add the copper oxide in excess?`,[`To make sure all the acid has reacted`,'To make sure more crystals form at the end','To make the filtering step go faster','To stop the salt from dissolving in water'],0,`The leftover base is easy to filter out, leaving only salt solution.`),
-T(`<h3>The pH scale</h3><p>pH runs from 0 to 14. Below 7 is acidic, 7 is neutral, above 7 is alkaline. Use universal indicator or a pH probe.</p><p>Acids make <b>H⁺</b> ions in water; alkalis make <b>OH⁻</b> ions. Neutralisation: <b>H⁺ + OH⁻ → H₂O</b>.</p><p><b>Higher</b>: strong acids (hydrochloric, sulfuric, nitric) <b>fully</b> ionise; weak acids (ethanoic, citric) only <b>partially</b>. Each drop of 1 pH unit means 10 times more H⁺ ions.</p>`),
-Q(`(Higher) The pH of an acid falls from 3 to 1. How has the H⁺ concentration changed?`,[`It is 100 times bigger`,`It is 2 times bigger`,`It is 3 times smaller`,`It is 10 times bigger`],0,`Two pH units: 10 × 10 = 100.`),
-T(`<h3>Key points</h3><ul><li>Metal → hydrogen; alkali or base → water; carbonate → water + CO₂.</li><li>Chloride, sulfate, nitrate.</li><li>Making a salt: excess base, filter, crystallise.</li><li>H⁺ + OH⁻ → H₂O. Strong acids fully ionise.</li></ul>`)]),
-LH('gc2-4-3','Electrolysis',10,'Splitting ionic compounds with electricity, extracting aluminium, and what forms at each electrode.',[
-RM(`<p>Ionic compounds conduct when molten or dissolved because the ions can move. Metals form positive ions.</p>`),
-T(`<h3>How electrolysis works</h3><p>When an ionic compound is melted or dissolved and a current passes through it, it splits up. The liquid is the <b>electrolyte</b>.</p><ul><li>Positive ions move to the negative electrode (the <b>cathode</b>).</li><li>Negative ions move to the positive electrode (the <b>anode</b>).</li></ul><p>Molten lead bromide → <b>lead</b> at the cathode, <b>bromine</b> at the anode.</p>`),
-Q(`Where do positive metal ions go during electrolysis?`,[`To the cathode (negative electrode)`,`To the anode (positive electrode)`,`They stay still`,`Into the air`],0,`Opposites attract.`),
-T(`<h3>Extracting aluminium</h3><p>Aluminium oxide is dissolved in molten <b>cryolite</b>, which lowers the melting point and saves energy.</p><ul><li>Aluminium forms at the cathode.</li><li>Oxygen forms at the carbon anodes, and reacts with them to make CO₂, so the anodes wear away and have to be replaced.</li></ul>`),
-T(`<h3>Electrolysis of solutions</h3><p>In water there are also H⁺ and OH⁻ ions, which can compete:</p><ul><li><b>Cathode</b>: you get <b>hydrogen</b> if the metal is more reactive than hydrogen; otherwise you get the metal (like copper).</li><li><b>Anode</b>: you get <b>oxygen</b>, unless there are halide ions (Cl⁻, Br⁻, I⁻), in which case you get the halog
+W('matchPairs',{pairs:[['Magnesium + hydrochloric acid','Magnesium chloride + hydrogen'],['Copper oxide + sulfuric acid','Copper sulfate + water'],['Sodium hydroxide + nitric acid','Sodium nitrate + water

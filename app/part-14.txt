@@ -1,4 +1,25 @@
-r,n:BASEXP[tier],base:1});return out}
+]+'-01T12:00:00').toLocaleDateString('en-GB',{month:'short'}).toUpperCase(),ex:1,how:'On the '+monthName(m[1])+' season pass'}}
+  if((m=/^bd-M-(\d{4}-\d{2})$/.exec(id)))return {id:id,ty:'badge',n:monthName(m[1])+' season',r:'L',em:'🏆',num:new Date(m[1]+'-01T12:00:00').toLocaleDateString('en-GB',{month:'short'}).toUpperCase(),ex:1,how:'Finish a season pass'};
+  if(id==='bd-week')return {id:id,ty:'badge',n:'Weekly finisher',r:'E',em:'📅',ex:1,how:'Finish a weekly pass'};
+  if(id==='story-1')return {id:id,ty:'title',n:'Kestrel Point Hero',r:'L',ex:1};return null}
+ function applySkin(){var eq=Lget().eq||{},it=eq.skin&&eq.skin!=='cherenkov'?item(eq.skin):null,d=document.documentElement.style;if(it){d.setProperty('--glow',it.c1);d.setProperty('--glow2',it.c2)}else{d.removeProperty('--glow');d.removeProperty('--glow2')}}
+ function equip(id){if(id==='fx-off'){var l0=Lget();l0.eq=l0.eq||{};l0.eq.fx=null;l0.eq.at=Date.now();Lset(l0);return}var it=item(id);if(!it)return;var l=Lget();if(!l.items[id]&&id!=='cherenkov')return;if(it.ty==='sound'){try{SND.use(it.pk);SND.play('right',{n:3})}catch(e){}ui();return}l.eq=l.eq||{};l.eq[it.ty]=id;l.eq.at=Date.now();Lset(l);applySkin()}
+ function icOf(it){return it.ty==='badge'?badgeArt(it,30):it.ty==='skin'?'<span class="mswatch" style="background:linear-gradient(135deg,'+it.c1+','+it.c2+')"></span>':it.ty==='title'?'🏷️':it.ty==='fx'?'🎆':it.ty==='sound'?'🎵':'⚛️'}
+ function badgeMini(){var eq=Lget().eq||{},it=eq.badge?item(eq.badge):null;return it?badgeArt(it,18)+' ':''}
+ function title(){var eq=Lget().eq||{},it=eq.title?item(eq.title):null;return it?it.n:''}
+
+ /* ---------- crates ---------- */
+ function earn(tier,src){var c=Cget(),t=today();if(src==='session'){if(c.daily.d!==t)c.daily={d:t,n:0};if(c.daily.n>=5)return null;c.daily.n++}c.pending.push({t:tier,at:Date.now(),src:src||''});Cset(c);return tier}
+ function rollTier(acc,asked){var w=[62,27,9,2];if(acc>=0.8)w=[50,34,13,3];if(acc>=1&&asked>=4)w=[0,65,28,7];if((S.streak||0)>=7){w[2]+=3;w[3]+=1}return pickW(['C','R','E','L'],w)}
+ var DUPXP={C:10,R:20,E:40,L:80},BASEXP={C:5,R:10,E:20,L:40},inCrate=false;
+ function pool(ty,r){var a=ty==='fx'?FX.map(function(s){return [s[0],s[2]]}):ty==='skin'?SKINS.filter(function(s){return s[0]!=='cherenkov'}).map(function(s){return [s[0],s[2]]}):ty==='title'?TITLES.map(function(s){return [s[0],s[2]]}):FACTS.map(function(s){return [s[0],s[1]]});var b=a.filter(function(x){return x[1]===r});return (b.length?b:a).map(function(x){return x[0]})}
+ function roll(tier){var n=tier==='C'?1:2,dist={C:[75,22,3,0],R:[40,45,13,2],E:[0,45,45,10],L:[0,0,40,60]}[tier],out=[],l=Lget();
+  for(var i=0;i<n;i++){var r=pickW(['C','R','E','L'],dist),ty=pickW(['fact','skin','title','fx','xp','freeze','boost'],[38,13,13,9,15,r==='C'?0:6,6]);
+   if(ty==='xp')out.push({k:'xp',r:r,n:{C:15,R:30,E:60,L:120}[r]});
+   else if(ty==='freeze')out.push((S.freeze||0)<2?{k:'freeze',r:r}:{k:'xp',r:r,n:{C:15,R:30,E:60,L:120}[r]});
+   else if(ty==='boost')out.push({k:'boost',r:r});
+   else{var p=pool(ty,r),id=p[Math.floor(Math.random()*p.length)],it=item(id);if(l.items[id]||out.some(function(o){return o.id===id}))out.push({k:'dup',id:id,r:it.r,n:DUPXP[it.r]});else out.push({k:'item',id:id,r:it.r})}}
+  out.push({k:'xp',r:tier,n:BASEXP[tier],base:1});return out}
  function grant(res){var l=Lget(),c=Cget(),xp=0;res.forEach(function(o){if(o.k==='item')l.items[o.id]=1;else if(o.k==='xp'||o.k==='dup')xp+=o.n;else if(o.k==='freeze'){S.freeze=Math.min(2,(S.freeze||0)+1);try{save()}catch(e){}}else if(o.k==='boost'){c.boost=(c.boost||0)+1}});
   wrk(LK,l);try{SYNC.mark()}catch(e){}wrk(CK,c);if(xp){inCrate=true;try{addXP(xp)}catch(e){}inCrate=false}ui()}
  function resCard(o,i){var it=o.id?item(o.id):null,R=RAR[o.r]||RAR.C,ic,nm,sub;

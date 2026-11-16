@@ -1,4 +1,13 @@
-m(RK);return null}return r}catch(_){return null}}
++j]}
+ function feOn(i){var f=PS().fe;return !!(f&&f[i==null?todayI():i])}
+ function allTicked(i){return DAY(i).every(function(b,j){return b[5]==='bonus'||isDone(i,j)})}
+ function dayDone(i){return feOn(i)||allTicked(i)}
+ /* a finished 2-minute "Just start" counts as doing the day (shown yellow, not green) */
+ function qsOn(i){var q=PS().qs;return !!(q&&q[i==null?todayI():i])}
+ function markQuick(){var p=PS(),t=todayI();if(!p.qs||typeof p.qs!=='object')p.qs={};if(p.qs[t])return false;p.qs[t]=1;save();try{paint()}catch(e){}try{paintPill()}catch(e){}loop();return true}
+ var RK='critical_plan_run',ban=null,banT=null,warned={},upKey=null;
+ function ymdN(){var d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()}
+ function runGet(){try{var r=JSON.parse(localStorage.getItem(RK)||'null');if(r&&r.d!==ymdN()){localStorage.removeItem(RK);return null}return r}catch(_){return null}}
  function runSet(r){try{localStorage.setItem(RK,JSON.stringify(r))}catch(_){}}
  function runClear(){try{localStorage.removeItem(RK)}catch(_){}}
  function firstLeft(day,after){if(feOn(day))return -1;for(var j=0;j<DAY(day).length;j++){if(after!=null&&j<=after)continue;if(!isDone(day,j))return j}if(after!=null)for(j=0;j<after;j++)if(!isDone(day,j))return j;return -1}
@@ -38,6 +47,7 @@ m(RK);return null}return r}catch(_){return null}}
  '.plpick{display:flex;flex-direction:column;gap:6px}.plpick .plgt{margin:0}.plpk{display:flex;gap:10px;align-items:center;font-size:14px;cursor:pointer}.plpk input{width:20px;height:20px;accent-color:var(--accent);flex:none}'+
  'body:has(.plban) .plbox{padding-bottom:calc(150px + env(safe-area-inset-bottom))}'+
  '.plcarry{background:var(--warn-bg);color:var(--text);border-radius:10px;padding:8px 10px}.plfixn{color:var(--text)}'+
+ '.plsd{background:var(--bg);border:1.5px dashed var(--line);border-radius:12px;padding:10px 12px}.plsd.on{border-style:solid;border-color:var(--accent);background:var(--accent-bg);color:var(--accent-text)}.plsd.off{opacity:.55;cursor:default}.plsdw{display:block;width:100%;box-sizing:border-box;font:inherit;font-size:14px;color:var(--text);background:var(--panel);border:1.5px solid var(--line);border-radius:10px;padding:8px 10px;margin-top:9px}'+
  '.plopt{display:flex;gap:10px;align-items:center;font-size:14px;cursor:pointer}.plopt input{width:20px;height:20px;accent-color:var(--accent);flex:none}.plnote{font-size:13px;color:var(--muted);margin:0;line-height:1.45}.pldone{font-size:14px;font-weight:800;color:var(--good);margin:0}'+
  '.plrun:empty{display:none}.plrun{background:var(--accent-bg);border:2px solid var(--accent);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:8px}.plrun p{margin:0;font-size:14px;line-height:1.45}.plrun b{font-size:16px}.plrun .placts{margin-top:0}.plbig{font:inherit;font-size:16px;font-weight:800;border:0;border-radius:12px;padding:12px 16px;cursor:pointer;background:var(--accent);color:var(--on-accent);width:100%}'+
  '.plban{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom));z-index:3500;width:min(460px,calc(100% - 32px));background:var(--panel);color:var(--text);border:2px solid var(--accent);border-radius:16px;padding:12px 14px;box-shadow:0 8px 30px rgba(0,0,0,.25);display:flex;flex-direction:column;gap:8px}.plban p{margin:0;font-size:15px;line-height:1.45}.plban .placts{margin-top:0}'+
@@ -50,6 +60,7 @@ m(RK);return null}return r}catch(_){return null}}
   '<div class="plmain"><div class="plwk"><div class="plwkt"><span>Ticked off this week</span><b data-k="wk"></b></div><div class="plbar"><i data-k="bar"></i></div></div>'+
   '<div class="pldays" role="tablist" aria-label="Day"></div>'+
   '<div class="pldh"><b data-k="dn"></b><span data-k="dt"></span></div>'+
+  '<label class="plopt plsd"><input type="checkbox" data-k="sd"> <span><b>Study day</b>: study for school instead of doing Critical <span data-k="sdt"></span></span></label>'+
   '<div class="plrun" data-k="run"></div><div class="plblks"></div><p class="pldone" data-k="done" hidden>That\'s today\'s plan done. Nice work.</p>'+
   '<label class="plopt"><input type="checkbox" data-k="auto"> Start the study timer when I tap a button</label>'+
   '<p class="plnote">Homework comes first. Missed a day? Don\'t double up the next day. Do that day\'s plan and carry on.</p></div>'+
@@ -142,7 +153,7 @@ m(RK);return null}return r}catch(_){return null}}
   R.forEach(function(r,i){var k=r[2];if((k!=='plan'&&k!=='read')||o.s[k]||ban)return;var st=r[0];if(m<st||m>=st+30)return;
    if(k==='plan'){if(runGet()||hwGet()||firstLeft(todayI())<0||busy())return;o.s[k]=1;try{localStorage.setItem(NK,JSON.stringify(o))}catch(_){}
     var left=DAY(todayI()).filter(function(_,j){return !isDone(todayI(),j)}).reduce(function(a,b){return a+b[1]},0);
-    showBan('<b>'+m12(r[0])+': time for today\'s plan.</b> '+left+' minutes.',[['Just one question',function(){hideBan();ONE.start()}],['Start today\'s plan',function(){hideBan();startRun()}],['Homework first',function(){hideBan();startHw()}],['Later',hideBan]])}
+    var sd0=sdOn(todayI());showBan('<b>'+m12(r[0])+': time for today\'s '+(sd0?'study':'plan')+'.</b> '+left+' minutes'+(sd0?' of studying (study day).':'.'),(sd0?[]:[['Just one question',function(){hideBan();ONE.start()}]]).concat([[sd0?'Start studying':'Start today\'s plan',function(){hideBan();startRun()}],['Homework first',function(){hideBan();startHw()}],['Later',hideBan]]))}
    else{o.s[k]=1;try{localStorage.setItem(NK,JSON.stringify(o))}catch(_){}var nx=R[i+1];var hb=[['Good night',hideBan]];if(HS().on.indexOf('scr')>=0)hb.unshift(['Phone\'s away ✓',function(){hset(dstr(new Date()),'scr',1);hideBan();if(sh.classList.contains('open'))paint()}]);showBan('<b>'+m12(r[0])+': '+esc(r[1]).replace(/^./,function(c){return c.toLowerCase()})+'.</b>'+(nx?' '+esc(nx[1])+' at '+m12(nx[0])+'.':'')+' Good night.',hb)}})}
  /* ----- habit tracker (school days) ----- */
  var HAB=[['hw','Homework on time','When I\'ve finished my snack, I sit at my desk and open my homework.','Just start the piece that\'s due soonest.'],
@@ -190,7 +201,9 @@ m(RK);return null}return r}catch(_){return null}}
   D.forEach(function(_,i){DAY(i).forEach(function(b,j){if(isDone(i,j))m+=b[1]})});
   $q('[data-k=wk]').textContent=m+' / '+TOTAL+' min';$q('[data-k=bar]').style.width=Math.min(100,m/TOTAL*100)+'%';
   [].forEach.call(days.children,function(b,i){b.className=(i===cur?'on':'')+(i===t?' td':'')+(dayDone(i)?' full':qsOn(i)?' quick':'');b.title=dayDone(i)?'Plan done':qsOn(i)?'2-minute start done: this day counts':'';b.setAttribute('aria-selected',i===cur)});
-  $q('[data-k=dn]').textContent=(cur===t?'Today, ':'')+DAYS[cur];$q('[data-k=dt]').textContent=allMins(cur)+' min · '+(cur<5?(extOn(cur)?'school day, stretched to 45':'school day'):'weekend');
+  $q('[data-k=dn]').textContent=(cur===t?'Today, ':'')+DAYS[cur];$q('[data-k=dt]').textContent=allMins(cur)+' min · '+(sdOn(cur)?'study day':cur<5?(extOn(cur)?'school day, stretched to 45':'school day'):'weekend');
+  var sdc=$q('[data-k=sd]'),sdl=sdc.parentNode,rr0=runGet(),lockSd=dayDone(cur)||(rr0&&rr0.day===cur)||(cur===t&&hwOn());sdc.checked=sdOn(cur);sdc.disabled=!!lockSd;sdl.classList.toggle('on',sdOn(cur));sdl.classList.toggle('off',!!lockSd);
+  $q('[data-k=sdt]').textContent='('+mins(cur)+' min'+(lockSd?(rr0&&rr0.day===cur?', can\'t change while the plan is running':cur===t&&hwOn()?', can\'t change during homework first':', day already done'):'')+')';
   var L=$q('.plblks');L.innerHTML='';var pn=DAY(cur).some(isFix)||(cur===1&&t===0)?pile():0;
   if(cur===1&&t===0&&!p.monClr&&pn>0){var nt=document.createElement('p');nt.className='plnote plcarry';nt.textContent='If Monday\'s Fix my mistakes isn\'t finished, the first 15 minutes of study here go to it (then a 7-minute Calculus slot).';L.appendChild(nt)}
   DAY(cur).forEach(function(b,j){var dn=isDone(cur,j),e=document.createElement('div');e.className='plblk'+(dn?' done':'');
@@ -200,6 +213,8 @@ m(RK);return null}return r}catch(_){return null}}
    b[3].forEach(function(a,ai){var x;if(a[1]==='url'){x=document.createElement('a');x.href=a[2];x.target='_blank';x.rel='noopener'}else{x=document.createElement('button');x.type='button'}
     x.className='plgo'+(ai?' alt':'');x.innerHTML=esc(a[0])+(a[1]==='url'?' ↗':' →');x.onclick=function(){go(a,b[0])};A.appendChild(x)});
    if(!b[3].length)A.remove();
+   if(b[5]==='study'){var sw=document.createElement('input');sw.type='text';sw.className='plsdw';sw.maxLength=60;sw.placeholder='What are you studying? e.g. Biology test on cells';sw.setAttribute('aria-label','What are you studying?');sw.value=sdWhat(cur);
+    sw.oninput=function(){var p=PS();if(!p.sdw||typeof p.sdw!=='object')p.sdw={};p.sdw[cur]=sw.value;save();e.querySelector('.plt>span').textContent=STUDYB(cur)[0];var rr=runGet();if(rr&&rr.day===cur){rr.t=STUDYB(cur)[0];runSet(rr)}};e.querySelector('.plbody').appendChild(sw)}
    if(b[4]){var tp=document.createElement('div');tp.className='pltop';tp.innerHTML='<label for="plTopics">Topics to fix</label><textarea id="plTopics" maxlength="600" placeholder="e.g. Circle theorems, iteration, vectors"></textarea>';
     var ta=tp.querySelector('textarea');ta.value=p.topics;ta.oninput=function(){PS().topics=ta.value;save()};e.querySelector('.plbody').appendChild(tp)}
    L.appendChild(e)});
@@ -209,17 +224,17 @@ m(RK);return null}return r}catch(_){return null}}
    var A0=R.querySelector('.placts'),d1=document.createElement('button');d1.type='button';d1.className='plgo';d1.textContent='Homework done → Critical';d1.onclick=hwDone;A0.appendChild(d1);
    var d3=document.createElement('button');d3.type='button';d3.className='plgo alt';d3.textContent='Homework timer';d3.onclick=function(){location.href='homework.html'};A0.appendChild(d3);
    var d2=document.createElement('button');d2.type='button';d2.className='plgo alt';d2.textContent='Cancel';d2.onclick=function(){hwSet(null);paintPill();paint();setTimeout(function(){try{focusSend(true)}catch(_){}},50)};A0.appendChild(d2);return}
-  if(r){var b=DAY(r.day)[r.j]||D[r.day][r.j],left=r.ends-Date.now();R.innerHTML='<p>Today\'s plan is running</p><b>'+esc(r.t||b[0])+' · '+(left>0?fmtLeft(left)+' left':'time\'s up')+'</b><p>When the time is up you\'ll move to the next part. If you\'re in the middle of a lesson, you can finish it first. Done at least 1 lesson and not up for more? Press Finished early.</p><div class="placts"></div>';
+  if(r){var b=DAY(r.day)[r.j]||D[r.day][r.j],left=r.ends-Date.now();var isSt=b[5]==='study';R.innerHTML='<p>'+(isSt?'Study day: timer running':'Today\'s plan is running')+'</p><b>'+esc(r.t||b[0])+' · '+(left>0?fmtLeft(left)+' left':'time\'s up')+'</b><p>'+(isSt?'Get your books out and study. When the time\'s up, today\'s plan is done and your study time is saved.':'When the time is up you\'ll move to the next part. If you\'re in the middle of a lesson, you can finish it first. Done at least 1 lesson and not up for more? Press Finished early.')+'</p><div class="placts"></div>';
    var A=R.querySelector('.placts'),x1=document.createElement('button');x1.type='button';x1.className='plgo';x1.textContent='Go to it →';x1.onclick=function(){var a=b[3][0];if(a)go(a,b[0],true);else close()};if(b[3].length)A.appendChild(x1);
-   var x2=document.createElement('button');x2.type='button';x2.className='plgo alt';x2.textContent='Next part now';x2.onclick=function(){var rr=runGet();if(rr){rr.ends=Date.now();runSet(rr);loop();paint()}};A.appendChild(x2);
-   var x4=document.createElement('button');x4.type='button';x4.className='plgo alt';x4.textContent='Finished early';x4.onclick=function(){finishEarly()};A.appendChild(x4);
+   var x2=document.createElement('button');x2.type='button';x2.className='plgo alt';x2.textContent='Next part now';x2.onclick=function(){var rr=runGet();if(rr){rr.ends=Date.now();runSet(rr);loop();paint()}};if(!isSt)A.appendChild(x2);
+   var x4=document.createElement('button');x4.type='button';x4.className='plgo alt';x4.textContent='Finished early';x4.onclick=function(){finishEarly()};if(!isSt)A.appendChild(x4);
    var x3=document.createElement('button');x3.type='button';x3.className='plgo alt';x3.textContent='Stop the plan';x3.onclick=function(){stopRun(false)};A.appendChild(x3);return}
   var j=firstLeft(t);if(j<0){if(feOn(t)){var fz0=PS().fe[t],fn=fz0.n||1;R.innerHTML='<p>Finished early today ✓</p><b>'+fn+' lesson'+(fn===1?'':'s')+' done</b><p>Today\'s plan is finished. Changed your mind? You can carry on with it.</p><div class="placts"></div>';
    var uu=document.createElement('button');uu.type='button';uu.className='plgo alt';uu.textContent='Undo: carry on with the plan';uu.onclick=undoEarly;R.querySelector('.placts').appendChild(uu)}return}
-  var bb=document.createElement('button');bb.type='button';bb.className='plbig';bb.textContent=(DAY(t).some(function(_,k){return isDone(t,k)})?'Carry on with today\'s plan':'Start today\'s plan')+' ('+DAY(t).slice(j).filter(function(_,k){return !isDone(t,j+k)}).reduce(function(s2,x){return s2+x[1]},0)+' min)';
+  var bb=document.createElement('button');bb.type='button';bb.className='plbig';bb.textContent=(sdOn(t)?'Start studying':DAY(t).some(function(_,k){return isDone(t,k)})?'Carry on with today\'s plan':'Start today\'s plan')+' ('+DAY(t).slice(j).filter(function(_,k){return !isDone(t,j+k)}).reduce(function(s2,x){return s2+x[1]},0)+' min)';
   bb.onclick=function(){startRun()};R.appendChild(bb);
   var o1=document.createElement('button');o1.type='button';o1.className='plgo alt';o1.textContent='Just one question';o1.onclick=function(){close();ONE.start()};
-  var hf=document.createElement('button');hf.type='button';hf.className='plgo alt';hf.textContent='Homework first';hf.onclick=startHw;var hr=document.createElement('div');hr.className='placts';hr.appendChild(o1);hr.appendChild(hf);if(lessonsN()>=1){var fe1=document.createElement('button');fe1.type='button';fe1.className='plgo alt';fe1.textContent='Finished early';fe1.onclick=function(){finishEarly()};hr.appendChild(fe1)}R.appendChild(hr);
+  var hf=document.createElement('button');hf.type='button';hf.className='plgo alt';hf.textContent='Homework first';hf.onclick=startHw;var hr=document.createElement('div');hr.className='placts';if(!sdOn(t))hr.appendChild(o1);hr.appendChild(hf);if(lessonsN()>=1&&!sdOn(t)){var fe1=document.createElement('button');fe1.type='button';fe1.className='plgo alt';fe1.textContent='Finished early';fe1.onclick=function(){finishEarly()};hr.appendChild(fe1)}R.appendChild(hr);
   if(!focusOk&&/Windows|Macintosh|CrOS|Linux x86/.test(navigator.userAgent)&&!/Mobile|Android/.test(navigator.userAgent)&&window.chrome){var fg=document.createElement('p');fg.className='plnote';fg.innerHTML='Strict mode: <a href="https://u23bodwells-cmyk.github.io/Critical/reminders/critical-focus.zip" target="_blank" rel="noopener">get the Critical Focus extension for Chrome</a>. It closes TikTok at plan time and keeps Critical on screen until you\'re done.';R.appendChild(fg)}
   if(focusOk){var fz=document.createElement('p');fz.className='plnote';fz.textContent=focusOk.locked?'Critical Focus is locked on: TikTok is blocked and Critical stays on screen until today\'s plan is done.':'Critical Focus is on: from plan time, TikTok is closed and blocked until today\'s plan is done.';R.appendChild(fz)}
   var n=document.createElement('p');n.className='plnote';n.textContent=hw&&hw.done&&!hw.alloc?'Homework used up today\'s Critical time. You can still start it if you want to.':'It times each part and moves you on when it\'s time. Got homework that\'s running over? Press Homework first: Critical gets whatever time is left when you\'ve finished.';R.appendChild(n)}
@@ -238,7 +253,7 @@ m(RK);return null}return r}catch(_){return null}}
   var tot=idx.reduce(function(a,j){return a+DAY(t)[j][1]},0),f=Math.min(1,rem/tot),alloc={},acc=0;
   idx.forEach(function(j){var m=Math.round(DAY(t)[j][1]*f);if(m>=5){alloc[j]=m;acc+=m}});
   var ks=Object.keys(alloc);if(!ks.length){alloc[idx[0]]=Math.min(rem,DAY(t)[idx[0]][1]);ks=[String(idx[0])]}else if(f<1)alloc[ks[0]]=Math.max(5,alloc[ks[0]]+rem-acc);
-  h.alloc=alloc;hwSet(h);var go2=function(){if(typeof STUDY!=='undefined'&&STUDY.start)STUDY.start('Weekly plan · '+DAYS[t]);begin(t,+ks[0],true)};if(typeof SHIFT!=='undefined'&&SHIFT.brief(go2))return;go2()}
+  h.alloc=alloc;hwSet(h);var go2=function(){if(typeof STUDY!=='undefined'&&STUDY.start)STUDY.start('Weekly plan · '+DAYS[t]);begin(t,+ks[0],true)};if(!sdOn(t)&&typeof SHIFT!=='undefined'&&SHIFT.brief(go2))return;go2()}
  function hwNext(day,j){var h=hwGet();if(!h||!h.alloc||day!==todayI())return firstLeft(day,j);var ks=Object.keys(h.alloc).map(Number).sort(function(a,b){return a-b});for(var i=0;i<ks.length;i++)if(ks[i]>j&&!isDone(day,ks[i]))return ks[i];return -1}
  /* ----- Critical Focus (Chrome extension): tell it today's plan time and when the plan is done ----- */
  var FOCUS_ID='dofdocaillphcjghjdjodhippjldkibo',focusOk=null,lastFocus=0,GUARD_ID='ophdjhoiolnmepbdhbdjgcgnfpdogfnp';
@@ -279,7 +294,7 @@ m(RK);return null}return r}catch(_){return null}}
   var left=r.ends-Date.now(),d=document.createElement('div');d.className='dblock plearly';d.style.textAlign='center';
   d.innerHTML='<p class="note" style="margin:0 0 8px">Today\'s plan: <b>'+esc(r.t)+'</b>'+(left>0?', '+fmtLeft(left)+' left on this part.':'.')+' Not up for any more today?</p><button type="button" class="wbtn">Finished early: that\'s enough for today</button>';
   d.querySelector('button').onclick=function(){if(typeof closePlayer==='function')closePlayer();finishEarly()};var an=ds.querySelector('.dblock');if(an)ds.insertBefore(d,an);else ds.appendChild(d)}
- function startRun(go){var t=todayI(),j=firstLeft(t);if(j<0)return;if(go!==true&&typeof SHIFT!=='undefined'&&SHIFT.brief(function(){startRun(true)}))return;
+ function startRun(go){var t=todayI(),j=firstLeft(t);if(j<0)return;if(go!==true&&!sdOn(t)&&typeof SHIFT!=='undefined'&&SHIFT.brief(function(){startRun(true)}))return;
   try{if('Notification' in window&&Notification.permission==='default')Notification.requestPermission()}catch(_){}
   if(typeof STUDY!=='undefined'&&STUDY.start)STUDY.start('Weekly plan · '+DAYS[t]);begin(t,j,true)}
  function begin(day,j,gesture){var b=DAY(day)[j],hh=hwGet(),mn=(hh&&hh.alloc&&hh.alloc[j]!=null&&day===todayI())?hh.alloc[j]:b[1];runSet({d:ymdN(),day:day,j:j,t:b[0],ends:Date.now()+mn*60000,mins:mn});warned={};hideBan();paintPill();
@@ -308,7 +323,7 @@ m(RK);return null}return r}catch(_){return null}}
   if(!r||r.gm||r.ends<=now)return;var b=DAY(r.day)[r.j];if(!isFix(b)||busy())return;if(n<0)n=pile();
   if(n===0){if(r.day===0){p.monClr=1;save()}r.ends=now;r.early=1;r.clr=1;runSet(r);return}
   if(typeof P!=='undefined'&&P&&P.finished&&P.mode==='review'&&!P._plAsk&&!ban){P._plAsk=1;showBan('<b>'+n+' mistake'+(n===1?'':'s')+' left to fix.</b> '+fmtLeft(r.ends-now)+' to go on this part.',[['Next round →',function(){hideBan();go(b[3][0],b[0])}],['Not now',hideBan]])}}
- function highChk(r,left){if(r.high||left>5*60000||ban||busy())return;if((DAY(r.day)[r.j]||[])[5]==='clash')return;if(hwNext(r.day,r.j)>=0)return;var mn=r.mins||(DAY(r.day)[r.j]||[0,0])[1];if(mn<10)return;r.high=1;runSet(r);
+ function highChk(r,left){if(r.high||left>5*60000||ban||busy())return;var hk=(DAY(r.day)[r.j]||[])[5];if(hk==='clash'||hk==='study')return;if(hwNext(r.day,r.j)>=0)return;var mn=r.mins||(DAY(r.day)[r.j]||[0,0])[1];if(mn<10)return;r.high=1;runSet(r);
   var lapOk=typeof HIGH!=='undefined'&&HIGH.canLap();
   showBan('<b>Last 5 minutes: end on a high.</b> Finish today with something fun.',(lapOk?[['Victory lap',function(){hideBan();HIGH.lap()}]]:[]).concat([['Control room',function(){hideBan();if(document.querySelector('#player.open')&&typeof closePlayer==='function')closePlayer();close();showPage('sim')}],['Keep going',hideBan]]))}
  var lastDayPaint=-1;
@@ -321,6 +336,7 @@ m(RK);return null}return r}catch(_){return null}}
   var key=r.day+'-'+r.j+'-'+r.ends;if(!ban&&upKey!==key){upKey=key;timeUp(r)}}
  function toastIn(t){var d=document.createElement('div');d.className='plban';d.style.bottom='calc(96px + env(safe-area-inset-bottom))';d.setAttribute('role','status');d.innerHTML='<p>'+esc(t)+'</p>';document.body.appendChild(d);setTimeout(function(){d.remove()},6000)}
  $q('[data-k=auto]').onchange=function(){PS().auto=this.checked?1:0;save()};
+ $q('[data-k=sd]').onchange=function(){var r=runGet(),v=this.checked;if((r&&r.day===cur)||dayDone(cur)||(cur===todayI()&&hwOn())){this.checked=!v;return}setSd(cur,v);paint();paintPill();setTimeout(function(){try{focusSend(true)}catch(_){}},50)};
  function close(){sh.classList.remove('open')}
  function open(v){if(v==='day'||v==='plan'||v==='hab')view=v;editing=null;cur=todayI();paint();sh.classList.add('open')}
  $q('.plx').onclick=close;sh.addEventListener('click',function(e){if(e.target===sh)close()});
@@ -338,11 +354,11 @@ m(RK);return null}return r}catch(_){return null}}
  if(location.hash==='#setup'){try{history.replaceState(null,'',location.pathname+location.search)}catch(_){}setTimeout(function(){try{if(window.chrome&&chrome.runtime&&chrome.runtime.sendMessage)chrome.runtime.sendMessage(FOCUS_ID,{type:'setup'},function(){try{void chrome.runtime.lastError}catch(_){}open('plan')});else open('plan')}catch(_){open('plan')}},400)}
  if(location.hash==='#focus'){try{history.replaceState(null,'',location.pathname+location.search)}catch(_){}setTimeout(function(){try{if(!runGet()&&!hwOn()&&firstLeft(todayI())>=0&&typeof ONE!=='undefined')ONE.start();else open('plan')}catch(_){}},600)}
  if(location.hash==='#start'){try{history.replaceState(null,'',location.pathname+location.search)}catch(_){}setTimeout(function(){try{var t=todayI();if(t>4||runGet()||hwOn()||firstLeft(t)<0){open('plan');return}
-  showBan('<b>4:45: time to start.</b> Today\'s plan is '+restMins(t)+' minutes. Got homework due? Do that first and Critical gets whatever time is left.',[['Start today\'s plan',function(){hideBan();startRun()}],['Homework first',function(){hideBan();startHw()}],['Just one question',function(){hideBan();ONE.start()}]])}catch(e){if(window.console)console.error(e)}},600)}
+  showBan('<b>4:45: time to start.</b> '+(sdOn(t)?'It\'s a study day: '+restMins(t)+' minutes of studying.':'Today\'s plan is '+restMins(t)+' minutes.')+' Got homework due? Do that first and Critical gets whatever time is left.',[['Start today\'s plan',function(){hideBan();startRun()}],['Homework first',function(){hideBan();startHw()}],['Just one question',function(){hideBan();ONE.start()}]])}catch(e){if(window.console)console.error(e)}},600)}
  if(location.hash==='#hwdone'){try{history.replaceState(null,'',location.pathname+location.search)}catch(_){}setTimeout(function(){try{hwDone()}catch(_){}},700)}
  if(location.hash==='#early'){try{history.replaceState(null,'',location.pathname+location.search)}catch(_){}setTimeout(function(){try{finishEarly()}catch(_){}},700)}
  if(location.hash==='#home'){try{history.replaceState(null,'',location.pathname+location.search)}catch(_){}setTimeout(function(){try{homeAuto();open('day')}catch(_){}},400)}
- return {wkKey:wk,wkMins:function(){var m=0;D.forEach(function(_,i){DAY(i).forEach(function(b,j){if(isDone(i,j))m+=b[1]})});return m},schoolMins:function(){var m=0;for(var i=0;i<5;i++)m+=mins(i);return m},TOTAL:TOTAL,dayMins:function(){return mins(todayI())},fullInfo:function(){var t=todayI(),full=allTicked(t),h=hwGet(),ks=h&&h.alloc?Object.keys(h.alloc):[],hf=ks.length>0&&ks.every(function(j){return isDone(t,+j)});return {t:t,full:full||hf,mins:full?DAY(t).reduce(function(a,b,j){return a+(isDone(t,j)?b[1]:0)},0):hf?ks.reduce(function(a,j){return a+h.alloc[j]},0):0,early:feOn(t),quick:qsOn(t)}},early:finishEarly,qsOn:qsOn,markQuick:markQuick,afterLesson:afterLesson,feOn:feOn,undoEarly:undoEarly,hideBan:hideBan,isDone:isDone,next:function(){var t=todayI(),j=firstLeft(t);return j<0?null:DAY(t)[j]},leftMins:function(){return leftMins(todayI())},open:open,close:close,paint:paint,paintPill:paintPill,start:startRun,stop:stopRun,loop:loop,running:function(){return !!runGet()},todayLeft:function(){return firstLeft(todayI())>=0},D:D,DAY:DAY,pile:pile,TUE_FIX:TUE_FIX,rows:rows,nowRow:nowRow,sched:sched,home:homeGet,habits:HS,streak:streak,hw:hwGet,hwStart:startHw,hwDone:hwDone,focusStatus:focusStatus,focus:function(){return focusOk}};
+ return {wkKey:wk,wkMins:function(){var m=0;D.forEach(function(_,i){DAY(i).forEach(function(b,j){if(isDone(i,j))m+=b[1]})});return m},schoolMins:function(){var m=0;for(var i=0;i<5;i++)m+=mins(i);return m},TOTAL:TOTAL,dayMins:function(){return mins(todayI())},fullInfo:function(){var t=todayI(),full=allTicked(t),h=hwGet(),ks=h&&h.alloc?Object.keys(h.alloc):[],hf=ks.length>0&&ks.every(function(j){return isDone(t,+j)});return {t:t,full:full||hf,mins:full?DAY(t).reduce(function(a,b,j){return a+(isDone(t,j)?b[1]:0)},0):hf?ks.reduce(function(a,j){return a+h.alloc[j]},0):0,early:feOn(t),quick:qsOn(t)}},early:finishEarly,qsOn:qsOn,markQuick:markQuick,afterLesson:afterLesson,feOn:feOn,undoEarly:undoEarly,hideBan:hideBan,isDone:isDone,next:function(){var t=todayI(),j=firstLeft(t);return j<0?null:DAY(t)[j]},leftMins:function(){return leftMins(todayI())},open:open,close:close,paint:paint,paintPill:paintPill,start:startRun,stop:stopRun,loop:loop,running:function(){return !!runGet()},todayLeft:function(){return firstLeft(todayI())>=0},D:D,DAY:DAY,pile:pile,TUE_FIX:TUE_FIX,rows:rows,nowRow:nowRow,sched:sched,home:homeGet,habits:HS,streak:streak,hw:hwGet,hwStart:startHw,hwDone:hwDone,focusStatus:focusStatus,focus:function(){return focusOk},studyDay:sdOn,setStudyDay:setSd};
 })();
 try{window.PLAN=PLAN}catch(_){}
 /* ===== just one question: a tiny way into a study session ===== */
@@ -2160,15 +2176,4 @@ T(`<h3>Doubling time</h3><p>Power doubles every <b>0.693 τ</b> (because e<sup>0
 N(`The reactor period is 100 s. What's the doubling time?`,69.3,0.02,'s',`Doubling time = 0.693 × 100 = 69.3 s.`),
 Q(`Which period would make an operator act straight away?`,['500 s','100 s','60 s','5 s'],3,`A 5 s period means power multiplies by e every 5 seconds: ×10 in about 11.5 s. Controlled startups use periods of around a minute or longer.`)]),
 L('m3','Logarithms and log scales',10,[
-T(`<h3>"What power?"</h3><p>A logarithm answers the question "what power?". log<sub>10</sub>(1000) = 3 because 10<sup>3</sup> = 1000.</p><p><b>ln</b> is the logarithm to base e. It undoes e<sup>x</sup>: ln(e<sup>x</sup>) = x.</p>`),
-N(`What is log<sub>10</sub>(10<sup>6</sup>)?`,6,0.001,'',`10 to the power 6 is 10<sup>6</sup>, so the log is 6.`),
-T(`<h3>Why control rooms use log scales</h3><p>Neutron power spans about <b>11 decades</b>: from around 10<sup>−9</sup>% when shut down to 100%. A normal scale can't show that. On a <b>log scale</b>, each decade (each ×10) takes up the same space.</p>`),
-W('logMeter',{target:3e4},`Set the source range meter to <b>3 × 10<sup>4</sup></b> counts per second. Watch what the ordinary (linear) meter does.`,`On the log meter, 3 × 10<sup>4</sup> sits about halfway between 10<sup>4</sup> and 10<sup>5</sup>, because log<sub>10</sub>3 ≈ 0.48. The linear meter can barely show anything below about 10<sup>4</sup>.`),
-Q(`On a log meter, the needle moves from 10<sup>2</sup> to 10<sup>3</sup> cps. It then moves the same distance again. What does it read now?`,['1100 cps','2000 cps','10<sup>4</sup> cps','5000 cps'],2,`Equal distances on a log scale mean equal <i>multiplications</i>. ×10 then ×10 again: 10<sup>4</sup> cps.`),
-T(`<h3>Solving for time</h3><p>Logs let you find how long something takes. If P = P<sub>0</sub> e<sup>t/τ</sup>, then:</p><div class="eq">t = τ × ln(P / P<sub>0</sub>)</div><div class="key"><div class="kt">What each part means</div><div class="krow"><span class="ks">t</span><span class="km">time needed to get from P<sub>0</sub> to P</span><span class="ku">seconds (s)</span></div><div class="krow"><span class="ks">τ</span><span class="km">the reactor period</span><span class="ku">seconds (s)</span></div><div class="krow"><span class="ks">ln</span><span class="km">natural log: the button on your calculator that undoes e<sup>x</sup></span><span class="ku">no unit</span></div><div class="krow"><span class="ks">P, P<sub>0</sub></span><span class="km">final and starting power</span><span class="ku">same unit as each other</span></div></div>`),
-N(`How long does power take to rise from 10<sup>−6</sup>% to 10<sup>−1</sup>% on a 60 s period?`,690.8,0.02,'s',`t = 60 × ln(10<sup>5</sup>) = 60 × 11.51 = 691 s, or about 11.5 minutes.`),
-Q(`Power is rising at 1 decade per minute. How long to go from 10<sup>−8</sup>% to 10<sup>−2</sup>%?`,['6 minutes','2 minutes','60 minutes','1 minute'],0,`That's 6 decades (from 10<sup>−8</sup> to 10<sup>−2</sup>), at 1 decade per minute: 6 minutes. Operators measure startup rate in decades per minute, as you'll see in unit 5.`)]),
-L('m4','Rates of change',8,[
-T(`<h3>How fast is it changing?</h3><p>A <b>rate of change</b> is how fast something is changing right now. On a graph, it's the <b>gradient</b> (steepness) of the curve at that point.</p><p>Operators care about rates as much as values: a temperature of 300 °C is fine, but 300 °C and rising 5 °C per second is not.</p>`),
-W('tangent',{},`This graph shows power during a slow rise. Move the slider to find where power is <b>rising fastest</b>.`,`The gradient is greatest where the curve is steepest, in the middle of the rise. The tangent line shows the gradient at each point.`),
-T(`<h3>Notation</h3><div class="eq">dP/dt</div><div class="key"><div class="k
+T(`<h3>"What power?"</h3><p>A logarithm answers the question "what power?"

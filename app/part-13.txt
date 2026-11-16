@@ -1,4 +1,17 @@
- The −OH group is what makes it an alcohol. It can be made by fermenting sugar or from ethene and steam, and oxidises to ethanoic acid.'}),
+:6,c:[160,130,255],a:.25,wa:.3,f:function(u,v){return W3(sp,u*10,v*10,2+.6*u*10+.4*v*10)}}]},
+  extra:function(prims,pr){var sp=this;D.forEach(function(d){var w=W3(sp,d[0],d[1],d[2]),f=W3(sp,d[0],d[1],2+.6*d[0]+.4*d[1]);prims.push(ballP(pr,w,d[2]>2+.6*d[0]+.4*d[1]?CY:OR,3,null,true));prims.push({k:'l',p:[pr(w[0],w[1],w[2]),pr(f[0],f[1],f[2])],s:'rgba(255,255,255,.25)',w:1,d:pr(w[0],w[1],w[2])[2]})})},
+  read:function(){return 'the violet plane is the best fit · the thin lines are the errors'},
+  cap:'60 measurements that depend on two variables, with the best-fit plane through them. The short lines show how far each point is from the plane: random scatter. A good conclusion describes the trend and says how much the points spread.'}};
+
+ /* ---------- molecules, lattices and atoms ---------- */
+ function M(atoms,bonds,o){o=o||{};return {k:'mol',box:false,anim:1,t:o.t,ms:o.ms||1,cap:o.cap,read:o.read,atoms:function(t){var a=t*.0;return atoms.map(function(q){return {p:q.slice(0,3),e:q[3],lab:o.lab?q[3]:null}})},bonds:bonds}}
+ var MOL={
+  water:M([[0,0,.1,'O'],[.38,0,-.22,'H'],[-.38,0,-.22,'H']],[[0,1],[0,2]],{t:'A WATER MOLECULE',ms:1.6,lab:1,read:function(){return 'H₂O · bent shape, about 104.5°'},cap:'Water, H₂O: one oxygen atom sharing electrons with two hydrogen atoms in covalent bonds. The molecule is bent, which makes one end slightly negative and helps water dissolve so many things.'}),
+  co2:M([[0,0,0,'C'],[.55,0,0,'O'],[-.55,0,0,'O']],[[0,1,2],[0,2,2]],{t:'CARBON DIOXIDE',ms:1.5,lab:1,read:function(){return 'CO₂ · two double bonds, in a straight line'},cap:'Carbon dioxide, CO₂: a carbon atom with a double covalent bond to each oxygen. It is a straight molecule. It is a greenhouse gas because it absorbs infrared radiation.'}),
+  methane:M([[0,0,0,'C'],[.45,.45,.45,'H'],[-.45,-.45,.45,'H'],[-.45,.45,-.45,'H'],[.45,-.45,-.45,'H']],[[0,1],[0,2],[0,3],[0,4]],{t:'METHANE',ms:1.4,lab:1,read:function(){return 'CH₄ · bonds point to the corners of a tetrahedron'},cap:'Methane, CH₄, the simplest alkane. Carbon forms four single covalent bonds, which point to the corners of a tetrahedron. It is the main gas in natural gas.'}),
+  ethene:M([[-.3,0,0,'C'],[.3,0,0,'C'],[-.62,.48,0,'H'],[-.62,-.48,0,'H'],[.62,.48,0,'H'],[.62,-.48,0,'H']],[[0,1,2],[0,2],[0,3],[1,4],[1,5]],{t:'ETHENE',ms:1.4,lab:1,read:function(){return 'C₂H₄ · the C=C double bond makes it reactive'},cap:'Ethene, C₂H₄, made by cracking. The carbon–carbon double bond makes alkenes reactive: they decolourise bromine water and can join up into polymers like poly(ethene).'}),
+  ammonia:M([[0,0,.12,'N'],[.42,0,-.18,'H'],[-.21,.36,-.18,'H'],[-.21,-.36,-.18,'H']],[[0,1],[0,2],[0,3]],{t:'AMMONIA',ms:1.6,lab:1,read:function(){return 'NH₃ · a pyramid shape'},cap:'Ammonia, NH₃, made in the Haber process from nitrogen and hydrogen. Nitrogen shares an electron with each of three hydrogen atoms. Most of it becomes fertiliser.'}),
+  ethanol:M([[-.45,0,0,'C'],[.1,0,.15,'C'],[.55,0,-.2,'O'],[.9,0,-.05,'H'],[-.75,.4,.2,'H'],[-.75,-.4,.2,'H'],[-.5,0,-.45,'H'],[.15,.42,.45,'H'],[.15,-.42,.45,'H']],[[0,1],[1,2],[2,3],[0,4],[0,5],[0,6],[1,7],[1,8]],{t:'ETHANOL',ms:1.25,lab:1,read:function(){return 'C₂H₅OH · the −OH group makes it an alcohol'},cap:'Ethanol, C₂H₅OH. The −OH group is what makes it an alcohol. It can be made by fermenting sugar or from ethene and steam, and oxidises to ethanoic acid.'}),
   butane:M((function(){var A=[],B=[];for(var i=0;i<4;i++){A.push([-.6+i*.4,0,(i%2?.12:-.12),'C'])}for(i=0;i<4;i++){A.push([-.6+i*.4,.36,(i%2?.36:-.36),'H']);A.push([-.6+i*.4,-.36,(i%2?.36:-.36),'H']);B.push([i,4+2*i]);B.push([i,5+2*i])}A.push([-.95,0,-.32,'H']);A.push([.95,0,.32,'H']);B.push([0,12]);B.push([3,13]);for(i=0;i<3;i++)B.push([i,i+1]);return A})(),null,{t:'BUTANE',ms:1.1,read:function(){return 'C₄H₁₀ · alkanes are saturated: single bonds only'},cap:'Butane, C₄H₁₀: a chain of four carbon atoms with only single bonds, so it is saturated. Alkanes get longer down the series, adding CH₂ each time, and their boiling points rise.'})};
  MOL.butane.bonds=(function(){var B=[];for(var i=0;i<4;i++){B.push([i,4+2*i]);B.push([i,5+2*i])}B.push([0,12]);B.push([3,13]);for(i=0;i<3;i++)B.push([i,i+1]);return B})();
  SC.mol=function(p){return MOL[p&&p.m]||MOL.water};
@@ -557,25 +570,4 @@ var MOT=(function(){
   if((m=/^mx-(\d{4}-\d{2})$/.exec(id))){var f2=MFX2[+m[1].slice(5)-1];return {id:id,ty:'fx',n:f2[0]+' ('+monthName(m[1])+')',r:'L',st:f2[1],pal:f2[2],chars:f2[3],ex:1,how:'On the '+monthName(m[1])+' season pass'}}
   if((m=/^sk2-(\d{4}-\d{2})$/.exec(id))){var k2=MSKIN2[+m[1].slice(5)-1];return {id:id,ty:'skin',n:k2[0]+' ('+monthName(m[1])+')',r:'L',c1:k2[1],c2:k2[2],ex:1,how:'On the '+monthName(m[1])+' season pass'}}
   if((m=/^mt-(\d{4}-\d{2})$/.exec(id)))return {id:id,ty:'title',n:MTT[+m[1].slice(5)-1],r:'L',ex:1,how:'The very end of the '+monthName(m[1])+' season pass'};
-  if((m=/^bd-M-(\d{4}-\d{2})-([123])$/.exec(id))){var tn=+m[2];return {id:id,ty:'badge',n:monthName(m[1])+' '+['','bronze','silver','mythic'][tn],r:['','R','E','L'][tn],em:['','🥉','🥈','💎'][tn],num:new Date(m[1]+'-01T12:00:00').toLocaleDateString('en-GB',{month:'short'}).toUpperCase(),ex:1,how:'On the '+monthName(m[1])+' season pass'}}
-  if((m=/^bd-M-(\d{4}-\d{2})$/.exec(id)))return {id:id,ty:'badge',n:monthName(m[1])+' season',r:'L',em:'🏆',num:new Date(m[1]+'-01T12:00:00').toLocaleDateString('en-GB',{month:'short'}).toUpperCase(),ex:1,how:'Finish a season pass'};
-  if(id==='bd-week')return {id:id,ty:'badge',n:'Weekly finisher',r:'E',em:'📅',ex:1,how:'Finish a weekly pass'};
-  if(id==='story-1')return {id:id,ty:'title',n:'Kestrel Point Hero',r:'L',ex:1};return null}
- function applySkin(){var eq=Lget().eq||{},it=eq.skin&&eq.skin!=='cherenkov'?item(eq.skin):null,d=document.documentElement.style;if(it){d.setProperty('--glow',it.c1);d.setProperty('--glow2',it.c2)}else{d.removeProperty('--glow');d.removeProperty('--glow2')}}
- function equip(id){if(id==='fx-off'){var l0=Lget();l0.eq=l0.eq||{};l0.eq.fx=null;l0.eq.at=Date.now();Lset(l0);return}var it=item(id);if(!it)return;var l=Lget();if(!l.items[id]&&id!=='cherenkov')return;if(it.ty==='sound'){try{SND.use(it.pk);SND.play('right',{n:3})}catch(e){}ui();return}l.eq=l.eq||{};l.eq[it.ty]=id;l.eq.at=Date.now();Lset(l);applySkin()}
- function icOf(it){return it.ty==='badge'?badgeArt(it,30):it.ty==='skin'?'<span class="mswatch" style="background:linear-gradient(135deg,'+it.c1+','+it.c2+')"></span>':it.ty==='title'?'🏷️':it.ty==='fx'?'🎆':it.ty==='sound'?'🎵':'⚛️'}
- function badgeMini(){var eq=Lget().eq||{},it=eq.badge?item(eq.badge):null;return it?badgeArt(it,18)+' ':''}
- function title(){var eq=Lget().eq||{},it=eq.title?item(eq.title):null;return it?it.n:''}
-
- /* ---------- crates ---------- */
- function earn(tier,src){var c=Cget(),t=today();if(src==='session'){if(c.daily.d!==t)c.daily={d:t,n:0};if(c.daily.n>=5)return null;c.daily.n++}c.pending.push({t:tier,at:Date.now(),src:src||''});Cset(c);return tier}
- function rollTier(acc,asked){var w=[62,27,9,2];if(acc>=0.8)w=[50,34,13,3];if(acc>=1&&asked>=4)w=[0,65,28,7];if((S.streak||0)>=7){w[2]+=3;w[3]+=1}return pickW(['C','R','E','L'],w)}
- var DUPXP={C:10,R:20,E:40,L:80},BASEXP={C:5,R:10,E:20,L:40},inCrate=false;
- function pool(ty,r){var a=ty==='fx'?FX.map(function(s){return [s[0],s[2]]}):ty==='skin'?SKINS.filter(function(s){return s[0]!=='cherenkov'}).map(function(s){return [s[0],s[2]]}):ty==='title'?TITLES.map(function(s){return [s[0],s[2]]}):FACTS.map(function(s){return [s[0],s[1]]});var b=a.filter(function(x){return x[1]===r});return (b.length?b:a).map(function(x){return x[0]})}
- function roll(tier){var n=tier==='C'?1:2,dist={C:[75,22,3,0],R:[40,45,13,2],E:[0,45,45,10],L:[0,0,40,60]}[tier],out=[],l=Lget();
-  for(var i=0;i<n;i++){var r=pickW(['C','R','E','L'],dist),ty=pickW(['fact','skin','title','fx','xp','freeze','boost'],[38,13,13,9,15,r==='C'?0:6,6]);
-   if(ty==='xp')out.push({k:'xp',r:r,n:{C:15,R:30,E:60,L:120}[r]});
-   else if(ty==='freeze')out.push((S.freeze||0)<2?{k:'freeze',r:r}:{k:'xp',r:r,n:{C:15,R:30,E:60,L:120}[r]});
-   else if(ty==='boost')out.push({k:'boost',r:r});
-   else{var p=pool(ty,r),id=p[Math.floor(Math.random()*p.length)],it=item(id);if(l.items[id]||out.some(function(o){return o.id===id}))out.push({k:'dup',id:id,r:it.r,n:DUPXP[it.r]});else out.push({k:'item',id:id,r:it.r})}}
-  out.push({k:'xp',r:tie
+  if((m=/^bd-M-(\d{4}-\d{2})-([123])$/.exec(id))){var tn=+m[2];return {id:id,ty:'badge',n:monthName(m[1])+' '+['','bronze','silver','mythic'][tn],r:['','R','E','L'][tn],em:['','🥉','🥈','💎'][tn],num:new Date(m[1

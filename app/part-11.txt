@@ -1,4 +1,34 @@
-],['Coolant temperature: 307.4',1],['Price: 2.99',1],['Alarm active?',2],['Is the door locked?',2],['Name: "Sunny"',3],['Postcode: "TA5 1UD"',3]]},`Pick the best data type for each.`,`A postcode is a string even though it has digits: you never do maths with it.`),
+rough the algorithm one line at a time and write down every new value.</p><pre class="cs">total ← 0
+FOR i ← 1 TO 4
+   total ← total + i
+ENDFOR
+OUTPUT total</pre><p>i goes 1, 2, 3, 4 and total goes 1, 3, 6, 10. It outputs <b>10</b>.</p>`),
+N(`<pre class="cs">x ← 2
+FOR i ← 1 TO 3
+   x ← x * 2
+ENDFOR
+OUTPUT x</pre>What's output?`,16,0.001,'',`2 → 4 → 8 → 16.`),
+N(`<pre class="cs">n ← 0
+count ← 0
+WHILE n &lt; 20
+   n ← n + 6
+   count ← count + 1
+ENDWHILE
+OUTPUT count</pre>What's output?`,4,0.001,'',`n goes 6, 12, 18, 24. The loop runs 4 times.`),
+T(`<h3>DIV and MOD</h3><ul><li><b>DIV</b> gives the whole-number part of a division: 17 DIV 5 = 3.</li><li><b>MOD</b> gives the remainder: 17 MOD 5 = 2.</li></ul><p>MOD is useful for checking if a number is even: n MOD 2 = 0.</p>`),
+N(`What's 29 MOD 4?`,1,0.001,'',`29 = 7 × 4 + 1, so the remainder is 1.`),
+N(`What's 29 DIV 4?`,7,0.001,'',`29 ÷ 4 = 7.25, and DIV keeps the whole number: 7.`)]),
+LH('gcs2-1-4','Efficiency and representing algorithms',8,'Flowcharts, pseudo-code and how to judge which algorithm is better.',[
+T(`<h3>Three ways to write an algorithm</h3><ul><li><b>In words</b>: easy to read, but can be vague.</li><li><b>Flowchart</b>: shows the flow and decisions visually.</li><li><b>Pseudo-code</b>: structured like code, but not tied to one language. AQA has its own style.</li></ul>`),
+T(`<h3>Efficiency</h3><p>Two algorithms can solve the same problem, but one may need far fewer steps. For GCSE you compare <b>time efficiency</b>: how the number of steps grows as the input gets bigger.</p><p>Doubling a list doubles the work for a linear search, but adds only <b>one</b> step to a binary search.</p>`),
+Q(`What is pseudo-code?`,[`A way of writing an algorithm that looks like code but isn't a real language`,`A programming language`,`Machine code`,`A type of flowchart`],0,`It's for planning, so you don't worry about exact syntax.`),
+Q(`A list doubles from 500 to 1,000 items. What happens to the worst case for a binary search?`,[`It needs one more check`,`It needs twice as many checks`,`It needs 500 more checks`,`Nothing`],0,`One extra halving covers the doubled list.`),
+Q(`An algorithm's job is to find the highest score in a list. Which is its input?`,[`The list of scores`,`The highest score`,`The loop`,`The screen`],0,`Input: the list. Process: compare. Output: the highest score.`),
+Q(`What does a parallelogram mean in a flowchart?`,[`Input or output`,`A decision`,`A process`,`Start or end`],0,`Decision = diamond, process = rectangle, start/end = rounded box.`)])]});
+U({id:'gcs2-2',track:'gcs',level:2,title:'Programming',icon:'</>',color:'#1D9E75',desc:'Data types, operators, selection, iteration, arrays, strings and subroutines: AQA 3.2.',lessons:[
+LH('gcs2-2-1','Data types and operators',9,'Every value has a type, and every type has rules.',[
+T(`<h3>The five data types</h3><ul><li><b>Integer</b>: whole numbers, like 42 or −7</li><li><b>Real</b> (float): numbers with decimals, like 3.14</li><li><b>Boolean</b>: True or False</li><li><b>Character</b>: one letter, digit or symbol</li><li><b>String</b>: text, a sequence of characters</li></ul>`),
+W('sortIt',{bins:['Integer','Real','Boolean','String'],items:[['Number of lessons done: 12',0],['Year: 2028',0],['Coolant temperature: 307.4',1],['Price: 2.99',1],['Alarm active?',2],['Is the door locked?',2],['Name: "Sunny"',3],['Postcode: "TA5 1UD"',3]]},`Pick the best data type for each.`,`A postcode is a string even though it has digits: you never do maths with it.`),
 T(`<h3>Operators</h3><p><b>Arithmetic</b>: + − * / plus DIV and MOD.<br><b>Relational</b> (comparisons): = ≠ &lt; &gt; ≤ ≥. They give True or False.<br><b>Boolean</b>: AND, OR, NOT.</p>`),
 Q(`temp ← 330 and pumps ← True. What's (temp &gt; 320) AND NOT pumps?`,[`False`,`True`,`330`,`An error`],0,`temp &gt; 320 is True, NOT pumps is False. True AND False = False.`),
 Q(`Why store a phone number as a string, not an integer?`,[`It can start with 0 and you never do maths with it`,`Strings are faster`,`Integers can't be 11 digits`,`It saves memory`],0,`An integer would lose the leading 0.`),
@@ -1083,19 +1113,4 @@ function NSIM(w,h,rnd){
  function semf(A){var Z=zStab(A);if(A<4)return 0;return (15.8*A-18.3*Math.pow(A,2/3)-.714*Z*(Z-1)/Math.pow(A,1/3)-23.2*(A-2*Z)*(A-2*Z)/A)/A}
  function nucPts(A,Z){var pts=[],R=Math.cbrt(A),pn=0;for(var i=0;i<A;i++){var u=(i+.5)/A,r=R*Math.cbrt(u)*.92,yy=1-2*((i*.618034)%1),rs=Math.sqrt(Math.max(0,1-yy*yy)),th=i*2.39996;var isP=Math.floor((i+1)*Z/A)>pn;if(isP)pn++;pts.push({x:Math.cos(th)*rs*r,y:yy*r,z:Math.sin(th)*rs*r,p:isP})}return pts}
  function drawNuc(c,pts,cx,cy,sc,yaw,pitch,opt){opt=opt||{};var cyw=Math.cos(yaw),syw=Math.sin(yaw),cp=Math.cos(pitch),sp=Math.sin(pitch),D=opt.D||14,out=[];
-  pts.forEach(function(q){var x=q.x*(opt.sx||1)+(q.ox||0),y=q.y*(opt.sy||1),z=q.z*(opt.sy||1);var X=x*cyw-z*syw,Z=x*syw+z*cyw,Y=y*cp-Z*sp,Z2=y*sp+Z*cp,f=D/(D-Z2);out.push([cx+X*sc*f,cy-Y*sc*f,Z2,f,q.p])});
-  out.sort(function(a,b){return a[2]-b[2]});out.forEach(function(o){ball(c,o[0],o[1],Math.max(1.5,sc*.62*o[3]),o[4]?[235,90,80]:[150,165,190])})}
- WIDGETS.atomLab=function(box,par){par=par||{};var mode=par.mode||'atom',ni=par.n!=null?par.n:5,tt=0,yaw=0,pts=null,ptsK='',st=null,stretch=0,fis={t:-1,pair:null},yields=new Array(30).fill(0),nFis=0,iso=par.iso||'C',dN=0,fz={t:0,n:0,T:par.T||100},emcN=par.n!=null?par.n:3,moved=0,fis2=0;
-  var scr=screen(box,par.h||300,330);
-  var pick=par.pick||(mode==='fission'||mode==='drop'?[16,17]:mode==='emc2'?[3,5,8,16]:null),list=pick?pick:NUCS.map(function(_,i){return i});if(pick&&(mode==='drop'||mode==='fission')&&list.indexOf(ni)<0)ni=list[0];
-  if(mode==='atom'||mode==='binding'||mode==='stability'||mode==='emc2'){var sel=select(box,'Nucleus',list.map(function(i){return NUCS[i][0]}),function(i){ni=list[i];moved++});sel.value=Math.max(0,list.indexOf(ni))}
-  if(mode==='isotope'){var ISO={H:[1,0,2,'Hydrogen',{0:'stable',1:'stable (deuterium)',2:'unstable · 12.3 years'}],C:[6,5,9,'Carbon',{6:'stable',7:'stable',8:'unstable · 5,730 years',5:'unstable · 20 minutes',9:'unstable · 2.4 seconds'}],U:[92,140,146,'Uranium',{140:'unstable · 69 years',141:'fissile · 160,000 years',142:'unstable · 245,000 years',143:'fissile · 700 million years',144:'unstable · 23 million years',145:'unstable · 7 days',146:'fertile · 4.5 billion years'}]},is=select(box,'Element',['Hydrogen','Carbon','Uranium'],function(i){iso='HCU'[i];dN=0;sN.input.min=ISO[iso][1];sN.input.max=ISO[iso][2];sN.set(ISO[iso][1]+1);moved++}),sN=slider(box,'Neutrons',ISO[iso][1],ISO[iso][2],1,ISO[iso][1]+1,function(v){return v},function(v){dN=v;moved++});is.value='HCU'.indexOf(iso);dN=+sN.get()}
-  if(mode==='drop'){var sel2=select(box,'Nucleus that absorbs a slow neutron',['Uranium-235','Uranium-238'],function(i){ni=16+i;moved++});var ss=slider(box,'Stretch the drop',0,1.4,.01,0,function(v){return Math.round(v*100)+'%'},function(v){stretch=v;moved++})}
-  if(mode==='fission'){var r=row(box);btn(r,'Fire a neutron',function(){fis.t=0;moved++},'pri');st=stats(box,[['k','Fragments’ energy'],['n','New neutrons'],['f','Fissions so far']])}
-  if(mode==='fusion'){slider(box,'Plasma temperature',10,300,5,fz.T,function(v){return v+' million °C'},function(v){fz.T=v;moved++});st=stats(box,[['r','Fusions each second'],['e','Energy per fusion']])}
-  if(mode==='binding'||mode==='atom'||mode==='emc2')st=stats(box,mode==='emc2'?[['d','Mass lost (mass defect)'],['e','Energy, E = mc²'],['p','Per nucleon']]:[['z','Protons (Z)'],['n','Neutrons (N)'],['b','Binding energy per nucleon']]);
-  function fpair(){var g=function(){var u=0;for(var i=0;i<6;i++)u+=Math.random();return (u-3)*2.4};var lo=Math.round(95+g()),hi=234-lo;return [lo,hi]}
-  run(scr,function(dt){var c=scr.c,W=scr.W,H=scr.H,nb=narrow(),wide=W>=620;tt+=dt;yaw+=dt*.0006*(calm()?.3:1);bgf(c,W,H);grid(c,W,H,30);
-   var N=NUCS[ni],Z=N[1],A=N[2];if(mode==='isotope'){var I=ISO[iso];Z=I[0];A=Z+dN}
-   var k=Z+'/'+A+'/'+(mode==='drop'?'d':'');if(ptsK!==k){pts=nucPts(A,Z);ptsK=k}
-   var nx=wide?W*.3:W/2,ny=wide?H*.55:H*.36,sc=Math.min(wide?H*.075:H*.05,(wide?W*.22:W*.32)/Ma
+  pts.forEach(function(q){var x=q.x*(opt.sx||1)+(q.ox||0),y=q.y*(opt.sy||1),z=q.z*(opt.sy||1);

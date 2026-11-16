@@ -1,4 +1,14 @@
- is measured by…`,[`fuel enthalpy (J/g)`,`boron ppm`,`pressure`,`flow`],0,`Energy per gram.`)),x('m5-2-3',Q(`A rod could be ejected by…`,[`primary pressure if its drive housing broke`,`gravity`,`the operator`,`xenon`],0,`155 bar.`))]);
+ul>`),
+W('stepCalc',{steps:['Burst raises fuel temperature by 133 °C (last lesson).','UO₂ specific heat ≈ 0.3 J/(g·°C)','Energy deposited = 0.3 × 133 ≈ <b>40 J/g</b> (about 10 cal/g)','Experimental failure thresholds for fresh fuel are hundreds of J/g; for high-burnup fuel much lower.','So limiting rod worth and keeping a strong Doppler coefficient keeps the deposited energy well below limits.']},`Turn a temperature rise into deposited energy.`),
+N(`A burst raises fuel temperature by 400 °C. c = 0.3 J/(g·°C). Energy deposited, J/g?`,120,0.01,'J/g',`0.3 × 400 = 120 J/g.`),
+Q(`Why are rod ejection limits tighter for high-burnup fuel?`,[`The cladding is weaker (hydrided and corroded) and the pellet has more gas`,'It has more U-235 left in it, so the power spike is bigger','It is colder, so the cladding is more brittle and cracks open more easily when hit','Rods are worth less in old fuel, so ejecting one matters more'],0,`Pulse tests showed failures at lower energies.`),
+QE(`At hot zero power, the Doppler feedback during a burst comes mainly from…`,[`fuel temperature rising`,`boron concentration falling`,`xenon building up quickly`,`the turbine taking more steam`],0,`It's the fastest feedback.`),
+T(`<h3>Key points</h3><ul><li><b>Rod ejection</b> is a reactivity-initiated accident.</li><li>Damage is judged by <b>deposited fuel enthalpy</b> (J/g).</li><li>Rod worth limits + strong Doppler feedback keep it within limits.</li></ul>`)])
+]});
+F('m5-2-1',[T(`<h3>Quick recap</h3><p>P = P₀ + ρ/(|α|θ).</p>`),N(`ρ = 150 pcm, |α| = 2.5, θ = 6. Power rise (%)?`,10,0.01,'%',`150/15.`),Q(`Why can power overshoot before settling?`,[`Fuel temperature lags behind power`,`Delayed neutrons vanish`,`Boron is added`,`It can't`],0,`τ.`),Q(`A more negative α gives…`,[`a smaller power rise`,`a bigger rise`,`no change`,`instability`],0,`Stronger feedback.`)]);
+F('m5-2-2',[T(`<h3>Quick recap</h3><p>ΔT = 2(ρ₀ − β)/|α|.</p>`),N(`ρ₀ − β = 0.003, |α| = 3 × 10⁻⁵. ΔT?`,200,0.01,'°C',`0.006/3e-5.`),Q(`After the burst, reactivity is…`,[`as far below prompt critical as it started above`,`exactly β`,`zero`,`still rising`],0,`Symmetry.`),Q(`TRIGA reactors pulse safely because…`,[`their fuel has a very strong negative coefficient`,`they have no control rods`,`they are huge`,`they use sodium`],0,`Self-limiting.`)]);
+F('m5-2-3',[T(`<h3>Quick recap</h3><p>Energy = c × ΔT, in J/g.</p>`),N(`ΔT = 200 °C, c = 0.3. Energy (J/g)?`,60,0.01,'J/g',`0.3 × 200.`),Q(`RIA stands for…`,[`reactivity-initiated accident`,`reactor isolation alarm`,`radiation in air`,`rod insertion analysis`],0,`Rod ejection is one.`),Q(`Rod worths are most limited at…`,[`hot zero power`,`full power only`,`refuelling`,`never`],0,`Rods deepest.`)]);
+TT('m5-2',[x('m5-2-1',Q(`With feedback, the new steady state has total reactivity…`,[`zero`,`ρ<sub>ext</sub>`,`β`,`negative forever`],0,`Critical again.`)),x('m5-2-1',N(`ρ = 200 pcm, |α| = 4, θ = 5. Power rise (%)?`,10,0.01,'%',`200/20.`)),x('m5-2-2',Q(`The Nordheim–Fuchs model ignores…`,[`delayed neutrons and heat loss`,`feedback`,`fuel`,`prompt neutrons`],0,`Too fast.`)),x('m5-2-2',N(`Pulse width ≈ 3.5Λ/(ρ₀ − β), Λ = 2 × 10⁻⁵, ρ₀ − β = 0.0035. Width in ms?`,20,0.01,'ms',`7e-5/0.0035 = 0.02 s.`)),x('m5-2-3',Q(`Rod ejection damage is measured by…`,[`fuel enthalpy (J/g)`,`boron ppm`,`pressure`,`flow`],0,`Energy per gram.`)),x('m5-2-3',Q(`A rod could be ejected by…`,[`primary pressure if its drive housing broke`,`gravity`,`the operator`,`xenon`],0,`155 bar.`))]);
 
 U({id:'m5-3',track:'maths',level:5,title:'Two-group diffusion and reflectors',icon:'φ₁φ₂',color:'#1D9E75',desc:'Fast and thermal neutrons as two linked groups, reflector savings, and solving the diffusion equation on a computer.',lessons:[
 LH('m5-3-1','Two energy groups',10,'Split neutrons into fast and thermal, link them by slowing down, and get a much better k.',[
@@ -876,26 +886,4 @@ Q(`Which of these differentiate to 2x?`,[`All of x², x² + 5 and x² − 1`,'On
 Q(`Why do we write + C after integrating?`,[`Any constant would have disappeared when differentiating`,'C stands for "calculus", to show you integrated','It\'s always equal to 1, the starting value of x','To make up for any rounding errors made while integrating'],0,`We can't recover it.`),
 T(`<h3>Always check</h3><p>You can check any integral by <b>differentiating</b> your answer. If you get back what you started with, it's right.</p><p>∫ 3x² dx = x³ + C. Check: d/dx (x³ + C) = 3x². ✓</p>`),
 Q(`∫ 3x² dx = x³ + C. How can you check this?`,[`Differentiate x³ + C and see if you get 3x²`,'Integrate x³ + C again and see if you get 3x²','Put x = 0 into both sides and see if they match','You can\'t check it without a graph of the curve'],0,`Differentiation undoes integration.`),
-T(`<h3>Key points</h3><ul><li><b>Integration</b> is the reverse of differentiation.</li><li>Always add <b>+ C</b>.</li><li>Check by differentiating your answer.</li></ul>`)]),
-LH('c4-1-2','Integrating xⁿ',10,'The reverse power rule: add one to the power, then divide by the new power.',[
-RM(`<p>Integration reverses differentiation. Always + C. Check by differentiating.</p>`),
-T(`<h3>Reversing the power rule</h3><p>Differentiating: multiply by the power, then subtract 1. To reverse it, do the opposite moves in the opposite order:</p><div class="eq">∫ xⁿ dx = xⁿ⁺¹ ÷ (n + 1) + C</div><p><b>Add 1 to the power</b>, then <b>divide by the new power</b>.</p>`),
-W('stepCalc',{steps:[`∫ 6x² dx`,`Add 1 to the power: 2 + 1 = 3`,`Divide by the new power: 6 ÷ 3 = 2`,`Answer: <b>2x³ + C</b>`,`Check: d/dx (2x³) = 6x² ✓`]},`Watch the two moves.`,`Up one, divide by the new power, + C.`),
-Q(`∫ x⁴ dx = …`,[`x⁵/5 + C`,`4x³ + C`,`x⁵ + C`,`5x⁵ + C`],0,`Power 5, divide by 5.`),
-T(`<h3>Constants and sums</h3><ul><li>∫ 7 dx = 7x + C (a constant is 7x⁰; the power goes up to 1).</li><li>Integrate sums <b>term by term</b>, with one + C at the end.</li></ul><p>∫ (3x² + 4x + 5) dx = x³ + 2x² + 5x + C.</p>`),
-W('calcDrill',{skill:'intpow',need:8},`Integrate. Get 8 right in a row.`,`Add one to the power, divide by the new power.`),
-T(`<h3>Key points</h3><ul><li><b>∫ axⁿ dx = axⁿ⁺¹ ÷ (n + 1) + C</b>.</li><li>Constants: ∫ k dx = kx + C.</li><li>Term by term; one + C.</li></ul>`)]),
-LH('c4-1-3','Negative and fractional powers',10,'Rewrite first, then the reverse power rule still works. The one exception: x⁻¹.',[
-RM(`<p>∫ xⁿ dx = xⁿ⁺¹ ÷ (n + 1) + C. Rewrite fractions and roots as powers first.</p>`),
-T(`<h3>Rewrite, then integrate</h3><p>∫ 6/x³ dx: rewrite as ∫ 6x⁻³ dx. Add 1 to the power: −3 + 1 = −2. Divide by −2: 6 ÷ (−2) = −3. Answer: <b>−3x⁻² + C</b>.</p>`),
-T(`<h3>The one exception</h3><p>For x⁻¹ (that's 1/x), adding 1 gives x⁰, and dividing by 0 is impossible. So 1/x needs a different rule. You'll meet it in the next unit: it involves ln x.</p>`),
-Q(`Why doesn't the reverse power rule work for 1/x?`,[`It would mean dividing by zero`,'1/x has no graph to find the area under','It does work, giving ln x every time','Because x can never be negative'],0,`x⁻¹ → x⁰ ÷ 0.`),
-W('calcDrill',{skill:['intneg','intfrac'],need:6},`Rewrite and integrate. Get 6 right in a row.`,`Careful with negatives: −3 + 1 = −2.`),
-W('calcDrill',{skill:['intpow','intneg','intfrac'],need:8},`All powers, mixed. Get 8 right in a row.`,`You can integrate any power of x except 1/x.`),
-T(`<h3>Key points</h3><ul><li>Rewrite fractions and roots as powers first.</li><li>−3 + 1 = −2: watch the signs.</li><li><b>1/x is the exception</b>: it needs ln x.</li></ul>`)])
-]});
-
-U({id:'c4-2',track:'calc',level:4,title:'Definite integrals and area',icon:'∫ₐᵇ',color:'#1D9E75',desc:'Why integration finds areas, evaluating definite integrals, and areas above and below the axis.',lessons:[
-LH('c4-2-1','Area as thin strips',9,'Chop the area under a curve into strips, then make them infinitely thin.',[
-RM(`<p>In Level 1, shrinking a chord gave the exact gradient. The same "make it tiny" idea works for areas.</p>`),
-T(`<h3>Area under a curve</h3><p>How much area is under y = x² between x = 0 and x = 3? It's curved, so there's no simple formula. But we can split it into thin <b>rectangu
+T(`<h3>Key points</h3><ul><li><b>Integration</b> is the reverse of differentiation.</li><li>Always add <b>
