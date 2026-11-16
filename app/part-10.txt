@@ -1,4 +1,10 @@
-/b>.</p>`),
+ge in x.</li></ul>`)])
+]});
+U({id:'gp1-4',track:'gp',level:1,title:'Forces and motion basics',icon:'→',color:'#D85A30',desc:'Contact and non-contact forces, balanced and unbalanced forces, speed, and distance–time graphs.',lessons:[
+LH('gp1-4-1','Forces',8,'Pushes and pulls, contact and non-contact forces, and what balanced forces do.',[
+T(`<h3>What a force is</h3><p>A force is a push or a pull, measured in <b>newtons</b> (N). Forces can change an object's speed, direction or shape.</p><ul><li><b>Contact forces</b>: friction, air resistance, tension, normal contact force.</li><li><b>Non-contact forces</b>: gravity (weight), magnetic, electrostatic.</li></ul>`),
+W('sortIt',{bins:['Contact','Non-contact'],items:[['Friction',0],['Air resistance',0],['Tension in a rope',0],['Weight (gravity)',1],['Magnetic force',1],['Electrostatic force',1]]},`Contact or non-contact?`,`Non-contact forces act at a distance through a field.`),
+T(`<h3>Balanced and unbalanced</h3><ul><li><b>Balanced</b> forces (they cancel out): the object stays still, or keeps moving at a <b>steady speed</b> in a straight line.</li><li><b>Unbalanced</b> forces: the object speeds up, slows down or changes direction.</li></ul><p>The overall force is the <b>resultant force</b>.</p>`),
 Q(`A car drives at a steady 30 mph on a straight road. The forces on it are…`,[`balanced`,`unbalanced forwards`,`unbalanced backwards`,`zero: no forces act`],0,`Steady speed means the driving force equals the resistive forces.`),
 W('calcDrill',{skill:'g_resultant',need:3},`Resultant forces. Get 3 right in a row.`,`Same direction: add. Opposite directions: subtract.`),
 T(`<h3>Key points</h3><ul><li>Forces are in newtons. Contact or non-contact.</li><li>Balanced: still, or steady speed. Unbalanced: changing motion.</li></ul>`)]),
@@ -819,11 +825,4 @@ T(`<h3>Probability with algebra</h3><p>Some questions give probabilities in term
 Q(`P(A) = 2x, P(B) = 3x, P(C) = x + 0.1. A, B and C are the only outcomes. Find x.`,[`0.15`,'0.1','0.2','0.25'],0,`6x + 0.1 = 1, so x = 0.15.`),
 W('calcDrill',{skill:['g_condprob','g_venn'],need:6},`Conditional probability. Get 6 right in a row.`,`"Given that" restricts which group you look at.`),
 T(`<h3>Key points</h3><ul><li>Probabilities sum to 1: use it to form equations.</li><li>Without replacement: n then n − 1.</li><li>Given that: only count inside that group.</li></ul>`)]),
-LH('gm4-3-2','Interpreting data',11,'Getting full marks on histograms, box plots and comparisons.',[
-RM(`<p>Histogram area = frequency. Compare medians and IQRs, in context.</p>`),
-W('calcDrill',{skill:['g_hist','g_groupmean','g_median'],need:6},`Statistics calculations. Get 6 right in a row.`,`Frequency density × width = frequency.`),
-Q(`Why might the estimated mean from grouped data be different from the true mean?`,[`It uses midpoints, not the actual values`,'It uses a different formula from the real mean','It leaves out the highest group of values','It rounds every value down to the nearest group'],0,`Classic 1-mark question.`),
-Q(`Two classes' test scores: A has median 62, IQR 8; B has median 62, IQR 20. What's the best comparison?`,[`Same average, but A's scores were more consistent`,'A did better, because its IQR is smaller','B did better, because its scores spread higher','They did the same in every way: the medians match'],0,`Medians equal; A has less spread.`),
-T(`<h3>Key points</h3><ul><li>Grouped mean: an estimate because it uses midpoints.</li><li>Always compare an average and a spread, in context.</li></ul>`)])
-]});
-U({id:'gm4-4',track:'gm',level:4,title:'Mixed exam questions',icon:'📝',color:'#BA7517',desc:'Non-calculator and calculator mixed practice across the w
+LH('gm4-3-2','Interpreting data',11,'Getting fu

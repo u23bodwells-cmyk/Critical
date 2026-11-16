@@ -98,6 +98,9 @@ Displacement is how far <i>in a straight line in a given direction</i>.`),
   [].forEach.call(ov.querySelectorAll('.rvread [data-ui]'),function(b){b.onclick=function(){closeHub();startLesson(+b.dataset.ui,+b.dataset.li)}})}
  /* ----- the Tests tab in This week's plan ----- */
  var ed=null,delAsk=null;
+ /* link to Big Past Paper in Claude (runs on your Claude account, no API key); ticked lessons ride along in the link */
+ function bppUrl(subj,ids){try{return PP.artUrl({subj:subj,lids:ids||[]})}catch(_){return 'https://claude.ai/artifact/AsFGW6Ut3XQ8tBmmUTeCq4'}}
+ function bppRow(href,note){return '<div class="rvbpp"><a class="plgo" data-k="bpp" href="'+esc(href)+'" target="_blank" rel="noopener">📝 Big Past Paper in Claude ↗</a><span class="plnote">'+note+'</span></div>'}
  function blank(){return {name:'',subj:'gp',sname:'',date:addD(today(),7),days:3,units:[],cards:[]}}
  function add(A,label,cls,fn){var b=document.createElement('button');b.type='button';b.className='plgo'+(cls?' '+cls:'');b.textContent=label;b.onclick=fn;A.appendChild(b);return b}
  function removeT(id,full){var r=R(),t=testOf(id);if(!t)return;if(full){r.tests.splice(r.tests.indexOf(t),1);delete r.log[id];delete r.mocks[id];Object.keys(r.miss).forEach(function(k){if(k.indexOf('O'+id+'#')===0)delete r.miss[k]})}else t.gone=today();save()}
@@ -106,6 +109,7 @@ Displacement is how far <i>in a straight line in a given direction</i>.`),
   box.innerHTML='';if(ed)return form(box,again);
   var up=r.tests.filter(function(t){return !t.gone&&t.date>=td}).sort(function(a,b){return a.date<b.date?-1:1}),past=r.tests.filter(function(t){return !t.gone&&t.date<td}).sort(function(a,b){return a.date<b.date?1:-1});
   var now=el('div','pldnow','<b>Revise for a test</b>Add a test and Critical turns the days before it into revision days. Each one quizzes you on that day\'s topics, and the last day before the test is a mini mock. They take the same time as your normal plan.',box);
+  el('div',null,bppRow(bppUrl(up[0]?up[0].subj:'gp',up[0]&&up[0].subj!=='own'?up[0].units:[]),'An hour of exam questions, marked by Claude. Do one any time, no API key needed.'+(up[0]&&up[0].subj!=='own'?' Opens with your next test\'s topics.':'')),box);
   if(!up.length)el('p','plnote','No tests coming up.',box);
   up.forEach(function(t){var sub=t.subj==='own'?cards(t).length+' flashcard'+(cards(t).length===1?'':'s'):uTitles(t.units).join(', '),c=el('div','plblk rvtest',null,box);
    c.innerHTML='<div class="plbody"><p class="plt"><span>'+esc(tName(t))+'</span><span class="plm">'+inDays(t.date)+'</span></p><p class="plh">'+esc(subjName(t))+' · '+nice(t.date)+'</p><p class="plh">'+esc(sub)+'</p>'+
@@ -124,7 +128,7 @@ Displacement is how far <i>in a straight line in a given direction</i>.`),
  function parse(txt){var out=[];String(txt||'').split(/\r?\n/).forEach(function(line){line=line.trim();if(!line)return;var m=line.split(/\t| \| |\|| - | – | = /);if(m.length<2){var i=line.indexOf(': ');if(i>0)m=[line.slice(0,i),line.slice(i+2)]}
   if(m.length>=2){var q=m[0].trim(),a=m.slice(1).join(' - ').trim();if(q&&a)out.push({q:q.slice(0,300),a:a.slice(0,300)})}});return out}
  function form(box,again){var f=ed;if(!Array.isArray(f.units))f.units=[];if(!Array.isArray(f.cards))f.cards=[];
-  var h='<div class="pldnow"><b>'+(f._edit?'Edit your test':'Add a test')+'</b>Critical turns the days before it into revision days.</div><div class="rvf">'+
+  var h='<div class="pldnow"><b>'+(f._edit?'Edit your test':'Add a test')+'</b>Critical turns the days before it into revision days.</div>'+bppRow(bppUrl(f.subj,f.units),'Practise for it any time with an hour of exam questions marked by Claude. No API key needed. Topics you tick below carry over.')+'<div class="rvf">'+
    '<label>What\'s the test?<input type="text" data-f="name" maxlength="50" placeholder="e.g. Physics end-of-topic test"></label>'+
    '<label>Subject<select data-f="subj"><option value="gm">GCSE Maths</option><option value="gp">GCSE Physics</option><option value="gc">GCSE Chemistry</option><option value="gcs">GCSE Computer Science</option><option value="own">Another subject (your own flashcards)</option></select></label>'+
    (f.subj==='own'?'<label>Which subject?<input type="text" data-f="sname" maxlength="30" placeholder="e.g. Biology, History, French"></label>':'')+
@@ -136,7 +140,7 @@ Displacement is how far <i>in a straight line in a given direction</i>.`),
   h+='<p class="plderr" data-k="err" hidden></p><div class="placts"><button type="button" class="plgo" data-a="save">Save test</button><button type="button" class="plgo alt" data-a="cancel">Cancel</button></div></div>';
   box.innerHTML=h;var q=function(s){return box.querySelector(s)};
   q('[data-f=name]').value=f.name||'';q('[data-f=subj]').value=f.subj;q('[data-f=date]').value=f.date||'';q('[data-f=date]').min=addD(today(),1);q('[data-f=days]').value=String(f.days||3);
-  function prev(){q('[data-k=prev]').textContent=prevTxt(f)}prev();
+  function prev(){q('[data-k=prev]').textContent=prevTxt(f);var bl=q('[data-k=bpp]');if(bl)bl.href=bppUrl(f.subj,f.subj==='own'?[]:f.units)}prev();
   q('[data-f=name]').oninput=function(){f.name=this.value};q('[data-f=date]').oninput=function(){f.date=this.value;prev()};q('[data-f=days]').onchange=function(){f.days=+this.value;prev()};
   q('[data-f=subj]').onchange=function(){f.subj=this.value;f.units=[];again()};
   if(q('[data-f=sname]')){q('[data-f=sname]').value=f.sname||'';q('[data-f=sname]').oninput=function(){f.sname=this.value}}
@@ -192,6 +196,7 @@ Displacement is how far <i>in a straight line in a given direction</i>.`),
   '.rvpaste{margin-top:8px}.rvpaste textarea{min-height:110px;margin:8px 0}.rvans{border:1.5px solid var(--line);border-radius:14px;padding:12px 14px;margin-top:10px;white-space:pre-wrap}'+
   '.pldays button.rv{border-style:dashed;border-color:#7F77DD}.pldays button.rv.on{border-style:solid}'+
   '.rvnext{display:flex;gap:10px;align-items:center;justify-content:space-between;background:rgba(127,119,221,.13);border-radius:12px;padding:10px 12px;font-size:14px;line-height:1.4}.rvnext[hidden]{display:none}.rvnext .plgo{flex:none}'+
+  '.rvbpp{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;background:rgba(127,119,221,.1);border:1.5px dashed #7F77DD;border-radius:12px;padding:10px 12px}.rvbpp .plgo{text-decoration:none;flex:none}.rvbpp .plnote{flex:1;min-width:180px;margin:0}'+
   '.pltv{display:flex;flex-direction:column;gap:12px}.pltv[hidden]{display:none}.rvtest .plbody{display:flex;flex-direction:column;gap:2px}';
  document.head.appendChild(css);
  return {match:match,dayInfo:dayInfo,byPin:build,hub:hub,closeHub:closeHub,paintTab:paintTab,banner:banner,doneDay:doneDay,mark:mark,rf:rf,endPractice:endPractice,endMock:endMock,practice:practice,mock:mock,sched:sched,plan:plan,tests:function(){return R().tests}};
@@ -442,7 +447,7 @@ var PP=(function(){
   '.pplogmsg{margin:8px 0 0;padding:8px 10px;border-radius:10px}.pplogmsg.ok{background:var(--good-bg);color:var(--text)}.pplogmsg.bad{background:var(--warn-bg);color:var(--text)}.ppcard.ppdrop{outline:3px dashed #7F77DD;outline-offset:4px}'+
   '.ppchips button{border:0;cursor:pointer;font:inherit}.ppsug{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.ppsug:empty{display:none}.pphist{margin-top:10px}';
  document.head.appendChild(css);
- return {setup:openSetup,resume:resume,card:card,state:function(){return st},_png:png,_fmt:fmt};
+ return {artUrl:artUrl,setup:openSetup,resume:resume,card:card,state:function(){return st},_png:png,_fmt:fmt};
 })();
 try{window.PP=PP}catch(_){}
 /* ===== weekly plan (calendar button next to the study timer) ===== */
@@ -1161,89 +1166,4 @@ QRBitBuffer.prototype = {
 	putBit : function(bit) {
 	
 		var bufIndex = Math.floor(this.length / 8);
-		if (this.buffer.length <= bufIndex) {
-			this.buffer.push(0);
-		}
-	
-		if (bit) {
-			this.buffer[bufIndex] |= (0x80 >>> (this.length % 8) );
-		}
-	
-		this.length++;
-	}
-};
-
-module.exports = QRBitBuffer;
-
-},
-"./QRErrorCorrectLevel":function(module,exports,require){
-module.exports = {
-	L : 1,
-	M : 0,
-	Q : 3,
-	H : 2
-};
-
-
-},
-"./QRMaskPattern":function(module,exports,require){
-module.exports = {
-	PATTERN000 : 0,
-	PATTERN001 : 1,
-	PATTERN010 : 2,
-	PATTERN011 : 3,
-	PATTERN100 : 4,
-	PATTERN101 : 5,
-	PATTERN110 : 6,
-	PATTERN111 : 7
-};
-
-},
-"./QRMath":function(module,exports,require){
-var QRMath = {
-
-	glog : function(n) {
-	
-		if (n < 1) {
-			throw new Error("glog(" + n + ")");
-		}
-		
-		return QRMath.LOG_TABLE[n];
-	},
-	
-	gexp : function(n) {
-	
-		while (n < 0) {
-			n += 255;
-		}
-	
-		while (n >= 256) {
-			n -= 255;
-		}
-	
-		return QRMath.EXP_TABLE[n];
-	},
-	
-	EXP_TABLE : new Array(256),
-	
-	LOG_TABLE : new Array(256)
-
-};
-	
-for (var i = 0; i < 8; i++) {
-	QRMath.EXP_TABLE[i] = 1 << i;
-}
-for (var i = 8; i < 256; i++) {
-	QRMath.EXP_TABLE[i] = QRMath.EXP_TABLE[i - 4]
-		^ QRMath.EXP_TABLE[i - 5]
-		^ QRMath.EXP_TABLE[i - 6]
-		^ QRMath.EXP_TABLE[i - 8];
-}
-for (var i = 0; i < 255; i++) {
-	QRMath.LOG_TABLE[QRMath.EXP_TABLE[i] ] = i;
-}
-
-module.exports = QRMath;
-
-},
-"./QRMode":func
+		if (this.buffer.len

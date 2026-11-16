@@ -1,4 +1,10 @@
-sc:'A PWR tour, the pressuriser, steam and electrical systems, instruments, safety systems, materials and chemistry.',lessons:[
+n: contamination on a glove can\'t go anywhere'],1,`That's why contaminated items stay in the controlled area, and radiation protection staff are called.`),
+O(`Put the steps for leaving a controlled area in order.`,['Finish the job and leave the work area','Remove protective clothing at the boundary','Check yourself at the contamination monitor','Leave if clean, or call radiation protection if not'],`Monitoring after removing protective clothing makes sure nothing leaves on your skin or own clothes.`),
+T(`<h3>ALARP</h3><p>UK law requires doses to be kept <b>as low as reasonably practicable</b> (ALARP), not just below the limits. Every job with radiation exposure is planned to reduce dose wherever it's reasonable to do so.</p>`),
+Q(`Your electronic dosimeter alarms on a high dose rate. What should you do?`,['Ignore it and finish the job quickly, then report it afterwards','Stop, leave the area by the way you came, and tell radiation protection','Turn it off and on again in case it\'s a false alarm','Move closer to find the source so you can tell them where it is'],1,`Treat alarms as real until proven otherwise. Stop, withdraw to a lower dose area and report.`)])
+]});
+
+U({id:'plant',title:'Plant systems',icon:'PWR',color:'#5F7A8C',desc:'A PWR tour, the pressuriser, steam and electrical systems, instruments, safety systems, materials and chemistry.',lessons:[
 L('s1','A tour of a PWR',10,[
 T(`<h3>Three circuits</h3><ul><li><b>Primary circuit</b>: water at 155 bar is pumped through the core and the steam generators. It's radioactive.</li><li><b>Secondary circuit</b>: water boils in the steam generators, drives the turbine and is condensed. It's kept separate from the primary water.</li><li><b>Cooling water</b>: sea water (at UK coastal sites) cools the condenser.</li></ul><p>Hinkley Point C's EPR reactors each have four primary loops, each with a steam generator and a reactor coolant pump, plus one pressuriser.</p>`),
 W('pwrDiagram',{},`Click the components to learn about them. Then press <b>Quiz me</b> and find each one.`,`Every system you'll learn is somewhere on this diagram.`),
@@ -803,12 +809,4 @@ Q(`The primary coolant heats up and expands. Pressuriser level and pressure…`,
 Q(`Pressure is too low. Which action raises it?`,['Turn on the heaters','Open the spray','Open a relief valve','Turn the heaters down'],0,`Heaters boil more water into steam, raising the pressure.`),
 Q(`Where does pressuriser spray water come from?`,['A cold leg','The sea','The condenser','The turbine'],0,`Cooler cold-leg water is sprayed into the steam space to condense steam.`),
 Q(`The pressuriser contains…`,['water and steam at saturation','only water','only nitrogen gas','only steam'],0,`Keeping water and steam together at saturation is what lets temperature control the pressure.`),
-Q(`A key lesson from the relief valve at Three Mile Island was…`,['show the valve\'s real position, and train operators to check other symptoms','never use relief valves','always reduce emergency cooling','turn off alarms'],0,`The light showed the command, not the valve's actual position.`)]);
-
-F('s3',[
-T(`<h3>Quick recap</h3><ul><li>Steam generator level is controlled with feedwater. Too low: lose the heat sink. Too high: water carried into the turbine.</li><li><b>Swell</b> (demand up) and <b>shrink</b> (demand down) make level control tricky</li><li>Generator speed: <b>rpm = 120 × f ÷ poles</b></li></ul>`),
-N(`A 2-pole generator runs on the 50 Hz grid. What speed does it turn at?`,3000,0.001,'rpm',`120 × 50 ÷ 2 = 3000 rpm.`),
-N(`A 4-pole generator runs on a 60 Hz grid (as in the USA). What speed does it turn at?`,1800,0.001,'rpm',`120 × 60 ÷ 4 = 1800 rpm.`),
-Q(`Steam demand drops suddenly. Steam generator level first…`,['falls (shrink), then recovers','rises','stays the same'],0,`Steam pressure rises, bubbles collapse, and the level shrinks for a while.`),
-Q(`What's the risk of steam generator level being too high?`,['Water carried over into the turbine','Losing the heat sink','Cavitating the reactor coolant pumps','Diluting the boron'],0,`Water droplets at high speed can damage turbine blades.`),
-Q(`When the turbine trips, steam dump valves send steam to…`,['the condenser',
+Q(`A key lesson from the relief valve at Three Mile Island was…`,['show the valve\'s real position, and train operators to check other symptoms','ne

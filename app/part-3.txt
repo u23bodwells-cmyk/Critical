@@ -1,4 +1,89 @@
-tion(module,exports,require){
+gth <= bufIndex) {
+			this.buffer.push(0);
+		}
+	
+		if (bit) {
+			this.buffer[bufIndex] |= (0x80 >>> (this.length % 8) );
+		}
+	
+		this.length++;
+	}
+};
+
+module.exports = QRBitBuffer;
+
+},
+"./QRErrorCorrectLevel":function(module,exports,require){
+module.exports = {
+	L : 1,
+	M : 0,
+	Q : 3,
+	H : 2
+};
+
+
+},
+"./QRMaskPattern":function(module,exports,require){
+module.exports = {
+	PATTERN000 : 0,
+	PATTERN001 : 1,
+	PATTERN010 : 2,
+	PATTERN011 : 3,
+	PATTERN100 : 4,
+	PATTERN101 : 5,
+	PATTERN110 : 6,
+	PATTERN111 : 7
+};
+
+},
+"./QRMath":function(module,exports,require){
+var QRMath = {
+
+	glog : function(n) {
+	
+		if (n < 1) {
+			throw new Error("glog(" + n + ")");
+		}
+		
+		return QRMath.LOG_TABLE[n];
+	},
+	
+	gexp : function(n) {
+	
+		while (n < 0) {
+			n += 255;
+		}
+	
+		while (n >= 256) {
+			n -= 255;
+		}
+	
+		return QRMath.EXP_TABLE[n];
+	},
+	
+	EXP_TABLE : new Array(256),
+	
+	LOG_TABLE : new Array(256)
+
+};
+	
+for (var i = 0; i < 8; i++) {
+	QRMath.EXP_TABLE[i] = 1 << i;
+}
+for (var i = 8; i < 256; i++) {
+	QRMath.EXP_TABLE[i] = QRMath.EXP_TABLE[i - 4]
+		^ QRMath.EXP_TABLE[i - 5]
+		^ QRMath.EXP_TABLE[i - 6]
+		^ QRMath.EXP_TABLE[i - 8];
+}
+for (var i = 0; i < 255; i++) {
+	QRMath.LOG_TABLE[QRMath.EXP_TABLE[i] ] = i;
+}
+
+module.exports = QRMath;
+
+},
+"./QRMode":function(module,exports,require){
 module.exports = {
     MODE_NUMBER :       1 << 0,
     MODE_ALPHA_NUM :    1 << 1,
@@ -1770,10 +1855,4 @@ W('jobPlanner',{},`A 30-minute valve repair is near a source giving <b>2 mSv/h a
 Q(`You need to cut your dose from a job in half quickly. Which is usually easiest?`,['Double your distance from the source (4× less dose rate)','Work twice as fast, even if it means rushing the job','Stand half as far away but finish the job quicker','Take off your dosimeter so it records less dose'],0,`Distance is often the cheapest and most effective protection. Rushing causes mistakes; removing a dosimeter breaks the rules.`)]),
 L('p3','Contamination and ALARP',8,[
 T(`<h3>Contamination vs irradiation</h3><p><b>Irradiation</b> is being exposed to radiation from a source. <b>Contamination</b> is radioactive material in the wrong place: on skin, clothes, tools or surfaces. Contamination can spread, and can be breathed in or swallowed, where alpha and beta emitters do much more harm.</p><p>Radiation areas are classified as <b>controlled</b> or <b>supervised</b> areas, with protective clothing, personal dosimeters and contamination monitors at exits.</p>`),
-Q(`A worker's glove shows contamination at the exit monitor. What's the main concern?`,['The glove now gives out radiation that can harm anyone who looks at it','Contamination could spread or be swallowed or breathed in','The glove will heat up and catch fire from the radioactivity','There\'s no concern: contamination on a glove can\'t go anywhere'],1,`That's why contaminated items stay in the controlled area, and radiation protection staff are called.`),
-O(`Put the steps for leaving a controlled area in order.`,['Finish the job and leave the work area','Remove protective clothing at the boundary','Check yourself at the contamination monitor','Leave if clean, or call radiation protection if not'],`Monitoring after removing protective clothing makes sure nothing leaves on your skin or own clothes.`),
-T(`<h3>ALARP</h3><p>UK law requires doses to be kept <b>as low as reasonably practicable</b> (ALARP), not just below the limits. Every job with radiation exposure is planned to reduce dose wherever it's reasonable to do so.</p>`),
-Q(`Your electronic dosimeter alarms on a high dose rate. What should you do?`,['Ignore it and finish the job quickly, then report it afterwards','Stop, leave the area by the way you came, and tell radiation protection','Turn it off and on again in case it\'s a false alarm','Move closer to find the source so you can tell them where it is'],1,`Treat alarms as real until proven otherwise. Stop, withdraw to a lower dose area and report.`)])
-]});
-
-U({id:'plant',title:'Plant systems',icon:'PWR',color:'#5F7A8C',de
+Q(`A worker's glove shows contamination at the exit monitor. What's the main concern?`,['The glove now gives out radiation that can harm anyone who looks at it','Contamination could spread or be swallowed or breathed in','The glove will heat up and catch fire from the radioactivity','There\'s no concer
