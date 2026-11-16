@@ -5191,9 +5191,11 @@ function* addOutside(scene) { var g = new THREE.Group(); g.position.set(RX, 0, R
       '  vec3 sc = mix(vec3(1.0,0.55,0.25), vec3(1.0,0.96,0.88), day * (1.0 - dusk));',
       '  c += sc * up * (smoothstep(0.99955, 0.99975, sg) * 5.0 + pow(sg, 900.0) * 1.2 + pow(sg, 60.0) * 0.28 + pow(sg, 7.0) * 0.10);',
       '  if (n.y > 0.01) { vec2 q = n.xz / (n.y + 0.18) * 1.15 + vec2(t * 0.0035, t * 0.0012); float f = fbm(q), f2 = fbm(q * 2.7 + 4.0);',
-      '    float cov = smoothstep(0.50, 0.78, f * 0.8 + f2 * 0.2) * smoothstep(0.01, 0.22, n.y);',
+      '    float nt = 1.0 - day; float cov = smoothstep(0.50 + 0.07 * nt, 0.78 + 0.05 * nt, f * 0.8 + f2 * 0.2) * smoothstep(0.01, 0.22, n.y) * (1.0 - 0.35 * nt);',
       '    vec3 cl = mix(vec3(0.035,0.045,0.075), vec3(0.98,0.98,1.0), day); cl = mix(cl, vec3(1.0,0.60,0.42), dusk * 0.75 * (0.4 + 0.6 * az));',
-      '    cl *= 0.72 + 0.28 * smoothstep(0.5, 0.9, f) + 0.25 * pow(sg, 4.0) * up; c = mix(c, cl, cov * 0.82); }',
+      '    cl *= 0.72 + 0.28 * smoothstep(0.5, 0.9, f) + 0.25 * pow(sg, 4.0) * up;',
+      '    float mg = max(0.0, dot(n, normalize(vec3(1520.0, 920.0, -1040.0)))); cl += nt * (vec3(0.07,0.09,0.14) + vec3(0.55,0.6,0.75) * pow(mg, 5.0) * 0.55);',
+      '    c = mix(c, cl, cov * 0.82); }',
       '  gl_FragColor = vec4(c, 1.0); }'].join('\n') })); sky.frustumCulled = false; sky.userData.noShadow = true; g.add(sky); EXT.sky = sky;
   var sp = new Float32Array(2000 * 3); for (i = 0; i < 2000; i++) { var th2 = Math.random() * Math.PI * 2, ph = Math.acos(Math.random() * 0.95 + 0.05); sp[i * 3] = Math.sin(ph) * Math.cos(th2) * 2300; sp[i * 3 + 1] = Math.cos(ph) * 2300; sp[i * 3 + 2] = Math.sin(ph) * Math.sin(th2) * 2300; }
   var sg = new THREE.BufferGeometry(); sg.setAttribute('position', new THREE.BufferAttribute(sp, 3)); var stars = new THREE.Points(sg, new THREE.PointsMaterial({ color: 0xdfe8ff, size: 1.6, sizeAttenuation: false, transparent: true, opacity: 0.9 })); stars.frustumCulled = false; g.add(stars);
