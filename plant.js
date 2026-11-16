@@ -488,7 +488,13 @@ function widget(opts) {
   var m = new THREE.Mesh(new THREE.PlaneGeometry(opts.w, opts.h), mt), w = { m: m, c: c, k: k, g: c.getContext('2d'), t: t, last: null, draw: opts.draw, key: opts.key, every: opts.every || 0, acc: 0, o: opts };
   m.userData.tip = opts.tip; m.userData.w = w; WG.push(w); return w;
 }
-function redraw(w, force) { var k = w.key ? w.key() : 1; if (!force && k === w.last) return false; w.last = k; w.g.save(); if (w.k !== 1) w.g.scale(w.k, w.k); w.draw(w.g, w); w.g.restore(); w.t.needsUpdate = true; return true; }
+function redraw(w, force) { var k = w.key ? w.key() : 1; if (!force && k === w.last) return false; w.last = k; w.g.save(); if (w.k !== 1) w.g.scale(w.k, w.k); w.draw(w.g, w); w.g.restore(); if (w.o && w.o.crt) crtFinish(w); w.t.needsUpdate = true; return true; }
+var CRT_PAT = null;
+/* control room look: dark tube, faint amber/green phosphor glow, scanlines, thin edge glow and a barely-there flicker; drawn once per redraw, so no per-frame cost */
+function crtFinish(w) { var g = w.g, W = w.c.width, H = w.c.height; if (!CRT_PAT) { var pc = document.createElement('canvas'); pc.width = 4; pc.height = 4; var pg = pc.getContext('2d'); pg.fillStyle = 'rgba(0,0,0,0.16)'; pg.fillRect(0, 0, 4, 1); pg.fillStyle = 'rgba(0,0,0,0.07)'; pg.fillRect(0, 2, 4, 1); CRT_PAT = g.createPattern(pc, 'repeat'); }
+  g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.globalCompositeOperation = 'source-over'; g.fillStyle = 'rgba(2,6,4,' + (0.2 + 0.03 * Math.sin(performance.now() * 0.0031 + W)).toFixed(3) + ')'; g.fillRect(0, 0, W, H); g.fillStyle = CRT_PAT; g.fillRect(0, 0, W, H);
+  var vg = g.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.35, W / 2, H / 2, Math.max(W, H) * 0.75); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,0.38)'); g.fillStyle = vg; g.fillRect(0, 0, W, H);
+  g.globalCompositeOperation = 'lighter'; g.strokeStyle = 'rgba(255,170,60,0.22)'; g.lineWidth = Math.max(2, W / 400); g.strokeRect(g.lineWidth, g.lineWidth, W - 2 * g.lineWidth, H - 2 * g.lineWidth); g.fillStyle = 'rgba(30,70,40,0.05)'; g.fillRect(0, 0, W, H); g.restore(); }
 /* edgewise vertical meter (the classic tall narrow control-board meter) */
 function meterE(o) {
   o.cw = 104; o.ch = 300; o.w = o.w || 0.078; o.h = o.h || 0.225;
@@ -607,7 +613,7 @@ function chart(o) {
   return widget(o);
 }
 /* computer screen */
-function screen(o) { o.cw = o.cw || 1024; o.ch = o.ch || 640; o.glow = true; o.every = o.every || 0.5; o.key = function () { return Math.floor(performance.now() / (o.every * 1000)); }; return widget(o); }
+function screen(o) { o.cw = o.cw || 1024; o.ch = o.ch || 640; o.glow = true; o.crt = true; o.every = o.every || 0.5; o.key = function () { return Math.floor(performance.now() / (o.every * 1000)); }; return widget(o); }
 
 /* ================================================================ the control room ================================================================
    A horseshoe of eleven benchboards around the operator, laid out like a real Westinghouse-style PWR control room:
