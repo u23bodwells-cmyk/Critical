@@ -6667,7 +6667,15 @@ function roomPowerTick(dt) {
   for (i = 0; i < sp.length; i++) { var s = sp[i]; s.l.intensity = s.i * (s.em ? Math.max(k, 0.22 * em) : k); }
   E.lm.color.setScalar(em > 0.02 ? 0.14 + 1.3 * em : 0.14); E.xm.color.setScalar(dcOk ? 1 : 0.12);
 }
-EXT.tick = function (dt) { if (!EXT.on) return; EXT.t += dt; roomDustTick(dt, EXT.t); tripAlarmTick(); try { plantFxTick(dt); } catch (e) {} try { trailTick(dt); } catch (e) {} try { vanLightsTick(dt); } catch (e) {} try { roomPowerTick(dt); } catch (e) {} if (EXT.wind) EXT.wind.value = EXT.t;
+/* alarm lighting: while unacknowledged alarms are sounding (or several are lit) the control room's sky light takes a faint amber tint that breathes slowly, on top of the red pulse after a trip. Colour only, no new lights. */
+var ATINT = { k: 0, base: null, a: null };
+function roomAlarmTint(dt) {
+  var H = (typeof R3 !== 'undefined' && R3) ? R3.hemiL : null; if (!H || !(dt > 0) || typeof ANN === 'undefined' || !ANN) return; if (!ATINT.base) { ATINT.base = H.color.clone(); ATINT.a = new THREE.Color(1.0, 0.6, 0.3); }
+  var un = 0, on = 0, i, t; for (i = 0; i < ANN.length; i++) { t = ANN[i]; if (t.k === 'status') continue; if (t.st === 'alert') un++; if (t.was) on++; }
+  var tgt = (CAM.x > -RX && CAM.x < RX && CAM.z > ZB && CAM.z < ZF) ? (un > 0 ? clamp(0.3 + un / 8, 0.3, 0.8) : on >= 4 ? 0.25 : 0) : 0; ATINT.k += (tgt - ATINT.k) * Math.min(1, dt * (tgt > ATINT.k ? 2 : 0.8));
+  if (ATINT.k < 0.004 && !ATINT.on) return; ATINT.on = ATINT.k >= 0.004; var m = ATINT.k * (0.22 + 0.06 * Math.sin(EXT.t * 2.2)); H.color.copy(ATINT.base).lerp(ATINT.a, m);
+}
+EXT.tick = function (dt) { if (!EXT.on) return; EXT.t += dt; roomDustTick(dt, EXT.t); tripAlarmTick(); try { plantFxTick(dt); } catch (e) {} try { trailTick(dt); } catch (e) {} try { vanLightsTick(dt); } catch (e) {} try { roomPowerTick(dt); } catch (e) {} try { roomAlarmTint(dt); } catch (e) {} if (EXT.wind) EXT.wind.value = EXT.t;
   /* day and night from the real sun over the station: it rises in the east (+x, through the windows), crosses the south (−z) and sets in the west */
   var SN = sunNow(), el = SN.el, ce = Math.sqrt(Math.max(0, 1 - el * el)), day = clamp(el * 3 + 0.15, 0, 1) * (1 - 0.3 * (WXL.d ? WXL.d.cl : 0)), dusk = clamp(1 - Math.abs(el) * 5, 0, 1) * (el > -0.25 ? 1 : 0), cloudK = 1 - 0.7 * (WXL.d ? WXL.d.cl : 0);
   var sd = new THREE.Vector3(Math.sin(SN.az) * ce, Math.max(el, -0.3) * 0.8 + 0.02, Math.cos(SN.az) * ce).normalize(), sunUp = el > -0.05, LK = PERF.lite ? 0.8 : 1, vis = clamp((el + 0.05) * 7, 0, 1), mk = clamp((-el - 0.05) * 6, 0, 1);
