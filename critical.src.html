@@ -3611,20 +3611,24 @@ var PP=(function(){
  /* ----- the paper ----- */
  var st=ld(),ov=null,tk=0,busy=false,err=null,setup=null;
  function open(){if(!ov){ov=document.createElement('div');ov.className='ppov';ov.setAttribute('role','dialog');ov.setAttribute('aria-modal','true');ov.setAttribute('aria-label','Big past paper');
-   ov.innerHTML='<div class="ppin"><div class="pphd"><b class="ppt"></b><span class="ppclk" data-k="clk"></span><span class="ppsc" data-k="sc"></span><button type="button" class="plgo alt" data-a="fin">Finish paper</button><button type="button" class="plgo alt" data-a="x">Close</button></div><div class="ppbody"></div></div>';
-   document.body.appendChild(ov);ov.querySelector('[data-a=x]').onclick=close;ov.querySelector('[data-a=fin]').onclick=function(){if(!st||st.phase==='done')return;var b=this;if(b.dataset.sure){finish();return}b.dataset.sure=1;b.textContent='Tap again to finish';setTimeout(function(){if(b.isConnected){delete b.dataset.sure;b.textContent='Finish paper'}},3000)}}
+   ov.innerHTML='<div class="ppin"><div class="pphd"><b class="ppt"></b><span class="ppclk" data-k="clk"></span><span class="ppsc" data-k="sc"></span><button type="button" class="plgo alt" data-a="pse">⏸ Pause</button><button type="button" class="plgo alt" data-a="fin">Finish paper</button><button type="button" class="plgo alt" data-a="x">Close</button></div><div class="ppbody"></div></div>';
+   document.body.appendChild(ov);ov.querySelector('[data-a=x]').onclick=close;ov.querySelector('[data-a=pse]').onclick=function(){if(!st||st.phase==='done')return;if(st.paused)unpause();else st.paused=Date.now();sv();render()};ov.querySelector('[data-a=fin]').onclick=function(){if(!st||st.phase==='done')return;var b=this;if(b.dataset.sure){finish();return}b.dataset.sure=1;b.textContent='Tap again to finish';setTimeout(function(){if(b.isConnected){delete b.dataset.sure;b.textContent='Finish paper'}},3000)}}
   document.body.classList.add('noscroll');try{if(window.PLAN)PLAN.close()}catch(_){}try{REV.closeHub()}catch(_){}clearInterval(tk);tk=setInterval(tick,1000);tick()}
  function close(){if(ov){ov.remove();ov=null}document.body.classList.remove('noscroll');clearInterval(tk);setup=null;try{card()}catch(_){}}
- function left(){return st?st.ends-Date.now():0}
+ function left(){return st?st.ends-(st.paused||Date.now()):0}
+ function unpause(){if(st&&st.paused){st.pz=(st.pz||0)+(Date.now()-st.paused);st.ends+=Date.now()-st.paused;st.paused=null}}
+ function usedMs(){return Math.max(0,Math.min(st.mins*60000,(st.fin||st.paused||Date.now())-st.start-(st.pz||0)))}
  function tick(){if(!ov)return;var c=ov.querySelector('[data-k=clk]'),s=ov.querySelector('[data-k=sc]'),f=ov.querySelector('[data-a=fin]');
-  if(!st||setup){c.textContent='';s.textContent='';f.hidden=true;return}f.hidden=st.phase==='done';
-  var l=left();c.textContent=st.phase==='done'?'':l>0?'⏱ '+mmss(l):'⏱ Time\'s up';c.classList.toggle('low',l<5*60000);var g=got();s.textContent=g[1]?'Marks: '+g[0]+'/'+g[1]:'';
+  var pz=ov.querySelector('[data-a=pse]');if(!st||setup){c.textContent='';s.textContent='';f.hidden=true;pz.hidden=true;return}f.hidden=st.phase==='done';
+  var l=left();pz.hidden=st.phase==='done'||(l<=0&&!st.paused);pz.textContent=st.paused?'▶ Resume':'⏸ Pause';c.textContent=st.phase==='done'?'':st.paused?'⏸ '+mmss(l):l>0?'⏱ '+mmss(l):'⏱ Time\'s up';if(st.paused)return;c.classList.toggle('low',l<5*60000);var g=got();s.textContent=g[1]?'Marks: '+g[0]+'/'+g[1]:'';
   if(l<=0&&st.phase==='answer'&&!st.tw){st.tw=1;sv();var b=ov.querySelector('.ppbody'),n=document.createElement('p');n.className='ppwarn';n.textContent='Time\'s up. Finish this question and press Mark: it\'ll be your last one.';b.insertBefore(n,b.firstChild)}
   if(l<=0&&st.phase==='marked'){var nb=ov.querySelector('[data-a=next]');if(nb&&nb.dataset.k!=='end'){nb.dataset.k='end';nb.textContent='See your results →'}}}
  function got(){var g=0,m=0;(st?st.qs:[]).forEach(function(q){if(q.res){g+=q.res.got;m+=q.res.max}});return [g,m]}
  function title(){var t=ov.querySelector('.ppt');t.textContent=setup?'Big past paper':'Big past paper · '+subjName(st)+(st.topics?' · '+st.topics:'')}
  function body(h){var b=ov.querySelector('.ppbody');b.innerHTML=h;b.scrollTop=0;ov.scrollTop=0;return b}
- function render(){if(!ov)return;title();tick();if(setup)return renderSetup();if(err)return renderErr();var p=st.phase;
+ function render(){if(!ov)return;title();tick();if(setup)return renderSetup();
+  if(st.paused&&st.phase!=='done'){var pb=body('<div class="ppload"><p class="ppqn">Paused</p><h2 style="margin:0;font:800 34px var(--mono)">'+mmss(left())+' left</h2><p class="plnote">The clock has stopped and your question is hidden until you come back.</p><button type="button" class="plbig" data-a="unp" style="max-width:320px">▶ Resume the paper</button></div>');pb.querySelector('[data-a=unp]').onclick=function(){unpause();sv();render()};return}
+  if(err)return renderErr();var p=st.phase;
   if(p==='gen')return body('<div class="ppload"><span class="ppspin"></span><p>'+(st.qs.length?'Writing your next question…':'Writing your first question…')+'</p></div>');
   if(p==='marking')return body('<div class="ppload"><span class="ppspin"></span><p>Marking your answer like an examiner…</p><p class="plnote">Then it writes your next question on whatever you dropped marks on.</p></div>');
   if(p==='answer')return renderQ();if(p==='marked')return renderMarked();if(p==='done')return renderDone()}
@@ -3645,7 +3649,7 @@ var PP=(function(){
    (r.focus?'<p class="ppfocus">🎯 <b>Next, practise:</b> '+esc(r.focus)+'</p>':'')+
    '<div class="ppact"><button type="button" class="plbig" data-a="next"'+(end?' data-k="end"':'')+'>'+(end?'See your results →':'Next question →')+'</button></div>';
   var b=body(h);b.querySelector('[data-a=next]').onclick=function(){if(left()<=0||!st.next){finish();return}st.qs.push({q:st.next,ans:{},sk:[],res:null});st.next=null;st.cur=st.qs.length-1;st.phase='answer';sv();render()}}
- function renderDone(){var g=got(),pct=g[1]?Math.round(g[0]/g[1]*100):0,rr=48,C=2*Math.PI*rr,col=pct>=70?'var(--good-line)':pct>=50?'#EF9F27':'#e8742a',used=Math.min(st.mins*60000,(st.fin||Date.now())-st.start),
+ function renderDone(){var g=got(),pct=g[1]?Math.round(g[0]/g[1]*100):0,rr=48,C=2*Math.PI*rr,col=pct>=70?'var(--good-line)':pct>=50?'#EF9F27':'#e8742a',used=usedMs(),
    fo=[];st.qs.forEach(function(q){if(q.res&&q.res.focus&&q.res.got<q.res.max&&fo.indexOf(q.res.focus)<0)fo.push(q.res.focus)});
   var h='<div class="ppdone"><svg width="130" height="130" viewBox="0 0 120 120"><circle cx="60" cy="60" r="'+rr+'" fill="none" stroke="var(--soft2)" stroke-width="11"/><circle cx="60" cy="60" r="'+rr+'" fill="none" stroke="'+col+'" stroke-width="11" stroke-linecap="round" stroke-dasharray="'+(C*pct/100)+' '+C+'" transform="rotate(-90 60 60)"/><text x="60" y="60" text-anchor="middle" dy=".35em" font-size="26" font-weight="800" fill="var(--text)" font-family="system-ui">'+pct+'%</text></svg>'+
    '<h2>Paper finished</h2><p class="plnote">'+esc(subjName(st))+(st.topics?' · '+esc(st.topics):'')+'</p><div class="ppstats"><div><b>'+g[0]+'/'+g[1]+'</b><span>marks</span></div><div><b>'+st.qs.filter(function(q){return q.res}).length+'</b><span>questions</span></div><div><b>'+Math.round(used/60000)+' min</b><span>time</span></div></div></div>'+
@@ -3662,7 +3666,7 @@ var PP=(function(){
    q.parts.forEach(function(p){if(!parts[p.id])parts[p.id]={got:0,fb:''};g+=parts[p.id].got});Q.res={got:g,max:tot(q),parts:parts,summary:String(j.summary||'').slice(0,400),focus:String(j.focus||'').slice(0,200)};
    st.next=noNext?null:cleanQ(j.next);st.phase='marked';sv();try{if(g)addXP(g*3)}catch(_){}render();
    if(!noNext&&!st.next)askFirst().then(function(nq){st.next=nq;sv();var nb=ov&&ov.querySelector('[data-a=next]');if(nb&&left()>0){nb.dataset.k='';nb.textContent='Next question →'}},function(){})},fail(mark))}
- function finish(){if(!st)return;st.phase='done';st.fin=Date.now();var g=got(),c=st;var H=hist();if(!c.logged&&g[1]){c.logged=1;H.push({d:today(),s:subjName(c),t:c.topics||'',g:g[0],m:g[1],n:c.qs.filter(function(q){return q.res}).length});while(H.length>20)H.shift();save()}
+ function finish(){if(!st)return;unpause();st.phase='done';st.fin=Date.now();var g=got(),c=st;var H=hist();if(!c.logged&&g[1]){c.logged=1;H.push({id:String(c.start),src:'critical',d:today(),s:subjName(c),t:c.topics||'',tier:c.tier,g:g[0],m:g[1],mins:Math.round(usedMs()/60000),n:c.qs.filter(function(q){return q.res}).length,qs:c.qs.filter(function(q){return q.res}).map(function(q){return {t:q.q.title,g:q.res.got,m:q.res.max,f:q.res.focus||''}})});while(H.length>30)H.shift();save()}
   if(c.study)try{STUDY.stop()}catch(_){}sv();render();try{if(g[1]&&g[0]/g[1]>=.6)confetti()}catch(_){}}
  /* ----- setting up a paper ----- */
  function keyBox(){return '<div class="ppkey"><p class="plnote">AI marking uses your own Claude API key, the same one the Ask button uses. It stays on this device. Marking a whole hour costs about 1–3p.</p><div class="pprow2"><input type="password" data-k="key" placeholder="sk-ant-…" autocomplete="off" aria-label="Claude API key"><button type="button" class="plgo" data-a="savekey">Save key</button></div><p class="plnote" data-k="kst"></p><p class="plnote">Get one at <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com</a>.</p></div>'}
@@ -3697,14 +3701,36 @@ var PP=(function(){
    var now=Date.now();st={v:1,subj:c.subj,sname:(c.sname||'').trim(),tier:c.tier,topics:c.topics.trim(),lids:c.lids,extra:c.extra||'',mins:c.mins||60,start:now,ends:now+(c.mins||60)*60000,qs:[],cur:0,phase:'gen',next:null};
    try{st.study=STUDY.start('Big past paper')?1:0}catch(_){st.study=0}setup=null;sv();gen()}}
  function resume(){if(!st)return;open();if(st.phase==='gen'){busy=false;gen();return}if(st.phase==='marking'){busy=false;st.phase='answer'}render()}
+ /* ----- the logger: read a marked-paper PDF from Big Past Paper in Claude (its keywords carry a BPP1 tag) ----- */
+ function importPDF(file,say){if(!file)return;if(file.size>40*1024*1024){say('That file is too big to be a Big Past Paper PDF.',1);return}var rd=new FileReader();
+  rd.onerror=function(){say('Couldn\'t read that file. Try again.',1)};
+  rd.onload=function(){var txt='';try{txt=new TextDecoder('latin1').decode(new Uint8Array(rd.result))}catch(_){say('Couldn\'t read that file.',1);return}
+   var m=/BPP1:([A-Za-z0-9+\/=]+)/.exec(txt),o=null;if(m)try{o=JSON.parse(decodeURIComponent(escape(atob(m[1]))))}catch(_){o=null}
+   if(!o||o.v!==1||!(+o.m>0)){say('That PDF wasn\'t made by Big Past Paper. Use "Download marked paper (PDF)" on its results screen, then pick that file.',1);return}
+   var H=hist(),id=String(o.id||'');if(id&&H.some(function(x){return x.id===id})){say('That paper is already in your log.',1);return}
+   var g=Math.max(0,Math.min(+o.m,Math.round(+o.g||0))),dd=new Date(o.d),e={id:id,src:'claude',d:isNaN(dd)?today():dstr(dd),s:String(o.sn||SUBJ[o.s]||'Past paper').slice(0,40),t:String(o.t||'').slice(0,160),tier:String(o.tier||''),g:g,m:Math.round(+o.m),mins:Math.max(0,Math.round(+o.mins||0)),
+    qs:(Array.isArray(o.qs)?o.qs:[]).slice(0,30).map(function(q){var mm=Math.max(1,Math.round(+q.m||1));return {t:String(q.t||'Question').slice(0,80),g:Math.max(0,Math.min(mm,Math.round(+q.g||0))),m:mm,f:String(q.f||'').slice(0,200)}})};e.n=e.qs.length;
+   H.push(e);H.sort(function(a,b){return a.d<b.d?-1:a.d>b.d?1:0});while(H.length>30)H.shift();save();try{if(g)addXP(g*3)}catch(_){}
+   say('Logged: '+e.s+(e.t?' · '+e.t:'')+', '+g+'/'+e.m+' ('+Math.round(g/e.m*100)+'%). +'+g*3+' XP.',0)};
+  rd.readAsArrayBuffer(file)}
+ function niceD(s){try{var a=String(s).split('-');return new Date(+a[0],a[1]-1,+a[2]).toLocaleDateString('en-GB',{day:'numeric',month:'short'})}catch(_){return s}}
  /* ----- the card on the Exams page ----- */
  function card(){var pg=document.getElementById('page-exam');if(!pg||document.getElementById('exClock'))return;var old=pg.querySelector('.ppcard');if(old)old.remove();
-  var H=hist().slice(-3).reverse(),live=st&&st.phase!=='done',el=document.createElement('div');el.className='card ppcard';
+  var All=hist(),H=All.slice(-6).reverse(),pcs=All.filter(function(x){return x.m}).map(function(x){return x.g/x.m*100}),avg=pcs.length?Math.round(pcs.reduce(function(a,b){return a+b},0)/pcs.length):0,live=st&&st.phase!=='done',el=document.createElement('div');el.className='card ppcard';
   el.innerHTML='<h2>📝 Big past paper <span class="note">'+(live?(left()>0?mmss(left())+' left':'time\'s up'):'marked by AI')+'</span></h2><p class="note" style="font-size:15px">An hour of exam-style questions on your topics. Type or handwrite your answers; Claude marks each one like an examiner, then writes the next question on whatever you dropped marks on, until the time\'s up.</p>'+
-   '<div class="ppact" style="justify-content:flex-start">'+(live?'<button type="button" class="plgo" data-a="res">Carry on with your paper →</button><button type="button" class="plgo alt" data-a="new">Start a new one</button>':'<button type="button" class="plgo" data-a="new">Start a past paper →</button>')+'</div>'+
-   (H.length?'<div class="pphist">'+H.map(function(x){return '<div class="pprow"><span>'+esc(x.s)+(x.t?' · '+esc(x.t):'')+' <span class="plnote">'+esc(x.d)+'</span></span><b>'+x.g+'/'+x.m+'</b></div>'}).join('')+'</div>':'');
+   '<div class="ppact" style="justify-content:flex-start">'+(live?'<button type="button" class="plgo" data-a="res">Carry on with your paper →</button><button type="button" class="plgo alt" data-a="new">Start a new one</button>':'<button type="button" class="plgo" data-a="new">Start a past paper →</button>')+
+   '<button type="button" class="plgo alt" data-a="log">📄 Log a paper (PDF)</button><input type="file" accept="application/pdf,.pdf" data-k="file" hidden aria-label="Choose a Big Past Paper PDF"></div>'+
+   '<p class="plnote pplogmsg" data-k="logmsg" role="status" hidden></p>'+
+   (H.length?'<div class="pplog"><p class="plgt">Past paper log · '+All.length+' paper'+(All.length===1?'':'s')+' · average '+avg+'%</p>'+H.map(function(x){var pc=x.m?Math.round(x.g/x.m*100):0,head='<span>'+esc(x.s)+(x.t?' · '+esc(x.t):'')+' <span class="plnote">'+esc(niceD(x.d))+(x.mins?' · '+x.mins+' min':'')+(x.src==='claude'?' · from Claude':'')+'</span></span><b class="'+(pc>=70?'g':pc>=50?'m':'l')+'">'+x.g+'/'+x.m+' · '+pc+'%</b>';
+     if(!x.qs||!x.qs.length)return '<div class="pprow">'+head+'</div>';var fo=[];x.qs.forEach(function(q){if(q.f&&q.g<q.m&&fo.indexOf(q.f)<0)fo.push(q.f)});
+     return '<details class="pplr"><summary class="pprow">'+head+'</summary><div class="pplq">'+x.qs.map(function(q,i){return '<div><span>'+(i+1)+'. '+esc(q.t)+'</span><b>'+q.g+'/'+q.m+'</b></div>'}).join('')+(fo.length?'<p class="plnote"><b>Work on:</b> '+fo.slice(-4).map(esc).join(' · ')+'</p>':'')+'</div></details>'}).join('')+'</div>':
+    '<p class="plnote">Finished a paper in Claude? Download it as a PDF there, then press Log a paper.</p>');
   var w=pg.querySelector('.exw'),f=w&&w.firstElementChild;if(f&&f.nextSibling)w.insertBefore(el,f.nextSibling);else if(w)w.appendChild(el);else pg.insertBefore(el,pg.firstChild);
-  var rb=el.querySelector('[data-a=res]');if(rb)rb.onclick=resume;el.querySelector('[data-a=new]').onclick=function(){if(live&&!this.dataset.sure){this.dataset.sure=1;this.textContent='Tap again: this ends your current paper';return}if(live)finish();st=null;sv();openSetup()}}
+  var rb=el.querySelector('[data-a=res]');if(rb)rb.onclick=resume;
+  var fi=el.querySelector('[data-k=file]'),lm=el.querySelector('[data-k=logmsg]'),say=function(t,bad){var keep=t;if(!bad){card();var n=document.querySelector('.ppcard [data-k=logmsg]');if(n){n.hidden=false;n.textContent=keep;n.className='plnote pplogmsg ok'}return}lm.hidden=false;lm.textContent=t;lm.className='plnote pplogmsg bad'};
+  el.querySelector('[data-a=log]').onclick=function(){fi.value='';fi.click()};fi.onchange=function(){importPDF(fi.files&&fi.files[0],say)};
+  el.addEventListener('dragover',function(e){e.preventDefault();el.classList.add('ppdrop')});el.addEventListener('dragleave',function(){el.classList.remove('ppdrop')});
+  el.addEventListener('drop',function(e){e.preventDefault();el.classList.remove('ppdrop');var f=e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0];if(f)importPDF(f,say)});el.querySelector('[data-a=new]').onclick=function(){if(live&&!this.dataset.sure){this.dataset.sure=1;this.textContent='Tap again: this ends your current paper';return}if(live)finish();st=null;sv();openSetup()}}
  /* the Exams page is built after this runs, so wait for it, then keep the card there whenever the page re-renders */
  function hook(){var pg=document.getElementById('page-exam');if(!pg){hook.n=(hook.n||0)+1;if(hook.n<120)setTimeout(hook,250);return}if(window.MutationObserver&&!pg._ppObs){pg._ppObs=1;new MutationObserver(function(){if(!pg.querySelector('.ppcard'))try{card()}catch(_){}}).observe(pg,{childList:true})}try{card()}catch(_){}}
  setTimeout(hook,0);
@@ -3730,6 +3756,9 @@ var PP=(function(){
   '.ppbox{background:var(--panel);border:1.5px solid var(--line);border-radius:14px;padding:12px 14px}.ppbox ul{margin:0;padding-left:20px}.pprow{display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-bottom:1px solid var(--line);font-size:14.5px}.pprow:last-child{border-bottom:0}.pprow b{font-family:var(--mono)}'+
   '.ppset{display:flex;flex-direction:column;gap:14px}.ppkey{background:var(--warn-bg);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:6px}.ppkey p{margin:0}.pprow2{display:flex;gap:6px}.pprow2 input{flex:1;font:inherit;font-size:15px;padding:8px 10px;border:1.5px solid var(--line);border-radius:10px;background:var(--panel);color:var(--text)}'+
   '.pplink{display:block;text-align:center;text-decoration:none;box-sizing:border-box}.ppclaude{display:flex;flex-direction:column;gap:6px}.ppor summary{cursor:pointer;font-weight:700;font-size:14px;color:var(--muted)}.ppor .ppkey{margin-top:8px}'+
+  '.pplog{margin-top:12px}.pplr summary{cursor:pointer;list-style:none}.pplr summary::-webkit-details-marker{display:none}.pplr summary>span::before{content:"▸ ";color:var(--muted)}.pplr[open] summary>span::before{content:"▾ "}'+
+  '.pplog b.g{color:var(--good)}.pplog b.m{color:#c98a12}.pplog b.l{color:#e8742a}.pplq{padding:4px 0 8px 18px;display:flex;flex-direction:column;gap:3px;font-size:14px}.pplq div{display:flex;justify-content:space-between;gap:10px}.pplq b{font-family:var(--mono)}.pplq p{margin:4px 0 0}'+
+  '.pplogmsg{margin:8px 0 0;padding:8px 10px;border-radius:10px}.pplogmsg.ok{background:var(--good-bg);color:var(--text)}.pplogmsg.bad{background:var(--warn-bg);color:var(--text)}.ppcard.ppdrop{outline:3px dashed #7F77DD;outline-offset:4px}'+
   '.ppchips button{border:0;cursor:pointer;font:inherit}.ppsug{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.ppsug:empty{display:none}.pphist{margin-top:10px}';
  document.head.appendChild(css);
  return {setup:openSetup,resume:resume,card:card,state:function(){return st},_png:png,_fmt:fmt};

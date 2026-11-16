@@ -1,4 +1,41 @@
-iv class="eq">f(x) = x² + 1</div><p>x² means x × x. So f(3) = 3 × 3 + 1 = 10.</p>`),
+);
+ function draw(){out.textContent=n;var P=plot(cv,{x:[a,b],y:par.y,xl:'x',yl:'y'}),c=P.c,w=(b-a)/n,s=0;
+  for(var i=0;i<n;i++){var x0=a+i*w,h=f(x0+(par.mid?w/2:0));s+=h*w;var X0=P.X(x0),X1=P.X(x0+w),Y0=P.Y(0),Yh=P.Y(h);c.globalAlpha=0.22;c.fillStyle=cssv('--accent');c.fillRect(X0,Math.min(Y0,Yh),X1-X0,Math.abs(Y0-Yh));c.globalAlpha=0.6;c.strokeStyle=cssv('--accent');c.lineWidth=1;c.strokeRect(X0,Math.min(Y0,Yh),X1-X0,Math.abs(Y0-Yh))}
+  c.globalAlpha=1;P.fn(f,cssv('--coral'),2.5,[]);
+  st.s.textContent=s.toFixed(3);st.e.textContent=exact.toFixed(3);st.d.textContent=Math.abs(s-exact).toFixed(3);
+  var g=n>=(par.goalN||30);if(g)ok=true;m.set(g?'With '+n+' strips the total is only '+Math.abs(s-exact).toFixed(3)+' away from the exact area. Infinitely many, infinitely thin strips give the exact answer: that\'s the integral.':'Drag the slider to add more strips. Watch the gap shrink.',g?true:null)}
+ onDraw(draw);draw();
+ return {check:function(){return ok?{ok:true}:{ok:false,msg:'Use at least '+(par.goalN||30)+' strips.'}},lock:function(){}}};
+
+/* ---- turn a generator into a fixed card for follow-ups and tests ---- */
+function GN(skill){var q=CGEN[skill]();if(q.o)return Q(q.p,q.o,0,q.e);
+ var k=q.b.length>1?cR(0,q.b.length-1):0,bb=q.b[k],ask=q.b.length>1?' <i>What is the '+bb.label+'?</i>':'';
+ var tmpl=q.b.length>1?'<div class="small" style="margin-top:6px">Answer in the form: '+q.b.map(function(x,i){return x.pre+(x.sup?'<sup>▢</sup>':'▢')+x.post}).join('')+'</div>':'';
+ return N(q.p+tmpl+ask,bb.a,bb.tol==null?0.005:bb.tol,'',q.e)}
+
+/* goals for each calculus level: one stage per unit */
+GOALS.calc1={icon:'📐',title:'Get ready for calculus',story:'Each unit sharpens one tool that calculus is built from. Finish them all and every rule in Level 2 will feel familiar.',final:'Ready for calculus',steps:['Functions and graphs','Powers and indices','Gradients of lines','Rates of change on curves']};
+GOALS.calc2={icon:'📈',title:'Find the gradient of any curve',story:'Each unit takes you one step closer to differentiating anything with powers of x, from scratch.',final:'You can differentiate',steps:['From chords to tangents','First principles','The power rule','Tangents and normals']};
+GOALS.calc3={icon:'🧰',title:'Build your calculus toolkit',story:'Each unit adds a tool: finding peaks and dips, solving real problems, new functions, and the rules that combine them.',final:'Full differentiation toolkit',steps:['Stationary points','Real problems','eˣ, ln x, sin and cos','Chain, product and quotient rules']};
+GOALS.calc4={icon:'📊',title:'Master integration',story:'Each unit takes you further into integration: undoing differentiation, finding areas, standard integrals and the main techniques.',final:'You can integrate',steps:['Undoing differentiation','Definite integrals and area','Standard integrals','Substitution and by parts']};
+GOALS.calc5={icon:'⚛️',title:'Use calculus on a reactor',story:'Each unit applies calculus to the plant: decay, power rising on a period, numerical methods and energy.',final:'Calculus, start to finish',steps:['Differential equations','Radioactive decay','Reactor period','Numerical methods and energy']};
+
+/* ========== CALCULUS · LEVEL 1 · Ready for calculus ========== */
+U({id:'c1-1',track:'calc',level:1,title:'Functions and graphs',icon:'f(x)',color:'#7F77DD',desc:'What a function is, the f(x) notation, substituting numbers in, and the shapes of the graphs calculus works with.',lessons:[
+LH('c1-1-1','What is a function?',7,'A function is a machine: a number goes in, a number comes out. Meet the f(x) notation.',[
+T(`<h3>A number machine</h3><p>A <b>function</b> is a rule that turns one number into another. Think of it as a machine:</p><div class="eq">input → rule → output</div><p>For example, the rule "double it, then add 3". Put in 4 and you get 11. Put in 10 and you get 23.</p><p>Calculus is all about functions, so we start right here.</p>`),
+Q(`The rule is "double it, then add 3". What comes out if you put in 5?`,[`13`,`10`,`16`,`8`],0,`5 doubled is 10, then add 3: 13.`),
+T(`<h3>Writing it with letters</h3><p>Instead of words, we use <b>x</b> for whatever number goes in. "Double it, then add 3" becomes:</p><div class="eq">f(x) = 2x + 3</div>${KY([['f','the name of the function',''],['x','the input number',''],['f(x)','the output: "f of x"','']],'f(x) does NOT mean f times x. It means "the output of f when the input is x".')}`),
+T(`<h3>Putting a number in</h3><p>To find <b>f(4)</b>, replace every x with 4:</p><div class="eq">f(4) = 2 × 4 + 3 = 11</div><p>This is called <b>substituting</b>. It's the most common thing you'll do in calculus.</p>`),
+Q(`f(x) = 2x + 3. What does f(4) mean?`,[`The output when the input is 4`,'The value of f, multiplied by 4','The input you need to get 4 out','The fourth function in the list'],0,`f(4) is "f of 4": put 4 in, see what comes out.`),
+N(`f(x) = 3x − 1. Find f(5).`,14,0.001,'',`3 × 5 − 1 = 15 − 1 = 14.`),
+T(`<h3>Negative inputs</h3><p>Negative numbers go in exactly the same way. Keep the minus sign with the number.</p><div class="eq">f(x) = 2x + 3,&nbsp;&nbsp; f(−4) = 2 × (−4) + 3 = −8 + 3 = −5</div><p>Putting negatives in brackets stops mistakes.</p>`),
+N(`f(x) = 4x + 2. Find f(−3).`,-10,0.001,'',`4 × (−3) + 2 = −12 + 2 = −10.`),
+W('calcDrill',{skill:'flin',need:4},`Practise substituting. Get 4 right in a row.`,`Every time: replace x with the number, then work it out.`),
+T(`<h3>Key points</h3><ul><li>A <b>function</b> turns an input into an output.</li><li><b>f(x)</b> means "the output of f when the input is x".</li><li>To find f(4), <b>substitute</b>: replace every x with 4.</li><li>Put negative numbers in <b>brackets</b>.</li></ul>`)]),
+LH('c1-1-2','Squares and order of operations',8,'Substituting into functions with x², including negative numbers, without tripping up.',[
+RM(`<p>A function turns an input into an output. To find <b>f(3)</b>, replace every x with 3. Put negatives in brackets.</p>`),
+T(`<h3>Functions with x²</h3><p>Calculus uses lots of functions with powers, like:</p><div class="eq">f(x) = x² + 1</div><p>x² means x × x. So f(3) = 3 × 3 + 1 = 10.</p>`),
 N(`f(x) = x² + 1. Find f(4).`,17,0.001,'',`4² = 16, plus 1 is 17.`),
 T(`<h3>The order matters</h3><p>Always do things in this order: <b>brackets</b>, then <b>powers</b>, then <b>multiply and divide</b>, then <b>add and subtract</b>.</p><p>So 3x² with x = 2 means: square first (2² = 4), <i>then</i> times 3 = 12. It isn't (3 × 2)² = 36.</p>`),
 Q(`f(x) = 3x². What is f(2)?`,[`12`,`36`,`6`,`18`],0,`Square first: 2² = 4. Then × 3 = 12.`),
@@ -950,26 +987,4 @@ CGEN.g_hist=function(){var w=cP([5,10,20,25,40]),f=cP([2,4,6,8,12,15,18,24,30]),
 CGEN.g_groupmean=function(){var w=cP([10,20]),f=[cR(1,8),cR(3,12),cR(2,10),cR(1,6)],mids=[0,1,2,3].map(function(i){return w*i+w/2}),N2=f.reduce(function(a,b){return a+b},0),s=f.reduce(function(a,b,i){return a+b*mids[i]},0),m=g1(s/N2);
  return {p:'Estimate the mean from this table. (1 decimal place)<div class="tbl" style="margin-top:8px"><table class="wtable"><tr><th>x</th>'+mids.map(function(_,i){return '<td>'+(w*i)+' < x ≤ '+(w*(i+1))+'</td>'}).join('')+'</tr><tr><th>f</th>'+f.map(function(v){return '<td>'+v+'</td>'}).join('')+'</tr></table></div>',b:[cB(m,'mean ≈ ','','mean',false,0.003)],e:'Use the midpoints '+mids.join(', ')+'. Σfx = '+f.map(function(v,i){return v+' × '+mids[i]}).join(' + ')+' = '+s+'. Total frequency = '+N2+'. Mean ≈ '+s+' ÷ '+N2+' = '+cNum(m)+'. It\'s an estimate because we don\'t know the exact values.'}};
 CGEN.g_kmh=function(){var k=cR(0,2);
- if(k===0){var v=cP([18,36,54,72,90,108]);return {p:'Convert '+v+' km/h into m/s.',b:[cB(v/3.6,'','m/s','speed')],e:v+' km/h = '+v+' × 1000 m ÷ 3600 s = '+cNum(v/3.6)+' m/s. (Shortcut: divide by 3.6.)'}}
- if(k===1){var d=cP([120,150,180,240]),t=cP([1.5,2,2.5,3]),T=Math.floor(t)+' h '+(t%1?'30 min':'');return {p:'A car travels '+d+' km in '+T.trim()+'. What is its average speed in km/h?',b:[cB(d/t,'','km/h','speed')],e:T.trim()+' = '+t+' hours. Speed = '+d+' ÷ '+t+' = '+cNum(d/t)+' km/h. Careful: 2 h 30 min is 2.5 hours, not 2.3.'}}
- var m=cP([200,450,540,810]),V=cP([20,50,60,90]),D=m/V;return {p:'A '+m+' g block has a volume of '+V+' cm³. What is its density in g/cm³?',b:[cB(D,'','g/cm³','density')],e:'Density = mass ÷ volume = '+m+' ÷ '+V+' = '+cNum(D)+' g/cm³.'}};
-CGEN.g_perpgrad=function(){var m=cP([2,3,4,-2,-3,0.5,-0.5,0.25,5,-4]),pm=-1/m;
- return {p:'A line has gradient '+cNum(m)+'. What is the gradient of a line perpendicular to it?',b:[cB(pm,'','','gradient')],e:'Perpendicular gradients multiply to −1, so flip and change the sign: −1 ÷ '+cBr(m)+' = '+cNum(pm)+'.'}};
-CGEN.g_complsq=function(){var p=cR(-6,6)||2,q=cR(-9,9),B=2*p,C=p*p+q;
- return {p:'Write x²'+gTm(B,'x')+gTm(C,'')+' in the form (x + p)² + q.',b:[cB(p,'(x + ',')² +','p'),cB(q,'','','q')],e:'Halve the x number: p = '+cNum(B)+' ÷ 2 = '+cNum(p)+'. (x'+gTm(p,'')+')² gives x²'+gTm(B,'x')+' + '+(p*p)+', so take away '+(p*p)+': q = '+cNum(C)+' − '+(p*p)+' = '+cNum(q)+'. Answer: (x'+gTm(p,'')+')²'+gTm(q,'')+'. The turning point is ('+cNum(-p)+', '+cNum(q)+').'}};
-CGEN.g_circeq=function(){var t=cP([[3,4],[5,12],[6,8],[8,6],[4,3],[1,2],[2,1],[-3,4],[3,-4]]),r2=t[0]*t[0]+t[1]*t[1];
- if(cR(0,1)===0){var r=Math.sqrt(r2);return {p:'A circle has equation x² + y² = '+r2+'. What is its radius? (2 decimal places if needed)',b:[cB(g2(r),'r = ','','radius',false,0.003)],e:'x² + y² = r² is a circle centred on the origin. r = √'+r2+' = '+cNum(g2(r))+'.'}}
- return {p:'The point ('+t[0]+', '+t[1]+') is on the circle x² + y² = '+r2+'. What is the gradient of the tangent there?',b:[cB(-t[0]/t[1],'','','gradient',false,0.003)],e:'The radius to ('+t[0]+', '+t[1]+') has gradient '+t[1]+' ÷ '+cBr(t[0])+' = '+cNum(t[1]/t[0])+'. A tangent is perpendicular to the radius: gradient = −1 ÷ '+cBr(g2(t[1]/t[0]))+' = '+cNum(-t[0]/t[1])+'.'}};
-CGEN.g_recur=function(){var L=[['0.<span style="text-decoration:overline">4</span>','4/9'],['0.<span style="text-decoration:overline">7</span>','7/9'],['0.<span style="text-decoration:overline">27</span>','3/11'],['0.<span style="text-decoration:overline">36</span>','4/11'],['0.1<span style="text-decoration:overline">6</span>','1/6'],['0.8<span style="text-decoration:overline">3</span>','5/6'],['0.<span style="text-decoration:overline">12</span>','4/33'],['0.<span style="text-decoration:overline">405</span>','15/37']],t=cP(L),o=[t[1]],pool=['4/9','7/9','3/11','4/11','1/6','5/6','4/33','15/37','2/3','5/11','1/3','7/11'];shuffle(pool).forEach(function(p){if(o.indexOf(p)<0&&o.length<4)o.push(p)});
- return {p:'Write '+t[0]+' as a fraction in its simplest form.',o:o,e:'Let x = the decimal. Multiply by 10, 100 or 1000 so the recurring part lines up, subtract to remove it, then simplify. '+t[0]+' = '+t[1]+'. Check on a calculator: '+t[1]+' = '+cNum(eval(t[1]))+'…'}};
-/* goals for each GCSE level: one stage per unit */
-GOALS.gp1={icon:'🧱',title:'Fill the gaps from Year 9',story:'Only do the units you need. Each one rebuilds a skill GCSE physics expects you to already have.',final:'Ready for GCSE physics',steps:['Units and standard form','Using equations','Graphs and practical skills','Forces and motion basics']};
-GOALS.gp2={icon:'⚡',title:'Master Year 10 physics',story:'Each unit is one AQA topic from Paper 1. Finish all four and you\'ve covered the Year 10 content.',final:'Year 10 physics complete',steps:['Energy','Electricity','Particle model','Atomic structure']};
-GOALS.gp3={icon:'🧲',title:'Master Year 11 physics',story:'Each unit is one AQA topic from Paper 2. Finish them and you\'ve covered the whole course.',final:'Year 11 physics complete',steps:['Forces','Waves','Magnetism and electromagnetism','Space physics']};
-GOALS.gp4={icon:'🎯',title:'Reach grade 7–8 in physics',story:'Each unit trains one thing that separates a 6 from an 8: practicals, calculations, extended answers and mixed questions.',final:'Grade 7–8 standard',steps:['Required practicals','Tricky calculations','Six-mark answers','Mixed exam questions']};
-GOALS.gp5={icon:'🏆',title:'Go for a grade 9 in physics',story:'The hardest questions on the paper. Each unit takes on one kind.',final:'Grade 9 standard',steps:['Unfamiliar contexts','Multi-step problems','Data and graphs','Full-marks technique']};
-GOALS.gc1={icon:'🧱',title:'Fill the gaps from Year 9',story:'Only do the units you need. Each one rebuilds the KS3 chemistry GCSE builds on.',final:'Ready for GCSE chemistry',steps:['Particles and states','Atoms and elements','Word and symbol equations','Acids and reactions']};
-GOALS.gc2={icon:'⚗️',title:'Master Year 10 chemistry',story:'Each unit is one AQA topic from Paper 1. Finish all four and you\'ve covered the Year 10 content.',final:'Year 10 chemistry complete',steps:['Atoms and the periodic table','Bonding and structure','Quantitative chemistry','Chemical changes']};
-GOALS.gc3={icon:'🧪',title:'Master Year 11 chemistry',story:'Each unit covers AQA topics from Paper 1 and Paper 2. Finish them and you\'ve covered the whole course.',final:'Year 11 chemistry complete',steps:['Energy changes','Rates and equilibrium','Organic chemistry','Analysis, atmosphere and resources']};
-GOALS.gc4={icon:'🎯',title:'Reach grade 7–8 in chemistry',story:'Each unit trains one thing that separates a 6 from an 8.',final:'Grade 7–8 standard',steps:['Required practicals','Mole calculations','Six-mark answers','Mixed exam questions']};
-GOALS.gc5={icon:'🏆',title:'Go for a grade 9 in chemistry',story:'The hardest questions on the paper. Each unit takes on one kind.',final:'Grade 9 standard',steps:['Hardest calculations','Equilibrium and electrolysis','Unfamiliar contexts','Full-marks technique']};
+ if(k===0){var v=cP([18,36,54,72,90,108]);return {p:'Convert '

@@ -1,4 +1,289 @@
- (1 << 10) | (1 << 8) | (1 << 5) | (1 << 4) | (1 << 2) | (1 << 1) | (1 << 0),
+12, 4, 37, 13],
+	
+	// 10		
+	[2, 86, 68, 2, 87, 69],
+	[4, 69, 43, 1, 70, 44],
+	[6, 43, 19, 2, 44, 20],
+	[6, 43, 15, 2, 44, 16],
+
+	// 11
+	[4, 101, 81],
+	[1, 80, 50, 4, 81, 51],
+	[4, 50, 22, 4, 51, 23],
+	[3, 36, 12, 8, 37, 13],
+
+	// 12
+	[2, 116, 92, 2, 117, 93],
+	[6, 58, 36, 2, 59, 37],
+	[4, 46, 20, 6, 47, 21],
+	[7, 42, 14, 4, 43, 15],
+
+	// 13
+	[4, 133, 107],
+	[8, 59, 37, 1, 60, 38],
+	[8, 44, 20, 4, 45, 21],
+	[12, 33, 11, 4, 34, 12],
+
+	// 14
+	[3, 145, 115, 1, 146, 116],
+	[4, 64, 40, 5, 65, 41],
+	[11, 36, 16, 5, 37, 17],
+	[11, 36, 12, 5, 37, 13],
+
+	// 15
+	[5, 109, 87, 1, 110, 88],
+	[5, 65, 41, 5, 66, 42],
+	[5, 54, 24, 7, 55, 25],
+	[11, 36, 12],
+
+	// 16
+	[5, 122, 98, 1, 123, 99],
+	[7, 73, 45, 3, 74, 46],
+	[15, 43, 19, 2, 44, 20],
+	[3, 45, 15, 13, 46, 16],
+
+	// 17
+	[1, 135, 107, 5, 136, 108],
+	[10, 74, 46, 1, 75, 47],
+	[1, 50, 22, 15, 51, 23],
+	[2, 42, 14, 17, 43, 15],
+
+	// 18
+	[5, 150, 120, 1, 151, 121],
+	[9, 69, 43, 4, 70, 44],
+	[17, 50, 22, 1, 51, 23],
+	[2, 42, 14, 19, 43, 15],
+
+	// 19
+	[3, 141, 113, 4, 142, 114],
+	[3, 70, 44, 11, 71, 45],
+	[17, 47, 21, 4, 48, 22],
+	[9, 39, 13, 16, 40, 14],
+
+	// 20
+	[3, 135, 107, 5, 136, 108],
+	[3, 67, 41, 13, 68, 42],
+	[15, 54, 24, 5, 55, 25],
+	[15, 43, 15, 10, 44, 16],
+
+	// 21
+	[4, 144, 116, 4, 145, 117],
+	[17, 68, 42],
+	[17, 50, 22, 6, 51, 23],
+	[19, 46, 16, 6, 47, 17],
+
+	// 22
+	[2, 139, 111, 7, 140, 112],
+	[17, 74, 46],
+	[7, 54, 24, 16, 55, 25],
+	[34, 37, 13],
+
+	// 23
+	[4, 151, 121, 5, 152, 122],
+	[4, 75, 47, 14, 76, 48],
+	[11, 54, 24, 14, 55, 25],
+	[16, 45, 15, 14, 46, 16],
+
+	// 24
+	[6, 147, 117, 4, 148, 118],
+	[6, 73, 45, 14, 74, 46],
+	[11, 54, 24, 16, 55, 25],
+	[30, 46, 16, 2, 47, 17],
+
+	// 25
+	[8, 132, 106, 4, 133, 107],
+	[8, 75, 47, 13, 76, 48],
+	[7, 54, 24, 22, 55, 25],
+	[22, 45, 15, 13, 46, 16],
+
+	// 26
+	[10, 142, 114, 2, 143, 115],
+	[19, 74, 46, 4, 75, 47],
+	[28, 50, 22, 6, 51, 23],
+	[33, 46, 16, 4, 47, 17],
+
+	// 27
+	[8, 152, 122, 4, 153, 123],
+	[22, 73, 45, 3, 74, 46],
+	[8, 53, 23, 26, 54, 24],
+	[12, 45, 15, 28, 46, 16],
+
+	// 28
+	[3, 147, 117, 10, 148, 118],
+	[3, 73, 45, 23, 74, 46],
+	[4, 54, 24, 31, 55, 25],
+	[11, 45, 15, 31, 46, 16],
+
+	// 29
+	[7, 146, 116, 7, 147, 117],
+	[21, 73, 45, 7, 74, 46],
+	[1, 53, 23, 37, 54, 24],
+	[19, 45, 15, 26, 46, 16],
+
+	// 30
+	[5, 145, 115, 10, 146, 116],
+	[19, 75, 47, 10, 76, 48],
+	[15, 54, 24, 25, 55, 25],
+	[23, 45, 15, 25, 46, 16],
+
+	// 31
+	[13, 145, 115, 3, 146, 116],
+	[2, 74, 46, 29, 75, 47],
+	[42, 54, 24, 1, 55, 25],
+	[23, 45, 15, 28, 46, 16],
+
+	// 32
+	[17, 145, 115],
+	[10, 74, 46, 23, 75, 47],
+	[10, 54, 24, 35, 55, 25],
+	[19, 45, 15, 35, 46, 16],
+
+	// 33
+	[17, 145, 115, 1, 146, 116],
+	[14, 74, 46, 21, 75, 47],
+	[29, 54, 24, 19, 55, 25],
+	[11, 45, 15, 46, 46, 16],
+
+	// 34
+	[13, 145, 115, 6, 146, 116],
+	[14, 74, 46, 23, 75, 47],
+	[44, 54, 24, 7, 55, 25],
+	[59, 46, 16, 1, 47, 17],
+
+	// 35
+	[12, 151, 121, 7, 152, 122],
+	[12, 75, 47, 26, 76, 48],
+	[39, 54, 24, 14, 55, 25],
+	[22, 45, 15, 41, 46, 16],
+
+	// 36
+	[6, 151, 121, 14, 152, 122],
+	[6, 75, 47, 34, 76, 48],
+	[46, 54, 24, 10, 55, 25],
+	[2, 45, 15, 64, 46, 16],
+
+	// 37
+	[17, 152, 122, 4, 153, 123],
+	[29, 74, 46, 14, 75, 47],
+	[49, 54, 24, 10, 55, 25],
+	[24, 45, 15, 46, 46, 16],
+
+	// 38
+	[4, 152, 122, 18, 153, 123],
+	[13, 74, 46, 32, 75, 47],
+	[48, 54, 24, 14, 55, 25],
+	[42, 45, 15, 32, 46, 16],
+
+	// 39
+	[20, 147, 117, 4, 148, 118],
+	[40, 75, 47, 7, 76, 48],
+	[43, 54, 24, 22, 55, 25],
+	[10, 45, 15, 67, 46, 16],
+
+	// 40
+	[19, 148, 118, 6, 149, 119],
+	[18, 75, 47, 31, 76, 48],
+	[34, 54, 24, 34, 55, 25],
+	[20, 45, 15, 61, 46, 16]
+];
+
+QRRSBlock.getRSBlocks = function(typeNumber, errorCorrectLevel) {
+	
+	var rsBlock = QRRSBlock.getRsBlockTable(typeNumber, errorCorrectLevel);
+	
+	if (rsBlock === undefined) {
+		throw new Error("bad rs block @ typeNumber:" + typeNumber + "/errorCorrectLevel:" + errorCorrectLevel);
+	}
+
+	var length = rsBlock.length / 3;
+	
+	var list = [];
+	
+	for (var i = 0; i < length; i++) {
+
+		var count = rsBlock[i * 3 + 0];
+		var totalCount = rsBlock[i * 3 + 1];
+		var dataCount  = rsBlock[i * 3 + 2];
+
+		for (var j = 0; j < count; j++) {
+			list.push(new QRRSBlock(totalCount, dataCount) );	
+		}
+	}
+	
+	return list;
+};
+
+QRRSBlock.getRsBlockTable = function(typeNumber, errorCorrectLevel) {
+
+	switch(errorCorrectLevel) {
+	case QRErrorCorrectLevel.L :
+		return QRRSBlock.RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 0];
+	case QRErrorCorrectLevel.M :
+		return QRRSBlock.RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 1];
+	case QRErrorCorrectLevel.Q :
+		return QRRSBlock.RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 2];
+	case QRErrorCorrectLevel.H :
+		return QRRSBlock.RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 3];
+	default :
+		return undefined;
+	}
+};
+
+module.exports = QRRSBlock;
+
+},
+"./QRUtil":function(module,exports,require){
+var QRMode = require('./QRMode');
+var QRPolynomial = require('./QRPolynomial');
+var QRMath = require('./QRMath');
+var QRMaskPattern = require('./QRMaskPattern');
+
+var QRUtil = {
+
+    PATTERN_POSITION_TABLE : [
+        [],
+        [6, 18],
+        [6, 22],
+        [6, 26],
+        [6, 30],
+        [6, 34],
+        [6, 22, 38],
+        [6, 24, 42],
+        [6, 26, 46],
+        [6, 28, 50],
+        [6, 30, 54],        
+        [6, 32, 58],
+        [6, 34, 62],
+        [6, 26, 46, 66],
+        [6, 26, 48, 70],
+        [6, 26, 50, 74],
+        [6, 30, 54, 78],
+        [6, 30, 56, 82],
+        [6, 30, 58, 86],
+        [6, 34, 62, 90],
+        [6, 28, 50, 72, 94],
+        [6, 26, 50, 74, 98],
+        [6, 30, 54, 78, 102],
+        [6, 28, 54, 80, 106],
+        [6, 32, 58, 84, 110],
+        [6, 30, 58, 86, 114],
+        [6, 34, 62, 90, 118],
+        [6, 26, 50, 74, 98, 122],
+        [6, 30, 54, 78, 102, 126],
+        [6, 26, 52, 78, 104, 130],
+        [6, 30, 56, 82, 108, 134],
+        [6, 34, 60, 86, 112, 138],
+        [6, 30, 58, 86, 114, 142],
+        [6, 34, 62, 90, 118, 146],
+        [6, 30, 54, 78, 102, 126, 150],
+        [6, 24, 50, 76, 102, 128, 154],
+        [6, 28, 54, 80, 106, 132, 158],
+        [6, 32, 58, 84, 110, 136, 162],
+        [6, 26, 54, 82, 110, 138, 166],
+        [6, 30, 58, 86, 114, 142, 170]
+    ],
+
+    G15 : (1 << 10) | (1 << 8) | (1 << 5) | (1 << 4) | (1 << 2) | (1 << 1) | (1 << 0),
     G18 : (1 << 12) | (1 << 11) | (1 << 10) | (1 << 9) | (1 << 8) | (1 << 5) | (1 << 2) | (1 << 0),
     G15_MASK : (1 << 14) | (1 << 12) | (1 << 10)    | (1 << 4) | (1 << 1),
 
@@ -1355,21 +1640,4 @@ L('s2','The pressuriser',12,[
 T(`<h3>Holding the pressure</h3><p>The pressuriser is a tall vessel connected to a hot leg. It's partly full of water and partly full of steam, at saturation.</p><ul><li><b>Heaters</b> boil more water, raising the pressure</li><li><b>Spray</b> of cooler cold-leg water condenses steam, lowering the pressure</li><li><b>Relief and safety valves</b> protect against overpressure</li></ul><p>When the primary water heats up and expands, it surges <b>into</b> the pressuriser and compresses the steam, so pressure rises. When it cools, it surges <b>out</b>, and pressure falls.</p>`),
 W('pressuriser',{},`A power change is about to cause surges into and out of the pressuriser. Use the heaters and spray to keep pressure between <b>153 and 157 bar</b> for 40 seconds.`,`In a real plant this is done automatically, but operators must understand it and be ready to take over.`),
 Q(`Pressure is too high. Which action brings it down?`,['Turn on the heaters','Open the spray','Add boron','Raise turbine load'],1,`Spray condenses steam in the pressuriser, lowering pressure.`),
-Q(`At Three Mile Island, the pressuriser relief valve stuck open, but the panel showed it closed. What did the light really show?`,['The valve\'s real position, from a sensor on the valve','That the valve had been told to close','That the pressure had dropped back to normal','That the pipe after the valve had cooled down'],1,`The indication showed the command signal, not the valve's real position. Plants now have direct position indication, and operators are trained to check other symptoms such as temperatures downstream of the valve.`)]),
-L('s3','Steam generators, turbine and generator',10,[
-T(`<h3>Steam generators</h3><p>Hot primary water flows through thousands of U-shaped tubes. Secondary water boils around the outside of the tubes. Operators control steam generator <b>water level</b> with feedwater flow: too low and you lose the heat sink, too high and water can be carried into the turbine.</p>`),
-Q(`Steam demand suddenly increases. What does steam generator level do first?`,['Falls straight away, then recovers','Rises at first ("swell"), then falls','Stays the same, then slowly rises','Falls, then rises above normal'],1,`Steam pressure drops, so bubbles in the water expand and the level rises for a while: swell. The opposite, shrink, happens when demand drops. This makes level control tricky.`),
-T(`<h3>Turbine and generator</h3><p>Steam expands through high- and low-pressure turbine stages, spinning the generator. The UK grid runs at <b>50 Hz</b>, so the generator must spin at an exact speed:</p><div class="eq">rpm = 120 × f ÷ number of poles</div><div class="key"><div class="kt">What each part means</div><div class="krow"><span class="ks">rpm</span><span class="km">revolutions per minute of the turbine and generator</span><span class="ku">per minute</span></div><div class="krow"><span class="ks">f</span><span class="km">grid frequency</span><span class="ku">hertz (Hz) = cycles per second; 50 Hz in the UK</span></div><div class="krow"><span class="ks">poles</span><span class="km">number of magnetic poles in the generator</span><span class="ku">no unit</span></div></div>`),
-N(`Hinkley Point C's turbines use 4-pole generators on the 50 Hz grid. What speed do they turn at?`,1500,0.001,'rpm',`120 × 50 ÷ 4 = 1500 rpm.`),
-Q(`If the turbine suddenly trips at full power, where does the reactor's heat go?`,['Nowhere: the heat simply builds up in the core until the pumps stop it','Steam dump valves send steam straight to the condenser, and the reactor is tripped or quickly reduced in power','Into the grid, which absorbs the extra energy as electricity for a few minutes until the turbine is restarted','It stays in the turbine, which keeps spinning freely until the steam runs out'],1,`Steam dumps (turbine bypass) and relief valves protect the primary circuit from overheating while power is reduced.`)]),
-L('s4','Nuclear instrumentation',10,[
-T(`<h3>Three overlapping ranges</h3><p>Detectors outside the reactor vessel measure leaking neutrons. No single detector covers all 11 decades, so there are three ranges:</p><table><tr><th>Range</th><th>Typical detector</th><th>Measures</th></tr><tr><td>Source range</td><td>BF<sub>3</sub> proportional counter or fission chamber</td><td>individual pulses (counts per second)</td></tr><tr><td>Intermediate range</td><td>compensated ion chamber</td><td>current (amps)</td></tr><tr><td>Power range</td><td>uncompensated ion chamber</td><td>% of full power</td></tr></table>`),
-W('niRanges',{},`Move the power level and see which instruments are on scale. Find a power level where the <b>source and intermediate ranges overlap</b>.`,`During a startup, operators confirm overlap before the source range is switched off. There must never be a gap in indication.`),
-Q(`Why is the intermediate range ion chamber "compensated"?`,['To make it read faster, so it can keep up with the quick power changes that happen during a startup at high power','To cancel out the current caused by gamma rays, which would swamp the small neutron signal at low power','To make it cheaper, because it needs less gas than an uncompensated chamber','To protect it from the heat of the core, which would make its readings drift high'],1,`At low power, gamma rays from fission products can produce more current than neutrons. A second chamber, sensitive only to gammas, cancels them out.`),
-Q(`Why are source range detectors switched off at higher power?`,['To save electricity, because they\'re only useful during refuelling','They would be overwhelmed and could be damaged by the high count rate','They are only needed when the turbine is offline and the grid is quiet','At high power they switch over to measuring the coolant temperature'],1,`Once the intermediate range is reliably on scale, the source range high voltage is switched off. It's switched back on during shutdown.`)]),
-L('s5','Safety systems and defence in depth',12,[
-T(`<h3>Barriers</h3><p>Radioactive material is kept in by several barriers, one inside another.</p>`),
-O(`Put the barriers in order, from the inside out.`,['Ceramic fuel pellet','Fuel cladding','Reactor coolant pressure boundary','Containment building'],`Each barrier backs up the others. Defence in depth also includes good design, operations, automatic protection and emergency planning.`),
-T(`<h3>Reactor protection system</h3><p>The protection system trips the reactor automatically on dangerous conditions: high power, high startup rate, low or high pressure, low coolant flow, low steam generator level, high temperature and more.</p><p>It's built to be <b>redundant</b> (several channels), <b>diverse</b> (different ways of detecting a problem) and <b>fail-safe</b> (loss of power causes a trip). Channels often vote <b>2 out of 4</b>.</p>`),
-W('voting',{},`Each channel trips when it sees a problem. Using 2-out-of-4 logic, cause a reactor trip with the <b>minimum</b> number of tripped channels.`,`Two channels are needed. One faulty channel can't trip the reactor on its own (no spurious trips), and one failed channel can't stop a real trip.`),
-T(`<h3>Emergency core cooling</h3><p>If coolant is lost, emergency core cooling systems inject borated water: high-
+Q(`At Three Mile Island, the pressuriser relief valve stuck open, but the panel showed it closed. What did the lig

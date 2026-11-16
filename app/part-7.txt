@@ -1,4 +1,27 @@
-t is its velocity, in m/s?`,13.8,0.01,'m/s',`v = ṁ ÷ (ρA) = 5,950 ÷ (720 × 0.6) = 5,950 ÷ 432 = 13.8 m/s.`),
+ (4k)','But q′ = q‴ × πR², so q‴R² = q′/π: <b>ΔT = q′ ÷ (4πk)</b>. The radius has gone.']},`Derive the pellet temperature rise.`),
+N(`q′ = 17 kW/m (17,000 W/m), k = 3 W/(m·°C). Centre-to-surface temperature rise, °C?`,451,0.01,'°C',`17,000 ÷ (4π × 3) = 17,000 ÷ 37.7 = 451 °C.`),
+W('fnPlot',{x:[5,45],y:[0,1300],xl:'linear heat rate (kW/m)',yl:'pellet ΔT (°C)',sl:[['q','Linear heat rate (kW/m)',5,45,1,17,function(v){return v+' kW/m'}]],curves:function(p){return [[function(q){return q*1000/(4*Math.PI*3)},'--accent',3]]},marks:function(p,P,col){var c=P.c;c.fillStyle=col('--coral');c.beginPath();c.arc(P.X(p.q),P.Y(p.q*1000/(4*Math.PI*3)),6,0,7);c.fill()},read:function(p){return p.q+' kW/m: pellet centre is <b>'+(p.q*1000/(4*Math.PI*3)).toFixed(0)+' °C</b> hotter than its surface.'}},`See how the pellet temperature rise grows with linear heat rate.`),
+QE(`Average EPR linear heat rate is roughly…`,[`16 kW/m`,`160 kW/m`,`1.6 kW/m`,`1600 kW/m`],0,`Level 3 Theory.`),
+T(`<h3>Key points</h3><ul><li><b>T<sub>centre</sub> − T<sub>surface</sub> = q′/(4πk)</b>.</li><li>Independent of pellet radius.</li><li>At average power, about 450 °C across the pellet; at peak power, over 1,000 °C.</li></ul>`)]),
+LH('m4-4-3','From fuel centre to coolant',10,'Add up every temperature step, from the hot centre of the pellet to the cooling water.',[
+RM(`<ul><li>Pellet: ΔT = q′/(4πk).</li><li>Wall: ΔT = q″L/k. Coolant ~310 °C average.</li><li>Heat flux at a surface q″ = q′ ÷ (2πr).</li></ul>`),
+T(`<h3>Four steps in series</h3><p>Heat passes through four layers. Each needs a temperature difference to push the same heat through:</p><ol class="steps"><li><b>Convection</b> from cladding surface to water: ΔT = q″/h, with h ≈ 35,000 W/(m²·°C).</li><li><b>Cladding</b> wall: ΔT = q′ ln(r<sub>o</sub>/r<sub>i</sub>) ÷ (2πk<sub>clad</sub>).</li><li><b>Gap</b> between pellet and cladding: ΔT = q′ ÷ (2πr h<sub>gap</sub>), h<sub>gap</sub> ≈ 5,000 W/(m²·°C).</li><li><b>Pellet</b>: ΔT = q′/(4πk<sub>fuel</sub>).</li></ol>`),
+W('stepCalc',{steps:['q′ = 17 kW/m. Coolant 310 °C. Clad outer radius 4.75 mm, inner 4.18 mm, pellet radius 4.1 mm.','Convection: q″ = 17,000/(2π × 0.00475) = 570,000 W/m². ΔT = 570,000/35,000 = <b>16 °C</b> → clad surface 326 °C','Cladding: 17,000 × ln(4.75/4.18) ÷ (2π × 17) = 17,000 × 0.128 ÷ 107 = <b>20 °C</b> → 346 °C','Gap: 17,000 ÷ (2π × 0.0041 × 5,000) = <b>132 °C</b> → pellet surface 478 °C','Pellet: 17,000 ÷ (4π × 3) = <b>451 °C</b> → centre about <b>930 °C</b>','The gap and the pellet account for most of the rise. UO₂ melts at about 2,800 °C, so there is a big margin at average power.']},`Build the temperature stack, layer by layer.`),
+Q(`Which two layers take most of the temperature rise?`,[`The gas gap and the pellet itself`,'The water and the cladding','The water film and the cladding','The cladding and the gas gap'],0,`Low conductivity of UO₂ and the helium gap.`),
+N(`At a peak q′ = 40 kW/m, what is the pellet ΔT alone? (k = 3)`,1061,0.01,'°C',`40,000 ÷ 37.7 = 1,061 °C.`),
+QE(`Heat flux at a cylinder surface q″ = …`,[`q′ ÷ (2πr)`,`q′ × (2πr)`,`q′/(4πk)`,`q′ ÷ (πr²)`],0,`Spread over the circumference.`),
+T(`<h3>Key points</h3><ul><li>Fuel centre temperature = coolant + convection + cladding + gap + pellet steps.</li><li>Gap and pellet dominate.</li><li>At 17 kW/m: centre ~930 °C; at 40 kW/m: ~2,000 °C, still below UO₂ melting (~2,800 °C).</li></ul>`)])
+]});
+F('m4-4-1',[T(`<h3>Quick recap</h3><p>q″ = −k dT/dx; flat wall q″ = kΔT/L.</p>`),N(`k = 17, ΔT = 20, L = 0.0006 m. q″? Give the number in front of × 10⁵ W/m².`,5.67,0.01,'× 10⁵ W/m²',`17 × 20 / 0.0006.`),Q(`Which conducts heat worst?`,[`Helium gas`,`Copper`,`Zirconium`,`UO₂`],0,`k ≈ 0.3.`),Q(`Low k means you need…`,[`a big ΔT to push heat through`,`a small ΔT`,`no ΔT`,`more neutrons`],0,`Insulator.`)]);
+F('m4-4-2',[T(`<h3>Quick recap</h3><p>ΔT<sub>pellet</sub> = q′/(4πk).</p>`),N(`q′ = 20 kW/m, k = 3. ΔT?`,531,0.01,'°C',`20,000/37.7.`),Q(`The pellet ΔT depends on…`,[`linear heat rate and conductivity only`,`pellet radius`,`coolant speed`,`boron`],0,`Radius cancels.`),Q(`Doubling q′ makes pellet ΔT…`,[`double`,`quadruple`,`halve`,`unchanged`],0,`Proportional.`)]);
+F('m4-4-3',[T(`<h3>Quick recap</h3><p>Stack: convection + cladding + gap + pellet.</p>`),N(`Coolant 310, steps 16 + 20 + 132 + 451. Centre?`,929,0.01,'°C',`Add them.`),Q(`UO₂ melts at about…`,[`2,800 °C`,`900 °C`,`1,200 °C`,`5,000 °C`],0,`Big margin.`),Q(`Gap conductance h<sub>gap</sub> improves when…`,[`the gap closes as the pellet swells`,`the cladding is new`,`the coolant is colder`,`never`],0,`Closer contact, better conduction.`)]);
+TT('m4-4',[x('m4-4-1',Q(`Fourier's law: q″ = …`,[`−k dT/dx`,`hΔT`,`σφ`,`mcΔT`],0,`Conduction.`)),x('m4-4-2',N(`q′ = 12 kW/m, k = 3. Pellet ΔT?`,318,0.01,'°C',`12,000/37.7.`)),x('m4-4-2',Q(`Pellet ΔT is independent of…`,[`pellet radius`,`q′`,`k`,`power`],0,`It cancels.`)),x('m4-4-3',Q(`Convection ΔT = …`,[`q″/h`,`q′/(4πk)`,`kΔT/L`,`hq″`],0,`Newton's law of cooling.`)),x('m4-4-3',Q(`At average power, fuel centre is about…`,[`900 °C`,`310 °C`,`2,800 °C`,`100 °C`],0,`Stack.`)),x('m4-4-1',Q(`Typical k for hot UO₂ is…`,[`about 3 W/(m·°C)`,`about 400`,`about 0.03`,`about 30`],0,`Poor conductor.`))]);
+
+U({id:'m4-5',track:'maths',level:4,title:'Fluid flow',icon:'Re',color:'#1f8fb3',desc:'Conservation of mass, Bernoulli, friction and Reynolds number, pump curves and the natural circulation balance.',lessons:[
+LH('m4-5-1','Continuity and Bernoulli',10,'Two conservation laws for moving fluids: mass and energy.',[
+RM(`<ul><li>Mass flow rate ṁ in kg/s (Level 1).</li><li>The first law: energy in = energy out (Level 2 Theory).</li><li>Density ρ in kg/m³.</li></ul>`),
+T(`<h3>Continuity: mass is conserved</h3><div class="eq">ṁ = ρ A v</div>${KY([['ṁ','mass flow rate','kg/s'],['ρ','density','kg/m³'],['A','flow area','m²'],['v','average velocity','m/s']])}<p>In a pipe that narrows, the same mass must pass every second, so the fluid speeds up.</p>`),
+N(`Water (ρ = 720 kg/m³) flows at 5,950 kg/s through a hot leg of area 0.6 m². What is its velocity, in m/s?`,13.8,0.01,'m/s',`v = ṁ ÷ (ρA) = 5,950 ÷ (720 × 0.6) = 5,950 ÷ 432 = 13.8 m/s.`),
 T(`<h3>Bernoulli: energy along a streamline</h3><p>For a steady, frictionless flow:</p><div class="eq">p + ½ρv² + ρgz = constant</div>${KY([['p','pressure','Pa'],['½ρv²','dynamic pressure (kinetic energy per m³)','Pa'],['ρgz','height term (potential energy per m³)','Pa']])}<p>Where the fluid speeds up, its pressure drops. That's how a <b>venturi</b> flowmeter works: measure the pressure drop at a narrowing, and calculate the flow.</p>`),
 W('stepCalc',{steps:['A venturi narrows from v₁ = 5 m/s to v₂ = 10 m/s. ρ = 1000 kg/m³, same height.','p₁ + ½ρv₁² = p₂ + ½ρv₂²','p₁ − p₂ = ½ × 1000 × (10² − 5²)','= 500 × 75 = <b>37,500 Pa</b> (0.375 bar)','Measuring that 0.375 bar drop tells you the flow.']},`Use Bernoulli for a venturi.`),
 QE(`If the number density N doubles, Σ = Nσ…`,[`doubles`,`halves`,`stays the same`,`quadruples`],0,`Σ is proportional to N (Last-but-one unit).`),
@@ -710,41 +733,4 @@ WIDGETS.calcDrill=function(box,par){var need=par.need||5,gens=[].concat(par.skil
 WIDGETS.riemann=function(box,par){var f=par.f,a=par.a,b=par.b,exact=par.exact,n=par.n0||4,ok=false,cv=canvas(box,240);
  var rr=el('div','wrow',null,box),id='rm'+Math.random().toString(36).slice(2,7);rr.innerHTML='<label for="'+id+'">Number of strips</label><input type="range" id="'+id+'" min="1" max="60" step="1" value="'+n+'"><output></output>';
  var inp=rr.querySelector('input'),out=rr.querySelector('output');inp.oninput=function(){n=+inp.value;draw()};
- var st=stats(box,[['s','Total of the strips'],['e','Exact area'],['d','Gap']]),m=msg(box);
- function draw(){out.textContent=n;var P=plot(cv,{x:[a,b],y:par.y,xl:'x',yl:'y'}),c=P.c,w=(b-a)/n,s=0;
-  for(var i=0;i<n;i++){var x0=a+i*w,h=f(x0+(par.mid?w/2:0));s+=h*w;var X0=P.X(x0),X1=P.X(x0+w),Y0=P.Y(0),Yh=P.Y(h);c.globalAlpha=0.22;c.fillStyle=cssv('--accent');c.fillRect(X0,Math.min(Y0,Yh),X1-X0,Math.abs(Y0-Yh));c.globalAlpha=0.6;c.strokeStyle=cssv('--accent');c.lineWidth=1;c.strokeRect(X0,Math.min(Y0,Yh),X1-X0,Math.abs(Y0-Yh))}
-  c.globalAlpha=1;P.fn(f,cssv('--coral'),2.5,[]);
-  st.s.textContent=s.toFixed(3);st.e.textContent=exact.toFixed(3);st.d.textContent=Math.abs(s-exact).toFixed(3);
-  var g=n>=(par.goalN||30);if(g)ok=true;m.set(g?'With '+n+' strips the total is only '+Math.abs(s-exact).toFixed(3)+' away from the exact area. Infinitely many, infinitely thin strips give the exact answer: that\'s the integral.':'Drag the slider to add more strips. Watch the gap shrink.',g?true:null)}
- onDraw(draw);draw();
- return {check:function(){return ok?{ok:true}:{ok:false,msg:'Use at least '+(par.goalN||30)+' strips.'}},lock:function(){}}};
-
-/* ---- turn a generator into a fixed card for follow-ups and tests ---- */
-function GN(skill){var q=CGEN[skill]();if(q.o)return Q(q.p,q.o,0,q.e);
- var k=q.b.length>1?cR(0,q.b.length-1):0,bb=q.b[k],ask=q.b.length>1?' <i>What is the '+bb.label+'?</i>':'';
- var tmpl=q.b.length>1?'<div class="small" style="margin-top:6px">Answer in the form: '+q.b.map(function(x,i){return x.pre+(x.sup?'<sup>▢</sup>':'▢')+x.post}).join('')+'</div>':'';
- return N(q.p+tmpl+ask,bb.a,bb.tol==null?0.005:bb.tol,'',q.e)}
-
-/* goals for each calculus level: one stage per unit */
-GOALS.calc1={icon:'📐',title:'Get ready for calculus',story:'Each unit sharpens one tool that calculus is built from. Finish them all and every rule in Level 2 will feel familiar.',final:'Ready for calculus',steps:['Functions and graphs','Powers and indices','Gradients of lines','Rates of change on curves']};
-GOALS.calc2={icon:'📈',title:'Find the gradient of any curve',story:'Each unit takes you one step closer to differentiating anything with powers of x, from scratch.',final:'You can differentiate',steps:['From chords to tangents','First principles','The power rule','Tangents and normals']};
-GOALS.calc3={icon:'🧰',title:'Build your calculus toolkit',story:'Each unit adds a tool: finding peaks and dips, solving real problems, new functions, and the rules that combine them.',final:'Full differentiation toolkit',steps:['Stationary points','Real problems','eˣ, ln x, sin and cos','Chain, product and quotient rules']};
-GOALS.calc4={icon:'📊',title:'Master integration',story:'Each unit takes you further into integration: undoing differentiation, finding areas, standard integrals and the main techniques.',final:'You can integrate',steps:['Undoing differentiation','Definite integrals and area','Standard integrals','Substitution and by parts']};
-GOALS.calc5={icon:'⚛️',title:'Use calculus on a reactor',story:'Each unit applies calculus to the plant: decay, power rising on a period, numerical methods and energy.',final:'Calculus, start to finish',steps:['Differential equations','Radioactive decay','Reactor period','Numerical methods and energy']};
-
-/* ========== CALCULUS · LEVEL 1 · Ready for calculus ========== */
-U({id:'c1-1',track:'calc',level:1,title:'Functions and graphs',icon:'f(x)',color:'#7F77DD',desc:'What a function is, the f(x) notation, substituting numbers in, and the shapes of the graphs calculus works with.',lessons:[
-LH('c1-1-1','What is a function?',7,'A function is a machine: a number goes in, a number comes out. Meet the f(x) notation.',[
-T(`<h3>A number machine</h3><p>A <b>function</b> is a rule that turns one number into another. Think of it as a machine:</p><div class="eq">input → rule → output</div><p>For example, the rule "double it, then add 3". Put in 4 and you get 11. Put in 10 and you get 23.</p><p>Calculus is all about functions, so we start right here.</p>`),
-Q(`The rule is "double it, then add 3". What comes out if you put in 5?`,[`13`,`10`,`16`,`8`],0,`5 doubled is 10, then add 3: 13.`),
-T(`<h3>Writing it with letters</h3><p>Instead of words, we use <b>x</b> for whatever number goes in. "Double it, then add 3" becomes:</p><div class="eq">f(x) = 2x + 3</div>${KY([['f','the name of the function',''],['x','the input number',''],['f(x)','the output: "f of x"','']],'f(x) does NOT mean f times x. It means "the output of f when the input is x".')}`),
-T(`<h3>Putting a number in</h3><p>To find <b>f(4)</b>, replace every x with 4:</p><div class="eq">f(4) = 2 × 4 + 3 = 11</div><p>This is called <b>substituting</b>. It's the most common thing you'll do in calculus.</p>`),
-Q(`f(x) = 2x + 3. What does f(4) mean?`,[`The output when the input is 4`,'The value of f, multiplied by 4','The input you need to get 4 out','The fourth function in the list'],0,`f(4) is "f of 4": put 4 in, see what comes out.`),
-N(`f(x) = 3x − 1. Find f(5).`,14,0.001,'',`3 × 5 − 1 = 15 − 1 = 14.`),
-T(`<h3>Negative inputs</h3><p>Negative numbers go in exactly the same way. Keep the minus sign with the number.</p><div class="eq">f(x) = 2x + 3,&nbsp;&nbsp; f(−4) = 2 × (−4) + 3 = −8 + 3 = −5</div><p>Putting negatives in brackets stops mistakes.</p>`),
-N(`f(x) = 4x + 2. Find f(−3).`,-10,0.001,'',`4 × (−3) + 2 = −12 + 2 = −10.`),
-W('calcDrill',{skill:'flin',need:4},`Practise substituting. Get 4 right in a row.`,`Every time: replace x with the number, then work it out.`),
-T(`<h3>Key points</h3><ul><li>A <b>function</b> turns an input into an output.</li><li><b>f(x)</b> means "the output of f when the input is x".</li><li>To find f(4), <b>substitute</b>: replace every x with 4.</li><li>Put negative numbers in <b>brackets</b>.</li></ul>`)]),
-LH('c1-1-2','Squares and order of operations',8,'Substituting into functions with x², including negative numbers, without tripping up.',[
-RM(`<p>A function turns an input into an output. To find <b>f(3)</b>, replace every x with 3. Put negatives in brackets.</p>`),
-T(`<h3>Functions with x²</h3><p>Calculus uses lots of functions with powers, like:</p><d
+ var st=stats(box,[['s','Total of the strips'],['e','Exact area'],['d','Gap']]),m=msg(box

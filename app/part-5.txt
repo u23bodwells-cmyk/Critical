@@ -1,4 +1,34 @@
-come out further.`),
+ls','it fails to trip','it needs operator action'],0,`Rod drives hold rods up with electromagnets: lose power and the rods drop.`),
+N(`With 2-out-of-4 logic, what's the minimum number of channels that must trip to trip the reactor?`,2,0.001,'channels',`Two. One faulty channel alone can't cause or block a trip.`),
+Q(`What is the first, innermost barrier to the release of radioactive material?`,['The ceramic fuel pellet','The containment building','The cladding','The pressure boundary'],0,`The pellet itself traps most fission products.`)]);
+
+F('s6',[
+T(`<h3>Quick recap</h3><ul><li>Neutrons make vessel steel brittle up to a <b>higher temperature</b>, so pressure must be low when it's cold</li><li>Heat-up and cool-down rates are limited (about 55 °C per hour)</li><li>Chemistry: boric acid (reactivity), lithium hydroxide (balances acidity), hydrogen (removes oxygen)</li><li>Activated corrosion products like cobalt-60 give most outage dose</li></ul>`),
+N(`The cool-down limit is 55 °C per hour. What's the fastest you can cool from 290 °C to 70 °C, in hours?`,4,0.01,'hours',`220 ÷ 55 = 4 hours.`,`Find the temperature change first.`),
+Q(`Years of neutron irradiation make reactor vessel steel…`,['brittle up to a higher temperature than when new','stronger and tougher','non-magnetic','completely unaffected'],0,`That shifts the pressure–temperature limits as the plant ages.`),
+Q(`Lithium hydroxide is added to primary coolant to…`,['balance the boric acid\'s acidity and reduce corrosion','absorb neutrons','remove oxygen','raise pressure'],0,`It keeps the pH in the right range.`),
+Q(`Most of the dose to workers during outages comes from…`,['activated corrosion products like cobalt-60','boron','uranium in the turbine hall','sea water'],0,`Corrosion products pass through the core, become radioactive, and settle around the circuit.`),
+Q(`Pressurised thermal shock is…`,['cold water hitting a hot vessel at high pressure','pressure rising too slowly','a turbine trip','hot water in a cold pump'],0,`The cold surface shrinks and is stressed while pressure adds more stress: a fracture risk in brittle steel.`)]);
+
+F('o1',[
+T(`<h3>Quick recap</h3><ul><li><b>STAR</b>: Stop, Think, Act, Review</li><li><b>Three-way communication</b>: send, repeat back, confirm</li><li><b>Peer check</b>: a colleague confirms the right component and action before you act</li><li><b>Questioning attitude</b> and <b>conservative decisions</b>: if unsure, make the plant safe and stable</li></ul>`),
+Q(`In three-way communication, after the sender gives the instruction, the receiver…`,['repeats it back','acts immediately','ignores it','only writes it down'],0,`Then the sender confirms the repeat-back is correct.`),
+Q(`A peer check means…`,['a colleague watches and confirms the right component and action before you act','checking afterwards only','asking a member of the public','using a computer'],0,`Two people catch more slips than one.`),
+Q(`A questioning attitude means…`,['if something seems wrong, stop and find out why','never asking questions','always assuming instruments are right','trusting the first indication you see'],0,`Unexpected indications are clues, not nuisances.`),
+Q(`You're not sure a valve is the right one. What's the best action?`,['Stop, check the label against the procedure, and use a peer check','Operate it and see what happens','Ask someone else to operate it without telling them','Guess'],0,`Wrong-component errors are one of the most common slips in industry.`),
+O(`Put STAR in order.`,['Stop','Think','Act','Review'],`Two seconds of STAR before every action prevents a lot of mistakes.`)]);
+
+F('o2',[
+T(`<h3>Quick recap</h3><ul><li><b>Three Mile Island (1979)</b>: stuck-open relief valve, misleading indication, emergency cooling reduced</li><li><b>Chernobyl (1986)</b>: unstable low-power state, positive void coefficient, graphite rod tips, prompt critical</li><li><b>Fukushima (2011)</b>: tsunami caused a station blackout, so decay heat couldn't be removed</li></ul>`),
+Q(`What really happened to the relief valve at Three Mile Island?`,['It stuck open','It never opened','It exploded','It had been removed'],0,`Coolant kept escaping while the panel suggested the valve was shut.`),
+Q(`Why did Chernobyl's control rods briefly add reactivity when inserted?`,['Graphite tips at the bottom of the rods displaced water','There was boron in the tips','There was water in the rods','Steam pushed them out'],0,`Graphite (a moderator) replaced water (an absorber) at the bottom of the core.`),
+Q(`At Fukushima, why did the cores melt?`,['Decay heat couldn\'t be removed after power and cooling were lost','The reactors didn\'t shut down','They went prompt critical','Sabotage'],0,`The reactors shut down; the problem was removing decay heat.`),
+Q(`Which idea came out of the Chernobyl investigations?`,['Safety culture','Station blackout planning','Better relief valve indication','Tsunami walls'],0,`The term "safety culture" was coined in the investigations after Chernobyl.`),
+Q(`Which accident led to big improvements in control room design and simulator training?`,['Three Mile Island','Fukushima','Chernobyl','None of them'],0,`TMI triggered major changes in human factors, procedures and training.`)]);
+
+F('o3',[
+T(`<h3>Quick recap</h3><ul><li>Calculate the <b>estimated critical position (ECP)</b> first, allowing for boron, xenon, samarium and temperature</li><li>Approach criticality in steps using <b>1/M</b></li><li>Keep startup rate below about <b>1 DPM</b></li><li>Above the <b>point of adding heat</b>, feedback slows the rise</li></ul><div class="callout"><b>Worked example:</b> last critical at 50%, xenon now −100 pcm, rods worth 10 pcm/%: rods must add +100 pcm more, so ECP ≈ <b>60%</b>.</div>`),
+N(`Last time, the reactor went critical at 55% rod withdrawal. Today xenon adds −150 pcm and nothing else has changed. Rods are worth 10 pcm per % there. What's the ECP?`,70,0.01,'% withdrawn',`The rods must add an extra +150 pcm: 150 ÷ 10 = 15% more, so 70%.`,`More negative xenon means the rods must come out further.`),
 N(`During the approach, the count rate rises from 40 cps to 160 cps. What's 1/M?`,0.25,0.01,'',`40 ÷ 160 = 0.25.`),
 Q(`During a startup, the startup rate is normally kept below about…`,['1 DPM','10 DPM','0 DPM','100 DPM'],0,`That gives operators plenty of time to respond.`),
 Q(`Above the point of adding heat, with rods stopped, the startup rate…`,['falls off as temperature feedback acts','rises sharply','stays constant forever'],0,`Heat raises temperatures, and the negative coefficients take reactivity away.`),
@@ -900,31 +930,4 @@ QE(`On a graph of ln N against time, the gradient is…`,[`−λ`,`λ`,`ln N₀`
 T(`<h3>Key points</h3><ul><li><b>λ = 0.693 ÷ T½</b>, in matching time units.</li><li>For Bq, use λ per second (1 year ≈ 3.16 × 10⁷ s).</li><li><b>A = λN</b>: tiny masses of short-lived isotopes can be very active.</li></ul>`)]),
 LH('m2-5-2','Counting atoms',9,'How many atoms are in a gram of uranium? Moles and Avogadro\'s number, slowly.',[
 RM(`<p>The <b>mass number</b> of an isotope is protons + neutrons (Level 1 Theory). Uranium-235 has mass number 235. One proton or neutron ≈ 1 u.</p>`),
-T(`<h3>The mole: a chemist's dozen</h3><p>Atoms are too small to count one by one, so we count them in huge batches called <b>moles</b>.</p><div class="eq">1 mole = 6.022 × 10<sup>23</sup> things</div><p>That number is <b>Avogadro's number, N<sub>A</sub></b>.</p><p>The useful part: <b>one mole of an isotope has a mass in grams equal to its mass number</b>. One mole of uranium-235 weighs about 235 g.</p>`),
-T(`<h3>From grams to atoms</h3><div class="eq">N = (m ÷ M) × N<sub>A</sub></div>${KY([['N','number of atoms',''],['m','mass of the sample','g'],['M','molar mass (≈ mass number)','g per mole'],['N<sub>A</sub>','Avogadro\'s number, 6.022 × 10²³','per mole']])}`),
-W('stepCalc',{steps:['How many atoms are in 1 g of uranium-235?','Number of moles = m ÷ M = 1 ÷ 235 = 0.004255 mol','N = 0.004255 × 6.022 × 10<sup>23</sup>','N = <b>2.56 × 10<sup>21</sup> atoms</b>','That\'s 2,560,000,000,000,000,000,000 atoms in one gram.']},`Count the atoms in a gram of uranium-235.`),
-N(`How many moles are in 470 g of uranium-235?`,2,0.01,'mol',`470 ÷ 235 = 2 mol.`),
-N(`How many atoms are in 12 g of carbon-12? Give the number in front of × 10<sup>23</sup>.`,6.022,0.005,'× 10²³',`12 g of carbon-12 is exactly 1 mole.`),
-QE(`What is λ for an isotope with a half-life of 10 s?`,[`0.0693 s⁻¹`,`0.693 s⁻¹`,`0.0144 s⁻¹`,`0.1443 s⁻¹`],0,`0.693 ÷ 10.`),
-T(`<h3>Key points</h3><ul><li>1 mole = <b>6.022 × 10²³</b> (Avogadro's number).</li><li>1 mole of an isotope has a mass in grams ≈ its mass number.</li><li><b>N = (m/M) × N<sub>A</sub></b>. 1 g of U-235 ≈ 2.56 × 10²¹ atoms.</li></ul>`)]),
-LH('m2-5-3','From power to fuel used',10,'How many atoms split each second at full power, and how much uranium a reactor uses in a day.',[
-RM(`<ul><li>One fission releases about <b>200 MeV = 3.2 × 10<sup>−11</sup> J</b> (Level 1, E = mc² part 4).</li><li>1 W = 1 J per second.</li><li>1 g of U-235 ≈ <b>2.56 × 10²¹ atoms</b>.</li></ul>`),
-T(`<h3>Fissions per second</h3><div class="eq">fission rate = P ÷ E<sub>f</sub></div>${KY([['P','thermal power','W (J/s)'],['E<sub>f</sub>','energy per fission, 3.2 × 10⁻¹¹ J','J']])}<p>For 1 W: 1 ÷ 3.2 × 10<sup>−11</sup> = <b>3.1 × 10<sup>10</sup> fissions per second</b>.</p>`),
-N(`An EPR makes 4590 MW of heat (4.59 × 10<sup>9</sup> W). How many fissions per second? Give the number in front of × 10<sup>20</sup>.`,1.43,0.02,'× 10²⁰ per second',`4.59 × 10⁹ ÷ 3.2 × 10⁻¹¹ = 1.43 × 10²⁰ fissions every second.`),
-T(`<h3>Uranium split per day</h3><p>Operators and fuel designers use a handy rule: one megawatt of heat for one day (1 MWd) splits about <b>1.05 g</b> of uranium-235.</p>`),
-W('stepCalc',{steps:['Check the rule: energy in 1 MWd = 10<sup>6</sup> W × 86,400 s = 8.64 × 10<sup>10</sup> J','Fissions = 8.64 × 10<sup>10</sup> ÷ 3.2 × 10<sup>−11</sup> = 2.7 × 10<sup>21</sup>','Mass = atoms ÷ atoms per gram = 2.7 × 10<sup>21</sup> ÷ 2.56 × 10<sup>21</sup>','= <b>1.05 g</b> per MWd ✓','For an EPR at 4590 MW: 4590 × 1.05 ≈ <b>4.8 kg of uranium split every day</b>. (Some more is absorbed without splitting.)']},`Check the 1 gram per megawatt-day rule.`),
-N(`A 3000 MWth reactor runs for one day. Roughly how many kg of uranium are split? (1.05 g per MWd)`,3.15,0.02,'kg',`3000 × 1.05 = 3150 g = 3.15 kg.`),
-QE(`Energy in 1 MWd: 10<sup>6</sup> W for one day. How many seconds are in one day?`,[`86,400`,`864,000`,`8,640`,`36,000`],0,`24 × 3600 = 86,400.`),
-T(`<h3>Key points</h3><ul><li>Fission rate = <b>P ÷ 3.2 × 10⁻¹¹ J</b>: about 3.1 × 10¹⁰ per second per watt.</li><li>About <b>1 g of U-235 split per MWd</b> of heat.</li><li>An EPR splits a few kilograms of uranium a day, for the energy of thousands of tonnes of coal.</li></ul>`)])
-]});
-F('m2-5-1',[T(`<h3>Quick recap</h3><p>λ = 0.693/T½, A = λN.</p>`),N(`T½ = 693 s. What is λ?`,0.001,0.01,'s⁻¹',`0.693/693.`),N(`λ = 0.001 s⁻¹, N = 10⁹. Activity in Bq? Give the number in front of × 10⁶.`,1,0.01,'× 10⁶ Bq',`10⁶ Bq.`),Q(`For A in Bq, λ must be in…`,[`per second`,`per year`,`per day`,`any unit`],0,`Bq = decays per second.`)]);
-F('m2-5-2',[T(`<h3>Quick recap</h3><p>N = (m/M) × 6.022 × 10²³.</p>`),N(`Moles in 23.5 g of U-235?`,0.1,0.01,'mol',`23.5/235.`),Q(`One mole of U-235 has a mass of about…`,[`235 g`,`235 kg`,`1 g`,`92 g`],0,`Molar mass ≈ mass number in grams.`),N(`Atoms in 2 g of U-235? Give the number in front of × 10²¹.`,5.12,0.01,'× 10²¹',`2 × 2.56.`)]);
-F('m2-5-3',[T(`<h3>Quick recap</h3><p>Fission rate = P / 3.2 × 10⁻¹¹ J. About 1.05 g U-235 split per MWd.</p>`),N(`Fissions per second at 1 MW? Give the number in front of × 10¹⁶.`,3.125,0.02,'× 10¹⁶',`10⁶ / 3.2 × 10⁻¹¹.`),N(`Uranium split by 1000 MWth in 10 days, in kg?`,10.5,0.02,'kg',`1000 × 10 × 1.05 g.`),Q(`What is 1 MWd?`,[`1 MW of power for 1 day`,`1 MW per day`,`1 day per MW`,`1 megawatt`],0,`An amount of energy.`)]);
-TT('m2-5',[x('m2-5-1',N(`T½ = 5 days. λ per day?`,0.1386,0.01,'per day',`0.693/5.`)),x('m2-5-1',Q(`A = λN. Doubling N…`,[`doubles A`,`halves A`,`doesn't change A`,`quadruples A`],0,`Proportional.`)),x('m2-5-2',Q(`Avogadro's number is about…`,[`6.022 × 10²³`,`3.00 × 10⁸`,`1.66 × 10⁻²⁷`,`9 × 10¹⁶`],0,`Things per mole.`)),x('m2-5-2',N(`Moles in 705 g of U-235?`,3,0.01,'mol',`705/235.`)),x('m2-5-3',N(`Fissions per second at 2 W? Give the number in front of × 10¹⁰.`,6.25,0.02,'× 10¹⁰',`2/3.2 × 10⁻¹¹.`)),x('m2-5-3',N(`Grams of U-235 split by 100 MWth in one day?`,105,0.02,'g',`100 × 1.05.`))]);
-
-
-/* ===== lv2t.js ===== */
-/* ========== LEVEL 2 · THEORY (A-level) ========== */
-U({id:'t2-1',track:'theory',level:2,title:'Inside the nucleus',icon:'⚛︎',color:'#7F77DD',desc:'Why some nuclei are stable and others aren\'t, the different ways they decay, and decay chains.',lessons:[
-LH('t2-1-1','What makes a nucleus stable?',9,'Why carbon-12 lasts for ever but carbon-14 doesn\'t: the balance inside the nucleus.',[
-RM(`<ul><li>A nucleus contains <b>protons</b> (positive) and <b>neutrons</b> (no charge).</li><li>The <b>strong nuclear force</b> pulls them together, but only over tiny distances. Protons also <b>push each other apart</b> electrically.</li><li><b>Isotopes</b> of an eleme
+T(`<h3>The mole: a che
