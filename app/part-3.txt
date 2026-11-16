@@ -1,4 +1,6 @@
-ues to make your guess.</p>';
+lass="ghost" data-my="change">Change my guess</button></p></div>'}
+  else if(n>=3||rv){h+='<p><b>'+escH(C.q)+'</b></p><div>'+opts.map(function(o){return '<button type="button" class="shopt" data-my="g" data-i="'+o[1]+'">'+escH(o[0])+'</button>'}).join('')+'</div>'+(rv?'<p class="note"><button type="button" class="ghost" data-my="show">Just show me the answer</button></p>':'<p class="note">You can guess now and change it until Friday.</p>')}
+  else h+='<p class="note">Unlock 3 clues to make your guess.</p>';
   return h}
  function mount(){var el=document.getElementById('page-learn');if(!el)return;var old=el.querySelector('.mycard');if(old)old.remove();var hero=el.querySelector('.hero');if(!hero)return;
   var c=document.createElement('div');c.className='card mycard';c.innerHTML=card();hero.parentNode.insertBefore(c,hero.nextSibling);wire(c)}
@@ -1911,4 +1913,4 @@ T(`<h3>UK numbers</h3><ul><li>Average UK dose from all sources: about <b>2.7 mSv
 W('doseCompare',{},`Click the bars to compare everyday doses with dose limits.`,null),
 Q(`Which has the highest radiation weighting factor?`,['Gamma','Beta','Alpha','X-rays'],2,`Alpha particles deposit their energy very densely, so they get a weighting factor of 20.`)]),
 L('p2','Time, distance and shielding',12,[
-T(`<h3>Three ways to reduce dose</h3><div class="eq">dose = dose rate × time</div><div class="key"><div class="kt">What each part means</div><div class="krow"><span class="ks">dose</span><span class="km">total radiation dose received</span><span class="ku">sieverts (Sv), usually mSv or µSv</span></div><div class="krow"><span class="ks">dose rate</span><span class="km">dose per hour</span><span class="ku">Sv per hour (e.g. µSv/h)</span></div><div class="krow"><span class="ks">time</span><span class="km">how long you stay</span><span class="ku">hours (h)</span></div><div class="kn">Match the time units: µSv per <b>hour</b> × <b>hours</b>.</div></div><ul><li><b>Time</b>: spend less of it near the source</li><li><b>Distance</b>: for a small source, dose rate falls wit
+T(`<h3>Three ways to reduce dose</h3><div class="eq">dose = dose rate × time</div><div class="key"><div class="kt">What each part means</div><div class="krow"><span class="ks">dose</span><span class="km">total radiation dose received</span><span class="ku">sieverts (Sv), usually mSv or µSv<

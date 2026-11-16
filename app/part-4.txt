@@ -1,4 +1,4 @@
-h the square of distance (the <b>inverse square law</b>)</li><li><b>Shielding</b>: each <b>half-value layer</b> (HVL) halves the dose rate. For cobalt-60 gamma rays, the HVL of lead is about 12 mm.</li></ul>`),
+/span></div><div class="krow"><span class="ks">dose rate</span><span class="km">dose per hour</span><span class="ku">Sv per hour (e.g. µSv/h)</span></div><div class="krow"><span class="ks">time</span><span class="km">how long you stay</span><span class="ku">hours (h)</span></div><div class="kn">Match the time units: µSv per <b>hour</b> × <b>hours</b>.</div></div><ul><li><b>Time</b>: spend less of it near the source</li><li><b>Distance</b>: for a small source, dose rate falls with the square of distance (the <b>inverse square law</b>)</li><li><b>Shielding</b>: each <b>half-value layer</b> (HVL) halves the dose rate. For cobalt-60 gamma rays, the HVL of lead is about 12 mm.</li></ul>`),
 N(`The dose rate is 400 µSv/h at 1 m from a small source. What is it at 4 m?`,25,0.01,'µSv/h',`4 times the distance → 4² = 16 times less: 400 ÷ 16 = 25 µSv/h.`),
 N(`The HVL of lead is 12 mm. Behind 36 mm of lead, what fraction of the dose rate is left?`,0.125,0.01,'',`36 mm is 3 HVLs: ½ × ½ × ½ = 0.125.`),
 W('jobPlanner',{},`A 30-minute valve repair is near a source giving <b>2 mSv/h at 1 m</b>. Use distance and lead shielding to keep the job's dose <b>below 0.1 mSv</b>.`,`Combining distance and shielding multiplies their effects. Radiation protection staff plan jobs like this before work starts.`),
@@ -803,6 +803,4 @@ Q(`A cheap lead shield would noticeably cut the dose for a job that's already be
 Q(`Where are contamination monitors placed?`,['At the exits from controlled areas','In the turbine hall office','In the car park','On the reactor vessel'],0,`Everyone and everything leaving is checked so contamination doesn't spread.`)]);
 
 F('s1',[
-T(`<h3>Quick recap</h3><ul><li><b>Primary</b>: 155 bar water, core → steam generators. Radioactive.</li><li><b>Secondary</b>: steam generators → turbine → condenser. Kept separate.</li><li><b>Cooling water</b>: sea water cools the condenser at UK coastal sites</li><li>Each Hinkley Point C EPR: 4 loops (steam generator + pump each) and 1 pressuriser</li></ul>`),
-Q(`Which circuit carries radioactive water?`,['Primary','Secondary','Sea water'],0,`The primary water passes through the core.`),
-Q(`What cools the condenser at UK
+T(`<h3>Quick recap</h3><ul><li><b>Primary</b

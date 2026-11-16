@@ -1,4 +1,6 @@
- result that doesn't fit the pattern. Leave it out, then find the <b>mean</b> of the rest: add them up and divide by how many there are.</p>`),
+ if you do it again. <b>Reproducible</b>: someone else gets the same results.</li><li><b>Resolution</b>: the smallest change an instrument can show (1 mm on a ruler).</li></ul>`),
+Q(`Three readings are 5.1, 5.2 and 5.1 s, but the true value is 6.0 s. The readings are…`,[`precise but not accurate`,`accurate but not precise`,`accurate and precise`,`neither`],0,`They're close together (precise) but far from the true value.`),
+T(`<h3>Anomalies and means</h3><p>An <b>anomaly</b> is a result that doesn't fit the pattern. Leave it out, then find the <b>mean</b> of the rest: add them up and divide by how many there are.</p>`),
 W('calcDrill',{skill:'g_meanrep',need:3},`Spot the anomaly and find the mean. Get 3 right in a row.`,`Ignore the odd one out.`),
 T(`<h3>Key points</h3><ul><li>Independent: you change it. Dependent: you measure it. Control: keep it the same.</li><li>Accurate: near the true value. Precise: close together.</li><li>Leave out anomalies when you work out the mean.</li></ul>`)]),
 LH('gp1-3-2','Graphs and gradients',8,'Lines of best fit, proportional relationships, and finding a gradient.',[
@@ -818,7 +820,4 @@ T(`<h3>Key points</h3><ul><li>Bounds: think about which combination makes it big
 ]});
 U({id:'gm4-2',track:'gm',level:4,title:'Geometry problems',icon:'⬚',color:'#7F77DD',desc:'3D Pythagoras and trigonometry, segments, and multi-step area, volume and similarity problems.',lessons:[
 LH('gm4-2-1','3D Pythagoras and trigonometry',11,'Diagonals of cuboids and angles between a line and a plane.',[
-T(`<h3>3D Pythagoras</h3><p>The longest diagonal of a cuboid: <b>d = √(a² + b² + c²)</b>. You can also do it in two steps: find the base diagonal first, then use it with the height.</p><h3>Angle with a plane</h3><p>Find the right-angled triangle that contains the line and its "shadow" on the base. Use trig in that triangle.</p>`),
-W('calcDrill',{skill:'g_pythag3d',need:5},`3D Pythagoras and angles. Get 5 right in a row.`,`Base diagonal first.`),
-T(`<h3>Key points</h3><ul><li>d = √(a² + b² + c²).</li><li>Angle with the base: tan θ = height ÷ base diagonal.</li></ul>`)]),
-LH('gm4-2-2','Area, volume and similarity problems',11,'Segments, composite volum
+T(`<h3>3D Pythagoras</h3><p>The longest diagonal of a cuboid: <b>d = √(a² + b² + c²)</b>. You can also do it in two steps: find the base diagonal first, then use it with the h

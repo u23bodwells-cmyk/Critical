@@ -1,4 +1,7 @@
-es and similar solids in context.',[
+eight.</p><h3>Angle with a plane</h3><p>Find the right-angled triangle that contains the line and its "shadow" on the base. Use trig in that triangle.</p>`),
+W('calcDrill',{skill:'g_pythag3d',need:5},`3D Pythagoras and angles. Get 5 right in a row.`,`Base diagonal first.`),
+T(`<h3>Key points</h3><ul><li>d = √(a² + b² + c²).</li><li>Angle with the base: tan θ = height ÷ base diagonal.</li></ul>`)]),
+LH('gm4-2-2','Area, volume and similarity problems',11,'Segments, composite volumes and similar solids in context.',[
 RM(`<p>Sector = (θ/360)πr². Triangle = ½ab sin C. Area factor k², volume factor k³.</p>`),
 T(`<h3>Segments</h3><div class="eq">segment = sector − triangle</div><p>Use ½r² sin θ for the triangle.</p>`),
 W('calcDrill',{skill:'g_segment',need:3},`Segment areas. Get 3 right in a row.`,`Sector minus triangle.`),
@@ -1025,6 +1028,4 @@ function NSIM(w,h,rnd){
 
  /* ---------- live reactor core: a Monte Carlo chain reaction you control ---------- */
  WIDGETS.reactorSim=function(box,par){par=par||{};var scr=screen(box,310,260),sim=NSIM(scr.W,scr.H),tgt=par.rods==null?.62:par.rods,mom=true,slow=false,paused=calm(),bgc=null,arrows=[],recoils=[],hist=new Float32Array(26),hold=0,done=false,moved=false,fisW=[],fps=0,tStat=0,blink=0;
-  var BOR=par.control==='boron',ppm=par.boron!=null?par.boron:1400,fb=!!par.feedback,fuelT=300,fast=false,fat={fis:0,cap:0,abs:0,leak:0},fatW=[],trip=false;if(BOR)tgt=0;if(par.source)sim.P.src=par.source;
-  sim.ins=tgt;sim.max=narrow()?170:260;for(var i=0;i<(par.n||40);i++){var f0=sim.fuel[Math.floor(Math.random()*sim.fuel.length)];sim.add(f0.x,f0.y,sim.watt())}
-  var rs=BOR?slider(box,'Boron in the water',0,2000,10,ppm,function(v){return v+' ppm'},function(v){ppm=v;moved=true}):slider(box,'Control rods',0,100,1,Math.round(tgt*100),function(v){return v+'% in'},function(v){tgt=v/100;
+  var BOR=par.control==='boron',ppm=par.boron!=null?par.boron:1400,fb=!!par.feedback,fuelT=300,fast=false,

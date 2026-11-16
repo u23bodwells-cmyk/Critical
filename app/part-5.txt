@@ -1,4 +1,6 @@
- coastal sites like Hinkley Point?`,['Sea water','Primary coolant','Boron','Steam'],0,`Sea water is pumped through the condenser tubes and returned to the sea slightly warmer.`),
+>: 155 bar water, core → steam generators. Radioactive.</li><li><b>Secondary</b>: steam generators → turbine → condenser. Kept separate.</li><li><b>Cooling water</b>: sea water cools the condenser at UK coastal sites</li><li>Each Hinkley Point C EPR: 4 loops (steam generator + pump each) and 1 pressuriser</li></ul>`),
+Q(`Which circuit carries radioactive water?`,['Primary','Secondary','Sea water'],0,`The primary water passes through the core.`),
+Q(`What cools the condenser at UK coastal sites like Hinkley Point?`,['Sea water','Primary coolant','Boron','Steam'],0,`Sea water is pumped through the condenser tubes and returned to the sea slightly warmer.`),
 Q(`How many primary loops does each Hinkley Point C reactor have?`,['4','2','1','8'],0,`Four loops, each with a steam generator and a reactor coolant pump.`),
 Q(`The pressuriser is connected to…`,['a hot leg of the primary circuit','the turbine','the condenser','the sea'],0,`It sits on one hot leg and sets the pressure for the whole primary circuit.`),
 O(`Follow the heat from the fuel to the sea.`,['Fuel heats the primary water','Primary water heats secondary water in the steam generators','Steam drives the turbine','The condenser passes leftover heat to sea water'],`Electricity comes from the generator on the turbine shaft.`)]);
@@ -938,5 +940,4 @@ NE(`y = e<sup>2x</sup>. What is dy/dx at x = 0?`,2,0.001,'',`2e⁰ = 2.`),
 T(`<h3>Key points</h3><ul><li>Integration reverses differentiation.</li><li>∫ xⁿ dx = xⁿ⁺¹/(n+1) + C. ∫ e<sup>kx</sup> dx = e<sup>kx</sup>/k + C.</li><li>With limits: integrate, put in top, put in bottom, <b>subtract</b>.</li></ul>`)]),
 LH('m2-4-3','Totals in reactors',10,'Total energy after a trip, total decays in a sample: integration at work.',[
 RM(`<ul><li>Energy = area under power-time = ∫ P dt.</li><li>∫ e<sup>kt</sup> dt = e<sup>kt</sup>/k.</li><li>With limits: top minus bottom.</li></ul>`),
-T(`<h3>Energy from a falling power</h3><p>Suppose power falls as <b>P = P₀ e<sup>−t/τ</sup></b> (a negative period). How much energy is released in total, as t goes on for ever?</p>`),
-W('stepCalc',{steps:['E = ∫<sub>0</sub><sup>∞</sup> P₀ e<sup>−t/τ</sup> dt','Here k = −1/τ, so 1/k = −τ. Integrate: P₀ × (−τ) e<sup>−t/τ</sup>','Top limit (t → ∞): e<sup>−∞</sup> = 0, so the term is 0.','Bottom limit (t = 0): P₀ × (−τ) × 1 = −P₀τ','Top minus bottom: 0 − (−P₀τ) = <b>P₀ τ</b>','So the total energy is si
+T(`<h3>Energy from a 

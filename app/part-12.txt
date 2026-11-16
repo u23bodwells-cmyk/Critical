@@ -1,4 +1,6 @@
-moved=true});
+fat={fis:0,cap:0,abs:0,leak:0},fatW=[],trip=false;if(BOR)tgt=0;if(par.source)sim.P.src=par.source;
+  sim.ins=tgt;sim.max=narrow()?170:260;for(var i=0;i<(par.n||40);i++){var f0=sim.fuel[Math.floor(Math.random()*sim.fuel.length)];sim.add(f0.x,f0.y,sim.watt())}
+  var rs=BOR?slider(box,'Boron in the water',0,2000,10,ppm,function(v){return v+' ppm'},function(v){ppm=v;moved=true}):slider(box,'Control rods',0,100,1,Math.round(tgt*100),function(v){return v+'% in'},function(v){tgt=v/100;moved=true});
   function setBoron(){sim.P.hAbs=fast?0:.0008+(BOR?ppm*5e-6:0)}setBoron();
   var r=row(box),bP=btn(r,paused?'Play':'Pause',function(){paused=!paused;bP.textContent=paused?'Play':'Pause'}),bF=btn(r,'Fire neutrons',function(){fire(scr.W/2,scr.H/2,6)}),bM=btn(r,'Momentum arrows',function(){mom=!mom;tog(bM,mom)}),bS=btn(r,'Slow motion',function(){slow=!slow;tog(bS,slow)});tog(bM,mom);tog(bS,slow);
   if(par.fastBtn){var bW=btn(r,'Take the water out',function(){fast=!fast;tog(bW,fast);sim.P.lamF=fast?1e9:28;sim.P.lamT=fast?1e9:24;sim.P.sF=[.16,fb?sim.P.sF[1]:.006,fast?.002:.01];setBoron();moved=true});tog(bW,false)}
@@ -820,5 +822,4 @@ moved=true});
     else if(lvl===1){c.fillStyle='rgba(170,180,200,.8)';c.fillRect(20,cy2-9,W-40,18);for(var p2=0;p2<40;p2++){c.strokeStyle='rgba(60,60,70,.6)';c.beginPath();c.moveTo(20+p2*(W-40)/40,cy2-9);c.lineTo(20+p2*(W-40)/40,cy2+9);c.stroke()}hud(c,W/2,cy2+30,'zirconium alloy tube, sealed at both ends','rgba(200,225,255,.8)',9,'center')}
     else if(lvl===2){var g=Math.min(W,H)*.6/17;for(var j2=0;j2<17;j2++)for(var i3=0;i3<17;i3++){c.fillStyle='rgba(170,180,200,.75)';c.beginPath();c.arc(cx2-8.5*g+i3*g+g/2,cy2-8.5*g+j2*g+g/2,g*.38,0,6.283);c.fill()}}
     else{var g2=Math.min(W,H)*.65/15;MAP.forEach(function(m){c.fillStyle=rgba(hot(.25+Math.cos(Math.hypot(m[0],m[1])/7.6*Math.PI/2)*.55),1);c.fillRect(cx2+m[0]*g2-g2/2+1,cy2+m[1]*g2-g2/2+1,g2-2,g2-2)})}}});
-  if(!par.goal)return {};return {check:function(){if(par.goal==='checker')return pat===2?{ok:true,head:'Low leakage!',msg:'Spreading the new fuel out flattens the power and keeps the hottest fuel away from the edge, so fewer neutrons leak.'}:{ok:false,msg:'Try each pattern and compare the peaking factor and the leakage.'};return moved?{ok:true}:{ok:false,msg:'Try a control first.'}}}};
- Object.keys(LABS).forEach(function(k){var f=WIDGETS[k];if(!f||f.__soft)return;var g=function(box,par,o){var r=f(box,par,o)||{};if(r.check){var ch=r.check;r.check=function(){var x=ch()||{};if(!x.ok)x.soft=true;return x}}return 
+  if(!par.goal)return {};return {check:function(){if(par.goal==='checker')return pat===2?{ok:true,head:'Low leakage!',msg:'Spreading 
