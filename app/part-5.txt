@@ -1,4 +1,18 @@
-ls','it fails to trip','it needs operator action'],0,`Rod drives hold rods up with electromagnets: lose power and the rods drop.`),
+'the pressuriser','the reactor core','the generator'],0,`The turbine bypass dumps steam straight to the condenser, keeping a heat sink for the reactor.`)]);
+
+F('s4',[
+T(`<h3>Quick recap</h3><table><tr><th>Range</th><th>Detector</th><th>Reads</th></tr><tr><td>Source</td><td>BF<sub>3</sub> counter or fission chamber</td><td>counts per second</td></tr><tr><td>Intermediate</td><td>compensated ion chamber</td><td>amps</td></tr><tr><td>Power</td><td>uncompensated ion chamber</td><td>% power</td></tr></table><p>The ranges overlap so there's never a gap in indication.</p>`),
+Q(`Which range counts individual pulses?`,['Source range','Intermediate range','Power range'],0,`At very low power, each neutron makes a separate pulse that can be counted.`),
+Q(`Which range reads directly in % of full power?`,['Power range','Source range','Intermediate range'],0,`Power range channels feed the high-power trips.`),
+Q(`During a startup, before switching off the source range, operators confirm…`,['overlap with the intermediate range','full power','that the turbine is on line','that boron is zero'],0,`There must never be a gap in neutron indication.`),
+Q(`Intermediate range ion chambers are compensated to cancel…`,['current caused by gamma rays','current caused by neutrons','temperature effects','noise from pumps'],0,`At low power, gamma current could swamp the small neutron signal.`),
+N(`A power range detector gives 200 µA at 100% power, and its current is proportional to power. What current does it give at 30%?`,60,0.01,'µA',`200 × 0.30 = 60 µA.`)]);
+
+F('s5',[
+T(`<h3>Quick recap</h3><ul><li>Barriers, inside out: pellet → cladding → coolant pressure boundary → containment</li><li><b>Redundant</b>: several identical channels</li><li><b>Diverse</b>: different methods, so one common fault can't defeat them all</li><li><b>Fail-safe</b>: a failure puts the plant into a safe state</li><li>2-out-of-4 voting: 2 channels needed to trip</li></ul>`),
+Q(`Redundant means…`,['several identical channels, so one failure doesn\'t lose the function','different ways of measuring','failing into a safe state','very old'],0,`For example, four identical pressure channels.`),
+Q(`Diverse means…`,['different methods or equipment, so one common fault can\'t defeat them all','several identical channels','failing into a safe state','extra fast'],0,`For example, tripping on both high flux and high temperature.`),
+Q(`Fail-safe means…`,['a failure, such as losing power, puts the plant in a safe state like a trip','it never fails','it fails to trip','it needs operator action'],0,`Rod drives hold rods up with electromagnets: lose power and the rods drop.`),
 N(`With 2-out-of-4 logic, what's the minimum number of channels that must trip to trip the reactor?`,2,0.001,'channels',`Two. One faulty channel alone can't cause or block a trip.`),
 Q(`What is the first, innermost barrier to the release of radioactive material?`,['The ceramic fuel pellet','The containment building','The cladding','The pressure boundary'],0,`The pellet itself traps most fission products.`)]);
 
@@ -918,16 +932,4 @@ F('m2-4-2',[T(`<h3>Quick recap</h3><p>∫ xⁿ dx = xⁿ⁺¹/(n+1) + C. With li
 F('m2-4-3',[T(`<h3>Quick recap</h3><p>∫₀^∞ P₀e<sup>−t/τ</sup> dt = P₀τ. Total decays = A₀/λ = N₀.</p>`),N(`P₀ = 200 MW, τ = 2 s. Total energy, MJ?`,400,0.01,'MJ',`200 × 2.`),Q(`Total decays from a sample, eventually, equal…`,[`N₀, the starting number of nuclei`,`A₀`,`λ`,`zero`],0,`Every nucleus decays eventually.`),N(`A₀ = 500 Bq, λ = 0.01 s⁻¹. Total decays eventually?`,50000,0.01,'',`500 / 0.01 = 50,000.`)]);
 TT('m2-4',[x('m2-4-1',Q(`Area under a power-time graph is…`,[`energy`,`power`,`current`,`temperature`],0,`P × t.`)),x('m2-4-2',Q(`∫ x⁴ dx =`,[`x⁵/5 + C`,`4x³ + C`,`x⁵ + C`,`5x⁴ + C`],0,`Up one, divide.`)),x('m2-4-2',N(`Area under y = 3 from x = 0 to x = 5?`,15,0.001,'',`A rectangle 3 × 5.`)),x('m2-4-3',N(`P₀ = 50 MW, τ = 8 s. Total energy, MJ?`,400,0.01,'MJ',`50 × 8.`)),x('m2-4-2',Q(`Integration is the reverse of…`,[`differentiation`,`multiplication`,`taking logs`,`squaring`],0,`Ask what differentiates to it.`)),x('m2-4-3',Q(`Why does C disappear in a definite integral?`,[`It cancels when you subtract top minus bottom`,`It's always zero`,`It's too small`,`It doesn't disappear`],0,`C − C = 0.`))]);
 
-U({id:'m2-5',track:'maths',level:2,title:'Nuclear numbers',icon:'Bq',color:'#D4537E',desc:'Counting atoms, activity and fission rates: real calculations with real reactor numbers.',lessons:[
-LH('m2-5-1','Activity and half-life',9,'Link the decay constant to the half-life, and calculate real activities.',[
-RM(`<ul><li><b>A = λN</b>: activity = decay constant × number of nuclei.</li><li>Half-life = <b>ln 2 ÷ λ</b> = 0.693 ÷ λ (from Unit 2).</li><li>1 becquerel (Bq) = 1 decay per second.</li></ul>`),
-T(`<h3>λ and half-life are two views of one thing</h3><div class="eq">λ = ln 2 ÷ T<sub>½</sub></div>${KY([['λ','decay constant: the chance per second that one nucleus decays','s⁻¹'],['T<sub>½</sub>','half-life','s'],['ln 2','0.693','']],'Make sure λ and T½ use the same time unit. Convert years to seconds when you want Bq.')}<p>A short half-life means a big λ: each nucleus is likely to decay soon.</p>`),
-T(`<h3>Converting units</h3><p>1 year ≈ 3.16 × 10<sup>7</sup> seconds. To get activity in Bq, λ must be <b>per second</b>.</p><p>Example: caesium-137, half-life 30.1 years = 30.1 × 3.16 × 10<sup>7</sup> = 9.51 × 10<sup>8</sup> s. So λ = 0.693 ÷ 9.51 × 10<sup>8</sup> = <b>7.29 × 10<sup>−10</sup> s⁻¹</b>.</p>`),
-N(`Iodine-131 has a half-life of 8.02 days. What is λ in per day?`,0.0864,0.01,'per day',`0.693 ÷ 8.02 = 0.0864 per day.`),
-W('stepCalc',{steps:['How active is 1 µg (10<sup>−6</sup> g) of caesium-137? It contains 4.4 × 10<sup>15</sup> atoms.','A = λN','λ = 7.29 × 10<sup>−10</sup> s⁻¹ (worked out above)','A = 7.29 × 10<sup>−10</sup> × 4.4 × 10<sup>15</sup>','7.29 × 4.4 = 32.1; −10 + 15 = 5 → 32.1 × 10<sup>5</sup>','A = <b>3.2 × 10<sup>6</sup> Bq</b>: over 3 million decays every second, from one millionth of a gram.']},`Work out a real activity.`),
-N(`A sample has λ = 0.01 s⁻¹ and N = 4 × 10<sup>6</sup>. What is its activity, in Bq? Give the number in front of × 10<sup>4</sup>.`,4,0.01,'× 10⁴ Bq',`0.01 × 4 × 10⁶ = 4 × 10⁴ Bq.`),
-QE(`On a graph of ln N against time, the gradient is…`,[`−λ`,`λ`,`ln N₀`,`T½`],0,`ln N = −λt + ln N₀.`),
-T(`<h3>Key points</h3><ul><li><b>λ = 0.693 ÷ T½</b>, in matching time units.</li><li>For Bq, use λ per second (1 year ≈ 3.16 × 10⁷ s).</li><li><b>A = λN</b>: tiny masses of short-lived isotopes can be very active.</li></ul>`)]),
-LH('m2-5-2','Counting atoms',9,'How many atoms are in a gram of uranium? Moles and Avogadro\'s number, slowly.',[
-RM(`<p>The <b>mass number</b> of an isotope is protons + neutrons (Level 1 Theory). Uranium-235 has mass number 235. One proton or neutron ≈ 1 u.</p>`),
-T(`<h3>The mole: a che
+U({id:'m2-5',track:'maths',level:2,title:'Nuclear numbers',icon:'B

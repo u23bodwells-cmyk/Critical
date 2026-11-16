@@ -1,4 +1,149 @@
-12, 4, 37, 13],
+tion(module,exports,require){
+module.exports = {
+    MODE_NUMBER :       1 << 0,
+    MODE_ALPHA_NUM :    1 << 1,
+    MODE_8BIT_BYTE :    1 << 2,
+    MODE_KANJI :        1 << 3
+};
+
+},
+"./QRPolynomial":function(module,exports,require){
+var QRMath = require('./QRMath');
+
+function QRPolynomial(num, shift) {
+	if (num.length === undefined) {
+		throw new Error(num.length + "/" + shift);
+	}
+
+	var offset = 0;
+
+	while (offset < num.length && num[offset] === 0) {
+		offset++;
+	}
+
+	this.num = new Array(num.length - offset + shift);
+	for (var i = 0; i < num.length - offset; i++) {
+		this.num[i] = num[i + offset];
+	}
+}
+
+QRPolynomial.prototype = {
+
+	get : function(index) {
+		return this.num[index];
+	},
+	
+	getLength : function() {
+		return this.num.length;
+	},
+	
+	multiply : function(e) {
+	
+		var num = new Array(this.getLength() + e.getLength() - 1);
+	
+		for (var i = 0; i < this.getLength(); i++) {
+			for (var j = 0; j < e.getLength(); j++) {
+				num[i + j] ^= QRMath.gexp(QRMath.glog(this.get(i) ) + QRMath.glog(e.get(j) ) );
+			}
+		}
+	
+		return new QRPolynomial(num, 0);
+	},
+	
+	mod : function(e) {
+	
+		if (this.getLength() - e.getLength() < 0) {
+			return this;
+		}
+	
+		var ratio = QRMath.glog(this.get(0) ) - QRMath.glog(e.get(0) );
+	
+		var num = new Array(this.getLength() );
+		
+		for (var i = 0; i < this.getLength(); i++) {
+			num[i] = this.get(i);
+		}
+		
+		for (var x = 0; x < e.getLength(); x++) {
+			num[x] ^= QRMath.gexp(QRMath.glog(e.get(x) ) + ratio);
+		}
+	
+		// recursive call
+		return new QRPolynomial(num, 0).mod(e);
+	}
+};
+
+module.exports = QRPolynomial;
+
+},
+"./QRRSBlock":function(module,exports,require){
+var QRErrorCorrectLevel = require('./QRErrorCorrectLevel');
+
+function QRRSBlock(totalCount, dataCount) {
+	this.totalCount = totalCount;
+	this.dataCount  = dataCount;
+}
+
+QRRSBlock.RS_BLOCK_TABLE = [
+
+	// L
+	// M
+	// Q
+	// H
+
+	// 1
+	[1, 26, 19],
+	[1, 26, 16],
+	[1, 26, 13],
+	[1, 26, 9],
+	
+	// 2
+	[1, 44, 34],
+	[1, 44, 28],
+	[1, 44, 22],
+	[1, 44, 16],
+
+	// 3
+	[1, 70, 55],
+	[1, 70, 44],
+	[2, 35, 17],
+	[2, 35, 13],
+
+	// 4		
+	[1, 100, 80],
+	[2, 50, 32],
+	[2, 50, 24],
+	[4, 25, 9],
+	
+	// 5
+	[1, 134, 108],
+	[2, 67, 43],
+	[2, 33, 15, 2, 34, 16],
+	[2, 33, 11, 2, 34, 12],
+	
+	// 6
+	[2, 86, 68],
+	[4, 43, 27],
+	[4, 43, 19],
+	[4, 43, 15],
+	
+	// 7		
+	[2, 98, 78],
+	[4, 49, 31],
+	[2, 32, 14, 4, 33, 15],
+	[4, 39, 13, 1, 40, 14],
+	
+	// 8
+	[2, 121, 97],
+	[2, 60, 38, 2, 61, 39],
+	[4, 40, 18, 2, 41, 19],
+	[4, 40, 14, 2, 41, 15],
+	
+	// 9
+	[2, 146, 116],
+	[3, 58, 36, 2, 59, 37],
+	[4, 36, 16, 4, 37, 17],
+	[4, 36, 12, 4, 37, 13],
 	
 	// 10		
 	[2, 86, 68, 2, 87, 69],
@@ -1631,13 +1776,4 @@ T(`<h3>ALARP</h3><p>UK law requires doses to be kept <b>as low as reasonably pra
 Q(`Your electronic dosimeter alarms on a high dose rate. What should you do?`,['Ignore it and finish the job quickly, then report it afterwards','Stop, leave the area by the way you came, and tell radiation protection','Turn it off and on again in case it\'s a false alarm','Move closer to find the source so you can tell them where it is'],1,`Treat alarms as real until proven otherwise. Stop, withdraw to a lower dose area and report.`)])
 ]});
 
-U({id:'plant',title:'Plant systems',icon:'PWR',color:'#5F7A8C',desc:'A PWR tour, the pressuriser, steam and electrical systems, instruments, safety systems, materials and chemistry.',lessons:[
-L('s1','A tour of a PWR',10,[
-T(`<h3>Three circuits</h3><ul><li><b>Primary circuit</b>: water at 155 bar is pumped through the core and the steam generators. It's radioactive.</li><li><b>Secondary circuit</b>: water boils in the steam generators, drives the turbine and is condensed. It's kept separate from the primary water.</li><li><b>Cooling water</b>: sea water (at UK coastal sites) cools the condenser.</li></ul><p>Hinkley Point C's EPR reactors each have four primary loops, each with a steam generator and a reactor coolant pump, plus one pressuriser.</p>`),
-W('pwrDiagram',{},`Click the components to learn about them. Then press <b>Quiz me</b> and find each one.`,`Every system you'll learn is somewhere on this diagram.`),
-Q(`Is the steam going to the turbine in a PWR normally radioactive?`,['Yes: the water boils in the core and goes straight to the turbine','No: the steam generators keep primary and secondary water separate','Only at night, when the turbine runs on stored steam from the core','Only at full power, when some primary water mixes into the steam'],1,`That separation is a key PWR feature. Steam generator tube leaks are monitored closely.`)]),
-L('s2','The pressuriser',12,[
-T(`<h3>Holding the pressure</h3><p>The pressuriser is a tall vessel connected to a hot leg. It's partly full of water and partly full of steam, at saturation.</p><ul><li><b>Heaters</b> boil more water, raising the pressure</li><li><b>Spray</b> of cooler cold-leg water condenses steam, lowering the pressure</li><li><b>Relief and safety valves</b> protect against overpressure</li></ul><p>When the primary water heats up and expands, it surges <b>into</b> the pressuriser and compresses the steam, so pressure rises. When it cools, it surges <b>out</b>, and pressure falls.</p>`),
-W('pressuriser',{},`A power change is about to cause surges into and out of the pressuriser. Use the heaters and spray to keep pressure between <b>153 and 157 bar</b> for 40 seconds.`,`In a real plant this is done automatically, but operators must understand it and be ready to take over.`),
-Q(`Pressure is too high. Which action brings it down?`,['Turn on the heaters','Open the spray','Add boron','Raise turbine load'],1,`Spray condenses steam in the pressuriser, lowering pressure.`),
-Q(`At Three Mile Island, the pressuriser relief valve stuck open, but the panel showed it closed. What did the lig
+U({id:'plant',title:'Plant systems',icon:'PWR',color:'#5F7A8C',de

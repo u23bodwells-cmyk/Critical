@@ -1,4 +1,19 @@
-lax error`,`zero error`,`random error`,`systematic error from heat`],0,`Viewing angle.`),Q(`In the acceleration practical, the total mass must be…`,[`constant when changing the force`,`increasing`,`zero`,`as small as possible`],0,`Only one variable at a time.`),Q(`A strobe is used in the ripple tank to…`,[`make the waves appear still`,`make the waves bigger`,`heat the water`,`measure amplitude`],0,`Freezes the pattern.`),Q(`Extension = …`,[`new length − original length`,`new length`,`original length − new length`,`force ÷ k only`],0,`Change in length.`)]);
+hole Higher course.',lessons:[
+LH('gm4-4-1','Non-calculator mix',12,'Paper 1 skills: indices, surds, algebra, fractions and vectors without a calculator.',[
+T(`<h3>Paper 1 is non-calculator</h3><p>You need to be fluent with fractions, indices, surds, standard form and exact trig values by hand. Show every step: method marks are available even if the final answer slips.</p>`),
+W('calcDrill',{skill:GMNC,need:10},`Non-calculator mix. Get 10 right in a row. (Work them out on paper.)`,`Write down each step.`),
+T(`<h3>Key points</h3><ul><li>Show your working for method marks.</li><li>Learn exact trig values and fraction skills.</li></ul>`)]),
+LH('gm4-4-2','Calculator mix',12,'Papers 2 and 3: trigonometry, growth, probability and statistics with a calculator.',[
+RM(`<p>Write down the calculation before typing it. Round only at the end.</p>`),
+W('calcDrill',{skill:GMC,need:10},`Calculator mix. Get 10 right in a row.`,`Keep full calculator values until the last step.`),
+Q(`Why shouldn't you round in the middle of a calculation?`,[`Rounding errors build up and the final answer can be wrong`,'It\'s against the rules in exams, so you lose marks','Calculators can\'t handle long decimals and may crash','It makes the calculation slower than doing it in one go'],0,`Use the ANS key or memory.`),
+T(`<h3>Key points</h3><ul><li>Round only at the end.</li><li>Check your calculator is in degrees.</li></ul>`)])
+]});
+
+/* follow-ups and tests, level 4 */
+function gMixF(sk,n){var a=[];for(var i=0;i<n;i++)a.push(GN(sk[i%sk.length]));return a}
+F('gp4-1-1',[Q(`Repeating readings and finding a mean reduces…`,[`random errors`,`systematic errors`,`zero errors`,`resolution`],0,`Random scatter averages out.`),Q(`In the resistance practical, the control variable is…`,[`the temperature of the wire`,`the length`,`the resistance`,`the current`],0,`Keep it cool.`),Q(`A systematic error can be reduced by…`,[`recalibrating or zeroing the equipment`,`repeating`,`averaging`,`using a bigger range`],0,`Repeating doesn't help.`),Q(`For an irregular solid's volume, use…`,[`a eureka can`,`a ruler`,`a thermometer`,`a newtonmeter`],0,`Displacement.`),Q(`Insulating the block in the SHC practical reduces…`,[`energy lost to the surroundings`,`the mass`,`the current`,`the resolution`],0,`More accurate c.`)]);
+F('gp4-1-2',[Q(`Light gates are better than a stopwatch because they…`,[`remove human reaction time`,`are cheaper`,`are slower`,`measure mass`],0,`More accurate timing.`),Q(`Reading a ruler at eye level avoids…`,[`parallax error`,`zero error`,`random error`,`systematic error from heat`],0,`Viewing angle.`),Q(`In the acceleration practical, the total mass must be…`,[`constant when changing the force`,`increasing`,`zero`,`as small as possible`],0,`Only one variable at a time.`),Q(`A strobe is used in the ripple tank to…`,[`make the waves appear still`,`make the waves bigger`,`heat the water`,`measure amplitude`],0,`Freezes the pattern.`),Q(`Extension = …`,[`new length − original length`,`new length`,`original length − new length`,`force ÷ k only`],0,`Change in length.`)]);
 F('gp4-2-1',gMixF(['g_heattime','g_heat','g_kegpe','g_lift','g_effchain'],5));
 F('gp4-2-2',gMixF(['g_emwave','g_cost','g_impulse','g_brake','g_emwave'],5));
 F('gp4-3-1',[Q(`Six-mark questions are marked by…`,[`levels of response`,`counting keywords only`,`length`,`neatness`],0,`Quality of the chain of reasoning.`),Q(`Level 3 answers need…`,[`linked points in a logical order`,`the most words`,`bullet points only`,`diagrams only`],0,`Linked reasoning.`),Q(`Which word helps link points?`,[`because`,`also`,`and then`,`firstly`],0,`Shows cause.`),Q(`"Evaluate" questions need…`,[`a judgement at the end`,`only facts`,`a calculation`,`a diagram`],0,`Weigh up, then conclude.`),Q(`Before writing a 6-marker you should…`,[`jot down and order your key points`,`start writing immediately`,`draw a picture`,`skip it`],0,`Plan briefly.`)]);
@@ -1008,22 +1023,4 @@ function NSIM(w,h,rnd){
   function relayout(){var ow=sim.w,oh=sim.h;sim.lay(scr.W,scr.H);sim.ns.forEach(function(n){n.x*=scr.W/ow;n.y*=scr.H/oh;n.tr=[]});bgc=bg()}
   bgc=bg();
   run(scr,function(dt,t,rsz){if(rsz)relayout();var c=scr.c,W=scr.W,H=scr.H,step=paused?0:(slow?dt*.3:dt);blink+=dt;
-   if(step>0){if(fb){var fr=0;fisW.forEach(function(x){fr+=x[1]});fuelT+=((300+fr*14)-fuelT)*Math.min(1,step/1500);sim.P.sF=[.16,.006*(1+2*Math.max(0,fuelT-300)/600),fast?.002:.01]}if(BOR)setBoron();var dIns=tgt-sim.ins,mv=(trip?2.5:.25)*step/1000;sim.ins+=Math.abs(dIns)<mv?dIns:mv*Math.sign(dIns);var f1=sim.fis,cols=sim.step(step);fisW.push([t,sim.fis-f1]);
-    cols.forEach(function(rc){sim.ev.push({k:'col',x:rc.x,y:rc.y,t:0});if(rc.E0>50&&recoils.length<40)recoils.push({x:rc.x,y:rc.y,vx:rc.rx*sim.sp(rc.E0),vy:rc.ry*sim.sp(rc.E0),t:0});if(mom&&rc.E0>500&&arrows.length<(narrow()?4:7)&&Math.random()<.5)arrows.push({r:rc,t:0,ec:EC[eIdx(rc.E1)]})});
-    sim.ns.forEach(function(n){n.tr.push(n.x,n.y);if(n.tr.length>16)n.tr.splice(0,2)})}
-   while(fisW.length&&t-fisW[0][0]>1500)fisW.shift();
-   // energy histogram (smoothed)
-   var hb=new Float32Array(26);sim.ns.forEach(function(n){var l=(Math.log10(Math.max(n.E,.003))+2.5)/9.5;hb[Math.max(0,Math.min(25,Math.floor(l*26)))]++});for(var q=0;q<26;q++)hist[q]+=(hb[q]-hist[q])*Math.min(1,dt/250);
-   // goal
-   if(par.goal==='critical'&&!done&&step>0){if(moved&&Math.abs(sim.k-1)<.05&&sim.ns.length>=15)hold+=step;else hold=Math.max(0,hold-step*.5);if(hold>=6000){done=true;m.set('<b>Critical!</b> k is holding at '+sim.k.toFixed(2)+'. Each fission causes about one more, so the neutron count stays steady.',true);try{NEO.burst(scr.cv.getBoundingClientRect().left+W/2,scr.cv.getBoundingClientRect().top+H/2,{n:40,speed:7})}catch(_){}}}
-   // draw
-   c.globalCompositeOperation='source-over';c.drawImage(bgc,0,0,W,H);
-   c.globalCompositeOperation='lighter';
-   sim.fuel.forEach(function(f){if(f.heat<.03)return;var a=Math.min(.55,f.heat*.14),R=sim.fr,g=c.createRadialGradient(f.x,f.y,R*.4,f.x,f.y,R*2.8);g.addColorStop(0,'rgba(80,200,255,'+a.toFixed(3)+')');g.addColorStop(1,'rgba(40,140,255,0)');c.fillStyle=g;c.beginPath();c.arc(f.x,f.y,R*2.8,0,6.283);c.fill();c.fillStyle='rgba(255,150,70,'+(a*.6).toFixed(3)+')';c.beginPath();c.arc(f.x,f.y,R*.55,0,6.283);c.fill()});
-   c.globalCompositeOperation='source-over';
-   // control rods
-   var ins=sim.ins*H;sim.rods.forEach(function(rd,k){var x0=rd.x-rd.w/2,g=c.createLinearGradient(x0,0,x0+rd.w,0);g.addColorStop(0,'#5d6a86');g.addColorStop(.45,'#c9d3e8');g.addColorStop(1,'#3a4560');c.fillStyle=g;c.fillRect(x0,0,rd.w,ins);c.fillStyle='rgba(255,90,90,.8)';c.fillRect(x0,ins-2,rd.w,2);c.fillStyle='#2a3348';c.fillRect(x0-2,0,rd.w+4,5)});
-   // neutrons
-   c.globalCompositeOperation='lighter';c.lineCap='round';
-   for(var j=0;j<sim.ns.length;j++){var n=sim.ns[j],col=EC[eIdx(n.E)],tr=n.tr;if(tr.length>=4){c.strokeStyle=rgba(col,.4);c.lineWidth=1.3;c.beginPath();c.moveTo(tr[0],tr[1]);for(var p=2;p<tr.length;p+=2){var jx=tr[p]-tr[p-2],jy=tr[p+1]-tr[p-1];if(jx*jx+jy*jy>900)c.moveTo(tr[p],tr[p+1]);else c.lineTo(tr[p],tr[p+1])}c.stroke()}
-    c.f
+   if(step>0){if(fb){var fr=0;fisW.forEach(function(x){fr+=x[1]});fuelT+=((300+fr*14)-fuelT)*Math.min(1,step/1500);sim.P.sF=[.16,.006*(1+2*Math.max(0,fuelT-300)/600),fast?.002:.01]}if(BOR)setBoron();var dIns=tgt-sim.ins,mv=(trip?2.5:.25)*step/1000;sim.ins+=Math.abs(dIns)<mv?dIns:mv*Math.sign(dIns);var f1=sim.fis,cols=sim.step(step);fi

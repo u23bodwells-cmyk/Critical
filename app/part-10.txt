@@ -1,4 +1,19 @@
-li></ul>`),
+/b>.</p>`),
+Q(`A car drives at a steady 30 mph on a straight road. The forces on it are…`,[`balanced`,`unbalanced forwards`,`unbalanced backwards`,`zero: no forces act`],0,`Steady speed means the driving force equals the resistive forces.`),
+W('calcDrill',{skill:'g_resultant',need:3},`Resultant forces. Get 3 right in a row.`,`Same direction: add. Opposite directions: subtract.`),
+T(`<h3>Key points</h3><ul><li>Forces are in newtons. Contact or non-contact.</li><li>Balanced: still, or steady speed. Unbalanced: changing motion.</li></ul>`)]),
+LH('gp1-4-2','Speed and distance–time graphs',8,'Typical speeds, average speed, and reading distance–time graphs.',[
+RM(`<p>speed = distance ÷ time, in m/s. The gradient of a distance–time graph is the speed.</p>`),
+T(`<h3>Typical speeds</h3><ul><li>Walking: about 1.5 m/s</li><li>Cycling: about 6 m/s</li><li>A car: 13 to 30 m/s</li><li>Sound in air: about 330 m/s</li></ul><p>GCSE questions expect you to know these roughly.</p>`),
+T(`<h3>Distance–time graphs</h3><ul><li>A <b>straight sloping line</b>: steady speed.</li><li>Steeper means <b>faster</b>.</li><li>A <b>flat line</b>: stationary (not moving).</li><li>Speed = the <b>gradient</b>.</li></ul>`),
+W('calcDrill',{skill:'g_dtgraph',need:4},`Distance–time graph questions. Get 4 right in a row.`,`Average speed uses total distance ÷ total time, rests included.`),
+Q(`On a distance–time graph, the line gets steeper. What does this show?`,[`The object is speeding up`,'The object is slowing down','The object has stopped moving',`It is going backwards`],0,`Steeper gradient = greater speed.`),
+T(`<h3>Key points</h3><ul><li>Know typical speeds: walk 1.5, cycle 6, car 13 to 30, sound 330 m/s.</li><li>Distance–time: gradient = speed; flat = stopped.</li><li>Average speed = total distance ÷ total time.</li></ul>`)])
+]});
+
+U({id:'gc1-1',track:'gc',level:1,title:'Particles and states',icon:'∴',color:'#1D9E75',desc:'Solids, liquids and gases, changes of state, pure substances, dissolving and diffusion.',lessons:[
+LH('gc1-1-1','Solids, liquids and gases',8,'The particle model and the names for every change of state.',[
+T(`<h3>The particle model</h3><ul><li><b>Solid</b>: particles packed tightly in a regular pattern. They vibrate on the spot. Fixed shape.</li><li><b>Liquid</b>: particles close together but random, able to move past each other. Flows and takes the shape of its container.</li><li><b>Gas</b>: particles far apart, moving quickly in all directions. Fills its container and can be squashed.</li></ul>`),
 W('matchPairs',{pairs:[['Solid → liquid','Melting'],['Liquid → gas','Boiling (or evaporating)'],['Gas → liquid','Condensing'],['Liquid → solid','Freezing'],['Solid → gas','Subliming']]},`Match each change of state to its name.`,`Melting and freezing happen at the same temperature, the melting point.`),
 Q(`Why can a gas be squashed but a solid can't?`,[`Gas particles have big spaces between them`,'Gas particles are smaller than solid ones','Solid particles move faster and push back','Gases have no particles, only empty space'],0,`The particles can be pushed closer together.`),
 Q(`What happens to the particles when a solid melts?`,[`They gain energy and can move past each other`,'They get bigger and push each other apart','They lose energy and slow down until they stop','They break apart into separate atoms and ions'],0,`Energy overcomes the forces holding them in place.`),
@@ -811,19 +826,4 @@ Q(`Why might the estimated mean from grouped data be different from the true mea
 Q(`Two classes' test scores: A has median 62, IQR 8; B has median 62, IQR 20. What's the best comparison?`,[`Same average, but A's scores were more consistent`,'A did better, because its IQR is smaller','B did better, because its scores spread higher','They did the same in every way: the medians match'],0,`Medians equal; A has less spread.`),
 T(`<h3>Key points</h3><ul><li>Grouped mean: an estimate because it uses midpoints.</li><li>Always compare an average and a spread, in context.</li></ul>`)])
 ]});
-U({id:'gm4-4',track:'gm',level:4,title:'Mixed exam questions',icon:'📝',color:'#BA7517',desc:'Non-calculator and calculator mixed practice across the whole Higher course.',lessons:[
-LH('gm4-4-1','Non-calculator mix',12,'Paper 1 skills: indices, surds, algebra, fractions and vectors without a calculator.',[
-T(`<h3>Paper 1 is non-calculator</h3><p>You need to be fluent with fractions, indices, surds, standard form and exact trig values by hand. Show every step: method marks are available even if the final answer slips.</p>`),
-W('calcDrill',{skill:GMNC,need:10},`Non-calculator mix. Get 10 right in a row. (Work them out on paper.)`,`Write down each step.`),
-T(`<h3>Key points</h3><ul><li>Show your working for method marks.</li><li>Learn exact trig values and fraction skills.</li></ul>`)]),
-LH('gm4-4-2','Calculator mix',12,'Papers 2 and 3: trigonometry, growth, probability and statistics with a calculator.',[
-RM(`<p>Write down the calculation before typing it. Round only at the end.</p>`),
-W('calcDrill',{skill:GMC,need:10},`Calculator mix. Get 10 right in a row.`,`Keep full calculator values until the last step.`),
-Q(`Why shouldn't you round in the middle of a calculation?`,[`Rounding errors build up and the final answer can be wrong`,'It\'s against the rules in exams, so you lose marks','Calculators can\'t handle long decimals and may crash','It makes the calculation slower than doing it in one go'],0,`Use the ANS key or memory.`),
-T(`<h3>Key points</h3><ul><li>Round only at the end.</li><li>Check your calculator is in degrees.</li></ul>`)])
-]});
-
-/* follow-ups and tests, level 4 */
-function gMixF(sk,n){var a=[];for(var i=0;i<n;i++)a.push(GN(sk[i%sk.length]));return a}
-F('gp4-1-1',[Q(`Repeating readings and finding a mean reduces…`,[`random errors`,`systematic errors`,`zero errors`,`resolution`],0,`Random scatter averages out.`),Q(`In the resistance practical, the control variable is…`,[`the temperature of the wire`,`the length`,`the resistance`,`the current`],0,`Keep it cool.`),Q(`A systematic error can be reduced by…`,[`recalibrating or zeroing the equipment`,`repeating`,`averaging`,`using a bigger range`],0,`Repeating doesn't help.`),Q(`For an irregular solid's volume, use…`,[`a eureka can`,`a ruler`,`a thermometer`,`a newtonmeter`],0,`Displacement.`),Q(`Insulating the block in the SHC practical reduces…`,[`energy lost to the surroundings`,`the mass`,`the current`,`the resolution`],0,`More accurate c.`)]);
-F('gp4-1-2',[Q(`Light gates are better than a stopwatch because they…`,[`remove human reaction time`,`are cheaper`,`are slower`,`measure mass`],0,`More accurate timing.`),Q(`Reading a ruler at eye level avoids…`,[`paral
+U({id:'gm4-4',track:'gm',level:4,title:'Mixed exam questions',icon:'📝',color:'#BA7517',desc:'Non-calculator and calculator mixed practice across the w

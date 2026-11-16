@@ -247,26 +247,29 @@ var PP=(function(){
  function askFirst(){var c=st,prev=c.qs.map(function(q){return q.q.title}).slice(-8);
   return ask(sysQ(c),'Topics: '+(c.topics||'anything on the course')+'\n'+(notes(c)?'What the student has been taught (stay within this level):\n'+notes(c)+'\n':'')+(prev.length?'Don\'t repeat these questions: '+prev.join('; ')+'\n':'')+'Write the first question. Start with a fair one.',1800)
    .then(function(j){var q=cleanQ(j);if(!q)throw {st:-2};return q})}
- function askMark(qi,noNext){var c=st,q=c.qs[qi],img=png(q.sk),prev=c.qs.map(function(x){return x.q.title});
+ function askMark(qi,noNext){var c=st,q=c.qs[qi],prev=c.qs.map(function(x){return x.q.title}),imgs=[],labels=[];
+  q.q.parts.forEach(function(x){if(hasInk(q,x.id)){var d=png(q.pk[x.id],phFor(x));if(d){imgs.push(d);labels.push('their handwritten answer to part ('+x.id+')')}}});var w=png(q.sk);if(w){imgs.push(w);labels.push('their extra working and diagrams')}var img=imgs.length;
   var txt='QUESTION AND MARK SCHEME:\n'+JSON.stringify({stem:q.q.stem,parts:q.q.parts.map(function(p){return {id:p.id,q:p.q,marks:p.marks,scheme:p.scheme}})})+
-   '\n\nSTUDENT\'S TYPED ANSWERS:\n'+q.q.parts.map(function(p){var a=(q.ans[p.id]||'').trim();return '('+p.id+') '+(a||'(left blank)')}).join('\n')+(img?'\n\nThe image is their handwritten working and diagrams for this question.':'')+
+   '\n\nSTUDENT\'S ANSWERS:\n'+q.q.parts.map(function(p){var a=(q.ans[p.id]||'').trim(),hw=hasInk(q,p.id);return '('+p.id+') '+(a||'')+(hw?(a?' + ':'')+'[handwritten: see the image for part ('+p.id+')]':'')+(!a&&!hw?'(left blank)':'')}).join('\n')+(img?'\n\nImages attached, in this order: '+labels.map(function(l,k){return 'image '+(k+1)+' = '+l}).join('; ')+'. Read the handwriting carefully and mark it as part of the answer.':'')+
    '\n\nReply with ONLY this JSON: {"parts":[{"id":"a","got":0,"feedback":"..."}],"summary":"one or two sentences on how it went","focus":"the one thing to practise next"'+
    (noNext?',"next":null}':',"next":{the next question, in this format: '+'{"title":"...","stem":"...","parts":[{"q":"...","marks":2,"scheme":["..."],"model":"..."}]}'+'}}\n\nThen write the next question for "next". Same topics ('+(c.topics||'the course')+'). Aim it at what they lost marks on here; if they got full marks, make it a bit harder or move to another part of the topics. Don\'t repeat: '+prev.join('; ')+'. Follow these question-writing rules:\n'+sysQ(c).split('\n').slice(1,3).join('\n'));
-  var content=img?[{type:'image',source:{type:'base64',media_type:'image/png',data:img}},{type:'text',text:txt}]:txt;
+  var content=img?imgs.map(function(d){return {type:'image',source:{type:'base64',media_type:'image/png',data:d}}}).concat([{type:'text',text:txt}]):txt;
   return ask(sysM(c),content,noNext?1200:3200)}
  /* ----- writing pad, like the notes sketch pad ----- */
- function draw(g,data,W,H,ink){g.clearRect(0,0,W,H);g.lineCap='round';g.lineJoin='round';(data||[]).forEach(function(s){g.strokeStyle=COLS[s.c]||ink;g.lineWidth=Math.max(1,s.w*W/PW);g.beginPath();
-   for(var k=0;k<s.p.length;k+=2){var x=s.p[k]*W/PW,y=s.p[k+1]*H/PH;if(k)g.lineTo(x,y);else g.moveTo(x,y)}if(s.p.length===2)g.lineTo(s.p[0]*W/PW+0.5,s.p[1]*H/PH+0.5);g.stroke()})}
- function png(data){if(!data||!data.length)return null;try{var a=document.createElement('canvas');a.width=PW;a.height=PH;draw(a.getContext('2d'),data,PW,PH,'#111');var b=document.createElement('canvas');b.width=PW;b.height=PH;var g=b.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,PW,PH);g.drawImage(a,0,0);return b.toDataURL('image/png').split(',')[1]}catch(_){return null}}
- function pad(box,data,changed){var tool={c:'ink',w:4,er:false},undo=[],cur=null;
+ function draw(g,data,W,H,ink,ph){ph=ph||PH;g.clearRect(0,0,W,H);g.lineCap='round';g.lineJoin='round';(data||[]).forEach(function(s){g.strokeStyle=COLS[s.c]||ink;g.lineWidth=Math.max(1,s.w*W/PW);g.beginPath();
+   for(var k=0;k<s.p.length;k+=2){var x=s.p[k]*W/PW,y=s.p[k+1]*H/ph;if(k)g.lineTo(x,y);else g.moveTo(x,y)}if(s.p.length===2)g.lineTo(s.p[0]*W/PW+0.5,s.p[1]*H/ph+0.5);g.stroke()})}
+ function png(data,ph,url){ph=ph||PH;if(!data||!data.length)return null;try{var a=document.createElement('canvas');a.width=PW;a.height=ph;draw(a.getContext('2d'),data,PW,ph,'#111',ph);var b=document.createElement('canvas');b.width=PW;b.height=ph;var g=b.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,PW,ph);g.drawImage(a,0,0);var u=b.toDataURL('image/png');return url?u:u.split(',')[1]}catch(_){return null}}
+ function phFor(p){return Math.min(620,220+p.marks*60)}
+ function hasInk(Q,id){return !!(Q.pk&&Q.pk[id]&&Q.pk[id].length)}
+ function pad(box,data,changed,ph){ph=ph||PH;var tool={c:'ink',w:4,er:false},undo=[],cur=null;
   box.innerHTML='<div class="pptools">'+['ink','blue','red','green'].map(function(c){return '<button type="button" class="ppsw" data-c="'+c+'" aria-label="'+(c==='ink'?'Pen':c)+'" style="background:'+(COLS[c]||'var(--text)')+'"></button>'}).join('')+
    '<button type="button" class="pptb" data-w="3">Thin</button><button type="button" class="pptb" data-w="7">Thick</button><button type="button" class="pptb" data-e="1">Eraser</button><button type="button" class="pptb" data-u="1">↶ Undo</button><button type="button" class="pptb" data-x="1">Clear</button></div>'+
    '<canvas class="ppcv" aria-label="Writing pad: write or draw with your mouse, a pen or your finger"></canvas>';
   var cv=box.querySelector('canvas'),g=cv.getContext('2d');
   function ink(){return getComputedStyle(document.documentElement).getPropertyValue('--text').trim()||'#111'}
-  function size(){if(!cv.isConnected){window.removeEventListener('resize',size);return}var r=cv.getBoundingClientRect(),d=window.devicePixelRatio||1;if(!r.width)return;cv.style.height=(r.width*PH/PW)+'px';cv.width=Math.round(r.width*d);cv.height=Math.round(r.width*PH/PW*d);paint()}
-  function paint(){draw(g,cur?data.concat([cur]):data,cv.width,cv.height,ink())}
-  function pt(e){var r=cv.getBoundingClientRect();return [Math.round((e.clientX-r.left)/r.width*PW),Math.round((e.clientY-r.top)/r.height*PH)]}
+  function size(){if(!cv.isConnected){window.removeEventListener('resize',size);return}var r=cv.getBoundingClientRect(),d=window.devicePixelRatio||1;if(!r.width)return;cv.style.height=(r.width*ph/PW)+'px';cv.width=Math.round(r.width*d);cv.height=Math.round(r.width*ph/PW*d);paint()}
+  function paint(){draw(g,cur?data.concat([cur]):data,cv.width,cv.height,ink(),ph)}
+  function pt(e){var r=cv.getBoundingClientRect();return [Math.round((e.clientX-r.left)/r.width*PW),Math.round((e.clientY-r.top)/r.height*ph)]}
   function erase(p){var n=data.length;for(var i=data.length-1;i>=0;i--){var s=data[i];for(var k=0;k<s.p.length;k+=2){var dx=s.p[k]-p[0],dy=s.p[k+1]-p[1];if(dx*dx+dy*dy<20*20){data.splice(i,1);break}}}if(data.length!==n)paint()}
   cv.addEventListener('pointerdown',function(e){e.preventDefault();try{cv.setPointerCapture(e.pointerId)}catch(_){}undo.push(JSON.stringify(data));if(undo.length>40)undo.shift();var p=pt(e);if(tool.er){cv._er=1;erase(p);return}cur={c:tool.c,w:tool.w*(e.pointerType==='pen'&&e.pressure?0.6+e.pressure:1),p:p};paint()});
   cv.addEventListener('pointermove',function(e){if(cv._er){erase(pt(e));return}if(!cur)return;var p=pt(e),L=cur.p.length;if(Math.abs(p[0]-cur.p[L-2])+Math.abs(p[1]-cur.p[L-1])<3)return;cur.p.push(p[0],p[1]);paint()});
@@ -305,17 +308,22 @@ var PP=(function(){
   if(p==='answer')return renderQ();if(p==='marked')return renderMarked();if(p==='done')return renderDone()}
  function qHead(q,i){return '<div class="ppqh"><span class="ppqn">Question '+(i+1)+'</span><b>'+esc(q.title)+'</b><span class="ppqm">'+tot(q)+' marks</span></div>'+(q.stem?'<div class="ppstem">'+fmt(q.stem)+'</div>':'')}
  function renderQ(){var i=st.cur,Q=st.qs[i],q=Q.q;
-  var h=(left()<=0?'<p class="ppwarn">Time\'s up. Finish this question and press Mark: it\'ll be your last one.</p>':'')+qHead(q,i)+q.parts.map(function(p){return '<div class="pppart"><div class="ppq"><b>('+p.id+')</b> '+fmt(p.q)+' <span class="ppmk">['+p.marks+' mark'+(p.marks===1?'':'s')+']</span></div><textarea class="ppans" data-p="'+p.id+'" rows="'+Math.min(8,Math.max(2,p.marks))+'" placeholder="Type your answer…" aria-label="Answer to part '+p.id+'"></textarea></div>'}).join('')+
-   '<details class="pppad"'+(Q.sk&&Q.sk.length?' open':'')+'><summary>✏️ Write or draw your working <span class="plnote">(it gets marked too)</span></summary><div class="ppcvbox"></div></details>'+
+  var h=(left()<=0?'<p class="ppwarn">Time\'s up. Finish this question and press Mark: it\'ll be your last one.</p>':'')+qHead(q,i)+q.parts.map(function(p){return '<div class="pppart" data-part="'+p.id+'"><div class="ppq"><b>('+p.id+')</b> '+fmt(p.q)+' <span class="ppmk">['+p.marks+' mark'+(p.marks===1?'':'s')+']</span></div><div class="ppmode" role="group" aria-label="How to answer part '+p.id+'"><button type="button" data-m="t">⌨ Type</button><button type="button" data-m="w">✏️ Write</button></div><textarea class="ppans" data-p="'+p.id+'" rows="'+Math.min(8,Math.max(2,p.marks))+'" placeholder="Type your answer…" aria-label="Answer to part '+p.id+'"></textarea><div class="pppp" hidden></div></div>'}).join('')+
+   '<details class="pppad"'+(Q.sk&&Q.sk.length?' open':'')+'><summary>✏️ Extra working and diagrams <span class="plnote">(it gets marked too)</span></summary><div class="ppcvbox"></div></details>'+
    '<div class="ppact"><button type="button" class="plbig" data-a="mark">Mark this question</button></div>';
   var b=body(h);[].forEach.call(b.querySelectorAll('.ppans'),function(ta){ta.value=Q.ans[ta.dataset.p]||'';ta.oninput=function(){Q.ans[ta.dataset.p]=ta.value;clearTimeout(ta._t);ta._t=setTimeout(sv,400)}});
   if(!Q.sk)Q.sk=[];var pb=b.querySelector('.pppad');function mk(){if(!pb._on){pb._on=1;pad(b.querySelector('.ppcvbox'),Q.sk,function(){sv()})}}if(pb.open)mk();pb.addEventListener('toggle',function(){if(pb.open)mk()});
-  b.querySelector('[data-a=mark]').onclick=function(){var any=q.parts.some(function(p){return (Q.ans[p.id]||'').trim()})||Q.sk.length;if(!any&&!this.dataset.sure){this.dataset.sure=1;this.textContent='Nothing written yet. Tap again to mark it anyway';return}mark()};
+  if(!Q.pk)Q.pk={};if(!Q.mode)Q.mode={};var pref='t';try{pref=localStorage.getItem('critical_pp_mode')==='w'?'w':'t'}catch(_){}
+  [].forEach.call(b.querySelectorAll('.pppart[data-part]'),function(el){var id=el.dataset.part,p=q.parts.filter(function(x){return x.id===id})[0],ta=el.querySelector('.ppans'),pp=el.querySelector('.pppp');if(!Q.pk[id])Q.pk[id]=[];
+   function set(md,user){Q.mode[id]=md;ta.hidden=md==='w';pp.hidden=md!=='w';[].forEach.call(el.querySelectorAll('[data-m]'),function(x){x.classList.toggle('on',x.dataset.m===md);x.setAttribute('aria-pressed',x.dataset.m===md)});
+    if(md==='w'&&!pp._on){pp._on=1;pad(pp,Q.pk[id],function(){sv()},phFor(p))}if(user){try{localStorage.setItem('critical_pp_mode',md)}catch(_){}sv()}}
+   [].forEach.call(el.querySelectorAll('[data-m]'),function(x){x.onclick=function(){set(x.dataset.m,true)}});set(Q.mode[id]||(hasInk(Q,id)?'w':(Q.ans[id]||'').trim()?'t':pref))});
+  b.querySelector('[data-a=mark]').onclick=function(){var any=q.parts.some(function(p){return (Q.ans[p.id]||'').trim()||hasInk(Q,p.id)})||Q.sk.length;if(!any&&!this.dataset.sure){this.dataset.sure=1;this.textContent='Nothing written yet. Tap again to mark it anyway';return}mark()};
   var f=b.querySelector('.ppans');if(f&&!(Q.ans.a||'').trim())setTimeout(function(){try{f.focus({preventScroll:true})}catch(_){}},60)}
  function renderMarked(){var i=st.cur,Q=st.qs[i],q=Q.q,r=Q.res,end=left()<=0||!st.next;
   var h=qHead(q,i)+'<div class="ppres '+(r.got===r.max?'full':r.got*2>=r.max?'half':'low')+'"><b>'+r.got+'/'+r.max+'</b><span>'+esc(r.summary||'')+'</span></div>'+
    q.parts.map(function(p){var pr=r.parts[p.id]||{got:0,fb:''},a=(Q.ans[p.id]||'').trim();return '<div class="pppart marked"><div class="ppq"><b>('+p.id+')</b> '+fmt(p.q)+' <span class="ppchip '+(pr.got===p.marks?'full':pr.got?'half':'low')+'">'+pr.got+'/'+p.marks+'</span></div>'+
-    '<div class="ppyour"><span>Your answer</span>'+(a?esc(a).replace(/\n/g,'<br>'):'<i>Nothing typed'+(Q.sk&&Q.sk.length?' (see your working)':'')+'</i>')+'</div>'+(pr.fb?'<p class="ppfb">'+fmt(pr.fb)+'</p>':'')+
+    '<div class="ppyour"><span>Your answer</span>'+(a?esc(a).replace(/\n/g,'<br>'):hasInk(Q,p.id)?'':'<i>Nothing written'+(Q.sk&&Q.sk.length?' (see your working)':'')+'</i>')+(hasInk(Q,p.id)?'<img class="pphw" alt="Your handwritten answer to part '+p.id+'" src="'+png(Q.pk[p.id],phFor(p),1)+'">':'')+'</div>'+(pr.fb?'<p class="ppfb">'+fmt(pr.fb)+'</p>':'')+
     '<details class="ppms"><summary>Mark scheme and model answer</summary><ul>'+p.scheme.map(function(s){return '<li>'+fmt(s)+'</li>'}).join('')+'</ul>'+(p.model?'<p><b>Model answer:</b> '+fmt(p.model)+'</p>':'')+'</details></div>'}).join('')+
    (r.focus?'<p class="ppfocus">🎯 <b>Next, practise:</b> '+esc(r.focus)+'</p>':'')+
    '<div class="ppact"><button type="button" class="plbig" data-a="next"'+(end?' data-k="end"':'')+'>'+(end?'See your results →':'Next question →')+'</button></div>';
@@ -414,6 +422,8 @@ var PP=(function(){
   '.ppqh{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}.ppqh b{font-size:19px;flex:1}.ppqn{font:800 12px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:#7F77DD}.ppqm{font:700 13px var(--mono);color:var(--muted)}'+
   '.ppstem{background:var(--panel);border:1.5px solid var(--line);border-radius:14px;padding:12px 14px;line-height:1.55}.pppart{display:flex;flex-direction:column;gap:6px}.ppq{margin:0;line-height:1.55;font-size:15.5px}.ppq .pptab{margin:8px 0}.ppmk{color:var(--muted);font-weight:700;font-size:13px;white-space:nowrap}'+
   '.ppans{font:inherit;font-size:15px;line-height:1.5;color:var(--text);background:var(--panel);border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;width:100%;box-sizing:border-box;resize:vertical}.ppans:focus{outline:none;border-color:#7F77DD}'+
+  '.ppmode{display:inline-flex;align-self:flex-start;border:1.5px solid var(--line);border-radius:9px;overflow:hidden}.ppmode button{border:0;background:var(--panel);color:var(--muted);font:inherit;font-size:13px;font-weight:700;padding:4px 12px;cursor:pointer}.ppmode button.on{background:var(--text);color:var(--bg)}'+
+  '.pppp[hidden],.ppans[hidden]{display:none}.pppp .pptools{margin-top:0}.pphw{display:block;max-width:100%;border:1px solid var(--line);border-radius:8px;background:#fff;margin-top:6px}'+
   '.pppad summary{cursor:pointer;font-weight:700}.ppcvbox{margin-top:8px}.pptools{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:6px}.ppsw{width:26px;height:26px;border-radius:50%;border:2px solid var(--line);cursor:pointer;padding:0}.ppsw.on{outline:3px solid #7F77DD;outline-offset:1px}'+
   '.pptb{font:inherit;font-size:13px;font-weight:700;border:1.5px solid var(--line);background:var(--panel);color:var(--text);border-radius:9px;padding:5px 9px;cursor:pointer}.pptb.on{border-color:#7F77DD;background:rgba(127,119,221,.15)}'+
   '.ppcv{display:block;width:100%;border:1.5px solid var(--line);border-radius:12px;background:var(--panel) repeating-linear-gradient(to bottom,transparent 0,transparent 31px,var(--line) 31px,var(--line) 32px);touch-action:none;cursor:crosshair}'+
@@ -1236,149 +1246,4 @@ for (var i = 0; i < 255; i++) {
 module.exports = QRMath;
 
 },
-"./QRMode":function(module,exports,require){
-module.exports = {
-    MODE_NUMBER :       1 << 0,
-    MODE_ALPHA_NUM :    1 << 1,
-    MODE_8BIT_BYTE :    1 << 2,
-    MODE_KANJI :        1 << 3
-};
-
-},
-"./QRPolynomial":function(module,exports,require){
-var QRMath = require('./QRMath');
-
-function QRPolynomial(num, shift) {
-	if (num.length === undefined) {
-		throw new Error(num.length + "/" + shift);
-	}
-
-	var offset = 0;
-
-	while (offset < num.length && num[offset] === 0) {
-		offset++;
-	}
-
-	this.num = new Array(num.length - offset + shift);
-	for (var i = 0; i < num.length - offset; i++) {
-		this.num[i] = num[i + offset];
-	}
-}
-
-QRPolynomial.prototype = {
-
-	get : function(index) {
-		return this.num[index];
-	},
-	
-	getLength : function() {
-		return this.num.length;
-	},
-	
-	multiply : function(e) {
-	
-		var num = new Array(this.getLength() + e.getLength() - 1);
-	
-		for (var i = 0; i < this.getLength(); i++) {
-			for (var j = 0; j < e.getLength(); j++) {
-				num[i + j] ^= QRMath.gexp(QRMath.glog(this.get(i) ) + QRMath.glog(e.get(j) ) );
-			}
-		}
-	
-		return new QRPolynomial(num, 0);
-	},
-	
-	mod : function(e) {
-	
-		if (this.getLength() - e.getLength() < 0) {
-			return this;
-		}
-	
-		var ratio = QRMath.glog(this.get(0) ) - QRMath.glog(e.get(0) );
-	
-		var num = new Array(this.getLength() );
-		
-		for (var i = 0; i < this.getLength(); i++) {
-			num[i] = this.get(i);
-		}
-		
-		for (var x = 0; x < e.getLength(); x++) {
-			num[x] ^= QRMath.gexp(QRMath.glog(e.get(x) ) + ratio);
-		}
-	
-		// recursive call
-		return new QRPolynomial(num, 0).mod(e);
-	}
-};
-
-module.exports = QRPolynomial;
-
-},
-"./QRRSBlock":function(module,exports,require){
-var QRErrorCorrectLevel = require('./QRErrorCorrectLevel');
-
-function QRRSBlock(totalCount, dataCount) {
-	this.totalCount = totalCount;
-	this.dataCount  = dataCount;
-}
-
-QRRSBlock.RS_BLOCK_TABLE = [
-
-	// L
-	// M
-	// Q
-	// H
-
-	// 1
-	[1, 26, 19],
-	[1, 26, 16],
-	[1, 26, 13],
-	[1, 26, 9],
-	
-	// 2
-	[1, 44, 34],
-	[1, 44, 28],
-	[1, 44, 22],
-	[1, 44, 16],
-
-	// 3
-	[1, 70, 55],
-	[1, 70, 44],
-	[2, 35, 17],
-	[2, 35, 13],
-
-	// 4		
-	[1, 100, 80],
-	[2, 50, 32],
-	[2, 50, 24],
-	[4, 25, 9],
-	
-	// 5
-	[1, 134, 108],
-	[2, 67, 43],
-	[2, 33, 15, 2, 34, 16],
-	[2, 33, 11, 2, 34, 12],
-	
-	// 6
-	[2, 86, 68],
-	[4, 43, 27],
-	[4, 43, 19],
-	[4, 43, 15],
-	
-	// 7		
-	[2, 98, 78],
-	[4, 49, 31],
-	[2, 32, 14, 4, 33, 15],
-	[4, 39, 13, 1, 40, 14],
-	
-	// 8
-	[2, 121, 97],
-	[2, 60, 38, 2, 61, 39],
-	[4, 40, 18, 2, 41, 19],
-	[4, 40, 14, 2, 41, 15],
-	
-	// 9
-	[2, 146, 116],
-	[3, 58, 36, 2, 59, 37],
-	[4, 36, 16, 4, 37, 17],
-	[4, 36, 
+"./QRMode":func

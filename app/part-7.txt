@@ -1,4 +1,13 @@
- (4k)','But q′ = q‴ × πR², so q‴R² = q′/π: <b>ΔT = q′ ÷ (4πk)</b>. The radius has gone.']},`Derive the pellet temperature rise.`),
+ neutrons flow down the flux gradient (last unit).</li><li>Heat flows from hot to cold (Level 1).</li><li>Linear heat rate: power per metre of fuel rod, about 16 kW/m on average (Level 3 Theory).</li></ul>`),
+T(`<h3>Heat flows down the temperature gradient</h3><div class="eq">q″ = −k dT/dx</div>${KY([['q″','heat flux: heat crossing each m² per second','W/m²'],['k','thermal conductivity of the material','W/(m·°C)'],['dT/dx','temperature gradient','°C/m']],'Same form as Fick\'s law. Here k is thermal conductivity, not the multiplication factor.')}<p>A material with low k (an insulator) needs a big temperature difference to push heat through.</p>`),
+T(`<h3>Typical conductivities</h3><table><tr><th>Material</th><th>k (W/(m·°C))</th></tr><tr><td>Copper</td><td>about 400</td></tr><tr><td>Zirconium alloy (cladding)</td><td>about 17</td></tr><tr><td>Uranium dioxide (hot)</td><td>about 3</td></tr><tr><td>Helium gas (in the pellet–clad gap)</td><td>about 0.3</td></tr></table><p>Uranium dioxide is a poor conductor. That's why the centre of a fuel pellet gets so hot.</p>`),
+N(`A 2 cm thick steel plate (k = 20 W/(m·°C)) has 100 °C across it. What is the heat flux, in W/m²? (2 cm = 0.02 m)`,100000,0.01,'W/m²',`q″ = k ΔT / L = 20 × 100 ÷ 0.02 = 100,000 W/m².`),
+QE(`Fick's law for neutrons is J = …`,[`−D dφ/dx`,`−Σ dφ/dx`,`D dφ/dx`,`−D d²φ/dx²`],0,`Last unit.`),
+T(`<h3>Key points</h3><ul><li><b>Fourier's law: q″ = −k dT/dx</b>.</li><li>For a flat wall: q″ = kΔT/L.</li><li>UO₂ conducts heat poorly (k ≈ 3), so pellet centres are very hot.</li></ul>`)]),
+LH('m4-4-2','Temperature inside a fuel pellet',10,'A neat result: the centre-to-surface temperature rise depends only on the linear heat rate.',[
+RM(`<ul><li>q″ = −k dT/dx (Fourier).</li><li>Linear heat rate q′ in W/m (kW/m).</li><li>Integration: ∫ r dr = r²/2.</li></ul>`),
+T(`<h3>A cylinder heated from inside</h3><p>A fuel pellet makes heat evenly through its volume. Heat flows outwards. Applying Fourier's law in a cylinder and integrating from the centre to the surface gives:</p><div class="eq">T<sub>centre</sub> − T<sub>surface</sub> = q′ ÷ (4π k)</div>${KY([['q′','linear heat rate','W/m'],['k','thermal conductivity of UO₂ (about 3)','W/(m·°C)']],'Surprisingly, the pellet radius cancels out.')}`),
+W('stepCalc',{steps:['Heat made inside radius r per metre: q‴ × πr² (q‴ = power per m³).','That heat must cross the surface at r: −k dT/dr × 2πr = q‴ πr²','So dT/dr = −q‴ r ÷ (2k)','Integrate from centre (r = 0) to surface (r = R): ΔT = q‴ R² ÷ (4k)','But q′ = q‴ × πR², so q‴R² = q′/π: <b>ΔT = q′ ÷ (4πk)</b>. The radius has gone.']},`Derive the pellet temperature rise.`),
 N(`q′ = 17 kW/m (17,000 W/m), k = 3 W/(m·°C). Centre-to-surface temperature rise, °C?`,451,0.01,'°C',`17,000 ÷ (4π × 3) = 17,000 ÷ 37.7 = 451 °C.`),
 W('fnPlot',{x:[5,45],y:[0,1300],xl:'linear heat rate (kW/m)',yl:'pellet ΔT (°C)',sl:[['q','Linear heat rate (kW/m)',5,45,1,17,function(v){return v+' kW/m'}]],curves:function(p){return [[function(q){return q*1000/(4*Math.PI*3)},'--accent',3]]},marks:function(p,P,col){var c=P.c;c.fillStyle=col('--coral');c.beginPath();c.arc(P.X(p.q),P.Y(p.q*1000/(4*Math.PI*3)),6,0,7);c.fill()},read:function(p){return p.q+' kW/m: pellet centre is <b>'+(p.q*1000/(4*Math.PI*3)).toFixed(0)+' °C</b> hotter than its surface.'}},`See how the pellet temperature rise grows with linear heat rate.`),
 QE(`Average EPR linear heat rate is roughly…`,[`16 kW/m`,`160 kW/m`,`1.6 kW/m`,`1600 kW/m`],0,`Level 3 Theory.`),
@@ -716,21 +725,4 @@ WIDGETS.calcDrill=function(box,par){var need=par.need||5,gens=[].concat(par.skil
  function key(e){if(e.key==='Enter'){e.preventDefault();e.stopPropagation();answered?next():check()}}
  function next(){q=CGEN[cP(gens)]();count++;answered=false;q.pick=null;qb.innerHTML='<div class="qprompt">'+q.p+'</div>';inRow.innerHTML='';
   if(q.o){shuffle(q.o.map(function(_,i){return i})).forEach(function(k){var b=el('button','opt',q.o[k],inRow);b.dataset.k=k;b.onclick=function(){if(answered)return;[].forEach.call(inRow.children,function(x){x.classList.remove('sel')});b.classList.add('sel');q.pick=k}})}
-  else{var line=el('div','cdline',null,inRow);q.b.forEach(function(bb,i){var g=el('span','cdgrp'+(bb.sup?' cdsupg':''),null,line);if(bb.pre)el('span','',bb.pre,g);var inp=el('input','numin cdbox'+(bb.sup?' cdsup':''),null,g);inp.type='text';if(q.pos)inp.__sgn=1;inp.setAttribute('inputmode','decimal');inp.setAttribute('autocomplete','off');inp.setAttribute('aria-label',bb.label||('Answer '+(i+1)));inp.onkeydown=key;if(bb.post)el('span','',bb.post,g)})}
-  chkB.style.display='';nxt.style.display='none';m.set('');dots();var f=inRow.querySelector('input');if(f)try{f.focus({preventScroll:true})}catch(e){}}
- function close(bb,v){var tol=bb.tol==null?0.005:bb.tol;return bb.a===0?Math.abs(v)<1e-9:Math.abs(v-bb.a)<=Math.abs(bb.a)*tol+1e-9}
- function check(){if(answered)return;var ok;
-  if(q.o){if(q.pick==null){m.set('Pick an answer first.',false);return}ok=q.pick===0;[].forEach.call(inRow.children,function(b){var k=+b.dataset.k;b.disabled=true;if(k===0)b.classList.add('right');else if(k===q.pick)b.classList.add('wrong')})}
-  else{var ins=inRow.querySelectorAll('input'),vals=[].map.call(ins,function(i){return parseNum(i.value)});if(vals.some(function(v){return isNaN(v)})){m.set('Type a number in every box. Decimals like 0.5 and negatives like −3 are fine.',false);return}
-   ok=q.b.every(function(bb,i){return close(bb,vals[i])});[].forEach.call(ins,function(inp,i){inp.disabled=true;inp.style.borderColor=close(q.b[i],vals[i])?cssv('--good-line'):cssv('--bad-line')})}
-  answered=true;if(ok){streak++;if(streak>=need)done=true}else streak=0;
-  m.set((ok?'<b>Correct.</b> ':'<b>Not quite.</b> '+(q.o?'':'It\'s '+q.b.map(function(bb){return cNum(bb.a)}).join(' and ')+'. '))+(q.e||''),ok);
-  chkB.style.display='none';nxt.style.display='';dots();try{nxt.focus({preventScroll:true})}catch(e){}}
- next();
- return {check:function(){return done?{ok:true}:{ok:false,msg:'Get '+need+' right in a row first. You\'re on '+streak+'.'}},lock:function(){}}};
-
-/* ---- area under a curve: strips that become the integral ---- */
-WIDGETS.riemann=function(box,par){var f=par.f,a=par.a,b=par.b,exact=par.exact,n=par.n0||4,ok=false,cv=canvas(box,240);
- var rr=el('div','wrow',null,box),id='rm'+Math.random().toString(36).slice(2,7);rr.innerHTML='<label for="'+id+'">Number of strips</label><input type="range" id="'+id+'" min="1" max="60" step="1" value="'+n+'"><output></output>';
- var inp=rr.querySelector('input'),out=rr.querySelector('output');inp.oninput=function(){n=+inp.value;draw()};
- var st=stats(box,[['s','Total of the strips'],['e','Exact area'],['d','Gap']]),m=msg(box
+  else{var line=el('div','cdline',null,inRow);q.b.forEach(
