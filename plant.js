@@ -464,6 +464,9 @@ function setBurnup(p, bu) { var r0 = rhoPcm(p); p.x.bu = bu; p.boron = clamp(p.b
 /* ================================================================ drawing helpers ================================================================ */
 var ANISO = 4, S = null, root = null, R3 = null;
 function CV(w, h) { var c = document.createElement('canvas'); c.width = w; c.height = h; return c; }
+/* phones and tablets: Safari caps how much canvas memory a page may hold, and past the cap new canvases come out blank (black panels) or the tab is closed */
+var PHONE = !!(window.matchMedia && matchMedia('(pointer: coarse)').matches);
+function shrinkC(c, cap, capA) { var w = c.width, h = c.height, k = Math.min(1, cap / Math.max(w, h), Math.sqrt(capA / (w * h))); if (k > 0.9) return c; var sm = CV(Math.max(8, Math.round(w * k)), Math.max(8, Math.round(h * k))), g = sm.getContext('2d'); if (!g) return c; g.drawImage(c, 0, 0, sm.width, sm.height); for (var key in c) if (key.charAt(0) === '_' && key.charAt(1) === '_') try { sm[key] = c[key]; } catch (e) {} c.width = c.height = 0; return sm; }
 function texOf(c) { var t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = ANISO; t.generateMipmaps = true; t.minFilter = THREE.LinearMipmapLinearFilter; return t; }
 function rr(g, x, y, w, h, r) { g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); }
 function speck(g, w, h, n, a) { for (var i = 0; i < n; i++) { g.fillStyle = (Math.random() < 0.5 ? 'rgba(0,0,0,' : 'rgba(255,255,255,') + (Math.random() * a).toFixed(3) + ')'; g.fillRect(Math.random() * w, Math.random() * h, 1 + Math.random() * 2, 1 + Math.random() * 2); } }
@@ -478,11 +481,11 @@ function superExp(g, base, ex, x, y, px, col, align) { g.save(); g.fillStyle = c
    Every instrument is its own small mesh with its own canvas, redrawn only when what it shows has changed. */
 var WG = [];
 function widget(opts) {
-  var c = CV(opts.cw, opts.ch), t = texOf(c), mt = opts.glow ? new THREE.MeshBasicMaterial({ map: t, toneMapped: false }) : new THREE.MeshStandardMaterial({ map: t, roughness: opts.rough == null ? 0.55 : opts.rough, metalness: 0.0 });
-  var m = new THREE.Mesh(new THREE.PlaneGeometry(opts.w, opts.h), mt), w = { m: m, c: c, g: c.getContext('2d'), t: t, last: null, draw: opts.draw, key: opts.key, every: opts.every || 0, acc: 0, o: opts };
+  var a0 = opts.cw * opts.ch, k = PHONE ? (a0 > 200000 ? 0.5 : a0 > 50000 ? 0.7 : 1) : 1, c = CV(Math.max(8, Math.round(opts.cw * k)), Math.max(8, Math.round(opts.ch * k))), t = texOf(c), mt = opts.glow ? new THREE.MeshBasicMaterial({ map: t, toneMapped: false }) : new THREE.MeshStandardMaterial({ map: t, roughness: opts.rough == null ? 0.55 : opts.rough, metalness: 0.0 });
+  var m = new THREE.Mesh(new THREE.PlaneGeometry(opts.w, opts.h), mt), w = { m: m, c: c, k: k, g: c.getContext('2d'), t: t, last: null, draw: opts.draw, key: opts.key, every: opts.every || 0, acc: 0, o: opts };
   m.userData.tip = opts.tip; m.userData.w = w; WG.push(w); return w;
 }
-function redraw(w, force) { var k = w.key ? w.key() : 1; if (!force && k === w.last) return false; w.last = k; w.g.save(); w.draw(w.g, w); w.g.restore(); w.t.needsUpdate = true; return true; }
+function redraw(w, force) { var k = w.key ? w.key() : 1; if (!force && k === w.last) return false; w.last = k; w.g.save(); if (w.k !== 1) w.g.scale(w.k, w.k); w.draw(w.g, w); w.g.restore(); w.t.needsUpdate = true; return true; }
 /* edgewise vertical meter (the classic tall narrow control-board meter) */
 function meterE(o) {
   o.cw = 104; o.ch = 300; o.w = o.w || 0.078; o.h = o.h || 0.225;
@@ -687,7 +690,7 @@ function cyl(rt, rb, h, mat, seg, open) { return new THREE.Mesh(new THREE.Cylind
 function hit(mesh, o) { mesh.userData.hit = o; HITS.push(mesh); return mesh; }
 function invis(w, h, d) { var m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), new THREE.MeshBasicMaterial({ visible: false })); return m; }
 function soon(n, what) { return function () { S.toast('🔒 ' + what + ' comes in Section ' + n + ' (' + ROAD[n - 1].t + ').', 'lock'); S.sfx('deny'); }; }
-function signTex(w, h, fn) { var c = CV(w, h), g = c.getContext('2d'); fn(g, w, h); return texOf(c); }
+function signTex(w, h, fn) { var c = CV(w, h), g = c.getContext('2d'); fn(g, w, h); if (PHONE && w * h > 65536 && !/^function\s*\(\)\s*\{\s*\}$/.test(String(fn))) c = shrinkC(c, 512, 65536); return texOf(c); }
 
 /* ---------- the room ---------- */
 function buildRoom(scene) {
@@ -3731,7 +3734,7 @@ var PROP = (function () { var M = {}, mt = function (k, c, r, m) { if (!M[k]) M[
 /* ================================================================ turbine hall access: PPE lobby and the link bridge ================================================================
    Through the double doors on the north side of the corridor: a lobby where you kit up (lockers, benches, hard hats, hi-vis, ear defenders, a live
    turbine status screen), then a 20 m glazed link bridge across the yard to the turbine hall's personnel door. */
-function paintWallMat(Wm, Hm, o) { o = o || {}; var PPM = o.ppm || 110, W = Math.round(Wm * PPM), H = Math.round(Hm * PPM), c = CV(W, H), g = c.getContext('2d'), hc = CV(W, H), hg = hc.getContext('2d'), rc = CV(W, H), rg = rc.getContext('2d'), rnd = function (a, b) { return a + Math.random() * (b - a); };
+function paintWallMat(Wm, Hm, o) { o = o || {}; var PPM = (o.ppm || 110) * (PHONE ? 0.45 : 1), W = Math.round(Wm * PPM), H = Math.round(Hm * PPM), c = CV(W, H), g = c.getContext('2d'), hc = CV(W, H), hg = hc.getContext('2d'), rc = CV(W, H), rg = rc.getContext('2d'), rnd = function (a, b) { return a + Math.random() * (b - a); };
   var dadoY = H - (o.dado || 1.2) * PPM; g.fillStyle = o.top || '#d9d6cb'; g.fillRect(0, 0, W, dadoY); g.fillStyle = o.low || '#5d7480'; g.fillRect(0, dadoY, W, H - dadoY); g.fillStyle = o.band || '#2f4756'; g.fillRect(0, dadoY - 5, W, 7);
   hg.fillStyle = '#c4c4c4'; hg.fillRect(0, 0, W, H); rg.fillStyle = 'rgb(185,185,185)'; rg.fillRect(0, 0, W, dadoY); rg.fillStyle = 'rgb(78,78,78)'; rg.fillRect(0, dadoY, W, H - dadoY);
   var bw = 0.45 * PPM, bh = 0.225 * PPM, row = 0; for (var y = H; y > -bh; y -= bh, row++) { var off = (row % 2) * bw / 2; for (var x = -off; x < W; x += bw) { var tv = rnd(-5, 5); g.fillStyle = 'rgba(' + (tv > 0 ? '255,255,250,' : '40,40,30,') + Math.abs(tv) / 170 + ')'; g.fillRect(x + 1, y - bh + 1, bw - 2, bh - 2); }
@@ -3877,7 +3880,7 @@ function tbBayMat(H) { var W = 256, HP = 1024, c = CV(W, HP), g = c.getContext('
   for (i = 0; i < 50; i++) { sx = rnd(0, W); var sy = Y(rnd(0.03, 0.5)); g.strokeStyle = 'rgba(25,25,25,' + rnd(0.1, 0.3) + ')'; g.lineWidth = 1; g.beginPath(); g.moveTo(sx, sy); g.lineTo(sx + rnd(4, 20), sy + rnd(-1, 1)); g.stroke(); }
   var ao = g.createLinearGradient(0, HP, 0, HP - 26); ao.addColorStop(0, 'rgba(15,18,20,.55)'); ao.addColorStop(1, 'rgba(15,18,20,0)'); g.fillStyle = ao; g.fillRect(0, HP - 26, W, 26); ao = g.createLinearGradient(0, 0, 0, 110); ao.addColorStop(0, 'rgba(15,18,20,.55)'); ao.addColorStop(1, 'rgba(15,18,20,0)'); g.fillStyle = ao; g.fillRect(0, 0, W, 110);
   var t = texOf(c), bt = new THREE.CanvasTexture(hc), rt = new THREE.CanvasTexture(rc); [t, bt, rt].forEach(function (q) { q.wrapS = THREE.RepeatWrapping; }); var m = new THREE.MeshStandardMaterial({ map: t, bumpMap: bt, bumpScale: 1.4, roughnessMap: rt, roughness: 1, metalness: 0.1, envMapIntensity: 0.4 }); m.userData.own = true; m.userData.gritK = [0.1, 0.16, 0.0008, 1.4]; return m; }
-function tbFloorMat(T, noGo) { var P = 32, W = Math.round((T.x1 - T.x0) * P), H = Math.round((T.z1 - T.z0) * P), c = CV(W, H), g = c.getContext('2d'), rc = CV(W, H), rg = rc.getContext('2d'), X = function (x) { return (x - T.x0) * P; }, Z = function (z) { return (z - T.z0) * P; }, rnd = function (a, b) { return a + Math.random() * (b - a); };
+function tbFloorMat(T, noGo) { var P = PHONE ? 18 : 32, W = Math.round((T.x1 - T.x0) * P), H = Math.round((T.z1 - T.z0) * P), c = CV(W, H), g = c.getContext('2d'), rc = CV(W, H), rg = rc.getContext('2d'), X = function (x) { return (x - T.x0) * P; }, Z = function (z) { return (z - T.z0) * P; }, rnd = function (a, b) { return a + Math.random() * (b - a); };
   g.fillStyle = '#7b8480'; g.fillRect(0, 0, W, H); rg.fillStyle = 'rgb(150,150,150)'; rg.fillRect(0, 0, W, H);
   for (var i = 0; i < 900; i++) { var r = rnd(20, 150), x = rnd(0, W), y = rnd(0, H), q = g.createRadialGradient(x, y, 0, x, y, r), v = Math.random() < 0.5 ? '50,56,54' : '170,178,174'; q.addColorStop(0, 'rgba(' + v + ',.1)'); q.addColorStop(1, 'rgba(' + v + ',0)'); g.fillStyle = q; g.fillRect(x - r, y - r, 2 * r, 2 * r); var q2 = rg.createRadialGradient(x, y, 0, x, y, r); q2.addColorStop(0, 'rgba(' + (Math.random() < 0.5 ? '95,95,95' : '215,215,215') + ',.4)'); q2.addColorStop(1, 'rgba(128,128,128,0)'); rg.fillStyle = q2; rg.fillRect(x - r, y - r, 2 * r, 2 * r); }
   var id = g.getImageData(0, 0, W, H), d = id.data; for (i = 0; i < d.length; i += 4) { var n = (Math.random() - 0.5) * 17, rr = Math.random(); if (rr < 0.012) n += 24; else if (rr < 0.022) n -= 30; d[i] += n; d[i + 1] += n; d[i + 2] += n; } g.putImageData(id, 0, 0);
@@ -4516,7 +4519,7 @@ function addKit(scene) { var cz = HALL.cz, cw = HALL.cw, zL = cz - cw / 2, zR = 
    walkways, laydown areas, hazard banding round the cavity and stencilling; a ribbed steel roof deck. Then the kit: a polar crane on wall brackets,
    a refuelling machine on rails over the pool, the equipment hatch, high-bay lights, gallery grating, toe boards and braces, laydown gear,
    a health physics point, services, safety equipment and signs. */
-var HD = { PPM: 96 };
+var HD = { PPM: PHONE ? 40 : 96 };
 function hallWallMat(Wm, Hm, gal, label, u0, u1, v0, v1) { var PPM = HD.PPM, W = Math.round(Wm * PPM), H = Math.round(Hm * PPM), c = CV(W, H), g = c.getContext('2d'), hc = CV(W, H), hg = hc.getContext('2d'), rc = CV(W, H), rg = rc.getContext('2d');
   var rnd = function (a, b) { return a + Math.random() * (b - a); }, Y = function (m) { return H - m * PPM; }, PB = 2.4;
   /* raw cast concrete: warm grey, panel by panel a slightly different pour */
@@ -4555,7 +4558,7 @@ function hallWallMat(Wm, Hm, gal, label, u0, u1, v0, v1) { var PPM = HD.PPM, W =
   [0, W].forEach(function (ex) { var a2 = g.createLinearGradient(ex, 0, ex + (ex ? -1 : 1) * 0.9 * PPM, 0); a2.addColorStop(0, 'rgba(20,20,18,.4)'); a2.addColorStop(1, 'rgba(20,20,18,0)'); g.fillStyle = a2; g.fillRect(ex ? W - 0.9 * PPM : 0, 0, 0.9 * PPM, H); });
   var mt = new THREE.MeshStandardMaterial({ map: texOf(c), bumpMap: new THREE.CanvasTexture(hc), bumpScale: 1.1, roughnessMap: new THREE.CanvasTexture(rc), roughness: 1, metalness: 0, envMapIntensity: 0.45 }); mt.userData.own = true; mt.userData.gritK = [0.16, 0.2, 0.0014, 1.3]; return mt; }
 function subPlane(w, h, mtl, u0, u1, v0, v1) { var gq = new THREE.PlaneGeometry(w, h), uv = gq.attributes.uv; for (var i = 0; i < uv.count; i++) uv.setXY(i, u0 + uv.getX(i) * (u1 - u0), v0 + uv.getY(i) * (v1 - v0)); return new THREE.Mesh(gq, mtl); }
-function hallFloorMat() { var cz = HALL.cz, hx = HALL.hx, hw = HALL.hw, hd = HALL.hd, vx = HALL.vx, PPM = 100, W = Math.round(hw * PPM), H = Math.round(hd * PPM), c = CV(W, H), g = c.getContext('2d'), rc = CV(W, H), rg = rc.getContext('2d');
+function hallFloorMat() { var cz = HALL.cz, hx = HALL.hx, hw = HALL.hw, hd = HALL.hd, vx = HALL.vx, PPM = PHONE ? 45 : 100, W = Math.round(hw * PPM), H = Math.round(hd * PPM), c = CV(W, H), g = c.getContext('2d'), rc = CV(W, H), rg = rc.getContext('2d');
   var X = function (x) { return (x - (hx - hw)) * PPM; }, Z = function (z) { return (z - (cz - hd / 2)) * PPM; }, cx = X(vx), cy = Z(cz), rnd = function (a, b) { return a + Math.random() * (b - a); };
   g.fillStyle = '#737d78'; g.fillRect(0, 0, W, H); rg.fillStyle = 'rgb(150,150,150)'; rg.fillRect(0, 0, W, H); for (var ri = 0; ri < 320; ri++) { var rr0 = 30 + Math.random() * 200, rx0 = Math.random() * W, ry0 = Math.random() * H, rq = rg.createRadialGradient(rx0, ry0, 0, rx0, ry0, rr0), rv = Math.random() < 0.5 ? '95,95,95' : '215,215,215'; rq.addColorStop(0, 'rgba(' + rv + ',.4)'); rq.addColorStop(1, 'rgba(' + rv + ',0)'); rg.fillStyle = rq; rg.fillRect(rx0 - rr0, ry0 - rr0, 2 * rr0, 2 * rr0); }
   for (var i = 0; i < 260; i++) { var r = rnd(40, 220), x = rnd(0, W), y = rnd(0, H), gr = g.createRadialGradient(x, y, 0, x, y, r), v = Math.random() < 0.5 ? '60,66,62' : '165,172,168'; gr.addColorStop(0, 'rgba(' + v + ',.1)'); gr.addColorStop(1, 'rgba(' + v + ',0)'); g.fillStyle = gr; g.fillRect(x - r, y - r, 2 * r, 2 * r); }
@@ -4742,7 +4745,7 @@ function hallDetail(scene) { var cz = HALL.cz, hx = HALL.hx, hw = HALL.hw, hd = 
    Painted blockwork walls (440 × 215 mm blocks, joints showing through the paint), a gloss grey-green dado to 1.2 m, an epoxy floor with walkway lines,
    coved skirting, crash rails, steel corner guards, proper doorsets, battens in the soffit and every bit of kit a real plant corridor has on its walls.
    The walls and floor are one-off textures for this corridor, so the dirt, scuffs and corner shading sit where they would really be. */
-function corridorShell(scene) { var cz = HALL.cz, cw = HALL.cw, hx = HALL.hx, x0 = -RX, CL = x0 - hx, cmx = (x0 + hx) / 2, zL = cz - cw / 2, zR = cz + cw / 2, CH3 = 3.0, PPM = 256;
+function corridorShell(scene) { var cz = HALL.cz, cw = HALL.cw, hx = HALL.hx, x0 = -RX, CL = x0 - hx, cmx = (x0 + hx) / 2, zL = cz - cw / 2, zR = cz + cw / 2, CH3 = 3.0, PPM = PHONE ? 96 : 256;
   var S = function (m) { m.userData.noColl = true; scene.add(m); return m; };
   var rnd = function (a, b) { return a + Math.random() * (b - a); };
   /* doors and fittings on each wall, in metres along the wall from its left end as you face it (used for hand marks and keeping rails clear) */
@@ -7046,7 +7049,7 @@ var CSS = 'html:has(.cpn:not([hidden])),html:has(.cpn:not([hidden])) body{overfl
   '.cpnviews{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:6px}.cpnviews button{background:rgba(255,255,255,.06);padding:10px 12px;text-align:left;font-weight:700}.cpnviews button:hover{background:rgba(255,211,74,.18)}' +
   '.cpnkeys{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:13.5px}.cpnkeys kbd{font:700 12px ui-monospace,monospace;background:#1d2a38;border:1px solid rgba(255,255,255,.15);border-radius:6px;padding:2px 7px;white-space:nowrap}' +
   '.cpnstars{font-size:40px;letter-spacing:6px}.cpnscore{display:grid;grid-template-columns:1fr auto;gap:4px 16px;font-size:14px;background:rgba(0,0,0,.25);border-radius:12px;padding:12px 14px}.cpnscore span:nth-child(even){font-weight:800;text-align:right}' +
-  '.cpnjoy{position:absolute;left:max(18px,env(safe-area-inset-left));bottom:max(18px,env(safe-area-inset-bottom));width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.18);touch-action:none;display:none}.cpnjoy i{position:absolute;left:35px;top:35px;width:50px;height:50px;border-radius:50%;background:rgba(255,255,255,.3)}' +
+  '.cpnjoy{position:absolute;z-index:9;left:max(18px,env(safe-area-inset-left));bottom:max(18px,env(safe-area-inset-bottom));width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.18);touch-action:none;display:none}.cpnjoy i{position:absolute;left:35px;top:35px;width:50px;height:50px;border-radius:50%;background:rgba(255,255,255,.3)}' +
   '.cpn.touch .cpnjoy{display:block}.cpn.touch .cpnas{bottom:150px}.cpnhint{position:absolute;left:50%;transform:translateX(-50%);bottom:max(14px,env(safe-area-inset-bottom));background:rgba(10,16,24,.8);padding:7px 14px;border-radius:999px;font-size:12.5px;color:#c5d2de;pointer-events:none;transition:opacity .6s;white-space:nowrap;max-width:calc(100% - 24px);overflow:hidden;text-overflow:ellipsis}' +
   '.cpnload{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;background:#0b0f14;z-index:20;font-weight:700;color:#9fc9ea}.cpnload i{width:46px;height:46px;border-radius:50%;border:4px solid rgba(255,211,74,.2);border-top-color:#ffd34a;animation:cpnsp 1s linear infinite}@keyframes cpnsp{to{transform:rotate(360deg)}}' +
   '.cpnx{position:absolute;left:50%;top:50%;width:6px;height:6px;margin:-3px 0 0 -3px;border-radius:50%;background:#fff;box-shadow:0 0 0 2px rgba(0,0,0,.55);pointer-events:none;z-index:4}.cpnvig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 45%,rgba(0,0,0,0) 55%,rgba(0,0,0,.38) 100%)}' +
@@ -7834,7 +7837,7 @@ var DOCK = { L: null, R: null, C: null, act: { L: null, R: null }, iv: 0,
 };
 function init() {
   if (!DOCK.iv) DOCK.iv = setInterval(function () { try { DOCK.tick(); } catch (e) {} }, 250);
-  FAST.chunks(); var sv = rd(); makeSession(sv); var hi = S.cfg.gfx === 'high', lite = S.cfg.gfx === 'lite'; root.classList.toggle('lite', lite); PERF.lite = lite; PERF.cap = lite ? 1 / 31 : 0; if (lite) { TEXS = 0.5; BEN = 1; }
+  FAST.chunks(); var sv = rd(); makeSession(sv); var hi = S.cfg.gfx === 'high', lite = S.cfg.gfx === 'lite'; root.classList.toggle('lite', lite); PERF.lite = lite; PERF.cap = lite ? 1 / 31 : 0; if (lite) { TEXS = 0.5; BEN = 1; } if (PHONE) TEXS = 0.38;
   var ren = new THREE.WebGLRenderer({ antialias: hi, powerPreference: lite ? 'default' : 'high-performance', stencil: false }); PERF.prMax = Math.min(window.devicePixelRatio || 1, hi ? 2 : lite ? 0.85 : 1); PERF.pr = PERF.prMax; ren.setPixelRatio(PERF.pr); ren.toneMapping = THREE.ACESFilmicToneMapping; ren.toneMappingExposure = 0.84;
   ren.domElement.className = 'cpn3d'; ren.domElement.tabIndex = 0; root.insertBefore(ren.domElement, root.firstChild);
   ANISO = Math.min(hi ? 8 : 2, ren.capabilities.getMaxAnisotropy ? ren.capabilities.getMaxAnisotropy() : 4);
