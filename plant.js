@@ -6714,7 +6714,20 @@ function tremorTick(dt) {
   TREM.k += (tgt - TREM.k) * Math.min(1, dt * 2); if (TREM.k < 0.003) { TREM.k = 0; TREM.dy = TREM.dr = 0; return; }
   TREM.t += dt; TREM.dy = TREM.k * 0.0016 * (Math.sin(TREM.t * 37) + 0.6 * Math.sin(TREM.t * 53.1)); TREM.dr = TREM.k * 0.0007 * Math.sin(TREM.t * 29.3 + 1);
 }
-EXT.tick = function (dt) { if (!EXT.on) return; EXT.t += dt; roomDustTick(dt, EXT.t); tripAlarmTick(); try { plantFxTick(dt); } catch (e) {} try { trailTick(dt); } catch (e) {} try { vanLightsTick(dt); } catch (e) {} try { roomPowerTick(dt); } catch (e) {} try { roomAlarmTint(dt); } catch (e) {} try { roomShaftTick(dt); } catch (e) {} try { tremorTick(dt); } catch (e) {} if (EXT.wind) EXT.wind.value = EXT.t;
+/* switchyard: a faint violet corona flickers on the nine HV bushings of the three main transformers in wet, snowy or foggy air after dark (off in lite), and the middle transformer
+   throws a brief small arc flash whenever the generator breaker or the grid connection changes state. Additive sprites only, no lights. */
+var SWY = { s: [], arc: 0, gen: null, grid: null, ar: null, cm: null };
+function switchyardFxTick(dt) {
+  var g = EXT.g, x = S && S.p && S.p.x; if (!g || !x || !x.tb || !EXT.puffT || !(dt > 0)) return; var lite = (typeof PERF !== 'undefined' && PERF.lite) || LOWMEM, i;
+  if (!SWY.cm) { SWY.cm = new THREE.SpriteMaterial({ map: EXT.puffT, color: 0xa8b8ff, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending, fog: false }); SWY.am = new THREE.SpriteMaterial({ map: EXT.puffT, color: 0xdbe6ff, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending, fog: false });
+    SWY.ar = new THREE.Sprite(SWY.am); SWY.ar.position.set(41, 6.2, 54.8); SWY.ar.visible = false; SWY.ar.renderOrder = 22; SWY.ar.userData.noColl = true; SWY.ar.userData.noCull = true; g.add(SWY.ar);
+    if (!lite) for (i = 0; i < 9; i++) { var c = new THREE.Sprite(SWY.cm); c.position.set(31 + 10 * ((i / 3) | 0) - 1.3 + 1.3 * (i % 3), 6.25, 54.8); c.scale.set(0.7, 0.7, 1); c.visible = false; c.renderOrder = 21; c.userData.noColl = true; c.userData.noCull = true; g.add(c); SWY.s.push(c); } }
+  var t = EXT.t, WV = WXV(), lit = EXT.plumeLit ? clamp(EXT.plumeLit.value / 0.85, 0, 1) : 0, damp = WV ? (WV.fog ? 0.8 : WV.I > 0 ? 0.35 + 0.65 * WV.I : 0) : 0, k = lit * damp;
+  if (SWY.s.length) { var on = k > 0.02; for (i = 0; i < SWY.s.length; i++) { var c2 = SWY.s[i]; c2.visible = on; if (on) { var f = Math.abs(Math.sin(t * 43 + i * 7.1)) * Math.abs(Math.sin(t * 17.3 + i * 2.3)), sc = 0.45 + 0.9 * f; c2.scale.set(sc, sc, 1); } } SWY.cm.opacity = 0.5 * k * (0.75 + 0.25 * Math.sin(t * 31)); }
+  var gen = !!x.tb.gen, grid = !!(x.el && x.el.grid); if (SWY.gen !== null && (gen !== SWY.gen || grid !== SWY.grid)) SWY.arc = 0.28; SWY.gen = gen; SWY.grid = grid;
+  if (SWY.arc > 0) { SWY.arc -= dt; var u = clamp(SWY.arc / 0.28, 0, 1), fl = Math.random() < 0.5 ? 1 : 0.55; SWY.ar.visible = u > 0; SWY.am.opacity = 0.95 * u * fl; var as = 2.5 + 4 * (1 - u) + Math.random(); SWY.ar.scale.set(as, as, 1); } else if (SWY.ar.visible) SWY.ar.visible = false;
+}
+EXT.tick = function (dt) { if (!EXT.on) return; EXT.t += dt; roomDustTick(dt, EXT.t); tripAlarmTick(); try { plantFxTick(dt); } catch (e) {} try { trailTick(dt); } catch (e) {} try { vanLightsTick(dt); } catch (e) {} try { roomPowerTick(dt); } catch (e) {} try { roomAlarmTint(dt); } catch (e) {} try { roomShaftTick(dt); } catch (e) {} try { tremorTick(dt); } catch (e) {} try { switchyardFxTick(dt); } catch (e) {} if (EXT.wind) EXT.wind.value = EXT.t;
   /* day and night from the real sun over the station: it rises in the east (+x, through the windows), crosses the south (−z) and sets in the west */
   var SN = sunNow(), el = SN.el, ce = Math.sqrt(Math.max(0, 1 - el * el)), day = clamp(el * 3 + 0.15, 0, 1) * (1 - 0.3 * (WXL.d ? WXL.d.cl : 0)), dusk = clamp(1 - Math.abs(el) * 5, 0, 1) * (el > -0.25 ? 1 : 0), cloudK = 1 - 0.7 * (WXL.d ? WXL.d.cl : 0);
   var sd = new THREE.Vector3(Math.sin(SN.az) * ce, Math.max(el, -0.3) * 0.8 + 0.02, Math.cos(SN.az) * ce).normalize(), sunUp = el > -0.05, LK = PERF.lite ? 0.8 : 1, vis = clamp((el + 0.05) * 7, 0, 1), mk = clamp((-el - 0.05) * 6, 0, 1);
