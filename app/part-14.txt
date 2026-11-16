@@ -1,4 +1,58 @@
-sName='xexam';box.style.cssText='display:flex;flex-direction:column;gap:16px;margin-bottom:16px';box.innerHTML=cdCard()+sixCard();pg.insertBefore(box,pg.firstChild);wireCd();wireSix()}catch(e){if(window.console)console.error(e)}}}
+v></div>'}
+ function wireReport(){var s=$q('#xRcSave'),sh=$q('#xRcShare'),img=$q('#xReport img');if(s&&img)s.onclick=function(){var a=document.createElement('a');a.href=img.src;a.download='critical-week-'+monday()+'.png';document.body.appendChild(a);a.click();a.remove()};
+  if(sh&&img)sh.onclick=function(){fetch(img.src).then(function(r){return r.blob()}).then(function(b){var f=new File([b],'critical-week.png',{type:'image/png'});var d={title:'My week in Critical',files:[f]};if(navigator.canShare&&!navigator.canShare(d))delete d.files;return navigator.share(d)}).catch(function(){})}}
+ setTimeout(function(){try{var d=new Date();if(d.getDay()===0&&d.getHours()>=17&&S.rcTold!==monday()){S.rcTold=monday();save();toast('📊','Your weekly report card is ready','Find it on the Progress page','badge')}}catch(e){}},6000);
+
+ /* the Progress page gets the radar and the report card */
+ var rr0=renderReview;renderReview=function(){rr0.apply(this,arguments);try{var pg=$('page-review'),st=null;[].forEach.call(pg.querySelectorAll('.card h2'),function(h){if(!st&&/Your stats/.test(h.textContent))st=h.parentNode});var at=st||pg.lastChild,box=document.createElement('div');box.innerHTML=radarCard()+reportCard();
+  while(box.lastChild)at.insertAdjacentElement('afterend',box.lastChild);wireRadar();wireReport()}catch(e){if(window.console)console.error(e)}};
+
+ /* ---------- GCSE countdown and revision timetable ---------- */
+ var GSUBS=['gm','gp','gc','gcs'].filter(function(t){return UNITS.some(function(u,ui){return trk(ui)===t})});
+ var GCOL={gm:'#534AB7',gp:'#D85A30',gc:'#1D9E75',gcs:'#1f8fb3'};
+ function gx(){if(!S.gx)S.gx={start:'2028-05-08'};return S.gx}
+ function daysTo(s){return Math.max(0,Math.round((new Date(s+'T09:00:00')-new Date(today()+'T09:00:00'))/864e5))}
+ function nextLessonIn(ui){var u=UNITS[ui];for(var i=0;i<u.lessons.length;i++)if(!S.done[u.lessons[i].id])return i;return -1}
+ function focusFor(t,wk){/* weakest topics first, then the next unfinished unit, then anything finished for review */var us=[];UNITS.forEach(function(u,ui){if(trk(ui)===t)us.push(ui)});
+  var weak=us.map(uStats).filter(function(s){return s.s!=null&&s.s<.75}).sort(function(a,b){return a.s-b.s}).map(function(s){return s.ui}),todo=us.filter(function(ui){return nextLessonIn(ui)>=0}),done=us.filter(function(ui){return nextLessonIn(ui)<0});
+  var order=weak.concat(todo.filter(function(x){return weak.indexOf(x)<0})).concat(done.filter(function(x){return weak.indexOf(x)<0}));if(!order.length)return null;return order[wk%order.length]}
+ function timetable(){var start=gx().start,m0=monday(),weeks=Math.max(1,Math.ceil(daysTo(start)/7)),out=[];
+  for(var w=0;w<Math.min(weeks,90);w++){var row={m:dAdd(m0,w*7),f:{}};GSUBS.forEach(function(t,i){var weak=w<4?0:w;row.f[t]=focusFor(t,w)});out.push(row)}return out}
+ function cdCard(){var g=gx(),d=daysTo(g.start),tot=0,dn=0;GSUBS.forEach(function(t){UNITS.forEach(function(u,ui){if(trk(ui)!==t)return;u.lessons.forEach(function(l){tot++;if(S.done[l.id])dn++})})});
+  var tt=timetable(),wk=tt[0],h='<div class="card xcard" id="xCount"><h2>GCSE countdown</h2><div class="xcd"><div><div class="xnum">'+fmtInt(d)+'</div><div class="u">days until your GCSEs start</div></div></div>'+
+   '<div class="xcdrow"><div><b>'+Math.floor(d/7)+'</b><span>weeks</span></div><div><b>'+Math.round(dn/Math.max(1,tot)*100)+'%</b><span>of GCSE lessons done</span></div><div><b>'+Math.max(0,tot-dn)+'</b><span>lessons to go</span></div><div><b>'+(Math.floor(d/7)?Math.ceil(Math.max(0,tot-dn)/Math.max(1,Math.floor(d/7))):Math.max(0,tot-dn))+'</b><span>a week keeps you on track</span></div></div>'+
+   '<div class="xdate"><label for="xStart">First exam</label><input type="date" id="xStart" value="'+g.start+'"><span>'+(g.set?'Set by you.':'About 8 May 2028 is an estimate. Change it when school gives you the timetable.')+'</span></div>'+
+   '<h3 style="margin:16px 0 0;font-size:17px">This week\'s revision focus</h3><p class="note" style="margin:2px 0 0">One topic per subject. Your weakest topics come first, then the ones you haven\'t finished.</p><div class="xweek">'+GSUBS.map(function(t){var ui=wk.f[t];if(ui==null)return '';var s=uStats(ui),nx=nextLessonIn(ui);return '<div class="xfoc" style="--fc:'+GCOL[t]+'"><span class="s">'+TRK[t].replace('GCSE ','')+'</span><b>'+esc(UNITS[ui].title)+'</b><p>'+(s.s!=null?Math.round(s.s*100)+'% strong':'Not started')+(nx>=0?' · next: '+esc(UNITS[ui].lessons[nx].title):' · all lessons done')+'</p><button type="button" data-fo="'+ui+'">'+(nx>=0?'Start':'Revise it')+'</button></div>'}).join('')+'</div>'+
+   '<details class="xplan"><summary>See the full plan to the exams ('+tt.length+' weeks)</summary><ol>'+tt.slice(0,60).map(function(r){return '<li><span>w/c '+nice(r.m,{day:'numeric',month:'short'})+':</span> '+GSUBS.map(function(t){return r.f[t]!=null?esc(UNITS[r.f[t]].title):''}).filter(Boolean).join(' · ')+'</li>'}).join('')+'</ol></details></div>';return h}
+ function wireCd(){var c=$q('#xCount');if(!c)return;var i=$q('#xStart');if(i)i.onchange=function(){if(!/^\d{4}-\d\d-\d\d$/.test(i.value))return;gx().start=i.value;gx().set=1;save();var n=document.createElement('div');n.innerHTML=cdCard();c.replaceWith(n.firstChild);wireCd()};
+  [].forEach.call(c.querySelectorAll('[data-fo]'),function(b){b.onclick=function(){var ui=+b.getAttribute('data-fo'),nx=nextLessonIn(ui);if(nx>=0)startLesson(ui,nx);else fixUnits([{ui:ui}],'Revise: '+UNITS[ui].title)}})}
+
+ /* ---------- 6-mark question trainer ---------- */
+ var SIX=window.SIXQ||[];
+ function sixState(){if(!S.six)S.six={};return S.six}
+ function sixCard(){var st=sixState(),done=SIX.filter(function(q){return st[q.id]}).length;
+  return '<div class="card xcard" id="xSix"><h2>6-mark question trainer <span class="note">'+done+' of '+SIX.length+' tried</span></h2><p class="note" style="font-size:15px">Write a full answer, then mark it yourself against the mark scheme points, the way an AQA examiner would. Practicals, explain and evaluate questions.</p><div class="xsix">'+
+   SIX.map(function(q){var s=st[q.id];return '<button type="button" class="q" data-six="'+q.id+'"><span class="tg">'+q.s+'</span><span>'+esc(q.short)+'</span><span class="sc">'+(s?'Best '+s.best+'/6':'New')+'</span></button>'}).join('')+'</div></div>'}
+ function sixOpen(id){var q=SIX.filter(function(x){return x.id===id})[0];if(!q)return;var ov=document.createElement('div');ov.className='xov';ov.setAttribute('role','dialog');ov.setAttribute('aria-modal','true');ov.setAttribute('aria-label','6-mark question');document.body.appendChild(ov);document.body.classList.add('noscroll');
+  var t0=Date.now(),tm=0;function close(){clearInterval(tm);ov.remove();document.body.classList.remove('noscroll');try{EXAM.render()}catch(e){}}
+  function write(){ov.innerHTML='<div class="xin"><div class="xtop"><b>'+(q.s==='Physics'?'GCSE Physics':'GCSE Chemistry')+' · 6 marks</b><button type="button" class="xclose">Close</button></div><div class="xqbox"><span class="m">'+q.s.toUpperCase()+' · 6 MARKS</span><p style="margin:6px 0 0">'+q.q+'</p></div><div class="xmeta"><span data-k="wc">0 words</span><span data-k="tm">0:00</span><span>Aim for about 7 minutes and 100 to 150 words</span></div><textarea placeholder="Write your answer in full sentences. Plan it in a logical order." aria-label="Your answer"></textarea><div class="xbtns"><button type="button" class="xbtn" data-a="mark">Mark my answer</button></div></div>';
+   var ta=ov.querySelector('textarea'),wc=ov.querySelector('[data-k=wc]'),tme=ov.querySelector('[data-k=tm]');ta.value=q._draft||'';function cnt(){var n=(ta.value.trim().match(/\S+/g)||[]).length;wc.textContent=n+' word'+(n===1?'':'s')}cnt();ta.oninput=function(){q._draft=ta.value;cnt()};
+   tm=setInterval(function(){var s=Math.floor((Date.now()-t0)/1000);tme.textContent=Math.floor(s/60)+':'+String(s%60).padStart(2,'0');tme.style.color=s>480?'var(--warn)':''},1000);
+   ov.querySelector('.xclose').onclick=close;ov.querySelector('[data-a=mark]').onclick=function(){if((ta.value.trim().match(/\S+/g)||[]).length<15){wc.textContent='Write a bit more first (15 words or more)';wc.style.color='var(--warn)';return}clearInterval(tm);mark(ta.value)};setTimeout(function(){ta.focus()},50)}
+  function mark(ans){var low=ans.toLowerCase();ov.innerHTML='<div class="xin"><div class="xtop"><b>Mark your answer</b><button type="button" class="xclose">Close</button></div><div class="xqbox"><span class="m">YOUR ANSWER</span><p style="margin:6px 0 0;white-space:pre-wrap">'+esc(ans)+'</p></div><p style="margin:0">Tick every point your answer makes clearly. Green ones look like they\'re in there, but you decide.</p><div class="xpts">'+
+   q.pts.map(function(p,i){var hit=p.k.some(function(k){return new RegExp(k,'i').test(low)});return '<label class="'+(hit?'sug':'')+'"><input type="checkbox" data-i="'+i+'"'+(hit?' checked':'')+'><span>'+p.p+(hit?' <span class="hint">looks like it\'s there</span>':'')+'</span></label>'}).join('')+
+   '</div><label style="display:flex;gap:8px;align-items:center;font-size:15px"><input type="checkbox" data-k="order" style="width:20px;height:20px"> My answer is in a logical order, with the points linked together</label><div class="xscore" data-k="sc"></div><details><summary style="cursor:pointer;font-weight:700">See a model answer</summary><div class="xmodel" style="margin-top:8px">'+q.model+'</div></details><div class="xbtns"><button type="button" class="xbtn" data-a="save">Save my mark</button><button type="button" class="xbtn alt" data-a="retry">Try it again</button></div></div>';
+   var boxes=ov.querySelectorAll('.xpts input'),ord=ov.querySelector('[data-k=order]'),sc=ov.querySelector('[data-k=sc]');
+   function score(){var n=[].filter.call(boxes,function(b){return b.checked}).length,lv=n>=5?3:n>=3?2:n>=1?1:0,mk=lv?lv*2-(ord.checked?0:1):0;return {n:n,lv:lv,mk:mk}}
+   function upd(){var r=score();sc.innerHTML='<div class="xnum">'+r.mk+'/6</div><p><b>'+(r.lv?'Level '+r.lv:'No marks yet')+'</b> · '+r.n+' of '+q.pts.length+' points.<br>'+(r.lv===3?'Detailed and coherent. That\'s the top band.':r.lv===2?'Good, but add more detail and link the points for level 3.':r.lv===1?'Some relevant points. Level 2 needs more, in a clear order.':'Check the points above against your answer.')+'</p>'}
+   [].forEach.call(boxes,function(b){b.onchange=upd});ord.onchange=upd;upd();
+   ov.querySelector('.xclose').onclick=close;ov.querySelector('[data-a=retry]').onclick=function(){t0=Date.now();write()};
+   ov.querySelector('[data-a=save]').onclick=function(){var r=score(),st=sixState(),o=st[q.id]||{best:0,n:0};o.n++;o.best=Math.max(o.best,r.mk);o.last=today();var first=o.n===1;st[q.id]=o;q._draft='';save();addXP(first?20:8);toast('📝','Marked: '+r.mk+'/6',(first?'+20':'+8')+' XP · best '+o.best+'/6','quest');close()}}
+  write()}
+ function wireSix(){[].forEach.call(document.querySelectorAll('#xSix [data-six]'),function(b){b.onclick=function(){sixOpen(b.getAttribute('data-six'))}})}
+
+ /* the Exams page gets the countdown, the timetable and the trainer at the top */
+ if(typeof EXAM!=='undefined'&&EXAM.render){var er0=EXAM.render;EXAM.render=function(){er0.apply(this,arguments);try{var pg=$('page-exam');if(!pg)return;var box=document.createElement('div');box.className='xexam';box.style.cssText='display:flex;flex-direction:column;gap:16px;margin-bottom:16px';box.innerHTML=cdCard()+sixCard();pg.insertBefore(box,pg.firstChild);wireCd();wireSix()}catch(e){if(window.console)console.error(e)}}}
 
  return {_finish:function(){finish()},drain:drain,focus:focusOpen,weakest:weakest,uStats:uStats,fixUnits:fixUnits,weekData:weekData,six:sixOpen,timetable:timetable,otLine:otLine};
 })();

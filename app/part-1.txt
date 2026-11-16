@@ -1221,16 +1221,20 @@ var REV=(function(){
  function inDays(s){var n=diff(today(),s);return n===0?'today':n===1?'tomorrow':n<0?(n===-1?'yesterday':-n+' days ago'):'in '+n+' days'}
  function tdI(){return (new Date().getDay()+6)%7}
  function uIdx(id){for(var i=0;i<UNITS.length;i++)if(UNITS[i].id===id)return i;return -1}
+ /* a topic is a whole unit (e.g. gp3-1 Forces) or one lesson in it (e.g. gp3-1-1 Scalars, vectors and resultant forces) */
+ var TI=null;function tInfo(id){if(!TI||TI._n!==UNITS.length){TI={_n:UNITS.length};UNITS.forEach(function(u,ui){TI[u.id]={ui:ui,li:-1,title:u.title};u.lessons.forEach(function(l,li){TI[l.id]={ui:ui,li:li,title:l.title,ut:u.title}})})}return TI[id]||null}
+ function tLessons(id){var x=tInfo(id);if(!x)return [];if(x.li>=0)return [[x.ui,x.li]];return UNITS[x.ui].lessons.map(function(_,li){return [x.ui,li]})}
+ function tOrd(id){var x=tInfo(id);return x?x.ui*1000+(x.li+1):1e9}
  function testOf(id){var r=R();for(var i=0;i<r.tests.length;i++)if(r.tests[i].id===id)return r.tests[i];return null}
  function subjName(t){return t.subj==='own'?(t.sname||'Your subject'):SUBJ[t.subj]||'Test'}
  function tName(t){return t.name||subjName(t)+' test'}
  function cards(t){return (t.cards||[]).filter(function(c){return c&&c.q&&c.a})}
- function uTitles(ids){return (ids||[]).map(function(id){var i=uIdx(id);return i>=0?UNITS[i].title:null}).filter(Boolean)}
+ function uTitles(ids){return (ids||[]).map(function(id){var x=tInfo(id);return x?x.title:null}).filter(Boolean)}
  /* the revision days: the t.days days before the test, but never before the day the test was added (or after it was deleted) */
  function sched(t){var out=[];if(!t||!t.date)return out;var d=addD(t.date,-Math.max(1,Math.min(7,t.days||3))),g=0;if(t.from&&t.from>d)d=t.from;
   for(;d<t.date&&g++<20;d=addD(d,1)){if(t.gone&&d>=t.gone)break;out.push(d)}return out}
  /* topics are shared out over the revision days; the last day is a mini mock on everything */
- function plan(t){var D=sched(t),n=D.length,U=(t.units||[]).filter(function(id){return uIdx(id)>=0}),pd=n-1,out={};
+ function plan(t){var D=sched(t),n=D.length,U=(t.units||[]).filter(function(id){return !!tInfo(id)}),pd=n-1,out={};
   D.forEach(function(d,k){var last=k===n-1,us=[];if(t.subj!=='own'&&U.length){if(last)us=U.slice();else if(U.length>=pd)us=U.filter(function(_,j){return Math.floor(j*pd/U.length)===k});else us=[U[k%U.length]]}
    out[d]={k:k+1,n:n,mock:last,units:us}});return out}
  function dayInfo(dk){var best=null;R().tests.forEach(function(t){var p=plan(t)[dk];if(p&&(!best||t.date<best.t.date))best={t:t,p:p}});if(!best)return null;
@@ -1240,21 +1244,14 @@ var REV=(function(){
    'Revision day '+pin.k+' of '+pin.n+' for your '+pin.name+' ('+d+'). '+(own?'Go through your '+nc+' flashcard'+(nc===1?'':'s')+' until the timer\'s done.':'Today\'s topic'+(tl.length===1?'':'s')+': '+tl.join(', ')+'. Do practice rounds until the timer\'s done.');
   return {pin:pin,tid:pin.tid,name:pin.name,desc:desc,mock:!!pin.mock,units:pin.units||[]}}
  /* ----- questions ----- */
- function poolUnits(uids){var pool=[];(uids||[]).forEach(function(id){var ui=uIdx(id);if(ui<0)return;var u=UNITS[ui];
-   u.lessons.forEach(function(l){function add(c,k){if(!c||(c.t!=='Q'&&c.t!=='N'&&c.t!=='O'))return;var cc=Object.assign({},c);cc._src=u.title+' · '+l.title;cc._key=k;cc._rk=k;cc._lid=l.id;cc._uid=u.id;pool.push(cc)}
-    l.cards.forEach(function(c,ci){add(c,l.id+'#'+ci)});(FOLLOW[l.id]||[]).forEach(function(c,ci){add(c,'F'+l.id+'#'+ci)})});
-   (TESTS[u.id]||[]).forEach(function(c,ci){if(!c||(c.t!=='Q'&&c.t!=='N'&&c.t!=='O'))return;var cc=Object.assign({},c);cc._src=u.title+' · exam-style';cc._rk='T'+u.id+'#'+ci;cc._uid=u.id;pool.push(cc)})});return pool}
- function poolOwn(t){var cs=cards(t),ans=[];cs.forEach(function(c){if(ans.indexOf(c.a)<0)ans.push(c.a)});
-  return cs.map(function(c,i){return {t:'RF',q:c.q,b:c.a,p:esc(c.q),_src:subjName(t)+' · your flashcard',_rk:'O'+t.id+'#'+(c.id||i),_all:ans}})}
- function asMC(c){if(!c||c.t!=='RF'||!c._all)return null;var oth=shuffle(c._all.filter(function(a){return a!==c.b})).slice(0,3);if(oth.length<3)return null;var o=shuffle([c.b].concat(oth));
-  return {t:'Q',p:esc(c.q),o:o.map(esc),a:o.indexOf(c.b),e:'',_src:c._src,_rk:c._rk,_ty:null}}
- function poolFor(tid,uids){var t=testOf(tid);if(t&&t.subj==='own')return poolOwn(t);return poolUnits(uids&&uids.length?uids:(t&&t.units)||[])}
- function missN(pool){var m=R().miss;return pool.filter(function(c){return m[c._rk]}).length}
- /* half of a round comes from questions you got wrong before, the rest you haven't been asked lately */
- function pick(pool,n){var m=R().miss,a=shuffle(pool.filter(function(c){return m[c._rk]})),b=shuffle(pool.filter(function(c){return !m[c._rk]})),h=Math.ceil(n/2);return shuffle(a.slice(0,h).concat(b,a.slice(h)).slice(0,n))}
- function logT(tid,dk){var r=R();if(!r.log[tid])r.log[tid]={};dk=dk||today();return r.log[tid][dk]||(r.log[tid][dk]={q:0,r:0})}
- function mark(c,ok){if(typeof P==='undefined'||!P||!P.rev||!c||!c._rk)return;var r=R();if(ok)delete r.miss[c._rk];else r.miss[c._rk]=1;var l=logT(P.rev.tid);l.q++;if(ok)l.r++;save()}
- function doneDay(pin){if(!pin)return;logT(pin.tid,pin.dk).done=1;save()}
- function newP(o){return Object.assign({i:0,xp:0,right:0,asked:0,color:COL,combo:0,best:0,cbonus:0,mistakes:0,fixed:0,newBadges:[],levelUp:null},o)}
- function startP(p,test){closeHub();try{if(window.PLAN)PLAN.close()}catch(_){}if(typeof P!=='undefined'&&P&&document.querySelector('#player.open'))closePlayer();P=newP(p);openPlayer();if(test)startTimer()}
- function practice(tid,uids,missOnly){var po
+ function poolUnits(uids){var pool=[],seen={};(uids||[]).forEach(function(id){var x=tInfo(id);if(!x)return;var u=UNITS[x.ui];
+   tLessons(id).forEach(function(p){var l=u.lessons[p[1]];if(seen[l.id])return;seen[l.id]=1;function add(c,k,keep){if(!c||(c.t!=='Q'&&c.t!=='N'&&c.t!=='O'))return;var cc=Object.assign({},c);cc._src=u.title+' · '+l.title;if(keep)cc._key=k;cc._rk=k;cc._lid=l.id;cc._uid=u.id;pool.push(cc)}
+    l.cards.forEach(function(c,ci){add(c,l.id+'#'+ci,1)});(FOLLOW[l.id]||[]).forEach(function(c,ci){add(c,'F'+l.id+'#'+ci,1)});(BANK[l.id]||[]).forEach(function(c,ci){add(c,'B'+l.id+'#'+ci)})});
+   if(x.li<0)(TESTS[u.id]||[]).forEach(function(c,ci){if(!c||(c.t!=='Q'&&c.t!=='N'&&c.t!=='O'))return;var cc=Object.assign({},c);cc._src=u.title+' · exam-style';cc._rk='T'+u.id+'#'+ci;cc._uid=u.id;pool.push(cc)})});return pool}
+ var BANK={
+  'gp3-1-1':[
+   Q(`Which of these is a <b>scalar</b> quantity?`,['Speed','Velocity','Force','Displacement'],0,`A scalar has size only. Speed is just how fast; velocity is speed <i>in a given direction</i>, so it's a vector.`),
+   Q(`Which of these is a <b>vector</b> quantity?`,['Acceleration','Mass','Temperature','Energy'],0,`Acceleration has a direction. Mass, temperature and energy only have a size.`),
+   Q(`What's the difference between a scalar and a vector?`,['A vector has a direction as well as a size; a scalar only has a size','A scalar has a direction; a vector doesn\'t','Vectors are always bigger than scalars','Scalars can\'t be measured'],0,`Both have a size (magnitude). Only a vector also has a direction.`),
+   Q(`Which list contains <b>only</b> vectors?`,['Force, velocity, momentum','Mass, force, energy','Speed, distance, time','Weight, mass, density'],0,`Force, velocity and momentum all have directions. Mass, energy, speed, distance, time and density don't.`),
+   Q(`Which of these is <b>not</b> a vector?`,['Distance','Momentum','Weight','Displacement'],0,`Distance is how far, with no direction. 

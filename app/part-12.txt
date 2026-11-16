@@ -1,4 +1,61 @@
-false)},x):x];ops.forEach(function(o){vals.push(apply(vals[vals.length-1],o,rev))});
+1.X(xl),c1.Y(0)-c1.Y(hv))}c.fill();c.stroke()}
+     var ex2=simpson(f,a0,b0,400);hud(c,W-14,top+22,'strips: '+fx(sum,3),'#3ad4ff',11,'right',true);hud(c,W-14,top+37,'exact: '+fx(ex2,3)+'   error '+fx(Math.abs(sum-ex2)/Math.abs(ex2||1)*100,2)+'%','rgba(220,235,255,.85)',9.5,'right')}
+    else{c1.clip();c.fillStyle='rgba(58,212,255,.22)';c.beginPath();c.moveTo(c1.X(a0),c1.Y(0));for(var s2=0;s2<=80;s2++){var xv2=a0+(b0-a0)*s2/80;c.lineTo(c1.X(xv2),c1.Y(f(xv2)))}c.lineTo(c1.X(b0),c1.Y(0));c.closePath();c.fill();c1.un();var Av=simpson(f,a0,b0,200);hud(c,W-14,top+22,'area = '+fx(Av,2)+(par.unit?' '+par.unit:''),'#3ad4ff',11,'right',true);
+     var C4=chart(c,L,top+ch+30,W-L-12,H-top-ch-48,{x:Fx,y:par.Ay||[0,Math.max(1,simpson(f,a0,Fx[1],200))*1.1],ny:3,title:'RUNNING TOTAL (THE INTEGRAL)',axes:true});C4.fn(function(x){return x<a0||x>b0?NaN:simpson(f,a0,x,40)},rgba(YE,1),2,6);C4.dot(b0,Av,'#ffd65a',4)}}
+   // the curve
+   if(mode==='stationary'){var segN=160;c1.clip();for(var s3=0;s3<segN;s3++){var xa=Fx[0]+(Fx[1]-Fx[0])*s3/segN,xb=xa+(Fx[1]-Fx[0])/segN,up=d((xa+xb)/2)>0;c.strokeStyle=up?'#78eb8c':'#ff6a5a';c.lineWidth=2.6;c.beginPath();c.moveTo(c1.X(xa),c1.Y(f(xa)));c.lineTo(c1.X(xb),c1.Y(f(xb)));c.stroke()}c1.un();
+    for(var s4=0;s4<400;s4++){var x1=Fx[0]+(Fx[1]-Fx[0])*s4/400,x2=x1+(Fx[1]-Fx[0])/400;if(d(x1)*d(x2)<0){var xs2=(x1+x2)/2,dd=F.dd?F.dd(xs2,p):d(xs2+1e-3)-d(xs2-1e-3),lab2=dd<0?'maximum':dd>0?'minimum':'stationary';c1.dot(xs2,f(xs2),'#fff',5);hud(c,c1.X(xs2),c1.Y(f(xs2))+(dd<0?-10:18),lab2+' (d²y/dx² '+(dd<0?'< 0':'> 0')+')','rgba(255,255,255,.85)',8.5,'center',true)}}}
+   else if(mode!=='riemann'||true)c1.fn(f,rgba(CY,1),2.4,10);
+   if(mode==='secant'){var x0s=par.x0!=null?par.x0:1,hs=auto?2*Math.pow(.004,((tt/5000)%1)):hN;if(auto&&sl.h){sl.h.input.value=hs;sl.h.refresh()}var fx0=f(x0s),fxh=f(x0s+hs),gs=(fxh-fx0)/hs,gt=d(x0s);
+    c1.clip();var sp=(Fx[1]-Fx[0]);poly(c,[[c1.X(x0s-sp),c1.Y(fx0-gs*sp)],[c1.X(x0s+sp),c1.Y(fx0+gs*sp)]],'rgba(255,214,90,.9)',1.8);c.setLineDash([4,4]);poly(c,[[c1.X(x0s-sp),c1.Y(fx0-gt*sp)],[c1.X(x0s+sp),c1.Y(fx0+gt*sp)]],'rgba(255,255,255,.35)',1.2);c.setLineDash([]);c1.un();
+    c1.dot(x0s,fx0,'#fff',5);c1.dot(x0s+hs,fxh,'#ffd65a',5);hud(c,c1.X(x0s+hs)+8,c1.Y(fxh)+4,'Q','#ffd65a',10,'left',true);hud(c,c1.X(x0s)-10,c1.Y(fx0)-6,'P','#fff',10,'right',true);
+    panel(c,W-170,top+16,158,56);hud(c,W-162,top+31,'h = '+hs.toFixed(hs<.1?3:2),'rgba(220,235,255,.9)',10,'left',true);hud(c,W-162,top+46,'chord gradient '+fx(gs,3),'#ffd65a',10,'left',true);hud(c,W-162,top+61,'tangent gradient '+fx(gt,3),'rgba(255,255,255,.7)',9,'left');return}
+   if(mode==='explore'||mode==='deriv'||mode==='chain'||mode==='stationary'||mode==='area'&&false){var yv3=f(xm),g=d(xm),sp2=(Fx[1]-Fx[0])*.16;c1.clip();poly(c,[[c1.X(xm-sp2),c1.Y(yv3-g*sp2)],[c1.X(xm+sp2),c1.Y(yv3+g*sp2)]],'rgba(255,214,90,.95)',2);glow(c,c1.X(xm),c1.Y(yv3),14,YE,.5);c1.dot(xm,yv3,'#fff',4.5);c1.un();
+    panel(c,W-(nb?132:160),top+16,nb?120:148,F.show?84:56);var px3=W-(nb?124:152);hud(c,px3,top+31,'x = '+fx(xm),'rgba(220,235,255,.9)',10,'left',true);hud(c,px3,top+46,'y = '+fx(yv3),'#3ad4ff',10,'left',true);hud(c,px3,top+61,'gradient = '+fx(g),'#ffd65a',10,'left',true);if(F.show){var sh=F.show(xm);hud(c,px3,top+75,sh[2],'rgba(220,235,255,.85)',8.5,'left')}}
+   if(mode==='deriv'||mode==='chain'){var Fd=par.dy||[Fy[0]-Math.abs(Fy[1]-Fy[0])*.2,Fy[1]],C5=chart(c,L,top+ch+30,W-L-12,H-top-ch-50,{x:Fx,y:par.dy||[-(Math.abs(Fy[1])+Math.abs(Fy[0]))/1.5,(Math.abs(Fy[1])+Math.abs(Fy[0]))/1.5],ny:3,title:'ITS GRADIENT: dy/dx',axes:true});C5.fn(d,rgba(YE,1),2.2,8);C5.dot(xm,d(xm),'#fff',4);poly(c,[[c1.X(xm),c1.y+c1.h],[C5.X(xm),C5.y]],'rgba(255,255,255,.18)',1);
+    if(F.show){var sh2=F.show(xm);hud(c,L+6,top+ch+44,sh2[0]+'   '+sh2[1],'rgba(220,235,255,.8)',8.5,'left')}}
+  });
+  var goal=par.goal;if(!goal)return {};
+  return {check:function(){if(goal==='touch')return interacted>0?{ok:true}:{ok:false,msg:'Have a play first: move a slider or drag across the graph.'};
+   if(goal==='max')return Math.abs(xm-2)<.15?{ok:true,head:'Biggest box!',msg:'x = 2 cm gives V = 128 cm³. That\'s where dV/dx = 0.'}:{ok:false,msg:'V = '+fx(xm*(12-2*xm)*(12-2*xm),1)+' cm³. Find the x where the volume curve peaks.'};
+   if(goal==='riemann')return nR>=40?{ok:true}:{ok:false,msg:'Use at least 40 strips and watch the error shrink.'};
+   if(goal==='zero')return Math.abs(d(xm))<.15?{ok:true,head:'Gradient zero!'}:{ok:false,msg:'The gradient at your point is '+fx(d(xm))+'. Drag to a point where the tangent is flat.'};
+   if(goal==='ln')return showLn?{ok:true}:{ok:false,msg:'Press "Take ln of y" to straighten the curve.'};
+   if(goal==='h')return hN<.05&&!auto?{ok:true}:{ok:false,msg:'Drag the h slider right down to 0.01 and compare the two gradients.'};
+   return {ok:true}}}};
+
+ /* ===== scale lab: powers of ten, prefixes and index laws ===== */
+ WIDGETS.scaleLab=function(box,par){par=par||{};var mode=par.mode||'length',z=par.z!=null?par.z:0,auto=!calm(),tt=0,a=3,b=2,moved=0;
+  var SETS={length:{u:'m',lo:-15,hi:12,items:[[-13.8,'Uranium nucleus','1.5 × 10⁻¹⁴ m'],[-10,'Atom','10⁻¹⁰ m'],[-7,'Virus','10⁻⁷ m'],[-5,'Fuel grain','10⁻⁵ m'],[-4,'Gap round a pellet','10⁻⁴ m'],[-2.1,'Fuel pellet','8 mm'],[.23,'You','1.7 m'],[.68,'Fuel assembly','4.8 m'],[1.78,'Reactor building','60 m'],[3,'Hinkley Point C site','1 km'],[5,'Somerset','100 km'],[7.1,'Earth','1.3 × 10⁷ m'],[11.2,'Sun to Earth','1.5 × 10¹¹ m']]},
+   energy:{u:'J',lo:-19,hi:15,items:[[-19,'1 eV: one electron through 1 V','1.6 × 10⁻¹⁹ J'],[-18.2,'Chemical bond (burning)','≈ 4 eV'],[-10.5,'One fission','200 MeV = 3.2 × 10⁻¹¹ J'],[0,'Lifting an apple 1 m','1 J'],[5.5,'Boiling a kettle','≈ 3 × 10⁵ J'],[7.4,'1 kg of coal','2.4 × 10⁷ J'],[13.9,'1 kg of U-235 fissioned','8 × 10¹³ J'],[14.45,'Hinkley Point C for a day','2.8 × 10¹⁴ J of electricity']]},
+   dose:{u:'Sv',lo:-7,hi:1,items:[[-7,'Eating a banana','0.1 µSv'],[-5.3,'Dental X-ray','5 µSv'],[-4.4,'Flight to Spain and back','40 µSv'],[-2.6,'UK average a year','2.7 mSv'],[-1.7,'Worker legal limit a year','20 mSv'],[-2,'CT scan','10 mSv'],[0,'Radiation sickness','1 Sv'],[0.7,'Likely fatal','5 Sv']]}};
+  Object.keys(SETS).forEach(function(k){SETS[k].items.sort(function(p1,p2){return p1[0]-p2[0]})});var scr=screen(box,par.h||260,240);
+  if(mode==='indices'){var sa=slider(box,'a (first power)',0,6,1,a,function(v){return v},function(v){a=v;moved++}),sb=slider(box,'b (second power)',0,5,1,b,function(v){return v},function(v){b=v;moved++});var op=par.op||'mul',so=select(box,'Law',['Multiply: xᵃ × xᵇ','Divide: xᵃ ÷ xᵇ','Power: (xᵃ)ᵇ'],function(i){op=['mul','div','pow'][i];moved++});so.value=['mul','div','pow'].indexOf(op)}
+  else{var S=SETS[mode],zs=slider(box,'Zoom (power of ten)',S.lo,S.hi,.1,z,function(v){return '10^'+fx(v,1)+' '+S.u},function(v){z=v;auto=false;moved++})}
+  run(scr,function(dt){var c=scr.c,W=scr.W,H=scr.H;tt+=dt;bgf(c,W,H);
+   if(mode==='indices'){band(c,W,'INDEX LAWS · watch the x’s','');var n1=a,n2=b,res=op==='mul'?a+b:op==='div'?a-b:a*b,sz=Math.min(26,(W-40)/Math.max(8,op==='pow'?a*b:a+b+2));
+    function row(n,y,col,label){for(var i=0;i<Math.max(0,n);i++){var x=20+i*(sz+4);ball(c,x+sz/2,y,sz/2-1,col);hud(c,x+sz/2,y+3,'x','#04101f',sz*.5,'center',true)}hud(c,20,y-sz/2-6,label,'rgba(200,225,255,.85)',9,'left',true)}
+    var ph=(tt/1800)%1,y1=58,y2=y1+sz+28,y3=H-34;if(op==='pow'){for(var k=0;k<b;k++)row(a,y1+k*(sz*.9),VI,k===0?'(xᵃ)ᵇ: '+b+' groups of '+a:'');}else{row(a,y1,VI,'xᵃ = x^'+a);row(b,y2,op==='div'?RD:CY,op==='div'?'÷ xᵇ cancels '+b+' of them':'× xᵇ = x^'+b)}
+    row(res,y3,GR,'Result: x^'+res+(res<0?' = 1/x^'+(-res):res===0?' = 1':''));hud(c,W-12,y3-sz/2-6,op==='mul'?'add the powers: '+a+' + '+b+' = '+res:op==='div'?'subtract: '+a+' − '+b+' = '+res:'multiply: '+a+' × '+b+' = '+res,'#ffd65a',10,'right',true);return}
+   var S2=SETS[mode];if(auto){z=S2.lo+(S2.hi-S2.lo)*(.5-.5*Math.cos(tt/14000*Math.PI*2));zs.input.value=z;zs.refresh()}
+   band(c,W,(mode==='length'?'POWERS OF TEN · SIZE':mode==='energy'?'POWERS OF TEN · ENERGY':'DOSE LADDER').toUpperCase(),'10^'+fx(z,1)+' '+S2.u);
+   var cx=W/2,cy=H/2+10,span=W*.42;// each object drawn at log position relative to zoom
+   c.strokeStyle='rgba(170,200,255,.35)';c.beginPath();c.moveTo(10,H-26);c.lineTo(W-10,H-26);c.stroke();
+   for(var e=Math.floor(z-4);e<=Math.ceil(z+4);e++){var px=cx+(e-z)/4*span;if(px<10||px>W-10)continue;c.beginPath();c.moveTo(px,H-31);c.lineTo(px,H-21);c.stroke();if(W>=500||e%2===0)hud(c,px,H-10,'10'+supStr(e),'rgba(170,200,255,.75)',9,'center')}
+   var lastPx=-1e9,lv=0,nbs=W<500;S2.items.forEach(function(it){var dx=(it[0]-z)/4,px=cx+dx*span;if(Math.abs(dx)>1.15)return;var show=!nbs||Math.abs(dx)<.42;if(show){lv=px-lastPx<(nbs?118:150)?1-lv:0;lastPx=px}var off=lv*30;var near=1-Math.min(1,Math.abs(dx)),r=mode==='dose'?6+near*10:4+Math.pow(10,Math.max(-1.2,Math.min(1.2,(z-it[0])*-.35)))*14*near;
+    var col=mode==='dose'?(it[0]<-3?GR:it[0]<-1.5?YE:RD):CY;glow(c,px,cy,r*2.2,col,.25+.35*near);ball(c,px,cy,Math.max(3,r),col);c.globalAlpha=.35+.65*near;if(show){hud(c,px,cy-r-12-off,it[1],'#fff',near>.6?11:9,'center',true);hud(c,px,cy+r+16+off,it[2],'rgba(200,225,255,.85)',9,'center')}c.globalAlpha=1;poly(c,[[px,cy+r+20+off],[px,H-26]],'rgba(170,200,255,'+(.15+.3*near).toFixed(2)+')',1)});
+   if(mode==='dose'){[[-1.7,'legal limit']].forEach(function(l){var px=cx+(l[0]-z)/4*span;if(px>10&&px<W-10){c.setLineDash([4,4]);poly(c,[[px,30],[px,H-26]],'rgba(255,90,80,.6)',1.2);c.setLineDash([])}})}});
+  var goal=par.goal;if(!goal)return {};return {check:function(){return moved?{ok:true}:{ok:false,msg:mode==='indices'?'Change a or b first and watch how the powers combine.':'Drag the zoom slider to travel through the powers of ten.'}}}};
+
+ /* ===== function machine, balance and order of operations ===== */
+ WIDGETS.machineLab=function(box,par){par=par||{};var mode=par.mode||'machine',x=3,tt=0,rev=false,steps=0,moved=0;
+  var OPS=par.ops||[['×',2],['+',3]];var scr=screen(box,240,250);
+  if(mode==='machine'){slider(box,'Input x',-5,10,1,x,function(v){return v},function(v){x=v;tt=0;moved++});var r=row(box),br=btn(r,'Run it backwards',function(){rev=!rev;tog(br,rev);tt=0;moved++})}
+  if(mode==='balance'){var EQ=par.eq||{a:3,b:4,r:19},stage=0,r2=row(box),b1=btn(r2,'− '+EQ.b+' from both sides',function(){if(stage===0){stage=1;tt=0;moved++}}),b2=btn(r2,'÷ '+EQ.a+' on both sides',function(){if(stage===1){stage=2;tt=0;moved++}}),b3=btn(r2,'Start again',function(){stage=0;tt=0})}
+  if(mode==='order'){var EX=par.ex||'3 + 4 × 2²',r3=row(box),bs=btn(r3,'Next step',function(){steps=Math.min(3,steps+1);tt=0;moved++},'pri'),bz=btn(r3,'Start again',function(){steps=0})}
+  function apply(v,o,inv){var k=o[1];if(!inv)return o[0]==='×'?v*k:o[0]==='+'?v+k:o[0]==='−'?v-k:o[0]==='÷'?v/k:o[0]==='²'?v*v:v;return o[0]==='×'?v/k:o[0]==='+'?v-k:o[0]==='−'?v+k:o[0]==='÷'?v*k:o[0]==='²'?Math.sqrt(v):v}
+  run(scr,function(dt){var c=scr.c,W=scr.W,H=scr.H;tt+=dt;bgf(c,W,H);grid(c,W,H,24);
+   if(mode==='machine'){band(c,W,'FUNCTION MACHINE',rev?'inverse: undo each step in reverse':'');var ops=rev?OPS.slice().reverse():OPS,n=ops.length,bw=Math.min(110,(W-60)/(n+1.2)),gap=(W-20-n*bw)/(n+1),cy=H/2+8,vals=[rev?OPS.reduce(function(a,o){return apply(a,o,false)},x):x];ops.forEach(function(o){vals.push(apply(vals[vals.length-1],o,rev))});
     for(var i=0;i<n;i++){var bx=10+gap*(i+1)+bw*i;c.fillStyle='rgba(143,128,255,.16)';c.strokeStyle='rgba(143,128,255,.8)';c.lineWidth=1.5;c.beginPath();c.rect(bx,cy-30,bw,60);c.fill();c.stroke();var o=ops[i],lab=rev?(o[0]==='×'?'÷ '+o[1]:o[0]==='+'?'− '+o[1]:o[0]==='−'?'+ '+o[1]:o[0]==='÷'?'× '+o[1]:'√'):(o[0]==='²'?'square':o[0]+' '+o[1]);hud(c,bx+bw/2,cy+5,lab,'#fff',14,'center',true)}
     var total=(n+1)*1100,u=calm()?1:Math.min(1,tt/total),seg=Math.min(n,Math.floor(u*(n+1))),fr=(u*(n+1))%1,xs=[];for(var j=0;j<=n;j++)xs.push(j===0?6:10+gap*j+bw*(j-1)+bw);var bxp=seg>=n?W-16:xs[seg]+(10+gap*(seg+1)+bw*seg-xs[seg])*Math.min(1,fr*1.3);
     glow(c,bxp,cy,16,CY,.5);ball(c,bxp,cy,10,CY);hud(c,bxp,cy-18,fx(vals[seg],2),'#ffd65a',12,'center',true);hud(c,14,H-12,(rev?'output ':'input ')+fx(vals[0],2),'rgba(200,225,255,.85)',10,'left',true);hud(c,W-14,H-12,(rev?'back to x = ':'output y = ')+fx(vals[n],2),'#3ad4ff',11,'right',true);if(u>=1&&!calm()&&tt>total+1600)tt=0;return}
@@ -806,61 +863,4 @@ false)},x):x];ops.forEach(function(o){vals.push(apply(vals[vals.length-1],o,rev)
   cap:p.endo?'The energy along a reaction that takes in heat: the products end up higher than the reactants. The hump is the activation energy, and a catalyst (back) lowers it without changing the overall energy change.':'The energy along a reaction that gives out heat: the products end up lower, and the difference is released. The hump is the activation energy. A catalyst (back) gives a lower route over, without changing the overall energy change.'}};
  SC.haber=function(){function Y(T,P){return 100/(1+E((T-355-200*L10(P/200))/100))}return {k:'surf',t:'AMMONIA YIELD AT EQUILIBRIUM',ax:['temperature (°C)','pressure (atm)','yield of NH₃'],xr:[300,550],yr:[50,400],zr:[0,100],xf:unit(0,'°'),yf:unit(0,''),zf:unit(0,'%'),
   f:Y,mark:function(){return [450,200]},read:function(m,z){return 'Haber process: 450 °C, 200 atm → about '+fmtInt(z)+'% at equilibrium (about 15% per pass)'},
-  cap:'Equilibrium yield of ammonia, N₂ + 3H₂ ⇌ 2NH₃. High pressure (back) favours the side with fewer gas molecules, so yield rises. The forward reaction is exothermic, so heating lowers the yield, but 450 °C is used so it happens fast enough.'}};
- SC.titration=function(){function pH(V,c){var na=25*c,nb=.1*V,v=25+V,e=(na-nb)/v,h=e/2+sq(e*e/4+1e-14);return -L10(h)}return {k:'surf',t:'A TITRATION',ax:['alkali added (cm³)','acid concentration (M)','pH'],xr:[0,50],yr:[.05,.2],zr:[0,14],xf:unit(0,''),pal:'ph',
-  f:pH,slice:{lab:'acid',f:function(v){return fv(v)+' M · end point at '+fv(250*v)+' cm³'},note:''},
-  cap:'pH as 0.1 M sodium hydroxide is added to 25 cm³ of hydrochloric acid, for every acid concentration. The colours are universal indicator. The cliff is the end point: one drop takes the pH from acid to alkali. A stronger acid (back) needs more alkali.'}};
- SC.rate=function(){return {k:'surf',t:'RATE AND TEMPERATURE',ax:['time (s)','temperature (°C)','product made'],xr:[0,120],yr:[10,60],zr:[0,100],xf:unit(0,' s'),yf:unit(0,'°'),zf:unit(0,'%'),
-  f:function(t,T){var k=.01*Math.pow(2,(T-20)/10);return 100*(1-E(-k*t))},slice:{lab:'temperature',f:unit(0,' °C'),note:'gradient = rate'},
-  cap:'Product made over time at every temperature. The gradient of each slice is the rate. As a rule of thumb, 10 °C hotter roughly doubles the rate, because many more collisions have enough energy to react.'}};
- SC.keeling=function(){return {k:'surf',t:'CARBON DIOXIDE IN THE AIR',ax:['month','year','CO₂ (ppm)'],xr:[1,12],yr:[1960,2025],zr:[310,430],xf:function(v){return 'JFMAMJJASOND'.charAt(Math.round(v)-1)},yf:unit(0,''),
-  f:function(m,y){var d=y-1958;return 315.5+.78*d+.0125*d*d+3.1*Math.sin((m-1.3)/12*TAU)},slice:{lab:'year',f:function(v){return fmtInt(v)},note:'plants breathe in each summer'},
-  cap:'Carbon dioxide in the air at Mauna Loa, month by month for every year since 1960 (modelled). It wiggles every year as northern plants grow in summer, and climbs steadily from burning fossil fuels: from about 315 ppm to over 420 ppm.'}};
-
- /* ---------- GCSE physics ---------- */
- SC.ke=function(){return {k:'surf',t:'KINETIC ENERGY: ½mv²',ax:['speed (m/s)','mass (kg)','energy (kJ)'],xr:[0,40],yr:[0,2000],zr:[0,1600],xf:unit(0,''),yf:unit(0,''),
-  f:function(v,m){return .5*m*v*v/1000},mark:function(){return [13.4,1500]},read:function(m,z){return 'a 1,500 kg car at 30 mph (13.4 m/s): '+fmtInt(z)+' kJ'},
-  cap:'Kinetic energy for every mass and speed. Double the mass and the energy doubles; double the speed and it goes up four times. That square is why speed matters so much in crashes.'}};
- SC.elastic=function(){return {k:'surf',t:'ELASTIC ENERGY: ½ke²',ax:['extension (m)','spring constant (N/m)','energy (J)'],xr:[0,.5],yr:[0,200],zr:[0,25],f:function(e,k){return .5*k*e*e},slice:{lab:'k',f:unit(0,' N/m'),note:'a parabola for each spring'},
-  cap:'Energy stored in a stretched spring for every stiffness and stretch. A stiffer spring (back) stores more, and doubling the stretch stores four times as much (as long as it is not stretched past its limit).'}};
- SC.heatwater=function(){return {k:'surf',t:'HEATING 1 kg OF WATER',ax:['time (s)','heater power (W)','temperature (°C)'],xr:[0,300],yr:[500,3000],zr:[0,110],xf:unit(0,' s'),yf:unit(0,' W'),zf:unit(0,'°'),
-  f:function(t,P){return Math.min(100,20+P*t/4200)},slice:{lab:'power',f:unit(0,' W'),note:'ΔE = m c Δθ'},
-  cap:'Heating 1 kg of water from 20 °C with heaters of different power. Each slice rises at a rate set by ΔE = mcΔθ (c = 4,200 J/kg °C), then goes flat at 100 °C when it starts to boil.'}};
- SC.ohm=function(){return {k:'surf',t:'CURRENT: I = V / R',ax:['potential difference (V)','resistance (Ω)','current (A)'],xr:[0,12],yr:[1,20],zr:[0,12],xf:unit(0,' V'),yf:unit(0,' Ω'),zf:unit(0,' A'),
-  f:function(V,R){return V/R},slice:{lab:'R',f:unit(0,' Ω'),note:'a straight line for a fixed resistor'},
-  cap:'Current through a resistor for every voltage and resistance. For a fixed resistor (one slice) it is a straight line through the origin. Bigger resistance (back) means less current for the same voltage.'}};
- SC.lamp=function(){return {k:'surf',t:'I–V CURVES OF A FILAMENT LAMP',ax:['potential difference (V)','cold resistance (Ω)','current (A)'],xr:[-12,12],yr:[2,10],zr:[-2.6,2.6],xf:unit(0,' V'),yf:unit(0,' Ω'),zf:unit(0,' A'),
-  f:function(V,R){return V/(R*(1+.12*Math.abs(V)))},slice:{lab:'cold resistance',f:unit(0,' Ω'),note:'it gets hotter, so the curve bends'},
-  cap:'Current against voltage for filament lamps. As the current rises the filament heats up and its resistance increases, so each curve flattens out. It works the same both ways, so the curve is symmetric.'}};
- SC.dipole=function(){return {k:'surf',n:38,t:'ELECTRIC POTENTIAL OF + AND − CHARGES',ax:['x (cm)','y (cm)','potential'],xr:[-2,2],yr:[-2,2],zr:[-3.2,3.2],zf:function(){return ''},pal:'ice',
-  f:function(x,y){var a=1/Math.max(.25,Math.hypot(x-.8,y)),b=1/Math.max(.25,Math.hypot(x+.8,y));return a-b},read:function(){return 'peak = positive charge · pit = negative charge · charges roll downhill'},
-  cap:'The electric potential around a positive charge (the peak) and a negative charge (the pit). A positive charge placed here would roll downhill from the peak to the pit, which is the direction of the electric field.'}};
- SC.moment=function(){return {k:'surf',t:'MOMENT = FORCE × DISTANCE',ax:['distance from pivot (m)','force (N)','moment (N m)'],xr:[0,1],yr:[0,100],zr:[0,100],xf:unit(0,' m'),yf:unit(0,' N'),f:function(d,F){return F*d},slice:{lab:'force',f:unit(0,' N'),note:'twice as far, twice the turning effect'},
-  cap:'The turning effect of a force for every size of force and distance from the pivot. Push twice as far from the pivot and the moment doubles. That is why long spanners and door handles far from the hinge make turning easier.'}};
- SC.stopping=function(){var a=6.5;return {k:'surf',t:'STOPPING DISTANCE',ax:['speed (m/s)','reaction time (s)','stopping distance (m)'],xr:[0,35],yr:[.5,2],zr:[0,170],xf:unit(0,''),yf:unit(0,' s'),zf:unit(0,' m'),
-  f:function(v,tr){return v*tr+v*v/(2*a)},mark:function(){return [13.4,.7]},read:function(m,z){return 'at 30 mph, reacting in 0.7 s: about '+fmtInt(z)+' m'},
-  cap:'Thinking distance (speed × reaction time) plus braking distance (which grows with speed squared). A tired or distracted driver (back) adds a lot, and doubling your speed roughly quadruples the braking part.'}};
- SC.ripple=function(){return {k:'surf',anim:1,n:44,t:'A WAVE SPREADING OUT',ax:['x (cm)','y (cm)','height'],xr:[-5,5],yr:[-5,5],zr:[-2.6,2.6],zf:function(){return ''},pal:'ice',
-  f:function(x,y,t){var r=Math.hypot(x,y);return Math.sin(TAU*r/2-t*2.4)*E(-r/6)},read:function(){return 'wavelength 2 cm · wave speed = frequency × wavelength'},
-  cap:'Ripples spreading from a point, like a ripple tank. The distance from one crest to the next is the wavelength. The water only moves up and down; it is the energy that travels outwards.'}};
- SC.interf=function(){return {k:'surf',anim:1,n:46,t:'TWO-SOURCE INTERFERENCE',ax:['x (cm)','y (cm)','height'],xr:[-5,5],yr:[-5,5],zr:[-4.4,4.4],zf:function(){return ''},pal:'ice',
-  f:function(x,y,t){var r1=Math.hypot(x-1.1,y+4.2),r2=Math.hypot(x+1.1,y+4.2);return Math.sin(TAU*r1/1.7-t*2.4)+Math.sin(TAU*r2/1.7-t*2.4)},read:function(){return 'calm lines: waves cancel · tall lines: waves add up'},
-  cap:'Two sources making waves together. Where crests meet crests they add up into big waves; where crests meet troughs they cancel, leaving calm lines. Sound and light do exactly this too.'}};
- SC.well=function(){return {k:'surf',anim:1,n:36,t:'A GRAVITY WELL',ax:['x','y','gravitational potential'],xr:[-3,3],yr:[-3,3],zr:[-2.4,0],xf:function(){return ''},yf:function(){return ''},zf:function(){return ''},pal:'violet',
-  f:function(x,y){return -1/sq(x*x+y*y+.17)},mark:function(t){var a=t*.9,e=.45,r=1.6*(1-e*e)/(1+e*Math.cos(a));return [r*Math.cos(a),r*Math.sin(a)]},read:function(m){return 'distance '+fv(Math.hypot(m[0],m[1]))+' · closer in = faster'},
-  cap:'Gravity drawn as a well around a star. A planet in an elliptical orbit speeds up as it dips closer in and slows down further out. Smaller orbits are faster, which is why inner planets have shorter years.'}};
- SC.gauss=function(){return {k:'surf',anim:1,n:32,t:'THE NORMAL DISTRIBUTION',ax:['x','y','frequency'],xr:[-3,3],yr:[-3,3],zr:[0,1],zf:function(){return ''},
-  f:function(x,y,t){var s=1+.35*Math.sin(t*.5);return E(-(x*x+y*y)/(2*s*s))/(s*s)*.9},read:function(n,z,t){return 'spread (standard deviation) = '+fv(1+.35*Math.sin(t*.5))},
-  cap:'A bell-shaped (normal) distribution in two directions at once. Most values cluster round the mean in the middle. As the spread grows, the bell gets lower and wider; the total stays the same.'}};
- SC.compound=function(){return {k:'surf',t:'COMPOUND GROWTH',ax:['years','interest rate (%)','£100 becomes'],xr:[0,30],yr:[0,10],zr:[0,1800],xf:unit(0,''),yf:unit(0,'%'),zf:function(v){return '£'+fmtInt(v)},
-  f:function(t,r){return 100*Math.pow(1+r/100,t)},mark:function(){return [20,5]},read:function(m,z){return '£100 at 5% for 20 years: £'+fmtInt(z)},
-  cap:'What £100 grows to for every interest rate and number of years. Each year it is multiplied by the same number (1.05 for 5%), so growth snowballs. Decay works the same way with a multiplier less than 1.'}};
- SC.logplane=function(){return {k:'surf',t:'MULTIPLYING POWERS OF TEN',ax:['a','b','a × b'],xr:[-3,3],yr:[-3,3],zr:[-6,6],xf:pw,yf:pw,zf:pw,pal:'violet',f:function(x,y){return x+y},
-  mark:function(t){return [Math.round(2*Math.sin(t*.4)),Math.round(2*Math.cos(t*.3))]},read:function(m){return pw(m[0])+' × '+pw(m[1])+' = '+pw(m[0]+m[1])+'  (add the powers)'},
-  cap:'On log scales, multiplying becomes adding: 10ᵃ × 10ᵇ = 10ᵃ⁺ᵇ. That is why the surface is a flat sloping plane. Engineers use this to cope with numbers from nuclei to power stations.'}};
- SC.fam=function(p){var F={
-   lin:{t:'y = mx + 1',ax:['x','gradient m','y'],xr:[-3,3],yr:[-2,2],zr:[-7,7],f:function(x,m){return m*x+1},pn:'m',cap:'Every straight line y = mx + 1 at once, with the gradient m from front to back. Each slice is one line. The gradient tilts the line; they all pass through (0, 1).'},
-   quad:{t:'y = ax²',ax:['x','a','y'],xr:[-3,3],yr:[-1,2],zr:[-9,18],f:function(x,a){return a*x*x},pn:'a',cap:'Every parabola y = ax² at once. Each slice is one curve. Positive a opens upwards, negative a opens downwards, and a = 0 is flat.'},
-   pow:{t:'y = xⁿ',ax:['x','power n','y'],xr:[0,2],yr:[.5,4],zr:[0,16],f:function(x,n){return Math.pow(x,n)},pn:'n',cap:'Every power curve y = xⁿ at once. They all pass through (1, 1). Bigger powers stay flatter below x = 1 and shoot up faster after it. Its gradient is nxⁿ⁻¹.'},
-   dpow:{t:'dy/dx of xⁿ = nxⁿ⁻¹',ax:['x','power n','gradient'],xr:[0,2],yr:[1,4],zr:[0,32],f:function(x,n){return n*Math.pow(x,n-1)},pn:'n',cap:'The gradient function nxⁿ⁻¹ for every power n. For n = 1 it is flat at 1, for n = 2 it is the straight line 2x, and higher powers get steep quickly.'},
-   exp:{t:'y = eᵏˣ',ax:['x','k','y'],xr:[0,3],yr:[-1,1],zr:[0,20],f:function(x,k){return E(k*x)},pn:'k',cap:'Every exponential y = eᵏˣ. Positive k grows, negative k decays, and the gradient of each slice is k times its height. That is the maths behind reactor periods and radioactive decay.'},
+  cap:'Equilibrium yield of ammonia, N₂ + 3H₂ ⇌ 2NH₃. High pressure (back) favours the side with f
