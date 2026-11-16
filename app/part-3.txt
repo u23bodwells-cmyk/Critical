@@ -1,4 +1,33 @@
-odeAt(i), 8);
+ues to make your guess.</p>';
+  return h}
+ function mount(){var el=document.getElementById('page-learn');if(!el)return;var old=el.querySelector('.mycard');if(old)old.remove();var hero=el.querySelector('.hero');if(!hero)return;
+  var c=document.createElement('div');c.className='card mycard';c.innerHTML=card();hero.parentNode.insertBefore(c,hero.nextSibling);wire(c)}
+ function wire(c){[].forEach.call(c.querySelectorAll('[data-my]'),function(b){b.onclick=function(){var r=R(),C=CASES[idx()],a=b.dataset.my;
+  if(a==='g'){r.guess=+b.dataset.i;if(revealDay()){r.done=true;var ok=r.guess===C.a;if(!r.xp){r.xp=ok?50:10;addXP(r.xp)}if(ok)try{confetti()}catch(_){};try{sfx(ok?'right':'wrong')}catch(_){}}save()}
+  else if(a==='change'){r.guess=null;save()}else if(a==='show'){r.done=true;save()}
+  c.innerHTML=card();wire(c)}})}
+ return {mount:mount,lesson:lesson,clues:clues,idx:idx,CASES:CASES,card:card}
+})();
+try{window.MYS=MYS}catch(_){}
+/* QRCode for JavaScript, (c) 2009 Kazuhiko Arase, MIT licence, http://www.d-project.com/ (from qrcode-terminal) */
+var QRMAKER=(function(){var M={"./QR8bitByte":function(module,exports,require){
+var QRMode = require('./QRMode');
+
+function QR8bitByte(data) {
+	this.mode = QRMode.MODE_8BIT_BYTE;
+	this.data = data;
+}
+
+QR8bitByte.prototype = {
+
+	getLength : function() {
+		return this.data.length;
+	},
+	
+	write : function(buffer) {
+		for (var i = 0; i < this.data.length; i++) {
+			// not JIS ...
+			buffer.put(this.data.charCodeAt(i), 8);
 		}
 	}
 };
@@ -1882,10 +1911,4 @@ T(`<h3>UK numbers</h3><ul><li>Average UK dose from all sources: about <b>2.7 mSv
 W('doseCompare',{},`Click the bars to compare everyday doses with dose limits.`,null),
 Q(`Which has the highest radiation weighting factor?`,['Gamma','Beta','Alpha','X-rays'],2,`Alpha particles deposit their energy very densely, so they get a weighting factor of 20.`)]),
 L('p2','Time, distance and shielding',12,[
-T(`<h3>Three ways to reduce dose</h3><div class="eq">dose = dose rate × time</div><div class="key"><div class="kt">What each part means</div><div class="krow"><span class="ks">dose</span><span class="km">total radiation dose received</span><span class="ku">sieverts (Sv), usually mSv or µSv</span></div><div class="krow"><span class="ks">dose rate</span><span class="km">dose per hour</span><span class="ku">Sv per hour (e.g. µSv/h)</span></div><div class="krow"><span class="ks">time</span><span class="km">how long you stay</span><span class="ku">hours (h)</span></div><div class="kn">Match the time units: µSv per <b>hour</b> × <b>hours</b>.</div></div><ul><li><b>Time</b>: spend less of it near the source</li><li><b>Distance</b>: for a small source, dose rate falls with the square of distance (the <b>inverse square law</b>)</li><li><b>Shielding</b>: each <b>half-value layer</b> (HVL) halves the dose rate. For cobalt-60 gamma rays, the HVL of lead is about 12 mm.</li></ul>`),
-N(`The dose rate is 400 µSv/h at 1 m from a small source. What is it at 4 m?`,25,0.01,'µSv/h',`4 times the distance → 4² = 16 times less: 400 ÷ 16 = 25 µSv/h.`),
-N(`The HVL of lead is 12 mm. Behind 36 mm of lead, what fraction of the dose rate is left?`,0.125,0.01,'',`36 mm is 3 HVLs: ½ × ½ × ½ = 0.125.`),
-W('jobPlanner',{},`A 30-minute valve repair is near a source giving <b>2 mSv/h at 1 m</b>. Use distance and lead shielding to keep the job's dose <b>below 0.1 mSv</b>.`,`Combining distance and shielding multiplies their effects. Radiation protection staff plan jobs like this before work starts.`),
-Q(`You need to cut your dose from a job in half quickly. Which is usually easiest?`,['Double your distance from the source (4× less dose rate)','Work twice as fast, even if it means rushing the job','Stand half as far away but finish the job quicker','Take off your dosimeter so it records less dose'],0,`Distance is often the cheapest and most effective protection. Rushing causes mistakes; removing a dosimeter breaks the rules.`)]),
-L('p3','Contamination and ALARP',8,[
-T(`<h3>Contamination vs irradiation</h3><p><b>Irradiation</b> is being exposed to radiation from a source. <b>Contamination</b> is radioactive material in the wrong place:
+T(`<h3>Three ways to reduce dose</h3><div class="eq">dose = dose rate × time</div><div class="key"><div class="kt">What each part means</div><div class="krow"><span class="ks">dose</span><span class="km">total radiation dose received</span><span class="ku">sieverts (Sv), usually mSv or µSv</span></div><div class="krow"><span class="ks">dose rate</span><span class="km">dose per hour</span><span class="ku">Sv per hour (e.g. µSv/h)</span></div><div class="krow"><span class="ks">time</span><span class="km">how long you stay</span><span class="ku">hours (h)</span></div><div class="kn">Match the time units: µSv per <b>hour</b> × <b>hours</b>.</div></div><ul><li><b>Time</b>: spend less of it near the source</li><li><b>Distance</b>: for a small source, dose rate falls wit

@@ -1,4 +1,14 @@
- red) = 1/15. So 3/n × 2/(n − 1) = 1/15 → 6 × 15 = n(n − 1) → n² − n − 90 = 0 → n = 10.</p>`),
+es and similar solids in context.',[
+RM(`<p>Sector = (θ/360)πr². Triangle = ½ab sin C. Area factor k², volume factor k³.</p>`),
+T(`<h3>Segments</h3><div class="eq">segment = sector − triangle</div><p>Use ½r² sin θ for the triangle.</p>`),
+W('calcDrill',{skill:'g_segment',need:3},`Segment areas. Get 3 right in a row.`,`Sector minus triangle.`),
+W('calcDrill',{skill:['g_simarea','g_volume','g_circle','g_areasine'],need:6},`Mixed area, volume and similarity. Get 6 right in a row.`,`Draw a sketch and label what you know.`),
+Q(`A model is 1 : 50. The real car's volume is 8.75 m³. What is the model's volume?`,[`8.75 ÷ 125 000 m³`,'8.75 ÷ 50 m³',`8.75 ÷ 2500 m³`,'8.75 × 125 000 m³'],0,`Volume factor = 50³ = 125 000.`),
+T(`<h3>Key points</h3><ul><li>Segment = sector − triangle.</li><li>Scale factors: lengths k, areas k², volumes k³.</li></ul>`)])
+]});
+U({id:'gm4-3',track:'gm',level:4,title:'Statistics and probability problems',icon:'⚄',color:'#D4537E',desc:'Harder probability, algebraic probability, and interpreting statistical diagrams.',lessons:[
+LH('gm4-3-1','Harder probability',11,'Conditional probability from tables, trees and Venn diagrams, and probability with algebra.',[
+T(`<h3>Probability with algebra</h3><p>Some questions give probabilities in terms of x. Use the fact that probabilities add to 1, or set up an equation from what you're told, then solve.</p><p>Example: a bag has n counters, 3 red. Two are taken without replacement. P(both red) = 1/15. So 3/n × 2/(n − 1) = 1/15 → 6 × 15 = n(n − 1) → n² − n − 90 = 0 → n = 10.</p>`),
 Q(`P(A) = 2x, P(B) = 3x, P(C) = x + 0.1. A, B and C are the only outcomes. Find x.`,[`0.15`,'0.1','0.2','0.25'],0,`6x + 0.1 = 1, so x = 0.15.`),
 W('calcDrill',{skill:['g_condprob','g_venn'],need:6},`Conditional probability. Get 6 right in a row.`,`"Given that" restricts which group you look at.`),
 T(`<h3>Key points</h3><ul><li>Probabilities sum to 1: use it to form equations.</li><li>Without replacement: n then n − 1.</li><li>Given that: only count inside that group.</li></ul>`)]),
@@ -1017,11 +1027,4 @@ function NSIM(w,h,rnd){
  WIDGETS.reactorSim=function(box,par){par=par||{};var scr=screen(box,310,260),sim=NSIM(scr.W,scr.H),tgt=par.rods==null?.62:par.rods,mom=true,slow=false,paused=calm(),bgc=null,arrows=[],recoils=[],hist=new Float32Array(26),hold=0,done=false,moved=false,fisW=[],fps=0,tStat=0,blink=0;
   var BOR=par.control==='boron',ppm=par.boron!=null?par.boron:1400,fb=!!par.feedback,fuelT=300,fast=false,fat={fis:0,cap:0,abs:0,leak:0},fatW=[],trip=false;if(BOR)tgt=0;if(par.source)sim.P.src=par.source;
   sim.ins=tgt;sim.max=narrow()?170:260;for(var i=0;i<(par.n||40);i++){var f0=sim.fuel[Math.floor(Math.random()*sim.fuel.length)];sim.add(f0.x,f0.y,sim.watt())}
-  var rs=BOR?slider(box,'Boron in the water',0,2000,10,ppm,function(v){return v+' ppm'},function(v){ppm=v;moved=true}):slider(box,'Control rods',0,100,1,Math.round(tgt*100),function(v){return v+'% in'},function(v){tgt=v/100;moved=true});
-  function setBoron(){sim.P.hAbs=fast?0:.0008+(BOR?ppm*5e-6:0)}setBoron();
-  var r=row(box),bP=btn(r,paused?'Play':'Pause',function(){paused=!paused;bP.textContent=paused?'Play':'Pause'}),bF=btn(r,'Fire neutrons',function(){fire(scr.W/2,scr.H/2,6)}),bM=btn(r,'Momentum arrows',function(){mom=!mom;tog(bM,mom)}),bS=btn(r,'Slow motion',function(){slow=!slow;tog(bS,slow)});tog(bM,mom);tog(bS,slow);
-  if(par.fastBtn){var bW=btn(r,'Take the water out',function(){fast=!fast;tog(bW,fast);sim.P.lamF=fast?1e9:28;sim.P.lamT=fast?1e9:24;sim.P.sF=[.16,fb?sim.P.sF[1]:.006,fast?.002:.01];setBoron();moved=true});tog(bW,false)}
-  if(par.trip){var bT=btn(r,'Trip!',function(){trip=true;tgt=1;moved=true;try{rs.set(100)}catch(_){}},'pri')}
-  var SL=[['n','Neutrons now'],['k','k, measured']];if(par.rho)SL.push(['r','Reactivity ρ']);if(par.source)SL.push(['m','Multiplication 1/(1 − k)']);if(fb)SL.push(['T','Fuel temperature']);if(par.breed)SL.push(['p','Plutonium-239 made'],['c','Conversion ratio']);if(SL.length<4)SL.push(['f','Fissions a second']);if(SL.length<4)SL.push(['t','Slow (thermal)']);var st=stats(box,SL),stF=par.fates?stats(box,[['a','Cause fission'],['b','Caught by U-238'],['c','Soaked up (rods, boron, water)'],['d','Leak out']]):null,m=msg(box);
-  m.set(par.goal==='critical'?'Tap the core to fire in more neutrons. Get k to stay near <b>1.00</b>.':'Tap the core to fire in more neutrons.');
-  function fire(x,y,n){for(var i=0;i<n;i++)if(s
+  var rs=BOR?slider(box,'Boron in the water',0,2000,10,ppm,function(v){return v+' ppm'},function(v){ppm=v;moved=true}):slider(box,'Control rods',0,100,1,Math.round(tgt*100),function(v){return v+'% in'},function(v){tgt=v/100;

@@ -1,4 +1,12 @@
-sform:uppercase}.cdq .qprompt{font-size:18px;margin:0}.cdline{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font:20px var(--serif);margin:12px 0}'+
+, in MWh?',b:[cB(P*h,'','MWh','energy')],e:'Energy = area under the power–time graph = '+P+' × '+h+' = '+(P*h)+' MWh.'}}
+ var a=cP([200,400,600]),b=cP([1000,1200,1600]),h=cP([2,4,5]);return {p:'Power rises steadily from '+a+' MW to '+b+' MW over '+h+' hours. How much energy is produced, in MWh?',b:[cB((a+b)/2*h,'','MWh','energy')],e:'The area under a straight-line graph is a trapezium: average power × time = ('+a+' + '+b+') ÷ 2 × '+h+' = '+cNum((a+b)/2*h)+' MWh.'}};
+CGEN.sepode=function(){var k=cP([0.1,0.2,0.5]),y0=cP([100,200,50]),t=cP([2,5,10]),v=y0*Math.exp(-k*t);
+ return {p:'dy/dt = −'+k+'y, with y = '+y0+' at t = 0. Solve it, then find y at t = '+t+'. (2 decimal places)',b:[cB(Math.round(v*100)/100,'y = ','','value',false,0.005)],e:'Separate: ∫ dy/y = ∫ −'+k+' dt, so ln y = −'+k+'t + c, giving y = '+y0+'e'+cSup('−'+k+'t')+'. At t = '+t+': '+y0+'e'+cSup('−'+cNum(k*t))+' = '+cNum(Math.round(v*100)/100)+'.'}};
+
+/* ---- a drill: fresh questions until you get several right in a row ---- */
+(function(){var css=document.createElement('style');css.textContent=
+ '.cdtop{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px}.cddots{display:flex;gap:6px}.cddots i{width:14px;height:14px;border-radius:50%;background:var(--soft2);display:block;transition:background .2s}.cddots i.on{background:var(--good-line)}'+
+ '.cdok{color:var(--good);font-size:13px;font-weight:800;letter-spacing:.04em;text-transform:uppercase}.cdq .qprompt{font-size:18px;margin:0}.cdline{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font:20px var(--serif);margin:12px 0}'+
  '.cdline .cdbox{width:76px;font-size:18px;padding:8px 8px;font-family:var(--mono)}.cdgrp{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}.cdline .sgnb{min-width:40px;height:40px;margin-right:0;font-size:20px;border-radius:10px}'+
  '.cdsupg{align-self:flex-start;margin-top:-10px}.cdline .cdbox.cdsup{width:54px;font-size:14px;padding:5px 6px}.cdsupg .sgnb{min-width:32px;height:32px;font-size:16px;border-radius:8px}.cdin .opt{margin-top:8px}';
  document.head.appendChild(css)})();
@@ -992,11 +1000,4 @@ CGEN.g_sinerule=function(){var A=cR(30,80),B=cR(30,80);if(A+B>150)B=150-A;var a=
  return {p:'In triangle ABC, angle A = '+A+'°, angle B = '+B+'° and side a (opposite A) = '+a+' cm. Find side b (opposite B). (2 decimal places)',b:[cB(b,'b = ','cm','side b',false,0.003)],e:'Sine rule: a/sin A = b/sin B. b = '+a+' × sin '+B+'° ÷ sin '+A+'° = '+cNum(b)+' cm.'}};
 CGEN.g_cosrule=function(){var b=cR(4,12),c=cR(4,12),A=cR(25,130),a=g2(Math.sqrt(b*b+c*c-2*b*c*Math.cos(A*Math.PI/180)));
  if(cR(0,1)===0)return {p:'In triangle ABC, b = '+b+' cm, c = '+c+' cm and the angle between them, A, is '+A+'°. Find side a. (2 decimal places)',b:[cB(a,'a = ','cm','side a',false,0.003)],e:'Cosine rule: a² = b² + c² − 2bc cos A = '+b+'² + '+c+'² − 2 × '+b+' × '+c+' × cos '+A+'°. a = '+cNum(a)+' cm.'};
- var x=cR(5,9),y=cR(5,9),z=cR(Math.abs(x-y)+2,x+y-2),C=g1(Math.acos((x*x+y*y-z*z)/(2*x*y))*180/Math.PI);return {p:'A triangle has sides '+x+' cm, '+y+' cm and '+z+' cm. Find the angle opposite the '+z+' cm side. (1 decimal place)',b:[cB(C,'','°','angle',false,0.003)],e:'cos C = (a² + b² − c²) ÷ 2ab = ('+x+'² + '+y+'² − '+z+'²) ÷ (2 × '+x+' × '+y+') = '+cNum((x*x+y*y-z*z)/(2*x*y))+'. C = cos⁻¹ of that = '+cNum(C)+'°.'}};
-CGEN.g_areasine=function(){var a=cR(4,15),b=cR(4,15),C=cR(25,150),A=g2(0.5*a*b*Math.sin(C*Math.PI/180));
- return {p:'A triangle has sides '+a+' cm and '+b+' cm with an angle of '+C+'° between them. Find its area. (2 decimal places)',b:[cB(A,'','cm²','area',false,0.003)],e:'Area = ½ab sin C = 0.5 × '+a+' × '+b+' × sin '+C+'° = '+cNum(A)+' cm².'}};
-CGEN.g_func=function(){var a=cR(2,5),b=cR(-6,6),c=cR(-5,5),x=cR(-3,4),k=cR(0,2),f=function(t){return a*t+b},g=function(t){return t*t+c};
- var fs='f(x) = '+a+'x'+gTm(b,''),gs='g(x) = x²'+gTm(c,'');
- var X=cNum(x);if(k===0)return {p:fs+' and '+gs+'. Find fg('+X+').',b:[cB(f(g(x)),'fg('+X+') = ','','value')],e:'Do g first (the one nearest the bracket): g('+X+') = '+cBr(x)+'²'+gTm(c,'')+' = '+cNum(g(x))+'. Then f('+cNum(g(x))+') = '+a+' × '+cBr(g(x))+gTm(b,'')+' = '+cNum(f(g(x)))+'.'};
- if(k===1)return {p:fs+' and '+gs+'. Find gf('+X+').',b:[cB(g(f(x)),'gf('+X+') = ','','value')],e:'Do f first: f('+X+') = '+a+' × '+cBr(x)+gTm(b,'')+' = '+cNum(f(x))+'. Then g('+cNum(f(x))+') = '+cBr(f(x))+'²'+gTm(c,'')+' = '+cNum(g(f(x)))+'.'};
- va
+ var x=cR(5,9),y=cR(5,9),z=cR(Math.abs(x-y)+2,x

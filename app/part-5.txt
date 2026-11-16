@@ -1,4 +1,12 @@
-urn the heaters down'],0,`Heaters boil more water into steam, raising the pressure.`),
+ coastal sites like Hinkley Point?`,['Sea water','Primary coolant','Boron','Steam'],0,`Sea water is pumped through the condenser tubes and returned to the sea slightly warmer.`),
+Q(`How many primary loops does each Hinkley Point C reactor have?`,['4','2','1','8'],0,`Four loops, each with a steam generator and a reactor coolant pump.`),
+Q(`The pressuriser is connected to…`,['a hot leg of the primary circuit','the turbine','the condenser','the sea'],0,`It sits on one hot leg and sets the pressure for the whole primary circuit.`),
+O(`Follow the heat from the fuel to the sea.`,['Fuel heats the primary water','Primary water heats secondary water in the steam generators','Steam drives the turbine','The condenser passes leftover heat to sea water'],`Electricity comes from the generator on the turbine shaft.`)]);
+
+F('s2',[
+T(`<h3>Quick recap</h3><ul><li>The pressuriser holds water and steam at saturation</li><li><b>Heaters</b> raise pressure; <b>spray</b> (from a cold leg) lowers it</li><li>Coolant heats up → <b>insurge</b>: level and pressure rise</li><li>Coolant cools → <b>outsurge</b>: level and pressure fall</li></ul>`),
+Q(`The primary coolant heats up and expands. Pressuriser level and pressure…`,['both rise (insurge)','both fall','level rises, pressure falls','don\'t change'],0,`Water surges in and compresses the steam space.`),
+Q(`Pressure is too low. Which action raises it?`,['Turn on the heaters','Open the spray','Open a relief valve','Turn the heaters down'],0,`Heaters boil more water into steam, raising the pressure.`),
 Q(`Where does pressuriser spray water come from?`,['A cold leg','The sea','The condenser','The turbine'],0,`Cooler cold-leg water is sprayed into the steam space to condense steam.`),
 Q(`The pressuriser contains…`,['water and steam at saturation','only water','only nitrogen gas','only steam'],0,`Keeping water and steam together at saturation is what lets temperature control the pressure.`),
 Q(`A key lesson from the relief valve at Three Mile Island was…`,['show the valve\'s real position, and train operators to check other symptoms','never use relief valves','always reduce emergency cooling','turn off alarms'],0,`The light showed the command, not the valve's actual position.`)]);
@@ -931,11 +939,4 @@ T(`<h3>Key points</h3><ul><li>Integration reverses differentiation.</li><li>∫ 
 LH('m2-4-3','Totals in reactors',10,'Total energy after a trip, total decays in a sample: integration at work.',[
 RM(`<ul><li>Energy = area under power-time = ∫ P dt.</li><li>∫ e<sup>kt</sup> dt = e<sup>kt</sup>/k.</li><li>With limits: top minus bottom.</li></ul>`),
 T(`<h3>Energy from a falling power</h3><p>Suppose power falls as <b>P = P₀ e<sup>−t/τ</sup></b> (a negative period). How much energy is released in total, as t goes on for ever?</p>`),
-W('stepCalc',{steps:['E = ∫<sub>0</sub><sup>∞</sup> P₀ e<sup>−t/τ</sup> dt','Here k = −1/τ, so 1/k = −τ. Integrate: P₀ × (−τ) e<sup>−t/τ</sup>','Top limit (t → ∞): e<sup>−∞</sup> = 0, so the term is 0.','Bottom limit (t = 0): P₀ × (−τ) × 1 = −P₀τ','Top minus bottom: 0 − (−P₀τ) = <b>P₀ τ</b>','So the total energy is simply <b>starting power × τ</b>. With P₀ = 100 MW and τ = 4 s: 400 MJ.']},`Integrate a decaying power, one step at a time.`,`The total energy is P₀ × τ: like running at the starting power for one period.`),
-N(`Power falls as P₀ e<sup>−t/τ</sup> with P₀ = 60 MW and τ = 5 s. Total energy released, in MJ?`,300,0.01,'MJ',`P₀ τ = 60 × 5 = 300 MJ.`),
-T(`<h3>Total decays</h3><p>Activity falls as A = A₀ e<sup>−λt</sup>. The total number of decays between t = 0 and t is the area under the activity graph:</p><div class="eq">decays = (A₀/λ)(1 − e<sup>−λt</sup>)</div><p>As t → ∞, this becomes A₀/λ = N₀: every nucleus eventually decays. ✓ That matches A = λN.</p>`),
-Q(`What does the area under an activity–time graph tell you?`,[`The total number of decays`,'The half-life of the sample','The dose rate from the sample','The decay constant of the sample'],0,`Activity is decays per second; times seconds, gives decays.`),
-NE(`Rearrange A = λN for N. If A = 6000 Bq and λ = 0.002 s⁻¹, what is N? Give the number in front of × 10⁶.`,3,0.01,'× 10⁶',`N = A / λ = 6000 / 0.002 = 3 × 10⁶.`),
-T(`<h3>Key points</h3><ul><li>Integrating P₀ e<sup>−t/τ</sup> from 0 to ∞ gives <b>P₀ τ</b>.</li><li>The area under activity-time is the number of decays; in total it's N₀ = A₀/λ.</li><li>Integration turns rates into totals.</li></ul>`)])
-]});
-F('m2-4-1',[T(`<h3>Quick recap</h3><p>Area under power-time = energy. Integration adds up infinitely thin slices.</p>`),N(`A steady 20 MW
+W('stepCalc',{steps:['E = ∫<sub>0</sub><sup>∞</sup> P₀ e<sup>−t/τ</sup> dt','Here k = −1/τ, so 1/k = −τ. Integrate: P₀ × (−τ) e<sup>−t/τ</sup>','Top limit (t → ∞): e<sup>−∞</sup> = 0, so the term is 0.','Bottom limit (t = 0): P₀ × (−τ) × 1 = −P₀τ','Top minus bottom: 0 − (−P₀τ) = <b>P₀ τ</b>','So the total energy is si
