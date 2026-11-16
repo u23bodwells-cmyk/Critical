@@ -6554,7 +6554,38 @@ function* addOutside(scene) { var g = new THREE.Group(); g.position.set(RX, 0, R
 /* reactor trip: the control room washes slowly red for the first 40 s after a trip (only a new trip; the plant starts shut down) */
 function tripAlarmTick() { var p = (typeof S !== 'undefined' && S) ? S.p : null; if (!p || typeof scene === 'undefined' || !scene) { EXT.tripK = 0; return; } if (!EXT.tripL) { var L = new THREE.PointLight(0xff2010, 0, 0, 1.4); L.position.set(0, CH - 0.7, RZC); scene.add(L); EXT.tripL = L; }
   var age = p.tripped && p.trips > 0 ? p.t - p.tripT : 1e9, k = age < 40 ? (1 - age / 40) * (0.55 + 0.45 * Math.sin(age * 5.2)) : 0; EXT.tripL.intensity += (k * 38 - EXT.tripL.intensity) * 0.25; EXT.tripK = Math.max(0, k); }
-EXT.tick = function (dt) { if (!EXT.on) return; EXT.t += dt; roomDustTick(dt, EXT.t); tripAlarmTick(); if (EXT.wind) EXT.wind.value = EXT.t;
+/* plant-state effects in the yard, all from one shared pool of soft puffs: steam from a roof vent stack while a relief valve is lifted (SG PORV, main steam safety valve, pressuriser PORV or safety),
+   a burst from the turbine hall roof vents when the turbine trips, and exhaust from the diesel building while an emergency diesel runs. Idle cost: a few comparisons per frame. */
+function plantFxTick(dt) {
+  var p = (typeof S !== 'undefined' && S) ? S.p : null, g = EXT.g; if (!p || !p.x || !p.x.tb || !g || !(dt > 0)) return; dt = Math.min(dt, 0.1);
+  var F = EXT.fx, i, q, x = p.x, tb = x.tb, el = x.el, pz = x.pz;
+  if (!F) {
+    var N = ((typeof PERF !== 'undefined' && PERF.lite) || LOWMEM) ? 26 : 52; F = EXT.fx = { pool: [], N: N, acc: [0, 0, 0], latch: null, burst: 0, burstK: 0, vk: 0, runT: [0, 0], VX: -34, VY: 30.3, VZ: 34 };
+    for (i = 0; i < N; i++) { var sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: EXT.puffT, color: 0xf4f7fa, transparent: true, opacity: 0, depthWrite: false, fog: false })); sp.visible = false; sp.frustumCulled = false; sp.renderOrder = 19; sp.userData.noColl = true; sp.userData.noCull = true; g.add(sp); F.pool.push({ s: sp, life: 0, age: 0, v: new THREE.Vector3(), s0: 1, s1: 4, a: 0.3, wx: 1, up: 0 }); }
+    /* the vent stack: a steel standpipe with a silencer drum on the turbine hall roof, where the relief valves discharge */
+    var stM = new THREE.MeshStandardMaterial({ color: 0x8d969c, roughness: 0.45, metalness: 0.6 }), dkM = new THREE.MeshStandardMaterial({ color: 0x3a4248, roughness: 0.6, metalness: 0.5 }), sk = new THREE.Group();
+    [[new THREE.CylinderGeometry(0.32, 0.32, 5.2, 14), stM, 2.6], [new THREE.CylinderGeometry(0.85, 0.85, 2.6, 18), stM, 5.9], [new THREE.CylinderGeometry(0.4, 0.85, 0.7, 18), stM, 7.55], [new THREE.CylinderGeometry(0.55, 0.55, 0.16, 14), dkM, 0.1], [new THREE.CylinderGeometry(0.9, 0.9, 0.12, 18), dkM, 4.6]].forEach(function (m) { var o = new THREE.Mesh(m[0], m[1]); o.position.y = m[2]; o.userData.noColl = true; sk.add(o); });
+    sk.position.set(F.VX, 23.0, F.VZ); sk.userData.noColl = true; g.add(sk);
+  }
+  var WV = WXV(), wnd = WV ? 0.8 + WV.wind * 0.9 : 2.4, cold = WV ? clamp((14 - WV.T) / 18, 0, 1) : 0.3, lit = EXT.plumeLit ? clamp(EXT.plumeLit.value / 0.85, 0, 1) : 0, dk = 1 - 0.62 * lit, pool = F.pool, N = F.N, u;
+  /* ageing puffs */
+  for (i = 0; i < N; i++) { q = pool[i]; if (!q.life) continue; q.age += dt; u = q.age / q.life; if (u >= 1) { q.life = 0; q.s.visible = false; continue; } q.v.x += (q.wx - q.v.x) * Math.min(1, dt * 0.7); q.v.y += (q.up - q.v.y) * Math.min(1, dt * 0.5); q.v.z *= Math.exp(-dt * 0.5); q.s.position.addScaledVector(q.v, dt); var sz = q.s0 + (q.s1 - q.s0) * (1 - Math.pow(1 - u, 2.0)); q.s.scale.set(sz, sz, 1); q.s.material.opacity = q.a * Math.min(1, u * 6) * Math.pow(1 - u, 1.3); }
+  var free = 0; for (i = 0; i < N; i++) if (!pool[i].life) free++;
+  var put = function (px, py, pz2, vx, vy, vz, life, s0, s1, a, c, up) { if (free <= 0) return; for (var k = 0; k < N; k++) if (!pool[k].life) { var o = pool[k]; free--; o.s.position.set(px, py, pz2); o.v.set(vx, vy, vz); o.life = life; o.age = 0; o.s0 = s0; o.s1 = s1; o.a = a; o.wx = wnd; o.up = up; o.s.material.color.setRGB(c * dk, c * dk, c * dk * 1.02); o.s.material.rotation = Math.random() * 6.28; o.s.visible = true; o.s.scale.set(s0, s0, 1); o.s.material.opacity = 0; return; } };
+  var R = Math.random;
+  /* 1. relief valve lifted: steam up the vent stack */
+  var Ps = +p.Ps || 0, sgL = x.sg && x.sg.some(function (s) { return s.porv; }), pzL = !!(pz && ((pz.porv && (pz.porv[0] || pz.porv[1])) || pz.safety));
+  var vk = Math.max(Ps > 84 ? 0.6 + clamp((Ps - 84) / 8, 0, 0.4) : 0, sgL ? 0.4 + 0.4 * clamp((Ps - 10) / 70, 0, 1) : 0, pzL ? 0.45 : 0); F.vk += (vk - F.vk) * Math.min(1, dt * 2.5);
+  if (F.vk > 0.04) { F.acc[0] += dt * 11 * F.vk; while (F.acc[0] >= 1) { F.acc[0] -= 1; put(F.VX + (R() - 0.5) * 0.3, F.VY, F.VZ + (R() - 0.5) * 0.3, wnd * 0.3 + (R() - 0.5) * 1.2, 6 + 5 * F.vk + R() * 2, (R() - 0.5) * 1.5, 2.8 + R() * 1.4, 1.2, 6 + 5 * F.vk + R() * 3, (0.34 + 0.22 * F.vk) * (0.8 + 0.3 * cold), 0.97, 2.2); } } else F.acc[0] = 0;
+  /* 2. turbine trip: a big release from the turbine hall roof vents, fading over ~9 s */
+  if (F.latch === true && !tb.latched) { F.burst = 9; F.burstK = clamp(0.45 + (+tb.mw || 0) / 700, 0.45, 1); } F.latch = !!tb.latched;
+  if (F.burst > 0) { F.burst -= dt; var bk = F.burstK * clamp(F.burst / 9, 0, 1); F.acc[1] += dt * 9 * bk; while (F.acc[1] >= 1) { F.acc[1] -= 1; var vx0 = -52 + ((R() * 6) | 0) * 12; put(vx0 + (R() - 0.5) * 2, 24.4, 48.5 + (R() - 0.5) * 2, wnd * 0.4 + (R() - 0.5) * 2, 4.5 + R() * 4, (R() - 0.5) * 3, 3 + R() * 1.6, 2, 8 + R() * 5, 0.4 * (0.7 + 0.3 * bk) * (0.8 + 0.3 * cold), 0.95, 1.6); } } else { F.burst = 0; F.acc[1] = 0; }
+  /* 3. emergency diesel running: exhaust from the roof silencer (black and heavy for the first seconds, then a thin grey haze) */
+  if (el && el.edg) for (var d = 0; d < 2; d++) { var G2 = el.edg[d]; if (!G2 || !G2.run) { F.runT[d] = 0; continue; } var t0 = F.runT[d]; F.runT[d] += dt; var cxk = d ? 47 : 37, st = t0 < 12;
+    if (t0 === 0) for (i = 0; i < 4; i++) put(cxk + (R() - 0.5) * 0.4, 12.5, -21.6 + (R() - 0.5) * 0.4, wnd * 0.3 + (R() - 0.5), 3.5 + R() * 2, (R() - 0.5), 2.6 + R(), 0.6, 4 + R() * 2, 0.5, 0.22, 1.2);
+    if (free > 6) { F.acc[2] += dt * (st ? 4.5 : 2.2 + 2.5 * clamp((+G2.kw || 0) / 8000, 0, 1)); while (F.acc[2] >= 1) { F.acc[2] -= 1; put(cxk + (R() - 0.5) * 0.3, 12.5, -21.6 + (R() - 0.5) * 0.3, wnd * 0.3 + (R() - 0.5) * 0.8, 2.6 + R() * 1.4, (R() - 0.5) * 0.8, 2.2 + R() * 1.0, st ? 0.6 : 0.4, st ? 4.5 : 3, st ? 0.45 : 0.17, st ? 0.26 : 0.55, 1.0); } } }
+}
+EXT.tick = function (dt) { if (!EXT.on) return; EXT.t += dt; roomDustTick(dt, EXT.t); tripAlarmTick(); try { plantFxTick(dt); } catch (e) {} if (EXT.wind) EXT.wind.value = EXT.t;
   /* day and night from the real sun over the station: it rises in the east (+x, through the windows), crosses the south (−z) and sets in the west */
   var SN = sunNow(), el = SN.el, ce = Math.sqrt(Math.max(0, 1 - el * el)), day = clamp(el * 3 + 0.15, 0, 1) * (1 - 0.3 * (WXL.d ? WXL.d.cl : 0)), dusk = clamp(1 - Math.abs(el) * 5, 0, 1) * (el > -0.25 ? 1 : 0), cloudK = 1 - 0.7 * (WXL.d ? WXL.d.cl : 0);
   var sd = new THREE.Vector3(Math.sin(SN.az) * ce, Math.max(el, -0.3) * 0.8 + 0.02, Math.cos(SN.az) * ce).normalize(), sunUp = el > -0.05, LK = PERF.lite ? 0.8 : 1, vis = clamp((el + 0.05) * 7, 0, 1), mk = clamp((-el - 0.05) * 6, 0, 1);
