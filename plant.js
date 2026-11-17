@@ -1473,7 +1473,7 @@ function outerWorld(hi) { var G = EXT.g, TH = EXT.terrainH; if (!TH) return; var
   /* the river: down from the north-east mountains through a gorge it has cut, across the valley floor into the lake, and out of the lake's south
      end along the valley. The terrain is carved first (a channel with sloping banks, deeper where the ground is higher), then a water surface is laid
      at a level that only ever falls toward the lake, so it never runs uphill. Open, flowing water in the middle, ice shelves along the banks. */
-  var paths = [{ pts: [[150, -20], [166, -68], [151, -118], [176, -168], [214, -216], [258, -282], [296, -360], [322, -440]], climb: 0.3, dir: -1 },
+  var paths = [{ pts: [[150, -6], [154, -30], [166, -68], [151, -118], [176, -168], [214, -216], [258, -282], [296, -360], [322, -440]], climb: 0.3, dir: -1 },
 ];
   /* every big ground mesh (the terrain and anything draped over it), in this group's coordinates */
   var grounds = []; G.children.forEach(function (o) { if (!o.isMesh || o.isInstancedMesh || !o.geometry || !o.geometry.attributes.position) return; var gp = o.geometry.attributes.position; if (gp.count < 2000) return; if (!o.geometry.boundingBox) o.geometry.computeBoundingBox(); var b = o.geometry.boundingBox.clone().applyMatrix4(o.matrix); if (b.max.x - b.min.x > 300 && b.max.z - b.min.z > 300) grounds.push(o); });
@@ -1529,7 +1529,7 @@ function outerWorld(hi) { var G = EXT.g, TH = EXT.terrainH; if (!TH) return; var
     '  float eg = 0.70 + 0.12 * n(vec2(vS * 0.07, 1.0)) + 0.06 * n(vec2(vS * 0.4, 5.0)); float ice = smoothstep(eg, eg + 0.03, x) * (1.0 - clamp(vSl * 12.0, 0.0, 1.0));' +
     '  vec3 shelf = mix(vec3(0.30, 0.38, 0.44), vec3(0.62, 0.70, 0.76), n(vw.xz * 1.4)) * (sky * 0.7 + sunC * sunK * 0.5); float sn = smoothstep(eg + 0.08, eg + 0.2, x + 0.08 * n(vw.xz * 0.9)); vec3 snw = vec3(0.86, 0.9, 0.95) * (sky * 0.8 + sunC * sunK * 0.65);' +
     '  shelf = mix(shelf, snw, sn); shelf += vec3(0.9) * pow(max(dot(vec3(0.0, 1.0, 0.0), Hh), 0.0), 200.0) * sunK * (1.0 - sn); c = mix(c, shelf, ice);' +
-    '  float a = (1.0 - smoothstep(0.82, 1.0, x + (n(vec2(vS * 0.3, 2.0)) - 0.5) * 0.08)) * smoothstep(0.0, 0.02, vu.y) * (1.0 - smoothstep(0.98, 1.0, vu.y)); gl_FragColor = vec4(c, a * (1.0 - smoothstep(-0.1, 0.05, vG)));\n#include <fog_fragment>\n }';
+    '  float a = (1.0 - smoothstep(0.82, 1.0, x + (n(vec2(vS * 0.3, 2.0)) - 0.5) * 0.08)) * smoothstep(0.0, 0.02, vu.y) * (1.0 - smoothstep(0.98, 1.0, vu.y)); gl_FragColor = vec4(c, a * (1.0 - smoothstep(-0.1, 0.05, vG)) * (dir < 0.0 ? smoothstep(3.0, 30.0, vS) : 1.0)); /* the river fades in over its first 30 m inside the pond, so there is no seam where one meets the other */\n#include <fog_fragment>\n }';
   var wm = new THREE.ShaderMaterial({ transparent: true, depthWrite: false, fog: true, uniforms: THREE.UniformsUtils.merge([THREE.UniformsLib.fog, { t: { value: 0 }, day: { value: 1 }, dir: { value: 1 }, hasR: { value: 0 }, sunK: { value: 1 }, sky: { value: new THREE.Color(0.5, 0.6, 0.7) }, sunD: { value: new THREE.Vector3(0, 1, 0) }, sunC: { value: new THREE.Color(1, 0.95, 0.88) }, refl: { value: null }, tm: { value: new THREE.Matrix4() } }]),
     vertexShader: '#include <fog_pars_vertex>\n attribute float aS, aD, aSl, aW, aG; uniform mat4 tm; varying vec2 vu; varying float vS, vD, vSl, vW, vG; varying vec3 vw; varying vec4 vR; void main(){ vu = uv; vS = aS; vD = aD; vSl = aSl; vW = aW; vG = aG; vec4 w = modelMatrix * vec4(position, 1.0); vw = w.xyz; vR = tm * w; vec4 mvPosition = viewMatrix * w; gl_Position = projectionMatrix * mvPosition;\n#include <fog_vertex>\n }',
     fragmentShader: WFS });
@@ -8648,7 +8648,10 @@ var LEQ = { pool: { P1: [], P2: [], S1: [], S2: [] }, lights: null,
   tick: function () { var sc = R3.scene, c = { P1: 0, P2: 0, S1: 0, S2: 0 };
     if (!LEQ.lights) { LEQ.lights = []; sc.traverse(function (o) { if ((o.isPointLight || o.isSpotLight) && !o.userData._leq) LEQ.lights.push(o); }); }
     LEQ.lights.forEach(function (l) { var q = l; for (; q.parent; q = q.parent) if (!q.visible) return; if (q !== sc || !l.visible) return; var t = l.isSpotLight ? 'S' : 'P'; if (l.layers.mask & 1) c[t + '1']++; if (l.layers.mask & 2) c[t + '2']++; });
-    ['P', 'S'].forEach(function (t) { var d = c[t + '1'] - c[t + '2']; LEQ.want(t + '2', Math.max(0, d)); LEQ.want(t + '1', Math.max(0, -d)); }); },
+    /* and keep each count fixed at the most it can ever be: when zone or culling hides a building with lights inside, or a lamp is switched off, the visible count would drop
+       and every shader in the scene would recompile (a stall of seconds, every time you walked past a threshold). Stand-ins fill the gap; the shader skips them. */
+    if (!LEQ.max) { var T = { P1: 0, P2: 0, S1: 0, S2: 0 }; LEQ.lights.forEach(function (l) { if (!l.visible) return; /* switched off for good (Lite) */ var t = l.isSpotLight ? 'S' : 'P'; if (l.layers.mask & 1) T[t + '1']++; if (l.layers.mask & 2) T[t + '2']++; }); LEQ.max = { P: Math.max(T.P1, T.P2), S: Math.max(T.S1, T.S2) }; }
+    ['P', 'S'].forEach(function (t) { var M = Math.max(LEQ.max[t], c[t + '1'], c[t + '2']); LEQ.max[t] = M; LEQ.want(t + '1', M - c[t + '1']); LEQ.want(t + '2', M - c[t + '2']); }); },
   want: function (k, n) { var P = LEQ.pool[k]; while (P.length < n) { var l = k[0] === 'S' ? new THREE.SpotLight(0x000000, 0) : new THREE.PointLight(0x000000, 0, 1, 2); l.layers.set(+k[1] - 1); l.userData._leq = 1; l.userData.noColl = true; l.position.set(0, -900, 0); R3.scene.add(l); P.push(l); }
     for (var i = 0; i < P.length; i++) P[i].visible = i < n; }
 };
@@ -8940,7 +8943,7 @@ var ZONE = { list: [], v: null,
       take(EXT.g, list); }
     if (HALL.tb && HALL.tb.g) { HALL.tb.g.userData._zone = 1; ZONE.list.push({ g: HALL.tb.g, vis: zt.vis, name: 'turbine hall building', n: HALL.tb.g.children.length }); }
     ZONE.stat = ZONE.list.map(function (Z) { return Z.name + ' ' + Z.n; }).join(', '); },
-  tick: function () { if (!ZONE.list.length) return; var c = { x: CAM.x, y: CAM.y, z: CAM.z }; for (var i = 0; i < ZONE.list.length; i++) { var Z = ZONE.list[i], v = !!Z.vis(c); if (Z.g.visible !== v) Z.g.visible = v; } }
+  tick: function () { if (!ZONE.list.length) return; var cp0 = (typeof CUT !== 'undefined' && CUT.on && R3 && R3.cam) ? R3.cam.position : CAM, c = { x: cp0.x, y: cp0.y, z: cp0.z }; for (var i = 0; i < ZONE.list.length; i++) { var Z = ZONE.list[i], v = !!Z.vis(c); if (Z.g.visible !== v) Z.g.visible = v; } }
 };
 /* MATD: outdoor parts were often given their own copy of an identical material, which stops them batching. Identical opaque standard materials
    on outdoor meshes are made to share one copy. The original material is kept on the mesh; twice a second the originals (and the shared copies)
@@ -9022,7 +9025,7 @@ var BATCH = { HIDE: 1 << 31, CELL: 12, CELL_OUT: 40, src: [], list: [], out: 0, 
   tick: function () {
     if (!BATCH.on) return; var g = S.cfg.gfx, k = g === 'lite' ? 0.5 : g === 'low' ? 0.66 : 1, v = BATCH.v || (BATCH.v = new THREE.Vector3()), L = BATCH.list;
     for (var j = 0; j < L.length; j++) { var b = L[j], c = b.cull; if (!c || b.live <= 0) continue; var lim = c.lim[k]; if (lim == null) { lim = 0; for (var n = 0; n < c.d.length; n++) lim = Math.max(lim, c.d[n] + (c.L[n][0] + c.L[n][1]) * k); c.lim[k] = lim; }
-      v.copy(c.c).applyMatrix4(b.mesh.matrixWorld); var dx = v.x - CAM.x, dy = v.y - CAM.y, dz = v.z - CAM.z; b.mesh.visible = dx * dx + dy * dy + dz * dz <= lim * lim; }
+      v.copy(c.c).applyMatrix4(b.mesh.matrixWorld); var cpB = (typeof CUT !== 'undefined' && CUT.on && R3 && R3.cam) ? R3.cam.position : CAM, dx = v.x - cpB.x, dy = v.y - cpB.y, dz = v.z - cpB.z; b.mesh.visible = dx * dx + dy * dy + dz * dz <= lim * lim; }
   }
 };
 /* ================================================================ Play: the front door ================================================================
@@ -10021,7 +10024,7 @@ function init(prog, done) {
   add('Building the plant buildings', function () {
   try { OPS.build(scene); } catch (e) { try { console.error(e); } catch (x) {} } try { ZONE.build(scene); } catch (e) { try { console.error(e); } catch (x) {} } try { BATCH.build(scene); FMU.seed(scene); scene.matrixWorldAutoUpdate = false; } catch (e) { try { console.error(e); } catch (x) {} scene.matrixWorldAutoUpdate = true; }
   });
-  add('Preparing the shaders', function () { /* build every shader now, outdoors and indoors, instead of the first time each thing comes into view (each one stalled the game) */
+  add('Preparing the shaders', function () { try { LEQ.tick(); } catch (e) {} /* light counts fixed first (see LEQ), so the shaders built now are the ones the game uses */ /* build every shader now, outdoors and indoors, instead of the first time each thing comes into view (each one stalled the game) */
   try { var cm = R3.cam, lm = cm.layers.mask, tmo = ren.toneMapping; if (POST.on) { ren.setRenderTarget(POST.main); ren.toneMapping = THREE.NoToneMapping; } /* same target and tone mapping as the real frame, so the cached shaders match */ cm.layers.set(1); ren.compile(scene, cm); cm.layers.set(0); ren.compile(scene, cm); cm.layers.mask = lm; ren.toneMapping = tmo; ren.setRenderTarget(null); } catch (e) { try { ren.setRenderTarget(null); console.warn(e); } catch (x) {} }
   });
   add('Packing the textures', function () {
