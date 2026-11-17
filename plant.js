@@ -1463,7 +1463,7 @@ PH2.cloudTick = function (dt) { var V = EXT.cloudV; if (!V) return; var u = V.u,
   u.t.value += dt * (1 + (W ? W.wind : 3) * 0.3); u.day.value = day; u.dusk.value = U0.dusk.value; u.cov.value = clamp(0.22 + 0.62 * cl + (W && W.I > 0 ? 0.15 : 0), 0, 0.97); u.sunD.value.copy(EXT.sunDirU ? EXT.sunDirU.value : U0.sd.value);
   var sk = EXT.sunKU ? EXT.sunKU.value : day; u.sunC.value.setRGB(1, 0.9 - 0.35 * U0.dusk.value, 0.8 - 0.5 * U0.dusk.value).multiplyScalar(0.25 + 1.1 * sk); u.zen.value.setRGB(0.03 + 0.55 * day, 0.04 + 0.6 * day, 0.07 + 0.68 * day); V.m.visible = !PERF.lite && u.cov.value > 0.05; };
 /* ---- the outer world: river and distant forest ---- */
-function outerWorld() { var G = EXT.g, TH = EXT.terrainH; if (!TH) return; var R = photoRnd(5);
+function outerWorld(hi) { var G = EXT.g, TH = EXT.terrainH; if (!TH) return; var R = photoRnd(5);
   /* the river: down from the north-east mountains through a gorge it has cut, across the valley floor into the lake, and out of the lake's south
      end along the valley. The terrain is carved first (a channel with sloping banks, deeper where the ground is higher), then a water surface is laid
      at a level that only ever falls toward the lake, so it never runs uphill. Open, flowing water in the middle, ice shelves along the banks. */
@@ -1488,21 +1488,77 @@ function outerWorld() { var G = EXT.g, TH = EXT.terrainH; if (!TH) return; var R
     for (var i = 0; i < gp.count; i++) { v3.fromBufferAttribute(gp, i).applyMatrix4(o.matrix); if (v3.x < bx0 - 60 || v3.x > bx1 + 60 || v3.z < bz0 - 60 || v3.z > bz1 + 60) continue; var n = nearest(v3.x, v3.z); if (!n || n[1] > n[0].hw + 60) continue;
       var q = n[0], d = n[1], tgt = d < q.hw ? q.wl - 1.1 * (1 - (d / q.hw) * (d / q.hw)) - 0.15 : q.wl + 0.25 + (d - q.hw) * 0.55; if (v3.y > tgt) { v3.y = tgt; v3.applyMatrix4(inv); gp.setXYZ(i, v3.x, v3.y, v3.z); ch = true; } }
     if (ch) { gp.needsUpdate = true; o.geometry.computeVertexNormals(); o.geometry.computeBoundingSphere(); o.geometry.computeBoundingBox(); } });
-  /* the water: one flat-across ribbon per stretch at the water level, wide enough to meet the banks */
-  var wm = new THREE.ShaderMaterial({ transparent: true, depthWrite: false, fog: true, uniforms: THREE.UniformsUtils.merge([THREE.UniformsLib.fog, { t: { value: 0 }, day: { value: 1 }, dir: { value: 1 }, sky: { value: new THREE.Color(0.5, 0.6, 0.7) } }]),
-    vertexShader: '#include <fog_pars_vertex>\n attribute float aS; varying vec2 vu; varying float vS; varying vec3 vw; void main(){ vu = uv; vS = aS; vec4 w = modelMatrix * vec4(position, 1.0); vw = w.xyz; vec4 mvPosition = viewMatrix * w; gl_Position = projectionMatrix * mvPosition;\n#include <fog_vertex>\n }',
-    fragmentShader: '#include <fog_pars_fragment>\n uniform float t, day, dir; uniform vec3 sky; varying vec2 vu; varying float vS; varying vec3 vw; float h(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); } float n(vec2 p){ vec2 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0 * f); return mix(mix(h(i), h(i + vec2(1, 0)), f.x), mix(h(i + vec2(0, 1)), h(i + vec2(1, 1)), f.x), f.y); }' +
-      ' void main(){ float x = abs(vu.x - 0.5) * 2.0; float sp = 1.0 - 0.6 * x * x; vec2 fl = vec2(vu.x * 7.0, vS * 0.12 + dir * t * 1.1 * sp); float st = n(fl) * 0.55 + n(fl * vec2(2.0, 3.3) + 2.0) * 0.3 + n(fl * 7.0 + 5.0) * 0.15;' +
-      ' float ice = smoothstep(0.62 + 0.22 * n(vec2(vS * 0.05, 1.0)), 0.78 + 0.2 * n(vec2(vS * 0.05, 4.0)), x);' +
-      ' vec3 V = normalize(cameraPosition - vw); float fr = pow(1.0 - max(V.y, 0.0), 4.0); vec3 water = mix(vec3(0.008, 0.024, 0.032), sky * vec3(0.6, 0.72, 0.8), 0.06 + 0.42 * fr); water += vec3(0.75, 0.84, 0.92) * smoothstep(0.6, 0.88, st) * (0.05 + 0.2 * day); water *= 0.7 + 0.6 * st;' +
-      ' vec3 iceC = mix(vec3(0.52, 0.64, 0.73), vec3(0.88, 0.92, 0.96), smoothstep(0.86, 1.0, x) + 0.35 * n(vw.xz * 0.6)) * (0.22 + 0.78 * day); vec3 c = mix(water, iceC, ice);' +
-      ' float a = (1.0 - smoothstep(0.94, 1.0, x)) * smoothstep(0.0, 0.03, vu.y) * (1.0 - smoothstep(0.96, 1.0, vu.y)); gl_FragColor = vec4(c, a);\n#include <fog_fragment>\n }' });
-  EXT.riverM = wm; EXT.riverMs = [];
-  paths.forEach(function (P) { var L = P.L, Wd = 6, pos = [], uv = [], sa = [], idx = [], m2 = wm.clone(); m2.uniforms.t = wm.uniforms.t; m2.uniforms.day = wm.uniforms.day; m2.uniforms.sky = wm.uniforms.sky; m2.uniforms.dir.value = P.dir; EXT.riverMs.push(m2);
-    L.forEach(function (q, i) { var w = q.hw + 2.2; for (var j = 0; j <= Wd; j++) { var s = j / Wd - 0.5; pos.push(q.x + q.nx * s * w * 2, q.wl, q.z + q.nz * s * w * 2); uv.push(j / Wd, i / (L.length - 1)); sa.push(q.s); } });
+  /* the water, built to read as a photograph:
+     - real reflections (High): the outdoor scene is rendered once a frame from a mirror camera below the valley-floor water level, at half resolution,
+       and the river samples it through its rippled surface; elsewhere it reflects a sky gradient;
+     - Fresnel: you see into the water looking down, and mostly sky and banks at a grazing angle;
+     - depth: a stony bed shows through in the shallows, light is absorbed red first so deeper water turns dark teal-green, with dappled caustics;
+     - flow: three octaves of ripples stretched along the current, fastest mid-stream, rougher and white with foam in the steep rapids of the gorge;
+     - a sharp sun (or moon) glint, foam lines where it meets the banks, thin grey shelf ice and snow-covered ice at the edges. */
+  var WFS = '#include <fog_pars_fragment>\n uniform float t, day, dir, hasR, sunK; uniform vec3 sky, sunD, sunC; uniform sampler2D refl; varying vec2 vu; varying float vS, vD, vSl, vW; varying vec3 vw; varying vec4 vR;' +
+    ' float h(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); } float n(vec2 p){ vec2 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0 * f); return mix(mix(h(i), h(i + vec2(1, 0)), f.x), mix(h(i + vec2(0, 1)), h(i + vec2(1, 1)), f.x), f.y); }' +
+    ' float wv(vec2 p){ return n(p) * 0.5 + n(p * 2.13 + 7.1) * 0.3 + n(p * 4.7 + 1.3) * 0.2; }' +
+    ' vec2 grad(vec2 p){ float e = 0.06; return vec2(wv(p + vec2(e, 0.0)) - wv(p - vec2(e, 0.0)), wv(p + vec2(0.0, e)) - wv(p - vec2(0.0, e))) / (2.0 * e); }' +
+    ' void main(){ float x = abs(vu.x - 0.5) * 2.0; float across = (vu.x - 0.5) * vW; float spd = (0.35 + 0.65 * (1.0 - x * x)) * (1.0 + vSl * 6.0);' +
+    '  vec2 q1 = vec2(across * 0.55, vS * 0.18 - dir * t * 0.9 * spd), q2 = vec2(across * 1.3 + 3.0, vS * 0.5 - dir * t * 1.6 * spd), q3 = vec2(across * 3.1, vS * 1.4 - dir * t * 2.6 * spd);' +
+    '  vec2 g = grad(q1) * 0.55 + grad(q2) * 0.3 + grad(q3) * 0.15; float rough = 0.06 + vSl * 2.2 + 0.03 * (1.0 - x); vec3 N = normalize(vec3(-g.x * rough, 1.0, -g.y * rough));' +
+    '  vec3 V = normalize(cameraPosition - vw); float cosT = max(dot(N, V), 0.0); float F = 0.02 + 0.98 * pow(1.0 - cosT, 5.0);' +
+    /* reflection: the mirror render where it lines up (the valley floor), otherwise a sky gradient */
+    '  vec3 Rd = reflect(-V, N); vec3 skyR = mix(sky * vec3(0.55, 0.62, 0.7), sky * vec3(0.9, 0.96, 1.05), smoothstep(0.0, 0.5, Rd.y)); vec3 rc = skyR;' +
+    '  if (hasR > 0.5) { vec4 rr = vR; rr.xy += N.xz * 0.9 * rr.w * 0.06; vec3 mr = texture2DProj(refl, rr).rgb; float ok = 1.0 - smoothstep(0.6, 2.0, abs(vw.y - (-0.34))); rc = mix(skyR, mr, ok); }' +
+    /* refraction: a stony bed seen through the water, absorbed with depth */
+    '  float dep = max(vD, 0.02) / max(cosT, 0.25); vec2 bp = vw.xz + N.xz * 0.35 * vD; float st = n(bp * 2.2), st2 = n(bp * 7.0 + 3.0); vec3 bed = mix(vec3(0.16, 0.14, 0.11), vec3(0.42, 0.40, 0.36), smoothstep(0.35, 0.75, st)) * (0.7 + 0.5 * st2);' +
+    '  float cau = pow(max(0.0, 1.0 - abs(n(bp * 1.6 + vec2(t * 0.25, -t * 0.18)) - n(bp * 1.6 - vec2(t * 0.2, t * 0.22))) * 3.0), 6.0); vec3 lightIn = sky * 0.75 + sunC * sunK * 0.6; bed = bed * lightIn * (1.0 + cau * 1.4 * sunK);' +
+    '  vec3 Tr = exp(-dep * vec3(1.6, 0.55, 0.42)); vec3 deepC = vec3(0.012, 0.045, 0.05) * (0.15 + lightIn); vec3 under = bed * Tr + deepC * (1.0 - Tr);' +
+    '  vec3 c = mix(under, rc, F);' +
+    /* sun or moon glint */
+    '  vec3 Hh = normalize(sunD + V); c += sunC * pow(max(dot(N, Hh), 0.0), 380.0) * 6.0 * sunK + sunC * pow(max(dot(N, Hh), 0.0), 60.0) * 0.12 * sunK;' +
+    /* foam: in the rapids and along the banks */
+    '  float fz = wv(vec2(across * 0.9, vS * 0.35 - dir * t * 1.8 * spd)); float foam = smoothstep(0.55, 0.85, fz + vSl * 3.0 - 0.25) * clamp(vSl * 9.0, 0.0, 1.0) + smoothstep(0.62, 0.8, x + (fz - 0.5) * 0.25) * smoothstep(0.55, 0.75, n(vec2(across * 2.0, vS * 0.8 - dir * t * 0.6)));' +
+    '  c = mix(c, (sky * 0.8 + sunC * sunK * 0.7 + 0.04) * 0.95, clamp(foam, 0.0, 0.85));' +
+    /* edge ice: grey translucent shelf ice, then snow-covered ice; ragged edge */
+    '  float eg = 0.70 + 0.12 * n(vec2(vS * 0.07, 1.0)) + 0.06 * n(vec2(vS * 0.4, 5.0)); float ice = smoothstep(eg, eg + 0.03, x) * (1.0 - clamp(vSl * 12.0, 0.0, 1.0));' +
+    '  vec3 shelf = mix(vec3(0.30, 0.38, 0.44), vec3(0.62, 0.70, 0.76), n(vw.xz * 1.4)) * (sky * 0.7 + sunC * sunK * 0.5); float sn = smoothstep(eg + 0.08, eg + 0.2, x + 0.08 * n(vw.xz * 0.9)); vec3 snw = vec3(0.86, 0.9, 0.95) * (sky * 0.8 + sunC * sunK * 0.65);' +
+    '  shelf = mix(shelf, snw, sn); shelf += vec3(0.9) * pow(max(dot(vec3(0.0, 1.0, 0.0), Hh), 0.0), 200.0) * sunK * (1.0 - sn); c = mix(c, shelf, ice);' +
+    '  float a = (1.0 - smoothstep(0.95, 1.0, x)) * smoothstep(0.0, 0.02, vu.y) * (1.0 - smoothstep(0.98, 1.0, vu.y)); gl_FragColor = vec4(c, a);\n#include <fog_fragment>\n }';
+  var wm = new THREE.ShaderMaterial({ transparent: true, depthWrite: false, fog: true, uniforms: THREE.UniformsUtils.merge([THREE.UniformsLib.fog, { t: { value: 0 }, day: { value: 1 }, dir: { value: 1 }, hasR: { value: 0 }, sunK: { value: 1 }, sky: { value: new THREE.Color(0.5, 0.6, 0.7) }, sunD: { value: new THREE.Vector3(0, 1, 0) }, sunC: { value: new THREE.Color(1, 0.95, 0.88) }, refl: { value: null }, tm: { value: new THREE.Matrix4() } }]),
+    vertexShader: '#include <fog_pars_vertex>\n attribute float aS, aD, aSl, aW; uniform mat4 tm; varying vec2 vu; varying float vS, vD, vSl, vW; varying vec3 vw; varying vec4 vR; void main(){ vu = uv; vS = aS; vD = aD; vSl = aSl; vW = aW; vec4 w = modelMatrix * vec4(position, 1.0); vw = w.xyz; vR = tm * w; vec4 mvPosition = viewMatrix * w; gl_Position = projectionMatrix * mvPosition;\n#include <fog_vertex>\n }',
+    fragmentShader: WFS });
+  EXT.riverM = wm; EXT.riverMs = []; var riverMeshes = [];
+  paths.forEach(function (P) { var L = P.L, Wd = 10, pos = [], uv = [], sa = [], da = [], sl = [], wa = [], idx = [], m2 = wm.clone(); ['t', 'day', 'sky', 'hasR', 'sunK', 'sunD', 'sunC', 'refl', 'tm'].forEach(function (k) { m2.uniforms[k] = wm.uniforms[k]; }); m2.uniforms.dir.value = P.dir; EXT.riverMs.push(m2);
+    L.forEach(function (q, i) { var w = q.hw + 2.2, a0 = L[Math.max(0, i - 2)], a1 = L[Math.min(L.length - 1, i + 2)], slope = Math.abs(a1.wl - a0.wl) / Math.max(1, a1.s - a0.s);
+      for (var j = 0; j <= Wd; j++) { var s = j / Wd - 0.5, dd = Math.abs(s) * 2 * w, bedY = dd < q.hw ? q.wl - 1.1 * (1 - (dd / q.hw) * (dd / q.hw)) - 0.15 : q.wl + 0.25 + (dd - q.hw) * 0.55; pos.push(q.x + q.nx * s * w * 2, q.wl, q.z + q.nz * s * w * 2); uv.push(j / Wd, i / (L.length - 1)); sa.push(q.s); da.push(Math.max(0, q.wl - bedY)); sl.push(slope); wa.push(2 * w); } });
     for (var i = 0; i < L.length - 1; i++) for (var j = 0; j < Wd; j++) { var a = i * (Wd + 1) + j, b = a + Wd + 1; idx.push(a, a + 1, b, b, a + 1, b + 1); /* counter-clockwise seen from above */ }
-    var g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2)); g.setAttribute('aS', new THREE.Float32BufferAttribute(sa, 1)); g.setIndex(idx); g.computeBoundingSphere();
-    var m = new THREE.Mesh(g, m2); m.renderOrder = 2; m.userData.noColl = true; m.userData.noShadow = true; m.layers.set(1); m.raycast = function () {}; G.add(m); });
+    var g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2)); [['aS', sa], ['aD', da], ['aSl', sl], ['aW', wa]].forEach(function (k) { g.setAttribute(k[0], new THREE.Float32BufferAttribute(k[1], 1)); }); g.setIndex(idx); g.computeBoundingSphere();
+    var m = new THREE.Mesh(g, m2); m.renderOrder = 2; m.userData.noColl = true; m.userData.noShadow = true; m.layers.set(1); m.raycast = function () {}; G.add(m); riverMeshes.push(m); });
+  /* mirror reflections (High graphics): rendered once per frame from the first river mesh that is on screen */
+  if (hi && R3.ren.capabilities.isWebGL2) { var RF = EXT.riverRefl = { rt: new THREE.WebGLRenderTarget(4, 4, { type: THREE.HalfFloatType }), cam: new THREE.PerspectiveCamera(), plane: new THREE.Plane(), frame: -1, N: new THREE.Vector3(0, 1, 0), P0: new THREE.Vector3(0, -0.34 + G.position.y, 0), v: new THREE.Vector3(), tg: new THREE.Vector3(), la: new THREE.Vector3(), rot: new THREE.Matrix4(), cp: new THREE.Vector4(), q: new THREE.Vector4(), cw: new THREE.Vector3() };
+    RF.cam.layers.set(1); wm.uniforms.refl.value = RF.rt.texture;
+    var doRefl = function (ren, scene, cam) { var f = ren.info.render.frame; if (RF.frame === f || RF.busy || !cam.isPerspectiveCamera) return; RF.frame = f; RF.busy = true;
+      try { var sz = ren.getDrawingBufferSize(RF.v), W = Math.max(4, sz.x >> 1), H = Math.max(4, sz.y >> 1); if (RF.rt.width !== W || RF.rt.height !== H) RF.rt.setSize(W, H);
+        RF.cw.setFromMatrixPosition(cam.matrixWorld); var vw = RF.v.subVectors(RF.P0, RF.cw); if (vw.dot(RF.N) > 0) { wm.uniforms.hasR.value = 0; return; }
+        vw.reflect(RF.N).negate().add(RF.P0); RF.rot.extractRotation(cam.matrixWorld); RF.la.set(0, 0, -1).applyMatrix4(RF.rot).add(RF.cw); RF.tg.subVectors(RF.P0, RF.la).reflect(RF.N).negate().add(RF.P0);
+        var vc = RF.cam; vc.position.copy(vw); vc.up.set(0, 1, 0).applyMatrix4(RF.rot).reflect(RF.N); vc.lookAt(RF.tg); vc.far = cam.far; vc.near = cam.near; vc.updateMatrixWorld(); vc.projectionMatrix.copy(cam.projectionMatrix);
+        wm.uniforms.tm.value.set(0.5, 0, 0, 0.5, 0, 0.5, 0, 0.5, 0, 0, 0.5, 0.5, 0, 0, 0, 1).multiply(vc.projectionMatrix).multiply(vc.matrixWorldInverse);
+        RF.plane.setFromNormalAndCoplanarPoint(RF.N, RF.P0).applyMatrix4(vc.matrixWorldInverse); var cp = RF.cp.set(RF.plane.normal.x, RF.plane.normal.y, RF.plane.normal.z, RF.plane.constant), pm = vc.projectionMatrix, q = RF.q;
+        q.x = (Math.sign(cp.x) + pm.elements[8]) / pm.elements[0]; q.y = (Math.sign(cp.y) + pm.elements[9]) / pm.elements[5]; q.z = -1; q.w = (1 + pm.elements[10]) / pm.elements[14]; cp.multiplyScalar(2 / cp.dot(q)); pm.elements[2] = cp.x; pm.elements[6] = cp.y; pm.elements[10] = cp.z + 1 - 0.003; pm.elements[14] = cp.w;
+        riverMeshes.forEach(function (m) { m.visible = false; }); var stV = (EXT.steamV || []).filter(function (o) { return o.m.visible; }); stV.forEach(function (o) { o.m.visible = false; }); var crt = ren.getRenderTarget(), ac = ren.autoClear, su = ren.shadowMap.autoUpdate, bg = scene.background; ren.shadowMap.autoUpdate = false; ren.autoClear = true; ren.setRenderTarget(RF.rt); ren.clear(); ren.render(scene, vc); ren.setRenderTarget(crt); stV.forEach(function (o) { o.m.visible = true; }); ren.autoClear = ac; ren.shadowMap.autoUpdate = su; scene.background = bg; wm.uniforms.hasR.value = 1; }
+      catch (e) { wm.uniforms.hasR.value = 0; } finally { riverMeshes.forEach(function (m) { m.visible = true; }); RF.busy = false; } };
+    riverMeshes.forEach(function (m) { m.onBeforeRender = doRefl; }); }
+  /* boulders along the banks and in the rapids, half-buried, with snow on their tops (the settling-snow pass picks them up) */
+  var bgeo = new THREE.IcosahedronGeometry(1, 2), bp = bgeo.attributes.position; for (var bi = 0; bi < bp.count; bi++) { var bx = bp.getX(bi), by = bp.getY(bi), bz = bp.getZ(bi), k = 0.78 + 0.32 * Math.sin(bx * 3.1 + by * 1.7) * Math.cos(bz * 2.3 - by) + 0.12 * Math.sin(bx * 9.0 + bz * 7.0); bp.setXYZ(bi, bx * k, by * k * 0.7, bz * k); } bgeo.computeVertexNormals();
+  var bm = new THREE.MeshStandardMaterial({ color: 0x5a5753, roughness: 0.92, metalness: 0 }), NB = 360, bo = new THREE.InstancedMesh(bgeo, bm, NB), d5 = new THREE.Object3D(), nb = 0;
+  paths.forEach(function (P) { P.L.forEach(function (q, i) { if (nb >= NB) return; var a0 = P.L[Math.max(0, i - 2)], a1 = P.L[Math.min(P.L.length - 1, i + 2)], slope = Math.abs(a1.wl - a0.wl) / Math.max(1, a1.s - a0.s), ch = 0.55 + slope * 6; if (R() > ch) return;
+      var side = R() < 0.5 ? -1 : 1, inS = slope > 0.03 && R() < 0.45, dd = inS ? R() * q.hw * 0.8 : q.hw + (R() - 0.3) * 2.2, sc = inS ? 0.4 + R() * 0.9 : 0.25 + R() * R() * 1.6, y = dd < q.hw ? q.wl - 0.25 * sc : q.wl + 0.25 + (dd - q.hw) * 0.55 - 0.25 * sc;
+      d5.position.set(q.x + q.nx * side * dd, y, q.z + q.nz * side * dd); d5.rotation.set(R() * 0.4, R() * 6.3, R() * 0.4); d5.scale.set(sc * (0.8 + R() * 0.5), sc, sc * (0.8 + R() * 0.5)); d5.updateMatrix(); bo.setMatrixAt(nb++, d5.matrix); }); });
+  bo.count = nb; bo.castShadow = true; bo.receiveShadow = true; bo.userData.noColl = true; bo.layers.set(1); bo.raycast = function () {}; G.add(bo); EXT.boulders = bo;
+  /* sea smoke: on a cold, still morning the open water steams; a soft drifting veil just over the river */
+  var mistM = new THREE.ShaderMaterial({ transparent: true, depthWrite: false, fog: true, uniforms: THREE.UniformsUtils.merge([THREE.UniformsLib.fog, { t: { value: 0 }, k: { value: 0 }, col: { value: new THREE.Color(0.8, 0.84, 0.9) } }]),
+    vertexShader: '#include <fog_pars_vertex>\n attribute float aS, aW; varying vec2 vu; varying float vS, vW; varying vec3 vw; void main(){ vu = uv; vS = aS; vW = aW; vec4 w = modelMatrix * vec4(position, 1.0); vw = w.xyz; vec4 mvPosition = viewMatrix * w; gl_Position = projectionMatrix * mvPosition;\n#include <fog_vertex>\n }',
+    fragmentShader: '#include <fog_pars_fragment>\n uniform float t, k; uniform vec3 col; varying vec2 vu; varying float vS, vW; varying vec3 vw; float h(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); } float n(vec2 p){ vec2 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0 * f); return mix(mix(h(i), h(i + vec2(1, 0)), f.x), mix(h(i + vec2(0, 1)), h(i + vec2(1, 1)), f.x), f.y); }' +
+      ' void main(){ float x = abs(vu.x - 0.5) * 2.0; vec2 p = vec2((vu.x - 0.5) * vW * 0.25 + t * 0.15, vS * 0.08 - t * 0.05); float m = n(p) * 0.6 + n(p * 2.7 + 4.0) * 0.4; float a = k * smoothstep(0.35, 0.8, m) * (1.0 - smoothstep(0.45, 0.8, x)) * smoothstep(0.0, 0.03, vu.y) * (1.0 - smoothstep(0.97, 1.0, vu.y)) * smoothstep(2.0, 12.0, length(cameraPosition - vw));' +
+      ' gl_FragColor = vec4(col, a * 0.32);\n#include <fog_fragment>\n }' });
+  EXT.mistM = mistM; riverMeshes.forEach(function (rm) { var mm = new THREE.Mesh(rm.geometry, mistM); mm.position.y = 0.55; mm.renderOrder = 3; mm.userData.noColl = true; mm.userData.noShadow = true; mm.layers.set(1); mm.raycast = function () {}; G.add(mm); });
   PH2.river = { grounds: grounds.length, n: SAMP.length };
   /* pines standing in the river are lifted out of it (scaled to nothing) */
   var M4 = new THREE.Matrix4(), v = new THREE.Vector3(), Z = new THREE.Matrix4().makeScale(0, 0, 0); G.children.forEach(function (o) { if (!o.isInstancedMesh || o.count < 20 || o === EXT.forest) return; var ch = false; for (var i = 0; i < o.count; i++) { o.getMatrixAt(i, M4); v.setFromMatrixPosition(M4).applyMatrix4(o.matrix); if (segD(v.x, v.z) < 7) { o.setMatrixAt(i, Z); ch = true; } } if (ch) o.instanceMatrix.needsUpdate = true; });
@@ -1515,7 +1571,9 @@ function outerWorld() { var G = EXT.g, TH = EXT.terrainH; if (!TH) return; var R
   for (var tries = 0; tries < N2 * 6 && n2 < N2; tries++) { var a2 = R() * Math.PI * 2, r2 = 190 + Math.pow(R(), 0.8) * 420, x2 = Math.cos(a2) * r2, z2 = Math.sin(a2) * r2; if (Math.hypot(x2 + 120, z2 + 120) < 48 || Math.hypot(x2 + 120, z2 + 190) < 48 || Math.hypot(x2 - 150, z2 / 0.65) < 48) continue; var h2 = TH(x2, z2), slope = Math.abs(TH(x2 + 4, z2) - h2) + Math.abs(TH(x2, z2 + 4) - h2); if (slope > 5 || h2 > 70 || segD(x2, z2) < 18) continue;
     var cl = 0.5 + 0.5 * Math.sin(x2 * 0.021) * Math.cos(z2 * 0.017); if (R() > 0.35 + 0.65 * cl) continue; var hs = 7 + R() * 9; d4.position.set(x2, h2 - 0.3, z2); d4.rotation.set(0, R() * 3, 0); d4.scale.set(hs * 0.5, hs, hs * 0.5); d4.updateMatrix(); fo.setMatrixAt(n2++, d4.matrix); }
   fo.count = n2; fo.userData.noColl = true; fo.userData.noShadow = true; fo.layers.set(1); fo.raycast = function () {}; G.add(fo); EXT.forest = fo; }
-PH2.worldTick = function (dt) { if (EXT.riverM) { var u = EXT.riverM.uniforms, U0 = EXT.sky && EXT.sky.material.uniforms, d = U0 ? U0.day.value : 1; u.t.value = EXT.t || 0; u.day.value = d; u.sky.value.setRGB(0.04 + 0.6 * d, 0.06 + 0.66 * d, 0.1 + 0.72 * d); } };
+PH2.worldTick = function (dt) { if (EXT.riverM) { var u = EXT.riverM.uniforms, U0 = EXT.sky && EXT.sky.material.uniforms, d = U0 ? U0.day.value : 1, dk = U0 ? U0.dusk.value : 0; u.t.value = EXT.t || 0; u.day.value = d; u.sky.value.setRGB(0.03 + 0.62 * d, 0.045 + 0.68 * d, 0.08 + 0.75 * d).lerp(EXT.duskC || new THREE.Color(1, 0.55, 0.3), dk * 0.25);
+    if (EXT.sunDirU) u.sunD.value.copy(EXT.sunDirU.value); u.sunK.value = EXT.sunKU ? EXT.sunKU.value : d; if (EXT.sun) u.sunC.value.copy(EXT.sun.color); if (!EXT.riverRefl || PERF.lite) u.hasR.value = 0; }
+  if (EXT.mistM) { var W = WXV(), T = W ? W.T : 0, mu = EXT.mistM.uniforms; mu.t.value = EXT.t || 0; mu.k.value = clamp((1 - T) / 8, 0, 1) * clamp(1.4 - (W ? W.wind : 2) / 8, 0.2, 1); var U1 = EXT.sky && EXT.sky.material.uniforms, d2 = U1 ? U1.day.value : 1; mu.col.value.setRGB(0.12 + 0.7 * d2, 0.13 + 0.72 * d2, 0.16 + 0.75 * d2); } };
 /* ---- people and vehicles from glTF models (optional pack) ---- */
 var MODELPACK = { load: function () { if (MODELPACK.busy || typeof fetch !== 'function') return; MODELPACK.busy = 1;
     fetch('models/people/manifest.json', { cache: 'no-cache' }).then(function (r) { return r.ok ? r.json() : null; }).then(function (j) { if (!j || !(j.worker || j.van)) return; return new Promise(function (res, rej) { if (THREE.GLTFLoader) return res(j); var sc = document.createElement('script'); sc.src = 'vendor/GLTFLoader.js'; sc.onload = function () { res(j); }; sc.onerror = rej; document.head.appendChild(sc); }); }).then(function (j) { if (!j || !THREE.GLTFLoader) return; var L = new THREE.GLTFLoader();
@@ -1531,7 +1589,7 @@ function photoScene2(scene, hi, lite) {
   if (hi) { try { PH2.bev = bevelRoom(scene); } catch (e) { console.error(e); } }
   if (!lite) { try { bakeRoomFloor(scene); } catch (e) { console.error(e); } }
   if (!EXT.on || !EXT.g) return;
-  if (!lite) { try { snowTops(); } catch (e) { console.error(e); } try { outerWorld(); } catch (e) { console.error(e); } }
+  if (!lite) { try { outerWorld(hi); } catch (e) { console.error(e); } try { snowTops(); } catch (e) { console.error(e); } }
   if (hi) { try { steamVolumes(); } catch (e) { console.error(e); } try { cloudDeck(); } catch (e) { console.error(e); } }
   try { MODELPACK.load(); } catch (e) {}
 }
