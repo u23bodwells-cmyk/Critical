@@ -1467,8 +1467,8 @@ function outerWorld(hi) { var G = EXT.g, TH = EXT.terrainH; if (!TH) return; var
   /* the river: down from the north-east mountains through a gorge it has cut, across the valley floor into the lake, and out of the lake's south
      end along the valley. The terrain is carved first (a channel with sloping banks, deeper where the ground is higher), then a water surface is laid
      at a level that only ever falls toward the lake, so it never runs uphill. Open, flowing water in the middle, ice shelves along the banks. */
-  var paths = [{ pts: [[150, -22], [166, -68], [151, -118], [176, -168], [214, -216], [258, -282], [296, -360], [322, -440]], climb: 0.075, dir: -1 },
-    { pts: [[150, 22], [139, 70], [161, 117], [146, 162], [118, 196], [70, 222], [14, 236]], climb: 0.0, dir: 1 }];
+  var paths = [{ pts: [[150, -20], [166, -68], [151, -118], [176, -168], [214, -216], [258, -282], [296, -360], [322, -440]], climb: 0.075, dir: -1 },
+];
   /* every big ground mesh (the terrain and anything draped over it), in this group's coordinates */
   var grounds = []; G.children.forEach(function (o) { if (!o.isMesh || o.isInstancedMesh || !o.geometry || !o.geometry.attributes.position) return; var gp = o.geometry.attributes.position; if (gp.count < 2000) return; if (!o.geometry.boundingBox) o.geometry.computeBoundingBox(); var b = o.geometry.boundingBox.clone().applyMatrix4(o.matrix); if (b.max.x - b.min.x > 300 && b.max.z - b.min.z > 300) grounds.push(o); });
   var SAMP = [], v3 = new THREE.Vector3();
@@ -1552,6 +1552,20 @@ function outerWorld(hi) { var G = EXT.g, TH = EXT.terrainH; if (!TH) return; var
       var side = R() < 0.5 ? -1 : 1, inS = slope > 0.03 && R() < 0.45, dd = inS ? R() * q.hw * 0.8 : q.hw + (R() - 0.3) * 2.2, sc = inS ? 0.4 + R() * 0.9 : 0.25 + R() * R() * 1.6, y = dd < q.hw ? q.wl - 0.25 * sc : q.wl + 0.25 + (dd - q.hw) * 0.55 - 0.25 * sc;
       d5.position.set(q.x + q.nx * side * dd, y, q.z + q.nz * side * dd); d5.rotation.set(R() * 0.4, R() * 6.3, R() * 0.4); d5.scale.set(sc * (0.8 + R() * 0.5), sc, sc * (0.8 + R() * 0.5)); d5.updateMatrix(); bo.setMatrixAt(nb++, d5.matrix); }); });
   bo.count = nb; bo.castShadow = true; bo.receiveShadow = true; bo.userData.noColl = true; bo.layers.set(1); bo.raycast = function () {}; G.add(bo); EXT.boulders = bo;
+  /* the lake is the station's cooling-water pond: the river feeds it from the north, and the intake pumphouse on its west shore draws from it.
+     Open water in the middle and in leads toward the river mouth and the intake, shelf ice round the rest of the shore. */
+  var pondMesh = function (geoFn, dir) { var m2 = wm.clone(); ['t', 'day', 'sky', 'hasR', 'sunK', 'sunD', 'sunC', 'refl', 'tm'].forEach(function (k) { m2.uniforms[k] = wm.uniforms[k]; }); m2.uniforms.dir.value = dir; EXT.riverMs.push(m2); var gq = geoFn(), m = new THREE.Mesh(gq, m2); m.renderOrder = 2; m.userData.noColl = true; m.userData.noShadow = true; m.layers.set(1); m.raycast = function () {}; G.add(m); riverMeshes.push(m); return m; };
+  pondMesh(function () { var NRg = 24, NAg = 120, pos = [], uv = [], sa = [], da = [], sl = [], wa = [], idx = [];
+    for (var r = 0; r <= NRg; r++) for (var a = 0; a <= NAg; a++) { var rr = r / NRg, an = a / NAg * Math.PI * 2, ca = Math.cos(an), sa2 = Math.sin(an), lead = 1 - 0.38 * Math.pow(Math.max(0, -ca), 8) - 0.34 * Math.pow(Math.max(0, -sa2), 10), x = 150 + ca * 40 * rr, z = sa2 * 26 * rr;
+      pos.push(x, -0.36, z); uv.push(0.5 + 0.5 * rr * lead, a / NAg); sa.push(an * 30); da.push(0.25 + 2.6 * (1 - rr * rr)); sl.push(0); wa.push(60); }
+    for (r = 0; r < NRg; r++) for (a = 0; a < NAg; a++) { var i0 = r * (NAg + 1) + a, i1 = i0 + 1, i2 = i0 + NAg + 1, i3 = i2 + 1; idx.push(i0, i1, i2, i1, i3, i2); /* facing up */ }
+    var gq = new THREE.BufferGeometry(); gq.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); gq.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2)); [['aS', sa], ['aD', da], ['aSl', sl], ['aW', wa]].forEach(function (k) { gq.setAttribute(k[0], new THREE.Float32BufferAttribute(k[1], 1)); }); gq.setIndex(idx); gq.computeBoundingSphere(); return gq; }, 0.12);
+  /* the forebay between the pond and the pumphouse screens: water drawn west toward the intake */
+  pondMesh(function () { var NX = 12, NZ = 6, pos = [], uv = [], sa = [], da = [], sl = [], wa = [], idx = [], x0 = 106.0, x1 = 113.5, z0 = -9.0, z1 = 5.6;
+    for (var i = 0; i <= NX; i++) for (var j = 0; j <= NZ; j++) { var x = x1 - (x1 - x0) * i / NX, z = z0 + (z1 - z0) * j / NZ; pos.push(x, -0.5, z); uv.push(0.5 + (j / NZ - 0.5) * 0.9, 0.04 + 0.92 * i / NX); sa.push(x1 - x); da.push(4); sl.push(0.004); wa.push(z1 - z0); }
+    for (i = 0; i < NX; i++) for (j = 0; j < NZ; j++) { var a = i * (NZ + 1) + j, b = a + NZ + 1; idx.push(a, b, a + 1, b, b + 1, a + 1); }
+    var gq = new THREE.BufferGeometry(); gq.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); gq.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2)); [['aS', sa], ['aD', da], ['aSl', sl], ['aW', wa]].forEach(function (k) { gq.setAttribute(k[0], new THREE.Float32BufferAttribute(k[1], 1)); }); gq.setIndex(idx); gq.computeBoundingSphere(); return gq; }, 1);
+  if (EXT.ice) EXT.ice.visible = false;
   /* sea smoke: on a cold, still morning the open water steams; a soft drifting veil just over the river */
   var mistM = new THREE.ShaderMaterial({ transparent: true, depthWrite: false, fog: true, uniforms: THREE.UniformsUtils.merge([THREE.UniformsLib.fog, { t: { value: 0 }, k: { value: 0 }, col: { value: new THREE.Color(0.8, 0.84, 0.9) } }]),
     vertexShader: '#include <fog_pars_vertex>\n attribute float aS, aW; varying vec2 vu; varying float vS, vW; varying vec3 vw; void main(){ vu = uv; vS = aS; vW = aW; vec4 w = modelMatrix * vec4(position, 1.0); vw = w.xyz; vec4 mvPosition = viewMatrix * w; gl_Position = projectionMatrix * mvPosition;\n#include <fog_vertex>\n }',
@@ -1585,10 +1599,34 @@ var MODELPACK = { load: function () { if (MODELPACK.busy || typeof fetch !== 'fu
         var mx = new THREE.AnimationMixer(sk), cl = THREE.AnimationClip.findByName(gl.animations, M.walk) || gl.animations[0]; if (cl) mx.clipAction(cl).play(); (MODELPACK.mx = MODELPACK.mx || []).push(mx); }, function () {}); });
     var V = MODELPACK.van, van = EXT.siteVan; if (V && van && !van.userData.mp) { van.userData.mp = 1; van.children.forEach(function (c) { if (c.isMesh) c.visible = false; }); var vm = V.scene.clone(true); vm.scale.setScalar(V.scale); vm.rotation.y = V.rotY; vm.traverse(function (o) { o.layers.set(1); }); van.add(vm); } },
   tick: function (dt) { if (MODELPACK.mx) MODELPACK.mx.forEach(function (m) { m.update(dt); }); if ((MODELPACK.worker || MODELPACK.van) && ((MODELPACK.at = (MODELPACK.at || 0) + dt) > 2)) { MODELPACK.at = 0; MODELPACK.apply(); } } };
+/* ---- mountains that read as rock, not lumps ----
+   The near range was textured by its UVs, so every cliff smeared the rock picture into vertical streaks, and the far range was plain vertex colour.
+   Both now take rock from the world position on three axes (triplanar), so cliffs show real rock at the right scale, banded with strata; snow
+   settles on every ledge flat enough to hold it; a fine rock relief is added to the lighting on High; and the far range gets its own crags. */
+function mountainDetail(hi) { var ter = EXT.ter, far = EXT.far, rockT = ter && ter.material && ter.material.bumpMap; if (!rockT) return;
+  var VS = function (sh) { sh.vertexShader = 'varying vec3 vTP; varying vec3 vTN;\n' + sh.vertexShader.replace('#include <beginnormal_vertex>', '#include <beginnormal_vertex>\n vTN = normalize(mat3(modelMatrix) * objectNormal);').replace('#include <project_vertex>', '#include <project_vertex>\n vTP = (modelMatrix * vec4(transformed, 1.0)).xyz;'); };
+  var TRI = 'varying vec3 vTP; varying vec3 vTN; uniform sampler2D triRock; uniform float triHi;\n vec3 triW(){ vec3 w = pow(abs(normalize(vTN)), vec3(4.0)); return w / (w.x + w.y + w.z); }\n' +
+    ' vec4 triS(float sc){ vec3 w = triW(); return texture2D(triRock, vTP.zy * sc) * w.x + texture2D(triRock, vTP.xz * sc) * w.y + texture2D(triRock, vTP.xy * sc) * w.z; }\n' +
+    ' float triH(vec3 p){ vec3 w = triW(); return texture2D(triRock, p.zy * 0.09).r * w.x + texture2D(triRock, p.xz * 0.09).r * w.y + texture2D(triRock, p.xy * 0.09).r * w.z; }\n';
+  var RELIEF = '#include <normal_fragment_begin>\n if (triHi > 0.5) { float e = 0.35, h0 = triH(vTP); vec3 gw = vec3(triH(vTP + vec3(e, 0.0, 0.0)) - h0, triH(vTP + vec3(0.0, e, 0.0)) - h0, triH(vTP + vec3(0.0, 0.0, e)) - h0) / e; vec3 Nw = normalize(vTN); gw -= Nw * dot(gw, Nw);' +
+    ' float rk = 1.0 - smoothstep(0.62, 0.86, Nw.y); normal = normalize(normal - (viewMatrix * vec4(gw, 0.0)).xyz * 1.6 * rk * smoothstep(900.0, 120.0, length(cameraPosition - vTP))); }';
+  /* near range: swap the UV rock for triplanar rock with strata, and put snow on the ledges */
+  if (ter) { var m = ter.material, prev = m.onBeforeCompile; m.onBeforeCompile = function (sh, r) { prev.call(this, sh, r); sh.uniforms.triRock = { value: rockT }; sh.uniforms.triHi = { value: hi ? 1 : 0 }; VS(sh);
+      sh.fragmentShader = TRI + sh.fragmentShader.replace('vec4 rockS = texture2D(rockMap, vMapUv * 0.31);', 'vec4 rockS = mix(triS(0.055), triS(0.013), 0.4); float strat = 0.5 + 0.5 * sin(vTP.y * 0.85 + rockS.r * 4.0 + sin(vTP.x * 0.02) * 2.0); rockS.rgb *= 0.78 + 0.4 * strat;')
+        .replace('float snowy = smoothstep(0.3, 0.62, vColor.g);', 'float ledge = smoothstep(0.72, 0.88, normalize(vTN).y + (rockS.g - 0.5) * 0.35); float snowy = max(smoothstep(0.3, 0.62, vColor.g), ledge * 0.92);')
+        .replace('snowS * vec4(vColor.rgb, 1.0), snowy)', 'snowS * vec4(mix(vColor.rgb, vec3(0.93, 0.95, 0.97), ledge), 1.0), snowy)').replace('#include <normal_fragment_begin>', RELIEF); };
+    if (hi) m.bumpScale *= 0.45; m.customProgramCacheKey = function () { return 'terTri' + (hi ? 1 : 0); }; m.needsUpdate = true; }
+  /* far range: rock where the vertex colour says rock, crags, ledge snow */
+  if (far) { var fm = far.material; fm.onBeforeCompile = function (sh) { sh.uniforms.triRock = { value: rockT }; sh.uniforms.triHi = { value: hi ? 1 : 0 }; VS(sh);
+      sh.fragmentShader = TRI + sh.fragmentShader.replace('#include <color_fragment>', '#include <color_fragment>\n { float rk = 1.0 - smoothstep(0.45, 0.8, dot(vColor.rgb, vec3(0.333))); vec4 rs = mix(triS(0.02), triS(0.0045), 0.5); float strat = 0.5 + 0.5 * sin(vTP.y * 0.22 + rs.r * 5.0);' +
+        ' vec3 rockC = vec3(0.24, 0.25, 0.27) * (0.55 + 0.9 * rs.rgb) * (0.8 + 0.35 * strat); float ledge = smoothstep(0.7, 0.86, normalize(vTN).y + (rs.g - 0.5) * 0.4); vec3 snowC = vec3(0.9, 0.93, 0.97) * (0.92 + 0.12 * rs.r);' +
+        ' diffuseColor.rgb = mix(diffuseColor.rgb, mix(rockC, snowC, ledge), rk * 0.9); diffuseColor.rgb *= 0.9 + 0.2 * rs.r; }').replace('#include <normal_fragment_begin>', RELIEF.replace('smoothstep(900.0, 120.0,', 'smoothstep(3500.0, 400.0,').replace('vTP * 1.0', 'vTP')); };
+    fm.customProgramCacheKey = function () { return 'farTri' + (hi ? 1 : 0); }; fm.needsUpdate = true; } }
 function photoScene2(scene, hi, lite) {
   if (hi) { try { PH2.bev = bevelRoom(scene); } catch (e) { console.error(e); } }
   if (!lite) { try { bakeRoomFloor(scene); } catch (e) { console.error(e); } }
   if (!EXT.on || !EXT.g) return;
+  try { mountainDetail(hi); } catch (e) { console.error(e); }
   if (!lite) { try { outerWorld(hi); } catch (e) { console.error(e); } try { snowTops(); } catch (e) { console.error(e); } }
   if (hi) { try { steamVolumes(); } catch (e) { console.error(e); } try { cloudDeck(); } catch (e) { console.error(e); } }
   try { MODELPACK.load(); } catch (e) {}
@@ -5884,7 +5922,7 @@ function* addOutside(scene) { var g = new THREE.Group(); g.position.set(RX, 0, R
       .replace('#include <color_fragment>', ''); };
   var ter = new THREE.Mesh(geo, terM); ter.frustumCulled = false; ter.userData.noShadow = true; g.add(ter); EXT.ter = ter;
   (function () { /* the far range: broad massifs sampled finely enough that their ridges are smooth, with rock on the steep faces and snow elsewhere */
-    var NA = 300, NR = 52, R0 = 575, R1 = 2000, pos = [], idx = [], cc = new THREE.Color(), rk1 = new THREE.Color(0x3a4048), rk2 = new THREE.Color(0x5b5d60), sn1 = new THREE.Color(0xf2f6fb);
+    var NA = S.cfg.gfx === 'high' ? 640 : 300, NR = S.cfg.gfx === 'high' ? 104 : 52, R0 = 575, R1 = 2000, pos = [], idx = [], cc = new THREE.Color(), rk1 = new THREE.Color(0x3a4048), rk2 = new THREE.Color(0x5b5d60), sn1 = new THREE.Color(0xf2f6fb);
     var rf = function (x, z) { var sum = 0, amp = 1, f = 0.0019, w = 1; x += (vn(x * 0.0011 + 3.1, z * 0.0011) - 0.5) * 500; z += (vn(x * 0.0011, z * 0.0011 + 7.7) - 0.5) * 500; for (var o = 0; o < 5; o++) { var r = 1 - Math.abs(vn(x * f + 40, z * f + 9) * 2 - 1); r = r * r * w; sum += r * amp; w = Math.min(1, r * 1.6); amp *= 0.5; f *= 2.1; } return sum; };
     for (var r = 0; r <= NR; r++) for (var a = 0; a <= NA; a++) { var t = r / NR, rad = R0 + (R1 - R0) * Math.pow(t, 1.5), ang = a / NA * Math.PI * 2, x = Math.cos(ang) * rad, z = Math.sin(ang) * rad, env = SSTf(0, 0.3, t) * (1 - 0.5 * SSTf(0.75, 1, t)), h = 30 + rf(x, z) * 215 * env + 26 * (vn(x * 0.016, z * 0.016) + 0.5 * vn(x * 0.04, z * 0.04)) * env; if (a === NA) h = pos[(r * (NA + 1)) * 3 + 1]; pos.push(x, h, z); }
     for (r = 0; r < NR; r++) for (a = 0; a < NA; a++) { var i0 = r * (NA + 1) + a, i1 = i0 + 1, i2 = i0 + NA + 1, i3 = i2 + 1; idx.push(i0, i2, i1, i1, i2, i3); }
@@ -5959,10 +5997,20 @@ function* addOutside(scene) { var g = new THREE.Group(); g.position.set(RX, 0, R
   /* shooting star: one streak mesh, reused; launched rarely at night from the per-frame sky tick */
   EXT.shoot = (function () { var c = CV(128, 8), g2 = c.getContext('2d'), gr = g2.createLinearGradient(0, 0, 128, 0); gr.addColorStop(0, 'rgba(255,255,255,0)'); gr.addColorStop(0.8, 'rgba(210,225,255,.55)'); gr.addColorStop(1, 'rgba(255,255,255,1)'); g2.fillStyle = gr; g2.fillRect(0, 2, 128, 4); var pv = new THREE.Group(), m = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(c), transparent: true, opacity: 0, depthWrite: false, depthTest: false, fog: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide })); m.scale.set(170, 3, 1); m.renderOrder = -1; m.frustumCulled = false; m.userData.noShadow = true; pv.visible = false; pv.add(m); g.add(pv); return { pv: pv, m: m, on: false, t0: 0, dur: 1, rz: 0, next: 12 + Math.random() * 20 }; })();
   /* aurora: two tall curtains with a scrolling band shader, additive */
-  var aurSh = { transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide, uniforms: { t: { value: 0 }, c1: { value: new THREE.Color(0x27ff8a) }, c2: { value: new THREE.Color(0x7a3cff) } },
-    vertexShader: 'varying vec2 vu; void main(){ vu = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
-    fragmentShader: 'uniform float t; uniform vec3 c1, c2; varying vec2 vu; void main(){ float x = vu.x*6.0; float w = sin(x*1.7 + t*0.35) * 0.5 + sin(x*4.1 - t*0.5)*0.25 + sin(x*9.3 + t*0.8)*0.12; float band = smoothstep(0.0, 0.25, vu.y) * (1.0 - smoothstep(0.35 + 0.25*w, 0.95, vu.y)); float ray = 0.6 + 0.4*sin(x*23.0 + t*0.7 + w*3.0); float a = band * ray * (0.35 + 0.3*w); vec3 col = mix(c1, c2, clamp(vu.y*1.4 - 0.2 + 0.15*w, 0.0, 1.0)); gl_FragColor = vec4(col * a, a); }' };
-  [[0, 180, 0, -0.35], [1, 150, 120, 0.4]].forEach(function (q) { var m = new THREE.Mesh(new THREE.PlaneGeometry(2000, 600, 64, 1), new THREE.ShaderMaterial(aurSh)); m.material.uniforms = THREE.UniformsUtils.clone(aurSh.uniforms); m.material.uniforms.t.value = q[0] * 9; m.position.set(2150, q[1] * 5.2, q[2] * 9); m.scale.set(2.3, 2, 1); m.userData.noShadow = true; m.rotation.y = -Math.PI / 2 + q[3]; m.frustumCulled = false; g.add(m); EXT.aur.push(m); });
+  /* aurora: three folded curtains across the northern sky. Each is a ribbon whose foot snakes slowly; the light is a sharp, bright lower edge (green,
+     with a thin pink fringe under it), fading upward through green into faint red and violet at the top, broken into fine vertical rays that
+     shimmer and drift, with bright pulses running along the curtain. Additive, so stars and cloud gaps show through. */
+  var aurSh = { transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide, fog: false, uniforms: { t: { value: 0 }, k: { value: 1 }, sd: { value: 0 }, c1: { value: new THREE.Color(0x27ff8a) }, c2: { value: new THREE.Color(0x7a3cff) } },
+    vertexShader: 'uniform float t, sd; varying vec2 vu; void main(){ vu = uv; vec3 p = position; float x = uv.x; p.z += 260.0 * sin(x * 7.0 + t * 0.045 + sd) + 120.0 * sin(x * 17.0 - t * 0.07 + sd * 2.0) + 45.0 * sin(x * 41.0 + t * 0.12); p.y += 40.0 * sin(x * 5.0 + t * 0.03 + sd); gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0); }',
+    fragmentShader: 'uniform float t, k, sd; varying vec2 vu; float h(float x){ return fract(sin(x * 127.1) * 43758.5453); } float n1(float x){ float i = floor(x), f = fract(x); f = f * f * (3.0 - 2.0 * f); return mix(h(i), h(i + 1.0), f); }' +
+      ' void main(){ float x = vu.x, y = vu.y; float foot = 0.10 + 0.05 * sin(x * 23.0 + t * 0.21 + sd) + 0.035 * n1(x * 70.0 + t * 0.4) + 0.02 * n1(x * 190.0 - t * 0.9);' +
+      ' float dy = y - foot; if (dy < -0.03) discard; float edge = smoothstep(-0.012, 0.006, dy); float body = edge * exp(-max(dy, 0.0) * 4.2);' +
+      ' float rays = 0.35 + 0.65 * pow(n1(x * 520.0 + t * 0.25 + n1(x * 13.0 + t * 0.05) * 12.0), 2.2); rays *= 0.6 + 0.4 * n1(x * 95.0 - t * 0.15); float pulse = 0.55 + 0.45 * pow(0.5 + 0.5 * sin(x * 9.0 - t * 0.55 + sd), 3.0);' +
+      ' float ends = smoothstep(0.0, 0.12, x) * (1.0 - smoothstep(0.88, 1.0, x)); float topF = 1.0 - smoothstep(0.55, 1.0, y);' +
+      ' vec3 green = vec3(0.16, 1.0, 0.42), red = vec3(0.85, 0.12, 0.32), vio = vec3(0.42, 0.18, 0.9), pink = vec3(1.0, 0.32, 0.62);' +
+      ' vec3 col = mix(green, red, smoothstep(0.18, 0.5, dy)); col = mix(col, vio, smoothstep(0.45, 0.85, dy) * 0.6); col = mix(col, pink, (1.0 - smoothstep(-0.012, 0.012, dy)) * 0.8);' +
+      ' float I = (body * rays * pulse * 1.3 + edge * smoothstep(0.02, 0.0, dy) * 0.9 * rays) * ends * topF * k; gl_FragColor = vec4(col * I, I); }' };
+  [[0, 175, -10, -0.3, 0.0], [1, 150, 140, 0.35, 2.1], [2, 205, -170, -0.75, 4.4]].forEach(function (q) { var m = new THREE.Mesh(new THREE.PlaneGeometry(2000, 700, 200, 1), new THREE.ShaderMaterial(aurSh)); m.material.uniforms = THREE.UniformsUtils.clone(aurSh.uniforms); m.material.uniforms.t.value = q[0] * 9; m.material.uniforms.sd.value = q[4]; m.material.uniforms.k.value = q[0] === 2 ? 0.6 : 1; m.position.set(2050, q[1] * 5.0 + 420, q[2] * 9); m.scale.set(2.3, 2, 1); m.userData.noShadow = true; m.rotation.y = -Math.PI / 2 + q[3]; m.frustumCulled = false; g.add(m); EXT.aur.push(m); });
   /* moonlight on the landscape */
   EXT.puffT = (function () { var c = CV(64, 64), g2 = c.getContext('2d'), gr = g2.createRadialGradient(32, 32, 0, 32, 32, 32); gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(0.5, 'rgba(255,255,255,.35)'); gr.addColorStop(1, 'rgba(255,255,255,0)'); g2.fillStyle = gr; g2.fillRect(0, 0, 64, 64); return new THREE.CanvasTexture(c); })();
   /* sun (or moon) as one directional light with its own target in the yard; in High graphics it casts a real shadow map over the whole yard,
