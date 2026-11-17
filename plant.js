@@ -1507,9 +1507,9 @@ function outerWorld(hi) { var G = EXT.g, TH = EXT.terrainH; if (!TH) return; var
     '  vec3 Rd = reflect(-V, N); vec3 skyR = mix(sky * vec3(0.55, 0.62, 0.7), sky * vec3(0.9, 0.96, 1.05), smoothstep(0.0, 0.5, Rd.y)); vec3 rc = skyR;' +
     '  if (hasR > 0.5) { vec4 rr = vR; rr.xy += N.xz * 0.9 * rr.w * 0.06; vec3 mr = texture2DProj(refl, rr).rgb; float ok = 1.0 - smoothstep(0.6, 2.0, abs(vw.y - (-0.34))); rc = mix(skyR, mr, ok); }' +
     /* refraction: a stony bed seen through the water, absorbed with depth */
-    '  float dep = max(vD, 0.02) / max(cosT, 0.25); vec2 bp = vw.xz + N.xz * 0.35 * vD; float st = n(bp * 2.2), st2 = n(bp * 7.0 + 3.0); vec3 bed = mix(vec3(0.16, 0.14, 0.11), vec3(0.42, 0.40, 0.36), smoothstep(0.35, 0.75, st)) * (0.7 + 0.5 * st2);' +
-    '  float cau = pow(max(0.0, 1.0 - abs(n(bp * 1.6 + vec2(t * 0.25, -t * 0.18)) - n(bp * 1.6 - vec2(t * 0.2, t * 0.22))) * 3.0), 6.0); vec3 lightIn = sky * 0.75 + sunC * sunK * 0.6; bed = bed * lightIn * (1.0 + cau * 1.4 * sunK);' +
-    '  vec3 Tr = exp(-dep * vec3(1.6, 0.55, 0.42)); vec3 deepC = vec3(0.012, 0.045, 0.05) * (0.15 + lightIn); vec3 under = bed * Tr + deepC * (1.0 - Tr);' +
+    '  float dep = max(vD, 0.02) * 2.2 / max(cosT, 0.25); vec2 bp = vw.xz + N.xz * 0.35 * vD; float st = n(bp * 2.2), st2 = n(bp * 7.0 + 3.0); vec3 bed = mix(vec3(0.09, 0.08, 0.065), vec3(0.27, 0.25, 0.22), smoothstep(0.35, 0.75, st)) * (0.65 + 0.5 * st2);' +
+    '  float cau = pow(max(0.0, 1.0 - abs(n(bp * 1.6 + vec2(t * 0.25, -t * 0.18)) - n(bp * 1.6 - vec2(t * 0.2, t * 0.22))) * 3.0), 6.0); vec3 lightIn = sky * 0.5 + sunC * sunK * 0.45; bed = bed * lightIn * (1.0 + cau * 1.4 * sunK);' +
+    '  vec3 Tr = exp(-dep * vec3(1.15, 0.5, 0.4)); vec3 deepC = vec3(0.008, 0.026, 0.03) * (0.15 + lightIn); vec3 under = bed * Tr + deepC * (1.0 - Tr);' +
     '  vec3 c = mix(under, rc, F);' +
     /* sun or moon glint */
     '  vec3 Hh = normalize(sunD + V); c += sunC * pow(max(dot(N, Hh), 0.0), 380.0) * 6.0 * sunK + sunC * pow(max(dot(N, Hh), 0.0), 60.0) * 0.12 * sunK;' +
