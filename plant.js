@@ -1290,6 +1290,12 @@ var TEXPACK = { reg0: {}, reg: function (k, m) { (TEXPACK.reg0[k] = TEXPACK.reg0
           put('map', A); put('normalMap', N); put('roughnessMap', R); put('aoMap', O); if (A) m.color.setScalar(st.tint || 1); if (R) m.roughness = st.roughness || 1; m.needsUpdate = true; }); });
       try { console.info('Critical: texture pack loaded (' + Object.keys(j.sets).join(', ') + ')'); } catch (e) {} }).catch(function () {}); } };
 /* small seeded random, so the wear lands in the same places every time */
+/* profiled steel cladding as real geometry: a trapezoidal rib every `per` metres, `dep` deep, facing +z like a PlaneGeometry of the same size.
+   Each facet is its own quad so the crests catch the light with sharp edges. UVs match a plane, so the painted texture still lines up. */
+function ribGeo(w, h, per, dep) { var prof = [[0, 0], [0.2, dep], [0.6, dep], [0.8, 0], [1, 0]], pos = [], uv = [], nb = Math.round(w / per), p = w / nb;
+  for (var r = 0; r < nb; r++) for (var k = 0; k < prof.length - 1; k++) { var xa = -w / 2 + (r + prof[k][0]) * p, xb = -w / 2 + (r + prof[k + 1][0]) * p, za = prof[k][1], zb = prof[k + 1][1], ua = (xa + w / 2) / w, ub = (xb + w / 2) / w;
+    pos.push(xa, -h / 2, za, xb, -h / 2, zb, xb, h / 2, zb, xa, -h / 2, za, xb, h / 2, zb, xa, h / 2, za); uv.push(ua, 0, ub, 0, ub, 1, ua, 0, ub, 1, ua, 1); }
+  var g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2)); g.computeVertexNormals(); return g; }
 function photoRnd(sd) { var s = sd || 1; return function () { s = (s * 16807) % 2147483647; return s / 2147483647; }; }
 function photoScene(scene, hi) {
   if (!EXT.on || !EXT.g) return; var T = THREE, G = EXT.g, R = photoRnd(91);
@@ -1467,7 +1473,7 @@ function outerWorld(hi) { var G = EXT.g, TH = EXT.terrainH; if (!TH) return; var
   /* the river: down from the north-east mountains through a gorge it has cut, across the valley floor into the lake, and out of the lake's south
      end along the valley. The terrain is carved first (a channel with sloping banks, deeper where the ground is higher), then a water surface is laid
      at a level that only ever falls toward the lake, so it never runs uphill. Open, flowing water in the middle, ice shelves along the banks. */
-  var paths = [{ pts: [[150, -20], [166, -68], [151, -118], [176, -168], [214, -216], [258, -282], [296, -360], [322, -440]], climb: 0.075, dir: -1 },
+  var paths = [{ pts: [[150, -20], [166, -68], [151, -118], [176, -168], [214, -216], [258, -282], [296, -360], [322, -440]], climb: 0.3, dir: -1 },
 ];
   /* every big ground mesh (the terrain and anything draped over it), in this group's coordinates */
   var grounds = []; G.children.forEach(function (o) { if (!o.isMesh || o.isInstancedMesh || !o.geometry || !o.geometry.attributes.position) return; var gp = o.geometry.attributes.position; if (gp.count < 2000) return; if (!o.geometry.boundingBox) o.geometry.computeBoundingBox(); var b = o.geometry.boundingBox.clone().applyMatrix4(o.matrix); if (b.max.x - b.min.x > 300 && b.max.z - b.min.z > 300) grounds.push(o); });
@@ -1482,10 +1488,10 @@ function outerWorld(hi) { var G = EXT.g, TH = EXT.terrainH; if (!TH) return; var
   /* carve: each ground vertex near the river is lowered to the channel profile (bed below the water, banks rising 0.55 m per metre) */
   var bx0 = 1e9, bx1 = -1e9, bz0 = 1e9, bz1 = -1e9; SAMP.forEach(function (q) { bx0 = Math.min(bx0, q.x); bx1 = Math.max(bx1, q.x); bz0 = Math.min(bz0, q.z); bz1 = Math.max(bz1, q.z); });
   var SH = {}; SAMP.forEach(function (q) { var k = Math.floor(q.x / 20) + ',' + Math.floor(q.z / 20); (SH[k] = SH[k] || []).push(q); });
-  var nearest = function (x, z) { var best = null, bd = 1e9, cx = Math.floor(x / 20), cz = Math.floor(z / 20); for (var a = -3; a <= 3; a++) for (var b = -3; b <= 3; b++) { var Lq = SH[(cx + a) + ',' + (cz + b)]; if (!Lq) continue; for (var i = 0; i < Lq.length; i++) { var q = Lq[i], d = (q.x - x) * (q.x - x) + (q.z - z) * (q.z - z); if (d < bd) { bd = d; best = q; } } } return best ? [best, Math.sqrt(bd)] : null; };
+  var nearest = function (x, z) { var best = null, bd = 1e9, cx = Math.floor(x / 20), cz = Math.floor(z / 20); for (var a = -5; a <= 5; a++) for (var b = -5; b <= 5; b++) { var Lq = SH[(cx + a) + ',' + (cz + b)]; if (!Lq) continue; for (var i = 0; i < Lq.length; i++) { var q = Lq[i], d = (q.x - x) * (q.x - x) + (q.z - z) * (q.z - z); if (d < bd) { bd = d; best = q; } } } return best ? [best, Math.sqrt(bd)] : null; };
   var segD = function (x, z) { var n = nearest(x, z); if (!n) return 1e9; var q = n[0], d = n[1], tgt = d < q.hw ? q.wl - 0.5 : q.wl + 0.25 + (d - q.hw) * 0.55; return gH(x, z) - tgt > 0.4 ? -1 : d - q.hw; }; /* distance from the water's edge, or -1 where the bank was cut away */
   grounds.forEach(function (o) { var gp = o.geometry.attributes.position, inv = new THREE.Matrix4().copy(o.matrix).invert(), ch = false;
-    for (var i = 0; i < gp.count; i++) { v3.fromBufferAttribute(gp, i).applyMatrix4(o.matrix); if (v3.x < bx0 - 60 || v3.x > bx1 + 60 || v3.z < bz0 - 60 || v3.z > bz1 + 60) continue; var n = nearest(v3.x, v3.z); if (!n || n[1] > n[0].hw + 60) continue;
+    for (var i = 0; i < gp.count; i++) { v3.fromBufferAttribute(gp, i).applyMatrix4(o.matrix); if (v3.x < bx0 - 100 || v3.x > bx1 + 100 || v3.z < bz0 - 100 || v3.z > bz1 + 100) continue; var n = nearest(v3.x, v3.z); if (!n) continue;
       var q = n[0], d = n[1], tgt = d < q.hw ? q.wl - 1.1 * (1 - (d / q.hw) * (d / q.hw)) - 0.15 : q.wl + 0.25 + (d - q.hw) * 0.55; if (v3.y > tgt) { v3.y = tgt; v3.applyMatrix4(inv); gp.setXYZ(i, v3.x, v3.y, v3.z); ch = true; } }
     if (ch) { gp.needsUpdate = true; o.geometry.computeVertexNormals(); o.geometry.computeBoundingSphere(); o.geometry.computeBoundingBox(); } });
   /* the water, built to read as a photograph:
@@ -1514,7 +1520,7 @@ function outerWorld(hi) { var G = EXT.g, TH = EXT.terrainH; if (!TH) return; var
     /* sun or moon glint */
     '  vec3 Hh = normalize(sunD + V); c += sunC * pow(max(dot(N, Hh), 0.0), 380.0) * 6.0 * sunK + sunC * pow(max(dot(N, Hh), 0.0), 60.0) * 0.12 * sunK;' +
     /* foam: in the rapids and along the banks */
-    '  float fz = wv(vec2(across * 0.9, vS * 0.35 - dir * t * 1.8 * spd)); float foam = smoothstep(0.55, 0.85, fz + vSl * 3.0 - 0.25) * clamp(vSl * 9.0, 0.0, 1.0) + smoothstep(0.62, 0.8, x + (fz - 0.5) * 0.25) * smoothstep(0.55, 0.75, n(vec2(across * 2.0, vS * 0.8 - dir * t * 0.6)));' +
+    '  float fz = wv(vec2(across * 0.9, vS * 0.35 - dir * t * 1.8 * spd)); float foam = smoothstep(0.6, 0.9, fz + min(vSl, 0.06) * 2.0) * clamp(vSl * 9.0, 0.0, 1.0) * 0.8 + smoothstep(0.62, 0.8, x + (fz - 0.5) * 0.25) * smoothstep(0.55, 0.75, n(vec2(across * 2.0, vS * 0.8 - dir * t * 0.6)));' +
     '  c = mix(c, (sky * 0.8 + sunC * sunK * 0.7 + 0.04) * 0.95, clamp(foam, 0.0, 0.85));' +
     /* edge ice: grey translucent shelf ice, then snow-covered ice; ragged edge */
     '  float eg = 0.70 + 0.12 * n(vec2(vS * 0.07, 1.0)) + 0.06 * n(vec2(vS * 0.4, 5.0)); float ice = smoothstep(eg, eg + 0.03, x) * (1.0 - clamp(vSl * 12.0, 0.0, 1.0));' +
@@ -1525,7 +1531,7 @@ function outerWorld(hi) { var G = EXT.g, TH = EXT.terrainH; if (!TH) return; var
     vertexShader: '#include <fog_pars_vertex>\n attribute float aS, aD, aSl, aW; uniform mat4 tm; varying vec2 vu; varying float vS, vD, vSl, vW; varying vec3 vw; varying vec4 vR; void main(){ vu = uv; vS = aS; vD = aD; vSl = aSl; vW = aW; vec4 w = modelMatrix * vec4(position, 1.0); vw = w.xyz; vR = tm * w; vec4 mvPosition = viewMatrix * w; gl_Position = projectionMatrix * mvPosition;\n#include <fog_vertex>\n }',
     fragmentShader: WFS });
   EXT.riverM = wm; EXT.riverMs = []; var riverMeshes = [];
-  paths.forEach(function (P) { var L = P.L, Wd = 10, pos = [], uv = [], sa = [], da = [], sl = [], wa = [], idx = [], m2 = wm.clone(); ['t', 'day', 'sky', 'hasR', 'sunK', 'sunD', 'sunC', 'refl', 'tm'].forEach(function (k) { m2.uniforms[k] = wm.uniforms[k]; }); m2.uniforms.dir.value = P.dir; EXT.riverMs.push(m2);
+  paths.forEach(function (P) { var L = P.L, Wd = 10, pos = [], uv = [], sa = [], da = [], sl = [], wa = [], idx = [], m2 = (function () { var rv = wm.uniforms.refl.value; wm.uniforms.refl.value = null; var c = wm.clone(); wm.uniforms.refl.value = rv; return c; })(); ['t', 'day', 'sky', 'hasR', 'sunK', 'sunD', 'sunC', 'refl', 'tm'].forEach(function (k) { m2.uniforms[k] = wm.uniforms[k]; }); m2.uniforms.dir.value = P.dir; EXT.riverMs.push(m2);
     L.forEach(function (q, i) { var w = q.hw + 2.2, a0 = L[Math.max(0, i - 2)], a1 = L[Math.min(L.length - 1, i + 2)], slope = Math.abs(a1.wl - a0.wl) / Math.max(1, a1.s - a0.s);
       for (var j = 0; j <= Wd; j++) { var s = j / Wd - 0.5, dd = Math.abs(s) * 2 * w, bedY = dd < q.hw ? q.wl - 1.1 * (1 - (dd / q.hw) * (dd / q.hw)) - 0.15 : q.wl + 0.25 + (dd - q.hw) * 0.55; pos.push(q.x + q.nx * s * w * 2, q.wl, q.z + q.nz * s * w * 2); uv.push(j / Wd, i / (L.length - 1)); sa.push(q.s); da.push(Math.max(0, q.wl - bedY)); sl.push(slope); wa.push(2 * w); } });
     for (var i = 0; i < L.length - 1; i++) for (var j = 0; j < Wd; j++) { var a = i * (Wd + 1) + j, b = a + Wd + 1; idx.push(a, a + 1, b, b, a + 1, b + 1); /* counter-clockwise seen from above */ }
@@ -1554,7 +1560,7 @@ function outerWorld(hi) { var G = EXT.g, TH = EXT.terrainH; if (!TH) return; var
   bo.count = nb; bo.castShadow = true; bo.receiveShadow = true; bo.userData.noColl = true; bo.layers.set(1); bo.raycast = function () {}; G.add(bo); EXT.boulders = bo;
   /* the lake is the station's cooling-water pond: the river feeds it from the north, and the intake pumphouse on its west shore draws from it.
      Open water in the middle and in leads toward the river mouth and the intake, shelf ice round the rest of the shore. */
-  var pondMesh = function (geoFn, dir) { var m2 = wm.clone(); ['t', 'day', 'sky', 'hasR', 'sunK', 'sunD', 'sunC', 'refl', 'tm'].forEach(function (k) { m2.uniforms[k] = wm.uniforms[k]; }); m2.uniforms.dir.value = dir; EXT.riverMs.push(m2); var gq = geoFn(), m = new THREE.Mesh(gq, m2); m.renderOrder = 2; m.userData.noColl = true; m.userData.noShadow = true; m.layers.set(1); m.raycast = function () {}; G.add(m); riverMeshes.push(m); return m; };
+  var pondMesh = function (geoFn, dir) { var m2 = (function () { var rv = wm.uniforms.refl.value; wm.uniforms.refl.value = null; var c = wm.clone(); wm.uniforms.refl.value = rv; return c; })(); ['t', 'day', 'sky', 'hasR', 'sunK', 'sunD', 'sunC', 'refl', 'tm'].forEach(function (k) { m2.uniforms[k] = wm.uniforms[k]; }); m2.uniforms.dir.value = dir; EXT.riverMs.push(m2); var gq = geoFn(), m = new THREE.Mesh(gq, m2); m.renderOrder = 2; m.userData.noColl = true; m.userData.noShadow = true; m.layers.set(1); m.raycast = function () {}; G.add(m); riverMeshes.push(m); return m; };
   pondMesh(function () { var NRg = 24, NAg = 120, pos = [], uv = [], sa = [], da = [], sl = [], wa = [], idx = [];
     for (var r = 0; r <= NRg; r++) for (var a = 0; a <= NAg; a++) { var rr = r / NRg, an = a / NAg * Math.PI * 2, ca = Math.cos(an), sa2 = Math.sin(an), lead = 1 - 0.38 * Math.pow(Math.max(0, -ca), 8) - 0.34 * Math.pow(Math.max(0, -sa2), 10), x = 150 + ca * 40 * rr, z = sa2 * 26 * rr;
       pos.push(x, -0.36, z); uv.push(0.5 + 0.5 * rr * lead, a / NAg); sa.push(an * 30); da.push(0.25 + 2.6 * (1 - rr * rr)); sl.push(0); wa.push(60); }
@@ -1622,11 +1628,37 @@ function mountainDetail(hi) { var ter = EXT.ter, far = EXT.far, rockT = ter && t
         ' vec3 rockC = vec3(0.24, 0.25, 0.27) * (0.55 + 0.9 * rs.rgb) * (0.8 + 0.35 * strat); float ledge = smoothstep(0.7, 0.86, normalize(vTN).y + (rs.g - 0.5) * 0.4); vec3 snowC = vec3(0.9, 0.93, 0.97) * (0.92 + 0.12 * rs.r);' +
         ' diffuseColor.rgb = mix(diffuseColor.rgb, mix(rockC, snowC, ledge), rk * 0.9); diffuseColor.rgb *= 0.9 + 0.2 * rs.r; }').replace('#include <normal_fragment_begin>', RELIEF.replace('smoothstep(900.0, 120.0,', 'smoothstep(3500.0, 400.0,').replace('vTP * 1.0', 'vTP')); };
     fm.customProgramCacheKey = function () { return 'farTri' + (hi ? 1 : 0); }; fm.needsUpdate = true; } }
+/* ---- weathered peaks: a thermal-erosion pass over the near range ----
+   The ridged noise made needle spires whose faces were a few huge vertical triangles. Real rock can't stand much steeper than about 40 degrees
+   over a 3 m step for long: it sheds scree. So every step steeper than that sheds part of its excess downhill, 30 times, which rounds the needles
+   into buttresses with scree fans at their feet. The valley floor (inside 175 m) is never touched. Trees are moved with the ground, the vertex
+   colours are re-shaded from the new slopes, and EXT.terrainH is re-pointed at the eroded surface for anything placed afterwards. */
+function erodePeaks() { var ter = EXT.ter; if (!ter || !ter.geometry || ter.geometry.type !== 'PlaneGeometry') return; var g = ter.geometry, P = g.attributes.position, n = P.count, W = Math.round(Math.sqrt(n)); if (W * W !== n) return;
+  var dx = P.getX(1) - P.getX(0), dzc = P.getZ(W) - P.getZ(0); if (!(dx > 0) || Math.abs(dzc - dx) > 1e-3) return; var x0 = P.getX(0), z0 = P.getZ(0);
+  var H = new Float32Array(n), H0 = new Float32Array(n), lock = new Uint8Array(n); for (var i = 0; i < n; i++) { H[i] = H0[i] = P.getY(i); var d = Math.hypot(P.getX(i), P.getZ(i)); lock[i] = d < 175 || H[i] < -1.5 ? 1 : 0; }
+  var T = Math.tan(40 * Math.PI / 180) * dx, NB = [1, -1, W, -W];
+  for (var it = 0; it < 30; it++) { for (var y = 1; y < W - 1; y++) for (var x = 1; x < W - 1; x++) { var j = y * W + x; if (lock[j]) continue; var hj = H[j];
+      for (var k = 0; k < 4; k++) { var m = j + NB[k], df = hj - H[m]; if (df > T && !lock[m]) { var mv = (df - T) * 0.25; H[j] -= mv; H[m] += mv; hj = H[j]; } } } }
+  for (i = 0; i < n; i++) P.setY(i, H[i]); P.needsUpdate = true; g.computeVertexNormals(); g.computeBoundingSphere(); g.computeBoundingBox();
+  /* re-shade: steep faces rock, shallow ones snow, scree a grey mix; keep the bare-earth patches on the lower slopes */
+  var C = g.attributes.color, Nn = g.attributes.normal; if (C) { for (i = 0; i < n; i++) { if (lock[i] || Math.abs(H[i] - H0[i]) < 0.05 && Nn.getY(i) > 0.6) continue; var r = C.getX(i), gg = C.getY(i), b = C.getZ(i); if (r - b > 0.03) continue;
+      var up = Nn.getY(i), steep = clamp((0.86 - up) / 0.3, 0, 1), alt = clamp((H[i] - 6) / 30, 0, 1), scree = clamp((H[i] - H0[i]) / 3, 0, 1), rk = clamp(steep * (0.45 + 0.55 * alt), 0, 1), s = 0.93 - 0.62 * rk - 0.18 * scree * (1 - rk);
+      C.setXYZ(i, s * 0.98, s * 1.0, s * 1.03); } C.needsUpdate = true; }
+  /* height lookup on the eroded grid, and move the instanced trees and the like with the ground */
+  var hAt = function (A, px, pz) { var fx = (px - x0) / dx, fz = (pz - z0) / dx, ix = Math.floor(fx), iz = Math.floor(fz); if (ix < 0 || iz < 0 || ix >= W - 1 || iz >= W - 1) return null; fx -= ix; fz -= iz; var a = A[iz * W + ix], bb = A[iz * W + ix + 1], c = A[(iz + 1) * W + ix], d2 = A[(iz + 1) * W + ix + 1]; return (a * (1 - fx) + bb * fx) * (1 - fz) + (c * (1 - fx) + d2 * fx) * fz; };
+  var M4 = new THREE.Matrix4(), v = new THREE.Vector3(); EXT.g.children.forEach(function (o) { if (!o.isInstancedMesh || o.count < 20) return; var ch = false; for (var i = 0; i < o.count; i++) { o.getMatrixAt(i, M4); v.setFromMatrixPosition(M4); var a = hAt(H0, v.x, v.z), b = hAt(H, v.x, v.z); if (a == null || Math.abs(b - a) < 0.05) continue; M4.elements[13] += b - a; o.setMatrixAt(i, M4); ch = true; } if (ch) o.instanceMatrix.needsUpdate = true; });
+  var TH0 = EXT.terrainH; EXT.terrainH = function (px, pz) { var h = hAt(H, px, pz); return h == null ? TH0(px, pz) : h; }; }
+/* ---- chain-link fence: real wire, not a grey band ----
+   Seen from far off, the wire pattern's mipmaps averaged into a flat half-transparent grey strip across the view. Real chain link almost vanishes
+   at a distance, so once the wires are thinner than a pixel the fence fades to a faint haze, and the wire itself is drawn thin and bright. */
+function fenceFix() { var seen = new Set(); EXT.g.traverse(function (o) { var m = o.material; if (!o.isMesh || !m || seen.has(m) || !m.map || !m.map.image || m.map.image.width !== 64 || m.alphaTest !== 0.3 || m.metalness !== 0.6) return; seen.add(m);
+    m.alphaTest = 0; m.depthWrite = false; m.onBeforeCompile = function (sh) { sh.fragmentShader = sh.fragmentShader.replace('#include <map_fragment>', '#include <map_fragment>\n { float wpp = length(fwidth(vMapUv)) * 8.0; float near = 1.0 - smoothstep(0.35, 1.1, wpp); diffuseColor.a = mix(0.07, smoothstep(0.25, 0.6, diffuseColor.a), near); }'); };
+    m.customProgramCacheKey = function () { return 'fenceWire'; }; m.needsUpdate = true; }); }
 function photoScene2(scene, hi, lite) {
   if (hi) { try { PH2.bev = bevelRoom(scene); } catch (e) { console.error(e); } }
   if (!lite) { try { bakeRoomFloor(scene); } catch (e) { console.error(e); } }
   if (!EXT.on || !EXT.g) return;
-  try { mountainDetail(hi); } catch (e) { console.error(e); }
+  if (!lite) { try { erodePeaks(); } catch (e) { console.error(e); } } try { mountainDetail(hi); } catch (e) { console.error(e); } try { fenceFix(); } catch (e) { console.error(e); }
   if (!lite) { try { outerWorld(hi); } catch (e) { console.error(e); } try { snowTops(); } catch (e) { console.error(e); } }
   if (hi) { try { steamVolumes(); } catch (e) { console.error(e); } try { cloudDeck(); } catch (e) { console.error(e); } }
   try { MODELPACK.load(); } catch (e) {}
@@ -5993,7 +6025,7 @@ function* addOutside(scene) { var g = new THREE.Group(); g.position.set(RX, 0, R
   var moon = new THREE.Mesh(new THREE.SphereGeometry(34, 32, 20), moonM); moon.position.set(1520, 920, -1040); g.add(moon); EXT.moon = moon;
   moon.onBeforeRender = function (r, s2, cm) { var wp = moon.getWorldPosition(EXT.mTmp || (EXT.mTmp = new THREE.Vector3())), V = cm.position.clone().sub(wp).normalize(), T = new THREE.Vector3().crossVectors(new THREE.Vector3(0, 1, 0), V).normalize(), e = 2 * Math.PI * (MOONK.ph == null ? 0.5 : MOONK.ph); moonM.uniforms.L.value.copy(V).multiplyScalar(-Math.cos(e)).addScaledVector(T, Math.sin(e)); };
   /* moon halo: two additive sprites (tight glow + wide soft halo), hidden in lite graphics and faded by the day/night tick */
-  EXT.moonHalo = (function () { var c = CV(128, 128), g2 = c.getContext('2d'), gr = g2.createRadialGradient(64, 64, 0, 64, 64, 64); gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(0.2, 'rgba(255,255,255,.5)'); gr.addColorStop(0.5, 'rgba(255,255,255,.12)'); gr.addColorStop(1, 'rgba(255,255,255,0)'); g2.fillStyle = gr; g2.fillRect(0, 0, 128, 128); var tx = new THREE.CanvasTexture(c), mk = function (sz, col, op) { var sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tx, color: col, transparent: true, opacity: op, depthWrite: false, depthTest: false, fog: false, blending: THREE.AdditiveBlending })); sp.scale.set(sz, sz, 1); sp.position.copy(moon.position); sp.renderOrder = -1; sp.userData.noShadow = true; sp.frustumCulled = false; g.add(sp); return sp; }; return [mk(260, 0xfff2d0, 0.55), mk(900, 0x9db8ff, 0.22)]; })();
+  EXT.moonHalo = (function () { var c = CV(128, 128), g2 = c.getContext('2d'), gr = g2.createRadialGradient(64, 64, 0, 64, 64, 64); for (var hs = 0; hs <= 16; hs++) { var hr = hs / 16; gr.addColorStop(hr, 'rgba(255,255,255,' + (Math.exp(-hr * hr * 9) * (1 - hr * hr)).toFixed(4) + ')'); } g2.fillStyle = gr; g2.fillRect(0, 0, 128, 128); var tx = new THREE.CanvasTexture(c), mk = function (sz, col, op) { var sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tx, color: col, transparent: true, opacity: op, depthWrite: false, depthTest: false, fog: false, blending: THREE.AdditiveBlending })); sp.scale.set(sz, sz, 1); sp.position.copy(moon.position); sp.renderOrder = -1; sp.userData.noShadow = true; sp.frustumCulled = false; g.add(sp); return sp; }; return [mk(260, 0xfff2d0, 0.55), mk(900, 0x9db8ff, 0.22)]; })();
   /* shooting star: one streak mesh, reused; launched rarely at night from the per-frame sky tick */
   EXT.shoot = (function () { var c = CV(128, 8), g2 = c.getContext('2d'), gr = g2.createLinearGradient(0, 0, 128, 0); gr.addColorStop(0, 'rgba(255,255,255,0)'); gr.addColorStop(0.8, 'rgba(210,225,255,.55)'); gr.addColorStop(1, 'rgba(255,255,255,1)'); g2.fillStyle = gr; g2.fillRect(0, 2, 128, 4); var pv = new THREE.Group(), m = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(c), transparent: true, opacity: 0, depthWrite: false, depthTest: false, fog: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide })); m.scale.set(170, 3, 1); m.renderOrder = -1; m.frustumCulled = false; m.userData.noShadow = true; pv.visible = false; pv.add(m); g.add(pv); return { pv: pv, m: m, on: false, t0: 0, dur: 1, rz: 0, next: 12 + Math.random() * 20 }; })();
   /* aurora: two tall curtains with a scrolling band shader, additive */
@@ -6119,7 +6151,7 @@ function* addOutside(scene) { var g = new THREE.Group(); g.position.set(RX, 0, R
       var fg = q.createLinearGradient(0, chh, 0, chh - 140); fg.addColorStop(0, 'rgba(30,34,38,.45)'); fg.addColorStop(1, 'rgba(30,34,38,0)'); q.fillStyle = fg; q.fillRect(0, chh - 140, cw, 140);
       var id = q.getImageData(0, 0, cw, chh), d = id.data; for (i = 0; i < d.length; i += 4) { var n = (Math.random() - 0.5) * 7; d[i] += n; d[i + 1] += n; d[i + 2] += n; } q.putImageData(id, 0, 0);
       var cT = new THREE.CanvasTexture(c), bT = new THREE.CanvasTexture(hc); cT.colorSpace = THREE.SRGBColorSpace; cT.anisotropy = 8; [cT, bT].forEach(function (t) { t.wrapS = THREE.RepeatWrapping; });
-      var face = function (w, x, z, ry) { var t1 = cT.clone(), t2 = bT.clone(); t1.needsUpdate = t2.needsUpdate = true; t1.repeat.set(w / 8, 1); t2.repeat.set(w / 8, 1); var m = noC(P(new THREE.PlaneGeometry(w, CHh), new THREE.MeshStandardMaterial({ map: t1, bumpMap: t2, bumpScale: 1.2, roughness: 0.55, metalness: 0.35 }), x, (CY0 + CY1) / 2, z)); m.rotation.y = ry; return m; };
+      var face = function (w, x, z, ry) { var t1 = cT.clone(), t2 = bT.clone(); t1.needsUpdate = t2.needsUpdate = true; t1.repeat.set(w / 8, 1); t2.repeat.set(w / 8, 1); var m = noC(P(ribGeo(w, CHh, 8 / 24, 0.04), new THREE.MeshStandardMaterial({ map: t1, bumpMap: t2, bumpScale: 0.5, roughness: 0.55, metalness: 0.35 }), x, (CY0 + CY1) / 2, z)); m.rotation.y = ry; return m; };
       var plinthM = wornMat(0x9ea29d), flashM = mat(0x3c4750, 0.5, 0.4);
       [[X1 - X0, (X0 + X1) / 2, Z1, 0], [X1 - X0, (X0 + X1) / 2, Z0, Math.PI], [Z1 - Z0, X1, (Z0 + Z1) / 2, Math.PI / 2], [Z1 - Z0, X0, (Z0 + Z1) / 2, -Math.PI / 2]].forEach(function (f) { face(f[0], f[1], f[2], f[3]); });
       /* plinth, drip flashing over it, eaves flashing */ [[X1 - X0 + 0.6, 0.3, (X0 + X1) / 2, Z1 + 0.1], [X1 - X0 + 0.6, 0.3, (X0 + X1) / 2, Z0 - 0.1], [0.3, Z1 - Z0, X1 + 0.1, (Z0 + Z1) / 2], [0.3, Z1 - Z0, X0 - 0.1, (Z0 + Z1) / 2]].forEach(function (b) { var wx = b[0], wz = b[1]; noC(P(new THREE.BoxGeometry(wx, CY0 + 0.6, wz), plinthM, b[2], (CY0 - 0.6) / 2, b[3])); noC(P(new THREE.BoxGeometry(wx > 1 ? wx : 0.42, 0.08, wx > 1 ? 0.42 : wz), flashM, b[2], CY0 + 0.02, b[3])); noC(P(new THREE.BoxGeometry(wx > 1 ? wx + 0.2 : 0.5, 0.85, wx > 1 ? 0.5 : wz + 0.2), flashM, b[2], CY1 + 0.42, b[3])); });
