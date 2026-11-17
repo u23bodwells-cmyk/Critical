@@ -1,4 +1,14 @@
- form',icon:'SI',color:'#378ADD',desc:'SI units and prefixes, converting units, standard form and significant figures.',lessons:[
+'area')],e:'Area = length × width = '+a+' × '+b+' = '+(a*b)+' cm².'};
+ if(t===1)return {p:'Find the area of a triangle with base '+a+' cm and height '+h+' cm.',b:[cB(a*h/2,'','cm²','area')],e:'Area = ½ × base × height = 0.5 × '+a+' × '+h+' = '+cNum(a*h/2)+' cm².'};
+ if(t===2)return {p:'Find the area of a parallelogram with base '+a+' cm and perpendicular height '+h+' cm.',b:[cB(a*h,'','cm²','area')],e:'Area = base × perpendicular height = '+a+' × '+h+' = '+(a*h)+' cm².'};
+ return {p:'A trapezium has parallel sides '+a+' cm and '+b+' cm, and height '+h+' cm. Find its area.',b:[cB((a+b)*h/2,'','cm²','area')],e:'Area = ½(a + b)h = 0.5 × ('+a+' + '+b+') × '+h+' = '+cNum((a+b)*h/2)+' cm².'}};
+CGEN.g_dtgraph=function(){var t1=cP([10,20,30,40]),d1=cP([50,100,150,200,300]),t2=cP([10,20,30]),k=cR(0,2);
+ if(k===0)return {p:'On a distance–time graph, a line goes from (0 s, 0 m) to ('+t1+' s, '+d1+' m). What speed does it show?',b:[cB(d1/t1,'','m/s','speed')],e:'Speed = gradient = distance ÷ time = '+d1+' ÷ '+t1+' = '+cNum(d1/t1)+' m/s.'};
+ if(k===1)return {p:'A distance–time graph is a flat horizontal line from '+t1+' s to '+(t1+t2)+' s. What is the speed during that time?',b:[cB(0,'','m/s','speed')],e:'Flat means the distance isn\'t changing: the object is stationary, so the speed is 0.'};
+ return {p:'A runner goes '+d1+' m in '+t1+' s, rests for '+t2+' s, then goes another '+d1+' m in '+(t1*2)+' s. What is the average speed for the whole trip, including the rest? (2 decimal places)',b:[cB(g2(2*d1/(3*t1+t2)),'','m/s','average speed',false,0.01)],e:'Average speed = total distance ÷ total time = '+(2*d1)+' ÷ ('+t1+' + '+t2+' + '+(2*t1)+') = '+(2*d1)+' ÷ '+(3*t1+t2)+' = '+cNum(g2(2*d1/(3*t1+t2)))+' m/s.'}};
+
+/* ========== GCSE · LEVEL 1 · Year 9 refreshers (only if you need them) ========== */
+U({id:'gp1-1',track:'gp',level:1,title:'Units and standard form',icon:'SI',color:'#378ADD',desc:'SI units and prefixes, converting units, standard form and significant figures.',lessons:[
 LH('gp1-1-1','SI units and prefixes',8,'The units physicists use, and how kilo, mega and milli change them.',[
 T(`<h3>SI units</h3><p>Scientists everywhere use the same units, called <b>SI units</b>. The ones you'll use most:</p><div class="tbl"><table class="wtable"><tr><th>Quantity</th><th>Unit</th></tr><tr><td>length</td><td>metre (m)</td></tr><tr><td>mass</td><td>kilogram (kg)</td></tr><tr><td>time</td><td>second (s)</td></tr><tr><td>current</td><td>ampere (A)</td></tr><tr><td>temperature</td><td>kelvin (K) or °C</td></tr><tr><td>force</td><td>newton (N)</td></tr><tr><td>energy</td><td>joule (J)</td></tr><tr><td>power</td><td>watt (W)</td></tr></table></div><p>Physics equations only work if you put the numbers in using these units.</p>`),
 W('matchPairs',{pairs:[['Force','newton (N)'],['Energy','joule (J)'],['Power','watt (W)'],['Potential difference','volt (V)'],['Resistance','ohm (Ω)'],['Mass','kilogram (kg)']]},`Match each quantity to its unit.`,`Learn these: they come up in every topic.`),
@@ -806,15 +816,4 @@ U({id:'gc4-2',track:'gc',level:4,title:'Mole calculations',icon:'n',color:'#BA75
 LH('gc4-2-1','Balancing from masses and limiting reactants',11,'Using moles to work out an equation, and finding which reactant runs out.',[
 T(`<h3>Balancing from reacting masses (Higher)</h3><ol><li>Change each mass to moles (mass ÷ M<sub>r</sub>).</li><li>Divide every answer by the smallest.</li><li>That ratio gives the balancing numbers.</li></ol>`),
 W('calcDrill',{skill:'g_molebal',need:4},`Balance equations from masses. Get 4 right in a row.`,`Moles, then divide by the smallest.`),
-W('calcDrill',{skill:['g_limit','g_react'],need:5},`Limiting reactants and reacting masses. Get 5 right in a row.`,`Compare moles with the equation ratio.`),
-T(`<h3>Key points</h3><ul><li>Masses → moles → simplest ratio → balancing numbers.</li><li>The limiting reactant decides how much product forms.</li></ul>`)]),
-LH('gc4-2-2','Concentrations, gases, titrations and yield',12,'The multi-step calculations that separate grade 7s from 9s.',[
-RM(`<p>moles = mass ÷ M<sub>r</sub> = concentration × volume (dm³) = gas volume ÷ 24 dm³.</p>`),
-T(`<h3>Three ways to find moles</h3><div class="eq">n = m ÷ M<sub>r</sub> &nbsp;&nbsp; n = c × V &nbsp;&nbsp; n = V<sub>gas</sub> ÷ 24</div><p>Every multi-step problem goes: <b>something → moles → ratio → moles → something</b>.</p>`),
-W('stepCalc',{steps:[`25.0 cm³ of NaOH is neutralised by 20.0 cm³ of 0.10 mol/dm³ HCl. Find the concentration of the NaOH.`,`Moles of HCl = 0.10 × 0.0200 = 0.00200 mol`,`NaOH + HCl → NaCl + H₂O: ratio 1 : 1, so 0.00200 mol of NaOH`,`Concentration = 0.00200 ÷ 0.0250 = <b>0.080 mol/dm³</b>`]},`A titration worked example (Chemistry only, Higher).`,`Volumes in dm³: divide cm³ by 1000.`),
-W('calcDrill',{skill:['g_conc2','g_gasreact','g_titr','g_yieldmass'],need:6},`Multi-step mole problems. Get 6 right in a row.`,`Always go through moles.`),
-T(`<h3>Key points</h3><ul><li>Three routes to moles: mass, solution, gas.</li><li>Something → moles → ratio → moles → something.</li><li>cm³ ÷ 1000 = dm³.</li></ul>`)])
-]});
-U({id:'gc4-3',track:'gc',level:4,title:'Six-mark answers',icon:'✎',color:'#7F77DD',desc:'Explaining properties with bonding and structure, and explaining industrial and laboratory processes in a logical order.',lessons:[
-LH('gc4-3-1','Explaining with structure and bonding',10,'Linking properties to particles, bonds and forces, the way level 3 answers do.',[
-T(`<h3>The structure → property chain</h3><p>Every bonding explanation follows the same chain:</p><div cla
+W('calcDrill',{skill:['g_limit','g_react'],need:5},`Limiting reactants and reacting masse

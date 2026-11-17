@@ -132,7 +132,7 @@ button:focus-visible,.lnk:focus-visible,input:focus-visible{outline:2px solid #2
   /* ?mode=revise&t=<test> (from Critical's Tests tab): the same timer for revision, with its own totals, and finished sessions go into Critical's study log */
   var QS = (function () { try { return new URLSearchParams(location.search); } catch (e) { return { get: function () { return null; } }; } })(),
     REV = QS.get('mode') === 'revise', RT = String(QS.get('t') || '').slice(0, 80),
-    W = REV ? { k: 'Revision', ing: 'Revising for', go: 'Start revising', done: 'revision', idle: 'Press Start when you sit down to revise.', page: 'Revision timer' } : { k: 'Homework', ing: 'Doing homework for', go: 'Start homework', done: 'homework', idle: 'Press Start when you sit down to your homework.', page: 'Homework timer' };
+    W = REV ? { k: 'Test revision', ing: 'Revising for', go: 'Start revising', done: 'test revision', idle: 'Press Start when you sit down to revise. 30 minutes today counts as doing Critical’s plan.', page: 'Test revision timer' } : { k: 'Homework', ing: 'Doing homework for', go: 'Start homework', done: 'homework', idle: 'Press Start when you sit down to your homework.', page: 'Homework timer' };
   var K = REV ? 'critical_revise_v1' : 'critical_homework_v1', HWK = 'critical_plan_hw';
   function studyLog(ms) { if (!REV) return; var m = Math.min(600, Math.floor(ms / 60000)); if (m < 1) return; try { var o = JSON.parse(localStorage.getItem('critical_study') || 'null') || { sessions: [], run: null, linked: false }; if (!Array.isArray(o.sessions)) o.sessions = [];
     var d = new Date(), y = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); o.sessions.push({ d: y, m: m, t: 'Revision' + (RT ? ': ' + RT : ''), c: new Date(Date.now() - ms).toISOString() }); localStorage.setItem('critical_study', JSON.stringify(o)); } catch (e) {} }
@@ -141,12 +141,17 @@ button:focus-visible,.lnk:focus-visible,input:focus-visible{outline:2px solid #2
   function save() { try { localStorage.setItem(K, JSON.stringify(S)); } catch (e) {} }
   function planHw() { if (REV) return null; try { var o = JSON.parse(localStorage.getItem(HWK) || 'null'); return o && o.d === ymd() ? o : null; } catch (e) { return null; } }
   var S = load(), $ = function (id) { return document.getElementById(id); };
-  if (REV) { try { var bl = $('backLnk'); bl.href = 'critical.html#tests'; bl.textContent = '← Tests'; $('el').setAttribute('aria-label', 'Time spent revising'); } catch (e) {} }
+  if (REV) { try { var rp = document.querySelector('#radio p'); if (rp) rp.textContent = 'Music while you revise, the same stations as the desk radio in Critical Point.'; var bl = $('backLnk'); bl.href = 'critical.html#tests'; bl.textContent = '← Tests'; $('el').setAttribute('aria-label', 'Time spent revising'); } catch (e) {} }
   function pad(n) { return (n < 10 ? '0' : '') + n; }
   function fmt(ms) { var s = Math.max(0, Math.floor(ms / 1000)); return Math.floor(s / 3600) + ':' + pad(Math.floor(s / 60) % 60) + ':' + pad(s % 60); }
   function mins(ms) { var m = Math.round(ms / 60000); if (m < 60) return m + ' min'; return Math.floor(m / 60) + 'h ' + pad(m % 60); }
   function hhmm(t) { var d = new Date(t), h = d.getHours(), m = d.getMinutes(); return (h % 12 || 12) + ':' + pad(m) + (h >= 12 ? 'pm' : 'am'); }
   function elapsed() { var r = S.run; return r ? r.acc + (r.seg ? Date.now() - r.seg : 0) : 0; }
+  /* test revision: 30 minutes in a day counts as doing Critical's plan for that day (Critical reads this timer's totals and ticks the day off) */
+  var GOAL = 30 * 60000;
+  function todayMs() { var r = S.run; return (S.days[ymd()] || 0) + (r && ymd(r.start) === ymd() ? elapsed() : 0); }
+  var goalWas = REV && todayMs() >= GOAL;
+  function goalChk() { if (!REV) return; var on = todayMs() >= GOAL; if (on && !goalWas) toast('<b>30 minutes of revision ✓</b> That counts as today’s Critical plan. Keep going if you want to.'); goalWas = on; }
 
   /* Homework first from Critical's plan: start from the moment it was pressed (once) */
   var hw = planHw();
@@ -159,7 +164,7 @@ button:focus-visible,.lnk:focus-visible,input:focus-visible{outline:2px solid #2
     S.run = null; save(); wake(false); if (window.HW_RADIO) HW_RADIO.timer('stop');
     studyLog(ms);
     if (toCritical) { location.href = 'critical.html#hwdone'; return; }
-    toast('Nice work: <b>' + mins(ms) + '</b> of ' + W.done + '.' + (REV ? ' Added to your study log in Critical.' : '') + ' Today so far: <b>' + mins(S.days[ymd()] || 0) + '</b>.'); paint(); }
+    goalWas = REV && todayMs() >= GOAL; toast('Nice work: <b>' + mins(ms) + '</b> of ' + W.done + '.' + (REV ? ' Added to your study log in Critical.' + (todayMs() >= GOAL ? ' Today’s plan counts as done.' : '') : '') + ' Today so far: <b>' + mins(S.days[ymd()] || 0) + '</b>.'); paint(); }
   function reset() { if (!S.run) return; if (elapsed() > 60000 && !confirmReset()) return; S.run = null; save(); wake(false); paint(); }
   var armed = 0; function confirmReset() { if (Date.now() - armed < 3000) return true; armed = Date.now(); toast('Press Reset again to throw this session away.'); return false; }
 
@@ -183,11 +188,12 @@ button:focus-visible,.lnk:focus-visible,input:focus-visible{outline:2px solid #2
     $('el').textContent = fmt(e);
     var p = planHw(), sub = '';
     if (p && !p.done && r && r.hwAt === p.at) { var lf = p.end - Date.now(); sub = lf > 0 ? 'Homework first: Critical gets what’s left, ' + Math.ceil(lf / 60000) + ' min (until ' + hhmm(p.end) + ')' : 'Homework first: today’s Critical time is used up, and that’s fine.'; }
+    else if (REV) { var gm = Math.ceil((GOAL - todayMs()) / 60000); sub = (r ? 'Started at ' + hhmm(r.start) + (r.seg ? '' : ' · paused') + ' · ' : '') + (gm <= 0 ? 'Today’s Critical plan: done ✓' : gm + ' more min and today’s Critical plan is done'); }
     else if (r) sub = 'Started at ' + hhmm(r.start) + (r.seg ? '' : ' · paused');
     else if (S.days[ymd()]) sub = 'Ready for the next piece?';
     else sub = W.idle;
     $('sub').textContent = sub;
-    var today = (S.days[ymd()] || 0) + (r && ymd(r.start) === ymd() ? e : 0); $('today').textContent = 'Today: ' + mins(today);
+    var today = todayMs(); $('today').textContent = 'Today: ' + mins(today); goalChk();
     document.title = (r ? fmt(e).replace(/^0:/, '') + (r.seg ? '' : ' (paused)') + ' · ' : '') + W.page + ' · Critical'; }
 
   /* keep the screen on while timing */

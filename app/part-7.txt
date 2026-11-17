@@ -1,4 +1,11 @@
-}`),
+¹'}]],curves:function(p){return [[function(x){return Math.exp(-p.s*x)},'--accent',3]]},marks:function(p,P,col){var c=P.c,m=1/p.s;if(m<=10){c.fillStyle=col('--coral');c.beginPath();c.arc(P.X(m),P.Y(Math.exp(-1)),6,0,7);c.fill()}},read:function(p){return 'Σ = '+p.s.toFixed(1)+' cm⁻¹: mean free path <b>'+(1/p.s).toFixed(2)+' cm</b> (dot). After one mean free path, 37% (e<sup>−1</sup>) are still uninteracted.'}},`Change Σ and watch how quickly a beam is used up.`),
+N(`Σ = 0.25 cm⁻¹. What fraction of a beam passes 8 cm without interacting? (e<sup>−2</sup> = 0.135)`,0.135,0.01,'',`e<sup>−0.25 × 8</sup> = e<sup>−2</sup> = 0.135.`),
+QE(`Rearranging I = I₀e<sup>−Σx</sup> for x gives…`,[`x = ln(I₀/I) ÷ Σ`,`x = Σ ln(I₀/I)`,`x = ln(I/I₀) ÷ Σ`,`x = (I₀/I) ÷ Σ`],0,`Take ln of both sides.`),
+T(`<h3>Key points</h3><ul><li><b>I = I₀e<sup>−Σx</sup></b> for an uncollided beam.</li><li><b>Mean free path = 1/Σ</b>.</li><li>After one mean free path, e<sup>−1</sup> ≈ 37% remain uncollided.</li></ul>`)]),
+LH('m4-2-3','Reaction rates and power density',10,'Neutron flux × cross-section = reactions per second. Then multiply by 200 MeV for power.',[
+RM(`<ul><li><b>Neutron flux φ</b>: neutrons crossing each cm² per second (n/cm²/s) (Level 1).</li><li>Σ = Nσ in cm⁻¹.</li><li>One fission ≈ 3.2 × 10⁻¹¹ J.</li></ul>`),
+T(`<h3>Reaction rate density</h3><div class="eq">R = Σ φ</div>${KY([['R','reactions per cm³ per second','cm⁻³ s⁻¹'],['Σ','macroscopic cross-section','cm⁻¹'],['φ','neutron flux','cm⁻² s⁻¹']])}<p>Units check: cm⁻¹ × cm⁻² s⁻¹ = cm⁻³ s⁻¹ ✓.</p>`),
+T(`<h3>Power density</h3><p>Each fission releases E<sub>f</sub> ≈ 3.2 × 10⁻¹¹ J, so the power per cm³ is:</p><div class="eq">q‴ = E<sub>f</sub> Σ<sub>f</sub> φ</div>${KY([['q‴','volumetric power density','W/cm³'],['E<sub>f</sub>','energy per fission','J'],['Σ<sub>f</sub>','macroscopic fission cross-section','cm⁻¹']])}`),
 W('stepCalc',{steps:['Core-average values: Σ<sub>f</sub> ≈ 0.1 cm⁻¹ (fuel and water mixed), thermal flux φ ≈ 3 × 10<sup>13</sup> n/cm²/s.','Fission rate: R = 0.1 × 3 × 10<sup>13</sup> = 3 × 10<sup>12</sup> fissions per cm³ per second','Power density: q‴ = 3.2 × 10<sup>−11</sup> × 3 × 10<sup>12</sup>','= <b>96 W/cm³</b> ≈ 100 MW/m³: typical for a PWR core.','A core volume of about 45 m³ gives 45 × 100 ≈ 4,500 MW: the EPR\'s output. ✓']},`Get from flux to reactor power.`),
 N(`Σ<sub>f</sub> = 0.05 cm⁻¹, φ = 4 × 10<sup>13</sup> n/cm²/s. Fission rate per cm³ per second? Give the number in front of × 10<sup>12</sup>.`,2,0.01,'× 10¹² cm⁻³ s⁻¹',`0.05 × 4 × 10¹³ = 2 × 10¹².`),
 QE(`What is 1 MW/m³ in W/cm³? (1 m³ = 10⁶ cm³)`,[`1 W/cm³`,`1000 W/cm³`,`0.001 W/cm³`,`10⁶ W/cm³`],0,`10⁶ W ÷ 10⁶ cm³.`),
@@ -701,12 +708,4 @@ CGEN.lnd=function(){var a=cR(1,6),k=cP([2,4,5,10]),v=a/k;return {p:'y = '+(a===1
 CGEN.trigd=function(){var t=cR(0,3);
  if(t===0)return {p:'What is d/dx (sin x)?',o:['cos x','−cos x','sin x','−sin x'],e:'The derivative of sin x is cos x (x in radians).'};
  if(t===1)return {p:'What is d/dx (cos x)?',o:['−sin x','sin x','cos x','−cos x'],e:'The derivative of cos x is <b>minus</b> sin x.'};
- var a=cNZ(-4,5),k=cNZ(-3,4);if(t===2)return {p:'Find the gradient of y = '+(a===1?'':a===-1?'−':cNum(a))+'sin('+cT(k,1)+') at x = 0.',b:[cB(a*k,'gradient = ')],e:'dy/dx = '+cCo(a*k)+'cos('+cT(k,1)+'), and cos 0 = 1, so the gradient is '+cNum(a*k)+'.'};
- return {p:'Find the gradient of y = '+(a===1?'':a===-1?'−':cNum(a))+'cos('+cT(k,1)+') at x = 0.',b:[cB(0,'gradient = ')],e:'dy/dx = '+cCo(-a*k)+'sin('+cT(k,1)+'), and sin 0 = 0, so the gradient is 0. Cos is at a peak or trough at x = 0.'}};
-CGEN.chain=function(){var a=cNZ(-3,5),b=cNZ(-6,6),n=cR(2,6),inner='('+cPoly([[a,1],[b,0]])+')';
- return {p:'Differentiate y = '+inner+cSup(n)+'.',b:[cB(n*a,'dy/dx = ',inner,'number in front'),cB(n-1,'','','power',true)],e:'Chain rule: bring the power down, take 1 off it, then multiply by the derivative of the bracket ('+cNum(a)+'). '+n+' × '+cBr(a)+' = '+cNum(n*a)+'.'}};
-CGEN.chainexp=function(){var a=cNZ(-3,4),b=cR(-5,5);return {p:'Differentiate y = e'+cSup(cPoly([[a,1],[b,0]]))+'. What number goes in front?',b:[cB(a,'dy/dx = ','e'+cSup(cPoly([[a,1],[b,0]])),'number in front')],e:'The derivative of the power, '+cPoly([[a,1],[b,0]])+', is '+cNum(a)+'. That multiplies the e-term.'}};
-CGEN.product=function(){var m=cR(1,3),c=cNZ(-3,3),n=cR(1,3),k=cR(-2,2),u=Math.pow(k,m),du=m*Math.pow(k,m-1),w=Math.pow(k+c,n),dw=n*Math.pow(k+c,n-1),v=du*w+u*dw;
- return {p:'f(x) = '+cT(1,m)+'('+cPoly([[1,1],[c,0]])+')'+(n===1?'':cSup(n))+'. Use the product rule to find f′('+cNum(k)+').',b:[cB(v,'f′('+cNum(k)+') = ')],e:'u = '+cT(1,m)+', v = ('+cPoly([[1,1],[c,0]])+')'+(n===1?'':cSup(n))+'. f′ = u′v + uv′ = ('+cNum(du)+')('+cNum(w)+') + ('+cNum(u)+')('+cNum(dw)+') = '+cNum(v)+'.'}};
-CGEN.quotient=function(){var a=cR(-5,5),b,k,d;do{b=cR(-5,5);k=cR(0,4);d=k+b}while(b===a||[1,2,4,5,10].indexOf(Math.abs(d))<0);var v=(b-a)/(d*d);
- return {p:'f(x) = (x '+(a<0?'− '+(-a):'+ '+a)+') / (x '+(b<0?'− '+(-b):'+ '+b)+'). Use the quotient rule to find f′('+k+').',b:[cB(v,'f′('+k+') = ')],e:'f′ = (v·u′ − u·v′) ÷ v² = ((x '+(b<0?'− '+(-b):'+ '+b)+') − (x '+(a<
+ var a=cNZ(-4,5),k=cNZ(-3,4);if(t===2)return {p:'Find the gradient of y = '+(a===1?'':a===-1?'−':cNum(a))+'sin('+cT(k,1)+') at x = 0.',b:[cB(a*k,'gradient = ')],e:'dy/dx = '

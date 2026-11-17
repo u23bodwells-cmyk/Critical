@@ -1,4 +1,15 @@
-s all the neutrons'],0,`That reaction made the hydrogen at Fukushima. Accident limits keep cladding below 1204 °C.`)]);
+ = 2880 MW.`),
+Q(`Where does most of a power station's heat leave the plant?`,['The condenser cooling water','The turbine','The generator','The chimney'],0,`About two thirds of the heat goes into the cooling water through the condenser.`),
+Q(`In the Carnot formula, temperatures must be in…`,['kelvin','°C','°F','any unit'],0,`It's a ratio of absolute temperatures, so it only works in kelvin.`),
+Q(`If the condenser gets warmer, the plant's efficiency…`,['falls','rises','stays the same'],0,`A higher T<sub>cold</sub> lowers the efficiency limit.`)]);
+
+F('h1',[
+T(`<h3>Quick recap</h3><ul><li>Conduction: <b>q = k A ΔT / thickness</b></li><li>Convection: <b>q = h A (T<sub>surface</sub> − T<sub>water</sub>)</b>, or per m<sup>2</sup>: q″ = h ΔT</li><li>Pellet centre − surface = <b>q′ / (4πk)</b>, with k ≈ 3 W/m/K for UO<sub>2</sub></li></ul>`),
+N(`Conduction through cladding: k = 15 W/m/K, A = 0.01 m<sup>2</sup>, ΔT = 40 °C, thickness 0.0006 m. What's the heat flow, in W?`,10000,0.01,'W',`q = 15 × 0.01 × 40 ÷ 0.0006 = 6 ÷ 0.0006 = 10,000 W.`,`Multiply the top first: k × A × ΔT.`),
+N(`q′ = 18,000 W/m and k = 3 W/m/K. What's the pellet centre − surface temperature difference?`,477.5,0.01,'°C',`18,000 ÷ (4π × 3) = 18,000 ÷ 37.7 = 477 °C.`),
+N(`Convection: h = 30,000 W/m²/K and the heat flux is 1.2 MW/m². What's T<sub>surface</sub> − T<sub>water</sub>?`,40,0.01,'°C',`ΔT = q″ ÷ h = 1,200,000 ÷ 30,000 = 40 °C.`),
+Q(`Why is a fuel pellet's centre so much hotter than its surface?`,['Uranium dioxide conducts heat poorly','The water is hottest in the middle','The cladding is thickest there','Gamma rays only heat the centre'],0,`Heat is made throughout the pellet, and UO<sub>2</sub> is a poor conductor, so the centre runs hot.`),
+Q(`Above about 1200 °C, zirconium cladding…`,['reacts with steam, making hydrogen','melts instantly','becomes a moderator','absorbs all the neutrons'],0,`That reaction made the hydrogen at Fukushima. Accident limits keep cladding below 1204 °C.`)]);
 
 F('h2',[
 T(`<h3>Quick recap</h3><ul><li>Boiling curve: convection → <b>nucleate boiling</b> (great) → <b>DNB</b> → film boiling (bad)</li><li><b>DNBR = critical heat flux ÷ actual heat flux</b>, kept above about 1.3</li><li>DNBR gets worse with higher power, lower flow, lower pressure and higher inlet temperature</li></ul>`),
@@ -951,11 +962,4 @@ T(`<h3>Rule 4: exponentials</h3><div class="eq">y = e<sup>kx</sup> &nbsp;→&nbs
 W('stepCalc',{steps:['Differentiate <b>y = 3x² + 2x − 5</b>.','3x² → 3 × 2x = <b>6x</b>','2x → <b>2</b>','−5 is a constant → <b>0</b>','So <b>dy/dx = 6x + 2</b>. At x = 1, the gradient is 8.']},`A worked example, term by term.`),
 N(`y = 4x³. What is dy/dx at x = 2?`,48,0.001,'',`dy/dx = 12x². At x = 2: 12 × 4 = 48.`,`First differentiate, then put x = 2 in.`),
 N(`y = e<sup>0.5x</sup>. What is dy/dx at x = 0?`,0.5,0.001,'',`dy/dx = 0.5 e<sup>0.5x</sup>. At x = 0, e⁰ = 1, so 0.5.`),
-QE(`What is ln(1)?`,[`0`,`1`,`e`,`−1`],0,`e⁰ = 1.`),
-T(`<h3>Key points</h3><table><tr><th>y</th><th>dy/dx</th></tr><tr><td>xⁿ</td><td>n xⁿ⁻¹</td></tr><tr><td>a constant</td><td>0</td></tr><tr><td>a × f(x)</td><td>a × (gradient of f)</td></tr><tr><td>e<sup>kx</sup></td><td>k e<sup>kx</sup></td></tr></table>`)]),
-LH('m2-3-3','Rates in reactors',10,'Use differentiation to get startup rate and activity straight from the equations.',[
-RM(`<ul><li>Reactor power: <b>P = P₀ e<sup>t/τ</sup></b> (τ = period).</li><li>Decay: <b>N = N₀ e<sup>−λt</sup></b> (λ = decay constant).</li><li>Rule: e<sup>kx</sup> differentiates to <b>k e<sup>kx</sup></b>.</li></ul>`),
-T(`<h3>How fast is power rising?</h3><p>Differentiate P = P₀ e<sup>t/τ</sup> with respect to time. Here k = 1/τ:</p><div class="eq">dP/dt = (1/τ) × P₀ e<sup>t/τ</sup> = P / τ</div>${KY([['dP/dt','how fast power is rising','% per second'],['P','power right now','%'],['τ','reactor period','seconds']])}<div class="callout">The rate of rise is proportional to the power itself. That's why exponential growth speeds up.</div>`),
-N(`Power is 20% on a steady 50 s period. How fast is it rising, in % per second?`,0.4,0.01,'% per second',`dP/dt = P / τ = 20 / 50 = 0.4 %/s.`),
-T(`<h3>Activity from decay</h3><p>Differentiate N = N₀ e<sup>−λt</sup>. Here k = −λ:</p><div class="eq">dN/dt = −λ N</div><p>The minus sign means N is <b>falling</b>. The number of decays per second, the <b>activity A</b>, is the size of that rate:</p><div class="eq">A = λ N</div>${KY([['A','activity: decays per second','becquerels (Bq)'],['λ','decay constant','per second (s⁻¹)'],['N','number of unstable nuclei','(just a number)']])}`),
-W('stepCalc',{steps:['A sample has N = 2 × 10<sup>12</sup> unstable nuclei, with λ = 3 × 10<sup>−4</sup> per second.','A = λ N','A = 3 × 10<sup>−4</sup> × 2 × 10<sup>12</sup>','Front numbers: 3 × 2 = 6. Powers: −4 + 12 = 8.','A = <b>6 × 
+QE(`What is ln(1)?`,[`0`,`1`,`e`,`−1
