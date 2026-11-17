@@ -1435,11 +1435,11 @@ var POST = { on: false, hz: [],
         ' vec3 bl = texture2D(b, uv).rgb; c += bl * texture2D(dirt, uv).rgb * dk;' +
         /* lens flare: four ghosts of the bright image mirrored through the centre, each a different tint and size, plus a thin halo ring */
         ' if (flK > 0.0) { vec2 gv = vec2(0.5) - vUv; vec3 fl = vec3(0.0); vec3 tn[4]; tn[0] = vec3(1.0, 0.75, 0.45); tn[1] = vec3(0.5, 0.8, 1.0); tn[2] = vec3(0.8, 1.0, 0.6); tn[3] = vec3(1.0, 0.55, 0.9);' +
-        '  for (int i = 0; i < 4; i++) { vec2 q = vUv + gv * (0.7 + float(i) * 0.42); float w = pow(max(0.0, 1.0 - length(vec2(0.5) - q) / 0.72), 5.0); fl += max(texture2D(b2, q).rgb - 0.35, 0.0) * w * tn[i]; }' +
+        '  for (int i = 0; i < 4; i++) { vec2 q = vUv + gv * (0.7 + float(i) * 0.42); float w = pow(max(0.0, 1.0 - length(vec2(0.5) - q) / 0.72), 5.0); fl += max(texture2D(b2, q).rgb - 1.4, 0.0) * w * tn[i]; }' +
         '  vec2 hv = normalize(gv + 1e-5) * 0.36; float hw = pow(max(0.0, 1.0 - length(vec2(0.5) - fract(vUv + hv)) / 0.72), 6.0);' +
-        '  fl += vec3(max(texture2D(b2, vUv + hv * 1.02).r - 0.35, 0.0), max(texture2D(b2, vUv + hv).g - 0.35, 0.0), max(texture2D(b2, vUv + hv * 0.98).b - 0.35, 0.0)) * hw * 0.6; c += fl * flK; }' +
+        '  fl += vec3(max(texture2D(b2, vUv + hv * 1.02).r - 1.4, 0.0), max(texture2D(b2, vUv + hv).g - 1.4, 0.0), max(texture2D(b2, vUv + hv * 0.98).b - 1.4, 0.0)) * hw * 0.6; c += fl * flK; }' +
         /* bokeh: distant bright points open into soft discs with a brighter rim, as a real lens does when they are out of focus */
-        ' if (bkK > 0.0) { float zk = smoothstep(45.0, 160.0, zc); if (zk > 0.0) { vec3 bk = vec3(0.0); for (int i = 0; i < 10; i++) { float a = float(i) * 0.6283 + 0.3; bk += texture2D(b1, uv + vec2(cos(a) / asp, sin(a)) * 0.0105).rgb; } c += max(bk / 10.0 - 0.25, 0.0) * bkK * zk; } }' +
+        ' if (bkK > 0.0) { float zk = smoothstep(45.0, 160.0, zc); if (zk > 0.0) { vec3 bk = vec3(0.0); for (int i = 0; i < 10; i++) { float a = float(i) * 0.6283 + 0.3; bk += texture2D(b1, uv + vec2(cos(a) / asp, sin(a)) * 0.0105).rgb; } c += max(bk / 10.0 - 1.2, 0.0) * bkK * zk; } }' +
         ' float la = texture2D(ae, vec2(0.5)).r; float e = ex * exp(clamp((aeRef - la) * aeK, -0.7, 0.62)); c *= e;' +
         ' vec3 o = tmo > 0.5 ? agx(c * 0.75) : aces(c); o = srgb(o);' +
         ' float lu = dot(o, vec3(0.2126, 0.7152, 0.0722)); o = mix(vec3(lu), o, sat); o = clamp((o - 0.5) * con + 0.5, 0.0, 1.0) * tint; float vig = smoothstep(0.95, 0.25, length(d * vec2(asp, 1.0)) * 0.85); o *= mix(1.0 - vg, 1.0, vig);' +
