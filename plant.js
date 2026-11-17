@@ -8096,8 +8096,21 @@ function moveCam(dt) { if (CAM.free) { CAM.tw = null; var ff = 0, fs = 0, fu = 0
   CAM.vx = (CAM.vx || 0) + (tx - (CAM.vx || 0)) * ea; CAM.vz = (CAM.vz || 0) + (tz - (CAM.vz || 0)) * ea; if (!m && Math.hypot(CAM.vx, CAM.vz) < 0.02) { CAM.vx = CAM.vz = 0; return; }
   var sp = Math.hypot(CAM.vx, CAM.vz) * dt, nx = CAM.x + CAM.vx * dt, nz = CAM.z + CAM.vz * dt, was = blocked(CAM.x, CAM.z);
   if (!blocked(nx, nz) || was) { CAM.x = nx; CAM.z = nz; } else if (!blocked(nx, CAM.z)) CAM.x = nx; else if (!blocked(CAM.x, nz)) CAM.z = nz;
-  if (!CAM.lad) CAM.fl = floorAt(CAM.x, CAM.z, CAM.fl || 0, true); var bobK = S.cfg.bob === false ? 0 : 1; CAM.bobT = (CAM.bobT || 0) + sp * 2.6; CAM.y += (CAM.fl + 1.65 + Math.sin(CAM.bobT) * 0.008 * bobK - CAM.y) * (1 - Math.exp(-dt * 9)); CAM.fov += (60 - CAM.fov) * (1 - Math.exp(-dt * 3)); if (CAM.view !== 'walk') { CAM.view = 'walk'; HUD.dirty = true; }
+  if (!CAM.lad) CAM.fl = floorAt(CAM.x, CAM.z, CAM.fl || 0, true); var bobK = S.cfg.bob === false ? 0 : 1; CAM.bobT = (CAM.bobT || 0) + sp * 2.6; CAM.y += (CAM.fl + 1.65 + Math.sin(CAM.bobT) * 0.008 * bobK - CAM.y) * (1 - Math.exp(-dt * 9)); CAM.fov += (60 - CAM.fov) * (1 - Math.exp(-dt * 3)); if (CAM.view !== 'walk') { CAM.view = 'walk'; HUD.dirty = true; } STEP.tick();
 }
+/* footsteps: soft and low, never a click. Each step is filtered noise with a gentle attack (no sharp edge): a heel thud and a toe scuff on concrete
+   and tarmac, a muffled thump with a few soft crystal crunches in snow, a dull clang with a short ring on steel grating and stairs. Each one varies
+   a little in pitch and loudness, alternates slightly left and right, and follows the walking rhythm of the head bob. Volume: Effects > Footsteps. */
+var STEP = { last: -1, side: 1,
+  play: function (kind) { var c = AUD.ctx; if (!c || !S.cfg.snd || !AUD.nbuf || !AUD.master) return; var mv = FXS.mix('steps'); if (!(mv > 0.01)) return; var t = c.currentTime + 0.01, R = Math.random, v = 0.85 + R() * 0.3;
+    var hit = function (t0, dur, type, f, q, vol, att) { var s = c.createBufferSource(); s.buffer = AUD.nbuf; var off = R() * Math.max(0, AUD.nbuf.duration - dur - 0.1), fl = c.createBiquadFilter(); fl.type = type; fl.frequency.value = f * (0.92 + R() * 0.16); fl.Q.value = q; var g = c.createGain(); g.gain.setValueAtTime(0.0001, t0); g.gain.linearRampToValueAtTime(vol * mv * v, t0 + att); g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+      s.connect(fl); fl.connect(g); if (c.createStereoPanner) { var p = c.createStereoPanner(); p.pan.value = 0.15 * STEP.side; g.connect(p); p.connect(AUD.master); } else g.connect(AUD.master); s.start(t0, off, dur + 0.05); };
+    if (kind === 'snow') { hit(t, 0.24, 'lowpass', 650, 0.7, 0.16, 0.035); for (var i = 0; i < 6; i++) hit(t + 0.02 + R() * 0.14, 0.06, 'bandpass', 1300 + R() * 1400, 1.0, 0.03, 0.015); }
+    else if (kind === 'metal') { hit(t, 0.16, 'lowpass', 240, 0.8, 0.17, 0.018); hit(t + 0.005, 0.32, 'bandpass', 380 + R() * 80, 7, 0.028, 0.02); hit(t + 0.08, 0.12, 'lowpass', 300, 0.8, 0.07, 0.02); }
+    else { hit(t, 0.13, 'lowpass', 210, 0.8, 0.17, 0.02); hit(t + 0.07 + R() * 0.02, 0.11, 'lowpass', 520, 0.7, 0.045, 0.025); }
+    STEP.side = -STEP.side; },
+  surface: function () { if (CAM.lad || (CAM.fl || 0) > 0.5) return 'metal'; if (camIndoors()) return 'hard'; var y = EXT.snowY && EXT.g ? EXT.snowY(CAM.x - EXT.g.position.x, CAM.z - EXT.g.position.z) : -1; return y > -0.3 ? 'snow' : 'hard'; },
+  tick: function () { if (CAM.free || CAM.view !== 'walk') return; var ph = Math.floor((CAM.bobT || 0) / Math.PI); if (ph === STEP.last) return; STEP.last = ph; if (Math.hypot(CAM.vx || 0, CAM.vz || 0) < 0.45 || S.paused) return; try { STEP.play(STEP.surface()); } catch (e) {} } };
 /* when the mission card covers the left of a wide screen, shift the picture right so what you're looking at sits in the clear part */
 var OFS = { cur: 0, w: 0, h: 0 };
 var HEADM = { y: null, p: 0, vy: 0, vp: 0, roll: 0, t: 0 };
@@ -9395,7 +9408,7 @@ PLAY.tick = function (dt, sim) { if (!S.p) return; if (!PLAY.el.goal || !PLAY.el
    Saved on this device only (localStorage key critical_plant_fx4, wrapped in try/catch). FXS.eff(k) is 0 when an effect is off, else its intensity (halved in Lite graphics). */
 var FXS = { KEY: 'critical_plant_fx4', d: null, rmq: null,
   EFFECTS: [['world', '🛣 Distant world', 'far road with headlights, a train or barge, a town glow on the horizon'], ['wild', '🦌 Wildlife', 'birds at dawn, a deer or fox at the fence, geese on the cooling pond'], ['maint', '🏗 Maintenance', 'crane lift, welding flash and sparks, a worker on a ladder'], ['secur', '🚨 Security', 'gatehouse beacon, flickering perimeter lamp, the barrier lifting for a car'], ['pulse', '💡 Breathing status lamps', 'the gentle pulse on some board lamps'], ['trip', '🔴 Red trip wash', 'the control room washing red after a reactor trip'], ['tremor', '📳 Turbine hall tremor', 'the floor shake beside a running turbine']],
-  MIX: [['horn', 'Alarm horn'], ['chat', 'Chatter, clicks and voice'], ['amb', 'Room ambience'], ['rumble', 'Plant rumble, wind and snow']],
+  MIX: [['horn', 'Alarm horn'], ['chat', 'Chatter, clicks and voice'], ['amb', 'Room ambience'], ['rumble', 'Plant rumble, wind and snow'], ['steps', 'Footsteps']],
   load: function () { if (FXS.d) return FXS.d; var d = {}; try { d = JSON.parse(localStorage.getItem(FXS.KEY) || '{}') || {}; } catch (e) { d = {}; } d.fx = d.fx || {}; d.mix = d.mix || {}; if (d.rm == null) d.rm = 'auto'; return (FXS.d = d); },
   save: function () { try { localStorage.setItem(FXS.KEY, JSON.stringify(FXS.d)); } catch (e) {} },
   reduced: function () { var d = FXS.load(); if (d.rm === 'on') return true; if (d.rm === 'off') return false; if (FXS.rmq === null) { try { FXS.rmq = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches); } catch (e) { FXS.rmq = false; } } return FXS.rmq; },
