@@ -1159,7 +1159,7 @@ function nextCard(){P.i++;if(P.i>=P.cards.length)finish();else showCard()}
 function showCard(){var c=P.cards[P.i];DRAWS=[];$('pBar').style.width=(P.i/P.cards.length*100)+'%';if(P.mode==='test')updTimer();else $('pXP').textContent=P.xp?'+'+P.xp+' XP':'';
  var b=$('pBody');b.innerHTML='';$('pScroll').scrollTop=0;foot('','','');skipBtn(null);P.st={tries:0};if(c)c._mcNow=false;P.hintFn=P.hintCan=null;P.rtSrc=null;$('pFoot').style.display='';
  var k=document.createElement('div');k.className='pkick';k.style.color=P.mode==='review'&&c._src?'var(--muted)':P.color;k.textContent=P.mode==='lap'?'Victory lap'+(c._src?' · '+c._src:''):P.mode==='one'?'Just one question'+(c._src?' · '+c._src:''):P.mode==='review'?(c._src||'Review'):P.mode==='test'?P.unit+' · Question '+(P.i+1)+' of '+P.cards.length:P.unit;b.appendChild(k);
- (P.mode==='test'?{Q:tQ,N:tN,O:tO}:{T:rT,Q:rQ,N:rN,W:rW,O:rO,F:rF})[c.t](c,b)}
+ (P.mode==='test'?{Q:tQ,N:tN,O:tO,RF:function(c,b){REV.rf(c,b,true)}}:{T:rT,Q:rQ,N:rN,W:rW,O:rO,F:rF,RF:function(c,b){REV.rf(c,b,false)}})[c.t](c,b)}
 function rT(c,b){var d=document.createElement('div');d.className='prose';d.innerHTML=c.h;b.appendChild(d);mainBtn('Continue',nextCard)}
 function rQ(c,b){var ty=P.mode!=='test'&&!c._mcNow?typeSpec(c):null;if(ty)return rTy(c,b,ty);P.asked++;var p=document.createElement('div');p.className='qprompt';p.innerHTML=c.p;b.appendChild(p);var box=document.createElement('div');box.className='opts';b.appendChild(box);
  var order=shuffle(c.o.map(function(_,i){return i})),sel=-1,lock=false,btns={};
@@ -1249,7 +1249,7 @@ function rO(c,b){P.asked++;var p=document.createElement('div');p.className='qpro
  function check(){var ok=ord.every(function(v,i){return v===i});if(ok){lock=true;mark();gotRight(c);foot('ok',praise(),c.e?'<div>'+c.e+'</div>':'');mainBtn('Continue',nextCard)}
   else{P.st.tries++;if(P.st.tries===1)gotWrong(c);mark();var n=ord.filter(function(v,i){return v===i}).length;if(P.st.tries>=3){lock=true;ord=c.items.map(function(_,i){return i});draw();mark();foot('no','Here\'s the right order',(c.e?'<div>'+c.e+'</div>':'')+EASE.revNote(c));mainBtn('Continue',nextCard)}else foot('no',EASE.gentle(),'<div>'+n+' of '+ord.length+' are in the right place (shown in green).</div>')}}}
 function bonusXP(n){P.xp+=n;addXP(n)}
-function finish(){if(P.mode==='lap')return HIGH.finish();if(P.mode==='one')return ONE.finish();if(P.mode==='test')return finishTest();if(P.mode==='follow')return finishFollow();P.finished=true;lcount();P.quiet=true;$('pBar').style.width='100%';var b=$('pBody'),acc=P.asked?Math.round(P.right/P.asked*100):100,perfect=P.asked>0&&P.mistakes===0,lines=[],first=false,unitDone=false,h0=homesNow(),ui=P.ui;
+function finish(){if(P.rev&&P.mode==='review')return REV.endPractice();if(P.mode==='lap')return HIGH.finish();if(P.mode==='one')return ONE.finish();if(P.mode==='test')return finishTest();if(P.mode==='follow')return finishFollow();P.finished=true;lcount();P.quiet=true;$('pBar').style.width='100%';var b=$('pBody'),acc=P.asked?Math.round(P.right/P.asked*100):100,perfect=P.asked>0&&P.mistakes===0,lines=[],first=false,unitDone=false,h0=homesNow(),ui=P.ui;
  lines.push(['Answers',P.xp-P.cbonus]);if(P.cbonus)lines.push(['Combo bonus',P.cbonus]);
  if(P.mode==='lesson'){var u=UNITS[ui],id=u.lessons[P.li].id;first=!S.done[id];S.done[id]=1;if(first){JUST_BUILT=ui;unitDone=u.lessons.every(function(l){return S.done[l.id]})}save();
   var cb=first?20:5;lines.push([first?'Lesson complete':'Lesson replayed',cb]);bonusXP(cb);if(perfect){S.st.perfect++;lines.push(['Perfect lesson',10]);bonusXP(10)}
@@ -1523,12 +1523,12 @@ function toggleSound(){S.sound=S.sound===false;save();soundBtnUpd();if(S.sound)s
 /* ----- in-lesson combos and mistakes ----- */
 function cardKey(c){if(c&&c._key)return c._key;if(P.mode==='lesson')return UNITS[P.ui].lessons[P.li].id+'#'+P.i;return c._key||null}
 function gotRight(c){var first=!P.st.tries;
- if(first){EASE.rightHook();P.right++;if('QNO'.indexOf(c.t)>=0)P.qr=(P.qr||0)+1;P.combo++;P.best=Math.max(P.best,P.combo);if(P.combo>S.st.best)S.st.best=P.combo;S.st.right++;var cb=P.combo>=3?Math.min(5,P.combo-1):0;P.cbonus+=cb;award(10+cb);
+ if(first){if(P.rev)try{REV.mark(c,true)}catch(_){}EASE.rightHook();P.right++;if('QNO'.indexOf(c.t)>=0)P.qr=(P.qr||0)+1;P.combo++;P.best=Math.max(P.best,P.combo);if(P.combo>S.st.best)S.st.best=P.combo;S.st.right++;var cb=P.combo>=3?Math.min(5,P.combo-1):0;P.cbonus+=cb;award(10+cb);
   var k=cardKey(c);if(P.mode==='review'&&k&&S.wrong[k]){delete S.wrong[k];S.st.fixed++;P.fixed++;save();qProg('fix',1)}
   qProg('right',1);qProg('run',P.combo);sfx(P.combo>=3?'combo':'right')}
  else{award(5);sfx('right')}
  showCombo(true)}
-function gotWrong(c){P.combo=0;P.mistakes++;showCombo(false);sfx('wrong');EASE.wrongHook(c);if('QNO'.indexOf(c.t)>=0){var k=cardKey(c);if(k){S.wrong[k]=1;save()}}}
+function gotWrong(c){if(P&&P.rev)try{REV.mark(c,false)}catch(_){}P.combo=0;P.mistakes++;showCombo(false);sfx('wrong');EASE.wrongHook(c);if('QNO'.indexOf(c.t)>=0){var k=cardKey(c);if(k){S.wrong[k]=1;save()}}}
 function showCombo(up){var e=$('pCombo');if(!e)return;if(P.combo>=2){e.innerHTML=FLAME+'<b>'+P.combo+'</b>';e.className='pcombo show'+(up?' pop':'');if(up){void e.offsetWidth;e.classList.add('pop')}}else e.className='pcombo'}
 function comboPraise(){if(!P||P.combo<3)return null;if(P.combo===20)return 'Chain reaction! 20 in a row!';if(P.combo===10)return 'Supercritical! 10 in a row!';if(P.combo===5)return 'On a roll! 5 in a row!';return P.combo+' in a row!'}
 /* ===== ease: help after mistakes, gentler feedback, level-too-hard warnings ===== */
@@ -1709,9 +1709,9 @@ function startTimer(){stopTimer();TIMER=setInterval(function(){if(!P||P.mode!=='
 function stopTimer(){if(TIMER){clearInterval(TIMER);TIMER=null}}
 function updTimer(){if(!P||P.mode!=='test')return;var s=Math.floor((Date.now()-P.t0)/1000);$('pXP').innerHTML='<span class="ttime'+(s>TEST_MINS*60?' over':'')+'">'+fmtClock(s)+' / '+TEST_MINS+':00</span>'}
 function nextLabel(){return P.i===P.cards.length-1?'Finish test':'Next'}
-function correctText(c){return c.t==='Q'?c.o[c.a]:c.t==='N'?fmtAns(c.a)+(c.u?' '+c.u:''):c.items.map(function(t,i){return (i+1)+'. '+t}).join('<br>')}
+function correctText(c){return c.t==='RF'?String(c.b).replace(/[&<>]/g,function(x){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[x]}):c.t==='Q'?c.o[c.a]:c.t==='N'?fmtAns(c.a)+(c.u?' '+c.u:''):c.items.map(function(t,i){return (i+1)+'. '+t}).join('<br>')}
 function numOK(c,v){var tol=c.tol==null?0.02:c.tol;return c.a===0?Math.abs(v)<=(tol||1e-9):Math.abs(v-c.a)<=Math.abs(c.a)*tol+1e-12}
-function testRecord(c,ok,given){P.answers.push({c:c,ok:ok,given:given,correct:correctText(c)});P.asked++;if(ok)P.right++;nextCard()}
+function testRecord(c,ok,given){if(P.rev)try{REV.mark(c,ok)}catch(_){}P.answers.push({c:c,ok:ok,given:given,correct:correctText(c)});P.asked++;if(ok)P.right++;nextCard()}
 function testSkip(){var c=P.cards[P.i];testRecord(c,false,'(skipped)')}
 function testHead(c,b){var p=el('div','qprompt',c.p,b)}
 function tQ(c,b){testHead(c,b);var box=el('div','opts',null,b),sel=-1,btns={};
@@ -1727,7 +1727,7 @@ function tO(c,b){testHead(c,b);el('p','small','Use the arrows to put these in th
  function draw(){ul.innerHTML='';ord.forEach(function(k,i){var li=el('li',null,'<span class="n">'+(i+1)+'</span><span class="t">'+c.items[k]+'</span><span class="mv"><button aria-label="Move up">▲</button><button aria-label="Move down">▼</button></span>',ul),bs=li.querySelectorAll('button');
   bs[0].onclick=function(){if(i===0)return;var t=ord[i-1];ord[i-1]=ord[i];ord[i]=t;draw()};bs[1].onclick=function(){if(i===ord.length-1)return;var t=ord[i+1];ord[i+1]=ord[i];ord[i]=t;draw()}})}
  draw();mainBtn(nextLabel(),function(){testRecord(c,ord.every(function(v,i){return v===i}),ord.map(function(k,i){return (i+1)+'. '+c.items[k]}).join('<br>'))},false);skipBtn(testSkip,'Skip')}
-function finishTest(){P.finished=true;lcount();P.quiet=true;stopTimer();$('pBar').style.width='100%';
+function finishTest(){if(P.rev)return REV.endMock();P.finished=true;lcount();P.quiet=true;stopTimer();$('pBar').style.width='100%';
  var u=UNITS[P.ui],uid=u.id,n=P.answers.length,ok=P.answers.filter(function(a){return a.ok}).length,pct=Math.round(ok/n*100),secs=Math.round((Date.now()-P.t0)/1000),pass=pct>=PASS_TEST,prev=S.tests[uid]||{},firstPass=pass&&!prev.passed,lines=[];
  S.tests[uid]={best:Math.max(prev.best||0,pct),passed:!!prev.passed||pass,n:(prev.n||0)+1,last:today(),lastPct:pct};save();EASE.record(trk(P.ui),lvOf(P.ui),pct);
  if(ok){lines.push(['Correct answers ('+ok+' × 5)',ok*5]);bonusXP(ok*5)}if(firstPass){lines.push(['First pass bonus',50]);bonusXP(50)}if(pct===100){lines.push(['Full marks',25]);bonusXP(25)}
@@ -3281,6 +3281,510 @@ var STUDY=(function(){
  return {open:open,state:function(){return st},payload:payload,check:check,refresh:function(){try{adopt(localStorage.getItem(KEY))}catch(_){}},start:function(t){if(st.run)return false;var n0=Date.now();st.run={at:n0,t:t||'',c:new Date(n0).toISOString()};keep();startTick();return true},stop:function(){if(st.run)$('[data-a=go]').click()}};
 })();
 try{window.STUDY=STUDY}catch(_){}
+/* ===== revise for a test: each test gets a countdown, and the days before it become revision days in the weekly plan ===== */
+var REV=(function(){
+ var SUBJ={gm:'GCSE Maths',gp:'GCSE Physics',gc:'GCSE Chemistry',gcs:'GCSE Computer Science'},COL='#7F77DD';
+ function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+ function R(){if(!S.rev||typeof S.rev!=='object')S.rev={};var r=S.rev;if(!Array.isArray(r.tests))r.tests=[];if(!r.miss||typeof r.miss!=='object')r.miss={};if(!r.log||typeof r.log!=='object')r.log={};if(!r.mocks||typeof r.mocks!=='object')r.mocks={};return r}
+ function s2d(s){var a=String(s).split('-');return new Date(+a[0],a[1]-1,+a[2],12)}
+ function addD(s,n){var d=s2d(s);d.setDate(d.getDate()+n);return dstr(d)}
+ function diff(a,b){return Math.round((s2d(b)-s2d(a))/864e5)}
+ function nice(s){return s2d(s).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})}
+ function short(s){return s2d(s).toLocaleDateString('en-GB',{weekday:'short'})}
+ function inDays(s){var n=diff(today(),s);return n===0?'today':n===1?'tomorrow':n<0?(n===-1?'yesterday':-n+' days ago'):'in '+n+' days'}
+ function tdI(){return (new Date().getDay()+6)%7}
+ function uIdx(id){for(var i=0;i<UNITS.length;i++)if(UNITS[i].id===id)return i;return -1}
+ /* a topic is a whole unit (e.g. gp3-1 Forces) or one lesson in it (e.g. gp3-1-1 Scalars, vectors and resultant forces) */
+ var TI=null;function tInfo(id){if(!TI||TI._n!==UNITS.length){TI={_n:UNITS.length};UNITS.forEach(function(u,ui){TI[u.id]={ui:ui,li:-1,title:u.title};u.lessons.forEach(function(l,li){TI[l.id]={ui:ui,li:li,title:l.title,ut:u.title}})})}return TI[id]||null}
+ function tLessons(id){var x=tInfo(id);if(!x)return [];if(x.li>=0)return [[x.ui,x.li]];return UNITS[x.ui].lessons.map(function(_,li){return [x.ui,li]})}
+ function tOrd(id){var x=tInfo(id);return x?x.ui*1000+(x.li+1):1e9}
+ function testOf(id){var r=R();for(var i=0;i<r.tests.length;i++)if(r.tests[i].id===id)return r.tests[i];return null}
+ function subjName(t){return t.subj==='own'?(t.sname||'Your subject'):SUBJ[t.subj]||'Test'}
+ function tName(t){return t.name||subjName(t)+' test'}
+ function cards(t){return (t.cards||[]).filter(function(c){return c&&c.q&&c.a})}
+ function uTitles(ids){return (ids||[]).map(function(id){var x=tInfo(id);return x?x.title:null}).filter(Boolean)}
+ /* the revision days: the t.days days before the test, but never before the day the test was added (or after it was deleted) */
+ function sched(t){var out=[];if(!t||!t.date)return out;var d=addD(t.date,-Math.max(1,Math.min(7,t.days||3))),g=0;if(t.from&&t.from>d)d=t.from;
+  for(;d<t.date&&g++<20;d=addD(d,1)){if(t.gone&&d>=t.gone)break;out.push(d)}return out}
+ /* topics are shared out over the revision days; the last day is a mini mock on everything */
+ function plan(t){var D=sched(t),n=D.length,U=(t.units||[]).filter(function(id){return !!tInfo(id)}),pd=n-1,out={};
+  D.forEach(function(d,k){var last=k===n-1,us=[];if(t.subj!=='own'&&U.length){if(last)us=U.slice();else if(U.length>=pd)us=U.filter(function(_,j){return Math.floor(j*pd/U.length)===k});else us=[U[k%U.length]]}
+   out[d]={k:k+1,n:n,mock:last,units:us}});return out}
+ function dayInfo(dk){var best=null;R().tests.forEach(function(t){var p=plan(t)[dk];if(p&&(!best||t.date<best.t.date))best={t:t,p:p}});if(!best)return null;
+  var t=best.t,p=best.p;return build({tid:t.id,dk:dk,name:tName(t),subj:t.subj,date:t.date,k:p.k,n:p.n,mock:p.mock,units:p.units})}
+ function build(pin){var t=testOf(pin.tid),tl=uTitles(pin.units),nc=t?cards(t).length:0,own=pin.subj==='own',d=nice(pin.date);
+  var desc=pin.mock?'Last day before your '+pin.name+' ('+d+'). Start with the mini mock test on '+(own?'all your flashcards':'everything')+', then practise what you got wrong.':
+   'Revision day '+pin.k+' of '+pin.n+' for your '+pin.name+' ('+d+'). '+(own?'Go through your '+nc+' flashcard'+(nc===1?'':'s')+' until the timer\'s done.':'Today\'s topic'+(tl.length===1?'':'s')+': '+tl.join(', ')+'. Do practice rounds until the timer\'s done.');
+  return {pin:pin,tid:pin.tid,name:pin.name,desc:desc,mock:!!pin.mock,units:pin.units||[]}}
+ /* ----- questions ----- */
+ function poolUnits(uids){var pool=[],seen={};(uids||[]).forEach(function(id){var x=tInfo(id);if(!x)return;var u=UNITS[x.ui];
+   tLessons(id).forEach(function(p){var l=u.lessons[p[1]];if(seen[l.id])return;seen[l.id]=1;function add(c,k,keep){if(!c||(c.t!=='Q'&&c.t!=='N'&&c.t!=='O'))return;var cc=Object.assign({},c);cc._src=u.title+' · '+l.title;if(keep)cc._key=k;cc._rk=k;cc._lid=l.id;cc._uid=u.id;pool.push(cc)}
+    l.cards.forEach(function(c,ci){add(c,l.id+'#'+ci,1)});(FOLLOW[l.id]||[]).forEach(function(c,ci){add(c,'F'+l.id+'#'+ci,1)});(BANK[l.id]||[]).forEach(function(c,ci){add(c,'B'+l.id+'#'+ci)})});
+   if(x.li<0)(TESTS[u.id]||[]).forEach(function(c,ci){if(!c||(c.t!=='Q'&&c.t!=='N'&&c.t!=='O'))return;var cc=Object.assign({},c);cc._src=u.title+' · exam-style';cc._rk='T'+u.id+'#'+ci;cc._uid=u.id;pool.push(cc)})});return pool}
+ var BANK={
+  'gp3-1-1':[
+   Q(`Which of these is a <b>scalar</b> quantity?`,['Speed','Velocity','Force','Displacement'],0,`A scalar has size only. Speed is just how fast; velocity is speed <i>in a given direction</i>, so it's a vector.`),
+   Q(`Which of these is a <b>vector</b> quantity?`,['Acceleration','Mass','Temperature','Energy'],0,`Acceleration has a direction. Mass, temperature and energy only have a size.`),
+   Q(`What's the difference between a scalar and a vector?`,['A vector has a direction as well as a size; a scalar only has a size','A scalar has a direction; a vector doesn\'t','Vectors are always bigger than scalars','Scalars can\'t be measured'],0,`Both have a size (magnitude). Only a vector also has a direction.`),
+   Q(`Which list contains <b>only</b> vectors?`,['Force, velocity, momentum','Mass, force, energy','Speed, distance, time','Weight, mass, density'],0,`Force, velocity and momentum all have directions. Mass, energy, speed, distance, time and density don't.`),
+   Q(`Which of these is <b>not</b> a vector?`,['Distance','Momentum','Weight','Displacement'],0,`Distance is how far, with no direction. Displacement is how far <i>in a straight line in a given direction</i>.`),
+   Q(`Distance is to displacement as speed is to…`,['velocity','acceleration','time','force'],0,`Distance and speed are scalars. Add a direction and they become displacement and velocity.`),
+   Q(`Weight is a…`,['vector, because it\'s a force and acts downwards','scalar, because it\'s measured in kg','scalar, because it never changes','vector, because it\'s measured in kg'],0,`Weight is a force (in newtons) acting towards the centre of the Earth, so it has a direction. Mass, in kg, is the scalar.`),
+   Q(`How is a vector shown on a diagram?`,['As an arrow: its length shows the size and it points in the direction','As a dot with the size written next to it','As a line with no arrowhead','As a circle whose size shows the magnitude'],0,`The length of the arrow (to scale) is the magnitude, and the arrowhead shows the direction.`),
+   Q(`A car goes round a roundabout at a steady 20 m/s. Which is true?`,['Its speed stays the same but its velocity changes','Its velocity stays the same but its speed changes','Both stay the same','Both change'],0,`Its direction keeps changing, so its velocity changes even though its speed doesn't.`),
+   Q(`Velocity is…`,['speed in a given direction','the same as speed','distance moved in any direction','how quickly speed changes'],0,`Velocity = speed + direction. How quickly velocity changes is acceleration.`),
+   N(`A runner does one lap of a 400 m track and finishes where she started. What is the size of her displacement?`,0,0.01,'m',`She's back where she started, so her displacement is 0 m, even though she's run a distance of 400 m.`),
+   N(`Sam walks 30 m east, then 40 m west. What total distance does he walk?`,70,0.01,'m',`Distance ignores direction: 30 + 40 = 70 m.`),
+   N(`Sam walks 30 m east, then 40 m west. What is the size of his displacement?`,10,0.01,'m',`The directions are opposite, so subtract: 40 − 30 = 10 m (west).`),
+   N(`Forces of 6 N and 9 N act on an object in the same direction. What is the resultant force?`,15,0.01,'N',`Same direction: add. 6 + 9 = 15 N.`),
+   N(`Forces of 8 N and 5 N act on an object in opposite directions. What is the size of the resultant force?`,3,0.01,'N',`Opposite directions: subtract. 8 − 5 = 3 N, in the direction of the 8 N force.`),
+   Q(`Two people push a box with 10 N each, in opposite directions. What happens?`,['The resultant force is 0 N, so its motion doesn\'t change','It speeds up in the direction of the first push','The resultant force is 20 N','It must move at 10 m/s'],0,`Balanced forces: 10 − 10 = 0 N. A stationary box stays still; a moving one carries on at the same velocity.`),
+   N(`Forces of 6 N east and 8 N north act on an object. What is the size of the resultant force?`,10,0.01,'N',`At right angles, use Pythagoras: √(6² + 8²) = √100 = 10 N.`),
+   N(`A boat's engine pushes it 12 N north while the current pushes it 9 N east. What is the size of the resultant force?`,15,0.01,'N',`√(12² + 9²) = √225 = 15 N.`),
+   N(`Two forces of 20 N and 15 N act at right angles. What is the size of the resultant?`,25,0.01,'N',`√(20² + 15²) = √625 = 25 N.`),
+   N(`Two forces of 7 N act at right angles to each other. What is the size of the resultant? (1 decimal place)`,9.9,0.006,'N',`√(7² + 7²) = √98 = 9.9 N.`),
+   N(`A plane flies north at 200 m/s while the wind pushes it east at 50 m/s. What is the size of its resultant velocity? (nearest whole number)`,206,0.004,'m/s',`Velocities are vectors too, so they add the same way: √(200² + 50²) = √42,500 ≈ 206 m/s.`),
+   N(`On a scale drawing, 1 cm represents 2 N. A force arrow is 6.5 cm long. What force does it show?`,13,0.01,'N',`6.5 × 2 = 13 N.`),
+   N(`A resultant arrow on a scale drawing is 7.5 cm long. The scale is 1 cm = 4 N. What is the resultant force?`,30,0.01,'N',`7.5 × 4 = 30 N.`),
+   O(`Put the steps in order for finding the resultant of two forces at right angles with a scale drawing.`,['Choose a scale, e.g. 1 cm = 1 N','Draw the first force to scale as an arrow','Draw the second force from the tip of the first, at right angles','Draw the resultant from the start of the first arrow to the tip of the second','Measure the resultant and use the scale to change it into newtons'],`Tip to tail, then join the start to the end. Measure the angle too if you're asked for the direction.`),
+   Q(`What does <b>resolving</b> a force mean? (Higher)`,['Splitting it into two forces at right angles that together have the same effect','Finding which way it points','Making it smaller','Adding it to its reaction force'],0,`The two components, drawn tip to tail, make the original force. You can find them with a scale drawing.`)
+  ]};
+ function poolOwn(t){var cs=cards(t),ans=[];cs.forEach(function(c){if(ans.indexOf(c.a)<0)ans.push(c.a)});
+  return cs.map(function(c,i){return {t:'RF',q:c.q,b:c.a,p:esc(c.q),_src:subjName(t)+' · your flashcard',_rk:'O'+t.id+'#'+(c.id||i),_all:ans}})}
+ function asMC(c){if(!c||c.t!=='RF'||!c._all)return null;var oth=shuffle(c._all.filter(function(a){return a!==c.b})).slice(0,3);if(oth.length<3)return null;var o=shuffle([c.b].concat(oth));
+  return {t:'Q',p:esc(c.q),o:o.map(esc),a:o.indexOf(c.b),e:'',_src:c._src,_rk:c._rk,_ty:null}}
+ function poolFor(tid,uids){var t=testOf(tid);if(t&&t.subj==='own')return poolOwn(t);return poolUnits(uids&&uids.length?uids:(t&&t.units)||[])}
+ function missN(pool){var m=R().miss;return pool.filter(function(c){return m[c._rk]}).length}
+ /* half of a round comes from questions you got wrong before, the rest you haven't been asked lately */
+ function pick(pool,n){var m=R().miss,a=shuffle(pool.filter(function(c){return m[c._rk]})),b=shuffle(pool.filter(function(c){return !m[c._rk]})),h=Math.ceil(n/2);return shuffle(a.slice(0,h).concat(b,a.slice(h)).slice(0,n))}
+ function logT(tid,dk){var r=R();if(!r.log[tid])r.log[tid]={};dk=dk||today();return r.log[tid][dk]||(r.log[tid][dk]={q:0,r:0})}
+ function mark(c,ok){if(typeof P==='undefined'||!P||!P.rev||!c||!c._rk)return;var r=R();if(ok)delete r.miss[c._rk];else r.miss[c._rk]=1;var l=logT(P.rev.tid);l.q++;if(ok)l.r++;save()}
+ function doneDay(pin){if(!pin)return;logT(pin.tid,pin.dk).done=1;save()}
+ function newP(o){return Object.assign({i:0,xp:0,right:0,asked:0,color:COL,combo:0,best:0,cbonus:0,mistakes:0,fixed:0,newBadges:[],levelUp:null},o)}
+ function startP(p,test){closeHub();try{if(window.PLAN)PLAN.close()}catch(_){}if(typeof P!=='undefined'&&P&&document.querySelector('#player.open'))closePlayer();P=newP(p);openPlayer();if(test)startTimer()}
+ function practice(tid,uids,missOnly){var pool=poolFor(tid,uids);if(missOnly)pool=pool.filter(function(c){return R().miss[c._rk]});
+  if(!pool.length){toast(BOLT,missOnly?'Nothing left to fix':'No questions yet',missOnly?'You\'ve fixed every revision mistake. Nice.':'Add topics or flashcards to this test first.');if(missOnly)back(tid);return}
+  var cs=pick(pool,10).map(function(c){return c.t==='RF'&&Math.random()<.5?(asMC(c)||c):c});
+  startP({mode:'review',rev:{tid:tid,uids:uids||null,miss:!!missOnly},cards:cs,title:'Revision',unit:'Revision'})}
+ function mock(tid){var t=testOf(tid),pool=poolFor(tid,null);if(!pool.length){toast(BOLT,'No questions yet','Add topics or flashcards to this test first.');return}
+  var cs=shuffle(pool).slice(0,Math.min(15,pool.length)).map(function(c){return c.t==='RF'?(asMC(c)||c):c}),u0=t&&t.units&&t.units.length&&tInfo(t.units[0])?tInfo(t.units[0]).ui:-1;
+  startP({mode:'test',rev:{tid:tid,mock:1},ui:u0>=0?u0:undefined,cards:cs,title:'Mini mock',unit:'Mini mock',answers:[],t0:Date.now()},true)}
+ /* your own flashcards: think of the answer, show it, say if you knew it */
+ function rf(c,b,test){if(!test)P.asked++;var p=el('div','qprompt',null,b);p.textContent=c.q;var ans=el('div','prose rvans',null,b);ans.textContent=c.b;ans.style.display='none';
+  var row=el('div','opts',null,b);row.style.display='none';row.innerHTML='<button class="opt" data-k="1">✓ I knew it</button><button class="opt" data-k="0">✗ Not yet</button>';
+  mainBtn('Show answer',function(){ans.style.display='block';row.style.display='grid';mainBtn('Choose one',function(){},true)});if(test)skipBtn(testSkip,'Skip');
+  [].forEach.call(row.querySelectorAll('.opt'),function(o){o.onclick=function(){var ok=o.getAttribute('data-k')==='1';[].forEach.call(row.querySelectorAll('.opt'),function(x){x.disabled=true});o.classList.add(ok?'right':'wrong');
+   if(test){testRecord(c,ok,ok?'I knew it':'Not yet');return}
+   if(ok){gotRight(c);foot('ok',praise(),'')}else{P.st.tries=1;gotWrong(c);foot('no','It\'ll come up again','It goes to the front of your next round.')}mainBtn('Continue',nextCard)}})}
+ function tick(){return '<svg width="90" height="90" viewBox="0 0 90 90" class="dicon"><circle cx="45" cy="45" r="42" fill="var(--good-bg)"/><path d="M27 46l12 12 24-26" stroke="var(--good-line)" stroke-width="8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>'}
+ function timerLine(){try{var ms=PLAN.runLeft();if(ms==null)return '';return '<p class="note">Today\'s plan: <b>'+(ms>0?Math.ceil(ms/60000)+' min left':'time\'s up')+'</b>.</p>'}catch(_){return ''}}
+ function planLeft(){try{var ms=PLAN.runLeft();return ms==null?'':' · plan timer: <b>'+(ms>0?Math.ceil(ms/60000)+' min left':'time\'s up')+'</b>'}catch(_){return ''}}
+ function endPractice(){P.finished=true;lcount();P.quiet=true;$('pBar').style.width='100%';var rv=P.rev,t=testOf(rv.tid),acc=P.asked?Math.round(P.right/P.asked*100):100,left=missN(poolFor(rv.tid,null));
+  S.st.reviews=(S.st.reviews||0)+1;bonusXP(10);save();checkBadges(true);
+  $('pBody').innerHTML='<div class="done-screen">'+tick()+'<h2>Round done</h2><p class="note" style="font-size:16px">'+esc(t?tName(t):'Revision')+'</p>'+
+   '<div class="done-stats"><div class="dstat"><b>'+P.right+'/'+P.asked+'</b><span>right first time</span></div><div class="dstat"><b>'+acc+'%</b><span>accuracy</span></div><div class="dstat"><b>'+left+'</b><span>still to fix</span></div></div>'+timerLine()+'</div>';
+  $('pScroll').scrollTop=0;$('pXP').textContent='+'+P.xp+' XP';foot('','','');
+  mainBtn('Another round',function(){closePlayer();practice(rv.tid,rv.miss&&!left?null:rv.uids,rv.miss&&left>0)});skipBtn(function(){closePlayer();back(rv.tid)},'Back to revision');sfx('done');confetti()}
+ function endMock(){P.finished=true;lcount();P.quiet=true;stopTimer();$('pBar').style.width='100%';
+  var rv=P.rev,t=testOf(rv.tid),r=R(),n=P.answers.length,ok=P.answers.filter(function(a){return a.ok}).length,pct=n?Math.round(ok/n*100):0,secs=Math.round((Date.now()-P.t0)/1000);
+  var ms=r.mocks[rv.tid]||(r.mocks[rv.tid]=[]);ms.push({d:today(),pct:pct});while(ms.length>20)ms.shift();if(ok)bonusXP(ok*5);save();checkBadges(true);
+  var weak={},order=[];P.answers.forEach(function(a){var id=a.c._lid||a.c._uid;if(!a.ok&&id){if(!weak[id]){weak[id]=0;order.push(id)}weak[id]++}});
+  var rr=48,C=2*Math.PI*rr,col=pct>=70?'var(--good-line)':pct>=50?'#EF9F27':'#e8742a';
+  var h='<div class="done-screen"><svg width="120" height="120" viewBox="0 0 120 120" class="dicon"><circle cx="60" cy="60" r="'+rr+'" fill="none" stroke="var(--soft2)" stroke-width="11"/><circle cx="60" cy="60" r="'+rr+'" fill="none" stroke="'+col+'" stroke-width="11" stroke-linecap="round" stroke-dasharray="'+(C*pct/100)+' '+C+'" transform="rotate(-90 60 60)"/><text x="60" y="60" text-anchor="middle" dy=".35em" font-size="26" font-weight="800" fill="var(--text)" font-family="system-ui">'+pct+'%</text></svg>'+
+   '<h2>'+(pct>=85?'You\'re ready for it':pct>=60?'Nearly there':'Worth some more practice')+'</h2><p class="note" style="font-size:16px">Mini mock · '+esc(t?tName(t):'')+(t?' · test '+inDays(t.date):'')+'</p>'+
+   '<div class="done-stats"><div class="dstat"><b>'+ok+'/'+n+'</b><span>correct</span></div><div class="dstat"><b>'+fmtClock(secs)+'</b><span>time</span></div><div class="dstat"><b id="dsXP">+0</b><span>XP</span></div></div>';
+  if(order.length)h+='<div class="dblock"><div class="dbt">Topics to work on</div>'+order.map(function(id){var x=tInfo(id);return x?'<div class="weak"><span><b>'+esc(x.title)+'</b><span class="note"> · '+weak[id]+' missed</span></span></div>':''}).join('')+'</div>';
+  h+='<div class="treview"><div class="dbt">Your answers</div>'+P.answers.map(function(a,i){return '<details class="tq '+(a.ok?'ok':'no')+'"'+(a.ok?'':' open')+'><summary><span class="tqn">'+(i+1)+'</span><span class="tqm">'+(a.ok?'✓':'✗')+'</span><span class="tqp">'+a.c.p+'</span></summary><div class="tqb"><p><b>Your answer:</b> '+a.given+'</p>'+(a.ok?'':'<p><b>Correct answer:</b> '+a.correct+'</p>')+(a.c.e?'<p class="note">'+a.c.e+'</p>':'')+'</div></details>'}).join('')+'</div>';
+  $('pBody').innerHTML=h+timerLine()+'</div>';$('pScroll').scrollTop=0;$('pXP').innerHTML='<span class="ttime">'+fmtClock(secs)+'</span>';countUp($('dsXP'),0,P.xp,'+');foot('','','');
+  if(n-ok>0){mainBtn('Practise what I got wrong',function(){closePlayer();practice(rv.tid,null,true)});skipBtn(function(){closePlayer();back(rv.tid)},'Back to revision')}else{mainBtn('Back to revision',function(){closePlayer();back(rv.tid)});skipBtn(null)}
+  sfx('done');if(pct>=60)confetti()}
+ /* ----- the revision screen ----- */
+ var hubEl=null;
+ function closeHub(){if(hubEl){hubEl.remove();hubEl=null}}
+ document.addEventListener('keydown',function(e){if(e.key==='Escape'&&hubEl)closeHub()});
+ function back(tid){var inf=null;try{var b=PLAN.DAY(tdI())[0];if(b&&b[5]==='rev'&&b[6].tid===tid)inf=b[6]}catch(_){}hub(inf||tid)}
+ function dayChips(t){var D=sched(t),pl=plan(t),td=today(),lg=R().log[t.id]||{};if(!D.length)return '';
+  return '<div class="rvdays">'+D.map(function(d){var st=lg[d]&&lg[d].done?'done':d===td?'now':d<td?'miss':'';return '<span class="rvday '+st+'" title="'+nice(d)+'"><b>'+short(d)+'</b><i>'+(pl[d].mock?'Mock':'Day '+pl[d].k)+'</i></span>'}).join('')+'<span class="rvday test" title="'+nice(t.date)+'"><b>'+short(t.date)+'</b><i>Test</i></span></div>'}
+ function hub(x){var info=x&&typeof x==='object'?x:null,tid=info?info.tid:x,t=testOf(tid);if(!t&&!info)return;closeHub();
+  var subj=t?t.subj:info.pin.subj,own=subj==='own',name=t?tName(t):info.name,date=t?t.date:info.pin.date,day=info&&!info.mock?info.units:null,mockDay=!!(info&&info.mock),
+   allPool=poolFor(tid,null),pool=day?poolFor(tid,day):allPool,mn=missN(allPool),lg=(R().log[tid]||{})[today()]||{q:0,r:0},mocked=(R().mocks[tid]||[]).some(function(m){return m.d===today()}),
+   shown=day||(t?t.units:info.units)||[];
+  var h='<div class="plbox rvbox" role="dialog" aria-modal="true" aria-label="Revision"><div class="plhd"><b>Revision</b><button class="plx" type="button" aria-label="Close">✕</button></div>'+
+   '<div class="rvhead"><p class="rvk">'+esc(t?subjName(t):'Revision')+(info?' · '+(info.mock?'last day before the test':'revision day '+info.pin.k+' of '+info.pin.n):'')+'</p><h3>'+esc(name)+'</h3><p>'+nice(date)+' · <b>'+inDays(date)+'</b></p>'+(t?dayChips(t):'')+'</div>';
+  if(own)h+='<p class="plnote">'+allPool.length+' flashcard'+(allPool.length===1?'':'s')+'. You get a mix of "do you know it?" cards and multiple choice.</p>';
+  else h+='<div><p class="plgt">'+(day?'Today\'s topics':'Topics in the test')+'</p><div class="rvchips">'+uTitles(shown).map(function(s){return '<span>'+esc(s)+'</span>'}).join('')+'</div></div>';
+  h+='<div class="rvacts"></div><p class="plnote">Today: <b>'+lg.q+'</b> question'+(lg.q===1?'':'s')+(lg.q?', '+Math.round(lg.r/lg.q*100)+'% right first time':'')+(mn?' · <b>'+mn+'</b> still to fix':'')+planLeft()+'</p>';
+  if(!own){var ls=[];var sl={};shown.forEach(function(id){tLessons(id).forEach(function(p){var k=p[0]+'-'+p[1];if(sl[k])return;sl[k]=1;ls.push([p[0],p[1],UNITS[p[0]].lessons[p[1]].title])})});
+   if(ls.length)h+='<details class="rvread"><summary>Re-read a lesson first</summary><div>'+ls.map(function(x){return '<button type="button" class="plgo alt" data-ui="'+x[0]+'" data-li="'+x[1]+'">'+esc(x[2])+'</button>'}).join('')+'</div></details>'}
+  var ov=document.createElement('div');ov.className='plsheet open rvsheet';ov.innerHTML=h+'</div>';document.body.appendChild(ov);hubEl=ov;
+  ov.querySelector('.plx').onclick=closeHub;ov.addEventListener('click',function(e){if(e.target===ov)closeHub()});
+  var A=ov.querySelector('.rvacts');function btn(l,f,big){var b=document.createElement('button');b.type='button';b.className=big?'plbig':'plgo alt';b.textContent=l;b.onclick=f;A.appendChild(b)}
+  var mq=Math.min(15,allPool.length),pq=Math.min(10,pool.length);
+  if(!allPool.length)A.innerHTML='<p class="plnote">'+(own?'This test has no flashcards yet. Add some in the Tests tab.':'No questions found for these topics.')+'</p>';
+  else if(mockDay&&!mocked){btn('Mini mock test ('+mq+' questions, about 15 min)',function(){mock(tid)},1);btn('Warm up with a practice round first',function(){practice(tid,null)})}
+  else{btn('Practice round ('+pq+' questions)',function(){practice(tid,day)},1);if(mn)btn('Fix my revision mistakes ('+mn+')',function(){practice(tid,null,true)});btn(mockDay?'Another mini mock':'Mini mock test ('+mq+' questions)',function(){mock(tid)})}
+  if(t&&typeof PP!=='undefined')btn('📝 Big past paper (1 hour, marked by AI)',function(){closeHub();PP.setup({subj:t.subj,sname:t.sname||'',lids:own?[]:(t.units||[]).slice(),topics:own?tName(t):uTitles(t.units).join(', '),extra:own?cards(t).slice(0,40).map(function(x){return 'Q: '+x.q+' A: '+x.a}).join('\n'):''})});
+  [].forEach.call(ov.querySelectorAll('.rvread [data-ui]'),function(b){b.onclick=function(){closeHub();startLesson(+b.dataset.ui,+b.dataset.li)}})}
+ /* ----- the Tests tab in This week's plan ----- */
+ var ed=null,delAsk=null;
+ /* link to Big Past Paper in Claude (runs on your Claude account, no API key); ticked lessons ride along in the link */
+ function bppUrl(subj,ids){try{return PP.artUrl({subj:subj,lids:ids||[]})}catch(_){return 'https://claude.ai/artifact/AsFGW6Ut3XQ8tBmmUTeCq4'}}
+ function tmrUrl(name){return 'homework.html?mode=revise'+(name?'&t='+encodeURIComponent(String(name).slice(0,80)):'')}
+ function bppRow(href,note,tname){return '<div class="rvbpp"><a class="plgo" data-k="bpp" href="'+esc(href)+'" target="_blank" rel="noopener">📝 Big Past Paper in Claude ↗</a><a class="plgo alt" data-k="tmr" href="'+esc(tmrUrl(tname))+'">⏱ Start timer</a><span class="plnote">'+note+'</span></div>'}
+ function blank(){return {name:'',subj:'gp',sname:'',date:addD(today(),7),days:3,units:[],cards:[]}}
+ function add(A,label,cls,fn){var b=document.createElement('button');b.type='button';b.className='plgo'+(cls?' '+cls:'');b.textContent=label;b.onclick=fn;A.appendChild(b);return b}
+ function removeT(id,full){var r=R(),t=testOf(id);if(!t)return;if(full){r.tests.splice(r.tests.indexOf(t),1);delete r.log[id];delete r.mocks[id];Object.keys(r.miss).forEach(function(k){if(k.indexOf('O'+id+'#')===0)delete r.miss[k]})}else t.gone=today();save()}
+ function paintTab(box,again){var r=R(),td=today();
+  r.tests.slice().forEach(function(t){if(t.gone&&t.gone<addD(td,-14)&&t.date<td)removeT(t.id,true)});
+  box.innerHTML='';if(ed)return form(box,again);
+  var up=r.tests.filter(function(t){return !t.gone&&t.date>=td}).sort(function(a,b){return a.date<b.date?-1:1}),past=r.tests.filter(function(t){return !t.gone&&t.date<td}).sort(function(a,b){return a.date<b.date?1:-1});
+  var now=el('div','pldnow','<b>Revise for a test</b>Add a test and Critical turns the days before it into revision days. Each one quizzes you on that day\'s topics, and the last day before the test is a mini mock. They take the same time as your normal plan.',box);
+  el('div',null,bppRow(bppUrl(up[0]?up[0].subj:'gp',up[0]&&up[0].subj!=='own'?up[0].units:[]),'Big Past Paper: an hour of exam questions marked by Claude, any time, no API key. Start timer: the big revision clock with the Critical Point yard behind it; the time goes into your study log.',up[0]?tName(up[0]):''),box);
+  if(!up.length)el('p','plnote','No tests coming up.',box);
+  up.forEach(function(t){var sub=t.subj==='own'?cards(t).length+' flashcard'+(cards(t).length===1?'':'s'):uTitles(t.units).join(', '),c=el('div','plblk rvtest',null,box);
+   c.innerHTML='<div class="plbody"><p class="plt"><span>'+esc(tName(t))+'</span><span class="plm">'+inDays(t.date)+'</span></p><p class="plh">'+esc(subjName(t))+' · '+nice(t.date)+'</p><p class="plh">'+esc(sub)+'</p>'+
+    (sched(t).length?dayChips(t):t.date===td?'<p class="plh"><b>It\'s today. Good luck!</b></p>':'<p class="plh">Added too late for revision days, but you can still revise now.</p>')+'<div class="placts"></div></div>';
+   var A=c.querySelector('.placts');add(A,'Revise now →','',function(){hub(t.id)});add(A,'⏱ Start timer','alt',function(){location.href=tmrUrl(tName(t))});add(A,'Edit','alt',function(){ed=JSON.parse(JSON.stringify(t));ed._edit=t.id;delAsk=null;again()});
+   add(A,delAsk===t.id?'Tap again to delete':'Delete','alt',function(){if(delAsk!==t.id){delAsk=t.id;again();return}delAsk=null;removeT(t.id,false);again()})});
+  add(box,'+ Add a test','',function(){ed=blank();delAsk=null;again()}).className='plbig';
+  if(past.length){el('p','plgt','Past tests',box);var L=el('div','pldl',null,box);past.slice(0,6).forEach(function(t){var m=(r.mocks[t.id]||[]).slice(-1)[0],row=el('div','pldr',null,L);
+   row.innerHTML='<span class="tm">'+short(t.date)+' '+s2d(t.date).getDate()+'</span><span class="lb">'+esc(tName(t))+(m?' <span class="plm">mock '+m.pct+'%</span>':'')+'</span>';add(row,'Remove','alt',function(){removeT(t.id,true);again()})})}}
+ function prevTxt(f){if(!f.date||f.date<=today())return 'Pick a date after today.';var tt={date:f.date,days:+f.days||3,from:today(),subj:f.subj,units:f.units},pl=plan(tt),D=sched(tt);
+  if(f.subj==='own'||!f.units.length)return 'Revision days: '+D.map(function(d,k){return nice(d)+(k===D.length-1?' (mini mock)':'')}).join(', ')+'.';
+  return D.map(function(d){var p=pl[d];return nice(d)+': '+(p.mock?'mini mock on everything':uTitles(p.units).join(', '))}).join(' · ')}
+ function lev(a,b){var m=a.length,n=b.length,d=[],i,j;for(i=0;i<=m;i++){d[i]=[i]}for(j=1;j<=n;j++)d[0][j]=j;for(i=1;i<=m;i++)for(j=1;j<=n;j++)d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(a[i-1]===b[j-1]?0:1));return d[m][n]}
+ function match(q,title){var ws=String(title).toLowerCase().replace(/[^a-z0-9 ]+/g,' ').split(/\s+/).filter(Boolean),qs=String(q).toLowerCase().replace(/[^a-z0-9 ]+/g,' ').split(/\s+/).filter(function(w){return w.length>=3&&['and','the','for','with'].indexOf(w)<0});
+  if(!qs.length)return false;return qs.every(function(w){return ws.some(function(t){if(t.indexOf(w)===0||w.indexOf(t)===0&&t.length>=4&&t.length>=w.length-1)return true;if(w.length<4)return false;return lev(w,t.slice(0,w.length))<=1||lev(w,t)<=1})})}
+ function parse(txt){var out=[];String(txt||'').split(/\r?\n/).forEach(function(line){line=line.trim();if(!line)return;var m=line.split(/\t| \| |\|| - | – | = /);if(m.length<2){var i=line.indexOf(': ');if(i>0)m=[line.slice(0,i),line.slice(i+2)]}
+  if(m.length>=2){var q=m[0].trim(),a=m.slice(1).join(' - ').trim();if(q&&a)out.push({q:q.slice(0,300),a:a.slice(0,300)})}});return out}
+ function form(box,again){var f=ed;if(!Array.isArray(f.units))f.units=[];if(!Array.isArray(f.cards))f.cards=[];
+  var h='<div class="pldnow"><b>'+(f._edit?'Edit your test':'Add a test')+'</b>Critical turns the days before it into revision days.</div>'+bppRow(bppUrl(f.subj,f.units),'Practise for it any time with an hour of exam questions marked by Claude (no API key; topics you tick below carry over), or start the revision timer.',f.name||'')+'<div class="rvf">'+
+   '<label>What\'s the test?<input type="text" data-f="name" maxlength="50" placeholder="e.g. Physics end-of-topic test"></label>'+
+   '<label>Subject<select data-f="subj"><option value="gm">GCSE Maths</option><option value="gp">GCSE Physics</option><option value="gc">GCSE Chemistry</option><option value="gcs">GCSE Computer Science</option><option value="own">Another subject (your own flashcards)</option></select></label>'+
+   (f.subj==='own'?'<label>Which subject?<input type="text" data-f="sname" maxlength="30" placeholder="e.g. Biology, History, French"></label>':'')+
+   '<div class="rvrow"><label>Date of the test<input type="date" data-f="date"></label><label>Revise on<select data-f="days">'+[1,2,3,4,5,6,7].map(function(n){return '<option value="'+n+'">the '+(n===1?'day':n+' days')+' before</option>'}).join('')+'</select></label></div>'+
+   '<p class="plnote" data-k="prev"></p>';
+  if(f.subj!=='own')h+='<div class="rvunits"><p class="plgt">What\'s in the test? <span class="rvsel" data-k="sel"></span></p><input type="search" class="rvsearch" maxlength="40" placeholder="Search, e.g. scalars and vectors" aria-label="Search topics"><p class="plnote">Tick a whole topic, or open it and tick just the lessons in your test.</p><div class="rvtl"></div></div>';
+  else h+='<div class="rvcards"><p class="plgt">Flashcards <span data-k="cn"></span></p><div class="rvcl"></div><div class="placts"><button type="button" class="plgo alt" data-a="addc">+ Add a card</button></div>'+
+   '<details class="rvpaste"><summary>Paste a list instead</summary><textarea maxlength="20000" placeholder="One card per line, question then answer, split by a dash, | or a tab:&#10;Where does respiration happen? - Mitochondria&#10;When did WW2 end? | 1945"></textarea><button type="button" class="plgo" data-a="paste">Add these cards</button></details></div>';
+  h+='<p class="plderr" data-k="err" hidden></p><div class="placts"><button type="button" class="plgo" data-a="save">Save test</button><button type="button" class="plgo alt" data-a="cancel">Cancel</button></div></div>';
+  box.innerHTML=h;var q=function(s){return box.querySelector(s)};
+  q('[data-f=name]').value=f.name||'';q('[data-f=subj]').value=f.subj;q('[data-f=date]').value=f.date||'';q('[data-f=date]').min=addD(today(),1);q('[data-f=days]').value=String(f.days||3);
+  function prev(){q('[data-k=prev]').textContent=prevTxt(f);var bl=q('[data-k=bpp]');if(bl)bl.href=bppUrl(f.subj,f.subj==='own'?[]:f.units);var tl=q('[data-k=tmr]');if(tl)tl.href=tmrUrl(f.name||(f.subj==='own'?f.sname:''))}prev();
+  q('[data-f=name]').oninput=function(){f.name=this.value;prev()};q('[data-f=date]').oninput=function(){f.date=this.value;prev()};q('[data-f=days]').onchange=function(){f.days=+this.value;prev()};
+  q('[data-f=subj]').onchange=function(){f.subj=this.value;f.units=[];again()};
+  if(q('[data-f=sname]')){q('[data-f=sname]').value=f.sname||'';q('[data-f=sname]').oninput=function(){f.sname=this.value}}
+  if(q('.rvtl')){var openU={},qy='';f.units.forEach(function(id){var x=tInfo(id);if(x&&x.li>=0)openU[UNITS[x.ui].id]=1});
+   var sel=function(){var e=q('[data-k=sel]');if(e)e.textContent=f.units.length?'('+uTitles(f.units).length+' picked)':''};
+   var paintT=function(){var L=q('.rvtl'),h2='',hits=0,other={};
+    if(qy){UNITS.forEach(function(u,ui){var tk=trk(ui);if(!SUBJ[tk])return;var m=[];if(match(qy,u.title))m.push([u.id,u.title,'']);u.lessons.forEach(function(l){if(match(qy,l.title))m.push([l.id,l.title,u.title])});
+      if(!m.length)return;if(tk!==f.subj){other[tk]=(other[tk]||[]).concat(m.map(function(x){return x[1]}));return}
+      m.forEach(function(x){hits++;var on=f.units.indexOf(x[0])>=0,inU=x[2]&&f.units.indexOf(u.id)>=0;h2+='<label class="plpk"><input type="checkbox" data-t="'+esc(x[0])+'"'+(on||inU?' checked':'')+(inU?' disabled':'')+'> <span>'+esc(x[1])+(x[2]?' <span class="rvin">in '+esc(x[2])+'</span>':' <span class="rvin">whole topic</span>')+'</span></label>'})});
+     if(!hits)h2+='<p class="plnote">Nothing in '+esc(SUBJ[f.subj])+' matches “'+esc(qy)+'”.</p>';
+     Object.keys(other).forEach(function(tk){h2+='<p class="plnote rvalso">In '+esc(SUBJ[tk])+': '+esc(other[tk].slice(0,3).join(', '))+' <button type="button" class="plgo alt" data-sw="'+tk+'">Switch to '+esc(SUBJ[tk])+'</button></p>'})}
+    else for(var lv=1;lv<=5;lv++){var us=[];UNITS.forEach(function(u,ui){if(trk(ui)===f.subj&&lvOf(ui)===lv)us.push(ui)});if(!us.length)continue;
+     h2+='<p class="rvlv">'+esc(GLV[f.subj]&&GLV[f.subj][lv]?GLV[f.subj][lv][0]:'Level '+lv)+'</p>';
+     us.forEach(function(ui){var u=UNITS[ui],on=f.units.indexOf(u.id)>=0,some=u.lessons.some(function(l){return f.units.indexOf(l.id)>=0}),op=openU[u.id];
+      h2+='<div class="rvu"><label class="plpk"><input type="checkbox" data-t="'+esc(u.id)+'"'+(on?' checked':'')+(some&&!on?' data-some="1"':'')+'> '+esc(u.title)+'</label><button type="button" class="rvex" data-ex="'+esc(u.id)+'" aria-expanded="'+!!op+'">'+u.lessons.length+' lessons '+(op?'▴':'▾')+'</button></div>';
+      if(op)h2+='<div class="rvls">'+u.lessons.map(function(l){var lo=f.units.indexOf(l.id)>=0;return '<label class="plpk"><input type="checkbox" data-t="'+esc(l.id)+'"'+(lo||on?' checked':'')+(on?' disabled':'')+'> '+esc(l.title)+'</label>'}).join('')+'</div>'})}
+    L.innerHTML=h2;sel();
+    [].forEach.call(L.querySelectorAll('[data-some]'),function(cb){cb.indeterminate=true});
+    [].forEach.call(L.querySelectorAll('[data-ex]'),function(b){b.onclick=function(){openU[b.dataset.ex]=!openU[b.dataset.ex];paintT()}});
+    [].forEach.call(L.querySelectorAll('[data-sw]'),function(b){b.onclick=function(){f.subj=b.dataset.sw;f.units=[];f._q=qy;again()}});
+    [].forEach.call(L.querySelectorAll('[data-t]'),function(cb){cb.onchange=function(){var id=cb.dataset.t,x=tInfo(id),i=f.units.indexOf(id);
+     if(cb.checked&&i<0){f.units.push(id);if(x&&x.li>=0)openU[UNITS[x.ui].id]=1;if(x&&x.li<0){var ids=UNITS[x.ui].lessons.map(function(l){return l.id});f.units=f.units.filter(function(z){return ids.indexOf(z)<0})}}
+     else if(!cb.checked&&i>=0)f.units.splice(i,1);f.units.sort(function(a,b){return tOrd(a)-tOrd(b)});paintT();prev()}})};
+   var sb=q('.rvsearch');if(f._q){sb.value=f._q;qy=f._q;delete f._q}sb.oninput=function(){qy=sb.value.trim();paintT()};paintT()}
+  function paintCards(){var L=q('.rvcl');if(!L)return;L.innerHTML='';f.cards.forEach(function(c,i){var r=el('div','rvc',null,L);r.innerHTML='<input type="text" maxlength="300" placeholder="Question" aria-label="Question"><input type="text" maxlength="300" placeholder="Answer" aria-label="Answer"><button type="button" aria-label="Remove this card">✕</button>';
+    var ins=r.querySelectorAll('input');ins[0].value=c.q||'';ins[1].value=c.a||'';ins[0].oninput=function(){c.q=this.value;cn()};ins[1].oninput=function(){c.a=this.value;cn()};r.querySelector('button').onclick=function(){f.cards.splice(i,1);paintCards()}});cn()}
+  function cn(){var e=q('[data-k=cn]');if(e){var n=f.cards.filter(function(c){return c.q&&c.a&&c.q.trim()&&c.a.trim()}).length;e.textContent='('+n+')'}}
+  if(f.subj==='own'){if(!f.cards.length)f.cards.push({q:'',a:''});paintCards();
+   q('[data-a=addc]').onclick=function(){f.cards.push({q:'',a:''});paintCards();var ins=box.querySelectorAll('.rvc input');if(ins.length)ins[ins.length-2].focus()};
+   q('[data-a=paste]').onclick=function(){var ta=q('.rvpaste textarea'),got=parse(ta.value);if(!got.length){err('Couldn\'t find any cards. Put the question and answer on one line, split by a dash, | or a tab.');return}
+    f.cards=f.cards.filter(function(c){return c.q&&c.a&&c.q.trim()&&c.a.trim()}).concat(got);ta.value='';q('.rvpaste').open=false;paintCards();err('')}}
+  function err(m){var e=q('[data-k=err]');e.hidden=!m;e.textContent=m}
+  q('[data-a=cancel]').onclick=function(){ed=null;again()};
+  q('[data-a=save]').onclick=function(){if(!f.date||f.date<=today())return err('Pick a date after today.');
+   var cs=f.cards.filter(function(c){return c.q&&c.a&&c.q.trim()&&c.a.trim()}).map(function(c){return {id:c.id||Math.random().toString(36).slice(2,8),q:c.q.trim(),a:c.a.trim()}});
+   if(f.subj==='own'&&!cs.length)return err('Add at least one flashcard: a question and its answer.');if(f.subj!=='own'&&!f.units.length)return err('Tick at least one topic that\'s in the test.');
+   var r=R(),old=f._edit?testOf(f._edit):null,t={id:old?old.id:'t'+Date.now().toString(36),name:(f.name||'').trim(),subj:f.subj,sname:f.subj==='own'?(f.sname||'').trim():'',date:f.date,days:+f.days||3,units:f.subj==='own'?[]:f.units.slice(),cards:f.subj==='own'?cs:[],from:old&&old.from?old.from:today()};
+   if(old)r.tests[r.tests.indexOf(old)]=t;else r.tests.push(t);save();ed=null;again();try{PLAN.paintPill()}catch(_){}}}
+ function banner(){var td=today(),t=R().tests.filter(function(t){return !t.gone&&t.date>=td&&diff(td,t.date)<=21}).sort(function(a,b){return a.date<b.date?-1:1})[0];if(!t)return '';
+  var D=sched(t).filter(function(d){return d>=td});return '<span>📚 <b>'+esc(tName(t))+'</b> '+inDays(t.date)+' ('+nice(t.date)+').'+(D.length?' Revision: '+D.map(short).join(', ')+'.':'')+'</span>'}
+ var css=document.createElement('style');css.textContent=
+  '.rvhead h3{margin:2px 0;font-size:20px}.rvhead>p{margin:0;color:var(--muted);font-size:14px}.rvhead .rvk{font:800 12px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:#7F77DD}'+
+  '.rvdays{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.rvday{display:flex;flex-direction:column;align-items:center;min-width:48px;border:1.5px solid var(--line);border-radius:10px;padding:5px 6px;background:var(--panel);font-size:12px;line-height:1.3}.rvday b{font-size:13px}.rvday i{font-style:normal;color:var(--muted);font-size:11px}'+
+  '.rvday.done{border-color:var(--good-line);background:var(--good-bg)}.rvday.done b::after{content:" ✓";color:var(--good)}.rvday.now{border-color:#7F77DD;box-shadow:0 0 0 2px rgba(127,119,221,.3)}.rvday.miss{opacity:.5}.rvday.test{border-style:dashed;border-color:#7F77DD}'+
+  '.rvchips{display:flex;flex-wrap:wrap;gap:6px}.rvchips span{background:rgba(127,119,221,.15);color:var(--text);border-radius:999px;padding:4px 10px;font-size:13px;font-weight:700}'+
+  '.rvacts{display:flex;flex-direction:column;gap:8px}.rvacts .plgo{justify-content:center;padding:10px 12px;font-size:14px}.rvread summary,.rvpaste summary{cursor:pointer;font-weight:700;font-size:14px}.rvread>div{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}'+
+  '.rvf{display:flex;flex-direction:column;gap:10px}.rvf label{display:flex;flex-direction:column;gap:4px;font-size:13px;font-weight:700;color:var(--muted)}.rvf input[type=text],.rvf input[type=date],.rvf select,.rvf textarea{font:inherit;font-size:15px;color:var(--text);background:var(--panel);border:1.5px solid var(--line);border-radius:10px;padding:8px 10px;width:100%;box-sizing:border-box}'+
+  '.rvf label.plpk{flex-direction:row;font-weight:400;color:var(--text);font-size:14px}.rvrow{display:grid;grid-template-columns:1fr 1fr;gap:8px}@media(max-width:420px){.rvrow{grid-template-columns:1fr}}'+
+  '.rvsearch{font:inherit;font-size:15px;color:var(--text);background:var(--panel);border:1.5px solid var(--line);border-radius:10px;padding:8px 10px;width:100%;box-sizing:border-box}.rvtl{display:flex;flex-direction:column;gap:6px;max-height:320px;overflow:auto}'+
+  '.rvu{display:flex;align-items:center;justify-content:space-between;gap:8px}.rvex{border:0;background:none;color:var(--muted);font:inherit;font-size:12.5px;font-weight:700;cursor:pointer;flex:none;padding:4px}.rvls{display:flex;flex-direction:column;gap:6px;margin:0 0 4px 28px}.rvin{color:var(--muted);font-size:12.5px}.rvsel{font-weight:700;color:#7F77DD;text-transform:none;letter-spacing:0}.rvalso{display:flex;flex-wrap:wrap;align-items:center;gap:6px}'+
+  '.rvunits{display:flex;flex-direction:column;gap:6px;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px 12px}.rvunits .plgt{margin:0}.rvlv{margin:6px 0 0;font-size:12px;font-weight:800;color:#7F77DD}'+
+  '.rvcl{display:flex;flex-direction:column;gap:6px;margin-bottom:6px}.rvc{display:grid;grid-template-columns:1fr 1fr 32px;gap:6px;align-items:center}.rvf .rvc input{font-size:14px;padding:7px 8px}.rvc button{border:0;background:none;color:var(--muted);font-size:18px;cursor:pointer;height:32px}'+
+  '.rvpaste{margin-top:8px}.rvpaste textarea{min-height:110px;margin:8px 0}.rvans{border:1.5px solid var(--line);border-radius:14px;padding:12px 14px;margin-top:10px;white-space:pre-wrap}'+
+  '.pldays button.rv{border-style:dashed;border-color:#7F77DD}.pldays button.rv.on{border-style:solid}'+
+  '.rvnext{display:flex;gap:10px;align-items:center;justify-content:space-between;background:rgba(127,119,221,.13);border-radius:12px;padding:10px 12px;font-size:14px;line-height:1.4}.rvnext[hidden]{display:none}.rvnext .plgo{flex:none}'+
+  '.rvbpp{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;background:rgba(127,119,221,.1);border:1.5px dashed #7F77DD;border-radius:12px;padding:10px 12px}.rvbpp .plgo{text-decoration:none;flex:none}.rvbpp .plnote{flex:1;min-width:180px;margin:0}'+
+  '.pltv{display:flex;flex-direction:column;gap:12px}.pltv[hidden]{display:none}.rvtest .plbody{display:flex;flex-direction:column;gap:2px}';
+ document.head.appendChild(css);
+ return {match:match,dayInfo:dayInfo,byPin:build,hub:hub,closeHub:closeHub,paintTab:paintTab,banner:banner,doneDay:doneDay,mark:mark,rf:rf,endPractice:endPractice,endMock:endMock,practice:practice,mock:mock,sched:sched,plan:plan,tests:function(){return R().tests}};
+})();
+try{window.REV=REV}catch(_){}
+/* ===== big past paper: an hour of exam-style questions written and marked by Claude. Type or handwrite your answers;
+   after each one is marked, the next question goes after whatever you dropped marks on, until the time's up ===== */
+var PP=(function(){
+ var ART='https://claude.ai/artifact/AsFGW6Ut3XQ8tBmmUTeCq4',KK='critical_api_key',MODEL='claude-haiku-5-5',SK='critical_pp',PW=1000,PH=620,
+  BOARD={gp:'AQA',gc:'AQA',gm:'Edexcel',gcs:'AQA'},SUBJ={gp:'GCSE Physics',gc:'GCSE Chemistry',gm:'GCSE Maths',gcs:'GCSE Computer Science'},
+  COLS={blue:'#2f6fdb',red:'#d64545',green:'#1f9d62'};
+ function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+ function key(){try{return localStorage.getItem(KK)||''}catch(_){return ''}}
+ function ld(){try{var o=JSON.parse(localStorage.getItem(SK)||'null');return o&&o.v===1?o:null}catch(_){return null}}
+ function sv(){try{if(st)localStorage.setItem(SK,JSON.stringify(st));else localStorage.removeItem(SK)}catch(_){try{if(st){var c=JSON.parse(JSON.stringify(st));c.qs.forEach(function(q){q.sk=[]});localStorage.setItem(SK,JSON.stringify(c))}}catch(__){}}}
+ function hist(){if(!Array.isArray(S.pp))S.pp=[];return S.pp}
+ function subjName(c){return c.subj==='own'?(c.sname||'Your subject'):SUBJ[c.subj]||'GCSE'}
+ function mmss(ms){ms=Math.max(0,ms);var s=Math.ceil(ms/1000);return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')}
+ /* text from Claude: escaped, then **bold**, x^2, simple | tables | and line breaks */
+ function fmt(t){var lines=esc(t).split(/\n/),out=[],tb=[];function flush(){if(!tb.length)return;var rows=tb.filter(function(r){return !/^\|?[\s:\-|]+\|?$/.test(r)}).map(function(r){return r.replace(/^\||\|$/g,'').split('|').map(function(c){return c.trim()})});
+   out.push('<table class="pptab">'+rows.map(function(r,i){return '<tr>'+r.map(function(c){return i?'<td>'+c+'</td>':'<th>'+c+'</th>'}).join('')+'</tr>'}).join('')+'</table>');tb=[]}
+  lines.forEach(function(l){if(/^\s*\|.*\|\s*$/.test(l))tb.push(l.trim());else{flush();out.push(l)}});flush();
+  return out.join('\n').replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/\^(-?\d+)/g,'<sup>$1</sup>').replace(/\n(?!<table)/g,'<br>').replace(/<br>(<table)/g,'$1')}
+ /* ----- talking to Claude (your own API key, the same one Ask uses) ----- */
+ function errMsg(e){var st=e&&e.st,t=(e&&e.b&&e.b.error&&e.b.error.message)||'';
+  if(st===0)return 'Couldn\'t reach Claude. Check your internet connection (school Wi-Fi sometimes blocks it).';if(st===401)return 'Your API key was rejected. Check it or add a new one below.';if(/credit balance/i.test(t))return 'Your API account is out of credit. Top up at console.anthropic.com.';
+  if(st===429)return 'Too many requests, or a spending limit was reached. Wait a minute and try again.';if(st===529||st>=500)return 'Claude is busy right now. Try again in a moment.';if(st===-2)return 'Claude\'s reply came back jumbled. Try again.';if(st===-1)return 'Claude didn\'t send anything back. Try again.';return 'Something went wrong ('+(st||'?')+(t?': '+t:'')+'). Try again.'}
+ function call(system,content,maxT){return fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'content-type':'application/json','x-api-key':key(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+   body:JSON.stringify({model:MODEL,max_tokens:maxT||2400,thinking:{type:'disabled'},system:system,messages:[{role:'user',content:content}]})})
+  .catch(function(){throw {st:0}})
+  .then(function(r){return r.json().catch(function(){return null}).then(function(b){if(!r.ok)throw {st:r.status,b:b};
+   try{var u=JSON.parse(localStorage.getItem('critical_api_usage')||'null')||{i:0,o:0};if(b&&b.usage){u.i+=b.usage.input_tokens||0;u.o+=b.usage.output_tokens||0}localStorage.setItem('critical_api_usage',JSON.stringify(u))}catch(_){}
+   var t=((b&&b.content)||[]).filter(function(c){return c.type==='text'}).map(function(c){return c.text}).join('');if(!t)throw {st:-1};return t})})}
+ function pj(t){var a=t.indexOf('{'),b=t.lastIndexOf('}');if(a<0||b<a)throw {st:-2};try{return JSON.parse(t.slice(a,b+1))}catch(_){throw {st:-2}}}
+ function ask(system,content,maxT,tries){return call(system,content,maxT).then(pj).catch(function(e){if(e&&e.st===-2&&!tries)return ask(system,content,maxT,1);throw e})}
+ function cleanQ(q){if(!q||!Array.isArray(q.parts)||!q.parts.length)return null;var L='abcdefgh',parts=q.parts.slice(0,6).map(function(p,i){return {id:L[i],q:String(p&&p.q||'').slice(0,1500),marks:Math.max(1,Math.min(12,Math.round(+(p&&p.marks)||1))),
+   scheme:(Array.isArray(p&&p.scheme)?p.scheme:[String(p&&p.scheme||'')]).map(String).filter(Boolean).slice(0,15),model:String(p&&p.model||'').slice(0,2000)}}).filter(function(p){return p.q});
+  return parts.length?{title:String(q.title||'Question').slice(0,80),stem:String(q.stem||'').slice(0,2500),parts:parts}:null}
+ function tot(q){return q.parts.reduce(function(a,p){return a+p.marks},0)}
+ /* what Critical's own lessons say about the topics, so questions match what you've been taught */
+ function notes(c){var out='';(c.lids||[]).forEach(function(id){for(var ui=0;ui<UNITS.length;ui++){var u=UNITS[ui];if(u.id===id){u.lessons.forEach(function(l){out+=lessonText(l)});return}for(var li=0;li<u.lessons.length;li++)if(u.lessons[li].id===id){out+=lessonText(u.lessons[li]);return}}});
+  if(c.extra)out+='\n'+c.extra;return out.slice(0,3500)}
+ function lessonText(l){var d=document.createElement('div');return '\n## '+l.title+'\n'+l.cards.filter(function(c){return c.t==='T'}).map(function(c){d.innerHTML=c.h;return (d.textContent||'').replace(/\s+/g,' ').trim()}).join('\n')}
+ function sysQ(c){var b=c.subj==='own'?'UK GCSE':BOARD[c.subj]+' GCSE';return 'You write exam questions in the exact style of real '+b+' '+(c.subj==='own'?(c.sname||'')+' ':'')+(c.subj==='own'?'':subjName(c).replace('GCSE ',''))+' past papers, '+c.tier+' tier, for a UK student. British English.\n'+
+  'Rules: one question at a time, worth 6 to 10 marks in total, split into 2 to 5 parts that get harder (e.g. state or define, then calculate, then explain, then a longer answer). Use real command words (State, Give, Describe, Explain, Calculate, Compare, Evaluate). '+
+  'The question must work without a picture: describe any set-up in words, and give data as a small table using | pipes | if needed. For calculations give values with units; only give the equation if the real exam would (e.g. it\'s on the equation sheet). Plain-text maths, no LaTeX (use ×, ÷, ², ³, √, m/s²). '+
+  'Mark scheme: one point per mark, written like a real mark scheme; for calculations list the method steps and the final answer with its unit, and say "allow" for acceptable alternatives.\n'+
+  'IMPORTANT, check before you reply: the student sees ONLY the stem and the part text, with no diagram. Every part must be answerable from that alone, so state every number it needs (masses or weights, distances, positions such as "the pivot is at the 30 cm mark", values of g if needed). Never write "the diagram", "Figure 1" or "the table" unless you have written that table out. If a later part needs a value, put it in the stem.\n'+
+  'Reply with ONLY this JSON: {"title":"short topic name","stem":"context before the parts, or empty","parts":[{"q":"question text","marks":2,"scheme":["mark point","mark point"],"model":"a full-marks answer"}]}'}
+ function sysM(c){var b=c.subj==='own'?'GCSE':BOARD[c.subj]+' GCSE';return 'You are an experienced, fair '+b+' examiner marking a student\'s answer to one exam question. British English.\n'+
+  'Marking rules: give a mark only for a mark-scheme point (or a clearly equivalent idea in other words). Ignore spelling unless it changes the science. For calculations: a correct final answer gets full marks even without working, unless the question asks for working; give method marks for correct steps; carry errors forward (a mistake early on only loses that mark). '+
+  'If an image of handwritten working is attached, read it and mark it as part of the answer. Blank or "I don\'t know" gets 0.\n'+
+  'Feedback for each part: at most 35 words, to the student ("you"), saying what earned marks and exactly what was missing.'}
+ function askFirst(broken){var c=st,prev=c.qs.map(function(q){return q.q.title}).slice(-8);
+  return ask(sysQ(c),'Topics: '+(c.topics||'anything on the course')+'\n'+(notes(c)?'What the student has been taught (stay within this level):\n'+notes(c)+'\n':'')+(prev.length?'Don\'t repeat these questions: '+prev.join('; ')+'\n':'')+(broken?'The last question you wrote was missing information the student needed, so it was thrown away:\n'+broken+'\nWrite a replacement on the same topics, and this time include every number and position needed. ':'')+(c.qs.length||broken?'Write the next question.':'Write the first question. Start with a fair one.'),1800)
+   .then(function(j){var q=cleanQ(j);if(!q)throw {st:-2};return q})}
+ function askMark(qi,noNext){var c=st,q=c.qs[qi],prev=c.qs.map(function(x){return x.q.title}),imgs=[],labels=[];
+  q.q.parts.forEach(function(x){if(hasInk(q,x.id)){var d=png(q.pk[x.id],phFor(x));if(d){imgs.push(d);labels.push('their handwritten answer to part ('+x.id+')')}}});var w=png(q.sk);if(w){imgs.push(w);labels.push('their extra working and diagrams')}var img=imgs.length;
+  var txt='QUESTION AND MARK SCHEME:\n'+JSON.stringify({stem:q.q.stem,parts:q.q.parts.map(function(p){return {id:p.id,q:p.q,marks:p.marks,scheme:p.scheme}})})+
+   '\n\nSTUDENT\'S ANSWERS:\n'+q.q.parts.map(function(p){var a=(q.ans[p.id]||'').trim(),hw=hasInk(q,p.id);return '('+p.id+') '+(a||'')+(hw?(a?' + ':'')+'[handwritten: see the image for part ('+p.id+')]':'')+(!a&&!hw?'(left blank)':'')}).join('\n')+(img?'\n\nImages attached, in this order: '+labels.map(function(l,k){return 'image '+(k+1)+' = '+l}).join('; ')+'. Read the handwriting carefully and mark it as part of the answer.':'')+
+   '\n\nReply with ONLY this JSON: {"parts":[{"id":"a","got":0,"feedback":"..."}],"summary":"one or two sentences on how it went","focus":"the one thing to practise next"'+
+   (noNext?',"next":null}':',"next":{the next question, in this format: '+'{"title":"...","stem":"...","parts":[{"q":"...","marks":2,"scheme":["..."],"model":"..."}]}'+'}}\n\nThen write the next question for "next". Same topics ('+(c.topics||'the course')+'). Aim it at what they lost marks on here; if they got full marks, make it a bit harder or move to another part of the topics. Don\'t repeat: '+prev.join('; ')+'. Follow these question-writing rules:\n'+sysQ(c).split('\n').slice(1,4).join('\n'));
+  var content=img?imgs.map(function(d){return {type:'image',source:{type:'base64',media_type:'image/png',data:d}}}).concat([{type:'text',text:txt}]):txt;
+  return ask(sysM(c),content,noNext?1200:3200)}
+ /* ----- writing pad, like the notes sketch pad ----- */
+ function draw(g,data,W,H,ink,ph){ph=ph||PH;g.clearRect(0,0,W,H);g.lineCap='round';g.lineJoin='round';(data||[]).forEach(function(s){g.strokeStyle=COLS[s.c]||ink;g.lineWidth=Math.max(1,s.w*W/PW);g.beginPath();
+   for(var k=0;k<s.p.length;k+=2){var x=s.p[k]*W/PW,y=s.p[k+1]*H/ph;if(k)g.lineTo(x,y);else g.moveTo(x,y)}if(s.p.length===2)g.lineTo(s.p[0]*W/PW+0.5,s.p[1]*H/ph+0.5);g.stroke()})}
+ function png(data,ph,url){ph=ph||PH;if(!data||!data.length)return null;try{var a=document.createElement('canvas');a.width=PW;a.height=ph;draw(a.getContext('2d'),data,PW,ph,'#111',ph);var b=document.createElement('canvas');b.width=PW;b.height=ph;var g=b.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,PW,ph);g.drawImage(a,0,0);var u=b.toDataURL('image/png');return url?u:u.split(',')[1]}catch(_){return null}}
+ function phFor(p){return Math.min(620,220+p.marks*60)}
+ function hasInk(Q,id){return !!(Q.pk&&Q.pk[id]&&Q.pk[id].length)}
+ function pad(box,data,changed,ph){ph=ph||PH;var tool={c:'ink',w:4,er:false},undo=[],cur=null;
+  box.innerHTML='<div class="pptools">'+['ink','blue','red','green'].map(function(c){return '<button type="button" class="ppsw" data-c="'+c+'" aria-label="'+(c==='ink'?'Pen':c)+'" style="background:'+(COLS[c]||'var(--text)')+'"></button>'}).join('')+
+   '<button type="button" class="pptb" data-w="3">Thin</button><button type="button" class="pptb" data-w="7">Thick</button><button type="button" class="pptb" data-e="1">Eraser</button><button type="button" class="pptb" data-u="1">↶ Undo</button><button type="button" class="pptb" data-x="1">Clear</button></div>'+
+   '<canvas class="ppcv" aria-label="Writing pad: write or draw with your mouse, a pen or your finger"></canvas>';
+  var cv=box.querySelector('canvas'),g=cv.getContext('2d');
+  function ink(){return getComputedStyle(document.documentElement).getPropertyValue('--text').trim()||'#111'}
+  function size(){if(!cv.isConnected){window.removeEventListener('resize',size);return}var r=cv.getBoundingClientRect(),d=window.devicePixelRatio||1;if(!r.width)return;cv.style.height=(r.width*ph/PW)+'px';cv.width=Math.round(r.width*d);cv.height=Math.round(r.width*ph/PW*d);paint()}
+  function paint(){draw(g,cur?data.concat([cur]):data,cv.width,cv.height,ink(),ph)}
+  function pt(e){var r=cv.getBoundingClientRect();return [Math.round((e.clientX-r.left)/r.width*PW),Math.round((e.clientY-r.top)/r.height*ph)]}
+  function erase(p){var n=data.length;for(var i=data.length-1;i>=0;i--){var s=data[i];for(var k=0;k<s.p.length;k+=2){var dx=s.p[k]-p[0],dy=s.p[k+1]-p[1];if(dx*dx+dy*dy<20*20){data.splice(i,1);break}}}if(data.length!==n)paint()}
+  cv.addEventListener('pointerdown',function(e){e.preventDefault();try{cv.setPointerCapture(e.pointerId)}catch(_){}undo.push(JSON.stringify(data));if(undo.length>40)undo.shift();var p=pt(e);if(tool.er){cv._er=1;erase(p);return}cur={c:tool.c,w:tool.w*(e.pointerType==='pen'&&e.pressure?0.6+e.pressure:1),p:p};paint()});
+  cv.addEventListener('pointermove',function(e){if(cv._er){erase(pt(e));return}if(!cur)return;var p=pt(e),L=cur.p.length;if(Math.abs(p[0]-cur.p[L-2])+Math.abs(p[1]-cur.p[L-1])<3)return;cur.p.push(p[0],p[1]);paint()});
+  function up(){if(cv._er){cv._er=0;changed();return}if(!cur)return;data.push(cur);cur=null;paint();changed()}
+  cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
+  function sel(){[].forEach.call(box.querySelectorAll('[data-c]'),function(b){b.classList.toggle('on',!tool.er&&tool.c===b.dataset.c)});[].forEach.call(box.querySelectorAll('[data-w]'),function(b){b.classList.toggle('on',tool.w===+b.dataset.w)});box.querySelector('[data-e]').classList.toggle('on',tool.er)}
+  [].forEach.call(box.querySelectorAll('[data-c]'),function(b){b.onclick=function(){tool.c=b.dataset.c;tool.er=false;sel()}});
+  [].forEach.call(box.querySelectorAll('[data-w]'),function(b){b.onclick=function(){tool.w=+b.dataset.w;tool.er=false;sel()}});
+  box.querySelector('[data-e]').onclick=function(){tool.er=!tool.er;sel()};
+  box.querySelector('[data-u]').onclick=function(){if(!undo.length)return;var p=JSON.parse(undo.pop());data.splice(0,data.length);p.forEach(function(s){data.push(s)});paint();changed()};
+  box.querySelector('[data-x]').onclick=function(){if(!data.length)return;undo.push(JSON.stringify(data));data.splice(0,data.length);paint();changed()};
+  sel();window.addEventListener('resize',size);setTimeout(size,0)}
+ /* ----- the paper ----- */
+ var st=ld(),ov=null,tk=0,busy=false,err=null,setup=null;
+ function open(){if(!ov){ov=document.createElement('div');ov.className='ppov';ov.setAttribute('role','dialog');ov.setAttribute('aria-modal','true');ov.setAttribute('aria-label','Big past paper');
+   ov.innerHTML='<div class="ppin"><div class="pphd"><b class="ppt"></b><span class="ppclk" data-k="clk"></span><span class="ppsc" data-k="sc"></span><button type="button" class="plgo alt" data-a="pse">⏸ Pause</button><button type="button" class="plgo alt" data-a="fin">Finish paper</button><button type="button" class="plgo alt" data-a="x">Close</button></div><div class="ppbody"></div></div>';
+   document.body.appendChild(ov);ov.querySelector('[data-a=x]').onclick=close;ov.querySelector('[data-a=pse]').onclick=function(){if(!st||st.phase==='done')return;if(st.paused)unpause();else st.paused=Date.now();sv();render()};ov.querySelector('[data-a=fin]').onclick=function(){if(!st||st.phase==='done')return;var b=this;if(b.dataset.sure){finish();return}b.dataset.sure=1;b.textContent='Tap again to finish';setTimeout(function(){if(b.isConnected){delete b.dataset.sure;b.textContent='Finish paper'}},3000)}}
+  document.body.classList.add('noscroll');try{if(window.PLAN)PLAN.close()}catch(_){}try{REV.closeHub()}catch(_){}clearInterval(tk);tk=setInterval(tick,1000);tick()}
+ function close(){if(ov){ov.remove();ov=null}document.body.classList.remove('noscroll');clearInterval(tk);setup=null;try{card()}catch(_){}}
+ function left(){return st?st.ends-(st.paused||Date.now()):0}
+ function unpause(){if(st&&st.paused){st.pz=(st.pz||0)+(Date.now()-st.paused);st.ends+=Date.now()-st.paused;st.paused=null}}
+ function usedMs(){return Math.max(0,Math.min(st.mins*60000,(st.fin||st.paused||Date.now())-st.start-(st.pz||0)))}
+ function tick(){if(!ov)return;var c=ov.querySelector('[data-k=clk]'),s=ov.querySelector('[data-k=sc]'),f=ov.querySelector('[data-a=fin]');
+  var pz=ov.querySelector('[data-a=pse]');if(!st||setup){c.textContent='';s.textContent='';f.hidden=true;pz.hidden=true;return}f.hidden=st.phase==='done';
+  var l=left();pz.hidden=st.phase==='done'||(l<=0&&!st.paused);pz.textContent=st.paused?'▶ Resume':'⏸ Pause';c.textContent=st.phase==='done'?'':st.paused?'⏸ '+mmss(l):l>0?'⏱ '+mmss(l):'⏱ Time\'s up';if(st.paused)return;c.classList.toggle('low',l<5*60000);var g=got();s.textContent=g[1]?'Marks: '+g[0]+'/'+g[1]:'';
+  if(l<=0&&st.phase==='answer'&&!st.tw){st.tw=1;sv();var b=ov.querySelector('.ppbody'),n=document.createElement('p');n.className='ppwarn';n.textContent='Time\'s up. Finish this question and press Mark: it\'ll be your last one.';b.insertBefore(n,b.firstChild)}
+  if(l<=0&&st.phase==='marked'){var nb=ov.querySelector('[data-a=next]');if(nb&&nb.dataset.k!=='end'){nb.dataset.k='end';nb.textContent='See your results →'}}}
+ function got(){var g=0,m=0;(st?st.qs:[]).forEach(function(q){if(q.res){g+=q.res.got;m+=q.res.max}});return [g,m]}
+ function title(){var t=ov.querySelector('.ppt');t.textContent=setup?'Big past paper':'Big past paper · '+subjName(st)+(st.topics?' · '+st.topics:'')}
+ function body(h){var b=ov.querySelector('.ppbody');b.innerHTML=h;b.scrollTop=0;ov.scrollTop=0;return b}
+ function render(){if(!ov)return;title();tick();if(setup)return renderSetup();
+  if(st.paused&&st.phase!=='done'){var pb=body('<div class="ppload"><p class="ppqn">Paused</p><h2 style="margin:0;font:800 34px var(--mono)">'+mmss(left())+' left</h2><p class="plnote">The clock has stopped and your question is hidden until you come back.</p><button type="button" class="plbig" data-a="unp" style="max-width:320px">▶ Resume the paper</button></div>');pb.querySelector('[data-a=unp]').onclick=function(){unpause();sv();render()};return}
+  if(err)return renderErr();var p=st.phase;
+  if(p==='gen')return body('<div class="ppload"><span class="ppspin"></span><p>'+(st.qs.length?'Writing your next question…':'Writing your first question…')+'</p></div>');
+  if(p==='marking')return body('<div class="ppload"><span class="ppspin"></span><p>Marking your answer like an examiner…</p><p class="plnote">Then it writes your next question on whatever you dropped marks on.</p></div>');
+  if(p==='answer')return renderQ();if(p==='marked')return renderMarked();if(p==='done')return renderDone()}
+ function qHead(q,i){return '<div class="ppqh"><span class="ppqn">Question '+(i+1)+'</span><b>'+esc(q.title)+'</b><span class="ppqm">'+tot(q)+' marks</span></div>'+(q.stem?'<div class="ppstem"><span class="ppqn">Read this first</span><div>'+fmt(q.stem)+'</div></div>':'')}
+ function renderQ(){var i=st.cur,Q=st.qs[i],q=Q.q;
+  if(q.stem&&!Q.read){var b0=body(qHead(q,i)+'<p class="plnote">This explains the set-up for every part of the question. Read it carefully: the numbers you need are in here.</p><div class="ppact"><button type="button" class="plbig" data-a="read">I\'ve read it, show the questions →</button></div>');b0.querySelector('[data-a=read]').onclick=function(){Q.read=1;sv();render()};return}
+  var h=(left()<=0?'<p class="ppwarn">Time\'s up. Finish this question and press Mark: it\'ll be your last one.</p>':'')+qHead(q,i)+q.parts.map(function(p){return '<div class="pppart" data-part="'+p.id+'"><div class="ppq"><b>('+p.id+')</b> '+fmt(p.q)+' <span class="ppmk">['+p.marks+' mark'+(p.marks===1?'':'s')+']</span></div><div class="ppmode" role="group" aria-label="How to answer part '+p.id+'"><button type="button" data-m="t">⌨ Type</button><button type="button" data-m="w">✏️ Write</button></div><textarea class="ppans" data-p="'+p.id+'" rows="'+Math.min(8,Math.max(2,p.marks))+'" placeholder="Type your answer…" aria-label="Answer to part '+p.id+'"></textarea><div class="pppp" hidden></div></div>'}).join('')+
+   '<details class="pppad"'+(Q.sk&&Q.sk.length?' open':'')+'><summary>✏️ Extra working and diagrams <span class="plnote">(it gets marked too)</span></summary><div class="ppcvbox"></div></details>'+
+   '<div class="ppact"><button type="button" class="plbig" data-a="mark">Mark this question</button></div><div class="ppact"><button type="button" class="plgo alt" data-a="swap">Question missing information? Swap it</button></div>';
+  var b=body(h);[].forEach.call(b.querySelectorAll('.ppans'),function(ta){ta.value=Q.ans[ta.dataset.p]||'';ta.oninput=function(){Q.ans[ta.dataset.p]=ta.value;clearTimeout(ta._t);ta._t=setTimeout(sv,400)}});
+  if(!Q.sk)Q.sk=[];var pb=b.querySelector('.pppad');function mk(){if(!pb._on){pb._on=1;pad(b.querySelector('.ppcvbox'),Q.sk,function(){sv()})}}if(pb.open)mk();pb.addEventListener('toggle',function(){if(pb.open)mk()});
+  if(!Q.pk)Q.pk={};if(!Q.mode)Q.mode={};var pref='t';try{pref=localStorage.getItem('critical_pp_mode')==='w'?'w':'t'}catch(_){}
+  [].forEach.call(b.querySelectorAll('.pppart[data-part]'),function(el){var id=el.dataset.part,p=q.parts.filter(function(x){return x.id===id})[0],ta=el.querySelector('.ppans'),pp=el.querySelector('.pppp');if(!Q.pk[id])Q.pk[id]=[];
+   function set(md,user){Q.mode[id]=md;ta.hidden=md==='w';pp.hidden=md!=='w';[].forEach.call(el.querySelectorAll('[data-m]'),function(x){x.classList.toggle('on',x.dataset.m===md);x.setAttribute('aria-pressed',x.dataset.m===md)});
+    if(md==='w'&&!pp._on){pp._on=1;pad(pp,Q.pk[id],function(){sv()},phFor(p))}if(user){try{localStorage.setItem('critical_pp_mode',md)}catch(_){}sv()}}
+   [].forEach.call(el.querySelectorAll('[data-m]'),function(x){x.onclick=function(){set(x.dataset.m,true)}});set(Q.mode[id]||(hasInk(Q,id)?'w':(Q.ans[id]||'').trim()?'t':pref))});
+  b.querySelector('[data-a=swap]').onclick=function(){if(!this.dataset.sure){this.dataset.sure=1;this.textContent='Tap again: this question is thrown away (no marks) and you get a new one';return}swap()};
+  b.querySelector('[data-a=mark]').onclick=function(){var any=q.parts.some(function(p){return (Q.ans[p.id]||'').trim()||hasInk(Q,p.id)})||Q.sk.length;if(!any&&!this.dataset.sure){this.dataset.sure=1;this.textContent='Nothing written yet. Tap again to mark it anyway';return}mark()};
+  var f=b.querySelector('.ppans');if(f&&!(Q.ans.a||'').trim())setTimeout(function(){try{f.focus({preventScroll:true})}catch(_){}},60)}
+ function renderMarked(){var i=st.cur,Q=st.qs[i],q=Q.q,r=Q.res,end=left()<=0||!st.next;
+  var h=qHead(q,i)+'<div class="ppres '+(r.got===r.max?'full':r.got*2>=r.max?'half':'low')+'"><b>'+r.got+'/'+r.max+'</b><span>'+esc(r.summary||'')+'</span></div>'+
+   q.parts.map(function(p){var pr=r.parts[p.id]||{got:0,fb:''},a=(Q.ans[p.id]||'').trim();return '<div class="pppart marked"><div class="ppq"><b>('+p.id+')</b> '+fmt(p.q)+' <span class="ppchip '+(pr.got===p.marks?'full':pr.got?'half':'low')+'">'+pr.got+'/'+p.marks+'</span></div>'+
+    '<div class="ppyour"><span>Your answer</span>'+(a?esc(a).replace(/\n/g,'<br>'):hasInk(Q,p.id)?'':'<i>Nothing written'+(Q.sk&&Q.sk.length?' (see your working)':'')+'</i>')+(hasInk(Q,p.id)?'<img class="pphw" alt="Your handwritten answer to part '+p.id+'" src="'+png(Q.pk[p.id],phFor(p),1)+'">':'')+'</div>'+(pr.fb?'<p class="ppfb">'+fmt(pr.fb)+'</p>':'')+
+    '<details class="ppms"><summary>Mark scheme and model answer</summary><ul>'+p.scheme.map(function(s){return '<li>'+fmt(s)+'</li>'}).join('')+'</ul>'+(p.model?'<p><b>Model answer:</b> '+fmt(p.model)+'</p>':'')+'</details></div>'}).join('')+
+   (r.focus?'<p class="ppfocus">🎯 <b>Next, practise:</b> '+esc(r.focus)+'</p>':'')+
+   '<div class="ppact"><button type="button" class="plbig" data-a="next"'+(end?' data-k="end"':'')+'>'+(end?'See your results →':'Next question →')+'</button></div>';
+  var b=body(h);b.querySelector('[data-a=next]').onclick=function(){if(left()<=0||!st.next){finish();return}st.qs.push({q:st.next,ans:{},sk:[],res:null});st.next=null;st.cur=st.qs.length-1;st.phase='answer';sv();render()}}
+ function renderDone(){var g=got(),pct=g[1]?Math.round(g[0]/g[1]*100):0,rr=48,C=2*Math.PI*rr,col=pct>=70?'var(--good-line)':pct>=50?'#EF9F27':'#e8742a',used=usedMs(),
+   fo=[];st.qs.forEach(function(q){if(q.res&&q.res.focus&&q.res.got<q.res.max&&fo.indexOf(q.res.focus)<0)fo.push(q.res.focus)});
+  var h='<div class="ppdone"><svg width="130" height="130" viewBox="0 0 120 120"><circle cx="60" cy="60" r="'+rr+'" fill="none" stroke="var(--soft2)" stroke-width="11"/><circle cx="60" cy="60" r="'+rr+'" fill="none" stroke="'+col+'" stroke-width="11" stroke-linecap="round" stroke-dasharray="'+(C*pct/100)+' '+C+'" transform="rotate(-90 60 60)"/><text x="60" y="60" text-anchor="middle" dy=".35em" font-size="26" font-weight="800" fill="var(--text)" font-family="system-ui">'+pct+'%</text></svg>'+
+   '<h2>Paper finished</h2><p class="plnote">'+esc(subjName(st))+(st.topics?' · '+esc(st.topics):'')+'</p><div class="ppstats"><div><b>'+g[0]+'/'+g[1]+'</b><span>marks</span></div><div><b>'+st.qs.filter(function(q){return q.res}).length+'</b><span>questions</span></div><div><b>'+Math.round(used/60000)+' min</b><span>time</span></div></div></div>'+
+   (fo.length?'<div class="ppbox"><p class="plgt">What to work on</p><ul>'+fo.slice(-5).map(function(f){return '<li>'+esc(f)+'</li>'}).join('')+'</ul></div>':'')+
+   '<div class="ppbox"><p class="plgt">Your questions</p>'+st.qs.filter(function(q){return q.res}).map(function(q,i){return '<div class="pprow"><span>'+(i+1)+'. '+esc(q.q.title)+'</span><b>'+q.res.got+'/'+q.res.max+'</b></div>'}).join('')+'</div>'+
+   '<div class="ppact"><button type="button" class="plbig" data-a="again">Start another paper</button><button type="button" class="plgo alt" data-a="close">Close</button></div>';
+  var b=body(h);b.querySelector('[data-a=close]').onclick=function(){st=null;sv();close()};b.querySelector('[data-a=again]').onclick=function(){var c=st;st=null;sv();openSetup({subj:c.subj,sname:c.sname,tier:c.tier,topics:c.topics,lids:c.lids,extra:c.extra,mins:c.mins})}}
+ function renderErr(){var e=err,b=body('<div class="ppload"><p class="ppwarn">'+esc(errMsg(e.e))+'</p>'+(e.e&&e.e.st===401?keyBox():'')+'<div class="ppact"><button type="button" class="plbig" data-a="retry">Try again</button></div></div>');
+  wireKey(b);b.querySelector('[data-a=retry]').onclick=function(){var f=e.f;err=null;f()}}
+ function fail(f){return function(e){busy=false;if(window.console)console.error(e);err={e:e,f:f};if(st&&(st.phase==='gen'||st.phase==='marking'))st.phase=st.phase==='gen'?'gen':'answer';render()}}
+ function gen(){if(busy)return;busy=true;st.phase='gen';sv();render();askFirst().then(function(q){busy=false;st.qs.push({q:q,ans:{},sk:[],res:null});st.cur=st.qs.length-1;st.phase='answer';sv();render()},fail(gen))}
+ function swap(){if(busy||!st||st.phase!=='answer')return;var Q=st.qs[st.cur],bad=JSON.stringify({stem:Q.q.stem,parts:Q.q.parts.map(function(p){return p.q})}).slice(0,1500);st.qs.splice(st.cur,1);st.cur=Math.max(0,st.qs.length-1);
+  busy=true;st.phase='gen';sv();render();askFirst(bad).then(function(q){busy=false;st.qs.push({q:q,ans:{},sk:[],res:null});st.cur=st.qs.length-1;st.phase='answer';sv();render()},fail(gen))}
+ function mark(){if(busy)return;busy=true;var i=st.cur,Q=st.qs[i],noNext=left()<3*60000;st.phase='marking';sv();render();
+  askMark(i,noNext).then(function(j){busy=false;var q=Q.q,parts={},g=0;(Array.isArray(j.parts)?j.parts:[]).forEach(function(p,k){var id=String(p&&p.id||q.parts[k]&&q.parts[k].id||'').toLowerCase().replace(/[^a-h]/g,'').slice(0,1);var qp=q.parts.filter(function(x){return x.id===id})[0];if(!qp)return;parts[id]={got:Math.max(0,Math.min(qp.marks,Math.round(+p.got||0))),fb:String(p.feedback||'').slice(0,600)}});
+   q.parts.forEach(function(p){if(!parts[p.id])parts[p.id]={got:0,fb:''};g+=parts[p.id].got});Q.res={got:g,max:tot(q),parts:parts,summary:String(j.summary||'').slice(0,400),focus:String(j.focus||'').slice(0,200)};
+   st.next=noNext?null:cleanQ(j.next);st.phase='marked';sv();try{if(g)addXP(g*3)}catch(_){}render();
+   if(!noNext&&!st.next)askFirst().then(function(nq){st.next=nq;sv();var nb=ov&&ov.querySelector('[data-a=next]');if(nb&&left()>0){nb.dataset.k='';nb.textContent='Next question →'}},function(){})},fail(mark))}
+ function finish(){if(!st)return;unpause();st.phase='done';st.fin=Date.now();var g=got(),c=st;var H=hist();if(!c.logged&&g[1]){c.logged=1;H.push({id:String(c.start),src:'critical',d:today(),s:subjName(c),t:c.topics||'',tier:c.tier,g:g[0],m:g[1],mins:Math.round(usedMs()/60000),n:c.qs.filter(function(q){return q.res}).length,qs:c.qs.filter(function(q){return q.res}).map(function(q){return {t:q.q.title,g:q.res.got,m:q.res.max,f:q.res.focus||''}})});while(H.length>30)H.shift();save()}
+  if(c.study)try{STUDY.stop()}catch(_){}sv();render();try{if(g[1]&&g[0]/g[1]>=.6)confetti()}catch(_){}}
+ /* ----- setting up a paper ----- */
+ function keyBox(){return '<div class="ppkey"><p class="plnote">AI marking uses your own Claude API key, the same one the Ask button uses. It stays on this device. Marking a whole hour costs about 1–3p.</p><div class="pprow2"><input type="password" data-k="key" placeholder="sk-ant-…" autocomplete="off" aria-label="Claude API key"><button type="button" class="plgo" data-a="savekey">Save key</button></div><p class="plnote" data-k="kst"></p><p class="plnote">Get one at <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com</a>.</p></div>'}
+ function wireKey(b){var sbt=b.querySelector('[data-a=savekey]');if(!sbt)return;sbt.onclick=function(){var k=b.querySelector('[data-k=key]').value.trim(),m=b.querySelector('[data-k=kst]');if(!/^sk-ant-[A-Za-z0-9_\-]{20,}$/.test(k)){m.textContent='That doesn\'t look like an Anthropic key (it starts sk-ant-).';return}try{localStorage.setItem(KK,k)}catch(_){}m.textContent='Key saved.';setTimeout(render,500)}}
+ /* the same paper as a Claude artifact: runs on your Claude account, no API key. Only a plain #name reaches it, so lessons go as ids joined by -- */
+ function artUrl(c){var ids=[];(c.lids||[]).forEach(function(id){UNITS.forEach(function(u){if(u.id===id)u.lessons.forEach(function(l){ids.push(l.id)});u.lessons.forEach(function(l){if(l.id===id)ids.push(l.id)})})});
+  ids=ids.filter(function(x,i){return /^[a-z0-9-]+$/.test(x)&&ids.indexOf(x)===i}).slice(0,12);var h=ids.length?ids.join('--'):(c.subj&&c.subj!=='own'?c.subj:'');return ART+(h?'#'+h:'')}
+ function openSetup(pre){setup=Object.assign({subj:'gp',sname:'',tier:'Higher',topics:'',lids:[],extra:'',mins:60},pre||{});if(!Array.isArray(setup.lids))setup.lids=[];open();render()}
+ function renderSetup(){var c=setup,hk=!!key();
+  var tests=[];try{tests=REV.tests().filter(function(t){return !t.gone&&t.date>=today()})}catch(_){}
+  var h='<div class="ppset"><div class="pldnow"><b>An hour of past-paper questions, marked for you</b>Claude writes exam-style questions on your topics. Type or write your answers, and it marks them like an examiner. The next question goes after whatever you dropped marks on, and it keeps going until the time\'s up.</div>'+
+   '<div class="ppclaude"><a class="'+(hk?'plgo alt':'plbig')+' pplink" data-k="art" href="'+esc(artUrl(c))+'" target="_blank" rel="noopener">Do it in Claude: no API key needed ↗</a><p class="plnote">Opens Big Past Paper on claude.ai, where it runs on your Claude account. Lessons you pick below carry over; anything else, type in there.</p></div>'+
+   (hk?'':'<details class="ppor"><summary>Or use an API key here instead</summary>'+keyBox()+'</details>')+
+   (tests.length?'<div><p class="plgt">From your tests</p><div class="rvchips ppchips">'+tests.map(function(t,i){return '<button type="button" data-tt="'+i+'">'+esc(t.name||'Test')+'</button>'}).join('')+'</div></div>':'')+
+   '<div class="rvf"><div class="rvrow"><label>Subject<select data-f="subj"><option value="gp">GCSE Physics</option><option value="gc">GCSE Chemistry</option><option value="gm">GCSE Maths</option><option value="gcs">GCSE Computer Science</option><option value="own">Another subject</option></select></label>'+
+   '<label>Tier<select data-f="tier"><option>Higher</option><option>Foundation</option></select></label></div>'+
+   (c.subj==='own'?'<label>Which subject?<input type="text" data-f="sname" maxlength="40" placeholder="e.g. Biology, Geography"></label>':'')+
+   '<label>Topics<input type="text" data-f="topics" maxlength="160" placeholder="e.g. scalars and vectors, resultant forces"></label><div class="ppsug" data-k="sug"></div>'+
+   '<label>How long<select data-f="mins"><option value="60">1 hour</option><option value="45">45 minutes</option><option value="30">30 minutes</option></select></label></div>'+
+   '<p class="plderr" data-k="err" hidden></p>'+(hk?'<div class="ppact"><button type="button" class="plbig" data-a="go">Start the paper here</button></div>':'')+'</div>';
+  var b=body(h),q=function(s){return b.querySelector(s)};wireKey(b);function upd(){var a=q('[data-k=art]');if(a)a.href=artUrl(c)}
+  q('[data-f=subj]').value=c.subj;q('[data-f=tier]').value=c.tier;q('[data-f=topics]').value=c.topics;q('[data-f=mins]').value=String(c.mins);
+  q('[data-f=subj]').onchange=function(){c.subj=this.value;c.lids=[];renderSetup()};q('[data-f=tier]').onchange=function(){c.tier=this.value};q('[data-f=mins]').onchange=function(){c.mins=+this.value};
+  if(q('[data-f=sname]')){q('[data-f=sname]').value=c.sname;q('[data-f=sname]').oninput=function(){c.sname=this.value}}
+  function sug(){var box=q('[data-k=sug]'),words=c.topics.split(',').pop().trim(),m=[];if(words.length>=3&&c.subj!=='own')UNITS.forEach(function(u,ui){if(trk(ui)!==c.subj)return;u.lessons.forEach(function(l){var ok=false;try{ok=REV.match(words,l.title)}catch(_){ok=l.title.toLowerCase().indexOf(words.toLowerCase())>=0}if(ok&&c.lids.indexOf(l.id)<0)m.push(l)})});
+   box.innerHTML=m.length?'<span class="plnote">Critical lessons:</span> '+m.slice(0,5).map(function(l){return '<button type="button" class="plgo alt" data-l="'+esc(l.id)+'">+ '+esc(l.title)+'</button>'}).join(''):'';
+   [].forEach.call(box.querySelectorAll('[data-l]'),function(bt){bt.onclick=function(){var l=null;UNITS.forEach(function(u){u.lessons.forEach(function(x){if(x.id===bt.dataset.l)l=x})});if(!l)return;c.lids.push(l.id);var parts=c.topics.split(',');parts.pop();parts.push(' '+l.title);c.topics=parts.join(',').replace(/^\s*,?\s*/,'').trim();q('[data-f=topics]').value=c.topics;sug();upd()}})}
+  q('[data-f=topics]').oninput=function(){c.topics=this.value;sug()};sug();
+  [].forEach.call(b.querySelectorAll('[data-tt]'),function(bt){bt.onclick=function(){var t=tests[+bt.dataset.tt];c.subj=t.subj;c.sname=t.sname||'';c.lids=(t.units||[]).slice();var tl=[];try{c.lids.forEach(function(id){UNITS.forEach(function(u){if(u.id===id)tl.push(u.title);u.lessons.forEach(function(l){if(l.id===id)tl.push(l.title)})})})}catch(_){}
+   c.topics=t.subj==='own'?(t.name||t.sname||''):tl.join(', ');c.extra=t.subj==='own'?(t.cards||[]).slice(0,40).map(function(x){return 'Q: '+x.q+' A: '+x.a}).join('\n'):'';renderSetup()}});
+  if(q('[data-a=go]'))q('[data-a=go]').onclick=function(){var e=q('[data-k=err]');if(!key()){e.hidden=false;e.textContent='Add your Claude API key first (above).';return}if(!c.topics.trim()&&c.subj==='own'){e.hidden=false;e.textContent='Say which topics the paper should cover.';return}
+   var now=Date.now();st={v:1,subj:c.subj,sname:(c.sname||'').trim(),tier:c.tier,topics:c.topics.trim(),lids:c.lids,extra:c.extra||'',mins:c.mins||60,start:now,ends:now+(c.mins||60)*60000,qs:[],cur:0,phase:'gen',next:null};
+   try{st.study=STUDY.start('Big past paper')?1:0}catch(_){st.study=0}setup=null;sv();gen()}}
+ function resume(){if(!st)return;open();if(st.phase==='gen'){busy=false;gen();return}if(st.phase==='marking'){busy=false;st.phase='answer'}render()}
+ /* ----- the logger: read a marked-paper PDF from Big Past Paper in Claude (its keywords carry a BPP1 tag) ----- */
+ function importPDF(file,say){if(!file)return;if(file.size>40*1024*1024){say('That file is too big to be a Big Past Paper PDF.',1);return}var rd=new FileReader();
+  rd.onerror=function(){say('Couldn\'t read that file. Try again.',1)};
+  rd.onload=function(){var txt='';try{txt=new TextDecoder('latin1').decode(new Uint8Array(rd.result))}catch(_){say('Couldn\'t read that file.',1);return}
+   var m=/BPP1:([A-Za-z0-9+\/=]+)/.exec(txt),o=null;if(m)try{o=JSON.parse(decodeURIComponent(escape(atob(m[1]))))}catch(_){o=null}
+   if(!o||o.v!==1||!(+o.m>0)){say('That PDF wasn\'t made by Big Past Paper. Use "Download marked paper (PDF)" on its results screen, then pick that file.',1);return}
+   var H=hist(),id=String(o.id||'');if(id&&H.some(function(x){return x.id===id})){say('That paper is already in your log.',1);return}
+   var g=Math.max(0,Math.min(+o.m,Math.round(+o.g||0))),dd=new Date(o.d),e={id:id,src:'claude',d:isNaN(dd)?today():dstr(dd),s:String(o.sn||SUBJ[o.s]||'Past paper').slice(0,40),t:String(o.t||'').slice(0,160),tier:String(o.tier||''),g:g,m:Math.round(+o.m),mins:Math.max(0,Math.round(+o.mins||0)),
+    qs:(Array.isArray(o.qs)?o.qs:[]).slice(0,30).map(function(q){var mm=Math.max(1,Math.round(+q.m||1));return {t:String(q.t||'Question').slice(0,80),g:Math.max(0,Math.min(mm,Math.round(+q.g||0))),m:mm,f:String(q.f||'').slice(0,200)}})};e.n=e.qs.length;
+   H.push(e);H.sort(function(a,b){return a.d<b.d?-1:a.d>b.d?1:0});while(H.length>30)H.shift();save();try{if(g)addXP(g*3)}catch(_){}
+   say('Logged: '+e.s+(e.t?' · '+e.t:'')+', '+g+'/'+e.m+' ('+Math.round(g/e.m*100)+'%). +'+g*3+' XP.',0)};
+  rd.readAsArrayBuffer(file)}
+ function niceD(s){try{var a=String(s).split('-');return new Date(+a[0],a[1]-1,+a[2]).toLocaleDateString('en-GB',{day:'numeric',month:'short'})}catch(_){return s}}
+ /* ----- the card on the Exams page ----- */
+ function card(){var pg=document.getElementById('page-exam');if(!pg||document.getElementById('exClock'))return;var old=pg.querySelector('.ppcard');if(old)old.remove();
+  var All=hist(),H=All.slice(-6).reverse(),pcs=All.filter(function(x){return x.m}).map(function(x){return x.g/x.m*100}),avg=pcs.length?Math.round(pcs.reduce(function(a,b){return a+b},0)/pcs.length):0,live=st&&st.phase!=='done',el=document.createElement('div');el.className='card ppcard';
+  el.innerHTML='<h2>📝 Big past paper <span class="note">'+(live?(left()>0?mmss(left())+' left':'time\'s up'):'marked by AI')+'</span></h2><p class="note" style="font-size:15px">An hour of exam-style questions on your topics. Type or handwrite your answers; Claude marks each one like an examiner, then writes the next question on whatever you dropped marks on, until the time\'s up.</p>'+
+   '<div class="ppact" style="justify-content:flex-start">'+(live?'<button type="button" class="plgo" data-a="res">Carry on with your paper →</button><button type="button" class="plgo alt" data-a="new">Start a new one</button>':'<button type="button" class="plgo" data-a="new">Start a past paper →</button>')+
+   '<button type="button" class="plgo alt" data-a="log">📄 Log a paper (PDF)</button><input type="file" accept="application/pdf,.pdf" data-k="file" hidden aria-label="Choose a Big Past Paper PDF"></div>'+
+   '<p class="plnote pplogmsg" data-k="logmsg" role="status" hidden></p>'+
+   (H.length?'<div class="pplog"><p class="plgt">Past paper log · '+All.length+' paper'+(All.length===1?'':'s')+' · average '+avg+'%</p>'+H.map(function(x){var pc=x.m?Math.round(x.g/x.m*100):0,head='<span>'+esc(x.s)+(x.t?' · '+esc(x.t):'')+' <span class="plnote">'+esc(niceD(x.d))+(x.mins?' · '+x.mins+' min':'')+(x.src==='claude'?' · from Claude':'')+'</span></span><b class="'+(pc>=70?'g':pc>=50?'m':'l')+'">'+x.g+'/'+x.m+' · '+pc+'%</b>';
+     if(!x.qs||!x.qs.length)return '<div class="pprow">'+head+'</div>';var fo=[];x.qs.forEach(function(q){if(q.f&&q.g<q.m&&fo.indexOf(q.f)<0)fo.push(q.f)});
+     return '<details class="pplr"><summary class="pprow">'+head+'</summary><div class="pplq">'+x.qs.map(function(q,i){return '<div><span>'+(i+1)+'. '+esc(q.t)+'</span><b>'+q.g+'/'+q.m+'</b></div>'}).join('')+(fo.length?'<p class="plnote"><b>Work on:</b> '+fo.slice(-4).map(esc).join(' · ')+'</p>':'')+'</div></details>'}).join('')+'</div>':
+    '<p class="plnote">Finished a paper in Claude? Download it as a PDF there, then press Log a paper.</p>');
+  var w=pg.querySelector('.exw'),f=w&&w.firstElementChild;if(f&&f.nextSibling)w.insertBefore(el,f.nextSibling);else if(w)w.appendChild(el);else pg.insertBefore(el,pg.firstChild);
+  var rb=el.querySelector('[data-a=res]');if(rb)rb.onclick=resume;
+  var fi=el.querySelector('[data-k=file]'),lm=el.querySelector('[data-k=logmsg]'),say=function(t,bad){var keep=t;if(!bad){card();var n=document.querySelector('.ppcard [data-k=logmsg]');if(n){n.hidden=false;n.textContent=keep;n.className='plnote pplogmsg ok'}return}lm.hidden=false;lm.textContent=t;lm.className='plnote pplogmsg bad'};
+  el.querySelector('[data-a=log]').onclick=function(){fi.value='';fi.click()};fi.onchange=function(){importPDF(fi.files&&fi.files[0],say)};
+  el.addEventListener('dragover',function(e){e.preventDefault();el.classList.add('ppdrop')});el.addEventListener('dragleave',function(){el.classList.remove('ppdrop')});
+  el.addEventListener('drop',function(e){e.preventDefault();el.classList.remove('ppdrop');var f=e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0];if(f)importPDF(f,say)});el.querySelector('[data-a=new]').onclick=function(){if(live&&!this.dataset.sure){this.dataset.sure=1;this.textContent='Tap again: this ends your current paper';return}if(live)finish();st=null;sv();openSetup()}}
+ /* the Exams page is built after this runs, so wait for it, then keep the card there whenever the page re-renders */
+ function hook(){var pg=document.getElementById('page-exam');if(!pg){hook.n=(hook.n||0)+1;if(hook.n<120)setTimeout(hook,250);return}if(window.MutationObserver&&!pg._ppObs){pg._ppObs=1;new MutationObserver(function(){if(!pg.querySelector('.ppcard'))try{card()}catch(_){}}).observe(pg,{childList:true})}try{card()}catch(_){}}
+ setTimeout(hook,0);
+ var css=document.createElement('style');css.textContent=
+  '.ppov{position:fixed;inset:0;z-index:3200;background:var(--bg);overflow:auto}.ppin{max-width:820px;margin:0 auto;padding:0 16px calc(40px + env(safe-area-inset-bottom))}'+
+  '.pphd{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--bg);padding:12px 0;border-bottom:1px solid var(--line);margin-bottom:14px}.pphd .ppt{flex:1;min-width:160px;font-size:16px}'+
+  '.ppclk{font:800 16px var(--mono);font-variant-numeric:tabular-nums}.ppclk.low{color:#e8742a}.ppsc{font:700 13px var(--mono);color:var(--muted)}'+
+  '.ppbody{display:flex;flex-direction:column;gap:14px}.ppload{display:flex;flex-direction:column;align-items:center;gap:10px;padding:60px 10px;text-align:center}.ppload p{margin:0}'+
+  '.ppspin{width:34px;height:34px;border-radius:50%;border:4px solid var(--soft2);border-top-color:#7F77DD;animation:ppspin 0.9s linear infinite}@keyframes ppspin{to{transform:rotate(360deg)}}'+
+  '.ppqh{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}.ppqh b{font-size:19px;flex:1}.ppqn{font:800 12px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:#7F77DD}.ppqm{font:700 13px var(--mono);color:var(--muted)}'+
+  '.ppstem{background:rgba(127,119,221,.1);border:1.5px solid #7F77DD;border-radius:14px;padding:12px 14px;line-height:1.55;display:flex;flex-direction:column;gap:4px}.pppart{display:flex;flex-direction:column;gap:6px}.ppq{margin:0;line-height:1.55;font-size:15.5px}.ppq .pptab{margin:8px 0}.ppmk{color:var(--muted);font-weight:700;font-size:13px;white-space:nowrap}'+
+  '.ppans{font:inherit;font-size:15px;line-height:1.5;color:var(--text);background:var(--panel);border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;width:100%;box-sizing:border-box;resize:vertical}.ppans:focus{outline:none;border-color:#7F77DD}'+
+  '.ppmode{display:inline-flex;align-self:flex-start;border:1.5px solid var(--line);border-radius:9px;overflow:hidden}.ppmode button{border:0;background:var(--panel);color:var(--muted);font:inherit;font-size:13px;font-weight:700;padding:4px 12px;cursor:pointer}.ppmode button.on{background:var(--text);color:var(--bg)}'+
+  '.pppp[hidden],.ppans[hidden]{display:none}.pppp .pptools{margin-top:0}.pphw{display:block;max-width:100%;border:1px solid var(--line);border-radius:8px;background:#fff;margin-top:6px}'+
+  '.pppad summary{cursor:pointer;font-weight:700}.ppcvbox{margin-top:8px}.pptools{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:6px}.ppsw{width:26px;height:26px;border-radius:50%;border:2px solid var(--line);cursor:pointer;padding:0}.ppsw.on{outline:3px solid #7F77DD;outline-offset:1px}'+
+  '.pptb{font:inherit;font-size:13px;font-weight:700;border:1.5px solid var(--line);background:var(--panel);color:var(--text);border-radius:9px;padding:5px 9px;cursor:pointer}.pptb.on{border-color:#7F77DD;background:rgba(127,119,221,.15)}'+
+  '.ppcv{display:block;width:100%;border:1.5px solid var(--line);border-radius:12px;background:var(--panel) repeating-linear-gradient(to bottom,transparent 0,transparent 31px,var(--line) 31px,var(--line) 32px);touch-action:none;cursor:crosshair}'+
+  '.ppact{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.ppact .plbig{flex:1}.ppwarn{margin:0;background:var(--warn-bg);color:var(--text);border-radius:12px;padding:10px 12px;font-weight:700}'+
+  '.ppres{display:flex;gap:12px;align-items:center;border-radius:14px;padding:12px 14px;background:var(--soft)}.ppres b{font:800 26px var(--mono)}.ppres.full{background:var(--good-bg)}.ppres.half{background:rgba(239,159,39,.15)}.ppres.low{background:rgba(232,116,42,.13)}'+
+  '.pppart.marked{background:var(--panel);border:1.5px solid var(--line);border-radius:14px;padding:12px 14px}.ppchip{display:inline-block;font:800 13px var(--mono);border-radius:999px;padding:2px 9px;margin-left:4px;vertical-align:1px}.ppchip.full{background:var(--good-bg);color:var(--good)}.ppchip.half{background:rgba(239,159,39,.18)}.ppchip.low{background:rgba(232,116,42,.16)}'+
+  '.ppyour{font-size:14.5px;background:var(--bg);border-radius:10px;padding:8px 10px;white-space:normal}.ppyour span{display:block;font:800 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:3px}.ppfb{margin:0;font-size:14.5px;line-height:1.5}'+
+  '.ppms summary{cursor:pointer;font-weight:700;font-size:14px;color:var(--muted)}.ppms ul{margin:6px 0;padding-left:20px;font-size:14px}.ppms p{font-size:14px;margin:4px 0}.ppfocus{margin:0;background:rgba(127,119,221,.13);border-radius:12px;padding:10px 12px}'+
+  '.pptab{border-collapse:collapse;margin:8px 0;font-size:14px}.pptab td,.pptab th{border:1px solid var(--line);padding:4px 10px;text-align:center}.pptab th{background:var(--soft)}'+
+  '.ppdone{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}.ppdone h2{margin:4px 0 0}.ppstats{display:flex;gap:10px;margin-top:8px}.ppstats div{background:var(--panel);border:1.5px solid var(--line);border-radius:12px;padding:8px 14px;display:flex;flex-direction:column}.ppstats b{font:800 20px var(--mono)}.ppstats span{font-size:12px;color:var(--muted)}'+
+  '.ppbox{background:var(--panel);border:1.5px solid var(--line);border-radius:14px;padding:12px 14px}.ppbox ul{margin:0;padding-left:20px}.pprow{display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-bottom:1px solid var(--line);font-size:14.5px}.pprow:last-child{border-bottom:0}.pprow b{font-family:var(--mono)}'+
+  '.ppset{display:flex;flex-direction:column;gap:14px}.ppkey{background:var(--warn-bg);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:6px}.ppkey p{margin:0}.pprow2{display:flex;gap:6px}.pprow2 input{flex:1;font:inherit;font-size:15px;padding:8px 10px;border:1.5px solid var(--line);border-radius:10px;background:var(--panel);color:var(--text)}'+
+  '.pplink{display:block;text-align:center;text-decoration:none;box-sizing:border-box}.ppclaude{display:flex;flex-direction:column;gap:6px}.ppor summary{cursor:pointer;font-weight:700;font-size:14px;color:var(--muted)}.ppor .ppkey{margin-top:8px}'+
+  '.pplog{margin-top:12px}.pplr summary{cursor:pointer;list-style:none}.pplr summary::-webkit-details-marker{display:none}.pplr summary>span::before{content:"▸ ";color:var(--muted)}.pplr[open] summary>span::before{content:"▾ "}'+
+  '.pplog b.g{color:var(--good)}.pplog b.m{color:#c98a12}.pplog b.l{color:#e8742a}.pplq{padding:4px 0 8px 18px;display:flex;flex-direction:column;gap:3px;font-size:14px}.pplq div{display:flex;justify-content:space-between;gap:10px}.pplq b{font-family:var(--mono)}.pplq p{margin:4px 0 0}'+
+  '.pplogmsg{margin:8px 0 0;padding:8px 10px;border-radius:10px}.pplogmsg.ok{background:var(--good-bg);color:var(--text)}.pplogmsg.bad{background:var(--warn-bg);color:var(--text)}.ppcard.ppdrop{outline:3px dashed #7F77DD;outline-offset:4px}'+
+  '.ppchips button{border:0;cursor:pointer;font:inherit}.ppsug{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.ppsug:empty{display:none}.pphist{margin-top:10px}';
+ document.head.appendChild(css);
+ return {artUrl:artUrl,setup:openSetup,resume:resume,card:card,state:function(){return st},_png:png,_fmt:fmt};
+})();
+try{window.PP=PP}catch(_){}
 /* ===== weekly plan (calendar button next to the study timer) ===== */
 var PLAN=(function(){
  var MG='https://www.mathsgenie.co.uk/',SEN='https://senecalearning.com/',COG='https://cognitoedu.org/',SR='shift-ready.html',AG='aptitude.html';
@@ -3307,7 +3811,7 @@ var PLAN=(function(){
  function pile(){try{return reviewPool(true).length}catch(_){return 0}}
  /* Tuesday's first 20 minutes become Fix my mistakes if Monday's pile wasn't emptied. Decided once on Tuesday, then kept for the week. */
  var ready=false;setTimeout(function(){ready=true},0);
- function carry(){var p=PS(),t=todayI();if(p.carry==null){if(t!==1||!ready)return false;p.carry=(!p.monClr&&pile()>0)?1:0;save()}return p.carry===1}
+ function carry(){var p=PS(),t=todayI();if(p.carry==null){if(t!==1||!ready)return false;p.carry=(!p.monClr&&!rvOn(0)&&pile()>0)?1:0;save()}return p.carry===1}
  /* every day starts with a warm-up and ends with Critical Clash (block[5] says which). On a school day you're asked, after the study part,
     if you want to keep going to 45 minutes: that adds a 10-minute bonus of the day's main subject and makes Clash 10 minutes. */
  function CORE(i){return i===1&&carry()?TUE_FIX:D[i]}
@@ -3318,13 +3822,21 @@ var PLAN=(function(){
  function extOn(i){var e=PS().ext;return !!(e&&e[i])}
  function setExt(i,v){var p=PS();if(!p.ext||typeof p.ext!=='object')p.ext={};p.ext[i]=v;save()}
  function extAsked(i){var e=PS().ext;return !!(e&&e[i]!=null)}
- function DAY(i){var c=CORE(i),x=i<5&&extOn(i);return [WARM(i)].concat(c,x?[BONUS(c)]:[],[CLASH(i,x)])}
+ /* revision days (Tests tab): the days before a test swap the plan for one revision block, as long as that day's normal plan.
+    Once a day is started it's pinned, so editing a test later can't change a day you're part-way through. */
+ function wkDate(i){var d=new Date();d.setHours(12,0,0,0);d.setDate(d.getDate()-((d.getDay()+6)%7)+i);return d}
+ function anyTick(i){var t=PS().t;for(var k in t)if(t[k]&&k.indexOf(i+'-')===0)return true;return false}
+ function RVD(i){if(typeof REV==='undefined')return null;var p=PS();if(p.rvpin&&p.rvpin[i])return REV.byPin(p.rvpin[i]);if(anyTick(i))return null;
+  if(i===todayI()){var rr=runGet();if(rr&&rr.day===i)return null;if(hwGet())return null}try{return REV.dayInfo(dstr(wkDate(i)))}catch(_){return null}}
+ function pinRv(i){var p=PS();if(p.rvpin&&p.rvpin[i])return;var r=RVD(i);if(!r)return;if(!p.rvpin||typeof p.rvpin!=='object')p.rvpin={};p.rvpin[i]=r.pin;save()}
+ function rvOn(i){var b=DAY(i);return b.length===1&&b[0][5]==='rev'}
+ function DAY(i){var rv=RVD(i);if(rv)return [['Revise: '+rv.name,mins(i),rv.desc,[['Start revision','rev']],0,'rev',rv]];var c=CORE(i),x=i<5&&extOn(i);return [WARM(i)].concat(c,x?[BONUS(c)]:[],[CLASH(i,x)])}
  function isFix(b){return !!(b&&b[3]&&b[3][0]&&b[3][0][1]==='fix')}
  function mins(i){return [WARM(i)].concat(CORE(i),[CLASH(i,false)]).reduce(function(s,b){return s+b[1]},0)}
  function allMins(i){return DAY(i).reduce(function(s,b){return s+b[1]},0)}
  var TOTAL=D.reduce(function(s,_,i){return s+mins(i)},0);
  function wk(){var d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-((d.getDay()+6)%7));return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()}
- function PS(){if(!S.plan||typeof S.plan!=='object')S.plan={};var p=S.plan;if(p.wk!==wk()){p.wk=wk();p.t={};delete p.monClr;delete p.carry;delete p.fe;delete p.ext;delete p.qs}if(!p.t||typeof p.t!=='object')p.t={};if(p.auto==null)p.auto=1;if(typeof p.topics!=='string')p.topics='';return p}
+ function PS(){if(!S.plan||typeof S.plan!=='object')S.plan={};var p=S.plan;if(p.wk!==wk()){p.wk=wk();p.t={};delete p.monClr;delete p.carry;delete p.fe;delete p.ext;delete p.qs;delete p.rvpin}if(!p.t||typeof p.t!=='object')p.t={};if(p.auto==null)p.auto=1;if(typeof p.topics!=='string')p.topics='';return p}
  function todayI(){return (new Date().getDay()+6)%7}
  function isDone(i,j){return !!PS().t[i+'-'+j]}
  function feOn(i){var f=PS().fe;return !!(f&&f[i==null?todayI():i])}
@@ -3332,7 +3844,7 @@ var PLAN=(function(){
  function dayDone(i){return feOn(i)||allTicked(i)}
  /* a finished 2-minute "Just start" counts as doing the day (shown yellow, not green) */
  function qsOn(i){var q=PS().qs;return !!(q&&q[i==null?todayI():i])}
- function markQuick(){var p=PS(),t=todayI();if(!p.qs||typeof p.qs!=='object')p.qs={};if(p.qs[t])return false;p.qs[t]=1;save();try{paint()}catch(e){}try{paintPill()}catch(e){}loop();return true}
+ function markQuick(){var p=PS(),t=todayI();if(!p.qs||typeof p.qs!=='object')p.qs={};if(p.qs[t])return false;p.qs[t]=1;save();try{habAuto()}catch(e){}setTimeout(function(){try{focusSend(true)}catch(_){}},50);try{paint()}catch(e){}try{paintPill()}catch(e){}loop();return true}
  var RK='critical_plan_run',ban=null,banT=null,warned={},upKey=null;
  function ymdN(){var d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()}
  function runGet(){try{var r=JSON.parse(localStorage.getItem(RK)||'null');if(r&&r.d!==ymdN()){localStorage.removeItem(RK);return null}return r}catch(_){return null}}
@@ -3366,12 +3878,15 @@ var PLAN=(function(){
  '.pldl{display:flex;flex-direction:column;gap:6px}.pldr{display:flex;gap:10px;align-items:center;background:var(--bg);border:1.5px solid var(--line);border-radius:12px;padding:9px 12px;min-width:0}.pldr .tm{font:700 13px var(--mono);min-width:62px;color:var(--muted);font-variant-numeric:tabular-nums}.pldr .lb{flex:1;min-width:0;font-weight:700;font-size:15px}.pldr.past{opacity:.55}.pldr.now{border-color:var(--accent);background:var(--accent-bg)}.pldr.now .tm,.pldr.now .lb{color:var(--accent-text)}'+
  '.pldr .dot{width:10px;height:10px;border-radius:50%;flex:none;background:var(--muted)}.pldr .dot.k-plan,.pldr .dot.k-study{background:var(--accent)}.pldr .dot.k-eat{background:var(--amber)}.pldr .dot.k-free{background:var(--good-line)}.pldr .dot.k-read{background:#7F77DD}.pldr .dot.k-sleep{background:var(--line)}.pldr .nowb{font:800 11px var(--mono);background:var(--accent);color:var(--on-accent);border-radius:999px;padding:2px 8px;flex:none}.pldr .plgo{padding:6px 10px;flex:none}'+
  '.pldr input{font:inherit;font-size:14px;color:var(--text);background:var(--panel);border:1.5px solid var(--line);border-radius:8px;padding:6px 8px;min-width:0}.pldr input[type=time]{width:130px;flex:none}.pldr input[type=text]{flex:1}.pldr .pldel{border:0;background:none;color:var(--muted);font-size:18px;width:32px;height:32px;cursor:pointer;flex:none}.plderr{color:var(--bad);font-size:13px;margin:0}'+
- '.plseg{grid-template-columns:repeat(3,1fr)}@media(max-width:380px){.plseg button{font-size:13px;padding:8px 2px}}.plhb{display:flex;flex-direction:column;gap:12px}.plhb[hidden]{display:none}'+
+ '.plseg{grid-template-columns:repeat(4,1fr)}@media(max-width:440px){.plseg button{font-size:13px;padding:8px 2px}}.plhb{display:flex;flex-direction:column;gap:12px}.plhb[hidden]{display:none}'+
  '.plhl{display:flex;flex-direction:column;gap:8px}.plh1{display:flex;gap:12px;align-items:flex-start;background:var(--bg);border:1.5px solid var(--line);border-radius:14px;padding:12px}.plh1.done{border-color:var(--good-line);background:var(--good-bg)}.plh1.half{border-color:var(--good-line)}'+
  '.plhk{flex:none;width:40px;height:40px;border-radius:12px;border:2px solid var(--line);background:var(--panel);color:#fff;font-size:19px;font-weight:800;cursor:pointer;display:grid;place-items:center;padding:0}.plh1.done .plhk{background:var(--good-line);border-color:var(--good-line)}.plh1.half .plhk{background:linear-gradient(135deg,var(--good-line) 50%,var(--panel) 50%);border-color:var(--good-line);color:var(--text)}'+
  '.plhb .plbody{flex:1;min-width:0}.plhn{font-weight:800;font-size:15px;margin:0}.plht{font-size:13.5px;color:var(--muted);margin:3px 0 0;line-height:1.4}.plhs{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;margin-top:7px;font-size:13px}.plhs b{font-family:var(--mono)}.plhp{display:flex;align-items:center;gap:6px;flex:1 1 150px;min-width:130px}.plhbar{flex:1;height:6px;background:var(--soft2);border-radius:3px;overflow:hidden;min-width:60px}.plhbar i{display:block;height:100%;background:#7F77DD}.plhw{font-size:13px;color:var(--warn);margin:6px 0 0}'+
  '.plgrid{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px 12px;overflow-x:auto}.plgrid:empty{display:none}.plgt{font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}.plgr{display:grid;align-items:center;gap:3px;margin-bottom:4px}.plgr span{font-size:12px;color:var(--muted);text-align:center;min-width:0}.plgr .gl{text-align:left;font-size:13px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}'+
  '.plgc{aspect-ratio:1;border-radius:4px;border:1px solid var(--line);background:var(--panel);padding:0;cursor:pointer;min-width:0}.plgc.d1{background:var(--good-line);border-color:var(--good-line)}.plgc.d2{background:var(--good-bg);border-color:var(--good-line)}.plgc.miss{background:var(--soft)}.plgc.fut{opacity:.35;cursor:default}.plgc.td{outline:2px solid var(--accent);outline-offset:1px}.plgc.pre{opacity:.4}'+
+ '.plauto{background:var(--bg);border:1.5px solid var(--line);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:8px}.plauto .plgt{margin:0}.plauto .plnote{margin:0}.plauto-t{font:800 10.5px var(--mono);letter-spacing:.05em;text-transform:uppercase;background:var(--accent-bg);color:var(--accent-text);border-radius:999px;padding:2px 7px;vertical-align:2px}'+
+ '.plsetup summary{cursor:pointer;font-weight:700;font-size:14px}.plsteps{margin:8px 0;padding-left:20px;font-size:14px;line-height:1.5;display:flex;flex-direction:column;gap:5px}.plsteps code{font:700 13px var(--mono);background:var(--soft);border-radius:5px;padding:0 5px}'+
+ '.plcopy{display:flex;gap:6px;align-items:flex-end;margin-top:6px}.plcopy label{flex:1;display:flex;flex-direction:column;gap:3px;font-size:12px;font-weight:800;color:var(--muted);min-width:0}.plcopy input{font:13px var(--mono);padding:7px 9px;border:1.5px solid var(--line);border-radius:9px;background:var(--panel);color:var(--text);min-width:0}'+
  '.plpick{display:flex;flex-direction:column;gap:6px}.plpick .plgt{margin:0}.plpk{display:flex;gap:10px;align-items:center;font-size:14px;cursor:pointer}.plpk input{width:20px;height:20px;accent-color:var(--accent);flex:none}'+
  'body:has(.plban) .plbox{padding-bottom:calc(150px + env(safe-area-inset-bottom))}'+
  '.plcarry{background:var(--warn-bg);color:var(--text);border-radius:10px;padding:8px 10px}.plfixn{color:var(--text)}'+
@@ -3383,8 +3898,8 @@ var PLAN=(function(){
  document.head.appendChild(css);
  var sh=document.createElement('div');sh.className='plsheet';
  sh.innerHTML='<div class="plbox" role="dialog" aria-modal="true" aria-label="This week\'s plan"><div class="plhd"><b>This week\'s plan</b><button class="plx" type="button" aria-label="Close">✕</button></div>'+
-  '<div class="plseg" role="tablist" aria-label="View"><button type="button" role="tab" data-v="plan">Study plan</button><button type="button" role="tab" data-v="day">School day</button><button type="button" role="tab" data-v="hab">Habits</button></div>'+
-  '<div class="plmain"><div class="plwk"><div class="plwkt"><span>Ticked off this week</span><b data-k="wk"></b></div><div class="plbar"><i data-k="bar"></i></div></div>'+
+  '<div class="plseg" role="tablist" aria-label="View"><button type="button" role="tab" data-v="plan">Study plan</button><button type="button" role="tab" data-v="day">School day</button><button type="button" role="tab" data-v="hab">Habits</button><button type="button" role="tab" data-v="tst">Tests</button></div>'+
+  '<div class="plmain"><div class="plwk"><div class="plwkt"><span>Ticked off this week</span><b data-k="wk"></b></div><div class="plbar"><i data-k="bar"></i></div></div><div class="rvnext" data-k="tnext" hidden></div>'+
   '<div class="pldays" role="tablist" aria-label="Day"></div>'+
   '<div class="pldh"><b data-k="dn"></b><span data-k="dt"></span></div>'+
   '<div class="plrun" data-k="run"></div><div class="plblks"></div><p class="pldone" data-k="done" hidden>That\'s today\'s plan done. Nice work.</p>'+
@@ -3393,7 +3908,7 @@ var PLAN=(function(){
   '<div class="pldv" hidden><div class="pldnow" data-k="now"></div><div class="pldl"></div>'+
   '<label class="plopt"><input type="checkbox" data-k="nudge"> <span data-k="nudget">Nudge me when it\'s time (while Critical is open)</span></label>'+
   '<div class="placts" data-k="dacts"></div><p class="plnote">Monday to Friday. At weekends your plan is 1 hour, whenever suits you.</p></div>'+
-  '<div class="plhb" hidden><div class="pldnow" data-k="hnow"></div><div class="plhl"></div><div class="plgrid" data-k="grid"></div><div class="plpick" data-k="pick"></div></div></div>';
+  '<div class="plhb" hidden><div class="pldnow" data-k="hnow"></div><div class="plhl"></div><div class="plgrid" data-k="grid"></div><div class="plpick" data-k="pick"></div></div><div class="pltv" hidden></div></div>';
  document.body.appendChild(sh);
  var $q=function(s){return sh.querySelector(s)},cur=todayI(),days=$q('.pldays');
  AB.forEach(function(a,i){var b=document.createElement('button');b.type='button';b.setAttribute('role','tab');b.textContent=a;b.setAttribute('aria-label',DAYS[i]);b.onclick=function(){cur=i;paint()};days.appendChild(b)});
@@ -3401,6 +3916,7 @@ var PLAN=(function(){
   if(a[1]==='url'){if(openUrl)try{window.open(a[2],'_blank','noopener')}catch(_){}return}close();if(document.querySelector('#player.open')&&typeof closePlayer==='function')closePlayer();
   if(a[1]==='app'){location.href=a[2];return}
   if(a[1]==='warm'){var mc=null;try{mc=MEM.counts()}catch(_){}if(mc&&mc.total)MEM.start();else ONE.start();warmP=typeof P!=='undefined'?P:null;return}
+  if(a[1]==='rev'){var rr2=runGet(),bl=DAY(rr2?rr2.day:cur)[0];try{REV.hub(bl&&bl[5]==='rev'?bl[6]:null)}catch(e){if(window.console)console.error(e)}return}
   if(a[1]==='clash'){try{ARENA.open()}catch(_){}return}
   if(a[1]==='sim'){showPage('sim');return}
   if(a[1]==='fix'){var n=pile(),rr=runGet();if(n>0){showPage('review');startReview(true);return}
@@ -3442,7 +3958,7 @@ var PLAN=(function(){
   all.forEach(function(r){if(r.m-end>=10&&r.m>A)R.push([end,'Free time','free']);R.push([r.m,r.l,r.k]);end=Math.max(end,r.k==='sleep'?r.m:r.e)});
   info.shift=A-T[0].m;info.rows=R;return info}
  function nowRow(){if(todayI()>4)return -1;var R=sched().rows,m=nowMin(),k=-1;for(var i=0;i<R.length;i++)if(R[i][0]<=m)k=i;return k}
- var view=(S.plView==='day'||S.plView==='hab')?S.plView:'plan',editing=null;
+ var view=(S.plView==='day'||S.plView==='hab'||S.plView==='tst')?S.plView:'plan',editing=null;
  function setView(v){view=v;S.plView=v;save();editing=null;paint()}
  [].forEach.call(sh.querySelectorAll('.plseg button'),function(b){b.onclick=function(){setView(b.dataset.v)}});
  function paintDay(){var D2=$q('.pldv'),SC=sched(),R=SC.rows,t=todayI(),school=t<5,k=nowRow(),L=$q('.pldl'),now=$q('[data-k=now]'),A=$q('[data-k=dacts]'),hm=homeGet();L.innerHTML='';A.innerHTML='';
@@ -3479,7 +3995,7 @@ var PLAN=(function(){
   R.forEach(function(r,i){var k=r[2];if((k!=='plan'&&k!=='read')||o.s[k]||ban)return;var st=r[0];if(m<st||m>=st+30)return;
    if(k==='plan'){if(runGet()||hwGet()||firstLeft(todayI())<0||busy())return;o.s[k]=1;try{localStorage.setItem(NK,JSON.stringify(o))}catch(_){}
     var left=DAY(todayI()).filter(function(_,j){return !isDone(todayI(),j)}).reduce(function(a,b){return a+b[1]},0);
-    showBan('<b>'+m12(r[0])+': time for today\'s plan.</b> '+left+' minutes.',[['Just one question',function(){hideBan();ONE.start()}],['Start today\'s plan',function(){hideBan();startRun()}],['Homework first',function(){hideBan();startHw()}],['Later',hideBan]])}
+    var rv0=rvOn(todayI());showBan('<b>'+m12(r[0])+': time for today\'s '+(rv0?'revision':'plan')+'.</b> '+left+' minutes'+(rv0?' of revising for your test.':'.'),(rv0?[]:[['Just one question',function(){hideBan();ONE.start()}]]).concat([[rv0?'Start revision':'Start today\'s plan',function(){hideBan();startRun()}],['Homework first',function(){hideBan();startHw()}],['Later',hideBan]]))}
    else{o.s[k]=1;try{localStorage.setItem(NK,JSON.stringify(o))}catch(_){}var nx=R[i+1];var hb=[['Good night',hideBan]];if(HS().on.indexOf('scr')>=0)hb.unshift(['Phone\'s away ✓',function(){hset(dstr(new Date()),'scr',1);hideBan();if(sh.classList.contains('open'))paint()}]);showBan('<b>'+m12(r[0])+': '+esc(r[1]).replace(/^./,function(c){return c.toLowerCase()})+'.</b>'+(nx?' '+esc(nx[1])+' at '+m12(nx[0])+'.':'')+' Good night.',hb)}})}
  /* ----- habit tracker (school days) ----- */
  var HAB=[['hw','Homework on time','When I\'ve finished my snack, I sit at my desk and open my homework.','Just start the piece that\'s due soonest.'],
@@ -3497,17 +4013,58 @@ var PLAN=(function(){
  function streak(id){var h=HS(),td=dstr(new Date()),days=sDays(120,true),n=0;for(var i=days.length-1;i>=0;i--){var d=days[i];if(h.since[id]&&d<h.since[id])break;if(hv(d,id)){n++;continue}if(d===td)continue;break}return n}
  function kept(id){var h=HS(),n=0;for(var d in h.log)if(h.log[d][id]&&(!h.since[id]||d>=h.since[id]))n++;return n}
  function missedLast(id){var h=HS(),prev=sDays(1,false)[0];if(!prev||(h.since[id]&&prev<h.since[id]))return false;return !hv(prev,id)}
- function habAuto(){if(todayI()>4)return;var h=HS();if(h.on.indexOf('plan')<0)return;var td=dstr(new Date());if(!hv(td,'plan')&&firstLeft(todayI())<0){hset(td,'plan',1)}}
+ /* ticks you change by hand are never overwritten by the automatic ones */
+ function hman(day,id){var h=HS();if(!h.man||typeof h.man!=='object')h.man={};h.man[day+':'+id]=1;var ks=Object.keys(h.man).sort();while(ks.length>300)delete h.man[ks.shift()]}
+ function isMan(day,id){var h=HS();return !!(h.man&&h.man[day+':'+id])}
+ /* Today's plan: ½ for the 2-minute start, ✓ for the whole plan (or finished early) */
+ function habAuto(){try{slpAuto()}catch(_){}if(todayI()>4)return;var h=HS();if(h.on.indexOf('plan')<0)return;var td=dstr(new Date()),t=todayI();if(isMan(td,'plan'))return;var cur=hv(td,'plan');
+  if(firstLeft(t)<0){if(cur!==1)hset(td,'plan',1)}else if(qsOn(t)&&!cur)hset(td,'plan',2)}
+ /* Lights off by 10: the latest screen use each night (from the iPhone shortcut, through Google sync, or using Critical after 10pm).
+    Ticked the next morning: nothing after 10pm ✓, 10:00 to 10:15 ½, later than 10:15 not done. */
+ var LATE_FROM=22*60,LATE_OK=22*60+15;
+ function lateLog(){var h=HS();if(!h.late||typeof h.late!=='object')h.late={};return h.late}
+ function lateAdd(d){if(!d||isNaN(d.getTime()))return false;var hh=d.getHours(),m=hh*60+d.getMinutes(),nd=new Date(d.getFullYear(),d.getMonth(),d.getDate(),12);if(hh<5){nd.setDate(nd.getDate()-1);m+=1440}if(m<LATE_FROM)return false;
+  var L=lateLog(),k=dstr(nd);if(L[k]>=m)return false;L[k]=m;var ks=Object.keys(L).sort();while(ks.length>60)delete L[ks.shift()];save();return true}
+ function slpAuto(){var h=HS();if(!h.autoSlp||!h.autoFrom)return;var now=new Date(),L=lateLog(),ch=false;
+  sDays(10,false).forEach(function(d){if(d<h.autoFrom||isMan(d,'slp'))return;var end=new Date(d+'T12:00:00');end.setDate(end.getDate()+1);end.setHours(5,0,0,0);if(now<end)return;
+   var t=L[d],v=!t?1:t<=LATE_OK?2:0;if(hv(d,'slp')!==v){hset(d,'slp',v);ch=true}});return ch}
+ function fmtLate(m){var mm=m%1440;return m12(mm)}
+ window.LATE_IN=function(files){try{var f=files&&files.late,t=f&&f.content;if(!t)return;var g=/(\d{4})-(\d{2})-(\d{2})[ T](\d{1,2}):(\d{2})/.exec(String(t));if(!g)return;
+  var d=new Date(+g[1],g[2]-1,+g[3],+g[4],+g[5]),h=HS();if(h.lastLateAt!==d.getTime()){h.lastLateAt=d.getTime();save()}if(!h.autoSlp)return;lateAdd(d);slpAuto();if(sh.classList.contains('open')&&view==='hab')paintHab()}catch(_){}};
+ ['pointerdown','keydown'].forEach(function(ev){document.addEventListener(ev,function(){var n=new Date(),hh=n.getHours();if(hh<22&&hh>=5)return;if(Date.now()-(lateAdd.t||0)<60000)return;lateAdd.t=Date.now();try{if(HS().autoSlp)lateAdd(n)}catch(_){}},true)});
  function cyc(v){return v===0?1:v===1?2:0}
  function paintHab(){var h=HS(),t=todayI(),school=t<5,td=dstr(new Date()),L=$q('.plhl'),G=$q('[data-k=grid]'),K=$q('[data-k=pick]'),now=$q('[data-k=hnow]');habAuto();L.innerHTML='';
   var on=HAB.filter(function(x){return h.on.indexOf(x[0])>=0}),doneN=on.filter(function(x){return hv(td,x[0])}).length;
   now.innerHTML=!school?'<b>It\'s the weekend</b>Habits are for school days, so there\'s nothing to tick today. Your grid is below.':!on.length?'<b>Pick a habit to track</b>Start with one or two from the list below.':'<b>Today: '+doneN+' of '+on.length+' done</b>Tap once when you\'ve done it, twice if you did the bad-day version. Both keep your streak.';
   on.forEach(function(x){var id=x[0],v=school?hv(td,id):0,st=streak(id),kp=kept(id),e=document.createElement('div');e.className='plh1'+(v===1?' done':v===2?' half':'');
    e.innerHTML=(school?'<button class="plhk" type="button" aria-label="'+esc(x[1])+': '+(v===1?'done':v===2?'bad-day version':'not done yet')+'">'+(v===1?'✓':v===2?'½':'')+'</button>':'')+
-    '<div class="plbody"><p class="plhn">'+esc(x[1])+'</p><p class="plht">'+esc(x[2])+'</p><p class="plht">Bad day? '+esc(x[3])+'</p>'+
+    '<div class="plbody"><p class="plhn">'+esc(x[1])+((id==='plan'||(id==='slp'&&h.autoSlp))?' <span class="plauto-t">auto</span>':'')+'</p><p class="plht">'+esc(x[2])+'</p><p class="plht">Bad day? '+esc(x[3])+'</p>'+
     '<div class="plhs"><span>'+(st?'🔥 <b>'+st+'</b> school day'+(st===1?'':'s')+' in a row':'No streak yet')+'</span><span class="plhp" title="Days done: '+Math.min(kp,66)+' of about 66 until it feels automatic"><span class="plhbar"><i style="width:'+Math.min(100,kp/66*100)+'%"></i></span><span><b>'+Math.min(kp,66)+'</b>/66</span></span></div>'+
     (school&&!v&&missedLast(id)?'<p class="plhw">Missed last time. Don\'t miss two in a row.</p>':'')+'</div>';
-   var kb=e.querySelector('.plhk');if(kb)kb.onclick=function(){hset(td,id,cyc(hv(td,id)));paintHab();paintPill()};L.appendChild(e)});
+   var kb=e.querySelector('.plhk');if(kb)kb.onclick=function(){hman(td,id);hset(td,id,cyc(hv(td,id)));paintHab();paintPill()};L.appendChild(e)});
+  /* what ticks itself, and the iPhone shortcut for Lights off by 10 */
+  var cfg=null;try{cfg=SYNC.cfg()}catch(_){}var gsOn=!!(cfg&&cfg.via==='gs'&&cfg.url&&cfg.key),ab=document.createElement('div');ab.className='plauto';
+  var ll=h.lastLateAt?new Date(h.lastLateAt):null,lt=ll?'Last late phone use from your iPhone: '+ll.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})+', '+m12(ll.getHours()*60+ll.getMinutes())+'.':'Nothing from your iPhone yet. After setting up the shortcut, open one of the apps after 10pm and it\'ll show here after the next sync.';
+  ab.innerHTML='<p class="plgt">Ticks itself</p><p class="plnote"><b>Today\'s plan</b>: ½ when you do the 2-minute start, ✓ when the whole plan is done.</p>'+
+   '<label class="plopt"><input type="checkbox" data-k="aslp"'+(h.autoSlp?' checked':'')+'> <span><b>Lights off by 10</b>, from your iPhone: ✓ if you\'re off by 10pm, ½ if it\'s 10:00 to 10:15, not done if later. Ticks itself the next morning. Using Critical after 10pm counts too.</span></label>'+
+   (h.autoSlp?'<p class="plnote">'+lt+'</p>':'')+
+   '<details class="plsetup"'+(h.autoSlp&&!h.lastLateAt?' open':'')+'><summary>Set up the iPhone shortcut</summary>'+(gsOn?
+    '<ol class="plsteps"><li>On your iPhone open <b>Shortcuts</b>, then <b>Automation</b>, then <b>+</b>, then <b>App</b>.</li>'+
+    '<li>Choose the apps you use at night (TikTok, YouTube, Instagram, Snapchat…), tick <b>Is Opened</b>, choose <b>Run Immediately</b>, then <b>Next</b> and <b>New Blank Automation</b>.</li>'+
+    '<li>Add <b>Format Date</b>: Date <b>Current Date</b>, Date Format <b>Custom</b>, Format String <code>H</code>. (That\'s the hour.)</li>'+
+    '<li>Add <b>If</b>: tap the first box, pick that <b>Formatted Date</b> and set its type to <b>Number</b>, then <b>is greater than or equal to</b> <code>22</code>. Tap <b>Add Condition</b>, choose <b>Any</b>, and add Formatted Date <b>is less than</b> <code>5</code>.</li>'+
+    '<li>Inside the If, add <b>Format Date</b> again: <b>Current Date</b>, Date Format <b>ISO 8601</b>, with <b>Include ISO 8601 Time</b> on.</li>'+
+    '<li>Under it add <b>Get Contents of URL</b>. Paste the address below as the URL, tap <b>Show More</b>, set Method <b>POST</b> and Request Body <b>JSON</b>. Add a <b>Text</b> field called <code>k</code> with the key below. Add a <b>Dictionary</b> field called <code>put</code>, and inside it a <b>Text</b> field called <code>late</code> set to the second <b>Formatted Date</b>.</li>'+
+    '<li>Tap <b>Done</b>. From now on, opening those apps after 10pm quietly tells Critical. Nothing pops up.</li></ol>'+
+    '<div class="plcopy"><label>Address<input readonly data-cv="url"></label><button type="button" class="plgo alt" data-cp="url">Copy</button></div><div class="plcopy"><label>Key<input readonly data-cv="key"></label><button type="button" class="plgo alt" data-cp="key">Copy</button></div>'+
+    '<p class="plnote">The address and key are your own sync\'s: anyone with them could write to it, so don\'t share them.</p>'
+    :'<p class="plnote">This needs Google sync, so the shortcut has somewhere to send the time. Turn it on in Progress, Settings, Sync between devices, then come back here.</p>')+'</details>'+
+   '<p class="plnote">Homework, screens off and reading: tick them yourself. Anything you change by hand stays as you set it.</p>';
+  L.appendChild(ab);
+  var cb=ab.querySelector('[data-k=aslp]');cb.onchange=function(){var hh=HS();hh.autoSlp=cb.checked?1:0;if(cb.checked)hh.autoFrom=dstr(new Date());save();paintHab()};
+  if(gsOn){ab.querySelector('[data-cv=url]').value=cfg.url;ab.querySelector('[data-cv=key]').value=cfg.key;
+   [].forEach.call(ab.querySelectorAll('[data-cp]'),function(b){b.onclick=function(){var v=b.dataset.cp==='url'?cfg.url:cfg.key,inp=ab.querySelector('[data-cv='+b.dataset.cp+']');
+    var done=function(){b.textContent='Copied';setTimeout(function(){b.textContent='Copy'},1500)};try{navigator.clipboard.writeText(v).then(done,function(){inp.select();document.execCommand('copy');done()})}catch(_){inp.select();try{document.execCommand('copy')}catch(__){}done()}}})}
   /* last 3 weeks grid */
   var days=sDays(15,true);if(!isSchool(new Date())){}var gh='';
   if(on.length){var cols='minmax(70px,1.6fr) repeat('+days.length+',minmax(0,1fr))';
@@ -3515,7 +4072,7 @@ var PLAN=(function(){
    on.forEach(function(x){var id=x[0];gh+='<div class="plgr" style="grid-template-columns:'+cols+'"><span class="gl" title="'+esc(x[1])+'">'+esc(x[1])+'</span>'+days.map(function(d){var v=hv(d,id),pre=h.since[id]&&d<h.since[id],cls='plgc'+(v===1?' d1':v===2?' d2':pre?' pre':d<td?' miss':'')+(d===td?' td':'');
     var dt=new Date(d+'T12:00:00');return '<button type="button" class="'+cls+'" data-h="'+id+'" data-d="'+d+'" aria-label="'+esc(x[1])+', '+dt.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})+': '+(v===1?'done':v===2?'bad-day version':'not ticked')+'"></button>'}).join('')+'</div>'});
    gh+='<p class="plht" style="margin-top:6px">Tap a square to fix a day you forgot to tick.</p>'}
-  G.innerHTML=gh;[].forEach.call(G.querySelectorAll('.plgc'),function(c){c.onclick=function(){var d=c.dataset.d,id=c.dataset.h;hset(d,id,cyc(hv(d,id)));paintHab()}});
+  G.innerHTML=gh;[].forEach.call(G.querySelectorAll('.plgc'),function(c){c.onclick=function(){var d=c.dataset.d,id=c.dataset.h;hman(d,id);hset(d,id,cyc(hv(d,id)));paintHab()}});
   /* choose habits */
   K.innerHTML='<p class="plgt">What to track</p>';
   HAB.forEach(function(x){var lab=document.createElement('label');lab.className='plpk';lab.innerHTML='<input type="checkbox"'+(h.on.indexOf(x[0])>=0?' checked':'')+'> '+esc(x[1]);var cb=lab.querySelector('input');
@@ -3523,16 +4080,17 @@ var PLAN=(function(){
   var young=on.filter(function(x){return kept(x[0])<10}).length;var nt=document.createElement('p');nt.className='plnote';nt.textContent=on.length>2&&young>2?'That\'s a lot of new habits at once. Two at a time is easier: add the next when these feel normal.':'Start with two. Add another once these feel normal, usually after a few weeks.';K.appendChild(nt)}
  function paint(){var p=PS(),t=todayI(),m=0;
   [].forEach.call(sh.querySelectorAll('.plseg button'),function(b){var on=b.dataset.v===view;b.classList.toggle('on',on);b.setAttribute('aria-selected',on)});
-  $q('.plmain').hidden=view!=='plan';$q('.pldv').hidden=view!=='day';$q('.plhb').hidden=view!=='hab';$q('.plhd b').textContent=view==='day'?'Your school day':view==='hab'?'Your habits':'This week\'s plan';if(view==='day'){paintDay();return}if(view==='hab'){paintHab();return}
+  $q('.plmain').hidden=view!=='plan';$q('.pldv').hidden=view!=='day';$q('.plhb').hidden=view!=='hab';$q('.pltv').hidden=view!=='tst';$q('.plhd b').textContent=view==='day'?'Your school day':view==='hab'?'Your habits':view==='tst'?'Your tests':'This week\'s plan';if(view==='day'){paintDay();return}if(view==='hab'){paintHab();return}if(view==='tst'){REV.paintTab($q('.pltv'),paint);return}
   D.forEach(function(_,i){DAY(i).forEach(function(b,j){if(isDone(i,j))m+=b[1]})});
   $q('[data-k=wk]').textContent=m+' / '+TOTAL+' min';$q('[data-k=bar]').style.width=Math.min(100,m/TOTAL*100)+'%';
-  [].forEach.call(days.children,function(b,i){b.className=(i===cur?'on':'')+(i===t?' td':'')+(dayDone(i)?' full':qsOn(i)?' quick':'');b.title=dayDone(i)?'Plan done':qsOn(i)?'2-minute start done: this day counts':'';b.setAttribute('aria-selected',i===cur)});
-  $q('[data-k=dn]').textContent=(cur===t?'Today, ':'')+DAYS[cur];$q('[data-k=dt]').textContent=allMins(cur)+' min · '+(cur<5?(extOn(cur)?'school day, stretched to 45':'school day'):'weekend');
+  [].forEach.call(days.children,function(b,i){var rv=rvOn(i);b.className=(i===cur?'on':'')+(i===t?' td':'')+(dayDone(i)?' full':qsOn(i)?' quick':'')+(rv?' rv':'');b.title=(dayDone(i)?'Plan done':qsOn(i)?'2-minute start done: this day counts':'')+(rv?(dayDone(i)||qsOn(i)?' · ':'')+'Revision day':'');b.setAttribute('aria-selected',i===cur)});
+  $q('[data-k=dn]').textContent=(cur===t?'Today, ':'')+DAYS[cur];$q('[data-k=dt]').textContent=allMins(cur)+' min · '+(rvOn(cur)?'revision day':cur<5?(extOn(cur)?'school day, stretched to 45':'school day'):'weekend');
+  var tn=$q('[data-k=tnext]'),bh='';try{bh=REV.banner()}catch(_){}tn.hidden=!bh;tn.innerHTML=bh;if(bh){var tb=document.createElement('button');tb.type='button';tb.className='plgo alt';tb.textContent='Tests';tb.onclick=function(){setView('tst')};tn.appendChild(tb)}
   var L=$q('.plblks');L.innerHTML='';var pn=DAY(cur).some(isFix)||(cur===1&&t===0)?pile():0;
   if(cur===1&&t===0&&!p.monClr&&pn>0){var nt=document.createElement('p');nt.className='plnote plcarry';nt.textContent='If Monday\'s Fix my mistakes isn\'t finished, the first 15 minutes of study here go to it (then a 7-minute Calculus slot).';L.appendChild(nt)}
   DAY(cur).forEach(function(b,j){var dn=isDone(cur,j),e=document.createElement('div');e.className='plblk'+(dn?' done':'');
    e.innerHTML='<button class="pltick" type="button" role="checkbox" aria-checked="'+dn+'" aria-label="'+esc(b[0])+' done">'+(dn?'✓':'')+'</button><div class="plbody"><p class="plt"><span>'+esc(b[0])+'</span><span class="plm">'+b[1]+' min</span></p><p class="plh">'+esc(b[2])+(isFix(b)?' <b class="plfixn">'+(pn?pn+' to fix right now.':'Nothing to fix right now.')+'</b>':'')+'</p><div class="placts"></div></div>';
-   e.querySelector('.pltick').onclick=function(){var k=cur+'-'+j;if(PS().t[k])delete PS().t[k];else PS().t[k]=1;save();var r=runGet();if(r&&PS().t[k]&&r.day===cur&&r.j===j){r.ends=Date.now();r.early=1;runSet(r);loop()}paint();paintPill()};
+   e.querySelector('.pltick').onclick=function(){var k=cur+'-'+j;if(PS().t[k])delete PS().t[k];else{pinRv(cur);PS().t[k]=1;if(b[5]==='rev')try{REV.doneDay(b[6].pin)}catch(_){}}save();var r=runGet();if(r&&PS().t[k]&&r.day===cur&&r.j===j){r.ends=Date.now();r.early=1;runSet(r);loop()}paint();paintPill()};
    var A=e.querySelector('.placts');
    b[3].forEach(function(a,ai){var x;if(a[1]==='url'){x=document.createElement('a');x.href=a[2];x.target='_blank';x.rel='noopener'}else{x=document.createElement('button');x.type='button'}
     x.className='plgo'+(ai?' alt':'');x.innerHTML=esc(a[0])+(a[1]==='url'?' ↗':' →');x.onclick=function(){go(a,b[0])};A.appendChild(x)});
@@ -3546,17 +4104,17 @@ var PLAN=(function(){
    var A0=R.querySelector('.placts'),d1=document.createElement('button');d1.type='button';d1.className='plgo';d1.textContent='Homework done → Critical';d1.onclick=hwDone;A0.appendChild(d1);
    var d3=document.createElement('button');d3.type='button';d3.className='plgo alt';d3.textContent='Homework timer';d3.onclick=function(){location.href='homework.html'};A0.appendChild(d3);
    var d2=document.createElement('button');d2.type='button';d2.className='plgo alt';d2.textContent='Cancel';d2.onclick=function(){hwSet(null);paintPill();paint();setTimeout(function(){try{focusSend(true)}catch(_){}},50)};A0.appendChild(d2);return}
-  if(r){var b=DAY(r.day)[r.j]||D[r.day][r.j],left=r.ends-Date.now();R.innerHTML='<p>Today\'s plan is running</p><b>'+esc(r.t||b[0])+' · '+(left>0?fmtLeft(left)+' left':'time\'s up')+'</b><p>When the time is up you\'ll move to the next part. If you\'re in the middle of a lesson, you can finish it first. Done at least 1 lesson and not up for more? Press Finished early.</p><div class="placts"></div>';
-   var A=R.querySelector('.placts'),x1=document.createElement('button');x1.type='button';x1.className='plgo';x1.textContent='Go to it →';x1.onclick=function(){var a=b[3][0];if(a)go(a,b[0],true);else close()};if(b[3].length)A.appendChild(x1);
-   var x2=document.createElement('button');x2.type='button';x2.className='plgo alt';x2.textContent='Next part now';x2.onclick=function(){var rr=runGet();if(rr){rr.ends=Date.now();runSet(rr);loop();paint()}};A.appendChild(x2);
-   var x4=document.createElement('button');x4.type='button';x4.className='plgo alt';x4.textContent='Finished early';x4.onclick=function(){finishEarly()};A.appendChild(x4);
+  if(r){var b=DAY(r.day)[r.j]||D[r.day][r.j],left=r.ends-Date.now();var isRv=b[5]==='rev';R.innerHTML='<p>'+(isRv?'Revision day: timer running':'Today\'s plan is running')+'</p><b>'+esc(r.t||b[0])+' · '+(left>0?fmtLeft(left)+' left':'time\'s up')+'</b><p>'+(isRv?'Do practice rounds on today\'s topics until the time\'s up. If you\'re in the middle of a round, you can finish it first.':'When the time is up you\'ll move to the next part. If you\'re in the middle of a lesson, you can finish it first. Done at least 1 lesson and not up for more? Press Finished early.')+'</p><div class="placts"></div>';
+   var A=R.querySelector('.placts'),x1=document.createElement('button');x1.type='button';x1.className='plgo';x1.textContent=isRv?'Open revision →':'Go to it →';x1.onclick=function(){var a=b[3][0];if(a)go(a,b[0],true);else close()};if(b[3].length)A.appendChild(x1);
+   var x2=document.createElement('button');x2.type='button';x2.className='plgo alt';x2.textContent='Next part now';x2.onclick=function(){var rr=runGet();if(rr){rr.ends=Date.now();runSet(rr);loop();paint()}};if(!isRv)A.appendChild(x2);
+   var x4=document.createElement('button');x4.type='button';x4.className='plgo alt';x4.textContent='Finished early';x4.onclick=function(){finishEarly()};if(!isRv)A.appendChild(x4);
    var x3=document.createElement('button');x3.type='button';x3.className='plgo alt';x3.textContent='Stop the plan';x3.onclick=function(){stopRun(false)};A.appendChild(x3);return}
   var j=firstLeft(t);if(j<0){if(feOn(t)){var fz0=PS().fe[t],fn=fz0.n||1;R.innerHTML='<p>Finished early today ✓</p><b>'+fn+' lesson'+(fn===1?'':'s')+' done</b><p>Today\'s plan is finished. Changed your mind? You can carry on with it.</p><div class="placts"></div>';
    var uu=document.createElement('button');uu.type='button';uu.className='plgo alt';uu.textContent='Undo: carry on with the plan';uu.onclick=undoEarly;R.querySelector('.placts').appendChild(uu)}return}
-  var bb=document.createElement('button');bb.type='button';bb.className='plbig';bb.textContent=(DAY(t).some(function(_,k){return isDone(t,k)})?'Carry on with today\'s plan':'Start today\'s plan')+' ('+DAY(t).slice(j).filter(function(_,k){return !isDone(t,j+k)}).reduce(function(s2,x){return s2+x[1]},0)+' min)';
+  var bb=document.createElement('button');bb.type='button';bb.className='plbig';var rvT=rvOn(t);bb.textContent=(rvT?'Start revision':DAY(t).some(function(_,k){return isDone(t,k)})?'Carry on with today\'s plan':'Start today\'s plan')+' ('+DAY(t).slice(j).filter(function(_,k){return !isDone(t,j+k)}).reduce(function(s2,x){return s2+x[1]},0)+' min)';
   bb.onclick=function(){startRun()};R.appendChild(bb);
   var o1=document.createElement('button');o1.type='button';o1.className='plgo alt';o1.textContent='Just one question';o1.onclick=function(){close();ONE.start()};
-  var hf=document.createElement('button');hf.type='button';hf.className='plgo alt';hf.textContent='Homework first';hf.onclick=startHw;var hr=document.createElement('div');hr.className='placts';hr.appendChild(o1);hr.appendChild(hf);if(lessonsN()>=1){var fe1=document.createElement('button');fe1.type='button';fe1.className='plgo alt';fe1.textContent='Finished early';fe1.onclick=function(){finishEarly()};hr.appendChild(fe1)}R.appendChild(hr);
+  var hf=document.createElement('button');hf.type='button';hf.className='plgo alt';hf.textContent='Homework first';hf.onclick=startHw;var hr=document.createElement('div');hr.className='placts';if(!rvT)hr.appendChild(o1);hr.appendChild(hf);if(lessonsN()>=1&&!rvT){var fe1=document.createElement('button');fe1.type='button';fe1.className='plgo alt';fe1.textContent='Finished early';fe1.onclick=function(){finishEarly()};hr.appendChild(fe1)}R.appendChild(hr);
   if(!focusOk&&/Windows|Macintosh|CrOS|Linux x86/.test(navigator.userAgent)&&!/Mobile|Android/.test(navigator.userAgent)&&window.chrome){var fg=document.createElement('p');fg.className='plnote';fg.innerHTML='Strict mode: <a href="https://u23bodwells-cmyk.github.io/Critical/reminders/critical-focus.zip" target="_blank" rel="noopener">get the Critical Focus extension for Chrome</a>. It closes TikTok at plan time and keeps Critical on screen until you\'re done.';R.appendChild(fg)}
   if(focusOk){var fz=document.createElement('p');fz.className='plnote';fz.textContent=focusOk.locked?'Critical Focus is locked on: TikTok is blocked and Critical stays on screen until today\'s plan is done.':'Critical Focus is on: from plan time, TikTok is closed and blocked until today\'s plan is done.';R.appendChild(fz)}
   var n=document.createElement('p');n.className='plnote';n.textContent=hw&&hw.done&&!hw.alloc?'Homework used up today\'s Critical time. You can still start it if you want to.':'It times each part and moves you on when it\'s time. Got homework that\'s running over? Press Homework first: Critical gets whatever time is left when you\'ve finished.';R.appendChild(n)}
@@ -3567,7 +4125,7 @@ var PLAN=(function(){
  function hwOn(){var h=hwGet();return !!(h&&!h.done)}
  function leftMins(t){return DAY(t).filter(function(_,j){return !isDone(t,j)}).reduce(function(a,b){return a+b[1]},0)}
  function hhmm(ms){var d=new Date(ms),h=d.getHours(),m=d.getMinutes();return (h%12||12)+':'+(m<10?'0':'')+m+(h>=12?'pm':'am')}
- function startHw(){var t=todayI();if(runGet()||firstLeft(t)<0)return;var L=leftMins(t),now=Date.now();hwSet({d:ymdN(),at:now,end:now+L*60000,mins:L});setTimeout(function(){try{focusSend(true)}catch(_){}},50);warned={};hideBan();paintPill();
+ function startHw(){var t=todayI();if(runGet()||firstLeft(t)<0)return;pinRv(t);var L=leftMins(t),now=Date.now();hwSet({d:ymdN(),at:now,end:now+L*60000,mins:L});setTimeout(function(){try{focusSend(true)}catch(_){}},50);warned={};hideBan();paintPill();
   if(sh.classList.contains('open')){cur=t;view='plan';paint()}else showBan('<b>Homework first.</b> When you\'ve finished, tap the calendar button and press Homework done. Critical gets whatever\'s left until '+hhmm(now+L*60000)+'.',[['Open homework timer',function(){hideBan();location.href='homework.html'}],['OK',hideBan]])}
  function hwDone(){var h=hwGet(),t=todayI();if(!h||h.done)return;setTimeout(function(){try{focusSend(true)}catch(_){}},80);var rem=Math.floor((h.end-Date.now())/60000);h.done=Date.now();
   var idx=DAY(t).map(function(_,j){return j}).filter(function(j){return !isDone(t,j)});
@@ -3575,12 +4133,12 @@ var PLAN=(function(){
   var tot=idx.reduce(function(a,j){return a+DAY(t)[j][1]},0),f=Math.min(1,rem/tot),alloc={},acc=0;
   idx.forEach(function(j){var m=Math.round(DAY(t)[j][1]*f);if(m>=5){alloc[j]=m;acc+=m}});
   var ks=Object.keys(alloc);if(!ks.length){alloc[idx[0]]=Math.min(rem,DAY(t)[idx[0]][1]);ks=[String(idx[0])]}else if(f<1)alloc[ks[0]]=Math.max(5,alloc[ks[0]]+rem-acc);
-  h.alloc=alloc;hwSet(h);var go2=function(){if(typeof STUDY!=='undefined'&&STUDY.start)STUDY.start('Weekly plan · '+DAYS[t]);begin(t,+ks[0],true)};if(typeof SHIFT!=='undefined'&&SHIFT.brief(go2))return;go2()}
+  h.alloc=alloc;hwSet(h);var go2=function(){if(typeof STUDY!=='undefined'&&STUDY.start)STUDY.start('Weekly plan · '+DAYS[t]);begin(t,+ks[0],true)};if(!rvOn(t)&&typeof SHIFT!=='undefined'&&SHIFT.brief(go2))return;go2()}
  function hwNext(day,j){var h=hwGet();if(!h||!h.alloc||day!==todayI())return firstLeft(day,j);var ks=Object.keys(h.alloc).map(Number).sort(function(a,b){return a-b});for(var i=0;i<ks.length;i++)if(ks[i]>j&&!isDone(day,ks[i]))return ks[i];return -1}
  /* ----- Critical Focus (Chrome extension): tell it today's plan time and when the plan is done ----- */
  var FOCUS_ID='dofdocaillphcjghjdjodhippjldkibo',focusOk=null,lastFocus=0,GUARD_ID='ophdjhoiolnmepbdhbdjgcgnfpdogfnp';
  function focusStatus(){var t=todayI(),school=t<5,SC=sched(),R=SC.rows,pr=R.filter(function(r){return r[2]==='plan'})[0],rd=R.filter(function(r){return r[2]==='read'})[0],base=new Date();base.setHours(0,0,0,0);
-  var hw=hwGet(),done=firstLeft(t)<0||!!(hw&&hw.done&&!hw.alloc)||!!(hw&&hw.alloc&&Object.keys(hw.alloc).every(function(j){return isDone(t,+j)}))||(school&&!pr);
+  var hw=hwGet(),done=firstLeft(t)<0||!!(hw&&hw.done&&!hw.alloc)||!!(hw&&hw.alloc&&Object.keys(hw.alloc).every(function(j){return isDone(t,+j)}))||(school&&!pr)||qsOn(t);
   return {type:'status',due:school&&pr?base.getTime()+pr[0]*60000:null,end:rd?base.getTime()+rd[0]*60000:null,done:done,hw:hwOn(),running:!!runGet(),lessons:lessonsN(),early:feOn(t)}}
  function focusSend(force){var now=Date.now();if(!force&&now-lastFocus<30000)return;lastFocus=now;
   /* Critical Browser (the desktop app) gets the same status, plus how much of today's plan is left */
@@ -3611,15 +4169,15 @@ var PLAN=(function(){
  function undoEarly(){var t=todayI(),p=PS();if(p.fe){delete p.fe[t];save()}
   try{if(window.chrome&&chrome.runtime&&chrome.runtime.sendMessage)chrome.runtime.sendMessage(FOCUS_ID,{type:'unearly'},function(){try{void chrome.runtime.lastError}catch(_){}})}catch(_){}
   setTimeout(function(){try{focusSend(true)}catch(_){}},300);paintPill();if(sh.classList.contains('open'))paint()}
- function afterLesson(){setTimeout(function(){try{focusSend(true)}catch(_){}},50);
+ function afterLesson(){setTimeout(function(){try{focusSend(true)}catch(_){}},50);if(rvOn(todayI()))return;
   var r=runGet(),b=document.getElementById('pBody'),ds=b&&b.querySelector('.done-screen');if(!r||!ds||feOn(todayI())||ds.querySelector('.plearly'))return;
   var left=r.ends-Date.now(),d=document.createElement('div');d.className='dblock plearly';d.style.textAlign='center';
   d.innerHTML='<p class="note" style="margin:0 0 8px">Today\'s plan: <b>'+esc(r.t)+'</b>'+(left>0?', '+fmtLeft(left)+' left on this part.':'.')+' Not up for any more today?</p><button type="button" class="wbtn">Finished early: that\'s enough for today</button>';
   d.querySelector('button').onclick=function(){if(typeof closePlayer==='function')closePlayer();finishEarly()};var an=ds.querySelector('.dblock');if(an)ds.insertBefore(d,an);else ds.appendChild(d)}
- function startRun(go){var t=todayI(),j=firstLeft(t);if(j<0)return;if(go!==true&&typeof SHIFT!=='undefined'&&SHIFT.brief(function(){startRun(true)}))return;
+ function startRun(go){var t=todayI(),j=firstLeft(t);if(j<0)return;if(go!==true&&!rvOn(t)&&typeof SHIFT!=='undefined'&&SHIFT.brief(function(){startRun(true)}))return;
   try{if('Notification' in window&&Notification.permission==='default')Notification.requestPermission()}catch(_){}
   if(typeof STUDY!=='undefined'&&STUDY.start)STUDY.start('Weekly plan · '+DAYS[t]);begin(t,j,true)}
- function begin(day,j,gesture){var b=DAY(day)[j],hh=hwGet(),mn=(hh&&hh.alloc&&hh.alloc[j]!=null&&day===todayI())?hh.alloc[j]:b[1];runSet({d:ymdN(),day:day,j:j,t:b[0],ends:Date.now()+mn*60000,mins:mn});warned={};hideBan();paintPill();
+ function begin(day,j,gesture){pinRv(day);var b=DAY(day)[j],hh=hwGet(),mn=(hh&&hh.alloc&&hh.alloc[j]!=null&&day===todayI())?hh.alloc[j]:b[1];runSet({d:ymdN(),day:day,j:j,t:b[0],ends:Date.now()+mn*60000,mins:mn});warned={};hideBan();paintPill();
   var a=b[3][0];if(!a){cur=day;paint();sh.classList.add('open');return}
   if(a[1]==='url'&&!gesture){cur=day;paint();sh.classList.add('open');return}
   go(a,b[0],true);if(sh.classList.contains('open'))paint()}
@@ -3628,7 +4186,7 @@ var PLAN=(function(){
  function showBan(html,btns,auto){hideBan();ban=document.createElement('div');ban.className='plban';ban.setAttribute('role','status');ban.innerHTML='<p>'+html+'</p><div class="placts"></div>';var A=ban.querySelector('.placts');
   btns.forEach(function(x,i){var b=document.createElement('button');b.type='button';b.className='plgo'+(i?' alt':'');b.textContent=x[0];b.onclick=x[1];A.appendChild(b)});document.body.appendChild(ban);
   if(auto){var n=auto[0],cd=ban.querySelector('.plcd');banT=setInterval(function(){n--;if(cd)cd.textContent=n;if(n<=0){clearInterval(banT);banT=null;auto[1]()}},1000)}}
- function timeUp(r){var k=r.day+'-'+r.j;if(!PS().t[k]){PS().t[k]=1;save();if(sh.classList.contains('open'))paint()}
+ function timeUp(r){var k=r.day+'-'+r.j;if(!PS().t[k]){pinRv(r.day);var ob0=DAY(r.day)[r.j];PS().t[k]=1;if(ob0&&ob0[5]==='rev')try{REV.doneDay(ob0[6].pin)}catch(_){}save();if(sh.classList.contains('open'))paint()}
   var nj=hwNext(r.day,r.j);if(nj<0){stopRun(true);return}
   var hx=hwGet(),ob=DAY(r.day)[r.j],left0=isFix(ob)&&!r.clr&&!r.gm?pile():0,nb=DAY(r.day)[nj],na=nb[3][0],ext=na&&na[1]==='url',title=(r.clr?'<b>Your mistakes pile is empty.</b> ':r.early?'':'Time\'s up for '+esc(r.t)+'. '+(left0&&r.day===0?left0+' left, so they\'ll come first on Tuesday. ':''))+'Next: <b>'+esc(nb[0])+'</b> ('+(hx&&hx.alloc&&hx.alloc[nj]!=null?hx.alloc[nj]:nb[1])+' min).';
   if(document.hidden&&!warned.n){warned.n=1;try{if('Notification' in window&&Notification.permission==='granted')new Notification('Time for '+nb[0],{body:'Come back to Critical for the next part of your plan.',tag:'critical-plan'})}catch(_){}}
@@ -3645,13 +4203,13 @@ var PLAN=(function(){
   if(!r||r.gm||r.ends<=now)return;var b=DAY(r.day)[r.j];if(!isFix(b)||busy())return;if(n<0)n=pile();
   if(n===0){if(r.day===0){p.monClr=1;save()}r.ends=now;r.early=1;r.clr=1;runSet(r);return}
   if(typeof P!=='undefined'&&P&&P.finished&&P.mode==='review'&&!P._plAsk&&!ban){P._plAsk=1;showBan('<b>'+n+' mistake'+(n===1?'':'s')+' left to fix.</b> '+fmtLeft(r.ends-now)+' to go on this part.',[['Next round →',function(){hideBan();go(b[3][0],b[0])}],['Not now',hideBan]])}}
- function highChk(r,left){if(r.high||left>5*60000||ban||busy())return;if((DAY(r.day)[r.j]||[])[5]==='clash')return;if(hwNext(r.day,r.j)>=0)return;var mn=r.mins||(DAY(r.day)[r.j]||[0,0])[1];if(mn<10)return;r.high=1;runSet(r);
+ function highChk(r,left){if(r.high||left>5*60000||ban||busy())return;var hk=(DAY(r.day)[r.j]||[])[5];if(hk==='clash'||hk==='rev')return;if(hwNext(r.day,r.j)>=0)return;var mn=r.mins||(DAY(r.day)[r.j]||[0,0])[1];if(mn<10)return;r.high=1;runSet(r);
   var lapOk=typeof HIGH!=='undefined'&&HIGH.canLap();
   showBan('<b>Last 5 minutes: end on a high.</b> Finish today with something fun.',(lapOk?[['Victory lap',function(){hideBan();HIGH.lap()}]]:[]).concat([['Control room',function(){hideBan();if(document.querySelector('#player.open')&&typeof closePlayer==='function')closePlayer();close();showPage('sim')}],['Keep going',hideBan]]))}
  var lastDayPaint=-1;
  function hwTick(){var h=hwGet();if(!h||h.done)return;var lf=h.end-Date.now();var el=$q('[data-k=hwt]');if(el)el.textContent=lf>0?fmtLeft(lf)+' left for Critical':'Critical time used up';
   if(lf<=0&&!h.warn&&!ban){h.warn=1;hwSet(h);showBan('<b>Your Critical time is used up.</b> Keep going with your homework: it comes first. Critical can wait until tomorrow.',[['OK',hideBan]])}}
- function loop(){try{if(typeof REW!=='undefined')REW.planTick()}catch(e){if(window.console)console.error(e)}try{if(typeof SHIFT!=='undefined')SHIFT.tick(firstLeft(todayI())<0,busy())}catch(e){if(window.console)console.error(e)}try{hwTick()}catch(_){}try{focusSend()}catch(_){}var r=runGet();try{fixChk(r)}catch(e){if(window.console)console.error(e)}try{warmChk(r)}catch(e){if(window.console)console.error(e)}try{dayNudge()}catch(e){if(window.console)console.error(e)}if(view==='day'&&!editing&&sh.classList.contains('open')){var nm=nowMin();if(nm!==lastDayPaint){lastDayPaint=nm;paintDay()}}r=runGet();paintPill();if(!r){if(ban&&banT)hideBan();return}
+ function loop(){if(Date.now()-(loop.sa||0)>300000){loop.sa=Date.now();try{habAuto()}catch(_){}}try{if(typeof REW!=='undefined')REW.planTick()}catch(e){if(window.console)console.error(e)}try{if(typeof SHIFT!=='undefined')SHIFT.tick(firstLeft(todayI())<0,busy())}catch(e){if(window.console)console.error(e)}try{hwTick()}catch(_){}try{focusSend()}catch(_){}var r=runGet();try{fixChk(r)}catch(e){if(window.console)console.error(e)}try{warmChk(r)}catch(e){if(window.console)console.error(e)}try{dayNudge()}catch(e){if(window.console)console.error(e)}if(view==='day'&&!editing&&sh.classList.contains('open')){var nm=nowMin();if(nm!==lastDayPaint){lastDayPaint=nm;paintDay()}}r=runGet();paintPill();if(!r){if(ban&&banT)hideBan();return}
   var left=r.ends-Date.now();if(sh.classList.contains('open')&&cur===todayI()){var rb=$q('[data-k=run] b');if(rb)rb.textContent=(r.t||(DAY(r.day)[r.j]||D[r.day][r.j])[0])+' · '+(left>0?fmtLeft(left)+' left':'time\'s up')}
   if(left>0){try{highChk(r,left)}catch(e){if(window.console)console.error(e)}return}
   if(busy()){if(!warned.b){warned.b=1;if(arenaOpen()){var lastB=hwNext(r.day,r.j)<0;try{if(window.CRIT_ARENA&&CRIT_ARENA.note)CRIT_ARENA.note(lastB?'⏰ That\'s today\'s plan done! Finish this match, then close Clash.':'⏰ Time\'s up for '+r.t+'. Finish this match and close Clash for the next part.')}catch(_){}}else toastIn('Time\'s up for '+r.t+'. Finish this lesson, then you\'ll move on.')}return}
@@ -3659,7 +4217,7 @@ var PLAN=(function(){
  function toastIn(t){var d=document.createElement('div');d.className='plban';d.style.bottom='calc(96px + env(safe-area-inset-bottom))';d.setAttribute('role','status');d.innerHTML='<p>'+esc(t)+'</p>';document.body.appendChild(d);setTimeout(function(){d.remove()},6000)}
  $q('[data-k=auto]').onchange=function(){PS().auto=this.checked?1:0;save()};
  function close(){sh.classList.remove('open')}
- function open(v){if(v==='day'||v==='plan'||v==='hab')view=v;editing=null;cur=todayI();paint();sh.classList.add('open')}
+ function open(v){if(v==='day'||v==='plan'||v==='hab'||v==='tst')view=v;editing=null;cur=todayI();paint();sh.classList.add('open')}
  $q('.plx').onclick=close;sh.addEventListener('click',function(e){if(e.target===sh)close()});
  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&sh.classList.contains('open'))close()});
  var CAL='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4M8 14l1.6 1.6L13 12.2"/></svg>';
@@ -3675,11 +4233,12 @@ var PLAN=(function(){
  if(location.hash==='#setup'){try{history.replaceState(null,'',location.pathname+location.search)}catch(_){}setTimeout(function(){try{if(window.chrome&&chrome.runtime&&chrome.runtime.sendMessage)chrome.runtime.sendMessage(FOCUS_ID,{type:'setup'},function(){try{void chrome.runtime.lastError}catch(_){}open('plan')});else open('plan')}catch(_){open('plan')}},400)}
  if(location.hash==='#focus'){try{history.replaceState(null,'',location.pathname+location.search)}catch(_){}setTimeout(function(){try{if(!runGet()&&!hwOn()&&firstLeft(todayI())>=0&&typeof ONE!=='undefined')ONE.start();else open('plan')}catch(_){}},600)}
  if(location.hash==='#start'){try{history.replaceState(null,'',location.pathname+location.search)}catch(_){}setTimeout(function(){try{var t=todayI();if(t>4||runGet()||hwOn()||firstLeft(t)<0){open('plan');return}
-  showBan('<b>4:45: time to start.</b> Today\'s plan is '+restMins(t)+' minutes. Got homework due? Do that first and Critical gets whatever time is left.',[['Start today\'s plan',function(){hideBan();startRun()}],['Homework first',function(){hideBan();startHw()}],['Just one question',function(){hideBan();ONE.start()}]])}catch(e){if(window.console)console.error(e)}},600)}
+  showBan('<b>4:45: time to start.</b> '+(rvOn(t)?'It\'s a revision day: '+restMins(t)+' minutes of revising for your test.':'Today\'s plan is '+restMins(t)+' minutes.')+' Got homework due? Do that first and Critical gets whatever time is left.',[['Start today\'s plan',function(){hideBan();startRun()}],['Homework first',function(){hideBan();startHw()}],['Just one question',function(){hideBan();ONE.start()}]])}catch(e){if(window.console)console.error(e)}},600)}
  if(location.hash==='#hwdone'){try{history.replaceState(null,'',location.pathname+location.search)}catch(_){}setTimeout(function(){try{hwDone()}catch(_){}},700)}
  if(location.hash==='#early'){try{history.replaceState(null,'',location.pathname+location.search)}catch(_){}setTimeout(function(){try{finishEarly()}catch(_){}},700)}
+ if(location.hash==='#tests'){try{history.replaceState(null,'',location.pathname+location.search)}catch(_){}setTimeout(function(){try{open('tst')}catch(_){}},400)}
  if(location.hash==='#home'){try{history.replaceState(null,'',location.pathname+location.search)}catch(_){}setTimeout(function(){try{homeAuto();open('day')}catch(_){}},400)}
- return {wkKey:wk,wkMins:function(){var m=0;D.forEach(function(_,i){DAY(i).forEach(function(b,j){if(isDone(i,j))m+=b[1]})});return m},schoolMins:function(){var m=0;for(var i=0;i<5;i++)m+=mins(i);return m},TOTAL:TOTAL,dayMins:function(){return mins(todayI())},fullInfo:function(){var t=todayI(),full=allTicked(t),h=hwGet(),ks=h&&h.alloc?Object.keys(h.alloc):[],hf=ks.length>0&&ks.every(function(j){return isDone(t,+j)});return {t:t,full:full||hf,mins:full?DAY(t).reduce(function(a,b,j){return a+(isDone(t,j)?b[1]:0)},0):hf?ks.reduce(function(a,j){return a+h.alloc[j]},0):0,early:feOn(t),quick:qsOn(t)}},early:finishEarly,qsOn:qsOn,markQuick:markQuick,afterLesson:afterLesson,feOn:feOn,undoEarly:undoEarly,hideBan:hideBan,isDone:isDone,next:function(){var t=todayI(),j=firstLeft(t);return j<0?null:DAY(t)[j]},leftMins:function(){return leftMins(todayI())},open:open,close:close,paint:paint,paintPill:paintPill,start:startRun,stop:stopRun,loop:loop,running:function(){return !!runGet()},todayLeft:function(){return firstLeft(todayI())>=0},D:D,DAY:DAY,pile:pile,TUE_FIX:TUE_FIX,rows:rows,nowRow:nowRow,sched:sched,home:homeGet,habits:HS,streak:streak,hw:hwGet,hwStart:startHw,hwDone:hwDone,focusStatus:focusStatus,focus:function(){return focusOk}};
+ return {wkKey:wk,wkMins:function(){var m=0;D.forEach(function(_,i){DAY(i).forEach(function(b,j){if(isDone(i,j))m+=b[1]})});return m},schoolMins:function(){var m=0;for(var i=0;i<5;i++)m+=mins(i);return m},TOTAL:TOTAL,dayMins:function(){return mins(todayI())},fullInfo:function(){var t=todayI(),full=allTicked(t),h=hwGet(),ks=h&&h.alloc?Object.keys(h.alloc):[],hf=ks.length>0&&ks.every(function(j){return isDone(t,+j)});return {t:t,full:full||hf,mins:full?DAY(t).reduce(function(a,b,j){return a+(isDone(t,j)?b[1]:0)},0):hf?ks.reduce(function(a,j){return a+h.alloc[j]},0):0,early:feOn(t),quick:qsOn(t)}},early:finishEarly,qsOn:qsOn,markQuick:markQuick,afterLesson:afterLesson,feOn:feOn,undoEarly:undoEarly,hideBan:hideBan,isDone:isDone,next:function(){var t=todayI(),j=firstLeft(t);return j<0?null:DAY(t)[j]},leftMins:function(){return leftMins(todayI())},open:open,close:close,paint:paint,paintPill:paintPill,start:startRun,stop:stopRun,loop:loop,running:function(){return !!runGet()},todayLeft:function(){return firstLeft(todayI())>=0},D:D,DAY:DAY,pile:pile,TUE_FIX:TUE_FIX,rows:rows,nowRow:nowRow,sched:sched,home:homeGet,habits:HS,streak:streak,hw:hwGet,hwStart:startHw,hwDone:hwDone,focusStatus:focusStatus,focus:function(){return focusOk},rvOn:rvOn,runLeft:function(){var r=runGet();return r?r.ends-Date.now():null}};
 })();
 try{window.PLAN=PLAN}catch(_){}
 /* ===== just one question: a tiny way into a study session ===== */
@@ -5193,7 +5752,7 @@ module.exports = QRCode;
 }},C={};function req(n){n=n.replace(/^\.\//,"./").replace(/\.js$/,"");if(n==="./index"||n===".")n="./index";if(C[n])return C[n].exports;var m={exports:{}};C[n]=m;M[n](m,m.exports,req);return m.exports}return req("./index")})();
 function qrSvg(text){var q=new QRMAKER(-1,0);q.addData(text);q.make();var n=q.getModuleCount(),pad=4,sz=n+pad*2,p='';for(var r=0;r<n;r++)for(var c=0;c<n;c++)if(q.isDark(r,c))p+='M'+(c+pad)+' '+(r+pad)+'h1v1h-1z';return '<svg viewBox="0 0 '+sz+' '+sz+'" width="240" height="240" shape-rendering="crispEdges" role="img" aria-label="QR code of your sync key"><rect width="'+sz+'" height="'+sz+'" fill="#fff"/><path d="'+p+'" fill="#000"/></svg>'}
 /* ===== sync: sign in once on each device and progress moves across by itself (a secret gist on your GitHub account) ===== */
-var APPV='207 (15 Nov 2026)';
+var APPV='214 (16 Nov 2026)';
 var SYNC=(function(){
  var KEY='critical_sync',DEV='critical_dev',FILE='critical-sync.json',DESC='Critical progress sync (used by the Critical app)',API='https://api.github.com';
  var css=document.createElement('style');css.textContent='.syncpill .sp-ok{display:none}.syncpill[data-st=on]{color:var(--accent)}.syncpill[data-st=on] .sp-ok{display:inline}.syncpill[data-st=on] .sp-off{display:none}.syncpill[data-st=off] .sp-off{display:none}.syncpill[data-st=err]{color:var(--amber)}.syncpill[data-st=busy] svg{animation:rwtw 1.2s ease-in-out infinite}.syncbox{border:1.5px solid var(--line);border-radius:14px;padding:12px 14px;margin:12px 0 4px;background:var(--soft)}.syncbox .synchd{display:flex;align-items:center;gap:8px;font-weight:700}.syncbox .synchd svg{color:var(--accent);flex:none}.syncbox .note{margin:6px 0 0}.syncbox.on{border-color:var(--accent);background:var(--accent-bg)}.syncbox .savebtns{margin-top:10px}'+
@@ -5248,7 +5807,7 @@ var SYNC=(function(){
    return Promise.all([files[FILE]?readFile(files[FILE]):null].concat(outs.map(function(n){return readFile(files[n])}))).then(function(a){var doc=a[0]&&a[0].prog?a[0]:null;
     a.slice(1).filter(function(o){return o&&o.dev&&o.state&&o.meta&&o.meta.others&&o.at}).sort(function(x,y){return x.at-y.at}).forEach(function(o){var dv=doc&&doc.devs&&doc.devs[o.dev];if(dv&&dv.at>=o.at)return;try{doc=merge(doc,o.meta,o).doc}catch(_){}});
     return doc})}
- function getDoc(c){if(isGS(c))return gs(c,{get:1}).then(function(j){return FILES({files:j.files||{}})});var g=c.gist?Promise.resolve(c.gist):findGist(c).then(function(id){c.gist=id;setCfg(c);return id});
+ function getDoc(c){if(isGS(c))return gs(c,{get:1}).then(function(j){try{if(window.LATE_IN)window.LATE_IN(j.files||{})}catch(_){}return FILES({files:j.files||{}})});var g=c.gist?Promise.resolve(c.gist):findGist(c).then(function(id){c.gist=id;setCfg(c);return id});
   return g.then(function(id){return api('/gists/'+id)}).then(FILES,
    function(e){if(e&&e.code===404&&c.gist){delete c.gist;setCfg(c);return getDoc(c)}throw e})}
  function readFile(f){if(f.truncated&&f.raw_url)return fetch(f.raw_url,{cache:'no-store'}).then(function(r){return r.json()}).catch(function(){return null});try{return Promise.resolve(JSON.parse(f.content||'null'))}catch(_){return Promise.resolve(null)}}
@@ -14428,7 +14987,7 @@ var SCR=(function(){
  function txt(h){var d=document.createElement('div');d.innerHTML=h||'';return (d.textContent||'').replace(/\s+/g,' ').trim()}
  function findL(lid){for(var ui=0;ui<UNITS.length;ui++){var u=UNITS[ui];for(var li=0;li<u.lessons.length;li++)if(u.lessons[li].id===lid)return {u:u,l:u.lessons[li],ui:ui,li:li}}return null}
  function popen(){var p=$('player');return !!(p&&p.classList.contains('open')&&P)}
- function lockNow(){if(popen()&&P.mode==='test')return 'Test in progress';if(document.querySelector('.xov[aria-label="6-mark question"]'))return '6-mark question in progress';return ''}
+ function lockNow(){if(popen()&&P.mode==='test')return 'Test in progress';if(document.querySelector('.xov[aria-label="6-mark question"]'))return '6-mark question in progress';if(document.querySelector('.ppov .ppans'))return 'Past paper in progress';return ''}
  function slideTitle(c){if(!c)return '';if(c.t==='T'){var d=document.createElement('div');d.innerHTML=c.h;var h=d.querySelector('h3,h2,b');return h?h.textContent.trim():txt(c.h).slice(0,70)}if(c.t==='F')return c.f||'Flashcard';return txt(c.p).slice(0,90)}
  function lastTeach(){if(!P||P.mode!=='lesson')return '';for(var i=P.i;i>=0;i--){var c=P.cards[i];if(c&&c.t==='T')return c.h}return ''}
  function ctx(){if(!popen())return {open:false};if(P.mode==='test')return {open:true,test:true};var c=P.cards[P.i]||{},lid=null,ci=null,lt='',ut='',uid=null,track=null,f=null;

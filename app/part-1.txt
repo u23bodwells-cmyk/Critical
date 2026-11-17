@@ -1,4 +1,7 @@
-v.toFixed(4)},function(){upd()}),r=row(box);btn(r,'− 0.0001',function(){s.set(Math.round((s.get()-0.0001)*1e4)/1e4)});btn(r,'+ 0.0001',function(){s.set(Math.round((s.get()+0.0001)*1e4)/1e4)});st=stats(box,[['r','ρ (Δk/k)'],['p','ρ (pcm)'],['d','ρ (dollars)'],['s','State']]);
+t.r.textContent=r.toFixed(2);st.k.textContent=k.toFixed(4);st.d.textContent=Math.round((k-1)/k*1e5)+' pcm'}
+ onDraw(draw);draw();el('p','small','Illustrative curve. Hotter water is less dense, so there\'s effectively less moderator per unit of fuel.',box);return {}};
+
+WIDGETS.reactivityCalc=function(box,par){var st,s=slider(box,'k',0.99,1.01,0.0001,0.995,function(v){return v.toFixed(4)},function(){upd()}),r=row(box);btn(r,'− 0.0001',function(){s.set(Math.round((s.get()-0.0001)*1e4)/1e4)});btn(r,'+ 0.0001',function(){s.set(Math.round((s.get()+0.0001)*1e4)/1e4)});st=stats(box,[['r','ρ (Δk/k)'],['p','ρ (pcm)'],['d','ρ (dollars)'],['s','State']]);
  function rho(){var k=s.get();return (k-1)/k}function upd(){var p=rho();st.r.textContent=p.toFixed(5).replace('-','−');st.p.textContent=String(Math.round(p*1e5)).replace('-','−');st.d.textContent=(p/0.0065).toFixed(2).replace('-','−')+' $';st.s.textContent=Math.abs(p)<1e-7?'Critical':p<0?'Subcritical':'Supercritical'}upd();
  return {check:function(){var p=rho()*1e5;return Math.abs(p-par.target)<=6?{ok:true}:{ok:false,msg:'That\'s '+Math.round(p)+' pcm. You want +100 pcm.'}},lock:function(){s.input.disabled=true}}};
 
@@ -1205,58 +1208,50 @@ var STUDY=(function(){
  return {open:open,state:function(){return st},payload:payload,check:check,refresh:function(){try{adopt(localStorage.getItem(KEY))}catch(_){}},start:function(t){if(st.run)return false;var n0=Date.now();st.run={at:n0,t:t||'',c:new Date(n0).toISOString()};keep();startTick();return true},stop:function(){if(st.run)$('[data-a=go]').click()}};
 })();
 try{window.STUDY=STUDY}catch(_){}
-/* ===== weekly plan (calendar button next to the study timer) ===== */
-var PLAN=(function(){
- var MG='https://www.mathsgenie.co.uk/',SEN='https://senecalearning.com/',COG='https://cognitoedu.org/',SR='shift-ready.html',AG='aptitude.html';
- var DAYS=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'],AB=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
- /* [title, minutes, what to do, buttons [label, kind, target], shows the topic list] */
- var D=[
-  [['Fix my mistakes',15,'Clear the Fix my mistakes pile in Critical: the questions you got wrong, 10 at a time. Read the explanation again on any you miss. Empty it early and you move straight on. If it isn\'t empty after 15 minutes, the first 15 minutes of Tuesday go to it too. Nothing to fix? Do your next GCSE Maths lesson.',[['Fix my mistakes','fix'],['GCSE Maths','gm']]],
-   ['Aptitude',7,'One practice set in Aptitude Gym.',[['Aptitude Gym','app',AG]]]],
-  [['Calculus',22,'Your next Calculus lesson and its drill. Only move on when the drill says Mastered.',[['Next lesson','calc']]]],
-  [['Python',15,'Your next Python session in Shift Ready.',[['Shift Ready','app',SR]]],
-   ['Communication',7,'The comms drill in Shift Ready. Say your answers out loud, not in your head.',[['Shift Ready','app',SR]]]],
-  [['GCSE science',15,'Your next GCSE Physics or Chemistry lesson in Critical, matching what you\'re doing in class this week. Seneca and Cognito are good for extra practice.',[['GCSE Physics','gp'],['GCSE Chemistry','gc'],['Seneca','url',SEN],['Cognito','url',COG]]],
-   ['Calculus drill',7,'Practice questions on your last Calculus lesson.',[['Practise','calcfu']]]],
-  [['Nuclear',15,'The fun one: the Theory track or the Control room.',[['Theory','theory'],['Control room','sim']]],
-   ['Communication',7,'The comms drill in Shift Ready.',[['Shift Ready','app',SR]]]],
-  [['GCSE maths',25,'25 minutes of mixed questions from a Maths Genie Edexcel paper, timed like an exam. Mark it, and add the topic of every question you dropped marks on to your list below.',[['Maths Genie','url',MG]],1],
-   ['GCSE science',15,'Exam-style questions on Thursday\'s topic: the follow-up and unit test in Critical, or Seneca.',[['GCSE Physics','gp'],['GCSE Chemistry','gc'],['Seneca','url',SEN]]],
-   ['Aptitude',5,'One short timed set in Aptitude Gym.',[['Aptitude Gym','app',AG]]]],
-  [['Python',20,'Your next Python session in Shift Ready.',[['Shift Ready','app',SR]]],
-   ['Calculus',20,'Your next Calculus lesson.',[['Next lesson','calc']]],
-   ['Weekly review',5,'Look at your list below. Move the topic you\'re worst at to the top and practise it first next Saturday. Delete topics you\'ve fixed.',[],1]]];
- var TUE_FIX=[['Fix my mistakes',15,'Monday\'s Fix my mistakes wasn\'t finished, so it gets the first 15 minutes today. Empty the pile early and you move straight on.',[['Fix my mistakes','fix']]],
-  ['Calculus',7,'A shorter Calculus slot today: carry on with your next lesson, or practise your last one if its drill isn\'t Mastered yet.',[['Next lesson','calc'],['Practise','calcfu']]]];
- function pile(){try{return reviewPool(true).length}catch(_){return 0}}
- /* Tuesday's first 20 minutes become Fix my mistakes if Monday's pile wasn't emptied. Decided once on Tuesday, then kept for the week. */
- var ready=false;setTimeout(function(){ready=true},0);
- function carry(){var p=PS(),t=todayI();if(p.carry==null){if(t!==1||!ready)return false;p.carry=(!p.monClr&&pile()>0)?1:0;save()}return p.carry===1}
- /* every day starts with a warm-up and ends with Critical Clash (block[5] says which). On a school day you're asked, after the study part,
-    if you want to keep going to 45 minutes: that adds a 10-minute bonus of the day's main subject and makes Clash 10 minutes. */
- function CORE(i){return i===1&&carry()?TUE_FIX:D[i]}
- function WARM(i){return ['Warm-up',i<5?3:5,'Memory refresh: quick questions on things you learnt before, to get your brain going. When you finish them, your plan moves on by itself.',[['Warm up','warm']],0,'warm']}
- function CLASH(i,x){return ['Critical Clash',i<5&&!x?5:10,'Your reward for the plan: a match of Critical Clash 3D. Every kill is a question, so it still counts. When the time\'s up, finish your match and close the game.',[['Play Critical Clash','clash']],0,'clash']}
- function mainOf(c){return c.slice().sort(function(a,b){return b[1]-a[1]})[0]}
- function BONUS(c){var m=mainOf(c);return ['Bonus: '+m[0],10,'You chose to keep going. 10 more minutes of '+m[0]+', carrying on from where you got to.',m[3],0,'bonus']}
- function extOn(i){var e=PS().ext;return !!(e&&e[i])}
- function setExt(i,v){var p=PS();if(!p.ext||typeof p.ext!=='object')p.ext={};p.ext[i]=v;save()}
- function extAsked(i){var e=PS().ext;return !!(e&&e[i]!=null)}
- function DAY(i){var c=CORE(i),x=i<5&&extOn(i);return [WARM(i)].concat(c,x?[BONUS(c)]:[],[CLASH(i,x)])}
- function isFix(b){return !!(b&&b[3]&&b[3][0]&&b[3][0][1]==='fix')}
- function mins(i){return [WARM(i)].concat(CORE(i),[CLASH(i,false)]).reduce(function(s,b){return s+b[1]},0)}
- function allMins(i){return DAY(i).reduce(function(s,b){return s+b[1]},0)}
- var TOTAL=D.reduce(function(s,_,i){return s+mins(i)},0);
- function wk(){var d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-((d.getDay()+6)%7));return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()}
- function PS(){if(!S.plan||typeof S.plan!=='object')S.plan={};var p=S.plan;if(p.wk!==wk()){p.wk=wk();p.t={};delete p.monClr;delete p.carry;delete p.fe;delete p.ext;delete p.qs}if(!p.t||typeof p.t!=='object')p.t={};if(p.auto==null)p.auto=1;if(typeof p.topics!=='string')p.topics='';return p}
- function todayI(){return (new Date().getDay()+6)%7}
- function isDone(i,j){return !!PS().t[i+'-'+j]}
- function feOn(i){var f=PS().fe;return !!(f&&f[i==null?todayI():i])}
- function allTicked(i){return DAY(i).every(function(b,j){return b[5]==='bonus'||isDone(i,j)})}
- function dayDone(i){return feOn(i)||allTicked(i)}
- /* a finished 2-minute "Just start" counts as doing the day (shown yellow, not green) */
- function qsOn(i){var q=PS().qs;return !!(q&&q[i==null?todayI():i])}
- function markQuick(){var p=PS(),t=todayI();if(!p.qs||typeof p.qs!=='object')p.qs={};if(p.qs[t])return false;p.qs[t]=1;save();try{paint()}catch(e){}try{paintPill()}catch(e){}loop();return true}
- var RK='critical_plan_run',ban=null,banT=null,warned={},upKey=null;
- function ymdN(){var d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()}
- function runGet(){try{var r=JSON.parse(localStorage.getItem(RK)||'null');if(r&&r.d!==ymdN()){localStorage.removeIte
+/* ===== revise for a test: each test gets a countdown, and the days before it become revision days in the weekly plan ===== */
+var REV=(function(){
+ var SUBJ={gm:'GCSE Maths',gp:'GCSE Physics',gc:'GCSE Chemistry',gcs:'GCSE Computer Science'},COL='#7F77DD';
+ function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+ function R(){if(!S.rev||typeof S.rev!=='object')S.rev={};var r=S.rev;if(!Array.isArray(r.tests))r.tests=[];if(!r.miss||typeof r.miss!=='object')r.miss={};if(!r.log||typeof r.log!=='object')r.log={};if(!r.mocks||typeof r.mocks!=='object')r.mocks={};return r}
+ function s2d(s){var a=String(s).split('-');return new Date(+a[0],a[1]-1,+a[2],12)}
+ function addD(s,n){var d=s2d(s);d.setDate(d.getDate()+n);return dstr(d)}
+ function diff(a,b){return Math.round((s2d(b)-s2d(a))/864e5)}
+ function nice(s){return s2d(s).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})}
+ function short(s){return s2d(s).toLocaleDateString('en-GB',{weekday:'short'})}
+ function inDays(s){var n=diff(today(),s);return n===0?'today':n===1?'tomorrow':n<0?(n===-1?'yesterday':-n+' days ago'):'in '+n+' days'}
+ function tdI(){return (new Date().getDay()+6)%7}
+ function uIdx(id){for(var i=0;i<UNITS.length;i++)if(UNITS[i].id===id)return i;return -1}
+ /* a topic is a whole unit (e.g. gp3-1 Forces) or one lesson in it (e.g. gp3-1-1 Scalars, vectors and resultant forces) */
+ var TI=null;function tInfo(id){if(!TI||TI._n!==UNITS.length){TI={_n:UNITS.length};UNITS.forEach(function(u,ui){TI[u.id]={ui:ui,li:-1,title:u.title};u.lessons.forEach(function(l,li){TI[l.id]={ui:ui,li:li,title:l.title,ut:u.title}})})}return TI[id]||null}
+ function tLessons(id){var x=tInfo(id);if(!x)return [];if(x.li>=0)return [[x.ui,x.li]];return UNITS[x.ui].lessons.map(function(_,li){return [x.ui,li]})}
+ function tOrd(id){var x=tInfo(id);return x?x.ui*1000+(x.li+1):1e9}
+ function testOf(id){var r=R();for(var i=0;i<r.tests.length;i++)if(r.tests[i].id===id)return r.tests[i];return null}
+ function subjName(t){return t.subj==='own'?(t.sname||'Your subject'):SUBJ[t.subj]||'Test'}
+ function tName(t){return t.name||subjName(t)+' test'}
+ function cards(t){return (t.cards||[]).filter(function(c){return c&&c.q&&c.a})}
+ function uTitles(ids){return (ids||[]).map(function(id){var x=tInfo(id);return x?x.title:null}).filter(Boolean)}
+ /* the revision days: the t.days days before the test, but never before the day the test was added (or after it was deleted) */
+ function sched(t){var out=[];if(!t||!t.date)return out;var d=addD(t.date,-Math.max(1,Math.min(7,t.days||3))),g=0;if(t.from&&t.from>d)d=t.from;
+  for(;d<t.date&&g++<20;d=addD(d,1)){if(t.gone&&d>=t.gone)break;out.push(d)}return out}
+ /* topics are shared out over the revision days; the last day is a mini mock on everything */
+ function plan(t){var D=sched(t),n=D.length,U=(t.units||[]).filter(function(id){return !!tInfo(id)}),pd=n-1,out={};
+  D.forEach(function(d,k){var last=k===n-1,us=[];if(t.subj!=='own'&&U.length){if(last)us=U.slice();else if(U.length>=pd)us=U.filter(function(_,j){return Math.floor(j*pd/U.length)===k});else us=[U[k%U.length]]}
+   out[d]={k:k+1,n:n,mock:last,units:us}});return out}
+ function dayInfo(dk){var best=null;R().tests.forEach(function(t){var p=plan(t)[dk];if(p&&(!best||t.date<best.t.date))best={t:t,p:p}});if(!best)return null;
+  var t=best.t,p=best.p;return build({tid:t.id,dk:dk,name:tName(t),subj:t.subj,date:t.date,k:p.k,n:p.n,mock:p.mock,units:p.units})}
+ function build(pin){var t=testOf(pin.tid),tl=uTitles(pin.units),nc=t?cards(t).length:0,own=pin.subj==='own',d=nice(pin.date);
+  var desc=pin.mock?'Last day before your '+pin.name+' ('+d+'). Start with the mini mock test on '+(own?'all your flashcards':'everything')+', then practise what you got wrong.':
+   'Revision day '+pin.k+' of '+pin.n+' for your '+pin.name+' ('+d+'). '+(own?'Go through your '+nc+' flashcard'+(nc===1?'':'s')+' until the timer\'s done.':'Today\'s topic'+(tl.length===1?'':'s')+': '+tl.join(', ')+'. Do practice rounds until the timer\'s done.');
+  return {pin:pin,tid:pin.tid,name:pin.name,desc:desc,mock:!!pin.mock,units:pin.units||[]}}
+ /* ----- questions ----- */
+ function poolUnits(uids){var pool=[],seen={};(uids||[]).forEach(function(id){var x=tInfo(id);if(!x)return;var u=UNITS[x.ui];
+   tLessons(id).forEach(function(p){var l=u.lessons[p[1]];if(seen[l.id])return;seen[l.id]=1;function add(c,k,keep){if(!c||(c.t!=='Q'&&c.t!=='N'&&c.t!=='O'))return;var cc=Object.assign({},c);cc._src=u.title+' · '+l.title;if(keep)cc._key=k;cc._rk=k;cc._lid=l.id;cc._uid=u.id;pool.push(cc)}
+    l.cards.forEach(function(c,ci){add(c,l.id+'#'+ci,1)});(FOLLOW[l.id]||[]).forEach(function(c,ci){add(c,'F'+l.id+'#'+ci,1)});(BANK[l.id]||[]).forEach(function(c,ci){add(c,'B'+l.id+'#'+ci)})});
+   if(x.li<0)(TESTS[u.id]||[]).forEach(function(c,ci){if(!c||(c.t!=='Q'&&c.t!=='N'&&c.t!=='O'))return;var cc=Object.assign({},c);cc._src=u.title+' · exam-style';cc._rk='T'+u.id+'#'+ci;cc._uid=u.id;pool.push(cc)})});return pool}
+ var BANK={
+  'gp3-1-1':[
+   Q(`Which of these is a <b>scalar</b> quantity?`,['Speed','Velocity','Force','Displacement'],0,`A scalar has size only. Speed is just how fast; velocity is speed <i>in a given direction</i>, so it's a vector.`),
+   Q(`Which of these is a <b>vector</b> quantity?`,['Acceleration','Mass','Temperature','Energy'],0,`Acceleration has a direction. Mass, temperature and energy only have a size.`),
+   Q(`What's the difference between a scalar and a vector?`,['A vector has a direction as well as a size; a scalar only has a size','A scalar has a direction; a vector doesn\'t','Vectors are always bigger than scalars','Scalars can\'t be measured'],0,`Both have a size (magnitude). Only a vector also has a direction.`),
+   Q(`Which list contains <b>only</b> vectors?`,['Force, velocity, momentum','Mass, force, energy','Speed, distance, time','Weight, mass, density'],0,`Force, velocity and momentum all have directions. Mass, energy, speed, distance, time and density don't.`),
+   Q(`Which of these is <b>not</b> a vector?`,['Distance','Momentum','Weight','Displacement'],0,`Distance is how far, with no direction. 
