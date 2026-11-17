@@ -18,3 +18,7 @@ along in their place, playing its walk animation. With an empty manifest (`{}`),
 - Keep each file under about 3 MB. CC0 sources: Quaternius (animated characters, vehicles) and Kenney (vehicles).
 
 The loader lives in `plant.js` (`MODELPACK`). It loads `vendor/GLTFLoader.js` only if the manifest lists something.
+
+## Installed
+
+`guard.glb` is the rigged, animated Soldier model from the three.js examples (a Mixamo character, clips Idle, Walk, Run). It walks the perimeter as the security patrol (`guardPatrol` in `plant.js`); it is not tied to the manifest.
