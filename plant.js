@@ -1494,13 +1494,13 @@ function outerWorld() { var G = EXT.g, TH = EXT.terrainH; if (!TH) return; var R
     fragmentShader: '#include <fog_pars_fragment>\n uniform float t, day, dir; uniform vec3 sky; varying vec2 vu; varying float vS; varying vec3 vw; float h(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); } float n(vec2 p){ vec2 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0 * f); return mix(mix(h(i), h(i + vec2(1, 0)), f.x), mix(h(i + vec2(0, 1)), h(i + vec2(1, 1)), f.x), f.y); }' +
       ' void main(){ float x = abs(vu.x - 0.5) * 2.0; float sp = 1.0 - 0.6 * x * x; vec2 fl = vec2(vu.x * 7.0, vS * 0.12 + dir * t * 1.1 * sp); float st = n(fl) * 0.55 + n(fl * vec2(2.0, 3.3) + 2.0) * 0.3 + n(fl * 7.0 + 5.0) * 0.15;' +
       ' float ice = smoothstep(0.62 + 0.22 * n(vec2(vS * 0.05, 1.0)), 0.78 + 0.2 * n(vec2(vS * 0.05, 4.0)), x);' +
-      ' vec3 V = normalize(cameraPosition - vw); float fr = pow(1.0 - max(V.y, 0.0), 4.0); vec3 water = mix(vec3(0.015, 0.03, 0.04), sky * 0.95, 0.12 + 0.62 * fr); water += vec3(0.75, 0.82, 0.9) * smoothstep(0.66, 0.9, st) * (0.06 + 0.16 * day); water *= 0.85 + 0.3 * st;' +
+      ' vec3 V = normalize(cameraPosition - vw); float fr = pow(1.0 - max(V.y, 0.0), 4.0); vec3 water = mix(vec3(0.008, 0.024, 0.032), sky * vec3(0.6, 0.72, 0.8), 0.06 + 0.42 * fr); water += vec3(0.75, 0.84, 0.92) * smoothstep(0.6, 0.88, st) * (0.05 + 0.2 * day); water *= 0.7 + 0.6 * st;' +
       ' vec3 iceC = mix(vec3(0.52, 0.64, 0.73), vec3(0.88, 0.92, 0.96), smoothstep(0.86, 1.0, x) + 0.35 * n(vw.xz * 0.6)) * (0.22 + 0.78 * day); vec3 c = mix(water, iceC, ice);' +
       ' float a = (1.0 - smoothstep(0.94, 1.0, x)) * smoothstep(0.0, 0.03, vu.y) * (1.0 - smoothstep(0.96, 1.0, vu.y)); gl_FragColor = vec4(c, a);\n#include <fog_fragment>\n }' });
   EXT.riverM = wm; EXT.riverMs = [];
   paths.forEach(function (P) { var L = P.L, Wd = 6, pos = [], uv = [], sa = [], idx = [], m2 = wm.clone(); m2.uniforms.t = wm.uniforms.t; m2.uniforms.day = wm.uniforms.day; m2.uniforms.sky = wm.uniforms.sky; m2.uniforms.dir.value = P.dir; EXT.riverMs.push(m2);
     L.forEach(function (q, i) { var w = q.hw + 2.2; for (var j = 0; j <= Wd; j++) { var s = j / Wd - 0.5; pos.push(q.x + q.nx * s * w * 2, q.wl, q.z + q.nz * s * w * 2); uv.push(j / Wd, i / (L.length - 1)); sa.push(q.s); } });
-    for (var i = 0; i < L.length - 1; i++) for (var j = 0; j < Wd; j++) { var a = i * (Wd + 1) + j, b = a + Wd + 1; idx.push(a, b, a + 1, b, b + 1, a + 1); }
+    for (var i = 0; i < L.length - 1; i++) for (var j = 0; j < Wd; j++) { var a = i * (Wd + 1) + j, b = a + Wd + 1; idx.push(a, a + 1, b, b, a + 1, b + 1); /* counter-clockwise seen from above */ }
     var g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2)); g.setAttribute('aS', new THREE.Float32BufferAttribute(sa, 1)); g.setIndex(idx); g.computeBoundingSphere();
     var m = new THREE.Mesh(g, m2); m.renderOrder = 2; m.userData.noColl = true; m.userData.noShadow = true; m.layers.set(1); m.raycast = function () {}; G.add(m); });
   PH2.river = { grounds: grounds.length, n: SAMP.length };
