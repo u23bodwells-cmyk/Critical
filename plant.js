@@ -4156,7 +4156,7 @@ function addWindows(scene) { var frame = function (x, z, ry) { var m = new THREE
 /* ================================================================ the corridor and the reactor hall ================================================================
    A door in the west wall, between the two windows, leads down a short corridor into the reactor hall: the vessel head in its
    cavity, the refuelling pool, the polar crane overhead. Walk in with the reactor at power and the area monitors show it. */
-var HALL = { door: 1.3, cx: -RX - 8, cz: RZC, cw: 2.6, hx: -RX - 8, hw: 18, hd: 18, vx: -RX - 17, in: false, near: null, glow: null, mon: null };
+var HALL = { door: 1.3, cx: -RX - 8, cz: RZC, cw: 2.6, hx: -RX - 8, hw: 26, hd: 20, vx: -RX - 21, in: false, near: null, glow: null, mon: null };
 /* floors you can stand on: the ground everywhere, the stair in the reactor hall, and the gallery walkways at 6 m. The candidate closest to the floor you are on wins;
    if none is within half a metre you can't step there (so you don't walk off the gallery or into the side of the stair) */
 function floorAt(x, z, cur, loose) { var S2 = HALL.st, c = [];
@@ -4294,27 +4294,35 @@ function addLoops(scene) { var vx = HALL.vx, cz = HALL.cz, add = function (m, x,
   var concM = new THREE.MeshStandardMaterial({ color: 0x9a9d98, roughness: 0.92 }), capM = new THREE.MeshStandardMaterial({ color: 0xb9bcb6, roughness: 0.8 }), yel = new THREE.MeshStandardMaterial({ color: 0xe3b51f, roughness: 0.5 }), stl = new THREE.MeshStandardMaterial({ color: 0xa9b0b5, roughness: 0.4, metalness: 0.6 }), red = new THREE.MeshStandardMaterial({ color: 0xb8261e, roughness: 0.5 });
   var cyl = function (r, r2, h, m, seg) { return new THREE.Mesh(new THREE.CylinderGeometry(r2, r, h, seg || 32), m); };
   var shows = HALL.loopShow = [];
-  /* a compartment: four low concrete walls (solid) with a coping and a handrail, and a live display on the side facing the cavity */
-  var comp = function (x, z, s, face) { var t = 0.3, hgt = 1.1; [[s, t, x, z - s / 2], [s, t, x, z + s / 2], [t, s, x - s / 2, z], [t, s, x + s / 2, z]].forEach(function (w) { var m = new THREE.Mesh(new THREE.BoxGeometry(w[0], hgt, w[1]), concM); m.position.set(w[2], hgt / 2, w[3]); scene.add(m); var c = new THREE.Mesh(new THREE.BoxGeometry(w[0] + 0.06, 0.06, w[1] + 0.06), capM); add(c, w[2], hgt + 0.03, w[3]); });
-    var c = CV(512, 256), tx = new THREE.CanvasTexture(c); tx.colorSpace = THREE.SRGBColorSpace; var d = add(new THREE.Mesh(new THREE.PlaneGeometry(0.9, 0.45), new THREE.MeshBasicMaterial({ map: tx })), x + face[0] * (s / 2 + t / 2 + 0.01), 0.72, z + face[1] * (s / 2 + t / 2 + 0.01)); d.rotation.y = Math.atan2(face[0], face[1]); return { c: c, t: tx }; };
-  var sgs = [[-34.6, -4.6], [-34.6, 6.4], [-23.6, -4.6], [-23.6, 6.4]];
-  sgs.forEach(function (p, i) { var x = p[0], z = p[1], fx = Math.sign(vx - x), fz = Math.sign(cz - z), dsp = comp(x, z, 3.6, Math.abs(vx - x) > Math.abs(cz - z) ? [fx, 0] : [0, fz]);
+  /* a compartment, as in a real PWR: each steam generator and the pressuriser stands in its own room behind thick concrete (secondary shield) walls,
+     separate from the reactor cavity; the upper shells rise above the walls into the operating space. A doorway on the side facing the cavity, a lintel over it,
+     a radiation-area sign, and the live display beside the door. */
+  var comp = function (x, z, s, face) { var t = 0.5, hgt = 5.6, dw = 1.3, dh = 2.4, sides = [[s + t, t, x, z - s / 2, [0, -1]], [s + t, t, x, z + s / 2, [0, 1]], [t, s + t, x - s / 2, z, [-1, 0]], [t, s + t, x + s / 2, z, [1, 0]]];
+    sides.forEach(function (w) { var door = w[4][0] === face[0] && w[4][1] === face[1], alongX = w[0] > w[1], L = alongX ? w[0] : w[1];
+      var seg = function (a0, a1, y0, y1) { var len = a1 - a0; if (len <= 0.01) return; var m = new THREE.Mesh(new THREE.BoxGeometry(alongX ? len : w[0], y1 - y0, alongX ? w[1] : len), concM), c = (a0 + a1) / 2; m.position.set(alongX ? w[2] - L / 2 + c : w[2], (y0 + y1) / 2, alongX ? w[3] : w[3] - L / 2 + c); scene.add(m); };
+      if (!door) seg(0, L, 0, hgt); else { seg(0, L / 2 - dw / 2, 0, hgt); seg(L / 2 + dw / 2, L, 0, hgt); var lt = new THREE.Mesh(new THREE.BoxGeometry(alongX ? dw : w[0], hgt - dh, alongX ? w[1] : dw), concM); lt.userData.noColl = true; add(lt, w[2], dh + (hgt - dh) / 2, w[3]);
+        var sg = add(new THREE.Mesh(new THREE.PlaneGeometry(0.62, 0.42), new THREE.MeshBasicMaterial({ map: signTex(248, 168, function (g, W2, H2) { g.fillStyle = '#ffd400'; g.fillRect(0, 0, W2, H2); g.fillStyle = '#c4007a'; g.beginPath(); g.arc(W2 / 2, 62, 34, 0, 6.3); g.fill(); g.fillStyle = '#ffd400'; g.beginPath(); g.arc(W2 / 2, 62, 9, 0, 6.3); g.fill(); g.fillStyle = '#111'; ctext(g, 'HIGH RADIATION', W2 / 2, 128, 22, '#111', 'center', W2 - 10, '900'); ctext(g, 'AREA · RCA', W2 / 2, 152, 18, '#111', 'center', W2 - 10, '800'); }) })), w[2] + face[0] * (t / 2 + 0.01), dh + 0.45, w[3] + face[1] * (t / 2 + 0.01)); sg.rotation.y = Math.atan2(face[0], face[1]); }
+      var c = new THREE.Mesh(new THREE.BoxGeometry(w[0] + 0.06, 0.08, w[1] + 0.06), capM); add(c, w[2], hgt + 0.04, w[3]); });
+
+    var c = CV(512, 256), tx = new THREE.CanvasTexture(c); tx.colorSpace = THREE.SRGBColorSpace; var d = add(new THREE.Mesh(new THREE.PlaneGeometry(0.9, 0.45), new THREE.MeshBasicMaterial({ map: tx })), x + face[0] * (s / 2 + t / 2 + 0.01) + (face[1] ? s * 0.3 : 0), 1.5, z + face[1] * (s / 2 + t / 2 + 0.01) + (face[0] ? s * 0.3 : 0)); d.rotation.y = Math.atan2(face[0], face[1]); return { c: c, t: tx }; };
+  var hx = HALL.hx, hw = HALL.hw, hd = HALL.hd, sgs = [[hx - hw + 4.8, cz - 6.0], [hx - hw + 4.8, cz + 6.0], [hx - 4.8, cz - 6.0], [hx - 4.8, cz + 6.0]];
+  sgs.forEach(function (p, i) { var x = p[0], z = p[1], fx = Math.sign(vx - x), fz = Math.sign(cz - z), dsp = comp(x, z, 4.6, [fx, 0]);
     /* lower shell, transition cone, steam drum, dome; manways; the main steam line up and away to the nearest wall; feed nozzle */
     add(cyl(1.45, 1.45, 4.6, ins(1.45, 4.6)), x, 1.3, z); add(cyl(1.45, 1.8, 1.2, ins(1.8, 1.2)), x, 4.2, z); add(cyl(1.8, 1.8, 2.8, ins(1.8, 2.8)), x, 6.2, z); var dm = add(new THREE.Mesh(new THREE.SphereGeometry(1.8, 32, 12, 0, 6.3, 0, 1.57), ins(1.8, 2)), x, 7.6, z); dm.scale.y = 0.55;
     [0, 2].forEach(function (k) { var a = k * Math.PI / 2 + Math.atan2(fz, fx) + 0.8, m = add(cyl(0.32, 0.32, 0.22, stl, 20), x + Math.cos(a) * 1.85, 6.6, z + Math.sin(a) * 1.85); m.rotation.set(Math.PI / 2, 0, -a + Math.PI / 2); });
-    add(cyl(0.42, 0.42, 1.1, ins(0.42, 1.1), 20), x, 8.95, z); var wx = x < vx ? -38 : -20, wz = z < cz ? -8.1 : 9.9, toX = Math.abs(wx - x) < Math.abs(wz - z), L = toX ? Math.abs(wx - x) : Math.abs(wz - z), ms = add(cyl(0.42, 0.42, L, ins(0.42, L), 20), toX ? (x + wx) / 2 : x, 9.5, toX ? z : (z + wz) / 2); ms.rotation[toX ? 'z' : 'x'] = Math.PI / 2; add(new THREE.Mesh(new THREE.SphereGeometry(0.42, 16, 10), ins(0.42, 1)), x, 9.5, z);
+    add(cyl(0.42, 0.42, 1.1, ins(0.42, 1.1), 20), x, 8.95, z); var wx = x < vx ? hx - hw : hx, wz = z < cz ? cz - hd / 2 : cz + hd / 2, toX = Math.abs(wx - x) < Math.abs(wz - z), L = toX ? Math.abs(wx - x) : Math.abs(wz - z), ms = add(cyl(0.42, 0.42, L, ins(0.42, L), 20), toX ? (x + wx) / 2 : x, 9.5, toX ? z : (z + wz) / 2); ms.rotation[toX ? 'z' : 'x'] = Math.PI / 2; add(new THREE.Mesh(new THREE.SphereGeometry(0.42, 16, 10), ins(0.42, 1)), x, 9.5, z);
     var fw = add(cyl(0.22, 0.22, 1.6, ins(0.22, 1.6), 16), x + (toX ? 0 : 1.9), 5.3, z + (toX ? 1.9 : 0)); fw.rotation[toX ? 'x' : 'z'] = Math.PI / 2;
     var lb = signTex(256, 64, function (g, w, h) { g.fillStyle = '#1d3f7a'; g.fillRect(0, 0, w, h); ctext(g, 'STEAM GENERATOR ' + (i + 1), w / 2, h / 2 + 3, h * 0.48, '#fff', 'center', w - 16, '900'); }), lp = add(new THREE.Mesh(new THREE.PlaneGeometry(1.6, 0.4), new THREE.MeshBasicMaterial({ map: lb, side: THREE.DoubleSide })), x + fx * 1.47, 3.0, z + fz * 0.2); lp.rotation.y = Math.atan2(fx, 0.0001);
     shows.push({ c: dsp.c, t: dsp.t, draw: function (g, W, H) { var X = S.p && S.p.x, q = X && X.sg[i]; g.fillStyle = '#081016'; g.fillRect(0, 0, W, H); g.fillStyle = '#1d3f7a'; g.fillRect(0, 0, W, 54); g.fillStyle = '#fff'; g.font = '900 34px sans-serif'; g.textAlign = 'center'; g.fillText('SG ' + (i + 1) + ' · LOCAL', W / 2, 40); if (!q) return;
       var L = q.L; g.fillStyle = '#16262f'; g.fillRect(30, 72, 60, 160); g.fillStyle = L < 30 || L > 70 ? '#ffb36a' : '#4aa8ff'; g.fillRect(30, 232 - 1.6 * clamp(L, 0, 100), 60, 1.6 * clamp(L, 0, 100)); g.textAlign = 'left'; g.fillStyle = '#7fa3bd'; g.font = '700 26px sans-serif'; g.fillText('NR LEVEL', 120, 100); g.fillText('STEAM P', 120, 180); g.fillStyle = '#7fe0a0'; g.font = '800 54px monospace'; g.fillText(L.toFixed(0) + ' %', 120, 152); g.fillText(S.p.Ps.toFixed(1), 120, 232); g.font = '700 22px sans-serif'; g.fillStyle = '#7fa3bd'; g.fillText('bar', 330, 232); } }); });
   /* the pressuriser: tall and slim, with the spray line, three safety valves and two relief valves on top, their discharge header to the relief tank */
-  var px = vx, pz = -5.6, pd = comp(px, pz, 2.6, [0, 1]); add(cyl(1.05, 1.05, 8.6, ins(1.05, 8.6)), px, 3.3, pz); var pt = add(new THREE.Mesh(new THREE.SphereGeometry(1.05, 28, 10, 0, 6.3, 0, 1.57), ins(1.05, 2)), px, 7.6, pz); pt.scale.y = 0.6;
+  var px = vx, pz = cz - 7.0, pd = comp(px, pz, 2.9, [0, 1]); add(cyl(1.05, 1.05, 8.6, ins(1.05, 8.6)), px, 3.3, pz); var pt = add(new THREE.Mesh(new THREE.SphereGeometry(1.05, 28, 10, 0, 6.3, 0, 1.57), ins(1.05, 2)), px, 7.6, pz); pt.scale.y = 0.6;
   for (var k = 0; k < 5; k++) { var a = k / 5 * Math.PI * 2, sx = px + Math.cos(a) * 0.55, sz = pz + Math.sin(a) * 0.55; add(cyl(0.09, 0.09, 0.6, stl, 12), sx, 8.45, sz); add(cyl(0.16, 0.16, 0.4, k < 3 ? red : yel, 14), sx, 8.9, sz); }
-  var hdr = add(cyl(0.14, 0.14, 2.4, stl, 12), px, 9.2, pz - 1.2); hdr.rotation.x = Math.PI / 2; add(cyl(0.14, 0.14, 9.3, stl, 12), px, 4.6, -7.95); add(cyl(0.08, 0.08, 1.2, stl, 10), px + 0.8, 8.2, pz + 0.6);
+  var hdr = add(cyl(0.14, 0.14, 2.4, stl, 12), px, 9.2, pz - 1.2); hdr.rotation.x = Math.PI / 2; add(cyl(0.14, 0.14, 9.3, stl, 12), px, 4.6, pz - 2.35); add(cyl(0.08, 0.08, 1.2, stl, 10), px + 0.8, 8.2, pz + 0.6);
   var pl = signTex(256, 64, function (g, w, h) { g.fillStyle = '#1d3f7a'; g.fillRect(0, 0, w, h); ctext(g, 'PRESSURISER', w / 2, h / 2 + 3, h * 0.5, '#fff', 'center', w - 16, '900'); }), pp = add(new THREE.Mesh(new THREE.PlaneGeometry(1.4, 0.36), new THREE.MeshBasicMaterial({ map: pl, side: THREE.DoubleSide })), px, 3.2, pz + 1.07);
   shows.push({ c: pd.c, t: pd.t, draw: function (g, W, H) { var X = S.p && S.p.x; g.fillStyle = '#081016'; g.fillRect(0, 0, W, H); g.fillStyle = '#1d3f7a'; g.fillRect(0, 0, W, 54); g.fillStyle = '#fff'; g.font = '900 34px sans-serif'; g.textAlign = 'center'; g.fillText('PRESSURISER · LOCAL', W / 2, 40); if (!X) return; g.textAlign = 'left'; g.fillStyle = '#7fa3bd'; g.font = '700 26px sans-serif'; g.fillText('PRESSURE', 30, 100); g.fillText('LEVEL', 30, 180); g.fillText('HEATERS', 300, 100); g.fillText('SPRAY', 300, 180); g.fillStyle = '#7fe0a0'; g.font = '800 54px monospace'; g.fillText(X.pz.P.toFixed(1), 30, 152); g.fillText(X.pz.L.toFixed(0) + ' %', 30, 232); g.font = '800 40px monospace'; g.fillStyle = X.pz.heaters ? '#ffb36a' : '#55667a'; g.fillText(X.pz.heaters ? 'ON' : 'OFF', 300, 150); g.fillStyle = X.pz.spray > 0.02 ? '#4aa8ff' : '#55667a'; g.fillText(Math.round(X.pz.spray * 100) + ' %', 300, 230); } });
   shows.forEach(function (s) { s.draw(s.c.getContext('2d'), 512, 256); s.t.needsUpdate = true; });
-  var f0 = HALL.fxTick || function () {}, acc = 0; HALL.fxTick = function (dt) { f0(dt); acc += dt; if (acc < 1 || !(CAM.x < -RX - 0.2 && CAM.x > -38.5)) return; acc = 0; shows.forEach(function (s) { s.draw(s.c.getContext('2d'), 512, 256); s.t.needsUpdate = true; }); }; }
+  var f0 = HALL.fxTick || function () {}, acc = 0; HALL.fxTick = function (dt) { f0(dt); acc += dt; if (acc < 1 || !(CAM.x < -RX - 0.2 && CAM.x > HALL.hx - HALL.hw - 0.5)) return; acc = 0; shows.forEach(function (s) { s.draw(s.c.getContext('2d'), 512, 256); s.t.needsUpdate = true; }); }; }
 /* ================================================================ reactor hall: the look ================================================================
    Everything here is drawn in rather than computed by the renderer, so it looks the same on Lite graphics: soft corner shadows
    (baked ambient occlusion) where walls meet floors and ceilings, light shafts and warm pools under the lamps, drifting dust, a living
@@ -4361,24 +4369,24 @@ var CUT = { on: false, END: 34.6, SRC: 'media/shutdown-theme.mp4',
     [[0, 3.1, 10.4, 0, -0.145, 70], [0, 2.8, 8.6, 0, -0.13, 68]],               /* control room, wide */
     [[0, 1.65, 1.6, 0, -0.03, 62], [0, 1.6, 1.0, 0, -0.05, 60]],                /* the operator's seat */
     [[-40, 6, -60, 1.0, 0.25, 60], [-38, 5, -58, 1.06, 0.3, 60]],               /* cooling towers from below */
-    [[-23.5, 1.65, -3.5, 2.3, -0.02, 60], [-24.3, 1.7, -2.8, 2.35, -0.05, 58]], /* reactor pool and refuelling machine */
-    [[-29, 7.65, -7.3, 2.95, -0.28, 62], [-29, 7.65, -7.3, 3.35, -0.22, 62]],   /* reactor hall from the gallery, slow pan */
+    [[-24.0, 1.65, 1.6, 2.3, -0.02, 60], [-24.8, 1.7, 1.9, 2.35, -0.05, 58]], /* reactor pool and refuelling machine */
+    [[-29, 7.65, -8.5, 2.95, -0.28, 62], [-29, 7.65, -8.5, 3.35, -0.22, 62]],   /* reactor hall from the gallery, slow pan */
     [[-15.2, 1.65, 34, Math.PI, 0.02, 60], [-15.2, 1.65, 36.5, Math.PI, 0.04, 60]], /* turbine hall */
     [[45, 1.7, 20, 1.2, 0.04, 55], [44, 1.7, 17, 1.25, 0.06, 55]],              /* containment dome and towers */
     [[-15, 1.65, 0.9, Math.PI / 2, 0, 60], [-17.5, 1.65, 0.9, Math.PI / 2, 0, 60]], /* the corridor to the hall */
     [[105.2, 1.65, 4.5, -1.2, 0, 60], [105.2, 1.65, 4.5, -1.05, 0.03, 60]],     /* intake pumphouse */
-    [[-23.5, 1.65, -3.5, 2.2, 0.45, 60], [-23.5, 1.65, -3.5, 2.4, 0.52, 60]],   /* up at the polar crane */
+    [[-24.0, 1.65, 1.6, 2.2, 0.45, 60], [-24.0, 1.65, 1.6, 2.4, 0.52, 60]],   /* up at the polar crane */
     [[-3.6, 1.95, 6.6, Math.PI, 0.01, 50], [-3.6, 1.95, 7.2, Math.PI, 0.02, 50]], /* plant overview wall */
     [[120, 34, 40, 1.15, -0.14, 50], [112, 32, 48, 1.05, -0.13, 50]],           /* aerial, drifting round */
     [[0.53, 1.95, 8.0, Math.PI, 0, 50], [0.53, 1.95, 8.6, Math.PI, 0, 50]],     /* core monitoring wall */
-    [[-29, 7.65, -7.3, 2.6, -0.45, 60], [-29, 7.65, -7.3, 2.8, -0.42, 60]],     /* down into the pool */
+    [[-29, 7.65, -8.5, 2.6, -0.45, 60], [-29, 7.65, -8.5, 2.8, -0.42, 60]],     /* down into the pool */
     [[30, 25, -30, 0.88, -0.15, 55], [27, 24, -32, 0.92, -0.14, 55]],           /* towers over the railway */
     [[3.4, 1.9, 8.0, Math.PI, 0, 50], [3.4, 1.9, 8.5, Math.PI, 0, 50]],         /* alarm summary wall */
     [[-30, 3, -80, 1.3, 0.35, 60], [-30, 3, -80, 1.32, 0.37, 60]],              /* tower, quick */
     [[-15.2, 1.65, 36, Math.PI, 0.25, 60], [-15.2, 1.65, 36, 3.0, 0.28, 60]],   /* turbine hall roof */
     [[-6, 2.4, 8.5, -0.45, -0.12, 62], [-3, 2.4, 8.5, -0.3, -0.12, 62]],        /* control room, tracking */
     [[-16.5, 1.65, 0.9, Math.PI / 2, 0.1, 55], [-18, 1.65, 0.9, Math.PI / 2, 0.1, 55]], /* corridor */
-    [[-25, 1.7, -2, 2.0, -0.08, 55], [-25.3, 1.7, -1.8, 2.05, -0.08, 55]],      /* pool, quick */
+    [[-24.5, 1.7, 1.2, 2.0, -0.08, 55], [-24.8, 1.7, 1.4, 2.05, -0.08, 55]],      /* pool, quick */
     [[110, 30, 60, 0.95, -0.12, 50], [104, 28, 55, 0.95, -0.11, 50]],           /* aerial */
     [[-40, 6, -60, 0.9, 0.4, 55], [-40, 6, -60, 0.92, 0.42, 55]],               /* the plumes */
     [[0, 1.4, 0.35, 0, -0.21, 50], [0, 1.35, 0.1, 0, -0.22, 48]],               /* console screens */
@@ -6010,7 +6018,7 @@ function* addOutside(scene) { var g = new THREE.Group(); g.position.set(RX, 0, R
   var P = geo.attributes.position;
   for (var i = 0; i < P.count; i++) { var x = P.getX(i), z = P.getZ(i), d = Math.hypot(x, z), rise = clamp((d - 175) / 260, 0, 1), m = rise * rise * (3 - 2 * rise);
     var h = -0.4 + m * (ridge(x + 500, z + 300) * 62 + 12) + (d > 400 ? (d - 400) * 0.12 : 0) + (d < 70 ? 0.25 * Math.sin(x * 0.3) * Math.cos(z * 0.27) : 0); var yard = Math.max(Math.min(clamp((x + 80) / 12, 0, 1), clamp((97 - x) / 12, 0, 1), clamp((z + 47) / 12, 0, 1), clamp((67 - z) / 12, 0, 1)), Math.min(clamp((x + 215) / 25, 0, 1), clamp((-30 - x) / 25, 0, 1), clamp((z + 245) / 25, 0, 1), clamp((-10 - z) / 25, 0, 1))); h = h + (-0.4 - h) * yard; /* the station yard is graded level, so tarmac, drifts and buildings sit on it cleanly */
-    if (x < -3.4 && x > -2 * RX - 26.2 + 3.4 && Math.abs(z) < RDP / 2 - 3.4) h = -16; if (x > -53.5 && x < -31 && z > -34.5 && z < -16.2) h = -16; /* the fuel building's pool */ if (x > 96.5 && x < 112 && z > -9.2 && z < 5.8) h = -16; /* the intake pumphouse's screen pits and forebay */
+    if (x < -3.4 && x > -2 * RX - 34.2 + 3.4 && Math.abs(z) < RDP / 2 - 3.4) h = -16; if (x > -53.5 && x < -31 && z > -34.5 && z < -16.2) h = -16; /* the fuel building's pool */ if (x > 96.5 && x < 112 && z > -9.2 && z < 5.8) h = -16; /* the intake pumphouse's screen pits and forebay */
     var ld = Math.hypot((x - 150) / 38, (z - 0) / 24); if (ld < 1.35) h = Math.min(h, -0.4 - 0.6 * clamp(1.15 - ld, 0, 1)) * (ld < 1 ? 1 : 1) ; P.setY(i, h < -10 ? h : Math.max(-1.0, h)); }
   geo.computeVertexNormals(); var Nn = geo.attributes.normal, col = new Float32Array(P.count * 3), W1 = N + 1, aoV = new Float32Array(P.count);
   for (i = 0; i < P.count; i++) { var ix = i % W1, iz = (i / W1) | 0, hc = P.getY(i), acc = 0, cnt = 0; for (var dz = -4; dz <= 4; dz += 2) for (var dx = -4; dx <= 4; dx += 2) { var jx = ix + dx, jz = iz + dz; if (jx < 0 || jz < 0 || jx >= W1 || jz >= W1) continue; acc += P.getY(jz * W1 + jx); cnt++; } aoV[i] = clamp(1 - (acc / cnt - hc) * 0.03, 0.6, 1.1); }
@@ -6167,7 +6175,7 @@ function* addOutside(scene) { var g = new THREE.Group(); g.position.set(RX, 0, R
   rg.fillStyle = 'rgba(40,46,52,.55)'; rg.fillRect(0, 254, 512, 4); rg.fillRect(254, 0, 4, 512); for (r = 0; r < 512; r += 64) { rg.fillStyle = 'rgba(60,66,72,.6)'; rg.fillRect(r + 8, 250, 3, 3); rg.fillRect(r + 8, 506, 3, 3); }
   for (r = 0; r < 14; r++) { var rx = Math.random() * 512, rg2 = rg.createLinearGradient(0, 258, 0, 258 + 60 + Math.random() * 200); rg2.addColorStop(0, 'rgba(120,70,30,.35)'); rg2.addColorStop(1, 'rgba(120,70,30,0)'); rg.fillStyle = rg2; rg.fillRect(rx, 258, 3 + Math.random() * 6, 260); }
   for (r = 0; r < 9000; r++) { var gv = 120 + Math.random() * 60; rg.fillStyle = 'rgba(' + gv + ',' + gv + ',' + (gv + 5) + ',.18)'; rg.fillRect(Math.random() * 512, Math.random() * 512, 2, 2); }
-  var ribT = new THREE.CanvasTexture(rib); ribT.wrapS = ribT.wrapT = THREE.RepeatWrapping; var BH = 14.4, W0 = -RX - 26.2 - RX, L = RX - W0;
+  var ribT = new THREE.CanvasTexture(rib); ribT.wrapS = ribT.wrapT = THREE.RepeatWrapping; var BH = 14.4, W0 = -RX - 34.2 - RX, L = RX - W0;
   var face = function (w, hgt, x, y, z, ry) { var t = ribT.clone(); t.needsUpdate = true; t.repeat.set(w / 4, hgt / 4); var m = new THREE.Mesh(S.cfg.gfx === 'lite' ? new THREE.PlaneGeometry(w, hgt) : ribGeo(w, hgt, 0.125, 0.022), new THREE.MeshStandardMaterial({ map: t, roughness: 0.6, metalness: 0.3 })); m.position.set(x - RX, y, z - RZC); m.material.color.setHex(0xeef1f4); m.rotation.y = ry; g.add(m); };
   face(L, BH, (W0 + RX) / 2, BH / 2, ZB - 0.2, Math.PI); face(L, BH, (W0 + RX) / 2, BH / 2, ZF + 0.2, 0); face(RDP + 0.4, BH, W0 - 0.2, BH / 2, RZC, -Math.PI / 2);
   var roof = new THREE.Mesh(new THREE.PlaneGeometry(L, RDP + 0.4), new THREE.MeshStandardMaterial({ color: 0x5a636b, roughness: 0.8 })); roof.rotation.x = -Math.PI / 2; roof.position.set((W0 + RX) / 2 - RX, BH, 0); g.add(roof);
@@ -6212,7 +6220,7 @@ function* addOutside(scene) { var g = new THREE.Group(); g.position.set(RX, 0, R
           sh.fragmentShader = 'varying vec3 vWuP; varying vec3 vWuN;\n' + sh.fragmentShader.replace('#include <map_fragment>', 'vec3 wuA = abs(vWuN); vec2 wuv = wuA.y > 0.7 ? vWuP.xz : (wuA.x > wuA.z ? vWuP.zy : vWuP.xy); diffuseColor *= texture2D(map, wuv * 0.25);'); }; m.customProgramCacheKey = function () { return 'wornuv'; }; return m; }; EXT.wornMat = wornMat;
     yield;
     /* containment: a 30 m concrete drum with a hemispherical dome over the reactor hall, ring beams, a dark plinth, a red beacon on top */
-    var CX = -2 * RX - 17, CR = 14.5, CHt = 30; P(new THREE.CylinderGeometry(CR, CR, CHt, 64, 1, true), conc, CX, CHt / 2, 0); P(new THREE.SphereGeometry(CR, 64, 32, 0, Math.PI * 2, 0, Math.PI / 2), conc, CX, CHt, 0);
+    var CX = HALL.vx - RX, CR = 17.2, CHt = 32; /* sized to enclose the reactor hall, as a real 35-45 m PWR containment does */ P(new THREE.CylinderGeometry(CR, CR, CHt, 64, 1, true), conc, CX, CHt / 2, 0); P(new THREE.SphereGeometry(CR, 64, 32, 0, Math.PI * 2, 0, Math.PI / 2), conc, CX, CHt, 0);
     P(new THREE.CylinderGeometry(CR + 0.6, CR + 0.6, 2.2, 64), concD, CX, 1.1, 0); [10, 20, 29.4].forEach(function (y) { P(new THREE.TorusGeometry(CR + 0.15, 0.35, 8, 72), concD, CX, y, 0).rotation.x = Math.PI / 2; });
     for (var k = 1; k < 8; k++) { var a = k / 8 * Math.PI * 2; P(new THREE.BoxGeometry(1.2, CHt, 1.2), concD, CX + Math.cos(a) * (CR + 0.3), CHt / 2, Math.sin(a) * (CR + 0.3)).rotation.y = -a; }
     EXT.beacon = P(new THREE.SphereGeometry(0.5, 12, 8), new THREE.MeshBasicMaterial({ color: 0xff2a1a }), CX, CHt + CR + 0.6, 0); P(new THREE.CylinderGeometry(0.15, 0.15, 1.4, 8), galv, CX, CHt + CR + 0.1, 0);
