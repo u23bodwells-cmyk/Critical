@@ -2,3 +2,4 @@ browser/node_modules/
 browser/dist/
 browser/selftest*.png
 browser/selftest.log
+shots/
