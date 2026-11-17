@@ -1,1 +1,10 @@
-{ "sets": {} }
+{
+  "credit": "CC0 textures from ambientCG.com: Asphalt031, Concrete034, Concrete046, Snow006, Metal032",
+  "sets": {
+    "asphalt":  { "albedo": "asphalt_albedo.jpg", "normal": "asphalt_normal.jpg", "rough": "asphalt_rough.jpg", "ao": "asphalt_ao.jpg", "scale": 4, "tint": 0.9 },
+    "concrete": { "albedo": "concrete_albedo.jpg", "normal": "concrete_normal.jpg", "rough": "concrete_rough.jpg", "scale": 1.5, "tint": 1.25, "keepColor": true },
+    "floor":    { "albedo": "floor_albedo.jpg", "normal": "floor_normal.jpg", "rough": "floor_rough.jpg", "scale": 1.5, "tint": 1.2, "keepColor": true },
+    "snow":     { "albedo": "snow_albedo.jpg", "normal": "snow_normal.jpg", "rough": "snow_rough.jpg", "ao": "snow_ao.jpg", "scale": 1.2, "tint": 1 },
+    "steel":    { "albedo": "steel_albedo.jpg", "normal": "steel_normal.jpg", "rough": "steel_rough.jpg", "scale": 1, "tint": 0.85, "keepColor": true }
+  }
+}
