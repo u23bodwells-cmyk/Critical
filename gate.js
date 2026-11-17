@@ -14,10 +14,12 @@
   function parseLink(t) { var m = String(t || '').trim().match(/^critical-sync:(https:\/\/script\.google(?:usercontent)?\.com\/\S+?)#([a-z0-9]{8,})$/i); return m ? { url: m[1], key: m[2] } : null; }
 
   var cfg = rd('critical_sync'), g = rd(G), sig = sigOf(cfg), now = Date.now();
-  var fresh = !!(g && g.ok && g.sig === h(sig) && sig && now - g.at < 7 * DAY);
-  var recent = !!(g && g.ok && now - g.at < 30 * DAY);
-  if (fresh) return;                                  // checked this week: carry on
-  if (!sig && recent) return;                         // unlocked with a GitHub key (or sync was switched off): good for 30 days
+  var fresh = !!(g && g.ok && g.sig === h(sig) && sig && now - g.at < 30 * DAY);
+  var recent = !!(g && g.ok && now - g.at < 365 * DAY);
+  /* ask the browser to keep this site's storage, so it isn't cleared and the device doesn't get locked out again */
+  try { if (g && g.ok && navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) {}
+  if (fresh) return;                                  // checked this month: carry on
+  if (!sig && recent) return;                         // unlocked with a GitHub key (or sync was switched off): good for a year
   var provisional = recent && !!sig;                  // a syncing device we've let in before: show the app, check quietly
   var css = document.createElement('style');
   css.textContent = 'html.cglock body{visibility:hidden!important;overflow:hidden!important}html.cglock #cgate{visibility:visible!important}' +
@@ -76,10 +78,10 @@
       .then(function (r) { return r.text(); }).then(function (t) { var j = null; try { j = JSON.parse(t); } catch (e) {}
         if (j && j.ok) return { ok: true };
         if (j && j.err === 'key') return { ok: false, bad: true, why: 'That key doesn\'t match your sync script. Copy the link again from a device where Critical opens.' };
-        return { ok: false, bad: !j, why: 'That link didn\'t answer like a Critical sync script.' }; })
+        return { ok: false, net: true, why: 'That link didn\'t answer like a Critical sync script. Try again in a minute.' }; })
       .catch(function () { return { ok: false, net: true, why: 'Couldn\'t reach your sync script. Check the internet (some school Wi-Fi blocks Google scripts) and try again.' }; });
     else check = fetch('https://api.github.com/user', { cache: 'no-store', headers: { Accept: 'application/vnd.github+json', Authorization: 'Bearer ' + c.tok } })
-      .then(function (r) { if (r.status === 401 || r.status === 403) return { ok: false, bad: true, why: 'GitHub didn\'t accept that key.' }; return r.json().then(function (u) { return u && String(u.login).toLowerCase() === OWNER.toLowerCase() ? { ok: true, user: u.login } : { ok: false, bad: true, why: 'That GitHub key belongs to someone else.' }; }); })
+      .then(function (r) { if (r.status === 401) return { ok: false, bad: true, why: 'GitHub didn\'t accept that key.' }; if (!r.ok) return { ok: false, net: true, why: 'GitHub is busy. Try again in a minute.' }; return r.json().then(function (u) { return u && String(u.login).toLowerCase() === OWNER.toLowerCase() ? { ok: true, user: u.login } : { ok: false, bad: true, why: 'That GitHub key belongs to someone else.' }; }); })
       .catch(function () { return { ok: false, net: true, why: 'Couldn\'t reach GitHub. Check the internet and try again.' }; });
     return Promise.race([check, timeout]);
   }
