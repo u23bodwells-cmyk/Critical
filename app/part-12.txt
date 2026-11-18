@@ -1,4 +1,6 @@
-ook();if(on()){fonts();bgInit();cols()}calmUpd();setTimeout(function(){tabInd();navBuild()},0);introLater()}
+q=matchMedia('(prefers-reduced-motion: reduce)'),f=function(){calmUpd();bgKick()};if(mq.addEventListener)mq.addEventListener('change',f)}catch(_){}
+ }
+ function boot(){hook();if(on()){fonts();bgInit();cols()}calmUpd();setTimeout(function(){tabInd();navBuild()},0);introLater()}
  return {boot:boot,on:on,apply:apply,look:look,calm:calm,burst:burst,coreMount:coreMount,fullPower:fullPower,intro:intro}
 })();
 try{window.NEO=NEO}catch(_){}
@@ -862,5 +864,4 @@ function NSIM(w,h,rnd){
   if(mode==='assembly')slider(box,'Control rod cluster',0,100,1,ins*100,function(v){return v+'% in'},function(v){ins=v/100;moved++});
   if(mode==='loading'){var ps=select(box,'Loading pattern',['All new fuel in the middle','New fuel round the edge','Checkerboard (low leakage)'],function(i){pat=i;moved++});var st=stats(box,[['p','Peaking factor'],['l','Neutrons leaking']])}
   if(mode==='refuel'){var rr=row(box);btn(rr,'Next refuelling',function(){cyc++;moved++},'pri')}
-  if(mode==='pellet'){slider(box,'Zoom out',0,3,.01,0,function(v){return ['pellet','fuel rod','fuel assembly','whole core'][Math.round(v)]},function(v){zoom=v;auto=false;moved++})}
-  drag(
+  if(mode==='pellet

@@ -1,4 +1,4 @@
-10<sup>8</sup> Bq</b>: 600 million decays every second.']},`Work out an activity step by step.`),
+nuclei, with λ = 3 × 10<sup>−4</sup> per second.','A = λ N','A = 3 × 10<sup>−4</sup> × 2 × 10<sup>12</sup>','Front numbers: 3 × 2 = 6. Powers: −4 + 12 = 8.','A = <b>6 × 10<sup>8</sup> Bq</b>: 600 million decays every second.']},`Work out an activity step by step.`),
 N(`N = 5 × 10<sup>10</sup>, λ = 2 × 10<sup>−3</sup> s⁻¹. What is A? Give the number in front of × 10<sup>8</sup> Bq.`,1,0.01,'× 10⁸ Bq',`2 × 10⁻³ × 5 × 10¹⁰ = 10 × 10⁷ = 1 × 10⁸ Bq.`),
 QE(`A reactor period of 30 s means power doubles in about…`,[`21 s`,`30 s`,`60 s`,`3 s`],0,`Doubling time = τ × ln 2 = 30 × 0.693 = 20.8 s.`),
 T(`<h3>Key points</h3><ul><li><b>dP/dt = P / τ</b>: rate of power rise is proportional to power.</li><li><b>dN/dt = −λN</b>, so activity <b>A = λN</b>.</li><li>Both come from the one rule: e<sup>kt</sup> → k e<sup>kt</sup>.</li></ul>`)])
@@ -645,4 +645,4 @@ T(`<h3>Key points</h3><ul><li><b>I = I₀e<sup>−Σx</sup></b> for an uncollide
 LH('m4-2-3','Reaction rates and power density',10,'Neutron flux × cross-section = reactions per second. Then multiply by 200 MeV for power.',[
 RM(`<ul><li><b>Neutron flux φ</b>: neutrons crossing each cm² per second (n/cm²/s) (Level 1).</li><li>Σ = Nσ in cm⁻¹.</li><li>One fission ≈ 3.2 × 10⁻¹¹ J.</li></ul>`),
 T(`<h3>Reaction rate density</h3><div class="eq">R = Σ φ</div>${KY([['R','reactions per cm³ per second','cm⁻³ s⁻¹'],['Σ','macroscopic cross-section','cm⁻¹'],['φ','neutron flux','cm⁻² s⁻¹']])}<p>Units check: cm⁻¹ × cm⁻² s⁻¹ = cm⁻³ s⁻¹ ✓.</p>`),
-T(`<h3>Power density</h3><p>Each fission releases E<sub>f</sub> ≈ 3.2 × 10⁻¹¹ J, so the power per cm³ is:</p><div class="eq">q‴ = E<sub>f</sub> Σ<sub>f</sub> φ</div>${KY([['q‴','volumetric power density','W/cm³'],['E<sub>f</sub>','energy per fission','J'],['Σ<sub>f</sub>','macroscopic fission cross-section','cm⁻¹']])
+T(`<h3>Power density</h3><p>Each fission releases E<sub>f</sub> ≈ 3.2 × 10⁻¹¹ J, so the power per cm³ is:</p><div class="eq">q‴ = E<sub>f</sub> Σ<sub

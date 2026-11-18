@@ -214,7 +214,7 @@ var P=null,DRAWS=[];
 function onDraw(f){DRAWS.push(f);return f}
 function redrawAll(){DRAWS.forEach(function(f){try{f()}catch(e){}});if(PAGE==='sim'&&window.simRedraw)simRedraw()}
 window.addEventListener('resize',function(){clearTimeout(window._rz);window._rz=setTimeout(redrawAll,80)});
-function startLesson(ui,li){var u=UNITS[ui],l=u.lessons[li];if(!S.done[l.id]){var pf=pendingFollow(trk(ui));if(pf){gateFollow(pf);return}}P={mode:'lesson',ui:ui,li:li,cards:l.cards,i:0,xp:0,right:0,asked:0,title:l.title,color:u.color,unit:u.title,combo:0,best:0,cbonus:0,mistakes:0,fixed:0,newBadges:[],levelUp:null};openPlayer()}
+function startLesson(ui,li){var u=UNITS[ui],l=u.lessons[li];if(!S.done[l.id]){var pf=pendingFollow(trk(ui));if(pf){gateFollow(pf);return}}P={mode:'lesson',ui:ui,li:li,cards:LX.cards(l),nCh:LX.nch(l),i:0,xp:0,right:0,asked:0,title:l.title,color:u.color,unit:u.title,combo:0,best:0,cbonus:0,mistakes:0,fixed:0,newBadges:[],levelUp:null};openPlayer()}
 function openPlayer(){var pl=$('player');pl.classList.add('open');document.body.classList.add('noscroll');showCombo(false);soundBtnUpd();ac();showCard();
  /* move keyboard focus into the lesson, so Enter presses Continue instead of the (now hidden) button that started it */
  try{var ae=document.activeElement;if(ae&&ae!==document.body&&!pl.contains(ae))ae.blur();if(!pl.contains(document.activeElement)){if(!pl.hasAttribute('tabindex'))pl.setAttribute('tabindex','-1');pl.focus({preventScroll:true})}}catch(_){}}
@@ -237,7 +237,7 @@ function nextCard(){P.i++;if(P.i>=P.cards.length)finish();else showCard()}
 function showCard(){var c=P.cards[P.i];DRAWS=[];$('pBar').style.width=(P.i/P.cards.length*100)+'%';if(P.mode==='test')updTimer();else $('pXP').textContent=P.xp?'+'+P.xp+' XP':'';
  var b=$('pBody');b.innerHTML='';$('pScroll').scrollTop=0;foot('','','');skipBtn(null);P.st={tries:0};if(c)c._mcNow=false;P.hintFn=P.hintCan=null;P.rtSrc=null;$('pFoot').style.display='';
  var k=document.createElement('div');k.className='pkick';k.style.color=P.mode==='review'&&c._src?'var(--muted)':P.color;k.textContent=P.mode==='lap'?'Victory lap'+(c._src?' · '+c._src:''):P.mode==='one'?'Just one question'+(c._src?' · '+c._src:''):P.mode==='review'?(c._src||'Review'):P.mode==='test'?P.unit+' · Question '+(P.i+1)+' of '+P.cards.length:P.unit;b.appendChild(k);
- (P.mode==='test'?{Q:tQ,N:tN,O:tO,RF:function(c,b){REV.rf(c,b,true)}}:{T:rT,Q:rQ,N:rN,W:rW,O:rO,F:rF,RF:function(c,b){REV.rf(c,b,false)}})[c.t](c,b)}
+ (P.mode==='test'?{Q:tQ,N:tN,O:tO,RF:function(c,b){REV.rf(c,b,true)}}:{T:rT,Q:rQ,N:rN,W:rW,O:rO,F:rF,RF:function(c,b){REV.rf(c,b,false)},H:LX.rH,HA:LX.rHA,CP:LX.rCP,PR:LX.rPR,WE:LX.rWE,GF:LX.rGF})[c.t](c,b)}
 function rT(c,b){var d=document.createElement('div');d.className='prose';d.innerHTML=c.h;b.appendChild(d);mainBtn('Continue',nextCard)}
 function rQ(c,b){var ty=P.mode!=='test'&&!c._mcNow?typeSpec(c):null;if(ty)return rTy(c,b,ty);P.asked++;var p=document.createElement('div');p.className='qprompt';p.innerHTML=c.p;b.appendChild(p);var box=document.createElement('div');box.className='opts';b.appendChild(box);
  var order=shuffle(c.o.map(function(_,i){return i})),sel=-1,lock=false,btns={};
@@ -599,7 +599,7 @@ function soundBtnUpd(){var b=$('pSound');if(b){b.innerHTML=S.sound===false?SPK_O
 function toggleSound(){S.sound=S.sound===false;save();soundBtnUpd();if(S.sound)sfx('right')}
 
 /* ----- in-lesson combos and mistakes ----- */
-function cardKey(c){if(c&&c._key)return c._key;if(P.mode==='lesson')return UNITS[P.ui].lessons[P.li].id+'#'+P.i;return c._key||null}
+function cardKey(c){if(c&&c._key)return c._key;if(P.mode==='lesson'){if(c&&c._syn)return null;return UNITS[P.ui].lessons[P.li].id+'#'+(c&&c._ci!=null?c._ci:P.i)}return c._key||null}
 function gotRight(c){var first=!P.st.tries;
  if(first){if(P.rev)try{REV.mark(c,true)}catch(_){}EASE.rightHook();P.right++;if('QNO'.indexOf(c.t)>=0)P.qr=(P.qr||0)+1;P.combo++;P.best=Math.max(P.best,P.combo);if(P.combo>S.st.best)S.st.best=P.combo;S.st.right++;var cb=P.combo>=3?Math.min(5,P.combo-1):0;P.cbonus+=cb;award(10+cb);
   var k=cardKey(c);if(P.mode==='review'&&k&&S.wrong[k]){delete S.wrong[k];S.st.fixed++;P.fixed++;save();qProg('fix',1)}
@@ -683,7 +683,7 @@ var EASE=(function(){
   return '<div class="dblock hardb"><div class="dbt">Level '+lv+' might be too hard right now</div><p class="note">'+[lead,tail,sweet].filter(Boolean).join(' ')+' That\'s not you being bad at it: Level '+(lv-1)+(lvName(tr,lv-1)?' ('+esc(lvName(tr,lv-1))+')':'')+' builds the basics this needs.</p><div class="hbtns">'+
    (t?'<button class="ghost sm" data-hd="les">Try “'+esc(t.title)+'” (Level '+t.lv+')</button>':'')+'<button class="ghost sm" data-hd="lv">Go to Level '+(lv-1)+'</button><button class="skip" data-hd="stay">Stay on Level '+lv+'</button></div></div>'}
  function goLevel(tr,lv,from){S.lvlOpen=S.lvlOpen||{};S.lvlOpen[tr+lv]=1;S.lvl=S.lvl||{};S.lvl[tr]=lv;S.mode=tr;if(isG(tr)){S.gsub=tr;S.seenGcse=1}S.hardOff=S.hardOff||{};S.hardOff[tr+(from||lv+1)]=Date.now();save()}
- function startNoGate(ui,li){var u=UNITS[ui],l=u.lessons[li];P={mode:'lesson',ui:ui,li:li,cards:l.cards,i:0,xp:0,right:0,asked:0,title:l.title,color:u.color,unit:u.title,combo:0,best:0,cbonus:0,mistakes:0,fixed:0,newBadges:[],levelUp:null};openPlayer()}
+ function startNoGate(ui,li){var u=UNITS[ui],l=u.lessons[li];P={mode:'lesson',ui:ui,li:li,cards:LX.cards(l),nCh:LX.nch(l),i:0,xp:0,right:0,asked:0,title:l.title,color:u.color,unit:u.title,combo:0,best:0,cbonus:0,mistakes:0,fixed:0,newBadges:[],levelUp:null};openPlayer()}
  document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-hd]');if(!b)return;var k=b.dataset.hd,h=P&&P.hdT;
   if(k==='rev'){closePlayer();showPage('review');return}
   if(!h)return;
@@ -699,7 +699,7 @@ var EASE=(function(){
 
  var GENTLE=['Not quite','Not this one','Close, but not quite','Good try'];
  function gentle(){return GENTLE[Math.floor(Math.random()*GENTLE.length)]}
- function revNote(c){if(!P||P.mode==='test'||'QNO'.indexOf(c.t)<0)return '';return '<div class="revnote">'+(P.mode==='review'?'It stays in Review, so you can have another go later.':'Saved to Review, so you can have another go later.')+'</div>'}
+ function revNote(c){if(!P||P.mode==='test'||'QNO'.indexOf(c.t)<0||c._syn)return '';return '<div class="revnote">'+(P.mode==='review'?'It stays in Review, so you can have another go later.':'Saved to Review, so you can have another go later.')+'</div>'}
 
  return {wrongHook:wrongHook,rightHook:rightHook,offer:offer,reteach:reteach,source:source,related:related,query:query,maskAns:maskAns,record:record,hardInfo:hardInfo,endBlock:endBlock,banner:banner,gentle:gentle,revNote:revNote,startNoGate:startNoGate}
 })();
@@ -1148,5 +1148,4 @@ WIDGETS.thermalise=function(box){var MOD=[['Light water',[[1,0.91],[16,0.09]]],[
 
 WIDGETS.modRatio=function(box){var DEN=[[280,0.764],[290,0.746],[300,0.726],[310,0.704],[320,0.68],[330,0.651],[340,0.616]];function den(T){for(var i=1;i<DEN.length;i++)if(T<=DEN[i][0]){var a=DEN[i-1],b=DEN[i];return a[1]+(T-a[0])/(b[0]-a[0])*(b[1]-a[1])}return 0.616}
  function kr(r){return Math.exp(-0.9/r)/(1+0.06*r)}var r0=3.38,C=1/kr(r0),cv=canvas(box,240),s=slider(box,'Coolant temperature',280,340,1,300,function(v){return v+' °C'},function(){draw()}),st=stats(box,[['r','Moderator-to-fuel ratio'],['k','k'],['d','Reactivity change from 300 °C']]);
- function draw(){var T=s.get(),r=r0*den(T)/den(300),k=C*kr(r),P=plot(cv,{x:[0.5,8],y:[0.7,1.1],xl:'moderator-to-fuel ratio',yl:'k'});P.fn(function(x){return C*kr(x)},cssv('--accent'),3);P.text('undermoderated',0.7,1.07,cssv('--muted'));P.text('overmoderated',7.8,1.07,cssv('--muted'),'right');P.dot(r,k,cssv('--coral'),7);P.vline(r0,cssv('--faint'),[3,4],1);
-  s
+ function draw(){var T=s.get(),r=r0*den(T)/den(300),k=C*kr(r),P=plot(cv,{x:[0.5,8],y:[0.7,1.1],xl:'moderator-to-fuel ratio',yl:'k'});P.fn(function(x){return C*kr(x)},cssv('--accent'),3);P.text('undermoderated',0

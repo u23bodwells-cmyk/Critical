@@ -1,4 +1,7 @@
- form',icon:'SI',color:'#378ADD',desc:'SI units and prefixes, converting units, standard form and significant figures.',lessons:[
+(3*t1+t2)))+' m/s.'}};
+
+/* ========== GCSE · LEVEL 1 · Year 9 refreshers (only if you need them) ========== */
+U({id:'gp1-1',track:'gp',level:1,title:'Units and standard form',icon:'SI',color:'#378ADD',desc:'SI units and prefixes, converting units, standard form and significant figures.',lessons:[
 LH('gp1-1-1','SI units and prefixes',8,'The units physicists use, and how kilo, mega and milli change them.',[
 T(`<h3>SI units</h3><p>Scientists everywhere use the same units, called <b>SI units</b>. The ones you'll use most:</p><div class="tbl"><table class="wtable"><tr><th>Quantity</th><th>Unit</th></tr><tr><td>length</td><td>metre (m)</td></tr><tr><td>mass</td><td>kilogram (kg)</td></tr><tr><td>time</td><td>second (s)</td></tr><tr><td>current</td><td>ampere (A)</td></tr><tr><td>temperature</td><td>kelvin (K) or °C</td></tr><tr><td>force</td><td>newton (N)</td></tr><tr><td>energy</td><td>joule (J)</td></tr><tr><td>power</td><td>watt (W)</td></tr></table></div><p>Physics equations only work if you put the numbers in using these units.</p>`),
 W('matchPairs',{pairs:[['Force','newton (N)'],['Energy','joule (J)'],['Power','watt (W)'],['Potential difference','volt (V)'],['Resistance','ohm (Ω)'],['Mass','kilogram (kg)']]},`Match each quantity to its unit.`,`Learn these: they come up in every topic.`),
@@ -816,5 +819,4 @@ W('calcDrill',{skill:['g_conc2','g_gasreact','g_titr','g_yieldmass'],need:6},`Mu
 T(`<h3>Key points</h3><ul><li>Three routes to moles: mass, solution, gas.</li><li>Something → moles → ratio → moles → something.</li><li>cm³ ÷ 1000 = dm³.</li></ul>`)])
 ]});
 U({id:'gc4-3',track:'gc',level:4,title:'Six-mark answers',icon:'✎',color:'#7F77DD',desc:'Explaining properties with bonding and structure, and explaining industrial and laboratory processes in a logical order.',lessons:[
-LH('gc4-3-1','Explaining with structure and bonding',10,'Linking properties to particles, bonds and forces, the way level 3 answers do.',[
-T(`<h3>The structure → property chain</h3><p>Every bonding explanation follows the same chain:</p><div cla
+LH('gc4-3-1','Explaining with structure and bonding',10,'Linking properties 

@@ -1,4 +1,4 @@
-0?'− '+(-a):'+ '+a)+')) ÷ (x '+(b<0?'− '+(-b):'+ '+b)+')² = '+cNum(b-a)+' ÷ '+cNum(d*d)+' = '+cNum(v)+'.'}};
+x '+(b<0?'− '+(-b):'+ '+b)+'). Use the quotient rule to find f′('+k+').',b:[cB(v,'f′('+k+') = ')],e:'f′ = (v·u′ − u·v′) ÷ v² = ((x '+(b<0?'− '+(-b):'+ '+b)+') − (x '+(a<0?'− '+(-a):'+ '+a)+')) ÷ (x '+(b<0?'− '+(-b):'+ '+b)+')² = '+cNum(b-a)+' ÷ '+cNum(d*d)+' = '+cNum(v)+'.'}};
 CGEN.kin=function(){var a=cR(1,3),b=cR(-6,6),k=cR(1,4),t=cR(0,1),s=[[a,3],[b,2]],v=cEval(cDer(s),k),ac=cEval(cDer(cDer(s)),k);
  if(t===0)return {p:'Displacement s = '+cPoly(s,'t')+' metres. Find the velocity at t = '+k+' s.',b:[cB(v,'v = ','m/s','velocity')],e:'v = ds/dt = '+cPoly(cDer(s),'t')+'. At t = '+k+': '+cNum(v)+' m/s.'};
  return {p:'Displacement s = '+cPoly(s,'t')+' metres. Find the acceleration at t = '+k+' s.',b:[cB(ac,'a = ','m/s²','acceleration')],e:'v = '+cPoly(cDer(s),'t')+', a = dv/dt = '+cPoly(cDer(cDer(s)),'t')+'. At t = '+k+': '+cNum(ac)+' m/s².'}};
@@ -1003,4 +1003,4 @@ CGEN.g_ineq=function(){var k=cR(0,1);
 CGEN.g_nth=function(){var d=cR(-5,7)||3,b=cR(-6,9),t=[1,2,3,4].map(function(n){return d*n+b});
  return {p:'Find the nth term of the sequence '+t.map(cNum).join(', ')+', …  Write it as an + b.',b:[cB(d,'','n +','a'),cB(b,'','','b')],e:'The terms go up by '+cNum(d)+' each time, so it starts '+cNum(d)+'n. When n = 1, '+cNum(d)+'n = '+cNum(d)+', but the term is '+cNum(t[0])+', so add '+cNum(b)+'. nth term = '+cNum(d)+'n'+gTm(b,'')+'.'}};
 CGEN.g_qnth=function(){var a=cR(1,3),b=cR(-4,4),c=cR(-5,5),t=[1,2,3,4,5].map(function(n){return a*n*n+b*n+c});
- return {p:'Find the nth term of the quadratic sequence '+t.map(cNum).join(', ')+', …  Write it as an² + bn + c.',b:[cB(a,'','n² +','a'),cB(b,'','n +','b'),cB(c,'','','c')],e:'Second difference = '+(2*a)+', so a = '+(2*a)+' ÷ 2 = '+a+'. Subtract '+(a>1?a:'')+'n² from each term: '+t.map(function(v,i){return cNum(v-a*(i+1)*(i+1))}).join(', ')+'. That\'s linear: '+(b?(b===1?'':b===-1?'−':cNum(b))+'n'+gTm(c,''):cNum(c))+'. nth term = '+(a>1?a:'')+'n²'+gTm(b,'n')+g
+ return {p:'Find the nth term of the quadratic sequence '+t.map(cNum).join(', ')+', …  Write it as an² + bn + c.',b:[cB(a,'','n² +','a'),cB(b,'','n +','b'),cB(c,'','','c')],e:'Second difference = '+(2*a)+', so a = '+(2*a)+' ÷ 2 = '+a+'. Subtract '+(a>1?a:'')+'n² from each term: '+t.map(function

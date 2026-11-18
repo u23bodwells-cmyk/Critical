@@ -1,4 +1,4 @@
-Tm(c,'')+'.'}};
+(v,i){return cNum(v-a*(i+1)*(i+1))}).join(', ')+'. That\'s linear: '+(b?(b===1?'':b===-1?'−':cNum(b))+'n'+gTm(c,''):cNum(c))+'. nth term = '+(a>1?a:'')+'n²'+gTm(b,'n')+gTm(c,'')+'.'}};
 CGEN.g_dirprop=function(){var k=cR(2,6),sq=Math.random()<0.5,x1=cR(2,5),x2=cR(3,8),f=function(x){return sq?k*x*x:k*x};if(x1===x2)x2++;
  return {p:'y is directly proportional to '+(sq?'x²':'x')+'. When x = '+x1+', y = '+f(x1)+'. Find y when x = '+x2+'.',b:[cB(f(x2),'y = ','','y')],e:'y = k'+(sq?'x²':'x')+'. '+f(x1)+' = k × '+x1+(sq?'²':'')+', so k = '+k+'. When x = '+x2+': y = '+k+' × '+x2+(sq?'²':'')+' = '+f(x2)+'.'}};
 CGEN.g_invprop=function(){var k=cP([12,24,36,48,60,72,120]),x1=cP([2,3,4,6]),x2=cP([2,3,4,6,8,12]);if(x2===x1)x2=x1===2?4:2;
@@ -844,7 +844,4 @@ CGEN.g_area1=function(){var t=cR(0,3),a=cR(3,14),b=cR(2,12),h=cR(2,10);
 CGEN.g_dtgraph=function(){var t1=cP([10,20,30,40]),d1=cP([50,100,150,200,300]),t2=cP([10,20,30]),k=cR(0,2);
  if(k===0)return {p:'On a distance–time graph, a line goes from (0 s, 0 m) to ('+t1+' s, '+d1+' m). What speed does it show?',b:[cB(d1/t1,'','m/s','speed')],e:'Speed = gradient = distance ÷ time = '+d1+' ÷ '+t1+' = '+cNum(d1/t1)+' m/s.'};
  if(k===1)return {p:'A distance–time graph is a flat horizontal line from '+t1+' s to '+(t1+t2)+' s. What is the speed during that time?',b:[cB(0,'','m/s','speed')],e:'Flat means the distance isn\'t changing: the object is stationary, so the speed is 0.'};
- return {p:'A runner goes '+d1+' m in '+t1+' s, rests for '+t2+' s, then goes another '+d1+' m in '+(t1*2)+' s. What is the average speed for the whole trip, including the rest? (2 decimal places)',b:[cB(g2(2*d1/(3*t1+t2)),'','m/s','average speed',false,0.01)],e:'Average speed = total distance ÷ total time = '+(2*d1)+' ÷ ('+t1+' + '+t2+' + '+(2*t1)+') = '+(2*d1)+' ÷ '+(3*t1+t2)+' = '+cNum(g2(2*d1/(3*t1+t2)))+' m/s.'}};
-
-/* ========== GCSE · LEVEL 1 · Year 9 refreshers (only if you need them) ========== */
-U({id:'gp1-1',track:'gp',level:1,title:'Units and standard
+ return {p:'A runner goes '+d1+' m in '+t1+' s, rests for '+t2+' s, then goes another '+d1+' m in '+(t1*2)+' s. What is the average speed for the whole trip, including the rest? (2 decimal places)',b:[cB(g2(2*d1/(3*t1+t2)),'','m/s','average speed',false,0.01)],e:'Average speed = total distance ÷ total time = '+(2*d1)+' ÷ ('+t1+' + '+t2+' + '+(2*t1)+') = '+(2*d1)+' ÷ '+(3*t1+t2)+' = '+cNum(g2(2*d1/

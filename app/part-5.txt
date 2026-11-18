@@ -1,4 +1,5 @@
-s all the neutrons'],0,`That reaction made the hydrogen at Fukushima. Accident limits keep cladding below 1204 °C.`)]);
+ conductor, so the centre runs hot.`),
+Q(`Above about 1200 °C, zirconium cladding…`,['reacts with steam, making hydrogen','melts instantly','becomes a moderator','absorbs all the neutrons'],0,`That reaction made the hydrogen at Fukushima. Accident limits keep cladding below 1204 °C.`)]);
 
 F('h2',[
 T(`<h3>Quick recap</h3><ul><li>Boiling curve: convection → <b>nucleate boiling</b> (great) → <b>DNB</b> → film boiling (bad)</li><li><b>DNBR = critical heat flux ÷ actual heat flux</b>, kept above about 1.3</li><li>DNBR gets worse with higher power, lower flow, lower pressure and higher inlet temperature</li></ul>`),
@@ -958,4 +959,4 @@ RM(`<ul><li>Reactor power: <b>P = P₀ e<sup>t/τ</sup></b> (τ = period).</li><
 T(`<h3>How fast is power rising?</h3><p>Differentiate P = P₀ e<sup>t/τ</sup> with respect to time. Here k = 1/τ:</p><div class="eq">dP/dt = (1/τ) × P₀ e<sup>t/τ</sup> = P / τ</div>${KY([['dP/dt','how fast power is rising','% per second'],['P','power right now','%'],['τ','reactor period','seconds']])}<div class="callout">The rate of rise is proportional to the power itself. That's why exponential growth speeds up.</div>`),
 N(`Power is 20% on a steady 50 s period. How fast is it rising, in % per second?`,0.4,0.01,'% per second',`dP/dt = P / τ = 20 / 50 = 0.4 %/s.`),
 T(`<h3>Activity from decay</h3><p>Differentiate N = N₀ e<sup>−λt</sup>. Here k = −λ:</p><div class="eq">dN/dt = −λ N</div><p>The minus sign means N is <b>falling</b>. The number of decays per second, the <b>activity A</b>, is the size of that rate:</p><div class="eq">A = λ N</div>${KY([['A','activity: decays per second','becquerels (Bq)'],['λ','decay constant','per second (s⁻¹)'],['N','number of unstable nuclei','(just a number)']])}`),
-W('stepCalc',{steps:['A sample has N = 2 × 10<sup>12</sup> unstable nuclei, with λ = 3 × 10<sup>−4</sup> per second.','A = λ N','A = 3 × 10<sup>−4</sup> × 2 × 10<sup>12</sup>','Front numbers: 3 × 2 = 6. Powers: −4 + 12 = 8.','A = <b>6 × 
+W('stepCalc',{steps:['A sample has N = 2 × 10<sup>12</sup> unstable 

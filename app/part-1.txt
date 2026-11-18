@@ -1,4 +1,5 @@
-t.r.textContent=r.toFixed(2);st.k.textContent=k.toFixed(4);st.d.textContent=Math.round((k-1)/k*1e5)+' pcm'}
+.7,1.07,cssv('--muted'));P.text('overmoderated',7.8,1.07,cssv('--muted'),'right');P.dot(r,k,cssv('--coral'),7);P.vline(r0,cssv('--faint'),[3,4],1);
+  st.r.textContent=r.toFixed(2);st.k.textContent=k.toFixed(4);st.d.textContent=Math.round((k-1)/k*1e5)+' pcm'}
  onDraw(draw);draw();el('p','small','Illustrative curve. Hotter water is less dense, so there\'s effectively less moderator per unit of fuel.',box);return {}};
 
 WIDGETS.reactivityCalc=function(box,par){var st,s=slider(box,'k',0.99,1.01,0.0001,0.995,function(v){return v.toFixed(4)},function(){upd()}),r=row(box);btn(r,'− 0.0001',function(){s.set(Math.round((s.get()-0.0001)*1e4)/1e4)});btn(r,'+ 0.0001',function(){s.set(Math.round((s.get()+0.0001)*1e4)/1e4)});st=stats(box,[['r','ρ (Δk/k)'],['p','ρ (pcm)'],['d','ρ (dollars)'],['s','State']]);
@@ -799,7 +800,7 @@ function xeTrip(t){var li=Math.LN2/6.57,lx=Math.LN2/9.14,A=4.7*lx;return Math.ex
  /* resume */
  function resume(r){
   if(r.mode==='follow'){startFollow(r.fid);if(!P)return clearSnap();if(r.keys){var by={};P.cards.forEach(function(c){by[c._key]=c});var ord=r.keys.map(function(k){return by[k]}).filter(Boolean);if(ord.length===P.cards.length)P.cards=ord}}
-  else{var u=UNITS[r.ui],l=u&&u.lessons[r.li];if(!l||l.title!==r.title)return clearSnap();P={mode:'lesson',ui:r.ui,li:r.li,cards:l.cards,i:0,xp:0,right:0,asked:0,title:l.title,color:u.color,unit:u.title,combo:0,best:0,cbonus:0,mistakes:0,fixed:0,newBadges:[],levelUp:null};openPlayer()}
+  else{var u=UNITS[r.ui],l=u&&u.lessons[r.li];if(!l||l.title!==r.title)return clearSnap();P={mode:'lesson',ui:r.ui,li:r.li,cards:LX.cards(l),nCh:LX.nch(l),i:0,xp:0,right:0,asked:0,title:l.title,color:u.color,unit:u.title,combo:0,best:0,cbonus:0,mistakes:0,fixed:0,newBadges:[],levelUp:null};openPlayer()}
   if(!P)return;['xp','right','asked','combo','best','cbonus','mistakes','fixed'].forEach(function(k){if(typeof r[k]==='number')P[k]=r[k]});
   P.i=Math.max(0,Math.min(r.i,P.cards.length-1));showCard()}
  var css=document.createElement('style');css.textContent='.resumebar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--accent-bg,var(--soft));border:2px solid var(--accent);border-radius:16px;padding:12px 14px;margin:0 0 14px}.resumebar .rt{flex:1 1 100%;font-size:15px}.resumebar .rt b{display:block;font-size:16px}.resumebar button{font:inherit;font-weight:700;border-radius:12px;padding:9px 14px;cursor:pointer}.resumebar .rgo{background:var(--accent);color:var(--on-accent);border:0}.resumebar .rno{background:none;border:1px solid var(--line);color:var(--muted)}';document.head.appendChild(css);
@@ -1253,5 +1254,4 @@ var REV=(function(){
    Q(`Which of these is a <b>scalar</b> quantity?`,['Speed','Velocity','Force','Displacement'],0,`A scalar has size only. Speed is just how fast; velocity is speed <i>in a given direction</i>, so it's a vector.`),
    Q(`Which of these is a <b>vector</b> quantity?`,['Acceleration','Mass','Temperature','Energy'],0,`Acceleration has a direction. Mass, temperature and energy only have a size.`),
    Q(`What's the difference between a scalar and a vector?`,['A vector has a direction as well as a size; a scalar only has a size','A scalar has a direction; a vector doesn\'t','Vectors are always bigger than scalars','Scalars can\'t be measured'],0,`Both have a size (magnitude). Only a vector also has a direction.`),
-   Q(`Which list contains <b>only</b> vectors?`,['Force, velocity, momentum','Mass, force, energy','Speed, distance, time','Weight, mass, density'],0,`Force, velocity and momentum all have directions. Mass, energy, speed, distance, time and density don't.`),
-   Q(`Which of these is <b>not</b> a vector?`,['Distance','Momentum','Weight','Displacement'],0,`Distance is how far, with no direction. 
+   Q(`Which list contains <b>only</b> vectors?`,['Force, velocity, momentum','Mass, force, energy','Speed, distance, time','Weight, mass, density'],0,`Force, velocity and momentum all have directions. Mass, energy, speed, dista

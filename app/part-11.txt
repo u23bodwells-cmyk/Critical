@@ -1,4 +1,5 @@
-ss="eq">type of structure → what holds it together → how strong → energy needed → property</div><p>Name the particles (ions, atoms, molecules, delocalised electrons) and the forces (electrostatic attraction, covalent bonds, intermolecular forces).</p>`),
+to particles, bonds and forces, the way level 3 answers do.',[
+T(`<h3>The structure → property chain</h3><p>Every bonding explanation follows the same chain:</p><div class="eq">type of structure → what holds it together → how strong → energy needed → property</div><p>Name the particles (ions, atoms, molecules, delocalised electrons) and the forces (electrostatic attraction, covalent bonds, intermolecular forces).</p>`),
 O(`Explain why diamond has a very high melting point. Put the points in order.`,[`Diamond has a giant covalent structure`,`Each carbon atom is joined to four others by covalent bonds`,`Covalent bonds are very strong`,`A lot of energy is needed to break the many bonds`,`So diamond has a very high melting point`],`Structure, bonds, strength, energy, property.`),
 O(`Explain why sodium chloride conducts when molten but not when solid. Put the points in order.`,[`Sodium chloride is made of Na⁺ and Cl⁻ ions in a giant lattice`,`In the solid, the ions are held in fixed positions by strong electrostatic forces`,`So they can't move to carry charge`,`When molten, the ions are free to move`,`So they can carry charge, and it conducts`],`Charged particles must be free to move.`),
 Q(`A student writes "methane has a low boiling point because its covalent bonds are weak". What's wrong?`,[`The covalent bonds are strong; it's the intermolecular forces that are weak`,'Methane actually has a high boiling point, because its covalent bonds are strong','Methane is ionic, so it\'s the ionic bonds that are weak','Nothing: weak covalent bonds are why methane boils easily'],0,`A classic way to lose marks.`),
@@ -1003,6 +1004,4 @@ var NEO=(function(){
   // every finishing screen gets the treatment
   try{new MutationObserver(function(){var ds=document.querySelector('#pBody .done-screen:not(.neoDone)');if(ds)enhanceDone(ds)}).observe($('pBody'),{childList:true})}catch(_){}
   document.addEventListener('visibilitychange',function(){bgKick();coreKick()});
-  try{var mq=matchMedia('(prefers-reduced-motion: reduce)'),f=function(){calmUpd();bgKick()};if(mq.addEventListener)mq.addEventListener('change',f)}catch(_){}
- }
- function boot(){h
+  try{var m
