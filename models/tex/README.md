@@ -6,7 +6,7 @@ so nothing changes until you add files.
 
 ## Installed
 
-CC0 sets from ambientCG: Asphalt031 (asphalt), Concrete034 (concrete), Concrete046 (floor), Snow006 (snow), Metal032 (steel), at 1024 px.
+CC0 sets from ambientCG: Asphalt031 (asphalt), Concrete034 (concrete), Concrete046 (floor), Snow006 (snow), Metal032 (steel), at 1024 px. Grass004 (grass_*) and Ground037 (forest_*) are used straight by the terrain shader for the green ground (not through the manifest).
 
 ## Slots
 
