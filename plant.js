@@ -1790,7 +1790,7 @@ var WORLD = { KEY: 'critical_world', saved: null,
     var wint = k === 'winter'; WORLD.winterBits().forEach(function (o) { o.visible = wint; }); if (EXT.snowU) EXT.snowU.value = wint ? EXT.snowU.value : 0;
     if (EXT.forestT) { EXT.forest.material.map = wint ? EXT.forestT[0] : EXT.forestT[1]; EXT.forest.material.needsUpdate = false; }
     WORLD.leaves(p.leaf); WORLD.coast(!!p.coast); if (EXT.riverMs) EXT.riverMs.forEach(function (m) { if (m.uniforms.iceK) m.uniforms.iceK.value = p.ice; });
-    (EXT.riverMeshes || []).forEach(function (m) { if (m.userData.river) m.visible = !p.coast; }); },
+    (EXT.riverMeshes || []).forEach(function (m) { if (m.userData.river) m.visible = !p.coast; }); if (typeof WIN !== 'undefined' && WIN.xg) WIN.xg.visible = WORLD.isXmas(); },
   /* broadleaf forest: trunks and leafy crowns, instanced, coloured per tree */
   leaves: function (cols) { var G = EXT.g; if (!WORLD.bl) { var TH = EXT.terrainH; if (!TH) return; var R = photoRnd(31), N = (PERF.lite || LOWMEM) ? 380 : 900, crown = new THREE.IcosahedronGeometry(1, 1), cp = crown.attributes.position;
       for (var i = 0; i < cp.count; i++) { var x = cp.getX(i), y = cp.getY(i), z = cp.getZ(i), k = 0.85 + 0.25 * Math.sin(x * 4.1 + y * 3.3) * Math.cos(z * 3.7); cp.setXYZ(i, x * k, y * k * 0.85, z * k); } crown.computeVertexNormals();
