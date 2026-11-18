@@ -1625,7 +1625,7 @@ function mountainDetail(hi) { var ter = EXT.ter, far = EXT.far, rockT = ter && t
       sh.fragmentShader = TRI + sh.fragmentShader.replace('vec4 rockS = texture2D(rockMap, vMapUv * 0.31);', 'vec4 rockS = mix(triS(0.055), triS(0.013), 0.4); rockS.rgb *= 0.8 + 0.35 * triS(0.004).g;')
         .replace('float snowy = smoothstep(0.3, 0.62, vColor.g);', 'float ledge = smoothstep(0.72, 0.88, normalize(vTN).y + (rockS.g - 0.5) * 0.35); float snowy = max(smoothstep(0.3, 0.62, vColor.g), ledge * 0.92);' +
           ' float wSl = smoothstep(wLine - 7.0, wLine + 7.0, vTP.y + (rockS.g - 0.5) * 16.0); vec4 wLow = mix(rockS * vec4(vColor.rgb * 2.2, 1.0), vec4(mix(wG1, wG2, clamp(rockS.g * 1.4 - 0.2, 0.0, 1.0)) * (0.72 + 0.4 * rockS.r), 1.0), smoothstep(0.5, 0.78, normalize(vTN).y));' +
-          ' if (wCoast > 0.5) { float sd = smoothstep(200.0, 218.0, vTP.x) * (1.0 - smoothstep(0.3, 2.0, vTP.y)); wLow = mix(wLow, vec4(0.86, 0.78, 0.6, 1.0) * (0.85 + 0.25 * rockS.r), sd); }')
+          ' if (wCoast > 0.5) { float sd = smoothstep(188.0, 204.0, vTP.x) * (1.0 - smoothstep(0.6, 2.4, vTP.y)); wLow = mix(wLow, vec4(0.86, 0.78, 0.6, 1.0) * (0.85 + 0.25 * rockS.r), sd); }')
         .replace('snowS * vec4(vColor.rgb, 1.0), snowy)', 'mix(wLow, snowS * vec4(mix(vColor.rgb, vec3(0.93, 0.95, 0.97), ledge), 1.0), wSl), snowy)').replace('#include <normal_fragment_begin>', RELIEF); };
     if (hi) m.bumpScale *= 0.45; m.customProgramCacheKey = function () { return 'terTri' + (hi ? 1 : 0); }; m.needsUpdate = true; }
   /* far range: rock where the vertex colour says rock, crags, ledge snow */
@@ -10974,8 +10974,11 @@ var GRS = { built: false,
       for (s = 0; s < SEG; s++) { var i0 = o + s * 2; idx.push(i0, i0 + 1, i0 + 2, i0 + 1, i0 + 3, i0 + 2); } }
     var g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute('normal', new THREE.Float32BufferAttribute(nor, 3)); g.setAttribute('bl', new THREE.Float32BufferAttribute(col, 3)); g.setIndex(idx); return g; },
   /* the ground under the grass: height in red, "grass here" in green, over the whole 1,120 m terrain */
+  /* grass grows everywhere except the yard, the roads and railway, the pond, the towers and anything built on site (no slope limit) */
+  okG: function (x, z) { if (x > -14 && x < 127 && z > -67 && z < 127) return false; if (x < 22 && x > -60 && Math.abs(z) < 112) return false; if (Math.hypot(x + 120, z + 120) < 40 || Math.hypot(x + 120, z + 190) < 40 || Math.hypot((x - 150) / 1.1, z / 0.75) < 44) return false;
+    if (Math.abs(z - (185 + 14 * Math.sin(x / 90))) < 5 || Math.abs(z - (-215 + 12 * Math.sin(x / 90 + 1))) < 5) return false; if (typeof BIG !== 'undefined' && (PLAY.upg('unit2') || (BIG.show && BIG.show.unit2)) && Math.hypot(x + 58, z + 88) < 50) return false; return true; },
   bake: function () { var N = 512, d = new Uint16Array(N * N * 4), H = THREE.DataUtils.toHalfFloat, hy = function (x, z) { try { return FXW.hy(x, z); } catch (e) { return EXT.terrainH(x, z); } };
-    for (var j = 0; j < N; j++) for (var i = 0; i < N; i++) { var x = -560 + (i + 0.5) / N * 1120, z = -560 + (j + 0.5) / N * 1120, y = hy(x, z), ok = typeof SPR !== 'undefined' && SPR.ok(x, z) && y > -0.25 ? 1 : 0; var o = (j * N + i) * 4; d[o] = H(y); d[o + 1] = H(ok); d[o + 2] = 0; d[o + 3] = H(1); }
+    for (var j = 0; j < N; j++) for (var i = 0; i < N; i++) { var x = -560 + (i + 0.5) / N * 1120, z = -560 + (j + 0.5) / N * 1120, y = hy(x, z), ok = GRS.okG(x, z) && y > -0.25 ? 1 : 0; var o = (j * N + i) * 4; d[o] = H(y); d[o + 1] = H(ok); d[o + 2] = 0; d[o + 3] = H(1); }
     var t = new THREE.DataTexture(d, N, N, THREE.RGBAFormat, THREE.HalfFloatType); t.magFilter = t.minFilter = THREE.LinearFilter; t.needsUpdate = true; return t; },
   build: function () { if (GRS.built || !EXT.on || !EXT.g || !EXT.terrainH || typeof SPR === 'undefined' || (PERF.lite && LOWMEM)) return; GRS.built = true; var T = THREE, lite = PERF.lite || LOWMEM, NI = lite ? 5000 : (S.cfg.gfx === 'high' ? 16000 : 10000), Rr = lite ? 20 : 28, R = photoRnd(5), W = typeof WND !== 'undefined' ? WND.u() : { wT: { value: 0 }, wK: { value: 0.3 }, wDir: { value: new T.Vector2(1, 0) } };
     GRS.U = { gH: { value: GRS.bake() }, gCam: { value: new T.Vector3() }, gR: { value: Rr }, gK: { value: 1 }, gBase: { value: new T.Color(0x24401a) }, gTip: { value: new T.Color(0x9cc45a) }, gCoast: { value: 0 }, wT: W.wT, wK: W.wK, wDir: W.wDir };
@@ -10995,7 +10998,7 @@ var GRS = { built: false,
       sh.fragmentShader = 'uniform vec3 gBase; uniform vec3 gTip; varying vec3 vBl; varying float vGf;\n' + sh.fragmentShader.replace('#include <color_fragment>', '#include <color_fragment>\n if (vGf < 0.02) discard; diffuseColor.rgb = mix(gBase, gTip, pow(vBl.x, 1.3)) * (0.82 + 0.36 * vBl.y);'); };
     m.customProgramCacheKey = function () { return 'grassBlades'; }; im.material = m; im.frustumCulled = false; im.layers.set(1); im.userData.noColl = true; im.raycast = function () {}; im.castShadow = false; im.receiveShadow = false; EXT.g.add(im); GRS.im = im;
     /* the old grass cards are replaced */ if (typeof SUM !== 'undefined' && SUM.meshes && SUM.meshes[0]) SUM.meshes[0].userData.off = true; },
-  SEAS: { spring: [0x2a4a1c, 0xa6cf62, 0.8], summer: [0x24401a, 0x9cc45a, 1], autumn: [0x3a3a1c, 0xb8a050, 0.85], coast: [0x2a4a1c, 0xa3c860, 0.9] },
+  SEAS: { spring: [0x24421a, 0x86b04e, 0.8], summer: [0x203a16, 0x7aa542, 1], autumn: [0x34331a, 0x9a8a44, 0.85], coast: [0x24421a, 0x82aa48, 0.9] },
   tick: function () { if (!EXT.on || !EXT.g) return; var k = typeof WORLD === 'undefined' ? 'winter' : WORLD.pick() === 'coast' ? 'coast' : WORLD.cur(), sd = GRS.SEAS[k]; if (sd && !GRS.built) GRS.build(); if (!GRS.built) return; GRS.im.visible = !!sd; if (!sd) return;
     var U = GRS.U, g = EXT.g.position; U.gCam.value.set(CAM.x - g.x, CAM.y - g.y, CAM.z - g.z); U.gBase.value.setHex(sd[0]); U.gTip.value.setHex(sd[1]); U.gK.value = sd[2]; U.gCoast.value = k === 'coast' ? 1 : 0;
     if (typeof SUM !== 'undefined' && SUM.meshes && SUM.meshes[0] && SUM.meshes[0].userData.off) SUM.meshes[0].visible = false; } };
