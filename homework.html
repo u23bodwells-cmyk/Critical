@@ -8,6 +8,7 @@ Storage.prototype.setItem=function(k,v){if(this===window.localStorage&&blk(k))re
 window.CRIT_PLANT_API={xp:function(){},close:function(){}};</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="preload" as="script" href="plant.js">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#04070f">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -105,7 +106,9 @@ button:focus-visible,.lnk:focus-visible,input:focus-visible{outline:2px solid #2
   <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><div class="chip" id="today">Today: 0 min</div><button type="button" class="chip nowp" id="nowP" hidden title="Open the radio"></button></div>
   <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
     <button type="button" class="chip" id="scBtn" title="Full: the real Critical Point scene. Light: a simpler view for slow computers.">Scene: Full</button>
-    <label class="chip" id="aurChip">Aurora <input type="range" id="aurK" min="0" max="2" step="0.05" value="1" aria-label="Aurora brightness"></label>
+    <button type="button" class="chip" id="beBtn" title="Beauty mode: a clear sky with no clouds and a brighter aurora">Beauty: On</button>
+    <button type="button" class="chip" id="seBtn" title="Change the season of the scene behind the timer" hidden>Season: Winter</button>
+    <label class="chip" id="aurChip">Aurora<input type="range" id="aurK" min="0" max="2" step="0.05" value="1" aria-label="Aurora brightness"></label>
     <label class="chip">Sway <input type="range" id="drift" min="0" max="2" step="0.05" value="1" aria-label="Camera drift speed"></label>
     <span class="chip loadchip" id="ldChip" hidden>Loading Critical Point…</span>
     <span class="keys">Space start / pause · R radio · F full screen</span>
@@ -359,10 +362,10 @@ button:focus-visible,.lnk:focus-visible,input:focus-visible{outline:2px solid #2
         if (P[j + 1] < -0.4) { P[j + 1] = 26; P[j] = -10 + Math.random() * 80; P[j + 2] = (Math.random() - 0.5) * 70; } if (P[j + 2] > 35) P[j + 2] -= 70; } g.attributes.position.needsUpdate = true; } }; })();
 
   /* sky dome: the sim's sky shader, fixed at night (day = 0, dusk = 0) with clouds drifting */
-  var sky = new THREE.Mesh(new THREE.SphereGeometry(2400, 48, 24), new THREE.ShaderMaterial({ side: THREE.BackSide, depthWrite: false, fog: false, uniforms: { day: { value: 0 }, dusk: { value: 0 }, t: { value: 0 }, sd: { value: new THREE.Vector3(0.3, -0.4, -0.2) } },
+  var sky = new THREE.Mesh(new THREE.SphereGeometry(2400, 48, 24), new THREE.ShaderMaterial({ side: THREE.BackSide, depthWrite: false, fog: false, uniforms: { day: { value: 0 }, dusk: { value: 0 }, t: { value: 0 }, clr: { value: 1 }, sd: { value: new THREE.Vector3(0.3, -0.4, -0.2) } },
     vertexShader: 'varying vec3 vp; void main(){ vp = position; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
     fragmentShader: [
-      'uniform float day, dusk, t; uniform vec3 sd; varying vec3 vp;',
+      'uniform float day, dusk, t, clr; uniform vec3 sd; varying vec3 vp;',
       'float hsh(vec2 p){ return fract(sin(dot(p, vec2(127.1,311.7))) * 43758.5453); }',
       'float vn(vec2 p){ vec2 i = floor(p), f = fract(p); f = f*f*(3.0-2.0*f); return mix(mix(hsh(i), hsh(i+vec2(1.,0.)), f.x), mix(hsh(i+vec2(0.,1.)), hsh(i+vec2(1.,1.)), f.x), f.y); }',
       'float fbm(vec2 p){ float s = 0.0, a = 0.5; for (int i = 0; i < 5; i++){ s += vn(p) * a; p = p * 2.03 + vec2(1.7, 9.2); a *= 0.5; } return s; }',
@@ -371,7 +374,7 @@ button:focus-visible,.lnk:focus-visible,input:focus-visible{outline:2px solid #2
       '  vec3 c = mix(hor, zen, pow(h, 0.42));',
       '  if (n.y > 0.01) { vec2 q = n.xz / (n.y + 0.18) * 1.15 + vec2(t * 0.0035, t * 0.0012); float f = fbm(q), f2 = fbm(q * 2.7 + 4.0);',
       '    float cov = smoothstep(0.56, 0.84, f * 0.8 + f2 * 0.2) * smoothstep(0.01, 0.22, n.y);',
-      '    vec3 cl = vec3(0.035,0.045,0.075); cl *= 0.72 + 0.28 * smoothstep(0.5, 0.9, f); c = mix(c, cl, cov * 0.7); }',
+      '    vec3 cl = vec3(0.035,0.045,0.075); cl *= 0.72 + 0.28 * smoothstep(0.5, 0.9, f); c = mix(c, cl, cov * 0.7 * clr); }',
       '  gl_FragColor = vec4(c, 1.0); }'].join('\n') }));
   sky.renderOrder = -2; scene.add(sky);
 
@@ -407,8 +410,12 @@ button:focus-visible,.lnk:focus-visible,input:focus-visible{outline:2px solid #2
   /* controls: aurora brightness and camera drift, remembered */
   var PK = 'critical_homework_view', pref = { k: 1, d: 1 }; try { var pv = JSON.parse(localStorage.getItem(PK) || 'null'); if (pv) pref = pv; } catch (e) {}
   var aK = document.getElementById('aurK'), dr = document.getElementById('drift'); aK.value = pref.k; dr.value = pref.d;
-  function savePref() { pref.k = +aK.value; pref.d = +dr.value; try { localStorage.setItem(PK, JSON.stringify(pref)); } catch (e) {} }
+  function savePref() { pref.k = +aK.value; pref.d = +dr.value; var cur = {}; try { cur = JSON.parse(localStorage.getItem(PK) || 'null') || {}; } catch (e) {} cur.k = pref.k; cur.d = pref.d; try { localStorage.setItem(PK, JSON.stringify(cur)); } catch (e) {} }
   aK.oninput = savePref; dr.oninput = savePref;
+  /* Beauty mode (on by default): a clear sky with no clouds and a fuller, brighter aurora. Shared with the full scene below through HW_B. */
+  var beBtn = document.getElementById('beBtn'), HB = window.HW_B = { on: pref.b !== false, apply: function () {} };
+  function paintBe() { beBtn.textContent = 'Beauty: ' + (HB.on ? 'On' : 'Off'); }
+  beBtn.onclick = function () { HB.on = !HB.on; var cur = {}; try { cur = JSON.parse(localStorage.getItem(PK) || 'null') || {}; } catch (e) {} cur.b = HB.on; try { localStorage.setItem(PK, JSON.stringify(cur)); } catch (e) {} paintBe(); HB.apply(); }; paintBe();
 
   /* gentle parallax from the mouse */
   var mx = 0, my = 0, sx = 0, sy = 0; window.addEventListener('pointermove', function (e) { mx = e.clientX / innerWidth - 0.5; my = e.clientY / innerHeight - 0.5; }, { passive: true });
@@ -425,7 +432,7 @@ button:focus-visible,.lnk:focus-visible,input:focus-visible{outline:2px solid #2
     cam.lookAt(400, 58 + Math.sin(ph * 0.07) * 6 - sy * 30, Math.sin(ph * 0.043) * 34 + sx * 50);
     SNOW.tick(dt * (reduce ? 0.4 : 1), T);
     LAMPS.forEach(function (q) { var f = 1 + 0.04 * Math.sin(T * 7 + q[2]) * Math.sin(T * 2.3 + q[2]); q[0].material.opacity = f; });
-    var k = pref.k; aur.forEach(function (m, i) { m.material.uniforms.t.value += dt * (reduce ? 0.3 : 1); m.material.uniforms.k.value = k * (0.85 + 0.15 * Math.sin(T * 0.21 + i * 2.1)); });
+    var k = pref.k * (HB.on ? 1.35 : 1); sky.material.uniforms.clr.value = HB.on ? 0 : 1; aur.forEach(function (m, i) { m.material.uniforms.t.value += dt * (reduce ? 0.3 : 1); m.material.uniforms.k.value = k * (0.85 + 0.15 * Math.sin(T * 0.21 + i * 2.1)); });
     aurL.intensity = 0.12 * k * (0.75 + 0.25 * Math.sin(T * 0.21));
     sky.material.uniforms.t.value = T; if (window._starM) window._starM.uniforms.t.value = T;
     ren.render(scene, cam); }
@@ -446,13 +453,20 @@ button:focus-visible,.lnk:focus-visible,input:focus-visible{outline:2px solid #2
   sb.textContent = 'Scene: ' + (mode === 'full' ? 'Full' : 'Light');
   sb.onclick = function () { setSc(mode === 'full' ? 'light' : 'full'); location.reload(); };
   if (mode !== 'full' || !window.THREE) return;
+  /* seasons: winter is the snowy original; the others recolour the ground, drop the snow and (autumn) let leaves fall. It stays night in every season so the aurora shows. */
+  var SEAS = [['winter', 'Winter', 23], ['spring', 'Spring', 23], ['summer', 'Summer', 23], ['autumn', 'Autumn', 23]], seBtn = document.getElementById('seBtn');
+  var seI = Math.max(0, SEAS.map(function (q) { return q[0]; }).indexOf(pv().se)); seBtn.hidden = false; seBtn.textContent = 'Season: ' + SEAS[seI][1];
+  function applySeason() { var d = D(); if (!d) return; try { d.EXT.setSeason(SEAS[seI][0]); } catch (e) {} try { d.EXT.setBeauty(window.HW_B ? HW_B.on : true); } catch (e) {} if (window.HW_B) HW_B.apply = applySeason; try { d.ADM.time(SEAS[seI][2]); } catch (e) {} }
+  seBtn.onclick = function () { seI = (seI + 1) % SEAS.length; var o = pv(); o.se = SEAS[seI][0]; try { localStorage.setItem(VK, JSON.stringify(o)); } catch (e) {} seBtn.textContent = 'Season: ' + SEAS[seI][1]; applySeason(); };
+  window.CRIT_HW_BEAUTY = window.HW_B ? HW_B.on : true; /* the sim's own Beauty mode, on by default here */
+  window.CRIT_HW_BACKDROP = true; /* tells plant.js to run as a lightweight backdrop: no shadow map, no hidden control-board redraws, 30 fps */
   var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
   /* the view: stood in the yard by the Auxiliary Building, the diesel generator building on the left, the pumphouse at the end of the road */
   var POSE = { x: 20, y: 1.75, z: 6, yaw: -1.63, pitch: 0.12, fov: 62 };
   var mx = 0, my = 0, sx = 0, sy = 0; window.addEventListener('pointermove', function (e) { mx = e.clientX / innerWidth - 0.5; my = e.clientY / innerHeight - 0.5; }, { passive: true });
   function D() { return window.CRIT_PLANT && window.CRIT_PLANT._dbg; }
   function backdrop() { var d = D(), S = d.NEW.S(); if (S.menu) { try { S.menu.remove(); } catch (e) {} S.menu = null; }
-    S.cfg.snd = false; S.cfg.voice = false; S.ts = 0; S.paused = false; try { d.ADM.time(23); } catch (e) {} try { if (!d.CAM.free) d.ADM.fc(true); } catch (e) {} try { if (window.speechSynthesis) speechSynthesis.cancel(); } catch (e) {}
+    S.cfg.snd = false; S.cfg.voice = false; S.ts = 0; S.paused = false; applySeason(); try { if (!d.CAM.free) d.ADM.fc(true); } catch (e) {} try { if (window.speechSynthesis) speechSynthesis.cancel(); } catch (e) {}
     var C = d.CAM; C.tw = null; C.fl = 0; C.x = POSE.x; C.y = POSE.y; C.z = POSE.z; C.yaw = POSE.yaw; C.pitch = POSE.pitch; C.fov = POSE.fov; C.vx = C.vz = 0; }
   function sway(now) { if (!BD.on) return; requestAnimationFrame(sway); var d = D(); if (!d) return; var S = d.NEW.S(), C = d.CAM;
     /* anything that pops up in the sim (a menu, the clock moving on, pause) is put straight back */
@@ -463,7 +477,7 @@ button:focus-visible,.lnk:focus-visible,input:focus-visible{outline:2px solid #2
     C.yaw = POSE.yaw + Math.sin(ph * 0.043) * 0.035 - sx * 0.06; C.pitch = POSE.pitch + Math.sin(ph * 0.07) * 0.012 - sy * 0.03; C.fov = POSE.fov; C.vx = C.vz = 0; }
   function ready() { var root = document.querySelector('.cpn'); if (!root) return fail(); backdrop(); BD.on = true; requestAnimationFrame(sway);
     setTimeout(function () { root.classList.add('hwready'); document.getElementById('sky').style.opacity = '0'; ld.hidden = true; document.getElementById('aurChip').hidden = true; setTimeout(function () { if (window.HW_LIGHT) HW_LIGHT.stop(); }, 1900); }, 1200); }
-  function fail() { ld.hidden = true; document.getElementById('aurChip').hidden = false; BD.on = false; var r = document.querySelector('.cpn'); if (r) try { r.remove(); } catch (e) {} if (window.HW_LIGHT) HW_LIGHT.start(); document.getElementById('sky').style.opacity = '1'; }
+  function fail() { ld.hidden = true; seBtn.hidden = true; document.getElementById('aurChip').hidden = false; BD.on = false; var r = document.querySelector('.cpn'); if (r) try { r.remove(); } catch (e) {} if (window.HW_LIGHT) HW_LIGHT.start(); document.getElementById('sky').style.opacity = '1'; }
   function go() { ld.hidden = false; BD.t0 = Date.now();
     /* silence: the sim's audio engine finds no AudioContext, so its hum, alarms and voice never start (this page makes no sound of its own) */
     try { window.AudioContext = undefined; window.webkitAudioContext = undefined; } catch (e) {}
@@ -474,7 +488,8 @@ button:focus-visible,.lnk:focus-visible,input:focus-visible{outline:2px solid #2
         if (ok) return ready(); if (Date.now() - BD.t0 > 90000) return fail(); setTimeout(wait, 400); })(); };
     document.head.appendChild(sc); }
   /* give the light scene a moment to appear first */
-  if (document.readyState === 'complete') setTimeout(go, 300); else window.addEventListener('load', function () { setTimeout(go, 300); });
+  /* start as soon as the page is parsed (not after fonts and images finish): the 1.8 MB scene was waiting for the load event for nothing */
+  setTimeout(go, 50);
 })();
 </script>
 </body>
