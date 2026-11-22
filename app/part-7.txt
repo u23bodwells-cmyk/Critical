@@ -644,64 +644,44 @@ F('t5-5-2',[T(`<h3>Quick recap</h3><p>SMRs; six Gen IV systems.</p>`),Q(`The Rol
 F('t5-5-3',[T(`<h3>Quick recap</h3><p>D–T 17.6 MeV; Lawson criterion.</p>`),Q(`The D–T neutron carries…`,[`14.1 MeV`,`3.5 MeV`,`200 MeV`,`0.025 eV`],0,`Most of the energy.`),Q(`Tritium is bred from…`,[`lithium`,`boron`,`uranium`,`carbon`],0,`In the blanket.`),Q(`STEP is planned at…`,[`West Burton, Nottinghamshire`,`Hinkley Point`,`Sellafield`,`Dounreay`],0,`Prototype around 2040.`)]);
 TT('t5-5',[x('t5-5-1',N(`Product 5.211%, tails 0.211%, feed 0.711%. F/P?`,10,0.01,'',`5/0.5.`)),x('t5-5-1',Q(`HPC spent fuel is planned to be…`,[`stored then disposed of directly`,`reprocessed at THORP`,`dumped at sea`,`burned in a fast reactor next year`],0,`GDF.`)),x('t5-5-2',Q(`Which Gen IV system uses water above its critical point?`,[`SCWR`,`MSR`,`LFR`,`VHTR`],0,`Supercritical.`)),x('t5-5-2',Q(`SMRs aim to cut cost by…`,[`factory-built modules and repetition`,`removing safety systems`,`using no fuel`,`being larger`],0,`Modular.`)),x('t5-5-3',N(`Mass lost 0.0189 u. Energy in MeV? (931.5 MeV/u)`,17.6,0.02,'MeV',`× 931.5.`)),x('t5-5-3',Q(`JET's record was…`,[`69 MJ of fusion energy`,`1 GW for a year`,`ignition`,`zero`],0,`Before closing in 2023.`))]);
 
-/* ===================================================================
-   CALCULUS TRACK: shared helpers, generated drills and graphs
-   =================================================================== */
-function cR(a,b){return a+Math.floor(Math.random()*(b-a+1))}
-function cP(a){return a[Math.floor(Math.random()*a.length)]}
-function cNZ(a,b){var v;do{v=cR(a,b)}while(v===0);return v}
-function cNum(n){var r=Math.round(n*10000)/10000;return String(r).replace(/-/g,'−')}
-function cSup(s){return '<sup>'+String(s).replace(/-/g,'−')+'</sup>'}
-/* one term a·xⁿ, written the way you'd write it by hand */
-function cT(a,n,v){v=v||'x';if(a===0)return '0';if(n===0)return cNum(a);var ab=Math.abs(a);return (a<0?'−':'')+(ab===1?'':cNum(ab))+v+(n===1?'':cSup(cNum(n)))}
-/* a polynomial from [[a,n],…] */
-function cPoly(ts,v){var out='';ts.forEach(function(t){if(!t[0])return;var s=cT(t[0],t[1],v);if(!out)out=s;else out+=(t[0]<0?' − '+s.slice(1):' + '+s)});return out||'0'}
-function cEval(ts,x){return ts.reduce(function(s,t){return s+t[0]*Math.pow(x,t[1])},0)}
-function cDer(ts){return ts.filter(function(t){return t[1]!==0}).map(function(t){return [t[0]*t[1],t[1]-1]})}
-function cBr(n){return n<0?'('+cNum(n)+')':cNum(n)}
-function cCo(n){return n===1?'':n===-1?'−':cNum(n)}
-function cSubst(ts,k){var out='';ts.forEach(function(t){if(!t[0])return;var s=(Math.abs(t[0])===1&&t[1]!==0?'':cNum(Math.abs(t[0]))+(t[1]===0?'':' × '))+(t[1]===0?'':'('+cNum(k)+')'+(t[1]===1?'':cSup(t[1])));if(!out)out=(t[0]<0?'−':'')+s;else out+=(t[0]<0?' − ':' + ')+s});return out}
-function cB(a,pre,post,label,sup,tol){return {a:a,pre:pre||'',post:post||'',label:label||'',sup:!!sup,tol:tol}}
-var CGEN={};
+/* >>> new content: mt >>> */
+/* ========== LEVEL 6 · MATHS (Specialist: master's level) ========== */
+U({id:'m6-1',track:'maths',level:6,title:'Neutron transport',icon:'Ω',color:'#7F77DD',desc:'Where diffusion theory breaks down, attenuation and mean free paths, and the transport correction.',lessons:[
+LH('m6-1-1','Beyond diffusion',10,'Diffusion theory treats neutrons like a gas. Near edges and strong absorbers that picture fails, and you need transport theory.',[
+RM(`<ul><li>Neutron flux φ = n v: neutrons per cm² per second (Level 4 Maths).</li><li>Diffusion: neutrons flow down the flux gradient, J = −D∇φ (Level 4 Maths).</li><li>The divergence theorem turns leakage through a surface into ∇ · J (Calculus Level 14).</li></ul>`),
+T(`<h3>Direction matters</h3><p>Diffusion theory only tracks <b>how many</b> neutrons are at each point. Transport theory also tracks <b>which way they're going</b>. The <b>angular flux</b> ψ(r, E, Ω) counts neutrons at position r, energy E, travelling in direction Ω.</p><p>Integrate over every direction and you get back the ordinary scalar flux: φ = ∫ ψ dΩ.</p>`),
+Q(`What extra information does the angular flux ψ hold that φ doesn't?`,[`The direction neutrons are travelling`,`The temperature of the fuel`,`The number of delayed neutrons`,`The boron concentration`],0,`ψ depends on Ω, the direction.`),
+T(`<h3>The Boltzmann transport equation</h3><p>In words, for neutrons travelling in direction Ω at energy E:</p><div class="eq">streaming + removal = scattering in + fission source</div><p>It's exact (for average neutron behaviour) but has 7 variables: 3 for position, 2 for direction, 1 energy, 1 time. That's why it needs supercomputers.</p>`),
+T(`<h3>When diffusion fails</h3><ul><li>Within a few mean free paths of a <b>boundary</b> (vacuum, reflector edge).</li><li>Near <b>strong absorbers</b>: control rods, burnable poison pins.</li><li>In <b>small</b> or highly heterogeneous systems where neutrons stream far without colliding.</li></ul><p>Away from these, diffusion is a very good approximation, which is why it's still used for whole-core calculations.</p>`),
+Q(`Where is diffusion theory least accurate?`,[`Next to a control rod`,`In the middle of a large uniform core`,`Far from any boundary`,`In a well-moderated lattice centre`],0,`Strong absorbers make the flux very direction-dependent.`),
+QE(`Fick's law for neutrons says J = …`,[`−D∇φ`,`D∇φ`,`Σ<sub>a</sub>φ`,`νΣ<sub>f</sub>φ`],0,`Flow down the gradient.`),
+T(`<h3>Key points</h3><ul><li><b>Angular flux ψ(r, E, Ω)</b> tracks direction; φ = ∫ ψ dΩ.</li><li>Transport equation: streaming + removal = scattering in + source.</li><li>Diffusion fails near <b>boundaries and strong absorbers</b>.</li></ul>`)]),
+LH('m6-1-2','Attenuation and mean free path',10,'How far does a neutron travel before it hits something? An exponential answers.',[
+RM(`<ul><li>Macroscopic cross-section Σ = Nσ, in cm⁻¹ (Level 4 Maths).</li><li>dy/dx = −ky gives y = y₀e<sup>−kx</sup> (Calculus Level 5).</li><li>∫<sub>0</sub><sup>∞</sup> x λe<sup>−λx</sup> dx = 1/λ (Calculus Level 8).</li></ul>`),
+T(`<h3>A beam getting through</h3><p>A beam of neutrons enters a slab. In each thin layer dx, a fraction Σ dx collide and leave the beam:</p><div class="eq">dI/dx = −Σ I &nbsp;⟹&nbsp; I = I₀ e<sup>−Σx</sup></div>${KY([['I₀','beam intensity going in','n/cm²/s'],['Σ','total macroscopic cross-section','cm⁻¹'],['x','thickness','cm']])}`),
+N(`Σ = 0.5 cm⁻¹. What fraction of a beam gets through 4 cm without colliding? (3 d.p.)`,0.135,0.005,'',`e<sup>−2</sup> = 0.135.`),
+T(`<h3>Mean free path</h3><p>The chance of travelling at least x without colliding is e<sup>−Σx</sup>. The average distance between collisions, the <b>mean free path</b>, is:</p><div class="eq">λ = 1/Σ</div><p>(It's the mean lifetime idea from Calculus Level 8, with distance instead of time.) In water, thermal neutrons have a mean free path of under a centimetre.</p>`),
+N(`Σ<sub>t</sub> = 2.5 cm⁻¹. Mean free path in cm?`,0.4,0.001,'cm',`1/2.5 = 0.4 cm.`),
+T(`<h3>Shielding</h3><p>The same law sets shield thicknesses: to cut a beam by a factor of 1000 you need Σx = ln 1000 ≈ 6.9, so about 7 mean free paths. (Real shields also account for neutrons scattered back into the beam, using a <b>buildup factor</b>.)</p>`),
+Q(`About how many mean free paths reduce an uncollided beam by a factor of 1000?`,[`7`,`3`,`1000`,`10`],0,`ln 1000 ≈ 6.9.`),
+T(`<h3>Key points</h3><ul><li><b>I = I₀e<sup>−Σx</sup></b>: uncollided beam.</li><li>Mean free path <b>λ = 1/Σ</b>.</li><li>Factor of 1000 ≈ 7 mean free paths (before buildup).</li></ul>`)]),
+LH('m6-1-3','The transport correction',10,'A tweak that makes diffusion theory much more accurate when scattering prefers the forward direction.',[
+RM(`<ul><li>Mean free path λ = 1/Σ.</li><li>D = 1/(3Σ<sub>tr</sub>) appears in Fick's law (Level 4 Maths).</li><li>Scattering off a light nucleus can throw a neutron forward more than backward (Level 2 Theory).</li></ul>`),
+T(`<h3>Forward-peaked scattering</h3><p>When a neutron scatters off a light nucleus like hydrogen, it tends to keep going roughly forward. Measure this by μ̄, the <b>average cosine of the scattering angle</b>. For a nucleus of mass number A, μ̄ ≈ 2/(3A).</p><ul><li>Hydrogen (A = 1): μ̄ ≈ 0.67, strongly forward.</li><li>Uranium (A = 238): μ̄ ≈ 0.003, almost even in all directions.</li></ul>`),
+N(`Estimate μ̄ for carbon (A = 12). (3 d.p.)`,0.0556,0.01,'',`2/(3 × 12) = 0.0556.`),
+T(`<h3>The correction</h3><p>A collision that hardly changes direction shouldn't count fully. So diffusion theory uses the <b>transport cross-section</b>:</p><div class="eq">Σ<sub>tr</sub> = Σ<sub>t</sub> − μ̄Σ<sub>s</sub>,&nbsp;&nbsp; D = 1/(3Σ<sub>tr</sub>)</div>`),
+W('stepCalc',{steps:[`Thermal neutrons in water: Σ<sub>t</sub> ≈ 3.45 cm⁻¹, Σ<sub>s</sub> ≈ 3.43 cm⁻¹, μ̄ ≈ 0.40 (less than hydrogen\'s 0.67, because the hydrogen is bound in molecules)`,`Σ<sub>tr</sub> = 3.45 − 0.40 × 3.43 = 3.45 − 1.37 = 2.08 cm⁻¹`,`D = 1/(3 × 2.08) = <b>0.16 cm</b>`,`Without the correction: D = 1/(3 × 3.45) = 0.097 cm, too small by about 40%.`]},`The diffusion coefficient of water.`,`Forward scattering in water raises the diffusion coefficient by about 65%.`),
+Q(`Why does forward-peaked scattering increase D?`,[`Neutrons keep their direction, so they spread further`,`They are absorbed faster`,`Because Σ<sub>t</sub> rises`,`It decreases D`],0,`Less randomising per collision.`),
+QE(`Uncollided fraction through 3 mean free paths?`,[`e⁻³ ≈ 0.05`,`1/3`,`0.3`,`e³`],0,`Σx = 3.`),
+T(`<h3>Key points</h3><ul><li>μ̄ ≈ 2/(3A): light nuclei scatter forward.</li><li><b>Σ<sub>tr</sub> = Σ<sub>t</sub> − μ̄Σ<sub>s</sub></b>, <b>D = 1/(3Σ<sub>tr</sub>)</b>.</li><li>For water the correction raises D by about 65%.</li></ul>`)])
+]});
 
-/* ---------------- Level 1: ready for calculus ---------------- */
-CGEN.fsub=function(){var a=cNZ(-3,4),b=cR(-6,6),c=cR(-9,9),k=cR(-3,4),f=[[a,2],[b,1],[c,0]],v=cEval(f,k);
- return {p:'f(x) = '+cPoly(f)+'. Find f('+cNum(k)+').',b:[cB(v,'f('+cNum(k)+') = ','','answer')],e:'Put '+cNum(k)+' in place of every x: '+cSubst(f,k)+' = '+cNum(v)+'. Square the bracket first, including its sign.'}};
-CGEN.flin=function(){var a=cNZ(-5,6),b=cR(-9,9),k=cR(-4,6),v=a*k+b;return {p:'g(x) = '+cPoly([[a,1],[b,0]])+'. What is g('+cNum(k)+')?',b:[cB(v,'g('+cNum(k)+') = ')],e:cSubst([[a,1],[b,0]],k)+' = '+cNum(v)+'.'}};
-CGEN.idxlaw=function(){var t=cR(0,2),a=cR(2,9),b=cR(2,7);
- if(t===0)return {p:'Simplify x'+cSup(a)+' × x'+cSup(b)+'.',b:[cB(a+b,'x','','power',true)],e:'Multiplying: <b>add</b> the powers. '+a+' + '+b+' = '+(a+b)+'.'};
- if(t===1){var A=a+b;return {p:'Simplify x'+cSup(A)+' ÷ x'+cSup(b)+'.',b:[cB(a,'x','','power',true)],e:'Dividing: <b>subtract</b> the powers. '+A+' − '+b+' = '+a+'.'}}
- var c=cR(2,4);return {p:'Simplify (x'+cSup(a)+')'+cSup(c)+'.',b:[cB(a*c,'x','','power',true)],e:'A power of a power: <b>multiply</b> the powers. '+a+' × '+c+' = '+(a*c)+'.'}};
-CGEN.idxneg=function(){var n=cR(1,5),t=cR(0,1);
- if(t===0)return {p:'Write 1/x'+(n===1?'':cSup(n))+' as a power of x.',b:[cB(-n,'x','','power',true)],e:'1 over x to a power = x to the <b>negative</b> power. So 1/x'+(n===1?'':cSup(n))+' = x'+cSup(-n)+'.'};
- var a=cR(2,9);return {p:'Write '+a+'/x'+(n===1?'':cSup(n))+' in the form a·x<sup>n</sup>.',b:[cB(a,'','x','number in front'),cB(-n,'','','power',true)],e:'The number stays on top; the x moves up with a negative power: '+a+'x'+cSup(-n)+'.'}};
-CGEN.idxfrac=function(){var c=cP([['√x',0.5,'A square root is the power ½ = 0.5.'],['1/√x',-0.5,'√x is x<sup>0.5</sup>, and 1 over it makes the power negative: x<sup>−0.5</sup>.'],['x√x',1.5,'x × x<sup>0.5</sup>: add the powers, 1 + 0.5 = 1.5.'],['x²√x',2.5,'x² × x<sup>0.5</sup>: 2 + 0.5 = 2.5.'],['√x / x',-0.5,'x<sup>0.5</sup> ÷ x<sup>1</sup>: 0.5 − 1 = −0.5.'],['1/(x√x)',-1.5,'x√x = x<sup>1.5</sup>, so 1 over it is x<sup>−1.5</sup>.']]);
- return {p:'Write '+c[0]+' as a power of x. Use a decimal for the power.',b:[cB(c[1],'x','','power',true)],e:c[2]}};
-CGEN.idxval=function(){var c=cP([['9<sup>0.5</sup>',3,'Power 0.5 means square root: √9 = 3.'],['16<sup>0.5</sup>',4,'√16 = 4.'],['4<sup>−1</sup>',0.25,'A negative power means 1 over: 1/4 = 0.25.'],['2<sup>−3</sup>',0.125,'1/2³ = 1/8 = 0.125.'],['4<sup>1.5</sup>',8,'Square root first, then cube: √4 = 2, 2³ = 8.'],['25<sup>1.5</sup>',125,'√25 = 5, 5³ = 125.'],['100<sup>−0.5</sup>',0.1,'1/√100 = 1/10 = 0.1.'],['5<sup>0</sup>',1,'Anything (except 0) to the power 0 is 1.'],['10<sup>−2</sup>',0.01,'1/10² = 0.01.']]);
- return {p:'Work out '+c[0]+' as a decimal.',b:[cB(c[1],'','','answer')],e:c[2]}};
-CGEN.gradpts=function(){var x1=cR(-4,3),dx=cR(1,5),m=cNZ(-4,5),y1=cR(-6,6),x2=x1+dx,y2=y1+m*dx;
- return {p:'Find the gradient of the line through ('+cNum(x1)+', '+cNum(y1)+') and ('+cNum(x2)+', '+cNum(y2)+').',b:[cB(m,'gradient = ')],e:'Change in y ÷ change in x = ('+cNum(y2)+' − '+cBr(y1)+') ÷ ('+cNum(x2)+' − '+cBr(x1)+') = '+cNum(y2-y1)+' ÷ '+dx+' = '+cNum(m)+'.'}};
-CGEN.gradeq=function(){var m=cNZ(-5,6),c=cR(-8,8),t=cR(0,2);
- if(t===0)return {p:'What is the gradient of y = '+cPoly([[m,1],[c,0]])+'?',b:[cB(m,'gradient = ')],e:'In y = mx + c, the number in front of x is the gradient: '+cNum(m)+'.'};
- if(t===1)return {p:'What is the gradient of y = '+cPoly([[c,0],[m,1]])+'?',b:[cB(m,'gradient = ')],e:'The order doesn\'t matter. The gradient is the number multiplying x: '+cNum(m)+'.'};
- var k=cP([2,3,4]);return {p:'What is the gradient of '+k+'y = '+cPoly([[k*m,1],[k*c,0]])+'?',b:[cB(m,'gradient = ')],e:'Divide everything by '+k+' first: y = '+cPoly([[m,1],[c,0]])+'. Gradient '+cNum(m)+'.'}};
-CGEN.avgrate=function(){var a=cNZ(-2,3),c=cR(-5,5),x1=cR(-2,2),x2=x1+cR(1,4),f=[[a,2],[c,0]],y1=cEval(f,x1),y2=cEval(f,x2),r=(y2-y1)/(x2-x1);
- return {p:'f(x) = '+cPoly(f)+'. Find the average rate of change of f from x = '+cNum(x1)+' to x = '+cNum(x2)+'.',b:[cB(r,'average rate = ')],e:'f('+cNum(x2)+') = '+cNum(y2)+', f('+cNum(x1)+') = '+cNum(y1)+'. Rate = ('+cNum(y2)+' − '+cBr(y1)+') ÷ ('+cNum(x2)+' − '+cBr(x1)+') = '+cNum(r)+'. That\'s the gradient of the chord between the two points.'}};
-CGEN.speed=function(){var k=cP([2,3,4,5]),t1=cR(0,3),t2=t1+cR(1,3),s1=k*t1*t1,s2=k*t2*t2,v=(s2-s1)/(t2-t1);
- return {p:'An object\'s distance is s = '+k+'t² metres after t seconds. Find its average speed between t = '+t1+' and t = '+t2+' s.',b:[cB(v,'','m/s','average speed')],e:'s('+t2+') = '+s2+' m and s('+t1+') = '+s1+' m. Average speed = '+(s2-s1)+' ÷ '+(t2-t1)+' = '+cNum(v)+' m/s.'}};
-
-/* ---------------- Level 2: differentiation ---------------- */
-CGEN.chord=function(){var a=cR(1,5),h=cP([1,0.5,0.1,0.01]),g=2*a+h;
- return {p:'On y = x², find the gradient of the chord from x = '+a+' to x = '+cNum(a+h)+'.',b:[cB(g,'gradient = ')],e:'(('+cNum(a+h)+')² − '+a+'²) ÷ '+cNum(h)+' = '+cNum(g)+'. In general it\'s 2 × '+a+' + h, which gets closer to '+(2*a)+' as h shrinks.'}};
-CGEN.fpx2=function(){var a=cNZ(-4,6);return {p:'Using first principles, the gradient of y = x² at x = a is the limit of (2a + h) as h → 0. What is the gradient at x = '+cNum(a)+'?',b:[cB(2*a,'gradient = ')],e:'As h → 0, 2a + h → 2a = 2 × '+cNum(a)+' = '+cNum(2*a)+'.'}};
-CGEN.power=function(){var n=cP([2,3,4,5,6,7,-1,-2,-3]),a=cNZ(-6,8);
- return {p:'Differentiate y = '+cT(a,n)+'.',b:[cB(a*n,'dy/dx = ','x','number in front'),cB(n-1,'','','power',true)],e:'Multiply by the power, then take 1 off the power: '+cNum(a)+' × '+cNum(n)+' = '+cNum(a*n)+', and '+cNum(n)+' − 1 = '+cNum(n-1)+'. So dy/dx = '+cT(a*n,n-1)+'.'}};
-CGEN.powfrac=function(){var c=cP([[0.5,2],[0.5,4],[1.5,2],[1.5,4],[-0.5,2],[-0.5,6],[-1,3],[2.5,2]]),n=c[0],a=c[1];
- return {p:'Differentiate y = '+cT(a,n)+'.',b:[cB(a*n,'dy/dx = ','x','number in front'),cB(n-1,'','','power',true)],e:'Same rule: '+cNum(a)+' × '+cNum(n)+' = '+cNum(a*n)+', and '+cNum(n)+' − 1 = '+cNum(n-1)+'.'}};
-CGEN.rewrite=function(){var a=cR(2,9),n=cR(1,4);
- return {p:'Differentiate y = '+a+'/x'+(n===1?'':cSup(n))+'. Rewrite it as a power of x first.',b:[cB(-n*a,'dy/dx = ','x','number in front'),cB(-n-1,'','','power',true)],e:a+'/x'+(n===1?'':cSup(n))+' = '+cT(a,-n)+'. Then '+a+' × (−'+n+') = '+cNum(-n*a)+' and −'+n+' − 1 = '+cNum(-n-1)+'.'}};
-CGEN.polyval=function(){var f=[[cNZ(-2,3),3],[cR(-4,4),2],[cR(-6,6),1],[cR(-9,9),0]],k=cR(-2,3),d=cDer(f),v=cEval(d,k);
- return {p:'f(x) = '+cPoly(f)+'. Find f′('+cNum(k)+').',b:[cB(v,'f′('+cNum(k)+') = ')],e:'f′(x) = '+cPoly(d)+'. Then put x = '+cNum(k)+' in: f′('+cNum(k)+') = '+cNum(v)+'.'}};
-CGEN.const0=function(){var c=cNZ(-20,40);return {p:'Differentiate y = '+cNum(c)+'.',b:[cB(0,'dy/dx = ')],e:'A constant never changes, so its gradient is 0. A horizontal line.'}};
-CGEN.tangent=function(){var a=cNZ(-2,3),b=cR(-5,5),c=cR(-6,6),k=cR(-2,3),f=[[a,2],[b,1],[c,0]],m=2*a*k+b,y=cEval(f,k),ic=y-m*k;
- return {p:'Find
+U({id:'m6-2',track:'maths',level:6,title:'Depletion and the Bateman equations',icon:'Nᵢ(t)',color:'#1D9E75',desc:'How fuel nuclides burn and build up, decay chains, and plutonium production.',lessons:[
+LH('m6-2-1','Burning nuclides',10,'Under a neutron flux, a nuclide disappears at a rate proportional to how much is left: another exponential.',[
+RM(`<ul><li>Reaction rate per cm³ = σφN (Level 4 Maths).</li><li>dN/dt = −kN gives N = N₀e<sup>−kt</sup>.</li><li>1 barn = 10⁻²⁴ cm².</li></ul>`),
+T(`<h3>Burnup as decay</h3><p>Each nucleus of U-235 absorbs neutrons at a rate σ<sub>a</sub>φ per second. So:</p><div class="eq">dN/dt = −σ<sub>a</sub>φN &nbsp;⟹&nbsp; N = N₀e<sup>−σ<sub>a</sub>φt</sup></div><p>σ<sub>a</sub>φ plays the role of a decay constant. The <b>fluence</b> φt (neutrons per cm²) measures how much exposure the fuel has had.</p>`),
+W('stepCalc',{steps:[`U-235: σ<sub>a</sub> = 680 b = 6.8 × 10⁻²² cm². φ = 3 × 10¹³ cm⁻²s⁻¹.`,`σ<sub>a</sub>φ = 6.8 × 10⁻²² × 3 × 10¹³ = 2.04 × 10⁻⁸ s⁻¹`,`One year = 3.15 × 10⁷ s, so σ<sub>a</sub>φt = 0.643`,`N/N₀ = e<sup>−0.643</sup> = <b>0.53</b>`,`About half the U-235 is gone after a year at this flux.`]},`U-235 depletion in a year.`,`In practice, flux rises as fuel depletes to keep power constant.`),
+N(`σ<sub>a</sub>φ = 1 × 10⁻⁸ s⁻¹. "Burn half-life" in days? (ln 2 / σ<sub>a</sub>φ, 3 s.f.)`,802,0.005,'days',`0.693/10⁻⁸ = 6.93 × 10⁷ s ÷ 86,400 = 802 days.`),
+Q(`What plays the role of the decay constant in burnup?`,[`σ<sub>a</sub>φ`,`λ`,`Σ<sub>t</sub>`,`k<sub>eff</sub>`],0,`Absorption rate per nucleus.`),
+T(`<h3>Constant power</h3><p>Power ∝ Σ<sub>f</sub>φ ∝ Nφ. As N falls, operators let φ rise to keep power constant, so the depletion speeds up through the cycle. Codes handle this by stepping through time in small burnup steps.</p>`),
+T(`<h3>Key points</h3><ul><li><b>dN/dt = −σ<sub>a</sub>φN</b>: burnup behaves like decay.</li><li><b>Fluence φt</b> measures exposure
