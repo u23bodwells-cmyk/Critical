@@ -14257,6 +14257,1010 @@ Q(`In an evaluation question, the conclusion should…`,[`make a judgement and s
 /* every Computer Science unit gets a unit test built from its own lesson questions */
 UNITS.forEach(function(u){if(u.track!=='gcs'||TESTS[u.id])return;var cs=[];u.lessons.forEach(function(l){l.cards.forEach(function(c){if(c.t==='Q'||c.t==='N')cs.push(x(l.id,Object.assign({},c)))})});TT(u.id,cs)});
 /* ===== gcse levels end ===== */
+/* >>> new content: al >>> */
+/* ========== A-LEVEL CHEMISTRY (AQA 7405) · LEVEL 1 bridge · LEVEL 2 Year 12 ========== */
+CGEN.c_idealgas=function(){var p=cR(80,250)*1000,V=cR(5,40)/1000,T=cR(273,400),n=Math.round(p*V/(8.31*T)*1000)/1000;
+ return {p:'A gas at '+(p/1000)+' kPa occupies '+(V*1000)+' dm³ at '+T+' K. How many moles? (R = 8.31, 3 d.p.)',b:[cB(n,'n = ',' mol','moles',false,0.004)],e:'Convert: p = '+pE(p)+' Pa, V = '+pE(V)+' m³. n = pV/RT = '+pE(p)+' × '+pE(V)+' ÷ (8.31 × '+T+') = '+cNum(n)+' mol.'}};
+CGEN.c_enth=function(){var m=cR(25,100),dT=cR(3,30)/2,n=cR(5,50)/1000,q=m*4.18*dT,H=Math.round(-q/n/1000*10)/10;
+ return {p:m+' g of water rises by '+cNum(dT)+' °C when '+cNum(n)+' mol of fuel burns. Find ΔH in kJ mol⁻¹. (c = 4.18 J g⁻¹ K⁻¹, 1 d.p.)',b:[cB(H,'ΔH = ',' kJ mol⁻¹','enthalpy',false,0.005)],e:'q = mcΔT = '+m+' × 4.18 × '+cNum(dT)+' = '+cNum(Math.round(q*10)/10)+' J. ΔH = −q/n = −'+cNum(Math.round(q*10)/10)+' ÷ '+cNum(n)+' = '+cNum(H)+' kJ mol⁻¹ (negative: exothermic).'}};
+CGEN.c_bondH=function(){var R=cP([['CH₄ + 2O₂ → CO₂ + 2H₂O','4(C–H) + 2(O=O)','2(C=O) + 4(O–H)',4*413+2*498,2*805+4*464],['H₂ + Cl₂ → 2HCl','H–H + Cl–Cl','2(H–Cl)',436+243,2*432],['N₂ + 3H₂ → 2NH₃','N≡N + 3(H–H)','6(N–H)',945+3*436,6*391],['2H₂ + O₂ → 2H₂O','2(H–H) + O=O','4(O–H)',2*436+498,4*464]]),v=R[3]-R[4];
+ return {p:'Use mean bond enthalpies to find ΔH for '+R[0]+'. (C–H 413, O=O 498, C=O 805, O–H 464, H–H 436, Cl–Cl 243, H–Cl 432, N≡N 945, N–H 391 kJ mol⁻¹)',b:[cB(v,'ΔH = ',' kJ mol⁻¹','enthalpy')],e:'Broken: '+R[1]+' = '+R[3]+'. Made: '+R[2]+' = '+R[4]+'. ΔH = broken − made = '+cNum(v)+' kJ mol⁻¹.'}};
+CGEN.c_kc=function(){var A=cR(1,9)/10,B=cR(1,9)/10,C=cR(1,20)/10,K=Math.round(C*C/(A*B)*100)/100;
+ return {p:'H₂ + I₂ ⇌ 2HI. At equilibrium [H₂] = '+A+', [I₂] = '+B+', [HI] = '+C+' mol dm⁻³. Find K<sub>c</sub>. (2 d.p.)',b:[cB(K,'K<sub>c</sub> = ','','Kc',false,0.006)],e:'K<sub>c</sub> = [HI]² ÷ ([H₂][I₂]) = '+cNum(C*C)+' ÷ ('+A+' × '+B+') = '+cNum(K)+'. No units: they cancel here.'}};
+CGEN.c_mr=function(){var F=cP([['H₂SO₄',98.1],['CaCO₃',100.1],['NaOH',40.0],['C₆H₁₂O₆',180.0],['MgCl₂',95.3],['CuSO₄·5H₂O',249.7],['NH₄NO₃',80.0],['Na₂CO₃',106.0]]),m=cR(1,50),n=Math.round(m/F[1]*10000)/10000;
+ return {p:'How many moles in '+m+' g of '+F[0]+'? (M<sub>r</sub> = '+F[1]+', 4 d.p.)',b:[cB(n,'n = ',' mol','moles',false,0.003)],e:'n = m/M<sub>r</sub> = '+m+' ÷ '+F[1]+' = '+cNum(n)+' mol.'}};
+
+/* ---- Level 1: GCSE to A-level ---- */
+U({id:'ac1-1',track:'ac',level:1,title:'Moles and equations',icon:'mol',color:'#7F77DD',desc:'Moles from masses and solutions, balancing equations and ionic equations.',lessons:[
+LH('ac1-1-1','The mole',9,'Chemists count particles by weighing them. The mole makes that possible.',[
+RM(`<p>Relative formula mass M<sub>r</sub> = sum of the relative atomic masses. One mole = 6.02 × 10²³ particles (Avogadro's constant).</p>`),
+T(`<h3>The key equation</h3><div class="eq">n = m / M<sub>r</sub></div>${KY([['n','amount','mol'],['m','mass','g'],['M<sub>r</sub>','relative formula mass','g mol⁻¹']])}<p>Number of particles = n × 6.02 × 10²³.</p>`),
+W('calcDrill',{skill:'c_mr',need:3},`Moles from mass. Get 3 right to master it.`,`n = m/M<sub>r</sub>.`),
+N(`How many molecules in 0.50 mol of water? (× 10²³, 2 d.p.)`,3.01,0.005,'× 10²³',`0.50 × 6.02 × 10²³.`),
+T(`<h3>Reacting masses</h3><p>Masses → moles → use the equation's ratio → moles → masses. In 2H₂ + O₂ → 2H₂O, 2 mol of H₂ gives 2 mol of H₂O.</p>`),
+T(`<h3>Key points</h3><ul><li><b>n = m/M<sub>r</sub></b>.</li><li>Particles = n × 6.02 × 10²³.</li><li>Mass → moles → ratio → moles → mass.</li></ul>`)]),
+LH('ac1-1-2','Solutions and titrations',10,'Concentration, and how titrations measure it precisely.',[
+RM(`<p>n = m/M<sub>r</sub>. 1 dm³ = 1000 cm³.</p>`),
+T(`<h3>Concentration</h3><div class="eq">n = c × V&nbsp;&nbsp;(V in dm³)</div><p>Divide cm³ by 1000 to get dm³.</p>`),
+W('calcDrill',{skill:'g_conc',need:3},`Concentration. Get 3 right to master it.`,`n = cV.`),
+T(`<h3>Titrations</h3><ol><li>Moles of the known solution: n = cV.</li><li>Use the equation's ratio.</li><li>Concentration of the unknown: c = n/V.</li></ol><p>Use <b>concordant</b> titres (within 0.10 cm³) for the mean.</p>`),
+W('calcDrill',{skill:'g_titr',need:2},`Titration calculations. Get 2 right to master it.`,`n = cV, ratio, c = n/V.`),
+T(`<h3>Key points</h3><ul><li><b>n = cV</b>, V in dm³.</li><li>Titration: moles, ratio, concentration.</li><li>Average concordant titres only.</li></ul>`)]),
+LH('ac1-1-3','Balancing and ionic equations',9,'State symbols, balancing, and showing only the ions that react.',[
+RM(`<p>Atoms aren't created or destroyed. Soluble ionic compounds split into ions in solution.</p>`),
+T(`<h3>Balancing</h3><p>Change the big numbers in front, never the formulas. Balance elements that appear once first, then the rest. Include state symbols: (s), (l), (g), (aq).</p>`),
+W('calcDrill',{skill:'g_balance',need:3},`Balancing equations. Get 3 right to master it.`,`Count atoms on each side.`),
+T(`<h3>Ionic equations</h3><p>Write only the ions that change. Every acid–alkali neutralisation is:</p><div class="eq">H⁺(aq) + OH⁻(aq) → H₂O(l)</div><p>The other ions are <b>spectator ions</b>.</p>`),
+Q(`Ionic equation for silver chloride precipitating from AgNO₃ and NaCl?`,[`Ag⁺(aq) + Cl⁻(aq) → AgCl(s)`,`AgNO₃ + NaCl → AgCl + NaNO₃`,`Na⁺ + NO₃⁻ → NaNO₃`,`Ag + Cl → AgCl`],0,`Na⁺ and NO₃⁻ are spectators.`),
+T(`<h3>Key points</h3><ul><li>Balance with coefficients only.</li><li>State symbols.</li><li><b>Ionic equations</b> leave out spectator ions.</li></ul>`)])
+]});
+
+U({id:'ac1-2',track:'ac',level:1,title:'Atoms and bonding',icon:'e⁻',color:'#1D9E75',desc:'Atomic structure and isotopes, and the three types of bonding.',lessons:[
+LH('ac1-2-1','Atoms and isotopes',9,'Protons, neutrons, electrons, and why relative atomic masses aren\'t whole numbers.',[
+RM(`<p>Protons +1, neutrons 0, electrons −1. Mass number = protons + neutrons. Isotopes: same protons, different neutrons.</p>`),
+T(`<h3>Relative atomic mass</h3><p>A<sub>r</sub> is the <b>weighted mean</b> mass of an element's isotopes, relative to 1/12 of carbon-12:</p><div class="eq">A<sub>r</sub> = Σ(isotope mass × abundance) ÷ total abundance</div>`),
+N(`Chlorine: 75% Cl-35, 25% Cl-37. A<sub>r</sub>? (1 d.p.)`,35.5,0.001,'',`(35 × 75 + 37 × 25)/100 = 35.5.`),
+Q(`Isotopes of an element have the same chemical properties because they have the same…`,[`electron arrangement`,`mass`,`number of neutrons`,`density`],0,`Chemistry is about electrons.`),
+T(`<h3>Key points</h3><ul><li>A<sub>r</sub> is a <b>weighted mean</b> relative to ¹²C.</li><li>Isotopes: same chemistry, different mass.</li><li>Mass spectrometry measures isotope abundances (Year 12).</li></ul>`)]),
+LH('ac1-2-2','Ionic, covalent and metallic bonding',10,'Three ways atoms hold together, and the properties each one gives.',[
+RM(`<p>Metals lose electrons to form positive ions; non-metals gain them to form negative ions. Covalent bonds share pairs of electrons.</p>`),
+T(`<h3>The three types</h3><ul><li><b>Ionic</b>: electrostatic attraction between oppositely charged ions in a giant lattice. High melting points; conduct when molten or dissolved.</li><li><b>Covalent</b>: a shared pair of electrons. Simple molecules (low melting points) or giant covalent structures (diamond, very high).</li><li><b>Metallic</b>: positive ions in a sea of delocalised electrons. Conduct; malleable.</li></ul>`),
+W('matchPairs',{pairs:[['NaCl','Ionic lattice'],['Diamond','Giant covalent'],['CO₂','Simple molecular'],['Copper','Metallic']]},`Match each substance to its structure.`),
+Q(`Why do ionic compounds conduct when molten but not when solid?`,[`The ions are free to move when molten`,`Electrons appear when it melts`,`Solids have no ions`,`Heat conducts electricity`],0,`Mobile charge carriers.`),
+T(`<h3>Key points</h3><ul><li><b>Ionic</b>: lattice of ions. <b>Covalent</b>: shared pairs. <b>Metallic</b>: delocalised electrons.</li><li>Structure explains melting point and conductivity.</li><li>Simple molecular: weak forces between molecules.</li></ul>`)]),
+LH('ac1-2-3','Electron shells to sub-shells',9,'GCSE\'s 2,8,8 becomes s, p and d sub-shells at A-level.',[
+RM(`<p>GCSE electron shells: 2, 8, 8. The outer shell decides the group.</p>`),
+T(`<h3>Sub-shells</h3><p>Shells split into <b>sub-shells</b>: s (holds 2), p (6), d (10). Fill in order of energy:</p><div class="eq">1s 2s 2p 3s 3p 4s 3d 4p</div><p>Sodium (11 electrons): 1s² 2s² 2p⁶ 3s¹. Note 4s fills <b>before</b> 3d.</p>`),
+Q(`Electron configuration of oxygen (8 electrons)?`,[`1s² 2s² 2p⁴`,`1s² 2s⁶`,`1s² 2p⁶`,`2, 6`],0,`2 + 2 + 4.`),
+T(`<h3>Blocks of the periodic table</h3><p>Groups 1–2 are the <b>s-block</b>, groups 3–0 the <b>p-block</b>, transition metals the <b>d-block</b>: named after the sub-shell being filled.</p>`),
+T(`<h3>Key points</h3><ul><li>s holds 2, p 6, d 10.</li><li>Order: 1s 2s 2p 3s 3p <b>4s 3d</b> 4p.</li><li>s, p and d blocks.</li></ul>`)])
+]});
+
+/* ---- Level 2: Year 12 ---- */
+U({id:'ac2-1',track:'ac',level:2,title:'Atomic structure and amount of substance',icon:'IE',color:'#7F77DD',desc:'Electron configurations and ionisation energies, mass spectrometry, and the ideal gas equation and yields.',lessons:[
+LH('ac2-1-1','Ionisation energies',11,'How hard it is to pull electrons off reveals the shells inside the atom.',[
+RM(`<p>Sub-shells s, p, d fill in energy order. Nuclear charge attracts electrons; inner electrons shield outer ones.</p>`),
+T(`<h3>First ionisation energy</h3><p>The energy to remove one mole of electrons from one mole of gaseous atoms:</p><div class="eq">X(g) → X⁺(g) + e⁻</div><p>It depends on <b>nuclear charge</b>, <b>distance</b> from the nucleus and <b>shielding</b>.</p>`),
+T(`<h3>Trends</h3><ul><li><b>Down a group</b>: falls (more shells, more shielding, further away).</li><li><b>Across a period</b>: generally rises (more protons, similar shielding).</li><li><b>Dips</b>: Al is lower than Mg (3p electron is higher in energy than 3s), and S is lower than P (pairing repulsion in a 3p orbital).</li></ul>`),
+Q(`Why is the first ionisation energy of aluminium lower than magnesium's?`,[`Al's outer electron is in a 3p sub-shell, higher in energy than 3s`,`Al has fewer protons`,`Al is a non-metal`,`Mg has more shielding`],0,`The p-electron is easier to remove.`),
+T(`<h3>Successive ionisation energies</h3><p>A big jump shows a new, inner shell. For sodium the jump is between the 1st and 2nd ionisation energies: Na has 1 outer electron, so it's in group 1.</p>`),
+Q(`An element's big jump comes between its 3rd and 4th ionisation energies. Which group?`,[`Group 3`,`Group 4`,`Group 2`,`Group 1`],0,`Three outer electrons.`),
+T(`<h3>Key points</h3><ul><li>X(g) → X⁺(g) + e⁻.</li><li>Down a group falls; across a period rises, with dips at groups 3 and 6.</li><li>Jumps in successive IEs show shells.</li></ul>`)]),
+LH('ac2-1-2','Mass spectrometry and formulae',10,'Measure the masses of ions, and work out empirical and molecular formulae.',[
+RM(`<p>A<sub>r</sub> is a weighted mean of isotope masses. n = m/M<sub>r</sub>.</p>`),
+T(`<h3>Time-of-flight mass spectrometry</h3><ol><li><b>Ionisation</b> (electrospray or electron impact).</li><li><b>Acceleration</b>: all ions get the same kinetic energy.</li><li><b>Ion drift</b>: lighter ions move faster.</li><li><b>Detection</b>: lighter ions arrive first.</li></ol><p>The spectrum gives m/z and abundance; the molecular ion peak gives M<sub>r</sub>.</p>`),
+O(`Order the stages of TOF mass spectrometry.`,['Ionisation','Acceleration','Ion drift','Detection'],`Same KE, so lighter ions arrive first.`),
+T(`<h3>Empirical formula</h3><p>Divide each element's mass (or %) by its A<sub>r</sub>, then divide by the smallest. 40% C, 6.7% H, 53.3% O: 3.33 : 6.7 : 3.33 → <b>CH₂O</b>. Molecular formula = a multiple of it matching M<sub>r</sub>.</p>`),
+Q(`Empirical formula CH₂O, M<sub>r</sub> = 180. Molecular formula?`,[`C₆H₁₂O₆`,`CH₂O`,`C₃H₆O₃`,`C₁₂H₂₄O₁₂`],0,`180 ÷ 30 = 6.`),
+T(`<h3>Key points</h3><ul><li>TOF: ionise, accelerate, drift, detect.</li><li>Molecular ion peak = M<sub>r</sub>.</li><li>Empirical formula from % ÷ A<sub>r</sub>.</li></ul>`)]),
+LH('ac2-1-3','Gases, yield and atom economy',11,'The ideal gas equation, and how efficient a reaction really is.',[
+RM(`<p>n = m/M<sub>r</sub>. Kelvin = °C + 273. 1 m³ = 1000 dm³ = 10⁶ cm³.</p>`),
+T(`<h3>pV = nRT</h3><p>Units matter: p in <b>Pa</b>, V in <b>m³</b>, T in <b>K</b>, R = 8.31 J K⁻¹ mol⁻¹.</p>`),
+W('calcDrill',{skill:'c_idealgas',need:2},`Ideal gas moles. Get 2 right to master it.`,`Convert units first.`),
+T(`<h3>Percentage yield and atom economy</h3><div class="eq">% yield = actual ÷ theoretical × 100<br>atom economy = M<sub>r</sub> of desired product ÷ total M<sub>r</sub> of reactants × 100</div><p>High atom economy means less waste: greener and cheaper.</p>`),
+W('calcDrill',{skill:'g_atomecon',need:2},`Atom economy. Get 2 right to master it.`,`Desired ÷ total × 100.`),
+Q(`An addition reaction makes only one product. Its atom economy is…`,[`100%`,`50%`,`0%`,`It depends on the yield`],0,`No waste products.`),
+T(`<h3>Key points</h3><ul><li><b>pV = nRT</b> in Pa, m³, K.</li><li>% yield = actual/theoretical.</li><li>Atom economy = desired/total M<sub>r</sub>.</li></ul>`)])
+]});
+
+U({id:'ac2-2',track:'ac',level:2,title:'Bonding and energetics',icon:'ΔH',color:'#1D9E75',desc:'Shapes of molecules, electronegativity and intermolecular forces, and enthalpy changes.',lessons:[
+LH('ac2-2-1','Shapes of molecules',11,'Electron pairs repel and spread out. That fixes every molecule\'s shape.',[
+RM(`<p>Covalent bonds are shared pairs. Some atoms also have lone pairs.</p>`),
+T(`<h3>VSEPR</h3><p>Electron pairs around the central atom repel and get as far apart as possible. <b>Lone pairs repel more</b> than bonding pairs, squeezing bond angles by about 2.5° each.</p><table class="wtable"><tr><th>Pairs</th><th>Shape</th><th>Angle</th></tr><tr><td>2</td><td>linear</td><td>180°</td></tr><tr><td>3</td><td>trigonal planar</td><td>120°</td></tr><tr><td>4</td><td>tetrahedral</td><td>109.5°</td></tr><tr><td>4 (1 lone)</td><td>pyramidal (NH₃)</td><td>107°</td></tr><tr><td>4 (2 lone)</td><td>bent (H₂O)</td><td>104.5°</td></tr><tr><td>6</td><td>octahedral</td><td>90°</td></tr></table>`),
+W('matchPairs',{pairs:[['CH₄','Tetrahedral, 109.5°'],['NH₃','Pyramidal, 107°'],['H₂O','Bent, 104.5°'],['SF₆','Octahedral, 90°'],['BF₃','Trigonal planar, 120°']]},`Match each molecule to its shape.`),
+Q(`Why is the angle in water smaller than in methane?`,[`Two lone pairs repel more strongly than bonding pairs`,`Water is smaller`,`Oxygen has fewer electrons`,`Hydrogen bonds pull them together`],0,`Lone pair repulsion.`),
+T(`<h3>Key points</h3><ul><li>Pairs repel to maximise separation.</li><li><b>Lone pairs repel more</b>: about −2.5° each.</li><li>Learn the six shapes and angles.</li></ul>`)]),
+LH('ac2-2-2','Electronegativity and intermolecular forces',11,'Why water boils at 100 °C while methane boils at −162 °C.',[
+RM(`<p>Simple molecular substances have weak forces between molecules. Shapes from VSEPR.</p>`),
+T(`<h3>Electronegativity</h3><p>The power of an atom to attract the bonding electrons. Fluorine is the most electronegative. Unequal sharing makes a <b>polar</b> bond (δ+ and δ−). A symmetrical molecule like CO₂ can have polar bonds but no overall dipole.</p>`),
+T(`<h3>Three intermolecular forces (weakest to strongest)</h3><ul><li><b>Van der Waals (induced dipole–dipole)</b>: in all molecules; bigger molecules, stronger.</li><li><b>Permanent dipole–dipole</b>: between polar molecules.</li><li><b>Hydrogen bonding</b>: H bonded to N, O or F, attracted to a lone pair on N, O or F of another molecule.</li></ul>`),
+Q(`Why does water have such a high boiling point for its size?`,[`Hydrogen bonding between molecules`,`Covalent bonds break when it boils`,`It's an ionic compound`,`Van der Waals forces only`],0,`H bonded to O.`),
+Q(`CO₂ has polar bonds but is non-polar overall because…`,[`it's linear, so the dipoles cancel`,`carbon is more electronegative`,`it has hydrogen bonds`,`its bonds are ionic`],0,`Symmetry.`),
+T(`<h3>Key points</h3><ul><li>Electronegativity difference → polar bond.</li><li>Van der Waals < dipole–dipole < <b>hydrogen bonding</b>.</li><li>Boiling simple molecules breaks intermolecular forces, not covalent bonds.</li></ul>`)]),
+LH('ac2-2-3','Enthalpy changes',11,'Measuring heat, Hess\'s law and bond enthalpies.',[
+RM(`<p>Exothermic releases heat (ΔH negative); endothermic absorbs it (ΔH positive). q = mcΔT.</p>`),
+T(`<h3>Calorimetry</h3><div class="eq">q = mcΔT&nbsp;&nbsp;&nbsp; ΔH = −q/n</div><p>m is the mass of <b>water</b> (or solution) heated, not the fuel.</p>`),
+W('calcDrill',{skill:'c_enth',need:2},`Enthalpy from calorimetry. Get 2 right to master it.`,`q = mcΔT, ΔH = −q/n.`),
+T(`<h3>Hess's law</h3><p>The enthalpy change for a reaction is the same whatever the route. So you can find ΔH by going round a cycle via formation or combustion data.</p>`),
+T(`<h3>Bond enthalpies</h3><div class="eq">ΔH = Σ(bonds broken) − Σ(bonds made)</div><p>Mean bond enthalpies are averages over many compounds, so answers are approximate.</p>`),
+W('calcDrill',{skill:'c_bondH',need:2},`Bond enthalpy calculations. Get 2 right to master it.`,`Broken minus made.`),
+T(`<h3>Key points</h3><ul><li><b>q = mcΔT</b>, <b>ΔH = −q/n</b>.</li><li><b>Hess</b>: route doesn't matter.</li><li>Bond enthalpies: <b>broken − made</b>.</li></ul>`)])
+]});
+
+U({id:'ac2-3',track:'ac',level:2,title:'Kinetics, equilibria and inorganic chemistry',icon:'⇌',color:'#378ADD',desc:'Reaction rates, equilibria and Kc, redox, and groups 2 and 7.',lessons:[
+LH('ac2-3-1','Rates and the Maxwell–Boltzmann distribution',10,'Why a small temperature rise can double a reaction\'s rate.',[
+RM(`<p>Particles must collide with at least the activation energy to react. Catalysts speed reactions up without being used up.</p>`),
+T(`<h3>Maxwell–Boltzmann</h3><p>Molecules in a gas have a spread of energies. Only those beyond the <b>activation energy</b> E<sub>a</sub> can react. Raising the temperature shifts the curve right and flattens it: many <b>more</b> molecules exceed E<sub>a</sub>.</p>`),
+Q(`Why does a 10 °C rise often double the rate?`,[`The number of molecules with energy above E<sub>a</sub> increases a lot`,`Molecules get bigger`,`E<sub>a</sub> doubles`,`The number of molecules doubles`],0,`The area beyond E<sub>a</sub> grows sharply.`),
+T(`<h3>Catalysts</h3><p>Provide an alternative route with <b>lower E<sub>a</sub></b>. On the Maxwell–Boltzmann graph, E<sub>a</sub> moves left: more molecules can react, at the same temperature.</p>`),
+Q(`A catalyst changes the Maxwell–Boltzmann curve by…`,[`not changing the curve, but lowering E<sub>a</sub>`,`shifting it right`,`making it taller`,`removing slow molecules`],0,`Same distribution, lower barrier.`),
+T(`<h3>Key points</h3><ul><li>Only molecules with E ≥ E<sub>a</sub> react.</li><li>Higher T: many more above E<sub>a</sub>.</li><li>Catalyst: lower E<sub>a</sub>, same curve.</li></ul>`)]),
+LH('ac2-3-2','Equilibria',11,'Reversible reactions settle to a balance that shifts when you change the conditions.',[
+RM(`<p>⇌ means a reversible reaction. At equilibrium, forward and backward rates are equal.</p>`),
+T(`<h3>Le Chatelier's principle</h3><p>If conditions change, the equilibrium shifts to <b>oppose</b> the change:</p><ul><li>Add reactant: shifts right.</li><li>Raise temperature: shifts in the <b>endothermic</b> direction.</li><li>Raise pressure: shifts to the side with <b>fewer gas moles</b>.</li><li>Catalyst: no shift, just reaches equilibrium faster.</li></ul>`),
+Q(`N₂ + 3H₂ ⇌ 2NH₃ (exothermic). Raising pressure shifts it…`,[`right: fewer gas moles`,`left`,`nowhere`,`right, because it's exothermic`],0,`4 moles → 2.`),
+T(`<h3>K<sub>c</sub></h3><p>For aA + bB ⇌ cC + dD:</p><div class="eq">K<sub>c</sub> = [C]ᶜ[D]ᵈ ÷ [A]ᵃ[B]ᵇ</div><p>Only <b>temperature</b> changes K<sub>c</sub>. Concentration and pressure shift the position but not K<sub>c</sub>.</p>`),
+W('calcDrill',{skill:'c_kc',need:3},`K<sub>c</sub> calculations. Get 3 right to master it.`,`Products over reactants, powered by coefficients.`),
+T(`<h3>Key points</h3><ul><li><b>Le Chatelier</b>: shifts to oppose the change.</li><li><b>K<sub>c</sub> = products/reactants</b>, with powers.</li><li>Only temperature changes K<sub>c</sub>.</li></ul>`)]),
+LH('ac2-3-3','Redox, group 2 and the halogens',11,'Oxidation states, and the trends down two important groups.',[
+RM(`<p>OIL RIG: oxidation is loss of electrons, reduction is gain. Group trends come from atomic size and shielding.</p>`),
+T(`<h3>Oxidation states</h3><p>Elements are 0. In compounds, O is usually −2, H +1, and the total equals the overall charge. In SO₄²⁻: S + 4(−2) = −2, so S is <b>+6</b>.</p>`),
+N(`Oxidation state of Mn in MnO₄⁻?`,7,0.001,'',`Mn + 4(−2) = −1, so Mn = +7.`),
+T(`<h3>Group 2</h3><ul><li>Atomic radius rises, first IE falls, reactivity with water rises down the group.</li><li>Hydroxides get <b>more soluble</b> down the group; sulfates get <b>less soluble</b> (BaSO₄ test for sulfate).</li><li>Mg(OH)₂ treats indigestion; BaSO₄ is used in X-ray "barium meals".</li></ul>`),
+T(`<h3>Group 7</h3><ul><li>Oxidising power <b>falls</b> down the group: Cl₂ oxidises Br⁻ and I⁻.</li><li>Halide ions get <b>stronger reducing agents</b> down the group.</li><li>Silver nitrate test: AgCl white, AgBr cream, AgI yellow.</li></ul>`),
+Q(`Chlorine water is added to potassium bromide. What happens?`,[`Bromine forms: Cl₂ oxidises Br⁻`,`Nothing`,`Chlorine forms`,`A white precipitate`],0,`Cl₂ is the stronger oxidising agent.`),
+T(`<h3>Key points</h3><ul><li>Oxidation states sum to the overall charge.</li><li>Group 2: hydroxides more soluble, sulfates less, down the group.</li><li>Group 7: oxidising power falls down; AgX colours.</li></ul>`)])
+]});
+
+U({id:'ac2-4',track:'ac',level:2,title:'Organic chemistry 1',icon:'C–C',color:'#D85A30',desc:'Naming and isomerism, alkanes and halogenoalkanes, alkenes and alcohols.',lessons:[
+LH('ac2-4-1','Naming and isomerism',10,'IUPAC names, and molecules with the same formula but different structures.',[
+RM(`<p>Homologous series share a general formula and functional group. Alkanes CₙH₂ₙ₊₂, alkenes CₙH₂ₙ.</p>`),
+T(`<h3>Naming</h3><p>Find the longest carbon chain (meth-, eth-, prop-, but-, pent-, hex-), add the functional group ending (-ane, -ene, -ol, -al, -one, -oic acid), number to give the lowest locants. 2-methylbutane, but-2-ene, propan-1-ol.</p>`),
+T(`<h3>Isomerism</h3><ul><li><b>Structural</b>: same molecular formula, different structure (chain, position or functional group isomers).</li><li><b>E/Z stereoisomerism</b>: around a C=C, which can't rotate. Z: higher-priority groups on the same side; E: opposite.</li></ul>`),
+Q(`Why do alkenes show E/Z isomerism?`,[`There's no rotation around a C=C double bond`,`They have more hydrogen`,`They're unsaturated so they react fast`,`All molecules do`],0,`Restricted rotation.`),
+Q(`Butan-1-ol and butan-2-ol are…`,[`position isomers`,`chain isomers`,`E/Z isomers`,`the same molecule`],0,`The OH moves position.`),
+T(`<h3>Key points</h3><ul><li>Longest chain, functional group ending, lowest numbers.</li><li>Structural isomers: chain, position, functional group.</li><li>E/Z from restricted rotation around C=C.</li></ul>`)]),
+LH('ac2-4-2','Alkanes and halogenoalkanes',11,'Free-radical substitution and nucleophilic substitution: your first mechanisms.',[
+RM(`<p>Curly arrows show the movement of a pair of electrons. Halogens are more electronegative than carbon.</p>`),
+T(`<h3>Free-radical substitution</h3><p>CH₄ + Cl₂ in UV light:</p><ul><li><b>Initiation</b>: Cl₂ → 2Cl• (UV splits it).</li><li><b>Propagation</b>: Cl• + CH₄ → HCl + •CH₃; •CH₃ + Cl₂ → CH₃Cl + Cl•.</li><li><b>Termination</b>: two radicals join.</li></ul><p>CFCs break down in the stratosphere this way, releasing Cl• that destroys ozone.</p>`),
+O(`Order the stages of free-radical substitution.`,['Initiation','Propagation','Termination'],`Propagation steps keep the chain going.`),
+T(`<h3>Nucleophilic substitution</h3><p>The C–X bond is polar (C<sup>δ+</sup>). A <b>nucleophile</b> (an electron-pair donor such as OH⁻, CN⁻ or NH₃) attacks the δ+ carbon and the halide leaves. Rate: C–I > C–Br > C–Cl, because C–I is the <b>weakest</b> bond (bond enthalpy matters more than polarity).</p>`),
+Q(`Why does iodoethane react faster than chloroethane with OH⁻?`,[`The C–I bond is weaker`,`C–I is more polar`,`Iodine is smaller`,`Chlorine is a better nucleophile`],0,`Bond enthalpy decides.`),
+T(`<h3>Key points</h3><ul><li>Free radicals: initiation, propagation, termination.</li><li><b>Nucleophiles</b> attack δ+ carbon.</li><li>C–I reacts fastest: weakest bond.</li></ul>`)]),
+LH('ac2-4-3','Alkenes and alcohols',11,'Electrophilic addition, and the oxidation of alcohols.',[
+RM(`<p>A C=C double bond is an area of high electron density. Primary, secondary and tertiary alcohols have the OH on carbons attached to 1, 2 or 3 other carbons.</p>`),
+T(`<h3>Electrophilic addition</h3><p>An <b>electrophile</b> (electron-pair acceptor, like HBr or Br₂) is attracted to the C=C. A carbocation forms, then the bromide adds. With unsymmetrical alkenes, the <b>more stable carbocation</b> (more alkyl groups: tertiary > secondary > primary) gives the major product.</p>`),
+Q(`What does bromine water test for?`,[`C=C double bonds (orange to colourless)`,`Alcohols`,`Carboxylic acids`,`Halogenoalkanes`],0,`Electrophilic addition decolourises it.`),
+T(`<h3>Oxidising alcohols (acidified K₂Cr₂O₇, orange → green)</h3><ul><li><b>Primary</b> → aldehyde (distil off) → carboxylic acid (reflux).</li><li><b>Secondary</b> → ketone.</li><li><b>Tertiary</b>: not oxidised.</li></ul>`),
+W('matchPairs',{pairs:[['Primary alcohol, distil','Aldehyde'],['Primary alcohol, reflux','Carboxylic acid'],['Secondary alcohol','Ketone'],['Tertiary alcohol','No reaction']]},`Match each to its oxidation product.`),
+T(`<h3>Key points</h3><ul><li>Alkenes: <b>electrophilic addition</b>; major product via the more stable carbocation.</li><li>Primary → aldehyde → acid; secondary → ketone; tertiary: none.</li><li>Dichromate: orange to green.</li></ul>`)])
+]});
+
+GOALS.ac1={icon:'🧱',title:'Bridge from GCSE',story:'Only if you need it: moles, equations and bonding brought up to A-level speed.',final:'Ready for A-level chemistry',steps:['Moles and equations','Atoms and bonding']};
+GOALS.ac2={icon:'⚗️',title:'Master Year 12 chemistry',story:'Each unit covers AQA Year 1 physical, inorganic and organic chemistry.',final:'Year 12 complete',steps:['Atomic structure and amount of substance','Bonding and energetics','Kinetics, equilibria and inorganic chemistry','Organic chemistry 1']};
+/* ========== A-LEVEL CHEMISTRY · LEVEL 3 Year 13 · LEVEL 4 A* technique ========== */
+CGEN.c_ph=function(){var t=cR(0,2);if(t===0){var c=cP([0.1,0.01,0.05,0.2,0.001,0.025]),pH=Math.round(-Math.log10(c)*100)/100;return {p:'Find the pH of '+c+' mol dm⁻³ HCl. (2 d.p.)',b:[cB(pH,'pH = ','','pH',false,0.004)],e:'Strong acid: [H⁺] = '+c+'. pH = −log₁₀('+c+') = '+cNum(pH)+'.'}}
+ if(t===1){var c2=cP([0.1,0.05,0.01,0.2]),pH2=Math.round((14+Math.log10(c2))*100)/100;return {p:'Find the pH of '+c2+' mol dm⁻³ NaOH at 298 K. (K<sub>w</sub> = 1.00 × 10⁻¹⁴, 2 d.p.)',b:[cB(pH2,'pH = ','','pH',false,0.004)],e:'[OH⁻] = '+c2+'. [H⁺] = K<sub>w</sub>/[OH⁻] = '+pE(1e-14/c2)+'. pH = '+cNum(pH2)+'.'}}
+ var Ka=cP([1.7e-5,1.8e-5,6.3e-5,1.4e-3]),c3=cP([0.1,0.05,0.2,0.5]),pH3=Math.round(-Math.log10(Math.sqrt(Ka*c3))*100)/100;return {p:'A weak acid has K<sub>a</sub> = '+pE(Ka,2)+' mol dm⁻³. Find the pH of a '+c3+' mol dm⁻³ solution. (2 d.p.)',b:[cB(pH3,'pH = ','','pH',false,0.004)],e:'[H⁺] ≈ √(K<sub>a</sub> × c) = √('+pE(Ka,2)+' × '+c3+') = '+pE(Math.sqrt(Ka*c3))+'. pH = '+cNum(pH3)+'. (Assumes little of the acid dissociates.)'}};
+CGEN.c_gibbs=function(){var H=cP([1,-1])*cR(20,200),S=cP([1,-1])*cR(50,300),T=cR(250,1200),G=Math.round((H-T*S/1000)*10)/10;
+ return {p:'ΔH = '+cNum(H)+' kJ mol⁻¹ and ΔS = '+cNum(S)+' J K⁻¹ mol⁻¹. Find ΔG at '+T+' K, in kJ mol⁻¹. (1 d.p.)',b:[cB(G,'ΔG = ',' kJ mol⁻¹','ΔG',false,0.005)],e:'ΔG = ΔH − TΔS, with ΔS in kJ: '+cNum(H)+' − '+T+' × '+cNum(S/1000)+' = '+cNum(G)+' kJ mol⁻¹. '+(G<=0?'Negative: feasible.':'Positive: not feasible at this temperature.')}};
+CGEN.c_ecell=function(){var E=[['Zn²⁺/Zn',-0.76],['Fe²⁺/Fe',-0.44],['Pb²⁺/Pb',-0.13],['Cu²⁺/Cu',0.34],['Ag⁺/Ag',0.80],['Mg²⁺/Mg',-2.37]],a=cP(E),b;do{b=cP(E)}while(b===a);var hi=a[1]>b[1]?a:b,lo=a[1]>b[1]?b:a,v=Math.round((hi[1]-lo[1])*100)/100;
+ return {p:'A cell is made from '+a[0]+' (E° = '+cNum(a[1])+' V) and '+b[0]+' (E° = '+cNum(b[1])+' V). Find the cell emf.',b:[cB(v,'E<sub>cell</sub> = ',' V','emf',false,0.004)],e:'E<sub>cell</sub> = E°(more positive) − E°(more negative) = '+cNum(hi[1])+' − '+cBr(lo[1])+' = '+cNum(v)+' V. '+lo[0].split('/')[1]+' is oxidised.'}};
+CGEN.c_rate=function(){var m=cR(0,2),n=cR(0,2),k=cR(1,9)/10,A=cR(1,5)/10,B=cR(1,5)/10,r=Math.round(k*Math.pow(A,m)*Math.pow(B,n)*100000)/100000;
+ return {p:'rate = k[A]'+cSup(m)+'[B]'+cSup(n)+' with k = '+k+' (units to suit). Find the rate when [A] = '+A+' and [B] = '+B+' mol dm⁻³. (5 s.f. if needed)',b:[cB(r,'rate = ',' mol dm⁻³ s⁻¹','rate',false,0.004)],e:'rate = '+k+' × '+A+cSup(m)+' × '+B+cSup(n)+' = '+cNum(r)+'. Overall order '+(m+n)+'.'+(m===0?' Zero order in A: changing [A] does nothing.':'')}};
+CGEN.c_order=function(){var o=cR(0,2),f=cP([2,3]),g=Math.pow(f,o);
+ return {p:'Multiplying [A] by '+f+' multiplies the rate by '+g+'. What\'s the order with respect to A?',b:[cB(o,'order = ')],e:f+cSup('order')+' = '+g+', so the order is '+o+'.'}};
+
+/* ---- Level 3: Year 13 ---- */
+U({id:'ac3-1',track:'ac',level:3,title:'Physical chemistry 2',icon:'ΔG',color:'#7F77DD',desc:'Born–Haber cycles, entropy and Gibbs free energy, rate equations, and Kp.',lessons:[
+LH('ac3-1-1','Thermodynamics',12,'Lattice enthalpy, entropy, and the free energy that decides whether a reaction can happen.',[
+RM(`<p>Hess's law: the route doesn't matter. ΔH negative: exothermic.</p>`),
+T(`<h3>Born–Haber cycles</h3><p>A Hess cycle for forming an ionic solid from its elements: atomisation, ionisation energies, electron affinities, and the <b>lattice enthalpy</b> (formation of the lattice from gaseous ions). Use it to find the lattice enthalpy, which can't be measured directly.</p>`),
+T(`<h3>Entropy</h3><p><b>Entropy</b> S measures disorder: the number of ways to arrange particles and energy. Gases ≫ liquids > solids. More gas moles in the products: ΔS positive.</p>`),
+Q(`Which change has a positive entropy change?`,[`CaCO₃(s) → CaO(s) + CO₂(g)`,`H₂O(g) → H₂O(l)`,`N₂ + 3H₂ → 2NH₃`,`Na⁺(g) + Cl⁻(g) → NaCl(s)`],0,`A gas is produced.`),
+T(`<h3>Gibbs free energy</h3><div class="eq">ΔG = ΔH − TΔS</div><p>A reaction is <b>feasible</b> when ΔG ≤ 0. Convert ΔS from J to kJ first! Feasible temperature: T = ΔH/ΔS when ΔG = 0.</p>`),
+W('calcDrill',{skill:'c_gibbs',need:3},`Gibbs free energy. Get 3 right to master it.`,`ΔH − TΔS, ΔS in kJ.`),
+T(`<h3>Key points</h3><ul><li>Born–Haber gives <b>lattice enthalpy</b>.</li><li><b>ΔG = ΔH − TΔS</b>; feasible if ΔG ≤ 0.</li><li>Convert ΔS to kJ K⁻¹ mol⁻¹.</li></ul>`)]),
+LH('ac3-1-2','Rate equations',11,'How each concentration affects the rate, measured by experiment.',[
+RM(`<p>Rates increase with concentration and temperature (collision theory). Activation energy E<sub>a</sub>.</p>`),
+T(`<h3>The rate equation</h3><div class="eq">rate = k[A]ᵐ[B]ⁿ</div><p>Orders m and n are found by <b>experiment</b>, not from the equation. Order 0: no effect. Order 1: doubles with doubling. Order 2: quadruples.</p>`),
+W('calcDrill',{skill:'c_order',need:3},`Finding orders. Get 3 right to master it.`,`factorᵒʳᵈᵉʳ = rate factor.`),
+W('calcDrill',{skill:'c_rate',need:2},`Using rate equations. Get 2 right to master it.`,`Multiply k by each concentration to its order.`),
+T(`<h3>Mechanisms and the Arrhenius equation</h3><p>The <b>rate-determining step</b> (slowest step) contains the species in the rate equation. Temperature changes k:</p><div class="eq">k = Ae<sup>−E<sub>a</sub>/RT</sup>&nbsp;&nbsp; ln k = −E<sub>a</sub>/(RT) + ln A</div><p>Plot ln k against 1/T: gradient = −E<sub>a</sub>/R.</p>`),
+Q(`A plot of ln k against 1/T has gradient −5000 K. E<sub>a</sub> = …`,[`5000 × 8.31 J mol⁻¹ ≈ 41.6 kJ mol⁻¹`,`5000 J mol⁻¹`,`−5000 J mol⁻¹`,`8.31 kJ mol⁻¹`],0,`Gradient = −E<sub>a</sub>/R.`),
+T(`<h3>Key points</h3><ul><li><b>rate = k[A]ᵐ[B]ⁿ</b>; orders by experiment.</li><li>Rate-determining step matches the rate equation.</li><li><b>Arrhenius</b>: ln k vs 1/T, gradient −E<sub>a</sub>/R.</li></ul>`)]),
+LH('ac3-1-3','Gas equilibria and Kp',10,'For gases, use partial pressures instead of concentrations.',[
+RM(`<p>K<sub>c</sub> = products/reactants with powers. Only temperature changes K. Le Chatelier.</p>`),
+T(`<h3>Partial pressures</h3><div class="eq">mole fraction x = n(gas) ÷ total moles&nbsp;&nbsp;&nbsp; partial pressure p = x × total pressure</div>`),
+N(`A mixture has 2 mol N₂ and 6 mol H₂ at 400 kPa. Partial pressure of N₂ (kPa)?`,100,0.001,'kPa',`x = 2/8 = 0.25; 0.25 × 400.`),
+T(`<h3>K<sub>p</sub></h3><p>For N₂ + 3H₂ ⇌ 2NH₃:</p><div class="eq">K<sub>p</sub> = p(NH₃)² ÷ [p(N₂) × p(H₂)³]</div><p>As with K<sub>c</sub>, only temperature changes K<sub>p</sub>. For an exothermic reaction, raising T makes K<sub>p</sub> smaller.</p>`),
+Q(`The Haber process is exothermic. Raising the temperature makes K<sub>p</sub>…`,[`smaller`,`bigger`,`unchanged`,`zero`],0,`Equilibrium shifts left.`),
+T(`<h3>Key points</h3><ul><li>Partial pressure = mole fraction × total.</li><li><b>K<sub>p</sub></b> uses partial pressures.</li><li>Only temperature changes K<sub>p</sub>.</li></ul>`)])
+]});
+
+U({id:'ac3-2',track:'ac',level:3,title:'Electrochemistry and acids',icon:'pH',color:'#1D9E75',desc:'Electrode potentials and cells, pH and Ka, and buffers.',lessons:[
+LH('ac3-2-1','Electrode potentials and cells',11,'Pair two half-cells and electrons flow from one to the other.',[
+RM(`<p>Oxidation is loss of electrons; reduction is gain. More reactive metals lose electrons more easily.</p>`),
+T(`<h3>Standard electrode potentials</h3><p>E° is measured against the <b>standard hydrogen electrode</b> (0.00 V) at 298 K, 100 kPa, 1 mol dm⁻³. More <b>negative</b> E°: a better reducing agent (more easily oxidised). More <b>positive</b>: a better oxidising agent.</p>`),
+W('calcDrill',{skill:'c_ecell',need:3},`Cell emf. Get 3 right to master it.`,`More positive minus more negative.`),
+T(`<h3>Cells you use</h3><ul><li><b>Non-rechargeable</b>: alkaline batteries.</li><li><b>Rechargeable</b>: lithium-ion; the reactions reverse when charging.</li><li><b>Fuel cells</b>: hydrogen and oxygen make electricity and water, as long as fuel is supplied.</li></ul>`),
+Q(`In a cell, which electrode is oxidised?`,[`The one with the more negative E°`,`The one with the more positive E°`,`The hydrogen electrode always`,`Neither`],0,`It loses electrons.`),
+T(`<h3>Key points</h3><ul><li>E° against the hydrogen electrode.</li><li><b>E<sub>cell</sub> = E°(positive) − E°(negative)</b>.</li><li>More negative E° is oxidised.</li></ul>`)]),
+LH('ac3-2-2','pH and Ka',11,'pH for strong acids, weak acids and bases.',[
+RM(`<p>Acids donate H⁺ (protons); bases accept them. log₁₀ and powers of ten.</p>`),
+T(`<h3>pH</h3><div class="eq">pH = −log₁₀[H⁺]&nbsp;&nbsp;&nbsp; K<sub>w</sub> = [H⁺][OH⁻] = 1.00 × 10⁻¹⁴ at 298 K</div><ul><li><b>Strong acid</b>: fully dissociates, [H⁺] = concentration.</li><li><b>Strong base</b>: find [OH⁻], then [H⁺] = K<sub>w</sub>/[OH⁻].</li><li><b>Weak acid</b>: K<sub>a</sub> = [H⁺][A⁻]/[HA]; approximately [H⁺] = √(K<sub>a</sub>c).</li></ul>`),
+W('calcDrill',{skill:'c_ph',need:4},`pH calculations. Get 4 right to master it.`,`Strong acid, strong base or weak acid?`),
+Q(`Diluting a strong acid by a factor of 10 changes its pH by…`,[`+1`,`−1`,`+10`,`0`],0,`[H⁺] falls tenfold.`),
+T(`<h3>Key points</h3><ul><li><b>pH = −log[H⁺]</b>.</li><li>Strong bases: use K<sub>w</sub>.</li><li>Weak acids: <b>[H⁺] = √(K<sub>a</sub>c)</b>; pK<sub>a</sub> = −log K<sub>a</sub>.</li></ul>`)]),
+LH('ac3-2-3','Buffers and titration curves',10,'Solutions that resist pH change, and the shapes of pH curves.',[
+RM(`<p>K<sub>a</sub> = [H⁺][A⁻]/[HA]. Neutralisation: H⁺ + OH⁻ → H₂O.</p>`),
+T(`<h3>Buffers</h3><p>A weak acid plus its salt (lots of HA and A⁻). Add acid: A⁻ mops up H⁺. Add alkali: HA releases H⁺ to replace what's removed. pH barely changes. Blood is buffered by carbonic acid and hydrogencarbonate at pH 7.4.</p><div class="eq">[H⁺] = K<sub>a</sub> × [HA]/[A⁻]</div>`),
+N(`A buffer has [HA] = [A⁻] and K<sub>a</sub> = 1.0 × 10⁻⁵. pH?`,5,0.001,'',`[H⁺] = K<sub>a</sub>, pH = pK<sub>a</sub> = 5.`),
+T(`<h3>Titration curves</h3><p>A steep vertical section at the equivalence point. Choose an <b>indicator</b> whose colour change falls within it: phenolphthalein for strong base–weak acid; methyl orange for strong acid–weak base. At the <b>half-equivalence</b> point of a weak acid, pH = pK<sub>a</sub>.</p>`),
+Q(`At half-neutralisation of a weak acid, pH equals…`,[`pK<sub>a</sub>`,`7`,`pK<sub>w</sub>`,`0`],0,`[HA] = [A⁻].`),
+T(`<h3>Key points</h3><ul><li>Buffer: weak acid + its salt.</li><li><b>[H⁺] = K<sub>a</sub>[HA]/[A⁻]</b>.</li><li>Half-equivalence: pH = pK<sub>a</sub>.</li></ul>`)])
+]});
+
+U({id:'ac3-3',track:'ac',level:3,title:'Inorganic chemistry 2',icon:'d',color:'#378ADD',desc:'Period 3, transition metals and complexes, and catalysts and reactions of ions.',lessons:[
+LH('ac3-3-1','Period 3',10,'Elements and oxides across sodium to argon: from basic to acidic.',[
+RM(`<p>Ionic oxides of metals are basic; covalent oxides of non-metals are acidic.</p>`),
+T(`<h3>Oxides across period 3</h3><ul><li><b>Na₂O, MgO</b>: ionic, basic. Na₂O gives NaOH (pH 14).</li><li><b>Al₂O₃</b>: <b>amphoteric</b>: reacts with acids and bases.</li><li><b>SiO₂</b>: giant covalent, acidic (reacts with hot bases), insoluble.</li><li><b>P₄O₁₀, SO₂, SO₃</b>: simple covalent, acidic. SO₃ gives H₂SO₄ (pH 0–1).</li></ul>`),
+Q(`Which period 3 oxide is amphoteric?`,[`Al₂O₃`,`Na₂O`,`SO₃`,`MgO`],0,`Reacts with both acids and bases.`),
+T(`<h3>Melting points</h3><p>Ionic and giant covalent oxides (MgO, SiO₂) have high melting points; simple molecular oxides (SO₂) low.</p>`),
+T(`<h3>Key points</h3><ul><li>Basic (ionic) → amphoteric (Al₂O₃) → acidic (covalent).</li><li>Structure explains melting points.</li><li>Na₂O pH 14; SO₃ pH 0–1.</li></ul>`)]),
+LH('ac3-3-2','Transition metals and complexes',11,'Colour, variable oxidation states and complex ions.',[
+RM(`<p>d-block elements fill the 3d sub-shell. 4s fills before 3d, but empties first.</p>`),
+T(`<h3>What makes a transition metal</h3><p>An element that forms at least one stable ion with an <b>incomplete d sub-shell</b>. Properties: variable oxidation states, coloured ions, catalytic activity, complex ion formation.</p>`),
+T(`<h3>Complexes</h3><p>A central metal ion with <b>ligands</b> bonded by co-ordinate (dative) bonds. [Cu(H₂O)₆]²⁺ is octahedral (6 ligands). [CuCl₄]²⁻ is tetrahedral (Cl⁻ is bigger). Bidentate ligands like ethane-1,2-diamine form two bonds each; EDTA⁴⁻ forms six.</p>`),
+Q(`What's the co-ordination number of [Cu(H₂O)₆]²⁺?`,[`6`,`2`,`4`,`1`],0,`Six co-ordinate bonds.`),
+T(`<h3>Colour</h3><p>Ligands split the d orbitals. Electrons absorb light of energy ΔE = hf to jump between them; we see the complementary colour. Change the ligand, oxidation state or co-ordination number, and the colour changes.</p>`),
+Q(`Why do transition metal complexes have colour?`,[`d-electrons absorb visible light to move between split d orbitals`,`They emit light when heated`,`The ligands are coloured`,`They reflect all light`],0,`ΔE = hf in the visible range.`),
+T(`<h3>Key points</h3><ul><li>Incomplete d sub-shell in an ion.</li><li>Ligands, co-ordination number, shapes.</li><li>Colour from d-orbital splitting: <b>ΔE = hf</b>.</li></ul>`)]),
+LH('ac3-3-3','Catalysts and reactions of ions',10,'How transition metals catalyse reactions, and the colour tests for metal ions.',[
+RM(`<p>Catalysts lower activation energy. Transition metals have variable oxidation states.</p>`),
+T(`<h3>Two kinds of catalyst</h3><ul><li><b>Heterogeneous</b>: different phase (iron in the Haber process, V₂O₅ in the Contact process). Reactants adsorb onto the surface.</li><li><b>Homogeneous</b>: same phase, working through an intermediate. Fe²⁺ catalyses the S₂O₈²⁻ / I⁻ reaction by changing oxidation state.</li></ul>`),
+T(`<h3>Tests with hydroxide</h3><table class="wtable"><tr><th>Ion</th><th>With OH⁻</th></tr><tr><td>Cu²⁺</td><td>blue precipitate</td></tr><tr><td>Fe²⁺</td><td>green precipitate</td></tr><tr><td>Fe³⁺</td><td>orange-brown precipitate</td></tr><tr><td>Al³⁺</td><td>white, dissolves in excess</td></tr></table>`),
+W('matchPairs',{pairs:[['Cu²⁺ + OH⁻','Blue precipitate'],['Fe²⁺ + OH⁻','Green precipitate'],['Fe³⁺ + OH⁻','Orange-brown precipitate'],['Al³⁺ + excess OH⁻','White precipitate that dissolves']]},`Match each test to its result.`),
+Q(`Why can catalysts be "poisoned"?`,[`Impurities bind to the surface and block active sites`,`They run out of electrons`,`They become reactants`,`Temperature rises`],0,`Heterogeneous surfaces.`),
+T(`<h3>Key points</h3><ul><li>Heterogeneous (surface) vs homogeneous (intermediate).</li><li>Variable oxidation states enable catalysis.</li><li>Learn the hydroxide precipitate colours.</li></ul>`)])
+]});
+
+U({id:'ac3-4',track:'ac',level:3,title:'Organic chemistry 2',icon:'C=O',color:'#D85A30',desc:'Carbonyls and acylation, aromatics, amines and polymers, and spectroscopy and synthesis.',lessons:[
+LH('ac3-4-1','Carbonyls and acyl chlorides',11,'Aldehydes, ketones, carboxylic acids, esters and acylation.',[
+RM(`<p>Primary alcohols oxidise to aldehydes then acids; secondary to ketones. Nucleophiles attack δ+ carbon.</p>`),
+T(`<h3>Carbonyls</h3><ul><li><b>Tests</b>: Tollens' reagent (silver mirror) and Fehling's (brick-red) are positive for aldehydes, not ketones.</li><li><b>Nucleophilic addition</b>: HCN (from KCN) adds across C=O to give a hydroxynitrile. NaBH₄ reduces carbonyls to alcohols.</li></ul>`),
+Q(`Which reagent distinguishes an aldehyde from a ketone?`,[`Tollens' reagent`,`Bromine water`,`Acidified dichromate only works on ketones`,`Silver nitrate`],0,`Silver mirror with aldehydes.`),
+T(`<h3>Acids, esters and acylation</h3><ul><li>Carboxylic acid + alcohol ⇌ ester + water (acid catalyst).</li><li><b>Acyl chlorides</b> are far more reactive: with water → acid; alcohol → ester; ammonia → amide; amine → N-substituted amide. Mechanism: <b>nucleophilic addition–elimination</b>.</li><li>Aspirin is made by acylating salicylic acid with ethanoic anhydride.</li></ul>`),
+Q(`Ethanoyl chloride reacts with ammonia. The organic product is…`,[`ethanamide`,`ethanoic acid`,`ethyl ethanoate`,`ethylamine`],0,`Acyl chloride + NH₃ → amide + HCl.`),
+Q(`NaBH₄ reduces propanone to…`,[`propan-2-ol`,`propan-1-ol`,`propanal`,`propanoic acid`],0,`A ketone gives a secondary alcohol.`),
+T(`<h3>Key points</h3><ul><li>Tollens' and Fehling's identify aldehydes.</li><li>Nucleophilic <b>addition</b> to C=O.</li><li>Acyl chlorides: <b>addition–elimination</b>.</li></ul>`)]),
+LH('ac3-4-2','Aromatics, amines and polymers',11,'Benzene\'s special stability, bases from ammonia, and the giant molecules of plastics and proteins.',[
+RM(`<p>Electrophilic addition for alkenes. Nucleophiles donate a lone pair.</p>`),
+T(`<h3>Benzene</h3><p>A ring of delocalised π electrons makes benzene more stable than a theoretical cyclohexatriene (by about 150 kJ mol⁻¹). So it does <b>electrophilic substitution</b>, not addition: nitration with HNO₃/H₂SO₄ (via NO₂⁺) and Friedel–Crafts acylation.</p>`),
+Q(`Why does benzene do substitution, not addition?`,[`Substitution keeps the stable delocalised ring`,`Benzene has no electrons`,`Addition is too fast`,`It has no double bonds at all`],0,`Delocalisation stability.`),
+T(`<h3>Amines and polymers</h3><ul><li><b>Amines</b> are bases: the N lone pair accepts H⁺. Alkyl amines are stronger bases than ammonia; aromatic amines weaker.</li><li><b>Condensation polymers</b>: polyesters (Terylene) and polyamides (nylon, Kevlar), losing water each link. Unlike addition polymers, they can be <b>hydrolysed</b> and some are biodegradable.</li><li><b>Amino acids</b> join into proteins by peptide links; <b>DNA</b> pairs bases by hydrogen bonds.</li></ul>`),
+W('matchPairs',{pairs:[['Nylon','Polyamide'],['Terylene','Polyester'],['Poly(ethene)','Addition polymer'],['Protein','Polypeptide']]},`Match each polymer.`),
+Q(`Which is the strongest base?`,[`Ethylamine`,`Ammonia`,`Phenylamine`,`Water`],0,`The alkyl group pushes electron density onto the N lone pair.`),
+Q(`Why can polyesters be broken down but poly(ethene) can't, easily?`,[`Ester links can be hydrolysed; C–C chains can't`,`Poly(ethene) is ionic`,`Polyesters have no bonds`,`Poly(ethene) dissolves in water`],0,`Hydrolysis of the linkage.`),
+T(`<h3>Key points</h3><ul><li>Benzene: <b>electrophilic substitution</b>.</li><li>Amines are bases (lone pair on N).</li><li>Condensation polymers can be hydrolysed.</li></ul>`)]),
+LH('ac3-4-3','Spectroscopy and synthesis',12,'Work out an unknown structure from its spectra, and plan a route to make a molecule.',[
+RM(`<p>Mass spectrometry: molecular ion gives M<sub>r</sub>. Functional groups react in characteristic ways.</p>`),
+T(`<h3>Three techniques</h3><ul><li><b>Infrared</b>: bonds absorb at characteristic wavenumbers. Broad O–H (acid) 2500–3000 cm⁻¹; O–H (alcohol) 3230–3550; C=O about 1700.</li><li><b>¹³C NMR</b>: number of peaks = number of carbon environments.</li><li><b>¹H NMR</b>: number of peaks = proton environments; <b>integration</b> = relative numbers of H; <b>splitting</b> follows the n + 1 rule (n = H on neighbouring carbons). TMS is the reference at δ = 0.</li></ul>`),
+Q(`A ¹H NMR peak is a quartet. How many H are on the neighbouring carbon(s)?`,[`3`,`4`,`2`,`1`],0,`n + 1 = 4.`),
+W('stepCalc',{steps:[`Unknown: M<sub>r</sub> 74, IR broad peak at 2500–3000 and a peak at 1710 cm⁻¹.`,`Broad O–H plus C=O: a carboxylic acid.`,`M<sub>r</sub> 74: CₙH₂ₙ₊₁COOH, 14n + 46 = 74, so n = 2: C₂H₅COOH.`,`¹H NMR: triplet (3H), quartet (2H), singlet (1H, the COOH).`,`<b>Propanoic acid</b>`]},`Solve a structure.`,`Combine all the clues.`),
+T(`<h3>Synthesis and chromatography</h3><p>Plan multi-step routes using the reactions you know (alkene → halogenoalkane → alcohol → aldehyde → acid…). Separate and identify products with <b>chromatography</b> (TLC: R<sub>f</sub> values; gas and column chromatography).</p>`),
+Q(`A strong IR absorption near 1700 cm⁻¹ shows…`,[`a C=O group`,`an O–H group`,`a C–H bond only`,`a benzene ring`],0,`Carbonyl stretch.`),
+Q(`How many peaks in the ¹³C NMR spectrum of propanone, CH₃COCH₃?`,[`2`,`3`,`1`,`6`],0,`The two CH₃ are equivalent, plus the C=O.`),
+T(`<h3>Key points</h3><ul><li>IR: functional groups. ¹³C: carbon environments.</li><li>¹H NMR: environments, integration, <b>n + 1</b> splitting.</li><li>Plan routes; separate with chromatography.</li></ul>`)])
+]});
+
+/* ---- Level 4: A* technique ---- */
+U({id:'ac4-1',track:'ac',level:4,title:'Hard calculations',icon:'Σn',color:'#7F77DD',desc:'Multi-step moles, equilibrium and pH, and combined thermodynamics.',lessons:[
+LH('ac4-1-1','Multi-step mole problems',11,'Back titrations and reacting masses with several steps.',[
+RM(`<p>n = m/M<sub>r</sub>, n = cV, pV = nRT. Use the equation's ratio.</p>`),
+T(`<h3>Back titrations</h3><p>Used when a substance is insoluble or reacts slowly. Add a <b>known excess</b> of acid, then titrate the leftover acid. Moles that reacted = moles added − moles left over.</p>`),
+W('stepCalc',{steps:[`1.25 g of impure CaCO₃ is added to 50.0 cm³ of 1.00 mol dm⁻³ HCl (excess). The leftover HCl needs 30.0 cm³ of 1.00 mol dm⁻³ NaOH. Find the % purity.`,`HCl added: 0.0500 mol. HCl left: 0.0300 mol (1:1 with NaOH).`,`HCl reacted: 0.0200 mol. CaCO₃ + 2HCl, so CaCO₃ = 0.0100 mol.`,`Mass of CaCO₃ = 0.0100 × 100.1 = 1.001 g`,`Purity = 1.001 ÷ 1.25 × 100 = <b>80.1%</b>`]},`A back titration.`,`Keep track of what each mole number means.`),
+W('calcDrill',{skill:['c_mr','g_conc','c_idealgas','g_yield'],need:5},`Mixed mole calculations. Get 5 right to master it.`,`Moles first, every time.`),
+Q(`Why use a back titration for CaCO₃?`,[`It's insoluble, so you can't titrate it directly`,`It's a gas`,`It's too acidic`,`Indicators don't work with acids`],0,`React it with excess, then titrate what's left.`),
+T(`<h3>Key points</h3><ul><li><b>Back titration</b>: reacted = added − left.</li><li>Label every mole value.</li><li>Keep 3+ s.f. until the end.</li></ul>`)]),
+LH('ac4-1-2','Equilibrium and pH problems',11,'Moles at equilibrium, Kc with volumes, and buffer calculations.',[
+RM(`<p>K<sub>c</sub> = products/reactants. [H⁺] = K<sub>a</sub>[HA]/[A⁻]. pH = −log[H⁺].</p>`),
+T(`<h3>ICE tables</h3><p>Initial, Change, Equilibrium moles. Use the stoichiometry for the change row, then divide by volume for concentrations (volumes cancel when moles on each side are equal).</p>`),
+W('stepCalc',{steps:[`1.0 mol of H₂ and 1.0 mol of I₂ react; 1.6 mol of HI forms at equilibrium. Find K<sub>c</sub>.`,`Change: HI +1.6, so H₂ −0.8 and I₂ −0.8`,`Equilibrium: H₂ 0.2, I₂ 0.2, HI 1.6`,`K<sub>c</sub> = 1.6² ÷ (0.2 × 0.2) = 2.56 ÷ 0.04`,`<b>K<sub>c</sub> = 64</b> (volume cancels)`]},`An ICE table.`,`Use the stoichiometric ratio for the changes.`),
+W('calcDrill',{skill:['c_kc','c_ph'],need:4},`Equilibrium and pH. Get 4 right to master it.`,`Products over reactants; −log[H⁺].`),
+T(`<h3>Buffers after adding base</h3><p>Adding NaOH to a buffer converts HA into A⁻ mole for mole. Recalculate the moles of each, then [H⁺] = K<sub>a</sub> × n(HA)/n(A⁻).</p>`),
+T(`<h3>Key points</h3><ul><li><b>ICE</b> tables with stoichiometry.</li><li>Volumes cancel when gas moles balance.</li><li>Buffers: update moles of HA and A⁻.</li></ul>`)]),
+LH('ac4-1-3','Combined thermodynamics',10,'When is a reaction feasible, and at what temperature does that change?',[
+RM(`<p>ΔG = ΔH − TΔS. Feasible when ΔG ≤ 0.</p>`),
+T(`<h3>The four cases</h3><ul><li>ΔH < 0, ΔS > 0: <b>always</b> feasible.</li><li>ΔH > 0, ΔS < 0: <b>never</b> feasible.</li><li>ΔH < 0, ΔS < 0: feasible at <b>low</b> T.</li><li>ΔH > 0, ΔS > 0: feasible at <b>high</b> T (like decomposing CaCO₃).</li></ul>`),
+N(`ΔH = +178 kJ mol⁻¹, ΔS = +161 J K⁻¹ mol⁻¹. Minimum temperature for feasibility (K, nearest whole number)?`,1106,0.002,'K',`T = ΔH/ΔS = 178,000/161 = 1106 K.`),
+Q(`Feasible doesn't mean fast because…`,[`there may be a high activation energy`,`ΔG is always positive`,`entropy decreases`,`it's at equilibrium`],0,`Thermodynamics vs kinetics.`),
+W('calcDrill',{skill:'c_gibbs',need:3},`Gibbs free energy. Get 3 right to master it.`,`ΔH − TΔS.`),
+T(`<h3>Key points</h3><ul><li>Signs of ΔH and ΔS decide feasibility.</li><li><b>T = ΔH/ΔS</b> where feasibility changes.</li><li>Feasible ≠ fast.</li></ul>`)])
+]});
+
+U({id:'ac4-2',track:'ac',level:4,title:'Mechanisms and exam technique',icon:'↷',color:'#1D9E75',desc:'Full-mark mechanisms, spectroscopy puzzles, and required practicals.',lessons:[
+LH('ac4-2-1','Full-mark mechanisms',11,'Every curly arrow, lone pair and charge in the right place.',[
+RM(`<p>Mechanisms: free-radical substitution, nucleophilic substitution, elimination, electrophilic addition, nucleophilic addition, addition–elimination, electrophilic substitution.</p>`),
+T(`<h3>Curly arrow rules</h3><ul><li>Arrows start from a <b>lone pair</b> or a <b>bond</b>, never from an atom or a charge.</li><li>Arrows end at an <b>atom</b> (forming a bond) or between atoms.</li><li>Show <b>δ+ / δ−</b> dipoles and <b>full charges</b> on ions.</li><li>Show the <b>lone pair</b> on a nucleophile.</li></ul>`),
+W('matchPairs',{pairs:[['Halogenoalkane + OH⁻ (aqueous)','Nucleophilic substitution'],['Halogenoalkane + OH⁻ (ethanol, hot)','Elimination'],['Alkene + HBr','Electrophilic addition'],['Benzene + NO₂⁺','Electrophilic substitution'],['Aldehyde + CN⁻','Nucleophilic addition']]},`Match each reaction to its mechanism.`),
+Q(`Where must a curly arrow start?`,[`A lone pair or a bond`,`A positive charge`,`An atom's nucleus`,`Anywhere`],0,`Electrons move.`),
+T(`<h3>Key points</h3><ul><li>Arrows from lone pairs or bonds.</li><li>Show dipoles, charges and lone pairs.</li><li>Know which conditions give which mechanism.</li></ul>`)]),
+LH('ac4-2-2','Spectroscopy puzzles',11,'Combine IR, mass spec and NMR to pin down an unknown.',[
+RM(`<p>IR: functional groups. MS: M<sub>r</sub>. ¹³C: carbon environments. ¹H: environments, integration, n + 1 splitting.</p>`),
+T(`<h3>A method</h3><ol><li>Molecular formula from M<sub>r</sub> (and % data).</li><li>Functional groups from <b>IR</b>.</li><li>Number of carbon environments from <b>¹³C</b> (symmetry!).</li><li>Fragments from <b>¹H</b>: a triplet + quartet means CH₃CH₂–; a singlet means no neighbouring H.</li><li>Assemble and <b>check</b> every peak.</li></ol>`),
+Q(`¹H NMR shows a 6H doublet and a 1H septet. Which group?`,[`An isopropyl group, (CH₃)₂CH–`,`An ethyl group`,`A methyl group alone`,`A benzene ring`],0,`Two CH₃ split by one H; one H split by six.`),
+Q(`¹³C NMR shows 2 peaks for C₄H₁₀O. Which isomer fits?`,[`2-methylpropan-2-ol`,`butan-1-ol`,`butan-2-ol`,`2-methylpropan-1-ol`],0,`(CH₃)₃COH: three equivalent CH₃ and one C–O.`),
+T(`<h3>Key points</h3><ul><li>Formula, IR, ¹³C, ¹H, assemble, check.</li><li>Ethyl: triplet + quartet. Isopropyl: doublet + septet.</li><li>Symmetry reduces the number of peaks.</li></ul>`)]),
+LH('ac4-2-3','Required practicals',10,'Twelve practicals: know the method, the hazards and how to improve each one.',[
+RM(`<p>Titrations, rates, enthalpy and organic preparations from Years 12 and 13.</p>`),
+T(`<h3>The list</h3><ul><li>Make a standard solution and titrate; measure an enthalpy change; rate by continuous monitoring and by initial rates; measure the effect of temperature on rate.</li><li>Tests for ions; electrochemical cells; pH curves; prepare and purify an organic liquid (distillation, separating funnel, drying) and an organic solid (recrystallisation, melting point); TLC.</li></ul>`),
+O(`Order the purification of an organic liquid product.`,['Separate layers in a separating funnel','Wash with sodium hydrogencarbonate solution','Dry with anhydrous calcium chloride or magnesium sulfate','Redistil, collecting at the boiling point'],`Each step removes a different impurity.`),
+Q(`How do you check a solid product is pure?`,[`Measure its melting point: sharp and matching the data value`,`Weigh it`,`Smell it`,`Check its colour only`],0,`Impurities lower and widen the melting range.`),
+T(`<h3>Key points</h3><ul><li>Know each practical's method, risks and improvements.</li><li>Purify liquids: separate, wash, dry, distil.</li><li>Check purity by melting point.</li></ul>`)])
+]});
+
+GOALS.ac3={icon:'🧪',title:'Master Year 13 chemistry',story:'Each unit covers AQA Year 2 physical, inorganic and organic chemistry.',final:'Full A-level chemistry covered',steps:['Physical chemistry 2','Electrochemistry and acids','Inorganic chemistry 2','Organic chemistry 2']};
+GOALS.ac4={icon:'🏆',title:'Go for an A* in chemistry',story:'The hardest calculations, perfect mechanisms and practical mastery.',final:'A* standard',steps:['Hard calculations','Mechanisms and exam technique']};
+/* ========== A-LEVEL MATHS (Edexcel 9MA0) · LEVEL 1 bridge · LEVEL 2 Year 12 ========== */
+CGEN.a_disc=function(){var a=cNZ(-4,5),b=cR(-9,9),c=cR(-9,9),d=b*b-4*a*c,n=d>0?2:d===0?1:0;
+ return {p:'How many real roots does '+cPoly([[a,2],[b,1],[c,0]])+' = 0 have?',b:[cB(n,'number of roots = ')],e:'Discriminant b² − 4ac = '+cBr(b)+'² − 4('+cNum(a)+')('+cNum(c)+') = '+cNum(d)+'. '+(d>0?'Positive: two real roots.':d===0?'Zero: one repeated root.':'Negative: no real roots.')}};
+CGEN.a_surd=function(){var k=cP([2,3,5,6,7]),m=cR(2,6);return {p:'Simplify √'+(m*m*k)+' into the form a√'+k+'. What is a?',b:[cB(m,'a = ')],e:'√'+(m*m*k)+' = √('+(m*m)+' × '+k+') = √'+(m*m)+' × √'+k+' = '+m+'√'+k+'.'}};
+CGEN.a_logsolve=function(){var b=cP([2,3,5,10]),x=cR(2,5),v=Math.round(Math.log(b*x+0)/Math.log(b)*1000)/1000,N=cR(3,40),r=Math.round(Math.log(N)/Math.log(b)*1000)/1000;
+ return {p:'Solve '+b+'<sup>x</sup> = '+N+'. (3 d.p.)',b:[cB(r,'x = ','','x',false,0.002)],e:'Take logs: x = ln '+N+' ÷ ln '+b+' = '+cNum(r)+'.'}};
+CGEN.a_binom=function(){var n=cR(3,7),k=cR(1,n-1),a=cP([1,2,3,-1,-2]),C=1;for(var i=0;i<k;i++)C=C*(n-i)/(i+1);var v=C*Math.pow(a,k);
+ return {p:'Find the coefficient of x'+(k===1?'':cSup(k))+' in (1 '+(a<0?'−':'+')+' '+(Math.abs(a)===1?'':Math.abs(a))+'x)'+cSup(n)+'.',b:[cB(v,'')],e:'Term: '+n+'C'+k+' × ('+cNum(a)+'x)'+cSup(k)+' = '+C+' × '+cNum(Math.pow(a,k))+' = '+cNum(v)+'.'}};
+CGEN.a_circle=function(){var a=cR(-5,5),b=cR(-5,5),r=cR(1,7),D=-2*a,E=-2*b,F=a*a+b*b-r*r;
+ return {p:'x² + y² '+(D<0?'− ':'+ ')+Math.abs(D)+'x '+(E<0?'− ':'+ ')+Math.abs(E)+'y '+(F<0?'− ':'+ ')+Math.abs(F)+' = 0. Find the radius.',b:[cB(r,'r = ')],e:'Complete the square: (x '+(a<0?'+ ':'− ')+Math.abs(a)+')² + (y '+(b<0?'+ ':'− ')+Math.abs(b)+')² = '+(a*a)+' + '+(b*b)+' − '+cBr(F)+' = '+(r*r)+'. Radius √'+(r*r)+' = '+r+'.'}};
+CGEN.a_binomP=function(){var n=cR(4,8),k=cR(0,n),p=cP([0.2,0.25,0.3,0.4,0.5]),C=1;for(var i=0;i<k;i++)C=C*(n-i)/(i+1);var v=Math.round(C*Math.pow(p,k)*Math.pow(1-p,n-k)*10000)/10000;
+ return {p:'X ~ B('+n+', '+p+'). Find P(X = '+k+'). (4 d.p.)',b:[cB(v,'P = ','','probability',false,0.003)],e:'P(X = '+k+') = '+n+'C'+k+' × '+p+cSup(k)+' × '+cNum(1-p)+cSup(n-k)+' = '+C+' × … = '+cNum(v)+'.'}};
+CGEN.a_newton=function(){var m=cR(1,10),F=cR(1,12)*5,mu=cP([0,0.2,0.3,0.5]),g=9.8,a=Math.round((F-mu*m*g)/m*100)/100;if(a<=0){mu=0;a=Math.round(F/m*100)/100}
+ return {p:'A '+m+' kg box is pulled along a horizontal floor by a '+F+' N force. '+(mu?'The coefficient of friction is '+mu+'. ':'The floor is smooth. ')+'Find its acceleration. (g = 9.8, 2 d.p.)',b:[cB(a,'a = ',' m/s²','acceleration',false,0.005)],e:(mu?'Friction = μR = '+mu+' × '+m+' × 9.8 = '+cNum(Math.round(mu*m*g*100)/100)+' N. ':'')+'Resultant ÷ mass: ('+F+(mu?' − '+cNum(Math.round(mu*m*g*100)/100):'')+') ÷ '+m+' = '+cNum(a)+' m/s².'}};
+
+/* ---- Level 1: GCSE to A-level ---- */
+U({id:'am1-1',track:'am',level:1,title:'Algebra fluency',icon:'x²',color:'#7F77DD',desc:'Indices and surds, factorising and completing the square: the GCSE algebra A-level uses on every page.',lessons:[
+LH('am1-1-1','Indices and surds',9,'A-level questions expect index laws and surds to be automatic. Let\'s make them so.',[
+RM(`<p>aᵐ × aⁿ = aᵐ⁺ⁿ, aᵐ ÷ aⁿ = aᵐ⁻ⁿ, (aᵐ)ⁿ = aᵐⁿ, a⁰ = 1, a⁻ⁿ = 1/aⁿ, a<sup>1/n</sup> = ⁿ√a.</p>`),
+T(`<h3>Fractional powers</h3><div class="eq">a<sup>m/n</sup> = (ⁿ√a)ᵐ</div><p>Root first, then power: 8<sup>2/3</sup> = (∛8)² = 2² = 4. Doing the root first keeps numbers small.</p>`),
+N(`Evaluate 27<sup>2/3</sup>.`,9,0.001,'',`∛27 = 3, 3² = 9.`),
+T(`<h3>Surds</h3><p>A <b>surd</b> is a root that isn't a whole number, like √2. Simplify by taking out square factors: √50 = √25 × √2 = <b>5√2</b>. Rationalise a denominator by multiplying top and bottom by the surd: 6/√3 = 6√3/3 = <b>2√3</b>.</p>`),
+W('calcDrill',{skill:'a_surd',need:3},`Simplify surds. Get 3 right to master it.`,`Find the biggest square factor.`),
+Q(`Rationalise 1/(√5 − 2). Multiply top and bottom by…`,[`√5 + 2`,`√5 − 2`,`√5`,`2`],0,`The conjugate: (√5 − 2)(√5 + 2) = 5 − 4 = 1.`),
+T(`<h3>Key points</h3><ul><li><b>a<sup>m/n</sup> = (ⁿ√a)ᵐ</b>: root first.</li><li>Simplify surds by taking out square factors.</li><li>Rationalise with the surd, or the <b>conjugate</b> for a − √b.</li></ul>`)]),
+LH('am1-1-2','Factorising quadratics',9,'Fast, confident factorising is the single most useful GCSE skill for A-level.',[
+RM(`<p>(x + p)(x + q) = x² + (p + q)x + pq. Difference of two squares: a² − b² = (a − b)(a + b).</p>`),
+T(`<h3>When a = 1</h3><p>x² + bx + c: find two numbers that <b>multiply to c</b> and <b>add to b</b>. x² − x − 12: −4 and 3, so (x − 4)(x + 3).</p>`),
+Q(`Factorise x² + 2x − 15.`,[`(x + 5)(x − 3)`,`(x − 5)(x + 3)`,`(x + 15)(x − 1)`,`(x + 5)(x + 3)`],0,`5 × −3 = −15, 5 + (−3) = 2.`),
+T(`<h3>When a ≠ 1</h3><p>6x² + 7x − 3: multiply a × c = −18. Find numbers multiplying to −18, adding to 7: 9 and −2. Split: 6x² + 9x − 2x − 3 = 3x(2x + 3) − 1(2x + 3) = <b>(3x − 1)(2x + 3)</b>.</p>`),
+W('calcDrill',{skill:'g_factorise',need:3},`Factorising practice. Get 3 right to master it.`,`Multiply to c, add to b.`),
+T(`<h3>Key points</h3><ul><li>a = 1: multiply to c, add to b.</li><li>a ≠ 1: split the middle term using ac.</li><li>Spot <b>difference of two squares</b>.</li></ul>`)]),
+LH('am1-1-3','Completing the square',10,'Rewriting a quadratic as a square plus a number shows its turning point instantly.',[
+RM(`<p>(x + p)² = x² + 2px + p². The quadratic formula: x = (−b ± √(b² − 4ac)) / 2a.</p>`),
+T(`<h3>The method</h3><div class="eq">x² + bx + c = (x + b/2)² − (b/2)² + c</div><p>x² + 6x + 2 = (x + 3)² − 9 + 2 = <b>(x + 3)² − 7</b>.</p><p>The minimum point is at (−3, −7): the square is never negative, so the smallest value is −7, when x = −3.</p>`),
+W('calcDrill',{skill:'g_complsq',need:3},`Complete the square. Get 3 right to master it.`,`Halve b, square, adjust.`),
+Q(`y = (x − 2)² + 5. What's the turning point?`,[`(2, 5)`,`(−2, 5)`,`(2, −5)`,`(5, 2)`],0,`Sign inside the bracket flips.`),
+T(`<h3>It proves the formula</h3><p>Complete the square on ax² + bx + c = 0 in general and you get the quadratic formula. A-level can ask you to show this.</p>`),
+T(`<h3>Key points</h3><ul><li><b>x² + bx + c = (x + b/2)² − (b/2)² + c</b>.</li><li>(x − p)² + q has turning point <b>(p, q)</b>.</li><li>Completing the square proves the quadratic formula.</li></ul>`)])
+]});
+
+U({id:'am1-2',track:'am',level:1,title:'Graphs and equations',icon:'y=mx+c',color:'#1D9E75',desc:'Straight lines, simultaneous equations including quadratics, and inequalities.',lessons:[
+LH('am1-2-1','Straight lines',9,'y − y₁ = m(x − x₁) is the line equation A-level uses most.',[
+RM(`<p>Gradient m = (y₂ − y₁)/(x₂ − x₁). y = mx + c. Parallel lines have equal gradients.</p>`),
+T(`<h3>Point–gradient form</h3><div class="eq">y − y₁ = m(x − x₁)</div><p>Through (2, 5) with gradient 3: y − 5 = 3(x − 2), so y = 3x − 1. Quicker than finding c separately.</p>`),
+T(`<h3>Perpendicular lines</h3><p>Gradients multiply to −1: <b>m₁ × m₂ = −1</b>. The perpendicular to a gradient of 2/3 has gradient −3/2.</p>`),
+W('calcDrill',{skill:'g_perpgrad',need:3},`Perpendicular gradients. Get 3 right to master it.`,`Flip and change sign.`),
+Q(`A line has gradient −4. The perpendicular gradient is…`,[`1/4`,`4`,`−1/4`,`−4`],0,`−1 ÷ −4.`),
+T(`<h3>Key points</h3><ul><li><b>y − y₁ = m(x − x₁)</b>.</li><li>Parallel: same m. Perpendicular: <b>m₁m₂ = −1</b>.</li><li>Give answers in the form asked (often ax + by + c = 0).</li></ul>`)]),
+LH('am1-2-2','Simultaneous equations',10,'When one equation is a quadratic, substitute the linear one into it.',[
+RM(`<p>Elimination: add or subtract equations to remove a variable. Substitution: replace a variable with an expression.</p>`),
+T(`<h3>Linear and quadratic</h3><p>Rearrange the linear equation for one letter and substitute into the quadratic. You'll get up to two solutions: the line can cross a curve twice.</p>`),
+W('stepCalc',{steps:[`y = x + 1 and x² + y² = 13`,`Substitute: x² + (x + 1)² = 13`,`2x² + 2x + 1 = 13, so x² + x − 6 = 0`,`(x + 3)(x − 2) = 0: x = −3 or x = 2`,`Pair them: <b>(−3, −2) and (2, 3)</b>`]},`A line meeting a circle.`,`Always pair each x with its y.`),
+W('calcDrill',{skill:'g_simulquad',need:2},`Simultaneous equations with a quadratic. Get 2 right to master it.`,`Substitute the linear one.`),
+Q(`Substituting gives a quadratic with discriminant zero. The line is…`,[`a tangent to the curve`,`missing the curve`,`crossing it twice`,`the same as the curve`],0,`One repeated point.`),
+T(`<h3>Key points</h3><ul><li>Substitute the <b>linear</b> equation into the quadratic.</li><li>Pair each x with its y.</li><li>Discriminant 0: the line is a <b>tangent</b>.</li></ul>`)]),
+LH('am1-2-3','Inequalities',9,'Quadratic inequalities need a sketch: where is the curve above or below the axis?',[
+RM(`<p>Multiplying or dividing an inequality by a negative number flips the sign. Roots of a quadratic: where the graph crosses the x-axis.</p>`),
+T(`<h3>Quadratic inequalities</h3><ol><li>Solve the equation to find the critical values.</li><li>Sketch the parabola.</li><li>Read off where it's above (> 0) or below (< 0) the axis.</li></ol><p>x² − x − 6 < 0: roots −2 and 3; a ∪-shape is below the axis between them: <b>−2 < x < 3</b>.</p>`),
+W('calcDrill',{skill:'g_quadineq',need:2},`Quadratic inequalities. Get 2 right to master it.`,`Sketch it.`),
+Q(`x² − 9 > 0. The solution is…`,[`x < −3 or x > 3`,`−3 < x < 3`,`x > 3 only`,`x > 9`],0,`Outside the roots for > with a ∪ shape.`),
+T(`<h3>Set notation</h3><p>A-level often wants set notation: {x : x < −3} ∪ {x : x > 3}. ∪ means "or" (union); ∩ means "and" (intersection).</p>`),
+T(`<h3>Key points</h3><ul><li>Find roots, <b>sketch</b>, read off.</li><li>∪-shape: < 0 between roots, > 0 outside.</li><li>Use <b>set notation</b> when asked.</li></ul>`)])
+]});
+
+/* ---- Level 2: Year 12 ---- */
+U({id:'am2-1',track:'am',level:2,title:'Proof and algebra',icon:'∴',color:'#7F77DD',desc:'Proof by deduction and exhaustion, the discriminant, and the factor theorem.',lessons:[
+LH('am2-1-1','Proof',10,'A-level maths starts by asking you to prove things, not just calculate them.',[
+RM(`<p>An even number is 2n; an odd number is 2n + 1, for any integer n. Consecutive integers: n, n + 1, n + 2.</p>`),
+T(`<h3>Three methods in Year 12</h3><ul><li><b>Deduction</b>: start from known facts and argue step by step.</li><li><b>Exhaustion</b>: split into all possible cases and check each.</li><li><b>Counter-example</b>: one example that breaks a claim disproves it.</li></ul>`),
+W('stepCalc',{steps:[`Prove: the sum of any two odd numbers is even.`,`Let the odd numbers be 2m + 1 and 2n + 1, where m and n are integers.`,`Sum: 2m + 2n + 2 = 2(m + n + 1)`,`m + n + 1 is an integer, so the sum is 2 × an integer.`,`<b>So the sum is even.</b> ∎`]},`A proof by deduction.`,`Use different letters for the two numbers: they needn't be equal.`),
+Q(`"n² + n + 41 is prime for all positive integers n." How would you disprove it?`,[`Find one counter-example (n = 40 gives 41²)`,`Check n = 1 to 10`,`Prove it by exhaustion`,`It's true, so you can't`],0,`One counter-example is enough.`),
+Q(`Why use 2m + 1 and 2n + 1, not 2n + 1 twice?`,[`The two odd numbers might be different`,`Because m must be bigger`,`It doesn't matter at all`,`To make the algebra longer`],0,`Same letter means same number.`),
+T(`<h3>Key points</h3><ul><li><b>Deduction</b>, <b>exhaustion</b>, <b>counter-example</b>.</li><li>Even = 2n, odd = 2n + 1.</li><li>End with a clear concluding statement.</li></ul>`)]),
+LH('am2-1-2','The discriminant',9,'One number tells you how many times a parabola crosses the x-axis.',[
+RM(`<p>Quadratic formula: x = (−b ± √(b² − 4ac))/2a. You can't take the square root of a negative number (in real numbers).</p>`),
+T(`<h3>b² − 4ac</h3><ul><li><b>> 0</b>: two distinct real roots.</li><li><b>= 0</b>: one repeated root (the curve touches the axis).</li><li><b>< 0</b>: no real roots.</li></ul>`),
+W('calcDrill',{skill:'a_disc',need:4},`Count the roots. Get 4 right to master it.`,`b² − 4ac.`),
+W('stepCalc',{steps:[`x² + kx + 9 = 0 has equal roots. Find k.`,`Equal roots: b² − 4ac = 0`,`k² − 4(1)(9) = 0`,`k² = 36`,`<b>k = ±6</b>`]},`A typical exam question.`,`"Equal roots" means discriminant zero.`),
+Q(`For which k does x² + 4x + k = 0 have no real roots?`,[`k > 4`,`k < 4`,`k = 4`,`k > −4`],0,`16 − 4k < 0.`),
+T(`<h3>Key points</h3><ul><li><b>b² − 4ac</b> decides the number of real roots.</li><li>Equal roots: = 0. No real roots: < 0.</li><li>Unknown constants give inequalities to solve.</li></ul>`)]),
+LH('am2-1-3','Polynomials and the factor theorem',10,'Find a factor of a cubic by trial, then divide it out.',[
+RM(`<p>A root r of f(x) = 0 means f(r) = 0. Factorising: (x − r) is a factor when r is a root.</p>`),
+T(`<h3>The factor theorem</h3><div class="eq">f(a) = 0 &nbsp;⟺&nbsp; (x − a) is a factor of f(x)</div><p>Try small numbers that divide the constant term: ±1, ±2, ±3…</p>`),
+W('stepCalc',{steps:[`f(x) = x³ − 6x² + 11x − 6`,`f(1) = 1 − 6 + 11 − 6 = 0, so (x − 1) is a factor`,`Divide: x³ − 6x² + 11x − 6 = (x − 1)(x² − 5x + 6)`,`Factorise the quadratic: (x − 2)(x − 3)`,`<b>f(x) = (x − 1)(x − 2)(x − 3)</b>`]},`Factorise a cubic.`,`Compare coefficients or use long division.`),
+Q(`f(x) = x³ + 2x² − 5x − 6. f(−1) = 0. Which is a factor?`,[`(x + 1)`,`(x − 1)`,`(x + 6)`,`(x − 6)`],0,`Root −1 gives (x + 1).`),
+N(`Find f(2) for f(x) = x³ − 3x + 1.`,3,0.001,'',`8 − 6 + 1 = 3. Not zero, so (x − 2) isn't a factor.`),
+T(`<h3>Key points</h3><ul><li><b>f(a) = 0 ⟺ (x − a) is a factor</b>.</li><li>Try divisors of the constant term.</li><li>Divide out, then factorise the quadratic.</li></ul>`)])
+]});
+
+U({id:'am2-2',track:'am',level:2,title:'Circles, trigonometry and the binomial',icon:'(x−a)²',color:'#1D9E75',desc:'Equations of circles, trig identities and equations, and binomial expansions.',lessons:[
+LH('am2-2-1','Circles',10,'Completing the square turns a messy equation into a circle\'s centre and radius.',[
+RM(`<p>Completing the square: x² + 6x = (x + 3)² − 9. A tangent is perpendicular to the radius at the point of contact.</p>`),
+T(`<h3>The equation</h3><div class="eq">(x − a)² + (y − b)² = r²</div><p>Centre (a, b), radius r. It's Pythagoras: every point is r from the centre.</p>`),
+W('calcDrill',{skill:'a_circle',need:3},`Find the radius. Get 3 right to master it.`,`Complete the square in x and in y.`),
+T(`<h3>Circle facts</h3><ul><li>A <b>tangent</b> is perpendicular to the radius at that point.</li><li>The <b>perpendicular bisector of a chord</b> passes through the centre.</li><li>The angle in a semicircle is a right angle.</li></ul>`),
+Q(`The centre is (2, 1) and the point (5, 5) is on the circle. The tangent there has gradient…`,[`−3/4`,`4/3`,`3/4`,`−4/3`],0,`Radius gradient 4/3; tangent is perpendicular.`),
+T(`<h3>Key points</h3><ul><li><b>(x − a)² + (y − b)² = r²</b>.</li><li>Complete the square to find centre and radius.</li><li>Tangent ⟂ radius.</li></ul>`)]),
+LH('am2-2-2','Trig identities and equations',11,'Two identities and a careful method solve almost every Year 12 trig equation.',[
+RM(`<p>SOH CAH TOA. The graphs of sin and cos repeat every 360°; tan every 180°.</p>`),
+T(`<h3>The identities</h3><div class="eq">tan θ = sin θ / cos θ&nbsp;&nbsp;&nbsp;&nbsp; sin²θ + cos²θ = 1</div><p>Use them to rewrite an equation in terms of one trig function.</p>`),
+W('stepCalc',{steps:[`Solve 2sin²θ + 3cos θ − 3 = 0 for 0° ≤ θ < 360°`,`Use sin²θ = 1 − cos²θ: 2 − 2cos²θ + 3cos θ − 3 = 0`,`Rearrange: 2cos²θ − 3cos θ + 1 = 0, so (2cos θ − 1)(cos θ − 1) = 0`,`cos θ = ½ gives θ = 60°, 300°. cos θ = 1 gives θ = 0°`,`<b>θ = 0°, 60°, 300°</b>`]},`A quadratic in cos θ.`,`Find every solution in the range using the graph or CAST.`),
+Q(`sin θ = 0.5 for 0° ≤ θ < 360°. The solutions are…`,[`30° and 150°`,`30° only`,`30° and 330°`,`60° and 120°`],0,`sin is positive in the 1st and 2nd quadrants: 180° − 30°.`),
+Q(`Which identity turns sin²θ into cos θ terms?`,[`sin²θ = 1 − cos²θ`,`sin²θ = cos²θ − 1`,`sin²θ = tan θ cos θ`,`sin²θ = 2sin θ`],0,`Pythagoras.`),
+T(`<h3>Key points</h3><ul><li><b>tan θ = sin θ/cos θ</b>, <b>sin²θ + cos²θ = 1</b>.</li><li>Rewrite in one function; often a quadratic.</li><li>Find <b>all</b> solutions in the range.</li></ul>`)]),
+LH('am2-2-3','The binomial expansion',10,'Expand (a + b)ⁿ without multiplying out brackets n times.',[
+RM(`<p>ⁿCᵣ = n!/(r!(n − r)!) counts the ways to choose r from n. Pascal's triangle: 1; 1 1; 1 2 1; 1 3 3 1…</p>`),
+T(`<h3>The expansion</h3><div class="eq">(a + b)ⁿ = aⁿ + ⁿC₁aⁿ⁻¹b + ⁿC₂aⁿ⁻²b² + … + bⁿ</div><p>Powers of a go down, powers of b go up, and the coefficients come from Pascal's triangle (or ⁿCᵣ).</p>`),
+W('calcDrill',{skill:'a_binom',need:3},`Binomial coefficients. Get 3 right to master it.`,`ⁿCᵣ × (bx)ʳ.`),
+W('stepCalc',{steps:[`Find the x² term in (2 + 3x)⁵`,`r = 2: ⁵C₂ × 2³ × (3x)²`,`= 10 × 8 × 9x²`,`<b>= 720x²</b>`]},`One term of an expansion.`,`Bracket (3x) so you square the 3 too.`),
+Q(`Common mistake: in (1 + 2x)⁴, the x² term is ⁴C₂(2x)². Students often forget to…`,[`square the 2`,`use ⁴C₂`,`write x²`,`add 1`],0,`(2x)² = 4x².`),
+T(`<h3>Key points</h3><ul><li><b>(a + b)ⁿ = Σ ⁿCᵣ aⁿ⁻ʳbʳ</b>.</li><li>Bracket the whole term: (3x)ʳ.</li><li>Use it for approximations when x is small.</li></ul>`)])
+]});
+
+U({id:'am2-3',track:'am',level:2,title:'Calculus and exponentials',icon:'d/dx',color:'#378ADD',desc:'Differentiation and integration for Year 12, and exponential and logarithmic models.',lessons:[
+LH('am2-3-1','Differentiation in Year 12',11,'First principles, the power rule, tangents and stationary points: Year 12 calculus in one lesson.',[
+RM(`<p>The Calculus track (Levels 2–3) covers this slowly. d/dx(xⁿ) = nxⁿ⁻¹. f′(x) = 0 at stationary points.</p>`),
+T(`<h3>What the exam expects</h3><ul><li><b>First principles</b>: f′(x) = lim<sub>h→0</sub> [f(x + h) − f(x)]/h, for x² and x³.</li><li><b>Power rule</b> for any n, after rewriting roots and fractions as powers.</li><li><b>Tangents and normals</b>.</li><li><b>Stationary points</b>, and the second derivative to classify them.</li><li><b>Increasing/decreasing</b> functions and <b>optimisation</b> problems.</li></ul>`),
+W('calcDrill',{skill:['power','rewrite','tangent','statq'],need:5},`Mixed Year 12 differentiation. Get 5 right to master it.`,`Rewrite as powers first.`),
+Q(`f″(x) > 0 at a stationary point means…`,[`a minimum`,`a maximum`,`a point of inflection`,`no stationary point`],0,`Curving upwards.`),
+T(`<h3>Optimisation questions</h3><p>Write the quantity to maximise in terms of <b>one</b> variable (use the constraint to remove the other), differentiate, set to zero, solve, and check it's a maximum with f″.</p>`),
+T(`<h3>Key points</h3><ul><li>First principles for x² and x³.</li><li>Rewrite, differentiate, substitute.</li><li>Stationary points: f′ = 0; classify with f″.</li></ul>`)]),
+LH('am2-3-2','Integration in Year 12',10,'Integrate powers of x, find areas, and remember the + c.',[
+RM(`<p>∫ xⁿ dx = xⁿ⁺¹/(n + 1) + c (n ≠ −1). Definite integrals give areas.</p>`),
+T(`<h3>The essentials</h3><ul><li><b>Indefinite</b>: add 1 to the power, divide by the new power, + c.</li><li><b>Find c</b> from a given point on the curve.</li><li><b>Definite</b>: [F(x)]ₐᵇ = F(b) − F(a).</li><li>Areas <b>below</b> the axis come out negative: split the integral and use the size.</li></ul>`),
+W('calcDrill',{skill:['intpow','intneg','defint','area'],need:5},`Mixed Year 12 integration. Get 5 right to master it.`,`Up one, divide by the new power.`),
+W('stepCalc',{steps:[`dy/dx = 6x² − 2, and the curve passes through (1, 5). Find y.`,`Integrate: y = 2x³ − 2x + c`,`At (1, 5): 5 = 2 − 2 + c, so c = 5`,`<b>y = 2x³ − 2x + 5</b>`]},`Find the constant.`,`Substitute the point after integrating.`),
+Q(`∫<sub>−1</sub><sup>1</sup> x³ dx = 0. Does that mean there's no area?`,[`No: the areas above and below cancel`,`Yes: the curve is on the axis`,`Yes: x³ has no area`,`It means the integral is wrong`],0,`Split at x = 0.`),
+T(`<h3>Key points</h3><ul><li><b>∫ xⁿ dx = xⁿ⁺¹/(n + 1) + c</b>.</li><li>Use a point to find c.</li><li>Split areas that cross the axis.</li></ul>`)]),
+LH('am2-3-3','Exponentials and logarithms',11,'Growth and decay, and the logs that undo them.',[
+RM(`<p>d/dx(eᵏˣ) = keᵏˣ. ln undoes e: ln(eˣ) = x. log laws: log(ab) = log a + log b, log(aⁿ) = n log a.</p>`),
+T(`<h3>Logs</h3><div class="eq">log<sub>a</sub> b = c &nbsp;⟺&nbsp; aᶜ = b</div><p>To solve aˣ = b, take logs: x = ln b / ln a.</p>`),
+W('calcDrill',{skill:'a_logsolve',need:3},`Solve exponential equations. Get 3 right to master it.`,`x = ln N ÷ ln b.`),
+T(`<h3>Modelling</h3><p>y = Ae<sup>kt</sup> models growth (k > 0) or decay (k < 0). Its rate of change is proportional to its size: dy/dt = ky.</p><p><b>Turning curves into lines</b>: if y = axⁿ, then log y = n log x + log a: a straight line with gradient n. If y = abˣ, then log y = x log b + log a.</p>`),
+Q(`Plotting log y against log x gives a straight line. The model is…`,[`y = axⁿ`,`y = abˣ`,`y = mx + c`,`y = a + bx²`],0,`log y = n log x + log a.`),
+N(`A population P = 200e<sup>0.05t</sup>. Find P when t = 10. (nearest whole number)`,330,0.003,'',`200e<sup>0.5</sup> = 329.7.`),
+T(`<h3>Key points</h3><ul><li><b>log<sub>a</sub> b = c ⟺ aᶜ = b</b>.</li><li>y = Ae<sup>kt</sup>: rate ∝ size.</li><li>Log graphs turn powers and exponentials into straight lines.</li></ul>`)])
+]});
+
+U({id:'am2-4',track:'am',level:2,title:'Statistics and mechanics',icon:'μ',color:'#D85A30',desc:'The binomial distribution and hypothesis testing, kinematics, and Newton\'s laws.',lessons:[
+LH('am2-4-1','The binomial distribution',10,'Fixed number of trials, two outcomes, same chance each time: binomial.',[
+RM(`<p>Independent events: P(A and B) = P(A) × P(B). ⁿCᵣ counts arrangements.</p>`),
+T(`<h3>X ~ B(n, p)</h3><p>Use it when there are: a <b>fixed number</b> n of trials, each with <b>two outcomes</b>, the <b>same probability</b> p each time, and trials are <b>independent</b>.</p><div class="eq">P(X = r) = ⁿCᵣ pʳ(1 − p)ⁿ⁻ʳ</div>`),
+W('calcDrill',{skill:'a_binomP',need:3},`Binomial probabilities. Get 3 right to master it.`,`ⁿCᵣ pʳ(1 − p)ⁿ⁻ʳ.`),
+Q(`Which is NOT a condition for a binomial model?`,[`The probability changes each trial`,`Fixed number of trials`,`Two outcomes per trial`,`Independent trials`],0,`p must stay the same.`),
+T(`<h3>Cumulative probabilities</h3><p>P(X ≤ r) adds up P(X = 0) to P(X = r). Calculators do this directly. Watch the wording: "fewer than 4" is P(X ≤ 3); "at least 4" is 1 − P(X ≤ 3).</p>`),
+T(`<h3>Key points</h3><ul><li><b>B(n, p)</b>: fixed n, two outcomes, constant p, independent.</li><li><b>P(X = r) = ⁿCᵣpʳ(1 − p)ⁿ⁻ʳ</b>.</li><li>Translate "at least" and "fewer than" carefully.</li></ul>`)]),
+LH('am2-4-2','Hypothesis testing',11,'Is a coin biased? Assume it isn\'t, and see whether the evidence makes that hard to believe.',[
+RM(`<p>X ~ B(n, p). P(X ≥ r) = 1 − P(X ≤ r − 1).</p>`),
+T(`<h3>The method</h3><ol><li><b>H₀</b>: the null hypothesis, e.g. p = 0.5.</li><li><b>H₁</b>: the alternative, e.g. p > 0.5 (one-tailed) or p ≠ 0.5 (two-tailed).</li><li>Assume H₀ and find the probability of a result at least as extreme as the one observed.</li><li>If it's below the <b>significance level</b> (often 5%), <b>reject H₀</b>.</li><li>Conclude <b>in context</b>.</li></ol>`),
+W('stepCalc',{steps:[`A coin lands heads 9 times in 10. Test at 5% whether it's biased towards heads.`,`H₀: p = 0.5. H₁: p > 0.5. X ~ B(10, 0.5).`,`P(X ≥ 9) = P(9) + P(10) = 10/1024 + 1/1024 = 0.0107`,`0.0107 < 0.05, so reject H₀.`,`<b>There's evidence at the 5% level that the coin is biased towards heads.</b>`]},`A one-tailed binomial test.`,`Never say H₀ is "proved false": say there's evidence against it.`),
+Q(`A two-tailed test at 5% puts how much in each tail?`,[`2.5%`,`5%`,`10%`,`1%`],0,`Split the significance level.`),
+Q(`What's the critical region?`,[`The values of the test statistic that lead to rejecting H₀`,`The values where H₀ is true`,`The mean of the distribution`,`Always X > 5`],0,`Reject if you land there.`),
+T(`<h3>Key points</h3><ul><li>State <b>H₀</b> and <b>H₁</b>, using the parameter p.</li><li>Compare the probability with the significance level.</li><li>Conclude <b>in context</b>, without claiming certainty.</li></ul>`)]),
+LH('am2-4-3','Kinematics and forces',11,'suvat for constant acceleration, and F = ma with friction.',[
+RM(`<p>v = u + at, s = ut + ½at², v² = u² + 2as, s = ½(u + v)t. F = ma. Weight W = mg.</p>`),
+T(`<h3>suvat</h3><p>For <b>constant acceleration</b>, list the five quantities, tick the three you know, pick the equation with your three and the one you want.</p>`),
+W('calcDrill',{skill:'g_suvat',need:3},`suvat practice. Get 3 right to master it.`,`List s, u, v, a, t.`),
+T(`<h3>Newton's laws and friction</h3><ul><li><b>Resultant force = ma</b> along the direction of motion.</li><li>Friction opposes motion: F ≤ μR, and F = μR when sliding.</li><li>On a horizontal surface, the normal reaction R = mg (if no other vertical forces).</li></ul>`),
+W('calcDrill',{skill:'a_newton',need:3},`Forces and friction. Get 3 right to master it.`,`Resultant ÷ mass.`),
+T(`<h3>Variable acceleration</h3><p>If acceleration isn't constant, suvat doesn't apply. Use calculus: v = ds/dt, a = dv/dt, and integrate to go the other way.</p>`),
+T(`<h3>Key points</h3><ul><li><b>suvat</b> only for constant acceleration.</li><li><b>F = ma</b> with the resultant force; friction <b>F = μR</b> when sliding.</li><li>Variable acceleration: <b>differentiate and integrate</b>.</li></ul>`)])
+]});
+
+GOALS.am1={icon:'🧱',title:'Bridge from GCSE',story:'Only do these if you need them. Each unit makes a GCSE skill automatic before Year 12 begins.',final:'Ready for A-level',steps:['Algebra fluency','Graphs and equations']};
+GOALS.am2={icon:'📘',title:'Master Year 12 maths',story:'Each unit covers a strand of Edexcel A-level Maths Year 1: pure, statistics and mechanics.',final:'Year 12 complete',steps:['Proof and algebra','Circles, trigonometry and the binomial','Calculus and exponentials','Statistics and mechanics']};
+/* ========== A-LEVEL MATHS · LEVEL 3 Year 13 · LEVEL 4 A* technique ========== */
+CGEN.a_arith=function(){var a=cR(-5,10),d=cNZ(-4,6),n=cR(5,30),S=n*(2*a+(n-1)*d)/2;
+ return {p:'An arithmetic series has first term '+cNum(a)+' and common difference '+cNum(d)+'. Find the sum of the first '+n+' terms.',b:[cB(S,'S = ')],e:'Sₙ = n/2 [2a + (n − 1)d] = '+n+'/2 × [2 × '+cBr(a)+' + '+(n-1)+' × '+cBr(d)+'] = '+cNum(S)+'.'}};
+CGEN.a_sector=function(){var r=cR(2,12),t=cP([0.5,0.8,1,1.2,1.5,2,2.5]),w=cR(0,1),v=w?0.5*r*r*t:r*t;
+ return {p:'A sector has radius '+r+' cm and angle '+t+' radians. Find its '+(w?'area (cm²)':'arc length (cm)')+'.',b:[cB(v,'','','value')],e:(w?'Area = ½r²θ = ½ × '+(r*r)+' × '+t:'Arc = rθ = '+r+' × '+t)+' = '+cNum(v)+'.'}};
+CGEN.a_rcos=function(){var t=cP([[3,4,5],[5,12,13],[8,15,17],[6,8,10],[1,1,Math.SQRT2],[7,24,25]]),a=t[0],b=t[1],al=Math.round(Math.atan2(b,a)*180/Math.PI*100)/100;
+ return {p:'Write '+a+'cos θ + '+b+'sin θ as R cos(θ − α). Find R and α (degrees, 2 d.p.).',b:[cB(Math.round(t[2]*1000)/1000,'R = ','','R',false,0.002),cB(al,'α = ','°','α',false,0.001)],e:'R = √('+a+'² + '+b+'²) = '+cNum(Math.round(t[2]*1000)/1000)+'. tan α = '+b+'/'+a+', so α = '+cNum(al)+'°.'}};
+CGEN.a_zscore=function(){var mu=cR(20,80),sd=cR(2,10),z=cP([-2,-1.5,-1,-0.5,0.5,1,1.5,2,2.5]),x=mu+z*sd;
+ return {p:'X ~ N('+mu+', '+sd+'²). Standardise x = '+cNum(x)+': find z.',b:[cB(z,'z = ')],e:'z = (x − μ)/σ = ('+cNum(x)+' − '+mu+')/'+sd+' = '+cNum(z)+'.'}};
+CGEN.a_moment=function(){var L=cR(4,10),m=cR(5,40),d=cR(1,L-1),F=Math.round(m*9.8*d/L*100)/100;
+ return {p:'A light rod of length '+L+' m is supported at each end. A '+m+' kg mass hangs '+d+' m from the left end. Find the reaction at the right end. (g = 9.8, 2 d.p.)',b:[cB(F,'R = ',' N','reaction',false,0.005)],e:'Take moments about the left end: R × '+L+' = '+m+' × 9.8 × '+d+'. R = '+cNum(F)+' N.'}};
+CGEN.a_proj=function(){var u=cR(10,30),a=cP([30,45,60]),uy=u*Math.sin(a*Math.PI/180),t=Math.round(2*uy/9.8*100)/100;
+ return {p:'A ball is projected at '+u+' m/s at '+a+'° above horizontal ground. Find its time of flight. (g = 9.8, 2 d.p.)',b:[cB(t,'t = ',' s','time',false,0.005)],e:'Vertical: u sin θ = '+cNum(Math.round(uy*100)/100)+' m/s. s = 0 when t = 2u sin θ / g = '+cNum(t)+' s.'}};
+
+/* ---- Level 3: Year 13 ---- */
+U({id:'am3-1',track:'am',level:3,title:'Functions and sequences',icon:'f∘g',color:'#7F77DD',desc:'Composite and inverse functions, modulus, sequences and series, and the general binomial expansion.',lessons:[
+LH('am3-1-1','Functions in depth',11,'Composite functions, inverses, the modulus and graph transformations.',[
+RM(`<p>A function maps each input to one output. fg(x) means do g first, then f. The inverse undoes the function.</p>`),
+T(`<h3>The essentials</h3><ul><li><b>Domain</b>: the inputs allowed. <b>Range</b>: the outputs produced.</li><li><b>fg(x) = f(g(x))</b>: g first.</li><li><b>f⁻¹</b> exists only if f is one-to-one; its domain is f's range. Find it by swapping x and y and rearranging.</li><li><b>|x|</b>: the modulus, the size without the sign. y = |f(x)| reflects the negative parts up.</li></ul>`),
+W('calcDrill',{skill:'g_func',need:3},`Composite and inverse functions. Get 3 right to master it.`,`fg: g first.`),
+T(`<h3>Transformations</h3><ul><li>y = f(x) + a: up a. y = f(x + a): left a.</li><li>y = af(x): stretch vertically by a. y = f(ax): stretch horizontally by 1/a.</li><li>y = −f(x): reflect in the x-axis. y = f(−x): in the y-axis.</li></ul>`),
+Q(`y = f(2x) is a stretch…`,[`horizontally, scale factor ½`,`horizontally, scale factor 2`,`vertically, scale factor 2`,`vertically, scale factor ½`],0,`Inside the bracket: opposite of what you'd expect.`),
+T(`<h3>Key points</h3><ul><li><b>fg = f(g(x))</b>; inverse by swapping x and y.</li><li>Domain of f⁻¹ = range of f.</li><li>Changes inside the bracket act on x the "wrong" way.</li></ul>`)]),
+LH('am3-1-2','Sequences and series',11,'Arithmetic and geometric series, sigma notation and recurrence relations.',[
+RM(`<p>Arithmetic: add d each time. Geometric: multiply by r each time. S∞ = a/(1 − r) for |r| < 1 (Calculus Level 10).</p>`),
+T(`<h3>The formulas</h3><ul><li>Arithmetic: uₙ = a + (n − 1)d, <b>Sₙ = n/2 [2a + (n − 1)d]</b>.</li><li>Geometric: uₙ = arⁿ⁻¹, <b>Sₙ = a(1 − rⁿ)/(1 − r)</b>, S∞ = a/(1 − r) if |r| < 1.</li></ul>`),
+W('calcDrill',{skill:'a_arith',need:3},`Arithmetic series. Get 3 right to master it.`,`n/2 [2a + (n − 1)d].`),
+W('calcDrill',{skill:'geomsum',need:2},`Geometric sums to infinity. Get 2 right to master it.`,`a/(1 − r).`),
+T(`<h3>Recurrence relations</h3><p>uₙ₊₁ = f(uₙ) defines each term from the one before. A sequence is <b>increasing</b>, <b>decreasing</b> or <b>periodic</b> (repeats). Σ notation: Σ<sub>r=1</sub><sup>n</sup> means "add up for r = 1 to n".</p>`),
+Q(`uₙ₊₁ = 1/uₙ with u₁ = 3 gives 3, 1/3, 3, 1/3, … This sequence is…`,[`periodic with period 2`,`increasing`,`decreasing`,`arithmetic`],0,`It repeats every 2 terms.`),
+T(`<h3>Key points</h3><ul><li>Arithmetic Sₙ = n/2[2a + (n − 1)d]. Geometric Sₙ = a(1 − rⁿ)/(1 − r).</li><li>S∞ only if |r| < 1.</li><li>Recurrences can be increasing, decreasing or periodic.</li></ul>`)]),
+LH('am3-1-3','The general binomial expansion',11,'For negative and fractional powers, the binomial expansion goes on forever, and partial fractions help.',[
+RM(`<p>(1 + x)ⁿ for positive whole n: Pascal's triangle. Partial fractions split a fraction into simpler pieces (Calculus Level 8).</p>`),
+T(`<h3>Any power n</h3><div class="eq">(1 + x)ⁿ = 1 + nx + n(n − 1)x²/2! + n(n − 1)(n − 2)x³/3! + …</div><p>For negative or fractional n it never ends, and it's only valid for <b>|x| < 1</b>.</p>`),
+W('stepCalc',{steps:[`Expand (1 + x)<sup>−1</sup> up to x³`,`n = −1: 1 + (−1)x + (−1)(−2)x²/2 + (−1)(−2)(−3)x³/6`,`<b>= 1 − x + x² − x³ + …</b>`,`Valid for |x| < 1. It's the geometric series with r = −x.`]},`A negative power.`,`Check against what you know.`),
+Q(`(1 + 3x)<sup>½</sup> is valid for…`,[`|x| < 1/3`,`|x| < 1`,`|x| < 3`,`all x`],0,`|3x| < 1.`),
+N(`Use (1 + x)<sup>½</sup> ≈ 1 + x/2 − x²/8 with x = 0.02 to estimate √1.02. (5 d.p.)`,1.00995,0.00001,'',`1 + 0.01 − 0.00005 = 1.00995.`),
+T(`<h3>With partial fractions</h3><p>To expand something like (5x + 1)/((1 − x)(1 + 2x)), split it into partial fractions first, then expand each piece and add. The overall validity is the narrower range.</p>`),
+T(`<h3>Key points</h3><ul><li><b>(1 + x)ⁿ = 1 + nx + n(n − 1)x²/2! + …</b></li><li>Infinite for negative/fractional n; valid for <b>|x| < 1</b>.</li><li>Partial fractions first for messy fractions.</li></ul>`)])
+]});
+
+U({id:'am3-2',track:'am',level:3,title:'Trigonometry in Year 13',icon:'R cos',color:'#1D9E75',desc:'Radians, reciprocal and inverse functions, compound angle formulae and R cos(θ − α).',lessons:[
+LH('am3-2-1','Radians',10,'Measure angles by arc length, and sectors and small-angle approximations become simple.',[
+RM(`<p>π radians = 180°. Calculus with trig always uses radians (Calculus Level 6).</p>`),
+T(`<h3>Sectors</h3><div class="eq">arc length = rθ&nbsp;&nbsp;&nbsp; sector area = ½r²θ&nbsp;&nbsp;(θ in radians)</div>`),
+W('calcDrill',{skill:'a_sector',need:3},`Arcs and sectors. Get 3 right to master it.`,`rθ and ½r²θ.`),
+T(`<h3>Small angles</h3><p>For small θ in radians: <b>sin θ ≈ θ</b>, <b>tan θ ≈ θ</b>, <b>cos θ ≈ 1 − θ²/2</b>. (They're the first terms of the Taylor series.)</p>`),
+Q(`For small θ, (sin 3θ)/θ ≈ …`,[`3`,`1`,`θ`,`1/3`],0,`sin 3θ ≈ 3θ.`),
+T(`<h3>Key points</h3><ul><li><b>π rad = 180°</b>.</li><li>Arc rθ, sector ½r²θ.</li><li>Small angles: sin θ ≈ θ, cos θ ≈ 1 − θ²/2.</li></ul>`)]),
+LH('am3-2-2','Reciprocal functions and compound angles',11,'sec, cosec and cot, two more identities, and the addition formulae.',[
+RM(`<p>sin²θ + cos²θ = 1. tan θ = sin θ / cos θ.</p>`),
+T(`<h3>Reciprocals</h3><p>sec θ = 1/cos θ, cosec θ = 1/sin θ, cot θ = 1/tan θ. Divide sin² + cos² = 1 by cos²θ or sin²θ:</p><div class="eq">1 + tan²θ = sec²θ&nbsp;&nbsp;&nbsp; 1 + cot²θ = cosec²θ</div>`),
+Q(`1 + tan²θ = …`,[`sec²θ`,`cosec²θ`,`cos²θ`,`cot²θ`],0,`Divide by cos²θ.`),
+T(`<h3>Compound angles</h3><div class="eq">sin(A ± B) = sin A cos B ± cos A sin B<br>cos(A ± B) = cos A cos B ∓ sin A sin B</div><p>Put A = B to get the double-angle formulae: sin 2A = 2 sin A cos A, cos 2A = cos²A − sin²A = 2cos²A − 1 = 1 − 2sin²A.</p>`),
+N(`Use sin(45° + 30°) to find sin 75°. (4 d.p.)`,0.9659,0.001,'',`(√2/2)(√3/2) + (√2/2)(1/2) = (√6 + √2)/4 ≈ 0.9659.`),
+T(`<h3>Inverse trig</h3><p>arcsin, arccos and arctan undo sin, cos and tan, on restricted domains so they're one-to-one: arcsin and arctan give answers in [−π/2, π/2], arccos in [0, π].</p>`),
+T(`<h3>Key points</h3><ul><li><b>1 + tan² = sec²</b>, <b>1 + cot² = cosec²</b>.</li><li>Addition formulae → double-angle formulae.</li><li>Inverse trig functions have restricted ranges.</li></ul>`)]),
+LH('am3-2-3','R cos(θ − α)',10,'Any mix of sin and cos is one wave in disguise.',[
+RM(`<p>cos(A − B) = cos A cos B + sin A sin B. Pythagoras.</p>`),
+T(`<h3>The harmonic form</h3><p>a cos θ + b sin θ = R cos(θ − α), where:</p><div class="eq">R = √(a² + b²),&nbsp;&nbsp; tan α = b/a</div><p>Expand R cos(θ − α) = R cos α cos θ + R sin α sin θ, and match: R cos α = a, R sin α = b.</p>`),
+W('calcDrill',{skill:'a_rcos',need:3},`Harmonic form. Get 3 right to master it.`,`R = √(a² + b²), tan α = b/a.`),
+Q(`3cos θ + 4sin θ has a maximum value of…`,[`5`,`7`,`4`,`1`],0,`R = 5, and cos has max 1.`),
+T(`<h3>Why it's useful</h3><p>It gives the maximum (R), minimum (−R) and where they happen, and turns equations like 3cos θ + 4sin θ = 2 into one cos equation. In AC circuits and vibrations it combines two waves into one.</p>`),
+T(`<h3>Key points</h3><ul><li><b>a cos θ + b sin θ = R cos(θ − α)</b>.</li><li><b>R = √(a² + b²)</b>, <b>tan α = b/a</b>.</li><li>Max R, min −R.</li></ul>`)])
+]});
+
+U({id:'am3-3',track:'am',level:3,title:'Further calculus',icon:'∫ u dv',color:'#378ADD',desc:'The chain, product and quotient rules, parametric and implicit differentiation, integration techniques, differential equations and numerical methods.',lessons:[
+LH('am3-3-1','Differentiation techniques',11,'Every Year 13 differentiation rule, and where to practise each slowly in the Calculus track.',[
+RM(`<p>The Calculus track covers these in Levels 3, 7 and 11. Chain: dy/dx = dy/du × du/dx. Product: u′v + uv′. Quotient: (u′v − uv′)/v².</p>`),
+T(`<h3>The Year 13 toolkit</h3><ul><li>eˣ, ln x, sin, cos, tan, and aˣ (d/dx aˣ = aˣ ln a).</li><li><b>Chain, product and quotient</b> rules.</li><li><b>Parametric</b>: dy/dx = (dy/dt)/(dx/dt).</li><li><b>Implicit</b>: differentiate y terms and multiply by dy/dx.</li><li><b>Connected rates</b>: chain rule with time.</li><li>Second derivative for <b>concave/convex</b> and <b>points of inflection</b>.</li></ul>`),
+W('calcDrill',{skill:['chain','product','quotient','paramgrad','implicit'],need:6},`Mixed Year 13 differentiation. Get 6 right to master it.`,`Pick the right rule first.`),
+Q(`A point of inflection is where…`,[`the curve changes between concave and convex`,`the gradient is always zero`,`the function has a maximum`,`the curve crosses the y-axis`],0,`f″ changes sign.`),
+T(`<h3>Key points</h3><ul><li>Choose the rule: chain (function of a function), product, quotient.</li><li>Parametric and implicit differentiation.</li><li>f″ changing sign: <b>point of inflection</b>.</li></ul>`)]),
+LH('am3-3-2','Integration techniques',11,'Substitution, by parts, partial fractions and trig identities: the Year 13 integration kit.',[
+RM(`<p>Calculus Levels 4 and 8 build these slowly. ∫ f′/f dx = ln|f| + c. By parts: ∫ u dv = uv − ∫ v du.</p>`),
+T(`<h3>The Year 13 kit</h3><ul><li>Standard integrals: eˣ, 1/x, sin, cos, sec², and f(ax + b).</li><li><b>Reverse chain rule</b> and ∫ f′/f = ln|f|.</li><li><b>Substitution</b>, <b>by parts</b>, <b>partial fractions</b>.</li><li><b>Trig identities</b> for sin², cos², tan².</li><li><b>Area</b> between curves and under parametric curves: ∫ y (dx/dt) dt.</li></ul>`),
+W('calcDrill',{skill:['intexp','int1x','subst','parts','pfrac'],need:5},`Mixed Year 13 integration. Get 5 right to master it.`,`Work down the decision list.`),
+Q(`∫ x eˣ dx needs…`,[`integration by parts`,`partial fractions`,`a trig identity`,`no technique`],0,`Product of types.`),
+T(`<h3>Key points</h3><ul><li>Spot standard forms and f′/f first.</li><li>Then substitution, parts or partial fractions.</li><li>Parametric area: ∫ y (dx/dt) dt.</li></ul>`)]),
+LH('am3-3-3','Differential equations and numerical methods',11,'Separate variables to solve, and use iteration when algebra runs out.',[
+RM(`<p>Separating variables (Calculus Level 5). Newton's method (Calculus Level 7). Trapezium rule (Calculus Level 5).</p>`),
+T(`<h3>Differential equations</h3><p>Separate, integrate both sides, include one constant, use the initial condition. Then interpret the model: what happens as t → ∞?</p>`),
+W('calcDrill',{skill:'sepode',need:2},`Separable differential equations. Get 2 right to master it.`,`Separate, integrate, use the start value.`),
+T(`<h3>Numerical methods</h3><ul><li><b>Change of sign</b>: if f is continuous and changes sign on [a, b], a root lies between.</li><li><b>Iteration</b> xₙ₊₁ = g(xₙ): staircase or cobweb diagrams show convergence.</li><li><b>Newton–Raphson</b>: xₙ₊₁ = xₙ − f(xₙ)/f′(xₙ). Fails if f′(xₙ) ≈ 0.</li><li><b>Trapezium rule</b>: overestimates for a convex curve, underestimates for concave.</li></ul>`),
+Q(`When does Newton–Raphson fail?`,[`When f′(xₙ) is zero or close to zero`,`When f(xₙ) is zero`,`When x is negative`,`It never fails`],0,`The tangent is flat and shoots far away.`),
+W('calcDrill',{skill:'trap',need:2},`The trapezium rule. Get 2 right to master it.`,`(h/2)[ends + 2 × middles].`),
+T(`<h3>Key points</h3><ul><li>Separate, integrate, apply the condition, interpret.</li><li>Change of sign, iteration, <b>Newton–Raphson</b>.</li><li>Trapezium rule: over for convex, under for concave.</li></ul>`)])
+]});
+
+U({id:'am3-4',track:'am',level:3,title:'Vectors, statistics and mechanics',icon:'N(μ,σ²)',color:'#D85A30',desc:'3D vectors, the normal distribution, moments, friction and projectiles.',lessons:[
+LH('am3-4-1','The normal distribution',11,'The bell curve: heights, errors, exam marks, and the approximation to the binomial.',[
+RM(`<p>Mean μ and standard deviation σ. Hypothesis testing: compare a probability with the significance level.</p>`),
+T(`<h3>X ~ N(μ, σ²)</h3><ul><li>Symmetrical about μ; bell-shaped.</li><li>About <b>68%</b> within 1σ, <b>95%</b> within 2σ, <b>99.7%</b> within 3σ.</li><li>Points of inflection at μ ± σ.</li><li>Standardise with <b>z = (x − μ)/σ</b> to use Z ~ N(0, 1).</li></ul>`),
+W('calcDrill',{skill:'a_zscore',need:3},`Standardising. Get 3 right to master it.`,`z = (x − μ)/σ.`),
+Q(`About what percentage of a normal distribution lies within 2 standard deviations of the mean?`,[`95%`,`68%`,`99.7%`,`50%`],0,`The 68–95–99.7 rule.`),
+T(`<h3>More Year 13 statistics</h3><ul><li><b>Binomial → normal</b> when n is large and p near 0.5: N(np, np(1 − p)), with a continuity correction.</li><li><b>Hypothesis test for a mean</b>: X̄ ~ N(μ, σ²/n).</li><li><b>Correlation test</b> using the product moment correlation coefficient r.</li><li><b>Conditional probability</b> and Venn and tree diagrams.</li></ul>`),
+T(`<h3>Key points</h3><ul><li><b>68–95–99.7</b> rule.</li><li><b>z = (x − μ)/σ</b>.</li><li>Sample mean: X̄ ~ N(μ, σ²/n).</li></ul>`)]),
+LH('am3-4-2','Moments and friction',11,'Turning effects, balance, and objects on slopes.',[
+RM(`<p>Moment = force × perpendicular distance. Friction F ≤ μR. Resolve forces into perpendicular components.</p>`),
+T(`<h3>Equilibrium</h3><p>For a rigid body at rest: forces balance in every direction <b>and</b> moments balance about <b>any</b> point. Take moments about a point where an unknown force acts, to remove it.</p>`),
+W('calcDrill',{skill:'a_moment',need:3},`Moments on a rod. Get 3 right to master it.`,`Moments about the left end.`),
+T(`<h3>Slopes</h3><p>On a slope at angle θ: resolve weight into mg sin θ <b>down the slope</b> and mg cos θ <b>into the slope</b>. So R = mg cos θ, and limiting friction is μmg cos θ.</p>`),
+Q(`A block is about to slide down a rough slope. tan θ = …`,[`μ`,`1/μ`,`μ²`,`g`],0,`mg sin θ = μmg cos θ.`),
+T(`<h3>Key points</h3><ul><li>Equilibrium: forces <b>and</b> moments balance.</li><li>Take moments about an unknown force.</li><li>Slope: R = mg cos θ; limiting friction when μ = tan θ.</li></ul>`)]),
+LH('am3-4-3','Projectiles and 3D vectors',11,'Split motion into horizontal and vertical, and extend vectors into three dimensions.',[
+RM(`<p>suvat with constant acceleration. Vectors in 3D: ⟨a, b, c⟩, magnitude √(a² + b² + c²) (Calculus Level 11).</p>`),
+T(`<h3>Projectiles</h3><ul><li><b>Horizontal</b>: constant velocity u cos θ (no acceleration).</li><li><b>Vertical</b>: suvat with a = −g, starting at u sin θ.</li><li>Time links them. Range on flat ground = u² sin 2θ / g, greatest at 45°.</li></ul>`),
+W('calcDrill',{skill:'a_proj',need:3},`Times of flight. Get 3 right to master it.`,`t = 2u sin θ / g.`),
+T(`<h3>3D vectors at A-level</h3><p>Position vectors, distances between points, and vector problems in 3D. A-level uses i, j, k notation. (The dot and cross products are Further Maths, covered in Calculus Level 11.)</p>`),
+W('calcDrill',{skill:'vmag',need:2},`Magnitudes in 3D. Get 2 right to master it.`,`√(a² + b² + c²).`),
+T(`<h3>Key points</h3><ul><li>Projectiles: horizontal constant, vertical suvat with −g.</li><li>Range u² sin 2θ / g, max at 45°.</li><li>3D vectors with i, j, k.</li></ul>`)])
+]});
+
+/* ---- Level 4: A* technique ---- */
+U({id:'am4-1',track:'am',level:4,title:'Hard problem solving',icon:'A*',color:'#7F77DD',desc:'Proof by contradiction, modelling, and multi-step problems that combine topics.',lessons:[
+LH('am4-1-1','Proof by contradiction',11,'Assume the opposite, follow the logic, and hit something impossible.',[
+RM(`<p>Proof by deduction and exhaustion (Level 2). Even = 2n, odd = 2n + 1. A rational number is a/b with integers a, b and b ≠ 0.</p>`),
+T(`<h3>The method</h3><ol><li>Assume the statement is <b>false</b>.</li><li>Reason logically from that assumption.</li><li>Reach a <b>contradiction</b>: something impossible.</li><li>So the assumption was wrong, and the statement is true.</li></ol>`),
+W('stepCalc',{steps:[`Prove √2 is irrational.`,`Assume √2 = a/b, a fraction in its simplest form (a and b share no factor).`,`Square: 2 = a²/b², so a² = 2b². So a² is even, so a is even: a = 2k.`,`Then 4k² = 2b², so b² = 2k²: b² is even, so b is even.`,`a and b are both even: they share a factor of 2. <b>Contradiction</b>. So √2 is irrational. ∎`]},`The classic proof.`,`The contradiction is with "simplest form".`),
+Q(`To prove "there are infinitely many primes" by contradiction, you start by assuming…`,[`there are only finitely many primes`,`there are infinitely many primes`,`every number is prime`,`2 is the only prime`],0,`Assume the opposite.`),
+Q(`What's the key step that makes a proof by contradiction work?`,[`Showing the assumption leads to something impossible`,`Checking many examples`,`Finding one counter-example`,`Drawing a graph`],0,`The contradiction.`),
+T(`<h3>Key points</h3><ul><li>Assume the opposite, reach a contradiction.</li><li>√2 irrational; infinitely many primes.</li><li>State clearly what's contradicted.</li></ul>`)]),
+LH('am4-1-2','Modelling',10,'Turn a real situation into maths, solve, then criticise your own model.',[
+RM(`<p>Differential equations model rates. Exponential models y = Ae<sup>kt</sup>. Mechanics models make assumptions (particle, light rod, smooth surface).</p>`),
+T(`<h3>The cycle</h3><ol><li>State <b>assumptions</b>.</li><li>Build the model (an equation).</li><li>Solve it.</li><li><b>Interpret</b> the answer in context, with units.</li><li><b>Evaluate</b>: limitations, and how to refine it.</li></ol>`),
+O(`Order the modelling cycle.`,['State assumptions','Build the equation','Solve it','Interpret in context','Evaluate and refine'],`Top marks need the last two steps.`),
+T(`<h3>Typical criticisms</h3><ul><li>Exponential growth can't continue forever: resources run out (use a logistic model).</li><li>Treating an object as a particle ignores its size and spin.</li><li>Ignoring air resistance overestimates range.</li><li>A model fitted to limited data may not extrapolate.</li></ul>`),
+Q(`A model predicts a population of 10 billion rabbits on an island in 20 years. The best criticism?`,[`Exponential growth can't continue: food and space are limited`,`The arithmetic must be wrong`,`Rabbits don't reproduce`,`The model has too few letters`],0,`Limits to growth.`),
+T(`<h3>Key points</h3><ul><li>Assume, model, solve, <b>interpret, evaluate</b>.</li><li>Always comment on limits of the model.</li><li>Answers need context and units.</li></ul>`)]),
+LH('am4-1-3','Multi-step problems',11,'The hardest questions combine topics. Plan before you calculate.',[
+RM(`<p>Every Year 12 and 13 topic: algebra, trig, calculus, vectors, statistics, mechanics.</p>`),
+T(`<h3>A strategy</h3><ol><li><b>Read it all</b>, underlining what's given and what's asked.</li><li><b>Sketch</b> a diagram or graph.</li><li>Ask: which topics does this link? Calculus + trig? Vectors + geometry?</li><li>Work <b>backwards</b> from what you need.</li><li>Keep <b>exact values</b> (surds, π, ln) until the end.</li><li><b>Check</b> the answer makes sense.</li></ol>`),
+W('stepCalc',{steps:[`The curve y = x² − 4x + 7 and the line y = 2x − 2 enclose a region. Find its area.`,`Link: simultaneous equations, then integration.`,`Meet: x² − 4x + 7 = 2x − 2, so x² − 6x + 9 = 0, (x − 3)² = 0. Only x = 3!`,`One meeting point means the line is a tangent: there's no enclosed region.`,`<b>Checking the set-up saved you from a meaningless integral.</b>`]},`A trap that rewards checking.`,`Strong candidates check their set-up before integrating.`),
+Q(`Why keep exact values until the end?`,[`Rounding early loses accuracy and marks`,`Examiners dislike decimals at all times`,`Exact values are always smaller`,`To make it look harder`],0,`Errors compound.`),
+T(`<h3>Key points</h3><ul><li>Read, sketch, link topics, plan.</li><li>Keep <b>exact</b> values.</li><li>Check answers make sense.</li></ul>`)])
+]});
+
+U({id:'am4-2',track:'am',level:4,title:'Exam technique',icon:'✓',color:'#1D9E75',desc:'Show-that questions, exact answers, statistics and mechanics traps, and timing.',lessons:[
+LH('am4-2-1','Show that and exact answers',10,'A "show that" gives you the answer. The marks are all for the working.',[
+RM(`<p>Exact values: surds, π, ln and fractions. Proofs end with a clear conclusion.</p>`),
+T(`<h3>Show that</h3><ul><li>Every step must be visible. Skipping a step loses marks even if the answer is right.</li><li>Work towards the given result; never write it down then work backwards silently.</li><li>Finish by writing the given result exactly as stated.</li></ul>`),
+Q(`In a "show that x = 2 + √3" question, what earns the marks?`,[`Clear working that reaches 2 + √3`,`Writing 2 + √3 on its own`,`A decimal answer of 3.732`,`Checking with a calculator only`],0,`The working is the answer.`),
+T(`<h3>Exact answers</h3><p>"Exact" means no rounding: leave √3, π, ln 5, ⅓. "Give your answer in the form a + b√c" tells you the shape: match it exactly.</p>`),
+Q(`An answer of 1.0986 when ln 3 was asked "exactly" will…`,[`lose the final mark`,`get full marks`,`get extra marks`,`be marked as ln 3`],0,`Not exact.`),
+T(`<h3>Key points</h3><ul><li><b>Show that</b>: every step visible.</li><li><b>Exact</b>: surds, π, ln, fractions.</li><li>Match any requested form.</li></ul>`)]),
+LH('am4-2-2','Statistics and mechanics traps',10,'The mistakes that cost the most marks in Paper 3, and how to avoid them.',[
+RM(`<p>Hypothesis tests conclude in context. suvat needs constant acceleration. Friction opposes motion.</p>`),
+T(`<h3>Statistics</h3><ul><li>Hypotheses use the <b>parameter</b> (p or μ), not the sample result.</li><li>Conclusions in context, never "H₀ is true".</li><li>"At least" and "fewer than" with discrete distributions: P(X ≥ 4) = 1 − P(X ≤ 3).</li><li>Normal: sketch the curve and shade the region.</li></ul>`),
+T(`<h3>Mechanics</h3><ul><li>Draw a <b>force diagram</b> every time.</li><li>Choose a positive direction and stick to it.</li><li>Use g = 9.8 unless told otherwise; give answers to 2 or 3 s.f. if you used 9.8.</li><li>Don't use suvat when acceleration varies.</li></ul>`),
+W('matchPairs',{pairs:[['H₁: p > 0.3','A one-tailed test'],['P(X ≥ 4)','1 − P(X ≤ 3)'],['Acceleration depends on t','Use calculus, not suvat'],['Limiting friction','F = μR']]},`Match each.`),
+Q(`After using g = 9.8, how many significant figures should a final answer have?`,[`2 or 3`,`10`,`1`,`As many as the calculator shows`],0,`g is given to 2 s.f.`),
+T(`<h3>Key points</h3><ul><li>Hypotheses about the parameter; conclude in context.</li><li>Force diagram, positive direction, suvat only for constant a.</li><li>2 or 3 s.f. after g = 9.8.</li></ul>`)]),
+LH('am4-2-3','Timing and checking',9,'Two-hour papers, one mark per minute or so. Use the time like an expert.',[
+RM(`<p>Each A-level Maths paper: 2 hours, 100 marks.</p>`),
+T(`<h3>About a mark a minute</h3><p>100 marks in 120 minutes: roughly <b>1.2 minutes per mark</b>. A 6-mark question deserves about 7 minutes. If you're stuck for twice that, move on and come back.</p>`),
+N(`An 8-mark question at 1.2 minutes per mark. Time to spend (minutes, 1 d.p.)?`,9.6,0.01,'min',`8 × 1.2.`),
+T(`<h3>Checking</h3><ul><li><b>Differentiate</b> your integral to check it.</li><li><b>Substitute</b> roots back into the equation.</li><li>Is the probability between 0 and 1? Is the length positive?</li><li>Does the answer match the rough size you'd expect?</li></ul>`),
+Q(`The fastest way to check ∫ result?`,[`Differentiate it`,`Integrate it again`,`Ask a friend`,`Plot it`],0,`Differentiation undoes integration.`),
+T(`<h3>Key points</h3><ul><li>About <b>1.2 minutes per mark</b>.</li><li>Move on when stuck; come back.</li><li>Check by reversing: differentiate, substitute, sanity-check.</li></ul>`)])
+]});
+
+GOALS.am3={icon:'📗',title:'Master Year 13 maths',story:'Each unit covers a strand of Edexcel A-level Maths Year 2.',final:'Full A-level content covered',steps:['Functions and sequences','Trigonometry in Year 13','Further calculus','Vectors, statistics and mechanics']};
+GOALS.am4={icon:'🏆',title:'Go for an A* in maths',story:'The hardest questions and the habits that earn the top grade.',final:'A* standard',steps:['Hard problem solving','Exam technique']};
+/* ========== A-LEVEL PHYSICS (AQA 7408) · LEVEL 1 bridge · LEVEL 2 Year 12 ========== */
+function pE(v,sf){sf=sf||3;if(v===0)return '0';var e=Math.floor(Math.log10(Math.abs(v))),m=v/Math.pow(10,e);m=Math.round(m*Math.pow(10,sf-1))/Math.pow(10,sf-1);if(Math.abs(m)>=10){m/=10;e++}return e===0?cNum(m):cNum(m)+' × 10'+cSup(e)}
+CGEN.p_prefix=function(){var P=cP([['k',3],['M',6],['G',9],['m',-3],['μ',-6],['n',-9]]),v=cR(1,99),u=cP(['m','g','A','V','W','J','s']);
+ return {p:'Write '+v+' '+P[0]+u+' in '+u+'. Give the power of ten.',b:[cB(P[1],cNum(v)+' × 10','','power',true)],e:P[0]+' means × 10'+cSup(P[1])+'. So '+v+' '+P[0]+u+' = '+v+' × 10'+cSup(P[1])+' '+u+'.'}};
+CGEN.p_unc=function(){var x=cR(20,80)/10,dx=cP([0.1,0.05,0.2]),pct=Math.round(dx/x*1000)/10;
+ return {p:'A length is measured as '+x.toFixed(1)+' ± '+dx+' cm. What\'s the percentage uncertainty? (1 d.p.)',b:[cB(pct,'','%','percentage',false,0.02)],e:'% uncertainty = absolute ÷ value × 100 = '+dx+' ÷ '+x.toFixed(1)+' × 100 = '+cNum(pct)+'%. (If the length were squared, you\'d double it.)'}};
+CGEN.p_photon=function(){var l=cR(200,700),E=Math.round(1240/l*1000)/1000;
+ return {p:'Find the energy of a photon of wavelength '+l+' nm, in eV. (3 d.p.)',b:[cB(E,'E = ',' eV','energy',false,0.003)],e:'E = hc/λ. In handy units, hc ≈ 1240 eV nm, so E = 1240 ÷ '+l+' = '+cNum(E)+' eV.'}};
+CGEN.p_photo=function(){var E=cR(30,80)/10,phi=cR(18,Math.min(E*10-2,50))/10,K=Math.round((E-phi)*100)/100;
+ return {p:'Photons of energy '+cNum(E)+' eV hit a metal with work function '+cNum(phi)+' eV. Maximum kinetic energy of the photoelectrons, in eV?',b:[cB(K,'E<sub>k,max</sub> = ',' eV','energy',false,0.003)],e:'Einstein\'s equation: hf = φ + E<sub>k,max</sub>, so E<sub>k,max</sub> = '+cNum(E)+' − '+cNum(phi)+' = '+cNum(K)+' eV.'}};
+CGEN.p_debroglie=function(){var k=cR(1,9),l=Math.round(0.728/k*1000)/1000;
+ return {p:'An electron (m = 9.11 × 10⁻³¹ kg) moves at '+k+' × 10⁶ m/s. Find its de Broglie wavelength in nm. (h = 6.63 × 10⁻³⁴ J s, 3 d.p.)',b:[cB(l,'λ = ',' nm','wavelength',false,0.005)],e:'λ = h/(mv) = 6.63 × 10⁻³⁴ ÷ (9.11 × 10⁻³¹ × '+k+' × 10⁶) = '+pE(l*1e-9)+' m = '+cNum(l)+' nm.'}};
+CGEN.p_resist=function(){var rho=cP([1.7e-8,2.8e-8,1.1e-6,5.6e-8]),L=cR(1,20),d=cP([0.2,0.3,0.5,1.0]),A=Math.PI*Math.pow(d/2*1e-3,2),R=rho*L/A,r=Math.round(R*Math.pow(10,2-Math.floor(Math.log10(R))))/Math.pow(10,2-Math.floor(Math.log10(R)));
+ return {p:'A wire has resistivity '+pE(rho,2)+' Ω m, length '+L+' m and diameter '+d+' mm. Find its resistance in Ω. (3 s.f.)',b:[cB(r,'R = ',' Ω','resistance',false,0.006)],e:'A = π(d/2)² = π × ('+cNum(d/2)+' × 10⁻³)² = '+pE(A)+' m². R = ρL/A = '+pE(rho,2)+' × '+L+' ÷ '+pE(A)+' = '+pE(R)+' Ω.'}};
+CGEN.p_emf=function(){var e=cR(3,24),r=cP([0.5,1,1.5,2]),R=cR(2,20),I=e/(R+r),V=Math.round((e-I*r)*100)/100;
+ return {p:'A cell of emf '+e+' V and internal resistance '+r+' Ω is connected to a '+R+' Ω resistor. Find the terminal pd. (2 d.p.)',b:[cB(V,'V = ',' V','pd',false,0.005)],e:'I = ε/(R + r) = '+e+'/'+cNum(R+r)+' = '+cNum(Math.round(I*1000)/1000)+' A. V = ε − Ir = '+cNum(V)+' V ("lost volts" Ir = '+cNum(Math.round(I*r*100)/100)+' V).'}};
+CGEN.p_potdiv=function(){var Vin=cP([6,9,12,5]),R1=cR(1,10)*100,R2=cR(1,10)*100,V=Math.round(Vin*R2/(R1+R2)*100)/100;
+ return {p:'A potential divider has R₁ = '+R1+' Ω and R₂ = '+R2+' Ω across '+Vin+' V. Find V<sub>out</sub> across R₂. (2 d.p.)',b:[cB(V,'V<sub>out</sub> = ',' V','pd',false,0.005)],e:'V<sub>out</sub> = V<sub>in</sub> × R₂/(R₁ + R₂) = '+Vin+' × '+R2+'/'+(R1+R2)+' = '+cNum(V)+' V.'}};
+CGEN.p_young=function(){var M=cP([['steel',200],['copper',120],['brass',100],['aluminium',70]]),F=cR(2,12)*10,d=cP([0.5,0.8,1.0]),L=cR(1,3),A=Math.PI*Math.pow(d/2*1e-3,2),dL=F*L/(A*M[1]*1e9)*1000;dL=Math.round(dL*Math.pow(10,1-Math.floor(Math.log10(dL))))/Math.pow(10,1-Math.floor(Math.log10(dL)));var E=F/A/(dL*1e-3/L),r=Math.round(E/1e9);
+ return {p:(M[0]==='aluminium'?'An ':'A ')+M[0]+' wire '+L+' m long, diameter '+d+' mm, stretches '+cNum(dL)+' mm under '+F+' N. Find the Young modulus in GPa. (nearest whole number)',b:[cB(r,'E = ',' GPa','Young modulus',false,0.01)],e:'Stress = F/A = '+F+' ÷ '+pE(A)+' = '+pE(F/A)+' Pa. Strain = '+cNum(dL)+' × 10⁻³ ÷ '+L+' = '+pE(dL*1e-3/L)+'. E = stress/strain = '+pE(E)+' Pa ≈ '+r+' GPa.'}};
+CGEN.p_moment=function(){var F=cR(2,30),d=cR(1,9)/10,d2=cR(1,9)/10,F2=Math.round(F*d/d2*100)/100;
+ return {p:'A '+F+' N force acts '+cNum(d)+' m from a pivot. What force '+cNum(d2)+' m on the other side balances it? (2 d.p.)',b:[cB(F2,'F = ',' N','force',false,0.005)],e:'Principle of moments: '+F+' × '+cNum(d)+' = F × '+cNum(d2)+', so F = '+cNum(F2)+' N.'}};
+CGEN.p_power=function(){var m=cR(50,900),h=cR(2,30),t=cR(2,30),P=Math.round(m*9.81*h/t*10)/10;
+ return {p:'A motor lifts '+m+' kg through '+h+' m in '+t+' s. Find the useful power output. (g = 9.81, 1 d.p.)',b:[cB(P,'P = ',' W','power',false,0.005)],e:'P = mgh/t = '+m+' × 9.81 × '+h+' ÷ '+t+' = '+cNum(P)+' W.'}};
+
+/* ---- Level 1: GCSE to A-level ---- */
+U({id:'ap1-1',track:'ap',level:1,title:'Measurements and uncertainties',icon:'±',color:'#7F77DD',desc:'SI units and prefixes, uncertainties, and reading gradients from graphs.',lessons:[
+LH('ap1-1-1','SI units and prefixes',9,'Every A-level physics answer needs the right unit and power of ten.',[
+RM(`<p>Standard form: 3.2 × 10⁴ = 32,000. Base SI units: kg, m, s, A, K, mol.</p>`),
+T(`<h3>Base and derived units</h3><p>Every unit can be built from the <b>six base units</b> (kg, m, s, A, K, mol). Newton: F = ma, so N = kg m s⁻². Joule: J = N m = kg m² s⁻². Checking units (<b>homogeneity</b>) catches wrong equations.</p>`),
+Q(`What is the watt in base units?`,[`kg m² s⁻³`,`kg m s⁻²`,`kg m² s⁻²`,`kg s⁻¹`],0,`W = J/s = kg m² s⁻² ÷ s.`),
+T(`<h3>Prefixes</h3><table class="wtable"><tr><th>T</th><th>G</th><th>M</th><th>k</th><th>c</th><th>m</th><th>μ</th><th>n</th><th>p</th></tr><tr><td>10¹²</td><td>10⁹</td><td>10⁶</td><td>10³</td><td>10⁻²</td><td>10⁻³</td><td>10⁻⁶</td><td>10⁻⁹</td><td>10⁻¹²</td></tr></table>`),
+W('calcDrill',{skill:'p_prefix',need:4},`Prefixes. Get 4 right to master it.`,`Replace the prefix with its power of ten.`),
+T(`<h3>Key points</h3><ul><li>Six <b>base units</b>; everything else is built from them.</li><li>Check equations by <b>homogeneity</b>.</li><li>Learn the prefixes from tera to pico.</li></ul>`)]),
+LH('ap1-1-2','Uncertainties',10,'Every measurement has an uncertainty. A-level wants you to calculate and combine them.',[
+RM(`<p>A reading on a ruler is uncertain by about half the smallest division. Percentages: part ÷ whole × 100.</p>`),
+T(`<h3>Absolute and percentage</h3><p>Length = 5.0 ± 0.1 cm. Absolute uncertainty: 0.1 cm. Percentage uncertainty: 0.1/5.0 × 100 = 2%.</p>`),
+W('calcDrill',{skill:'p_unc',need:3},`Percentage uncertainties. Get 3 right to master it.`,`Absolute ÷ value × 100.`),
+T(`<h3>Combining</h3><ul><li><b>Adding or subtracting</b> quantities: <b>add absolute</b> uncertainties.</li><li><b>Multiplying or dividing</b>: <b>add percentage</b> uncertainties.</li><li><b>Raising to a power</b>: multiply the percentage by the power.</li></ul>`),
+Q(`Area = L², with L uncertain by 2%. Uncertainty in area?`,[`4%`,`2%`,`1%`,`8%`],0,`Power 2: double the percentage.`),
+T(`<h3>Errors</h3><p><b>Random errors</b> scatter readings (reduce by repeating and averaging). <b>Systematic errors</b> shift every reading the same way (like a zero error), and repeating doesn't help.</p>`),
+T(`<h3>Key points</h3><ul><li>% uncertainty = absolute ÷ value × 100.</li><li>Add absolutes for ±; add percentages for × ÷; multiply by the power.</li><li>Random vs systematic errors.</li></ul>`)]),
+LH('ap1-1-3','Graphs and gradients',9,'Turn an equation into y = mx + c and a straight-line graph gives you the answer.',[
+RM(`<p>y = mx + c: gradient m, intercept c. Gradient = Δy/Δx.</p>`),
+T(`<h3>Linearising</h3><p>Match your equation to y = mx + c. For example, v² = u² + 2as: plot v² against s, and the gradient is 2a, the intercept u².</p>`),
+Q(`T = 2π√(l/g). Which graph is a straight line through the origin?`,[`T² against l`,`T against l`,`T against l²`,`√T against l`],0,`T² = (4π²/g) l.`),
+T(`<h3>Reading gradients</h3><ul><li>Use a <b>large triangle</b> (at least half the line) to reduce reading error.</li><li>Include <b>units</b> in the gradient.</li><li>For a curve, draw a tangent and find its gradient.</li></ul>`),
+N(`T² against l has gradient 4.0 s²/m. Using gradient = 4π²/g, find g. (2 d.p.)`,9.87,0.005,'m/s²',`g = 4π²/4.0 = 9.87.`),
+T(`<h3>Key points</h3><ul><li>Rearrange into <b>y = mx + c</b>.</li><li>Big triangles; units on gradients.</li><li>Tangents for curves.</li></ul>`)])
+]});
+
+U({id:'ap1-2',track:'ap',level:1,title:'GCSE physics at A-level speed',icon:'F⃗',color:'#1D9E75',desc:'Resolving vectors, energy and power, and moments.',lessons:[
+LH('ap1-2-1','Scalars, vectors and resolving',10,'Split a force into two perpendicular parts and hard problems become two easy ones.',[
+RM(`<p>A vector has size and direction; a scalar only size. SOH CAH TOA.</p>`),
+T(`<h3>Resolving</h3><p>A force F at angle θ to the horizontal has:</p><div class="eq">horizontal F cos θ,&nbsp;&nbsp; vertical F sin θ</div><p>Two perpendicular forces combine with Pythagoras: resultant √(F₁² + F₂²) at angle arctan(F₂/F₁).</p>`),
+N(`A 50 N force acts at 30° above horizontal. Horizontal component? (1 d.p.)`,43.3,0.002,'N',`50 cos 30° = 43.3 N.`),
+Q(`Which is a vector?`,[`Displacement`,`Speed`,`Mass`,`Energy`],0,`Has a direction.`),
+T(`<h3>Equilibrium</h3><p>An object is in equilibrium when the resultant force is zero: resolve in two directions and set each sum to zero. Coplanar forces in equilibrium form a closed triangle.</p>`),
+T(`<h3>Key points</h3><ul><li>Components: <b>F cos θ</b> and <b>F sin θ</b>.</li><li>Combine perpendicular vectors with Pythagoras.</li><li>Equilibrium: resultant zero in every direction.</li></ul>`)]),
+LH('ap1-2-2','Moments',9,'Turning effects, balance and centre of mass.',[
+RM(`<p>Moment = force × perpendicular distance from the pivot.</p>`),
+T(`<h3>Principle of moments</h3><p>For balance: <b>sum of clockwise moments = sum of anticlockwise moments</b> about any point. A <b>couple</b> is two equal, opposite, parallel forces: its moment is force × separation.</p>`),
+W('calcDrill',{skill:'p_moment',need:3},`Balancing moments. Get 3 right to master it.`,`F₁d₁ = F₂d₂.`),
+Q(`The centre of mass of an object is…`,[`where its weight appears to act`,`always its geometric centre`,`its heaviest end`,`always at the bottom`],0,`Uniform objects: the geometric centre.`),
+T(`<h3>Key points</h3><ul><li><b>Clockwise = anticlockwise</b> moments for balance.</li><li>Couple: force × separation.</li><li>Weight acts at the <b>centre of mass</b>.</li></ul>`)]),
+LH('ap1-2-3','Energy, work and power',9,'Work, energy and power at A-level: same ideas, harder numbers.',[
+RM(`<p>W = Fs. KE = ½mv². GPE = mgh. P = W/t.</p>`),
+T(`<h3>Work with an angle</h3><div class="eq">W = Fs cos θ</div><p>Only the force component along the motion does work. Power can also be written <b>P = Fv</b> for a steady speed.</p>`),
+W('calcDrill',{skill:'p_power',need:3},`Power calculations. Get 3 right to master it.`,`mgh/t.`),
+N(`A car moves at 25 m/s against a 600 N resistive force. Power needed (kW)?`,15,0.001,'kW',`P = Fv = 600 × 25 = 15,000 W.`),
+T(`<h3>Efficiency</h3><div class="eq">efficiency = useful output ÷ total input</div>`),
+T(`<h3>Key points</h3><ul><li><b>W = Fs cos θ</b>.</li><li><b>P = W/t = Fv</b>.</li><li>Efficiency = useful ÷ total.</li></ul>`)])
+]});
+
+/* ---- Level 2: Year 12 ---- */
+U({id:'ap2-1',track:'ap',level:2,title:'Particles and quantum phenomena',icon:'γ',color:'#7F77DD',desc:'Inside the atom, particles and antiparticles, quarks, and the photoelectric effect.',lessons:[
+LH('ap2-1-1','Constituents of the atom',10,'Protons, neutrons, electrons, specific charge, and the strong force.',[
+RM(`<p>Atoms: nucleus of protons and neutrons, electrons around it. Isotopes: same protons, different neutrons. Notation ᴬ<sub>Z</sub>X.</p>`),
+T(`<h3>Specific charge</h3><div class="eq">specific charge = charge ÷ mass &nbsp;(C kg⁻¹)</div><p>Electron: 1.76 × 10¹¹ C kg⁻¹, the largest of the three, because its mass is so small.</p>`),
+N(`A proton has charge 1.60 × 10⁻¹⁹ C and mass 1.67 × 10⁻²⁷ kg. Specific charge? (×10⁷ C/kg, 3 s.f.)`,9.58,0.005,'×10⁷ C/kg',`1.60 × 10⁻¹⁹ ÷ 1.67 × 10⁻²⁷ = 9.58 × 10⁷.`),
+T(`<h3>The strong nuclear force</h3><p>Holds the nucleus together against proton repulsion. <b>Repulsive</b> below about 0.5 fm, <b>attractive</b> up to about 3 fm, and negligible beyond.</p>`),
+T(`<h3>Unstable nuclei</h3><ul><li><b>α decay</b>: ᴬ<sub>Z</sub>X → ᴬ⁻⁴<sub>Z−2</sub>Y + ⁴<sub>2</sub>α (very large nuclei).</li><li><b>β⁻ decay</b>: n → p + e⁻ + ν̄<sub>e</sub> (neutron-rich nuclei). The antineutrino was predicted to explain the spread of beta energies.</li></ul>`),
+Q(`Why was the neutrino proposed?`,[`Beta particles had a range of energies, so energy seemed to go missing`,`To explain alpha decay`,`To hold the nucleus together`,`To explain gravity`],0,`Conservation of energy.`),
+T(`<h3>Key points</h3><ul><li>Specific charge = Q/m.</li><li>Strong force: repulsive < 0.5 fm, attractive to ~3 fm.</li><li>β⁻ decay emits an <b>antineutrino</b>.</li></ul>`)]),
+LH('ap2-1-2','Particles, antiparticles and quarks',11,'Hadrons, leptons, quarks, and the conservation laws that decide what\'s allowed.',[
+RM(`<p>Every particle has an antiparticle with the same mass and opposite charge. E = mc².</p>`),
+T(`<h3>Annihilation and pair production</h3><p>A particle and its antiparticle <b>annihilate</b> into two photons. A photon with enough energy can make a particle–antiparticle pair: minimum energy = 2 × rest energy (1.022 MeV for an electron–positron pair).</p>`),
+T(`<h3>Classification</h3><ul><li><b>Hadrons</b> feel the strong force. <b>Baryons</b> (three quarks: proton uud, neutron udd) and <b>mesons</b> (quark + antiquark: pions, kaons).</li><li><b>Leptons</b> don't: electron, muon, neutrinos.</li></ul>`),
+W('matchPairs',{pairs:[['Proton','Baryon: uud'],['Pion','Meson'],['Muon','Lepton'],['Neutron','Baryon: udd']]},`Match each particle to its class.`),
+T(`<h3>Conservation laws</h3><p>Always conserved: <b>charge</b>, <b>baryon number</b>, <b>lepton number</b> (electron and muon separately). <b>Strangeness</b> is conserved in strong interactions but can change by ±1 in weak ones.</p>`),
+Q(`p → n + e⁺ + ν<sub>e</sub> happens inside some nuclei. Which interaction?`,[`Weak`,`Strong`,`Electromagnetic`,`Gravity`],0,`It changes quark type (u → d): weak.`),
+T(`<h3>Key points</h3><ul><li>Annihilation and pair production.</li><li>Hadrons (baryons qqq, mesons qq̄) vs leptons.</li><li>Conserve charge, baryon number, lepton number; strangeness only in strong.</li></ul>`)]),
+LH('ap2-1-3','Photons and the photoelectric effect',11,'Light comes in packets. The photoelectric effect proved it.',[
+RM(`<p>Waves: c = fλ. Energy levels in atoms. 1 eV = 1.60 × 10⁻¹⁹ J.</p>`),
+T(`<h3>Photons</h3><div class="eq">E = hf = hc/λ</div>`),
+W('calcDrill',{skill:'p_photon',need:3},`Photon energies. Get 3 right to master it.`,`E = 1240/λ in eV with λ in nm.`),
+T(`<h3>The photoelectric effect</h3><p>Light only ejects electrons from a metal above a <b>threshold frequency</b>, however bright. One photon gives its energy to one electron:</p><div class="eq">hf = φ + E<sub>k,max</sub></div><p>φ is the <b>work function</b>, the minimum energy to free an electron. Wave theory couldn't explain the threshold: this proved light is particles.</p>`),
+W('calcDrill',{skill:'p_photo',need:3},`Photoelectric equation. Get 3 right to master it.`,`E<sub>k,max</sub> = hf − φ.`),
+T(`<h3>Wave–particle duality</h3><p>Electrons diffract like waves, with <b>de Broglie wavelength λ = h/mv</b>. Light and matter both behave as waves and particles.</p>`),
+W('calcDrill',{skill:'p_debroglie',need:2},`de Broglie wavelengths. Get 2 right to master it.`,`λ = h/mv.`),
+T(`<h3>Key points</h3><ul><li><b>E = hf</b>.</li><li><b>hf = φ + E<sub>k,max</sub></b>; threshold frequency proves photons.</li><li><b>λ = h/mv</b>: matter waves.</li></ul>`)])
+]});
+
+U({id:'ap2-2',track:'ap',level:2,title:'Waves',icon:'∿',color:'#1D9E75',desc:'Progressive and stationary waves, polarisation, interference and diffraction, and refraction.',lessons:[
+LH('ap2-2-1','Progressive waves and polarisation',10,'Waves carry energy without carrying matter. Transverse ones can be polarised.',[
+RM(`<p>c = fλ. Transverse waves oscillate perpendicular to travel; longitudinal parallel to it.</p>`),
+T(`<h3>Describing waves</h3><ul><li>Amplitude, wavelength λ, frequency f, period T = 1/f.</li><li><b>Phase difference</b>: how far out of step two points are, in radians (2π = one whole cycle).</li></ul>`),
+N(`Two points are a quarter of a wavelength apart on a wave. Phase difference in radians? (3 d.p.)`,1.571,0.002,'rad',`¼ × 2π = π/2.`),
+T(`<h3>Polarisation</h3><p>Only <b>transverse</b> waves can be polarised: restricted to oscillate in one plane. Polaroid sunglasses cut glare (reflected light is partly polarised). TV aerials are aligned with the polarisation of the broadcast.</p>`),
+Q(`Polarisation proves a wave is…`,[`transverse`,`longitudinal`,`electromagnetic`,`slow`],0,`Longitudinal waves have no plane to restrict.`),
+T(`<h3>Key points</h3><ul><li><b>c = fλ</b>, T = 1/f.</li><li>Phase difference in radians.</li><li>Only transverse waves polarise.</li></ul>`)]),
+LH('ap2-2-2','Stationary waves',10,'Two waves travelling opposite ways make a wave that doesn\'t go anywhere.',[
+RM(`<p>Superposition: where waves meet, displacements add. c = fλ.</p>`),
+T(`<h3>Nodes and antinodes</h3><p>Two waves of the same frequency travelling in opposite directions superpose into a <b>stationary wave</b>. <b>Nodes</b>: no movement. <b>Antinodes</b>: maximum amplitude. Nodes are λ/2 apart. No energy is transferred along it.</p>`),
+T(`<h3>Strings</h3><p>A string fixed at both ends has a node at each end. The first harmonic is half a wavelength: λ = 2L.</p><div class="eq">f = (1/2L)√(T/μ)</div>${KY([['L','length of string','m'],['T','tension','N'],['μ','mass per unit length','kg/m']])}`),
+N(`A 0.80 m string vibrates in its first harmonic at 200 Hz. Wave speed (m/s)?`,320,0.001,'m/s',`λ = 1.6 m, v = fλ = 320 m/s.`),
+Q(`Doubling the tension multiplies the first harmonic frequency by…`,[`√2`,`2`,`4`,`½`],0,`f ∝ √T.`),
+T(`<h3>Key points</h3><ul><li>Stationary waves: <b>nodes</b> and <b>antinodes</b>, no energy flow.</li><li>First harmonic: λ = 2L.</li><li><b>f = (1/2L)√(T/μ)</b>.</li></ul>`)]),
+LH('ap2-2-3','Interference, diffraction and refraction',11,'Young\'s slits, gratings, and light bending at boundaries.',[
+RM(`<p>Coherent sources: same frequency, constant phase difference. Path difference of whole wavelengths gives constructive interference.</p>`),
+T(`<h3>Young's double slit</h3><div class="eq">w = λD/s</div>${KY([['w','fringe spacing','m'],['D','slits to screen','m'],['s','slit separation','m']])}`),
+N(`λ = 600 nm, D = 2.0 m, s = 0.50 mm. Fringe spacing in mm?`,2.4,0.001,'mm',`600 × 10⁻⁹ × 2.0 ÷ 0.50 × 10⁻³ = 2.4 × 10⁻³ m.`),
+T(`<h3>Diffraction gratings</h3><div class="eq">d sin θ = nλ</div><p>d is the line spacing (1 ÷ lines per metre). Very sharp, bright maxima: used to measure wavelengths precisely.</p>`),
+T(`<h3>Refraction and total internal reflection</h3><p>n₁ sin θ₁ = n₂ sin θ₂. Going into a less dense medium, beyond the <b>critical angle</b> (sin θ<sub>c</sub> = n₂/n₁), all light reflects. Optical fibres use this, with cladding of lower n.</p>`),
+Q(`Why do optical fibres have cladding?`,[`It has a lower refractive index, so light totally internally reflects at the core boundary`,`To make them stronger only`,`To absorb light`,`To make the light faster`],0,`TIR needs n<sub>core</sub> > n<sub>cladding</sub>.`),
+T(`<h3>Key points</h3><ul><li>Young: <b>w = λD/s</b>. Grating: <b>d sin θ = nλ</b>.</li><li>Snell: <b>n₁ sin θ₁ = n₂ sin θ₂</b>.</li><li>TIR beyond the critical angle.</li></ul>`)])
+]});
+
+U({id:'ap2-3',track:'ap',level:2,title:'Mechanics and materials',icon:'F=ma',color:'#378ADD',desc:'Motion and projectiles, Newton\'s laws and momentum, and the properties of materials.',lessons:[
+LH('ap2-3-1','Motion and projectiles',11,'suvat in two dimensions, and the effect of air resistance.',[
+RM(`<p>suvat for constant acceleration. Resolving vectors into components.</p>`),
+T(`<h3>Projectiles</h3><p>Treat horizontal and vertical <b>independently</b>. Horizontal: constant velocity. Vertical: acceleration g downwards. Time links them.</p>`),
+W('calcDrill',{skill:'g_suvat',need:3},`suvat practice. Get 3 right to master it.`,`List s, u, v, a, t.`),
+W('stepCalc',{steps:[`A ball rolls off a 1.25 m high table at 3.0 m/s. How far from the table does it land?`,`Vertical: s = 1.25 m, u = 0, a = 9.81. s = ½at² gives t = √(2 × 1.25/9.81) = 0.505 s`,`Horizontal: distance = 3.0 × 0.505`,`<b>≈ 1.5 m</b>`]},`A horizontal launch.`,`Find the time from the vertical motion first.`),
+T(`<h3>Air resistance</h3><p>Drag increases with speed. A falling object reaches <b>terminal velocity</b> when drag equals weight. Projectiles with drag travel less far and land more steeply.</p>`),
+T(`<h3>Key points</h3><ul><li>Horizontal and vertical are <b>independent</b>.</li><li>Time links them.</li><li>Drag: terminal velocity, shorter range.</li></ul>`)]),
+LH('ap2-3-2','Newton\'s laws and momentum',11,'Force is the rate of change of momentum. That one idea covers collisions, rockets and impulse.',[
+RM(`<p>F = ma. Momentum p = mv. Momentum is conserved in a closed system.</p>`),
+T(`<h3>Newton's second law, properly</h3><div class="eq">F = Δ(mv)/Δt</div><p><b>Impulse</b> FΔt = change in momentum = the area under a force–time graph. Airbags and crumple zones increase Δt to reduce F.</p>`),
+W('calcDrill',{skill:'g_impulse',need:2},`Impulse. Get 2 right to master it.`,`FΔt = Δp.`),
+T(`<h3>Collisions</h3><ul><li>Momentum is <b>always</b> conserved (no external forces).</li><li><b>Elastic</b>: kinetic energy also conserved. <b>Inelastic</b>: some KE becomes heat and sound.</li></ul>`),
+N(`A 2 kg trolley at 3 m/s sticks to a stationary 1 kg trolley. Common speed (m/s)?`,2,0.001,'m/s',`6 = 3v.`),
+Q(`Why do crumple zones make crashes safer?`,[`They increase the collision time, reducing the force`,`They reduce the car's momentum before the crash`,`They make the car heavier`,`They stop momentum being conserved`],0,`F = Δp/Δt.`),
+T(`<h3>Key points</h3><ul><li><b>F = Δp/Δt</b>; impulse = area under F–t.</li><li>Momentum always conserved; KE only in elastic collisions.</li><li>Longer Δt, smaller F.</li></ul>`)]),
+LH('ap2-3-3','Materials',10,'Density, Hooke\'s law, stress, strain and the Young modulus.',[
+RM(`<p>Hooke's law F = kΔL (up to the limit of proportionality). Elastic energy = ½FΔL.</p>`),
+T(`<h3>Stress, strain and the Young modulus</h3><div class="eq">stress = F/A&nbsp;&nbsp; strain = ΔL/L&nbsp;&nbsp; E = stress/strain</div><p>The Young modulus is a property of the <b>material</b>, not the sample: steel is about 200 GPa.</p>`),
+W('calcDrill',{skill:'p_young',need:2},`The Young modulus. Get 2 right to master it.`,`(F/A) ÷ (ΔL/L).`),
+T(`<h3>Stress–strain graphs</h3><ul><li><b>Elastic</b>: returns to shape. <b>Plastic</b>: permanent stretch.</li><li><b>Brittle</b> (glass): snaps with little plastic deformation. <b>Ductile</b> (copper): can be drawn into wires.</li><li>Area under a force–extension graph = energy stored.</li></ul>`),
+Q(`The Young modulus is the gradient of which graph?`,[`Stress against strain (linear part)`,`Force against length`,`Strain against time`,`Extension against force`],0,`E = stress/strain.`),
+T(`<h3>Key points</h3><ul><li>Stress F/A, strain ΔL/L, <b>E = stress/strain</b>.</li><li>Elastic vs plastic; brittle vs ductile.</li><li>Energy = area under F–ΔL.</li></ul>`)])
+]});
+
+U({id:'ap2-4',track:'ap',level:2,title:'Electricity',icon:'Ω',color:'#D85A30',desc:'Resistance and resistivity, circuits and potential dividers, and emf and internal resistance.',lessons:[
+LH('ap2-4-1','Resistance and resistivity',10,'Why some wires resist more than others, and superconductors that don\'t resist at all.',[
+RM(`<p>V = IR. Current is the rate of flow of charge: I = ΔQ/Δt.</p>`),
+T(`<h3>Resistivity</h3><div class="eq">R = ρL/A</div><p>ρ is the <b>resistivity</b> of the material (Ω m): copper 1.7 × 10⁻⁸, nichrome about 1.1 × 10⁻⁶.</p>`),
+W('calcDrill',{skill:'p_resist',need:2},`Resistance of a wire. Get 2 right to master it.`,`A = π(d/2)², then ρL/A.`),
+T(`<h3>I–V characteristics</h3><ul><li><b>Ohmic conductor</b> (constant temperature): straight line through the origin.</li><li><b>Filament lamp</b>: curve, resistance rises as it heats.</li><li><b>Diode</b>: conducts one way only, above about 0.6 V.</li><li><b>Thermistor</b> (NTC): resistance falls as temperature rises.</li></ul>`),
+Q(`What's special about a superconductor below its critical temperature?`,[`Zero resistivity`,`Infinite resistance`,`It conducts one way only`,`It gets hotter`],0,`Used in MRI magnets and fusion magnets.`),
+T(`<h3>Key points</h3><ul><li><b>R = ρL/A</b>.</li><li>Learn the I–V graphs.</li><li>Superconductors: zero resistance below T<sub>c</sub>.</li></ul>`)]),
+LH('ap2-4-2','Circuits and potential dividers',10,'Series, parallel and potential dividers that make sensor circuits.',[
+RM(`<p>Series: R = R₁ + R₂, same current. Parallel: 1/R = 1/R₁ + 1/R₂, same pd. Charge and energy are conserved (Kirchhoff).</p>`),
+T(`<h3>Potential dividers</h3><div class="eq">V<sub>out</sub> = V<sub>in</sub> × R₂/(R₁ + R₂)</div><p>Replace R₂ with a thermistor or LDR and V<sub>out</sub> changes with temperature or light: a sensor.</p>`),
+W('calcDrill',{skill:'p_potdiv',need:3},`Potential dividers. Get 3 right to master it.`,`V<sub>in</sub> × R₂/(R₁ + R₂).`),
+Q(`An LDR is R₂. It gets darker (LDR resistance rises). V<sub>out</sub> across the LDR…`,[`rises`,`falls`,`stays the same`,`becomes zero`],0,`Bigger share of the resistance.`),
+T(`<h3>Key points</h3><ul><li>Series and parallel rules; Kirchhoff's laws.</li><li><b>V<sub>out</sub> = V<sub>in</sub>R₂/(R₁ + R₂)</b>.</li><li>Sensors in potential dividers.</li></ul>`)]),
+LH('ap2-4-3','EMF and internal resistance',10,'Real batteries lose some voltage inside themselves.',[
+RM(`<p>V = IR. Series resistances add.</p>`),
+T(`<h3>emf and lost volts</h3><div class="eq">ε = I(R + r) = V + Ir</div>${KY([['ε','emf: energy given per coulomb','V'],['r','internal resistance','Ω'],['Ir','"lost volts" inside the cell','V']])}`),
+W('calcDrill',{skill:'p_emf',need:3},`Terminal pd. Get 3 right to master it.`,`I = ε/(R + r), V = ε − Ir.`),
+T(`<h3>Measuring ε and r</h3><p>Plot terminal pd V against current I. V = ε − rI: the intercept is <b>ε</b>, the gradient is <b>−r</b>. (A required practical.)</p>`),
+Q(`On a V–I graph for a cell, the gradient is…`,[`−r`,`ε`,`R`,`I`],0,`V = −rI + ε.`),
+T(`<h3>Key points</h3><ul><li><b>ε = V + Ir</b>.</li><li>Lost volts rise with current.</li><li>V–I graph: intercept ε, gradient −r.</li></ul>`)])
+]});
+
+GOALS.ap1={icon:'🧱',title:'Bridge from GCSE',story:'Only if you need it: the measurement skills and GCSE physics A-level takes for granted.',final:'Ready for A-level physics',steps:['Measurements and uncertainties','GCSE physics at A-level speed']};
+GOALS.ap2={icon:'🔭',title:'Master Year 12 physics',story:'Each unit is an AQA topic from Year 1 of the course.',final:'Year 12 complete',steps:['Particles and quantum phenomena','Waves','Mechanics and materials','Electricity']};
+/* ========== A-LEVEL PHYSICS · LEVEL 3 Year 13 · LEVEL 4 A* technique ========== */
+CGEN.p_circ=function(){var m=cR(1,20)/10,v=cR(2,15),r=cR(2,20)/10,F=Math.round(m*v*v/r*100)/100;
+ return {p:'A '+cNum(m)+' kg mass moves in a circle of radius '+cNum(r)+' m at '+v+' m/s. Find the centripetal force. (2 d.p.)',b:[cB(F,'F = ',' N','force',false,0.005)],e:'F = mv²/r = '+cNum(m)+' × '+(v*v)+' ÷ '+cNum(r)+' = '+cNum(F)+' N, towards the centre.'}};
+CGEN.p_shm=function(){if(cR(0,1)){var m=cR(1,20)/10,k=cR(5,80),T=Math.round(2*Math.PI*Math.sqrt(m/k)*1000)/1000;return {p:'A '+cNum(m)+' kg mass on a spring of stiffness '+k+' N/m. Find the period. (3 d.p.)',b:[cB(T,'T = ',' s','period',false,0.003)],e:'T = 2π√(m/k) = 2π√('+cNum(m)+'/'+k+') = '+cNum(T)+' s.'}}
+ var l=cR(2,30)/10,T2=Math.round(2*Math.PI*Math.sqrt(l/9.81)*1000)/1000;return {p:'A simple pendulum is '+cNum(l)+' m long. Find its period. (g = 9.81, 3 d.p.)',b:[cB(T2,'T = ',' s','period',false,0.003)],e:'T = 2π√(l/g) = 2π√('+cNum(l)+'/9.81) = '+cNum(T2)+' s. (Small swings only.)'}};
+CGEN.p_gas=function(){var n=cR(1,5)/2,T=cR(250,400),V=cR(5,50)/1000,p=Math.round(n*8.31*T/V/100)*100;
+ return {p:cNum(n)+' mol of ideal gas at '+T+' K in '+cNum(V*1000)+' litres ('+pE(V)+' m³). Find the pressure in kPa. (R = 8.31, nearest 0.1 kPa)',b:[cB(Math.round(n*8.31*T/V/100)/10,'p = ',' kPa','pressure',false,0.004)],e:'pV = nRT, so p = nRT/V = '+cNum(n)+' × 8.31 × '+T+' ÷ '+pE(V)+' = '+pE(n*8.31*T/V)+' Pa.'}};
+CGEN.p_gheight=function(){var g0=9.81,k=cP([2,3,4,1.5,1.2]),g=Math.round(g0/(k*k)*1000)/1000;
+ return {p:'At Earth\'s surface g = 9.81 N/kg. Find g at a distance of '+cNum(k)+' Earth radii from the centre. (3 d.p.)',b:[cB(g,'g = ',' N/kg','g',false,0.003)],e:'g = GM/r², so g ∝ 1/r². At '+cNum(k)+'R: 9.81 ÷ '+cNum(k)+'² = '+cNum(g)+' N/kg.'}};
+CGEN.p_coulomb=function(){var q1=cR(1,9),q2=cR(1,9),r=cR(1,10)/10,F=Math.round(8.99e9*q1*1e-6*q2*1e-6/(r*r)*100)/100;
+ return {p:'Two point charges of '+q1+' μC and '+q2+' μC are '+cNum(r)+' m apart. Force between them? (k = 8.99 × 10⁹, 2 d.p.)',b:[cB(F,'F = ',' N','force',false,0.005)],e:'F = kQ₁Q₂/r² = 8.99 × 10⁹ × '+q1+' × 10⁻⁶ × '+q2+' × 10⁻⁶ ÷ '+cNum(r*r)+' = '+cNum(F)+' N.'}};
+CGEN.p_cap=function(){var Q0=cR(10,90),RC=cR(2,20),t=cR(1,30),Q=Math.round(Q0*Math.exp(-t/RC)*100)/100;
+ return {p:'A capacitor starts with '+Q0+' μC and discharges through a resistor with RC = '+RC+' s. Charge after '+t+' s, in μC? (2 d.p.)',b:[cB(Q,'Q = ',' μC','charge',false,0.005)],e:'Q = Q₀e<sup>−t/RC</sup> = '+Q0+' × e<sup>−'+t+'/'+RC+'</sup> = '+cNum(Q)+' μC.'}};
+CGEN.p_bil=function(){var B=cR(1,90)/100,I=cR(1,10),l=cR(5,50)/100,F=Math.round(B*I*l*1000)/1000;
+ return {p:'A '+cNum(l)+' m wire carries '+I+' A at right angles to a '+cNum(B)+' T field. Find the force. (3 d.p.)',b:[cB(F,'F = ',' N','force',false,0.004)],e:'F = BIl = '+cNum(B)+' × '+I+' × '+cNum(l)+' = '+cNum(F)+' N. Direction: Fleming\'s left-hand rule.'}};
+CGEN.p_trans=function(){var Vp=cP([230,400,11000,25000]),Np=cR(2,40)*50,Ns=cR(1,40)*10,Vs=Math.round(Vp*Ns/Np*100)/100;
+ return {p:'An ideal transformer has '+Np+' primary turns and '+Ns+' secondary turns. Primary voltage '+Vp+' V. Secondary voltage? (2 d.p.)',b:[cB(Vs,'V<sub>s</sub> = ',' V','voltage',false,0.005)],e:'V<sub>s</sub>/V<sub>p</sub> = N<sub>s</sub>/N<sub>p</sub>, so V<sub>s</sub> = '+Vp+' × '+Ns+'/'+Np+' = '+cNum(Vs)+' V.'}};
+CGEN.p_massdef=function(){var dm=cR(1,300)/10000,E=Math.round(dm*931.5*100)/100;
+ return {p:'A reaction loses '+cNum(dm)+' u of mass. Energy released in MeV? (1 u = 931.5 MeV, 2 d.p.)',b:[cB(E,'E = ',' MeV','energy',false,0.005)],e:'E = Δm × 931.5 = '+cNum(dm)+' × 931.5 = '+cNum(E)+' MeV.'}};
+CGEN.p_radius=function(){var A=cP([12,16,27,56,64,125,208,216]),r=Math.round(1.2*Math.cbrt(A)*100)/100;
+ return {p:'Estimate the radius of a nucleus with nucleon number A = '+A+', using R = R₀A<sup>1/3</sup>, R₀ = 1.2 fm. (2 d.p.)',b:[cB(r,'R = ',' fm','radius',false,0.005)],e:'R = 1.2 × '+A+'<sup>1/3</sup> = 1.2 × '+cNum(Math.round(Math.cbrt(A)*1000)/1000)+' = '+cNum(r)+' fm.'}};
+
+/* ---- Level 3: Year 13 ---- */
+U({id:'ap3-1',track:'ap',level:3,title:'Further mechanics and thermal physics',icon:'ω',color:'#7F77DD',desc:'Circular motion, simple harmonic motion, and thermal physics and ideal gases.',lessons:[
+LH('ap3-1-1','Circular motion',10,'Moving at a steady speed in a circle still means accelerating, towards the centre.',[
+RM(`<p>Radians: 2π rad = 360°. F = ma. Velocity is a vector.</p>`),
+T(`<h3>Angular speed</h3><div class="eq">ω = θ/t = 2πf = v/r</div><p>The direction of velocity keeps changing, so there's an acceleration <b>towards the centre</b>:</p><div class="eq">a = v²/r = ω²r&nbsp;&nbsp;&nbsp; F = mv²/r = mω²r</div>`),
+W('calcDrill',{skill:'p_circ',need:3},`Centripetal force. Get 3 right to master it.`,`F = mv²/r.`),
+Q(`What provides the centripetal force for the Moon orbiting Earth?`,[`Gravity`,`Friction`,`Tension`,`Air resistance`],0,`A real force must provide it.`),
+T(`<h3>Key points</h3><ul><li><b>ω = 2πf = v/r</b>.</li><li><b>a = v²/r</b>, towards the centre.</li><li>A real force (gravity, tension, friction) provides it.</li></ul>`)]),
+LH('ap3-1-2','Simple harmonic motion',11,'Springs, pendulums and atoms in solids all oscillate the same way.',[
+RM(`<p>Circular motion: ω = 2πf. sin and cos graphs. Hooke's law F = −kx.</p>`),
+T(`<h3>The definition</h3><div class="eq">a = −ω²x</div><p>Acceleration is proportional to displacement and <b>opposite</b> to it. Solution: x = A cos(ωt). Maximum speed ωA at the centre; maximum acceleration ω²A at the ends.</p>`),
+T(`<h3>Periods</h3><div class="eq">spring: T = 2π√(m/k)&nbsp;&nbsp; pendulum: T = 2π√(l/g)</div><p>Neither depends on amplitude (for small pendulum swings): that's why pendulum clocks work.</p>`),
+W('calcDrill',{skill:'p_shm',need:3},`SHM periods. Get 3 right to master it.`,`2π√(m/k) or 2π√(l/g).`),
+T(`<h3>Damping and resonance</h3><p>Damping removes energy, shrinking the amplitude. A forced oscillator driven at its <b>natural frequency</b> <b>resonates</b>: large amplitude. Useful in instruments and MRI; dangerous in bridges and machinery.</p>`),
+Q(`Resonance happens when the driving frequency…`,[`equals the natural frequency`,`is zero`,`is double the natural frequency`,`is very large`],0,`Energy transfer is most efficient.`),
+T(`<h3>Key points</h3><ul><li>SHM: <b>a = −ω²x</b>.</li><li><b>T = 2π√(m/k)</b>, <b>T = 2π√(l/g)</b>.</li><li>Damping and resonance.</li></ul>`)]),
+LH('ap3-1-3','Thermal physics and ideal gases',11,'Heat capacity, latent heat, the gas laws and the kinetic theory behind them.',[
+RM(`<p>Q = mcΔT. Q = mL for a change of state. Temperature in kelvin: T = θ + 273.</p>`),
+T(`<h3>The ideal gas equation</h3><div class="eq">pV = nRT = NkT</div><p>Absolute zero (0 K) is where an ideal gas's pressure would reach zero. Always use <b>kelvin</b>.</p>`),
+W('calcDrill',{skill:'p_gas',need:2},`Ideal gas pressure. Get 2 right to master it.`,`p = nRT/V.`),
+T(`<h3>Kinetic theory</h3><div class="eq">pV = ⅓Nm(c<sub>rms</sub>)²&nbsp;&nbsp;&nbsp; average KE of a molecule = (3/2)kT</div><p>Temperature measures the average kinetic energy of the molecules. Assumptions include: elastic collisions, negligible molecule volume, no forces between collisions.</p>`),
+Q(`Doubling the kelvin temperature of a gas doubles its molecules'…`,[`average kinetic energy`,`speed`,`mass`,`number`],0,`KE = (3/2)kT. (Speed rises by √2.)`),
+T(`<h3>Key points</h3><ul><li><b>pV = nRT</b>, in kelvin.</li><li>Average molecular KE = <b>(3/2)kT</b>.</li><li>Q = mcΔT and Q = mL.</li></ul>`)])
+]});
+
+U({id:'ap3-2',track:'ap',level:3,title:'Fields and capacitors',icon:'g E',color:'#1D9E75',desc:'Gravitational fields and orbits, electric fields, and charging and discharging capacitors.',lessons:[
+LH('ap3-2-1','Gravitational fields',11,'Newton\'s law of gravitation, field strength, potential and orbits.',[
+RM(`<p>Circular motion: F = mv²/r. Inverse square laws: double the distance, a quarter of the effect.</p>`),
+T(`<h3>The laws</h3><div class="eq">F = GMm/r²&nbsp;&nbsp;&nbsp; g = GM/r²&nbsp;&nbsp;&nbsp; V = −GM/r</div><p>Gravitational <b>potential</b> V is the work per kg to bring a mass from infinity; it's negative and zero at infinity. g = −dV/dr.</p>`),
+W('calcDrill',{skill:'p_gheight',need:3},`g at a distance. Get 3 right to master it.`,`g ∝ 1/r².`),
+T(`<h3>Orbits</h3><p>Gravity provides the centripetal force: GMm/r² = mv²/r gives v = √(GM/r), and <b>T² ∝ r³</b> (Kepler's third law). A <b>geostationary</b> satellite orbits once per day above the equator, at about 36,000 km altitude.</p>`),
+Q(`A geostationary satellite has a period of…`,[`24 hours`,`90 minutes`,`1 year`,`12 hours`],0,`It stays above one point.`),
+T(`<h3>Key points</h3><ul><li><b>F = GMm/r²</b>, <b>g = GM/r²</b>, <b>V = −GM/r</b>.</li><li>Orbits: <b>v = √(GM/r)</b>, <b>T² ∝ r³</b>.</li><li>Geostationary: 24 h period.</li></ul>`)]),
+LH('ap3-2-2','Electric fields',10,'Coulomb\'s law mirrors gravity, except charges can repel.',[
+RM(`<p>Gravitational fields: F = GMm/r². Like charges repel; unlike attract.</p>`),
+T(`<h3>Coulomb's law</h3><div class="eq">F = Q₁Q₂/(4πε₀r²) = kQ₁Q₂/r²</div><p>k = 8.99 × 10⁹ N m² C⁻². Field strength E = F/Q. Between parallel plates the field is uniform: <b>E = V/d</b>.</p>`),
+W('calcDrill',{skill:'p_coulomb',need:3},`Coulomb's law. Get 3 right to master it.`,`kQ₁Q₂/r².`),
+T(`<h3>Compared with gravity</h3><ul><li>Both inverse-square.</li><li>Gravity always attracts; electric forces can repel.</li><li>Electric forces are vastly stronger: between two protons, about 10³⁶ times gravity.</li></ul>`),
+Q(`Uniform field between plates 2 cm apart at 500 V. E = …`,[`25,000 V/m`,`250 V/m`,`10 V/m`,`1000 V/m`],0,`500/0.02.`),
+T(`<h3>Key points</h3><ul><li><b>F = kQ₁Q₂/r²</b>.</li><li>Parallel plates: <b>E = V/d</b>.</li><li>Like gravity, but can repel and is far stronger.</li></ul>`)]),
+LH('ap3-2-3','Capacitors',11,'Store charge, then release it exponentially through a resistor.',[
+RM(`<p>Exponential decay: N = N₀e<sup>−λt</sup> (Calculus Level 5). V = IR.</p>`),
+T(`<h3>Capacitance</h3><div class="eq">C = Q/V&nbsp;&nbsp;&nbsp; energy E = ½QV = ½CV²</div><p>Energy is the area under a Q–V graph.</p>`),
+T(`<h3>Discharging</h3><p>Through a resistor R, the current depends on the charge left, so it's exponential:</p><div class="eq">Q = Q₀e<sup>−t/RC</sup></div><p>The <b>time constant</b> RC is the time to fall to 37% (1/e). It's the same differential equation as radioactive decay.</p>`),
+W('calcDrill',{skill:'p_cap',need:3},`Capacitor discharge. Get 3 right to master it.`,`Q₀e<sup>−t/RC</sup>.`),
+N(`R = 10 kΩ, C = 470 μF. Time constant in seconds? (1 d.p.)`,4.7,0.001,'s',`10⁴ × 4.7 × 10⁻⁴.`),
+T(`<h3>Key points</h3><ul><li><b>C = Q/V</b>, <b>E = ½CV²</b>.</li><li>Discharge: <b>Q = Q₀e<sup>−t/RC</sup></b>.</li><li>Time constant <b>RC</b>: falls to 37%.</li></ul>`)])
+]});
+
+U({id:'ap3-3',track:'ap',level:3,title:'Magnetic fields',icon:'B',color:'#378ADD',desc:'Forces on wires and charges, electromagnetic induction, and transformers.',lessons:[
+LH('ap3-3-1','Magnetic forces',10,'A current or a moving charge in a magnetic field feels a force at right angles.',[
+RM(`<p>Fleming's left-hand rule: First finger Field, seCond finger Current, thuMb Motion. Circular motion: F = mv²/r.</p>`),
+T(`<h3>The force laws</h3><div class="eq">on a wire: F = BIl&nbsp;&nbsp;&nbsp; on a charge: F = BQv</div><p>B is the magnetic flux density, in tesla (T). The force is perpendicular to both B and the motion.</p>`),
+W('calcDrill',{skill:'p_bil',need:3},`F = BIl. Get 3 right to master it.`,`Multiply B, I and l.`),
+T(`<h3>Charges in circles</h3><p>Because F is perpendicular to v, a charge in a uniform field moves in a <b>circle</b>: BQv = mv²/r, so <b>r = mv/(BQ)</b>. This is how <b>cyclotrons</b> accelerate particles and how mass spectrometers sort ions.</p>`),
+Q(`Why does a charged particle move in a circle in a uniform magnetic field?`,[`The force is always perpendicular to its velocity`,`The force is parallel to its velocity`,`Magnetic fields slow particles down`,`It has no charge`],0,`A centripetal force.`),
+T(`<h3>Key points</h3><ul><li><b>F = BIl</b>, <b>F = BQv</b>.</li><li>Perpendicular force → circular motion, <b>r = mv/BQ</b>.</li><li>Cyclotrons and mass spectrometers.</li></ul>`)]),
+LH('ap3-3-2','Electromagnetic induction',11,'Change the magnetic flux through a coil and you get a voltage. Every power station depends on it.',[
+RM(`<p>B is flux density in tesla. Generators turn coils in magnetic fields.</p>`),
+T(`<h3>Flux and flux linkage</h3><div class="eq">Φ = BA cos θ&nbsp;&nbsp;&nbsp; flux linkage = NΦ</div>`),
+T(`<h3>Faraday and Lenz</h3><div class="eq">ε = −N ΔΦ/Δt</div><p><b>Faraday</b>: the induced emf equals the rate of change of flux linkage. <b>Lenz</b> (the minus sign): the induced current opposes the change that caused it. Lenz's law is conservation of energy.</p>`),
+N(`A 200-turn coil's flux changes by 3 × 10⁻³ Wb in 0.1 s. Size of the induced emf (V)?`,6,0.001,'V',`200 × 0.003 ÷ 0.1.`),
+Q(`A magnet is pushed into a coil. Lenz's law says the induced current…`,[`creates a field that repels the approaching magnet`,`attracts the magnet`,`is zero`,`flows only after the magnet stops`],0,`It opposes the change.`),
+T(`<h3>Key points</h3><ul><li><b>Φ = BA cos θ</b>; linkage NΦ.</li><li><b>ε = −N dΦ/dt</b>.</li><li>Lenz: opposes the change (energy conservation).</li></ul>`)]),
+LH('ap3-3-3','Alternating current and transformers',10,'Why the grid uses AC and very high voltages.',[
+RM(`<p>Electromagnetic induction needs a changing flux. RMS: V<sub>rms</sub> = V₀/√2 (Calculus Level 9).</p>`),
+T(`<h3>AC</h3><p>Mains is 230 V <b>rms</b>, about 325 V peak, at 50 Hz. RMS values give the same power as the equivalent DC.</p>`),
+T(`<h3>Transformers</h3><div class="eq">V<sub>s</sub>/V<sub>p</sub> = N<sub>s</sub>/N<sub>p</sub></div><p>An alternating current in the primary makes a changing flux in the iron core, inducing an emf in the secondary. They only work with AC.</p>`),
+W('calcDrill',{skill:'p_trans',need:3},`Transformers. Get 3 right to master it.`,`V<sub>s</sub> = V<sub>p</sub>N<sub>s</sub>/N<sub>p</sub>.`),
+T(`<h3>Why high voltage?</h3><p>Power lost in cables is I²R. For the same power, raising the voltage lowers the current, slashing losses. Sizewell B's generator output is stepped up to 400 kV for the National Grid.</p>`),
+Q(`Transmitting at 10 times the voltage cuts cable losses by a factor of…`,[`100`,`10`,`1000`,`2`],0,`I falls 10×, I²R by 100×.`),
+T(`<h3>Key points</h3><ul><li>230 V rms = 325 V peak.</li><li><b>V<sub>s</sub>/V<sub>p</sub> = N<sub>s</sub>/N<sub>p</sub></b>.</li><li>High voltage → low current → low I²R losses.</li></ul>`)])
+]});
+
+U({id:'ap3-4',track:'ap',level:3,title:'Nuclear physics',icon:'☢',color:'#D85A30',desc:'Rutherford scattering and nuclear size, radioactive decay, and mass defect, fission and fusion.',lessons:[
+LH('ap3-4-1','Inside the nucleus',10,'Rutherford found the nucleus by firing alpha particles at gold. How big is it?',[
+RM(`<p>Coulomb repulsion between charges. The nucleus is tiny compared to the atom.</p>`),
+T(`<h3>Rutherford scattering</h3><p>Most alpha particles passed straight through gold foil; a very few bounced back. So the atom is mostly empty, with a tiny, dense, positive <b>nucleus</b>.</p>`),
+T(`<h3>Nuclear radius</h3><div class="eq">R = R₀A<sup>1/3</sup>,&nbsp;&nbsp; R₀ ≈ 1.2 fm</div><p>Volume ∝ R³ ∝ A, so every nucleus has about the <b>same density</b>, about 10¹⁷ kg/m³.</p>`),
+W('calcDrill',{skill:'p_radius',need:3},`Nuclear radii. Get 3 right to master it.`,`1.2 × A<sup>1/3</sup>.`),
+Q(`R ∝ A<sup>1/3</sup> tells us nuclear density is…`,[`about the same for all nuclei`,`higher for big nuclei`,`higher for small nuclei`,`zero`],0,`Mass ∝ A, volume ∝ A.`),
+T(`<h3>Key points</h3><ul><li>Rutherford: tiny, dense, positive nucleus.</li><li><b>R = R₀A<sup>1/3</sup></b>.</li><li>Constant nuclear density.</li></ul>`)]),
+LH('ap3-4-2','Radioactive decay',10,'Decay constant, half-life, activity and the inverse square law for gamma rays.',[
+RM(`<p>N = N₀e<sup>−λt</sup>, A = λN, T½ = ln 2/λ (Calculus Level 5).</p>`),
+T(`<h3>The equations</h3><div class="eq">A = λN&nbsp;&nbsp;&nbsp; N = N₀e<sup>−λt</sup>&nbsp;&nbsp;&nbsp; T½ = ln 2 / λ</div>`),
+W('calcDrill',{skill:'decay',need:3},`Half-life and λ. Get 3 right to master it.`,`T½ = ln 2/λ.`),
+T(`<h3>Gamma intensity</h3><p>Gamma radiation from a point source follows an <b>inverse square law</b>: I = k/x². Doubling the distance quarters the dose rate, which is why distance is a key protection.</p>`),
+Q(`Moving from 1 m to 3 m from a gamma source, the intensity becomes…`,[`1/9 as much`,`1/3 as much`,`3 times more`,`unchanged`],0,`Inverse square.`),
+T(`<h3>Key points</h3><ul><li><b>A = λN</b>, <b>N = N₀e<sup>−λt</sup></b>, <b>T½ = ln 2/λ</b>.</li><li>Gamma: <b>inverse square</b> with distance.</li><li>Background must be subtracted from count rates.</li></ul>`)]),
+LH('ap3-4-3','Mass defect, fission and fusion',11,'A nucleus weighs less than its parts. That missing mass is where nuclear energy comes from.',[
+RM(`<p>E = mc². 1 u = 931.5 MeV. Binding energy per nucleon peaks near iron (Level 2 Theory).</p>`),
+T(`<h3>Mass defect and binding energy</h3><p>The mass of a nucleus is less than the total mass of its separate protons and neutrons. The difference, the <b>mass defect</b>, is the <b>binding energy</b> via E = mc².</p>`),
+W('calcDrill',{skill:'p_massdef',need:3},`Energy from mass. Get 3 right to master it.`,`Δm × 931.5 MeV.`),
+T(`<h3>Fission and fusion</h3><p>Both move towards the peak of the binding energy curve. Heavy nuclei <b>split</b> (fission of U-235 releases about 200 MeV); light nuclei <b>join</b> (D–T fusion releases 17.6 MeV).</p><p><b>Thermal reactors</b> need a <b>moderator</b> (to slow neutrons), <b>control rods</b> (to absorb them) and a <b>coolant</b>. Everything in the Critical theory track builds on this.</p>`),
+W('matchPairs',{pairs:[['Moderator','Slows neutrons so they cause fission'],['Control rods','Absorb neutrons to control the rate'],['Coolant','Carries heat away from the core'],['Critical mass','Smallest mass for a self-sustaining chain reaction']]},`Match each reactor part.`),
+T(`<h3>Key points</h3><ul><li><b>Mass defect</b> = binding energy / c².</li><li>Fission and fusion both climb towards iron.</li><li>Moderator, control rods, coolant.</li></ul>`)])
+]});
+
+/* ---- Level 4: A* technique ---- */
+U({id:'ap4-1',track:'ap',level:4,title:'Practical skills',icon:'⚗',color:'#7F77DD',desc:'The required practicals, uncertainty analysis, and log graphs.',lessons:[
+LH('ap4-1-1','The required practicals',11,'Twelve experiments you must know well enough to describe, analyse and improve.',[
+RM(`<p>Uncertainties combine by adding absolutes (±) or percentages (× ÷). Linearise to y = mx + c.</p>`),
+T(`<h3>Know each one</h3><ul><li>Stationary waves on a string; Young's slits and gratings; g by free fall.</li><li>Young modulus; resistivity of a wire; emf and internal resistance.</li><li>SHM (spring or pendulum); Boyle's law and Charles's law.</li><li>Capacitor charge and discharge; force on a wire in a field; induced emf in a search coil; inverse square law for gamma.</li></ul><p>For each: the method, what's plotted, what the gradient means, the main sources of uncertainty, and how to improve it.</p>`),
+W('matchPairs',{pairs:[['Resistivity','Plot R against L; gradient = ρ/A'],['Internal resistance','Plot V against I; gradient = −r'],['Pendulum g','Plot T² against l; gradient = 4π²/g'],['Capacitor discharge','Plot ln V against t; gradient = −1/RC']]},`Match each practical to its graph.`),
+Q(`In the resistivity practical, why measure the diameter at several places and angles?`,[`The wire may not be perfectly round or uniform, so averaging reduces random error`,`To make the wire longer`,`To heat the wire`,`To find the current`],0,`Random error.`),
+T(`<h3>Key points</h3><ul><li>Know method, graph, gradient meaning, errors, improvements.</li><li>Average repeated readings to cut random error.</li><li>Watch for zero errors (systematic).</li></ul>`)]),
+LH('ap4-1-2','Uncertainty in graphs',10,'Error bars, worst-fit lines and the uncertainty in a gradient.',[
+RM(`<p>Percentage uncertainty = absolute ÷ value × 100. Gradients from large triangles.</p>`),
+T(`<h3>Error bars and worst fit</h3><p>Plot each point with <b>error bars</b>. Draw the <b>best-fit</b> line, then the steepest or shallowest line that still passes through all the error bars: the <b>worst-fit</b> line.</p><div class="eq">uncertainty in gradient = |best − worst| gradient</div>`),
+N(`Best-fit gradient 4.20, worst-fit 4.50. Percentage uncertainty in the gradient? (1 d.p.)`,7.1,0.01,'%',`0.30/4.20 × 100 = 7.1%.`),
+T(`<h3>Precision and accuracy</h3><ul><li><b>Precise</b>: readings close together (small random error).</li><li><b>Accurate</b>: close to the true value (small systematic error).</li><li><b>Repeatable</b>: same person, same method; <b>reproducible</b>: different people or methods.</li></ul>`),
+Q(`Readings are close together but all 5% too high. They're…`,[`precise but not accurate`,`accurate but not precise`,`both`,`neither`],0,`Systematic error.`),
+T(`<h3>Key points</h3><ul><li>Error bars, best-fit and <b>worst-fit</b> lines.</li><li>Gradient uncertainty = |best − worst|.</li><li>Precise ≠ accurate.</li></ul>`)]),
+LH('ap4-1-3','Logarithmic graphs',10,'When the relationship is a power or an exponential, logs straighten it out.',[
+RM(`<p>ln(eˣ) = x. log(aⁿ) = n log a. y = mx + c.</p>`),
+T(`<h3>Two cases</h3><ul><li><b>Power law</b> y = kxⁿ: log y = n log x + log k. Plot log y against log x: gradient <b>n</b>.</li><li><b>Exponential</b> y = Ae<sup>−λt</sup>: ln y = −λt + ln A. Plot ln y against t: gradient <b>−λ</b>.</li></ul>`),
+Q(`Plotting ln(activity) against time gives a straight line of gradient −0.02 s⁻¹. λ = …`,[`0.02 s⁻¹`,`−0.02 s⁻¹`,`50 s`,`ln 0.02`],0,`Gradient = −λ.`),
+N(`log T against log r gives gradient 1.5 (Kepler). If T ∝ rⁿ, what is n?`,1.5,0.001,'',`Gradient = n.`),
+T(`<h3>Key points</h3><ul><li>Power law: <b>log–log</b>, gradient = power.</li><li>Exponential: <b>ln y against t</b>, gradient = −λ.</li><li>Intercepts give the constants.</li></ul>`)])
+]});
+
+U({id:'ap4-2',track:'ap',level:4,title:'Exam technique',icon:'✓',color:'#1D9E75',desc:'Synoptic questions, six-mark answers, and calculation habits that earn every mark.',lessons:[
+LH('ap4-2-1','Synoptic questions',10,'The hardest questions join topics from different parts of the course.',[
+RM(`<p>Every topic: mechanics, fields, waves, electricity, thermal, nuclear.</p>`),
+T(`<h3>Spotting the links</h3><ul><li>A charge in a magnetic field: <b>circular motion</b> + <b>magnetism</b>.</li><li>A satellite: <b>gravity</b> + <b>circular motion</b> + <b>energy</b>.</li><li>Capacitor discharge: <b>electricity</b> + <b>exponentials</b>.</li><li>A nuclear reactor: <b>nuclear</b> + <b>thermal</b> + <b>momentum</b> (moderation).</li></ul>`),
+Q(`A proton is accelerated through a pd, then enters a magnetic field. Which two ideas link?`,[`eV = ½mv², then BQv = mv²/r`,`F = ma only`,`Snell's law and Ohm's law`,`pV = nRT and E = hf`],0,`Energy then circular motion.`),
+W('stepCalc',{steps:[`Why does a moderator use light nuclei?`,`Momentum and KE are conserved in an elastic collision.`,`A neutron hitting a nucleus of similar mass (like hydrogen) can lose most of its energy in one collision.`,`Hitting a heavy nucleus, it bounces off with almost the same speed.`,`<b>So light nuclei slow neutrons in the fewest collisions.</b>`]},`A synoptic explanation.`,`Mechanics explains reactor design.`),
+T(`<h3>Key points</h3><ul><li>Ask which topics a situation joins.</li><li>Write the link explicitly (e.g. BQv = mv²/r).</li><li>Mechanics underpins almost everything.</li></ul>`)]),
+LH('ap4-2-2','Six-mark answers',10,'Extended responses are marked on a logical sequence of clear, linked points.',[
+RM(`<p>Level-of-response marking: quality and order of reasoning matter, not just facts.</p>`),
+T(`<h3>How to write one</h3><ol><li><b>Plan</b>: jot down 5–6 points first.</li><li><b>Order</b> them logically (cause → effect, or method steps in sequence).</li><li>Use correct <b>physics terms</b>.</li><li>Link points with "so", "because", "therefore".</li><li>Answer the actual question, including any judgement it asks for.</li></ol>`),
+O(`Order an answer describing how to find g with a falling ball.`,['Set up a light gate or timer and measure the drop height','Release the ball from rest and record the time','Repeat for several heights and average each time','Plot 2h against t² and find the gradient','The gradient equals g; compare with 9.81 m/s²'],`Logical sequence wins top marks.`),
+Q(`What separates a top-level 6-mark answer?`,[`A logical, linked sequence of correct points`,`Lots of unconnected facts`,`One very long sentence`,`Repeating the question`],0,`Linked reasoning.`),
+T(`<h3>Key points</h3><ul><li>Plan, order, link.</li><li>Use precise vocabulary.</li><li>Answer exactly what's asked.</li></ul>`)]),
+LH('ap4-2-3','Calculation habits',9,'The small habits that stop you dropping easy marks.',[
+RM(`<p>Prefixes, standard form, significant figures, units.</p>`),
+T(`<h3>Habits</h3><ul><li><b>Write the equation</b> first, then substitute, then the answer: method marks survive a slip.</li><li><b>Convert</b> prefixes and units before substituting (mm → m, μF → F, °C → K).</li><li>Give <b>units</b> and a sensible number of <b>significant figures</b> (match the data, usually 2 or 3).</li><li><b>Carry</b> unrounded values through multi-step calculations.</li><li><b>Sanity-check</b>: is a speed faster than light? A resistance negative?</li></ul>`),
+Q(`A question gives data to 3 s.f. How should you give your answer?`,[`To 3 s.f.`,`To 1 s.f.`,`Every digit on the calculator`,`As a fraction`],0,`Match the data.`),
+Q(`Temperature in the ideal gas equation must be in…`,[`kelvin`,`°C`,`°F`,`any unit`],0,`Absolute temperature.`),
+T(`<h3>Key points</h3><ul><li>Equation, substitution, answer, unit.</li><li>Convert prefixes first; kelvin for gases.</li><li>Sensible s.f.; sanity-check.</li></ul>`)])
+]});
+
+GOALS.ap3={icon:'🛰️',title:'Master Year 13 physics',story:'Each unit is an AQA topic from Year 2, ending with the nuclear physics this whole app is built around.',final:'Full A-level physics covered',steps:['Further mechanics and thermal physics','Fields and capacitors','Magnetic fields','Nuclear physics']};
+GOALS.ap4={icon:'🏆',title:'Go for an A* in physics',story:'Practical skills and exam habits that separate an A from an A*.',final:'A* standard',steps:['Practical skills','Exam technique']};
+/* every new unit (Levels 6+ and A-level) gets a unit test from its own lesson questions plus fresh generated ones */
+UNITS.forEach(function(u){var nw=(u.level||1)>5||u.track==='am'||u.track==='ap'||u.track==='ac';if(!nw||TESTS[u.id])return;var cs=[];
+ u.lessons.forEach(function(l){var sk={};l.cards.forEach(function(c){if(c.t==='Q'||c.t==='N')cs.push(x(l.id,Object.assign({},c)));if(c.t==='W'&&c.w==='calcDrill')[].concat(c.par.skill).forEach(function(s){sk[s]=1})});
+  Object.keys(sk).slice(0,3).forEach(function(s){try{cs.push(x(l.id,GN(s)))}catch(e){}})});
+ if(cs.length>=4)TT(u.id,cs)});
+/* <<< new content: al <<< */
 
 
 
