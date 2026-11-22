@@ -1,4 +1,44 @@
-Displacement is how far <i>in a straight line in a given direction</i>.`),
+n);return dstr(d)}
+ function diff(a,b){return Math.round((s2d(b)-s2d(a))/864e5)}
+ function nice(s){return s2d(s).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})}
+ function short(s){return s2d(s).toLocaleDateString('en-GB',{weekday:'short'})}
+ function inDays(s){var n=diff(today(),s);return n===0?'today':n===1?'tomorrow':n<0?(n===-1?'yesterday':-n+' days ago'):'in '+n+' days'}
+ function tdI(){return (new Date().getDay()+6)%7}
+ function uIdx(id){for(var i=0;i<UNITS.length;i++)if(UNITS[i].id===id)return i;return -1}
+ /* a topic is a whole unit (e.g. gp3-1 Forces) or one lesson in it (e.g. gp3-1-1 Scalars, vectors and resultant forces) */
+ var TI=null;function tInfo(id){if(!TI||TI._n!==UNITS.length){TI={_n:UNITS.length};UNITS.forEach(function(u,ui){TI[u.id]={ui:ui,li:-1,title:u.title};u.lessons.forEach(function(l,li){TI[l.id]={ui:ui,li:li,title:l.title,ut:u.title}})})}return TI[id]||null}
+ function tLessons(id){var x=tInfo(id);if(!x)return [];if(x.li>=0)return [[x.ui,x.li]];return UNITS[x.ui].lessons.map(function(_,li){return [x.ui,li]})}
+ function tOrd(id){var x=tInfo(id);return x?x.ui*1000+(x.li+1):1e9}
+ function testOf(id){var r=R();for(var i=0;i<r.tests.length;i++)if(r.tests[i].id===id)return r.tests[i];return null}
+ function subjName(t){return t.subj==='own'?(t.sname||'Your subject'):SUBJ[t.subj]||'Test'}
+ function tName(t){return t.name||subjName(t)+' test'}
+ function cards(t){return (t.cards||[]).filter(function(c){return c&&c.q&&c.a})}
+ function uTitles(ids){return (ids||[]).map(function(id){var x=tInfo(id);return x?x.title:null}).filter(Boolean)}
+ /* the revision days: the t.days days before the test, but never before the day the test was added (or after it was deleted) */
+ function sched(t){var out=[];if(!t||!t.date)return out;var d=addD(t.date,-Math.max(1,Math.min(7,t.days||3))),g=0;if(t.from&&t.from>d)d=t.from;
+  for(;d<t.date&&g++<20;d=addD(d,1)){if(t.gone&&d>=t.gone)break;out.push(d)}return out}
+ /* topics are shared out over the revision days; the last day is a mini mock on everything */
+ function plan(t){var D=sched(t),n=D.length,U=(t.units||[]).filter(function(id){return !!tInfo(id)}),pd=n-1,out={};
+  D.forEach(function(d,k){var last=k===n-1,us=[];if(t.subj!=='own'&&U.length){if(last)us=U.slice();else if(U.length>=pd)us=U.filter(function(_,j){return Math.floor(j*pd/U.length)===k});else us=[U[k%U.length]]}
+   out[d]={k:k+1,n:n,mock:last,units:us}});return out}
+ function dayInfo(dk){var best=null;R().tests.forEach(function(t){var p=plan(t)[dk];if(p&&(!best||t.date<best.t.date))best={t:t,p:p}});if(!best)return null;
+  var t=best.t,p=best.p;return build({tid:t.id,dk:dk,name:tName(t),subj:t.subj,date:t.date,k:p.k,n:p.n,mock:p.mock,units:p.units})}
+ function build(pin){var t=testOf(pin.tid),tl=uTitles(pin.units),nc=t?cards(t).length:0,own=pin.subj==='own',d=nice(pin.date);
+  var desc=pin.mock?'Last day before your '+pin.name+' ('+d+'). Start with the mini mock test on '+(own?'all your flashcards':'everything')+', then practise what you got wrong.':
+   'Revision day '+pin.k+' of '+pin.n+' for your '+pin.name+' ('+d+'). '+(own?'Go through your '+nc+' flashcard'+(nc===1?'':'s')+' until the timer\'s done.':'Today\'s topic'+(tl.length===1?'':'s')+': '+tl.join(', ')+'. Do practice rounds until the timer\'s done.');
+  return {pin:pin,tid:pin.tid,name:pin.name,desc:desc,mock:!!pin.mock,units:pin.units||[]}}
+ /* ----- questions ----- */
+ function poolUnits(uids){var pool=[],seen={};(uids||[]).forEach(function(id){var x=tInfo(id);if(!x)return;var u=UNITS[x.ui];
+   tLessons(id).forEach(function(p){var l=u.lessons[p[1]];if(seen[l.id])return;seen[l.id]=1;function add(c,k,keep){if(!c||(c.t!=='Q'&&c.t!=='N'&&c.t!=='O'))return;var cc=Object.assign({},c);cc._src=u.title+' · '+l.title;if(keep)cc._key=k;cc._rk=k;cc._lid=l.id;cc._uid=u.id;pool.push(cc)}
+    l.cards.forEach(function(c,ci){add(c,l.id+'#'+ci,1)});(FOLLOW[l.id]||[]).forEach(function(c,ci){add(c,'F'+l.id+'#'+ci,1)});(BANK[l.id]||[]).forEach(function(c,ci){add(c,'B'+l.id+'#'+ci)})});
+   if(x.li<0)(TESTS[u.id]||[]).forEach(function(c,ci){if(!c||(c.t!=='Q'&&c.t!=='N'&&c.t!=='O'))return;var cc=Object.assign({},c);cc._src=u.title+' · exam-style';cc._rk='T'+u.id+'#'+ci;cc._uid=u.id;pool.push(cc)})});return pool}
+ var BANK={
+  'gp3-1-1':[
+   Q(`Which of these is a <b>scalar</b> quantity?`,['Speed','Velocity','Force','Displacement'],0,`A scalar has size only. Speed is just how fast; velocity is speed <i>in a given direction</i>, so it's a vector.`),
+   Q(`Which of these is a <b>vector</b> quantity?`,['Acceleration','Mass','Temperature','Energy'],0,`Acceleration has a direction. Mass, temperature and energy only have a size.`),
+   Q(`What's the difference between a scalar and a vector?`,['A vector has a direction as well as a size; a scalar only has a size','A scalar has a direction; a vector doesn\'t','Vectors are always bigger than scalars','Scalars can\'t be measured'],0,`Both have a size (magnitude). Only a vector also has a direction.`),
+   Q(`Which list contains <b>only</b> vectors?`,['Force, velocity, momentum','Mass, force, energy','Speed, distance, time','Weight, mass, density'],0,`Force, velocity and momentum all have directions. Mass, energy, speed, distance, time and density don't.`),
+   Q(`Which of these is <b>not</b> a vector?`,['Distance','Momentum','Weight','Displacement'],0,`Distance is how far, with no direction. Displacement is how far <i>in a straight line in a given direction</i>.`),
    Q(`Distance is to displacement as speed is to…`,['velocity','acceleration','time','force'],0,`Distance and speed are scalars. Add a direction and they become displacement and velocity.`),
    Q(`Weight is a…`,['vector, because it\'s a force and acts downwards','scalar, because it\'s measured in kg','scalar, because it never changes','vector, because it\'s measured in kg'],0,`Weight is a force (in newtons) acting towards the centre of the Earth, so it has a direction. Mass, in kg, is the scalar.`),
    Q(`How is a vector shown on a diagram?`,['As an arrow: its length shows the size and it points in the direction','As a dot with the size written next to it','As a line with no arrowhead','As a circle whose size shows the magnitude'],0,`The length of the arrow (to scale) is the magnitude, and the arrowhead shows the direction.`),
@@ -153,7 +193,7 @@ Displacement is how far <i>in a straight line in a given direction</i>.`),
       m.forEach(function(x){hits++;var on=f.units.indexOf(x[0])>=0,inU=x[2]&&f.units.indexOf(u.id)>=0;h2+='<label class="plpk"><input type="checkbox" data-t="'+esc(x[0])+'"'+(on||inU?' checked':'')+(inU?' disabled':'')+'> <span>'+esc(x[1])+(x[2]?' <span class="rvin">in '+esc(x[2])+'</span>':' <span class="rvin">whole topic</span>')+'</span></label>'})});
      if(!hits)h2+='<p class="plnote">Nothing in '+esc(SUBJ[f.subj])+' matches “'+esc(qy)+'”.</p>';
      Object.keys(other).forEach(function(tk){h2+='<p class="plnote rvalso">In '+esc(SUBJ[tk])+': '+esc(other[tk].slice(0,3).join(', '))+' <button type="button" class="plgo alt" data-sw="'+tk+'">Switch to '+esc(SUBJ[tk])+'</button></p>'})}
-    else for(var lv=1;lv<=5;lv++){var us=[];UNITS.forEach(function(u,ui){if(trk(ui)===f.subj&&lvOf(ui)===lv)us.push(ui)});if(!us.length)continue;
+    else for(var lv=1;lv<=maxLv(f.subj);lv++){var us=[];UNITS.forEach(function(u,ui){if(trk(ui)===f.subj&&lvOf(ui)===lv)us.push(ui)});if(!us.length)continue;
      h2+='<p class="rvlv">'+esc(GLV[f.subj]&&GLV[f.subj][lv]?GLV[f.subj][lv][0]:'Level '+lv)+'</p>';
      us.forEach(function(ui){var u=UNITS[ui],on=f.units.indexOf(u.id)>=0,some=u.lessons.some(function(l){return f.units.indexOf(l.id)>=0}),op=openU[u.id];
       h2+='<div class="rvu"><label class="plpk"><input type="checkbox" data-t="'+esc(u.id)+'"'+(on?' checked':'')+(some&&!on?' data-some="1"':'')+'> '+esc(u.title)+'</label><button type="button" class="rvex" data-ex="'+esc(u.id)+'" aria-expanded="'+!!op+'">'+u.lessons.length+' lessons '+(op?'▴':'▾')+'</button></div>';
@@ -595,6 +635,7 @@ var PLAN=(function(){
    if(todayI()===0||(rr&&rr.day===0)){if(rr&&rr.day===0&&isFix(DAY(0)[rr.j])){rr.gm=1;rr.t='GCSE maths';runSet(rr)}toastIn('Nothing to fix right now, so here\'s your next GCSE Maths lesson.');S.mode=S.gsub='gm';S.seenGcse=1;save();showPage('learn');runAction(nextAction('gm'));return}
    showPage('review');toastIn('Nothing left to fix. Nice.');return}
   if(a[1]==='gp'||a[1]==='gc'||a[1]==='gm'||a[1]==='gcs'){S.mode=S.gsub=a[1];S.seenGcse=1;save();showPage('learn');runAction(nextAction(a[1]));return}
+  if(a[1]==='am'||a[1]==='ap'||a[1]==='ac'){S.mode=S.asub=a[1];S.seenAlevel=1;save();showPage('learn');runAction(nextAction(a[1]));return}
   if(a[1]==='calc'||a[1]==='theory'){S.mode=a[1];if(a[1]==='calc')S.seenCalc=1;else S.seenTheory=1;save();showPage('learn');runAction(nextAction(a[1]));return}
   if(a[1]==='calcfu'){S.mode='calc';S.seenCalc=1;save();showPage('learn');var id=null;allLessons('calc',0).forEach(function(x){var l=UNITS[x[0]].lessons[x[1]];if(S.done[l.id]&&FOLLOW[l.id])id=l.id});if(id)startFollow(id);else runAction(nextAction('calc'))}}
  /* ----- school-day timetable ----- */
@@ -914,7 +955,7 @@ var PLAN=(function(){
 try{window.PLAN=PLAN}catch(_){}
 /* ===== just one question: a tiny way into a study session ===== */
 var ONE=(function(){
- function trackFor(a){return a==='gp'||a==='gc'||a==='gm'||a==='gcs'||a==='theory'?a:(a==='calc'||a==='calcfu')?'calc':null}
+ function trackFor(a){return a==='gp'||a==='gc'||a==='gm'||a==='gcs'||a==='am'||a==='ap'||a==='ac'||a==='theory'?a:(a==='calc'||a==='calcfu')?'calc':null}
  function pick(){var b=PLAN.next?PLAN.next():null,a=b&&b[3]&&b[3][0]?b[3][0][1]:null,tr=trackFor(a)||curMode(),c=null;
   if(a==='fix'){var pool=reviewPool(true).filter(function(x){return x.t==='Q'});if(pool.length)c=pool[Math.floor(Math.random()*pool.length)]}
   function from(test){var cs=[];UNITS.forEach(function(u,ui){if(!test(ui))return;u.lessons.forEach(function(l){if(!S.done[l.id])return;l.cards.forEach(function(x,ci){if(x.t==='Q'&&!S.wrong[l.id+'#'+ci])cs.push([x,l,u,ci])})})});return cs}
@@ -1057,7 +1098,7 @@ var SHIFT=(function(){
  function R(){if(!S.shift||typeof S.shift!=='object')S.shift={};var r=S.shift;if(!Array.isArray(r.notes))r.notes=[];return r}
  function on(){return R().off!==true}
  function set(v){R().off=!v;save()}
- function trackFor(a){return a==='gp'||a==='gc'||a==='gm'||a==='gcs'||a==='theory'?a:(a==='calc'||a==='calcfu')?'calc':null}
+ function trackFor(a){return a==='gp'||a==='gc'||a==='gm'||a==='gcs'||a==='am'||a==='ap'||a==='ac'||a==='theory'?a:(a==='calc'||a==='calcfu')?'calc':null}
  function pickQ(){var t=(new Date().getDay()+6)%7,parts=PLAN.DAY(t),k=ymdL(),rnd=seedRand('shift'+k);
   for(var i=0;i<parts.length;i++){var acts=parts[i][3]||[];for(var j=0;j<acts.length;j++){var tr=trackFor(acts[j][1]);if(!tr)continue;var nl=nextLesson(tr);if(!nl)continue;var u=UNITS[nl[0]],l=u.lessons[nl[1]],qs=l.cards.filter(function(c){return c.t==='Q'&&c.o&&c.o.length});
     if(qs.length){var c=qs[Math.floor(rnd()*qs.length)];return {p:c.p,o:c.o,a:c.a,e:c.e||'',src:u.title+' · '+l.title,why:'You\'ll meet this in your next lesson.'}}}}
@@ -1086,38 +1127,4 @@ var SHIFT=(function(){
    '<div class="stats"><div class="stat"><p>On shift</p><b>'+mins+' min</b></div><div class="stat"><p>Lessons</p><b>'+ls+'</b></div><div class="stat"><p>XP earned</p><b>+'+xp+'</b></div></div>'+
    (q?'<p><b>Can you answer your shift question now?</b></p><div class="shq">'+q.p+'</div><div data-k="opts">'+opts.map(function(o){return '<button type="button" class="shopt" data-i="'+o[1]+'">'+o[0]+'</button>'}).join('')+'</div><p class="shex" data-k="ex" hidden></p>':'')+
    '<p style="margin-top:14px"><b>Handover note for your next shift</b></p><p class="shex">One line: what did you learn, or what should you pick up next time?</p><textarea class="shta" maxlength="200" placeholder="Functions take an input and give exactly one output"></textarea>'+
-   '<div class="shacts"><button type="button" class="wbtn pri" data-a="ok">Sign off</button></div>');
-  var answered=false;[].forEach.call(M.querySelectorAll('.shopt'),function(b){b.onclick=function(){if(answered)return;answered=true;var i=+b.dataset.i,ok=i===q.a;
-   [].forEach.call(M.querySelectorAll('.shopt'),function(x){x.disabled=true;if(+x.dataset.i===q.a)x.classList.add('ok')});if(!ok)b.classList.add('no');
-   var ex=M.querySelector('[data-k=ex]');ex.hidden=false;ex.innerHTML=(ok?'<b>Got it: +10 XP.</b> ':'<b>Not quite.</b> ')+q.e;if(ok)addXP(10);try{sfx(ok?'right':'wrong')}catch(_){}}});
-  M.querySelector('[data-a=ok]').onclick=function(){var n=M.querySelector('.shta').value.trim().slice(0,200),rr=R();if(n){rr.notes.push({d:new Date().toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'}),note:n});if(rr.notes.length>20)rr.notes=rr.notes.slice(-20)}save();closeMod();try{confetti()}catch(_){}}}
- return {brief:brief,tick:tick,handover:handover,on:on,set:set,pickQ:pickQ,close:closeMod}
-})();
-try{window.SHIFT=SHIFT}catch(_){}
-
-/* end on a high: a quick victory lap of questions you already know */
-var HIGH=(function(){
- function pool(){var cs=[];UNITS.forEach(function(u){u.lessons.forEach(function(l){if(!S.done[l.id])return;l.cards.forEach(function(x,ci){if(x.t==='Q'&&x.o&&!S.wrong[l.id+'#'+ci])cs.push(Object.assign({},x,{_key:l.id+'#'+ci,_src:u.title+' · '+l.title}))})})});return cs}
- function canLap(){return pool().length>=3}
- function lap(){var cs=shuffleSeed(pool(),'lap'+Date.now()).slice(0,5);if(cs.length<3){showPage('sim');return}if(document.querySelector('#player.open'))closePlayer();
-  P={mode:'lap',cards:cs,i:0,xp:0,right:0,asked:0,title:'Victory lap',color:'#1D9E75',unit:'Victory lap',combo:0,best:0,cbonus:0,mistakes:0,fixed:0,newBadges:[],levelUp:null};openPlayer()}
- function finish(){P.finished=true;P.quiet=true;$('pBar').style.width='100%';var b=$('pBody'),n=P.cards.length,r=P.right;save();
-  b.innerHTML='<div class="done-screen"><div class="dicon"><svg width="90" height="90" viewBox="0 0 90 90"><circle cx="45" cy="45" r="42" fill="var(--good-bg)"/><path d="M45 20l7 15 16 2-12 11 3 16-14-8-14 8 3-16-12-11 16-2z" fill="var(--good)"/></svg></div>'+
-   '<h2>'+(r===n?'Perfect victory lap!':'Victory lap done')+'</h2><p class="note" style="font-size:16px">'+r+' out of '+n+' right. '+(r>=n-1?'That\'s how you end a shift: on a high.':'Any you missed are saved to Review, so they\'ll come back.')+'</p></div>';
-  foot('','','');skipBtn(null);mainBtn('Done',function(){closePlayer()});$('pXP').textContent=P.xp?'+'+P.xp+' XP':'';try{confetti()}catch(_){}}
- return {lap:lap,finish:finish,canLap:canLap}
-})();
-try{window.HIGH=HIGH}catch(_){}
-
-/* mystery of the week: a real incident, one clue for each day you do a lesson, the answer on Friday */
-var MYS=(function(){
- var CASES=[
-  {t:'The Windscale fire',y:'Cumbria, England, 1957',clues:['October 1957, in Cumbria, England. A reactor was making plutonium for Britain\'s nuclear weapons.','The reactor was cooled by blowing air through the core and straight out of a tall chimney.','Operators were doing a routine heating of the graphite, to release energy that builds up inside it.','The temperature gauges were not in the hottest part of the core, so the readings were confusing.','A worker looked through an inspection hole in the reactor and saw something glowing cherry red.'],
-   q:'What went wrong?',o:['The fuel and graphite inside the core caught fire','A steam explosion blew the lid off the reactor','A cooling pipe burst and flooded the core with water','An earthquake cracked the core and let the air in'],a:0,
-   story:'It burned for about three days. The air blowing through the core fed the flames, and carbon dioxide didn\'t put it out, so in the end they flooded the core with water and shut off the air. Filters at the top of the chimneys, added late and nicknamed "Cockcroft\'s Folly", caught a lot of the radioactive dust. Even so, milk from farms nearby was poured away for about a month because of radioactive iodine.',
-   lesson:'Instruments must measure where it matters, and extra safety layers (like those filters) can save the day even when people laughed at them.'},
-  {t:'Three Mile Island',y:'Pennsylvania, USA, 1979',clues:['March 1979, Pennsylvania, USA. At 4am, the pumps feeding water to the steam generators stopped.','The reactor tripped and shut down automatically, exactly as designed.','A relief valve on the pressuriser opened to let off pressure, and then stuck open.','A light in the control room told the operators the valve had closed.','Thinking the reactor had too much water in it, the operators turned down the emergency cooling.'],
-   q:'Why did about half of the core melt?',o:['Operators trusted a misleading light and cut back the cooling','A control rod jammed out of the core and power surged','Saboteurs broke into the plant and opened the valve','The containment building collapsed onto the pressuriser'],a:0,
-   story:'The light only showed that the valve had been told to close, not that it actually had. Cooling water kept escaping through the stuck valve for over two hours, and because the operators had turned the emergency cooling down, the top of the core was uncovered and about half of it melted. The containment building held, very little radioactivity escaped, and nobody was hurt.',
-   lesson:'Indicators should show what equipment is really doing, and operators are now trained to work out what is happening from all the evidence, not one reading.'},
-  {t:'The Browns Ferry fire',y:'Alabama, USA, 1975',clues:['March 1975, Alabama, USA. The plant was running normally at full power.','Workers were seali
+   '<div class="shacts"><button type="button" class="wbtn pri" data-a="ok">Sign 

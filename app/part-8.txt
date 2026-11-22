@@ -1,4 +1,31 @@
-0?'− '+(-a):'+ '+a)+')) ÷ (x '+(b<0?'− '+(-b):'+ '+b)+')² = '+cNum(b-a)+' ÷ '+cNum(d*d)+' = '+cNum(v)+'.'}};
+ the tangent to y = '+cPoly(f)+' at x = '+cNum(k)+', in the form y = mx + c.',b:[cB(m,'y = ','x','gradient m'),cB(ic,' + ','','intercept c')],e:'dy/dx = '+cPoly([[2*a,1],[b,0]])+', so m = '+cNum(m)+' at x = '+cNum(k)+'. The point is ('+cNum(k)+', '+cNum(y)+'). Then c = y − mx = '+cNum(y)+' − '+cNum(m)+' × '+cNum(k)+' = '+cNum(ic)+'.'}};
+CGEN.normal=function(){var m=cP([2,-2,4,-4,5,-5,10,0.5,-0.5,0.25,-0.25]);return {p:'A tangent has gradient '+cNum(m)+'. What is the gradient of the normal at the same point?',b:[cB(-1/m,'normal gradient = ')],e:'Normal gradient = −1 ÷ tangent gradient = −1 ÷ '+cNum(m)+' = '+cNum(-1/m)+'. The two gradients multiply to −1.'}};
+CGEN.incdec=function(){var f=[[1,2],[cR(-6,6),1],[cR(-5,5),0]],k=cR(-5,5),d=2*k+f[1][0];
+ var o=d>0?['Increasing','Decreasing','Stationary']:d<0?['Decreasing','Increasing','Stationary']:['Stationary','Increasing','Decreasing'];
+ return {p:'y = '+cPoly(f)+'. At x = '+cNum(k)+', is y increasing, decreasing or stationary?',o:o,e:'dy/dx = '+cPoly([[2,1],[f[1][0],0]])+' = '+cNum(d)+' at x = '+cNum(k)+'. '+(d>0?'Positive gradient: increasing.':d<0?'Negative gradient: decreasing.':'Zero gradient: stationary.')}};
+CGEN.gradat=function(){var n=cP([2,3,4]),k=cNZ(-3,3),v=n*Math.pow(k,n-1);return {p:'What is the gradient of y = x'+cSup(n)+' at x = '+cNum(k)+'?',b:[cB(v,'gradient = ')],e:'dy/dx = '+cT(n,n-1)+'. At x = '+cNum(k)+': '+n+' × ('+cNum(k)+')'+(n-1===1?'':cSup(n-1))+' = '+cNum(v)+'.'}};
+
+/* ---------------- Level 3: differentiation toolkit ---------------- */
+CGEN.statq=function(){var a=cNZ(-3,3),x0=cR(-4,4),b=-2*a*x0,c=cR(-8,8),f=[[a,2],[b,1],[c,0]],y0=cEval(f,x0);
+ return {p:'Find the stationary point of y = '+cPoly(f)+'.',b:[cB(x0,'(',', ','x'),cB(y0,'',')','y')],e:'dy/dx = '+cPoly([[2*a,1],[b,0]])+' = 0 gives x = '+cNum(x0)+'. Then y = '+cNum(y0)+'. It\'s a '+(a>0?'minimum':'maximum')+' because the x² term is '+(a>0?'positive':'negative')+'.'}};
+CGEN.statnat=function(){var p=cR(1,3),q=cR(-5,5),f=[[1,3],[-3*p*p,1],[q,0]],which=cR(0,1),x=which?p:-p,f2=6*x;
+ return {p:'y = '+cPoly(f)+' has stationary points at x = −'+p+' and x = '+p+'. What kind of point is at x = '+cNum(x)+'?',o:f2>0?['A minimum','A maximum','Neither']:['A maximum','A minimum','Neither'],e:'d²y/dx² = 6x = '+cNum(f2)+' at x = '+cNum(x)+'. '+(f2>0?'Positive: the curve bends up like a smile, so it\'s a minimum.':'Negative: the curve bends down, so it\'s a maximum.')}};
+CGEN.second=function(){var f=[[cNZ(-2,3),3],[cR(-4,4),2],[cR(-6,6),1],[cR(-9,9),0]],k=cR(-3,3),d1=cDer(f),d2=cDer(d1),v=cEval(d2,k);
+ return {p:'f(x) = '+cPoly(f)+'. Find f″('+cNum(k)+').',b:[cB(v,'f″('+cNum(k)+') = ')],e:'f′(x) = '+cPoly(d1)+', so f″(x) = '+cPoly(d2)+'. At x = '+cNum(k)+': '+cNum(v)+'.'}};
+CGEN.expd=function(){var a=cNZ(-4,5),k=cNZ(-4,5);return {p:'Differentiate y = '+(a===1?'':a===-1?'−':cNum(a))+'e'+cSup(cT(k,1))+'.',b:[cB(a*k,'dy/dx = ','e'+cSup(cT(k,1)),'number in front')],e:'d/dx of e'+cSup('kx')+' is k·e'+cSup('kx')+'. So '+cNum(a)+' × '+cNum(k)+' = '+cNum(a*k)+'.'}};
+CGEN.lnd=function(){var a=cR(1,6),k=cP([2,4,5,10]),v=a/k;return {p:'y = '+(a===1?'':a)+'ln x. Find dy/dx at x = '+k+'.',b:[cB(v,'dy/dx = ')],e:'d/dx (ln x) = 1/x, so dy/dx = '+a+'/x. At x = '+k+': '+a+' ÷ '+k+' = '+cNum(v)+'.'}};
+CGEN.trigd=function(){var t=cR(0,3);
+ if(t===0)return {p:'What is d/dx (sin x)?',o:['cos x','−cos x','sin x','−sin x'],e:'The derivative of sin x is cos x (x in radians).'};
+ if(t===1)return {p:'What is d/dx (cos x)?',o:['−sin x','sin x','cos x','−cos x'],e:'The derivative of cos x is <b>minus</b> sin x.'};
+ var a=cNZ(-4,5),k=cNZ(-3,4);if(t===2)return {p:'Find the gradient of y = '+(a===1?'':a===-1?'−':cNum(a))+'sin('+cT(k,1)+') at x = 0.',b:[cB(a*k,'gradient = ')],e:'dy/dx = '+cCo(a*k)+'cos('+cT(k,1)+'), and cos 0 = 1, so the gradient is '+cNum(a*k)+'.'};
+ return {p:'Find the gradient of y = '+(a===1?'':a===-1?'−':cNum(a))+'cos('+cT(k,1)+') at x = 0.',b:[cB(0,'gradient = ')],e:'dy/dx = '+cCo(-a*k)+'sin('+cT(k,1)+'), and sin 0 = 0, so the gradient is 0. Cos is at a peak or trough at x = 0.'}};
+CGEN.chain=function(){var a=cNZ(-3,5),b=cNZ(-6,6),n=cR(2,6),inner='('+cPoly([[a,1],[b,0]])+')';
+ return {p:'Differentiate y = '+inner+cSup(n)+'.',b:[cB(n*a,'dy/dx = ',inner,'number in front'),cB(n-1,'','','power',true)],e:'Chain rule: bring the power down, take 1 off it, then multiply by the derivative of the bracket ('+cNum(a)+'). '+n+' × '+cBr(a)+' = '+cNum(n*a)+'.'}};
+CGEN.chainexp=function(){var a=cNZ(-3,4),b=cR(-5,5);return {p:'Differentiate y = e'+cSup(cPoly([[a,1],[b,0]]))+'. What number goes in front?',b:[cB(a,'dy/dx = ','e'+cSup(cPoly([[a,1],[b,0]])),'number in front')],e:'The derivative of the power, '+cPoly([[a,1],[b,0]])+', is '+cNum(a)+'. That multiplies the e-term.'}};
+CGEN.product=function(){var m=cR(1,3),c=cNZ(-3,3),n=cR(1,3),k=cR(-2,2),u=Math.pow(k,m),du=m*Math.pow(k,m-1),w=Math.pow(k+c,n),dw=n*Math.pow(k+c,n-1),v=du*w+u*dw;
+ return {p:'f(x) = '+cT(1,m)+'('+cPoly([[1,1],[c,0]])+')'+(n===1?'':cSup(n))+'. Use the product rule to find f′('+cNum(k)+').',b:[cB(v,'f′('+cNum(k)+') = ')],e:'u = '+cT(1,m)+', v = ('+cPoly([[1,1],[c,0]])+')'+(n===1?'':cSup(n))+'. f′ = u′v + uv′ = ('+cNum(du)+')('+cNum(w)+') + ('+cNum(u)+')('+cNum(dw)+') = '+cNum(v)+'.'}};
+CGEN.quotient=function(){var a=cR(-5,5),b,k,d;do{b=cR(-5,5);k=cR(0,4);d=k+b}while(b===a||[1,2,4,5,10].indexOf(Math.abs(d))<0);var v=(b-a)/(d*d);
+ return {p:'f(x) = (x '+(a<0?'− '+(-a):'+ '+a)+') / (x '+(b<0?'− '+(-b):'+ '+b)+'). Use the quotient rule to find f′('+k+').',b:[cB(v,'f′('+k+') = ')],e:'f′ = (v·u′ − u·v′) ÷ v² = ((x '+(b<0?'− '+(-b):'+ '+b)+') − (x '+(a<0?'− '+(-a):'+ '+a)+')) ÷ (x '+(b<0?'− '+(-b):'+ '+b)+')² = '+cNum(b-a)+' ÷ '+cNum(d*d)+' = '+cNum(v)+'.'}};
 CGEN.kin=function(){var a=cR(1,3),b=cR(-6,6),k=cR(1,4),t=cR(0,1),s=[[a,3],[b,2]],v=cEval(cDer(s),k),ac=cEval(cDer(cDer(s)),k);
  if(t===0)return {p:'Displacement s = '+cPoly(s,'t')+' metres. Find the velocity at t = '+k+' s.',b:[cB(v,'v = ','m/s','velocity')],e:'v = ds/dt = '+cPoly(cDer(s),'t')+'. At t = '+k+': '+cNum(v)+' m/s.'};
  return {p:'Displacement s = '+cPoly(s,'t')+' metres. Find the acceleration at t = '+k+' s.',b:[cB(ac,'a = ','m/s²','acceleration')],e:'v = '+cPoly(cDer(s),'t')+', a = dv/dt = '+cPoly(cDer(cDer(s)),'t')+'. At t = '+k+': '+cNum(ac)+' m/s².'}};
@@ -49,26 +76,41 @@ CGEN.sepode=function(){var k=cP([0.1,0.2,0.5]),y0=cP([100,200,50]),t=cP([2,5,10]
  '.cdtop{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px}.cddots{display:flex;gap:6px}.cddots i{width:14px;height:14px;border-radius:50%;background:var(--soft2);display:block;transition:background .2s}.cddots i.on{background:var(--good-line)}'+
  '.cdok{color:var(--good);font-size:13px;font-weight:800;letter-spacing:.04em;text-transform:uppercase}.cdq .qprompt{font-size:18px;margin:0}.cdline{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font:20px var(--serif);margin:12px 0}'+
  '.cdline .cdbox{width:76px;font-size:18px;padding:8px 8px;font-family:var(--mono)}.cdgrp{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}.cdline .sgnb{min-width:40px;height:40px;margin-right:0;font-size:20px;border-radius:10px}'+
+ '.cdhelp{margin:10px 0 4px;padding:10px 14px;border-radius:12px;background:var(--accent-bg);color:var(--accent-text);font-size:15px;line-height:1.5}.cdhelp:empty{display:none}.cdhelp ol{margin:6px 0 4px;padding-left:22px}.cdhelp li{margin:3px 0}.cdrule{margin-top:6px;font-weight:600}.cdsm{font-size:13px;opacity:.85;margin-top:6px}.cdexp{margin-top:4px}'+
  '.cdsupg{align-self:flex-start;margin-top:-10px}.cdline .cdbox.cdsup{width:54px;font-size:14px;padding:5px 6px}.cdsupg .sgnb{min-width:32px;height:32px;font-size:16px;border-radius:8px}.cdin .opt{margin-top:8px}';
  document.head.appendChild(css)})();
-WIDGETS.calcDrill=function(box,par){var need=par.need||5,gens=[].concat(par.skill),streak=0,done=false,q=null,answered=false,count=0;
- var top=el('div','cdtop',null,box),qb=el('div','cdq',null,box),inRow=el('div','cdin',null,box),r=row(box),chkB=btn(r,'Submit answer',check,'pri'),nxt=btn(r,'Next question',next),m=msg(box);
- function dots(){var h='<span class="small">Get '+need+' right in a row'+(count?' · question '+count:'')+'</span><span class="cddots" aria-label="'+streak+' in a row">';for(var i=0;i<need;i++)h+='<i class="'+(i<Math.min(streak,need)?'on':'')+'"></i>';top.innerHTML=h+'</span>'+(done?'<span class="cdok">Mastered</span>':'')}
+WIDGETS.calcDrill=function(box,par){var need=par.need||5,gens=[].concat(par.skill),score=0,run=0,clean=true,done=false,passed=false,q=null,answered=false,count=0,help=0,wrongs=0,last=-1;
+ var PRAISE=['Nice.','Spot on.','That\'s it.','Nailed it.','Exactly right.','Lovely.','Yes!'];
+ var top=el('div','cdtop',null,box),qb=el('div','cdq',null,box),inRow=el('div','cdin',null,box),hb=el('div','cdhelp',null,box),r=row(box),chkB=btn(r,'Submit answer',check,'pri'),helpB=btn(r,'Help',helpMe),nxt=btn(r,'Next question',next),skipB=btn(r,'Different question',skip),moveB=btn(r,'Move on for now',moveOn),m=msg(box);
+ function dots(){var h='<span class="small">'+(done?'Mastered':passed?'Moved on for now':'Get '+need+' right to master it'+(count<=3&&clean&&need>3?' · or 3 right first go to fast-track':''))+'</span><span class="cddots" aria-label="'+score+' of '+need+'">';for(var i=0;i<need;i++)h+='<i class="'+(i<Math.min(score,need)?'on':'')+'"></i>';top.innerHTML=h+'</span>'+(done?'<span class="cdok">Mastered</span>':'')}
  function key(e){if(e.key==='Enter'){e.preventDefault();e.stopPropagation();answered?next():check()}}
- function next(){q=CGEN[cP(gens)]();count++;answered=false;q.pick=null;qb.innerHTML='<div class="qprompt">'+q.p+'</div>';inRow.innerHTML='';
+ function pick(){var k=cP(gens);if(gens.length>2&&k===last)k=cP(gens);last=k;return CGEN[k]()}
+ function next(){q=pick();count++;answered=false;help=0;q.pick=null;hb.innerHTML='';qb.innerHTML='<div class="qprompt">'+q.p+'</div>';inRow.innerHTML='';
   if(q.o){shuffle(q.o.map(function(_,i){return i})).forEach(function(k){var b=el('button','opt',q.o[k],inRow);b.dataset.k=k;b.onclick=function(){if(answered)return;[].forEach.call(inRow.children,function(x){x.classList.remove('sel')});b.classList.add('sel');q.pick=k}})}
   else{var line=el('div','cdline',null,inRow);q.b.forEach(function(bb,i){var g=el('span','cdgrp'+(bb.sup?' cdsupg':''),null,line);if(bb.pre)el('span','',bb.pre,g);var inp=el('input','numin cdbox'+(bb.sup?' cdsup':''),null,g);inp.type='text';if(q.pos)inp.__sgn=1;inp.setAttribute('inputmode','decimal');inp.setAttribute('autocomplete','off');inp.setAttribute('aria-label',bb.label||('Answer '+(i+1)));inp.onkeydown=key;if(bb.post)el('span','',bb.post,g)})}
-  chkB.style.display='';nxt.style.display='none';m.set('');dots();var f=inRow.querySelector('input');if(f)try{f.focus({preventScroll:true})}catch(e){}}
+  chkB.style.display='';helpB.style.display='';helpB.textContent='Help';skipB.style.display=done?'none':'';nxt.style.display='none';nxt.textContent='Next question';moveB.style.display=(!done&&!passed&&count>need+3)?'':'none';m.set('');dots();var f=inRow.querySelector('input');if(f)try{f.focus({preventScroll:true})}catch(e){}}
+ function steps(){return String(q.e||'').split(/\.\s+(?=[A-Z(<])/).map(function(x,i,a){return x+(i<a.length-1?'.':'')})}
+ function helpMe(){if(answered)return;help++;clean=false;var st=steps();
+  if(help===1){var first=st.length>1?st[0]:'';hb.innerHTML='<b>Hint</b> '+(first||par.rule||'Take it one step at a time.')+(first&&par.rule?'<div class="cdrule">'+par.rule+'</div>':'')+'<div class="cdsm">A hint still counts if you get it right. Stuck? Press <b>Show me how</b>.</div>';helpB.textContent='Show me how';return}
+  hb.innerHTML='<b>Here\'s how</b><ol class="cdsteps">'+st.map(function(x){return '<li>'+x+'</li>'}).join('')+'</ol>'+(q.o?'<div class="cdsm">Answer: <b>'+q.o[0]+'</b></div>':'<div class="cdsm">Answer: <b>'+q.b.map(function(bb){return cNum(bb.a)}).join(' and ')+'</b></div>')+'<div class="cdsm">This one doesn\'t count either way. Now try a similar one yourself.</div>';
+  answered=true;chkB.style.display='none';helpB.style.display='none';skipB.style.display='none';nxt.style.display='';nxt.textContent='Try a similar one';m.set('');dots();try{nxt.focus({preventScroll:true})}catch(e){}}
+ function skip(){if(answered)return;clean=false;next()}
+ function moveOn(){passed=true;moveB.style.display='none';m.set('No problem. You can carry on now. Come back with the <b>Practice</b> button on this lesson whenever you like: it uses the same questions.',true);dots()}
  function close(bb,v){var tol=bb.tol==null?0.005:bb.tol;return bb.a===0?Math.abs(v)<1e-9:Math.abs(v-bb.a)<=Math.abs(bb.a)*tol+1e-9}
  function check(){if(answered)return;var ok;
   if(q.o){if(q.pick==null){m.set('Pick an answer first.',false);return}ok=q.pick===0;[].forEach.call(inRow.children,function(b){var k=+b.dataset.k;b.disabled=true;if(k===0)b.classList.add('right');else if(k===q.pick)b.classList.add('wrong')})}
   else{var ins=inRow.querySelectorAll('input'),vals=[].map.call(ins,function(i){return parseNum(i.value)});if(vals.some(function(v){return isNaN(v)})){m.set('Type a number in every box. Decimals like 0.5 and negatives like −3 are fine.',false);return}
    ok=q.b.every(function(bb,i){return close(bb,vals[i])});[].forEach.call(ins,function(inp,i){inp.disabled=true;inp.style.borderColor=close(q.b[i],vals[i])?cssv('--good-line'):cssv('--bad-line')})}
-  answered=true;if(ok){streak++;if(streak>=need)done=true}else streak=0;
-  m.set((ok?'<b>Correct.</b> ':'<b>Not quite.</b> '+(q.o?'':'It\'s '+q.b.map(function(bb){return cNum(bb.a)}).join(' and ')+'. '))+(q.e||''),ok);
-  chkB.style.display='none';nxt.style.display='';dots();try{nxt.focus({preventScroll:true})}catch(e){}}
+  answered=true;var was=done,note='';
+  if(ok){score++;run++;if(score>=need||(clean&&run>=3&&count===3&&need>3))done=true;
+   note='<b>'+cP(PRAISE)+'</b> '+(done&&!was?(score<need?'Three right first go: fast-tracked. ':'')+'You\'ve mastered this. ':(!done?(need-score)+' more to go. ':''))}
+  else{wrongs++;run=0;clean=false;var lost=score>0&&!done;if(lost)score--;
+   note='<b>Not quite.</b> '+(q.o?'':'It\'s '+q.b.map(function(bb){return cNum(bb.a)}).join(' and ')+'. ')+(lost?'You lose one dot, not all of them. ':'')}
+  if(done&&!was)score=need;
+  m.set(note+(q.e?'<div class="cdexp">'+q.e+'</div>':'')+(!ok&&wrongs>=2&&!done?'<div class="cdsm">Tip: press <b>Help</b> on the next one for a hint or a full walk-through.</div>':''),ok);
+  chkB.style.display='none';helpB.style.display='none';skipB.style.display='none';nxt.style.display='';moveB.style.display=(!done&&!passed&&count>=need+3)?'':'none';dots();try{nxt.focus({preventScroll:true})}catch(e){}}
  next();
- return {check:function(){return done?{ok:true}:{ok:false,msg:'Get '+need+' right in a row first. You\'re on '+streak+'.'}},lock:function(){}}};
+ return {check:function(){return done||passed?{ok:true}:{ok:false,msg:'Get '+need+' right to master it first ('+score+' so far). Use <b>Help</b> if you\'re stuck'+(count>need+3?', or <b>Move on for now</b>':'')+'.'}},lock:function(){}}};
 
 /* ---- area under a curve: strips that become the integral ---- */
 WIDGETS.riemann=function(box,par){var f=par.f,a=par.a,b=par.b,exact=par.exact,n=par.n0||4,ok=false,cv=canvas(box,240);
@@ -107,7 +149,7 @@ Q(`f(x) = 2x + 3. What does f(4) mean?`,[`The output when the input is 4`,'The v
 N(`f(x) = 3x − 1. Find f(5).`,14,0.001,'',`3 × 5 − 1 = 15 − 1 = 14.`),
 T(`<h3>Negative inputs</h3><p>Negative numbers go in exactly the same way. Keep the minus sign with the number.</p><div class="eq">f(x) = 2x + 3,&nbsp;&nbsp; f(−4) = 2 × (−4) + 3 = −8 + 3 = −5</div><p>Putting negatives in brackets stops mistakes.</p>`),
 N(`f(x) = 4x + 2. Find f(−3).`,-10,0.001,'',`4 × (−3) + 2 = −12 + 2 = −10.`),
-W('calcDrill',{skill:'flin',need:4},`Practise substituting. Get 4 right in a row.`,`Every time: replace x with the number, then work it out.`),
+W('calcDrill',{skill:'flin',need:4},`Practise substituting. Get 4 right to master it.`,`Every time: replace x with the number, then work it out.`),
 T(`<h3>Key points</h3><ul><li>A <b>function</b> turns an input into an output.</li><li><b>f(x)</b> means "the output of f when the input is x".</li><li>To find f(4), <b>substitute</b>: replace every x with 4.</li><li>Put negative numbers in <b>brackets</b>.</li></ul>`)]),
 LH('c1-1-2','Squares and order of operations',8,'Substituting into functions with x², including negative numbers, without tripping up.',[
 RM(`<p>A function turns an input into an output. To find <b>f(3)</b>, replace every x with 3. Put negatives in brackets.</p>`),
@@ -119,7 +161,7 @@ T(`<h3>The big trap: squaring negatives</h3><p>A negative number squared is <b>p
 Q(`What is (−5)²?`,[`25`,`−25`,`−10`,`10`],0,`(−5) × (−5) = +25.`),
 N(`f(x) = x² − 2x. Find f(−3).`,15,0.001,'',`(−3)² − 2 × (−3) = 9 + 6 = 15.`),
 W('stepCalc',{steps:[`f(x) = 2x² − 3x + 1. We want f(−2).`,`Replace every x with (−2): 2(−2)² − 3(−2) + 1`,`Powers first: (−2)² = 4, so 2 × 4 = 8`,`Next term: −3 × (−2) = +6`,`Add them up: 8 + 6 + 1 = <b>15</b>`]},`Work through this example one step at a time.`,`Brackets, powers, then multiply, then add.`),
-W('calcDrill',{skill:'fsub',need:5},`Your turn. Get 5 right in a row.`,`You can substitute into any function with x² now.`),
+W('calcDrill',{skill:'fsub',need:5},`Your turn. Get 5 right to master it.`,`You can substitute into any function with x² now.`),
 T(`<h3>Key points</h3><ul><li>Order: <b>brackets, powers, multiply/divide, add/subtract</b>.</li><li>A negative squared is <b>positive</b>: (−3)² = 9.</li><li>Use brackets when you substitute negatives.</li></ul>`)]),
 LH('c1-1-3','Graphs of functions',8,'Every function has a graph. Meet the shapes calculus works with most.',[
 RM(`<p>f(x) is the output when the input is x. To find it, substitute. Negatives in brackets, and powers before multiplying.</p>`),
@@ -144,7 +186,7 @@ Q(`Simplify x⁹ ÷ x².`,[`x⁷`,`x¹¹`,`x⁴·⁵`,`x¹⁸`],0,`Subtract: 9 �
 T(`<h3>Law 3: a power of a power means multiply</h3><div class="eq">(x³)² = x⁶</div><p>(x³)² is x³ × x³, which is x³⁺³ = x⁶. So you <b>multiply</b> the powers: 3 × 2 = 6.</p>`),
 Q(`Simplify (x⁴)³.`,[`x¹²`,`x⁷`,`x⁶⁴`,`x¹`],0,`Multiply: 4 × 3 = 12.`),
 W('flipCards',{cards:[[`x<sup>a</sup> × x<sup>b</sup>`,`x<sup>a+b</sup>: multiplying, so ADD the powers`],[`x<sup>a</sup> ÷ x<sup>b</sup>`,`x<sup>a−b</sup>: dividing, so SUBTRACT the powers`],[`(x<sup>a</sup>)<sup>b</sup>`,`x<sup>ab</sup>: power of a power, so MULTIPLY the powers`]]},`Flip each card and say the rule out loud.`,`Add, subtract, multiply. Say them until they're automatic.`),
-W('calcDrill',{skill:'idxlaw',need:6},`Mixed practice of all three laws. Get 6 right in a row.`,`You know the three index laws.`),
+W('calcDrill',{skill:'idxlaw',need:6},`Mixed practice of all three laws. Get 6 right to master it.`,`You know the three index laws.`),
 T(`<h3>Key points</h3><ul><li>Multiply: <b>add</b> the powers. x³ × x⁴ = x⁷</li><li>Divide: <b>subtract</b> the powers. x⁷ ÷ x³ = x⁴</li><li>Power of a power: <b>multiply</b> the powers. (x³)² = x⁶</li></ul>`)]),
 LH('c1-2-2','Zero and negative powers',9,'What x⁰ and x⁻² mean, and how to write 1/x³ as a power. Essential for calculus.',[
 RM(`<p>Dividing means <b>subtract</b> the powers: x⁷ ÷ x³ = x⁴.</p>`),
@@ -154,8 +196,8 @@ T(`<h3>Negative powers</h3><p>Now try x² ÷ x⁵. Subtracting gives x⁻³. But
 Q(`What is 2⁻¹?`,[`0.5`,`−2`,`−0.5`,`2`],0,`2⁻¹ = 1/2 = 0.5.`),
 T(`<h3>Going the other way</h3><p>In calculus you'll often need to <b>rewrite a fraction as a power</b> before you can do anything with it:</p><div class="eq">1/x² = x⁻²&nbsp;&nbsp;&nbsp;&nbsp;5/x³ = 5x⁻³</div><p>The number on top stays where it is. The x moves up, and its power becomes negative.</p>`),
 Q(`Write 4/x² as a power of x.`,[`4x⁻²`,`4x²`,`x⁻⁸`,`−4x²`],0,`The 4 stays; 1/x² becomes x⁻².`),
-W('calcDrill',{skill:'idxneg',need:5},`Rewrite each one as a power of x. Get 5 right in a row.`,`This rewriting step comes up again and again in Levels 2 and 4.`),
-W('calcDrill',{skill:'idxval',need:4},`Now work out some values. Get 4 right in a row.`,`Negative powers mean 1 over; power 0 means 1.`),
+W('calcDrill',{skill:'idxneg',need:5},`Rewrite each one as a power of x. Get 5 right to master it.`,`This rewriting step comes up again and again in Levels 2 and 4.`),
+W('calcDrill',{skill:'idxval',need:4},`Now work out some values. Get 4 right to master it.`,`Negative powers mean 1 over; power 0 means 1.`),
 T(`<h3>Key points</h3><ul><li><b>x⁰ = 1</b></li><li><b>x⁻ⁿ = 1/xⁿ</b>: a negative power means "1 over", not a negative number.</li><li>Rewrite fractions as powers: 5/x³ = 5x⁻³.</li></ul>`)]),
 LH('c1-2-3','Fractional powers',9,'Square roots are powers too: √x = x^0.5. The last piece of the powers puzzle.',[
 RM(`<p>Multiplying means add the powers. x⁻ⁿ = 1/xⁿ. And x⁰ = 1.</p>`),
@@ -165,8 +207,8 @@ T(`<h3>Combining with the rules</h3><p>All the laws still work:</p><ul><li>x√x
 Q(`Write x√x as a single power of x.`,[`x<sup>1.5</sup>`,`x<sup>0.5</sup>`,`x<sup>2</sup>`,`x<sup>−1.5</sup>`],0,`x¹ × x⁰·⁵: add the powers to get 1.5.`),
 T(`<h3>Working out values</h3><p>To work out something like 4<sup>1.5</sup>: do the square root first, then the whole-number power.</p><div class="eq">4<sup>1.5</sup> = (√4)³ = 2³ = 8</div>`),
 N(`Work out 9<sup>1.5</sup>.`,27,0.001,'',`√9 = 3, and 3³ = 27.`),
-W('calcDrill',{skill:'idxfrac',need:5},`Write each as a power of x. Get 5 right in a row.`,`Roots are just powers of 0.5.`),
-W('calcDrill',{skill:['idxlaw','idxneg','idxfrac','idxval'],need:8},`The big powers review: every type mixed together. Get 8 right in a row.`,`You've mastered powers. Every calculus rule is built on this.`),
+W('calcDrill',{skill:'idxfrac',need:5},`Write each as a power of x. Get 5 right to master it.`,`Roots are just powers of 0.5.`),
+W('calcDrill',{skill:['idxlaw','idxneg','idxfrac','idxval'],need:8},`The big powers review: every type mixed together. Get 8 right to master it.`,`You've mastered powers. Every calculus rule is built on this.`),
 T(`<h3>Key points</h3><ul><li><b>√x = x⁰·⁵</b>, and 1/√x = x⁻⁰·⁵.</li><li>All three laws still work with decimal powers.</li><li>For values like 4<sup>1.5</sup>: root first, then power.</li></ul>`)])
 ]});
 
@@ -178,7 +220,7 @@ N(`Find the gradient of the line through (2, 5) and (6, 13).`,2,0.001,'',`(13 �
 T(`<h3>What the sign tells you</h3><ul><li><b>Positive</b> gradient: the line goes <b>up</b> from left to right.</li><li><b>Negative</b> gradient: it goes <b>down</b>.</li><li><b>Zero</b> gradient: it's flat (horizontal).</li></ul><p>Bigger numbers mean steeper lines.</p>`),
 Q(`A line has gradient −4. What does it look like?`,[`Steep, going down from left to right`,'Gentle, going up from left to right','Steep, going up from left to right','Gentle, going down from left to right'],0,`Negative means down; 4 is fairly steep.`),
 N(`Find the gradient of the line through (0, 10) and (5, 0).`,-2,0.001,'',`(0 − 10) ÷ (5 − 0) = −10 ÷ 5 = −2.`),
-W('calcDrill',{skill:'gradpts',need:5},`Find the gradient each time. Get 5 right in a row.`,`Change in y ÷ change in x, keeping the points in the same order.`),
+W('calcDrill',{skill:'gradpts',need:5},`Find the gradient each time. Get 5 right to master it.`,`Change in y ÷ change in x, keeping the points in the same order.`),
 T(`<h3>Key points</h3><ul><li><b>Gradient = change in y ÷ change in x</b>.</li><li>Positive goes up, negative goes down, zero is flat.</li><li>Keep the two points in the same order on top and bottom.</li></ul>`)]),
 LH('c1-3-2','y = mx + c',8,'Read the gradient straight from the equation of a line.',[
 RM(`<p>Gradient = change in y ÷ change in x. Positive slopes up, negative slopes down.</p>`),
@@ -187,7 +229,7 @@ Q(`What is the gradient of y = 5x − 7?`,[`5`,`−7`,`7`,`−5`],0,`The number 
 T(`<h3>Watch out for the order</h3><p>y = 8 − 2x is still a straight line. The gradient is the number multiplying x, including its sign: <b>−2</b>.</p>`),
 Q(`What is the gradient of y = 8 − 2x?`,[`−2`,`8`,`2`,`−8`],0,`It's the coefficient of x: −2.`),
 T(`<h3>Make y the subject first</h3><p>If the equation is 2y = 6x + 4, divide everything by 2 first: y = 3x + 2. Now the gradient is clearly <b>3</b>.</p>`),
-W('calcDrill',{skill:'gradeq',need:5},`Read off the gradient. Get 5 right in a row.`,`Get y on its own, then read the number in front of x.`),
+W('calcDrill',{skill:'gradeq',need:5},`Read off the gradient. Get 5 right to master it.`,`Get y on its own, then read the number in front of x.`),
 QE(`Write 6/x² as a power of x.`,[`6x⁻²`,`6x²`,`x⁻¹²`,`−6x²`],0,`The 6 stays; 1/x² = x⁻².`),
 T(`<h3>Key points</h3><ul><li><b>y = mx + c</b>: m is the gradient, c is the y-intercept.</li><li>The gradient is the number multiplying x, sign included.</li><li>Make y the subject before you read it.</li></ul>`)]),
 LH('c1-3-3','Gradient as a rate',8,'Why a gradient is really a rate of change, with units. The key idea behind calculus.',[
@@ -209,14 +251,14 @@ T(`<h3>Joining two points on a curve</h3><p>Pick two points on a curve and join 
 Q(`What is a chord?`,[`A straight line joining two points on a curve`,'A straight line touching a curve at just one point','The line through the origin at right angles','The curved part of the graph between two points'],0,`A chord cuts across between two points.`),
 W('stepCalc',{steps:[`f(x) = x². Find the average rate of change from x = 1 to x = 3.`,`f(3) = 3² = 9 and f(1) = 1² = 1`,`Change in y: 9 − 1 = 8`,`Change in x: 3 − 1 = 2`,`Average rate: 8 ÷ 2 = <b>4</b>`]},`Follow this example step by step.`,`The chord from x = 1 to x = 3 on y = x² has gradient 4.`),
 N(`f(x) = x². Find the average rate of change from x = 2 to x = 5.`,7,0.001,'',`(25 − 4) ÷ (5 − 2) = 21 ÷ 3 = 7.`),
-W('calcDrill',{skill:'avgrate',need:5},`Find each average rate of change. Get 5 right in a row.`,`Work out both outputs, then change in y ÷ change in x.`),
+W('calcDrill',{skill:'avgrate',need:5},`Find each average rate of change. Get 5 right to master it.`,`Work out both outputs, then change in y ÷ change in x.`),
 T(`<h3>Key points</h3><ul><li>A <b>chord</b> joins two points on a curve.</li><li>Its gradient is the <b>average rate of change</b>: (f(b) − f(a)) ÷ (b − a).</li></ul>`)]),
 LH('c1-4-2','Average speed',7,'Distance–time graphs that curve, and what average speed really measures.',[
 RM(`<p>The gradient of a chord gives the <b>average rate of change</b> between two points.</p>`),
 T(`<h3>Speeding up</h3><p>A ball rolling down a slope speeds up. Its distance might follow <b>s = 2t²</b>: after 1 s it's gone 2 m, after 2 s 8 m, after 3 s 18 m.</p><p>The distance–time graph curves upwards, getting steeper as it goes faster.</p>`),
 N(`s = 2t². How far has the ball gone after 4 seconds?`,32,0.001,'m',`2 × 4² = 2 × 16 = 32 m.`),
 T(`<h3>Average speed is a chord gradient</h3><p>Average speed between two times = change in distance ÷ change in time. That's the gradient of the chord.</p><div class="eq">from t = 1 to t = 3: (18 − 2) ÷ 2 = 8 m/s</div>`),
-W('calcDrill',{skill:'speed',need:4},`Find each average speed. Get 4 right in a row.`,`Change in distance ÷ change in time.`),
+W('calcDrill',{skill:'speed',need:4},`Find each average speed. Get 4 right to master it.`,`Change in distance ÷ change in time.`),
 Q(`The ball's average speed from t = 1 to t = 3 is 8 m/s. Was it going exactly 8 m/s at t = 2?`,[`Not necessarily: average speed hides how the speed changes`,'Yes: average speed is the speed at the middle time','No: the speed must have been zero exactly halfway','Yes, but only because the ball moves in a straight line'],0,`The average smooths over the changes. To get the exact speed at t = 2 we need calculus.`),
 T(`<h3>Key points</h3><ul><li>On a distance–time graph, a chord's gradient is the <b>average speed</b>.</li><li>Average speed doesn't tell you the exact speed at an instant.</li></ul>`)]),
 LH('c1-4-3','Getting closer: the big idea',9,'Shrink the chord, and its gradient homes in on the exact rate at a point. This is calculus.',[
@@ -224,7 +266,7 @@ RM(`<p>A chord's gradient is the average rate of change between two points. On y
 T(`<h3>Make the chord shorter</h3><p>To find how steep y = x² is <b>exactly at x = 3</b>, take chords that start at x = 3 and end closer and closer to it.</p>`),
 W('fnPlot',{x:[0,5],y:[0,25],xl:'x',yl:'y',sl:[['h','Chord width h',0.01,2,0.01,2,function(v){return v.toFixed(2)}]],curves:function(p){var g=6+p.h;return [[function(x){return x*x},'--accent',3],[function(x){return 9+g*(x-3)},'--coral',2,[6,4]]]},read:function(p){return 'Chord from x = 3 to x = '+(3+p.h).toFixed(2)+': gradient = <b>'+(6+p.h).toFixed(2)+'</b>'},goal:function(p){return p.h<=0.05},goalMsg:'Shrink the chord until h is 0.05 or less.'},`Drag h down towards 0 and watch the chord's gradient.`,`As h shrinks, the gradient gets closer and closer to 6. That's the exact gradient at x = 3.`),
 T(`<h3>The pattern</h3><table><tr><th>Chord from 3 to…</th><th>Gradient</th></tr><tr><td>4</td><td>7</td></tr><tr><td>3.5</td><td>6.5</td></tr><tr><td>3.1</td><td>6.1</td></tr><tr><td>3.01</td><td>6.01</td></tr><tr><td>3.001</td><td>6.001</td></tr></table><p>The gradients are heading towards <b>6</b>. We say the gradient at x = 3 is <b>6</b>.</p>`),
-W('calcDrill',{skill:'chord',need:5},`Work out each chord gradient. Get 5 right in a row.`,`Notice they're always 2 × (start) + h. As h → 0, that becomes 2 × start.`),
+W('calcDrill',{skill:'chord',need:5},`Work out each chord gradient. Get 5 right to master it.`,`Notice they're always 2 × (start) + h. As h → 0, that becomes 2 × start.`),
 Q(`What happens to the chord's gradient as the chord gets shorter?`,[`It gets closer and closer to the exact gradient at the point`,'It gets bigger and bigger until it reaches infinity','It shrinks towards zero as the two points come together','It stays the same as the gradient of the first chord'],0,`That "closer and closer" idea is called a limit.`),
 T(`<h3>The tangent</h3><p>When the chord shrinks to nothing, it becomes a line that just <b>touches</b> the curve at that one point. That line is called the <b>tangent</b>.</p><p>The gradient of the curve at a point = the gradient of the tangent there. Finding it is called <b>differentiation</b>, and it's the whole of Level 2.</p>`),
 QE(`What is the gradient of the line through (1, 4) and (3, 10)?`,[`3`,`6`,`2`,`7`],0,`(10 − 4) ÷ (3 − 1) = 3.`),
@@ -270,7 +312,7 @@ T(`<h3>Why not just put h = 0?</h3><p>A chord needs two different points. If h =
 Q(`Why can't we just put h = 0 into the chord gradient?`,[`It gives 0 ÷ 0, which has no answer`,'It gives a negative answer every time','It makes the answer far too big to use','We can, and it gives the exact gradient'],0,`Two points become one point.`),
 N(`As h → 0, what does 10 + 3h tend to?`,10,0.001,'',`3h shrinks to 0, leaving 10.`),
 N(`As h → 0, what does 2 × 4 + h tend to?`,8,0.001,'',`2 × 4 = 8, and h vanishes.`),
-W('calcDrill',{skill:'chord',need:5},`Chord gradients on y = x². Get 5 right in a row, and notice where they're heading.`,`Every one is 2 × start + h. The limit is 2 × start.`),
+W('calcDrill',{skill:'chord',need:5},`Chord gradients on y = x². Get 5 right to master it, and notice where they're heading.`,`Every one is 2 × start + h. The limit is 2 × start.`),
 T(`<h3>Key points</h3><ul><li>A <b>limit</b> is the value something approaches.</li><li><b>h → 0</b> means h gets closer and closer to 0.</li><li>We can't set h = 0 in a chord, so we take the limit instead.</li></ul>`)]),
 LH('c2-1-3','The gradient of x², from scratch',10,'Prove that the gradient of y = x² is 2x using algebra. Your first derivation.',[
 RM(`<p>The chord from x = a to x = a + h has gradient (f(a + h) − f(a)) ÷ h. As h → 0, it tends to the gradient at x = a.</p>`),
@@ -280,7 +322,7 @@ Q(`Expand (a + h)².`,[`a² + 2ah + h²`,`a² + h²`,`a² + ah + h²`,`2a + 2h`]
 W('stepCalc',{steps:[`Chord gradient = (f(a + h) − f(a)) ÷ h`,`For f(x) = x²: ((a + h)² − a²) ÷ h`,`Expand: (a² + 2ah + h² − a²) ÷ h`,`The a² terms cancel: (2ah + h²) ÷ h`,`Divide each term by h: <b>2a + h</b>`,`As h → 0, the h disappears: the gradient is <b>2a</b>`]},`Here's the whole derivation. Reveal it one step at a time and make sure each line makes sense.`,`For y = x², the gradient at x = a is 2a. That's exactly the 2x pattern you spotted.`),
 Q(`In the derivation, why do the a² terms disappear?`,[`+a² and −a² cancel`,'a is always zero','We divide them by a','h² is always zero'],0,`a² − a² = 0.`),
 Q(`After dividing by h, the chord gradient is 2a + h. What happens as h → 0?`,[`It becomes 2a`,`It becomes 0`,`It becomes 2a + 1`,`It has no answer`],0,`The h term shrinks away.`),
-W('calcDrill',{skill:'fpx2',need:4},`Use the result: gradient = 2a. Get 4 right in a row.`,`Double the x-value.`),
+W('calcDrill',{skill:'fpx2',need:4},`Use the result: gradient = 2a. Get 4 right to master it.`,`Double the x-value.`),
 T(`<h3>You've just done calculus</h3><p>What you just did is called <b>differentiation from first principles</b>. It's how every rule in calculus is proved. Next unit, you'll learn the notation and do it again for x³.</p>`),
 T(`<h3>Key points</h3><ul><li>Chord from a to a + h on y = x²: gradient <b>2a + h</b>.</li><li>As h → 0, it tends to <b>2a</b>.</li><li>So the gradient of y = x² at any x is <b>2x</b>.</li></ul>`)])
 ]});
@@ -309,7 +351,7 @@ T(`<h3>Line them up</h3><table><tr><th>y</th><td>x</td><td>x²</td><td>x³</td><
 Q(`Following the pattern, what is the derivative of x⁵?`,[`5x⁴`,`4x⁵`,`5x⁶`,`x⁴`],0,`Bring the 5 down; 5 − 1 = 4.`),
 T(`<h3>Even y = x fits</h3><p>y = x is x¹. Bring the 1 down and take 1 off: 1x⁰ = 1 × 1 = <b>1</b>. That's right: y = x is a straight line with gradient 1.</p>`),
 Q(`What is the derivative of x⁷?`,[`7x⁶`,`6x⁷`,`7x⁸`,`x⁶`],0,`Power down, take one off.`),
-W('calcDrill',{skill:'gradat',need:5},`Use the pattern to find gradients at points. Get 5 right in a row.`,`Bring the power down, take one off, then substitute.`),
+W('calcDrill',{skill:'gradat',need:5},`Use the pattern to find gradients at points. Get 5 right to master it.`,`Bring the power down, take one off, then substitute.`),
 QE(`Write 1/x² as a power of x.`,[`x⁻²`,`x²`,`−x²`,`2x`],0,`From Level 1: negative power.`),
 T(`<h3>Key points</h3><ul><li>Pattern: the derivative of <b>xⁿ</b> is <b>nxⁿ⁻¹</b>.</li><li>Bring the power down in front, then subtract 1 from the power.</li><li>It's called the <b>power rule</b>, and it's next.</li></ul>`)])
 ]});
@@ -322,7 +364,7 @@ W('stepCalc',{steps:[`y = 5x³`,`Multiply the number in front by the power: 5 ×
 Q(`Differentiate y = 4x⁵.`,[`20x⁴`,`20x⁵`,`9x⁴`,`4x⁴`],0,`4 × 5 = 20, power 5 − 1 = 4.`),
 Q(`Differentiate y = −2x³.`,[`−6x²`,`6x²`,`−6x³`,`−2x²`],0,`−2 × 3 = −6, power 2.`),
 T(`<h3>A single x</h3><p>y = 7x is 7x¹. Multiply by 1, power becomes 0, and x⁰ = 1. So dy/dx = <b>7</b>. The gradient of a straight line is the number in front of x, just as you learned in Level 1.</p>`),
-W('calcDrill',{skill:'power',need:8},`The power rule, over and over. Get 8 right in a row.`,`Multiply by the power, then reduce it by 1. Negative powers work exactly the same way.`),
+W('calcDrill',{skill:'power',need:8},`The power rule, over and over. Get 8 right to master it.`,`Multiply by the power, then reduce it by 1. Negative powers work exactly the same way.`),
 T(`<h3>Key points</h3><ul><li><b>axⁿ → anxⁿ⁻¹</b></li><li>Multiply by the power, then reduce the power by 1.</li><li>kx → k (a straight line's gradient).</li></ul>`)]),
 LH('c2-3-2','Sums and constants',9,'Differentiate whole expressions like 3x² − 5x + 7, one term at a time.',[
 RM(`<p>Power rule: <b>axⁿ → anxⁿ⁻¹</b>. And kx → k.</p>`),
@@ -330,9 +372,9 @@ T(`<h3>Constants vanish</h3><p>y = 7 is a flat horizontal line. Its gradient is 
 Q(`Differentiate y = 12.`,[`0`,`12`,`1`,`12x`],0,`A constant has zero gradient.`),
 T(`<h3>One term at a time</h3><p>To differentiate a sum, differentiate <b>each term separately</b> and keep the plus and minus signs.</p><div class="eq">y = 3x² − 5x + 7&nbsp;&nbsp;→&nbsp;&nbsp;dy/dx = 6x − 5</div><p>3x² → 6x, −5x → −5, and 7 → 0.</p>`),
 Q(`Differentiate y = x³ + 4x² − 2x + 9.`,[`3x² + 8x − 2`,`3x² + 8x − 2 + 9`,`x² + 8x − 2`,`3x² + 4x − 2`],0,`Term by term; the 9 disappears.`),
-W('calcDrill',{skill:'const0',need:3},`Quick check on constants. Get 3 right in a row.`,`Constants always differentiate to 0.`),
+W('calcDrill',{skill:'const0',need:3},`Quick check on constants. Get 3 right to master it.`,`Constants always differentiate to 0.`),
 T(`<h3>Finding a gradient value</h3><p>Once you have f′(x), substitute to get the gradient at a point. If f(x) = x³ − 2x, then f′(x) = 3x² − 2, and f′(2) = 12 − 2 = <b>10</b>.</p>`),
-W('calcDrill',{skill:'polyval',need:6},`Differentiate, then substitute. Get 6 right in a row.`,`Term by term, then put the number in.`),
+W('calcDrill',{skill:'polyval',need:6},`Differentiate, then substitute. Get 6 right to master it.`,`Term by term, then put the number in.`),
 T(`<h3>Key points</h3><ul><li>Constants differentiate to <b>0</b>.</li><li>Differentiate sums <b>term by term</b>.</li><li>Then substitute to find the gradient at a point.</li></ul>`)]),
 LH('c2-3-3','Negative and fractional powers',10,'Rewrite 5/x² and √x as powers first, then the power rule works as normal.',[
 RM(`<p>From Level 1: 1/xⁿ = <b>x⁻ⁿ</b> and √x = <b>x⁰·⁵</b>. Power rule: <b>axⁿ → anxⁿ⁻¹</b>.</p>`),
@@ -340,8 +382,8 @@ T(`<h3>Rewrite first, then differentiate</h3><p>The power rule only works on pow
 W('stepCalc',{steps:[`y = 6/x²`,`Rewrite as a power: y = 6x⁻²`,`Multiply by the power: 6 × (−2) = −12`,`Reduce the power by 1: −2 − 1 = −3`,`dy/dx = −12x⁻³, which you can write as <b>−12/x³</b>`]},`A negative power, step by step.`,`Careful: −2 − 1 = −3, not −1.`),
 Q(`Differentiate y = x⁻¹.`,[`−x⁻²`,`x⁻²`,`−x⁰`,`−1x⁻¹`],0,`−1 × x^(−1−1) = −x⁻².`),
 W('stepCalc',{steps:[`y = 4√x`,`Rewrite as a power: y = 4x⁰·⁵`,`Multiply by the power: 4 × 0.5 = 2`,`Reduce the power by 1: 0.5 − 1 = −0.5`,`dy/dx = 2x⁻⁰·⁵, which is <b>2/√x</b>`]},`A fractional power, step by step.`,`Same rule, just with decimals.`),
-W('calcDrill',{skill:['rewrite','powfrac'],need:6},`Rewrite and differentiate. Get 6 right in a row.`,`Rewrite as a power, then the usual two moves.`),
-W('calcDrill',{skill:['power','powfrac','rewrite','polyval','const0'],need:8},`Everything from this unit, mixed. Get 8 right in a row.`,`You can differentiate any power of x.`),
+W('calcDrill',{skill:['rewrite','powfrac'],need:6},`Rewrite and differentiate. Get 6 right to master it.`,`Rewrite as a power, then the usual two moves.`),
+W('calcDrill',{skill:['power','powfrac','rewrite','polyval','const0'],need:8},`Everything from this unit, mixed. Get 8 right to master it.`,`You can differentiate any power of x.`),
 T(`<h3>Key points</h3><ul><li><b>Rewrite</b> fractions and roots as powers first.</li><li>Negative powers: subtracting 1 makes them <b>more</b> negative.</li><li>Fractional powers: 0.5 − 1 = −0.5.</li></ul>`)])
 ]});
 
@@ -350,21 +392,21 @@ LH('c2-4-1','The gradient at a point',8,'Differentiate, then substitute: the gra
 RM(`<p>Differentiate term by term with the power rule, then substitute to get a value.</p>`),
 T(`<h3>Two steps, every time</h3><ol><li><b>Differentiate</b> to get the gradient function.</li><li><b>Substitute</b> the x-value.</li></ol><p>Never substitute first: that turns the curve into a single number, and a number's gradient is 0.</p>`),
 Q(`f(x) = x³. A student puts x = 2 in first, gets 8, then differentiates 8 to get 0. What went wrong?`,[`They substituted before differentiating`,'Nothing: the gradient there really is 0','They forgot to add + C at the end','They should have differentiated twice'],0,`Differentiate first, then substitute: f′(2) = 3 × 4 = 12.`),
-W('calcDrill',{skill:['polyval','gradat'],need:6},`Gradients at points. Get 6 right in a row.`,`Differentiate first, then substitute.`),
+W('calcDrill',{skill:['polyval','gradat'],need:6},`Gradients at points. Get 6 right to master it.`,`Differentiate first, then substitute.`),
 T(`<h3>Key points</h3><ul><li>To find a gradient at a point: <b>differentiate, then substitute</b>.</li><li>Never the other way round.</li></ul>`)]),
 LH('c2-4-2','Tangents and normals',10,'Write the equation of the tangent and the normal at any point on a curve.',[
 RM(`<p>A tangent touches a curve with the same gradient. A straight line is <b>y = mx + c</b>. The gradient at a point is f′(x).</p>`),
 T(`<h3>The equation of a tangent</h3><p>You need two things: the <b>gradient</b> m and a <b>point</b> the line goes through.</p><ul><li>m: differentiate and substitute.</li><li>The point: (x, f(x)) on the curve.</li><li>Then find c: c = y − mx.</li></ul>`),
 W('stepCalc',{steps:[`Tangent to y = x² + 3x at x = 1`,`Gradient: dy/dx = 2x + 3, so m = 2(1) + 3 = 5`,`Point: y = 1² + 3(1) = 4, so (1, 4)`,`Find c: 4 = 5 × 1 + c, so c = −1`,`Tangent: <b>y = 5x − 1</b>`]},`Follow the method.`,`Gradient, point, then c.`),
-W('calcDrill',{skill:'tangent',need:4},`Find the tangent equations. Get 4 right in a row.`,`m from the derivative, the point from the curve, then c = y − mx.`),
+W('calcDrill',{skill:'tangent',need:4},`Find the tangent equations. Get 4 right to master it.`,`m from the derivative, the point from the curve, then c = y − mx.`),
 T(`<h3>The normal</h3><p>The <b>normal</b> is the line at right angles to the tangent, through the same point. Their gradients multiply to −1:</p><div class="eq">normal gradient = −1 ÷ tangent gradient</div><p>If the tangent's gradient is 2, the normal's is −½ = −0.5.</p>`),
-W('calcDrill',{skill:'normal',need:4},`Normal gradients. Get 4 right in a row.`,`Flip it and change its sign.`),
+W('calcDrill',{skill:'normal',need:4},`Normal gradients. Get 4 right to master it.`,`Flip it and change its sign.`),
 T(`<h3>Key points</h3><ul><li>Tangent: m = f′(x), point (x, f(x)), then <b>c = y − mx</b>.</li><li>Normal: same point, gradient <b>−1/m</b>.</li></ul>`)]),
 LH('c2-4-3','Increasing and decreasing',8,'The sign of the derivative tells you whether a function is going up or down.',[
 RM(`<p>The derivative is the gradient. Positive gradients go up; negative go down; zero is flat.</p>`),
 T(`<h3>Reading the sign</h3><ul><li>dy/dx &gt; 0: y is <b>increasing</b> there.</li><li>dy/dx &lt; 0: y is <b>decreasing</b>.</li><li>dy/dx = 0: the curve is momentarily flat. That's a <b>stationary point</b>, coming in Level 3.</li></ul>`),
 Q(`At a point, dy/dx = −3. What's happening to y?`,[`It's decreasing`,`It's increasing`,`It's stationary`,`Can't tell`],0,`Negative gradient: going down.`),
-W('calcDrill',{skill:'incdec',need:5},`Increasing, decreasing or stationary? Get 5 right in a row.`,`Differentiate, substitute, then look at the sign.`),
+W('calcDrill',{skill:'incdec',need:5},`Increasing, decreasing or stationary? Get 5 right to master it.`,`Differentiate, substitute, then look at the sign.`),
 T(`<h3>In the plant</h3><p>If dT/dt is positive, temperature is rising. If dP/dt is negative, power is falling. Operators read signs of rates like this constantly, even if they don't call it calculus.</p>`),
 QE(`What is the gradient of the chord on y = x² from x = 2 to x = 2.1?`,[`4.1`,`4`,`0.41`,`2.1`],0,`2 × 2 + 0.1.`),
 T(`<h3>Key points</h3><ul><li>dy/dx positive: <b>increasing</b>. Negative: <b>decreasing</b>.</li><li>dy/dx = 0: <b>stationary</b>.</li><li>You've finished Level 2. You can differentiate from first principles and with the power rule.</li></ul>`)])
@@ -396,7 +438,7 @@ T(`<h3>Stationary points</h3><p>A <b>stationary point</b> is where the gradient 
 W('fnPlot',{x:[-1,5],y:[-6,6],xl:'x',yl:'y',sl:[['a','Point x',-1,5,0.25,0,function(v){return v}]],curves:function(p){var f=function(x){return x*x-4*x+1},g=2*p.a-4,y0=f(p.a);return [[f,'--accent',3],[function(x){return y0+g*(x-p.a)},'--coral',2,[6,4]]]},read:function(p){var g=2*p.a-4;return 'y = x² − 4x + 1. At x = '+p.a+': gradient <b>'+g+'</b>'+(g===0?' · <b>stationary point!</b>':'')},goal:function(p){return p.a===2},goalMsg:'Find where the tangent is flat.'},`Slide the point until the tangent is completely flat.`,`At x = 2 the gradient is 0. That's the minimum of this curve.`),
 W('stepCalc',{steps:[`Find the stationary point of y = x² − 4x + 1`,`Differentiate: dy/dx = 2x − 4`,`Set it to zero: 2x − 4 = 0`,`Solve: x = 2`,`Find y: y = 2² − 4(2) + 1 = −3`,`Stationary point: <b>(2, −3)</b>`]},`The method, step by step.`,`Differentiate, set to zero, solve for x, then find y.`),
 Q(`What's the first step in finding a stationary point?`,[`Differentiate`,`Set y = 0`,`Integrate`,`Substitute x = 0`],0,`Then set dy/dx = 0.`),
-W('calcDrill',{skill:'statq',need:5},`Find each stationary point. Get 5 right in a row.`,`Differentiate, set to 0, solve, then find y.`),
+W('calcDrill',{skill:'statq',need:5},`Find each stationary point. Get 5 right to master it.`,`Differentiate, set to 0, solve, then find y.`),
 T(`<h3>Key points</h3><ul><li>Stationary points: <b>dy/dx = 0</b>.</li><li>Method: differentiate → set to 0 → solve for x → substitute to find y.</li></ul>`)]),
 LH('c3-1-2','The second derivative',9,'Differentiate twice to find out how the gradient itself is changing.',[
 RM(`<p>dy/dx is the gradient function. You get it with the power rule, term by term.</p>`),
@@ -404,7 +446,7 @@ T(`<h3>Differentiate again</h3><p>dy/dx is itself a function, so you can differe
 W('stepCalc',{steps:[`y = x³ − 6x² + 2`,`First derivative: dy/dx = 3x² − 12x`,`Second derivative: d²y/dx² = 6x − 12`,`At x = 3: 6(3) − 12 = <b>6</b>`]},`Differentiate twice.`,`Just apply the power rule twice.`),
 Q(`If dy/dx = 5x², what is d²y/dx²?`,[`10x`,`5x²`,`10x²`,`5x`],0,`Differentiate 5x² again.`),
 T(`<h3>What it means</h3><p>The second derivative tells you how the <b>gradient</b> is changing:</p><ul><li>f″ &gt; 0: the gradient is increasing. The curve bends <b>up</b>, like a smile.</li><li>f″ &lt; 0: the gradient is decreasing. The curve bends <b>down</b>, like a frown.</li></ul><p>For movement, the second derivative of distance is <b>acceleration</b>.</p>`),
-W('calcDrill',{skill:'second',need:5},`Second derivatives at a point. Get 5 right in a row.`,`Differentiate, differentiate again, then substitute.`),
+W('calcDrill',{skill:'second',need:5},`Second derivatives at a point. Get 5 right to master it.`,`Differentiate, differentiate again, then substitute.`),
 T(`<h3>Key points</h3><ul><li>Differentiate twice for the <b>second derivative</b>, d²y/dx² or f″(x).</li><li>Positive: bends up. Negative: bends down.</li></ul>`)]),
 LH('c3-1-3','Maximum or minimum?',10,'Use the second derivative to tell hills from valleys.',[
 RM(`<p>Stationary points: dy/dx = 0. Second derivative positive: bends up (smile). Negative: bends down (frown).</p>`),
@@ -412,7 +454,7 @@ T(`<h3>The second derivative test</h3><p>At a stationary point:</p><ul><li>d²y/
 Q(`At a stationary point, d²y/dx² = −8. What is it?`,[`A maximum`,`A minimum`,`Can't tell`,`Not a stationary point`],0,`Negative: frown: maximum.`),
 W('fnPlot',{x:[-3,3],y:[-6,6],xl:'x',yl:'y',sl:[['a','Point x',-3,3,0.25,-2,function(v){return v}]],curves:function(p){var f=function(x){return x*x*x-3*x},g=3*p.a*p.a-3,y0=f(p.a);return [[f,'--accent',3],[function(x){return y0+g*(x-p.a)},'--coral',2,[6,4]]]},read:function(p){var g=3*p.a*p.a-3,s=6*p.a;return 'y = x³ − 3x at x = '+p.a+': dy/dx = <b>'+g+'</b>, d²y/dx² = <b>'+s+'</b>'+(g===0?(s<0?' · <b>maximum</b>':' · <b>minimum</b>'):'')},goal:function(p){return p.a===1},goalMsg:'Visit both stationary points: x = −1 and x = 1.'},`This cubic has two stationary points. Slide to x = −1, then to x = 1, and read the second derivative at each.`,`At x = −1, d²y/dx² = −6: a maximum. At x = 1, it's +6: a minimum.`),
 W('stepCalc',{steps:[`Find and classify the stationary points of y = x³ − 3x`,`dy/dx = 3x² − 3 = 0, so x² = 1, so x = 1 or x = −1`,`d²y/dx² = 6x`,`At x = 1: 6 > 0, so a <b>minimum</b> at (1, −2)`,`At x = −1: −6 < 0, so a <b>maximum</b> at (−1, 2)`]},`The full method.`,`Find them, then test each one.`),
-W('calcDrill',{skill:['statnat','statq'],need:6},`Find and classify. Get 6 right in a row.`,`Second derivative positive: minimum. Negative: maximum.`),
+W('calcDrill',{skill:['statnat','statq'],need:6},`Find and classify. Get 6 right to master it.`,`Second derivative positive: minimum. Negative: maximum.`),
 T(`<h3>Key points</h3><ul><li><b>f″ &gt; 0 → minimum</b>, <b>f″ &lt; 0 → maximum</b>.</li><li>f″ = 0: inconclusive. Check the gradient just either side.</li></ul>`)])
 ]});
 
@@ -422,14 +464,14 @@ RM(`<p>Stationary points: dy/dx = 0. Maximum if d²y/dx² &lt; 0.</p>`),
 T(`<h3>Finding the best</h3><p>Many real questions ask for a <b>maximum</b> or <b>minimum</b>: the largest area, the least material, the lowest cost. The method:</p><ol><li>Write the quantity in terms of <b>one</b> variable.</li><li>Differentiate and set to 0.</li><li>Solve, and check it's a max or min.</li></ol>`),
 W('stepCalc',{steps:[`20 m of fence makes a rectangle. What's the biggest area?`,`Call one side x. The perimeter is 20, so the other side is 10 − x`,`Area A = x(10 − x) = 10x − x²`,`dA/dx = 10 − 2x = 0, so x = 5`,`d²A/dx² = −2 < 0, so it's a maximum`,`Biggest area: 5 × 5 = <b>25 m²</b>. It's a square!`]},`A classic example.`,`One variable, differentiate, set to zero, check.`),
 Q(`Why do we need the area in terms of just one variable?`,[`So we can differentiate it`,`Because rectangles have one side`,`To make it bigger`,`We don't`],0,`dA/dx needs A as a function of x only.`),
-W('calcDrill',{skill:'optim',need:4},`Optimisation problems. Get 4 right in a row.`,`Write the area with one variable, differentiate, set to 0.`),
+W('calcDrill',{skill:'optim',need:4},`Optimisation problems. Get 4 right to master it.`,`Write the area with one variable, differentiate, set to 0.`),
 T(`<h3>Key points</h3><ul><li>Optimisation: write in <b>one variable</b> → differentiate → set to 0 → solve.</li><li>Check it's the max or min you want.</li></ul>`)]),
 LH('c3-2-2','Displacement, velocity and acceleration',9,'Differentiate distance to get velocity, and velocity to get acceleration.',[
 RM(`<p>A distance–time gradient is speed. The second derivative is the rate of change of the gradient.</p>`),
 T(`<h3>The chain of rates</h3><div class="eq">s → v = ds/dt → a = dv/dt = d²s/dt²</div>${KY([['s','displacement (position)','m'],['v','velocity: rate of change of displacement','m/s'],['a','acceleration: rate of change of velocity','m/s²']])}`),
 W('stepCalc',{steps:[`s = t³ − 2t² metres`,`v = ds/dt = 3t² − 4t`,`a = dv/dt = 6t − 4`,`At t = 2: v = 12 − 8 = <b>4 m/s</b>, a = 12 − 4 = <b>8 m/s²</b>`]},`Differentiate once for velocity, twice for acceleration.`,`Same power rule, with t instead of x.`),
 Q(`An object's velocity is v = 4t. What's its acceleration?`,[`4 m/s²`,`4t m/s²`,`0`,`2t²`],0,`dv/dt = 4.`),
-W('calcDrill',{skill:'kin',need:5},`Velocity and acceleration. Get 5 right in a row.`,`Differentiate once for v, twice for a.`),
+W('calcDrill',{skill:'kin',need:5},`Velocity and acceleration. Get 5 right to master it.`,`Differentiate once for v, twice for a.`),
 T(`<h3>Key points</h3><ul><li><b>v = ds/dt</b>, <b>a = dv/dt</b>.</li><li>When v = 0, the object is momentarily at rest.</li></ul>`)]),
 LH('c3-2-3','Rates of change in the plant',9,'Use derivatives to answer real operator questions about levels, temperatures and limits.',[
 RM(`<p>A derivative is a rate of change. Set it to 0 to find the maximum or minimum.</p>`),
@@ -451,7 +493,7 @@ W('fnPlot',{x:[-2,2.5],y:[0,12],xl:'x',yl:'y',sl:[['a','Point x',-2,2.5,0.25,0,f
 T(`<h3>The rule</h3><div class="eq">d/dx (eˣ) = eˣ</div><p>And with a number multiplying x in the power:</p><div class="eq">d/dx (e<sup>kx</sup>) = k e<sup>kx</sup></div><p>The k comes down in front. So d/dx (e³ˣ) = 3e³ˣ, and d/dx (e<sup>−2x</sup>) = −2e<sup>−2x</sup>.</p>`),
 Q(`Differentiate y = e⁵ˣ.`,[`5e⁵ˣ`,`e⁵ˣ`,`5xe⁵ˣ⁻¹`,`e⁴ˣ`],0,`k comes down; the power stays the same.`),
 Q(`Can you use the power rule on eˣ?`,[`No: x is the power, not the base`,'Yes: it gives x times e to the x − 1','Only when x is a whole number','Yes, as long as you treat e as x'],0,`The power rule is for xⁿ with a fixed power.`),
-W('calcDrill',{skill:'expd',need:5},`Differentiate each exponential. Get 5 right in a row.`,`Bring k down; the e-part stays the same.`),
+W('calcDrill',{skill:'expd',need:5},`Differentiate each exponential. Get 5 right to master it.`,`Bring k down; the e-part stays the same.`),
 T(`<h3>Key points</h3><ul><li><b>e ≈ 2.718</b>.</li><li><b>d/dx (eˣ) = eˣ</b>: its own derivative.</li><li><b>d/dx (e<sup>kx</sup>) = ke<sup>kx</sup></b>. Don't use the power rule here.</li></ul>`)]),
 LH('c3-3-2','ln x',9,'The natural logarithm undoes eˣ, and its derivative is surprisingly simple: 1/x.',[
 RM(`<p>d/dx (e<sup>kx</sup>) = ke<sup>kx</sup>. And e ≈ 2.718.</p>`),
@@ -460,7 +502,7 @@ Q(`What is ln(e⁴)?`,[`4`,`e⁴`,`1`,`0`],0,`ln undoes e.`),
 Q(`What is ln 1?`,[`0`,`1`,`e`,`It doesn't exist`],0,`e⁰ = 1.`),
 T(`<h3>The derivative of ln x</h3><div class="eq">d/dx (ln x) = 1/x</div><p>And with a number in front: d/dx (5 ln x) = 5/x. Bonus: d/dx (ln 3x) is also 1/x, because ln 3x = ln 3 + ln x, and ln 3 is just a constant.</p>`),
 Q(`Differentiate y = ln x.`,[`1/x`,`ln x`,`x`,`eˣ`],0,`A key result to learn by heart.`),
-W('calcDrill',{skill:'lnd',need:5},`Gradients of ln functions. Get 5 right in a row.`,`d/dx (a ln x) = a/x, then substitute.`),
+W('calcDrill',{skill:'lnd',need:5},`Gradients of ln functions. Get 5 right to master it.`,`d/dx (a ln x) = a/x, then substitute.`),
 T(`<h3>Key points</h3><ul><li><b>ln</b> undoes e: ln(eˣ) = x, ln 1 = 0, ln e = 1.</li><li><b>d/dx (ln x) = 1/x</b>.</li></ul>`)]),
 LH('c3-3-3','sin and cos',10,'The derivatives of sin and cos, and why calculus uses radians.',[
 RM(`<p>A derivative is the gradient at every point. eˣ is its own derivative; ln x gives 1/x.</p>`),
@@ -469,7 +511,7 @@ Q(`How many degrees is π radians?`,[`180°`,`360°`,`90°`,`3.14°`],0,`Half a 
 T(`<h3>The derivatives</h3><div class="eq">d/dx (sin x) = cos x</div><div class="eq">d/dx (cos x) = −sin x</div><p>Look at the graphs: where sin x is steepest going up (at x = 0), cos x is at its peak of 1. Where sin x is flat at the top, cos x is 0.</p>`),
 W('fnPlot',{x:[-3.2,6.4],y:[-1.5,1.5],xl:'x (radians)',yl:'y',sl:[['a','Point x',-3,6,0.25,0,function(v){return v}]],curves:function(p){var y0=Math.sin(p.a),g=Math.cos(p.a);return [[Math.sin,'--accent',3],[Math.cos,'--teal',1.5,[3,3]],[function(x){return y0+g*(x-p.a)},'--coral',2,[6,4]]]},read:function(p){return 'sin x at x = '+p.a+': gradient <b>'+Math.cos(p.a).toFixed(3)+'</b>, which equals cos '+p.a+' (dotted line)'},goal:function(p){return Math.abs(p.a-1.5)<0.3},goalMsg:'Find where sin x is flat at the top (gradient 0).'},`Slide along sin x. The dotted curve is cos x. Find where sin is flat.`,`Near x = 1.57 (that's π/2), the gradient of sin is 0, and so is cos.`),
 T(`<h3>With a number inside</h3><p>d/dx (sin 3x) = 3 cos 3x, and d/dx (cos 2x) = −2 sin 2x. The number in front of x comes down, just like with e<sup>kx</sup>.</p>`),
-W('calcDrill',{skill:'trigd',need:5},`Trig derivatives. Get 5 right in a row.`,`sin → cos, cos → −sin, and any k comes down.`),
+W('calcDrill',{skill:'trigd',need:5},`Trig derivatives. Get 5 right to master it.`,`sin → cos, cos → −sin, and any k comes down.`),
 T(`<h3>Key points</h3><ul><li>Use <b>radians</b> in calculus.</li><li><b>sin x → cos x</b>, <b>cos x → −sin x</b>.</li><li>sin kx → k cos kx; cos kx → −k sin kx.</li></ul>`)])
 ]});
 
@@ -480,24 +522,24 @@ T(`<h3>A function inside a function</h3><p>y = (3x + 1)⁵ has a bracket inside 
 T(`<h3>The chain rule</h3><div class="eq">dy/dx = (derivative of the outside) × (derivative of the inside)</div><p>Or with letters: let u be the inside. Then</p><div class="eq">dy/dx = dy/du × du/dx</div>`),
 W('stepCalc',{steps:[`y = (3x + 1)⁵`,`Let u = 3x + 1, so y = u⁵`,`Outside: dy/du = 5u⁴`,`Inside: du/dx = 3`,`Multiply: dy/dx = 5u⁴ × 3 = 15u⁴`,`Put x back: dy/dx = <b>15(3x + 1)⁴</b>`]},`The chain rule, step by step.`,`Power down, one off the power, times the derivative of the inside.`),
 Q(`Differentiate y = (2x − 5)³.`,[`6(2x − 5)²`,`3(2x − 5)²`,`6(2x − 5)³`,`(2x − 5)²`],0,`3 × 2 = 6, power 2.`),
-W('calcDrill',{skill:'chain',need:6},`Brackets to a power. Get 6 right in a row.`,`Bring the power down, reduce it by 1, multiply by the inside's derivative.`),
+W('calcDrill',{skill:'chain',need:6},`Brackets to a power. Get 6 right to master it.`,`Bring the power down, reduce it by 1, multiply by the inside's derivative.`),
 T(`<h3>The same idea with e</h3><p>y = e<sup>x² + 1</sup>: the inside is x² + 1, whose derivative is 2x. So dy/dx = 2x·e<sup>x² + 1</sup>. The e-part stays; multiply by the derivative of the power.</p>`),
-W('calcDrill',{skill:'chainexp',need:4},`e to a power. Get 4 right in a row.`,`Multiply by the derivative of the power.`),
+W('calcDrill',{skill:'chainexp',need:4},`e to a power. Get 4 right to master it.`,`Multiply by the derivative of the power.`),
 T(`<h3>Key points</h3><ul><li><b>Chain rule</b>: derivative of the outside × derivative of the inside.</li><li>(ax + b)ⁿ → na(ax + b)ⁿ⁻¹.</li><li>e<sup>f(x)</sup> → f′(x)e<sup>f(x)</sup>.</li></ul>`)]),
 LH('c3-4-2','The product rule',10,'Differentiate two functions multiplied together.',[
 RM(`<p>Chain rule: derivative of the outside × derivative of the inside.</p>`),
 T(`<h3>Two things multiplied</h3><p>y = x²(x + 1)³ is one function <b>times</b> another. You can't just differentiate each and multiply. Instead, use the <b>product rule</b>:</p><div class="eq">if y = uv, then dy/dx = u′v + uv′</div>${KY([['u, v','the two functions being multiplied',''],['u′, v′','their derivatives','']],'In words: derivative of the first × the second, plus the first × derivative of the second.')}`),
 W('stepCalc',{steps:[`y = x³(x + 2)`,`u = x³, so u′ = 3x²`,`v = x + 2, so v′ = 1`,`dy/dx = u′v + uv′ = 3x²(x + 2) + x³(1)`,`At x = 1: 3(1)(3) + 1 = <b>10</b>`]},`The product rule, step by step.`,`Write u, v, u′ and v′ first. Then put them in the formula.`),
 Q(`The product rule says d/dx (uv) = …`,[`u′v + uv′`,`u′v′`,`u′ + v′`,`uv′ − u′v`],0,`Learn it by heart.`),
-W('calcDrill',{skill:'product',need:5},`Product rule at a point. Get 5 right in a row.`,`List u, u′, v, v′, then u′v + uv′.`),
+W('calcDrill',{skill:'product',need:5},`Product rule at a point. Get 5 right to master it.`,`List u, u′, v, v′, then u′v + uv′.`),
 T(`<h3>Key points</h3><ul><li><b>Product rule</b>: (uv)′ = u′v + uv′.</li><li>Always write out u, u′, v, v′ first.</li><li>v may need the chain rule.</li></ul>`)]),
 LH('c3-4-3','The quotient rule',10,'Differentiate one function divided by another. Then put every rule together.',[
 RM(`<p>Product rule: (uv)′ = u′v + uv′.</p>`),
 T(`<h3>One function divided by another</h3><p>For y = u ÷ v, use the <b>quotient rule</b>:</p><div class="eq">dy/dx = (vu′ − uv′) ÷ v²</div><p>The order matters, because of the minus. A way to remember it: "bottom times derivative of top, minus top times derivative of bottom, all over bottom squared".</p>`),
 W('stepCalc',{steps:[`y = (x + 1) / (x − 2)`,`u = x + 1, u′ = 1; v = x − 2, v′ = 1`,`dy/dx = ((x − 2)(1) − (x + 1)(1)) ÷ (x − 2)²`,`Simplify the top: −3`,`dy/dx = <b>−3 / (x − 2)²</b>`]},`The quotient rule, step by step.`,`Bottom × top′, minus top × bottom′, over bottom².`),
 Q(`In the quotient rule, what goes underneath?`,[`v², the bottom squared`,'u², the top squared','uv, the top times the bottom','v′, the bottom differentiated'],0,`Bottom squared.`),
-W('calcDrill',{skill:'quotient',need:4},`Quotient rule at a point. Get 4 right in a row.`,`Bottom × top′ − top × bottom′, all over bottom².`),
-W('calcDrill',{skill:['chain','product','quotient','expd','lnd','trigd','power'],need:8},`The big differentiation review: every rule mixed. Get 8 right in a row.`,`You can differentiate almost anything now.`),
+W('calcDrill',{skill:'quotient',need:4},`Quotient rule at a point. Get 4 right to master it.`,`Bottom × top′ − top × bottom′, all over bottom².`),
+W('calcDrill',{skill:['chain','product','quotient','expd','lnd','trigd','power'],need:8},`The big differentiation review: every rule mixed. Get 8 right to master it.`,`You can differentiate almost anything now.`),
 T(`<h3>Key points</h3><ul><li><b>Quotient rule</b>: (u/v)′ = (vu′ − uv′) ÷ v².</li><li>The full toolkit: power rule, eˣ, ln x, sin, cos, chain, product and quotient.</li></ul>`)])
 ]});
 
@@ -536,15 +578,15 @@ T(`<h3>Reversing the power rule</h3><p>Differentiating: multiply by the power, t
 W('stepCalc',{steps:[`∫ 6x² dx`,`Add 1 to the power: 2 + 1 = 3`,`Divide by the new power: 6 ÷ 3 = 2`,`Answer: <b>2x³ + C</b>`,`Check: d/dx (2x³) = 6x² ✓`]},`Watch the two moves.`,`Up one, divide by the new power, + C.`),
 Q(`∫ x⁴ dx = …`,[`x⁵/5 + C`,`4x³ + C`,`x⁵ + C`,`5x⁵ + C`],0,`Power 5, divide by 5.`),
 T(`<h3>Constants and sums</h3><ul><li>∫ 7 dx = 7x + C (a constant is 7x⁰; the power goes up to 1).</li><li>Integrate sums <b>term by term</b>, with one + C at the end.</li></ul><p>∫ (3x² + 4x + 5) dx = x³ + 2x² + 5x + C.</p>`),
-W('calcDrill',{skill:'intpow',need:8},`Integrate. Get 8 right in a row.`,`Add one to the power, divide by the new power.`),
+W('calcDrill',{skill:'intpow',need:8},`Integrate. Get 8 right to master it.`,`Add one to the power, divide by the new power.`),
 T(`<h3>Key points</h3><ul><li><b>∫ axⁿ dx = axⁿ⁺¹ ÷ (n + 1) + C</b>.</li><li>Constants: ∫ k dx = kx + C.</li><li>Term by term; one + C.</li></ul>`)]),
 LH('c4-1-3','Negative and fractional powers',10,'Rewrite first, then the reverse power rule still works. The one exception: x⁻¹.',[
 RM(`<p>∫ xⁿ dx = xⁿ⁺¹ ÷ (n + 1) + C. Rewrite fractions and roots as powers first.</p>`),
 T(`<h3>Rewrite, then integrate</h3><p>∫ 6/x³ dx: rewrite as ∫ 6x⁻³ dx. Add 1 to the power: −3 + 1 = −2. Divide by −2: 6 ÷ (−2) = −3. Answer: <b>−3x⁻² + C</b>.</p>`),
 T(`<h3>The one exception</h3><p>For x⁻¹ (that's 1/x), adding 1 gives x⁰, and dividing by 0 is impossible. So 1/x needs a different rule. You'll meet it in the next unit: it involves ln x.</p>`),
 Q(`Why doesn't the reverse power rule work for 1/x?`,[`It would mean dividing by zero`,'1/x has no graph to find the area under','It does work, giving ln x every time','Because x can never be negative'],0,`x⁻¹ → x⁰ ÷ 0.`),
-W('calcDrill',{skill:['intneg','intfrac'],need:6},`Rewrite and integrate. Get 6 right in a row.`,`Careful with negatives: −3 + 1 = −2.`),
-W('calcDrill',{skill:['intpow','intneg','intfrac'],need:8},`All powers, mixed. Get 8 right in a row.`,`You can integrate any power of x except 1/x.`),
+W('calcDrill',{skill:['intneg','intfrac'],need:6},`Rewrite and integrate. Get 6 right to master it.`,`Careful with negatives: −3 + 1 = −2.`),
+W('calcDrill',{skill:['intpow','intneg','intfrac'],need:8},`All powers, mixed. Get 8 right to master it.`,`You can integrate any power of x except 1/x.`),
 T(`<h3>Key points</h3><ul><li>Rewrite fractions and roots as powers first.</li><li>−3 + 1 = −2: watch the signs.</li><li><b>1/x is the exception</b>: it needs ln x.</li></ul>`)])
 ]});
 
@@ -564,11 +606,11 @@ W('stepCalc',{steps:[`∫ from 0 to 3 of x² dx`,`Integrate: x³ ÷ 3`,`Top limi
 T(`<h3>Why no + C?</h3><p>If you included it: (F(b) + C) − (F(a) + C) = F(b) − F(a). The C always cancels, so definite integrals don't need it.</p>`),
 Q(`Why don't definite integrals need + C?`,[`It cancels when you subtract`,`C is always zero`,`Areas can't have constants`,`They do`],0,`C − C = 0.`),
 N(`Evaluate ∫ from 1 to 3 of 2x dx.`,8,0.001,'',`[x²] from 1 to 3 = 9 − 1 = 8.`),
-W('calcDrill',{skill:'defint',need:5},`Definite integrals. Get 5 right in a row.`,`Integrate, then top limit minus bottom limit.`),
+W('calcDrill',{skill:'defint',need:5},`Definite integrals. Get 5 right to master it.`,`Integrate, then top limit minus bottom limit.`),
 T(`<h3>Key points</h3><ul><li><b>∫ₐᵇ f(x) dx = F(b) − F(a)</b>.</li><li>Top limit minus bottom limit.</li><li>No + C: it cancels.</li></ul>`)]),
 LH('c4-2-3','Areas under curves',10,'Areas above the axis count as positive, below as negative. Know when to split.',[
 RM(`<p>∫ₐᵇ f(x) dx = F(b) − F(a). The area under a curve is a definite integral.</p>`),
-W('calcDrill',{skill:'area',need:4},`Areas under curves. Get 4 right in a row.`,`Integrate, then top minus bottom.`),
+W('calcDrill',{skill:'area',need:4},`Areas under curves. Get 4 right to master it.`,`Integrate, then top minus bottom.`),
 T(`<h3>Below the axis</h3><p>If the curve is <b>below</b> the x-axis, the integral comes out <b>negative</b>. The area itself is still positive: just take the size.</p><p>Example: ∫ from −1 to 1 of x dx = 0. But the actual shaded area is two triangles of 0.5 each: <b>1</b>. The positive and negative parts cancelled!</p>`),
 Q(`∫ from −1 to 1 of x dx = 0, but the actual area is 1. Why?`,[`The part below the axis counts as negative and cancels the part above`,'The integral has been worked out wrongly: the answer should be 1','Areas between −1 and 1 always come out as zero for every curve','A straight line like y = x has no area underneath it at all'],0,`Split at the x-axis.`),
 T(`<h3>Splitting</h3><p>When a curve crosses the axis, find where it crosses, integrate each part <b>separately</b>, make each one positive, then add them.</p>`),
@@ -582,10 +624,10 @@ LH('c4-3-1','eˣ and 1/x',10,'The integrals of eˣ and 1/x, the exception from e
 RM(`<p>d/dx (e<sup>kx</sup>) = ke<sup>kx</sup>, and d/dx (ln x) = 1/x.</p>`),
 T(`<h3>Integrating eˣ</h3><p>Since eˣ is its own derivative, it's also its own integral:</p><div class="eq">∫ eˣ dx = eˣ + C</div><p>With a k in the power, divide by k (the opposite of differentiating):</p><div class="eq">∫ e<sup>kx</sup> dx = (1/k)e<sup>kx</sup> + C</div>`),
 Q(`∫ e³ˣ dx = …`,[`(1/3)e³ˣ + C`,'(1/3)e⁴ˣ + C','(1/4)e⁴ˣ + C',`e⁴ˣ/4 + C`],0,`Divide by k.`),
-W('calcDrill',{skill:'intexp',need:5},`Integrate the exponentials. Get 5 right in a row.`,`Divide by k. Check by differentiating.`),
+W('calcDrill',{skill:'intexp',need:5},`Integrate the exponentials. Get 5 right to master it.`,`Divide by k. Check by differentiating.`),
 T(`<h3>The missing case: 1/x</h3><p>The derivative of ln x is 1/x. So:</p><div class="eq">∫ 1/x dx = ln|x| + C</div><p>The |x| (the size of x) lets it work for negative x too. This fills the gap the reverse power rule couldn't.</p>`),
 N(`Evaluate ∫ from 1 to e of 1/x dx.`,1,0.001,'',`[ln x] from 1 to e = ln e − ln 1 = 1 − 0 = 1.`),
-W('calcDrill',{skill:'int1x',need:4},`Definite integrals of a/x. Get 4 right in a row.`,`ln e = 1, ln 1 = 0, ln eᵏ = k.`),
+W('calcDrill',{skill:'int1x',need:4},`Definite integrals of a/x. Get 4 right to master it.`,`ln e = 1, ln 1 = 0, ln eᵏ = k.`),
 T(`<h3>Key points</h3><ul><li><b>∫ e<sup>kx</sup> dx = (1/k)e<sup>kx</sup> + C</b>.</li><li><b>∫ 1/x dx = ln|x| + C</b>.</li></ul>`)]),
 LH('c4-3-2','sin and cos',9,'Reverse the trig derivatives, including the sign change.',[
 RM(`<p>d/dx (sin x) = cos x, and d/dx (cos x) = −sin x. Angles in radians.</p>`),
@@ -600,7 +642,7 @@ LH('c4-3-3','A linear expression inside',10,'Integrate (ax + b)ⁿ by reversing 
 RM(`<p>Chain rule: (ax + b)ⁿ differentiates to na(ax + b)ⁿ⁻¹. The a comes out because of the inside.</p>`),
 T(`<h3>Reverse chain rule</h3><p>To integrate (ax + b)ⁿ:</p><ol><li>Add 1 to the power.</li><li>Divide by the new power.</li><li><b>Also divide by a</b>, the number in front of x inside.</li></ol><div class="eq">∫ (ax + b)ⁿ dx = (ax + b)ⁿ⁺¹ ÷ (a(n + 1)) + C</div>`),
 W('stepCalc',{steps:[`∫ (2x + 1)⁴ dx`,`Add 1 to the power: 5`,`Divide by the new power AND by the 2 inside: 1 ÷ (5 × 2) = 1/10`,`Answer: <b>(2x + 1)⁵ ÷ 10 + C</b>`,`Check: d/dx gives 5 × 2 × (2x + 1)⁴ ÷ 10 = (2x + 1)⁴ ✓`]},`Step by step.`,`Divide by both the new power and the inside's coefficient.`),
-W('calcDrill',{skill:'intlin',need:5},`Reverse chain rule. Get 5 right in a row.`,`1 ÷ (new power × a).`),
+W('calcDrill',{skill:'intlin',need:5},`Reverse chain rule. Get 5 right to master it.`,`1 ÷ (new power × a).`),
 T(`<h3>Key points</h3><ul><li><b>∫ (ax + b)ⁿ dx = (ax + b)ⁿ⁺¹ ÷ (a(n + 1)) + C</b>.</li><li>Only works when the inside is <b>linear</b> (ax + b).</li></ul>`)])
 ]});
 
@@ -610,7 +652,7 @@ RM(`<p>Chain rule: the derivative of f(g(x)) is f′(g(x)) × g′(x). Substitut
 T(`<h3>Spotting the pattern</h3><p>Look at ∫ 2x(x² + 1)⁴ dx. The inside is x² + 1, and its derivative, 2x, is sitting right there as a multiplier. That's the sign substitution will work.</p>`),
 W('stepCalc',{steps:[`∫ 2x(x² + 1)⁴ dx`,`Let u = x² + 1`,`Then du/dx = 2x, so du = 2x dx`,`The integral becomes ∫ u⁴ du`,`Integrate: u⁵ ÷ 5 + C`,`Swap back: <b>(x² + 1)⁵ ÷ 5 + C</b>`]},`Substitution, step by step.`,`Choose u, find du, rewrite everything in u, integrate, swap back.`),
 Q(`In ∫ 2x(x² + 1)⁴ dx, why is u = x² + 1 a good choice?`,[`Its derivative, 2x, is also in the integral`,'It\'s the biggest part, so it\'s the hardest bit','It\'s raised to a power, and powers always go first','Any choice works, so we pick the first bracket'],0,`du replaces the 2x dx.`),
-W('calcDrill',{skill:'subst',need:4},`Substitution practice. Get 4 right in a row.`,`u = x² + 1, then the 2x dx becomes du.`),
+W('calcDrill',{skill:'subst',need:4},`Substitution practice. Get 4 right to master it.`,`u = x² + 1, then the 2x dx becomes du.`),
 T(`<h3>Key points</h3><ul><li>Look for an inside whose <b>derivative is also present</b>.</li><li>u = inside, find du, rewrite in u, integrate, <b>swap back</b>.</li></ul>`)]),
 LH('c4-4-2','Integration by parts',11,'The product rule in reverse, for integrals like x·eˣ.',[
 RM(`<p>Product rule: (uv)′ = u′v + uv′.</p>`),
@@ -618,7 +660,7 @@ T(`<h3>The formula</h3><p>Integrating the product rule and rearranging gives:</p
 W('stepCalc',{steps:[`∫ x eˣ dx`,`u = x (gets simpler when differentiated), dv/dx = eˣ`,`du/dx = 1, v = eˣ`,`uv − ∫ v du/dx dx = xeˣ − ∫ eˣ dx`,`= <b>xeˣ − eˣ + C</b>`]},`By parts, step by step.`,`Choose u so it gets simpler; integrate the rest.`),
 Q(`In ∫ x cos x dx, which should be u?`,[`x, because it becomes 1 when differentiated`,'cos x, because it\'s easy to differentiate','Either one: by parts gives the same either way','Neither: this one needs substitution instead'],0,`Then ∫ x cos x dx = x sin x + cos x + C.`),
 T(`<h3>A handy order for choosing u</h3><p>Pick u from whichever comes first in this list: <b>logs</b> (ln x), then <b>powers of x</b>, then <b>trig and exponentials</b>. So for ∫ x ln x dx, u = ln x.</p>`),
-W('calcDrill',{skill:'parts',need:3},`Definite integrals by parts. Get 3 right in a row.`,`(x − 1)eˣ, then top limit minus bottom limit.`),
+W('calcDrill',{skill:'parts',need:3},`Definite integrals by parts. Get 3 right to master it.`,`(x − 1)eˣ, then top limit minus bottom limit.`),
 T(`<h3>Key points</h3><ul><li><b>∫ u dv = uv − ∫ v du</b>.</li><li>Choose u to get simpler: logs, then powers, then trig/exponentials.</li></ul>`)]),
 LH('c4-4-3','Choosing a method',9,'Look at an integral and decide which tool to use.',[
 RM(`<p>Tools so far: reverse power rule, eˣ, 1/x, sin/cos, linear inside, substitution, by parts.</p>`),
@@ -627,7 +669,7 @@ Q(`∫ (5x − 2)³ dx. Best method?`,[`Reverse chain (linear inside)`,'By parts
 Q(`∫ x eˣ dx. Best method?`,[`By parts`,`Reverse power rule`,`Reverse chain`,`Standard integral`],0,`A product of two types.`),
 Q(`∫ 3x²(x³ + 4)⁵ dx. Best method?`,[`Substitution with u = x³ + 4`,'By parts, with u = x³ + 4','Reverse power rule on each term','Reverse chain (linear inside)'],0,`3x² is the derivative of the inside.`),
 Q(`∫ 4x³ dx. Best method?`,[`Reverse power rule`,'Integration by parts','Substitution, u = x³','Use the ln rule'],0,`A plain power.`),
-W('calcDrill',{skill:['intpow','intneg','intexp','intlin','subst','defint'],need:8},`The big integration review: every type mixed. Get 8 right in a row.`,`You can integrate everything in this level.`),
+W('calcDrill',{skill:['intpow','intneg','intexp','intlin','subst','defint'],need:8},`The big integration review: every type mixed. Get 8 right to master it.`,`You can integrate everything in this level.`),
 T(`<h3>Key points</h3><ul><li>Standard → rule. Linear inside → reverse chain.</li><li>Derivative of the inside present → substitution.</li><li>Product of different types → by parts.</li></ul>`)])
 ]});
 
@@ -666,7 +708,7 @@ T(`<h3>The method</h3><ol><li>Get everything with <b>y on one side</b> and every
 W('stepCalc',{steps:[`dy/dt = −0.5y, with y = 80 at t = 0`,`Separate: (1/y) dy = −0.5 dt`,`Integrate both sides: ln y = −0.5t + c`,`Undo ln with e: y = e<sup>−0.5t + c</sup> = Ae<sup>−0.5t</sup>, where A = e<sup>c</sup>`,`At t = 0, y = 80, so A = 80`,`Solution: <b>y = 80e<sup>−0.5t</sup></b>`]},`Separating variables, step by step.`,`For any dy/dt = ky, the answer is y = y₀e<sup>kt</sup>.`),
 Q(`What is the general solution of dy/dt = ky?`,[`y = Ae<sup>kt</sup>`,`y = kt`,`y = A + kt`,`y = k/t`],0,`An exponential.`),
 Q(`In y = Ae<sup>kt</sup>, what does A turn out to be?`,[`The starting value of y, at t = 0`,'The growth rate, the same as k','Always 1, because e⁰ is 1','The value of y when t gets very big'],0,`At t = 0, e⁰ = 1, so y = A.`),
-W('calcDrill',{skill:'sepode',need:4},`Solve and evaluate. Get 4 right in a row.`,`y = y₀e<sup>−kt</sup>, then substitute t.`),
+W('calcDrill',{skill:'sepode',need:4},`Solve and evaluate. Get 4 right to master it.`,`y = y₀e<sup>−kt</sup>, then substitute t.`),
 T(`<h3>Key points</h3><ul><li><b>Separate</b>, integrate both sides, rearrange, use the starting value.</li><li><b>dy/dt = ky → y = y₀e<sup>kt</sup></b>.</li></ul>`)]),
 LH('c5-1-3','Growth and decay',9,'The sign of k decides everything: growth when positive, decay when negative.',[
 RM(`<p>dy/dt = ky has solution y = y₀e<sup>kt</sup>.</p>`),
@@ -693,7 +735,7 @@ T(`<h3>Half-life</h3><p>The <b>half-life</b>, T½, is the time for half the atom
 W('stepCalc',{steps:[`At t = T½: N₀/2 = N₀e<sup>−λT½</sup>`,`Divide by N₀: ½ = e<sup>−λT½</sup>`,`Take ln of both sides: ln ½ = −λT½`,`ln ½ = −ln 2, so −ln 2 = −λT½`,`<b>T½ = ln 2 ÷ λ ≈ 0.693 ÷ λ</b>`]},`Derive the half-life formula.`,`T½ = ln 2 / λ. And λ = ln 2 / T½.`),
 Q(`T½ = …`,[`ln 2 ÷ λ`,`λ ÷ ln 2`,`2λ`,`λ²`],0,`About 0.693 ÷ λ.`),
 T(`<h3>Counting half-lives</h3><p>If a time is a whole number of half-lives, just keep halving: after 3 half-lives, N₀ ÷ 2³ = N₀/8 is left.</p>`),
-W('calcDrill',{skill:'decay',need:5},`Half-life and λ. Get 5 right in a row.`,`T½ = ln 2/λ, and halve once per half-life.`),
+W('calcDrill',{skill:'decay',need:5},`Half-life and λ. Get 5 right to master it.`,`T½ = ln 2/λ, and halve once per half-life.`),
 T(`<h3>Key points</h3><ul><li><b>T½ = ln 2 / λ</b>, and <b>λ = ln 2 / T½</b>.</li><li>After n half-lives, N₀ ÷ 2ⁿ is left.</li></ul>`)]),
 LH('c5-2-3','Activity',9,'Activity is the decay rate itself, and it decays in exactly the same way.',[
 RM(`<p>dN/dt = −λN and N = N₀e<sup>−λt</sup>.</p>`),
@@ -711,7 +753,7 @@ RM(`<p>dy/dt = ky → y = y₀e<sup>kt</sup>. Positive k: growth.</p>`),
 T(`<h3>The reactor period</h3><p>When a reactor is slightly supercritical, the more neutrons there are, the more new ones are made each second. So power obeys:</p><div class="eq">dP/dt = P/τ</div>${KY([['P','reactor power','% or MW'],['τ','the reactor period: the time for power to rise by a factor of e','s']])}<p>Its solution:</p><div class="eq">P = P₀e<sup>t/τ</sup></div>`),
 Q(`What's the solution of dP/dt = P/τ?`,[`P = P₀e<sup>t/τ</sup>`,`P = P₀ + t/τ`,`P = τt`,`P = P₀e<sup>−τt</sup>`],0,`Growth with k = 1/τ.`),
 T(`<h3>What τ means</h3><p>In one period, power multiplies by e (about 2.718). A <b>short</b> period means a <b>fast</b> rise. A negative period means power is falling.</p>`),
-W('calcDrill',{skill:'period',need:5},`Reactor period calculations. Get 5 right in a row.`,`P = P₀e<sup>t/τ</sup>; doubling time = τ ln 2.`),
+W('calcDrill',{skill:'period',need:5},`Reactor period calculations. Get 5 right to master it.`,`P = P₀e<sup>t/τ</sup>; doubling time = τ ln 2.`),
 T(`<h3>Key points</h3><ul><li><b>dP/dt = P/τ → P = P₀e<sup>t/τ</sup></b>.</li><li>Power multiplies by e every period.</li><li>Short period = fast rise.</li></ul>`)]),
 LH('c5-3-2','Doubling time and startup rate',10,'Turn the period into the numbers operators actually watch.',[
 RM(`<p>P = P₀e<sup>t/τ</sup>. In one period, power multiplies by e.</p>`),
@@ -737,22 +779,22 @@ RM(`<p>dy/dx is the gradient. A tangent line follows the curve closely near its 
 T(`<h3>Stepping forward</h3><p>Some differential equations can't be solved by hand. Computers solve them by taking lots of small steps, each using the current gradient:</p><div class="eq">new y = old y + h × (gradient at old point)</div>${KY([['h','the step size in x','']],'Each step follows the tangent for a short distance.')}`),
 W('stepCalc',{steps:[`dy/dx = y, with y = 1 at x = 0. Step h = 0.5`,`Gradient at (0, 1): 1. New y = 1 + 0.5 × 1 = 1.5`,`Gradient at (0.5, 1.5): 1.5. New y = 1.5 + 0.5 × 1.5 = 2.25`,`Estimate at x = 1: <b>2.25</b>`,`The exact answer is e¹ ≈ 2.718. Smaller steps get closer.`]},`Two steps of Euler's method.`,`Smaller steps, more accurate, more work: that's why computers do it.`),
 Q(`How do you make Euler's method more accurate?`,[`Use smaller steps`,`Use bigger steps`,`Use fewer steps`,`Start at a different point`],0,`Smaller h, closer to the curve.`),
-W('calcDrill',{skill:'euler',need:4},`Two steps of Euler's method. Get 4 right in a row.`,`New y = old y + h × gradient, twice.`),
+W('calcDrill',{skill:'euler',need:4},`Two steps of Euler's method. Get 4 right to master it.`,`New y = old y + h × gradient, twice.`),
 T(`<h3>In the plant</h3><p>Reactor simulators, including the one in Critical's control room, step equations like these forward many times a second.</p>`),
 T(`<h3>Key points</h3><ul><li><b>Euler: y₁ = y₀ + h × gradient</b>.</li><li>Smaller steps are more accurate.</li><li>Simulators use the same idea.</li></ul>`)]),
 LH('c5-4-2','The trapezium rule',10,'Estimate an area from a table of readings, without a formula.',[
 RM(`<p>An area under a curve is an integral. Strips that fit the curve better give better estimates.</p>`),
 T(`<h3>Trapezium strips</h3><p>Real data often comes as a table of readings, not a formula. Join the points with straight lines, and each strip becomes a <b>trapezium</b>:</p><div class="eq">area ≈ (h/2)[y₀ + 2(y₁ + … + yₙ₋₁) + yₙ]</div>${KY([['h','the strip width (gap between readings)',''],['y₀, yₙ','first and last readings (counted once)',''],['y₁ … yₙ₋₁','middle readings (counted twice)','']])}`),
 W('stepCalc',{steps:[`Readings at x = 0, 1, 2, 3: y = 2, 5, 6, 3`,`h = 1`,`(1/2)[2 + 2(5 + 6) + 3]`,`= 0.5 × [2 + 22 + 3] = 0.5 × 27`,`Area ≈ <b>13.5</b>`]},`The trapezium rule, step by step.`,`Ends once, middles twice, times h/2.`),
-W('calcDrill',{skill:'trap',need:4},`Trapezium rule from tables. Get 4 right in a row.`,`(h/2)[first + 2 × middles + last].`),
+W('calcDrill',{skill:'trap',need:4},`Trapezium rule from tables. Get 4 right to master it.`,`(h/2)[first + 2 × middles + last].`),
 T(`<h3>Key points</h3><ul><li><b>Area ≈ (h/2)[first + 2 × middles + last]</b>.</li><li>Great for real readings with no formula.</li></ul>`)]),
 LH('c5-4-3','Energy from power',9,'The area under a power–time graph is energy. The last piece of the course.',[
 RM(`<p>Area under a curve = integral. Trapezium rule for tables.</p>`),
 T(`<h3>Energy is the area</h3><p>Power is the rate of producing energy: P = dE/dt. So energy is the <b>integral</b> of power over time:</p><div class="eq">E = ∫ P dt</div><p>That's the area under the power–time graph. If power is in MW and time in hours, energy comes out in <b>MWh</b>.</p>`),
-W('calcDrill',{skill:'energy',need:4},`Energy from power. Get 4 right in a row.`,`Area under the power–time graph.`),
+W('calcDrill',{skill:'energy',need:4},`Energy from power. Get 4 right to master it.`,`Area under the power–time graph.`),
 N(`Power rises steadily from 0 to 1600 MW over 4 hours. How much energy, in MWh?`,3200,0.001,'MWh',`A triangle: ½ × 4 × 1600 = 3200 MWh.`),
 T(`<h3>The full circle</h3><p>You've gone from "what is a function?" all the way to solving the equations that describe radioactive decay, reactor power and energy. Differentiation gives you rates; integration gives you totals; differential equations connect them. That's calculus.</p>`),
-W('calcDrill',{skill:['power','chain','product','intpow','defint','decay','period','euler'],need:10},`The final review: the whole course, mixed. Get 10 right in a row.`,`You've finished the calculus course.`),
+W('calcDrill',{skill:['power','chain','product','intpow','defint','decay','period','euler'],need:10},`The final review: the whole course, mixed. Get 10 right to master it.`,`You've finished the calculus course.`),
 T(`<h3>Key points</h3><ul><li><b>E = ∫ P dt</b>: energy is the area under power–time.</li><li>MW × hours = MWh.</li><li>Rates and totals are two sides of the same coin.</li></ul>`)])
 ]});
 
@@ -776,231 +818,197 @@ TT('c5-4',[x('c5-4-1',GN('euler')),x('c5-4-1',GN('euler')),x('c5-4-2',GN('trap')
 
 /* ===== calc levels end ===== */
 
-/* ===================== GCSE ENGINE: endless questions for AQA physics, AQA chemistry and Edexcel maths ===================== */
-function gM(n){var r=Math.round(n*100)/100;return r%1?r.toFixed(2):String(r)}
-function gD(n){return String(Number(Number(n).toPrecision(4))).replace(/-/g,'−')}
-function g2(n){return Math.round(n*100)/100}
-function g1(n){return Math.round(n*10)/10}
-function gFr(a,b){function gcd(x,y){x=Math.abs(x);y=Math.abs(y);while(y){var t=y;y=x%y;x=t}return x}var g=gcd(a,b);a/=g;b/=g;if(b<0){a=-a;b=-b}return b===1?cNum(a):cNum(a)+'/'+b}
-function gNuc(s,A,Z){return '<sup>'+A+'</sup><sub>'+Z+'</sub>'+s}
-/* ---------- PHYSICS (AQA 8463): g = 9.8 N/kg ---------- */
-CGEN.g_ke=function(){var m=cP([0.5,2,4,5,10,20,60,80,1200]),v=cP([2,3,4,5,6,8,10,12,15,20]),E=0.5*m*v*v;
- if(cR(0,2)<2)return {p:'An object of mass '+m+' kg moves at '+v+' m/s. Find its kinetic energy.',b:[cB(E,'E<sub>k</sub> = ','J','kinetic energy')],e:'E<sub>k</sub> = ½mv² = 0.5 × '+m+' × '+v+'² = 0.5 × '+m+' × '+(v*v)+' = '+cNum(E)+' J.'};
- return {p:'An object of mass '+m+' kg has '+cNum(E)+' J of kinetic energy. Find its speed.',b:[cB(v,'v = ','m/s','speed')],e:'Rearrange: v² = 2E<sub>k</sub> ÷ m = 2 × '+cNum(E)+' ÷ '+m+' = '+(v*v)+', so v = √'+(v*v)+' = '+v+' m/s.'}};
-CGEN.g_gpe=function(){var m=cP([2,5,10,50,60,70,1.5]),h=cP([2,5,10,12,20,25,40]),E=m*9.8*h;
- if(cR(0,2)<2)return {p:'A '+m+' kg mass is lifted '+h+' m. How much gravitational potential energy does it gain? (g = 9.8 N/kg)',b:[cB(E,'E<sub>p</sub> = ','J','energy',false,0.01)],e:'E<sub>p</sub> = mgh = '+m+' × 9.8 × '+h+' = '+cNum(E)+' J.'};
- return {p:'A '+m+' kg mass gains '+cNum(E)+' J of gravitational potential energy. How high was it lifted? (g = 9.8 N/kg)',b:[cB(h,'h = ','m','height',false,0.01)],e:'h = E<sub>p</sub> ÷ (mg) = '+cNum(E)+' ÷ ('+m+' × 9.8) = '+h+' m.'}};
-CGEN.g_epe=function(){var k=cP([20,40,50,100,200,250]),ecm=cP([2,4,5,10,20]),e=ecm/100,E=0.5*k*e*e;
- return {p:'A spring with spring constant '+k+' N/m is stretched by '+ecm+' cm. How much elastic potential energy does it store?',b:[cB(E,'E<sub>e</sub> = ','J','energy',false,0.01)],e:'Convert first: '+ecm+' cm = '+cNum(e)+' m. E<sub>e</sub> = ½ke² = 0.5 × '+k+' × '+cNum(e)+'² = '+cNum(E)+' J.'}};
-CGEN.g_shc=function(){var M=cP([['water',4200],['aluminium',900],['copper',390],['iron',450],['oil',2000]]),m=cP([0.2,0.5,1,2,0.25,1.5]),dT=cP([5,10,15,20,25,40]),E=m*M[1]*dT,t=cR(0,2);
- if(t===0)return {p:'How much energy is needed to heat '+m+' kg of '+M[0]+' by '+dT+' °C? (c = '+M[1]+' J/kg °C)',b:[cB(E,'ΔE = ','J','energy')],e:'ΔE = mcΔθ = '+m+' × '+M[1]+' × '+dT+' = '+cNum(E)+' J.'};
- if(t===1)return {p:cNum(E)+' J heats '+m+' kg of '+M[0]+'. By how much does its temperature rise? (c = '+M[1]+' J/kg °C)',b:[cB(dT,'Δθ = ','°C','temperature rise')],e:'Δθ = ΔE ÷ (mc) = '+cNum(E)+' ÷ ('+m+' × '+M[1]+') = '+dT+' °C.'};
- return {p:'It takes '+cNum(E)+' J to heat '+m+' kg of a material by '+dT+' °C. Find its specific heat capacity.',b:[cB(M[1],'c = ','J/kg °C','specific heat capacity')],e:'c = ΔE ÷ (mΔθ) = '+cNum(E)+' ÷ ('+m+' × '+dT+') = '+M[1]+' J/kg °C.'}};
-CGEN.g_power=function(){var P=cP([5,20,40,60,100,500,1200,2000,2500]),t=cP([10,20,30,60,120,300]),E=P*t,k=cR(0,2);
- if(k===0)return {p:'A device transfers '+cNum(E)+' J in '+t+' s. What is its power?',b:[cB(P,'P = ','W','power')],e:'P = E ÷ t = '+cNum(E)+' ÷ '+t+' = '+P+' W.'};
- if(k===1)return {p:'A '+P+' W device is on for '+t+' s. How much energy does it transfer?',b:[cB(E,'E = ','J','energy')],e:'E = Pt = '+P+' × '+t+' = '+cNum(E)+' J.'};
- var mn=cP([2,5,10]),E2=P*mn*60;return {p:'A '+P+' W device is on for '+mn+' minutes. How much energy does it transfer, in joules?',b:[cB(E2,'E = ','J','energy')],e:'Convert to seconds first: '+mn+' min = '+(mn*60)+' s. E = Pt = '+P+' × '+(mn*60)+' = '+cNum(E2)+' J.'}};
-CGEN.g_eff=function(){var tot=cP([200,400,500,800,1000,1200,2000,2500]),pc=cP([20,25,30,35,40,60,75,80,90]),u=tot*pc/100;
- if(cR(0,2)<2)return {p:'A machine is supplied with '+tot+' J and transfers '+cNum(u)+' J usefully. What is its efficiency, as a percentage?',b:[cB(pc,'efficiency = ','%','efficiency')],e:'Efficiency = useful output ÷ total input = '+cNum(u)+' ÷ '+tot+' = '+cNum(pc/100)+' = '+pc+'%.'};
- return {p:'A motor is '+pc+'% efficient. It is supplied with '+tot+' J. How much energy is transferred usefully?',b:[cB(u,'useful = ','J','useful energy')],e:'Useful = efficiency × total = '+cNum(pc/100)+' × '+tot+' = '+cNum(u)+' J. The other '+cNum(tot-u)+' J is wasted, mostly by heating the surroundings.'}};
-CGEN.g_charge=function(){var I=cP([0.2,0.5,1.5,2,3,4,5,10]),t=cP([10,20,30,60,120,300]),Q=I*t;
- if(cR(0,2)<2)return {p:'A current of '+I+' A flows for '+t+' s. How much charge flows?',b:[cB(Q,'Q = ','C','charge')],e:'Q = It = '+I+' × '+t+' = '+cNum(Q)+' C.'};
- return {p:cNum(Q)+' C of charge flows in '+t+' s. What is the current?',b:[cB(I,'I = ','A','current')],e:'I = Q ÷ t = '+cNum(Q)+' ÷ '+t+' = '+I+' A.'}};
-CGEN.g_vir=function(){var I=cP([0.1,0.2,0.25,0.5,1.5,2,3,4]),R=cP([2,4,5,6,10,12,20,24,50,100]),V=I*R,k=cR(0,2);
- if(k===0)return {p:'A current of '+I+' A flows through a '+R+' Ω resistor. What is the potential difference across it?',b:[cB(V,'V = ','V','potential difference')],e:'V = IR = '+I+' × '+R+' = '+cNum(V)+' V.'};
- if(k===1)return {p:'There is '+cNum(V)+' V across a '+R+' Ω resistor. What current flows?',b:[cB(I,'I = ','A','current')],e:'I = V ÷ R = '+cNum(V)+' ÷ '+R+' = '+I+' A.'};
- return {p:'A current of '+I+' A flows when there is '+cNum(V)+' V across a component. What is its resistance?',b:[cB(R,'R = ','Ω','resistance')],e:'R = V ÷ I = '+cNum(V)+' ÷ '+I+' = '+R+' Ω.'}};
-CGEN.g_pvi=function(){var I=cP([0.5,2,3,4,5,10,13]),k=cR(0,2);
- if(k===0){var V=cP([12,230,6,9]),P=V*I;return {p:'A '+V+' V supply drives a current of '+I+' A. What is the power?',b:[cB(P,'P = ','W','power')],e:'P = VI = '+V+' × '+I+' = '+cNum(P)+' W.'}}
- if(k===1){var R=cP([2,4,5,10,20]),P2=I*I*R;return {p:'A current of '+I+' A flows through a '+R+' Ω resistor. What is the power?',b:[cB(P2,'P = ','W','power')],e:'P = I²R = '+I+'² × '+R+' = '+cNum(I*I)+' × '+R+' = '+cNum(P2)+' W.'}}
- var P3=cP([60,100,460,920,1150,2300,2760,3000]),A=g2(P3/230);return {p:'A '+P3+' W appliance runs on the 230 V mains. What current does it draw? (2 decimal places)',b:[cB(A,'I = ','A','current',false,0.01)],e:'I = P ÷ V = '+P3+' ÷ 230 = '+cNum(A)+' A.'}};
-CGEN.g_eqv=function(){var Q=cP([2,5,10,20,50,100,200]),V=cP([1.5,3,6,9,12,230]),E=Q*V;
- if(cR(0,1)===0)return {p:Q+' C of charge moves through a potential difference of '+V+' V. How much energy is transferred?',b:[cB(E,'E = ','J','energy')],e:'E = QV = '+Q+' × '+V+' = '+cNum(E)+' J.'};
- return {p:cNum(E)+' J is transferred when '+Q+' C of charge flows through a component. What is the potential difference across it?',b:[cB(V,'V = ','V','p.d.')],e:'V = E ÷ Q = '+cNum(E)+' ÷ '+Q+' = '+V+' V.'}};
-CGEN.g_series=function(){var r1=cP([2,4,5,6,10]),r2=cP([3,5,10,14,15,20]),R=r1+r2,I=cP([0.2,0.5,1,2]),V=R*I,k=cR(0,2);
- if(k===0)return {p:'A '+r1+' Ω and a '+r2+' Ω resistor are in series. What is the total resistance?',b:[cB(R,'R<sub>total</sub> = ','Ω','total resistance')],e:'In series, resistances add: '+r1+' + '+r2+' = '+R+' Ω.'};
- if(k===1)return {p:'A '+r1+' Ω and a '+r2+' Ω resistor are in series with a '+cNum(V)+' V battery. What current flows?',b:[cB(I,'I = ','A','current')],e:'Total R = '+R+' Ω. I = V ÷ R = '+cNum(V)+' ÷ '+R+' = '+I+' A. The current is the same everywhere in a series circuit.'};
- return {p:'A '+r1+' Ω and a '+r2+' Ω resistor are in series with a '+cNum(V)+' V battery. What is the potential difference across the '+r1+' Ω resistor?',b:[cB(r1*I,'V = ','V','p.d.')],e:'Total R = '+R+' Ω, so I = '+cNum(V)+' ÷ '+R+' = '+I+' A. Across the '+r1+' Ω resistor: V = IR = '+I+' × '+r1+' = '+cNum(r1*I)+' V.'}};
-CGEN.g_density=function(){var k=cR(0,2);
- if(k===0){var rho=cP([1000,2700,7800,8900,11300,19300,800]),V=cP([0.001,0.002,0.005,0.01,0.02,0.5]),m=rho*V;return {p:'A block has mass '+cNum(m)+' kg and volume '+V+' m³. What is its density?',b:[cB(rho,'ρ = ','kg/m³','density')],e:'ρ = m ÷ V = '+cNum(m)+' ÷ '+V+' = '+rho+' kg/m³.'}}
- if(k===1){var r=cP([2.7,7.8,8.9,1.0,0.8,11.3,19.3]),v=cP([10,20,50,100,250]),mm=r*v;return {p:'A '+v+' cm³ sample has a density of '+r+' g/cm³. What is its mass in grams?',b:[cB(mm,'m = ','g','mass')],e:'m = ρV = '+r+' × '+v+' = '+cNum(mm)+' g.'}}
- var pr=cP([[1000,2],[1000,5],[800,4],[800,2],[2700,27],[2700,54],[1200,6]]),V2=pr[1]/pr[0];return {p:'A liquid has density '+pr[0]+' kg/m³. What volume does '+pr[1]+' kg of it take up?',b:[cB(V2,'V = ','m³','volume',false,0.01)],e:'V = m ÷ ρ = '+pr[1]+' ÷ '+pr[0]+' = '+cNum(V2)+' m³.'}};
-CGEN.g_slh=function(){var M=cP([['melt','ice','334 000',334000,'fusion'],['boil','water','2 260 000',2260000,'vaporisation']]),m=cP([0.1,0.2,0.5,0.25,2]),E=m*M[3],w=M[0]==='melt'?'melt '+m+' kg of ice at 0 °C':'turn '+m+' kg of water at 100 °C into steam';
- if(cR(0,1)===0)return {p:'How much energy is needed to '+w+'? (specific latent heat of '+M[4]+' = '+M[2]+' J/kg)',b:[cB(E,'E = ','J','energy')],e:'E = mL = '+m+' × '+M[3]+' = '+cNum(E)+' J. The temperature doesn\'t change while it '+(M[0]==='melt'?'melts':'boils')+'.'};
- return {p:'It takes '+cNum(E)+' J to '+w+'. Find the specific latent heat of '+M[4]+'.',b:[cB(M[3],'L = ','J/kg','latent heat')],e:'L = E ÷ m = '+cNum(E)+' ÷ '+m+' = '+cNum(M[3])+' J/kg.'}};
-CGEN.g_halflife=function(){var k=cR(0,2);
- if(k===0){var A0=cP([800,1600,3200,640,960,1200]),n=cR(1,4),h=cP([2,5,8,10,30]),t=n*h,A=A0/Math.pow(2,n),st=[A0];for(var i=1;i<=n;i++)st.push(A0/Math.pow(2,i));return {p:'A sample has an activity of '+A0+' Bq. Its half-life is '+h+' hours. What is its activity after '+t+' hours?',b:[cB(A,'activity = ','Bq','activity')],e:t+' hours is '+n+' half-li'+(n===1?'fe':'ves')+'. Halve it '+n+' time'+(n===1?'':'s')+': '+st.map(cNum).join(' → ')+' Bq.'}}
- if(k===1){var A1=cP([1000,1200,2400,4000]),n1=cR(2,4),h1=cP([3,6,15,20,40]),t1=n1*h1,Af=A1/Math.pow(2,n1);return {p:'The activity of a source falls from '+A1+' Bq to '+cNum(Af)+' Bq in '+t1+' minutes. What is its half-life?',b:[cB(h1,'half-life = ','min','half-life')],e:A1+' → '+cNum(Af)+' is '+n1+' halvings. '+t1+' ÷ '+n1+' = '+h1+' minutes.'}}
- var n2=cR(2,5);return {p:'What fraction of the original radioactive nuclei is left after '+n2+' half-lives? The answer is 1/?',b:[cB(Math.pow(2,n2),'1 / ','','denominator')],e:'Each half-life halves it: (½)'+cSup(n2)+' = 1/'+Math.pow(2,n2)+'.'}};
-var GNUC=[['U',238,92,'Th'],['Ra',226,88,'Rn'],['Po',210,84,'Pb'],['Am',241,95,'Np'],['Rn',222,86,'Po'],['Th',234,90,'Pa',1],['C',14,6,'N',1],['Sr',90,38,'Y',1],['I',131,53,'Xe',1],['Co',60,27,'Ni',1],['K',40,19,'Ca',1],['Cs',137,55,'Ba',1]];
-CGEN.g_decay=function(){var n=cP(GNUC),beta=!!n[4],A=beta?n[1]:n[1]-4,Z=beta?n[2]+1:n[2]-2;
- return {p:gNuc(n[0],n[1],n[2])+' decays by '+(beta?'beta':'alpha')+' emission into '+n[3]+'. Find the mass number and atomic number of the '+n[3]+' nucleus.',b:[cB(A,'mass number ','','mass number'),cB(Z,'atomic number ','','atomic number')],e:beta?'Beta decay: a neutron turns into a proton, and an electron '+gNuc('e',0,'−1')+' is emitted. The mass number stays '+n[1]+'; the atomic number goes up by 1 to '+Z+'.':'Alpha decay: a helium nucleus '+gNuc('He',4,2)+' leaves. The mass number goes down by 4 to '+A+'; the atomic number goes down by 2 to '+Z+'.'}};
-var GISO=[['C',12,6],['C',14,6],['O',16,8],['Na',23,11],['Cl',35,17],['Cl',37,17],['U',235,92],['U',238,92],['K',40,19],['Fe',56,26],['Co',60,27],['Sr',90,38]];
-CGEN.g_isotope=function(){var n=cP(GISO),k=cR(0,1);
- return {p:'How many '+(k?'neutrons':'protons')+' are in a nucleus of '+gNuc(n[0],n[1],n[2])+'?',b:[cB(k?n[1]-n[2]:n[2],'','',k?'neutrons':'protons')],e:k?'Neutrons = mass number − atomic number = '+n[1]+' − '+n[2]+' = '+(n[1]-n[2])+'.':'The atomic number (the bottom number) is the number of protons: '+n[2]+'.'}};
-CGEN.g_weight=function(){var m=cP([0.5,2,5,10,50,60,75]),W=m*9.8;
- if(cR(0,1)===0)return {p:'What is the weight of a '+m+' kg mass on Earth? (g = 9.8 N/kg)',b:[cB(W,'W = ','N','weight',false,0.01)],e:'W = mg = '+m+' × 9.8 = '+cNum(W)+' N.'};
- return {p:'An object weighs '+cNum(W)+' N on Earth. What is its mass? (g = 9.8 N/kg)',b:[cB(m,'m = ','kg','mass',false,0.01)],e:'m = W ÷ g = '+cNum(W)+' ÷ 9.8 = '+m+' kg.'}};
-CGEN.g_work=function(){var F=cP([5,10,20,50,100,250,400]),s=cP([0.5,2,3,5,10,20]),W=F*s;
- if(cR(0,2)<2)return {p:'A force of '+F+' N moves an object '+s+' m in the direction of the force. How much work is done?',b:[cB(W,'W = ','J','work done')],e:'W = Fs = '+F+' × '+s+' = '+cNum(W)+' J.'};
- return {p:cNum(W)+' J of work is done pushing a box '+s+' m. What force was used?',b:[cB(F,'F = ','N','force')],e:'F = W ÷ s = '+cNum(W)+' ÷ '+s+' = '+F+' N.'}};
-CGEN.g_hooke=function(){var k=cP([20,25,40,50,80,100,200]),ecm=cP([2,4,5,8,10,15]),e=ecm/100,F=k*e;
- if(cR(0,2)<2)return {p:'A spring has spring constant '+k+' N/m. What force stretches it by '+ecm+' cm?',b:[cB(F,'F = ','N','force')],e:'Convert: '+ecm+' cm = '+cNum(e)+' m. F = ke = '+k+' × '+cNum(e)+' = '+cNum(F)+' N.'};
- return {p:'A force of '+cNum(F)+' N stretches a spring by '+ecm+' cm. What is its spring constant?',b:[cB(k,'k = ','N/m','spring constant')],e:'Convert: '+ecm+' cm = '+cNum(e)+' m. k = F ÷ e = '+cNum(F)+' ÷ '+cNum(e)+' = '+k+' N/m.'}};
-CGEN.g_speed=function(){var v=cP([2,4,5,8,10,12,15,20,25,30]),t=cP([5,10,20,30,60,120]),s=v*t,k=cR(0,2);
- if(k===0)return {p:'A car travels '+s+' m in '+t+' s. What is its average speed?',b:[cB(v,'v = ','m/s','speed')],e:'v = s ÷ t = '+s+' ÷ '+t+' = '+v+' m/s.'};
- if(k===1)return {p:'A cyclist rides at '+v+' m/s for '+t+' s. How far do they go?',b:[cB(s,'s = ','m','distance')],e:'s = vt = '+v+' × '+t+' = '+s+' m.'};
- return {p:'How long does it take to travel '+s+' m at '+v+' m/s?',b:[cB(t,'t = ','s','time')],e:'t = s ÷ v = '+s+' ÷ '+v+' = '+t+' s.'}};
-CGEN.g_accel=function(){var u=cP([0,0,2,5,10]),a=cP([0.5,1,2,2.5,3,4,5]),t=cP([2,4,5,6,8,10]),v=u+a*t;
- if(cR(0,2)<2)return {p:'A car speeds up from '+u+' m/s to '+cNum(v)+' m/s in '+t+' s. What is its acceleration?',b:[cB(a,'a = ','m/s²','acceleration')],e:'a = Δv ÷ t = ('+cNum(v)+' − '+u+') ÷ '+t+' = '+cNum(v-u)+' ÷ '+t+' = '+a+' m/s².'};
- return {p:'A train starts at '+u+' m/s and accelerates at '+a+' m/s² for '+t+' s. What is its final speed?',b:[cB(v,'v = ','m/s','final speed')],e:'Δv = at = '+a+' × '+t+' = '+cNum(a*t)+' m/s. Final speed = '+u+' + '+cNum(a*t)+' = '+cNum(v)+' m/s.'}};
-CGEN.g_suvat=function(){if(cR(0,1)===0){var u=cP([0,0,0,2,4,10]),a=cP([1,2,4,5,0.5]),s=cP([4,8,10,16,25,50]),v2=u*u+2*a*s,v=g2(Math.sqrt(v2));
-  return {p:'An object starts at '+u+' m/s and accelerates at '+a+' m/s² over '+s+' m. What is its final speed? (2 decimal places)',b:[cB(v,'v = ','m/s','final speed',false,0.01)],e:'v² − u² = 2as, so v² = '+u+'² + 2 × '+a+' × '+s+' = '+cNum(v2)+'. v = √'+cNum(v2)+' = '+cNum(v)+' m/s.'}}
- var V=cP([10,12,20,30]),S2=cP([20,25,40,50,100]),A=g2(V*V/(2*S2));return {p:'A car braking from '+V+' m/s stops in '+S2+' m. What is its deceleration? (2 decimal places)',b:[cB(A,'deceleration = ','m/s²','deceleration',false,0.01)],e:'Final speed v = 0. v² − u² = 2as, so 0 − '+V+'² = 2 × a × '+S2+'. a = −'+(V*V)+' ÷ '+(2*S2)+' = −'+cNum(A)+' m/s². That\'s a deceleration of '+cNum(A)+' m/s².'}};
-CGEN.g_fma=function(){var m=cP([0.5,2,5,10,60,800,1200,1500]),a=cP([0.5,1,2,3,4,5]),F=m*a,k=cR(0,2);
- if(k===0)return {p:'What resultant force gives a '+m+' kg mass an acceleration of '+a+' m/s²?',b:[cB(F,'F = ','N','force')],e:'F = ma = '+m+' × '+a+' = '+cNum(F)+' N.'};
- if(k===1)return {p:'A resultant force of '+cNum(F)+' N acts on a '+m+' kg mass. What is its acceleration?',b:[cB(a,'a = ','m/s²','acceleration')],e:'a = F ÷ m = '+cNum(F)+' ÷ '+m+' = '+a+' m/s².'};
- var fr=cP([50,100,200]),f1=F+fr;return {p:'A '+m+' kg object is pushed with '+cNum(f1)+' N against '+fr+' N of friction. What is its acceleration?',b:[cB(a,'a = ','m/s²','acceleration')],e:'Resultant force = '+cNum(f1)+' − '+fr+' = '+cNum(F)+' N. a = F ÷ m = '+cNum(F)+' ÷ '+m+' = '+a+' m/s².'}};
-CGEN.g_mom=function(){var k=cR(0,2);
- if(k<2){var m=cP([0.2,0.5,2,5,70,1000,1200]),v=cP([2,3,4,5,10,15,20]),p=m*v;return k===0?{p:'Find the momentum of a '+m+' kg object moving at '+v+' m/s.',b:[cB(p,'p = ','kg m/s','momentum')],e:'p = mv = '+m+' × '+v+' = '+cNum(p)+' kg m/s.'}:{p:'A '+m+' kg object has a momentum of '+cNum(p)+' kg m/s. How fast is it moving?',b:[cB(v,'v = ','m/s','speed')],e:'v = p ÷ m = '+cNum(p)+' ÷ '+m+' = '+v+' m/s.'}}
- var m1=cP([1000,1200,2000]),v1=cP([6,10,12]),m2=cP([800,1000,2000]),vf=g2(m1*v1/(m1+m2));return {p:'A '+m1+' kg car moving at '+v1+' m/s hits a stationary '+m2+' kg car. They stick together. How fast do they move just after? (2 decimal places)',b:[cB(vf,'v = ','m/s','speed',false,0.01)],e:'Momentum is conserved. Before: '+m1+' × '+v1+' = '+(m1*v1)+' kg m/s. After: ('+m1+' + '+m2+') × v. So v = '+(m1*v1)+' ÷ '+(m1+m2)+' = '+cNum(vf)+' m/s.'}};
-CGEN.g_wave=function(){var k=cR(0,3);
- if(k===0){var f=cP([2,5,10,50,100,256,500]),l=cP([0.5,1.2,2,3,0.34,0.68]),v=f*l;return {p:'A wave has frequency '+f+' Hz and wavelength '+l+' m. What is its speed?',b:[cB(v,'v = ','m/s','wave speed')],e:'v = fλ = '+f+' × '+l+' = '+cNum(v)+' m/s.'}}
- if(k===1){var f1=cP([85,170,340,680,850,1700]),l1=340/f1;return {p:'Sound travels at 340 m/s. What is the wavelength of a '+f1+' Hz sound?',b:[cB(l1,'λ = ','m','wavelength')],e:'λ = v ÷ f = 340 ÷ '+f1+' = '+cNum(l1)+' m.'}}
- if(k===2){var f2=cP([2,4,5,10,20,50]);return {p:'A wave has a frequency of '+f2+' Hz. What is its period?',b:[cB(1/f2,'T = ','s','period')],e:'T = 1 ÷ f = 1 ÷ '+f2+' = '+cNum(1/f2)+' s.'}}
- var pr=cP([[2,0.5],[3,0.25],[1.5,0.5],[2,0.25],[3,1.5]]);return {p:'Water waves travel at '+pr[0]+' m/s with a wavelength of '+pr[1]+' m. What is their frequency?',b:[cB(pr[0]/pr[1],'f = ','Hz','frequency')],e:'f = v ÷ λ = '+pr[0]+' ÷ '+pr[1]+' = '+cNum(pr[0]/pr[1])+' Hz.'}};
-CGEN.g_pressure=function(){var F=cP([200,500,600,1000,1200]),A=cP([0.5,2,0.25,0.01,0.02]),p=F/A;
- if(cR(0,1)===0)return {p:'A force of '+F+' N acts on an area of '+A+' m². What is the pressure?',b:[cB(p,'p = ','Pa','pressure')],e:'p = F ÷ A = '+F+' ÷ '+A+' = '+cNum(p)+' Pa.'};
- return {p:'A pressure of '+cNum(p)+' Pa acts on an area of '+A+' m². What force does it exert?',b:[cB(F,'F = ','N','force')],e:'F = pA = '+cNum(p)+' × '+A+' = '+F+' N.'}};
-CGEN.g_moment=function(){if(cR(0,1)===0){var F=cP([5,10,20,40,50,200]),d=cP([0.1,0.2,0.25,0.5,1.5,2]);return {p:'A force of '+F+' N acts '+d+' m from a pivot, at right angles. What is its moment?',b:[cB(F*d,'M = ','N m','moment')],e:'M = Fd = '+F+' × '+d+' = '+cNum(F*d)+' N m.'}}
- var F1=cP([200,300,400,600]),d1=cP([1,1.5,2]),d2=cP([2,3,4,6]),F2=F1*d1/d2;return {p:'On a seesaw, a '+F1+' N child sits '+d1+' m from the pivot. How far away from the pivot does a '+cNum(F2)+' N child need to sit on the other side to balance it?',b:[cB(d2,'d = ','m','distance')],e:'Balanced: clockwise moment = anticlockwise moment. '+F1+' × '+d1+' = '+cNum(F2)+' × d, so d = '+cNum(F1*d1)+' ÷ '+cNum(F2)+' = '+d2+' m.'}};
-CGEN.g_flhs=function(){var B=cP([0.05,0.1,0.2,0.5]),I=cP([2,3,5,10]),L=cP([0.05,0.1,0.2,0.5]),F=B*I*L;
- if(cR(0,1)===0)return {p:'A wire '+L+' m long carries '+I+' A at right angles to a '+B+' T magnetic field. What force acts on it?',b:[cB(F,'F = ','N','force')],e:'F = BIL = '+B+' × '+I+' × '+L+' = '+cNum(F)+' N.'};
- return {p:'A '+L+' m wire carrying '+I+' A at right angles to a magnetic field feels a force of '+cNum(F)+' N. What is the magnetic flux density?',b:[cB(B,'B = ','T','flux density')],e:'B = F ÷ (IL) = '+cNum(F)+' ÷ ('+I+' × '+L+') = '+B+' T.'}};
-CGEN.g_trans=function(){var np=cP([100,200,500,1000,2000]),r=cP([2,4,5,10,20]),up=Math.random()<0.5,ns=up?np*r:np/r,Vp=cP([230,11,400]),Vs=Vp*ns/np;
- if(cR(0,1)===0)return {p:'A transformer has '+np+' turns on the primary coil and '+cNum(ns)+' on the secondary. The input is '+Vp+' V. What is the output voltage?',b:[cB(Vs,'V<sub>s</sub> = ','V','output voltage')],e:'V<sub>p</sub> ÷ V<sub>s</sub> = n<sub>p</sub> ÷ n<sub>s</sub>, so V<sub>s</sub> = '+Vp+' × '+cNum(ns)+' ÷ '+np+' = '+cNum(Vs)+' V. It\'s a step-'+(up?'up':'down')+' transformer.'};
- var Ip=cP([1,2,5]),Is=Vp*Ip/Vs;return {p:'A 100% efficient transformer takes '+Ip+' A at '+Vp+' V and gives an output of '+cNum(Vs)+' V. What is the output current?',b:[cB(Is,'I<sub>s</sub> = ','A','output current')],e:'Power in = power out: V<sub>p</sub>I<sub>p</sub> = V<sub>s</sub>I<sub>s</sub>. I<sub>s</sub> = '+Vp+' × '+Ip+' ÷ '+cNum(Vs)+' = '+cNum(Is)+' A.'}};
-CGEN.g_stop=function(){var v=cP([10,15,20,25,30]),rt=cP([0.5,0.6,0.7,0.8,1.2]),bd=cP([10,15,20,30,40,60]),td=v*rt;
- if(cR(0,1)===0)return {p:'A driver\'s reaction time is '+rt+' s. How far does the car travel at '+v+' m/s before the brakes come on? (the thinking distance)',b:[cB(td,'thinking distance = ','m','distance')],e:'Thinking distance = speed × reaction time = '+v+' × '+rt+' = '+cNum(td)+' m.'};
- return {p:'At '+v+' m/s a driver with a '+rt+' s reaction time has a braking distance of '+bd+' m. What is the stopping distance?',b:[cB(td+bd,'stopping distance = ','m','distance')],e:'Thinking distance = '+v+' × '+rt+' = '+cNum(td)+' m. Stopping distance = thinking + braking = '+cNum(td)+' + '+bd+' = '+cNum(td+bd)+' m.'}};
-CGEN.g_resultant=function(){var t=cP([[3,4,5],[6,8,10],[5,12,13],[9,12,15],[8,15,17],[30,40,50]]);
- if(cR(0,1)===0)return {p:'Two forces act on an object at right angles: '+t[0]+' N east and '+t[1]+' N north. What is the size of the resultant force?',b:[cB(t[2],'resultant = ','N','resultant')],e:'At right angles, use Pythagoras (or a scale drawing): √('+t[0]+'² + '+t[1]+'²) = √'+(t[0]*t[0]+t[1]*t[1])+' = '+t[2]+' N.'};
- var a=cP([5,10,20,50]),b=cP([5,10,15,30]),same=Math.random()<0.5;return {p:'Forces of '+a+' N and '+b+' N act on an object '+(same?'in the same direction':'in opposite directions')+'. What is the size of the resultant force?',b:[cB(same?a+b:Math.abs(a-b),'resultant = ','N','resultant')],e:same?'Same direction: add them. '+a+' + '+b+' = '+(a+b)+' N.':'Opposite directions: subtract. '+Math.max(a,b)+' − '+Math.min(a,b)+' = '+Math.abs(a-b)+' N'+(a===b?', so the forces are balanced.':' in the direction of the bigger force.')}};
-/* harder, multi-step physics */
-CGEN.g_kegpe=function(){var h=cP([1.8,5,10,20,45,80]),v=g2(Math.sqrt(2*9.8*h));
- return {p:'A ball is dropped from '+h+' m. Ignoring air resistance, how fast is it going when it hits the ground? (g = 9.8 N/kg, 2 decimal places)',b:[cB(v,'v = ','m/s','speed',false,0.01)],e:'All the gravitational potential energy becomes kinetic: mgh = ½mv². The mass cancels, so v = √(2gh) = √(2 × 9.8 × '+h+') = '+cNum(v)+' m/s.'}};
-CGEN.g_heat=function(){var P=cP([2000,2400,3000]),t=cP([60,90,120,150,180]),m=cP([0.5,1,1.5]),T1=cP([12,15,18,20]),dT=g1(P*t/(m*4200));
- return {p:'A '+P+' W kettle heats '+m+' kg of water at '+T1+' °C for '+t+' s. Assuming all the energy heats the water, what is the final temperature? (c = 4200 J/kg °C, 1 decimal place)',b:[cB(g1(T1+dT),'T = ','°C','temperature',false,0.005)],e:'Energy = Pt = '+P+' × '+t+' = '+cNum(P*t)+' J. Δθ = E ÷ (mc) = '+cNum(P*t)+' ÷ ('+m+' × 4200) = '+cNum(dT)+' °C. Final = '+T1+' + '+cNum(dT)+' = '+cNum(g1(T1+dT))+' °C.'}};
-CGEN.g_cost=function(){var P=cP([0.5,1.2,2,2.5,3,9]),h=cP([0.5,1.5,2,3,4]),c=cP([24,28,30,34]),kWh=P*h,cost=kWh*c/100;
- return {p:'A '+P+' kW appliance is used for '+h+' hours. Electricity costs '+c+'p per kWh. How much does it cost, in pounds?',b:[cB(g2(cost),'£','','cost',false,0.01)],e:'Energy = P × t = '+P+' kW × '+h+' h = '+cNum(kWh)+' kWh. Cost = '+cNum(kWh)+' × '+c+'p = '+cNum(kWh*c)+'p = £'+gM(cost)+'.'}};
-CGEN.g_boyle=function(){var p1=cP([100,120,150,200]),V1=cP([2,3,4,6]),f=cP([2,3,4,0.5]),V2=V1/f,p2=p1*f;
- return {p:'A gas at '+p1+' kPa has a volume of '+V1+' dm³. It is squashed to '+cNum(V2)+' dm³ at constant temperature. What is its new pressure?',b:[cB(p2,'p = ','kPa','pressure')],e:'At constant temperature, pV = constant. '+p1+' × '+V1+' = p × '+cNum(V2)+', so p = '+(p1*V1)+' ÷ '+cNum(V2)+' = '+cNum(p2)+' kPa.'}};
-CGEN.g_brake=function(){var m=cP([800,1000,1200,1500]),v=cP([10,15,20,25]),d=cP([20,25,40,50]),F=0.5*m*v*v/d;
- return {p:'A '+m+' kg car travelling at '+v+' m/s brakes to a stop in '+d+' m. What is the average braking force?',b:[cB(F,'F = ','N','braking force',false,0.01)],e:'The brakes do work equal to the kinetic energy: Fd = ½mv². E<sub>k</sub> = 0.5 × '+m+' × '+v+'² = '+cNum(0.5*m*v*v)+' J. F = '+cNum(0.5*m*v*v)+' ÷ '+d+' = '+cNum(F)+' N.'}};
-CGEN.g_lift=function(){var m=cP([20,50,60,80,100]),h=cP([2,3,5,10]),t=cP([2,4,5,8,10]),P=m*9.8*h/t;
- return {p:'A motor lifts a '+m+' kg load '+h+' m in '+t+' s. What useful power does it develop? (g = 9.8 N/kg)',b:[cB(P,'P = ','W','power',false,0.01)],e:'Energy gained = mgh = '+m+' × 9.8 × '+h+' = '+cNum(m*9.8*h)+' J. P = E ÷ t = '+cNum(m*9.8*h)+' ÷ '+t+' = '+cNum(P)+' W.'}};
-/* ---------- CHEMISTRY (AQA 8462) ---------- */
-var GAR={H:1,C:12,N:14,O:16,Na:23,Mg:24,Al:27,S:32,Cl:35.5,K:39,Ca:40,Fe:56,Cu:63.5,Zn:65,Br:80};
-var GCMP=[['H₂O',{H:2,O:1}],['CO₂',{C:1,O:2}],['NaCl',{Na:1,Cl:1}],['MgO',{Mg:1,O:1}],['CaCO₃',{Ca:1,C:1,O:3}],['H₂SO₄',{H:2,S:1,O:4}],['NaOH',{Na:1,O:1,H:1}],['HCl',{H:1,Cl:1}],['CH₄',{C:1,H:4}],['NH₃',{N:1,H:3}],['C₂H₆',{C:2,H:6}],['C₂H₅OH',{C:2,H:6,O:1}],['Al₂O₃',{Al:2,O:3}],['Fe₂O₃',{Fe:2,O:3}],['CuSO₄',{Cu:1,S:1,O:4}],['MgCl₂',{Mg:1,Cl:2}],['Na₂CO₃',{Na:2,C:1,O:3}],['KCl',{K:1,Cl:1}],['Ca(OH)₂',{Ca:1,O:2,H:2}],['CuO',{Cu:1,O:1}],['ZnO',{Zn:1,O:1}],['HNO₃',{H:1,N:1,O:3}],['Mg(OH)₂',{Mg:1,O:2,H:2}],['(NH₄)₂SO₄',{N:2,H:8,S:1,O:4}],['CaO',{Ca:1,O:1}],['KBr',{K:1,Br:1}]];
-function gMr(c){var s=0;for(var e in c[1])s+=GAR[e]*c[1][e];return s}
-function gMrWork(c){var a=[];for(var e in c[1])a.push((c[1][e]>1?c[1][e]+' × ':'')+GAR[e]);return a.join(' + ')}
-CGEN.g_mr=function(){var c=cP(GCMP),M=gMr(c);return {p:'Work out the relative formula mass, M<sub>r</sub>, of '+c[0]+'. (A<sub>r</sub>: '+Object.keys(c[1]).map(function(e){return e+' = '+GAR[e]}).join(', ')+')',b:[cB(M,'M<sub>r</sub> = ','','Mr')],e:'Add up the A<sub>r</sub> of every atom: '+gMrWork(c)+' = '+cNum(M)+'.'+(c[0].indexOf('(')>=0?' Everything inside the brackets is multiplied by the number after them.':'')}};
-CGEN.g_pcmass=function(){var c=cP(GCMP.filter(function(x){return Object.keys(x[1]).length>1})),els=Object.keys(c[1]),e=cP(els),M=gMr(c),part=GAR[e]*c[1][e],pc=g1(part/M*100);
- return {p:'What is the percentage by mass of '+e+' in '+c[0]+'? (M<sub>r</sub> = '+cNum(M)+', A<sub>r</sub> of '+e+' = '+GAR[e]+', 1 decimal place)',b:[cB(pc,'','%','percentage',false,0.005)],e:'% = (A<sub>r</sub> × number of atoms) ÷ M<sub>r</sub> × 100 = ('+GAR[e]+' × '+c[1][e]+') ÷ '+cNum(M)+' × 100 = '+cNum(pc)+'%.'}};
-CGEN.g_moles=function(){var c=cP(GCMP),M=gMr(c),n=cP([0.1,0.2,0.25,0.5,2,3]),m=n*M;
- if(cR(0,1)===0)return {p:'How many moles are in '+cNum(m)+' g of '+c[0]+'? (M<sub>r</sub> = '+cNum(M)+')',b:[cB(n,'','mol','moles')],e:'Moles = mass ÷ M<sub>r</sub> = '+cNum(m)+' ÷ '+cNum(M)+' = '+n+' mol.'};
- return {p:'What is the mass of '+n+' mol of '+c[0]+'? (M<sub>r</sub> = '+cNum(M)+')',b:[cB(m,'','g','mass')],e:'Mass = moles × M<sub>r</sub> = '+n+' × '+cNum(M)+' = '+cNum(m)+' g.'}};
-CGEN.g_conc=function(){var k=cR(0,2);
- if(k===0){var m=cP([2,4,5,10,12.5,20]),v=cP([100,200,250,500]),c=m/(v/1000);return {p:cNum(m)+' g of solute is dissolved to make '+v+' cm³ of solution. What is the concentration in g/dm³?',b:[cB(c,'','g/dm³','concentration')],e:'Convert: '+v+' cm³ = '+cNum(v/1000)+' dm³. Concentration = mass ÷ volume = '+cNum(m)+' ÷ '+cNum(v/1000)+' = '+cNum(c)+' g/dm³.'}}
- if(k===1){var n=cP([0.01,0.02,0.05,0.1,0.25]),v1=cP([100,200,250,500]),c1=n/(v1/1000);return {p:n+' mol of solute is dissolved to make '+v1+' cm³ of solution. What is the concentration in mol/dm³?',b:[cB(c1,'','mol/dm³','concentration')],e:'Convert: '+v1+' cm³ = '+cNum(v1/1000)+' dm³. Concentration = moles ÷ volume = '+n+' ÷ '+cNum(v1/1000)+' = '+cNum(c1)+' mol/dm³.'}}
- var c2=cP([0.1,0.2,0.5,1,2]),v2=cP([25,50,100,250]),n2=c2*v2/1000;return {p:'How many moles are in '+v2+' cm³ of a '+c2+' mol/dm³ solution?',b:[cB(n2,'','mol','moles')],e:'Moles = concentration × volume in dm³ = '+c2+' × ('+v2+' ÷ 1000) = '+cNum(n2)+' mol.'}};
-var GRX=[['2Mg + O₂ → 2MgO','Mg',24,'MgO',40,1],['CaCO₃ → CaO + CO₂','CaCO₃',100,'CaO',56,1],['CaCO₃ → CaO + CO₂','CaCO₃',100,'CO₂',44,1],['2Na + Cl₂ → 2NaCl','Na',23,'NaCl',58.5,1],['Fe₂O₃ + 3CO → 2Fe + 3CO₂','Fe₂O₃',160,'Fe',56,2],['2H₂ + O₂ → 2H₂O','H₂',2,'H₂O',18,1],['CH₄ + 2O₂ → CO₂ + 2H₂O','CH₄',16,'CO₂',44,1],['CH₄ + 2O₂ → CO₂ + 2H₂O','CH₄',16,'H₂O',18,2],['Zn + 2HCl → ZnCl₂ + H₂','Zn',65,'H₂',2,1],['N₂ + 3H₂ → 2NH₃','N₂',28,'NH₃',17,2],['2Al₂O₃ → 4Al + 3O₂','Al₂O₃',102,'Al',27,2]];
-CGEN.g_react=function(){var r=cP(GRX),n=cP([0.1,0.2,0.25,0.5,2]),m=n*r[2],np=n*r[5],mp=np*r[4];
- return {p:r[0]+'<br>What mass of '+r[3]+' is made from '+cNum(m)+' g of '+r[1]+'? (M<sub>r</sub>: '+r[1]+' = '+r[2]+', '+r[3]+' = '+r[4]+')',b:[cB(mp,'','g','mass')],e:'1) Moles of '+r[1]+' = '+cNum(m)+' ÷ '+r[2]+' = '+cNum(n)+' mol. 2) Ratio '+r[1]+' : '+r[3]+' = 1 : '+r[5]+', so moles of '+r[3]+' = '+cNum(np)+' mol. 3) Mass = '+cNum(np)+' × '+r[4]+' = '+cNum(mp)+' g.'}};
-CGEN.g_yield=function(){var th=cP([10,20,25,40,50,80]),pc=cP([45,60,65,72,80,85,90]),act=th*pc/100;
- return {p:'A reaction could make '+th+' g of product in theory, but only '+cNum(act)+' g is made. What is the percentage yield?',b:[cB(pc,'','%','percentage yield')],e:'Percentage yield = actual ÷ theoretical × 100 = '+cNum(act)+' ÷ '+th+' × 100 = '+pc+'%.'}};
-var GAE=[['CaCO₃ → CaO + CO₂','CaO',56,[100]],['2H₂O₂ → 2H₂O + O₂','O₂',32,[68]],['C₆H₁₂O₆ → 2C₂H₅OH + 2CO₂','C₂H₅OH',92,[180]],['N₂ + 3H₂ → 2NH₃','NH₃',34,[28,6]],['Fe₂O₃ + 3CO → 2Fe + 3CO₂','Fe',112,[160,84]],['CH₄ + H₂O → CO + 3H₂','H₂',6,[16,18]],['C₂H₄ + H₂O → C₂H₅OH','C₂H₅OH',46,[28,18]]];
-CGEN.g_atomecon=function(){var r=cP(GAE),tot=r[3].reduce(function(a,b){return a+b},0),ae=g1(r[2]/tot*100);
- return {p:r[0]+'<br>Work out the atom economy for making '+r[1]+'. (Total M<sub>r</sub> of the reactants, counting the numbers in front = '+tot+'; M<sub>r</sub> of the '+r[1]+' made, counting the number in front = '+r[2]+'. 1 decimal place)',b:[cB(ae,'','%','atom economy',false,0.005)],e:'Atom economy = M<sub>r</sub> of useful product ÷ total M<sub>r</sub> of reactants × 100 = '+r[2]+' ÷ '+tot+' × 100 = '+cNum(ae)+'%.'+(ae===100?' Only one product, so nothing is wasted.':'')}};
-var GBAL=[[['H₂','O₂'],['H₂O'],[2,1,2]],[['Mg','O₂'],['MgO'],[2,1,2]],[['Na','Cl₂'],['NaCl'],[2,1,2]],[['CH₄','O₂'],['CO₂','H₂O'],[1,2,1,2]],[['Fe','Cl₂'],['FeCl₃'],[2,3,2]],[['Al','O₂'],['Al₂O₃'],[4,3,2]],[['N₂','H₂'],['NH₃'],[1,3,2]],[['Zn','HCl'],['ZnCl₂','H₂'],[1,2,1,1]],[['C₂H₆','O₂'],['CO₂','H₂O'],[2,7,4,6]],[['Fe₂O₃','CO'],['Fe','CO₂'],[1,3,2,3]],[['NaOH','H₂SO₄'],['Na₂SO₄','H₂O'],[2,1,1,2]],[['Ca','H₂O'],['Ca(OH)₂','H₂'],[1,2,1,1]],[['C₃H₈','O₂'],['CO₂','H₂O'],[1,5,3,4]]];
-CGEN.g_balance=function(){var q=cP(GBAL),f=q[0].concat(q[1]),nR=q[0].length,b=f.map(function(s,i){return cB(q[2][i],'',s+(i===nR-1?' →':i<f.length-1?' +':''),'number in front of '+s)});
- var ans=f.map(function(s,i){return (q[2][i]>1?q[2][i]:'')+s});return {pos:1,p:'Balance the equation. Type 1 where no number is needed.',b:b,e:'Balanced: '+ans.slice(0,nR).join(' + ')+' → '+ans.slice(nR).join(' + ')+'. Count each type of atom on both sides: they must match. Only change the big numbers in front, never the small ones in a formula.'}};
-CGEN.g_rate=function(){var k=cR(0,1),t=cP([10,20,30,40,50,60,120]);
- if(k===0){var r=cP([0.5,1,1.5,2,2.5]),v=r*t;return {p:cNum(v)+' cm³ of gas is collected in '+t+' s. What is the mean rate of reaction?',b:[cB(r,'','cm³/s','rate')],e:'Mean rate = amount of product ÷ time = '+cNum(v)+' ÷ '+t+' = '+r+' cm³/s.'}}
- var r2=cP([0.01,0.02,0.05,0.1]),m=r2*t;return {p:'A flask loses '+cNum(m)+' g of mass as gas escapes over '+t+' s. What is the mean rate of reaction?',b:[cB(r2,'','g/s','rate')],e:'Mean rate = mass lost ÷ time = '+cNum(m)+' ÷ '+t+' = '+r2+' g/s.'}};
-CGEN.g_rf=function(){var s=cP([5,8,10,12.5]),f=cP([0.2,0.3,0.4,0.5,0.6,0.75,0.8]),d=g1(s*f),rf=g2(d/s);
- return {p:'In paper chromatography, the solvent moves '+s+' cm and a spot moves '+cNum(d)+' cm. What is the R<sub>f</sub> value? (2 decimal places)',b:[cB(rf,'R<sub>f</sub> = ','','Rf',false,0.01)],e:'R<sub>f</sub> = distance moved by substance ÷ distance moved by solvent = '+cNum(d)+' ÷ '+s+' = '+cNum(rf)+'. It\'s always less than 1.'}};
-var GBE=[['H₂ + Cl₂ → 2HCl','H–H 436, Cl–Cl 243, H–Cl 432','436 + 243 = 679','2 × 432 = 864',-185],['2H₂ + O₂ → 2H₂O','H–H 436, O=O 498, O–H 464','2 × 436 + 498 = 1370','4 × 464 = 1856',-486],['CH₄ + 2O₂ → CO₂ + 2H₂O','C–H 413, O=O 498, C=O 805, O–H 464','4 × 413 + 2 × 498 = 2648','2 × 805 + 4 × 464 = 3466',-818],['N₂ + 3H₂ → 2NH₃','N≡N 945, H–H 436, N–H 391','945 + 3 × 436 = 2253','6 × 391 = 2346',-93],['H₂ + Br₂ → 2HBr','H–H 436, Br–Br 193, H–Br 366','436 + 193 = 629','2 × 366 = 732',-103],['2HI → H₂ + I₂','H–I 298, H–H 436, I–I 151','2 × 298 = 596','436 + 151 = 587',9]];
-CGEN.g_bond=function(){var r=cP(GBE);return {p:r[0]+'<br>Bond energies in kJ/mol: '+r[1]+'. Work out the overall energy change, in kJ/mol. (Use a minus sign if it\'s exothermic.)',b:[cB(r[4],'','kJ/mol','energy change')],e:'Energy in to break bonds: '+r[2]+'. Energy out making bonds: '+r[3]+'. Change = in − out = '+cNum(r[4])+' kJ/mol, so it\'s '+(r[4]<0?'exothermic':'endothermic')+'.'}};
-CGEN.g_gasvol=function(){var n=cP([0.1,0.25,0.5,2,0.05]),k=cR(0,1);
- if(k===0)return {p:'What volume does '+n+' mol of any gas take up at room temperature and pressure? (1 mol of gas = 24 dm³)',b:[cB(n*24,'','dm³','volume')],e:'Volume = moles × 24 = '+n+' × 24 = '+cNum(n*24)+' dm³.'};
- var V=n*24000;return {p:'How many moles of gas are in '+cNum(V)+' cm³ at room temperature and pressure? (1 mol of gas = 24 dm³ = 24 000 cm³)',b:[cB(n,'','mol','moles')],e:'Moles = volume ÷ 24 000 = '+cNum(V)+' ÷ 24 000 = '+n+' mol.'}};
-CGEN.g_titr=function(){var cb=cP([0.1,0.2,0.5]),vb=cP([20,22.5,25,12.5]),va=25,ratio=cP([1,2]),na=cb*vb/1000/ratio,ca=na/(va/1000);
- return {p:(ratio===1?'NaOH + HCl → NaCl + H₂O':'2NaOH + H₂SO₄ → Na₂SO₄ + 2H₂O')+'<br>'+vb+' cm³ of '+cb+' mol/dm³ NaOH neutralises 25.0 cm³ of '+(ratio===1?'HCl':'H₂SO₄')+'. What is the concentration of the acid in mol/dm³? (3 decimal places)',b:[cB(Math.round(ca*1000)/1000,'','mol/dm³','concentration',false,0.01)],e:'1) Moles of NaOH = '+cb+' × '+vb+' ÷ 1000 = '+gD(cb*vb/1000)+' mol. 2) Ratio NaOH : acid = '+ratio+' : 1, so moles of acid = '+gD(na)+' mol. 3) Concentration = '+gD(na)+' ÷ 0.025 = '+cNum(Math.round(ca*1000)/1000)+' mol/dm³.'}};
-var GEL=[['H',1],['He',2],['Li',3],['Be',4],['B',5],['C',6],['N',7],['O',8],['F',9],['Ne',10],['Na',11],['Mg',12],['Al',13],['Si',14],['P',15],['S',16],['Cl',17],['Ar',18],['K',19],['Ca',20]];
-function gCfg(z){var s=[],c=[2,8,8,2];for(var i=0;i<4&&z>0;i++){var k=Math.min(z,c[i]);s.push(k);z-=k}return s.join(',')}
-CGEN.g_config=function(){var e=cP(GEL.slice(2)),c=gCfg(e[1]),parts=c.split(',').map(Number),wrong=[];
- wrong.push(gCfg(e[1]+1));wrong.push(gCfg(Math.max(1,e[1]-1)));var alt=parts.slice();if(alt.length>1){alt[0]=alt[0]+1;alt[alt.length-1]=alt[alt.length-1]-1;if(alt[alt.length-1]===0)alt.pop()}wrong.push(alt.join(','));
- if(parts.length>1){var a2=parts.slice();a2[1]=a2[1]+(a2.length>2?1:0);if(a2.length>2){a2[2]=a2[2]-1;if(!a2[2])a2.pop()}wrong.push(a2.join(','))}wrong.push(parts.slice().reverse().join(','));
- var o=[c];wrong.forEach(function(w){if(w&&o.indexOf(w)<0&&o.length<4)o.push(w)});while(o.length<4)o.push(gCfg(e[1]+o.length));
- return {p:'What is the electronic structure of '+e[0]+' (atomic number '+e[1]+')?',o:o,e:'Fill the shells in order: 2 in the first, then up to 8 in the second, then 8 in the third. '+e[1]+' electrons: '+c+'. The number of shells is the period; the number in the outer shell is the group (for groups 1 to 7).'}};
-var GION=[['Na⁺',11,23,1],['Mg²⁺',12,24,2],['Al³⁺',13,27,3],['K⁺',19,39,1],['Ca²⁺',20,40,2],['Cl⁻',17,35,-1],['O²⁻',8,16,-2],['F⁻',9,19,-1],['S²⁻',16,32,-2],['Li⁺',3,7,1]];
-CGEN.g_atom=function(){var k=cR(0,3);
- if(k<2){var e=cP(GISO);return k===0?{p:'How many neutrons are in an atom of '+gNuc(e[0],e[1],e[2])+'?',b:[cB(e[1]-e[2],'','','neutrons')],e:'Neutrons = mass number − atomic number = '+e[1]+' − '+e[2]+' = '+(e[1]-e[2])+'.'}:{p:'How many electrons are in a neutral atom of '+gNuc(e[0],e[1],e[2])+'?',b:[cB(e[2],'','','electrons')],e:'A neutral atom has as many electrons as protons: '+e[2]+'.'}}
- var i=cP(GION),el=i[1]-i[3];return {p:'How many electrons are in the ion '+i[0]+'? (atomic number '+i[1]+')',b:[cB(el,'','','electrons')],e:i[3]>0?'A '+i[3]+'+ ion has lost '+i[3]+' electron'+(i[3]>1?'s':'')+': '+i[1]+' − '+i[3]+' = '+el+'.':'A '+(-i[3])+'− ion has gained '+(-i[3])+' electron'+(i[3]<-1?'s':'')+': '+i[1]+' + '+(-i[3])+' = '+el+'.'}};
-CGEN.g_rfm2=function(){var A=[[35,75,37,25,35.5],[63,69,65,31,63.6],[10,20,11,80,10.8],[24,79,25,21,24.2],[107,52,109,48,108]],t=cP(A),ar=g1((t[0]*t[1]+t[2]*t[3])/100);
- return {p:'An element is '+t[1]+'% of the isotope with mass '+t[0]+' and '+t[3]+'% with mass '+t[2]+'. Work out its relative atomic mass. (1 decimal place)',b:[cB(ar,'A<sub>r</sub> = ','','Ar',false,0.003)],e:'A<sub>r</sub> = (mass × % + mass × %) ÷ 100 = ('+t[0]+' × '+t[1]+' + '+t[2]+' × '+t[3]+') ÷ 100 = '+cNum((t[0]*t[1]+t[2]*t[3])/100)+' ≈ '+cNum(ar)+'.'}};
-CGEN.g_limit=function(){var r=cP([['2Mg + O₂ → 2MgO','Mg',24,'O₂',32,2,1],['Zn + 2HCl → ZnCl₂ + H₂','Zn',65,'HCl',36.5,1,2],['2Na + Cl₂ → 2NaCl','Na',23,'Cl₂',71,2,1]]),nA=cP([0.1,0.2,0.4]),nB=cP([0.05,0.1,0.3,0.4]),needB=nA*r[6]/r[5],lim=nB<needB?r[3]:r[1];
- if(Math.abs(nB-needB)<1e-9)nB=needB*2,lim=r[1];
- var o=[lim,lim===r[1]?r[3]:r[1],'Neither, they react exactly','You can\'t tell without the product'];
- return {p:r[0]+'<br>'+cNum(nA*r[2])+' g of '+r[1]+' reacts with '+cNum(nB*r[4])+' g of '+r[3]+'. Which is the limiting reactant? (M<sub>r</sub>: '+r[1]+' = '+r[2]+', '+r[3]+' = '+r[4]+')',o:o,e:'Moles of '+r[1]+' = '+cNum(nA)+'; moles of '+r[3]+' = '+cNum(nB)+'. The equation needs '+r[5]+' : '+r[6]+', so '+cNum(nA)+' mol of '+r[1]+' needs '+cNum(needB)+' mol of '+r[3]+'. '+(lim===r[3]?'There\'s only '+cNum(nB)+', so '+r[3]+' runs out first.':'There\'s '+cNum(nB)+', more than enough, so '+r[1]+' runs out first.')}};
-/* ---------- MATHS (Edexcel 1MA1 Higher) ---------- */
-CGEN.g_pct=function(){var k=cR(0,3),A=cP([40,60,80,120,150,240,250,360,480,640,800]),p=cP([5,10,12,15,20,25,30,35,40,60,75]);
- if(k===0)return {p:'Work out '+p+'% of £'+A+'.',b:[cB(A*p/100,'£','','amount')],e:p+'% = '+cNum(p/100)+' as a decimal. '+cNum(p/100)+' × '+A+' = £'+gM(A*p/100)+'.'};
- if(k===1){var up=Math.random()<0.5,mu=up?1+p/100:1-p/100,N2=A*mu;return {p:(up?'Increase':'Decrease')+' £'+A+' by '+p+'%.',b:[cB(N2,'£','','new amount')],e:'Multiplier = '+(up?'1 + ':'1 − ')+cNum(p/100)+' = '+cNum(mu)+'. £'+A+' × '+cNum(mu)+' = £'+gM(N2)+'.'}}
- if(k===2){var B=A*(1+p/100);return {p:'A price goes up from £'+A+' to £'+gM(B)+'. What is the percentage increase?',b:[cB(p,'','%','percentage')],e:'Change = £'+gM(B-A)+'. Percentage change = change ÷ original × 100 = '+gM(B-A)+' ÷ '+A+' × 100 = '+p+'%.'}}
- var Sx=A*(1-p/100);return {p:'In a sale, everything is '+p+'% off. A coat now costs £'+gM(Sx)+'. What was the original price?',b:[cB(A,'£','','original price')],e:'After '+p+'% off you pay '+(100-p)+'% of the original: original × '+cNum(1-p/100)+' = '+gM(Sx)+'. Original = '+gM(Sx)+' ÷ '+cNum(1-p/100)+' = £'+A+'. Adding '+p+'% back on gives the wrong answer.'}};
-CGEN.g_compound=function(){var P=cP([500,1000,2000,2500,4000,5000]),r=cP([2,3,4,5,10]),n=cR(2,5),dep=Math.random()<0.4,m=dep?1-r/100:1+r/100,A=g2(P*Math.pow(m,n));
- return {p:dep?'A car worth £'+P+' loses '+r+'% of its value each year. What is it worth after '+n+' years? (nearest penny)':'£'+P+' is invested at '+r+'% compound interest per year. How much is there after '+n+' years? (nearest penny)',b:[cB(A,'£','','amount',false,0.0005)],e:'Multiplier = '+cNum(m)+'. After '+n+' years: £'+P+' × '+cNum(m)+cSup(n)+' = £'+gM(A)+'.'}};
-CGEN.g_ratio=function(){var a=cR(1,5),b=cR(1,7),c=Math.random()<0.4?cR(1,4):0,unit=cP([5,6,8,10,12,15,20,25]),parts=a+b+c,T=parts*unit;
- if(!c&&a!==b&&Math.random()<0.5){var d=b-a;return {p:'Ali and Ben share money in the ratio '+a+' : '+b+'. Ben gets £'+Math.abs(d*unit)+' '+(d>0?'more':'less')+' than Ali. How much does Ali get?',b:[cB(a*unit,'£','','Ali\'s share')],e:'The difference is '+Math.abs(d)+' part'+(Math.abs(d)===1?'':'s')+' = £'+Math.abs(d*unit)+', so 1 part = £'+unit+'. Ali gets '+a+' × £'+unit+' = £'+(a*unit)+'.'}}
- var sh=c?Math.min(a,b,c):a;return {p:'Share £'+T+' in the ratio '+a+' : '+b+(c?' : '+c:'')+'. How much is the '+(c?'smallest':'first')+' share?',b:[cB(sh*unit,'£','','share')],e:'Total parts = '+parts+'. 1 part = £'+T+' ÷ '+parts+' = £'+unit+'. The '+(c?'smallest':'first')+' share is '+sh+' × £'+unit+' = £'+(sh*unit)+'.'}};
-CGEN.g_stdform=function(){var k=cR(0,2);
- if(k===0){var a=cP([3.2,4.5,6.07,1.8,7.25,2.04]),n=cR(3,7),big=Math.random()<0.5,val=big?a*Math.pow(10,n):a*Math.pow(10,-n),s=big?String(Math.round(val)):val.toFixed(n+2).replace(/0+$/,'');
-  return {p:'Write '+s+' in standard form, A × 10<sup>n</sup>.',b:[cB(a,'','× 10','A'),cB(big?n:-n,'','','power',true)],e:'Move the decimal point until there is one non-zero digit in front of it: '+cNum(a)+'. It moved '+n+' places, and the number is '+(big?'big, so the power is +'+n:'small (less than 1), so the power is −'+n)+'. Answer: '+cNum(a)+' × 10'+cSup(big?n:-n)+'.'}}
- var a1=cR(2,9),n1=cR(2,6),a2=cR(2,9),n2=cR(2,6);
- if(k===1){var pr=a1*a2,e=n1+n2,A=pr>=10?pr/10:pr,E=pr>=10?e+1:e;return {p:'Work out ('+a1+' × 10'+cSup(n1)+') × ('+a2+' × 10'+cSup(n2)+'). Give your answer in standard form.',b:[cB(A,'','× 10','A'),cB(E,'','','power',true)],e:'Multiply the numbers: '+a1+' × '+a2+' = '+pr+'. Add the powers: 10'+cSup(n1)+' × 10'+cSup(n2)+' = 10'+cSup(e)+'. '+(pr>=10?'Then '+pr+' × 10'+cSup(e)+' = '+cNum(A)+' × 10'+cSup(E)+', so the number is between 1 and 10.':'Answer: '+pr+' × 10'+cSup(e)+'.')}}
- var q=a1*a2;return {p:'Work out ('+q+' × 10'+cSup(n1+n2+2)+') ÷ ('+a2+' × 10'+cSup(n2)+'). Give your answer in standard form.',b:[cB(a1,'','× 10','A'),cB(n1+2,'','','power',true)],e:'Divide the numbers: '+q+' ÷ '+a2+' = '+a1+'. Subtract the powers: '+(n1+n2+2)+' − '+n2+' = '+(n1+2)+'. Answer: '+a1+' × 10'+cSup(n1+2)+'.'}};
-var GIDX=[[16,1,2,4],[25,1,2,5],[8,1,3,2],[27,1,3,3],[64,1,3,4],[8,2,3,4],[27,2,3,9],[16,3,4,8],[4,3,2,8],[9,3,2,27],[100,3,2,1000],[32,1,5,2],[32,2,5,4],[125,2,3,25],[81,3,4,27]];
-CGEN.g_indices=function(){var t=cP(GIDX),r=Math.round(Math.pow(t[0],1/t[2])),pw=t[1]===1?'':'<sup>'+t[1]+'</sup>',ex=t[1]+'/'+t[2],neg=Math.random()<0.4,root=t[2]===2?'square':t[2]===3?'cube':t[2]+'th';
- var how='The bottom of the fraction is the root, the top is the power. '+root+' root of '+t[0]+' = '+r+(t[1]>1?', then '+r+pw+' = '+t[3]:'')+'.';
- if(!neg)return {p:'Work out '+t[0]+'<sup>'+ex+'</sup>.',b:[cB(t[3],'','','value')],e:how};
- return {p:'Work out '+t[0]+'<sup>−'+ex+'</sup>.',o:['1/'+t[3],'−'+t[3],String(t[3]),'−1/'+t[3]],e:'A negative power means "1 over". '+how+' So the answer is 1/'+t[3]+'.'}};
-CGEN.g_surd=function(){var b=cP([2,3,5,6,7]),a=cR(2,6),n=a*a*b;
- if(cR(0,2)<2)return {p:'Write √'+n+' in the form a√b, where b is as small as possible.',b:[cB(a,'','√','a'),cB(b,'','','b')],e:'Find the biggest square number that goes into '+n+': '+(a*a)+'. √'+n+' = √('+(a*a)+' × '+b+') = √'+(a*a)+' × √'+b+' = '+a+'√'+b+'.'};
- var c=cR(1,4),d=cR(1,4),n1=c*c*b,n2=d*d*b;return {p:'Simplify √'+n1+' + √'+n2+'. Give your answer as a√'+b+'.',b:[cB(c+d,'','√'+b,'a')],e:(c===1?'√'+n1+' is already simplest':'√'+n1+' = '+c+'√'+b)+' and '+(d===1?'√'+n2+' is already simplest':'√'+n2+' = '+d+'√'+b)+'. Add them like terms: '+(c+d)+'√'+b+'.'}};
-CGEN.g_bounds=function(){var k=cR(0,2),v=cP([12,15,24,36,48,7,50]);
- if(k===0){var u=cP([1,10,0.1]);return {p:'A length is '+v+' cm, correct to the nearest '+(u===1?'cm':u===10?'10 cm':'mm, given as '+cNum(v/10)+' cm')+'. What is its upper bound in cm?',b:[cB(u===0.1?v/10+0.05:v+u/2,'','cm','upper bound')],e:'Add half the accuracy: half of '+(u===0.1?'0.1':u)+' is '+cNum(u/2)+'. Upper bound = '+cNum(u===0.1?v/10:v)+' + '+cNum(u/2)+' = '+cNum(u===0.1?v/10+0.05:v+u/2)+' cm. (The real length is less than this.)'}}
- if(k===1)return {p:'A mass is '+v+' kg, correct to the nearest kg. What is its lower bound?',b:[cB(v-0.5,'','kg','lower bound')],e:'Subtract half the accuracy: '+v+' − 0.5 = '+cNum(v-0.5)+' kg.'};
- var w=cP([6,8,10,12]),h=cP([4,5,9,15]),A=(w+0.5)*(h+0.5);return {p:'A rectangle is '+w+' cm by '+h+' cm, both to the nearest cm. What is the upper bound of its area?',b:[cB(A,'','cm²','upper bound')],e:'Biggest area uses both upper bounds: '+cNum(w+0.5)+' × '+cNum(h+0.5)+' = '+cNum(A)+' cm².'}};
-function gTm(c,s){return c===0?'':(c<0?' − ':' + ')+(Math.abs(c)===1&&s?'':Math.abs(c))+s}
-CGEN.g_expand=function(){var hard=Math.random()<0.35,a=hard?cR(2,3):1,p=cR(-7,7)||2,q=cR(-7,7)||-3,B=a*q+p,C=p*q;
- return {p:'Expand and simplify '+'('+(a>1?a:'')+'x'+gTm(p,'')+')(x'+gTm(q,'')+').',b:[cB(a,'','x² +','x² number'),cB(B,'','x +','x number'),cB(C,'','','number')],e:'Multiply every term by every term: '+(a>1?a:'')+'x × x = '+(a>1?a:'')+'x², '+(a>1?a:'')+'x × '+cBr(q)+' = '+cNum(a*q)+'x, '+cBr(p)+' × x = '+cNum(p)+'x, '+cBr(p)+' × '+cBr(q)+' = '+cNum(C)+'. Collect the x terms: '+cNum(a*q)+'x + '+cBr(p)+'x = '+cNum(B)+'x'+(B===0?', so they cancel (type 0)':'')+'. Answer: '+(a>1?a:'')+'x²'+gTm(B,'x')+gTm(C,'')+'. (If a number is negative, type the minus sign.)'}};
-CGEN.g_factorise=function(){var p=cR(-8,8)||1,q=cR(-8,8)||-2,lo=Math.min(p,q),hi=Math.max(p,q),B=p+q,C=p*q;
- return {p:'Factorise x²'+gTm(B,'x')+gTm(C,'')+'. Write it as (x + a)(x + b), with a the smaller number.',b:[cB(lo,'(x + ',')','a'),cB(hi,'(x + ',')','b')],e:'Find two numbers that multiply to '+cNum(C)+' and add to '+cNum(B)+': '+cNum(lo)+' and '+cNum(hi)+'. So it\'s (x'+gTm(lo,'')+')(x'+gTm(hi,'')+'). Check by expanding.'}};
-CGEN.g_solvelin=function(){var x=cR(-6,9),a=cR(2,9),c=cR(1,a-1),b=cR(-12,12),d=a*x+b-c*x;
- return {p:'Solve '+a+'x'+gTm(b,'')+' = '+c+'x'+gTm(d,'')+'.',b:[cB(x,'x = ','','x')],e:'Take '+c+'x from both sides: '+(a-c)+'x'+gTm(b,'')+' = '+cNum(d)+'. '+(b?(b>0?'Subtract '+b:'Add '+(-b))+': '+(a-c)+'x = '+cNum(d-b)+'. ':'')+'Divide by '+(a-c)+': x = '+cNum(x)+'.'}};
-CGEN.g_solvequad=function(){var p=cR(-8,8),q=cR(-8,8);if(p===q)q=p+3;var B=-(p+q),C=p*q,lo=Math.min(p,q),hi=Math.max(p,q);
- return {p:'Solve x²'+gTm(B,'x')+gTm(C,'')+' = 0. Give the smaller solution first.',b:[cB(lo,'x = ',' or','smaller x'),cB(hi,'x = ','','larger x')],e:'Factorise: (x'+gTm(-p,'')+')(x'+gTm(-q,'')+') = 0. One bracket must be 0, so x = '+cNum(lo)+' or x = '+cNum(hi)+'. Watch the signs: (x − 3) = 0 gives x = +3.'}};
-CGEN.g_quadform=function(){var a=cP([1,2,3]),b=cR(-9,9),c=cR(-9,9);if(b*b-4*a*c<=0||Number.isInteger(Math.sqrt(b*b-4*a*c)))c=-Math.abs(c)-1;var D=b*b-4*a*c;if(Number.isInteger(Math.sqrt(D))){c-=1;D=b*b-4*a*c}
- var x1=g2((-b-Math.sqrt(D))/(2*a)),x2=g2((-b+Math.sqrt(D))/(2*a)),lo=Math.min(x1,x2),hi=Math.max(x1,x2);
- return {p:'Solve '+(a>1?a:'')+'x²'+gTm(b,'x')+gTm(c,'')+' = 0. Give both answers to 2 decimal places, smaller first.',b:[cB(lo,'x = ',' or','smaller x',false,0.004),cB(hi,'x = ','','larger x',false,0.004)],e:'Use x = (−b ± √(b² − 4ac)) ÷ 2a with a = '+a+', b = '+cNum(b)+', c = '+cNum(c)+'. b² − 4ac = '+(b*b)+' − '+cBr(4*a*c)+' = '+D+'. x = ('+cNum(-b)+' ± √'+D+') ÷ '+(2*a)+' = '+cNum(lo)+' or '+cNum(hi)+'.'}};
-CGEN.g_simul=function(){var x=cR(-5,6),y=cR(-5,6),a=cR(1,5),b=cR(1,5),c=cR(1,5),d=-cR(1,4);if(a*d-b*c===0)d-=1;var e=a*x+b*y,f=c*x+d*y;
- return {p:'Solve the simultaneous equations:<div class="eq">'+a+'x'+gTm(b,'y')+' = '+cNum(e)+'<br>'+c+'x'+gTm(d,'y')+' = '+cNum(f)+'</div>',b:[cB(x,'x = ',',','x'),cB(y,'y = ','','y')],e:'Make the x or y numbers match, then add or subtract to get rid of one letter, solve, and substitute back. The answer is x = '+cNum(x)+', y = '+cNum(y)+'. Check in both equations: '+a+' × '+cBr(x)+' + '+b+' × '+cBr(y)+' = '+cNum(e)+' ✓.'}};
-CGEN.g_ineq=function(){var k=cR(0,1);
- if(k===0){var a=cR(2,6),x=cR(-4,8),b=cR(-10,10),c=a*x+b;return {p:'Solve '+a+'x'+gTm(b,'')+' < '+cNum(c)+'. Your answer is x < ?',b:[cB(x,'x < ','','value')],e:(b?(b>0?'Subtract '+b:'Add '+(-b))+': '+a+'x < '+cNum(c-b)+'. ':'')+'Divide by '+a+': x < '+cNum(x)+'. It works just like an equation, unless you multiply or divide by a negative, which flips the sign.'}}
- var lo=cR(-5,2),hi=lo+cR(3,7),n=hi-lo;return {p:'How many integers n satisfy '+cNum(lo)+' < n ≤ '+cNum(hi)+'?',b:[cB(n,'','','how many')],e:'List them: '+cNum(lo)+' is not included (<), '+cNum(hi)+' is (≤). The integers are '+Array.from({length:n},function(_,i){return cNum(lo+1+i)}).join(', ')+': that\'s '+n+'.'}};
-CGEN.g_nth=function(){var d=cR(-5,7)||3,b=cR(-6,9),t=[1,2,3,4].map(function(n){return d*n+b});
- return {p:'Find the nth term of the sequence '+t.map(cNum).join(', ')+', …  Write it as an + b.',b:[cB(d,'','n +','a'),cB(b,'','','b')],e:'The terms go up by '+cNum(d)+' each time, so it starts '+cNum(d)+'n. When n = 1, '+cNum(d)+'n = '+cNum(d)+', but the term is '+cNum(t[0])+', so add '+cNum(b)+'. nth term = '+cNum(d)+'n'+gTm(b,'')+'.'}};
-CGEN.g_qnth=function(){var a=cR(1,3),b=cR(-4,4),c=cR(-5,5),t=[1,2,3,4,5].map(function(n){return a*n*n+b*n+c});
- return {p:'Find the nth term of the quadratic sequence '+t.map(cNum).join(', ')+', …  Write it as an² + bn + c.',b:[cB(a,'','n² +','a'),cB(b,'','n +','b'),cB(c,'','','c')],e:'Second difference = '+(2*a)+', so a = '+(2*a)+' ÷ 2 = '+a+'. Subtract '+(a>1?a:'')+'n² from each term: '+t.map(function(v,i){return cNum(v-a*(i+1)*(i+1))}).join(', ')+'. That\'s linear: '+(b?(b===1?'':b===-1?'−':cNum(b))+'n'+gTm(c,''):cNum(c))+'. nth term = '+(a>1?a:'')+'n²'+gTm(b,'n')+g
+/* >>> new content: calc >>> */
+/* ========== CALCULUS · LEVEL 6 · Limits, properly (university Calculus 1) ========== */
+CGEN.limfac=function(){var r=cR(-5,5),s;do{s=cR(-6,6)}while(s===r);var top=cPoly([[1,2],[-(r+s),1],[r*s,0]]),bot=cPoly([[1,1],[-r,0]]);
+ return {p:'Find lim<sub>x→'+cNum(r)+'</sub> ('+top+') ÷ ('+bot+').',b:[cB(r-s,'limit = ')],e:'Substituting x = '+cNum(r)+' gives 0/0, so simplify first. The top factorises: ('+bot+')('+cPoly([[1,1],[-s,0]])+'). Cancel ('+bot+') to leave '+cPoly([[1,1],[-s,0]])+'. Now substitute: '+cNum(r)+' − '+cBr(s)+' = '+cNum(r-s)+'.'}};
+CGEN.liminf=function(){var d=cP([1,2,4,5]),a=cNZ(-9,9),b=cR(-9,9),c=cR(-9,9),e=cR(-9,9),f=cR(-9,9);
+ if(cR(0,2)>0)return {p:'Find lim<sub>x→∞</sub> ('+cPoly([[a,2],[b,1],[c,0]])+') ÷ ('+cPoly([[d,2],[e,1],[f,0]])+').',b:[cB(a/d,'limit = ')],e:'Divide every term by x², the highest power. Every term with 1/x or 1/x² goes to 0, leaving '+cNum(a)+' ÷ '+d+' = '+cNum(a/d)+'.'};
+ return {p:'Find lim<sub>x→∞</sub> ('+cPoly([[a,1],[c,0]])+') ÷ ('+cPoly([[d,2],[e,1],[f,0]])+').',b:[cB(0,'limit = ')],e:'The bottom has the higher power. Divide by x²: the top becomes '+cNum(a)+'/x + '+cNum(c)+'/x², which goes to 0, while the bottom goes to '+d+'. So the limit is 0.'}};
+CGEN.lhop=function(){var a=cR(1,9),b=cP([1,2,4,5]),t=cR(0,2);
+ if(t===0)return {p:'Find lim<sub>x→0</sub> sin('+a+'x) ÷ ('+cCo(b)+'x).',b:[cB(a/b,'limit = ')],e:'It\'s 0/0, so use L\'Hôpital: differentiate top and bottom. Top: '+a+'cos('+a+'x). Bottom: '+b+'. At x = 0: '+a+' × 1 ÷ '+b+' = '+cNum(a/b)+'.'};
+ if(t===1)return {p:'Find lim<sub>x→0</sub> (e'+cSup(cCo(a)+'x')+' − 1) ÷ ('+cCo(b)+'x).',b:[cB(a/b,'limit = ')],e:'0/0. Differentiate top and bottom: '+cCo(a)+'e'+cSup(cCo(a)+'x')+' over '+b+'. At x = 0, e⁰ = 1, so the limit is '+a+' ÷ '+b+' = '+cNum(a/b)+'.'};
+ var a2=cR(1,6);return {p:'Find lim<sub>x→0</sub> (1 − cos('+a2+'x)) ÷ x².',b:[cB(a2*a2/2,'limit = ')],e:'0/0. L\'Hôpital once: '+a2+'sin('+a2+'x) ÷ 2x, still 0/0. Again: '+(a2*a2)+'cos('+a2+'x) ÷ 2. At x = 0: '+(a2*a2)+' ÷ 2 = '+cNum(a2*a2/2)+'.'}};
+CGEN.mvt=function(){if(cR(0,1)){var p=cR(-4,3),q=p+cR(1,5),k=cR(-5,5);return {p:'f(x) = '+cPoly([[1,2],[k,1]])+' on ['+cNum(p)+', '+cNum(q)+']. Find the value of c that the Mean Value Theorem promises.',b:[cB((p+q)/2,'c = ')],e:'Average gradient: (f('+cNum(q)+') − f('+cNum(p)+')) ÷ ('+cNum(q)+' − '+cBr(p)+') = '+cNum(p+q+k)+'. Set f′(c) = 2c + '+cBr(k)+' equal to it: 2c = '+cNum(p+q)+', so c = '+cNum((p+q)/2)+'. For a quadratic, c is always the midpoint.'}}
+ var b=cR(1,6),c=Math.round(b/Math.sqrt(3)*100)/100;return {p:'f(x) = x³ on [0, '+b+']. Find c in the Mean Value Theorem. (2 decimal places)',b:[cB(c,'c = ','','c',false,0.005)],e:'Average gradient = '+b+'³ ÷ '+b+' = '+(b*b)+'. f′(c) = 3c² = '+(b*b)+', so c² = '+cNum(b*b/3)+' and c = '+cNum(c)+'. It lies inside (0, '+b+'), as promised.'}};
+CGEN.ftc=function(){var a=cNZ(-3,3),b=cR(-5,5),c=cR(-6,6),k=cR(-3,4),v=a*k*k+b*k+c;
+ return {p:'F(x) = ∫<sub>1</sub><sup>x</sup> ('+cPoly([[a,2],[b,1],[c,0]],'t')+') dt. Find F′('+cNum(k)+').',b:[cB(v,'F′('+cNum(k)+') = ')],e:'The Fundamental Theorem says F′(x) is just the thing inside, with t replaced by x: '+cPoly([[a,2],[b,1],[c,0]])+'. At x = '+cNum(k)+': '+cNum(v)+'. No integrating needed.'}};
+
+U({id:'c6-1',track:'calc',level:6,title:'What a limit really is',icon:'lim',color:'#7F77DD',desc:'Limits from tables and graphs, the algebra of limits, and one-sided limits.',lessons:[
+LH('c6-1-1','Getting closer and closer',9,'Every derivative you have ever found was secretly a limit. Time to look at limits on their own.',[
+RM(`<p>The derivative comes from shrinking a chord: the gradient of the chord as h gets smaller and smaller. You wrote that as "as h → 0".</p>`),
+T(`<h3>A function with a hole</h3><p>Look at <b>f(x) = (x² − 4) ÷ (x − 2)</b>. At x = 2 the bottom is 0, so f(2) doesn't exist.</p><p>But what happens <b>near</b> x = 2?</p><table class="wtable"><tr><th>x</th><td>1.9</td><td>1.99</td><td>1.999</td><td>2.001</td><td>2.01</td><td>2.1</td></tr><tr><th>f(x)</th><td>3.9</td><td>3.99</td><td>3.999</td><td>4.001</td><td>4.01</td><td>4.1</td></tr></table><p>As x gets closer to 2, f(x) gets closer to <b>4</b>.</p>`),
+Q(`In the table, what is f(x) getting closer to as x gets closer to 2?`,[`4`,`2`,`0`,`It doesn't settle down`],0,`3.999 and 4.001 are both very close to 4.`),
+T(`<h3>The notation</h3><div class="eq">lim<sub>x→2</sub> f(x) = 4</div>${KY([['lim','"the limit": the value f(x) heads towards',''],['x→2','x gets as close as we like to 2, but never equals 2',''],['4','the value f(x) gets as close as we like to','']])}<p>The big idea: <b>a limit is about what happens near a point, not at it.</b> f(2) doesn't even exist here, but the limit does.</p>`),
+Q(`What does lim<sub>x→3</sub> g(x) = 7 tell you?`,[`g(x) gets as close as we like to 7 when x is close enough to 3`,`g(3) is definitely equal to 7`,`g(x) is 7 for every value of x`,`g(7) is equal to 3`],0,`It's about x near 3, not at 3.`),
+W('fnPlot',{x:[0,4],y:[0,6],xl:'x',yl:'f(x)',sl:[['d','Distance from 2',0.02,1.5,0.02,1,function(v){return v.toFixed(2)}]],curves:function(){return [[function(x){return Math.abs(x-2)<1e-9?NaN:(x*x-4)/(x-2)},'--accent',3]]},marks:function(p,P,col){var c=P.c;c.strokeStyle=col('--accent');c.lineWidth=2;c.fillStyle=cssv('--panel');c.beginPath();c.arc(P.X(2),P.Y(4),6,0,7);c.fill();c.stroke();[2-p.d,2+p.d].forEach(function(x){c.fillStyle=col('--coral');c.beginPath();c.arc(P.X(x),P.Y(x+2),6,0,7);c.fill()})},read:function(p){return 'f('+(2-p.d).toFixed(2)+') = <b>'+(4-p.d).toFixed(2)+'</b> and f('+(2+p.d).toFixed(2)+') = <b>'+(4+p.d).toFixed(2)+'</b>. The open circle at (2, 4) is the hole.'},goal:function(p){return p.d<=0.05},goalMsg:'Slide the points in until they are within 0.05 of x = 2.'},`Slide the two orange points towards x = 2. Watch both values close in on 4.`,`Both sides close in on 4, even though there's a hole at x = 2.`),
+QE(`What's the gradient of the line through (1, 3) and (4, 9)?`,[`2`,`3`,`6`,`0.5`],0,`(9 − 3) ÷ (4 − 1) = 6 ÷ 3 = 2.`),
+T(`<h3>Key points</h3><ul><li><b>lim<sub>x→a</sub> f(x) = L</b>: f(x) gets as close as we like to L when x is close enough to a.</li><li>The value <b>at</b> a doesn't matter, and may not exist.</li><li>Tables and graphs let you see a limit before you can prove it.</li></ul>`)]),
+LH('c6-1-2','Limits by algebra',10,'Most limits can be found with one trick: simplify first, then substitute.',[
+RM(`<p>lim<sub>x→a</sub> f(x) is what f(x) heads towards as x gets close to a. The value at a itself doesn't matter.</p>`),
+T(`<h3>Step 1: just try substituting</h3><p>For polynomials and most everyday functions, if substituting works, that's the answer:</p><div class="eq">lim<sub>x→3</sub> (x² + 1) = 3² + 1 = 10</div>`),
+N(`Find lim<sub>x→2</sub> (3x² − x).`,10,0.001,'',`Substitute: 3 × 4 − 2 = 10.`),
+T(`<h3>Step 2: if you get 0/0, simplify</h3><p>Substituting into (x² − 4) ÷ (x − 2) gives <b>0/0</b>. That's not an answer: it's a sign that something cancels. 0/0 is called <b>indeterminate</b>.</p>`),
+W('stepCalc',{steps:[`lim<sub>x→2</sub> (x² − 4) ÷ (x − 2)`,`Substitute x = 2: 0 ÷ 0. Indeterminate, so simplify.`,`Factorise the top (difference of two squares): (x − 2)(x + 2)`,`Cancel (x − 2). Allowed, because x is near 2 but never equal to 2, so x − 2 isn't zero.`,`Left with x + 2. Now substitute: 2 + 2 = <b>4</b>`]},`Factorise and cancel.`,`This matches the table from last lesson.`),
+Q(`Why are we allowed to cancel (x − 2)?`,[`x gets close to 2 but never equals 2, so x − 2 is never zero`,`Because 0 ÷ 0 always equals 1, so it disappears`,`Because we can always cancel anything at all`,`Because the answer has to be a whole number`],0,`The limit never uses x = 2 itself.`),
+W('calcDrill',{skill:'limfac',need:4},`Factorise, cancel, substitute. Get 4 right to master it.`,`Spot the factor that makes the bottom zero, and cancel it.`),
+T(`<h3>Another trick: multiply by the conjugate</h3><p>lim<sub>x→0</sub> (√(x + 9) − 3) ÷ x is 0/0. Multiply top and bottom by <b>√(x + 9) + 3</b>:</p><p>Top becomes (x + 9) − 9 = x. So the fraction is x ÷ [x(√(x + 9) + 3)] = 1 ÷ (√(x + 9) + 3). Substitute x = 0: <b>1/6</b>.</p>`),
+Q(`You substitute and get 0/0. What should you do?`,[`Simplify (factorise, or use the conjugate) and try again`,`Write down 0 as the answer`,`Write down 1 as the answer`,`Say the limit doesn't exist`],0,`0/0 means "work harder", not "no answer".`),
+T(`<h3>Key points</h3><ul><li>First try <b>substituting</b>.</li><li><b>0/0 is indeterminate</b>: simplify, then substitute again.</li><li>Tools: <b>factorise and cancel</b>, or <b>multiply by the conjugate</b> for square roots.</li></ul>`)]),
+LH('c6-1-3','One-sided limits',9,'Sometimes a function heads to different values from the left and the right.',[
+RM(`<p>A limit is what f(x) heads towards as x gets close to a, from either side.</p>`),
+T(`<h3>Left and right</h3><p>x can approach a from below (the left) or above (the right):</p><div class="eq">lim<sub>x→a⁻</sub> f(x)&nbsp;&nbsp;and&nbsp;&nbsp;lim<sub>x→a⁺</sub> f(x)</div>${KY([['a⁻','x approaches a from the left: x < a',''],['a⁺','x approaches a from the right: x > a','']])}`),
+T(`<h3>A jump</h3><p>Think of a switch: f(x) = 0 for x < 0 and f(x) = 1 for x ≥ 0.</p><ul><li>From the left: lim<sub>x→0⁻</sub> f(x) = 0</li><li>From the right: lim<sub>x→0⁺</sub> f(x) = 1</li></ul><p>The two sides disagree, so the ordinary limit lim<sub>x→0</sub> f(x) <b>does not exist</b>.</p>`),
+Q(`The left limit is 5 and the right limit is 5. What's the limit?`,[`5`,`10`,`It doesn't exist`,`0`],0,`They agree, so the limit is 5.`),
+T(`<h3>The rule</h3><div class="eq">lim<sub>x→a</sub> f(x) exists only if the left and right limits are equal</div><p>A classic example: f(x) = |x| ÷ x. For x > 0 it's +1; for x < 0 it's −1. So at x = 0 the left limit is −1, the right limit is +1, and there's no limit.</p>`),
+Q(`f(x) = |x| ÷ x. What is lim<sub>x→0⁺</sub> f(x)?`,[`1`,`−1`,`0`,`It doesn't exist`],0,`For positive x, |x| = x, so f(x) = 1.`),
+Q(`Why does lim<sub>x→0</sub> |x|/x not exist?`,[`The left limit (−1) and right limit (+1) are different`,`Because you can't divide by zero at x = 0`,`Because |x| has no derivative anywhere`,`Because the function is always negative`],0,`Different from each side.`),
+QE(`Find lim<sub>x→1</sub> (x² − 1) ÷ (x − 1).`,[`2`,`0`,`1`,`It doesn't exist`],0,`(x − 1)(x + 1) ÷ (x − 1) = x + 1 → 2.`),
+T(`<h3>Key points</h3><ul><li><b>One-sided limits</b> approach from the left (a⁻) or right (a⁺).</li><li>The limit exists <b>only if both sides agree</b>.</li><li>Jumps (like a switch) have no limit at the jump.</li></ul>`)])
+]});
+
+U({id:'c6-2',track:'calc',level:6,title:'Continuity and infinity',icon:'∞',color:'#1D9E75',desc:'What continuous really means, limits at infinity and asymptotes, and the squeeze theorem.',lessons:[
+LH('c6-2-1','Continuity',9,'A pencil that never leaves the paper, written as a precise test.',[
+RM(`<p>lim<sub>x→a</sub> f(x) exists when the left and right limits agree. The limit doesn't care about f(a) itself.</p>`),
+T(`<h3>Three conditions</h3><p>f is <b>continuous at a</b> if all three are true:</p><ol><li>f(a) exists.</li><li>lim<sub>x→a</sub> f(x) exists.</li><li>They're equal: <b>lim<sub>x→a</sub> f(x) = f(a)</b>.</li></ol><p>In words: what the function heads towards is what it actually gets.</p>`),
+Q(`f(3) = 5 and lim<sub>x→3</sub> f(x) = 5. Is f continuous at 3?`,[`Yes: the limit equals the value`,`No: you also need f(5) = 3`,`Only if f is a polynomial`,`You can't tell without a graph`],0,`All three conditions hold.`),
+T(`<h3>Three ways to fail</h3><ul><li><b>Removable</b> (a hole): the limit exists but f(a) is missing or wrong. Like (x² − 4)/(x − 2) at 2.</li><li><b>Jump</b>: left and right limits differ. Like a switch.</li><li><b>Infinite</b>: f shoots off to ±∞. Like 1/x at 0.</li></ul>`),
+W('matchPairs',{pairs:[['(x² − 9)/(x − 3) at x = 3','Removable: a hole'],['A switch from 0 to 1 at x = 0','Jump'],['1/x² at x = 0','Infinite'],['x² + 1 at x = 2','Continuous']]},`Match each function to what happens there.`),
+T(`<h3>The Intermediate Value Theorem</h3><p>If f is continuous on [a, b], it takes <b>every value</b> between f(a) and f(b). So if f(1) = −2 and f(2) = 3, then f(x) = 0 somewhere between 1 and 2. That's why "change of sign" finds roots.</p>`),
+Q(`f is continuous, f(0) = 4 and f(1) = −1. What must be true?`,[`f(x) = 0 for some x between 0 and 1`,`f(0.5) is exactly 1.5`,`f is a straight line between them`,`f has a maximum at x = 0`],0,`It has to cross every value from 4 down to −1, including 0.`),
+T(`<h3>Key points</h3><ul><li><b>Continuous at a</b>: lim<sub>x→a</sub> f(x) = f(a).</li><li>Discontinuities: <b>removable</b>, <b>jump</b> or <b>infinite</b>.</li><li><b>IVT</b>: a continuous function hits every value in between.</li></ul>`)]),
+LH('c6-2-2','Limits at infinity',10,'What happens as x gets huge, and how to read asymptotes off a formula.',[
+RM(`<p>A limit describes what f(x) heads towards. 1 ÷ (a huge number) is tiny.</p>`),
+T(`<h3>x → ∞</h3><p><b>lim<sub>x→∞</sub> f(x) = L</b> means f(x) gets as close as we like to L when x is big enough. The simplest:</p><div class="eq">lim<sub>x→∞</sub> 1/x = 0</div><p>The graph flattens out towards the line y = L: a <b>horizontal asymptote</b>.</p>`),
+Q(`What is lim<sub>x→∞</sub> 5/x²?`,[`0`,`5`,`∞`,`1`],0,`5 ÷ (a huge number) is tiny.`),
+T(`<h3>Fractions of polynomials</h3><p>Divide every term by the <b>highest power of x on the bottom</b>, then let x → ∞:</p>`),
+W('stepCalc',{steps:[`lim<sub>x→∞</sub> (3x² + 2x) ÷ (x² − 5)`,`Divide every term by x²: (3 + 2/x) ÷ (1 − 5/x²)`,`As x → ∞: 2/x → 0 and 5/x² → 0`,`Left with 3 ÷ 1 = <b>3</b>`,`So y = 3 is a horizontal asymptote.`]},`Divide by the highest power.`,`Same top and bottom power: the limit is the ratio of the leading numbers.`),
+W('calcDrill',{skill:'liminf',need:4},`Limits at infinity. Get 4 right to master it.`,`Same powers: ratio of leading numbers. Higher power on the bottom: 0.`),
+T(`<h3>Infinite limits</h3><p>Near x = 0, 1/x² gets bigger and bigger without limit. We write <b>lim<sub>x→0</sub> 1/x² = ∞</b>. That doesn't mean the limit exists: it describes <b>how</b> it fails. The line x = 0 is a <b>vertical asymptote</b>.</p>`),
+Q(`Where does f(x) = 1/(x − 4) have a vertical asymptote?`,[`x = 4`,`x = −4`,`y = 4`,`x = 0`],0,`The bottom is zero at x = 4.`),
+T(`<h3>Key points</h3><ul><li><b>Limits at infinity</b> give horizontal asymptotes.</li><li>For fractions: divide by the <b>highest power</b> on the bottom.</li><li><b>Infinite limits</b> (bottom → 0) give vertical asymptotes.</li></ul>`)]),
+LH('c6-2-3','The squeeze theorem and sin x / x',10,'Trap a tricky function between two easy ones, and prove the limit behind d/dx sin x = cos x.',[
+RM(`<p>Limits can be found from graphs, tables and algebra. Calculus with sin and cos uses <b>radians</b>.</p>`),
+T(`<h3>The squeeze theorem</h3><p>If g(x) ≤ f(x) ≤ h(x) near a, and g and h both head to the same limit L, then f is trapped: it must head to L too.</p><div class="eq">g ≤ f ≤ h and g, h → L &nbsp;⟹&nbsp; f → L</div>`),
+Q(`−x² ≤ f(x) ≤ x² for all x. What is lim<sub>x→0</sub> f(x)?`,[`0`,`1`,`It can't be found`,`x²`],0,`Both bounds go to 0, so f is squeezed to 0.`),
+T(`<h3>The most important limit in trig</h3><div class="eq">lim<sub>x→0</sub> (sin x) ÷ x = 1&nbsp;&nbsp;(x in radians)</div><p>Substituting gives 0/0. A geometric argument with a circle shows cos x ≤ (sin x)/x ≤ 1 for small x. Both ends head to 1, so the squeeze theorem gives 1.</p>`),
+W('fnPlot',{x:[-3,3],y:[-0.4,1.4],xl:'x (radians)',yl:'y',lines:[[1,'--muted']],sl:[['x','x',0.02,3,0.02,2,function(v){return v.toFixed(2)}]],curves:function(){return [[function(x){return Math.abs(x)<1e-9?NaN:Math.sin(x)/x},'--accent',3],[function(x){return Math.cos(x)},'--coral',1.5,[6,4]]]},read:function(p){return 'At x = '+p.x.toFixed(2)+': cos x = '+Math.cos(p.x).toFixed(4)+' ≤ (sin x)/x = <b>'+(Math.sin(p.x)/p.x).toFixed(4)+'</b> ≤ 1'},goal:function(p){return p.x<=0.1},goalMsg:'Move x down to 0.1 or less.'},`Move x towards 0. The solid curve is trapped between cos x (dashed) and 1.`,`Squeezed between cos x and 1, (sin x)/x must go to 1.`),
+T(`<h3>Why it matters</h3><p>From first principles, d/dx sin x needs lim<sub>h→0</sub> (sin h)/h = 1 and lim<sub>h→0</sub> (1 − cos h)/h = 0. Those two limits are exactly why <b>d/dx sin x = cos x</b>. It only works in radians, which is why calculus always uses them.</p>`),
+N(`Find lim<sub>x→0</sub> sin(3x) ÷ x. (Hint: write it as 3 × sin(3x)/(3x).)`,3,0.001,'',`sin(3x)/(3x) → 1, so the limit is 3 × 1 = 3.`),
+QE(`Where is f(x) = 1/(x + 2) not continuous?`,[`x = −2`,`x = 2`,`x = 0`,`Nowhere`],0,`The bottom is zero at x = −2.`),
+T(`<h3>Key points</h3><ul><li><b>Squeeze theorem</b>: trapped between two functions with the same limit.</li><li><b>lim<sub>x→0</sub> (sin x)/x = 1</b>, in radians.</li><li>This limit is why d/dx sin x = cos x.</li></ul>`)])
+]});
+
+U({id:'c6-3',track:'calc',level:6,title:'L\'Hôpital and the big theorems',icon:'⇔',color:'#378ADD',desc:'L\'Hôpital\'s rule, the Mean Value Theorem and the Fundamental Theorem of Calculus.',lessons:[
+LH('c6-3-1','L\'Hôpital\'s rule',10,'A shortcut for 0/0 that uses derivatives to find limits.',[
+RM(`<p>0/0 is indeterminate: it needs more work. You can differentiate eˣ, sin x, polynomials and more.</p>`),
+T(`<h3>The rule</h3><p>If substituting gives <b>0/0</b> or <b>∞/∞</b>, then:</p><div class="eq">lim f(x)/g(x) = lim f′(x)/g′(x)</div><p>Differentiate the top and the bottom <b>separately</b> (this is <b>not</b> the quotient rule), then try substituting again.</p>`),
+Q(`When can you use L'Hôpital's rule?`,[`Only when substituting gives 0/0 or ∞/∞`,`Whenever there's a fraction in the limit`,`Only when the answer is zero`,`Only for polynomials`],0,`It only works on indeterminate forms.`),
+W('stepCalc',{steps:[`lim<sub>x→0</sub> (eˣ − 1) ÷ x`,`Substitute: (1 − 1) ÷ 0 = 0/0. Indeterminate: L'Hôpital applies.`,`Differentiate the top: eˣ. Differentiate the bottom: 1.`,`New limit: lim<sub>x→0</sub> eˣ ÷ 1`,`Substitute: e⁰ = <b>1</b>`]},`L'Hôpital, step by step.`,`Check first that it really is 0/0.`),
+Q(`In L'Hôpital's rule, you…`,[`differentiate top and bottom separately`,`use the quotient rule on the fraction`,`integrate top and bottom`,`multiply top and bottom by x`],0,`Separately. A very common mistake is to use the quotient rule.`),
+T(`<h3>Sometimes twice</h3><p>If you still get 0/0, apply it again. lim<sub>x→0</sub> (1 − cos x)/x²: once gives (sin x)/(2x), still 0/0; twice gives (cos x)/2 → <b>½</b>.</p>`),
+W('calcDrill',{skill:'lhop',need:4},`L'Hôpital's rule. Get 4 right to master it.`,`Check 0/0, then differentiate top and bottom separately.`),
+T(`<h3>Key points</h3><ul><li><b>0/0 or ∞/∞</b>: lim f/g = lim f′/g′.</li><li>Top and bottom <b>separately</b>, not the quotient rule.</li><li>Repeat if it's still indeterminate.</li></ul>`)]),
+LH('c6-3-2','The Mean Value Theorem',10,'Somewhere on every smooth journey, your speed exactly equals your average speed.',[
+RM(`<p>The gradient of a chord is the average rate of change. The derivative is the instant rate of change.</p>`),
+T(`<h3>A speeding ticket</h3><p>You drive 120 km in 1 hour. Your average speed is 120 km/h. Was your speedometer reading exactly 120 at some moment? It must have been: you can't average 120 without passing through 120.</p>`),
+T(`<h3>The theorem</h3><p>If f is continuous on [a, b] and differentiable inside it, then for some c between a and b:</p><div class="eq">f′(c) = (f(b) − f(a)) ÷ (b − a)</div>${KY([['f′(c)','the instant gradient at some point c',''],['(f(b) − f(a))/(b − a)','the gradient of the chord: the average rate','']],'Somewhere, the tangent is parallel to the chord.')}`),
+Q(`What does the Mean Value Theorem guarantee?`,[`Somewhere, the instant rate equals the average rate`,`The function has a maximum in the middle`,`The function is a straight line`,`f(a) always equals f(b)`],0,`A tangent parallel to the chord.`),
+W('fnPlot',{x:[0,3],y:[-1,26],xl:'x',yl:'f(x)',sl:[['c','c',0.05,2.95,0.05,0.5,function(v){return v.toFixed(2)}]],curves:function(p){return [[function(x){return x*x*x-x+1},'--accent',3],[function(x){return 1+8*x},'--muted',1.5,[6,4]],[function(x){var c=p.c,m=3*c*c-1;return c*c*c-c+1+m*(x-c)},'--coral',2]]},read:function(p){var m=3*p.c*p.c-1;return 'Chord gradient on [0, 3]: <b>8</b>. Tangent gradient at c = '+p.c.toFixed(2)+': <b>'+m.toFixed(2)+'</b>'},goal:function(p){return Math.abs(3*p.c*p.c-1-8)<0.35},goalMsg:'Move c until the tangent (orange) is parallel to the chord (dashed).'},`f(x) = x³ − x + 1 on [0, 3]. Move c until the tangent is parallel to the chord.`,`At c = √3 ≈ 1.73, f′(c) = 3c² − 1 = 8, matching the chord.`),
+T(`<h3>Rolle's theorem</h3><p>The special case f(a) = f(b): the chord is flat, so somewhere f′(c) = 0. A smooth journey that ends where it started must have a turning point.</p>`),
+W('calcDrill',{skill:'mvt',need:3},`Find c. Get 3 right to master it.`,`Set f′(c) equal to the chord's gradient and solve.`),
+T(`<h3>Key points</h3><ul><li><b>MVT</b>: f′(c) = (f(b) − f(a))/(b − a) for some c in (a, b).</li><li>The tangent at c is parallel to the chord.</li><li><b>Rolle</b>: if f(a) = f(b), somewhere f′(c) = 0.</li></ul>`)]),
+LH('c6-3-3','The Fundamental Theorem of Calculus',11,'The theorem that says differentiation and integration undo each other, stated properly.',[
+RM(`<p>∫<sub>a</sub><sup>b</sup> f(x) dx is the area under f from a to b. Integration undoes differentiation.</p>`),
+T(`<h3>An area that grows</h3><p>Fix a start point a and let the end point be x. The area so far is a function of x:</p><div class="eq">F(x) = ∫<sub>a</sub><sup>x</sup> f(t) dt</div>${KY([['F(x)','the area under f from a up to x',''],['t','a dummy letter for the variable inside, so it doesn\'t clash with the end point x','']])}`),
+T(`<h3>How fast does the area grow?</h3><p>Move x a tiny step h to the right. The extra area is a thin strip about f(x) tall and h wide, so ΔF ≈ f(x) × h. Divide by h and let h → 0:</p><div class="eq">F′(x) = f(x)</div><p>That's <b>Part 1</b> of the Fundamental Theorem: <b>the rate the area grows is the height of the curve.</b></p>`),
+Q(`F(x) = ∫<sub>0</sub><sup>x</sup> cos t dt. What is F′(x)?`,[`cos x`,`sin x`,`−sin x`,`cos 0`],0,`Part 1: F′(x) is the integrand with t replaced by x.`),
+T(`<h3>Part 2: evaluating</h3><p>If G is <b>any</b> antiderivative of f (so G′ = f), then:</p><div class="eq">∫<sub>a</sub><sup>b</sup> f(x) dx = G(b) − G(a)</div><p>This is the method you've used since Level 4. Now you know why it works: Part 1 says the area function is an antiderivative, and any two antiderivatives differ by a constant, which cancels in G(b) − G(a).</p>`),
+W('calcDrill',{skill:'ftc',need:4},`Part 1 of the Fundamental Theorem. Get 4 right to master it.`,`F′(x) = the integrand, with x in place of t.`),
+QE(`Find lim<sub>x→0</sub> sin(5x) ÷ x.`,[`5`,`1`,`0`,`1/5`],0,`L'Hôpital: 5cos(5x) ÷ 1 → 5.`),
+T(`<h3>Key points</h3><ul><li><b>Part 1</b>: d/dx ∫<sub>a</sub><sup>x</sup> f(t) dt = f(x).</li><li><b>Part 2</b>: ∫<sub>a</sub><sup>b</sup> f dx = G(b) − G(a), for any antiderivative G.</li><li>Differentiation and integration are inverse processes. You've finished university Calculus 1 limits.</li></ul>`)])
+]});
+
+F('c6-1-1',[Q(`lim<sub>x→a</sub> f(x) depends on…`,[`values of f near a, not at a`,`only the value f(a)`,`values of f far from a`,`the derivative at a`],0,`Near, not at.`),Q(`f(x) = 2.99 at x = 0.99 and 3.01 at x = 1.01. A good guess for lim<sub>x→1</sub> f(x)?`,[`3`,`1`,`2.99`,`0`],0,`Both sides head to 3.`),Q(`Can a limit exist where f(a) doesn't?`,[`Yes`,`No`,`Only at x = 0`,`Only for straight lines`],0,`A hole.`),N(`Guess lim<sub>x→0</sub> f(x) from: f(−0.01) = 1.995, f(0.01) = 2.005.`,2,0.001,'',`Both sides close in on 2.`),Q(`The open circle on a graph shows…`,[`a hole: no value there`,`a maximum`,`a root`,`an asymptote`],0,`Missing point.`)]);
+F('c6-1-2',[GN('limfac'),GN('limfac'),N(`lim<sub>x→4</sub> (2x + 1)?`,9,0.001,'',`Substitute.`),Q(`Substituting gives 0/0. This means…`,[`simplify and try again`,`the limit is 0`,`the limit is 1`,`there is no limit`],0,`Indeterminate.`),Q(`For √ expressions giving 0/0, multiply by…`,[`the conjugate`,`zero`,`x²`,`the reciprocal`],0,`√a − b times √a + b.`)]);
+F('c6-1-3',[Q(`Left limit 2, right limit 3. The limit is…`,[`not defined`,`2.5`,`2`,`3`],0,`They must agree.`),Q(`x → 4⁻ means x approaches 4…`,[`from below`,`from above`,`from either side`,`and equals 4`],0,`The left.`),Q(`|x|/x for x < 0 equals…`,[`−1`,`1`,`0`,`x`],0,`|x| = −x.`),Q(`A jump discontinuity has…`,[`different one-sided limits`,`a hole`,`an infinite value`,`a zero derivative`],0,`The sides disagree.`),GN('limfac')]);
+F('c6-2-1',[Q(`Continuous at a means…`,[`lim f(x) = f(a)`,`f(a) = 0`,`f′(a) = 0`,`f has a limit at infinity`],0,`Three conditions.`),Q(`(x² − 1)/(x − 1) at x = 1 has…`,[`a removable discontinuity`,`a jump`,`an infinite discontinuity`,`no problem`],0,`A hole at (1, 2).`),Q(`1/(x − 3) at x = 3 has…`,[`an infinite discontinuity`,`a removable discontinuity`,`a jump`,`no problem`],0,`Vertical asymptote.`),Q(`f continuous, f(2) = −1, f(3) = 6. Then f(x) = 4 for some x in…`,[`(2, 3)`,`(3, 4)`,`(0, 2)`,`nowhere`],0,`IVT.`),Q(`Polynomials are continuous…`,[`everywhere`,`only at integers`,`only for x > 0`,`nowhere`],0,`No breaks.`)]);
+F('c6-2-2',[GN('liminf'),GN('liminf'),GN('liminf'),Q(`A horizontal asymptote comes from…`,[`a limit as x → ±∞`,`the bottom being zero`,`a stationary point`,`the y-intercept`],0,`Far left or right.`),Q(`1/(x + 1) has a vertical asymptote at…`,[`x = −1`,`x = 1`,`y = 0`,`x = 0`],0,`Bottom zero.`)]);
+F('c6-2-3',[Q(`lim<sub>x→0</sub> (sin x)/x = …`,[`1`,`0`,`∞`,`π`],0,`In radians.`),N(`lim<sub>x→0</sub> sin(7x)/x?`,7,0.001,'',`7 × 1.`),Q(`The squeeze theorem needs the two outer functions to…`,[`have the same limit`,`be equal everywhere`,`be straight lines`,`be zero`],0,`Same limit.`),Q(`Calculus with trig must use…`,[`radians`,`degrees`,`gradians`,`either`],0,`Radians.`),Q(`(sin x)/x lies between cos x and…`,[`1`,`0`,`x`,`−1`],0,`For small x.`)]);
+F('c6-3-1',[GN('lhop'),GN('lhop'),Q(`L'Hôpital works on…`,[`0/0 and ∞/∞`,`any fraction`,`1/0`,`0 × 5`],0,`Indeterminate forms.`),Q(`lim<sub>x→0</sub> x/sin x?`,[`1`,`0`,`∞`,`−1`],0,`1/cos 0.`),GN('lhop')]);
+F('c6-3-2',[GN('mvt'),GN('mvt'),Q(`The MVT says the tangent at c is … to the chord.`,[`parallel`,`perpendicular`,`equal in length`,`the same as the curve`],0,`Same gradient.`),Q(`Rolle's theorem: f(a) = f(b) gives f′(c) = …`,[`0`,`1`,`f(a)`,`b − a`],0,`A flat chord.`),Q(`A car averages 80 km/h. The MVT says its speed was…`,[`exactly 80 km/h at some moment`,`never above 80`,`always 80`,`at least 160 somewhere`],0,`Instant = average.`)]);
+F('c6-3-3',[GN('ftc'),GN('ftc'),Q(`d/dx ∫<sub>2</sub><sup>x</sup> eᵗ dt = …`,[`eˣ`,`eˣ − e²`,`e²`,`xeˣ`],0,`Part 1.`),Q(`∫<sub>a</sub><sup>b</sup> f dx = G(b) − G(a) where G is…`,[`any antiderivative of f`,`the derivative of f`,`f itself`,`f squared`],0,`Part 2.`),N(`∫<sub>0</sub><sup>2</sup> 3x² dx?`,8,0.001,'',`[x³] from 0 to 2.`)]);
+GOALS.calc6={icon:'🎯',title:'Make calculus rigorous',story:'Each unit puts one foundation stone under everything you have done so far: what limits are, where functions behave, and the theorems that tie it together.',final:'University Calculus 1 foundations',steps:['What a limit is','Continuity and infinity','L\'Hôpital and the big theorems']};
+/* ========== CALCULUS · LEVEL 7 · More differentiation (rest of Calculus 1) ========== */
+var C7TRI=[[3,4,5],[6,8,10],[5,12,13],[8,15,17],[9,12,15],[12,5,13],[4,3,5]];
+CGEN.implicit=function(){var t=cP(C7TRI),a=t[0]*cP([1,-1]),b=t[1]*cP([1,-1]),v=Math.round(-a/b*1000)/1000;
+ return {p:'x² + y² = '+(t[2]*t[2])+'. Find dy/dx at the point ('+cNum(a)+', '+cNum(b)+'). (3 decimal places if needed)',b:[cB(v,'dy/dx = ','','gradient',false,0.002)],e:'Differentiate: 2x + 2y(dy/dx) = 0, so dy/dx = −x/y = −('+cNum(a)+') ÷ ('+cNum(b)+') = '+cNum(v)+'.'}};
+CGEN.implicit2=function(){var p,q;do{p=cR(-3,3);q=cR(-3,3)}while(p+2*q===0||(p===0&&q===0));var k=p*p+p*q+q*q,v=Math.round(-(2*p+q)/(p+2*q)*1000)/1000;
+ return {p:'x² + xy + y² = '+k+'. Find dy/dx at ('+cNum(p)+', '+cNum(q)+'). (3 decimal places if needed)',b:[cB(v,'dy/dx = ','','gradient',false,0.002)],e:'Differentiate term by term: 2x + (y + x dy/dx) + 2y dy/dx = 0. Collect: dy/dx (x + 2y) = −(2x + y). So dy/dx = −(2x + y)/(x + 2y) = −('+cNum(2*p+q)+')/('+cNum(p+2*q)+') = '+cNum(v)+'.'}};
+CGEN.relcirc=function(){var k=cR(1,5),R=cR(2,20),v=Math.round(2*Math.PI*R*k*10)/10;
+ return {p:'A circular ripple\'s radius grows at '+k+' cm/s. How fast is its area growing when the radius is '+R+' cm? (1 decimal place)',b:[cB(v,'dA/dt = ',' cm²/s','rate',false,0.002)],e:'A = πr², so dA/dt = 2πr × dr/dt = 2π × '+R+' × '+k+' = '+cNum(v)+' cm²/s.'}};
+CGEN.ladder=function(){var s=cP([1,2,3]),L=5*s,x=3*s,y=4*s,v=cR(1,4)/2,ans=Math.round(-x*v/y*1000)/1000;if(cR(0,1)){x=4*s;y=3*s;ans=Math.round(-x*v/y*1000)/1000}
+ return {p:'A '+L+' m ladder leans on a wall. Its foot slides away at '+cNum(v)+' m/s. How fast is the top moving when the foot is '+x+' m from the wall? (Negative means down. 3 d.p. if needed)',b:[cB(ans,'dy/dt = ',' m/s','rate',false,0.002)],e:'x² + y² = '+(L*L)+'. When x = '+x+', y = '+y+'. Differentiate: 2x dx/dt + 2y dy/dt = 0, so dy/dt = −x(dx/dt)/y = −'+x+' × '+cNum(v)+' ÷ '+y+' = '+cNum(ans)+' m/s.'}};
+CGEN.linapprox=function(){var n=cR(2,10),h=cNZ(-3,3),v=Math.round((n+h/(2*n))*10000)/10000;
+ return {p:'Use a linear approximation of √x at x = '+(n*n)+' to estimate √'+(n*n+h)+'. (4 decimal places)',b:[cB(v,'≈ ','','estimate',false,0.0001)],e:'f(x) = √x, f′(x) = 1/(2√x). At '+(n*n)+': f = '+n+', f′ = 1/'+(2*n)+'. So √'+(n*n+h)+' ≈ '+n+' + ('+cNum(h)+')/'+(2*n)+' = '+cNum(v)+'. (The true value is '+Math.sqrt(n*n+h).toFixed(4)+'.)'}};
+CGEN.invtrig=function(){var a=cR(1,4),b=cP([0,0.5,1,2]),v=Math.round(a/(1+a*a*b*b)*1000)/1000;
+ return {p:'y = arctan('+cCo(a)+'x). Find dy/dx at x = '+cNum(b)+'. (3 decimal places if needed)',b:[cB(v,'dy/dx = ','','gradient',false,0.002)],e:'d/dx arctan(u) = u′/(1 + u²). With u = '+cCo(a)+'x: dy/dx = '+a+'/(1 + '+(a*a)+'x²). At x = '+cNum(b)+': '+a+'/(1 + '+cNum(a*a*b*b)+') = '+cNum(v)+'.'}};
+CGEN.dinv=function(){var a=cR(-3,3),c=cR(1,3),fa=a*a*a+c*a,v=Math.round(1/(3*a*a+c)*10000)/10000;
+ return {p:'f(x) = x³ + '+cCo(c)+'x. Find (f⁻¹)′('+cNum(fa)+'). (4 decimal places if needed)',b:[cB(v,'(f⁻¹)′ = ','','gradient',false,0.002)],e:'f('+cNum(a)+') = '+cNum(fa)+', so f⁻¹('+cNum(fa)+') = '+cNum(a)+'. f′(x) = 3x² + '+c+', so f′('+cNum(a)+') = '+(3*a*a+c)+'. The inverse\'s gradient is the reciprocal: 1/'+(3*a*a+c)+' = '+cNum(v)+'.'}};
+
+U({id:'c7-1',track:'calc',level:7,title:'Implicit differentiation',icon:'dy/dx',color:'#7F77DD',desc:'Differentiate equations that are not written as y = …, from circles to logarithmic differentiation.',lessons:[
+LH('c7-1-1','When y isn\'t on its own',10,'A circle can\'t be written as one y = … function, but it still has a gradient everywhere. Here\'s how to find it.',[
+RM(`<p><b>Chain rule</b>: d/dx f(g(x)) = f′(g(x)) × g′(x). For example, d/dx (3x + 1)² = 2(3x + 1) × 3.</p>`),
+T(`<h3>An equation, not a formula</h3><p>The circle <b>x² + y² = 25</b> has a tangent at every point, but you can't write it as a single y = … (it would need both +√ and −√).</p><p><b>Implicit differentiation</b>: differentiate both sides with respect to x, treating y as a function of x.</p>`),
+T(`<h3>The key step: differentiating y²</h3><p>y depends on x, so y² is a function inside a function. By the chain rule:</p><div class="eq">d/dx (y²) = 2y × dy/dx</div>${KY([['2y','the derivative of "something squared"',''],['dy/dx','times the derivative of the something: y itself','']],'Every time you differentiate a y term, multiply by dy/dx.')}`),
+Q(`d/dx (y³) = …`,[`3y² dy/dx`,`3y²`,`3x²`,`y³ dy/dx`],0,`Chain rule: 3y² times dy/dx.`),
+W('stepCalc',{steps:[`x² + y² = 25`,`Differentiate both sides with respect to x: 2x + 2y (dy/dx) = 0`,`Move 2x across: 2y (dy/dx) = −2x`,`Divide by 2y: <b>dy/dx = −x/y</b>`,`At (3, 4): dy/dx = −3/4. At (3, −4): +3/4.`]},`The gradient of a circle.`,`The answer has y in it: that's normal for implicit differentiation.`),
+Q(`Why is it fine for dy/dx to contain y?`,[`The point (x, y) tells you both, so you can substitute both`,`It isn't: the answer must only contain x`,`Because y is always zero on a circle`,`Because dy/dx and y are the same thing`],0,`Substitute the point's x and y.`),
+W('calcDrill',{skill:'implicit',need:4},`Gradients on a circle. Get 4 right to master it.`,`dy/dx = −x/y.`),
+T(`<h3>Key points</h3><ul><li>Differentiate <b>both sides</b> with respect to x.</li><li>Every y term gets a <b>× dy/dx</b> (chain rule).</li><li>Rearrange for dy/dx; the answer can contain x and y.</li></ul>`)]),
+LH('c7-1-2','Products of x and y',10,'When x and y are multiplied together, the product rule joins in.',[
+RM(`<p>d/dx (y²) = 2y dy/dx. <b>Product rule</b>: d/dx (uv) = u′v + uv′.</p>`),
+T(`<h3>Differentiating xy</h3><p>xy is x times y: a product. With u = x and v = y:</p><div class="eq">d/dx (xy) = 1 × y + x × dy/dx = y + x dy/dx</div>`),
+Q(`d/dx (x²y) = …`,[`2xy + x² dy/dx`,`2x dy/dx`,`2xy`,`x² dy/dx`],0,`u = x², v = y: u′v + uv′.`),
+W('stepCalc',{steps:[`x² + xy + y² = 7. Find dy/dx at (1, 2).`,`Differentiate each term: 2x + (y + x dy/dx) + 2y dy/dx = 0`,`Collect the dy/dx terms: dy/dx (x + 2y) = −2x − y`,`So dy/dx = −(2x + y)/(x + 2y)`,`At (1, 2): −(2 + 2)/(1 + 4) = <b>−4/5</b>`]},`Implicit differentiation with a product.`,`Collect every dy/dx term on one side, then factorise.`),
+W('calcDrill',{skill:'implicit2',need:4},`Implicit curves with xy. Get 4 right to master it.`,`dy/dx = −(2x + y)/(x + 2y).`),
+T(`<h3>Tangent lines</h3><p>Once you have the gradient at a point, the tangent is y − y₁ = m(x − x₁). For the curve above at (1, 2): y − 2 = −0.8(x − 1).</p>`),
+QE(`Find lim<sub>x→0</sub> (e<sup>2x</sup> − 1)/x.`,[`2`,`1`,`0`,`e²`],0,`L'Hôpital: 2e<sup>2x</sup> → 2.`),
+T(`<h3>Key points</h3><ul><li><b>d/dx (xy) = y + x dy/dx</b>.</li><li>Collect dy/dx terms, factorise, divide.</li><li>Use y − y₁ = m(x − x₁) for tangents.</li></ul>`)]),
+LH('c7-1-3','Logarithmic differentiation',9,'Take logs first, and impossible-looking derivatives like xˣ become easy.',[
+RM(`<p>d/dx (ln x) = 1/x. ln(ab) = ln a + ln b and ln(aⁿ) = n ln a. Implicit: d/dx (ln y) = (1/y) dy/dx.</p>`),
+T(`<h3>Where ln x's derivative comes from</h3><p>y = ln x means eʸ = x. Differentiate implicitly: eʸ dy/dx = 1, so dy/dx = 1/eʸ = <b>1/x</b>. A derivative you learned as a fact, now proved.</p>`),
+T(`<h3>A power with x on top</h3><p>y = xˣ isn't xⁿ (the power changes) or aˣ (the base changes). Take ln of both sides first:</p>`),
+W('stepCalc',{steps:[`y = xˣ`,`Take ln: ln y = x ln x`,`Differentiate implicitly: (1/y) dy/dx = 1 × ln x + x × (1/x) = ln x + 1`,`Multiply by y: dy/dx = y(ln x + 1)`,`Put y back: <b>dy/dx = xˣ(ln x + 1)</b>`]},`Differentiate xˣ.`,`Take ln, differentiate implicitly, multiply back by y.`),
+Q(`What's the first step in logarithmic differentiation?`,[`Take ln of both sides`,`Use the quotient rule`,`Integrate both sides`,`Set x = 1`],0,`Logs turn powers and products into sums.`),
+N(`y = xˣ. Find dy/dx at x = 1.`,1,0.001,'',`1¹ × (ln 1 + 1) = 1 × 1 = 1.`),
+Q(`d/dx (ln y) = …`,[`(1/y) dy/dx`,`1/y`,`1/x`,`ln(dy/dx)`],0,`Chain rule.`),
+T(`<h3>Key points</h3><ul><li>Implicit differentiation proves <b>d/dx ln x = 1/x</b>.</li><li><b>Logarithmic differentiation</b>: take ln, differentiate implicitly, multiply by y.</li><li>d/dx xˣ = xˣ(ln x + 1).</li></ul>`)])
+]});
+
+U({id:'c7-2',track:'calc',level:7,title:'Related rates',icon:'d/dt',color:'#1D9E75',desc:'When two quantities are linked, their rates of change are linked too: ripples, ladders and tanks.',lessons:[
+LH('c7-2-1','Rates linked by the chain rule',9,'If a circle\'s radius is growing, how fast is its area growing? The chain rule answers that.',[
+RM(`<p>Chain rule: dy/dt = dy/dx × dx/dt. Area of a circle: A = πr².</p>`),
+T(`<h3>Everything changes with time</h3><p>A stone drops into a pond. The ripple's radius r grows, so its area A grows too. Both depend on time t.</p><p>A and r are linked by A = πr². Differentiate <b>with respect to t</b>:</p><div class="eq">dA/dt = 2πr × dr/dt</div>${KY([['dA/dt','how fast the area grows','cm²/s'],['dr/dt','how fast the radius grows','cm/s'],['2πr','dA/dr: the link between them','cm']])}`),
+Q(`The radius grows at 2 cm/s. At r = 10 cm, dA/dt = …`,[`40π cm²/s`,`20π cm²/s`,`100π cm²/s`,`4π cm²/s`],0,`2π × 10 × 2 = 40π.`),
+T(`<h3>The same rate, different effects</h3><p>The radius grows steadily, but the area grows <b>faster and faster</b>, because 2πr gets bigger. The same idea explains why a reactor\'s heat output rises sharply as fuel temperature climbs in some faults: linked quantities, linked rates.</p>`),
+W('calcDrill',{skill:'relcirc',need:3},`Ripples. Get 3 right to master it.`,`dA/dt = 2πr × dr/dt.`),
+Q(`Why do we differentiate with respect to t, not x?`,[`Because we want rates of change over time`,`Because t is always smaller than x`,`Because x isn't allowed in related rates`,`It makes no difference`],0,`Time is what both quantities depend on.`),
+T(`<h3>Key points</h3><ul><li><b>Related rates</b>: quantities linked by an equation have linked rates.</li><li>Differentiate the equation <b>with respect to t</b>.</li><li>dA/dt = 2πr dr/dt for a growing circle.</li></ul>`)]),
+LH('c7-2-2','A method for any problem',10,'Five steps that turn a wordy rates problem into a calculation.',[
+RM(`<p>Differentiate the linking equation with respect to t. Implicit: d/dt (y²) = 2y dy/dt.</p>`),
+T(`<h3>The five steps</h3><ol><li><b>Draw</b> a picture and label what changes.</li><li><b>Write</b> what you know (a rate) and what you want (another rate).</li><li><b>Find an equation</b> linking the quantities.</li><li><b>Differentiate</b> it with respect to t.</li><li><b>Substitute</b> the numbers at the moment asked about, last.</li></ol>`),
+O(`Put the related rates steps in order.`,['Draw and label','Write the known and wanted rates','Find an equation linking the quantities','Differentiate with respect to t','Substitute the numbers'],`Substitute last: if you put numbers in before differentiating, you lose the rates.`),
+W('stepCalc',{steps:[`A 5 m ladder leans on a wall. Its foot slides away at 0.5 m/s. How fast does the top fall when the foot is 3 m out?`,`Draw: foot x from the wall, top y up the wall. Know dx/dt = 0.5; want dy/dt.`,`Equation (Pythagoras): x² + y² = 25`,`Differentiate with respect to t: 2x dx/dt + 2y dy/dt = 0`,`At x = 3, y = 4: 2(3)(0.5) + 2(4) dy/dt = 0, so 3 + 8 dy/dt = 0`,`<b>dy/dt = −0.375 m/s</b>: the top falls at 0.375 m/s`]},`The sliding ladder.`,`The negative sign means y is getting smaller.`),
+Q(`Why substitute the numbers last?`,[`If x is fixed at 3 too early, its rate of change disappears`,`Because it makes the arithmetic easier`,`Because the numbers are not needed`,`It doesn't matter when`],0,`Fixing x as 3 before differentiating would make dx/dt zero.`),
+W('calcDrill',{skill:'ladder',need:3},`Sliding ladders. Get 3 right to master it.`,`dy/dt = −x(dx/dt)/y.`),
+T(`<h3>Key points</h3><ul><li><b>Draw, write, equation, differentiate, substitute</b>.</li><li>Substitute numbers <b>after</b> differentiating.</li><li>A negative rate means that quantity is decreasing.</li></ul>`)]),
+LH('c7-2-3','Tanks and balloons',10,'Volumes of cones and spheres, filling and emptying: the classic related rates problems.',[
+RM(`<p>Related rates: equation, differentiate with respect to t, substitute last. Sphere: V = (4/3)πr³. Cone: V = (1/3)πr²h.</p>`),
+T(`<h3>Inflating a balloon</h3><p>Air goes in at 100 cm³/s. How fast does the radius grow when r = 5 cm?</p><p>V = (4/3)πr³, so <b>dV/dt = 4πr² dr/dt</b>. At r = 5: 100 = 4π(25) dr/dt, so dr/dt = 1/π ≈ <b>0.318 cm/s</b>.</p>`),
+N(`Same balloon (100 cm³/s). How fast does r grow when r = 10 cm? (3 decimal places)`,0.0796,0.005,'cm/s',`100 = 4π(100) dr/dt, so dr/dt = 1/(4π) ≈ 0.0796 cm/s.`),
+T(`<h3>The bigger it gets, the slower r grows</h3><p>dr/dt = (dV/dt) ÷ (4πr²). 4πr² is the surface area, so the same air spreads over a bigger skin. A neat link: the derivative of the volume of a sphere is its surface area.</p>`),
+W('stepCalc',{steps:[`A cone-shaped tank, point down, has radius equal to height (r = h). Water flows in at 3 m³/min. How fast does the depth rise when h = 2 m?`,`Volume of water: V = (1/3)πr²h. Use r = h to remove r: V = (1/3)πh³`,`Differentiate with respect to t: dV/dt = πh² dh/dt`,`At h = 2: 3 = π(4) dh/dt`,`<b>dh/dt = 3/(4π) ≈ 0.239 m/min</b>`]},`Filling a cone.`,`Use the shape to get rid of one variable before you differentiate.`),
+Q(`In the cone problem, why replace r with h first?`,[`So V depends on just one changing quantity`,`Because r is always zero at the bottom`,`Because cones don't have a radius`,`To make the volume bigger`],0,`One variable, one derivative.`),
+QE(`d/dx (xy) = …`,[`y + x dy/dx`,`x dy/dx`,`dy/dx`,`xy dy/dx`],0,`Product rule.`),
+T(`<h3>Key points</h3><ul><li>S

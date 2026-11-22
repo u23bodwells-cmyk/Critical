@@ -1,4 +1,28 @@
-t.r.textContent=r.toFixed(2);st.k.textContent=k.toFixed(4);st.d.textContent=Math.round((k-1)/k*1e5)+' pcm'}
+ {check:function(){return selA&&((selA>=88&&selA<=102)||(selA>=130&&selA<=146))?{ok:true}:{ok:false,msg:selA?'A = '+selA+' is quite unlikely (yield '+y(selA).toFixed(2)+'%). Look for the peaks.':'Click somewhere on the curve.'}}}};
+
+WIDGETS.generations=function(box){var cv=canvas(box,220),s=slider(box,'k',0.9,1.1,0.005,0.95,function(v){return v.toFixed(3)},function(){draw()}),m=msg(box);
+ function draw(){var k=s.get(),n=[];for(var g=0;g<=20;g++)n.push(1000*Math.pow(k,g));var mx=Math.max(2000,n[20]*1.05),P=plot(cv,{x:[-0.5,20.5],y:[0,mx],xl:'generation',yl:'neutrons',xticks:[0,5,10,15,20]});P.c.fillStyle=Math.abs(k-1)<1e-9?cssv('--good-line'):k<1?cssv('--blue'):cssv('--coral');n.forEach(function(v,g){var x0=P.X(g-0.35),x1=P.X(g+0.35);P.c.fillRect(x0,P.Y(v),x1-x0,P.Y(0)-P.Y(v))});P.hline(1000,cssv('--muted'));
+  m.set(Math.abs(k-1)<1e-9?'k = 1: critical. Steady population.':k<1?'k < 1: subcritical. The population dies away.':'k > 1: supercritical. The population grows.',Math.abs(k-1)<1e-9?true:null)}
+ onDraw(draw);draw();return {check:function(){return Math.abs(s.get()-1)<1e-9?{ok:true}:{ok:false,msg:'k = '+s.get().toFixed(3)+'. The population isn\'t steady yet.'}},lock:function(){s.input.disabled=true}}};
+
+WIDGETS.sixFactor=function(box){var F=[['ε','Fast fission',1,1.1,0.001,1.03],['L<sub>f</sub>','Fast non-leakage',0.85,1,0.001,0.97],['p','Resonance escape',0.6,0.9,0.001,0.72],['L<sub>t</sub>','Thermal non-leakage',0.9,1,0.001,0.99],['f','Thermal utilisation',0.6,0.9,0.001,0.71],['η','Reproduction',1.6,2.1,0.001,1.85]],sl=[],cv=canvas(box,200),st;
+ F.forEach(function(f){sl.push(slider(box,f[0]+' '+f[1],f[2],f[3],f[4],f[5],function(v){return v.toFixed(3)},function(){draw()}))});st=stats(box,[['k','k'],['s','State']]);
+ function kk(){return sl.reduce(function(a,s){return a*s.get()},1)}
+ function draw(){var n=[1000],lab=['start'];F.forEach(function(f,i){n.push(n[i]*sl[i].get());lab.push(f[0].replace(/<\/?sub>/g,''))});var P=plot(cv,{x:[-0.5,6.5],y:[0,1300],yl:'neutrons',xticks:[],pad:{l:48,r:10,t:10,b:30}});
+  n.forEach(function(v,i){var x0=P.X(i-0.35),x1=P.X(i+0.35);P.c.fillStyle=i===6?(Math.abs(v-1000)<=5?cssv('--good-line'):cssv('--coral')):cssv('--accent');P.c.fillRect(x0,P.Y(v),x1-x0,P.Y(0)-P.Y(v));P.ptext(lab[i],P.X(i),P.g.H-12,cssv('--muted'),'center');P.ptext(Math.round(v),P.X(i),P.Y(v)-4,cssv('--text'),'center')});P.hline(1000,cssv('--muted'));
+  var k=kk();st.k.textContent=k.toFixed(4);st.s.textContent=Math.abs(k-1)<=0.005?'Critical':k<1?'Subcritical':'Supercritical'}
+ onDraw(draw);draw();return {check:function(){var k=kk();return Math.abs(k-1)<=0.005?{ok:true,msg:'k = '+k.toFixed(4)+'.'}:{ok:false,msg:'k = '+k.toFixed(4)+'. Get it within 0.005 of 1.'}},lock:function(){sl.forEach(function(s){s.input.disabled=true})}}};
+
+WIDGETS.thermalise=function(box){var MOD=[['Light water',[[1,0.91],[16,0.09]]],['Heavy water',[[2,0.64],[16,0.36]]],['Graphite',[[12,1]]]],mi=0,cv=canvas(box,200),path=null,shown=0,results={};var s=select(box,'Moderator',MOD.map(function(m){return m[0]}),function(i){mi=i;path=null;draw()});var r=row(box);btn(r,'Fire a neutron',fire,'pri');var st=stats(box,[['c','Collisions (this neutron)'],['a','Average so far']]);
+ function fire(){var E=2e6,p=[E],nuc=MOD[mi][1];while(E>0.025&&p.length<2000){var A=nuc[0][0],u=Math.random(),acc=0;for(var i=0;i<nuc.length;i++){acc+=nuc[i][1];if(u<=acc){A=nuc[i][0];break}}var al=Math.pow((A-1)/(A+1),2);E=E*(al+(1-al)*Math.random());p.push(Math.max(E,0.01))}path=p;shown=0;var k=MOD[mi][0];(results[k]=results[k]||[]).push(p.length-1);st.c.textContent='–';
+  var start=performance.now(),dur=2200;anim(cv,function(){shown=Math.min(path.length,Math.ceil((performance.now()-start)/dur*path.length));draw();if(shown>=path.length){var a=results[k];st.c.textContent=path.length-1;st.a.textContent=(a.reduce(function(x,y){return x+y},0)/a.length).toFixed(1)+' ('+a.length+' fired)';return false}})}
+ function draw(){var P=plot(cv,{x:[0,Math.max(25,path?path.length:25)],y:[0.01,1e7],ylog:true,xl:'collision number',yl:'energy (eV)'});P.hline(0.025,cssv('--teal'));P.text('thermal',1,0.05,cssv('--teal'));if(path){P.pts(path.slice(0,shown).map(function(e,i){return [i,e]}),cssv('--accent'),2);if(shown)P.dot(shown-1,path[shown-1],cssv('--coral'),5)}else P.text('Press "Fire a neutron"',2,1e3,cssv('--muted'),'left','14px system-ui')}
+ onDraw(draw);draw();return {}};
+
+WIDGETS.modRatio=function(box){var DEN=[[280,0.764],[290,0.746],[300,0.726],[310,0.704],[320,0.68],[330,0.651],[340,0.616]];function den(T){for(var i=1;i<DEN.length;i++)if(T<=DEN[i][0]){var a=DEN[i-1],b=DEN[i];return a[1]+(T-a[0])/(b[0]-a[0])*(b[1]-a[1])}return 0.616}
+ function kr(r){return Math.exp(-0.9/r)/(1+0.06*r)}var r0=3.38,C=1/kr(r0),cv=canvas(box,240),s=slider(box,'Coolant temperature',280,340,1,300,function(v){return v+' °C'},function(){draw()}),st=stats(box,[['r','Moderator-to-fuel ratio'],['k','k'],['d','Reactivity change from 300 °C']]);
+ function draw(){var T=s.get(),r=r0*den(T)/den(300),k=C*kr(r),P=plot(cv,{x:[0.5,8],y:[0.7,1.1],xl:'moderator-to-fuel ratio',yl:'k'});P.fn(function(x){return C*kr(x)},cssv('--accent'),3);P.text('undermoderated',0.7,1.07,cssv('--muted'));P.text('overmoderated',7.8,1.07,cssv('--muted'),'right');P.dot(r,k,cssv('--coral'),7);P.vline(r0,cssv('--faint'),[3,4],1);
+  st.r.textContent=r.toFixed(2);st.k.textContent=k.toFixed(4);st.d.textContent=Math.round((k-1)/k*1e5)+' pcm'}
  onDraw(draw);draw();el('p','small','Illustrative curve. Hotter water is less dense, so there\'s effectively less moderator per unit of fuel.',box);return {}};
 
 WIDGETS.reactivityCalc=function(box,par){var st,s=slider(box,'k',0.99,1.01,0.0001,0.995,function(v){return v.toFixed(4)},function(){upd()}),r=row(box);btn(r,'− 0.0001',function(){s.set(Math.round((s.get()-0.0001)*1e4)/1e4)});btn(r,'+ 0.0001',function(){s.set(Math.round((s.get()+0.0001)*1e4)/1e4)});st=stats(box,[['r','ρ (Δk/k)'],['p','ρ (pcm)'],['d','ρ (dollars)'],['s','State']]);
@@ -822,6 +846,7 @@ function xeTrip(t){var li=Math.LN2/6.57,lx=Math.LN2/9.14,A=4.7*lx;return Math.ex
  function defs(){QDEF.num=['Get {n} calculation{s} right first time','check'];QDEF.mission=['Complete a control room mission','dial'];QDEF.test=['Pass a unit test','star'];QDEF.test80=['Score 80% or more on a unit test','star'];
   QDEF.perfect=['Finish {n} lesson{s} with no mistakes','star'];QDEF.follow=['Complete {n} follow-up practice{s}','loop'];QDEF.lessons=['Finish {n} lesson{s}','book']}
  function activeLv(){try{if(P&&P.ui!=null)return {m:trk(P.ui),lv:lvOf(P.ui)}}catch(_){}return {m:curMode(),lv:curLevel()}}
+ for(var _ql=6;_ql<=20;_ql++)LQ[_ql]={name:'Level '+_ql,focus:LQ[5].focus,xm:LQ[5].xm,pool:LQ[5].pool};
  function goalFor(lv){return Math.round(S.goal*LQ[lv].xm/10)*10}
  quests=function(){defs();var t=today(),a=activeLv(),key=a.m+a.lv;S.qsets=S.qsets||{};
   if(S.quests&&S.quests.d===t&&!S.quests.key&&a.lv===1){S.quests.key=key;S.qsets[key]=S.quests}
@@ -1214,44 +1239,4 @@ var REV=(function(){
  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
  function R(){if(!S.rev||typeof S.rev!=='object')S.rev={};var r=S.rev;if(!Array.isArray(r.tests))r.tests=[];if(!r.miss||typeof r.miss!=='object')r.miss={};if(!r.log||typeof r.log!=='object')r.log={};if(!r.mocks||typeof r.mocks!=='object')r.mocks={};return r}
  function s2d(s){var a=String(s).split('-');return new Date(+a[0],a[1]-1,+a[2],12)}
- function addD(s,n){var d=s2d(s);d.setDate(d.getDate()+n);return dstr(d)}
- function diff(a,b){return Math.round((s2d(b)-s2d(a))/864e5)}
- function nice(s){return s2d(s).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})}
- function short(s){return s2d(s).toLocaleDateString('en-GB',{weekday:'short'})}
- function inDays(s){var n=diff(today(),s);return n===0?'today':n===1?'tomorrow':n<0?(n===-1?'yesterday':-n+' days ago'):'in '+n+' days'}
- function tdI(){return (new Date().getDay()+6)%7}
- function uIdx(id){for(var i=0;i<UNITS.length;i++)if(UNITS[i].id===id)return i;return -1}
- /* a topic is a whole unit (e.g. gp3-1 Forces) or one lesson in it (e.g. gp3-1-1 Scalars, vectors and resultant forces) */
- var TI=null;function tInfo(id){if(!TI||TI._n!==UNITS.length){TI={_n:UNITS.length};UNITS.forEach(function(u,ui){TI[u.id]={ui:ui,li:-1,title:u.title};u.lessons.forEach(function(l,li){TI[l.id]={ui:ui,li:li,title:l.title,ut:u.title}})})}return TI[id]||null}
- function tLessons(id){var x=tInfo(id);if(!x)return [];if(x.li>=0)return [[x.ui,x.li]];return UNITS[x.ui].lessons.map(function(_,li){return [x.ui,li]})}
- function tOrd(id){var x=tInfo(id);return x?x.ui*1000+(x.li+1):1e9}
- function testOf(id){var r=R();for(var i=0;i<r.tests.length;i++)if(r.tests[i].id===id)return r.tests[i];return null}
- function subjName(t){return t.subj==='own'?(t.sname||'Your subject'):SUBJ[t.subj]||'Test'}
- function tName(t){return t.name||subjName(t)+' test'}
- function cards(t){return (t.cards||[]).filter(function(c){return c&&c.q&&c.a})}
- function uTitles(ids){return (ids||[]).map(function(id){var x=tInfo(id);return x?x.title:null}).filter(Boolean)}
- /* the revision days: the t.days days before the test, but never before the day the test was added (or after it was deleted) */
- function sched(t){var out=[];if(!t||!t.date)return out;var d=addD(t.date,-Math.max(1,Math.min(7,t.days||3))),g=0;if(t.from&&t.from>d)d=t.from;
-  for(;d<t.date&&g++<20;d=addD(d,1)){if(t.gone&&d>=t.gone)break;out.push(d)}return out}
- /* topics are shared out over the revision days; the last day is a mini mock on everything */
- function plan(t){var D=sched(t),n=D.length,U=(t.units||[]).filter(function(id){return !!tInfo(id)}),pd=n-1,out={};
-  D.forEach(function(d,k){var last=k===n-1,us=[];if(t.subj!=='own'&&U.length){if(last)us=U.slice();else if(U.length>=pd)us=U.filter(function(_,j){return Math.floor(j*pd/U.length)===k});else us=[U[k%U.length]]}
-   out[d]={k:k+1,n:n,mock:last,units:us}});return out}
- function dayInfo(dk){var best=null;R().tests.forEach(function(t){var p=plan(t)[dk];if(p&&(!best||t.date<best.t.date))best={t:t,p:p}});if(!best)return null;
-  var t=best.t,p=best.p;return build({tid:t.id,dk:dk,name:tName(t),subj:t.subj,date:t.date,k:p.k,n:p.n,mock:p.mock,units:p.units})}
- function build(pin){var t=testOf(pin.tid),tl=uTitles(pin.units),nc=t?cards(t).length:0,own=pin.subj==='own',d=nice(pin.date);
-  var desc=pin.mock?'Last day before your '+pin.name+' ('+d+'). Start with the mini mock test on '+(own?'all your flashcards':'everything')+', then practise what you got wrong.':
-   'Revision day '+pin.k+' of '+pin.n+' for your '+pin.name+' ('+d+'). '+(own?'Go through your '+nc+' flashcard'+(nc===1?'':'s')+' until the timer\'s done.':'Today\'s topic'+(tl.length===1?'':'s')+': '+tl.join(', ')+'. Do practice rounds until the timer\'s done.');
-  return {pin:pin,tid:pin.tid,name:pin.name,desc:desc,mock:!!pin.mock,units:pin.units||[]}}
- /* ----- questions ----- */
- function poolUnits(uids){var pool=[],seen={};(uids||[]).forEach(function(id){var x=tInfo(id);if(!x)return;var u=UNITS[x.ui];
-   tLessons(id).forEach(function(p){var l=u.lessons[p[1]];if(seen[l.id])return;seen[l.id]=1;function add(c,k,keep){if(!c||(c.t!=='Q'&&c.t!=='N'&&c.t!=='O'))return;var cc=Object.assign({},c);cc._src=u.title+' · '+l.title;if(keep)cc._key=k;cc._rk=k;cc._lid=l.id;cc._uid=u.id;pool.push(cc)}
-    l.cards.forEach(function(c,ci){add(c,l.id+'#'+ci,1)});(FOLLOW[l.id]||[]).forEach(function(c,ci){add(c,'F'+l.id+'#'+ci,1)});(BANK[l.id]||[]).forEach(function(c,ci){add(c,'B'+l.id+'#'+ci)})});
-   if(x.li<0)(TESTS[u.id]||[]).forEach(function(c,ci){if(!c||(c.t!=='Q'&&c.t!=='N'&&c.t!=='O'))return;var cc=Object.assign({},c);cc._src=u.title+' · exam-style';cc._rk='T'+u.id+'#'+ci;cc._uid=u.id;pool.push(cc)})});return pool}
- var BANK={
-  'gp3-1-1':[
-   Q(`Which of these is a <b>scalar</b> quantity?`,['Speed','Velocity','Force','Displacement'],0,`A scalar has size only. Speed is just how fast; velocity is speed <i>in a given direction</i>, so it's a vector.`),
-   Q(`Which of these is a <b>vector</b> quantity?`,['Acceleration','Mass','Temperature','Energy'],0,`Acceleration has a direction. Mass, temperature and energy only have a size.`),
-   Q(`What's the difference between a scalar and a vector?`,['A vector has a direction as well as a size; a scalar only has a size','A scalar has a direction; a vector doesn\'t','Vectors are always bigger than scalars','Scalars can\'t be measured'],0,`Both have a size (magnitude). Only a vector also has a direction.`),
-   Q(`Which list contains <b>only</b> vectors?`,['Force, velocity, momentum','Mass, force, energy','Speed, distance, time','Weight, mass, density'],0,`Force, velocity and momentum all have directions. Mass, energy, speed, distance, time and density don't.`),
-   Q(`Which of these is <b>not</b> a vector?`,['Distance','Momentum','Weight','Displacement'],0,`Distance is how far, with no direction. 
+ function addD(s,n){var d=s2d(s);d.setDate(d.getDate()+
