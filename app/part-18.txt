@@ -1,4 +1,8 @@
-d();
+"2" maxlength="300" placeholder="'+ph+'"></textarea></div>';
+ var ta=d.querySelector('textarea');if(old&&!old.done)ta.value=old.q;
+ function save(){var v=ta.value.trim();if(v.length<3)return;var x=lxGet();x.myq[l.id]={q:v.slice(0,300),t:l.title,d:today(),done:false,at:Date.now()};lxSet(x);P.myq=true;nextCard()}
+ function upd(){mainBtn('Save my question and start',save,ta.value.trim().length<3)}
+ ta.oninput=upd;ta.onkeydown=function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();e.stopPropagation();save()}};upd();
  skipBtn(function(){P.myq=false;nextCard()},'Skip');setTimeout(function(){try{ta.focus({preventScroll:true})}catch(e){}},60)}
 /* ---- the end: did the lesson answer your question? ---- */
 function askAbout(q){var b=document.querySelector('#player.open .pask')||document.querySelector('.askpill');if(!b)return;b.click();setTimeout(function(){var t=document.querySelector('.asksheet textarea');if(t){t.value=q;try{t.focus()}catch(e){}}},150)}

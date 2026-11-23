@@ -1,4 +1,4 @@
-Critical when you turn on or unlock your PC after 3pm on a school day, so your evening timetable starts from when you get home. Already set up? Download it again and rerun install.cmd to get the latest version.</p>';
+ itself at 4:45pm, in its own app window. There are more reminders at 6pm and 8pm if you still haven\'t studied, and any session counts. It also opens Critical when you turn on or unlock your PC after 3pm on a school day, so your evening timetable starts from when you get home. Already set up? Download it again and rerun install.cmd to get the latest version.</p>';
   R.innerHTML=h;var lb=R.querySelector('[data-a=link]');if(lb)lb.onclick=function(){linkState==='lost'?writeFile(true):link()}}
  /* autosave: while the timer runs, the session so far is saved every minute, so a crash, a closed tab or a sync can't lose it */
  var lastM=-1;
@@ -1147,5 +1147,4 @@ try{window.REW=REW}catch(_){}
  '.shparts{margin:8px 0;padding:0;list-style:none}.shparts li{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px solid var(--line);font-size:15px}.shparts li span{color:var(--muted);font-family:var(--mono);font-size:13px}'+
  '.shacts{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;align-items:center}.shopt{display:block;width:100%;text-align:left;margin:6px 0;padding:10px 12px;border-radius:10px;border:1.5px solid var(--line);background:var(--soft);font:inherit;color:var(--text);cursor:pointer}.shopt:hover{background:var(--soft2)}'+
  '.shopt.ok{border-color:var(--good-line);background:var(--good-bg)}.shopt.no{border-color:var(--bad-line);background:var(--bad-bg)}.shopt[disabled]{cursor:default}.shex{font-size:14px;color:var(--muted);margin:6px 0}'+
- '.shta{width:100%;box-sizing:border-box;min-height:64px;border-radius:10px;border:1.5px solid var(--line);padding:8px 10px;font:inherit;background:var(--soft);color:var(--text);resize:vertical}'+
- '.mycard .myhead{
+ '.shta{width:100%;box-sizing:border-box;min-height:64px;border-

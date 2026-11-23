@@ -242,7 +242,7 @@ $('pSkip').onclick=function(){if(P&&P.onSkip)P.onSkip()};
 document.addEventListener('keydown',function(e){if(!P||e.ctrlKey||e.metaKey||e.altKey)return;var pl=$('player');if(!pl||!pl.classList.contains('open'))return;
  var md=$('modal');if((md&&(md.classList.contains('open')||md.classList.contains('show')))||document.querySelector('.shmod')||document.querySelector('.calcsheet.open'))return;var t=e.target,tag=t&&t.tagName;
  if(e.key==='Enter'){if(e.shiftKey||e.isComposing)return;if(tag==='TEXTAREA')return;if(tag==='BUTTON'&&pl.contains(t)&&t!==$('pBtn')&&!t.classList.contains('opt'))return;if(!$('pBtn').disabled){e.preventDefault();P.onMain&&P.onMain()}return}
- if(/^[1-9]$/.test(e.key)&&!e.shiftKey){if(tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT'||(t&&t.isContentEditable))return;var os=document.querySelectorAll('#pBody .opts .opt'),o=os[+e.key-1];if(o&&!o.disabled){e.preventDefault();o.click();try{o.focus({preventScroll:true})}catch(_){}}}});
+ if(/^[1-9]$/.test(e.key)&&!e.shiftKey){if(tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT'||(t&&t.isContentEditable))return;var gs=[].filter.call(document.querySelectorAll('#pBody .opts'),function(g){return [].some.call(g.querySelectorAll('.opt'),function(x){return !x.disabled})}),os=gs.length?gs[0].querySelectorAll('.opt'):[],o=os[+e.key-1];if(o&&!o.disabled){e.preventDefault();o.click();try{o.focus({preventScroll:true})}catch(_){}}}});
 function foot(st,head,body){$('pFoot').className='pfoot'+(st?' '+st:'');$('pFb').innerHTML=(head?'<b class="h">'+head+'</b>':'')+(body||'');if(st==='no'&&P&&P.helpDue){P.helpDue=0;try{EASE.offer()}catch(e){if(window.console)console.error(e)}}}
 function mainBtn(label,fn,dis){var b=$('pBtn');b.textContent=label;b.disabled=!!dis;P.onMain=fn}
 function skipBtn(fn,label){$('pSkip').style.display=fn?'':'none';$('pSkip').textContent=label||'Skip this one';P.onSkip=fn}
@@ -1135,6 +1135,4 @@ WIDGETS.decayDrill=function(box){var EL={6:'C',7:'N',9:'F',8:'O',11:'Na',10:'Ne'
 
 WIDGETS.halfLife=function(box){var th,A0,cv=canvas(box,240),r=row(box);r.innerHTML='<span class="small">Half-life (hours):</span><input type="number" step="0.5">';var inp=r.querySelector('input');btn(r,'New isotope',function(){nw();inp.value=''});
  function nw(){th=[4,5,6,7.5,8,10,12][Math.floor(Math.random()*7)];A0=[400,600,800][Math.floor(Math.random()*3)];draw()}
- function draw(){var P=plot(cv,{x:[0,40],y:[0,A0],xl:'time (hours)',yl:'activity (Bq)'});P.fn(function(t){return A0*Math.pow(0.5,t/th)},cssv('--accent'),3);[2,4].forEach(function(f){P.hline(A0/f,cssv('--coral'))})}
- onDraw(draw);nw();
- return {check:function(){var v=parseNu
+ function draw(){var P=plot(cv,{x:[0,40],y:[0,A0],xl:'time (hours)',yl:'activity (Bq)'});P.fn(function(t){return A0*Math.po

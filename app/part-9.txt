@@ -1,4 +1,7 @@
-base`,'Yes: it gives x times e to the x − 1','Only when x is a whole number','Yes, as long as you treat e as x'],0,`The power rule is for xⁿ with a fixed power.`),
+ with the gradient.`,`They're always equal. eˣ is its own derivative.`),
+T(`<h3>The rule</h3><div class="eq">d/dx (eˣ) = eˣ</div><p>And with a number multiplying x in the power:</p><div class="eq">d/dx (e<sup>kx</sup>) = k e<sup>kx</sup></div><p>The k comes down in front. So d/dx (e³ˣ) = 3e³ˣ, and d/dx (e<sup>−2x</sup>) = −2e<sup>−2x</sup>.</p>`),
+Q(`Differentiate y = e⁵ˣ.`,[`5e⁵ˣ`,`e⁵ˣ`,`5xe⁵ˣ⁻¹`,`e⁴ˣ`],0,`k comes down; the power stays the same.`),
+Q(`Can you use the power rule on eˣ?`,[`No: x is the power, not the base`,'Yes: it gives x times e to the x − 1','Only when x is a whole number','Yes, as long as you treat e as x'],0,`The power rule is for xⁿ with a fixed power.`),
 W('calcDrill',{skill:'expd',need:5},`Differentiate each exponential. Get 5 right to master it.`,`Bring k down; the e-part stays the same.`),
 T(`<h3>Key points</h3><ul><li><b>e ≈ 2.718</b>.</li><li><b>d/dx (eˣ) = eˣ</b>: its own derivative.</li><li><b>d/dx (e<sup>kx</sup>) = ke<sup>kx</sup></b>. Don't use the power rule here.</li></ul>`)]),
 LH('c3-3-2','ln x',9,'The natural logarithm undoes eˣ, and its derivative is surprisingly simple: 1/x.',[
@@ -990,6 +993,4 @@ LH('c11-3-3','The cross product, lines and planes',11,'A vector at right angles 
 RM(`<p>a · b = 0 means perpendicular. Vectors add component by component.</p>`),
 T(`<h3>The cross product</h3><p>a × b is a <b>vector</b> perpendicular to both a and b:</p><div class="eq">a × b = ⟨a₂b₃ − a₃b₂,&nbsp; a₃b₁ − a₁b₃,&nbsp; a₁b₂ − a₂b₁⟩</div><p>Its length is |a||b| sin θ: the <b>area of the parallelogram</b> a and b make. Its direction follows the right-hand rule.</p>`),
 Q(`i × j = …`,[`k`,`−k`,`0`,`i + j`],0,`Right-hand rule.`),
-W('calcDrill',{skill:'vcross',need:2},`Cross products. Get 2 right to master it.`,`Cover each column in turn.`),
-T(`<h3>Lines</h3><p>A line through point a with direction d: <b>r = a + td</b>. As t varies, r slides along the line.</p>`),
-T(`<h3>Planes</h3><p>A plane is set by a point r₀ on it and a <b>normal</b> n sticking straight out of it. Every vector lying in the plane is perpendicular to n:</p><div class="eq">n · (r − r₀) = 0 &nbsp;⟺&nbsp; ax + by + cz = d</div><p>where n = ⟨a, b, c⟩ and d = n · r₀. To find a normal from two directions in the plane, use their cross product.</
+W('calcDrill',{skill:'vcross',need:2},`Cross products. Get 2 right
