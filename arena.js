@@ -455,6 +455,7 @@ function close() {
   if (!document.querySelector('.xov')) document.body.classList.remove('noscroll');
   try { if (document.pointerLockElement) document.exitPointerLock(); } catch (e) {}
   var gained = pendingXP; pendingXP = 0; if (gained > 0) API.xp(gained);
+  try { if (API.race) API.race({ closed: true }); } catch (e) {}
   API.close();
 }
 function killR3() { if (R3) { try { R3.dispose(); R3.forceContextLoss(); } catch (e) {} R3 = null; } }
@@ -818,7 +819,7 @@ function start(c, opts) {
   lock(); feed(st.play === 'melt' ? '☢ Meltdown: survive 5 waves and keep the core below 100%.' : st.play === 'koth' ? '👑 King of the Hill: stand in the zone on your own to score. First to ' + st.kothTarget + ' wins.' : 'First to ' + c.dmKills + ' kills wins! Every kill is a question.', '#fde047'); if (st.weakOnly) feed('🎯 Practice match: only questions you\'ve got wrong before', '#fca5a5'); if (!st.touch) feed('G: grenade  ·  H: neutron flash', '#cbd5e1');
   var last = performance.now();
   function loop(now) {
-    if (!st || st.over) return; var rdt = clamp((now - last) / 1000, 0, 0.05); last = now; adapt(rdt);
+    if (!st || st.over) return; var rdt = clamp((now - last) / 1000, 0, 0.05); last = now; adapt(rdt); raceTick(now);
     var dt = rdt * (st.slow > 0 ? 0.28 : 1);
     if (st.slow > 0) { st.slow -= rdt; if (st.slow <= 0 && st.pendingFinish) { var w = st.pendingFinish; st.pendingFinish = null; results(w, false); } }
     if (!st || st.over) return;
@@ -835,6 +836,8 @@ function mkEnt(name, col, diff) { return { name: name, col: col, diffKey: diff, 
 function botGun(b) { var t = b.D.auto ? (b.wsk != null ? b.wsk : st.skill) : clamp((b.D.acc - 0.16) / 0.44, 0, 1), mine = Math.max(0, SHOP.indexOf(st.me.slots[0])), i = clamp(mine + Math.round((t - 0.35) * 4) + Math.floor(Math.random() * 3) - 1, 0, SHOP.length - 1); return SHOP[i]; }
 function wkey(e) { if (st.evGun) { var ov = st.evGun(e); if (ov) return ov; } if (st.mode === 'dm') return e.slots[e.slot] || 'pistol'; return st.lad[Math.min(e.tier, st.lad.length - 1)]; }
 function W_(e) { return G[wkey(e)]; }
+/* Critical Race: tell the race how this player is doing (right answers in a row) about once a second */
+function raceTick(now) { if (!API.race || !st || !st.me) return; if (now - (st.raceT || 0) < 700) return; st.raceT = now; try { API.race({ streak: st.streak || 0, right: st.right || 0, asked: st.asked || 0, kills: st.me.kills || 0 }); } catch (e) {} }
 function isFinal(e) { return st.mode === 'gun' && e.tier === st.lad.length - 1; }
 function fillAmmo(e) { if (st.mode === 'dm') e.slots.forEach(function (k) { e.ammo[k] = G[k].mag; }); else e.ammo[wkey(e)] = W_(e).mag; e.reloadT = 0; }
 function ammo(e) { var k = wkey(e); if (e.ammo[k] == null) e.ammo[k] = G[k].mag; return e.ammo[k]; }
