@@ -880,7 +880,7 @@ function playCards(l){if(l._play)return l._play;var cs=l.cards,out=[{t:'S'}],poo
  var pi=-1;for(var i=2;i<cs.length;i++){if(cs[i].t==='Q'&&cs[i].o&&typeof cs[i].a==='number'&&!/fromb|from earlier|remember/i.test(cs[i].p||'')&&cs.slice(0,i).some(function(c){return c.t==='T'})){pi=i;break}}
  if(pi>=2&&cs.length>=5){var pq=Object.assign({},cs[pi]);pq._pre=1;pq._auto=1;pq._key=null;pq._src0=cs[pi]._key||l.id+'#'+pi;out.push(pq)}
  cs.forEach(function(c,ci){var cc=Object.assign({},c);if(!cc._key)cc._key=l.id+'#'+ci;out.push(cc);
-  if(c.t!=='T'||ci===cs.length-1||/class="fromb"/.test(c.h||''))return;var nxc=cs[ci+1];if(qcAsks(nxc))return;var hd=(c.h||'').match(/<h3[^>]*>([\s\S]*?)<\/h3>/i);if(hd&&QC_SKIP.test(hd[1]))return;
+  if(c.t!=='T'||ci===cs.length-1||/class="fromb"/.test(c.h||''))return;var nxc=cs[ci+1];if(qcAsks(nxc))return;var hq=typeof HANDQ!=='undefined'&&HANDQ[l.id+'#'+ci];if(hq){var hc=Object.assign({},hq);hc._auto=1;hc._key=null;out.push(hc);return}var hd=(c.h||'').match(/<h3[^>]*>([\s\S]*?)<\/h3>/i);if(hd&&QC_SKIP.test(hd[1]))return;
   var q=null;try{q=qcBuild(c,pool)}catch(e){}if(q){q._key=null;out.push(q);return}
   /* no gap to fill? then a few explain-it-back cards break up the reading */
   if(nx<2&&qcText(c.h||'').length>=180){out.push({t:'X',h:c.h,_auto:1});nx++}});
@@ -916,6 +916,4 @@ function rS(c,b){var u=UNITS[P.ui],l=u.lessons[P.li],hk=(typeof HOOKS!=='undefin
  var ta=d.querySelector('textarea');if(old&&!old.done)ta.value=old.q;
  function save(){var v=ta.value.trim();if(v.length<3)return;var x=lxGet();x.myq[l.id]={q:v.slice(0,300),t:l.title,d:today(),done:false,at:Date.now()};lxSet(x);P.myq=true;nextCard()}
  function upd(){mainBtn('Save my question and start',save,ta.value.trim().length<3)}
- ta.oninput=upd;ta.onkeydown=function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();e.stopPropagation();save()}};upd();
- skipBtn(function(){P.myq=false;nextCard()},'Skip');setTimeout(function(){try{ta.focus({preventScroll:true})}catch(e){}},60)}
-/*
+ ta.oninput=upd;ta.onkeydown=function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();e.stopPropagation();save()}};up
