@@ -1,3 +1,23 @@
+'Algorithms',7,'An algorithm is a precise set of steps that solves a problem. Every program starts as one.',[
+T(`<h3>What is an algorithm?</h3><p>An <b>algorithm</b> is a sequence of steps that can be followed to complete a task. A recipe is an algorithm. So is a reactor start-up procedure.</p><p>A <b>program</b> is an algorithm written in a language a computer can run.</p>`),
+T(`<h3>Two key skills</h3><ul><li><b>Decomposition</b>: breaking a problem into smaller problems that are easier to solve.</li><li><b>Abstraction</b>: removing unnecessary detail so you can focus on what matters.</li></ul><p>A Tube map is an abstraction: it leaves out real distances because you only need the order of stops.</p>`),
+Q(`Splitting "make a game" into "draw the screen", "move the player" and "keep score" is…`,[`decomposition`,`abstraction`,`iteration`,`selection`],0,`Breaking a big problem into smaller ones is decomposition.`),
+Q(`A control room display shows "Tavg 307 °C" but hides the readings from each individual sensor. That's…`,[`abstraction`,`decomposition`,`a bug`,`an algorithm`],0,`It removes detail the operator doesn't need right now.`),
+O(`Put this algorithm for making toast in a sensible order.`,['Put bread in the toaster','Switch it on','Wait until it pops up','Take the toast out','Butter it'],`Algorithms need their steps in the right order.`),
+Q(`What makes a good algorithm?`,[`Precise, unambiguous steps in the right order`,`As few words as possible`,`Written in Python`,`It only works for one input`],0,`Anyone (or any computer) following it should get the same result.`)]),
+LH('gcs1-2-2','Sequence, selection and iteration',8,'Every program is built from just three structures.',[
+T(`<h3>The three building blocks</h3><ul><li><b>Sequence</b>: steps run one after another, in order.</li><li><b>Selection</b>: a decision chooses which steps run (IF…THEN…ELSE).</li><li><b>Iteration</b>: steps repeat (a loop).</li></ul>`),
+T(`<h3>In AQA pseudo-code</h3><pre class="cs">temp ← USERINPUT
+IF temp &gt; 320 THEN
+   OUTPUT 'ALARM'
+ELSE
+   OUTPUT 'Normal'
+ENDIF</pre><p>The arrow <b>←</b> means "store this value in the variable". That's assignment.</p>`),
+W('sortIt',{bins:['Sequence','Selection','Iteration'],items:[['Do these three steps in order',0],['Read a number, then print it',0],['IF it\'s raining THEN take a coat',1],['Choose a menu option and act on it',1],['Repeat until the user types "quit"',2],['FOR each item in the list',2]]},`Which structure is each one?`,`Order = sequence, decisions = selection, repeating = iteration.`),
+Q(`A loop that runs a fixed number of times, like FOR i ← 1 TO 10, is called…`,[`definite iteration`,`indefinite iteration`,`selection`,`sequence`],0,`You know how many times it runs. A WHILE loop that runs until something happens is indefinite iteration.`),
+Q(`Which structure is a WHILE loop?`,[`Iteration`,`Selection`,`Sequence`,`Decomposition`],0,`It repeats while a condition is true.`),
+T(`<h3>Flowcharts</h3><ul><li><b>Rounded box</b>: start or end</li><li><b>Parallelogram</b>: input or output</li><li><b>Rectangle</b>: a process</li><li><b>Diamond</b>: a decision (yes or no)</li></ul>`),
+Q(`In a flowchart, which shape means a decision?`,[`Diamond`,`Rectangle`,`Parallelogram`,`Rounded box`],0,`A decision has two exits: yes and no.`)]),
 LH('gcs1-2-3','Variables and inputs',7,'Programs remember things in variables. Meet them, and the difference between a variable and a constant.',[
 T(`<h3>Variables</h3><p>A <b>variable</b> is a named location in memory that stores a value. The value can change while the program runs.</p><pre class="cs">score ← 0
 score ← score + 10</pre><p>After this, score holds 10.</p>`),
@@ -1228,27 +1248,4 @@ RM(`<p>Fleming's left-hand rule: First finger Field, seCond finger Current, thuM
 T(`<h3>The force laws</h3><div class="eq">on a wire: F = BIl&nbsp;&nbsp;&nbsp; on a charge: F = BQv</div><p>B is the magnetic flux density, in tesla (T). The force is perpendicular to both B and the motion.</p>`),
 W('calcDrill',{skill:'p_bil',need:3},`F = BIl. Get 3 right to master it.`,`Multiply B, I and l.`),
 T(`<h3>Charges in circles</h3><p>Because F is perpendicular to v, a charge in a uniform field moves in a <b>circle</b>: BQv = mv²/r, so <b>r = mv/(BQ)</b>. This is how <b>cyclotrons</b> accelerate particles and how mass spectrometers sort ions.</p>`),
-Q(`Why does a charged particle move in a circle in a uniform magnetic field?`,[`The force is always perpendicular to its velocity`,`The force is parallel to its velocity`,`Magnetic fields slow particles down`,`It has no charge`],0,`A centripetal force.`),
-T(`<h3>Key points</h3><ul><li><b>F = BIl</b>, <b>F = BQv</b>.</li><li>Perpendicular force → circular motion, <b>r = mv/BQ</b>.</li><li>Cyclotrons and mass spectrometers.</li></ul>`)]),
-LH('ap3-3-2','Electromagnetic induction',11,'Change the magnetic flux through a coil and you get a voltage. Every power station depends on it.',[
-RM(`<p>B is flux density in tesla. Generators turn coils in magnetic fields.</p>`),
-T(`<h3>Flux and flux linkage</h3><div class="eq">Φ = BA cos θ&nbsp;&nbsp;&nbsp; flux linkage = NΦ</div>`),
-T(`<h3>Faraday and Lenz</h3><div class="eq">ε = −N ΔΦ/Δt</div><p><b>Faraday</b>: the induced emf equals the rate of change of flux linkage. <b>Lenz</b> (the minus sign): the induced current opposes the change that caused it. Lenz's law is conservation of energy.</p>`),
-N(`A 200-turn coil's flux changes by 3 × 10⁻³ Wb in 0.1 s. Size of the induced emf (V)?`,6,0.001,'V',`200 × 0.003 ÷ 0.1.`),
-Q(`A magnet is pushed into a coil. Lenz's law says the induced current…`,[`creates a field that repels the approaching magnet`,`attracts the magnet`,`is zero`,`flows only after the magnet stops`],0,`It opposes the change.`),
-T(`<h3>Key points</h3><ul><li><b>Φ = BA cos θ</b>; linkage NΦ.</li><li><b>ε = −N dΦ/dt</b>.</li><li>Lenz: opposes the change (energy conservation).</li></ul>`)]),
-LH('ap3-3-3','Alternating current and transformers',10,'Why the grid uses AC and very high voltages.',[
-RM(`<p>Electromagnetic induction needs a changing flux. RMS: V<sub>rms</sub> = V₀/√2 (Calculus Level 9).</p>`),
-T(`<h3>AC</h3><p>Mains is 230 V <b>rms</b>, about 325 V peak, at 50 Hz. RMS values give the same power as the equivalent DC.</p>`),
-T(`<h3>Transformers</h3><div class="eq">V<sub>s</sub>/V<sub>p</sub> = N<sub>s</sub>/N<sub>p</sub></div><p>An alternating current in the primary makes a changing flux in the iron core, inducing an emf in the secondary. They only work with AC.</p>`),
-W('calcDrill',{skill:'p_trans',need:3},`Transformers. Get 3 right to master it.`,`V<sub>s</sub> = V<sub>p</sub>N<sub>s</sub>/N<sub>p</sub>.`),
-T(`<h3>Why high voltage?</h3><p>Power lost in cables is I²R. For the same power, raising the voltage lowers the current, slashing losses. Sizewell B's generator output is stepped up to 400 kV for the National Grid.</p>`),
-Q(`Transmitting at 10 times the voltage cuts cable losses by a factor of…`,[`100`,`10`,`1000`,`2`],0,`I falls 10×, I²R by 100×.`),
-T(`<h3>Key points</h3><ul><li>230 V rms = 325 V peak.</li><li><b>V<sub>s</sub>/V<sub>p</sub> = N<sub>s</sub>/N<sub>p</sub></b>.</li><li>High voltage → low current → low I²R losses.</li></ul>`)])
-]});
-
-U({id:'ap3-4',track:'ap',level:3,title:'Nuclear physics',icon:'☢',color:'#D85A30',desc:'Rutherford scattering and nuclear size, radioactive decay, and mass defect, fission and fusion.',lessons:[
-LH('ap3-4-1','Inside the nucleus',10,'Rutherford found the nucleus by firing alpha particles at gold. How big is it?',[
-RM(`<p>Coulomb repulsion between charges. The nucleus is tiny compared to the atom.</p>`),
-T(`<h3>Rutherford scattering</h3><p>Most alpha particles passed straight through gold foil; a very few bounced back. So the atom is mostly empty, with a tiny, dense, positive <b>nucleus</b>.</p>`),
-T(`<h3>Nuclear radius</h3><div class="eq">R = R₀A<sup>1/3</su
+Q(`Why does a charged particle move in a circle in a uniform magnetic field?`,[`The force is always perpendicular to its velocity`,`The force is parallel to its velocity`,`Magnetic fields slow particles down`,`It 

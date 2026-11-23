@@ -575,7 +575,7 @@ body,.hdr,.card,.unit,.pill,.msb,.opt,.prose .key,.tlinfo,.sbin,.schip{transitio
 .lvwb .ghost{margin:0}
 .cmbox{background:var(--good-bg);border:1.5px solid var(--good-line);border-radius:12px;padding:8px 12px;margin-top:8px}
 body:has(#player.open) .plban{bottom:calc(100px + env(safe-area-inset-bottom))}
-.tybadge{display:inline-block;font:700 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;background:var(--accent-bg);color:var(--accent-text);border-radius:6px;padding:2px 7px;margin-right:6px;vertical-align:1px}.tyin{width:min(360px,100%);font-family:inherit}.tyw{font:inherit;font-size:20px;padding:10px 14px;border:2px solid var(--line);border-radius:12px;background:var(--panel);color:var(--text);box-sizing:border-box}.tyw:focus{outline:none;border-color:var(--accent)}.small .tymc{margin-left:4px}
+.tybadge{display:inline-block;font:700 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;background:var(--accent-bg);color:var(--accent-text);border-radius:6px;padding:2px 7px;margin-right:6px;vertical-align:1px}.tyin{width:min(360px,100%);font-family:inherit}.tyask{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.tyw{font:inherit;font-size:20px;padding:10px 14px;border:2px solid var(--line);border-radius:12px;background:var(--panel);color:var(--text);box-sizing:border-box}.tyw:focus{outline:none;border-color:var(--accent)}.small .tymc{margin-left:4px}
 @media (hover:hover) and (pointer:fine){#pBody .opts{counter-reset:optk}#pBody .opts .opt{counter-increment:optk;position:relative;padding-left:50px}#pBody .opts .opt::before{content:counter(optk);position:absolute;left:14px;top:50%;transform:translateY(-50%);width:24px;height:24px;box-sizing:border-box;border-radius:7px;border:1.5px solid var(--line);font:600 12px var(--mono);display:flex;align-items:center;justify-content:center;color:var(--muted);background:var(--soft)}#pBody .opts .opt.sel::before{border-color:var(--accent);color:var(--accent)}#pBtn:not(:disabled)::after{content:'Enter';margin-left:10px;font:600 11px var(--mono);letter-spacing:.04em;padding:2px 6px;border-radius:5px;border:1px solid currentColor;opacity:.75;vertical-align:1px}}
 </style>
 <style id="neoCss">
@@ -1198,6 +1198,14 @@ function wEq(a,b){if(a===b)return true;var st=function(w){return w.replace(/(ing
 function tyHas(input,words){var iw=tyWords(input);return words.length>0&&words.every(function(w){return iw.some(function(x){return wEq(x,w)})})}
 function tyGroup(x){var n=tyNorm(x);for(var i=0;i<TY_SYN.length;i++){if(TY_SYN[i].indexOf(n)>=0)return i}return -1}
 function tyGroupIn(x){var n=' '+tyNorm(x)+' ',hit=-1;for(var i=0;i<TY_SYN.length;i++){for(var j=0;j<TY_SYN[i].length;j++){if(n.indexOf(' '+TY_SYN[i][j]+' ')>=0){if(hit>=0&&hit!==i)return -2;hit=i}}}return hit}
+/* like tyGroup, but forgiving: typos ("doules"), plurals and extra words still find the group */
+function tyGroupF(x){var g=tyGroup(x);if(g<0)g=tyGroup(tyWords(x).join(' '));if(g<0)g=tyGroupIn(x);if(g!==-1)return g;
+ var iw=tyNorm(x).split(' ').filter(Boolean),hit=-1;for(var i=0;i<TY_SYN.length;i++)for(var j=0;j<TY_SYN[i].length;j++){var pw=TY_SYN[i][j].split(' ');if(pw.every(function(w){return iw.some(function(v){return wEq(v,w)})})){if(hit>=0&&hit!==i)return -2;hit=i}}return hit}
+/* the answer with its spaces and hyphens taken out, so "lightwater" and "lowlevel waste" still count */
+function tyJoin(x){return tyNorm(x).replace(/\s+/g,'')}
+/* "theneutron", "itdoubles", "tothecathode": peel off a leading word or two that tyNorm would have dropped */
+function tyJPre(j,t){if(!t||t.length<4)return false;var q=[j],P=['they','the','its','it','an','a','to','are','is'];for(var n=0;n<3&&q.length;n++){var nx=[];q.forEach(function(x){P.forEach(function(p){if(x.indexOf(p)===0&&x.length>p.length){var y=x.slice(p.length);if(y===t)nx.ok=1;nx.push(y)}})});if(nx.ok)return true;q=nx}return false}
+function tyJEq(a,b){if(!a||!b)return false;if(a===b)return true;var L=Math.max(a.length,b.length);return L>=5&&a.charAt(0)===b.charAt(0)&&lev(a,b)<=(L>=12?2:1)}
 function tyNumParse(t){var m=String(t).replace(/^(about|around|roughly|approximately|approx\.?)\s+/i,'').match(/^([−\-]?\d[\d,]*(?:\.\d+)?)\s*(%|[a-zA-Zμ°Ω][a-zA-Z0-9μ°Ω\/²³·()]*(?:\s[a-zA-Z\/²³()]+)?)?$/);if(!m)return null;var v=Number(m[1].replace(/,/g,'').replace('−','-'));return isNaN(v)?null:{v:v,u:(m[2]||'').trim()}}
 var TY_UNITS={'':1,'%':1,'°':1,'°c':1,'k':1,'s':1,'ms':1,'min':1,'mins':1,'minute':1,'minutes':1,'hour':1,'hours':1,'h':1,'day':1,'days':1,'year':1,'years':1,'m':1,'cm':1,'mm':1,'km':1,'m/s':1,'kg':1,'g':1,'t':1,'j':1,'kj':1,'mj':1,'gj':1,'w':1,'kw':1,'mw':1,'gw':1,'kwh':1,'mwh':1,'bar':1,'bar(a)':1,'bar(g)':1,'mpa':1,'kpa':1,'pa':1,'bq':1,'kbq':1,'sv':1,'msv':1,'μsv':1,'μsv/h':1,'msv/h':1,'mev':1,'kev':1,'ev':1,'pcm':1,'w/cm³':1,'kw/m':1,'mw/m³':1,'v':1,'a':1,'ω':1,'n':1,'hz':1,'ppm':1,'mph':1,'°c/s':1,'cm³':1,'m³':1,'m²':1,'cm²':1,'g/cm³':1,'kg/m³':1,'dm³':1,'mol':1,'l':1,'ml':1,'j/kg':1,'w/m²':1,'km/h':1,'cents':1,'cent':1};
 function tyScore(iw,req){if(!req||!req.length)return Infinity;var t=0;for(var i=0;i<req.length;i++){var best=Infinity;for(var j=0;j<iw.length;j++)if(wEq(iw[j],req[i]))best=Math.min(best,lev(iw[j],req[i]));if(best===Infinity)return Infinity;t+=best}return t}
@@ -1209,7 +1217,7 @@ function typeSpec(c){if(c._ty!==undefined)return c._ty;c._ty=null;try{
  if(nu&&!TY_UNITS[nu.u.toLowerCase().replace(/\s/g,'')])nu=null;
  if(nu){var gaps=[];c.o.forEach(function(o,i){if(i===c.a)return;var w=tyNumParse(tyText(o));if(w&&nu.v!==0)gaps.push(Math.abs(w.v-nu.v)/Math.abs(nu.v))});var about=/^(about|around|roughly|approx)/i.test(ans),tol=about?0.1:0.02;if(gaps.length)tol=Math.min(tol,0.4*Math.min.apply(null,gaps));
   if(tol<=0)return null;c._ty={k:'num',v:nu.v,tol:tol,u:nu.u,show:ans};return c._ty}
- if(!/^[A-Za-z][A-Za-z\s\-'’()]*$/.test(ans))return null;
+ if(!/^[A-Za-z][A-Za-z\s\-'’()]*$/.test(ans))return null;if(c.o.some(function(o){return /\b(AND|OR|NOT|XOR|NAND|NOR)\b/.test(tyText(o))}))return null;
  var main=ans.replace(/\s*\([^)]*\)/g,'').trim(),par=(ans.match(/\(([^)]*)\)/)||[])[1],n=tyNorm(main);if(!n||n.split(' ').length>3||n.length>24)return null;
  var wrong=c.o.map(function(o,i){return i===c.a?null:tyText(o).replace(/\s*\([^)]*\)/g,'').trim()}).filter(Boolean);
  var words=tyWords(main),pw=tyWords(pt),g=tyGroup(main);if(g<0&&words.length)g=tyGroup(words.join(' '));
@@ -1219,12 +1227,18 @@ function typeSpec(c){if(c._ty!==undefined)return c._ty;c._ty=null;try{
  if(g<0&&wrong.some(function(w){return tyNorm(w)===n}))return null;
  var ww=wrong.map(tyWords),allw={};ww.forEach(function(a){a.forEach(function(x){allw[x]=1})});
  var req=words.filter(function(x){return pw.indexOf(x)<0&&!allw[x]});if(!req.length)req=words.filter(function(x){return !allw[x]});if(!req.length)req=words;
- var alt=par&&/^[A-Za-z][A-Za-z\s-]*$/.test(par)&&par.length<=20?tyWords(par):null;
- c._ty={k:'word',g:g,req:req,alt:alt,wrong:ww.map(function(a,i){var r=a.filter(function(x){return pw.indexOf(x)<0&&words.indexOf(x)<0});return {g:wg[i],req:r}}),show:ans,first:main.replace(/^(the|a|an|to|it)\s+/i,'').charAt(0).toUpperCase(),len:main.replace(/^(the|a|an|to|it)\s+/i,'').replace(/[^A-Za-z]/g,'').length};return c._ty}catch(e){return null}}
+ var alt=par&&/^[A-Za-z][A-Za-z\s-]*$/.test(par)&&par.length<=20?tyWords(par):null;if(alt&&(!alt.length||alt.some(function(x){return x.length<2})))alt=null;
+ var allwA=Object.keys(allw),uq=req.filter(function(x){return !allwA.some(function(y){return wEq(x,y)})});
+ c._ty={k:'word',g:g,req:req,alt:alt,wrong:ww.map(function(a,i){var r=a.filter(function(x){return pw.indexOf(x)<0&&words.indexOf(x)<0});return {g:wg[i],req:r,j:tyJoin(wrong[i])}}),j:tyJoin(main),altj:alt?tyJoin(par):'',uq:uq,show:ans,first:main.replace(/^(the|a|an|to|it)\s+/i,'').charAt(0).toUpperCase(),len:main.replace(/^(the|a|an|to|it)\s+/i,'').replace(/[^A-Za-z]/g,'').length};return c._ty}catch(e){return null}}
 function tyMatch(ty,input){var x=tyNorm(input);if(!x)return false;
- if(ty.g>=0){var gi=tyGroup(input);if(gi<0)gi=tyGroup(tyWords(input).join(' '));if(gi<0)gi=tyGroupIn(input);return gi===ty.g}
- var iw=tyWords(input);if(!iw.length)iw=x.split(' ');var sc=Math.min(tyScore(iw,ty.req),ty.alt&&ty.alt.length?tyScore(iw,ty.alt):Infinity);if(sc===Infinity)return false;
- var gi2=tyGroupIn(input);return !ty.wrong.some(function(w){return (w.g>=0&&gi2===w.g)||tyScore(iw,w.req)<=sc})}
+ var j=tyJoin(input);if(ty.j&&!ty.wrong.some(function(w){return w.j&&tyJEq(j,w.j)})&&(tyJEq(j,ty.j)||tyJPre(j,ty.j)||(ty.altj&&tyJEq(j,ty.altj))))return true;
+ if(ty.g>=0)return tyGroupF(input)===ty.g;
+ var iw=tyWords(input);if(!iw.length)iw=x.split(' ');var sc=Math.min(tyScore(iw,ty.req),ty.alt&&ty.alt.length?tyScore(iw,ty.alt):Infinity);
+ /* most of the key words is enough: "spray" for "Open the spray" (key words never appear in the wrong options) */
+ if(sc===Infinity){var hit=0,t=0;(ty.uq||[]).forEach(function(r){var b=Infinity;iw.forEach(function(v){if(wEq(v,r))b=Math.min(b,lev(v,r))});if(b<Infinity){hit++;t+=b}});if(!ty.req||ty.req.length<2||hit*2<ty.req.length)return false;sc=t}
+ var gi2=tyGroupF(input);return !ty.wrong.some(function(w){return (w.g>=0&&gi2===w.g)||tyScore(iw,w.req)<=sc})}
+/* does the answer clearly point at one of the wrong options? */
+function tyWrongHit(ty,input){var iw=tyWords(input),gi=tyGroupF(input),j=tyJoin(input);return (ty.wrong||[]).some(function(w){return (w.g>=0&&gi===w.g)||(w.req.length&&tyScore(iw,w.req)<Infinity)||(w.j&&tyJEq(j,w.j))})}
 function rTy(c,b,ty){P.asked++;var p=document.createElement('div');p.className='qprompt';p.innerHTML=c.p;b.appendChild(p);
  var r=document.createElement('div');r.className='numrow';r.innerHTML='<input class="'+(ty.k==='num'?'numin tyin" inputmode="decimal"':'tyin tyw"')+' autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Type your answer"><span class="numunit"></span>';b.appendChild(r);var inp=r.querySelector('input');if(ty.k==='num')r.querySelector('.numunit').textContent=ty.u||'';
  var sm=document.createElement('p');sm.className='small';sm.innerHTML='<span class="tybadge">Type it</span> No options this time. '+(ty.k==='num'?'Type the number.':'A word or short phrase is fine, and small typos are OK.')+' <button type="button" class="ghost tymc">Show me options</button>';b.appendChild(sm);
@@ -1236,8 +1250,15 @@ function rTy(c,b,ty){P.asked++;var p=document.createElement('div');p.className='
  function check(){if(inp.disabled)return;var v=inp.value.trim(),ok;
   if(ty.k==='num'){var x=parseNum(v.replace(/[a-zA-Zμ°Ω\/²³()\s]+$/,''));if(isNaN(x)){foot('no','That isn\'t a number','<div>Type just the number, like 13 or 0.25.</div>');return}ok=Math.abs(x-ty.v)<=Math.abs(ty.v)*ty.tol+1e-9}
   else ok=tyMatch(ty,v);
+  if(!ok&&ty.k==='word'&&!tyWrongHit(ty,v)){ask(v);return}
   if(ok){inp.disabled=true;inp.style.borderColor='var(--good-line)';gotRight(c);var bon=!P.st.tries?5:0;if(bon)award(bon);foot('ok',praise()+(bon?' +5 XP for typing it':''),(tyNorm(v)!==tyNorm(ty.show)?'<div>The answer: <b>'+ty.show+'</b></div>':'')+(c.e?'<div>'+c.e+'</div>':''));mainBtn('Continue',nextCard)}
-  else{P.st.tries++;if(P.st.tries===1)gotWrong(c);toMC(true)}}}
+  else{P.st.tries++;if(P.st.tries===1)gotWrong(c);toMC(true)}}
+ /* an answer the checker doesn't recognise (and isn't one of the wrong options): show the answer and let you say if you meant it */
+ function ask(v){inp.disabled=true;mainBtn('Check',check,true);
+  foot('no','Not sure about that one','<div>You typed <b>'+String(v).replace(/[&<>"]/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]})+'</b>. The answer was <b>'+ty.show+'</b>. Is that what you meant?</div><div class="tyask"><button type="button" class="wbtn pri" id="tyYes">Yes, I meant that</button><button type="button" class="wbtn" id="tyNo">No, I was wrong</button></div>');
+  $('tyYes').onclick=function(){inp.style.borderColor='var(--good-line)';gotRight(c);foot('ok','Counted as right',(c.e?'<div>'+c.e+'</div>':''));mainBtn('Continue',nextCard)};
+  $('tyNo').onclick=function(){P.st.tries++;if(P.st.tries===1)gotWrong(c);inp.disabled=false;toMC(true)};
+  setTimeout(function(){try{$('tyYes').focus({preventScroll:true})}catch(e){}},30)}}
 function parseNum(s){s=String(s).trim().replace(/[−–]/g,'-').replace(/,/g,'').replace(/\s/g,'').replace(/%$/,'');s=s.replace(/[x×*]10\^?/i,'e').replace(/\^/,'');if(s===''||s==='-')return NaN;return Number(s)}
 function fmtAns(a){var x=Math.abs(a);if(x!==0&&(x>=1e6||x<1e-3))return a.toExponential(2).replace('e+',' × 10^').replace('e-',' × 10^-').replace(/\^(-?\d+)/,'<sup>$1</sup>').replace('-','−');return String(+a.toPrecision(4)).replace('-','−')}
 function rN(c,b){P.asked++;var p=document.createElement('div');p.className='qprompt';p.innerHTML=c.p;b.appendChild(p);var r=document.createElement('div');r.className='numrow';r.innerHTML='<input class="numin" inputmode="decimal" autocomplete="off" placeholder="Your answer"><span class="numunit">'+(c.u||'')+'</span>';b.appendChild(r);var inp=r.querySelector('input');

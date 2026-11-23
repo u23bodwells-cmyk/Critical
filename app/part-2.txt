@@ -1,4 +1,31 @@
-e=null;
+).onclick=function(){note('');
+  if(!st.run){var n0=Date.now();st.run={at:n0,t:$('#stTopic').value.trim(),c:new Date(n0).toISOString()};keep();startTick();note('The timer saves itself every minute.');return}
+  try{var cur=JSON.parse(localStorage.getItem(KEY)||'null');if(cur&&Array.isArray(cur.sessions))st.sessions=cur.sessions}catch(_){}
+  var m=Math.round((Date.now()-st.run.at)/60000),t=$('#stTopic').value.trim()||st.run.t||'Study session',d=ymd(new Date(st.run.at)),li=liveIdx(),c=st.run.c||new Date(st.run.at).toISOString();
+  st.run=null;clearInterval(tick);
+  if(m<1){if(li>=0)st.sessions.splice(li,1);note('That was under a minute, so it wasn\'t saved.',true)}
+  else{if(m>600)m=600;if(li>=0){st.sessions[li].m=Math.max(m,+st.sessions[li].m||0);st.sessions[li].t=t;m=st.sessions[li].m}else st.sessions.push({d:d,m:m,t:t,c:c});note('Saved '+m+' min. Nice work.')}
+  keep();writeFile(true);paint()};
+ $('#stTopic').addEventListener('input',function(){if(st.run){st.run.t=this.value.trim();var i=liveIdx();if(i>=0)st.sessions[i].t=st.run.t||'Study session';keep()}});
+ $('[data-a=add]').onclick=function(){var m=parseInt($('#stAddM').value,10);if(!(m>=1&&m<=600)){note('Type the minutes first (1 to 600).',true);return}
+  st.sessions.push({d:ymd(),m:m,t:$('#stAddT').value.trim()||'Study session',c:new Date().toISOString()});$('#stAddM').value='';$('#stAddT').value='';keep();writeFile(true);note('Added '+m+' min to today.');paint()};
+ function close(){sh.classList.remove('open')}
+ $('.stx').onclick=close;sh.addEventListener('click',function(e){if(e.target===sh)close()});
+ document.addEventListener('keydown',function(e){if(e.key==='Escape'&&sh.classList.contains('open'))close()});
+ function open(){if(st.run)$('#stTopic').value=st.run.t||'';paint();sh.classList.add('open')}
+ var pills=[];
+ function mk(cls,label){var b=document.createElement('button');b.type='button';b.className=cls;b.innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="13.5" r="7.5"/><path d="M12 9.5v4l2.5 2M9.5 2.5h5M12 2.5v3.5"/></svg><span class="stt"></span>';b.title='Study timer';b.setAttribute('aria-label',label);b.onclick=open;pills.push(b);return b}
+ var hc=document.querySelector('.hdr .calcpill')||document.querySelector('.hdr .askpill');if(hc)hc.parentNode.insertBefore(mk('pill stpill','Study timer'),hc.nextSibling);
+ var lc=document.querySelector('.pcalc')||document.querySelector('.pask');if(lc)lc.parentNode.insertBefore(mk('psnd stpill','Study timer'),lc.nextSibling);
+ if(st.run)startTick();
+ /* gentle reminder inside the app too, if it's open at 4:15, 6 or 8 and nothing is logged */
+ var shown={};
+ function check(){var n=new Date(),hm=n.getHours()*60+n.getMinutes(),wd=n.getDay()>=1&&n.getDay()<=5;
+  var slots=[[16*60+45,wd,'It\'s 4:45: time to start.'],[18*60,true,'You haven\'t studied yet today. A short session still counts.'],[20*60,true,'Last call for today. Keep your streak going.']];
+  var did=didToday();
+  if(did){var ob=document.querySelector('.stbanner');if(ob)ob.remove();if(toldFile!==ymd()){toldFile=ymd();writeFile(false)}return}
+  slots.forEach(function(s){var k=ymd()+s[0];if(s[1]&&hm>=s[0]&&hm<s[0]+60&&!shown[k]){shown[k]=1;banner(s[2])}})}
+ var toldFile=null;
  function banner(t){var old=document.querySelector('.stbanner');if(old)old.remove();var b=document.createElement('div');b.className='stbanner';b.setAttribute('role','status');b.innerHTML='<p>'+esc(t)+'</p>';
   var g=document.createElement('button');g.className='stbtn alt';g.type='button';var usePlan=typeof PLAN!=='undefined'&&PLAN.todayLeft&&PLAN.todayLeft()&&!PLAN.running();g.textContent=usePlan?'Start today\'s plan':'Start timer';g.onclick=function(){b.remove();if(usePlan){PLAN.start();return}open();if(!st.run)$('[data-a=go]').click()};
   var q1=document.createElement('button');q1.className='stbtn alt';q1.type='button';q1.textContent='Just one question';q1.onclick=function(){b.remove();if(typeof ONE!=='undefined')ONE.start()};
@@ -1112,18 +1139,4 @@ var SHIFT=(function(){
  var OPQ=[
   ['In a control room, why do operators repeat instructions back word for word?',['So both people know it was heard correctly','Because the radio is too quiet to hear the first time','It is an old naval tradition with no real purpose now','To slow everyone down so nobody rushes a job'],'Repeat-back catches a mishearing before anyone acts on it. In a control room, acting on the wrong number or the wrong valve can be serious.'],
   ['How do you say the letter B in the NATO phonetic alphabet?',['Bravo','Bob','Bingo','Baker'],'Bravo. Phonetic words stop letters like B, D and P being mixed up over a noisy radio or phone line.'],
-  ['What does a reactor trip (a scram) do?',['Shuts the reactor down fast by dropping in all the control rods','Starts the reactor up by pulling all the control rods out','Lowers power slowly by adding boron to the cooling water','Tests every alarm in the control room at the same time'],'A trip drops every control rod into the core in a couple of seconds, stopping the chain reaction.'],
-  ['Why do operators follow written procedures even for jobs they have done many times?',['Doing every step in order stops memory slips','Because managers don\'t trust them to remember','So the shift takes long enough to fill the hours','Only new operators use them; experts work from memory'],'Even experts forget a step sometimes. A procedure means the job is done the same, safe way every time.'],
-  ['What is a shift handover?',['Telling the next shift the plant\'s state, problems and what is coming up','Swapping desks and logging in to the next shift\'s computers','Handing in your badge and dosimeter at the gate on the way out','Turning the reactor down for the night while the new crew settles in'],'Operators work in shifts around the clock, so a careful handover makes sure nothing gets lost between them.'],
-  ['A program checks the reactor temperature over and over, every second. What is code that repeats called?',['A loop','A variable','A comment','A crash'],'A loop runs the same code again and again. Plant computers loop constantly, checking hundreds of readings.'],
-  ['Why does a reactor still need cooling after it has shut down?',['The fuel keeps making heat from radioactive decay','The control rods stay hot and heat the water around them','The pumps make heat by friction as they keep running','It does not: the fuel cools down by itself in minutes'],'Decay heat starts at about 6% of full power just after shutdown and falls slowly, so cooling has to carry on for days.'],
-  ['What does a questioning attitude mean for an operator?',['Checking things that look odd instead of assuming they are fine','Asking lots of questions in training, then trusting the procedures','Challenging the supervisor on every decision they make on shift','Ignoring alarms that go off a lot, because they are usually false'],'Many accidents started with a small sign that nobody questioned. Good operators ask "why is that happening?"']];
- function R(){if(!S.shift||typeof S.shift!=='object')S.shift={};var r=S.shift;if(!Array.isArray(r.notes))r.notes=[];return r}
- function on(){return R().off!==true}
- function set(v){R().off=!v;save()}
- function trackFor(a){return a==='gp'||a==='gc'||a==='gm'||a==='gcs'||a==='am'||a==='ap'||a==='ac'||a==='theory'||a==='maths'?a:(a==='calc'||a==='calcfu')?'calc':null}
- function pickQ(){var t=(new Date().getDay()+6)%7,parts=PLAN.DAY(t),k=ymdL(),rnd=seedRand('shift'+k);
-  for(var i=0;i<parts.length;i++){var acts=parts[i][3]||[];for(var j=0;j<acts.length;j++){var tr=trackFor(acts[j][1]);if(!tr)continue;var nl=nextLesson(tr);if(!nl)continue;var u=UNITS[nl[0]],l=u.lessons[nl[1]],qs=l.cards.filter(function(c){return c.t==='Q'&&c.o&&c.o.length});
-    if(qs.length){var c=qs[Math.floor(rnd()*qs.length)];return {p:c.p,o:c.o,a:c.a,e:c.e||'',src:u.title+' · '+l.title,why:'You\'ll meet this in your next lesson.'}}}}
-  try{var pool=reviewPool(true).filter(function(x){return x.t==='Q'&&x.o&&x.o.length});if(pool.length){var c2=pool[Math.floor(rnd()*pool.length)];return {p:c2.p,o:c2.o,a:c2.a,e:c2.e||'',src:c2._src||'Fix my mistakes',why:'You got this one wrong before. Crack it this time.'}}}catch(_){}
-  var q=OPQ[Math.floor(rnd(
+  ['What does a reactor trip (a scram) do?',['Shuts the reactor down fast by dropping in all the control rods','Starts the reactor up by pulling all the control rods out','Lowers power slowly by adding boron to the cooling water','Tests every alarm in the co

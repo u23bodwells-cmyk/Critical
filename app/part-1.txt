@@ -1,4 +1,18 @@
-,Pp;function y(A){return 6.4*Math.exp(-Math.pow(A-95,2)/(2*30))+6.4*Math.exp(-Math.pow(A-139,2)/(2*30))+0.01}
+k:false,msg:'Move the energy slider to the tallest orange spike.'}},lock:function(){s.input.disabled=true}}};
+
+WIDGETS.beamSlab=function(box){var cv=canvas(box,170),sg=slider(box,'Σ (per cm)',0.2,2,0.05,0.5,function(v){return v.toFixed(2)+' /cm'},function(){upd()}),th=slider(box,'Thickness',0,30,0.5,2,function(v){return v.toFixed(1)+' cm'},function(){upd()}),st=stats(box,[['t','Beam getting through'],['m','Mean free path']]),parts=[];
+ function T(){return Math.exp(-sg.get()*th.get())}function upd(){var t=T();st.t.textContent=(t*100<0.1?(t*100).toExponential(1):(t*100).toFixed(t<0.1?2:1))+'%';st.m.textContent=(1/sg.get()).toFixed(2)+' cm'}upd();
+ anim(cv,function(dt){var g=prep(cv),c=g.c,x0=g.W*0.35,w=Math.max(4,th.get()/30*g.W*0.45);c.fillStyle=cssv('--soft2');c.fillRect(x0,10,w,g.H-20);c.fillStyle=cssv('--muted');c.font='12px system-ui';c.fillText('absorber',x0,g.H-2);
+  if(Math.random()<dt*40)parts.push({x:0,y:16+Math.random()*(g.H-32),a:true});var sp=150;parts.forEach(function(p){if(!p.a)return;var nx=p.x+sp*dt;if(nx>x0&&p.x<x0+w){var d=(Math.min(nx,x0+w)-Math.max(p.x,x0))/w*th.get();if(Math.random()<1-Math.exp(-sg.get()*d))p.a=false}p.x=nx});
+  parts=parts.filter(function(p){return p.x<g.W&&(p.a||Math.random()>0.02)});c.fillStyle=cssv('--accent');parts.forEach(function(p){if(p.a){c.beginPath();c.arc(p.x,p.y,3,0,7);c.fill()}})});
+ return {check:function(){var t=T();return t<=0.01?{ok:true,msg:'Only '+(t*100).toFixed(2)+'% gets through: that\'s '+(sg.get()*th.get()).toFixed(1)+' mean free paths.'}:{ok:false,msg:(t*100).toFixed(1)+'% still gets through. You need more thickness (or a stronger absorber).'}},lock:function(){sg.input.disabled=true;th.input.disabled=true}}};
+
+WIDGETS.fissionEnergy=function(box){var S=[['Fission fragments (kinetic energy)',168,'#7F77DD','Heats the fuel pellet directly: the fragments stop within micrometres.'],['Prompt gamma rays',7,'#378ADD','Mostly absorbed in the fuel, coolant and structures.'],['Prompt neutrons',5,'#1D9E75','Their energy is deposited in the moderator as they slow down.'],['Beta decay of fission products',8,'#D85A30','Released over time as fission products decay: part of decay heat.'],['Gamma from fission products',7,'#BA7517','Also released over time: part of decay heat.'],['Neutrinos',12,'#888780','Escape completely: they pass straight through the reactor, the building and the Earth.']],sel=-1,cv=canvas(box,90),m=msg(box);
+ function draw(){var g=prep(cv),c=g.c,x=10,w=g.W-20,tot=207;S.forEach(function(s,i){var sw=s[1]/tot*w;c.fillStyle=s[2];c.globalAlpha=sel===-1||sel===i?1:0.35;c.fillRect(x,20,sw-2,46);x+=sw});c.globalAlpha=1;c.fillStyle=cssv('--muted');c.font='12px system-ui';c.fillText('0 MeV',10,84);c.textAlign='right';c.fillText('207 MeV',g.W-10,84);c.textAlign='left'}
+ cv.addEventListener('click',function(e){var r=cv.getBoundingClientRect(),mx=e.clientX-r.left-10,w=r.width-20,x=0;for(var i=0;i<S.length;i++){var sw=S[i][1]/207*w;if(mx>=x&&mx<x+sw){sel=i;m.set('<b>'+S[i][0]+': '+S[i][1]+' MeV.</b> '+S[i][3]);draw();return}x+=sw}});
+ onDraw(draw);draw();m.set('Click a coloured segment.');return {check:function(){return sel===5?{ok:true}:{ok:false,msg:'Not that one. Which particle hardly interacts with anything?'}}}};
+
+WIDGETS.fissionYield=function(box){var cv=canvas(box,240),m=msg(box),selA=null,Pp;function y(A){return 6.4*Math.exp(-Math.pow(A-95,2)/(2*30))+6.4*Math.exp(-Math.pow(A-139,2)/(2*30))+0.01}
  var EX={85:'Kr-85',88:'Kr-88',89:'Sr-89',90:'Sr-90, Kr-90',91:'Sr-91',92:'Kr-92',93:'Zr-93',94:'Sr-94',95:'Sr-95, Zr-95',97:'Zr-97',99:'Mo-99',100:'Zr-100',103:'Ru-103',131:'I-131',132:'Te-132',133:'Xe-133',134:'Cs-134',135:'I-135, Xe-135',137:'Cs-137',139:'Ba-139',140:'Ba-140',141:'Ba-141',143:'Nd-143',144:'Ce-144',147:'Pm-147',149:'Pm-149, Sm-149'};
  function draw(){Pp=plot(cv,{x:[70,170],y:[0,7.5],xl:'mass number of fragment',yl:'yield (%)'});Pp.fn(y,cssv('--accent'),3);if(selA){Pp.vline(selA,cssv('--coral'));Pp.dot(selA,y(selA),cssv('--coral'),6)}Pp.vline(117.5,cssv('--faint'),[2,4],1);Pp.text('equal split',118.5,7,cssv('--faint'))}
  cv.addEventListener('click',function(e){var r=cv.getBoundingClientRect(),A=Math.round(Pp.inv(e.clientX-r.left));if(A<70||A>170)return;selA=A;var near='';for(var d=0;d<4&&!near;d++){near=EX[A+d]||EX[A-d]||''}m.set('A = '+A+': yield about '+y(A).toFixed(2)+'%'+(near?' (e.g. '+near+')':'')+'.');draw()});
@@ -1208,31 +1222,4 @@ var STUDY=(function(){
   if(st.run){if(!tick||was!==st.run.c){clearInterval(tick);tick=setInterval(tk,1000)}lastM=Math.floor((Date.now()-st.run.at)/60000)}else{clearInterval(tick);tick=null}
   paintClock();if(sh.classList.contains('open'))paint()}
  window.addEventListener('storage',function(e){if(e.key===KEY)adopt(e.newValue)});
- $('[data-a=go]').onclick=function(){note('');
-  if(!st.run){var n0=Date.now();st.run={at:n0,t:$('#stTopic').value.trim(),c:new Date(n0).toISOString()};keep();startTick();note('The timer saves itself every minute.');return}
-  try{var cur=JSON.parse(localStorage.getItem(KEY)||'null');if(cur&&Array.isArray(cur.sessions))st.sessions=cur.sessions}catch(_){}
-  var m=Math.round((Date.now()-st.run.at)/60000),t=$('#stTopic').value.trim()||st.run.t||'Study session',d=ymd(new Date(st.run.at)),li=liveIdx(),c=st.run.c||new Date(st.run.at).toISOString();
-  st.run=null;clearInterval(tick);
-  if(m<1){if(li>=0)st.sessions.splice(li,1);note('That was under a minute, so it wasn\'t saved.',true)}
-  else{if(m>600)m=600;if(li>=0){st.sessions[li].m=Math.max(m,+st.sessions[li].m||0);st.sessions[li].t=t;m=st.sessions[li].m}else st.sessions.push({d:d,m:m,t:t,c:c});note('Saved '+m+' min. Nice work.')}
-  keep();writeFile(true);paint()};
- $('#stTopic').addEventListener('input',function(){if(st.run){st.run.t=this.value.trim();var i=liveIdx();if(i>=0)st.sessions[i].t=st.run.t||'Study session';keep()}});
- $('[data-a=add]').onclick=function(){var m=parseInt($('#stAddM').value,10);if(!(m>=1&&m<=600)){note('Type the minutes first (1 to 600).',true);return}
-  st.sessions.push({d:ymd(),m:m,t:$('#stAddT').value.trim()||'Study session',c:new Date().toISOString()});$('#stAddM').value='';$('#stAddT').value='';keep();writeFile(true);note('Added '+m+' min to today.');paint()};
- function close(){sh.classList.remove('open')}
- $('.stx').onclick=close;sh.addEventListener('click',function(e){if(e.target===sh)close()});
- document.addEventListener('keydown',function(e){if(e.key==='Escape'&&sh.classList.contains('open'))close()});
- function open(){if(st.run)$('#stTopic').value=st.run.t||'';paint();sh.classList.add('open')}
- var pills=[];
- function mk(cls,label){var b=document.createElement('button');b.type='button';b.className=cls;b.innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="13.5" r="7.5"/><path d="M12 9.5v4l2.5 2M9.5 2.5h5M12 2.5v3.5"/></svg><span class="stt"></span>';b.title='Study timer';b.setAttribute('aria-label',label);b.onclick=open;pills.push(b);return b}
- var hc=document.querySelector('.hdr .calcpill')||document.querySelector('.hdr .askpill');if(hc)hc.parentNode.insertBefore(mk('pill stpill','Study timer'),hc.nextSibling);
- var lc=document.querySelector('.pcalc')||document.querySelector('.pask');if(lc)lc.parentNode.insertBefore(mk('psnd stpill','Study timer'),lc.nextSibling);
- if(st.run)startTick();
- /* gentle reminder inside the app too, if it's open at 4:15, 6 or 8 and nothing is logged */
- var shown={};
- function check(){var n=new Date(),hm=n.getHours()*60+n.getMinutes(),wd=n.getDay()>=1&&n.getDay()<=5;
-  var slots=[[16*60+45,wd,'It\'s 4:45: time to start.'],[18*60,true,'You haven\'t studied yet today. A short session still counts.'],[20*60,true,'Last call for today. Keep your streak going.']];
-  var did=didToday();
-  if(did){var ob=document.querySelector('.stbanner');if(ob)ob.remove();if(toldFile!==ymd()){toldFile=ymd();writeFile(false)}return}
-  slots.forEach(function(s){var k=ymd()+s[0];if(s[1]&&hm>=s[0]&&hm<s[0]+60&&!shown[k]){shown[k]=1;banner(s[2])}})}
- var toldFil
+ $('[data-a=go]'

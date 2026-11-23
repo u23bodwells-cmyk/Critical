@@ -1,4 +1,19 @@
-</h3><p>When a neutron scatters off a light nucleus like hydrogen, it tends to keep going roughly forward. Measure this by μ̄, the <b>average cosine of the scattering angle</b>. For a nucleus of mass number A, μ̄ ≈ 2/(3A).</p><ul><li>Hydrogen (A = 1): μ̄ ≈ 0.67, strongly forward.</li><li>Uranium (A = 238): μ̄ ≈ 0.003, almost even in all directions.</li></ul>`),
+(`<h3>When diffusion fails</h3><ul><li>Within a few mean free paths of a <b>boundary</b> (vacuum, reflector edge).</li><li>Near <b>strong absorbers</b>: control rods, burnable poison pins.</li><li>In <b>small</b> or highly heterogeneous systems where neutrons stream far without colliding.</li></ul><p>Away from these, diffusion is a very good approximation, which is why it's still used for whole-core calculations.</p>`),
+Q(`Where is diffusion theory least accurate?`,[`Next to a control rod`,`In the middle of a large uniform core`,`Far from any boundary`,`In a well-moderated lattice centre`],0,`Strong absorbers make the flux very direction-dependent.`),
+QE(`Fick's law for neutrons says J = …`,[`−D∇φ`,`D∇φ`,`Σ<sub>a</sub>φ`,`νΣ<sub>f</sub>φ`],0,`Flow down the gradient.`),
+T(`<h3>Key points</h3><ul><li><b>Angular flux ψ(r, E, Ω)</b> tracks direction; φ = ∫ ψ dΩ.</li><li>Transport equation: streaming + removal = scattering in + source.</li><li>Diffusion fails near <b>boundaries and strong absorbers</b>.</li></ul>`)]),
+LH('m6-1-2','Attenuation and mean free path',10,'How far does a neutron travel before it hits something? An exponential answers.',[
+RM(`<ul><li>Macroscopic cross-section Σ = Nσ, in cm⁻¹ (Level 4 Maths).</li><li>dy/dx = −ky gives y = y₀e<sup>−kx</sup> (Calculus Level 5).</li><li>∫<sub>0</sub><sup>∞</sup> x λe<sup>−λx</sup> dx = 1/λ (Calculus Level 8).</li></ul>`),
+T(`<h3>A beam getting through</h3><p>A beam of neutrons enters a slab. In each thin layer dx, a fraction Σ dx collide and leave the beam:</p><div class="eq">dI/dx = −Σ I &nbsp;⟹&nbsp; I = I₀ e<sup>−Σx</sup></div>${KY([['I₀','beam intensity going in','n/cm²/s'],['Σ','total macroscopic cross-section','cm⁻¹'],['x','thickness','cm']])}`),
+N(`Σ = 0.5 cm⁻¹. What fraction of a beam gets through 4 cm without colliding? (3 d.p.)`,0.135,0.005,'',`e<sup>−2</sup> = 0.135.`),
+T(`<h3>Mean free path</h3><p>The chance of travelling at least x without colliding is e<sup>−Σx</sup>. The average distance between collisions, the <b>mean free path</b>, is:</p><div class="eq">λ = 1/Σ</div><p>(It's the mean lifetime idea from Calculus Level 8, with distance instead of time.) In water, thermal neutrons have a mean free path of under a centimetre.</p>`),
+N(`Σ<sub>t</sub> = 2.5 cm⁻¹. Mean free path in cm?`,0.4,0.001,'cm',`1/2.5 = 0.4 cm.`),
+T(`<h3>Shielding</h3><p>The same law sets shield thicknesses: to cut a beam by a factor of 1000 you need Σx = ln 1000 ≈ 6.9, so about 7 mean free paths. (Real shields also account for neutrons scattered back into the beam, using a <b>buildup factor</b>.)</p>`),
+Q(`About how many mean free paths reduce an uncollided beam by a factor of 1000?`,[`7`,`3`,`1000`,`10`],0,`ln 1000 ≈ 6.9.`),
+T(`<h3>Key points</h3><ul><li><b>I = I₀e<sup>−Σx</sup></b>: uncollided beam.</li><li>Mean free path <b>λ = 1/Σ</b>.</li><li>Factor of 1000 ≈ 7 mean free paths (before buildup).</li></ul>`)]),
+LH('m6-1-3','The transport correction',10,'A tweak that makes diffusion theory much more accurate when scattering prefers the forward direction.',[
+RM(`<ul><li>Mean free path λ = 1/Σ.</li><li>D = 1/(3Σ<sub>tr</sub>) appears in Fick's law (Level 4 Maths).</li><li>Scattering off a light nucleus can throw a neutron forward more than backward (Level 2 Theory).</li></ul>`),
+T(`<h3>Forward-peaked scattering</h3><p>When a neutron scatters off a light nucleus like hydrogen, it tends to keep going roughly forward. Measure this by μ̄, the <b>average cosine of the scattering angle</b>. For a nucleus of mass number A, μ̄ ≈ 2/(3A).</p><ul><li>Hydrogen (A = 1): μ̄ ≈ 0.67, strongly forward.</li><li>Uranium (A = 238): μ̄ ≈ 0.003, almost even in all directions.</li></ul>`),
 N(`Estimate μ̄ for carbon (A = 12). (3 d.p.)`,0.0556,0.01,'',`2/(3 × 12) = 0.0556.`),
 T(`<h3>The correction</h3><p>A collision that hardly changes direction shouldn't count fully. So diffusion theory uses the <b>transport cross-section</b>:</p><div class="eq">Σ<sub>tr</sub> = Σ<sub>t</sub> − μ̄Σ<sub>s</sub>,&nbsp;&nbsp; D = 1/(3Σ<sub>tr</sub>)</div>`),
 W('stepCalc',{steps:[`Thermal neutrons in water: Σ<sub>t</sub> ≈ 3.45 cm⁻¹, Σ<sub>s</sub> ≈ 3.43 cm⁻¹, μ̄ ≈ 0.40 (less than hydrogen\'s 0.67, because the hydrogen is bound in molecules)`,`Σ<sub>tr</sub> = 3.45 − 0.40 × 3.43 = 3.45 − 1.37 = 2.08 cm⁻¹`,`D = 1/(3 × 2.08) = <b>0.16 cm</b>`,`Without the correction: D = 1/(3 × 3.45) = 0.097 cm, too small by about 40%.`]},`The diffusion coefficient of water.`,`Forward scattering in water raises the diffusion coefficient by about 65%.`),
@@ -999,23 +1014,4 @@ T(`<h3>Key points</h3><ul><li><b>∫ axⁿ dx = axⁿ⁺¹ ÷ (n + 1) + C</b>.</
 LH('c4-1-3','Negative and fractional powers',10,'Rewrite first, then the reverse power rule still works. The one exception: x⁻¹.',[
 RM(`<p>∫ xⁿ dx = xⁿ⁺¹ ÷ (n + 1) + C. Rewrite fractions and roots as powers first.</p>`),
 T(`<h3>Rewrite, then integrate</h3><p>∫ 6/x³ dx: rewrite as ∫ 6x⁻³ dx. Add 1 to the power: −3 + 1 = −2. Divide by −2: 6 ÷ (−2) = −3. Answer: <b>−3x⁻² + C</b>.</p>`),
-T(`<h3>The one exception</h3><p>For x⁻¹ (that's 1/x), adding 1 gives x⁰, and dividing by 0 is impossible. So 1/x needs a different rule. You'll meet it in the next unit: it involves ln x.</p>`),
-Q(`Why doesn't the reverse power rule work for 1/x?`,[`It would mean dividing by zero`,'1/x has no graph to find the area under','It does work, giving ln x every time','Because x can never be negative'],0,`x⁻¹ → x⁰ ÷ 0.`),
-W('calcDrill',{skill:['intneg','intfrac'],need:6},`Rewrite and integrate. Get 6 right to master it.`,`Careful with negatives: −3 + 1 = −2.`),
-W('calcDrill',{skill:['intpow','intneg','intfrac'],need:8},`All powers, mixed. Get 8 right to master it.`,`You can integrate any power of x except 1/x.`),
-T(`<h3>Key points</h3><ul><li>Rewrite fractions and roots as powers first.</li><li>−3 + 1 = −2: watch the signs.</li><li><b>1/x is the exception</b>: it needs ln x.</li></ul>`)])
-]});
-
-U({id:'c4-2',track:'calc',level:4,title:'Definite integrals and area',icon:'∫ₐᵇ',color:'#1D9E75',desc:'Why integration finds areas, evaluating definite integrals, and areas above and below the axis.',lessons:[
-LH('c4-2-1','Area as thin strips',9,'Chop the area under a curve into strips, then make them infinitely thin.',[
-RM(`<p>In Level 1, shrinking a chord gave the exact gradient. The same "make it tiny" idea works for areas.</p>`),
-T(`<h3>Area under a curve</h3><p>How much area is under y = x² between x = 0 and x = 3? It's curved, so there's no simple formula. But we can split it into thin <b>rectangular strips</b> and add them up.</p>`),
-W('riemann',{f:function(x){return x*x},a:0,b:3,exact:9,y:[0,10],n0:3,goalN:30,mid:true},`Drag the slider to use more and more strips.`,`With more and thinner strips, the total gets closer to exactly 9.`),
-T(`<h3>Infinitely thin strips</h3><p>As the strips get thinner, the total gets closer and closer to the exact area. In the limit, the sum of infinitely many, infinitely thin strips is written:</p><div class="eq">∫ from 0 to 3 of x² dx</div><p>The ∫ sign is a stretched S, for "sum". The dx is the strip width, shrunk to nothing.</p>`),
-Q(`What does the ∫ symbol originally stand for?`,[`A sum (a stretched S)`,'An integer (a curly I)','A slope (a tilted line)','Infinity (a bent 8)'],0,`Adding up infinitely many strips.`),
-Q(`Why does using more strips give a better answer?`,[`Thinner strips fit the curve more closely`,'Each strip covers more of the area at once','More strips make the curve itself smoother','It doesn\'t: the number of strips makes no difference'],0,`Less gap between the rectangles and the curve.`),
-T(`<h3>Key points</h3><ul><li>The area under a curve is the limit of thin strips added up.</li><li>That limit is written as an <b>integral</b> with limits, ∫ from a to b.</li><li>Next lesson: the shortcut that gives the exact answer.</li></ul>`)]),
-LH('c4-2-2','Definite integrals',10,'The shortcut: integrate, then subtract. No + C needed.',[
-RM(`<p>The area under a curve is the integral from a to b. To integrate: add 1 to the power, divide by the new power.</p>`),
-T(`<h3>The method</h3><div class="eq">∫ from a to b of f(x) dx = F(b) − F(a)</div>${KY([['F(x)','the integral of f(x) (without + C)',''],['a, b','the limits: where the area starts and stops','']],'Integrate, put in the top limit, put in the bottom limit, subtract.')}`),
-W(
+T(`<h3>The o

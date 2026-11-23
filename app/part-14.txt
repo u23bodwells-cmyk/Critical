@@ -1,4 +1,27 @@
-p>,&nbsp;&nbsp; R₀ ≈ 1.2 fm</div><p>Volume ∝ R³ ∝ A, so every nucleus has about the <b>same density</b>, about 10¹⁷ kg/m³.</p>`),
+has no charge`],0,`A centripetal force.`),
+T(`<h3>Key points</h3><ul><li><b>F = BIl</b>, <b>F = BQv</b>.</li><li>Perpendicular force → circular motion, <b>r = mv/BQ</b>.</li><li>Cyclotrons and mass spectrometers.</li></ul>`)]),
+LH('ap3-3-2','Electromagnetic induction',11,'Change the magnetic flux through a coil and you get a voltage. Every power station depends on it.',[
+RM(`<p>B is flux density in tesla. Generators turn coils in magnetic fields.</p>`),
+T(`<h3>Flux and flux linkage</h3><div class="eq">Φ = BA cos θ&nbsp;&nbsp;&nbsp; flux linkage = NΦ</div>`),
+T(`<h3>Faraday and Lenz</h3><div class="eq">ε = −N ΔΦ/Δt</div><p><b>Faraday</b>: the induced emf equals the rate of change of flux linkage. <b>Lenz</b> (the minus sign): the induced current opposes the change that caused it. Lenz's law is conservation of energy.</p>`),
+N(`A 200-turn coil's flux changes by 3 × 10⁻³ Wb in 0.1 s. Size of the induced emf (V)?`,6,0.001,'V',`200 × 0.003 ÷ 0.1.`),
+Q(`A magnet is pushed into a coil. Lenz's law says the induced current…`,[`creates a field that repels the approaching magnet`,`attracts the magnet`,`is zero`,`flows only after the magnet stops`],0,`It opposes the change.`),
+T(`<h3>Key points</h3><ul><li><b>Φ = BA cos θ</b>; linkage NΦ.</li><li><b>ε = −N dΦ/dt</b>.</li><li>Lenz: opposes the change (energy conservation).</li></ul>`)]),
+LH('ap3-3-3','Alternating current and transformers',10,'Why the grid uses AC and very high voltages.',[
+RM(`<p>Electromagnetic induction needs a changing flux. RMS: V<sub>rms</sub> = V₀/√2 (Calculus Level 9).</p>`),
+T(`<h3>AC</h3><p>Mains is 230 V <b>rms</b>, about 325 V peak, at 50 Hz. RMS values give the same power as the equivalent DC.</p>`),
+T(`<h3>Transformers</h3><div class="eq">V<sub>s</sub>/V<sub>p</sub> = N<sub>s</sub>/N<sub>p</sub></div><p>An alternating current in the primary makes a changing flux in the iron core, inducing an emf in the secondary. They only work with AC.</p>`),
+W('calcDrill',{skill:'p_trans',need:3},`Transformers. Get 3 right to master it.`,`V<sub>s</sub> = V<sub>p</sub>N<sub>s</sub>/N<sub>p</sub>.`),
+T(`<h3>Why high voltage?</h3><p>Power lost in cables is I²R. For the same power, raising the voltage lowers the current, slashing losses. Sizewell B's generator output is stepped up to 400 kV for the National Grid.</p>`),
+Q(`Transmitting at 10 times the voltage cuts cable losses by a factor of…`,[`100`,`10`,`1000`,`2`],0,`I falls 10×, I²R by 100×.`),
+T(`<h3>Key points</h3><ul><li>230 V rms = 325 V peak.</li><li><b>V<sub>s</sub>/V<sub>p</sub> = N<sub>s</sub>/N<sub>p</sub></b>.</li><li>High voltage → low current → low I²R losses.</li></ul>`)])
+]});
+
+U({id:'ap3-4',track:'ap',level:3,title:'Nuclear physics',icon:'☢',color:'#D85A30',desc:'Rutherford scattering and nuclear size, radioactive decay, and mass defect, fission and fusion.',lessons:[
+LH('ap3-4-1','Inside the nucleus',10,'Rutherford found the nucleus by firing alpha particles at gold. How big is it?',[
+RM(`<p>Coulomb repulsion between charges. The nucleus is tiny compared to the atom.</p>`),
+T(`<h3>Rutherford scattering</h3><p>Most alpha particles passed straight through gold foil; a very few bounced back. So the atom is mostly empty, with a tiny, dense, positive <b>nucleus</b>.</p>`),
+T(`<h3>Nuclear radius</h3><div class="eq">R = R₀A<sup>1/3</sup>,&nbsp;&nbsp; R₀ ≈ 1.2 fm</div><p>Volume ∝ R³ ∝ A, so every nucleus has about the <b>same density</b>, about 10¹⁷ kg/m³.</p>`),
 W('calcDrill',{skill:'p_radius',need:3},`Nuclear radii. Get 3 right to master it.`,`1.2 × A<sup>1/3</sup>.`),
 Q(`R ∝ A<sup>1/3</sup> tells us nuclear density is…`,[`about the same for all nuclei`,`higher for big nuclei`,`higher for small nuclei`,`zero`],0,`Mass ∝ A, volume ∝ A.`),
 T(`<h3>Key points</h3><ul><li>Rutherford: tiny, dense, positive nucleus.</li><li><b>R = R₀A<sup>1/3</sup></b>.</li><li>Constant nuclear density.</li></ul>`)]),
@@ -996,20 +1019,4 @@ function NSIM(w,h,rnd){
     var hc=mode==='sat'?pow/100:heat;c.strokeStyle=rgba(hot(.55+hc*.4),.4+hc*.6);c.lineWidth=3;c.beginPath();for(var s=0;s<=20;s++){var xx=vx+10+s/20*(vw-20),yy=vy+vh-12+Math.sin(s*1.6)*4;if(s)c.lineTo(xx,yy);else c.moveTo(xx,yy)}c.stroke();hud(c,vx+vw/2,vy+vh+12,'heaters','rgba(200,225,255,.7)',8,'center');
     if(mode==='pzr'&&spray>0){for(var q=0;q<10*spray;q++){var sx=vx+vw/2+(Math.random()-.5)*vw*.6,sy=vy+8+Math.random()*(wl-vy-8);c.fillStyle='rgba(120,200,255,.8)';c.fillRect(sx,sy,1.5,4)}hud(c,vx+vw/2,vy+12,'spray','#7fd8ff',8,'center',true)}
     var spdm=.3+T/250;mol.forEach(function(m){m.x+=Math.cos(m.a)*sd*spdm*.4;m.y+=Math.sin(m.a)*sd*spdm*.4;if(m.x<0||m.x>1)m.a=Math.PI-m.a,m.x=Math.max(0,Math.min(1,m.x));if(m.y<0||m.y>1)m.a=-m.a,m.y=Math.max(0,Math.min(1,m.y));c.fillStyle='rgba(180,220,255,.5)';c.beginPath();c.arc(vx+4+m.x*(vw-8),wl+4+m.y*(vy+vh-wl-8),1.6,0,6.283);c.fill()});
-    if(mode==='pzr'||(T>=Ts-.5&&pow>0)){if(Math.random()<sd*(mode==='pzr'?8*heat:pow*.5))bub.push({x:vx+10+Math.random()*(vw-20),y:vy+vh-14,r:1.5+Math.random()*3})}bub=bub.filter(function(b){b.y-=sd*60*(1+b.r*.3);c.strokeStyle='rgba(230,245,255,.75)';c.lineWidth=1;c.beginPath();c.arc(b.x+Math.sin(b.y*.2)*2,b.y,b.r,0,6.283);c.stroke();return b.y>wl});
-    hud(c,vx+vw/2,wl-6,'steam','rgba(230,240,255,.7)',8,'center');hud(c,vx+vw/2,(wl+vy+vh)/2,fx(T,0)+' °C','#fff',13,'center',true);
-    var gx=vx+vw+(wide?44:38),gw=W-gx-12;
-    if(mode==='sat'){var Cs=chart(c,gx,40,gw,H-80,{x:[0,360],y:[0,180],ny:wide?4:3,nx:wide?6:3,title:wide?'PRESSURE AGAINST TEMPERATURE':'PRESSURE vs TEMP',xl:'°C'});if(Cs){Cs.fn(function(t){return psat(t)},rgba(CY,1),2,6);c.fillStyle='rgba(58,212,255,.06)';hud(c,Cs.X(60),Cs.Y(150),'LIQUID','rgba(160,200,255,.7)',9,'left',true);hud(c,Cs.X(300),Cs.Y(20),'STEAM','rgba(255,220,180,.7)',9,'left',true);Cs.dot(Math.min(360,T),P,'#ffd65a',6);hud(c,Cs.X(Math.min(340,T))+8,Cs.Y(P)-6,'you','#ffd65a',9,'left',true)}
-     st.t.textContent=fx(T,0)+' °C';st.s.textContent=fx(Ts,0)+' °C';st.m.textContent=Ts-T>.5?fx(Ts-T,0)+' °C':'0: boiling';return}
-    var Cp=chart(c,gx,40,gw,(H-90)/2,{x:[Math.max(0,tt/1000-60),Math.max(60,tt/1000)],y:[130,175],ny:3,noxl:true,title:'PRESSURE (bar)'}),Cl=chart(c,gx,40+(H-90)/2+18,gw,(H-90)/2,{x:[Math.max(0,tt/1000-60),Math.max(60,tt/1000)],y:[0,100],ny:2,title:'LEVEL (%)',xl:'seconds'});
-    c.setLineDash([4,4]);poly(c,[[Cp.x,Cp.Y(155)],[Cp.x+Cp.w,Cp.Y(155)]],'rgba(255,255,255,.35)',1);c.setLineDash([]);Cp.clip();poly(c,prs.map(function(q){return [Cp.X(q[0]),Cp.Y(q[1])]}),rgba(YE,1),2,6);Cp.un();Cl.clip();poly(c,prs.map(function(q){return [Cl.X(q[0]),Cl.Y(q[2])]}),rgba(CY,1),2,6);Cl.un();
-    if(par.goal){c.fillStyle='rgba(255,255,255,.1)';c.fillRect(gx,H-14,gw,4);c.fillStyle=done?'#8dff9a':'#3ad4ff';c.fillRect(gx,H-14,gw*Math.min(1,done?1:hold/8),4)}st.p.textContent=fx(P,1)+' bar';st.l.textContent=fx(lvl,0)+'%';st.t.textContent=fx(T,0)+' °C';return}
-   if(mode==='pin'){band(c,W,'INSIDE A FUEL PIN','linear heat rate '+ql+' kW/m');var q1=ql*1000,h=35000*Math.pow(flow/100,.8),Tc=300,rp=.0041,rc=.00475,dF=q1/(2*Math.PI*rc*h),dC=q1*Math.log(rc/.00418)/(2*Math.PI*16),dG=q1/(2*Math.PI*rp*5000),dP=q1/(4*Math.PI*3),Ts2=Tc+dF,Tci=Ts2+dC,Tps=Tci+dG,Tcen=Tps+dP;
-    var cx=wide?W*.26:W/2,cy=wide?H*.55:H*.28,R=Math.min(wide?H*.36:H*.19,W*.2),sc=R/rc;
-    var ang=tt/1000*.6;for(var s2=0;s2<26;s2++){var a=s2/26*6.283+ang*(flow/100),rr=R+12+((s2*37)%14);c.fillStyle='rgba(90,170,255,.45)';c.beginPath();c.arc(cx+Math.cos(a)*rr,cy+Math.sin(a)*rr,1.6,0,6.283);c.fill()}
-    c.fillStyle=rgba(hot((Tci-200)/2600),1);c.beginPath();c.arc(cx,cy,R,0,6.283);c.fill();c.fillStyle='#0a0f1c';c.beginPath();c.arc(cx,cy,.00418*sc,0,6.283);c.fill();
-    for(var k2=20;k2>=0;k2--){var rk=rp*sc*k2/20,Tk=Tps+dP*(1-Math.pow(k2/20,2));c.fillStyle=rgba(hot((Tk-200)/2600),1);c.beginPath();c.arc(cx,cy,rk,0,6.283);c.fill()}
-    for(var a2=0;a2<8;a2++){var aa=a2/8*6.283+.2,u=((tt/900)+a2*.13)%1;arrow(c,cx+Math.cos(aa)*R*.2,cy+Math.sin(aa)*R*.2,cx+Math.cos(aa)*R*(.25+u*.6),cy+Math.sin(aa)*R*(.25+u*.6),'rgba(255,255,255,'+(.45*(1-u)).toFixed(2)+')',1.4)}
-    hud(c,cx,cy+R+22,'pellet · gap · cladding · water','rgba(200,225,255,.8)',8.5,'center');
-    var gx2=wide?W*.52:46,gy2=wide?40:H*.64,Cr=chart(c,gx2,gy2,W-gx2-12,wide?H-80:H-gy2-30,{x:[0,5.5],y:[250,Math.max(1200,Tcen*1.1)],ny:4,title:'TEMPERATURE ACROSS THE PIN (°C)',xl:'mm from the centre'});
-    Cr.fn(function(rm){var r=rm/1000;return r<=rp?Tps+dP*(1-r*r/(rp
+    if(mode==='pzr'||(T>=Ts-.5&&pow>0)){if(Math.random()<sd*(mode==='pzr'?8*heat:pow*.5))bub.push({x:vx+10+Math.random()*(vw-20),y:vy+vh-14,r:1.5+Math.random()*3})}bub=bub.filter(function(b){b.y-=sd*60*(1+b.r*.3);c.strokeStyle='rgba(230,245,255,.75)';c.lineWid

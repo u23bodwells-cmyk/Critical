@@ -1,4 +1,18 @@
-)*OPQ.length)];return {p:escH(q[0]),o:q[1].map(escH),a:0,e:escH(q[2]),src:'Control room skills',why:'Every operator needs to know this.'}}
+ntrol room at the same time'],'A trip drops every control rod into the core in a couple of seconds, stopping the chain reaction.'],
+  ['Why do operators follow written procedures even for jobs they have done many times?',['Doing every step in order stops memory slips','Because managers don\'t trust them to remember','So the shift takes long enough to fill the hours','Only new operators use them; experts work from memory'],'Even experts forget a step sometimes. A procedure means the job is done the same, safe way every time.'],
+  ['What is a shift handover?',['Telling the next shift the plant\'s state, problems and what is coming up','Swapping desks and logging in to the next shift\'s computers','Handing in your badge and dosimeter at the gate on the way out','Turning the reactor down for the night while the new crew settles in'],'Operators work in shifts around the clock, so a careful handover makes sure nothing gets lost between them.'],
+  ['A program checks the reactor temperature over and over, every second. What is code that repeats called?',['A loop','A variable','A comment','A crash'],'A loop runs the same code again and again. Plant computers loop constantly, checking hundreds of readings.'],
+  ['Why does a reactor still need cooling after it has shut down?',['The fuel keeps making heat from radioactive decay','The control rods stay hot and heat the water around them','The pumps make heat by friction as they keep running','It does not: the fuel cools down by itself in minutes'],'Decay heat starts at about 6% of full power just after shutdown and falls slowly, so cooling has to carry on for days.'],
+  ['What does a questioning attitude mean for an operator?',['Checking things that look odd instead of assuming they are fine','Asking lots of questions in training, then trusting the procedures','Challenging the supervisor on every decision they make on shift','Ignoring alarms that go off a lot, because they are usually false'],'Many accidents started with a small sign that nobody questioned. Good operators ask "why is that happening?"']];
+ function R(){if(!S.shift||typeof S.shift!=='object')S.shift={};var r=S.shift;if(!Array.isArray(r.notes))r.notes=[];return r}
+ function on(){return R().off!==true}
+ function set(v){R().off=!v;save()}
+ function trackFor(a){return a==='gp'||a==='gc'||a==='gm'||a==='gcs'||a==='am'||a==='ap'||a==='ac'||a==='theory'||a==='maths'?a:(a==='calc'||a==='calcfu')?'calc':null}
+ function pickQ(){var t=(new Date().getDay()+6)%7,parts=PLAN.DAY(t),k=ymdL(),rnd=seedRand('shift'+k);
+  for(var i=0;i<parts.length;i++){var acts=parts[i][3]||[];for(var j=0;j<acts.length;j++){var tr=trackFor(acts[j][1]);if(!tr)continue;var nl=nextLesson(tr);if(!nl)continue;var u=UNITS[nl[0]],l=u.lessons[nl[1]],qs=l.cards.filter(function(c){return c.t==='Q'&&c.o&&c.o.length});
+    if(qs.length){var c=qs[Math.floor(rnd()*qs.length)];return {p:c.p,o:c.o,a:c.a,e:c.e||'',src:u.title+' · '+l.title,why:'You\'ll meet this in your next lesson.'}}}}
+  try{var pool=reviewPool(true).filter(function(x){return x.t==='Q'&&x.o&&x.o.length});if(pool.length){var c2=pool[Math.floor(rnd()*pool.length)];return {p:c2.p,o:c2.o,a:c2.a,e:c2.e||'',src:c2._src||'Fix my mistakes',why:'You got this one wrong before. Crack it this time.'}}}catch(_){}
+  var q=OPQ[Math.floor(rnd()*OPQ.length)];return {p:escH(q[0]),o:q[1].map(escH),a:0,e:escH(q[2]),src:'Control room skills',why:'Every operator needs to know this.'}}
  var mod=null;
  function closeMod(){if(mod){mod.remove();mod=null;document.removeEventListener('keydown',esck)}}
  function esck(e){if(e.key==='Escape')closeMod()}
@@ -1929,19 +1943,4 @@ L('k4','After a reactor trip',10,[
 T(`<h3>What a trip does</h3><p>On a trip, the rods drop by gravity in about 2 seconds, adding several thousand pcm of negative reactivity. Power then falls in two stages:</p><ul><li><b>Prompt drop</b>: almost instantly, to about β/(β − ρ) of its starting value</li><li><b>Steady decline</b>: the remaining delayed neutrons die away, settling on a <b>−80 s period</b></li></ul>`),
 N(`A trip adds −6500 pcm, and β = 650 pcm. Using P<sub>1</sub>/P<sub>0</sub> = β/(β − ρ), what fraction of the original power is left after the prompt drop? Give a percentage.`,9.09,0.02,'%',`650 ÷ (650 + 6500) = 0.091, about 9%.`),
 W('tripPlot',{},`Here's fission power after a trip from 100% (log scale). Move the cursor to find when power has fallen to <b>0.01%</b>.`,`Power falls almost instantly to about 9%, then on a slow −80 s period.`),
-N(`After the prompt drop to 9%, power falls on a −80 s period. Roughly how long until it reaches 0.01%?`,545,0.06,'s',`t = 80 × ln(9 ÷ 0.01) = 80 × 6.8 ≈ 545 s, about 9 minutes.`),
-Q(`Why can't fission power fall faster than about an 80 s period after a trip?`,['The control rods take about 80 seconds to fall all the way to the bottom of the core','The longest-lived precursors (55 s half-life) keep releasing delayed neutrons','The detectors take that long to respond to a change','Xenon builds up and stops the power falling any faster'],1,`55 s ÷ ln 2 = 80 s. Those last precursors set the pace.`)]),
-L('k5','Decay heat',10,[
-T(`<h3>Heat that won't switch off</h3><p>When fission stops, fission products keep decaying. Their <b>decay heat</b> is about:</p><table><tr><th>Time after trip</th><th>Decay heat (% of full power)</th></tr><tr><td>A few seconds</td><td>about 6%</td></tr><tr><td>1 hour</td><td>about 1–1.5%</td></tr><tr><td>1 day</td><td>about 0.5%</td></tr></table><p>For a 3000 MWth core, even 1% is 30 MW: enough to boil water away quickly if cooling stops.</p>`),
-W('decayHeat',{},`This uses the Way–Wigner approximation. Move the cursor to find when decay heat falls below <b>1% of full power</b>.`,`Within a few hours decay heat drops to around 1%, but it takes days to fall to a few tenths of a percent. Cooling must continue for a long time.`),
-N(`A 3000 MWth reactor has decay heat of 1.5% an hour after a trip. How many MW is that?`,45,0.01,'MW',`3000 × 0.015 = 45 MW.`),
-N(`30 MW of decay heat is boiling water that's already at 100 °C. Latent heat = 2.26 MJ/kg. How many kg of water boil away every second?`,13.3,0.02,'kg/s',`30 ÷ 2.26 = 13.3 kg every second, about 1100 tonnes a day.`),
-Q(`At Fukushima Daiichi in 2011, the reactors shut down successfully when the earthquake struck. Why did the cores still melt?`,['The control rods didn\'t insert, so the chain reaction kept going','The tsunami knocked out power to the cooling systems, so decay heat couldn\'t be removed','Xenon built up after the trip and exploded inside the core','The earthquake shook the reactors so hard that they went prompt critical as the rods dropped in'],1,`Shutting down the chain reaction is only half the job. Decay heat must be removed for days afterwards.`)])
-]});
-
-U({id:'thermo',title:'Thermodynamics',icon:'°C',color:'#BA7517',desc:'Heat, pressure, boiling and saturation, energy balances and the steam cycle.',lessons:[
-L('t1','Temperature, pressure and heat',8,[
-T(`<h3>Units you'll see on every panel</h3><ul><li><b>Temperature</b>: °C, or kelvin for physics (K = °C + 273.15)</li><li><b>Pressure</b>: bar (1 bar = 10<sup>5</sup> Pa, about atmospheric) or MPa (1 MPa = 10 bar)</li><li><b>Absolute</b> pressure counts from vacuum; <b>gauge</b> pressure counts from atmospheric</li></ul>`),
-N(`PWR primary pressure is about 155 bar. What's that in MPa?`,15.5,0.01,'MPa',`1 MPa = 10 bar, so 155 bar = 15.5 MPa.`),
-Q(`A gauge reads 154 bar(g). What's the absolute pressure, roughly?`,['154 bar(a)','155 bar(a)','153 bar(a)','1 bar(a)'],1,`Absolute = gauge + atmospheric ≈ 154 + 1 = 155 bar(a).`),
-T(`<h3>Heating water</h3><div class="eq">Q = m c ΔT</div><div class="key"><div class="kt">What each part means</div><div class="krow"><span class="ks">Q</span><span class="km">heat energy put in</span><span class="ku">joules (J)
+N(`After the prompt drop to 9%, p

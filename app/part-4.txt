@@ -1,4 +1,19 @@
-</span></div><div class="krow"><span class="ks">m</span><span class="km">mass being heated</span><span class="ku">kilograms (kg)</span></div><div class="krow"><span class="ks">c</span><span class="km"><b>specific heat capacity</b>: energy to heat 1 kg by 1 °C</span><span class="ku">J/(kg·°C)</span></div><div class="krow"><span class="ks">ΔT</span><span class="km">temperature rise</span><span class="ku">°C</span></div><div class="kn">Careful: this <b>c</b> is <i>not</i> the speed of light. Same letter, different meaning.</div></div><p>c is the specific heat capacity. For water at room temperature, c = 4.18 kJ/kg/K. At PWR conditions (about 300 °C, 155 bar) it's higher, about 5.5 kJ/kg/K.</p>`),
+ower falls on a −80 s period. Roughly how long until it reaches 0.01%?`,545,0.06,'s',`t = 80 × ln(9 ÷ 0.01) = 80 × 6.8 ≈ 545 s, about 9 minutes.`),
+Q(`Why can't fission power fall faster than about an 80 s period after a trip?`,['The control rods take about 80 seconds to fall all the way to the bottom of the core','The longest-lived precursors (55 s half-life) keep releasing delayed neutrons','The detectors take that long to respond to a change','Xenon builds up and stops the power falling any faster'],1,`55 s ÷ ln 2 = 80 s. Those last precursors set the pace.`)]),
+L('k5','Decay heat',10,[
+T(`<h3>Heat that won't switch off</h3><p>When fission stops, fission products keep decaying. Their <b>decay heat</b> is about:</p><table><tr><th>Time after trip</th><th>Decay heat (% of full power)</th></tr><tr><td>A few seconds</td><td>about 6%</td></tr><tr><td>1 hour</td><td>about 1–1.5%</td></tr><tr><td>1 day</td><td>about 0.5%</td></tr></table><p>For a 3000 MWth core, even 1% is 30 MW: enough to boil water away quickly if cooling stops.</p>`),
+W('decayHeat',{},`This uses the Way–Wigner approximation. Move the cursor to find when decay heat falls below <b>1% of full power</b>.`,`Within a few hours decay heat drops to around 1%, but it takes days to fall to a few tenths of a percent. Cooling must continue for a long time.`),
+N(`A 3000 MWth reactor has decay heat of 1.5% an hour after a trip. How many MW is that?`,45,0.01,'MW',`3000 × 0.015 = 45 MW.`),
+N(`30 MW of decay heat is boiling water that's already at 100 °C. Latent heat = 2.26 MJ/kg. How many kg of water boil away every second?`,13.3,0.02,'kg/s',`30 ÷ 2.26 = 13.3 kg every second, about 1100 tonnes a day.`),
+Q(`At Fukushima Daiichi in 2011, the reactors shut down successfully when the earthquake struck. Why did the cores still melt?`,['The control rods didn\'t insert, so the chain reaction kept going','The tsunami knocked out power to the cooling systems, so decay heat couldn\'t be removed','Xenon built up after the trip and exploded inside the core','The earthquake shook the reactors so hard that they went prompt critical as the rods dropped in'],1,`Shutting down the chain reaction is only half the job. Decay heat must be removed for days afterwards.`)])
+]});
+
+U({id:'thermo',title:'Thermodynamics',icon:'°C',color:'#BA7517',desc:'Heat, pressure, boiling and saturation, energy balances and the steam cycle.',lessons:[
+L('t1','Temperature, pressure and heat',8,[
+T(`<h3>Units you'll see on every panel</h3><ul><li><b>Temperature</b>: °C, or kelvin for physics (K = °C + 273.15)</li><li><b>Pressure</b>: bar (1 bar = 10<sup>5</sup> Pa, about atmospheric) or MPa (1 MPa = 10 bar)</li><li><b>Absolute</b> pressure counts from vacuum; <b>gauge</b> pressure counts from atmospheric</li></ul>`),
+N(`PWR primary pressure is about 155 bar. What's that in MPa?`,15.5,0.01,'MPa',`1 MPa = 10 bar, so 155 bar = 15.5 MPa.`),
+Q(`A gauge reads 154 bar(g). What's the absolute pressure, roughly?`,['154 bar(a)','155 bar(a)','153 bar(a)','1 bar(a)'],1,`Absolute = gauge + atmospheric ≈ 154 + 1 = 155 bar(a).`),
+T(`<h3>Heating water</h3><div class="eq">Q = m c ΔT</div><div class="key"><div class="kt">What each part means</div><div class="krow"><span class="ks">Q</span><span class="km">heat energy put in</span><span class="ku">joules (J)</span></div><div class="krow"><span class="ks">m</span><span class="km">mass being heated</span><span class="ku">kilograms (kg)</span></div><div class="krow"><span class="ks">c</span><span class="km"><b>specific heat capacity</b>: energy to heat 1 kg by 1 °C</span><span class="ku">J/(kg·°C)</span></div><div class="krow"><span class="ks">ΔT</span><span class="km">temperature rise</span><span class="ku">°C</span></div><div class="kn">Careful: this <b>c</b> is <i>not</i> the speed of light. Same letter, different meaning.</div></div><p>c is the specific heat capacity. For water at room temperature, c = 4.18 kJ/kg/K. At PWR conditions (about 300 °C, 155 bar) it's higher, about 5.5 kJ/kg/K.</p>`),
 N(`How much energy heats 1000 kg of water by 10 °C (c = 4.18 kJ/kg/K)?`,41.8,0.01,'MJ',`1000 × 4.18 × 10 = 41,800 kJ = 41.8 MJ.`),
 N(`During a heat-up after an outage, the reactor coolant pumps add about 20 MW of heat. The primary circuit (water and steel) has a heat capacity of about 1500 MJ/°C. Roughly how fast does it heat up, in °C per hour?`,48,0.03,'°C per hour',`20 MJ/s ÷ 1500 MJ/°C = 0.0133 °C/s × 3600 = 48 °C per hour. Heat-up rate limits are typically about 55 °C per hour (see unit 9).`)]),
 L('t2','Boiling and saturation',12,[
@@ -736,26 +751,4 @@ F('k1',[
 T(`<h3>Quick recap</h3><ul><li>Prompt neutron generation time ℓ ≈ 2 × 10<sup>−5</sup> s</li><li>About <b>0.65%</b> of U-235 fission neutrons are <b>delayed</b> (β = 0.0065)</li><li>With delayed neutrons, the average generation time is about <b>0.08 s</b></li><li>Prompt-only period: <b>τ = ℓ/(k − 1)</b></li></ul><div class="callout"><b>Worked example:</b> ℓ = 2 × 10<sup>−5</sup> s, k − 1 = 0.002: τ = 2 × 10<sup>−5</sup> ÷ 0.002 = <b>0.01 s</b>.</div>`),
 N(`Prompt neutrons only: ℓ = 10<sup>−4</sup> s and k − 1 = 0.0005. What would the period be?`,0.2,0.01,'s',`τ = 10<sup>−4</sup> ÷ 0.0005 = 0.2 s. Still far too fast to control.`),
 N(`1,000,000 fission neutrons are released, and β = 0.0065. How many are delayed?`,6500,0.01,'',`1,000,000 × 0.0065 = 6500.`),
-Q(`Delayed neutrons come from…`,['the decay of certain fission products, called precursors','the control rods','the neutron source','the coolant'],0,`Precursors such as bromine-87 decay and give off a neutron seconds to a minute after fission.`),
-Q(`Which delayed neutron group has the largest share of β?`,['Group 1 (55.7 s)','Group 2 (22.7 s)','Group 4 (2.3 s)','Group 6 (0.2 s)'],2,`Group 4 makes up about 40% of β.`),
-N(`The average generation time with delayed neutrons is 0.08 s, and the prompt generation time is 2 × 10<sup>−5</sup> s. How many times longer is it?`,4000,0.01,'times',`0.08 ÷ 0.00002 = 4000.`)]);
-
-F('k2',[
-T(`<h3>Quick recap</h3><ul><li><b>SUR = 26.06 / τ</b> (decades per minute)</li><li>Decades gained = SUR × time in minutes</li><li><b>τ ≈ (β − ρ) / (λ<sub>eff</sub> ρ)</b> with λ<sub>eff</sub> ≈ 0.08 s<sup>−1</sup></li></ul><div class="callout"><b>Worked example:</b> SUR 0.5 DPM for 4 minutes: 0.5 × 4 = <b>2 decades</b> (×100).</div>`),
-N(`The period is 120 s. What's the startup rate?`,0.217,0.02,'DPM',`26.06 ÷ 120 = 0.22 DPM.`),
-N(`The startup rate is 0.25 DPM. How many minutes does it take to rise 2 decades?`,8,0.01,'minutes',`2 ÷ 0.25 = 8 minutes.`,`Decades ÷ decades per minute.`),
-N(`The startup rate is 2 DPM. What's the period?`,13.03,0.02,'s',`τ = 26.06 ÷ 2 = 13 s. That's fast: most plants trip around 3 DPM or alarm well before.`),
-N(`Estimate the period for ρ = 100 pcm, β = 650 pcm and λ<sub>eff</sub> = 0.08 s<sup>−1</sup>.`,68.75,0.02,'s',`(650 − 100) ÷ (0.08 × 100) = 550 ÷ 8 = 69 s.`,`Top: β − ρ. Bottom: λ<sub>eff</sub> × ρ.`),
-Q(`A higher startup rate means…`,['a shorter period and faster power rise','a longer period','falling power','less reactivity'],0,`SUR and period are inversely related.`)]);
-
-F('k3',[
-T(`<h3>Quick recap</h3><ul><li>Prompt jump: <b>P<sub>1</sub>/P<sub>0</sub> = β / (β − ρ)</b></li><li>Reactivity in dollars = ρ ÷ β</li><li>At <b>ρ = β (1 $)</b> the reactor is prompt critical: never allowed</li></ul><div class="callout"><b>Worked example:</b> ρ = 130 pcm, β = 650: 650 ÷ 520 = <b>1.25</b>, a 25% jump.</div>`),
-N(`ρ = +200 pcm and β = 650 pcm. What's the prompt jump, P<sub>1</sub>/P<sub>0</sub>?`,1.444,0.01,'',`650 ÷ (650 − 200) = 650 ÷ 450 = 1.44.`),
-N(`ρ = −650 pcm and β = 650 pcm. What's the prompt drop, P<sub>1</sub>/P<sub>0</sub>?`,0.5,0.01,'',`650 ÷ (650 + 650) = 0.5: power halves almost instantly.`,`Subtracting a negative number adds it.`),
-N(`β = 600 pcm. What's 300 pcm in dollars?`,0.5,0.01,'$',`300 ÷ 600 = 0.5 $.`),
-Q(`Prompt critical means…`,['the chain reaction is sustained by prompt neutrons alone','the reactor is shut down','power is steady','delayed neutrons control the rate'],0,`Once ρ ≥ β, the reactor no longer waits for delayed neutrons, and the period falls to milliseconds.`),
-Q(`After a reactor goes prompt critical, what limits the power rise?`,['Doppler feedback as the fuel heats up','Delayed neutrons','The operators','Boron'],0,`Nothing else is fast enough. That's why prompt criticality must never happen.`)]);
-
-F('k4',[
-T(`<h3>Quick recap</h3><ul><li>Prompt drop to <b>β / (β − ρ)</b> of starting power</li><li>Then a <b>−80 s period</b>: P = P<sub>1</sub>e<sup>−t/80</sup></li><li>Time to fall from P<sub>1</sub> to P<sub>2</sub>: <b>t = 80 ln(P<sub>1</sub>/P<sub>2</sub>)</b></li></ul><div class="callout"><b>Worked example:</b> from 10% to 1%: t = 80 × ln 10 = <b>184 s</b>.</div>`),
-N(`A trip adds −3250 pcm and β = 6
+Q(`Delayed neutrons come from…`,['the decay of certain fission products, called precursors','the control rods','the neutron source','the
