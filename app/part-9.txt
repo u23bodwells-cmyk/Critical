@@ -1,4 +1,64 @@
-nite integral.</p>`),
+ivative.`),Q(`e is approximately…`,[`2.718`,`3.142`,`1.414`,`0.693`],0,`Euler's number.`)]);
+F('c3-3-2',[GN('lnd'),GN('lnd'),Q(`d/dx (ln x) = …`,[`1/x`,`ln x`,`x`,`1`],0,`Learn by heart.`),Q(`ln e = …`,[`1`,`0`,`e`,`2.718`],0,`e¹ = e.`),Q(`ln(e⁷) = …`,[`7`,`e⁷`,`1`,`0`],0,`ln undoes e.`)]);
+F('c3-3-3',[GN('trigd'),GN('trigd'),GN('trigd'),Q(`Calculus with sin and cos needs angles in…`,[`radians`,`degrees`,`gradians`,`either`],0,`Radians.`),Q(`d/dx (sin 4x) = …`,[`4cos 4x`,`cos 4x`,`−4cos 4x`,`4sin 4x`],0,`k comes down.`)]);
+F('c3-4-1',[GN('chain'),GN('chain'),GN('chainexp'),Q(`The chain rule says dy/dx = …`,[`dy/du × du/dx`,`dy/du + du/dx`,`du/dx ÷ dy/du`,`dy × dx`],0,`Outside × inside.`),GN('chain')]);
+F('c3-4-2',[GN('product'),GN('product'),GN('product'),Q(`(uv)′ = …`,[`u′v + uv′`,`u′v′`,`uv′ − u′v`,`u′ + v′`],0,`Product rule.`),Q(`Before using the product rule, write down…`,[`u, u′, v and v′`,`the answer`,`the integral`,`the limit`],0,`Organised.`)]);
+F('c3-4-3',[GN('quotient'),GN('quotient'),Q(`(u/v)′ = …`,[`(vu′ − uv′) ÷ v²`,`(uv′ − vu′) ÷ v²`,`u′/v′`,`(vu′ + uv′) ÷ v`],0,`Order matters.`),GN('chain'),GN('product')]);
+
+TT('c3-1',[x('c3-1-1',GN('statq')),x('c3-1-1',GN('statq')),x('c3-1-2',GN('second')),x('c3-1-2',GN('second')),x('c3-1-3',GN('statnat')),x('c3-1-3',GN('statnat')),x('c3-1-3',Q(`d²y/dx² < 0 at a stationary point means…`,[`maximum`,`minimum`,`inconclusive`,`increasing`],0,`Frown.`)),x('c3-1-1',Q(`Stationary points are where…`,[`dy/dx = 0`,`y = 0`,`x = 0`,`d²y/dx² = 0`],0,`Flat.`)),x('c3-1-2',Q(`f″(x) is the…`,[`second derivative`,`inverse`,`integral`,`original function`],0,`Twice.`)),x('c3-1-1',GN('statq'))]);
+TT('c3-2',[x('c3-2-1',GN('optim')),x('c3-2-1',GN('optim')),x('c3-2-2',GN('kin')),x('c3-2-2',GN('kin')),x('c3-2-2',GN('kin')),x('c3-2-3',N(`L = 20 + 12t − t². Peak time (minutes)?`,6,0.001,'min',`12 − 2t = 0.`)),x('c3-2-3',N(`L = 20 + 12t − t². Peak level (%)?`,56,0.001,'%',`20 + 72 − 36.`)),x('c3-2-3',N(`T = 70 + 30t. Heat-up rate (°C/h)?`,30,0.001,'°C/h',`dT/dt.`)),x('c3-2-2',Q(`Acceleration is the derivative of…`,[`velocity`,`displacement`,`time`,`force`],0,`a = dv/dt.`)),x('c3-2-1',Q(`In optimisation, after setting the derivative to zero you should…`,[`check it's a max or min`,`integrate`,`stop`,`set x = 0`],0,`Second derivative.`))]);
+TT('c3-3',[x('c3-3-1',GN('expd')),x('c3-3-1',GN('expd')),x('c3-3-2',GN('lnd')),x('c3-3-2',GN('lnd')),x('c3-3-3',GN('trigd')),x('c3-3-3',GN('trigd')),x('c3-3-1',Q(`Which function is its own derivative?`,[`eˣ`,`x²`,`ln x`,`sin x`],0,`eˣ.`)),x('c3-3-2',Q(`d/dx (ln x) = …`,[`1/x`,`x`,`ln x`,`eˣ`],0,`1/x.`)),x('c3-3-3',Q(`d/dx (cos x) = …`,[`−sin x`,`sin x`,`cos x`,`−cos x`],0,`Minus sin.`)),x('c3-3-3',Q(`π radians = …`,[`180°`,`360°`,`90°`,`π°`],0,`Half a turn.`))]);
+TT('c3-4',[x('c3-4-1',GN('chain')),x('c3-4-1',GN('chain')),x('c3-4-1',GN('chainexp')),x('c3-4-2',GN('product')),x('c3-4-2',GN('product')),x('c3-4-3',GN('quotient')),x('c3-4-3',GN('quotient')),x('c3-4-2',Q(`(uv)′ = …`,[`u′v + uv′`,`u′v′`,`(u′v − uv′)/v²`,`u + v`],0,`Product rule.`)),x('c3-4-3',Q(`(u/v)′ = …`,[`(vu′ − uv′)/v²`,`u′/v′`,`(uv′ − vu′)/v²`,`u′v + uv′`],0,`Quotient rule.`)),x('c3-4-1',Q(`The chain rule is used for…`,[`a function inside a function`,`two functions added`,`constants`,`straight lines`],0,`Composite functions.`))]);
+
+/* ========== CALCULUS · LEVEL 4 · Integration ========== */
+U({id:'c4-1',track:'calc',level:4,title:'Undoing differentiation',icon:'∫',color:'#7F77DD',desc:'Integration as the reverse of differentiation, the + C, and integrating any power of x.',lessons:[
+LH('c4-1-1','Integration is the reverse',9,'If differentiating x² gives 2x, what gives 2x? Working backwards is called integration.',[
+RM(`<p>Differentiating: <b>axⁿ → anxⁿ⁻¹</b>. Constants differentiate to 0.</p>`),
+T(`<h3>Working backwards</h3><p>Differentiation turns x² into 2x. <b>Integration</b> goes the other way: given 2x, find what it came from.</p><div class="eq">∫ 2x dx = x² + C</div>${KY([['∫','"the integral of"',''],['dx','"with respect to x": the variable we\'re working in',''],['C','a constant we can\'t know: the "constant of integration"','']])}`),
+T(`<h3>Why + C?</h3><p>x², x² + 3 and x² − 7 all differentiate to 2x, because the constant disappears. So when we work backwards, we can't tell what the constant was. We write <b>+ C</b> to stand for it.</p>`),
+Q(`Which of these differentiate to 2x?`,[`All of x², x² + 5 and x² − 1`,'Only x², because constants change it','Only x² + 5 and x² − 1','None of them: they all give 2x + 1'],0,`Constants vanish when you differentiate.`),
+Q(`Why do we write + C after integrating?`,[`Any constant would have disappeared when differentiating`,'C stands for "calculus", to show you integrated','It\'s always equal to 1, the starting value of x','To make up for any rounding errors made while integrating'],0,`We can't recover it.`),
+T(`<h3>Always check</h3><p>You can check any integral by <b>differentiating</b> your answer. If you get back what you started with, it's right.</p><p>∫ 3x² dx = x³ + C. Check: d/dx (x³ + C) = 3x². ✓</p>`),
+Q(`∫ 3x² dx = x³ + C. How can you check this?`,[`Differentiate x³ + C and see if you get 3x²`,'Integrate x³ + C again and see if you get 3x²','Put x = 0 into both sides and see if they match','You can\'t check it without a graph of the curve'],0,`Differentiation undoes integration.`),
+T(`<h3>Key points</h3><ul><li><b>Integration</b> is the reverse of differentiation.</li><li>Always add <b>+ C</b>.</li><li>Check by differentiating your answer.</li></ul>`)]),
+LH('c4-1-2','Integrating xⁿ',10,'The reverse power rule: add one to the power, then divide by the new power.',[
+RM(`<p>Integration reverses differentiation. Always + C. Check by differentiating.</p>`),
+T(`<h3>Reversing the power rule</h3><p>Differentiating: multiply by the power, then subtract 1. To reverse it, do the opposite moves in the opposite order:</p><div class="eq">∫ xⁿ dx = xⁿ⁺¹ ÷ (n + 1) + C</div><p><b>Add 1 to the power</b>, then <b>divide by the new power</b>.</p>`),
+W('stepCalc',{steps:[`∫ 6x² dx`,`Add 1 to the power: 2 + 1 = 3`,`Divide by the new power: 6 ÷ 3 = 2`,`Answer: <b>2x³ + C</b>`,`Check: d/dx (2x³) = 6x² ✓`]},`Watch the two moves.`,`Up one, divide by the new power, + C.`),
+Q(`∫ x⁴ dx = …`,[`x⁵/5 + C`,`4x³ + C`,`x⁵ + C`,`5x⁵ + C`],0,`Power 5, divide by 5.`),
+T(`<h3>Constants and sums</h3><ul><li>∫ 7 dx = 7x + C (a constant is 7x⁰; the power goes up to 1).</li><li>Integrate sums <b>term by term</b>, with one + C at the end.</li></ul><p>∫ (3x² + 4x + 5) dx = x³ + 2x² + 5x + C.</p>`),
+W('calcDrill',{skill:'intpow',need:8},`Integrate. Get 8 right to master it.`,`Add one to the power, divide by the new power.`),
+T(`<h3>Key points</h3><ul><li><b>∫ axⁿ dx = axⁿ⁺¹ ÷ (n + 1) + C</b>.</li><li>Constants: ∫ k dx = kx + C.</li><li>Term by term; one + C.</li></ul>`)]),
+LH('c4-1-3','Negative and fractional powers',10,'Rewrite first, then the reverse power rule still works. The one exception: x⁻¹.',[
+RM(`<p>∫ xⁿ dx = xⁿ⁺¹ ÷ (n + 1) + C. Rewrite fractions and roots as powers first.</p>`),
+T(`<h3>Rewrite, then integrate</h3><p>∫ 6/x³ dx: rewrite as ∫ 6x⁻³ dx. Add 1 to the power: −3 + 1 = −2. Divide by −2: 6 ÷ (−2) = −3. Answer: <b>−3x⁻² + C</b>.</p>`),
+T(`<h3>The one exception</h3><p>For x⁻¹ (that's 1/x), adding 1 gives x⁰, and dividing by 0 is impossible. So 1/x needs a different rule. You'll meet it in the next unit: it involves ln x.</p>`),
+Q(`Why doesn't the reverse power rule work for 1/x?`,[`It would mean dividing by zero`,'1/x has no graph to find the area under','It does work, giving ln x every time','Because x can never be negative'],0,`x⁻¹ → x⁰ ÷ 0.`),
+W('calcDrill',{skill:['intneg','intfrac'],need:6},`Rewrite and integrate. Get 6 right to master it.`,`Careful with negatives: −3 + 1 = −2.`),
+W('calcDrill',{skill:['intpow','intneg','intfrac'],need:8},`All powers, mixed. Get 8 right to master it.`,`You can integrate any power of x except 1/x.`),
+T(`<h3>Key points</h3><ul><li>Rewrite fractions and roots as powers first.</li><li>−3 + 1 = −2: watch the signs.</li><li><b>1/x is the exception</b>: it needs ln x.</li></ul>`)])
+]});
+
+U({id:'c4-2',track:'calc',level:4,title:'Definite integrals and area',icon:'∫ₐᵇ',color:'#1D9E75',desc:'Why integration finds areas, evaluating definite integrals, and areas above and below the axis.',lessons:[
+LH('c4-2-1','Area as thin strips',9,'Chop the area under a curve into strips, then make them infinitely thin.',[
+RM(`<p>In Level 1, shrinking a chord gave the exact gradient. The same "make it tiny" idea works for areas.</p>`),
+T(`<h3>Area under a curve</h3><p>How much area is under y = x² between x = 0 and x = 3? It's curved, so there's no simple formula. But we can split it into thin <b>rectangular strips</b> and add them up.</p>`),
+W('riemann',{f:function(x){return x*x},a:0,b:3,exact:9,y:[0,10],n0:3,goalN:30,mid:true},`Drag the slider to use more and more strips.`,`With more and thinner strips, the total gets closer to exactly 9.`),
+T(`<h3>Infinitely thin strips</h3><p>As the strips get thinner, the total gets closer and closer to the exact area. In the limit, the sum of infinitely many, infinitely thin strips is written:</p><div class="eq">∫ from 0 to 3 of x² dx</div><p>The ∫ sign is a stretched S, for "sum". The dx is the strip width, shrunk to nothing.</p>`),
+Q(`What does the ∫ symbol originally stand for?`,[`A sum (a stretched S)`,'An integer (a curly I)','A slope (a tilted line)','Infinity (a bent 8)'],0,`Adding up infinitely many strips.`),
+Q(`Why does using more strips give a better answer?`,[`Thinner strips fit the curve more closely`,'Each strip covers more of the area at once','More strips make the curve itself smoother','It doesn\'t: the number of strips makes no difference'],0,`Less gap between the rectangles and the curve.`),
+T(`<h3>Key points</h3><ul><li>The area under a curve is the limit of thin strips added up.</li><li>That limit is written as an <b>integral</b> with limits, ∫ from a to b.</li><li>Next lesson: the shortcut that gives the exact answer.</li></ul>`)]),
+LH('c4-2-2','Definite integrals',10,'The shortcut: integrate, then subtract. No + C needed.',[
+RM(`<p>The area under a curve is the integral from a to b. To integrate: add 1 to the power, divide by the new power.</p>`),
+T(`<h3>The method</h3><div class="eq">∫ from a to b of f(x) dx = F(b) − F(a)</div>${KY([['F(x)','the integral of f(x) (without + C)',''],['a, b','the limits: where the area starts and stops','']],'Integrate, put in the top limit, put in the bottom limit, subtract.')}`),
+W('stepCalc',{steps:[`∫ from 0 to 3 of x² dx`,`Integrate: x³ ÷ 3`,`Top limit: 3³ ÷ 3 = 9`,`Bottom limit: 0³ ÷ 3 = 0`,`Subtract: 9 − 0 = <b>9</b>. Exactly what the strips were heading towards!`]},`The exact area from the last lesson.`,`Integrate, then top minus bottom.`),
+T(`<h3>Why no + C?</h3><p>If you included it: (F(b) + C) − (F(a) + C) = F(b) − F(a). The C always cancels, so definite integrals don't need it.</p>`),
+Q(`Why don't definite integrals need + C?`,[`It cancels when you subtract`,`C is always zero`,`Areas can't have constants`,`They do`],0,`C − C = 0.`),
+N(`Evaluate ∫ from 1 to 3 of 2x dx.`,8,0.001,'',`[x²] from 1 to 3 = 9 − 1 = 8.`),
+W('calcDrill',{skill:'defint',need:5},`Definite integrals. Get 5 right to master it.`,`Integrate, then top limit minus bottom limit.`),
+T(`<h3>Key points</h3><ul><li><b>∫ₐᵇ f(x) dx = F(b) − F(a)</b>.</li><li>Top limit minus bottom limit.</li><li>No + C: it cancels.</li></ul>`)]),
+LH('c4-2-3','Areas under curves',10,'Areas above the axis count as positive, below as negative. Know when to split.',[
+RM(`<p>∫ₐᵇ f(x) dx = F(b) − F(a). The area under a curve is a definite integral.</p>`),
 W('calcDrill',{skill:'area',need:4},`Areas under curves. Get 4 right to master it.`,`Integrate, then top minus bottom.`),
 T(`<h3>Below the axis</h3><p>If the curve is <b>below</b> the x-axis, the integral comes out <b>negative</b>. The area itself is still positive: just take the size.</p><p>Example: ∫ from −1 to 1 of x dx = 0. But the actual shaded area is two triangles of 0.5 each: <b>1</b>. The positive and negative parts cancelled!</p>`),
 Q(`∫ from −1 to 1 of x dx = 0, but the actual area is 1. Why?`,[`The part below the axis counts as negative and cancels the part above`,'The integral has been worked out wrongly: the answer should be 1','Areas between −1 and 1 always come out as zero for every curve','A straight line like y = x has no area underneath it at all'],0,`Split at the x-axis.`),
@@ -921,67 +981,4 @@ Q(`The graph of z = f(x, y) is…`,[`a surface in 3D`,`a curve in 2D`,`a single 
 T(`<h3>Key points</h3><ul><li><b>z = f(x, y)</b>: two inputs, one output.</li><li>Its graph is a <b>surface</b>.</li><li>x² + y² is a bowl; x² − y² is a saddle.</li></ul>`)]),
 LH('c12-1-2','Contour maps and limits',10,'Slice a surface at fixed heights and you get a map, exactly like the contour lines on a hiking map.',[
 RM(`<p>z = f(x, y) is a surface. A circle centred at the origin: x² + y² = r². A limit must agree from every direction.</p>`),
-T(`<h3>Level curves</h3><p>A <b>level curve</b> is everywhere f(x, y) = c, for one value c. Draw several, for c = 1, 2, 3, …, and you have a <b>contour map</b>.</p><ul><li>f = x² + y²: level curves are circles of radius √c.</li><li>Lines close together: the surface is <b>steep</b> there.</li><li>Lines far apart: it's gentle.</li></ul>`),
-W('fnPlot',{x:[-3,3],y:[-3,3],xl:'x',yl:'y',sl:[['c','Height c',0.5,8,0.5,2]],curves:function(){return []},marks:function(p,P,col){var c=P.c;for(var k=1;k<=8;k++){c.strokeStyle=k===Math.round(p.c)||Math.abs(k-p.c)<0.01?col('--coral'):col('--muted');c.lineWidth=Math.abs(k-p.c)<0.01?3:1;c.beginPath();var R=Math.sqrt(k);for(var i=0;i<=100;i++){var t=i/100*2*Math.PI,X=P.X(R*Math.cos(t)),Y=P.Y(R*Math.sin(t));if(i===0)c.moveTo(X,Y);else c.lineTo(X,Y)}c.stroke()}c.strokeStyle=col('--accent');c.lineWidth=3;c.beginPath();var R2=Math.sqrt(p.c);for(var j=0;j<=100;j++){var t2=j/100*2*Math.PI,X2=P.X(R2*Math.cos(t2)),Y2=P.Y(R2*Math.sin(t2));if(j===0)c.moveTo(X2,Y2);else c.lineTo(X2,Y2)}c.stroke()},read:function(p){return 'x² + y² = '+p.c+': a circle of radius <b>'+Math.sqrt(p.c).toFixed(2)+'</b>. The grey circles are heights 1 to 8: they get closer together as the bowl steepens.'}},`Contours of the bowl f = x² + y². Change c to pick a height.`,`Equal height steps, closer circles: the bowl gets steeper further out.`),
-Q(`On a contour map, contour lines bunched close together mean…`,[`the surface is steep there`,`the surface is flat there`,`there's a maximum there`,`the function is undefined`],0,`Height changes quickly.`),
-T(`<h3>Limits in 2D are stricter</h3><p>In 1D you can approach a point from 2 directions. In 2D there are infinitely many paths. The limit exists only if <b>every</b> path gives the same value.</p><p>f = xy/(x² + y²) near (0, 0): along y = 0 it's 0, but along y = x it's x²/(2x²) = ½. Different values: <b>no limit</b>.</p>`),
-Q(`How do you show a 2D limit does NOT exist?`,[`Find two paths that give different values`,`Check one path`,`Substitute the point`,`Differentiate`],0,`One disagreement is enough.`),
-T(`<h3>Key points</h3><ul><li><b>Level curves</b>: f(x, y) = c. Together, a contour map.</li><li>Close contours = steep.</li><li>2D limits must agree along <b>every</b> path.</li></ul>`)]),
-LH('c12-1-3','Curves in space',10,'A particle\'s path through 3D: position, velocity and acceleration as vectors.',[
-RM(`<p>Parametric curves: x = f(t), y = g(t). Speed = √(x′² + y′²). Vectors in 3D: ⟨a, b, c⟩.</p>`),
-T(`<h3>Vector functions</h3><p>A curve in space: <b>r(t) = ⟨x(t), y(t), z(t)⟩</b>. Example: the helix r(t) = ⟨cos t, sin t, t⟩ goes round in a circle while climbing steadily, like a spring.</p>`),
-T(`<h3>Differentiate each component</h3><div class="eq">velocity v = r′(t)&nbsp;&nbsp; speed = |r′(t)|&nbsp;&nbsp; acceleration a = r″(t)</div><p>For the helix: r′ = ⟨−sin t, cos t, 1⟩, so speed = √(sin²t + cos²t + 1) = <b>√2</b>, constant.</p>`),
-Q(`r(t) = ⟨t, t², t³⟩. What is r′(t)?`,[`⟨1, 2t, 3t²⟩`,`⟨t, 2t, 3t⟩`,`⟨1, 2, 3⟩`,`⟨0, 2, 6t⟩`],0,`Each component separately.`),
-N(`r(t) = ⟨2t, 3t, 6t⟩. Speed?`,7,0.001,'',`√(4 + 9 + 36) = 7.`),
-T(`<h3>Arc length</h3><p>Just like 2D: <b>L = ∫ |r′(t)| dt</b>. One turn of the helix (t from 0 to 2π) is 2π√2 long.</p>`),
-QE(`a · b = 0 means a and b are…`,[`perpendicular`,`parallel`,`equal`,`unit vectors`],0,`cos 90° = 0.`),
-T(`<h3>Key points</h3><ul><li><b>r(t) = ⟨x(t), y(t), z(t)⟩</b>.</li><li>v = r′, a = r″, speed = |r′|.</li><li>Arc length <b>L = ∫ |r′| dt</b>.</li></ul>`)])
-]});
-
-U({id:'c12-2',track:'calc',level:12,title:'Partial derivatives',icon:'∂f/∂x',color:'#1D9E75',desc:'Differentiate with one variable held still, second partials, and tangent planes.',lessons:[
-LH('c12-2-1','Hold one variable still',10,'Walk east on a hill and the slope is one thing; walk north and it\'s another. Partial derivatives measure each.',[
-RM(`<p>d/dx (ax<sup>n</sup>) = anx<sup>n−1</sup>. The derivative of a constant is 0, and constants in front stay in front.</p>`),
-T(`<h3>The partial derivative</h3><p>∂f/∂x means: differentiate with respect to x, <b>treating y as a constant</b>. ∂f/∂y: the other way round.</p><div class="eq">∂f/∂x = f<sub>x</sub>&nbsp;&nbsp;&nbsp; ∂f/∂y = f<sub>y</sub></div>${KY([['∂','"partial d": other variables are held fixed',''],['f<sub>x</sub>','the slope if you walk in the x direction','']])}`),
-W('stepCalc',{steps:[`f(x, y) = x²y + 3y² + 5x`,`∂f/∂x: y is a constant. x²y → 2xy; 3y² → 0; 5x → 5`,`<b>f<sub>x</sub> = 2xy + 5</b>`,`∂f/∂y: x is a constant. x²y → x²; 3y² → 6y; 5x → 0`,`<b>f<sub>y</sub> = x² + 6y</b>`]},`Two partial derivatives.`,`A term with no x at all is a constant when differentiating with respect to x.`),
-Q(`f = x³y². What is ∂f/∂y?`,[`2x³y`,`3x²y²`,`6x²y`,`x³`],0,`x³ is a constant: x³ × 2y.`),
-W('calcDrill',{skill:'partial',need:4},`Partial derivatives. Get 4 right to master it.`,`Hold the other variable fixed.`),
-T(`<h3>A real one</h3><p>The ideal gas law: P = nRT/V. ∂P/∂T = nR/V (heat it at fixed volume: pressure rises). ∂P/∂V = −nRT/V² (expand it at fixed temperature: pressure falls).</p>`),
-T(`<h3>Key points</h3><ul><li><b>∂f/∂x</b>: differentiate in x, everything else constant.</li><li>Each partial is a slope in one direction.</li><li>Same rules as ordinary differentiation.</li></ul>`)]),
-LH('c12-2-2','Second partial derivatives',10,'Differentiate again, in either direction. A surprising symmetry, and the equations of heat.',[
-RM(`<p>f<sub>x</sub> = ∂f/∂x with y held constant. The second derivative measures curvature.</p>`),
-T(`<h3>Four second partials</h3><ul><li><b>f<sub>xx</sub></b>: differentiate f<sub>x</sub> with respect to x.</li><li><b>f<sub>yy</sub></b>: differentiate f<sub>y</sub> with respect to y.</li><li><b>f<sub>xy</sub></b>: differentiate f<sub>x</sub> with respect to y.</li><li><b>f<sub>yx</sub></b>: differentiate f<sub>y</sub> with respect to x.</li></ul>`),
-T(`<h3>Clairaut's theorem</h3><p>For smooth functions, the order doesn't matter:</p><div class="eq">f<sub>xy</sub> = f<sub>yx</sub></div><p>Example: f = x²y³. f<sub>x</sub> = 2xy³, so f<sub>xy</sub> = 6xy². f<sub>y</sub> = 3x²y², so f<sub>yx</sub> = 6xy². ✓</p>`),
-W('calcDrill',{skill:'mixed',need:3},`Mixed partials. Get 3 right to master it.`,`Differentiate in x, then in y.`),
-Q(`f = sin(x) eʸ. f<sub>xy</sub> = …`,[`cos(x) eʸ`,`−sin(x) eʸ`,`sin(x) eʸ`,`0`],0,`f<sub>x</sub> = cos x eʸ; then ∂/∂y leaves it unchanged.`),
-T(`<h3>The heat equation</h3><p>Temperature T(x, t) along a rod obeys:</p><div class="eq">∂T/∂t = α ∂²T/∂x²</div><p>Where the temperature curves upward (∂²T/∂x² > 0, a cold spot between hotter neighbours) it warms up. This <b>partial differential equation</b> governs heat flow out of fuel, and a near-identical one governs neutron diffusion in the core.</p>`),
-QE(`f = x²y. ∂f/∂x = …`,[`2xy`,`x²`,`2x`,`2y`],0,`y is constant.`),
-T(`<h3>Key points</h3><ul><li>Four second partials: f<sub>xx</sub>, f<sub>yy</sub>, f<sub>xy</sub>, f<sub>yx</sub>.</li><li><b>Clairaut</b>: f<sub>xy</sub> = f<sub>yx</sub>.</li><li>PDEs like the heat equation use them.</li></ul>`)]),
-LH('c12-2-3','Tangent planes and approximation',10,'Zoom in on a smooth surface and it looks flat: a tangent plane.',[
-RM(`<p>Linear approximation in 1D: f(a + h) ≈ f(a) + f′(a)h. A plane: z = c + mx + ny.</p>`),
-T(`<h3>The tangent plane</h3><p>At (a, b), the surface is best matched by the plane:</p><div class="eq">z = f(a, b) + f<sub>x</sub>(a, b)(x − a) + f<sub>y</sub>(a, b)(y − b)</div><p>It's the 1D tangent line, with one slope term for each direction.</p>`),
-W('stepCalc',{steps:[`f = x² + y² at (1, 2)`,`f(1, 2) = 5, f<sub>x</sub> = 2x = 2, f<sub>y</sub> = 2y = 4`,`Tangent plane: z = 5 + 2(x − 1) + 4(y − 2)`,`Estimate f(1.1, 1.9): z ≈ 5 + 2(0.1) + 4(−0.1) = <b>4.8</b>`,`True value: 1.21 + 3.61 = 4.82`]},`A tangent plane estimate.`,`Close to the point, the plane is very accurate.`),
-W('calcDrill',{skill:'tanplane',need:3},`Tangent plane estimates. Get 3 right to master it.`,`f + f<sub>x</sub>Δx + f<sub>y</sub>Δy.`),
-T(`<h3>Error propagation</h3><p>The <b>total differential</b> dz = f<sub>x</sub> dx + f<sub>y</sub> dy estimates how errors in x and y affect z. A cylinder's volume V = πr²h: dV = 2πrh dr + πr² dh. A 1% error in r causes about a 2% error in V; 1% in h, about 1%. Engineers use this to decide which measurement matters most.</p>`),
-Q(`V = πr²h. A 1% error in r gives roughly what error in V?`,[`2%`,`1%`,`0.5%`,`4%`],0,`r is squared.`),
-T(`<h3>Key points</h3><ul><li><b>z = f + f<sub>x</sub>(x − a) + f<sub>y</sub>(y − b)</b>.</li><li>Use it to estimate nearby values.</li><li><b>dz = f<sub>x</sub>dx + f<sub>y</sub>dy</b> tracks errors.</li></ul>`)])
-]});
-
-U({id:'c12-3',track:'calc',level:12,title:'Gradient and optimisation',icon:'∇f',color:'#378ADD',desc:'The gradient, directional derivatives, maxima, minima and saddles, and Lagrange multipliers.',lessons:[
-LH('c12-3-1','The gradient and directional derivatives',11,'One vector holds every slope: which way is uphill, and how steep.',[
-RM(`<p>f<sub>x</sub> and f<sub>y</sub> are slopes in the x and y directions. a · b = |a||b| cos θ.</p>`),
-T(`<h3>The gradient vector</h3><div class="eq">∇f = ⟨f<sub>x</sub>, f<sub>y</sub>⟩</div><p>Read "del f" or "grad f". For f = x² + 3y: ∇f = ⟨2x, 3⟩.</p>`),
-T(`<h3>The slope in any direction</h3><p>For a <b>unit</b> vector u, the rate of change of f in direction u is:</p><div class="eq">D<sub>u</sub>f = ∇f · u = |∇f| cos θ</div><p>It's largest when θ = 0. So:</p><ul><li><b>∇f points straight uphill</b> (steepest increase).</li><li>Its length |∇f| is that steepest rate.</li><li>∇f is perpendicular to the level curves.</li></ul>`),
-Q(`Which direction does ∇f point?`,[`The direction of steepest increase`,`Along the level curve`,`Straight down`,`Towards the origin`],0,`cos θ is biggest at θ = 0.`),
-W('calcDrill',{skill:'dirderiv',need:3},`Directional derivatives. Get 3 right to master it.`,`∇f · u, with u a unit vector.`),
-W('calcDrill',{skill:'gradmag',need:2},`The steepest rate. Get 2 right to master it.`,`|∇f|.`),
-T(`<h3>The multivariable chain rule</h3><p>If you move along a path (x(t), y(t)), f changes at:</p><div class="eq">df/dt = f<sub>x</sub> dx/dt + f<sub>y</sub> dy/dt = ∇f · r′(t)</div><p>Each direction contributes its slope times how fast you move that way. This is also how <b>gradient descent</b> trains AI models: step against ∇f to go downhill.</p>`),
-T(`<h3>Key points</h3><ul><li><b>∇f = ⟨f<sub>x</sub>, f<sub>y</sub>⟩</b> points uphill; |∇f| is the steepest slope.</li><li><b>D<sub>u</sub>f = ∇f · u</b>.</li><li>Chain rule: df/dt = ∇f · r′.</li></ul>`)]),
-LH('c12-3-2','Maxima, minima and saddles',11,'Find where a surface is flat, then tell a hilltop from a valley from a saddle.',[
-RM(`<p>In 1D: stationary where f′ = 0; f″ > 0 minimum, f″ < 0 maximum. ∇f = ⟨f<sub>x</sub>, f<sub>y</sub>⟩.</p>`),
-T(`<h3>Critical points</h3><p>At a peak or a valley, the surface is flat in every direction: <b>∇f = 0</b>, so f<sub>x</sub> = 0 and f<sub>y</sub> = 0 together. Solve them simultaneously.</p>`),
-N(`f = x² + y² − 4x + 6y. The critical point has x = 2. What is its y?`,-3,0.001,'',`f<sub>y</sub> = 2y + 6 = 0, so y = −3.`),
-T(`<h3>The second derivative test</h3><div class="eq">D = f<sub>xx</sub> f<sub>yy</sub> − (f<sub>xy</sub>)²</div><ul><li><b>D > 0, f<sub>xx</sub> > 0</b>: minimum (a bowl).</li><li><b>D > 0, f<sub>xx</sub> < 0</b>: maximum (a dome).</li><li><b>D < 0</b>: <b>saddle point</b>: up one way, down the other.</li><li>D = 0: the test can't tell.</li></ul>`),
-Q(`D < 0 at a critical point means…`,[`a saddle point`,`a minimum`,`a maximum`,`no conclusion`],0,`Curving opposite ways.`),
-W('calcDrill',{skill:'critclass',need:4},`Classify critical points. Get 4 right to master it.`,`D = f<sub>xx</sub>f<sub>yy</sub> − f<sub>xy</sub>².`),
-QE(`f = x³y². f<sub>xy</sub> = …`,[`6x²y`,`3x²y²`,`2x³y`,`6xy`],0,`3x²y² then ∂/∂y.`),
-T(`<h3>Key points</h3><ul><li>Crit
+T(`<h3>Level curves</h3><p>A <b>level curve</b> is everywhere f(x, y) = c, for one value c. Draw several, for c = 1, 2, 3, …, and you have a <b>contour map</b>.</p><ul><li>f = x² + y²: level curves are circles of radius √c.</li><li>Lines close together: t

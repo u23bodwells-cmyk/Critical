@@ -1,4 +1,42 @@
- power ÷ (c ΔT)</li></ul>`),
+. How fast, in ppm per day?`,2.6,0.01,'ppm per day',`1300 ÷ 500 = 2.6 ppm per day.`),
+Q(`At the end of a fuel cycle, the boron concentration at full power is about…`,['0 ppm','1200 ppm','2000 ppm','it isn\'t used'],0,`Boron has been diluted away to compensate for fuel burnup.`),
+Q(`As plutonium-239 builds up, β…`,['falls','rises','stays the same'],0,`Pu-239 has a smaller delayed neutron fraction (about 0.21%) than U-235 (0.65%).`),
+Q(`Shutdown margin is calculated assuming…`,['the most reactive rod is stuck fully out','all rods insert perfectly','boron is zero','xenon is at its peak'],0,`It's a single-failure assumption: the reactor must still shut down even if one rod sticks.`)]);
+
+F('k1',[
+T(`<h3>Quick recap</h3><ul><li>Prompt neutron generation time ℓ ≈ 2 × 10<sup>−5</sup> s</li><li>About <b>0.65%</b> of U-235 fission neutrons are <b>delayed</b> (β = 0.0065)</li><li>With delayed neutrons, the average generation time is about <b>0.08 s</b></li><li>Prompt-only period: <b>τ = ℓ/(k − 1)</b></li></ul><div class="callout"><b>Worked example:</b> ℓ = 2 × 10<sup>−5</sup> s, k − 1 = 0.002: τ = 2 × 10<sup>−5</sup> ÷ 0.002 = <b>0.01 s</b>.</div>`),
+N(`Prompt neutrons only: ℓ = 10<sup>−4</sup> s and k − 1 = 0.0005. What would the period be?`,0.2,0.01,'s',`τ = 10<sup>−4</sup> ÷ 0.0005 = 0.2 s. Still far too fast to control.`),
+N(`1,000,000 fission neutrons are released, and β = 0.0065. How many are delayed?`,6500,0.01,'',`1,000,000 × 0.0065 = 6500.`),
+Q(`Delayed neutrons come from…`,['the decay of certain fission products, called precursors','the control rods','the neutron source','the coolant'],0,`Precursors such as bromine-87 decay and give off a neutron seconds to a minute after fission.`),
+Q(`Which delayed neutron group has the largest share of β?`,['Group 1 (55.7 s)','Group 2 (22.7 s)','Group 4 (2.3 s)','Group 6 (0.2 s)'],2,`Group 4 makes up about 40% of β.`),
+N(`The average generation time with delayed neutrons is 0.08 s, and the prompt generation time is 2 × 10<sup>−5</sup> s. How many times longer is it?`,4000,0.01,'times',`0.08 ÷ 0.00002 = 4000.`)]);
+
+F('k2',[
+T(`<h3>Quick recap</h3><ul><li><b>SUR = 26.06 / τ</b> (decades per minute)</li><li>Decades gained = SUR × time in minutes</li><li><b>τ ≈ (β − ρ) / (λ<sub>eff</sub> ρ)</b> with λ<sub>eff</sub> ≈ 0.08 s<sup>−1</sup></li></ul><div class="callout"><b>Worked example:</b> SUR 0.5 DPM for 4 minutes: 0.5 × 4 = <b>2 decades</b> (×100).</div>`),
+N(`The period is 120 s. What's the startup rate?`,0.217,0.02,'DPM',`26.06 ÷ 120 = 0.22 DPM.`),
+N(`The startup rate is 0.25 DPM. How many minutes does it take to rise 2 decades?`,8,0.01,'minutes',`2 ÷ 0.25 = 8 minutes.`,`Decades ÷ decades per minute.`),
+N(`The startup rate is 2 DPM. What's the period?`,13.03,0.02,'s',`τ = 26.06 ÷ 2 = 13 s. That's fast: most plants trip around 3 DPM or alarm well before.`),
+N(`Estimate the period for ρ = 100 pcm, β = 650 pcm and λ<sub>eff</sub> = 0.08 s<sup>−1</sup>.`,68.75,0.02,'s',`(650 − 100) ÷ (0.08 × 100) = 550 ÷ 8 = 69 s.`,`Top: β − ρ. Bottom: λ<sub>eff</sub> × ρ.`),
+Q(`A higher startup rate means…`,['a shorter period and faster power rise','a longer period','falling power','less reactivity'],0,`SUR and period are inversely related.`)]);
+
+F('k3',[
+T(`<h3>Quick recap</h3><ul><li>Prompt jump: <b>P<sub>1</sub>/P<sub>0</sub> = β / (β − ρ)</b></li><li>Reactivity in dollars = ρ ÷ β</li><li>At <b>ρ = β (1 $)</b> the reactor is prompt critical: never allowed</li></ul><div class="callout"><b>Worked example:</b> ρ = 130 pcm, β = 650: 650 ÷ 520 = <b>1.25</b>, a 25% jump.</div>`),
+N(`ρ = +200 pcm and β = 650 pcm. What's the prompt jump, P<sub>1</sub>/P<sub>0</sub>?`,1.444,0.01,'',`650 ÷ (650 − 200) = 650 ÷ 450 = 1.44.`),
+N(`ρ = −650 pcm and β = 650 pcm. What's the prompt drop, P<sub>1</sub>/P<sub>0</sub>?`,0.5,0.01,'',`650 ÷ (650 + 650) = 0.5: power halves almost instantly.`,`Subtracting a negative number adds it.`),
+N(`β = 600 pcm. What's 300 pcm in dollars?`,0.5,0.01,'$',`300 ÷ 600 = 0.5 $.`),
+Q(`Prompt critical means…`,['the chain reaction is sustained by prompt neutrons alone','the reactor is shut down','power is steady','delayed neutrons control the rate'],0,`Once ρ ≥ β, the reactor no longer waits for delayed neutrons, and the period falls to milliseconds.`),
+Q(`After a reactor goes prompt critical, what limits the power rise?`,['Doppler feedback as the fuel heats up','Delayed neutrons','The operators','Boron'],0,`Nothing else is fast enough. That's why prompt criticality must never happen.`)]);
+
+F('k4',[
+T(`<h3>Quick recap</h3><ul><li>Prompt drop to <b>β / (β − ρ)</b> of starting power</li><li>Then a <b>−80 s period</b>: P = P<sub>1</sub>e<sup>−t/80</sup></li><li>Time to fall from P<sub>1</sub> to P<sub>2</sub>: <b>t = 80 ln(P<sub>1</sub>/P<sub>2</sub>)</b></li></ul><div class="callout"><b>Worked example:</b> from 10% to 1%: t = 80 × ln 10 = <b>184 s</b>.</div>`),
+N(`A trip adds −3250 pcm and β = 650 pcm. What percentage of the original power is left after the prompt drop?`,16.67,0.02,'%',`650 ÷ (650 + 3250) = 650 ÷ 3900 = 0.167 = 16.7%.`),
+N(`On a −80 s period, how long does power take to fall by a factor of e?`,80,0.01,'s',`That's the definition of the period: 80 s.`),
+N(`On a −80 s period, how long does power take to fall by one decade (× 1/10)?`,184.2,0.02,'s',`80 × ln 10 = 80 × 2.303 = 184 s.`),
+N(`What startup rate does a −80 s period correspond to? Include the sign.`,-0.326,0.02,'DPM',`26.06 ÷ −80 = −0.33 DPM: about a third of a decade per minute.`),
+Q(`After a trip, source range counts keep falling slowly for minutes because…`,['long-lived delayed neutron precursors are still decaying','the rods are still moving','xenon is burning out','boron is being added'],0,`The 55 s group keeps feeding neutrons in, setting the −80 s period.`)]);
+
+F('k5',[
+T(`<h3>Quick recap</h3><ul><li>Decay heat: about <b>6–7%</b> just after a trip, <b>1–1.5%</b> after an hour, <b>0.5%</b> after a day</li><li>MW = fraction × rated thermal power</li><li>To boil water: kg/s = power ÷ latent heat; to warm water: kg/s = power ÷ (c ΔT)</li></ul>`),
 N(`A 4500 MWth core has decay heat of 1%. How many MW is that?`,45,0.01,'MW',`4500 × 0.01 = 45 MW.`),
 N(`Decay heat is 0.5% of 3000 MWth. How many MW is that?`,15,0.01,'MW',`3000 × 0.005 = 15 MW.`),
 N(`15 MW of decay heat is warming cooling water from 20 °C to 100 °C (c = 4.18 kJ/kg/K). How many kg/s of water are needed?`,44.9,0.02,'kg/s',`ṁ = P ÷ (c ΔT) = 15,000,000 ÷ (4180 × 80) = 44.9 kg/s.`,`Use joules: 15 MW = 15,000,000 W and c = 4180 J/kg/K.`),
@@ -948,28 +986,4 @@ T(`<h3>The magic property of e<sup>x</sup></h3><p>The graph of y = e<sup>x</sup>
 W('fnPlot',{x:[-2,3],y:[0,22],xl:'x',yl:'y',sl:[['a','Point x',-2,3,0.5,1,function(v){return v}]],curves:function(p){var y0=Math.exp(p.a);return [[function(x){return Math.exp(x)},'--accent',3],[function(x){return y0+y0*(x-p.a)},'--coral',2,[6,4]]]},read:function(p){var y=Math.exp(p.a);return 'At x = '+p.a+': height e<sup>x</sup> = <b>'+y.toFixed(2)+'</b>, gradient (dashed tangent) = <b>'+y.toFixed(2)+'</b>. The same!'}},`Move the point along y = e<sup>x</sup>. Compare the height with the gradient of the dashed tangent line.`),
 Q(`What is special about the graph of y = e<sup>x</sup>?`,[`Its gradient at every point equals its height`,'It\'s a straight line through the origin','It crosses the x-axis at exactly x = 0','Its gradient is always the same: 1 at every point'],0,`That's why e describes anything growing in proportion to its own size.`),
 N(`Use a calculator: what is e<sup>2</sup>, to 2 decimal places?`,7.39,0.005,'',`e² = 2.718 × 2.718 ≈ 7.39.`,`Use the e<sup>x</sup> button with x = 2.`),
-QE(`In P = P₀ e<sup>t/τ</sup>, what is P₀?`,[`The power at the start (t = 0)`,`The final power (t → ∞)`,`The power after one period (t = τ)`,`The time taken to double`],0,`At t = 0, e⁰ = 1, so P = P₀.`),
-T(`<h3>Key points</h3><ul><li><b>e ≈ 2.718</b>: the limit of growing in smaller and smaller steps.</li><li>e<sup>x</sup> has a gradient equal to its height, so it describes <b>continuous</b> growth and decay.</li><li>e⁰ = 1, so in P = P₀ e<sup>t/τ</sup>, P₀ is the starting value.</li></ul>`)]),
-LH('m2-2-2','The natural log (ln)',10,'How to get the time out of an exponential. One button: ln.',[
-RM(`<p>In Level 1 you met <b>log₁₀</b>: it answers "10 to the what?". For example log₁₀(1000) = 3, because 10³ = 1000.</p><p>The <b>natural log</b>, written <b>ln</b>, does the same job for e.</p>`),
-T(`<h3>What ln means</h3><div class="eq">ln(y) = x &nbsp; means &nbsp; e<sup>x</sup> = y</div><p>ln answers "e to the what gives this number?"</p><ul><li>ln(e) = 1, because e¹ = e</li><li>ln(1) = 0, because e⁰ = 1</li><li>ln(e<sup>5</sup>) = 5</li></ul><div class="callout">ln and e<sup>x</sup> <b>undo each other</b>, just like square and square-root.</div>`),
-Q(`What is ln(1)?`,[`0`,`1`,`e`,`It doesn't exist`],0,`e⁰ = 1, so ln(1) = 0.`),
-T(`<h3>Three rules you'll use</h3><table><tr><th>Rule</th><th>Example</th></tr><tr><td>ln(a × b) = ln a + ln b</td><td>ln(20) = ln 4 + ln 5</td></tr><tr><td>ln(a ÷ b) = ln a − ln b</td><td>ln(½) = ln 1 − ln 2 = −0.693</td></tr><tr><td>ln(a<sup>n</sup>) = n × ln a</td><td>ln(8) = 3 ln 2</td></tr></table><p>Two values worth remembering: <b>ln 2 ≈ 0.693</b> and <b>ln 10 ≈ 2.303</b>.</p>`),
-T(`<h3>Solving for time</h3><p>How long does reactor power take to rise by a factor of 10, on a period of τ = 50 s?</p>`),
-W('stepCalc',{steps:['Start: <div class="eq">P = P₀ e<sup>t/τ</sup></div>','Power rises by 10 times, so P / P₀ = 10: <div class="eq">10 = e<sup>t/τ</sup></div>','Take ln of both sides (doing the same to both sides). ln undoes e: <div class="eq">ln 10 = t / τ</div>','Multiply both sides by τ: <div class="eq">t = τ × ln 10</div>','Put in numbers: t = 50 × 2.303 = <b>115 s</b>.']},`Use ln to get t out of the exponent, one step at a time.`,`Taking ln of both sides "brings the exponent down".`),
-N(`On a 40 s period, how long does power take to double? (ln 2 = 0.693)`,27.7,0.01,'s',`2 = e<sup>t/40</sup>, so t = 40 × ln 2 = 40 × 0.693 = 27.7 s.`,`Same steps, with a factor of 2 instead of 10.`),
-N(`What is ln(100)? (Hint: 100 = 10²)`,4.605,0.005,'',`ln(10²) = 2 × ln 10 = 2 × 2.303 = 4.605.`,`Use the power rule.`),
-QE(`What is log₁₀(10,000)?`,[`4`,`10`,`1,000`,`0.0001`],0,`10⁴ = 10,000.`),
-T(`<h3>Key points</h3><ul><li><b>ln</b> answers "e to the what?". ln and e<sup>x</sup> undo each other.</li><li>ln(ab) = ln a + ln b; ln(a/b) = ln a − ln b; ln(aⁿ) = n ln a.</li><li>To solve for time in an exponential: <b>take ln of both sides</b>.</li><li>ln 2 ≈ 0.693, ln 10 ≈ 2.303.</li></ul>`)]),
-LH('m2-2-3','Straight lines from curves',10,'A trick scientists use to measure half-lives: turn a decay curve into a straight line.',[
-RM(`<ul><li>A straight line is <b>y = mx + c</b> (gradient m, intercept c).</li><li>Decay follows <b>N = N₀ e<sup>−λt</sup></b>, where λ (lambda) is the decay constant.</li><li>ln undoes e, and ln(a × b) = ln a + ln b.</li></ul>`),
-T(`<h3>The problem</h3><p>A decay curve bends. It's hard to read an accurate decay constant from a curve by eye.</p><p>But if we take <b>ln</b> of the decay equation, something nice happens.</p>`),
-W('stepCalc',{steps:['Start: <div class="eq">N = N₀ e<sup>−λt</sup></div>','Take ln of both sides: <div class="eq">ln N = ln(N₀ e<sup>−λt</sup>)</div>','Use ln(a × b) = ln a + ln b: <div class="eq">ln N = ln N₀ + ln(e<sup>−λt</sup>)</div>','ln undoes e: <div class="eq">ln N = ln N₀ − λt</div>','Reorder it: <div class="eq">ln N = (−λ) t + ln N₀</div>','Compare with <b>y = m x + c</b>: y is ln N, x is t, the gradient m is <b>−λ</b>, and the intercept c is <b>ln N₀</b>. A straight line!']},`Turn the decay equation into a straight line, step by step.`,`Plot ln N against t: you get a straight line with gradient −λ.`),
-W('fnPlot',{x:[0,10],y:[0,7.5],xl:'time (hours)',yl:'ln N',sl:[['l','Decay constant λ (per hour)',0.1,0.6,0.05,0.3,function(v){return v.toFixed(2)}]],curves:function(p){return [[function(t){return Math.log(1000)-p.l*t},'--accent',3]]},read:function(p){return 'Gradient = <b>−'+p.l.toFixed(2)+'</b> per hour, intercept = ln 1000 = 6.91. Half-life = ln 2 ÷ λ = <b>'+(0.693/p.l).toFixed(2)+' h</b>.'}},`Change λ and watch the straight line of ln N against time get steeper or shallower.`),
-T(`<h3>Finding λ from two readings</h3><p>A sample reads N = 800 counts at t = 0 h, and N = 200 at t = 4 h.</p><ul><li>ln 800 = 6.685 and ln 200 = 5.298</li><li>Gradient = (5.298 − 6.685) ÷ (4 − 0) = −1.386 ÷ 4 = −0.347 per hour</li><li>So λ = <b>0.347 per hour</b>, and the half-life = 0.693 ÷ 0.347 = <b>2.0 hours</b>.</li></ul><p>Check: 800 → 400 → 200 in two half-lives of 2 hours. ✓</p>`),
-N(`A sample reads 1000 at t = 0 and 250 at t = 6 h. What is λ, in per hour? (ln 1000 = 6.908, ln 250 = 5.521)`,0.231,0.01,'per hour',`Gradient = (5.521 − 6.908) ÷ 6 = −0.231, so λ = 0.231 per hour.`,`λ is minus the gradient.`),
-N(`With λ = 0.231 per hour, what is the half-life?`,3,0.02,'hours',`0.693 ÷ 0.231 = 3.0 hours. (Check: 1000 → 500 → 250 in 6 hours.)`),
-QE(`Which is closest to ln 2?`,[`0.693`,`2.303`,`1`,`0.5`],0,`ln 2 ≈ 0.693.`),
-T(`<h3>Key points</h3><ul><li>Taking ln turns N = N₀ e<sup>−λt</sup> into <b>ln N = −λt + ln N₀</b>: a straight line.</li><li>Plot ln N against t: <b>gradient = −λ</b>.</li><li>Half-life = <b>ln 2 ÷ λ</b> = 0.693 ÷ λ.</li></ul>`)])
-]});
-F('m2-2-1',[T(`<h3>Quick recap</h3><p>e ≈ 2.718. e<sup>x</sup> grows at a rate equal to its own size. e⁰ = 1.</p>`),N(`What is e<sup>1</sup>, to 3 decimal places?`,2.718,0.0005,'',`e itself.`),Q(`What is e<sup>0</sup>?`,[`1`,`0`,`e`,`2.718`],0,`Anything to the power 0 is 1.`),Q(`Which is described by e<sup>x</sup>?`,[`Growth in proportion to the current size`,`G
+QE(`In P = P₀ e<sup>t/τ</sup>, what 

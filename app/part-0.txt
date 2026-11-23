@@ -81,7 +81,7 @@ function lvDone(m,lv){var a=allLessons(m,lv);return [a.filter(function(x){return
 function lvOpen(m,lv){if(isA(m)&&!alOpen())return false;if(lv<=1||(isQ(m)&&lv===2))return true;if(S.lvlOpen&&S.lvlOpen[m+lv])return true;var d=lvDone(m,lv-1);return d[1]>0&&d[0]/d[1]>=0.8}
 function levelPicker(){var m=curMode(),cl=curLevel(m),h='<div class="lvpick" role="tablist" aria-label="Level">';for(var lv=1;lv<=maxLv(m);lv++){var d=lvDone(m,lv),op=lvOpen(m,lv);h+='<button role="tab" aria-selected="'+(lv===cl)+'" class="lvb'+(lv===cl?' on':'')+(op?'':' lk')+'" data-lv="'+lv+'"><b>'+(op?'':LOCK)+'Level '+lv+'</b><span>'+lvInfo(m,lv)[0]+'</span><span class="lvn">'+d[0]+'/'+d[1]+'</span><i style="width:'+(d[1]?d[0]/d[1]*100:0)+'%"></i></button>'}return h+'</div>'}
 function levelCard(){var m=curMode(),lv=curLevel(m),d=lvDone(m,lv),f=d[1]?d[0]/d[1]:0;return '<div class="card levelcard"><h2>Level '+lv+': '+lvInfo(m,lv)[0]+' <span class="modetag">'+modeName(m)+'</span></h2><div class="lvrow">'+ring(f,'#534AB7',104,Math.round(f*100)+'%')+'<div><p class="note" style="font-size:15px;margin-top:0">'+lvInfo(m,lv)[1]+'</p><p class="note"><b>'+d[0]+' of '+d[1]+'</b> lessons done.</p></div></div><div class="lvhow"><b>How these lessons stay easy to follow</b><ul><li>Every lesson starts with a <span class="fromb">Remember</span> card: the earlier ideas it needs, said again.</li><li>Each new idea gets its own card, with a key under every equation.</li><li><span class="fromb">From earlier</span> questions bring back older ideas so you don\'t forget them.</li></ul></div></div>'}
-function setLevel(lv){var m=curMode();if(!lvOpen(m,lv)){var d=lvDone(m,lv-1);if(!confirm('Level '+lv+' builds on Level '+(lv-1)+'. You\'ve done '+d[0]+' of '+d[1]+' Level '+(lv-1)+' lessons. We recommend finishing at least 80% first, so nothing feels new and confusing.\n\nOpen Level '+lv+' anyway?'))return;S.lvlOpen=S.lvlOpen||{};S.lvlOpen[m+lv]=1}S.lvl=S.lvl||{};S.lvl[m]=lv;JUST_BUILT=null;save();renderLearn()}
+function setLevel(lv){var m=curMode();if(!lvOpen(m,lv)){var d=lvDone(m,lv-1);askBox('Level '+lv+' builds on Level '+(lv-1)+'. You\'ve done '+d[0]+' of '+d[1]+' Level '+(lv-1)+' lessons. We recommend finishing at least 80% first, so nothing feels new and confusing.\n\nOpen Level '+lv+' anyway?','Open it','Not yet',function(){S.lvlOpen=S.lvlOpen||{};S.lvlOpen[m+lv]=1;S.lvl=S.lvl||{};S.lvl[m]=lv;JUST_BUILT=null;save();renderLearn()});return}S.lvl=S.lvl||{};S.lvl[m]=lv;JUST_BUILT=null;save();renderLearn()}
 function L(id,title,mins,cards){return {id:id,title:title,mins:mins,cards:cards}}
 function T(h){return {t:'T',h:h}}
 function Q(p,o,a,e,hint){return {t:'Q',p:p,o:o,a:a,e:e,hint:hint}}
@@ -173,7 +173,7 @@ function renderLearn(){var TH=curMode()==='theory',CA=curMode()==='calc',el=$('p
  wireProgress();wireStation();
  if($('goNext'))$('goNext').onclick=function(){runAction(na)};if($('goOne'))$('goOne').onclick=function(){ONE.start()};
  if($('goSim'))$('goSim').onclick=function(){showPage('sim')};if($('goSim2'))$('goSim2').onclick=function(){showPage('sim')};if($('goRev'))$('goRev').onclick=function(){startReview(false)};
- $('resetAll').onclick=function(){if(confirm('Reset all your XP, streak, badges and lesson progress?')){S={xp:0,done:{},streak:0,last:'',daily:{d:'',xp:0},missions:{},goal:50};motInit();JUST_BUILT=null;save();updHeader();renderLearn()}};
+ $('resetAll').onclick=function(){askBox('Reset all your XP, streak, badges and lesson progress? This can\'t be undone.','Reset everything','Cancel',function(){S={xp:0,done:{},streak:0,last:'',daily:{d:'',xp:0},missions:{},goal:50};motInit();JUST_BUILT=null;save();updHeader();renderLearn()})};
  [].forEach.call(el.querySelectorAll('.lnode[data-u]'),function(b){b.onclick=function(){startLesson(+b.dataset.u,+b.dataset.l)}});
  [].forEach.call(el.querySelectorAll('.fuchip'),function(b){b.onclick=function(){startFollow(b.dataset.f)}});
  [].forEach.call(el.querySelectorAll('.tnode'),function(b){b.onclick=function(){startTest(+b.dataset.t)}})}
@@ -224,13 +224,19 @@ var P=null,DRAWS=[];
 function onDraw(f){DRAWS.push(f);return f}
 function redrawAll(){DRAWS.forEach(function(f){try{f()}catch(e){}});if(PAGE==='sim'&&window.simRedraw)simRedraw()}
 window.addEventListener('resize',function(){clearTimeout(window._rz);window._rz=setTimeout(redrawAll,80)});
-function startLesson(ui,li){var u=UNITS[ui],l=u.lessons[li];if(!S.done[l.id]){var pf=pendingFollow(trk(ui));if(pf){gateFollow(pf);return}}P={mode:'lesson',ui:ui,li:li,cards:l.cards,i:0,xp:0,right:0,asked:0,title:l.title,color:u.color,unit:u.title,combo:0,best:0,cbonus:0,mistakes:0,fixed:0,newBadges:[],levelUp:null};openPlayer()}
+function startLesson(ui,li){var u=UNITS[ui],l=u.lessons[li];if(!S.done[l.id]){var pf=pendingFollow(trk(ui));if(pf){gateFollow(pf);return}}P={mode:'lesson',ui:ui,li:li,cards:playCards(l),i:0,xp:0,right:0,asked:0,title:l.title,color:u.color,unit:u.title,combo:0,best:0,cbonus:0,mistakes:0,fixed:0,newBadges:[],levelUp:null};openPlayer()}
 function openPlayer(){var pl=$('player');pl.classList.add('open');document.body.classList.add('noscroll');showCombo(false);soundBtnUpd();ac();showCard();
  /* move keyboard focus into the lesson, so Enter presses Continue instead of the (now hidden) button that started it */
  try{var ae=document.activeElement;if(ae&&ae!==document.body&&!pl.contains(ae))ae.blur();if(!pl.contains(document.activeElement)){if(!pl.hasAttribute('tabindex'))pl.setAttribute('tabindex','-1');pl.focus({preventScroll:true})}}catch(_){}}
+/* an in-app yes/no box: the browser's own confirm() can be switched off or blocked, and then the button just did nothing */
+function askBox(msg,yes,no,fn){if(document.querySelector('.cfm'))return;var o=document.createElement('div');o.className='cfm';o.setAttribute('role','alertdialog');o.setAttribute('aria-modal','true');
+ o.innerHTML='<div><p></p><div class="cfb"><button type="button" class="n"></button><button type="button" class="y"></button></div></div>';o.querySelector('p').textContent=msg;o.querySelector('.y').textContent=yes;o.querySelector('.n').textContent=no;
+ var back=document.activeElement;function key(e){e.stopPropagation();if(e.key==='Escape'){e.preventDefault();done(false)}else if(!o.contains(e.target)&&(e.key==='Enter'||e.key===' ')){e.preventDefault()}}function done(ok){window.removeEventListener('keydown',key,true);o.remove();if(!ok&&back&&document.body.contains(back))try{back.focus({preventScroll:true})}catch(_){}if(ok)fn()}
+ o.querySelector('.y').onclick=function(){done(true)};o.querySelector('.n').onclick=function(){done(false)};o.addEventListener('click',function(e){if(e.target===o)done(false)});
+ window.addEventListener('keydown',key,true);document.body.appendChild(o);setTimeout(function(){try{o.querySelector('.y').focus({preventScroll:true})}catch(_){}},30)}
 function closePlayer(){var lu=P&&P.levelUp;stopTimer();$('player').classList.remove('open');document.body.classList.remove('noscroll');DRAWS=[];$('pBody').innerHTML='';P=null;if(PAGE==='learn')renderLearn();if(PAGE==='review')renderReview();if(lu!=null)setTimeout(function(){showLevelUp(lu)},250)}
 $('pUnits').onclick=function(){openUnits()};
-$('pClose').onclick=function(){if(!P||P.finished||confirm('Leave this lesson? Your progress in it won\'t be saved.'))closePlayer()};
+$('pClose').onclick=function(){if(!P||P.finished||(!P.i&&!P.right&&!(P.st&&P.st.tries))){closePlayer();return}askBox('Leave this lesson? Your progress in it won\'t be saved.','Leave','Keep going',function(){if(P)closePlayer()})};
 $('pBtn').onclick=function(){if(P&&P.onMain)P.onMain()};
 $('pSkip').onclick=function(){if(P&&P.onSkip)P.onSkip()};
 document.addEventListener('keydown',function(e){if(!P||e.ctrlKey||e.metaKey||e.altKey)return;var pl=$('player');if(!pl||!pl.classList.contains('open'))return;
@@ -249,7 +255,7 @@ function showCard(){var c=P.cards[P.i];DRAWS=[];$('pBar').style.width=(P.i/P.car
  var k=document.createElement('div');k.className='pkick';k.style.color=P.mode==='review'&&c._src?'var(--muted)':P.color;k.textContent=P.mode==='lap'?'Victory lap'+(c._src?' · '+c._src:''):P.mode==='one'?'Just one question'+(c._src?' · '+c._src:''):P.mode==='review'?(c._src||'Review'):P.mode==='test'?P.unit+' · Question '+(P.i+1)+' of '+P.cards.length:P.unit;b.appendChild(k);
  (P.mode==='test'?{Q:tQ,N:tN,O:tO,RF:function(c,b){REV.rf(c,b,true)}}:{T:rT,Q:rQ,N:rN,W:rW,O:rO,F:rF,RF:function(c,b){REV.rf(c,b,false)}})[c.t](c,b)}
 function rT(c,b){var d=document.createElement('div');d.className='prose';d.innerHTML=c.h;b.appendChild(d);mainBtn('Continue',nextCard)}
-function rQ(c,b){var ty=P.mode!=='test'&&!c._mcNow?typeSpec(c):null;if(ty)return rTy(c,b,ty);P.asked++;var p=document.createElement('div');p.className='qprompt';p.innerHTML=c.p;b.appendChild(p);var box=document.createElement('div');box.className='opts';b.appendChild(box);
+function rQ(c,b){var ty=P.mode!=='test'&&!c._mcNow&&!c._auto?typeSpec(c):null;if(ty)return rTy(c,b,ty);P.asked++;var p=document.createElement('div');p.className='qprompt';p.innerHTML=c.p;b.appendChild(p);var box=document.createElement('div');box.className='opts';b.appendChild(box);
  var order=shuffle(c.o.map(function(_,i){return i})),sel=-1,lock=false,btns={};
  order.forEach(function(k){var o=document.createElement('button');o.className='opt';o.innerHTML=c.o[k];box.appendChild(o);btns[k]=o;o.onclick=function(){if(lock||o.disabled)return;sel=k;for(var j in btns)btns[j].classList.toggle('sel',+j===k);mainBtn('Check',check,false)}});
  mainBtn('Check',check,true);
@@ -273,6 +279,14 @@ function wEq(a,b){if(a===b)return true;var st=function(w){return w.replace(/(ing
 function tyHas(input,words){var iw=tyWords(input);return words.length>0&&words.every(function(w){return iw.some(function(x){return wEq(x,w)})})}
 function tyGroup(x){var n=tyNorm(x);for(var i=0;i<TY_SYN.length;i++){if(TY_SYN[i].indexOf(n)>=0)return i}return -1}
 function tyGroupIn(x){var n=' '+tyNorm(x)+' ',hit=-1;for(var i=0;i<TY_SYN.length;i++){for(var j=0;j<TY_SYN[i].length;j++){if(n.indexOf(' '+TY_SYN[i][j]+' ')>=0){if(hit>=0&&hit!==i)return -2;hit=i}}}return hit}
+/* like tyGroup, but forgiving: typos ("doules"), plurals and extra words still find the group */
+function tyGroupF(x){var g=tyGroup(x);if(g<0)g=tyGroup(tyWords(x).join(' '));if(g<0)g=tyGroupIn(x);if(g!==-1)return g;
+ var iw=tyNorm(x).split(' ').filter(Boolean),hit=-1;for(var i=0;i<TY_SYN.length;i++)for(var j=0;j<TY_SYN[i].length;j++){var pw=TY_SYN[i][j].split(' ');if(pw.every(function(w){return iw.some(function(v){return wEq(v,w)})})){if(hit>=0&&hit!==i)return -2;hit=i}}return hit}
+/* the answer with its spaces and hyphens taken out, so "lightwater" and "lowlevel waste" still count */
+function tyJoin(x){return tyNorm(x).replace(/\s+/g,'')}
+/* "theneutron", "itdoubles", "tothecathode": peel off a leading word or two that tyNorm would have dropped */
+function tyJPre(j,t){if(!t||t.length<4)return false;var q=[j],P=['they','the','its','it','an','a','to','are','is'];for(var n=0;n<3&&q.length;n++){var nx=[];q.forEach(function(x){P.forEach(function(p){if(x.indexOf(p)===0&&x.length>p.length){var y=x.slice(p.length);if(y===t)nx.ok=1;nx.push(y)}})});if(nx.ok)return true;q=nx}return false}
+function tyJEq(a,b){if(!a||!b)return false;if(a===b)return true;var L=Math.max(a.length,b.length);return L>=5&&a.charAt(0)===b.charAt(0)&&lev(a,b)<=(L>=12?2:1)}
 function tyNumParse(t){var m=String(t).replace(/^(about|around|roughly|approximately|approx\.?)\s+/i,'').match(/^([−\-]?\d[\d,]*(?:\.\d+)?)\s*(%|[a-zA-Zμ°Ω][a-zA-Z0-9μ°Ω\/²³·()]*(?:\s[a-zA-Z\/²³()]+)?)?$/);if(!m)return null;var v=Number(m[1].replace(/,/g,'').replace('−','-'));return isNaN(v)?null:{v:v,u:(m[2]||'').trim()}}
 var TY_UNITS={'':1,'%':1,'°':1,'°c':1,'k':1,'s':1,'ms':1,'min':1,'mins':1,'minute':1,'minutes':1,'hour':1,'hours':1,'h':1,'day':1,'days':1,'year':1,'years':1,'m':1,'cm':1,'mm':1,'km':1,'m/s':1,'kg':1,'g':1,'t':1,'j':1,'kj':1,'mj':1,'gj':1,'w':1,'kw':1,'mw':1,'gw':1,'kwh':1,'mwh':1,'bar':1,'bar(a)':1,'bar(g)':1,'mpa':1,'kpa':1,'pa':1,'bq':1,'kbq':1,'sv':1,'msv':1,'μsv':1,'μsv/h':1,'msv/h':1,'mev':1,'kev':1,'ev':1,'pcm':1,'w/cm³':1,'kw/m':1,'mw/m³':1,'v':1,'a':1,'ω':1,'n':1,'hz':1,'ppm':1,'mph':1,'°c/s':1,'cm³':1,'m³':1,'m²':1,'cm²':1,'g/cm³':1,'kg/m³':1,'dm³':1,'mol':1,'l':1,'ml':1,'j/kg':1,'w/m²':1,'km/h':1,'cents':1,'cent':1};
 function tyScore(iw,req){if(!req||!req.length)return Infinity;var t=0;for(var i=0;i<req.length;i++){var best=Infinity;for(var j=0;j<iw.length;j++)if(wEq(iw[j],req[i]))best=Math.min(best,lev(iw[j],req[i]));if(best===Infinity)return Infinity;t+=best}return t}
@@ -284,7 +298,7 @@ function typeSpec(c){if(c._ty!==undefined)return c._ty;c._ty=null;try{
  if(nu&&!TY_UNITS[nu.u.toLowerCase().replace(/\s/g,'')])nu=null;
  if(nu){var gaps=[];c.o.forEach(function(o,i){if(i===c.a)return;var w=tyNumParse(tyText(o));if(w&&nu.v!==0)gaps.push(Math.abs(w.v-nu.v)/Math.abs(nu.v))});var about=/^(about|around|roughly|approx)/i.test(ans),tol=about?0.1:0.02;if(gaps.length)tol=Math.min(tol,0.4*Math.min.apply(null,gaps));
   if(tol<=0)return null;c._ty={k:'num',v:nu.v,tol:tol,u:nu.u,show:ans};return c._ty}
- if(!/^[A-Za-z][A-Za-z\s\-'’()]*$/.test(ans))return null;
+ if(!/^[A-Za-z][A-Za-z\s\-'’()]*$/.test(ans))return null;if(c.o.some(function(o){return /\b(AND|OR|NOT|XOR|NAND|NOR)\b/.test(tyText(o))}))return null;
  var main=ans.replace(/\s*\([^)]*\)/g,'').trim(),par=(ans.match(/\(([^)]*)\)/)||[])[1],n=tyNorm(main);if(!n||n.split(' ').length>3||n.length>24)return null;
  var wrong=c.o.map(function(o,i){return i===c.a?null:tyText(o).replace(/\s*\([^)]*\)/g,'').trim()}).filter(Boolean);
  var words=tyWords(main),pw=tyWords(pt),g=tyGroup(main);if(g<0&&words.length)g=tyGroup(words.join(' '));
@@ -294,12 +308,18 @@ function typeSpec(c){if(c._ty!==undefined)return c._ty;c._ty=null;try{
  if(g<0&&wrong.some(function(w){return tyNorm(w)===n}))return null;
  var ww=wrong.map(tyWords),allw={};ww.forEach(function(a){a.forEach(function(x){allw[x]=1})});
  var req=words.filter(function(x){return pw.indexOf(x)<0&&!allw[x]});if(!req.length)req=words.filter(function(x){return !allw[x]});if(!req.length)req=words;
- var alt=par&&/^[A-Za-z][A-Za-z\s-]*$/.test(par)&&par.length<=20?tyWords(par):null;
- c._ty={k:'word',g:g,req:req,alt:alt,wrong:ww.map(function(a,i){var r=a.filter(function(x){return pw.indexOf(x)<0&&words.indexOf(x)<0});return {g:wg[i],req:r}}),show:ans,first:main.replace(/^(the|a|an|to|it)\s+/i,'').charAt(0).toUpperCase(),len:main.replace(/^(the|a|an|to|it)\s+/i,'').replace(/[^A-Za-z]/g,'').length};return c._ty}catch(e){return null}}
+ var alt=par&&/^[A-Za-z][A-Za-z\s-]*$/.test(par)&&par.length<=20?tyWords(par):null;if(alt&&(!alt.length||alt.some(function(x){return x.length<2})))alt=null;
+ var allwA=Object.keys(allw),uq=req.filter(function(x){return !allwA.some(function(y){return wEq(x,y)})});
+ c._ty={k:'word',g:g,req:req,alt:alt,wrong:ww.map(function(a,i){var r=a.filter(function(x){return pw.indexOf(x)<0&&words.indexOf(x)<0});return {g:wg[i],req:r,j:tyJoin(wrong[i])}}),j:tyJoin(main),altj:alt?tyJoin(par):'',uq:uq,show:ans,first:main.replace(/^(the|a|an|to|it)\s+/i,'').charAt(0).toUpperCase(),len:main.replace(/^(the|a|an|to|it)\s+/i,'').replace(/[^A-Za-z]/g,'').length};return c._ty}catch(e){return null}}
 function tyMatch(ty,input){var x=tyNorm(input);if(!x)return false;
- if(ty.g>=0){var gi=tyGroup(input);if(gi<0)gi=tyGroup(tyWords(input).join(' '));if(gi<0)gi=tyGroupIn(input);return gi===ty.g}
- var iw=tyWords(input);if(!iw.length)iw=x.split(' ');var sc=Math.min(tyScore(iw,ty.req),ty.alt&&ty.alt.length?tyScore(iw,ty.alt):Infinity);if(sc===Infinity)return false;
- var gi2=tyGroupIn(input);return !ty.wrong.some(function(w){return (w.g>=0&&gi2===w.g)||tyScore(iw,w.req)<=sc})}
+ var j=tyJoin(input);if(ty.j&&!ty.wrong.some(function(w){return w.j&&tyJEq(j,w.j)})&&(tyJEq(j,ty.j)||tyJPre(j,ty.j)||(ty.altj&&tyJEq(j,ty.altj))))return true;
+ if(ty.g>=0)return tyGroupF(input)===ty.g;
+ var iw=tyWords(input);if(!iw.length)iw=x.split(' ');var sc=Math.min(tyScore(iw,ty.req),ty.alt&&ty.alt.length?tyScore(iw,ty.alt):Infinity);
+ /* most of the key words is enough: "spray" for "Open the spray" (key words never appear in the wrong options) */
+ if(sc===Infinity){var hit=0,t=0;(ty.uq||[]).forEach(function(r){var b=Infinity;iw.forEach(function(v){if(wEq(v,r))b=Math.min(b,lev(v,r))});if(b<Infinity){hit++;t+=b}});if(!ty.req||ty.req.length<2||hit*2<ty.req.length)return false;sc=t}
+ var gi2=tyGroupF(input);return !ty.wrong.some(function(w){return (w.g>=0&&gi2===w.g)||tyScore(iw,w.req)<=sc})}
+/* does the answer clearly point at one of the wrong options? */
+function tyWrongHit(ty,input){var iw=tyWords(input),gi=tyGroupF(input),j=tyJoin(input);return (ty.wrong||[]).some(function(w){return (w.g>=0&&gi===w.g)||(w.req.length&&tyScore(iw,w.req)<Infinity)||(w.j&&tyJEq(j,w.j))})}
 function rTy(c,b,ty){P.asked++;var p=document.createElement('div');p.className='qprompt';p.innerHTML=c.p;b.appendChild(p);
  var r=document.createElement('div');r.className='numrow';r.innerHTML='<input class="'+(ty.k==='num'?'numin tyin" inputmode="decimal"':'tyin tyw"')+' autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Type your answer"><span class="numunit"></span>';b.appendChild(r);var inp=r.querySelector('input');if(ty.k==='num')r.querySelector('.numunit').textContent=ty.u||'';
  var sm=document.createElement('p');sm.className='small';sm.innerHTML='<span class="tybadge">Type it</span> No options this time. '+(ty.k==='num'?'Type the number.':'A word or short phrase is fine, and small typos are OK.')+' <button type="button" class="ghost tymc">Show me options</button>';b.appendChild(sm);
@@ -311,8 +331,15 @@ function rTy(c,b,ty){P.asked++;var p=document.createElement('div');p.className='
  function check(){if(inp.disabled)return;var v=inp.value.trim(),ok;
   if(ty.k==='num'){var x=parseNum(v.replace(/[a-zA-Zμ°Ω\/²³()\s]+$/,''));if(isNaN(x)){foot('no','That isn\'t a number','<div>Type just the number, like 13 or 0.25.</div>');return}ok=Math.abs(x-ty.v)<=Math.abs(ty.v)*ty.tol+1e-9}
   else ok=tyMatch(ty,v);
+  if(!ok&&ty.k==='word'&&!tyWrongHit(ty,v)){ask(v);return}
   if(ok){inp.disabled=true;inp.style.borderColor='var(--good-line)';gotRight(c);var bon=!P.st.tries?5:0;if(bon)award(bon);foot('ok',praise()+(bon?' +5 XP for typing it':''),(tyNorm(v)!==tyNorm(ty.show)?'<div>The answer: <b>'+ty.show+'</b></div>':'')+(c.e?'<div>'+c.e+'</div>':''));mainBtn('Continue',nextCard)}
-  else{P.st.tries++;if(P.st.tries===1)gotWrong(c);toMC(true)}}}
+  else{P.st.tries++;if(P.st.tries===1)gotWrong(c);toMC(true)}}
+ /* an answer the checker doesn't recognise (and isn't one of the wrong options): show the answer and let you say if you meant it */
+ function ask(v){inp.disabled=true;mainBtn('Check',check,true);
+  foot('no','Not sure about that one','<div>You typed <b>'+String(v).replace(/[&<>"]/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]})+'</b>. The answer was <b>'+ty.show+'</b>. Is that what you meant?</div><div class="tyask"><button type="button" class="wbtn pri" id="tyYes">Yes, I meant that</button><button type="button" class="wbtn" id="tyNo">No, I was wrong</button></div>');
+  $('tyYes').onclick=function(){inp.style.borderColor='var(--good-line)';gotRight(c);foot('ok','Counted as right',(c.e?'<div>'+c.e+'</div>':''));mainBtn('Continue',nextCard)};
+  $('tyNo').onclick=function(){P.st.tries++;if(P.st.tries===1)gotWrong(c);inp.disabled=false;toMC(true)};
+  setTimeout(function(){try{$('tyYes').focus({preventScroll:true})}catch(e){}},30)}}
 function parseNum(s){s=String(s).trim().replace(/[−–]/g,'-').replace(/,/g,'').replace(/\s/g,'').replace(/%$/,'');s=s.replace(/[x×*]10\^?/i,'e').replace(/\^/,'');if(s===''||s==='-')return NaN;return Number(s)}
 function fmtAns(a){var x=Math.abs(a);if(x!==0&&(x>=1e6||x<1e-3))return a.toExponential(2).replace('e+',' × 10^').replace('e-',' × 10^-').replace(/\^(-?\d+)/,'<sup>$1</sup>').replace('-','−');return String(+a.toPrecision(4)).replace('-','−')}
 function rN(c,b){P.asked++;var p=document.createElement('div');p.className='qprompt';p.innerHTML=c.p;b.appendChild(p);var r=document.createElement('div');r.className='numrow';r.innerHTML='<input class="numin" inputmode="decimal" autocomplete="off" placeholder="Your answer"><span class="numunit">'+(c.u||'')+'</span>';b.appendChild(r);var inp=r.querySelector('input');
@@ -609,7 +636,7 @@ function soundBtnUpd(){var b=$('pSound');if(b){b.innerHTML=S.sound===false?SPK_O
 function toggleSound(){S.sound=S.sound===false;save();soundBtnUpd();if(S.sound)sfx('right')}
 
 /* ----- in-lesson combos and mistakes ----- */
-function cardKey(c){if(c&&c._key)return c._key;if(P.mode==='lesson')return UNITS[P.ui].lessons[P.li].id+'#'+P.i;return c._key||null}
+function cardKey(c){if(c&&c._auto)return null;if(c&&c._key)return c._key;if(P.mode==='lesson')return UNITS[P.ui].lessons[P.li].id+'#'+P.i;return c._key||null}
 function gotRight(c){var first=!P.st.tries;
  if(first){if(P.rev)try{REV.mark(c,true)}catch(_){}EASE.rightHook();P.right++;if('QNO'.indexOf(c.t)>=0)P.qr=(P.qr||0)+1;P.combo++;P.best=Math.max(P.best,P.combo);if(P.combo>S.st.best)S.st.best=P.combo;S.st.right++;var cb=P.combo>=3?Math.min(5,P.combo-1):0;P.cbonus+=cb;award(10+cb);
   var k=cardKey(c);if(P.mode==='review'&&k&&S.wrong[k]){delete S.wrong[k];S.st.fixed++;P.fixed++;save();qProg('fix',1)}
@@ -693,7 +720,7 @@ var EASE=(function(){
   return '<div class="dblock hardb"><div class="dbt">Level '+lv+' might be too hard right now</div><p class="note">'+[lead,tail,sweet].filter(Boolean).join(' ')+' That\'s not you being bad at it: Level '+(lv-1)+(lvName(tr,lv-1)?' ('+esc(lvName(tr,lv-1))+')':'')+' builds the basics this needs.</p><div class="hbtns">'+
    (t?'<button class="ghost sm" data-hd="les">Try “'+esc(t.title)+'” (Level '+t.lv+')</button>':'')+'<button class="ghost sm" data-hd="lv">Go to Level '+(lv-1)+'</button><button class="skip" data-hd="stay">Stay on Level '+lv+'</button></div></div>'}
  function goLevel(tr,lv,from){S.lvlOpen=S.lvlOpen||{};S.lvlOpen[tr+lv]=1;S.lvl=S.lvl||{};S.lvl[tr]=lv;S.mode=tr;if(isA(tr)&&!alOpen())return;if(isG(tr)){S.gsub=tr;S.seenGcse=1}if(isA(tr)){S.asub=tr;S.seenAlevel=1}S.hardOff=S.hardOff||{};S.hardOff[tr+(from||lv+1)]=Date.now();save()}
- function startNoGate(ui,li){var u=UNITS[ui],l=u.lessons[li];P={mode:'lesson',ui:ui,li:li,cards:l.cards,i:0,xp:0,right:0,asked:0,title:l.title,color:u.color,unit:u.title,combo:0,best:0,cbonus:0,mistakes:0,fixed:0,newBadges:[],levelUp:null};openPlayer()}
+ function startNoGate(ui,li){var u=UNITS[ui],l=u.lessons[li];P={mode:'lesson',ui:ui,li:li,cards:playCards(l),i:0,xp:0,right:0,asked:0,title:l.title,color:u.color,unit:u.title,combo:0,best:0,cbonus:0,mistakes:0,fixed:0,newBadges:[],levelUp:null};openPlayer()}
  document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-hd]');if(!b)return;var k=b.dataset.hd,h=P&&P.hdT;
   if(k==='rev'){closePlayer();showPage('review');return}
   if(!h)return;
@@ -1110,25 +1137,4 @@ WIDGETS.halfLife=function(box){var th,A0,cv=canvas(box,240),r=row(box);r.innerHT
  onDraw(draw);nw();
  return {check:function(){var v=parseNum(inp.value);if(isNaN(v))return {ok:false,msg:'Type your half-life reading into the box.'};return Math.abs(v-th)/th<=0.08?{ok:true,msg:'The half-life is '+th+' hours.'}:{ok:false,msg:'Find where the curve crosses '+A0/2+' Bq (half of '+A0+') and read the time.'}}}};
 
-WIDGETS.crossSection=function(box){var RS=[[6.67,7000],[20.9,3500],[36.7,2700],[66,1600],[80.7,900],[102.5,1300],[116.9,900],[189.7,800]];var cv=canvas(box,280),s=slider(box,'Neutron energy',-3,7,0.005,-1.6,function(v){var E=Math.pow(10,v);return E<1e3?+E.toPrecision(3)+' eV':E<1e6?+(E/1e3).toPrecision(3)+' keV':+(E/1e6).toPrecision(3)+' MeV'},function(){draw()}),st=stats(box,[['f','U-235 fission σ'],['c','U-238 capture σ']]);
- function sf(E){var s=585*Math.sqrt(0.0253/E);[[0.29,90],[1.14,50],[8.8,60],[19.3,40]].forEach(function(r){s+=r[1]/(1+Math.pow((E-r[0])/(0.04*r[0]),2))});return Math.max(s,1.2)}
- function sc(E){var s=2.7*Math.sqrt(0.0253/E);RS.forEach(function(r){var w=0.012*r[0];s+=r[1]/(1+Math.pow((E-r[0])/w,2))});return Math.max(s,E>1e4?0.08:0.2)}
- var xs=[];for(var i=0;i<=900;i++)xs.push(Math.pow(10,-3+10*i/900));RS.forEach(function(r){for(var j=-30;j<=30;j++)xs.push(r[0]*(1+j*0.004))});xs.sort(function(a,b){return a-b});
- function draw(){var E=Math.pow(10,s.get()),P=plot(cv,{x:[1e-3,1e7],y:[0.05,2e4],xlog:true,ylog:true,xl:'neutron energy (eV)',yl:'cross section (barns)'});P.pts(xs.map(function(x){return [x,sc(x)]}),cssv('--coral'),1.8);P.pts(xs.map(function(x){return [x,sf(x)]}),cssv('--accent'),2.5);P.vline(E,cssv('--text'));P.vline(0.0253,cssv('--teal'),[2,3],1);P.text('thermal',0.03,1.2e4,cssv('--teal'));P.vline(2e6,cssv('--teal'),[2,3],1);P.text('fission neutrons',2.2e6,1.2e4,cssv('--teal'),'right');
-  P.text('— U-235 fission',1.5e-3,0.2,cssv('--accent'));P.text('— U-238 capture',1.5e-3,0.09,cssv('--coral'));st.f.textContent=sf(E).toPrecision(3)+' b';st.c.textContent=sc(E).toPrecision(3)+' b'}
- onDraw(draw);draw();el('p','small','Simplified curves for learning: real data has thousands of resonances.',box);
- return {check:function(){var E=Math.pow(10,s.get());return E>=5.5&&E<=8?{ok:true,msg:'At '+E.toFixed(2)+' eV, U-238\'s capture cross section is about '+Math.round(sc(E))+' barns.'}:{ok:false,msg:'Move the energy slider to the tallest orange spike.'}},lock:function(){s.input.disabled=true}}};
-
-WIDGETS.beamSlab=function(box){var cv=canvas(box,170),sg=slider(box,'Σ (per cm)',0.2,2,0.05,0.5,function(v){return v.toFixed(2)+' /cm'},function(){upd()}),th=slider(box,'Thickness',0,30,0.5,2,function(v){return v.toFixed(1)+' cm'},function(){upd()}),st=stats(box,[['t','Beam getting through'],['m','Mean free path']]),parts=[];
- function T(){return Math.exp(-sg.get()*th.get())}function upd(){var t=T();st.t.textContent=(t*100<0.1?(t*100).toExponential(1):(t*100).toFixed(t<0.1?2:1))+'%';st.m.textContent=(1/sg.get()).toFixed(2)+' cm'}upd();
- anim(cv,function(dt){var g=prep(cv),c=g.c,x0=g.W*0.35,w=Math.max(4,th.get()/30*g.W*0.45);c.fillStyle=cssv('--soft2');c.fillRect(x0,10,w,g.H-20);c.fillStyle=cssv('--muted');c.font='12px system-ui';c.fillText('absorber',x0,g.H-2);
-  if(Math.random()<dt*40)parts.push({x:0,y:16+Math.random()*(g.H-32),a:true});var sp=150;parts.forEach(function(p){if(!p.a)return;var nx=p.x+sp*dt;if(nx>x0&&p.x<x0+w){var d=(Math.min(nx,x0+w)-Math.max(p.x,x0))/w*th.get();if(Math.random()<1-Math.exp(-sg.get()*d))p.a=false}p.x=nx});
-  parts=parts.filter(function(p){return p.x<g.W&&(p.a||Math.random()>0.02)});c.fillStyle=cssv('--accent');parts.forEach(function(p){if(p.a){c.beginPath();c.arc(p.x,p.y,3,0,7);c.fill()}})});
- return {check:function(){var t=T();return t<=0.01?{ok:true,msg:'Only '+(t*100).toFixed(2)+'% gets through: that\'s '+(sg.get()*th.get()).toFixed(1)+' mean free paths.'}:{ok:false,msg:(t*100).toFixed(1)+'% still gets through. You need more thickness (or a stronger absorber).'}},lock:function(){sg.input.disabled=true;th.input.disabled=true}}};
-
-WIDGETS.fissionEnergy=function(box){var S=[['Fission fragments (kinetic energy)',168,'#7F77DD','Heats the fuel pellet directly: the fragments stop within micrometres.'],['Prompt gamma rays',7,'#378ADD','Mostly absorbed in the fuel, coolant and structures.'],['Prompt neutrons',5,'#1D9E75','Their energy is deposited in the moderator as they slow down.'],['Beta decay of fission products',8,'#D85A30','Released over time as fission products decay: part of decay heat.'],['Gamma from fission products',7,'#BA7517','Also released over time: part of decay heat.'],['Neutrinos',12,'#888780','Escape completely: they pass straight through the reactor, the building and the Earth.']],sel=-1,cv=canvas(box,90),m=msg(box);
- function draw(){var g=prep(cv),c=g.c,x=10,w=g.W-20,tot=207;S.forEach(function(s,i){var sw=s[1]/tot*w;c.fillStyle=s[2];c.globalAlpha=sel===-1||sel===i?1:0.35;c.fillRect(x,20,sw-2,46);x+=sw});c.globalAlpha=1;c.fillStyle=cssv('--muted');c.font='12px system-ui';c.fillText('0 MeV',10,84);c.textAlign='right';c.fillText('207 MeV',g.W-10,84);c.textAlign='left'}
- cv.addEventListener('click',function(e){var r=cv.getBoundingClientRect(),mx=e.clientX-r.left-10,w=r.width-20,x=0;for(var i=0;i<S.length;i++){var sw=S[i][1]/207*w;if(mx>=x&&mx<x+sw){sel=i;m.set('<b>'+S[i][0]+': '+S[i][1]+' MeV.</b> '+S[i][3]);draw();return}x+=sw}});
- onDraw(draw);draw();m.set('Click a coloured segment.');return {check:function(){return sel===5?{ok:true}:{ok:false,msg:'Not that one. Which particle hardly interacts with anything?'}}}};
-
-WIDGETS.fissionYield=function(box){var cv=canvas(box,240),m=msg(box),selA=null
+WIDGETS.crossSection=function(box){var RS=[[6.67,7000],[20.9,3500],[36.7,2700],[66,1600],[80.7,900],[102.5,1300],[116.9,900],[189.7,800]];var cv=canvas(box,280),s=slider(box,'Neutron energy',-3,7,0.005,-1.6,function(v){var E=Math.pow(10,v);return E<1e3?+E.toPrecision(3)+' eV':E<1e6?+(E/1e3).toPrecision(3)+' keV':+(E/1e6).toPrecision(3)+' 

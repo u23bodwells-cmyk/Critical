@@ -1,4 +1,55 @@
-yload,check:check,refresh:function(){try{adopt(localStorage.getItem(KEY))}catch(_){}},start:function(t){if(st.run)return false;var n0=Date.now();st.run={at:n0,t:t||'',c:new Date(n0).toISOString()};keep();startTick();return true},stop:function(){if(st.run)$('[data-a=go]').click()}};
+s[i].c===st.run.c)return i;return -1}
+ function liveSave(){if(!st.run)return;
+  try{var cur=JSON.parse(localStorage.getItem(KEY)||'null');if(cur&&Array.isArray(cur.sessions))st.sessions=cur.sessions}catch(_){}
+  if(!st.run.c)st.run.c=new Date(st.run.at).toISOString();
+  var m=Math.min(600,Math.floor((Date.now()-st.run.at)/60000)),i=liveIdx(),t=st.run.t||'Study session';
+  if(m>=1){if(i<0)st.sessions.push({d:ymd(new Date(st.run.at)),m:m,t:t,c:st.run.c});else{st.sessions[i].m=Math.max(m,+st.sessions[i].m||0);st.sessions[i].t=t}}
+  keep()}
+ function tk(){paintClock();if(!st.run)return;var m=Math.floor((Date.now()-st.run.at)/60000);if(m!==lastM){var first=lastM<0;lastM=m;liveSave();if(!first&&m%5===0)writeFile(false);if(sh.classList.contains('open'))paint()}}
+ function startTick(){clearInterval(tick);lastM=-1;tick=setInterval(tk,1000);tk()}
+ function onHide(){if(st.run)liveSave()}
+ document.addEventListener('visibilitychange',function(){if(document.visibilityState==='hidden')onHide()});window.addEventListener('pagehide',onHide);
+ /* another Critical window changed the timer (started, stopped, or saved): follow it */
+ function adopt(raw){var v=null;try{v=JSON.parse(raw||'null')}catch(_){}if(!v||!Array.isArray(v.sessions))return;
+  var was=st.run&&st.run.c;st=v;
+  if(st.run){if(!tick||was!==st.run.c){clearInterval(tick);tick=setInterval(tk,1000)}lastM=Math.floor((Date.now()-st.run.at)/60000)}else{clearInterval(tick);tick=null}
+  paintClock();if(sh.classList.contains('open'))paint()}
+ window.addEventListener('storage',function(e){if(e.key===KEY)adopt(e.newValue)});
+ $('[data-a=go]').onclick=function(){note('');
+  if(!st.run){var n0=Date.now();st.run={at:n0,t:$('#stTopic').value.trim(),c:new Date(n0).toISOString()};keep();startTick();note('The timer saves itself every minute.');return}
+  try{var cur=JSON.parse(localStorage.getItem(KEY)||'null');if(cur&&Array.isArray(cur.sessions))st.sessions=cur.sessions}catch(_){}
+  var m=Math.round((Date.now()-st.run.at)/60000),t=$('#stTopic').value.trim()||st.run.t||'Study session',d=ymd(new Date(st.run.at)),li=liveIdx(),c=st.run.c||new Date(st.run.at).toISOString();
+  st.run=null;clearInterval(tick);
+  if(m<1){if(li>=0)st.sessions.splice(li,1);note('That was under a minute, so it wasn\'t saved.',true)}
+  else{if(m>600)m=600;if(li>=0){st.sessions[li].m=Math.max(m,+st.sessions[li].m||0);st.sessions[li].t=t;m=st.sessions[li].m}else st.sessions.push({d:d,m:m,t:t,c:c});note('Saved '+m+' min. Nice work.')}
+  keep();writeFile(true);paint()};
+ $('#stTopic').addEventListener('input',function(){if(st.run){st.run.t=this.value.trim();var i=liveIdx();if(i>=0)st.sessions[i].t=st.run.t||'Study session';keep()}});
+ $('[data-a=add]').onclick=function(){var m=parseInt($('#stAddM').value,10);if(!(m>=1&&m<=600)){note('Type the minutes first (1 to 600).',true);return}
+  st.sessions.push({d:ymd(),m:m,t:$('#stAddT').value.trim()||'Study session',c:new Date().toISOString()});$('#stAddM').value='';$('#stAddT').value='';keep();writeFile(true);note('Added '+m+' min to today.');paint()};
+ function close(){sh.classList.remove('open')}
+ $('.stx').onclick=close;sh.addEventListener('click',function(e){if(e.target===sh)close()});
+ document.addEventListener('keydown',function(e){if(e.key==='Escape'&&sh.classList.contains('open'))close()});
+ function open(){if(st.run)$('#stTopic').value=st.run.t||'';paint();sh.classList.add('open')}
+ var pills=[];
+ function mk(cls,label){var b=document.createElement('button');b.type='button';b.className=cls;b.innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="13.5" r="7.5"/><path d="M12 9.5v4l2.5 2M9.5 2.5h5M12 2.5v3.5"/></svg><span class="stt"></span>';b.title='Study timer';b.setAttribute('aria-label',label);b.onclick=open;pills.push(b);return b}
+ var hc=document.querySelector('.hdr .calcpill')||document.querySelector('.hdr .askpill');if(hc)hc.parentNode.insertBefore(mk('pill stpill','Study timer'),hc.nextSibling);
+ var lc=document.querySelector('.pcalc')||document.querySelector('.pask');if(lc)lc.parentNode.insertBefore(mk('psnd stpill','Study timer'),lc.nextSibling);
+ if(st.run)startTick();
+ /* gentle reminder inside the app too, if it's open at 4:15, 6 or 8 and nothing is logged */
+ var shown={};
+ function check(){var n=new Date(),hm=n.getHours()*60+n.getMinutes(),wd=n.getDay()>=1&&n.getDay()<=5;
+  var slots=[[16*60+45,wd,'It\'s 4:45: time to start.'],[18*60,true,'You haven\'t studied yet today. A short session still counts.'],[20*60,true,'Last call for today. Keep your streak going.']];
+  var did=didToday();
+  if(did){var ob=document.querySelector('.stbanner');if(ob)ob.remove();if(toldFile!==ymd()){toldFile=ymd();writeFile(false)}return}
+  slots.forEach(function(s){var k=ymd()+s[0];if(s[1]&&hm>=s[0]&&hm<s[0]+60&&!shown[k]){shown[k]=1;banner(s[2])}})}
+ var toldFile=null;
+ function banner(t){var old=document.querySelector('.stbanner');if(old)old.remove();var b=document.createElement('div');b.className='stbanner';b.setAttribute('role','status');b.innerHTML='<p>'+esc(t)+'</p>';
+  var g=document.createElement('button');g.className='stbtn alt';g.type='button';var usePlan=typeof PLAN!=='undefined'&&PLAN.todayLeft&&PLAN.todayLeft()&&!PLAN.running();g.textContent=usePlan?'Start today\'s plan':'Start timer';g.onclick=function(){b.remove();if(usePlan){PLAN.start();return}open();if(!st.run)$('[data-a=go]').click()};
+  var q1=document.createElement('button');q1.className='stbtn alt';q1.type='button';q1.textContent='Just one question';q1.onclick=function(){b.remove();if(typeof ONE!=='undefined')ONE.start()};
+  var x=document.createElement('button');x.className='stx';x.type='button';x.setAttribute('aria-label','Dismiss');x.textContent='✕';x.onclick=function(){b.remove()};b.appendChild(q1);b.appendChild(g);b.appendChild(x);document.body.appendChild(b)}
+ setInterval(check,60000);setTimeout(check,4000);
+ writeFile(false);
+ return {open:open,state:function(){return st},payload:payload,check:check,refresh:function(){try{adopt(localStorage.getItem(KEY))}catch(_){}},start:function(t){if(st.run)return false;var n0=Date.now();st.run={at:n0,t:t||'',c:new Date(n0).toISOString()};keep();startTick();return true},stop:function(){if(st.run)$('[data-a=go]').click()}};
 })();
 try{window.STUDY=STUDY}catch(_){}
 /* ===== revise for a test: each test gets a countdown, and the days before it become revision days in the weekly plan ===== */
@@ -1094,37 +1145,4 @@ try{window.REW=REW}catch(_){}
  '.shopt.ok{border-color:var(--good-line);background:var(--good-bg)}.shopt.no{border-color:var(--bad-line);background:var(--bad-bg)}.shopt[disabled]{cursor:default}.shex{font-size:14px;color:var(--muted);margin:6px 0}'+
  '.shta{width:100%;box-sizing:border-box;min-height:64px;border-radius:10px;border:1.5px solid var(--line);padding:8px 10px;font:inherit;background:var(--soft);color:var(--text);resize:vertical}'+
  '.mycard .myhead{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}.mycard h2{margin:0}.myk{font:700 12px var(--mono);letter-spacing:.08em;color:var(--accent);text-transform:uppercase}'+
- '.myclues{list-style:none;margin:10px 0;padding:0;counter-reset:cl}.myclues li{counter-increment:cl;display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);font-size:15px;line-height:1.45}.myclues li:before{content:counter(cl);flex:none;width:22px;height:22px;border-radius:50%;background:var(--accent-bg);color:var(--accent-text);font:700 12px var(--mono);display:flex;align-items:center;justify-content:center;margin-top:1px}'+
- '.myclues li.lk{color:var(--muted)}.myclues li.lk:before{background:var(--soft);color:var(--faint)}.myrev{background:var(--soft);border-radius:12px;padding:12px 14px;margin-top:10px}.myrev h3{margin:0 0 6px;font-size:17px}';
- document.head.appendChild(c)})();
-function escH(t){return String(t==null?'':t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
-function ymdD(d){return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()}
-function shuffleSeed(a,seed){var r=seedRand(seed),b=a.slice();for(var i=b.length-1;i>0;i--){var j=Math.floor(r()*(i+1)),x=b[i];b[i]=b[j];b[j]=x}return b}
-
-var SHIFT=(function(){
- var OPQ=[
-  ['In a control room, why do operators repeat instructions back word for word?',['So both people know it was heard correctly','Because the radio is too quiet to hear the first time','It is an old naval tradition with no real purpose now','To slow everyone down so nobody rushes a job'],'Repeat-back catches a mishearing before anyone acts on it. In a control room, acting on the wrong number or the wrong valve can be serious.'],
-  ['How do you say the letter B in the NATO phonetic alphabet?',['Bravo','Bob','Bingo','Baker'],'Bravo. Phonetic words stop letters like B, D and P being mixed up over a noisy radio or phone line.'],
-  ['What does a reactor trip (a scram) do?',['Shuts the reactor down fast by dropping in all the control rods','Starts the reactor up by pulling all the control rods out','Lowers power slowly by adding boron to the cooling water','Tests every alarm in the control room at the same time'],'A trip drops every control rod into the core in a couple of seconds, stopping the chain reaction.'],
-  ['Why do operators follow written procedures even for jobs they have done many times?',['Doing every step in order stops memory slips','Because managers don\'t trust them to remember','So the shift takes long enough to fill the hours','Only new operators use them; experts work from memory'],'Even experts forget a step sometimes. A procedure means the job is done the same, safe way every time.'],
-  ['What is a shift handover?',['Telling the next shift the plant\'s state, problems and what is coming up','Swapping desks and logging in to the next shift\'s computers','Handing in your badge and dosimeter at the gate on the way out','Turning the reactor down for the night while the new crew settles in'],'Operators work in shifts around the clock, so a careful handover makes sure nothing gets lost between them.'],
-  ['A program checks the reactor temperature over and over, every second. What is code that repeats called?',['A loop','A variable','A comment','A crash'],'A loop runs the same code again and again. Plant computers loop constantly, checking hundreds of readings.'],
-  ['Why does a reactor still need cooling after it has shut down?',['The fuel keeps making heat from radioactive decay','The control rods stay hot and heat the water around them','The pumps make heat by friction as they keep running','It does not: the fuel cools down by itself in minutes'],'Decay heat starts at about 6% of full power just after shutdown and falls slowly, so cooling has to carry on for days.'],
-  ['What does a questioning attitude mean for an operator?',['Checking things that look odd instead of assuming they are fine','Asking lots of questions in training, then trusting the procedures','Challenging the supervisor on every decision they make on shift','Ignoring alarms that go off a lot, because they are usually false'],'Many accidents started with a small sign that nobody questioned. Good operators ask "why is that happening?"']];
- function R(){if(!S.shift||typeof S.shift!=='object')S.shift={};var r=S.shift;if(!Array.isArray(r.notes))r.notes=[];return r}
- function on(){return R().off!==true}
- function set(v){R().off=!v;save()}
- function trackFor(a){return a==='gp'||a==='gc'||a==='gm'||a==='gcs'||a==='am'||a==='ap'||a==='ac'||a==='theory'||a==='maths'?a:(a==='calc'||a==='calcfu')?'calc':null}
- function pickQ(){var t=(new Date().getDay()+6)%7,parts=PLAN.DAY(t),k=ymdL(),rnd=seedRand('shift'+k);
-  for(var i=0;i<parts.length;i++){var acts=parts[i][3]||[];for(var j=0;j<acts.length;j++){var tr=trackFor(acts[j][1]);if(!tr)continue;var nl=nextLesson(tr);if(!nl)continue;var u=UNITS[nl[0]],l=u.lessons[nl[1]],qs=l.cards.filter(function(c){return c.t==='Q'&&c.o&&c.o.length});
-    if(qs.length){var c=qs[Math.floor(rnd()*qs.length)];return {p:c.p,o:c.o,a:c.a,e:c.e||'',src:u.title+' · '+l.title,why:'You\'ll meet this in your next lesson.'}}}}
-  try{var pool=reviewPool(true).filter(function(x){return x.t==='Q'&&x.o&&x.o.length});if(pool.length){var c2=pool[Math.floor(rnd()*pool.length)];return {p:c2.p,o:c2.o,a:c2.a,e:c2.e||'',src:c2._src||'Fix my mistakes',why:'You got this one wrong before. Crack it this time.'}}}catch(_){}
-  var q=OPQ[Math.floor(rnd()*OPQ.length)];return {p:escH(q[0]),o:q[1].map(escH),a:0,e:escH(q[2]),src:'Control room skills',why:'Every operator needs to know this.'}}
- var mod=null;
- function closeMod(){if(mod){mod.remove();mod=null;document.removeEventListener('keydown',esck)}}
- function esck(e){if(e.key==='Escape')closeMod()}
- function openMod(html){closeMod();mod=document.createElement('div');mod.className='shmod';mod.setAttribute('role','dialog');mod.setAttribute('aria-modal','true');mod.innerHTML='<div class="shcard">'+html+'</div>';document.body.appendChild(mod);document.addEventListener('keydown',esck);mod.addEventListener('click',function(e){if(e.target===mod)closeMod()});return mod}
- function hm(ms){var d=new Date(ms),h=d.getHours(),m=d.getMinutes();return (h%12||12)+':'+(m<10?'0':'')+m+(h>=12?'pm':'am')}
- function brief(go){if(!on())return false;var r=R(),k=ymdL();if(r.d===k&&r.start)return false;
-  var t=(new Date().getDay()+6)%7,parts=PLAN.DAY(t),q=pickQ(),last=r.notes.length?r.notes[r.notes.length-1]:null,dn=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'][t],tot=0;
-  var li=parts.map(function(
+ '.myclues{list-style:none;margin:10px 0;padding:0;counter-reset:cl}.myclues li{counter-increment:cl;display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);font-size:15px;line-height:1.45}.myclues li:before{content:counter(cl);flex:none;width:22px;height:22px;border-radius:50%;background:var(--accent-bg);color:var(--accent-text);font:700 12px var(--mono);display:flex;align-items:c
