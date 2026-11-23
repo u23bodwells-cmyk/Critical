@@ -1,4 +1,50 @@
-><p>Integrating the product rule and rearranging gives:</p><div class="eq">∫ u (dv/dx) dx = uv − ∫ v (du/dx) dx</div><p>Use it when the integral is one function <b>multiplied</b> by another, like x·eˣ or x·cos x.</p>${KY([['u','the part you\'ll differentiate (pick the one that gets simpler)',''],['dv/dx','the part you\'ll integrate','']])}`),
+`Areas under curves. Get 4 right to master it.`,`Integrate, then top minus bottom.`),
+T(`<h3>Below the axis</h3><p>If the curve is <b>below</b> the x-axis, the integral comes out <b>negative</b>. The area itself is still positive: just take the size.</p><p>Example: ∫ from −1 to 1 of x dx = 0. But the actual shaded area is two triangles of 0.5 each: <b>1</b>. The positive and negative parts cancelled!</p>`),
+Q(`∫ from −1 to 1 of x dx = 0, but the actual area is 1. Why?`,[`The part below the axis counts as negative and cancels the part above`,'The integral has been worked out wrongly: the answer should be 1','Areas between −1 and 1 always come out as zero for every curve','A straight line like y = x has no area underneath it at all'],0,`Split at the x-axis.`),
+T(`<h3>Splitting</h3><p>When a curve crosses the axis, find where it crosses, integrate each part <b>separately</b>, make each one positive, then add them.</p>`),
+Q(`To find the total area of a curve that crosses the x-axis, you should…`,[`split it where it crosses, then add the sizes of each part`,'integrate once across the whole range and keep the sign','ignore the part below the axis because it has no area','integrate once, then double the answer to be safe'],0,`Otherwise parts cancel.`),
+N(`∫ from 0 to 2 of 3x² dx = ?`,8,0.001,'',`[x³] from 0 to 2 = 8.`),
+T(`<h3>Key points</h3><ul><li>Above the axis: positive. Below: <b>negative</b>.</li><li>For total area, <b>split</b> where the curve crosses the axis.</li></ul>`)])
+]});
+
+U({id:'c4-3',track:'calc',level:4,title:'Standard integrals',icon:'∫eˣ',color:'#378ADD',desc:'Integrating eˣ, 1/x, sin and cos, and expressions with a linear inside.',lessons:[
+LH('c4-3-1','eˣ and 1/x',10,'The integrals of eˣ and 1/x, the exception from earlier.',[
+RM(`<p>d/dx (e<sup>kx</sup>) = ke<sup>kx</sup>, and d/dx (ln x) = 1/x.</p>`),
+T(`<h3>Integrating eˣ</h3><p>Since eˣ is its own derivative, it's also its own integral:</p><div class="eq">∫ eˣ dx = eˣ + C</div><p>With a k in the power, divide by k (the opposite of differentiating):</p><div class="eq">∫ e<sup>kx</sup> dx = (1/k)e<sup>kx</sup> + C</div>`),
+Q(`∫ e³ˣ dx = …`,[`(1/3)e³ˣ + C`,'(1/3)e⁴ˣ + C','(1/4)e⁴ˣ + C',`e⁴ˣ/4 + C`],0,`Divide by k.`),
+W('calcDrill',{skill:'intexp',need:5},`Integrate the exponentials. Get 5 right to master it.`,`Divide by k. Check by differentiating.`),
+T(`<h3>The missing case: 1/x</h3><p>The derivative of ln x is 1/x. So:</p><div class="eq">∫ 1/x dx = ln|x| + C</div><p>The |x| (the size of x) lets it work for negative x too. This fills the gap the reverse power rule couldn't.</p>`),
+N(`Evaluate ∫ from 1 to e of 1/x dx.`,1,0.001,'',`[ln x] from 1 to e = ln e − ln 1 = 1 − 0 = 1.`),
+W('calcDrill',{skill:'int1x',need:4},`Definite integrals of a/x. Get 4 right to master it.`,`ln e = 1, ln 1 = 0, ln eᵏ = k.`),
+T(`<h3>Key points</h3><ul><li><b>∫ e<sup>kx</sup> dx = (1/k)e<sup>kx</sup> + C</b>.</li><li><b>∫ 1/x dx = ln|x| + C</b>.</li></ul>`)]),
+LH('c4-3-2','sin and cos',9,'Reverse the trig derivatives, including the sign change.',[
+RM(`<p>d/dx (sin x) = cos x, and d/dx (cos x) = −sin x. Angles in radians.</p>`),
+T(`<h3>Reversing them</h3><div class="eq">∫ cos x dx = sin x + C</div><div class="eq">∫ sin x dx = −cos x + C</div><p>Check the second: d/dx (−cos x) = −(−sin x) = sin x ✓</p>`),
+Q(`∫ sin x dx = …`,[`−cos x + C`,`cos x + C`,`−sin x + C`,`sin x + C`],0,`The minus is the usual trap.`),
+T(`<h3>With a number inside</h3><p>Just like e<sup>kx</sup>, divide by k:</p><div class="eq">∫ cos 2x dx = ½ sin 2x + C</div>`),
+Q(`∫ cos 3x dx = …`,[`(1/3) sin 3x + C`,`3 sin 3x + C`,`−(1/3) sin 3x + C`,`sin 3x + C`],0,`Divide by 3.`),
+N(`Evaluate ∫ from 0 to π of sin x dx.`,2,0.001,'',`[−cos x] from 0 to π = −cos π + cos 0 = 1 + 1 = 2.`),
+N(`Evaluate ∫ from 0 to π/2 of cos x dx.`,1,0.001,'',`[sin x] = sin(π/2) − sin 0 = 1.`),
+T(`<h3>Key points</h3><ul><li><b>∫ cos x dx = sin x + C</b>, <b>∫ sin x dx = −cos x + C</b>.</li><li>With kx inside, divide by k.</li><li>The area under one hump of sin x (0 to π) is exactly 2.</li></ul>`)]),
+LH('c4-3-3','A linear expression inside',10,'Integrate (ax + b)ⁿ by reversing the chain rule.',[
+RM(`<p>Chain rule: (ax + b)ⁿ differentiates to na(ax + b)ⁿ⁻¹. The a comes out because of the inside.</p>`),
+T(`<h3>Reverse chain rule</h3><p>To integrate (ax + b)ⁿ:</p><ol><li>Add 1 to the power.</li><li>Divide by the new power.</li><li><b>Also divide by a</b>, the number in front of x inside.</li></ol><div class="eq">∫ (ax + b)ⁿ dx = (ax + b)ⁿ⁺¹ ÷ (a(n + 1)) + C</div>`),
+W('stepCalc',{steps:[`∫ (2x + 1)⁴ dx`,`Add 1 to the power: 5`,`Divide by the new power AND by the 2 inside: 1 ÷ (5 × 2) = 1/10`,`Answer: <b>(2x + 1)⁵ ÷ 10 + C</b>`,`Check: d/dx gives 5 × 2 × (2x + 1)⁴ ÷ 10 = (2x + 1)⁴ ✓`]},`Step by step.`,`Divide by both the new power and the inside's coefficient.`),
+W('calcDrill',{skill:'intlin',need:5},`Reverse chain rule. Get 5 right to master it.`,`1 ÷ (new power × a).`),
+T(`<h3>Key points</h3><ul><li><b>∫ (ax + b)ⁿ dx = (ax + b)ⁿ⁺¹ ÷ (a(n + 1)) + C</b>.</li><li>Only works when the inside is <b>linear</b> (ax + b).</li></ul>`)])
+]});
+
+U({id:'c4-4',track:'calc',level:4,title:'Substitution and by parts',icon:'∫u dv',color:'#D85A30',desc:'Integration by substitution, integration by parts, and how to choose the right method.',lessons:[
+LH('c4-4-1','Integration by substitution',11,'Swap a messy inside for a single letter u, integrate, then swap back.',[
+RM(`<p>Chain rule: the derivative of f(g(x)) is f′(g(x)) × g′(x). Substitution reverses this.</p>`),
+T(`<h3>Spotting the pattern</h3><p>Look at ∫ 2x(x² + 1)⁴ dx. The inside is x² + 1, and its derivative, 2x, is sitting right there as a multiplier. That's the sign substitution will work.</p>`),
+W('stepCalc',{steps:[`∫ 2x(x² + 1)⁴ dx`,`Let u = x² + 1`,`Then du/dx = 2x, so du = 2x dx`,`The integral becomes ∫ u⁴ du`,`Integrate: u⁵ ÷ 5 + C`,`Swap back: <b>(x² + 1)⁵ ÷ 5 + C</b>`]},`Substitution, step by step.`,`Choose u, find du, rewrite everything in u, integrate, swap back.`),
+Q(`In ∫ 2x(x² + 1)⁴ dx, why is u = x² + 1 a good choice?`,[`Its derivative, 2x, is also in the integral`,'It\'s the biggest part, so it\'s the hardest bit','It\'s raised to a power, and powers always go first','Any choice works, so we pick the first bracket'],0,`du replaces the 2x dx.`),
+W('calcDrill',{skill:'subst',need:4},`Substitution practice. Get 4 right to master it.`,`u = x² + 1, then the 2x dx becomes du.`),
+T(`<h3>Key points</h3><ul><li>Look for an inside whose <b>derivative is also present</b>.</li><li>u = inside, find du, rewrite in u, integrate, <b>swap back</b>.</li></ul>`)]),
+LH('c4-4-2','Integration by parts',11,'The product rule in reverse, for integrals like x·eˣ.',[
+RM(`<p>Product rule: (uv)′ = u′v + uv′.</p>`),
+T(`<h3>The formula</h3><p>Integrating the product rule and rearranging gives:</p><div class="eq">∫ u (dv/dx) dx = uv − ∫ v (du/dx) dx</div><p>Use it when the integral is one function <b>multiplied</b> by another, like x·eˣ or x·cos x.</p>${KY([['u','the part you\'ll differentiate (pick the one that gets simpler)',''],['dv/dx','the part you\'ll integrate','']])}`),
 W('stepCalc',{steps:[`∫ x eˣ dx`,`u = x (gets simpler when differentiated), dv/dx = eˣ`,`du/dx = 1, v = eˣ`,`uv − ∫ v du/dx dx = xeˣ − ∫ eˣ dx`,`= <b>xeˣ − eˣ + C</b>`]},`By parts, step by step.`,`Choose u so it gets simpler; integrate the rest.`),
 Q(`In ∫ x cos x dx, which should be u?`,[`x, because it becomes 1 when differentiated`,'cos x, because it\'s easy to differentiate','Either one: by parts gives the same either way','Neither: this one needs substitution instead'],0,`Then ∫ x cos x dx = x sin x + cos x + C.`),
 T(`<h3>A handy order for choosing u</h3><p>Pick u from whichever comes first in this list: <b>logs</b> (ln x), then <b>powers of x</b>, then <b>trig and exponentials</b>. So for ∫ x ln x dx, u = ln x.</p>`),
@@ -937,30 +983,4 @@ T(`<h3>The second derivative test</h3><div class="eq">D = f<sub>xx</sub> f<sub>y
 Q(`D < 0 at a critical point means…`,[`a saddle point`,`a minimum`,`a maximum`,`no conclusion`],0,`Curving opposite ways.`),
 W('calcDrill',{skill:'critclass',need:4},`Classify critical points. Get 4 right to master it.`,`D = f<sub>xx</sub>f<sub>yy</sub> − f<sub>xy</sub>².`),
 QE(`f = x³y². f<sub>xy</sub> = …`,[`6x²y`,`3x²y²`,`2x³y`,`6xy`],0,`3x²y² then ∂/∂y.`),
-T(`<h3>Key points</h3><ul><li>Critical points: <b>f<sub>x</sub> = f<sub>y</sub> = 0</b>.</li><li><b>D = f<sub>xx</sub>f<sub>yy</sub> − f<sub>xy</sub>²</b>.</li><li>D > 0: max or min (sign of f<sub>xx</sub>). D < 0: saddle.</li></ul>`)]),
-LH('c12-3-3','Lagrange multipliers',11,'Find the best value when you\'re only allowed to move along a constraint.',[
-RM(`<p>∇f is perpendicular to the level curves of f. Critical points: ∇f = 0.</p>`),
-T(`<h3>Optimising with a rule</h3><p>Maximise f(x, y) but only along the curve g(x, y) = c (a budget, a fixed perimeter, a fixed amount of material).</p><p>At the best point, the level curve of f just <b>touches</b> the constraint curve. Touching curves share a direction, so their gradients are parallel:</p><div class="eq">∇f = λ∇g,&nbsp;&nbsp; g = c</div>${KY([['λ','the Lagrange multiplier: how much the best value changes if you relax the constraint','']])}`),
-W('stepCalc',{steps:[`Fence a rectangle with 20 m of fence. Maximise the area A = xy.`,`Constraint: g = 2x + 2y = 20`,`∇A = ⟨y, x⟩, ∇g = ⟨2, 2⟩. So y = 2λ and x = 2λ: x = y`,`2x + 2x = 20, so x = y = 5`,`<b>Maximum area 25 m²</b>: a square`]},`Lagrange multipliers.`,`The square wins, as you'd guess, and now you can prove it.`),
-Q(`Why must ∇f and ∇g be parallel at the best point?`,[`The level curve of f touches the constraint there, so they share a normal direction`,`Because f and g are always equal`,`Because λ is zero`,`They don't have to be`],0,`Tangent curves, parallel normals.`),
-W('calcDrill',{skill:'lagrange',need:3},`Lagrange problems. Get 3 right to master it.`,`∇f = λ∇g, then use the constraint.`),
-T(`<h3>Where it's used</h3><p>Designing a reactor core to maximise power within temperature limits, minimising cost for a fixed output, and the foundations of economics and machine learning all use this method.</p>`),
-T(`<h3>Key points</h3><ul><li><b>∇f = λ∇g</b> together with <b>g = c</b>.</li><li>At the optimum, f's level curve touches the constraint.</li><li>λ measures the value of relaxing the constraint.</li></ul>`)])
-]});
-
-F('c12-1-1',[GN('fxyeval'),GN('fxyeval'),Q(`z = x² + y² looks like…`,[`a bowl`,`a saddle`,`a plane`,`a cone opening down`],0,`Paraboloid.`),Q(`z = x² − y² looks like…`,[`a saddle`,`a bowl`,`a dome`,`a plane`],0,`Up one way, down the other.`),N(`A(w, h) = wh. A(3, 7)?`,21,0.001,'',`3 × 7.`)]);
-F('c12-1-2',[Q(`A level curve is where…`,[`f(x, y) = c`,`x = y`,`f = 0 only`,`∇f = 0`],0,`Fixed height.`),Q(`Level curves of x² + y² are…`,[`circles`,`lines`,`parabolas`,`hyperbolas`],0,`Radius √c.`),Q(`Contours far apart mean…`,[`gentle slope`,`steep slope`,`a cliff`,`a maximum`],0,`Slow change.`),Q(`xy/(x² + y²) at the origin…`,[`has no limit`,`→ 0`,`→ ½`,`→ 1`],0,`Path-dependent.`),Q(`A 2D limit exists only if…`,[`every path gives the same value`,`one path works`,`f is a polynomial`,`f(0, 0) = 0`],0,`Every path.`)]);
-F('c12-1-3',[Q(`Velocity of r(t) is…`,[`r′(t)`,`r″(t)`,`|r(t)|`,`∫ r dt`],0,`Differentiate.`),N(`r = ⟨3t, 4t, 0⟩. Speed?`,5,0.001,'',`√(9 + 16).`),Q(`⟨cos t, sin t, t⟩ is a…`,[`helix`,`circle`,`line`,`parabola`],0,`Spring.`),Q(`Arc length = ∫ …`,[`|r′(t)| dt`,`r(t) dt`,`r″(t) dt`,`t dt`],0,`Speed.`),Q(`Acceleration is…`,[`r″(t)`,`r′(t)`,`r(t)`,`|r′|`],0,`Second derivative.`)]);
-F('c12-2-1',[GN('partial'),GN('partial'),GN('partial'),Q(`∂/∂x (y³) = …`,[`0`,`3y²`,`y³`,`3y²x`],0,`No x.`),Q(`P = nRT/V. ∂P/∂T = …`,[`nR/V`,`nRT`,`−nRT/V²`,`0`],0,`T only.`)]);
-F('c12-2-2',[GN('mixed'),GN('mixed'),Q(`Clairaut: f<sub>xy</sub> = …`,[`f<sub>yx</sub>`,`f<sub>xx</sub>`,`f<sub>yy</sub>`,`0`],0,`Order doesn't matter.`),Q(`The heat equation is a…`,[`partial differential equation`,`algebraic equation`,`series`,`integral`],0,`PDE.`),Q(`f = x²y². f<sub>xx</sub> = …`,[`2y²`,`4xy`,`2x²`,`0`],0,`Twice in x.`)]);
-F('c12-2-3',[GN('tanplane'),GN('tanplane'),Q(`Tangent plane: z = f + f<sub>x</sub>(x − a) + …`,[`f<sub>y</sub>(y − b)`,`f<sub>xy</sub>`,`f<sub>y</sub>`,`(y − b)`],0,`Both directions.`),Q(`dz = …`,[`f<sub>x</sub>dx + f<sub>y</sub>dy`,`f<sub>x</sub>f<sub>y</sub>`,`dx + dy`,`f dx`],0,`Total differential.`),Q(`A 1% error in h (V = πr²h) gives about…`,[`1% error in V`,`2%`,`0%`,`3%`],0,`Power 1.`)]);
-F('c12-3-1',[GN('dirderiv'),GN('dirderiv'),GN('gradmag'),Q(`∇f is … to level curves.`,[`perpendicular`,`parallel`,`tangent`,`equal`],0,`Normal.`),Q(`D<sub>u</sub>f needs u to be…`,[`a unit vector`,`zero`,`∇f`,`any vector`],0,`Length 1.`)]);
-F('c12-3-2',[GN('critclass'),GN('critclass'),GN('critclass'),Q(`Critical points satisfy…`,[`f<sub>x</sub> = f<sub>y</sub> = 0`,`f = 0`,`D = 0`,`f<sub>xy</sub> = 0`],0,`Flat.`),Q(`D > 0 and f<sub>xx</sub> < 0 means…`,[`maximum`,`minimum`,`saddle`,`no conclusion`],0,`A dome.`)]);
-F('c12-3-3',[GN('lagrange'),GN('lagrange'),Q(`Lagrange condition: …`,[`∇f = λ∇g`,`∇f = 0`,`f = g`,`∇g = 0`],0,`Parallel gradients.`),Q(`Max area with fixed perimeter is a…`,[`square`,`long thin rectangle`,`triangle`,`line`],0,`Worked example.`),Q(`At the optimum, f's level curve … the constraint.`,[`touches`,`crosses`,`misses`,`equals`],0,`Tangent.`)]);
-GOALS.calc12={icon:'⛰️',title:'Climb surfaces in 3D',story:'Each unit takes calculus into more than one dimension: surfaces and paths, slopes in every direction, then the highest and lowest points.',final:'Multivariable differentiation mastered',steps:['Functions of several variables','Partial derivatives','Gradient and optimisation']};
-/* ========== CALCULUS · LEVEL 13 · Multiple integrals (Calculus 3, part 2) ========== */
-CGEN.dblrect=function(){var k=cR(1,6),m=cR(0,2),n=cR(0,2),a=cR(1,3),b=cR(1,3),ix=Math.pow(a,m+1)/(m+1),iy=Math.pow(b,n+1)/(n+1),v=Math.round(k*ix*iy*1000)/1000;
- return {p:'Find ∫<sub>0</sub><sup>'+a+'</sup>∫<sub>0</sub><sup>'+b+'</sup> '+(c12m(k,m,n)||String(k))+' dy dx. (3 d.p. if needed)',b:[cB(v,'','','value',false,0.002)],e:'The integrand splits into an x part and a y part, so the double integral is a product: '+k+' × ∫<sub>0</sub><sup>'+a+'</sup> x'+cSup(m)+' dx × ∫<sub>0</sub><sup>'+b+'</sup> y'+cSup(n)+' dy = '+k+' × '+cNum(Math.round(ix*1000)/1000)+' × '+cNum(Math.round(iy*1000)/1000)+' = '+cNum(v)+'.'}};
-CGEN.dbltri=function(){var a=cR(1,4);if(cR(0,1)){var k=cR(1,6);return {p:'R is the triangle 0 ≤ y ≤ x ≤ '+a+'. Find ∬<sub>R</sub> '+k+' dA.',b:[cB(k*a*a/2,'')],e:'∫<sub>0</sub><sup>'+a+'</sup>∫<sub>0</sub><sup>x</sup> '+k+' dy dx = ∫<sub>0</sub><sup>'+a+'</sup> '+k+'x dx = '+k+' × '+a+'²/2 = '+cNum(k*a*a/2)+'. (A constant times the triangle\'s area.)'}}
- var v=Math.round(Math.pow(a,3)/6*1000)/1000;return {p:'R is the triangle 0 ≤ y ≤ x ≤ '+a+'. Find ∬<sub>R</sub> y dA. (3 d.p. if needed)',b:[cB(v,'','','value',false,0.002)],e:'Inner: ∫<sub>0</sub><sup>x</sup> y dy = x²/2. Outer: ∫<sub>0</sub><sup>'+a+'</sup> x²/2 dx = '+a+'³/6 = '+cNum(v)+'.'}};
-CGEN.polarint=function(){var R=cR(1,3);if(cR(0,1))return {p:'D is the disc x² + y² ≤ '+(R*R)+'. Fin
+T(`<h3>Key points</h3><ul><li>Critical points: <b>f<sub>x</sub> = f<sub>y</sub> = 0</b>.</li

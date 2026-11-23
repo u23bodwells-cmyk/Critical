@@ -1,4 +1,51 @@
-like 3.14</li><li><b>Boolean</b>: True or False</li><li><b>Character</b>: one letter, digit or symbol</li><li><b>String</b>: text, a sequence of characters</li></ul>`),
+ starts at 0. A loop adds 5 to it 4 times. What's its final value?`,[`20`,`5`,`9`,`4`],0,`0 + 5 + 5 + 5 + 5 = 20.`)])]});
+/* ----- Level 2: Year 10 ----- */
+U({id:'gcs2-1',track:'gcs',level:2,title:'Algorithms',icon:'⇅',color:'#534AB7',desc:'Searching and sorting algorithms, efficiency and trace tables: AQA 3.1.',lessons:[
+LH('gcs2-1-1','Linear and binary search',9,'Two ways to find something in a list, and why one is much faster.',[
+T(`<h3>Linear search</h3><p>Check each item in turn, from the start, until you find it or reach the end.</p><ul><li>Works on <b>any</b> list, sorted or not.</li><li>Slow for long lists: in the worst case it checks every item.</li></ul>`),
+T(`<h3>Binary search</h3><p>Only works on a <b>sorted</b> list.</p><ol><li>Look at the middle item.</li><li>If it's the one you want, stop.</li><li>If what you want is smaller, throw away the top half; if bigger, throw away the bottom half.</li><li>Repeat on the half that's left.</li></ol><p>Each check halves the list, so it's very fast for big lists.</p>`),
+Q(`Which search needs the list to be sorted first?`,[`Binary search`,`Linear search`,`Both`,`Neither`],0,`Throwing away half the list only works if it's in order.`),
+Q(`Binary search for 23 in [3, 8, 12, 17, 23, 31, 40]. What's the first item checked?`,[`17`,`3`,`23`,`40`],0,`The middle of 7 items is the 4th: 17. 23 is bigger, so the bottom half goes.`),
+N(`A sorted list has 1,000 items. Roughly how many checks does a binary search need at most? (Round up: 2¹⁰ = 1,024.)`,10,0.001,'checks',`Each check halves the list. 1,000 → 500 → 250 → … about 10 checks. A linear search could need 1,000.`),
+Q(`When might a linear search be the better choice?`,[`The list is short or unsorted`,`The list is huge and sorted`,`Never`,`When you need the fastest search for big data`],0,`Sorting first takes time, so for a short or unsorted list a linear search is simpler.`)]),
+LH('gcs2-1-2','Bubble sort and merge sort',10,'Two sorting algorithms AQA expects you to know step by step.',[
+T(`<h3>Bubble sort</h3><ol><li>Compare the first two items. If they're in the wrong order, swap them.</li><li>Move along one and compare the next pair. Keep going to the end: that's one <b>pass</b>.</li><li>Repeat passes until a whole pass makes no swaps.</li></ol><p>After each pass, the biggest unsorted item has "bubbled" to the end.</p>`),
+Q(`One pass of bubble sort on [5, 2, 4, 1]. What's the list after the first pass?`,[`[2, 4, 1, 5]`,`[1, 2, 4, 5]`,`[2, 5, 1, 4]`,`[5, 4, 2, 1]`],0,`5↔2 → [2,5,4,1]; 5↔4 → [2,4,5,1]; 5↔1 → [2,4,1,5].`),
+T(`<h3>Merge sort</h3><ol><li>Split the list in half again and again until every sub-list has one item.</li><li>Merge pairs of sub-lists back together, putting the items in order as you merge.</li><li>Keep merging until there's one sorted list.</li></ol>`),
+Q(`What's the first stage of a merge sort?`,[`Split the list until each part has one item`,`Swap the first two items`,`Find the middle item`,`Compare every item with the last one`],0,`Then the single items are merged back in order.`),
+T(`<h3>Comparing them</h3><ul><li><b>Bubble sort</b>: simple to code, sorts in place (no extra memory), but very slow for long lists.</li><li><b>Merge sort</b>: much faster for long lists, but more complex and needs extra memory for the sub-lists.</li></ul>`),
+Q(`Why might you choose bubble sort over merge sort?`,[`It's simpler and uses less memory`,`It's faster for huge lists`,`It doesn't need comparisons`,`It works on unsorted lists only`],0,`For short lists the speed difference doesn't matter, and it's easier to write.`)]),
+LH('gcs2-1-3','Trace tables',9,'Follow an algorithm line by line to find out what it does, or find the bug.',[
+T(`<h3>What's a trace table?</h3><p>A trace table has a column for each variable. You work through the algorithm one line at a time and write down every new value.</p><pre class="cs">total ← 0
+FOR i ← 1 TO 4
+   total ← total + i
+ENDFOR
+OUTPUT total</pre><p>i goes 1, 2, 3, 4 and total goes 1, 3, 6, 10. It outputs <b>10</b>.</p>`),
+N(`<pre class="cs">x ← 2
+FOR i ← 1 TO 3
+   x ← x * 2
+ENDFOR
+OUTPUT x</pre>What's output?`,16,0.001,'',`2 → 4 → 8 → 16.`),
+N(`<pre class="cs">n ← 0
+count ← 0
+WHILE n &lt; 20
+   n ← n + 6
+   count ← count + 1
+ENDWHILE
+OUTPUT count</pre>What's output?`,4,0.001,'',`n goes 6, 12, 18, 24. The loop runs 4 times.`),
+T(`<h3>DIV and MOD</h3><ul><li><b>DIV</b> gives the whole-number part of a division: 17 DIV 5 = 3.</li><li><b>MOD</b> gives the remainder: 17 MOD 5 = 2.</li></ul><p>MOD is useful for checking if a number is even: n MOD 2 = 0.</p>`),
+N(`What's 29 MOD 4?`,1,0.001,'',`29 = 7 × 4 + 1, so the remainder is 1.`),
+N(`What's 29 DIV 4?`,7,0.001,'',`29 ÷ 4 = 7.25, and DIV keeps the whole number: 7.`)]),
+LH('gcs2-1-4','Efficiency and representing algorithms',8,'Flowcharts, pseudo-code and how to judge which algorithm is better.',[
+T(`<h3>Three ways to write an algorithm</h3><ul><li><b>In words</b>: easy to read, but can be vague.</li><li><b>Flowchart</b>: shows the flow and decisions visually.</li><li><b>Pseudo-code</b>: structured like code, but not tied to one language. AQA has its own style.</li></ul>`),
+T(`<h3>Efficiency</h3><p>Two algorithms can solve the same problem, but one may need far fewer steps. For GCSE you compare <b>time efficiency</b>: how the number of steps grows as the input gets bigger.</p><p>Doubling a list doubles the work for a linear search, but adds only <b>one</b> step to a binary search.</p>`),
+Q(`What is pseudo-code?`,[`A way of writing an algorithm that looks like code but isn't a real language`,`A programming language`,`Machine code`,`A type of flowchart`],0,`It's for planning, so you don't worry about exact syntax.`),
+Q(`A list doubles from 500 to 1,000 items. What happens to the worst case for a binary search?`,[`It needs one more check`,`It needs twice as many checks`,`It needs 500 more checks`,`Nothing`],0,`One extra halving covers the doubled list.`),
+Q(`An algorithm's job is to find the highest score in a list. Which is its input?`,[`The list of scores`,`The highest score`,`The loop`,`The screen`],0,`Input: the list. Process: compare. Output: the highest score.`),
+Q(`What does a parallelogram mean in a flowchart?`,[`Input or output`,`A decision`,`A process`,`Start or end`],0,`Decision = diamond, process = rectangle, start/end = rounded box.`)])]});
+U({id:'gcs2-2',track:'gcs',level:2,title:'Programming',icon:'</>',color:'#1D9E75',desc:'Data types, operators, selection, iteration, arrays, strings and subroutines: AQA 3.2.',lessons:[
+LH('gcs2-2-1','Data types and operators',9,'Every value has a type, and every type has rules.',[
+T(`<h3>The five data types</h3><ul><li><b>Integer</b>: whole numbers, like 42 or −7</li><li><b>Real</b> (float): numbers with decimals, like 3.14</li><li><b>Boolean</b>: True or False</li><li><b>Character</b>: one letter, digit or symbol</li><li><b>String</b>: text, a sequence of characters</li></ul>`),
 W('sortIt',{bins:['Integer','Real','Boolean','String'],items:[['Number of lessons done: 12',0],['Year: 2028',0],['Coolant temperature: 307.4',1],['Price: 2.99',1],['Alarm active?',2],['Is the door locked?',2],['Name: "Sunny"',3],['Postcode: "TA5 1UD"',3]]},`Pick the best data type for each.`,`A postcode is a string even though it has digits: you never do maths with it.`),
 T(`<h3>Operators</h3><p><b>Arithmetic</b>: + − * / plus DIV and MOD.<br><b>Relational</b> (comparisons): = ≠ &lt; &gt; ≤ ≥. They give True or False.<br><b>Boolean</b>: AND, OR, NOT.</p>`),
 Q(`temp ← 330 and pumps ← True. What's (temp &gt; 320) AND NOT pumps?`,[`False`,`True`,`330`,`An error`],0,`temp &gt; 320 is True, NOT pumps is False. True AND False = False.`),
@@ -1205,44 +1252,4 @@ LH('ap3-4-2','Radioactive decay',10,'Decay constant, half-life, activity and the
 RM(`<p>N = N₀e<sup>−λt</sup>, A = λN, T½ = ln 2/λ (Calculus Level 5).</p>`),
 T(`<h3>The equations</h3><div class="eq">A = λN&nbsp;&nbsp;&nbsp; N = N₀e<sup>−λt</sup>&nbsp;&nbsp;&nbsp; T½ = ln 2 / λ</div>`),
 W('calcDrill',{skill:'decay',need:3},`Half-life and λ. Get 3 right to master it.`,`T½ = ln 2/λ.`),
-T(`<h3>Gamma intensity</h3><p>Gamma radiation from a point source follows an <b>inverse square law</b>: I = k/x². Doubling the distance quarters the dose rate, which is why distance is a key protection.</p>`),
-Q(`Moving from 1 m to 3 m from a gamma source, the intensity becomes…`,[`1/9 as much`,`1/3 as much`,`3 times more`,`unchanged`],0,`Inverse square.`),
-T(`<h3>Key points</h3><ul><li><b>A = λN</b>, <b>N = N₀e<sup>−λt</sup></b>, <b>T½ = ln 2/λ</b>.</li><li>Gamma: <b>inverse square</b> with distance.</li><li>Background must be subtracted from count rates.</li></ul>`)]),
-LH('ap3-4-3','Mass defect, fission and fusion',11,'A nucleus weighs less than its parts. That missing mass is where nuclear energy comes from.',[
-RM(`<p>E = mc². 1 u = 931.5 MeV. Binding energy per nucleon peaks near iron (Level 2 Theory).</p>`),
-T(`<h3>Mass defect and binding energy</h3><p>The mass of a nucleus is less than the total mass of its separate protons and neutrons. The difference, the <b>mass defect</b>, is the <b>binding energy</b> via E = mc².</p>`),
-W('calcDrill',{skill:'p_massdef',need:3},`Energy from mass. Get 3 right to master it.`,`Δm × 931.5 MeV.`),
-T(`<h3>Fission and fusion</h3><p>Both move towards the peak of the binding energy curve. Heavy nuclei <b>split</b> (fission of U-235 releases about 200 MeV); light nuclei <b>join</b> (D–T fusion releases 17.6 MeV).</p><p><b>Thermal reactors</b> need a <b>moderator</b> (to slow neutrons), <b>control rods</b> (to absorb them) and a <b>coolant</b>. Everything in the Critical theory track builds on this.</p>`),
-W('matchPairs',{pairs:[['Moderator','Slows neutrons so they cause fission'],['Control rods','Absorb neutrons to control the rate'],['Coolant','Carries heat away from the core'],['Critical mass','Smallest mass for a self-sustaining chain reaction']]},`Match each reactor part.`),
-T(`<h3>Key points</h3><ul><li><b>Mass defect</b> = binding energy / c².</li><li>Fission and fusion both climb towards iron.</li><li>Moderator, control rods, coolant.</li></ul>`)])
-]});
-
-/* ---- Level 4: A* technique ---- */
-U({id:'ap4-1',track:'ap',level:4,title:'Practical skills',icon:'⚗',color:'#7F77DD',desc:'The required practicals, uncertainty analysis, and log graphs.',lessons:[
-LH('ap4-1-1','The required practicals',11,'Twelve experiments you must know well enough to describe, analyse and improve.',[
-RM(`<p>Uncertainties combine by adding absolutes (±) or percentages (× ÷). Linearise to y = mx + c.</p>`),
-T(`<h3>Know each one</h3><ul><li>Stationary waves on a string; Young's slits and gratings; g by free fall.</li><li>Young modulus; resistivity of a wire; emf and internal resistance.</li><li>SHM (spring or pendulum); Boyle's law and Charles's law.</li><li>Capacitor charge and discharge; force on a wire in a field; induced emf in a search coil; inverse square law for gamma.</li></ul><p>For each: the method, what's plotted, what the gradient means, the main sources of uncertainty, and how to improve it.</p>`),
-W('matchPairs',{pairs:[['Resistivity','Plot R against L; gradient = ρ/A'],['Internal resistance','Plot V against I; gradient = −r'],['Pendulum g','Plot T² against l; gradient = 4π²/g'],['Capacitor discharge','Plot ln V against t; gradient = −1/RC']]},`Match each practical to its graph.`),
-Q(`In the resistivity practical, why measure the diameter at several places and angles?`,[`The wire may not be perfectly round or uniform, so averaging reduces random error`,`To make the wire longer`,`To heat the wire`,`To find the current`],0,`Random error.`),
-T(`<h3>Key points</h3><ul><li>Know method, graph, gradient meaning, errors, improvements.</li><li>Average repeated readings to cut random error.</li><li>Watch for zero errors (systematic).</li></ul>`)]),
-LH('ap4-1-2','Uncertainty in graphs',10,'Error bars, worst-fit lines and the uncertainty in a gradient.',[
-RM(`<p>Percentage uncertainty = absolute ÷ value × 100. Gradients from large triangles.</p>`),
-T(`<h3>Error bars and worst fit</h3><p>Plot each point with <b>error bars</b>. Draw the <b>best-fit</b> line, then the steepest or shallowest line that still passes through all the error bars: the <b>worst-fit</b> line.</p><div class="eq">uncertainty in gradient = |best − worst| gradient</div>`),
-N(`Best-fit gradient 4.20, worst-fit 4.50. Percentage uncertainty in the gradient? (1 d.p.)`,7.1,0.01,'%',`0.30/4.20 × 100 = 7.1%.`),
-T(`<h3>Precision and accuracy</h3><ul><li><b>Precise</b>: readings close together (small random error).</li><li><b>Accurate</b>: close to the true value (small systematic error).</li><li><b>Repeatable</b>: same person, same method; <b>reproducible</b>: different people or methods.</li></ul>`),
-Q(`Readings are close together but all 5% too high. They're…`,[`precise but not accurate`,`accurate but not precise`,`both`,`neither`],0,`Systematic error.`),
-T(`<h3>Key points</h3><ul><li>Error bars, best-fit and <b>worst-fit</b> lines.</li><li>Gradient uncertainty = |best − worst|.</li><li>Precise ≠ accurate.</li></ul>`)]),
-LH('ap4-1-3','Logarithmic graphs',10,'When the relationship is a power or an exponential, logs straighten it out.',[
-RM(`<p>ln(eˣ) = x. log(aⁿ) = n log a. y = mx + c.</p>`),
-T(`<h3>Two cases</h3><ul><li><b>Power law</b> y = kxⁿ: log y = n log x + log k. Plot log y against log x: gradient <b>n</b>.</li><li><b>Exponential</b> y = Ae<sup>−λt</sup>: ln y = −λt + ln A. Plot ln y against t: gradient <b>−λ</b>.</li></ul>`),
-Q(`Plotting ln(activity) against time gives a straight line of gradient −0.02 s⁻¹. λ = …`,[`0.02 s⁻¹`,`−0.02 s⁻¹`,`50 s`,`ln 0.02`],0,`Gradient = −λ.`),
-N(`log T against log r gives gradient 1.5 (Kepler). If T ∝ rⁿ, what is n?`,1.5,0.001,'',`Gradient = n.`),
-T(`<h3>Key points</h3><ul><li>Power law: <b>log–log</b>, gradient = power.</li><li>Exponential: <b>ln y against t</b>, gradient = −λ.</li><li>Intercepts give the constants.</li></ul>`)])
-]});
-
-U({id:'ap4-2',track:'ap',level:4,title:'Exam technique',icon:'✓',color:'#1D9E75',desc:'Synoptic questions, six-mark answers, and calculation habits that earn every mark.',lessons:[
-LH('ap4-2-1','Synoptic questions',10,'The hardest questions join topics from different parts of the course.',[
-RM(`<p>Every topic: mechanics, fields, waves, electricity, thermal, nuclear.</p>`),
-T(`<h3>Spotting the links</h3><ul><li>A charge in a magnetic field: <b>circular motion</b> + <b>magnetism</b>.</li><li>A satellite: <b>gravity</b> + <b>circular motion</b> + <b>energy</b>.</li><li>Capacitor discharge: <b>electricity</b> + <b>exponentials</b>.</li><li>A nuclear reactor: <b>nuclear</b> + <b>thermal</b> + <b>momentum</b> (moderation).</li></ul>`),
-Q(`A proton is accelerated through a pd, then enters a magnetic field. Which two ideas link?`,[`eV = ½mv², then BQv = mv²/r`,`F = ma only`,`Snell's law and Ohm's law`,`pV = nRT and E = hf`],0,`Energy then circular motion.`),
-W('stepCalc',{steps:[`Why does a moderator use light nuclei?`,`Momentum and KE are conserved in an elastic collision.`,`A
+T(`<h3>Gamma intensity</h3><p>Gamma radiation from a point source follows an <b>inverse square law</b>: I = k/x². Doubling the distance quarters the dose rate, which is why distance 

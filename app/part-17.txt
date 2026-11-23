@@ -1,4 +1,37 @@
-')]}
+bfa','#22d3ee','#e0e7ff']],title:'Physics Phenom'},
+  {k:'gc',n:'Chemistry',ic:'🧪',tr:['gc'],skin:['Flame test','#f97316','#a855f7'],fx:['Bubbling beaker','bubble',['#22c55e','#a3e635','#d9f99d']],title:'Chemistry Wizard'},
+  {k:'gcs',n:'Computer Science',ic:'💻',tr:['gcs'],skin:['Terminal','#22c55e','#0ea5e9'],fx:['Binary burst','digit',['#22c55e','#86efac','#0ea5e9'],'01'],title:'Code Commander'},
+  {k:'nuc',n:'Operator',ic:'☢️',tr:['maths','theory','calc'],skin:['Criticality','#3ad4ff','#f5a524'],fx:['Neutron storm','chain',['#3ad4ff','#a5f3fc','#f5a524']],title:'Reactor Royalty'}];
+ var MODEIC={maths:'📐',theory:'☢️',calc:'∫',gp:'⚛️',gc:'🧪',gm:'➗',gcs:'💻',am:'🧮',ap:'🔭',ac:'⚗️'},MODES=['maths','theory','calc','gm','gp','gc','gcs','am','ap','ac'];
+ function subj(k){for(var i=0;i<SUBJ.length;i++)if(SUBJ[i].k===k)return SUBJ[i];return null}
+ function fmtN(n){return Math.round(n).toLocaleString('en-GB')}
+ function subjPts(id,sj){var p=0,t=today();sdays(id).forEach(function(d){if(d>t)return;var A=actDay(d);sj.tr.forEach(function(tr){if(A[tr])p+=+A[tr][0]||0})});return p}
+ function weekPts(mon){var p=0;for(var i=0;i<7;i++){var d=addD(mon,i);if(d>today())break;p+=dayXP(d)}var w=weekStats(mon);weekCh(mon).forEach(function(c){if(chDone(c,w))p+=WCH});return p}
+ /* reward builders: each reward is a list of parts */
+ function RW(parts,ic,lab,det,r,pv){return {parts:parts,ic:ic,lab:lab,det:det||'',r:r||'C',pv:pv||null}}
+ function rCrate(t,n){n=n||1;return RW([{k:'crate',t:t,n:n}],'🎁',(n>1?n+'× ':'')+RAR[t].n+' crate'+(n>1?'s':''),n>1?n+' '+RAR[t].n+' crates for your stash.':'A '+RAR[t].n+' crate, ready to open.',t)}
+ function rXP(n){return RW([{k:'xp',n:n}],'✨','+'+n+' XP','Goes straight onto your XP.','C')}
+ function rPow(k,n){n=n||1;var d={boost:['⚡','2× XP boost','20 minutes of double XP. Use it from Crates → Power-ups.','R'],boost3:['🚀','3× super boost','10 minutes of triple XP. Use it from Crates → Power-ups.','E'],upg:['⬆️','Crate upgrade','Use one when you open a crate to bump it up a rarity.','R'],freeze:['❄️','Streak freeze','Saves your streak if you miss a day.','R']}[k];return RW([{k:k,n:n}],d[0],n>1?n+' '+{boost:'double-XP boosts',boost3:'super boosts',upg:'crate upgrades',freeze:'streak freezes'}[k]:d[1],d[2],d[3])}
+ function rItem(id,lab,det,dup){var it=item(id)||{n:id,ty:'',r:'C'};return RW([{k:'item',id:id,dup:dup||40}],icOf(it),lab||it.n,det||'',it.r,(it.ty==='fx'||it.ty==='skin'||it.ty==='sound')?id:null)}
+ function rMix(a,b,ic,lab,det,r){return RW(a.parts.concat(b.parts),ic||a.ic,lab||(a.lab+' + '+b.lab),det||(a.det+' '+b.det),r||a.r,a.pv||b.pv)}
+ var MAIN_OLD=[100,200,350,500,700,900,1150,1400,1700,2000,2350,2700,3100,3500,4000,4500,5000,5600,6200,6900,7600,8400,9200,10000];
+ var MAIN_AT=[100,200,275,350,425,500,600,700,800,900,1025,1150,1275,1400,1550,1700,1850,2000,2175,2350,2525,2700,2900,3100,3300,3500,3750,4000,4250,4500,4750,5000,5300,5600,5900,6200,6550,6900,7250,7600,8000,8400,8800,9200,9600,10000,11250,12500,13750,15000];
+ function mainRewards(id){var m=+id.slice(5)-1,x=function(k){return XS[(m*3+k)%XS.length][0]},y=function(k){return XS[(m*3+k+6)%XS.length][0]},pk=SPK[m%3],mn=monthName(id),mo=mn.split(' ')[0];
+  var O=[rCrate('C'),rXP(50),rPow('boost'),rCrate('R'),rItem(x(0),'Skin: '+item(x(0)).n,'A glow skin for the whole app.'),rPow('upg'),rCrate('C',2),rItem('sx-'+id,'Effect: '+MFX[m][0],'An answer effect only available this month.'),rPow('freeze'),rCrate('E'),
+   rItem('st-'+id,'Title: '+mo+' veteran','A title for this season.'),rPow('boost3'),rItem('ss-'+id,'Skin: '+MSKIN[m][0],'An exclusive glow, only available this month.'),rCrate('R',2),rItem('sp-'+pk[0],'Sound pack: '+pk[1],'A whole new set of sounds for Critical, yours to keep.',150),rPow('upg',2),
+   rMix(rCrate('L'),rItem('sc-'+id),'👑','Legendary crate + champion title','A Legendary crate and the title "'+mn+' champion".','L'),rItem(x(1),'Skin: '+item(x(1)).n,'Another glow skin.'),rCrate('E'),rItem('sf-'+id,'Season fact card','An exclusive Legendary fact card.'),
+   rMix(rPow('boost3'),rItem('se-'+id),'🏷️','Elite title + super boost','The title "'+mn+' elite" and a 3× super boost.','E'),rItem(x(2),'Skin: '+item(x(2)).n,'Your third skin this season.'),rCrate('E',2),
+   rMix(rCrate('L',2),rMix(rItem('sl-'+id),rItem('bd-M-'+id)),'🌟','2 Legendary crates + legend title + badge','The whole season: 2 Legendary crates, the title "'+mn+' legend" and the gold season badge.','L')];
+  var N=[rCrate('C'),rXP(50),rPow('upg'),rCrate('C',2),rPow('boost'),rCrate('R'),rMix(rItem('bd-M-'+id+'-1'),rCrate('R'),'🥉','Bronze badge + Rare crate','The '+mo+' bronze season badge and a Rare crate.','R'),rXP(100),
+   rItem(y(0),'Skin: '+item(y(0)).n,'A glow skin for the whole app.'),rCrate('R',2),rPow('upg',2),rCrate('E'),rItem('mx-'+id,'Effect: '+MFX2[m][0],'A second answer effect, only on this season\'s pass.'),rPow('boost',2),rItem(y(1),'Skin: '+item(y(1)).n,'Another glow skin.'),rCrate('E'),
+   rMix(rPow('freeze'),rXP(100),'❄️','Streak freeze + 100 XP','A streak freeze and 100 XP.','R'),rMix(rItem('bd-M-'+id+'-2'),rCrate('E'),'🥈','Silver badge + Epic crate','The '+mo+' silver season badge and an Epic crate.','E'),rCrate('R',3),rItem(y(2),'Skin: '+item(y(2)).n,'Your sixth skin this season.'),rCrate('L'),rPow('boost3',2),
+   rItem('sk2-'+id,'Skin: '+MSKIN2[m][0],'A second exclusive glow, only on this season\'s pass.'),rMix(rCrate('E',3),rPow('upg',2),'🎁','3 Epic crates + 2 upgrades','3 Epic crates and 2 crate upgrades. Upgrade them to Legendary!','E'),rCrate('L',2),
+   rMix(rCrate('L',3),rMix(rItem('mt-'+id),rItem('bd-M-'+id+'-3')),'💎','Mythic finale','The end of the road: 3 Legendary crates, the title "'+MTT[m]+'" and the mythic season badge.','L')];
+  var out=[],oi=0,ni=0;MAIN_AT.forEach(function(a){out.push(MAIN_OLD.indexOf(a)>=0?O[oi++]:N[ni++])});return out}
+ var WEEK_AT=[60,150,250,400,600,800,1000,1300,1600,2000];
+ function weekRewards(){return [rCrate('C'),rXP(25),rPow('boost'),rCrate('R'),rPow('upg'),rPow('freeze'),rCrate('C',2),rPow('boost3'),rCrate('E'),rMix(rCrate('L'),rItem('bd-week'),'🏅','Legendary crate + badge','A Legendary crate, and a badge the first time you finish a weekly pass.','L')]}
+ var SUBJ_AT=[50,120,200,300,420,560,720,900,1100,1350,1650,2000];
+ function subjRewards(sj){return [rCrate('C'),rXP(25),rCrate('R'),rItem('sfx-'+sj.k,'Effect: '+sj.fx[0],'A '+sj.n+' answer effect.'),rPow('boost'),rPow('upg'),rItem('ssk-'+sj.k,'Skin: '+sj.skin[0],'A '+sj.n+' glow skin.'),rCrate('E'),rPow('boost3'),rItem('bd-S-'+sj.k,sj.n+' badge','A badge for your collection.'),rMix(rCrate('E'),rXP(50),'🎁','Epic crate + 50 XP','An Epic crate and 50 XP.','E'),rMix(rCrate('L'),rItem('stt-'+sj.k),'👑','Legendary crate + "'+sj.title+'"','A Legendary crate and the title "'+sj.title+'".','L')]}
  function passes(){var id=sid(),mon=monday(today()),end=addD(sdays(id).slice(-1)[0],1),L=[];
   L.push({k:'main',key:id+':main',ic:'🏆',short:'Season',name:monthName(id)+' season',sub:'All your XP this month, plus weekly challenges',pts:seasonSP(id).sp,at:MAIN_AT,legacy:MAIN_OLD,rw:mainRewards(id),ends:end,over:true});
   L.push({k:'week',key:'w'+mon,ic:'📅',short:'Weekly',name:'Weekly pass',sub:'Your XP this week, plus '+WCH+' for each weekly challenge',pts:weekPts(mon),at:WEEK_AT,rw:weekRewards(),ends:addD(mon,7)});

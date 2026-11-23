@@ -1,4 +1,18 @@
-.</li><li>At constant power, φ rises as fuel depletes.</li></ul>`)]),
+fficient by about 65%.`),
+Q(`Why does forward-peaked scattering increase D?`,[`Neutrons keep their direction, so they spread further`,`They are absorbed faster`,`Because Σ<sub>t</sub> rises`,`It decreases D`],0,`Less randomising per collision.`),
+QE(`Uncollided fraction through 3 mean free paths?`,[`e⁻³ ≈ 0.05`,`1/3`,`0.3`,`e³`],0,`Σx = 3.`),
+T(`<h3>Key points</h3><ul><li>μ̄ ≈ 2/(3A): light nuclei scatter forward.</li><li><b>Σ<sub>tr</sub> = Σ<sub>t</sub> − μ̄Σ<sub>s</sub></b>, <b>D = 1/(3Σ<sub>tr</sub>)</b>.</li><li>For water the correction raises D by about 65%.</li></ul>`)])
+]});
+
+U({id:'m6-2',track:'maths',level:6,title:'Depletion and the Bateman equations',icon:'Nᵢ(t)',color:'#1D9E75',desc:'How fuel nuclides burn and build up, decay chains, and plutonium production.',lessons:[
+LH('m6-2-1','Burning nuclides',10,'Under a neutron flux, a nuclide disappears at a rate proportional to how much is left: another exponential.',[
+RM(`<ul><li>Reaction rate per cm³ = σφN (Level 4 Maths).</li><li>dN/dt = −kN gives N = N₀e<sup>−kt</sup>.</li><li>1 barn = 10⁻²⁴ cm².</li></ul>`),
+T(`<h3>Burnup as decay</h3><p>Each nucleus of U-235 absorbs neutrons at a rate σ<sub>a</sub>φ per second. So:</p><div class="eq">dN/dt = −σ<sub>a</sub>φN &nbsp;⟹&nbsp; N = N₀e<sup>−σ<sub>a</sub>φt</sup></div><p>σ<sub>a</sub>φ plays the role of a decay constant. The <b>fluence</b> φt (neutrons per cm²) measures how much exposure the fuel has had.</p>`),
+W('stepCalc',{steps:[`U-235: σ<sub>a</sub> = 680 b = 6.8 × 10⁻²² cm². φ = 3 × 10¹³ cm⁻²s⁻¹.`,`σ<sub>a</sub>φ = 6.8 × 10⁻²² × 3 × 10¹³ = 2.04 × 10⁻⁸ s⁻¹`,`One year = 3.15 × 10⁷ s, so σ<sub>a</sub>φt = 0.643`,`N/N₀ = e<sup>−0.643</sup> = <b>0.53</b>`,`About half the U-235 is gone after a year at this flux.`]},`U-235 depletion in a year.`,`In practice, flux rises as fuel depletes to keep power constant.`),
+N(`σ<sub>a</sub>φ = 1 × 10⁻⁸ s⁻¹. "Burn half-life" in days? (ln 2 / σ<sub>a</sub>φ, 3 s.f.)`,802,0.005,'days',`0.693/10⁻⁸ = 6.93 × 10⁷ s ÷ 86,400 = 802 days.`),
+Q(`What plays the role of the decay constant in burnup?`,[`σ<sub>a</sub>φ`,`λ`,`Σ<sub>t</sub>`,`k<sub>eff</sub>`],0,`Absorption rate per nucleus.`),
+T(`<h3>Constant power</h3><p>Power ∝ Σ<sub>f</sub>φ ∝ Nφ. As N falls, operators let φ rise to keep power constant, so the depletion speeds up through the cycle. Codes handle this by stepping through time in small burnup steps.</p>`),
+T(`<h3>Key points</h3><ul><li><b>dN/dt = −σ<sub>a</sub>φN</b>: burnup behaves like decay.</li><li><b>Fluence φt</b> measures exposure.</li><li>At constant power, φ rises as fuel depletes.</li></ul>`)]),
 LH('m6-2-2','Decay chains',11,'A parent decays to a daughter which decays again. Bateman solved the chain exactly.',[
 RM(`<ul><li>N = N₀e<sup>−λt</sup> and activity A = λN (Calculus Level 5).</li><li>Linear differential equations: integrating factors or guessing an exponential.</li></ul>`),
 T(`<h3>Parent and daughter</h3><p>Parent 1 decays into daughter 2, which also decays:</p><div class="eq">dN₁/dt = −λ₁N₁&nbsp;&nbsp;&nbsp; dN₂/dt = λ₁N₁ − λ₂N₂</div><p>The daughter gains what the parent loses, and loses its own decays.</p>`),
@@ -455,39 +469,59 @@ CGEN.sepode=function(){var k=cP([0.1,0.2,0.5]),y0=cP([100,200,50]),t=cP([2,5,10]
  '.cdtop{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px}.cddots{display:flex;gap:6px}.cddots i{width:14px;height:14px;border-radius:50%;background:var(--soft2);display:block;transition:background .2s}.cddots i.on{background:var(--good-line)}'+
  '.cdok{color:var(--good);font-size:13px;font-weight:800;letter-spacing:.04em;text-transform:uppercase}.cdq .qprompt{font-size:18px;margin:0}.cdline{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font:20px var(--serif);margin:12px 0}'+
  '.cdline .cdbox{width:76px;font-size:18px;padding:8px 8px;font-family:var(--mono)}.cdgrp{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}.cdline .sgnb{min-width:40px;height:40px;margin-right:0;font-size:20px;border-radius:10px}'+
+ '.cdcard{position:relative;border-radius:14px;padding:6px 8px;margin:0 -8px;transition:box-shadow .25s,background .25s}.cdcard.fin{box-shadow:0 0 0 2px var(--amber),0 0 22px rgba(239,159,39,.35)}.cdcard.good{background:var(--good-bg)}'+
+ '.cdfin{color:var(--amber)}.cdlab{font-size:13px;color:var(--muted)}.cdright{display:flex;align-items:center;gap:10px}.cdflame{display:inline-flex;align-items:center;gap:2px;font:800 15px var(--mono);color:#e8742a}.cdflame svg{width:18px;height:18px}'+
+ '.cddots i.on{background:var(--good-line);box-shadow:0 0 8px rgba(127,179,74,.55)}.cddots i.gold{background:#f5c542;box-shadow:0 0 10px rgba(245,197,66,.7)}.cdxp{font:800 12px var(--mono);background:var(--accent-bg);color:var(--accent-text);border-radius:999px;padding:2px 8px;white-space:nowrap}.cdxp.gold{background:#fff1b3;color:#7a5200}'+
+ '.cdstamp{position:absolute;right:10px;top:50%;transform:translateY(-50%) rotate(-12deg);font:900 22px var(--sans);letter-spacing:.04em;text-transform:uppercase;color:#b8860b;border:3px solid #e0a526;border-radius:12px;padding:6px 14px;background:rgba(255,241,179,.92);pointer-events:none}'+
+ '@media (prefers-reduced-motion:no-preference){.cdcard.enter{animation:cdIn .28s ease-out}.cdcard.shake{animation:cdShake .38s}.cddots i.pop{animation:cdPop .45s ease-out}.cddots i.drop{animation:cdDrop .4s}.cdflame.pop{animation:cdPop .4s}.cdstamp{animation:cdStamp .5s cubic-bezier(.2,1.6,.4,1)}.cdcard.fin{animation:cdGlow 1.6s ease-in-out infinite}}'+
+ '@keyframes cdIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}@keyframes cdShake{0%,100%{transform:none}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(3px)}}'+
+ '@keyframes cdPop{0%{transform:scale(.4)}60%{transform:scale(1.45)}100%{transform:scale(1)}}@keyframes cdDrop{0%{transform:scale(1);background:var(--bad-line)}100%{transform:scale(1)}}@keyframes cdStamp{0%{opacity:0;transform:translateY(-50%) rotate(-12deg) scale(2.2)}100%{opacity:1;transform:translateY(-50%) rotate(-12deg) scale(1)}}@keyframes cdGlow{0%,100%{box-shadow:0 0 0 2px var(--amber),0 0 12px rgba(239,159,39,.25)}50%{box-shadow:0 0 0 2px var(--amber),0 0 26px rgba(239,159,39,.5)}}'+
  '.cdhelp{margin:10px 0 4px;padding:10px 14px;border-radius:12px;background:var(--accent-bg);color:var(--accent-text);font-size:15px;line-height:1.5}.cdhelp:empty{display:none}.cdhelp ol{margin:6px 0 4px;padding-left:22px}.cdhelp li{margin:3px 0}.cdrule{margin-top:6px;font-weight:600}.cdsm{font-size:13px;opacity:.85;margin-top:6px}.cdexp{margin-top:4px}'+
  '.cdsupg{align-self:flex-start;margin-top:-10px}.cdline .cdbox.cdsup{width:54px;font-size:14px;padding:5px 6px}.cdsupg .sgnb{min-width:32px;height:32px;font-size:16px;border-radius:8px}.cdin .opt{margin-top:8px}';
  document.head.appendChild(css)})();
-WIDGETS.calcDrill=function(box,par){var need=par.need||5,gens=[].concat(par.skill),score=0,run=0,clean=true,done=false,passed=false,q=null,answered=false,count=0,help=0,wrongs=0,last=-1;
- var PRAISE=['Nice.','Spot on.','That\'s it.','Nailed it.','Exactly right.','Lovely.','Yes!'];
- var top=el('div','cdtop',null,box),qb=el('div','cdq',null,box),inRow=el('div','cdin',null,box),hb=el('div','cdhelp',null,box),r=row(box),chkB=btn(r,'Submit answer',check,'pri'),helpB=btn(r,'Help',helpMe),nxt=btn(r,'Next question',next),skipB=btn(r,'Different question',skip),moveB=btn(r,'Move on for now',moveOn),m=msg(box);
- function dots(){var h='<span class="small">'+(done?'Mastered':passed?'Moved on for now':'Get '+need+' right to master it'+(count<=3&&clean&&need>3?' · or 3 right first go to fast-track':''))+'</span><span class="cddots" aria-label="'+score+' of '+need+'">';for(var i=0;i<need;i++)h+='<i class="'+(i<Math.min(score,need)?'on':'')+'"></i>';top.innerHTML=h+'</span>'+(done?'<span class="cdok">Mastered</span>':'')}
+WIDGETS.calcDrill=function(box,par){var need=par.need||5,gens=[].concat(par.skill),score=0,run=0,clean=true,done=false,passed=false,q=null,answered=false,count=0,help=0,wrongs=0,last=-1,xpGot=0;
+ var PRAISE=['Nice.','Spot on.','That\'s it.','Nailed it.','Exactly right.','Lovely.','Yes!','Clean.','Textbook.','Sharp.'];
+ var top=el('div','cdtop',null,box),card=el('div','cdcard',null,box),qb=el('div','cdq',null,card),inRow=el('div','cdin',null,card),hb=el('div','cdhelp',null,box),r=row(box),chkB=btn(r,'Submit answer',check,'pri'),helpB=btn(r,'Help',helpMe),nxt=btn(r,'Next question',next),skipB=btn(r,'Different question',skip),moveB=btn(r,'Move on for now',moveOn),m=msg(box);
+ function inL(){return typeof P!=='undefined'&&P&&P.mode==='lesson'}
+ function T(f){try{f()}catch(e){}}
+ function give(n,from){if(n<=0)return;xpGot+=n;T(function(){if(inL())award(n);else addXP(n,from||nxt)})}
+ function dots(pop,drop){var fin=!done&&!passed&&score===need-1,h='<span class="cdlab">'+(done?'<b>Mastered</b>'+(xpGot?' · +'+xpGot+' XP':''):passed?'Moved on for now':fin?'<b class="cdfin">Final question!</b> Get this one to master it':'Get '+need+' right to master it'+(count<=3&&clean&&need>3?' · or 3 right first go to fast-track':''))+'</span><span class="cdright">'+(run>=2&&!done?'<span class="cdflame'+(pop?' pop':'')+'">'+FLAME+'<b>'+run+'</b></span>':'')+'<span class="cddots" aria-label="'+score+' of '+need+'">';
+  for(var i=0;i<need;i++)h+='<i class="'+(i<Math.min(score,need)?'on':'')+(pop&&i===score-1?' pop':'')+(drop&&i===score?' drop':'')+(done?' gold':'')+'"></i>';
+  top.innerHTML=h+'</span></span>';card.classList.toggle('fin',fin);
+  if(pop)T(function(){var d=top.querySelector('.cddots i.pop');if(d&&window.NEO&&NEO.burst){var b=d.getBoundingClientRect();NEO.burst(b.left+b.width/2,b.top+b.height/2,{n:14})}})}
  function key(e){if(e.key==='Enter'){e.preventDefault();e.stopPropagation();answered?next():check()}}
  function pick(){var k=cP(gens);if(gens.length>2&&k===last)k=cP(gens);last=k;return CGEN[k]()}
- function next(){q=pick();count++;answered=false;help=0;q.pick=null;hb.innerHTML='';qb.innerHTML='<div class="qprompt">'+q.p+'</div>';inRow.innerHTML='';
+ function next(){q=pick();count++;answered=false;help=0;q.pick=null;hb.innerHTML='';qb.innerHTML='<div class="qprompt">'+q.p+'</div>';inRow.innerHTML='';card.classList.remove('shake','good');void card.offsetWidth;card.classList.add('enter');
   if(q.o){shuffle(q.o.map(function(_,i){return i})).forEach(function(k){var b=el('button','opt',q.o[k],inRow);b.dataset.k=k;b.onclick=function(){if(answered)return;[].forEach.call(inRow.children,function(x){x.classList.remove('sel')});b.classList.add('sel');q.pick=k}})}
   else{var line=el('div','cdline',null,inRow);q.b.forEach(function(bb,i){var g=el('span','cdgrp'+(bb.sup?' cdsupg':''),null,line);if(bb.pre)el('span','',bb.pre,g);var inp=el('input','numin cdbox'+(bb.sup?' cdsup':''),null,g);inp.type='text';if(q.pos)inp.__sgn=1;inp.setAttribute('inputmode','decimal');inp.setAttribute('autocomplete','off');inp.setAttribute('aria-label',bb.label||('Answer '+(i+1)));inp.onkeydown=key;if(bb.post)el('span','',bb.post,g)})}
   chkB.style.display='';helpB.style.display='';helpB.textContent='Help';skipB.style.display=done?'none':'';nxt.style.display='none';nxt.textContent='Next question';moveB.style.display=(!done&&!passed&&count>need+3)?'':'none';m.set('');dots();var f=inRow.querySelector('input');if(f)try{f.focus({preventScroll:true})}catch(e){}}
  function steps(){return String(q.e||'').split(/\.\s+(?=[A-Z(<])/).map(function(x,i,a){return x+(i<a.length-1?'.':'')})}
  function helpMe(){if(answered)return;help++;clean=false;var st=steps();
-  if(help===1){var first=st.length>1?st[0]:'';hb.innerHTML='<b>Hint</b> '+(first||par.rule||'Take it one step at a time.')+(first&&par.rule?'<div class="cdrule">'+par.rule+'</div>':'')+'<div class="cdsm">A hint still counts if you get it right. Stuck? Press <b>Show me how</b>.</div>';helpB.textContent='Show me how';return}
-  hb.innerHTML='<b>Here\'s how</b><ol class="cdsteps">'+st.map(function(x){return '<li>'+x+'</li>'}).join('')+'</ol>'+(q.o?'<div class="cdsm">Answer: <b>'+q.o[0]+'</b></div>':'<div class="cdsm">Answer: <b>'+q.b.map(function(bb){return cNum(bb.a)}).join(' and ')+'</b></div>')+'<div class="cdsm">This one doesn\'t count either way. Now try a similar one yourself.</div>';
+  if(help===1){var first=st.length>1?st[0]:'';hb.innerHTML='<b>💡 Hint</b> '+(first||par.rule||'Take it one step at a time.')+(first&&par.rule?'<div class="cdrule">'+par.rule+'</div>':'')+'<div class="cdsm">Get it right after a hint and it still counts (half XP). Still stuck? Press <b>Show me how</b>.</div>';helpB.textContent='Show me how';return}
+  hb.innerHTML='<b>🧭 Here\'s how</b><ol class="cdsteps">'+st.map(function(x){return '<li>'+x+'</li>'}).join('')+'</ol>'+(q.o?'<div class="cdsm">Answer: <b>'+q.o[0]+'</b></div>':'<div class="cdsm">Answer: <b>'+q.b.map(function(bb){return cNum(bb.a)}).join(' and ')+'</b></div>')+'<div class="cdsm">This one doesn\'t count either way, and your combo is safe. Now try a similar one yourself.</div>';
   answered=true;chkB.style.display='none';helpB.style.display='none';skipB.style.display='none';nxt.style.display='';nxt.textContent='Try a similar one';m.set('');dots();try{nxt.focus({preventScroll:true})}catch(e){}}
  function skip(){if(answered)return;clean=false;next()}
  function moveOn(){passed=true;moveB.style.display='none';m.set('No problem. You can carry on now. Come back with the <b>Practice</b> button on this lesson whenever you like: it uses the same questions.',true);dots()}
  function close(bb,v){var tol=bb.tol==null?0.005:bb.tol;return bb.a===0?Math.abs(v)<1e-9:Math.abs(v-bb.a)<=Math.abs(bb.a)*tol+1e-9}
+ function mastered(fast){card.classList.add('good');var st=el('div','cdstamp',fast?'⚡ Fast-tracked':'★ Mastered',card);setTimeout(function(){T(function(){st.remove()})},2600);
+  var bonus=fast?30:20;give(bonus,top);T(function(){confetti()});T(function(){sfx('done')});return bonus}
  function check(){if(answered)return;var ok;
   if(q.o){if(q.pick==null){m.set('Pick an answer first.',false);return}ok=q.pick===0;[].forEach.call(inRow.children,function(b){var k=+b.dataset.k;b.disabled=true;if(k===0)b.classList.add('right');else if(k===q.pick)b.classList.add('wrong')})}
   else{var ins=inRow.querySelectorAll('input'),vals=[].map.call(ins,function(i){return parseNum(i.value)});if(vals.some(function(v){return isNaN(v)})){m.set('Type a number in every box. Decimals like 0.5 and negatives like −3 are fine.',false);return}
    ok=q.b.every(function(bb,i){return close(bb,vals[i])});[].forEach.call(ins,function(inp,i){inp.disabled=true;inp.style.borderColor=close(q.b[i],vals[i])?cssv('--good-line'):cssv('--bad-line')})}
-  answered=true;var was=done,note='';
-  if(ok){score++;run++;if(score>=need||(clean&&run>=3&&count===3&&need>3))done=true;
-   note='<b>'+cP(PRAISE)+'</b> '+(done&&!was?(score<need?'Three right first go: fast-tracked. ':'')+'You\'ve mastered this. ':(!done?(need-score)+' more to go. ':''))}
-  else{wrongs++;run=0;clean=false;var lost=score>0&&!done;if(lost)score--;
+  answered=true;var was=done,note='',lost=false,xp=0,bonus=0,fast=false;
+  if(ok){score++;run++;if(score>=need||(clean&&run>=3&&count===3&&need>3)){done=true;fast=score<need}
+   xp=help?5:10+(run>=3?Math.min(5,run-1):0);give(xp,chkB);
+   T(function(){if(inL()){P.combo=(P.combo||0)+1;P.best=Math.max(P.best||0,P.combo);if(S.st&&P.combo>S.st.best)S.st.best=P.combo;if(S.st)S.st.right++;showCombo(true);qProg('right',1);qProg('run',P.combo)}});
+   T(function(){sfx(run>=3?'combo':'right')});
+   if(done&&!was){score=need;bonus=mastered(fast)}
+   var pr=(inL()&&typeof comboPraise==='function'&&comboPraise())||cP(PRAISE);
+   note='<b>'+pr+'</b> <span class="cdxp">+'+xp+' XP</span>'+(bonus?' <span class="cdxp gold">+'+bonus+' mastery bonus</span>':'')+' '+(done&&!was?(fast?'Three right first go: you\'re through. ':'You\'ve mastered this. '):(!done?(need-score===1?'One more to master it. ':(need-score)+' more to go. '):''))}
+  else{wrongs++;run=0;clean=false;lost=score>0&&!done;if(lost)score--;card.classList.remove('shake');void card.offsetWidth;card.classList.add('shake');
+   T(function(){if(inL()){P.combo=0;showCombo(false)}});T(function(){sfx('wrong')});
    note='<b>Not quite.</b> '+(q.o?'':'It\'s '+q.b.map(function(bb){return cNum(bb.a)}).join(' and ')+'. ')+(lost?'You lose one dot, not all of them. ':'')}
-  if(done&&!was)score=need;
   m.set(note+(q.e?'<div class="cdexp">'+q.e+'</div>':'')+(!ok&&wrongs>=2&&!done?'<div class="cdsm">Tip: press <b>Help</b> on the next one for a hint or a full walk-through.</div>':''),ok);
-  chkB.style.display='none';helpB.style.display='none';skipB.style.display='none';nxt.style.display='';moveB.style.display=(!done&&!passed&&count>=need+3)?'':'none';dots();try{nxt.focus({preventScroll:true})}catch(e){}}
+  chkB.style.display='none';helpB.style.display='none';skipB.style.display='none';nxt.style.display='';moveB.style.display=(!done&&!passed&&count>=need+3)?'':'none';dots(ok,lost);try{nxt.focus({preventScroll:true})}catch(e){}}
  next();
  return {check:function(){return done||passed?{ok:true}:{ok:false,msg:'Get '+need+' right to master it first ('+score+' so far). Use <b>Help</b> if you\'re stuck'+(count>need+3?', or <b>Move on for now</b>':'')+'.'}},lock:function(){}}};
 
@@ -989,50 +1023,4 @@ W('calcDrill',{skill:'defint',need:5},`Definite integrals. Get 5 right to master
 T(`<h3>Key points</h3><ul><li><b>∫ₐᵇ f(x) dx = F(b) − F(a)</b>.</li><li>Top limit minus bottom limit.</li><li>No + C: it cancels.</li></ul>`)]),
 LH('c4-2-3','Areas under curves',10,'Areas above the axis count as positive, below as negative. Know when to split.',[
 RM(`<p>∫ₐᵇ f(x) dx = F(b) − F(a). The area under a curve is a definite integral.</p>`),
-W('calcDrill',{skill:'area',need:4},`Areas under curves. Get 4 right to master it.`,`Integrate, then top minus bottom.`),
-T(`<h3>Below the axis</h3><p>If the curve is <b>below</b> the x-axis, the integral comes out <b>negative</b>. The area itself is still positive: just take the size.</p><p>Example: ∫ from −1 to 1 of x dx = 0. But the actual shaded area is two triangles of 0.5 each: <b>1</b>. The positive and negative parts cancelled!</p>`),
-Q(`∫ from −1 to 1 of x dx = 0, but the actual area is 1. Why?`,[`The part below the axis counts as negative and cancels the part above`,'The integral has been worked out wrongly: the answer should be 1','Areas between −1 and 1 always come out as zero for every curve','A straight line like y = x has no area underneath it at all'],0,`Split at the x-axis.`),
-T(`<h3>Splitting</h3><p>When a curve crosses the axis, find where it crosses, integrate each part <b>separately</b>, make each one positive, then add them.</p>`),
-Q(`To find the total area of a curve that crosses the x-axis, you should…`,[`split it where it crosses, then add the sizes of each part`,'integrate once across the whole range and keep the sign','ignore the part below the axis because it has no area','integrate once, then double the answer to be safe'],0,`Otherwise parts cancel.`),
-N(`∫ from 0 to 2 of 3x² dx = ?`,8,0.001,'',`[x³] from 0 to 2 = 8.`),
-T(`<h3>Key points</h3><ul><li>Above the axis: positive. Below: <b>negative</b>.</li><li>For total area, <b>split</b> where the curve crosses the axis.</li></ul>`)])
-]});
-
-U({id:'c4-3',track:'calc',level:4,title:'Standard integrals',icon:'∫eˣ',color:'#378ADD',desc:'Integrating eˣ, 1/x, sin and cos, and expressions with a linear inside.',lessons:[
-LH('c4-3-1','eˣ and 1/x',10,'The integrals of eˣ and 1/x, the exception from earlier.',[
-RM(`<p>d/dx (e<sup>kx</sup>) = ke<sup>kx</sup>, and d/dx (ln x) = 1/x.</p>`),
-T(`<h3>Integrating eˣ</h3><p>Since eˣ is its own derivative, it's also its own integral:</p><div class="eq">∫ eˣ dx = eˣ + C</div><p>With a k in the power, divide by k (the opposite of differentiating):</p><div class="eq">∫ e<sup>kx</sup> dx = (1/k)e<sup>kx</sup> + C</div>`),
-Q(`∫ e³ˣ dx = …`,[`(1/3)e³ˣ + C`,'(1/3)e⁴ˣ + C','(1/4)e⁴ˣ + C',`e⁴ˣ/4 + C`],0,`Divide by k.`),
-W('calcDrill',{skill:'intexp',need:5},`Integrate the exponentials. Get 5 right to master it.`,`Divide by k. Check by differentiating.`),
-T(`<h3>The missing case: 1/x</h3><p>The derivative of ln x is 1/x. So:</p><div class="eq">∫ 1/x dx = ln|x| + C</div><p>The |x| (the size of x) lets it work for negative x too. This fills the gap the reverse power rule couldn't.</p>`),
-N(`Evaluate ∫ from 1 to e of 1/x dx.`,1,0.001,'',`[ln x] from 1 to e = ln e − ln 1 = 1 − 0 = 1.`),
-W('calcDrill',{skill:'int1x',need:4},`Definite integrals of a/x. Get 4 right to master it.`,`ln e = 1, ln 1 = 0, ln eᵏ = k.`),
-T(`<h3>Key points</h3><ul><li><b>∫ e<sup>kx</sup> dx = (1/k)e<sup>kx</sup> + C</b>.</li><li><b>∫ 1/x dx = ln|x| + C</b>.</li></ul>`)]),
-LH('c4-3-2','sin and cos',9,'Reverse the trig derivatives, including the sign change.',[
-RM(`<p>d/dx (sin x) = cos x, and d/dx (cos x) = −sin x. Angles in radians.</p>`),
-T(`<h3>Reversing them</h3><div class="eq">∫ cos x dx = sin x + C</div><div class="eq">∫ sin x dx = −cos x + C</div><p>Check the second: d/dx (−cos x) = −(−sin x) = sin x ✓</p>`),
-Q(`∫ sin x dx = …`,[`−cos x + C`,`cos x + C`,`−sin x + C`,`sin x + C`],0,`The minus is the usual trap.`),
-T(`<h3>With a number inside</h3><p>Just like e<sup>kx</sup>, divide by k:</p><div class="eq">∫ cos 2x dx = ½ sin 2x + C</div>`),
-Q(`∫ cos 3x dx = …`,[`(1/3) sin 3x + C`,`3 sin 3x + C`,`−(1/3) sin 3x + C`,`sin 3x + C`],0,`Divide by 3.`),
-N(`Evaluate ∫ from 0 to π of sin x dx.`,2,0.001,'',`[−cos x] from 0 to π = −cos π + cos 0 = 1 + 1 = 2.`),
-N(`Evaluate ∫ from 0 to π/2 of cos x dx.`,1,0.001,'',`[sin x] = sin(π/2) − sin 0 = 1.`),
-T(`<h3>Key points</h3><ul><li><b>∫ cos x dx = sin x + C</b>, <b>∫ sin x dx = −cos x + C</b>.</li><li>With kx inside, divide by k.</li><li>The area under one hump of sin x (0 to π) is exactly 2.</li></ul>`)]),
-LH('c4-3-3','A linear expression inside',10,'Integrate (ax + b)ⁿ by reversing the chain rule.',[
-RM(`<p>Chain rule: (ax + b)ⁿ differentiates to na(ax + b)ⁿ⁻¹. The a comes out because of the inside.</p>`),
-T(`<h3>Reverse chain rule</h3><p>To integrate (ax + b)ⁿ:</p><ol><li>Add 1 to the power.</li><li>Divide by the new power.</li><li><b>Also divide by a</b>, the number in front of x inside.</li></ol><div class="eq">∫ (ax + b)ⁿ dx = (ax + b)ⁿ⁺¹ ÷ (a(n + 1)) + C</div>`),
-W('stepCalc',{steps:[`∫ (2x + 1)⁴ dx`,`Add 1 to the power: 5`,`Divide by the new power AND by the 2 inside: 1 ÷ (5 × 2) = 1/10`,`Answer: <b>(2x + 1)⁵ ÷ 10 + C</b>`,`Check: d/dx gives 5 × 2 × (2x + 1)⁴ ÷ 10 = (2x + 1)⁴ ✓`]},`Step by step.`,`Divide by both the new power and the inside's coefficient.`),
-W('calcDrill',{skill:'intlin',need:5},`Reverse chain rule. Get 5 right to master it.`,`1 ÷ (new power × a).`),
-T(`<h3>Key points</h3><ul><li><b>∫ (ax + b)ⁿ dx = (ax + b)ⁿ⁺¹ ÷ (a(n + 1)) + C</b>.</li><li>Only works when the inside is <b>linear</b> (ax + b).</li></ul>`)])
-]});
-
-U({id:'c4-4',track:'calc',level:4,title:'Substitution and by parts',icon:'∫u dv',color:'#D85A30',desc:'Integration by substitution, integration by parts, and how to choose the right method.',lessons:[
-LH('c4-4-1','Integration by substitution',11,'Swap a messy inside for a single letter u, integrate, then swap back.',[
-RM(`<p>Chain rule: the derivative of f(g(x)) is f′(g(x)) × g′(x). Substitution reverses this.</p>`),
-T(`<h3>Spotting the pattern</h3><p>Look at ∫ 2x(x² + 1)⁴ dx. The inside is x² + 1, and its derivative, 2x, is sitting right there as a multiplier. That's the sign substitution will work.</p>`),
-W('stepCalc',{steps:[`∫ 2x(x² + 1)⁴ dx`,`Let u = x² + 1`,`Then du/dx = 2x, so du = 2x dx`,`The integral becomes ∫ u⁴ du`,`Integrate: u⁵ ÷ 5 + C`,`Swap back: <b>(x² + 1)⁵ ÷ 5 + C</b>`]},`Substitution, step by step.`,`Choose u, find du, rewrite everything in u, integrate, swap back.`),
-Q(`In ∫ 2x(x² + 1)⁴ dx, why is u = x² + 1 a good choice?`,[`Its derivative, 2x, is also in the integral`,'It\'s the biggest part, so it\'s the hardest bit','It\'s raised to a power, and powers always go first','Any choice works, so we pick the first bracket'],0,`du replaces the 2x dx.`),
-W('calcDrill',{skill:'subst',need:4},`Substitution practice. Get 4 right to master it.`,`u = x² + 1, then the 2x dx becomes du.`),
-T(`<h3>Key points</h3><ul><li>Look for an inside whose <b>derivative is also present</b>.</li><li>u = inside, find du, rewrite in u, integrate, <b>swap back</b>.</li></ul>`)]),
-LH('c4-4-2','Integration by parts',11,'The product rule in reverse, for integrals like x·eˣ.',[
-RM(`<p>Product rule: (uv)′ = u′v + uv′.</p>`),
-T(`<h3>The formula</h3
+W('calcDrill',{skill:'area',need:4},

@@ -1,4 +1,13 @@
-n);return dstr(d)}
+yload,check:check,refresh:function(){try{adopt(localStorage.getItem(KEY))}catch(_){}},start:function(t){if(st.run)return false;var n0=Date.now();st.run={at:n0,t:t||'',c:new Date(n0).toISOString()};keep();startTick();return true},stop:function(){if(st.run)$('[data-a=go]').click()}};
+})();
+try{window.STUDY=STUDY}catch(_){}
+/* ===== revise for a test: each test gets a countdown, and the days before it become revision days in the weekly plan ===== */
+var REV=(function(){
+ var SUBJ={gm:'GCSE Maths',gp:'GCSE Physics',gc:'GCSE Chemistry',gcs:'GCSE Computer Science'},COL='#7F77DD';
+ function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+ function R(){if(!S.rev||typeof S.rev!=='object')S.rev={};var r=S.rev;if(!Array.isArray(r.tests))r.tests=[];if(!r.miss||typeof r.miss!=='object')r.miss={};if(!r.log||typeof r.log!=='object')r.log={};if(!r.mocks||typeof r.mocks!=='object')r.mocks={};return r}
+ function s2d(s){var a=String(s).split('-');return new Date(+a[0],a[1]-1,+a[2],12)}
+ function addD(s,n){var d=s2d(s);d.setDate(d.getDate()+n);return dstr(d)}
  function diff(a,b){return Math.round((s2d(b)-s2d(a))/864e5)}
  function nice(s){return s2d(s).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})}
  function short(s){return s2d(s).toLocaleDateString('en-GB',{weekday:'short'})}
@@ -501,31 +510,38 @@ var PLAN=(function(){
  var MG='https://www.mathsgenie.co.uk/',SEN='https://senecalearning.com/',COG='https://cognitoedu.org/',SR='shift-ready.html',AG='aptitude.html';
  var DAYS=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'],AB=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
  /* [title, minutes, what to do, buttons [label, kind, target], shows the topic list] */
- var D=[
-  [['Fix my mistakes',15,'Clear the Fix my mistakes pile in Critical: the questions you got wrong, 10 at a time. Read the explanation again on any you miss. Empty it early and you move straight on. If it isn\'t empty after 15 minutes, the first 15 minutes of Tuesday go to it too. Nothing to fix? Do your next GCSE Maths lesson.',[['Fix my mistakes','fix'],['GCSE Maths','gm']]],
+ /* two versions of the week: GCSE first, then the same week with A-level in place of GCSE once every GCSE lesson (Level 2 up) is done */
+ var PMT='https://www.physicsandmathstutor.com/';
+ var NUKE=['Nuclear maths',7,'Your next lesson in the Maths track: the calculations behind the reactor, from powers of ten to reactor kinetics.',[['Nuclear maths','maths']]];
+ function WEEKOF(Q){var A=Q==='A',sci=A?[['A-level Physics','ap'],['A-level Chemistry','ac']]:[['GCSE Physics','gp'],['GCSE Chemistry','gc']],mth=A?'A-level Maths':'GCSE Maths',mk=A?'am':'gm';
+  return [
+  [['Fix my mistakes',15,'Clear the Fix my mistakes pile in Critical: the questions you got wrong, 10 at a time. Read the explanation again on any you miss. Empty it early and you move straight on. If it isn\'t empty after 15 minutes, the first 15 minutes of Tuesday go to it too. Nothing to fix? Do your next '+mth+' lesson.',[['Fix my mistakes','fix'],[mth,mk]]],
+   NUKE],
+  [['Calculus',15,'Your next Calculus lesson and its practice. Only move on when the practice says Mastered. Stuck? Press Help.',[['Next lesson','calc']]],
    ['Aptitude',7,'One practice set in Aptitude Gym.',[['Aptitude Gym','app',AG]]]],
-  [['Calculus',22,'Your next Calculus lesson and its drill. Only move on when the drill says Mastered.',[['Next lesson','calc']]]],
   [['Python',15,'Your next Python session in Shift Ready.',[['Shift Ready','app',SR]]],
    ['Communication',7,'The comms drill in Shift Ready. Say your answers out loud, not in your head.',[['Shift Ready','app',SR]]]],
-  [['GCSE science',15,'Your next GCSE Physics or Chemistry lesson in Critical, matching what you\'re doing in class this week. Seneca and Cognito are good for extra practice.',[['GCSE Physics','gp'],['GCSE Chemistry','gc'],['Seneca','url',SEN],['Cognito','url',COG]]],
-   ['Calculus drill',7,'Practice questions on your last Calculus lesson.',[['Practise','calcfu']]]],
-  [['Nuclear',15,'The fun one: the Theory track or the Control room.',[['Theory','theory'],['Control room','sim']]],
-   ['Communication',7,'The comms drill in Shift Ready.',[['Shift Ready','app',SR]]]],
-  [['GCSE maths',25,'25 minutes of mixed questions from a Maths Genie Edexcel paper, timed like an exam. Mark it, and add the topic of every question you dropped marks on to your list below.',[['Maths Genie','url',MG]],1],
-   ['GCSE science',15,'Exam-style questions on Thursday\'s topic: the follow-up and unit test in Critical, or Seneca.',[['GCSE Physics','gp'],['GCSE Chemistry','gc'],['Seneca','url',SEN]]],
+  [[A?'A-level science':'GCSE science',15,'Your next '+(A?'A-level':'GCSE')+' Physics or Chemistry lesson in Critical, matching what you\'re doing in class this week.'+(A?' Physics & Maths Tutor has exam questions on every topic.':' Seneca and Cognito are good for extra practice.'),sci.concat(A?[['Physics & Maths Tutor','url',PMT]]:[['Seneca','url',SEN],['Cognito','url',COG]])],
+   NUKE],
+  [['Nuclear theory',15,'Your next Theory lesson: how the station really works. Finished early? Run a shift in the Control room.',[['Theory','theory'],['Control room','sim']]],
+   ['Calculus practice',7,'Practice questions on your last Calculus lesson.',[['Practise','calcfu']]]],
+  [[A?'A-level maths':'GCSE maths',25,A?'Your next A-level Maths lesson, then exam questions on the same topic from Physics & Maths Tutor, timed. Add every topic you dropped marks on to your list below.':'25 minutes of mixed questions from a Maths Genie Edexcel paper, timed like an exam. Mark it, and add the topic of every question you dropped marks on to your list below.',A?[['A-level Maths','am'],['Physics & Maths Tutor','url',PMT]]:[['Maths Genie','url',MG]],1],
+   [A?'A-level science':'GCSE science',15,'Exam-style questions on Thursday\'s topic: the follow-up and unit test in Critical'+(A?', or Physics & Maths Tutor.':', or Seneca.'),sci.concat(A?[['Physics & Maths Tutor','url',PMT]]:[['Seneca','url',SEN]])],
    ['Aptitude',5,'One short timed set in Aptitude Gym.',[['Aptitude Gym','app',AG]]]],
-  [['Python',20,'Your next Python session in Shift Ready.',[['Shift Ready','app',SR]]],
-   ['Calculus',20,'Your next Calculus lesson.',[['Next lesson','calc']]],
-   ['Weekly review',5,'Look at your list below. Move the topic you\'re worst at to the top and practise it first next Saturday. Delete topics you\'ve fixed.',[],1]]];
+  [['Python',15,'Your next Python session in Shift Ready.',[['Shift Ready','app',SR]]],
+   ['Calculus',15,'Your next Calculus lesson.',[['Next lesson','calc']]],
+   ['Nuclear maths',10,'Your next Maths track lesson, or its practice if you haven\'t mastered the last one.',[['Nuclear maths','maths']]],
+   ['Weekly review',5,'Look at your list below. Move the topic you\'re worst at to the top and practise it first next Saturday. Delete topics you\'ve fixed.',[],1]]]}
+ var DG=WEEKOF('G'),DA=WEEKOF('A');function WEEK(){return alOpen()?DA:DG}
  var TUE_FIX=[['Fix my mistakes',15,'Monday\'s Fix my mistakes wasn\'t finished, so it gets the first 15 minutes today. Empty the pile early and you move straight on.',[['Fix my mistakes','fix']]],
-  ['Calculus',7,'A shorter Calculus slot today: carry on with your next lesson, or practise your last one if its drill isn\'t Mastered yet.',[['Next lesson','calc'],['Practise','calcfu']]]];
+  ['Nuclear maths',7,'A shorter slot today: your next Maths track lesson.',[['Nuclear maths','maths']]]];
  function pile(){try{return reviewPool(true).length}catch(_){return 0}}
  /* Tuesday's first 20 minutes become Fix my mistakes if Monday's pile wasn't emptied. Decided once on Tuesday, then kept for the week. */
  var ready=false;setTimeout(function(){ready=true},0);
  function carry(){var p=PS(),t=todayI();if(p.carry==null){if(t!==1||!ready)return false;p.carry=(!p.monClr&&!rvOn(0)&&pile()>0)?1:0;save()}return p.carry===1}
  /* every day starts with a warm-up and ends with Critical Clash (block[5] says which). On a school day you're asked, after the study part,
     if you want to keep going to 45 minutes: that adds a 10-minute bonus of the day's main subject and makes Clash 10 minutes. */
- function CORE(i){return i===1&&carry()?TUE_FIX:D[i]}
+ function CORE(i){return i===1&&carry()?TUE_FIX:WEEK()[i]}
  function WARM(i){return ['Warm-up',i<5?3:5,'Memory refresh: quick questions on things you learnt before, to get your brain going. When you finish them, your plan moves on by itself.',[['Warm up','warm']],0,'warm']}
  function CLASH(i,x){return ['Critical Clash',i<5&&!x?5:10,'Your reward for the plan: a match of Critical Clash 3D. Every kill is a question, so it still counts. When the time\'s up, finish your match and close the game.',[['Play Critical Clash','clash']],0,'clash']}
  function mainOf(c){return c.slice().sort(function(a,b){return b[1]-a[1]})[0]}
@@ -545,7 +561,7 @@ var PLAN=(function(){
  function isFix(b){return !!(b&&b[3]&&b[3][0]&&b[3][0][1]==='fix')}
  function mins(i){return [WARM(i)].concat(CORE(i),[CLASH(i,false)]).reduce(function(s,b){return s+b[1]},0)}
  function allMins(i){return DAY(i).reduce(function(s,b){return s+b[1]},0)}
- var TOTAL=D.reduce(function(s,_,i){return s+mins(i)},0);
+ var TOTAL=DG.reduce(function(s,_,i){return s+mins(i)},0);
  function wk(){var d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-((d.getDay()+6)%7));return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()}
  function PS(){if(!S.plan||typeof S.plan!=='object')S.plan={};var p=S.plan;if(p.wk!==wk()){p.wk=wk();p.t={};delete p.monClr;delete p.carry;delete p.fe;delete p.ext;delete p.qs;delete p.rvpin}if(!p.t||typeof p.t!=='object')p.t={};if(p.auto==null)p.auto=1;if(typeof p.topics!=='string')p.topics='';return p}
  function todayI(){return (new Date().getDay()+6)%7}
@@ -632,11 +648,11 @@ var PLAN=(function(){
   if(a[1]==='sim'){showPage('sim');return}
   if(a[1]==='fix'){var n=pile(),rr=runGet();if(n>0){showPage('review');startReview(true);return}
    if(rr&&isFix(DAY(rr.day)[rr.j])&&rr.day!==0){rr.ends=Date.now();rr.early=1;rr.clr=1;runSet(rr);showPage('review');loop();return}
-   if(todayI()===0||(rr&&rr.day===0)){if(rr&&rr.day===0&&isFix(DAY(0)[rr.j])){rr.gm=1;rr.t='GCSE maths';runSet(rr)}toastIn('Nothing to fix right now, so here\'s your next GCSE Maths lesson.');S.mode=S.gsub='gm';S.seenGcse=1;save();showPage('learn');runAction(nextAction('gm'));return}
+   if(todayI()===0||(rr&&rr.day===0)){if(rr&&rr.day===0&&isFix(DAY(0)[rr.j])){rr.gm=1;rr.t='GCSE maths';runSet(rr)}var amk=alOpen()?'am':'gm';toastIn('Nothing to fix right now, so here\'s your next '+(amk==='am'?'A-level':'GCSE')+' Maths lesson.');if(amk==='am'){S.mode=S.asub='am';S.seenAlevel=1}else{S.mode=S.gsub='gm';S.seenGcse=1}save();showPage('learn');runAction(nextAction(amk));return}
    showPage('review');toastIn('Nothing left to fix. Nice.');return}
   if(a[1]==='gp'||a[1]==='gc'||a[1]==='gm'||a[1]==='gcs'){S.mode=S.gsub=a[1];S.seenGcse=1;save();showPage('learn');runAction(nextAction(a[1]));return}
-  if(a[1]==='am'||a[1]==='ap'||a[1]==='ac'){S.mode=S.asub=a[1];S.seenAlevel=1;save();showPage('learn');runAction(nextAction(a[1]));return}
-  if(a[1]==='calc'||a[1]==='theory'){S.mode=a[1];if(a[1]==='calc')S.seenCalc=1;else S.seenTheory=1;save();showPage('learn');runAction(nextAction(a[1]));return}
+  if(a[1]==='am'||a[1]==='ap'||a[1]==='ac'){if(!alOpen()){showPage('learn');toastIn('A-level unlocks when GCSE is done.');return}S.mode=S.asub=a[1];S.seenAlevel=1;save();showPage('learn');runAction(nextAction(a[1]));return}
+  if(a[1]==='calc'||a[1]==='theory'||a[1]==='maths'){S.mode=a[1];if(a[1]==='calc')S.seenCalc=1;else if(a[1]==='theory')S.seenTheory=1;save();showPage('learn');runAction(nextAction(a[1]));return}
   if(a[1]==='calcfu'){S.mode='calc';S.seenCalc=1;save();showPage('learn');var id=null;allLessons('calc',0).forEach(function(x){var l=UNITS[x[0]].lessons[x[1]];if(S.done[l.id]&&FOLLOW[l.id])id=l.id});if(id)startFollow(id);else runAction(nextAction('calc'))}}
  /* ----- school-day timetable ----- */
  var DAYDEF=[['16:15','Home, snack and a break','home'],['16:45','Homework','study'],['17:30','Critical: today\'s plan','plan'],['18:00','Free time','free'],['19:00','Dinner','eat'],['19:45','Free time','free'],['21:30','Screens off and read','read'],['22:00','Sleep','sleep']];
@@ -793,7 +809,7 @@ var PLAN=(function(){
  function paint(){var p=PS(),t=todayI(),m=0;
   [].forEach.call(sh.querySelectorAll('.plseg button'),function(b){var on=b.dataset.v===view;b.classList.toggle('on',on);b.setAttribute('aria-selected',on)});
   $q('.plmain').hidden=view!=='plan';$q('.pldv').hidden=view!=='day';$q('.plhb').hidden=view!=='hab';$q('.pltv').hidden=view!=='tst';$q('.plhd b').textContent=view==='day'?'Your school day':view==='hab'?'Your habits':view==='tst'?'Your tests':'This week\'s plan';if(view==='day'){paintDay();return}if(view==='hab'){paintHab();return}if(view==='tst'){REV.paintTab($q('.pltv'),paint);return}
-  D.forEach(function(_,i){DAY(i).forEach(function(b,j){if(isDone(i,j))m+=b[1]})});
+  DG.forEach(function(_,i){DAY(i).forEach(function(b,j){if(isDone(i,j))m+=b[1]})});
   $q('[data-k=wk]').textContent=m+' / '+TOTAL+' min';$q('[data-k=bar]').style.width=Math.min(100,m/TOTAL*100)+'%';
   [].forEach.call(days.children,function(b,i){var rv=rvOn(i);b.className=(i===cur?'on':'')+(i===t?' td':'')+(dayDone(i)?' full':qsOn(i)?' quick':'')+(rv?' rv':'');b.title=(dayDone(i)?'Plan done':qsOn(i)?'2-minute start done: this day counts':'')+(rv?(dayDone(i)||qsOn(i)?' · ':'')+'Revision day':'');b.setAttribute('aria-selected',i===cur)});
   $q('[data-k=dn]').textContent=(cur===t?'Today, ':'')+DAYS[cur];$q('[data-k=dt]').textContent=allMins(cur)+' min · '+(rvOn(cur)?'revision day':cur<5?(extOn(cur)?'school day, stretched to 45':'school day'):'weekend');
@@ -816,7 +832,7 @@ var PLAN=(function(){
    var A0=R.querySelector('.placts'),d1=document.createElement('button');d1.type='button';d1.className='plgo';d1.textContent='Homework done → Critical';d1.onclick=hwDone;A0.appendChild(d1);
    var d3=document.createElement('button');d3.type='button';d3.className='plgo alt';d3.textContent='Homework timer';d3.onclick=function(){location.href='homework.html'};A0.appendChild(d3);
    var d2=document.createElement('button');d2.type='button';d2.className='plgo alt';d2.textContent='Cancel';d2.onclick=function(){hwSet(null);paintPill();paint();setTimeout(function(){try{focusSend(true)}catch(_){}},50)};A0.appendChild(d2);return}
-  if(r){var b=DAY(r.day)[r.j]||D[r.day][r.j],left=r.ends-Date.now();var isRv=b[5]==='rev';R.innerHTML='<p>'+(isRv?'Revision day: timer running':'Today\'s plan is running')+'</p><b>'+esc(r.t||b[0])+' · '+(left>0?fmtLeft(left)+' left':'time\'s up')+'</b><p>'+(isRv?'Do practice rounds on today\'s topics until the time\'s up. If you\'re in the middle of a round, you can finish it first.':'When the time is up you\'ll move to the next part. If you\'re in the middle of a lesson, you can finish it first. Done at least 1 lesson and not up for more? Press Finished early.')+'</p><div class="placts"></div>';
+  if(r){var b=DAY(r.day)[r.j]||WEEK()[r.day][r.j],left=r.ends-Date.now();var isRv=b[5]==='rev';R.innerHTML='<p>'+(isRv?'Revision day: timer running':'Today\'s plan is running')+'</p><b>'+esc(r.t||b[0])+' · '+(left>0?fmtLeft(left)+' left':'time\'s up')+'</b><p>'+(isRv?'Do practice rounds on today\'s topics until the time\'s up. If you\'re in the middle of a round, you can finish it first.':'When the time is up you\'ll move to the next part. If you\'re in the middle of a lesson, you can finish it first. Done at least 1 lesson and not up for more? Press Finished early.')+'</p><div class="placts"></div>';
    var A=R.querySelector('.placts'),x1=document.createElement('button');x1.type='button';x1.className='plgo';x1.textContent=isRv?'Open revision →':'Go to it →';x1.onclick=function(){var a=b[3][0];if(a)go(a,b[0],true);else close()};if(b[3].length)A.appendChild(x1);
    var x2=document.createElement('button');x2.type='button';x2.className='plgo alt';x2.textContent='Next part now';x2.onclick=function(){var rr=runGet();if(rr){rr.ends=Date.now();runSet(rr);loop();paint()}};if(!isRv)A.appendChild(x2);
    var x4=document.createElement('button');x4.type='button';x4.className='plgo alt';x4.textContent='Finished early';x4.onclick=function(){finishEarly()};if(!isRv)A.appendChild(x4);
@@ -922,7 +938,7 @@ var PLAN=(function(){
  function hwTick(){var h=hwGet();if(!h||h.done)return;var lf=h.end-Date.now();var el=$q('[data-k=hwt]');if(el)el.textContent=lf>0?fmtLeft(lf)+' left for Critical':'Critical time used up';
   if(lf<=0&&!h.warn&&!ban){h.warn=1;hwSet(h);showBan('<b>Your Critical time is used up.</b> Keep going with your homework: it comes first. Critical can wait until tomorrow.',[['OK',hideBan]])}}
  function loop(){if(Date.now()-(loop.sa||0)>300000){loop.sa=Date.now();try{habAuto()}catch(_){}}try{if(typeof REW!=='undefined')REW.planTick()}catch(e){if(window.console)console.error(e)}try{if(typeof SHIFT!=='undefined')SHIFT.tick(firstLeft(todayI())<0,busy())}catch(e){if(window.console)console.error(e)}try{hwTick()}catch(_){}try{focusSend()}catch(_){}var r=runGet();try{fixChk(r)}catch(e){if(window.console)console.error(e)}try{warmChk(r)}catch(e){if(window.console)console.error(e)}try{dayNudge()}catch(e){if(window.console)console.error(e)}if(view==='day'&&!editing&&sh.classList.contains('open')){var nm=nowMin();if(nm!==lastDayPaint){lastDayPaint=nm;paintDay()}}r=runGet();paintPill();if(!r){if(ban&&banT)hideBan();return}
-  var left=r.ends-Date.now();if(sh.classList.contains('open')&&cur===todayI()){var rb=$q('[data-k=run] b');if(rb)rb.textContent=(r.t||(DAY(r.day)[r.j]||D[r.day][r.j])[0])+' · '+(left>0?fmtLeft(left)+' left':'time\'s up')}
+  var left=r.ends-Date.now();if(sh.classList.contains('open')&&cur===todayI()){var rb=$q('[data-k=run] b');if(rb)rb.textContent=(r.t||(DAY(r.day)[r.j]||WEEK()[r.day][r.j])[0])+' · '+(left>0?fmtLeft(left)+' left':'time\'s up')}
   if(left>0){try{highChk(r,left)}catch(e){if(window.console)console.error(e)}return}
   if(busy()){if(!warned.b){warned.b=1;if(arenaOpen()){var lastB=hwNext(r.day,r.j)<0;try{if(window.CRIT_ARENA&&CRIT_ARENA.note)CRIT_ARENA.note(lastB?'⏰ That\'s today\'s plan done! Finish this match, then close Clash.':'⏰ Time\'s up for '+r.t+'. Finish this match and close Clash for the next part.')}catch(_){}}else toastIn('Time\'s up for '+r.t+'. Finish this lesson, then you\'ll move on.')}return}
   var key=r.day+'-'+r.j+'-'+r.ends;if(!ban&&upKey!==key){upKey=key;timeUp(r)}}
@@ -950,12 +966,12 @@ var PLAN=(function(){
  if(location.hash==='#early'){try{history.replaceState(null,'',location.pathname+location.search)}catch(_){}setTimeout(function(){try{finishEarly()}catch(_){}},700)}
  if(location.hash==='#tests'){try{history.replaceState(null,'',location.pathname+location.search)}catch(_){}setTimeout(function(){try{open('tst')}catch(_){}},400)}
  if(location.hash==='#home'){try{history.replaceState(null,'',location.pathname+location.search)}catch(_){}setTimeout(function(){try{homeAuto();open('day')}catch(_){}},400)}
- return {wkKey:wk,wkMins:function(){var m=0;D.forEach(function(_,i){DAY(i).forEach(function(b,j){if(isDone(i,j))m+=b[1]})});return m},schoolMins:function(){var m=0;for(var i=0;i<5;i++)m+=mins(i);return m},TOTAL:TOTAL,dayMins:function(){return mins(todayI())},fullInfo:function(){var t=todayI(),full=allTicked(t),h=hwGet(),ks=h&&h.alloc?Object.keys(h.alloc):[],hf=ks.length>0&&ks.every(function(j){return isDone(t,+j)});return {t:t,full:full||hf,mins:full?DAY(t).reduce(function(a,b,j){return a+(isDone(t,j)?b[1]:0)},0):hf?ks.reduce(function(a,j){return a+h.alloc[j]},0):0,early:feOn(t),quick:qsOn(t)}},early:finishEarly,qsOn:qsOn,markQuick:markQuick,afterLesson:afterLesson,feOn:feOn,undoEarly:undoEarly,hideBan:hideBan,isDone:isDone,next:function(){var t=todayI(),j=firstLeft(t);return j<0?null:DAY(t)[j]},leftMins:function(){return leftMins(todayI())},open:open,close:close,paint:paint,paintPill:paintPill,start:startRun,stop:stopRun,loop:loop,running:function(){return !!runGet()},todayLeft:function(){return firstLeft(todayI())>=0},D:D,DAY:DAY,pile:pile,TUE_FIX:TUE_FIX,rows:rows,nowRow:nowRow,sched:sched,home:homeGet,habits:HS,streak:streak,hw:hwGet,hwStart:startHw,hwDone:hwDone,focusStatus:focusStatus,focus:function(){return focusOk},rvOn:rvOn,runLeft:function(){var r=runGet();return r?r.ends-Date.now():null}};
+ return {wkKey:wk,wkMins:function(){var m=0;DG.forEach(function(_,i){DAY(i).forEach(function(b,j){if(isDone(i,j))m+=b[1]})});return m},schoolMins:function(){var m=0;for(var i=0;i<5;i++)m+=mins(i);return m},TOTAL:TOTAL,dayMins:function(){return mins(todayI())},fullInfo:function(){var t=todayI(),full=allTicked(t),h=hwGet(),ks=h&&h.alloc?Object.keys(h.alloc):[],hf=ks.length>0&&ks.every(function(j){return isDone(t,+j)});return {t:t,full:full||hf,mins:full?DAY(t).reduce(function(a,b,j){return a+(isDone(t,j)?b[1]:0)},0):hf?ks.reduce(function(a,j){return a+h.alloc[j]},0):0,early:feOn(t),quick:qsOn(t)}},early:finishEarly,qsOn:qsOn,markQuick:markQuick,afterLesson:afterLesson,feOn:feOn,undoEarly:undoEarly,hideBan:hideBan,isDone:isDone,next:function(){var t=todayI(),j=firstLeft(t);return j<0?null:DAY(t)[j]},leftMins:function(){return leftMins(todayI())},open:open,close:close,paint:paint,paintPill:paintPill,start:startRun,stop:stopRun,loop:loop,running:function(){return !!runGet()},todayLeft:function(){return firstLeft(todayI())>=0},get D(){return WEEK()},DAY:DAY,pile:pile,TUE_FIX:TUE_FIX,rows:rows,nowRow:nowRow,sched:sched,home:homeGet,habits:HS,streak:streak,hw:hwGet,hwStart:startHw,hwDone:hwDone,focusStatus:focusStatus,focus:function(){return focusOk},rvOn:rvOn,runLeft:function(){var r=runGet();return r?r.ends-Date.now():null}};
 })();
 try{window.PLAN=PLAN}catch(_){}
 /* ===== just one question: a tiny way into a study session ===== */
 var ONE=(function(){
- function trackFor(a){return a==='gp'||a==='gc'||a==='gm'||a==='gcs'||a==='am'||a==='ap'||a==='ac'||a==='theory'?a:(a==='calc'||a==='calcfu')?'calc':null}
+ function trackFor(a){return a==='gp'||a==='gc'||a==='gm'||a==='gcs'||a==='am'||a==='ap'||a==='ac'||a==='theory'||a==='maths'?a:(a==='calc'||a==='calcfu')?'calc':null}
  function pick(){var b=PLAN.next?PLAN.next():null,a=b&&b[3]&&b[3][0]?b[3][0][1]:null,tr=trackFor(a)||curMode(),c=null;
   if(a==='fix'){var pool=reviewPool(true).filter(function(x){return x.t==='Q'});if(pool.length)c=pool[Math.floor(Math.random()*pool.length)]}
   function from(test){var cs=[];UNITS.forEach(function(u,ui){if(!test(ui))return;u.lessons.forEach(function(l){if(!S.done[l.id])return;l.cards.forEach(function(x,ci){if(x.t==='Q'&&!S.wrong[l.id+'#'+ci])cs.push([x,l,u,ci])})})});return cs}
@@ -1098,7 +1114,7 @@ var SHIFT=(function(){
  function R(){if(!S.shift||typeof S.shift!=='object')S.shift={};var r=S.shift;if(!Array.isArray(r.notes))r.notes=[];return r}
  function on(){return R().off!==true}
  function set(v){R().off=!v;save()}
- function trackFor(a){return a==='gp'||a==='gc'||a==='gm'||a==='gcs'||a==='am'||a==='ap'||a==='ac'||a==='theory'?a:(a==='calc'||a==='calcfu')?'calc':null}
+ function trackFor(a){return a==='gp'||a==='gc'||a==='gm'||a==='gcs'||a==='am'||a==='ap'||a==='ac'||a==='theory'||a==='maths'?a:(a==='calc'||a==='calcfu')?'calc':null}
  function pickQ(){var t=(new Date().getDay()+6)%7,parts=PLAN.DAY(t),k=ymdL(),rnd=seedRand('shift'+k);
   for(var i=0;i<parts.length;i++){var acts=parts[i][3]||[];for(var j=0;j<acts.length;j++){var tr=trackFor(acts[j][1]);if(!tr)continue;var nl=nextLesson(tr);if(!nl)continue;var u=UNITS[nl[0]],l=u.lessons[nl[1]],qs=l.cards.filter(function(c){return c.t==='Q'&&c.o&&c.o.length});
     if(qs.length){var c=qs[Math.floor(rnd()*qs.length)];return {p:c.p,o:c.o,a:c.a,e:c.e||'',src:u.title+' · '+l.title,why:'You\'ll meet this in your next lesson.'}}}}
@@ -1111,20 +1127,4 @@ var SHIFT=(function(){
  function hm(ms){var d=new Date(ms),h=d.getHours(),m=d.getMinutes();return (h%12||12)+':'+(m<10?'0':'')+m+(h>=12?'pm':'am')}
  function brief(go){if(!on())return false;var r=R(),k=ymdL();if(r.d===k&&r.start)return false;
   var t=(new Date().getDay()+6)%7,parts=PLAN.DAY(t),q=pickQ(),last=r.notes.length?r.notes[r.notes.length-1]:null,dn=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'][t],tot=0;
-  var li=parts.map(function(b,j){tot+=b[1];return '<li>'+escH(b[0])+'<span>'+b[1]+' min</span></li>'}).join('');
-  var M=openMod('<p class="shk">Shift briefing · '+dn+' · '+hm(Date.now())+'</p><h2>Your shift is about to start</h2>'+
-   (last&&last.note?'<div class="shnote"><b>Handover note from your last shift</b> ('+escH(last.d)+'):<br>"'+escH(last.note)+'"</div>':'')+
-   '<p><b>Today\'s shift</b> · '+tot+' min</p><ul class="shparts">'+li+'</ul>'+
-   '<p><b>Your question for this shift</b></p><div class="shq">'+q.p+'<small>'+escH(q.why)+' ('+escH(q.src)+')</small></div>'+
-   '<p class="shex">At the end of the shift you\'ll get the chance to answer it.</p>'+
-   '<div class="shacts"><button type="button" class="wbtn pri" data-a="go">Start shift →</button><button type="button" class="skip" data-a="no">Not now</button></div>');
-  M.querySelector('[data-a=go]').onclick=function(){var rr=R();rr.d=k;rr.start=Date.now();rr.xp0=S.xp;rr.l0=lessonsToday();rr.q=q;rr.hd=null;save();closeMod();go()};
-  M.querySelector('[data-a=no]').onclick=closeMod;setTimeout(function(){try{M.querySelector('[data-a=go]').focus()}catch(_){}},30);return true}
- function tick(done,blocked){var r=R(),k=ymdL();if(!on()||r.d!==k||!r.start||r.hd===k||!done||blocked||mod)return;if(!r.wait){r.wait=Date.now();return}if(Date.now()-r.wait<1500)return;r.wait=0;handover()}
- function handover(){var r=R(),k=ymdL();r.hd=k;save();var mins=Math.max(1,Math.round((Date.now()-r.start)/60000)),xp=Math.max(0,S.xp-(r.xp0||S.xp)),ls=Math.max(0,lessonsToday()-(r.l0||0)),q=r.q,fe=PLAN.feOn&&PLAN.feOn();
-  var opts=q?shuffleSeed(q.o.map(function(o,i){return [o,i]}),'ho'+k):[];
-  var M=openMod('<p class="shk">Shift handover · '+hm(Date.now())+'</p><h2>'+(fe?'Shift finished early':'Shift complete')+'</h2>'+
-   '<div class="stats"><div class="stat"><p>On shift</p><b>'+mins+' min</b></div><div class="stat"><p>Lessons</p><b>'+ls+'</b></div><div class="stat"><p>XP earned</p><b>+'+xp+'</b></div></div>'+
-   (q?'<p><b>Can you answer your shift question now?</b></p><div class="shq">'+q.p+'</div><div data-k="opts">'+opts.map(function(o){return '<button type="button" class="shopt" data-i="'+o[1]+'">'+o[0]+'</button>'}).join('')+'</div><p class="shex" data-k="ex" hidden></p>':'')+
-   '<p style="margin-top:14px"><b>Handover note for your next shift</b></p><p class="shex">One line: what did you learn, or what should you pick up next time?</p><textarea class="shta" maxlength="200" placeholder="Functions take an input and give exactly one output"></textarea>'+
-   '<div class="shacts"><button type="button" class="wbtn pri" data-a="ok">Sign 
+  var li=parts.map(function(b,j){tot+=b[1];return '<li>'+escH(b[0])+'<span>'+b[1]+' mi
