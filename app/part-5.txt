@@ -1,4 +1,4 @@
-,`1300 ÷ 500 = 2.6 ppm per day.`),
+. How fast, in ppm per day?`,2.6,0.01,'ppm per day',`1300 ÷ 500 = 2.6 ppm per day.`),
 Q(`At the end of a fuel cycle, the boron concentration at full power is about…`,['0 ppm','1200 ppm','2000 ppm','it isn\'t used'],0,`Boron has been diluted away to compensate for fuel burnup.`),
 Q(`As plutonium-239 builds up, β…`,['falls','rises','stays the same'],0,`Pu-239 has a smaller delayed neutron fraction (about 0.21%) than U-235 (0.65%).`),
 Q(`Shutdown margin is calculated assuming…`,['the most reactive rod is stuck fully out','all rods insert perfectly','boron is zero','xenon is at its peak'],0,`It's a single-failure assumption: the reactor must still shut down even if one rod sticks.`)]);
@@ -986,4 +986,4 @@ T(`<h3>The magic property of e<sup>x</sup></h3><p>The graph of y = e<sup>x</sup>
 W('fnPlot',{x:[-2,3],y:[0,22],xl:'x',yl:'y',sl:[['a','Point x',-2,3,0.5,1,function(v){return v}]],curves:function(p){var y0=Math.exp(p.a);return [[function(x){return Math.exp(x)},'--accent',3],[function(x){return y0+y0*(x-p.a)},'--coral',2,[6,4]]]},read:function(p){var y=Math.exp(p.a);return 'At x = '+p.a+': height e<sup>x</sup> = <b>'+y.toFixed(2)+'</b>, gradient (dashed tangent) = <b>'+y.toFixed(2)+'</b>. The same!'}},`Move the point along y = e<sup>x</sup>. Compare the height with the gradient of the dashed tangent line.`),
 Q(`What is special about the graph of y = e<sup>x</sup>?`,[`Its gradient at every point equals its height`,'It\'s a straight line through the origin','It crosses the x-axis at exactly x = 0','Its gradient is always the same: 1 at every point'],0,`That's why e describes anything growing in proportion to its own size.`),
 N(`Use a calculator: what is e<sup>2</sup>, to 2 decimal places?`,7.39,0.005,'',`e² = 2.718 × 2.718 ≈ 7.39.`,`Use the e<sup>x</sup> button with x = 2.`),
-QE(`In P = P₀ e<sup>t/τ</sup>, what is P₀?`,[`The power at the start (t = 0)`,`The fina
+QE(`In P = P₀ e<sup>t/τ</sup>, what 

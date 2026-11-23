@@ -1,4 +1,4 @@
- rate; the solution gives the value.`),
+t to its graph at t = 0'],0,`The equation gives the rate; the solution gives the value.`),
 T(`<h3>The same equation, different physics</h3><p>"Rate proportional to amount" turns up everywhere:</p><ul><li>Neutron population with constant reactivity: dn/dt = n/τ → n = n₀ e<sup>t/τ</sup></li><li>Boron feed and bleed: dC/dt = −(Q/V)C → C = C₀ e<sup>−(Q/V)t</sup> (Level 3)</li><li>Cooling of a hot object (Newton's law of cooling): d(T − T<sub>env</sub>)/dt = −k(T − T<sub>env</sub>)</li></ul>`),
 N(`dy/dt = −0.2y with y(0) = 50. What is y at t = 5? (e<sup>−1</sup> = 0.368)`,18.4,0.01,'',`y = 50 e<sup>−0.2 × 5</sup> = 50 e<sup>−1</sup> = 50 × 0.368 = 18.4.`),
 QE(`What is ∫ e<sup>kx</sup> dx?`,[`(1/k) e<sup>kx</sup> + C`,`k e<sup>kx</sup> + C`,`(1/x) ekx + C`,`(1/k²) ekx + C`],0,`Level 2.`),
@@ -671,5 +671,4 @@ F('t5-5-3',[T(`<h3>Quick recap</h3><p>D–T 17.6 MeV; Lawson criterion.</p>`),Q(
 TT('t5-5',[x('t5-5-1',N(`Product 5.211%, tails 0.211%, feed 0.711%. F/P?`,10,0.01,'',`5/0.5.`)),x('t5-5-1',Q(`HPC spent fuel is planned to be…`,[`stored then disposed of directly`,`reprocessed at THORP`,`dumped at sea`,`burned in a fast reactor next year`],0,`GDF.`)),x('t5-5-2',Q(`Which Gen IV system uses water above its critical point?`,[`SCWR`,`MSR`,`LFR`,`VHTR`],0,`Supercritical.`)),x('t5-5-2',Q(`SMRs aim to cut cost by…`,[`factory-built modules and repetition`,`removing safety systems`,`using no fuel`,`being larger`],0,`Modular.`)),x('t5-5-3',N(`Mass lost 0.0189 u. Energy in MeV? (931.5 MeV/u)`,17.6,0.02,'MeV',`× 931.5.`)),x('t5-5-3',Q(`JET's record was…`,[`69 MJ of fusion energy`,`1 GW for a year`,`ignition`,`zero`],0,`Before closing in 2023.`))]);
 
 /* >>> new content: mt >>> */
-/* ========== LEVEL 6 · MATHS (Specialist: master's level) ========== */
-U({id:'m6-1',track:'maths',level:6,title:'Ne
+/* ========== LEVEL 6 · MATHS (Specialist: master's level) =======

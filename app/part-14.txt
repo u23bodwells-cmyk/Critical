@@ -1,4 +1,42 @@
-3},`Capacitor discharge. Get 3 right to master it.`,`Q₀e<sup>−t/RC</sup>.`),
+tal force for the Moon orbiting Earth?`,[`Gravity`,`Friction`,`Tension`,`Air resistance`],0,`A real force must provide it.`),
+T(`<h3>Key points</h3><ul><li><b>ω = 2πf = v/r</b>.</li><li><b>a = v²/r</b>, towards the centre.</li><li>A real force (gravity, tension, friction) provides it.</li></ul>`)]),
+LH('ap3-1-2','Simple harmonic motion',11,'Springs, pendulums and atoms in solids all oscillate the same way.',[
+RM(`<p>Circular motion: ω = 2πf. sin and cos graphs. Hooke's law F = −kx.</p>`),
+T(`<h3>The definition</h3><div class="eq">a = −ω²x</div><p>Acceleration is proportional to displacement and <b>opposite</b> to it. Solution: x = A cos(ωt). Maximum speed ωA at the centre; maximum acceleration ω²A at the ends.</p>`),
+T(`<h3>Periods</h3><div class="eq">spring: T = 2π√(m/k)&nbsp;&nbsp; pendulum: T = 2π√(l/g)</div><p>Neither depends on amplitude (for small pendulum swings): that's why pendulum clocks work.</p>`),
+W('calcDrill',{skill:'p_shm',need:3},`SHM periods. Get 3 right to master it.`,`2π√(m/k) or 2π√(l/g).`),
+T(`<h3>Damping and resonance</h3><p>Damping removes energy, shrinking the amplitude. A forced oscillator driven at its <b>natural frequency</b> <b>resonates</b>: large amplitude. Useful in instruments and MRI; dangerous in bridges and machinery.</p>`),
+Q(`Resonance happens when the driving frequency…`,[`equals the natural frequency`,`is zero`,`is double the natural frequency`,`is very large`],0,`Energy transfer is most efficient.`),
+T(`<h3>Key points</h3><ul><li>SHM: <b>a = −ω²x</b>.</li><li><b>T = 2π√(m/k)</b>, <b>T = 2π√(l/g)</b>.</li><li>Damping and resonance.</li></ul>`)]),
+LH('ap3-1-3','Thermal physics and ideal gases',11,'Heat capacity, latent heat, the gas laws and the kinetic theory behind them.',[
+RM(`<p>Q = mcΔT. Q = mL for a change of state. Temperature in kelvin: T = θ + 273.</p>`),
+T(`<h3>The ideal gas equation</h3><div class="eq">pV = nRT = NkT</div><p>Absolute zero (0 K) is where an ideal gas's pressure would reach zero. Always use <b>kelvin</b>.</p>`),
+W('calcDrill',{skill:'p_gas',need:2},`Ideal gas pressure. Get 2 right to master it.`,`p = nRT/V.`),
+T(`<h3>Kinetic theory</h3><div class="eq">pV = ⅓Nm(c<sub>rms</sub>)²&nbsp;&nbsp;&nbsp; average KE of a molecule = (3/2)kT</div><p>Temperature measures the average kinetic energy of the molecules. Assumptions include: elastic collisions, negligible molecule volume, no forces between collisions.</p>`),
+Q(`Doubling the kelvin temperature of a gas doubles its molecules'…`,[`average kinetic energy`,`speed`,`mass`,`number`],0,`KE = (3/2)kT. (Speed rises by √2.)`),
+T(`<h3>Key points</h3><ul><li><b>pV = nRT</b>, in kelvin.</li><li>Average molecular KE = <b>(3/2)kT</b>.</li><li>Q = mcΔT and Q = mL.</li></ul>`)])
+]});
+
+U({id:'ap3-2',track:'ap',level:3,title:'Fields and capacitors',icon:'g E',color:'#1D9E75',desc:'Gravitational fields and orbits, electric fields, and charging and discharging capacitors.',lessons:[
+LH('ap3-2-1','Gravitational fields',11,'Newton\'s law of gravitation, field strength, potential and orbits.',[
+RM(`<p>Circular motion: F = mv²/r. Inverse square laws: double the distance, a quarter of the effect.</p>`),
+T(`<h3>The laws</h3><div class="eq">F = GMm/r²&nbsp;&nbsp;&nbsp; g = GM/r²&nbsp;&nbsp;&nbsp; V = −GM/r</div><p>Gravitational <b>potential</b> V is the work per kg to bring a mass from infinity; it's negative and zero at infinity. g = −dV/dr.</p>`),
+W('calcDrill',{skill:'p_gheight',need:3},`g at a distance. Get 3 right to master it.`,`g ∝ 1/r².`),
+T(`<h3>Orbits</h3><p>Gravity provides the centripetal force: GMm/r² = mv²/r gives v = √(GM/r), and <b>T² ∝ r³</b> (Kepler's third law). A <b>geostationary</b> satellite orbits once per day above the equator, at about 36,000 km altitude.</p>`),
+Q(`A geostationary satellite has a period of…`,[`24 hours`,`90 minutes`,`1 year`,`12 hours`],0,`It stays above one point.`),
+T(`<h3>Key points</h3><ul><li><b>F = GMm/r²</b>, <b>g = GM/r²</b>, <b>V = −GM/r</b>.</li><li>Orbits: <b>v = √(GM/r)</b>, <b>T² ∝ r³</b>.</li><li>Geostationary: 24 h period.</li></ul>`)]),
+LH('ap3-2-2','Electric fields',10,'Coulomb\'s law mirrors gravity, except charges can repel.',[
+RM(`<p>Gravitational fields: F = GMm/r². Like charges repel; unlike attract.</p>`),
+T(`<h3>Coulomb's law</h3><div class="eq">F = Q₁Q₂/(4πε₀r²) = kQ₁Q₂/r²</div><p>k = 8.99 × 10⁹ N m² C⁻². Field strength E = F/Q. Between parallel plates the field is uniform: <b>E = V/d</b>.</p>`),
+W('calcDrill',{skill:'p_coulomb',need:3},`Coulomb's law. Get 3 right to master it.`,`kQ₁Q₂/r².`),
+T(`<h3>Compared with gravity</h3><ul><li>Both inverse-square.</li><li>Gravity always attracts; electric forces can repel.</li><li>Electric forces are vastly stronger: between two protons, about 10³⁶ times gravity.</li></ul>`),
+Q(`Uniform field between plates 2 cm apart at 500 V. E = …`,[`25,000 V/m`,`250 V/m`,`10 V/m`,`1000 V/m`],0,`500/0.02.`),
+T(`<h3>Key points</h3><ul><li><b>F = kQ₁Q₂/r²</b>.</li><li>Parallel plates: <b>E = V/d</b>.</li><li>Like gravity, but can repel and is far stronger.</li></ul>`)]),
+LH('ap3-2-3','Capacitors',11,'Store charge, then release it exponentially through a resistor.',[
+RM(`<p>Exponential decay: N = N₀e<sup>−λt</sup> (Calculus Level 5). V = IR.</p>`),
+T(`<h3>Capacitance</h3><div class="eq">C = Q/V&nbsp;&nbsp;&nbsp; energy E = ½QV = ½CV²</div><p>Energy is the area under a Q–V graph.</p>`),
+T(`<h3>Discharging</h3><p>Through a resistor R, the current depends on the charge left, so it's exponential:</p><div class="eq">Q = Q₀e<sup>−t/RC</sup></div><p>The <b>time constant</b> RC is the time to fall to 37% (1/e). It's the same differential equation as radioactive decay.</p>`),
+W('calcDrill',{skill:'p_cap',need:3},`Capacitor discharge. Get 3 right to master it.`,`Q₀e<sup>−t/RC</sup>.`),
 N(`R = 10 kΩ, C = 470 μF. Time constant in seconds? (1 d.p.)`,4.7,0.001,'s',`10⁴ × 4.7 × 10⁻⁴.`),
 T(`<h3>Key points</h3><ul><li><b>C = Q/V</b>, <b>E = ½CV²</b>.</li><li>Discharge: <b>Q = Q₀e<sup>−t/RC</sup></b>.</li><li>Time constant <b>RC</b>: falls to 37%.</li></ul>`)])
 ]});
@@ -1007,22 +1045,3 @@ function NSIM(w,h,rnd){
    var pr=mode==='trip'||mode==='feedback'?fx(n*100,1)+'%':sci(n,2)+' × full';st.p.textContent=pr;st.t.textContent=!isFinite(tp)||Math.abs(tp)>1e4?'steady (∞)':fx(tp,tp<1?3:1)+' s';st.s.textContent=fx(sur,2)+' DPM';
    panel(c,60,40,nb?150:178,mode==='feedback'||mode==='burst'?46:32);hud(c,68,55,'ρ = '+(rho>0?'+':'')+Math.round(rho)+' pcm  ('+(rho/650).toFixed(2)+' $)',rho>650?'#ff6a5a':'#ffd65a',nb?9:10,'left',true);hud(c,68,69,mode==='feedback'||mode==='burst'?'fuel '+Math.round(T)+' °C · feedback '+Math.round(-3*(T-T0))+' pcm':'','rgba(200,225,255,.85)',8.5,'left');
    if(par.goal==='sur'){var gw=nb?110:150;c.fillStyle='rgba(255,255,255,.1)';c.fillRect(W-gw-20,40,gw,5);c.fillStyle=ok?'#8dff9a':'#3ad4ff';c.fillRect(W-gw-20,40,gw*Math.min(1,ok?1:held/8),5);hud(c,W-20,56,ok?'HELD':'HOLD '+(par.target||1)+' DPM','rgba(200,225,255,.85)',8.5,'right',true)}
-   if(mode==='burst'&&n>5e3)init(1e-4);if((mode==='period'||mode==='jump')&&n>5){init(1e-6);rho=0;if(rs)rs.set(0)}if(mode==='ni'&&n>1.5){init(1e-9);rho=0}});
-  if(!par.goal)return {};return {check:function(){if(par.goal==='sur')return ok?{ok:true,head:'Steady startup rate!'}:{ok:false,msg:'Add about +'+((par.target||1)>=1?160:105)+' pcm and give it a minute to settle. Then fine-tune to hold the startup rate near '+(par.target||1)+' DPM until the bar fills.'};if(par.goal==='trip')return tripped?{ok:true}:{ok:false,msg:'Press "Trip the reactor" and watch the prompt drop.'};if(par.goal==='prompt')return rho>650?{ok:true,head:'Prompt critical!',msg:'Above 1 dollar the prompt neutrons alone keep it growing, so power shoots up in milliseconds. Only fuel heating (Doppler) stops it.'}:{ok:false,msg:'Push reactivity above 650 pcm (1 dollar) and watch the time scale.'};if(par.goal==='shut')return shut>=0?{ok:true}:{ok:false,msg:'Shut the reactor down and watch the xenon.'};return moved?{ok:true}:{ok:false,msg:'Try a control first.'}}}};
- /* ===== thermo lab: saturation, the pressuriser, a fuel pin, a boiling channel, heating water, fuel heat-up ===== */
- var SATT=[[0,.0061],[20,.0234],[50,.1235],[80,.4739],[100,1.0142],[120,1.985],[150,4.76],[180,10.03],[212.4,20],[250.4,40],[285.8,70],[311,100],[324.7,120],[344.8,155],[347.4,160],[354.7,175],[357,180],[374,220.6]];function tsat(P){var l=Math.log(Math.max(.0062,Math.min(220,P)));for(var i=1;i<SATT.length;i++){var a=Math.log(SATT[i-1][1]),b=Math.log(SATT[i][1]);if(l<=b)return SATT[i-1][0]+(SATT[i][0]-SATT[i-1][0])*(l-a)/(b-a)}return 374}function psat(T){T=Math.max(0,Math.min(374,T));for(var i=1;i<SATT.length;i++){if(T<=SATT[i][0]){var u=(T-SATT[i-1][0])/(SATT[i][0]-SATT[i-1][0]);return Math.exp(Math.log(SATT[i-1][1])+u*(Math.log(SATT[i][1])-Math.log(SATT[i-1][1])))}}return 220.6}
- function hot(u){u=Math.max(0,Math.min(1,u));var s=[[0,[30,60,160]],[.3,[40,170,230]],[.55,[255,214,90]],[.8,[255,120,50]],[1,[255,255,230]]];for(var k=1;k<s.length;k++)if(u<=s[k][0]){var a=s[k-1],b=s[k],f=(u-a[0])/(b[0]-a[0]);return [a[1][0]+(b[1][0]-a[1][0])*f|0,a[1][1]+(b[1][1]-a[1][1])*f|0,a[1][2]+(b[1][2]-a[1][2])*f|0]}return s[4][1]}
- WIDGETS.thermoLab=function(box,par){par=par||{};var mode=par.mode||'sat',P=par.P!=null?par.P:mode==='pzr'?155:1,pow=par.pow!=null?par.pow:50,T=par.T0!=null?par.T0:mode==='sat'?20:290,lvl=60,mol=[],bub=[],tt=0,ql=par.q||20,flow=100,prs=[],hold=0,done=false,heat=0,spray=0,surge=0,E=0,mass=par.m||1,moved=0;
-  var scr=screen(box,par.h||300,320),st;
-  if(mode==='sat'){slider(box,'Pressure',1,160,1,P,function(v){return v+' bar'},function(v){P=v;moved++});slider(box,'Heater',0,100,1,pow,function(v){return v+'%'},function(v){pow=v;moved++});var r=row(box);btn(r,'Cool it down',function(){T=20;lvl=60;moved++});st=stats(box,[['t','Water temperature'],['s','Boiling point at this pressure'],['m','Subcooling margin']])}
-  if(mode==='pzr'){slider(box,'Heaters',0,100,1,20,function(v){return v+'%'},function(v){heat=v/100;moved++});slider(box,'Spray',0,100,1,0,function(v){return v+'%'},function(v){spray=v/100;moved++});var r2=row(box);btn(r2,'Insurge (plant heats up)',function(){surge=1;moved++});btn(r2,'Outsurge (plant cools)',function(){surge=-1;moved++});heat=.2;st=stats(box,[['p','Pressure'],['l','Level'],['t','Temperature']])}
-  if(mode==='pin'){slider(box,'Linear heat rate',0,75,.5,ql,function(v){return v+' kW/m'},function(v){ql=v;moved++});slider(box,'Coolant flow',20,120,1,flow,function(v){return v+'%'},function(v){flow=v;moved++});st=stats(box,[['c','Pellet centre'],['s','Cladding surface'],['m','Margin to melting']])}
-  if(mode==='channel'){slider(box,'Power',20,150,1,100,function(v){return v+'%'},function(v){pow=v;moved++});slider(box,'Flow',30,120,1,100,function(v){return v+'%'},function(v){flow=v;moved++});slider(box,'Pressure',60,160,1,155,function(v){return v+' bar'},function(v){P=v;moved++});pow=100;P=155;st=stats(box,[['d','DNBR (must stay above 1.3)'],['o','Coolant out'],['b','Boiling']])}
-  if(mode==='heat'){var big=!!par.big;slider(box,big?'Water':'Mass of water',big?10:.2,big?500:5,big?10:.1,big?(par.m||100):mass,function(v){return big?v+' tonnes':v+' kg'},function(v){mass=v;E=0;moved++});slider(box,big?'Decay heat':'Heater power',big?1:.5,big?60:5,big?1:.5,big?(par.pw||20):2,function(v){return big?v+' MW':v+' kW'},function(v){pow=v;moved++});if(big)mass=par.m||100;pow=big?(par.pw||20):2;var r3=row(box);btn(r3,'Start again',function(){E=0;moved++});st=stats(box,[['t','Temperature'],['b','Time to boil'],['a','Time to boil it all away']])}
-  if(mode==='adiabatic'){slider(box,'Cooling lost after the trip',10,3600,10,par.tl||60,function(v){return v<120?v+' s':Math.round(v/60)+' min'},function(v){par.tl=v;E=0;moved++});st=stats(box,[['a','Reaches 1,200 °C'],['b','Reaches 2,800 °C (melts)']])}
-  for(var i=0;i<60;i++)mol.push({x:Math.random(),y:Math.random(),a:Math.random()*6.283});
-  run(scr,function(dt,tm){var c=scr.c,W=scr.W,H=scr.H,nb=narrow(),wide=W>=620,sd=dt/1000*(calm()?.5:1);tt+=dt;bgf(c,W,H);
-   if(mode==='sat'||mode==='pzr'){var Ts=tsat(P);
-    if(mode==='sat'){T+=sd*pow*.06*(T<Ts-.3?1:0);if(T>Ts)T+= (Ts-T)*Math.min(1,sd*3);var boiling=T>=Ts-.5&&pow>0;if(boiling)lvl=Math.max(15,lvl-sd*pow*.004)}
-    else{var dP=(heat*1.2-spray*2-.2)+surge*2.5;if(surge)surge*=Math.pow(.6,sd);if(Math.abs(surge)<.01)surge=0;P+=dP*sd;P=Math.max(120,Math.min(175,P));lvl=Math.max(20,Math.min(90,lvl+surge*sd*4));T=tsat(P);prs.push([tt/1000,P,lvl]);if(prs.length>500)prs.shift();if(par.goal&&!done){if(Math.abs(P-155)<2&&tt>3000&&moved)hold+=sd;else hold=Math.max(0,hold-sd);if(hold>8)done=true}}
-    band(c,W,mode==='sat'?'BOILING AND SATURAT

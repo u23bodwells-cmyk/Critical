@@ -1,4 +1,4 @@
-U-235 fission σ'],['c','U-238 capture σ']]);
+MeV'},function(){draw()}),st=stats(box,[['f','U-235 fission σ'],['c','U-238 capture σ']]);
  function sf(E){var s=585*Math.sqrt(0.0253/E);[[0.29,90],[1.14,50],[8.8,60],[19.3,40]].forEach(function(r){s+=r[1]/(1+Math.pow((E-r[0])/(0.04*r[0]),2))});return Math.max(s,1.2)}
  function sc(E){var s=2.7*Math.sqrt(0.0253/E);RS.forEach(function(r){var w=0.012*r[0];s+=r[1]/(1+Math.pow((E-r[0])/w,2))});return Math.max(s,E>1e4?0.08:0.2)}
  var xs=[];for(var i=0;i<=900;i++)xs.push(Math.pow(10,-3+10*i/900));RS.forEach(function(r){for(var j=-30;j<=30;j++)xs.push(r[0]*(1+j*0.004))});xs.sort(function(a,b){return a-b});
@@ -848,7 +848,7 @@ function xeTrip(t){var li=Math.LN2/6.57,lx=Math.LN2/9.14,A=4.7*lx;return Math.ex
  /* resume */
  function resume(r){
   if(r.mode==='follow'){startFollow(r.fid);if(!P)return clearSnap();if(r.keys){var by={};P.cards.forEach(function(c){by[c._key]=c});var ord=r.keys.map(function(k){return by[k]}).filter(Boolean);if(ord.length===P.cards.length)P.cards=ord}}
-  else{var u=UNITS[r.ui],l=u&&u.lessons[r.li];if(!l||l.title!==r.title)return clearSnap();P={mode:'lesson',ui:r.ui,li:r.li,cards:l.cards,i:0,xp:0,right:0,asked:0,title:l.title,color:u.color,unit:u.title,combo:0,best:0,cbonus:0,mistakes:0,fixed:0,newBadges:[],levelUp:null};openPlayer()}
+  else{var u=UNITS[r.ui],l=u&&u.lessons[r.li];if(!l||l.title!==r.title)return clearSnap();P={mode:'lesson',ui:r.ui,li:r.li,cards:playCards(l),i:0,xp:0,right:0,asked:0,title:l.title,color:u.color,unit:u.title,combo:0,best:0,cbonus:0,mistakes:0,fixed:0,newBadges:[],levelUp:null};openPlayer()}
   if(!P)return;['xp','right','asked','combo','best','cbonus','mistakes','fixed'].forEach(function(k){if(typeof r[k]==='number')P[k]=r[k]});
   P.i=Math.max(0,Math.min(r.i,P.cards.length-1));showCard()}
  var css=document.createElement('style');css.textContent='.resumebar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--accent-bg,var(--soft));border:2px solid var(--accent);border-radius:16px;padding:12px 14px;margin:0 0 14px}.resumebar .rt{flex:1 1 100%;font-size:15px}.resumebar .rt b{display:block;font-size:16px}.resumebar button{font:inherit;font-weight:700;border-radius:12px;padding:9px 14px;cursor:pointer}.resumebar .rgo{background:var(--accent);color:var(--on-accent);border:0}.resumebar .rno{background:none;border:1px solid var(--line);color:var(--muted)}';document.head.appendChild(css);
@@ -1212,5 +1212,4 @@ var STUDY=(function(){
   R.innerHTML=h;var lb=R.querySelector('[data-a=link]');if(lb)lb.onclick=function(){linkState==='lost'?writeFile(true):link()}}
  /* autosave: while the timer runs, the session so far is saved every minute, so a crash, a closed tab or a sync can't lose it */
  var lastM=-1;
- function liveIdx(){if(!st.run||!st.run.c)return -1;for(var i=0;i<st.sessions.length;i++)if(st.sessions[i]&&st.sessions[i].c===st.run.c)return i;return -1}
- function liv
+ function liveIdx(){if(!st.run||!st.run.c)return -1;for(var i=0;i<st.sessions.length;i++)if(st.sessions[i]&&st.session
