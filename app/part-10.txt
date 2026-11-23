@@ -1,4 +1,6 @@
- to master it.`,`Cover each column in turn.`),
+`),
+Q(`i × j = …`,[`k`,`−k`,`0`,`i + j`],0,`Right-hand rule.`),
+W('calcDrill',{skill:'vcross',need:2},`Cross products. Get 2 right to master it.`,`Cover each column in turn.`),
 T(`<h3>Lines</h3><p>A line through point a with direction d: <b>r = a + td</b>. As t varies, r slides along the line.</p>`),
 T(`<h3>Planes</h3><p>A plane is set by a point r₀ on it and a <b>normal</b> n sticking straight out of it. Every vector lying in the plane is perpendicular to n:</p><div class="eq">n · (r − r₀) = 0 &nbsp;⟺&nbsp; ax + by + cz = d</div><p>where n = ⟨a, b, c⟩ and d = n · r₀. To find a normal from two directions in the plane, use their cross product.</p>`),
 W('calcDrill',{skill:'plane',need:2},`Equations of planes. Get 2 right to master it.`,`d = n · (point).`),
@@ -849,5 +851,4 @@ TT('gp2-4',[x('gp2-4-1',GN('g_isotope')),x('gp2-4-2',GN('g_decay')),x('gp2-4-2',
 U({id:'gc2-1',track:'gc',level:2,title:'Atoms and the periodic table',icon:'Na',color:'#1D9E75',desc:'Elements, compounds and mixtures, separating mixtures, atomic structure, electronic structure, the periodic table and groups 0, 1 and 7.',lessons:[
 LH('gc2-1-1','Elements, compounds and mixtures',9,'What everything is made of, and the five ways chemists separate mixtures.',[
 T(`<h3>The three kinds of stuff</h3><ul><li>An <b>element</b> is made of only one type of atom. There are about 100, shown in the periodic table.</li><li>A <b>compound</b> is two or more elements <b>chemically combined</b> in fixed proportions, like water, H₂O. You need a chemical reaction to separate them.</li><li>A <b>mixture</b> is two or more substances <b>not</b> chemically combined, like air or salty water. Each keeps its own properties, and you can separate them physically.</li></ul>`),
-W('sortIt',{bins:['Element','Compound','Mixture'],items:[['Oxygen, O₂',0],['Iron',0],['Water, H₂O',1],['Carbon dioxide, CO₂',1],['Sodium chloride, NaCl',1],['Air',2],['Sea water',2],['Crude oil',2]]},`Element, compound or mixture?`,`O₂ is still an element: both atoms are oxygen.`),
-T(`<h3>Separating mixtures</h3><ul><li><b>Filtration</b>: an insolub
+W('sortIt',{bins:['Element','Compound','Mixture'],items:[['Oxygen, O₂',0],['Iron',0],['Water, H₂O',1],['Carbon dioxide, CO₂',1],['Sodium chloride, NaCl',1],['Air',2],['Sea water',2],['Crude oil',2]]},`Element, compound or

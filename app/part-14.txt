@@ -1,4 +1,5 @@
- mv. Momentum is conserved in a closed system.</p>`),
+,11,'Force is the rate of change of momentum. That one idea covers collisions, rockets and impulse.',[
+RM(`<p>F = ma. Momentum p = mv. Momentum is conserved in a closed system.</p>`),
 T(`<h3>Newton's second law, properly</h3><div class="eq">F = Δ(mv)/Δt</div><p><b>Impulse</b> FΔt = change in momentum = the area under a force–time graph. Airbags and crumple zones increase Δt to reduce F.</p>`),
 W('calcDrill',{skill:'g_impulse',need:2},`Impulse. Get 2 right to master it.`,`FΔt = Δp.`),
 T(`<h3>Collisions</h3><ul><li>Momentum is <b>always</b> conserved (no external forces).</li><li><b>Elastic</b>: kinetic energy also conserved. <b>Inelastic</b>: some KE becomes heat and sound.</li></ul>`),
@@ -1071,4 +1072,3 @@ function NSIM(w,h,rnd){
      for(var q=0;q<fis.nn;q++){var a=q*2.1+.6,nx3=cx+Math.cos(a)*d*1.4,ny3=cy+Math.sin(a)*d*1.4;glow(c,nx3,ny3,9,CY,.8);ball(c,nx3,ny3,3.5,CY)}if(u>3200){fis.t=-1;fis.pair=null}}
     var hx=wide?W*.6:46,hy=wide?40:H*.66,Cy=chart(c,hx,hy,W-hx-12,wide?H-80:H-hy-30,{x:[70,160],y:[0,Math.max(3,Math.max.apply(null,yields)*1.2)],ny:2,title:'FRAGMENT SIZES (MASS NUMBER)'});yields.forEach(function(v,i){c.fillStyle='rgba(255,170,80,.6)';c.fillRect(Cy.X(70+i*3)+1,Cy.Y(v),Cy.X(73)-Cy.X(70)-2,Cy.Y(0)-Cy.Y(v))});
     if(st){st.k.textContent='≈ 168 MeV';st.n.textContent=fis.nn?fis.nn+' (average 2.4)':'2 or 3';st.f.textContent=nFis}return}
-   if(mode==='fusion'){band(c,W,'FUSION · D + T → He-4 + n','17.6 MeV each');var cx2=W/2,cy2=H*.45,prob=Math.min(1,Math.pow(fz.T/1
