@@ -1,4 +1,4 @@
-bfa','#22d3ee','#e0e7ff']],title:'Physics Phenom'},
+field','#7c3aed','#22d3ee'],fx:['Wave rings','ring',['#a78bfa','#22d3ee','#e0e7ff']],title:'Physics Phenom'},
   {k:'gc',n:'Chemistry',ic:'🧪',tr:['gc'],skin:['Flame test','#f97316','#a855f7'],fx:['Bubbling beaker','bubble',['#22c55e','#a3e635','#d9f99d']],title:'Chemistry Wizard'},
   {k:'gcs',n:'Computer Science',ic:'💻',tr:['gcs'],skin:['Terminal','#22c55e','#0ea5e9'],fx:['Binary burst','digit',['#22c55e','#86efac','#0ea5e9'],'01'],title:'Code Commander'},
   {k:'nuc',n:'Operator',ic:'☢️',tr:['maths','theory','calc'],skin:['Criticality','#3ad4ff','#f5a524'],fx:['Neutron storm','chain',['#3ad4ff','#a5f3fc','#f5a524']],title:'Reactor Royalty'}];

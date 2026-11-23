@@ -1,4 +1,4 @@
-°C per hour (see unit 9).`)]),
+8 °C per hour. Heat-up rate limits are typically about 55 °C per hour (see unit 9).`)]),
 L('t2','Boiling and saturation',12,[
 T(`<h3>Boiling depends on pressure</h3><p>Water boils at 100 °C only at atmospheric pressure. The boiling point at any pressure is the <b>saturation temperature</b>, T<sub>sat</sub>.</p><table><tr><th>Pressure</th><th>T<sub>sat</sub></th></tr><tr><td>1 bar</td><td>100 °C</td></tr><tr><td>70 bar (typical steam generator)</td><td>about 286 °C</td></tr><tr><td>155 bar (PWR primary)</td><td>about 345 °C</td></tr></table><p>That's why a PWR is pressurised: so its water stays liquid at about 325 °C.</p>`),
 W('satCurve',{},`Move the pressure slider to find the pressure at which water boils at <b>300 °C</b>.`,`About 86 bar. Pressure and saturation temperature always go together: control one and you've set the other.`),
@@ -763,5 +763,4 @@ N(`What startup rate does a −80 s period correspond to? Include the sign.`,-0.
 Q(`After a trip, source range counts keep falling slowly for minutes because…`,['long-lived delayed neutron precursors are still decaying','the rods are still moving','xenon is burning out','boron is being added'],0,`The 55 s group keeps feeding neutrons in, setting the −80 s period.`)]);
 
 F('k5',[
-T(`<h3>Quick recap</h3><ul><li>Decay heat: about <b>6–7%</b> just after a trip, <b>1–1.5%</b> after an hour, <b>0.5%</b> after a day</li><li>MW = fraction × rated thermal power</li><li>To boil water: kg/s = power ÷ latent heat; to warm water: kg/s = power ÷ (c ΔT)</li></ul>`),
-N(`A 4500 MWth core has decay
+T(`<h3>Quick recap</h3><ul><li>Decay heat: about <b>6–7%</b> just after a trip, <b>1–1.5%</b> after an hour, <b>0.5%</b> after a day</li><li>MW = fraction × rated thermal power</li><li>To boil water: kg/s = power ÷ latent heat; to warm water: kg/s =

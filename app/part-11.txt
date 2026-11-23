@@ -1,4 +1,7 @@
-anges',icon:'H⁺',color:'#D4537E',desc:'The reactivity series, extracting metals, oxidation and reduction, acids, bases and salts, pH, and electrolysis.',lessons:[
+
+]});
+
+U({id:'gc2-4',track:'gc',level:2,title:'Chemical changes',icon:'H⁺',color:'#D4537E',desc:'The reactivity series, extracting metals, oxidation and reduction, acids, bases and salts, pH, and electrolysis.',lessons:[
 LH('gc2-4-1','Reactivity and extracting metals',10,'Which metals react most, displacement, how metals are got out of their ores, and oxidation and reduction.',[
 T(`<h3>The reactivity series</h3><p>Metals in order, most reactive first: <b>potassium, sodium, lithium, calcium, magnesium, (carbon), zinc, iron, (hydrogen), copper</b>.</p><p>The more reactive a metal, the more easily it forms <b>positive ions</b>. Carbon and hydrogen are included to compare.</p><p>A more reactive metal <b>displaces</b> a less reactive one from its compound: magnesium + copper sulfate → magnesium sulfate + copper.</p>`),
 Q(`Which reaction will happen?`,[`Zinc + copper sulfate`,`Copper + zinc sulfate`,`Iron + magnesium oxide`,`Copper + iron sulfate`],0,`Zinc is above copper, so it displaces it.`),
@@ -888,4 +891,4 @@ LH('gc3-1-1','Exothermic and endothermic',9,'Reactions that give out heat and re
 T(`<h3>Two kinds of energy change</h3><ul><li><b>Exothermic</b>: energy is transferred <b>to</b> the surroundings, so the temperature <b>rises</b>. Combustion, most oxidation reactions and neutralisation. Used in hand warmers and self-heating cans.</li><li><b>Endothermic</b>: energy is taken <b>from</b> the surroundings, so the temperature <b>falls</b>. Thermal decomposition, and citric acid with sodium hydrogencarbonate. Used in instant cold packs for sports injuries.</li></ul><p>Energy is conserved: whatever the reaction gains, the surroundings lose, and the other way round.</p>`),
 W('sortIt',{bins:['Exothermic','Endothermic'],items:[['Burning methane',0],['Neutralising an acid',0],['A hand warmer',0],['Thermal decomposition of calcium carbonate',1],['An instant cold pack',1],['Citric acid + sodium hydrogencarbonate',1]]},`Exothermic or endothermic?`,`Gets hot: exo. Gets cold: endo.`),
 T(`<h3>Reaction profiles</h3><p>A reaction profile shows the energy of the reactants and products.</p><ul><li>Exothermic: the products are <b>lower</b> than the reactants.</li><li>Endothermic: the products are <b>higher</b>.</li><li>The hump is the <b>activation energy</b>: the minimum energy particles need to react.</li></ul>`),
-Q(`On a reaction profile, the products are higher in energy than the reactants. The reaction is…`,[`endothermic`,`exothermic`,`neutral`,`f
+Q(`On a reaction profile, the products are higher in energy than the reactants. 

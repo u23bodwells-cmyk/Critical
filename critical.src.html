@@ -3806,34 +3806,34 @@ var PLAN=(function(){
  /* [title, minutes, what to do, buttons [label, kind, target], shows the topic list] */
  /* two versions of the week: GCSE first, then the same week with A-level in place of GCSE once every GCSE lesson (Level 2 up) is done */
  var PMT='https://www.physicsandmathstutor.com/';
- var NUKE=['Nuclear maths',7,'Your next lesson in the Maths track: the calculations behind the reactor, from powers of ten to reactor kinetics.',[['Nuclear maths','maths']]];
+ var NUKE=['Nuclear maths',9,'Your next lesson in the Maths track: the calculations behind the reactor, from powers of ten to reactor kinetics.',[['Nuclear maths','maths']]];
  function WEEKOF(Q){var A=Q==='A',sci=A?[['A-level Physics','ap'],['A-level Chemistry','ac']]:[['GCSE Physics','gp'],['GCSE Chemistry','gc']],mth=A?'A-level Maths':'GCSE Maths',mk=A?'am':'gm';
   return [
   [['Fix my mistakes',15,'Clear the Fix my mistakes pile in Critical: the questions you got wrong, 10 at a time. Read the explanation again on any you miss. Empty it early and you move straight on. If it isn\'t empty after 15 minutes, the first 15 minutes of Tuesday go to it too. Nothing to fix? Do your next '+mth+' lesson.',[['Fix my mistakes','fix'],[mth,mk]]],
+   ['Nuclear maths',12,NUKE[2],NUKE[3]]],
+  [['Calculus',18,'Your next Calculus lesson and its practice. Only move on when the practice says Mastered. Stuck? Press Help.',[['Next lesson','calc']]],
+   ['Aptitude',9,'One practice set in Aptitude Gym.',[['Aptitude Gym','app',AG]]]],
+  [['Python',18,'Your next Python session in Shift Ready.',[['Shift Ready','app',SR]]],
+   ['Communication',9,'The comms drill in Shift Ready. Say your answers out loud, not in your head.',[['Shift Ready','app',SR]]]],
+  [[A?'A-level science':'GCSE science',18,'Your next '+(A?'A-level':'GCSE')+' Physics or Chemistry lesson in Critical, matching what you\'re doing in class this week.'+(A?' Physics & Maths Tutor has exam questions on every topic.':' Seneca and Cognito are good for extra practice.'),sci.concat(A?[['Physics & Maths Tutor','url',PMT]]:[['Seneca','url',SEN],['Cognito','url',COG]])],
    NUKE],
-  [['Calculus',15,'Your next Calculus lesson and its practice. Only move on when the practice says Mastered. Stuck? Press Help.',[['Next lesson','calc']]],
-   ['Aptitude',7,'One practice set in Aptitude Gym.',[['Aptitude Gym','app',AG]]]],
+  [['Nuclear theory',18,'Your next Theory lesson: how the station really works. Finished early? Run a shift in the Control room.',[['Theory','theory'],['Control room','sim']]],
+   ['Calculus practice',9,'Practice questions on your last Calculus lesson.',[['Practise','calcfu']]]],
+  [[A?'A-level maths':'GCSE maths',30,A?'Your next A-level Maths lesson, then exam questions on the same topic from Physics & Maths Tutor, timed. Add every topic you dropped marks on to your list below.':'30 minutes of mixed questions from a Maths Genie Edexcel paper, timed like an exam. Mark it, and add the topic of every question you dropped marks on to your list below.',A?[['A-level Maths','am'],['Physics & Maths Tutor','url',PMT]]:[['Maths Genie','url',MG]],1],
+   [A?'A-level science':'GCSE science',18,'Exam-style questions on Thursday\'s topic: the follow-up and unit test in Critical'+(A?', or Physics & Maths Tutor.':', or Seneca.'),sci.concat(A?[['Physics & Maths Tutor','url',PMT]]:[['Seneca','url',SEN]])],
+   ['Aptitude',7,'One short timed set in Aptitude Gym.',[['Aptitude Gym','app',AG]]]],
   [['Python',15,'Your next Python session in Shift Ready.',[['Shift Ready','app',SR]]],
-   ['Communication',7,'The comms drill in Shift Ready. Say your answers out loud, not in your head.',[['Shift Ready','app',SR]]]],
-  [[A?'A-level science':'GCSE science',15,'Your next '+(A?'A-level':'GCSE')+' Physics or Chemistry lesson in Critical, matching what you\'re doing in class this week.'+(A?' Physics & Maths Tutor has exam questions on every topic.':' Seneca and Cognito are good for extra practice.'),sci.concat(A?[['Physics & Maths Tutor','url',PMT]]:[['Seneca','url',SEN],['Cognito','url',COG]])],
-   NUKE],
-  [['Nuclear theory',15,'Your next Theory lesson: how the station really works. Finished early? Run a shift in the Control room.',[['Theory','theory'],['Control room','sim']]],
-   ['Calculus practice',7,'Practice questions on your last Calculus lesson.',[['Practise','calcfu']]]],
-  [[A?'A-level maths':'GCSE maths',25,A?'Your next A-level Maths lesson, then exam questions on the same topic from Physics & Maths Tutor, timed. Add every topic you dropped marks on to your list below.':'25 minutes of mixed questions from a Maths Genie Edexcel paper, timed like an exam. Mark it, and add the topic of every question you dropped marks on to your list below.',A?[['A-level Maths','am'],['Physics & Maths Tutor','url',PMT]]:[['Maths Genie','url',MG]],1],
-   [A?'A-level science':'GCSE science',15,'Exam-style questions on Thursday\'s topic: the follow-up and unit test in Critical'+(A?', or Physics & Maths Tutor.':', or Seneca.'),sci.concat(A?[['Physics & Maths Tutor','url',PMT]]:[['Seneca','url',SEN]])],
-   ['Aptitude',5,'One short timed set in Aptitude Gym.',[['Aptitude Gym','app',AG]]]],
-  [['Python',15,'Your next Python session in Shift Ready.',[['Shift Ready','app',SR]]],
-   ['Calculus',15,'Your next Calculus lesson.',[['Next lesson','calc']]],
-   ['Nuclear maths',10,'Your next Maths track lesson, or its practice if you haven\'t mastered the last one.',[['Nuclear maths','maths']]],
+   ['Calculus',20,'Your next Calculus lesson.',[['Next lesson','calc']]],
+   ['Nuclear maths',15,'Your next Maths track lesson, or its practice if you haven\'t mastered the last one.',[['Nuclear maths','maths']]],
    ['Weekly review',5,'Look at your list below. Move the topic you\'re worst at to the top and practise it first next Saturday. Delete topics you\'ve fixed.',[],1]]]}
  var DG=WEEKOF('G'),DA=WEEKOF('A');function WEEK(){return alOpen()?DA:DG}
  var TUE_FIX=[['Fix my mistakes',15,'Monday\'s Fix my mistakes wasn\'t finished, so it gets the first 15 minutes today. Empty the pile early and you move straight on.',[['Fix my mistakes','fix']]],
-  ['Nuclear maths',7,'A shorter slot today: your next Maths track lesson.',[['Nuclear maths','maths']]]];
+  ['Nuclear maths',12,'A shorter slot today: your next Maths track lesson.',[['Nuclear maths','maths']]]];
  function pile(){try{return reviewPool(true).length}catch(_){return 0}}
  /* Tuesday's first 20 minutes become Fix my mistakes if Monday's pile wasn't emptied. Decided once on Tuesday, then kept for the week. */
  var ready=false;setTimeout(function(){ready=true},0);
  function carry(){var p=PS(),t=todayI();if(p.carry==null){if(t!==1||!ready)return false;p.carry=(!p.monClr&&!rvOn(0)&&pile()>0)?1:0;save()}return p.carry===1}
- /* every day starts with a warm-up and ends with Critical Clash (block[5] says which). On a school day you're asked, after the study part,
+ /* every day starts with a warm-up, then the study blocks: 30 minutes in all on a school day, 60 at the weekend (block[5] marks the warm-up). On a school day you're asked, after the study part,
     if you want to keep going to 45 minutes: that adds a 10-minute bonus of the day's main subject and makes Clash 10 minutes. */
  function CORE(i){return i===1&&carry()?TUE_FIX:WEEK()[i]}
  function WARM(i){return ['Warm-up',i<5?3:5,'Memory refresh: quick questions on things you learnt before, to get your brain going. When you finish them, your plan moves on by itself.',[['Warm up','warm']],0,'warm']}
@@ -3851,9 +3851,9 @@ var PLAN=(function(){
   if(i===todayI()){var rr=runGet();if(rr&&rr.day===i)return null;if(hwGet())return null}try{return REV.dayInfo(dstr(wkDate(i)))}catch(_){return null}}
  function pinRv(i){var p=PS();if(p.rvpin&&p.rvpin[i])return;var r=RVD(i);if(!r)return;if(!p.rvpin||typeof p.rvpin!=='object')p.rvpin={};p.rvpin[i]=r.pin;save()}
  function rvOn(i){var b=DAY(i);return b.length===1&&b[0][5]==='rev'}
- function DAY(i){var rv=RVD(i);if(rv)return [['Revise: '+rv.name,mins(i),rv.desc,[['Start revision','rev']],0,'rev',rv]];var c=CORE(i),x=i<5&&extOn(i);return [WARM(i)].concat(c,x?[BONUS(c)]:[],[CLASH(i,x)])}
+ function DAY(i){var rv=RVD(i);if(rv)return [['Revise: '+rv.name,mins(i),rv.desc,[['Start revision','rev']],0,'rev',rv]];var c=CORE(i),x=i<5&&extOn(i);return [WARM(i)].concat(c,x?[BONUS(c)]:[])}
  function isFix(b){return !!(b&&b[3]&&b[3][0]&&b[3][0][1]==='fix')}
- function mins(i){return [WARM(i)].concat(CORE(i),[CLASH(i,false)]).reduce(function(s,b){return s+b[1]},0)}
+ function mins(i){return [WARM(i)].concat(CORE(i)).reduce(function(s,b){return s+b[1]},0)}
  function allMins(i){return DAY(i).reduce(function(s,b){return s+b[1]},0)}
  var TOTAL=DG.reduce(function(s,_,i){return s+mins(i)},0);
  function wk(){var d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-((d.getDay()+6)%7));return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()}
