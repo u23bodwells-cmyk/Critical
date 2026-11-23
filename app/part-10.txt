@@ -1,4 +1,4 @@
-><li><b>D = f<sub>xx</sub>f<sub>yy</sub> − f<sub>xy</sub>²</b>.</li><li>D > 0: max or min (sign of f<sub>xx</sub>). D < 0: saddle.</li></ul>`)]),
+ical points: <b>f<sub>x</sub> = f<sub>y</sub> = 0</b>.</li><li><b>D = f<sub>xx</sub>f<sub>yy</sub> − f<sub>xy</sub>²</b>.</li><li>D > 0: max or min (sign of f<sub>xx</sub>). D < 0: saddle.</li></ul>`)]),
 LH('c12-3-3','Lagrange multipliers',11,'Find the best value when you\'re only allowed to move along a constraint.',[
 RM(`<p>∇f is perpendicular to the level curves of f. Critical points: ∇f = 0.</p>`),
 T(`<h3>Optimising with a rule</h3><p>Maximise f(x, y) but only along the curve g(x, y) = c (a budget, a fixed perimeter, a fixed amount of material).</p><p>At the best point, the level curve of f just <b>touches</b> the constraint curve. Touching curves share a direction, so their gradients are parallel:</p><div class="eq">∇f = λ∇g,&nbsp;&nbsp; g = c</div>${KY([['λ','the Lagrange multiplier: how much the best value changes if you relax the constraint','']])}`),
@@ -831,6 +831,3 @@ W('calcDrill',{skill:'g_yield',need:3},`Percentage yield. Get 3 right to master 
 T(`<h3>Atom economy (Chemistry only)</h3><p>Atom economy measures how much of the reactants end up in the product you want:</p><div class="eq">atom economy = M<sub>r</sub> of desired product ÷ total M<sub>r</sub> of reactants × 100</div><p>Use the numbers in front from the balanced equation. A high atom economy means less waste, which is better for the environment and for cost.</p>`),
 W('calcDrill',{skill:'g_atomecon',need:3},`Atom economy. Get 3 right to master it.`,`Useful product ÷ all reactants × 100.`),
 T(`<h3>Key points</h3><ul><li>Concentration = mass (or moles) ÷ volume in dm³.</li><li>% yield = actual ÷ theoretical × 100.</li><li>Atom economy = useful product M<sub>r</sub> ÷ total reactant M<sub>r</sub> × 100.</li></ul>`)])
-]});
-
-U({id:'gc2-4',track:'gc',level:2,title:'Chemical ch

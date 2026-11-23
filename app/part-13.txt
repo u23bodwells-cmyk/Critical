@@ -1,4 +1,5 @@
- starts at 0. A loop adds 5 to it 4 times. What's its final value?`,[`20`,`5`,`9`,`4`],0,`0 + 5 + 5 + 5 + 5 = 20.`)])]});
+lue; USERINPUT reads one in.`),
+Q(`A variable called total starts at 0. A loop adds 5 to it 4 times. What's its final value?`,[`20`,`5`,`9`,`4`],0,`0 + 5 + 5 + 5 + 5 = 20.`)])]});
 /* ----- Level 2: Year 10 ----- */
 U({id:'gcs2-1',track:'gcs',level:2,title:'Algorithms',icon:'⇅',color:'#534AB7',desc:'Searching and sorting algorithms, efficiency and trace tables: AQA 3.1.',lessons:[
 LH('gcs2-1-1','Linear and binary search',9,'Two ways to find something in a list, and why one is much faster.',[
@@ -1252,4 +1253,4 @@ LH('ap3-4-2','Radioactive decay',10,'Decay constant, half-life, activity and the
 RM(`<p>N = N₀e<sup>−λt</sup>, A = λN, T½ = ln 2/λ (Calculus Level 5).</p>`),
 T(`<h3>The equations</h3><div class="eq">A = λN&nbsp;&nbsp;&nbsp; N = N₀e<sup>−λt</sup>&nbsp;&nbsp;&nbsp; T½ = ln 2 / λ</div>`),
 W('calcDrill',{skill:'decay',need:3},`Half-life and λ. Get 3 right to master it.`,`T½ = ln 2/λ.`),
-T(`<h3>Gamma intensity</h3><p>Gamma radiation from a point source follows an <b>inverse square law</b>: I = k/x². Doubling the distance quarters the dose rate, which is why distance 
+T(`<h3>Gamma intensity</h3><p>Gamma radiation from a point source follows an <b>inverse square law</b>: I = k/x². Doubling t

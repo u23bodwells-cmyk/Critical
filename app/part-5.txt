@@ -1,4 +1,5 @@
- heat of 1%. How many MW is that?`,45,0.01,'MW',`4500 × 0.01 = 45 MW.`),
+ power ÷ (c ΔT)</li></ul>`),
+N(`A 4500 MWth core has decay heat of 1%. How many MW is that?`,45,0.01,'MW',`4500 × 0.01 = 45 MW.`),
 N(`Decay heat is 0.5% of 3000 MWth. How many MW is that?`,15,0.01,'MW',`3000 × 0.005 = 15 MW.`),
 N(`15 MW of decay heat is warming cooling water from 20 °C to 100 °C (c = 4.18 kJ/kg/K). How many kg/s of water are needed?`,44.9,0.02,'kg/s',`ṁ = P ÷ (c ΔT) = 15,000,000 ÷ (4180 × 80) = 44.9 kg/s.`,`Use joules: 15 MW = 15,000,000 W and c = 4180 J/kg/K.`),
 Q(`Just after a trip, decay heat is about…`,['6–7% of full power','0%','50% of full power','100% of full power'],0,`That's still around 200 MW for a big reactor.`),
@@ -971,4 +972,4 @@ N(`With λ = 0.231 per hour, what is the half-life?`,3,0.02,'hours',`0.693 ÷ 0.
 QE(`Which is closest to ln 2?`,[`0.693`,`2.303`,`1`,`0.5`],0,`ln 2 ≈ 0.693.`),
 T(`<h3>Key points</h3><ul><li>Taking ln turns N = N₀ e<sup>−λt</sup> into <b>ln N = −λt + ln N₀</b>: a straight line.</li><li>Plot ln N against t: <b>gradient = −λ</b>.</li><li>Half-life = <b>ln 2 ÷ λ</b> = 0.693 ÷ λ.</li></ul>`)])
 ]});
-F('m2-2-1',[T(`<h3>Quick recap</h3><p>e ≈ 2.718. e<sup>x</sup> grows at a rate equal to its own size. e⁰ = 1.</p>`),N(`What is e<sup>1</sup>, to 3 decimal places?`,2.718,0.0005,'',`e itself.`),Q(`What is e<sup>0</sup>?`,[`1`,`0`,`e`,`2.718`],0,`Anything to the power 0 is 1.`),Q(`Which is described by e<sup>x</sup>?`,[`Growth in proportion to the current size`,`Growth by the same amount each second`,`A straight line`,`N
+F('m2-2-1',[T(`<h3>Quick recap</h3><p>e ≈ 2.718. e<sup>x</sup> grows at a rate equal to its own size. e⁰ = 1.</p>`),N(`What is e<sup>1</sup>, to 3 decimal places?`,2.718,0.0005,'',`e itself.`),Q(`What is e<sup>0</sup>?`,[`1`,`0`,`e`,`2.718`],0,`Anything to the power 0 is 1.`),Q(`Which is described by e<sup>x</sup>?`,[`Growth in proportion to the current size`,`G

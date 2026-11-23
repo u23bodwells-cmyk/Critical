@@ -1,4 +1,5 @@
-`Areas under curves. Get 4 right to master it.`,`Integrate, then top minus bottom.`),
+nite integral.</p>`),
+W('calcDrill',{skill:'area',need:4},`Areas under curves. Get 4 right to master it.`,`Integrate, then top minus bottom.`),
 T(`<h3>Below the axis</h3><p>If the curve is <b>below</b> the x-axis, the integral comes out <b>negative</b>. The area itself is still positive: just take the size.</p><p>Example: ∫ from −1 to 1 of x dx = 0. But the actual shaded area is two triangles of 0.5 each: <b>1</b>. The positive and negative parts cancelled!</p>`),
 Q(`∫ from −1 to 1 of x dx = 0, but the actual area is 1. Why?`,[`The part below the axis counts as negative and cancels the part above`,'The integral has been worked out wrongly: the answer should be 1','Areas between −1 and 1 always come out as zero for every curve','A straight line like y = x has no area underneath it at all'],0,`Split at the x-axis.`),
 T(`<h3>Splitting</h3><p>When a curve crosses the axis, find where it crosses, integrate each part <b>separately</b>, make each one positive, then add them.</p>`),
@@ -983,4 +984,4 @@ T(`<h3>The second derivative test</h3><div class="eq">D = f<sub>xx</sub> f<sub>y
 Q(`D < 0 at a critical point means…`,[`a saddle point`,`a minimum`,`a maximum`,`no conclusion`],0,`Curving opposite ways.`),
 W('calcDrill',{skill:'critclass',need:4},`Classify critical points. Get 4 right to master it.`,`D = f<sub>xx</sub>f<sub>yy</sub> − f<sub>xy</sub>².`),
 QE(`f = x³y². f<sub>xy</sub> = …`,[`6x²y`,`3x²y²`,`2x³y`,`6xy`],0,`3x²y² then ∂/∂y.`),
-T(`<h3>Key points</h3><ul><li>Critical points: <b>f<sub>x</sub> = f<sub>y</sub> = 0</b>.</li
+T(`<h3>Key points</h3><ul><li>Crit

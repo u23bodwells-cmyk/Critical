@@ -1,4 +1,4 @@
-fficient by about 65%.`),
+er.`,`Forward scattering in water raises the diffusion coefficient by about 65%.`),
 Q(`Why does forward-peaked scattering increase D?`,[`Neutrons keep their direction, so they spread further`,`They are absorbed faster`,`Because Σ<sub>t</sub> rises`,`It decreases D`],0,`Less randomising per collision.`),
 QE(`Uncollided fraction through 3 mean free paths?`,[`e⁻³ ≈ 0.05`,`1/3`,`0.3`,`e³`],0,`Σx = 3.`),
 T(`<h3>Key points</h3><ul><li>μ̄ ≈ 2/(3A): light nuclei scatter forward.</li><li><b>Σ<sub>tr</sub> = Σ<sub>t</sub> − μ̄Σ<sub>s</sub></b>, <b>D = 1/(3Σ<sub>tr</sub>)</b>.</li><li>For water the correction raises D by about 65%.</li></ul>`)])
@@ -1022,5 +1022,4 @@ N(`Evaluate ∫ from 1 to 3 of 2x dx.`,8,0.001,'',`[x²] from 1 to 3 = 9 − 1 =
 W('calcDrill',{skill:'defint',need:5},`Definite integrals. Get 5 right to master it.`,`Integrate, then top limit minus bottom limit.`),
 T(`<h3>Key points</h3><ul><li><b>∫ₐᵇ f(x) dx = F(b) − F(a)</b>.</li><li>Top limit minus bottom limit.</li><li>No + C: it cancels.</li></ul>`)]),
 LH('c4-2-3','Areas under curves',10,'Areas above the axis count as positive, below as negative. Know when to split.',[
-RM(`<p>∫ₐᵇ f(x) dx = F(b) − F(a). The area under a curve is a definite integral.</p>`),
-W('calcDrill',{skill:'area',need:4},
+RM(`<p>∫ₐᵇ f(x) dx = F(b) − F(a). The area under a curve is a defi
