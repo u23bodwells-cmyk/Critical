@@ -1,4 +1,70 @@
-tal force for the Moon orbiting Earth?`,[`Gravity`,`Friction`,`Tension`,`Air resistance`],0,`A real force must provide it.`),
+me KE becomes heat and sound.</li></ul>`),
+N(`A 2 kg trolley at 3 m/s sticks to a stationary 1 kg trolley. Common speed (m/s)?`,2,0.001,'m/s',`6 = 3v.`),
+Q(`Why do crumple zones make crashes safer?`,[`They increase the collision time, reducing the force`,`They reduce the car's momentum before the crash`,`They make the car heavier`,`They stop momentum being conserved`],0,`F = Δp/Δt.`),
+T(`<h3>Key points</h3><ul><li><b>F = Δp/Δt</b>; impulse = area under F–t.</li><li>Momentum always conserved; KE only in elastic collisions.</li><li>Longer Δt, smaller F.</li></ul>`)]),
+LH('ap2-3-3','Materials',10,'Density, Hooke\'s law, stress, strain and the Young modulus.',[
+RM(`<p>Hooke's law F = kΔL (up to the limit of proportionality). Elastic energy = ½FΔL.</p>`),
+T(`<h3>Stress, strain and the Young modulus</h3><div class="eq">stress = F/A&nbsp;&nbsp; strain = ΔL/L&nbsp;&nbsp; E = stress/strain</div><p>The Young modulus is a property of the <b>material</b>, not the sample: steel is about 200 GPa.</p>`),
+W('calcDrill',{skill:'p_young',need:2},`The Young modulus. Get 2 right to master it.`,`(F/A) ÷ (ΔL/L).`),
+T(`<h3>Stress–strain graphs</h3><ul><li><b>Elastic</b>: returns to shape. <b>Plastic</b>: permanent stretch.</li><li><b>Brittle</b> (glass): snaps with little plastic deformation. <b>Ductile</b> (copper): can be drawn into wires.</li><li>Area under a force–extension graph = energy stored.</li></ul>`),
+Q(`The Young modulus is the gradient of which graph?`,[`Stress against strain (linear part)`,`Force against length`,`Strain against time`,`Extension against force`],0,`E = stress/strain.`),
+T(`<h3>Key points</h3><ul><li>Stress F/A, strain ΔL/L, <b>E = stress/strain</b>.</li><li>Elastic vs plastic; brittle vs ductile.</li><li>Energy = area under F–ΔL.</li></ul>`)])
+]});
+
+U({id:'ap2-4',track:'ap',level:2,title:'Electricity',icon:'Ω',color:'#D85A30',desc:'Resistance and resistivity, circuits and potential dividers, and emf and internal resistance.',lessons:[
+LH('ap2-4-1','Resistance and resistivity',10,'Why some wires resist more than others, and superconductors that don\'t resist at all.',[
+RM(`<p>V = IR. Current is the rate of flow of charge: I = ΔQ/Δt.</p>`),
+T(`<h3>Resistivity</h3><div class="eq">R = ρL/A</div><p>ρ is the <b>resistivity</b> of the material (Ω m): copper 1.7 × 10⁻⁸, nichrome about 1.1 × 10⁻⁶.</p>`),
+W('calcDrill',{skill:'p_resist',need:2},`Resistance of a wire. Get 2 right to master it.`,`A = π(d/2)², then ρL/A.`),
+T(`<h3>I–V characteristics</h3><ul><li><b>Ohmic conductor</b> (constant temperature): straight line through the origin.</li><li><b>Filament lamp</b>: curve, resistance rises as it heats.</li><li><b>Diode</b>: conducts one way only, above about 0.6 V.</li><li><b>Thermistor</b> (NTC): resistance falls as temperature rises.</li></ul>`),
+Q(`What's special about a superconductor below its critical temperature?`,[`Zero resistivity`,`Infinite resistance`,`It conducts one way only`,`It gets hotter`],0,`Used in MRI magnets and fusion magnets.`),
+T(`<h3>Key points</h3><ul><li><b>R = ρL/A</b>.</li><li>Learn the I–V graphs.</li><li>Superconductors: zero resistance below T<sub>c</sub>.</li></ul>`)]),
+LH('ap2-4-2','Circuits and potential dividers',10,'Series, parallel and potential dividers that make sensor circuits.',[
+RM(`<p>Series: R = R₁ + R₂, same current. Parallel: 1/R = 1/R₁ + 1/R₂, same pd. Charge and energy are conserved (Kirchhoff).</p>`),
+T(`<h3>Potential dividers</h3><div class="eq">V<sub>out</sub> = V<sub>in</sub> × R₂/(R₁ + R₂)</div><p>Replace R₂ with a thermistor or LDR and V<sub>out</sub> changes with temperature or light: a sensor.</p>`),
+W('calcDrill',{skill:'p_potdiv',need:3},`Potential dividers. Get 3 right to master it.`,`V<sub>in</sub> × R₂/(R₁ + R₂).`),
+Q(`An LDR is R₂. It gets darker (LDR resistance rises). V<sub>out</sub> across the LDR…`,[`rises`,`falls`,`stays the same`,`becomes zero`],0,`Bigger share of the resistance.`),
+T(`<h3>Key points</h3><ul><li>Series and parallel rules; Kirchhoff's laws.</li><li><b>V<sub>out</sub> = V<sub>in</sub>R₂/(R₁ + R₂)</b>.</li><li>Sensors in potential dividers.</li></ul>`)]),
+LH('ap2-4-3','EMF and internal resistance',10,'Real batteries lose some voltage inside themselves.',[
+RM(`<p>V = IR. Series resistances add.</p>`),
+T(`<h3>emf and lost volts</h3><div class="eq">ε = I(R + r) = V + Ir</div>${KY([['ε','emf: energy given per coulomb','V'],['r','internal resistance','Ω'],['Ir','"lost volts" inside the cell','V']])}`),
+W('calcDrill',{skill:'p_emf',need:3},`Terminal pd. Get 3 right to master it.`,`I = ε/(R + r), V = ε − Ir.`),
+T(`<h3>Measuring ε and r</h3><p>Plot terminal pd V against current I. V = ε − rI: the intercept is <b>ε</b>, the gradient is <b>−r</b>. (A required practical.)</p>`),
+Q(`On a V–I graph for a cell, the gradient is…`,[`−r`,`ε`,`R`,`I`],0,`V = −rI + ε.`),
+T(`<h3>Key points</h3><ul><li><b>ε = V + Ir</b>.</li><li>Lost volts rise with current.</li><li>V–I graph: intercept ε, gradient −r.</li></ul>`)])
+]});
+
+GOALS.ap1={icon:'🧱',title:'Bridge from GCSE',story:'Only if you need it: the measurement skills and GCSE physics A-level takes for granted.',final:'Ready for A-level physics',steps:['Measurements and uncertainties','GCSE physics at A-level speed']};
+GOALS.ap2={icon:'🔭',title:'Master Year 12 physics',story:'Each unit is an AQA topic from Year 1 of the course.',final:'Year 12 complete',steps:['Particles and quantum phenomena','Waves','Mechanics and materials','Electricity']};
+/* ========== A-LEVEL PHYSICS · LEVEL 3 Year 13 · LEVEL 4 A* technique ========== */
+CGEN.p_circ=function(){var m=cR(1,20)/10,v=cR(2,15),r=cR(2,20)/10,F=Math.round(m*v*v/r*100)/100;
+ return {p:'A '+cNum(m)+' kg mass moves in a circle of radius '+cNum(r)+' m at '+v+' m/s. Find the centripetal force. (2 d.p.)',b:[cB(F,'F = ',' N','force',false,0.005)],e:'F = mv²/r = '+cNum(m)+' × '+(v*v)+' ÷ '+cNum(r)+' = '+cNum(F)+' N, towards the centre.'}};
+CGEN.p_shm=function(){if(cR(0,1)){var m=cR(1,20)/10,k=cR(5,80),T=Math.round(2*Math.PI*Math.sqrt(m/k)*1000)/1000;return {p:'A '+cNum(m)+' kg mass on a spring of stiffness '+k+' N/m. Find the period. (3 d.p.)',b:[cB(T,'T = ',' s','period',false,0.003)],e:'T = 2π√(m/k) = 2π√('+cNum(m)+'/'+k+') = '+cNum(T)+' s.'}}
+ var l=cR(2,30)/10,T2=Math.round(2*Math.PI*Math.sqrt(l/9.81)*1000)/1000;return {p:'A simple pendulum is '+cNum(l)+' m long. Find its period. (g = 9.81, 3 d.p.)',b:[cB(T2,'T = ',' s','period',false,0.003)],e:'T = 2π√(l/g) = 2π√('+cNum(l)+'/9.81) = '+cNum(T2)+' s. (Small swings only.)'}};
+CGEN.p_gas=function(){var n=cR(1,5)/2,T=cR(250,400),V=cR(5,50)/1000,p=Math.round(n*8.31*T/V/100)*100;
+ return {p:cNum(n)+' mol of ideal gas at '+T+' K in '+cNum(V*1000)+' litres ('+pE(V)+' m³). Find the pressure in kPa. (R = 8.31, nearest 0.1 kPa)',b:[cB(Math.round(n*8.31*T/V/100)/10,'p = ',' kPa','pressure',false,0.004)],e:'pV = nRT, so p = nRT/V = '+cNum(n)+' × 8.31 × '+T+' ÷ '+pE(V)+' = '+pE(n*8.31*T/V)+' Pa.'}};
+CGEN.p_gheight=function(){var g0=9.81,k=cP([2,3,4,1.5,1.2]),g=Math.round(g0/(k*k)*1000)/1000;
+ return {p:'At Earth\'s surface g = 9.81 N/kg. Find g at a distance of '+cNum(k)+' Earth radii from the centre. (3 d.p.)',b:[cB(g,'g = ',' N/kg','g',false,0.003)],e:'g = GM/r², so g ∝ 1/r². At '+cNum(k)+'R: 9.81 ÷ '+cNum(k)+'² = '+cNum(g)+' N/kg.'}};
+CGEN.p_coulomb=function(){var q1=cR(1,9),q2=cR(1,9),r=cR(1,10)/10,F=Math.round(8.99e9*q1*1e-6*q2*1e-6/(r*r)*100)/100;
+ return {p:'Two point charges of '+q1+' μC and '+q2+' μC are '+cNum(r)+' m apart. Force between them? (k = 8.99 × 10⁹, 2 d.p.)',b:[cB(F,'F = ',' N','force',false,0.005)],e:'F = kQ₁Q₂/r² = 8.99 × 10⁹ × '+q1+' × 10⁻⁶ × '+q2+' × 10⁻⁶ ÷ '+cNum(r*r)+' = '+cNum(F)+' N.'}};
+CGEN.p_cap=function(){var Q0=cR(10,90),RC=cR(2,20),t=cR(1,30),Q=Math.round(Q0*Math.exp(-t/RC)*100)/100;
+ return {p:'A capacitor starts with '+Q0+' μC and discharges through a resistor with RC = '+RC+' s. Charge after '+t+' s, in μC? (2 d.p.)',b:[cB(Q,'Q = ',' μC','charge',false,0.005)],e:'Q = Q₀e<sup>−t/RC</sup> = '+Q0+' × e<sup>−'+t+'/'+RC+'</sup> = '+cNum(Q)+' μC.'}};
+CGEN.p_bil=function(){var B=cR(1,90)/100,I=cR(1,10),l=cR(5,50)/100,F=Math.round(B*I*l*1000)/1000;
+ return {p:'A '+cNum(l)+' m wire carries '+I+' A at right angles to a '+cNum(B)+' T field. Find the force. (3 d.p.)',b:[cB(F,'F = ',' N','force',false,0.004)],e:'F = BIl = '+cNum(B)+' × '+I+' × '+cNum(l)+' = '+cNum(F)+' N. Direction: Fleming\'s left-hand rule.'}};
+CGEN.p_trans=function(){var Vp=cP([230,400,11000,25000]),Np=cR(2,40)*50,Ns=cR(1,40)*10,Vs=Math.round(Vp*Ns/Np*100)/100;
+ return {p:'An ideal transformer has '+Np+' primary turns and '+Ns+' secondary turns. Primary voltage '+Vp+' V. Secondary voltage? (2 d.p.)',b:[cB(Vs,'V<sub>s</sub> = ',' V','voltage',false,0.005)],e:'V<sub>s</sub>/V<sub>p</sub> = N<sub>s</sub>/N<sub>p</sub>, so V<sub>s</sub> = '+Vp+' × '+Ns+'/'+Np+' = '+cNum(Vs)+' V.'}};
+CGEN.p_massdef=function(){var dm=cR(1,300)/10000,E=Math.round(dm*931.5*100)/100;
+ return {p:'A reaction loses '+cNum(dm)+' u of mass. Energy released in MeV? (1 u = 931.5 MeV, 2 d.p.)',b:[cB(E,'E = ',' MeV','energy',false,0.005)],e:'E = Δm × 931.5 = '+cNum(dm)+' × 931.5 = '+cNum(E)+' MeV.'}};
+CGEN.p_radius=function(){var A=cP([12,16,27,56,64,125,208,216]),r=Math.round(1.2*Math.cbrt(A)*100)/100;
+ return {p:'Estimate the radius of a nucleus with nucleon number A = '+A+', using R = R₀A<sup>1/3</sup>, R₀ = 1.2 fm. (2 d.p.)',b:[cB(r,'R = ',' fm','radius',false,0.005)],e:'R = 1.2 × '+A+'<sup>1/3</sup> = 1.2 × '+cNum(Math.round(Math.cbrt(A)*1000)/1000)+' = '+cNum(r)+' fm.'}};
+
+/* ---- Level 3: Year 13 ---- */
+U({id:'ap3-1',track:'ap',level:3,title:'Further mechanics and thermal physics',icon:'ω',color:'#7F77DD',desc:'Circular motion, simple harmonic motion, and thermal physics and ideal gases.',lessons:[
+LH('ap3-1-1','Circular motion',10,'Moving at a steady speed in a circle still means accelerating, towards the centre.',[
+RM(`<p>Radians: 2π rad = 360°. F = ma. Velocity is a vector.</p>`),
+T(`<h3>Angular speed</h3><div class="eq">ω = θ/t = 2πf = v/r</div><p>The direction of velocity keeps changing, so there's an acceleration <b>towards the centre</b>:</p><div class="eq">a = v²/r = ω²r&nbsp;&nbsp;&nbsp; F = mv²/r = mω²r</div>`),
+W('calcDrill',{skill:'p_circ',need:3},`Centripetal force. Get 3 right to master it.`,`F = mv²/r.`),
+Q(`What provides the centripetal force for the Moon orbiting Earth?`,[`Gravity`,`Friction`,`Tension`,`Air resistance`],0,`A real force must provide it.`),
 T(`<h3>Key points</h3><ul><li><b>ω = 2πf = v/r</b>.</li><li><b>a = v²/r</b>, towards the centre.</li><li>A real force (gravity, tension, friction) provides it.</li></ul>`)]),
 LH('ap3-1-2','Simple harmonic motion',11,'Springs, pendulums and atoms in solids all oscillate the same way.',[
 RM(`<p>Circular motion: ω = 2πf. sin and cos graphs. Hooke's law F = −kx.</p>`),
@@ -1004,44 +1070,4 @@ function NSIM(w,h,rnd){
     if(st){st.k.textContent='≈ 168 MeV';st.n.textContent=fis.nn?fis.nn+' (average 2.4)':'2 or 3';st.f.textContent=nFis}return}
    if(mode==='fusion'){band(c,W,'FUSION · D + T → He-4 + n','17.6 MeV each');var cx2=W/2,cy2=H*.45,prob=Math.min(1,Math.pow(fz.T/150,3)),sp=1+fz.T/80;fz.t+=dt*sp;var ph=(fz.t%2200)/2200,meet=ph<.5,did=fz.ok;if(ph<.02)fz.ok=Math.random()<prob;
     if(meet){var d2=(1-ph*2)*W*.3;ball(c,cx2-d2,cy2,9,[235,90,80]);ball(c,cx2-d2+7,cy2+3,8,[150,165,190]);ball(c,cx2+d2,cy2,9,[235,90,80]);ball(c,cx2+d2-7,cy2-4,8,[150,165,190]);ball(c,cx2+d2-3,cy2+7,8,[150,165,190]);hud(c,cx2-d2,cy2-18,'D','#fff',10,'center',true);hud(c,cx2+d2,cy2-18,'T','#fff',10,'center',true)}
-    else if(fz.ok){var u2=(ph-.5)*2;glow(c,cx2,cy2,70*(1-u2),YE,.8);ball(c,cx2-u2*W*.12,cy2-u2*20,10,OR);hud(c,cx2-u2*W*.12,cy2-u2*20-16,'He-4 · 3.5 MeV','#ffaa50',9,'center',true);glow(c,cx2+u2*W*.38,cy2+u2*10,9,CY,.8);ball(c,cx2+u2*W*.38,cy2+u2*10,4,CY);hud(c,cx2+u2*W*.38,cy2+u2*10-12,'n · 14.1 MeV','#3ad4ff',9,'center',true);if(ph>.5&&ph<.52&&!fz.c){fz.n++;fz.c=1}}
-    else{var u3=(ph-.5)*2;hud(c,cx2,cy2+4,'bounced off: not hot enough to beat the repulsion','rgba(255,170,80,.9)',10,'center',true)}if(ph<.5)fz.c=0;
-    hud(c,W/2,H-16,nb?'Hotter → faster → more of them fuse':'Hotter plasma → faster nuclei → more of them get close enough to fuse','rgba(200,225,255,.8)',nb?8.5:10,'center');st.r.textContent=fx(prob*100,0)+'% of collisions';st.e.textContent='17.6 MeV'}});
-  if(!par.goal)return {};return {check:function(){if(par.goal==='split')return stretch>1.15?{ok:true,head:'Split!'}:{ok:false,msg:'Stretch it further: past the barrier the electric repulsion wins and it splits.'};if(par.goal==='fission')return nFis>=3?{ok:true}:{ok:false,msg:'Fire at least 3 neutrons and watch where the fragment sizes land.'};return moved?{ok:true}:{ok:false,msg:'Choose a different nucleus or setting first.'}}}};
-
- /* ===== reactor kinetics: point kinetics with six delayed groups, trips, decay heat, xenon, feedback, instruments ===== */
- WIDGETS.kinetics=function(box,par){par=par||{};var mode=par.mode||'period',BI=[.000215,.001424,.001274,.002568,.000748,.000273],LI=[.0124,.0305,.111,.301,1.14,3.01],BT=.0065,LAM=2e-5,n=1,C=[],rho=par.rho||0,T=0,T0=0,tS=0,tr=[],spd=par.speed||(mode==='xenon'?3600:mode==='burst'?.05:1),tripped=false,held=0,ok=false,moved=0,X=0,I=0,pw=1,tau=par.tau||30,shut=-1,tripT=null;
-  function init(n0){tripT=null;n=n0;C=BI.map(function(b,i){return b*n0/(LI[i]*LAM)});tS=0;tr=[[0,n]];T=900;T0=900;tripped=false;shut=-1}
-  var start=mode==='trip'||mode==='feedback'?1:mode==='burst'?1e-4:mode==='ni'?1e-9:1e-6;init(start);if(mode==='xenon'){pw=1;var lI=2.87e-5,lX=2.09e-5,sphi=3.5*lX,gI=.061,gX=.003;I=gI/lI;X=(gX+gI)/(lX+sphi)}
-  var scr=screen(box,par.h||300,300),rs=null,st=null;
-  if(mode==='period'||mode==='jump'||mode==='feedback'||mode==='burst')rs=slider(box,'Reactivity added',mode==='burst'?0:mode==='jump'?-1000:-300,mode==='burst'?1000:mode==='jump'?600:300,mode==='burst'?10:5,rho,function(v){return (v>0?'+':'')+v+' pcm ('+(v/650).toFixed(2)+' $)'},function(v){rho=v;moved++});
-  if(mode==='growth')slider(box,'Period τ',5,100,1,tau,function(v){return v+' s'},function(v){tau=v;init(1);moved++});
-  if(mode==='decayheat')slider(box,'How long it ran before the trip',1,730,1,par.days||365,function(v){return v+' days'},function(v){par.days=v;moved++});
-  var r=row(box);if(mode!=='decayheat'&&mode!=='xenon'&&mode!=='growth'){var bS=btn(r,mode==='trip'?'Trip the reactor':'Scram',function(){tripped=true;tripT=tS;rho=-7000;if(rs)rs.input.value=rs.input.min;moved++},mode==='trip'?'pri':'')}
-  if(mode==='xenon'){btn(r,'100% power',function(){pw=1;moved++});btn(r,'50% power',function(){pw=.5;moved++});btn(r,'Shut down',function(){pw=0;shut=tS;moved++},'pri')}
-  btn(r,'Start again',function(){init(start);rho=par.rho||0;if(rs)rs.set(rho);if(mode==='xenon'){pw=1;I=gI/lI;X=(gX+gI)/(lX+sphi)}moved++});
-  if(mode!=='decayheat'&&mode!=='xenon'&&mode!=='burst'){var bV=btn(r,'Speed ×'+spd,function(){spd=spd===1?5:spd===5?20:1;bV.textContent='Speed ×'+spd})}
-  st=stats(box,mode==='decayheat'?[['a','1 minute after'],['b','1 hour after'],['c','1 day after']]:mode==='xenon'?[['x','Xenon worth'],['p','Power'],['t','Hours']]:mode==='growth'?[['d','Doubling time'],['s','Startup rate'],['p','Power ×']]:[['p','Power'],['t','Period'],['s','Startup rate']]);
-  function per(){if(tr.length<10)return Infinity;var a=tr[tr.length-1],b=null;for(var i=tr.length-1;i>=0;i--){if(a[0]-tr[i][0]>=(mode==='burst'?.05:2)){b=tr[i];break}}if(!b)return Infinity;var g=(Math.log(a[1])-Math.log(b[1]))/(a[0]-b[0]);return Math.abs(g)<1e-5?Infinity:1/g}
-  function adv(h){var rt=rho/1e5;if(mode==='feedback'||mode==='burst')rt+=-3e-5*(T-T0);var src=0;for(var i=0;i<6;i++)src+=LI[i]*C[i];n=(n+h*src+(mode==='ni'||mode==='period'||mode==='jump'?1e-12:0))/(1-h*(rt-BT)/LAM);if(n<1e-12)n=1e-12;for(var j=0;j<6;j++)C[j]=(C[j]+h*BI[j]*n/LAM)/(1+h*LI[j]);
-   if(mode==='feedback')T+=h*((300+600*n)-T)/4;if(mode==='burst')T+=h*n*4e3}
-  run(scr,function(dt,tm){var c=scr.c,W=scr.W,H=scr.H,nb=narrow(),sd=dt/1000*spd*(calm()?.5:1);bgf(c,W,H);
-   if(mode==='decayheat'){band(c,W,'DECAY HEAT AFTER A TRIP',nb?'4,590 MWth':'Hinkley Point C reactor: 4,590 MWth');var To=(par.days||365)*86400,f=function(t){return 6.6*(Math.pow(t,-.2)-Math.pow(t+To,-.2))},Cd=chart(c,52,34,W-66,H-70,{x:[0,7],y:[.05,10],ylog:true,xt:[0,1,2,3,4,5,6,7],xf:function(v){return ['1 s','10 s','100 s','17 min','3 h','1 day','12 days','4 mo'][v]},yf:function(v){return v+'%'},title:'HEAT STILL BEING MADE (% OF FULL POWER)'});
-    Cd.fn(function(x){return f(Math.pow(10,x))},rgba(OR,1),2.4,8);var cur=(tm/1000*.35)%7,pc=f(Math.pow(10,cur));Cd.dot(cur,pc,'#fff',5);var dl=fx(pc,2)+'% = '+fmtInt(pc/100*4590)+' MW',dr=Cd.X(cur)+8+dl.length*6.3>W-6;hud(c,Cd.X(cur)+(dr?-8:8),Cd.Y(pc)-8,dl,'#fff',10,dr?'right':'left',true);
-    st.a.textContent=fx(f(60),2)+'% ('+fmtInt(f(60)/100*4590)+' MW)';st.b.textContent=fx(f(3600),2)+'% ('+fmtInt(f(3600)/100*4590)+' MW)';st.c.textContent=fx(f(86400),2)+'% ('+fmtInt(f(86400)/100*4590)+' MW)';return}
-   if(mode==='xenon'){var h=60,steps=Math.round(sd/h);for(var s=0;s<steps;s++){var phi=pw;I+=h*(gI*phi-lI*I);X+=h*(gX*phi+lI*I-lX*X-sphi*phi*X);tS+=h;if(tS-(tr.length?tr[tr.length-1][0]:-1e9)>=600)tr.push([tS,X,pw])}while(tr.length&&tr[0][0]<tS-48*3600)tr.shift();
-    var Xeq=(gX+gI)/(lX+sphi),wor=-2800*X/Xeq;band(c,W,'XENON-135 · 1 second = 1 hour','t = '+fx(tS/3600,1)+' h');var Cx=chart(c,52,34,W-66,H-70,{x:[Math.max(0,tS-48*3600)/3600,Math.max(48,tS/3600)],y:[0,Xeq*2.2],ny:4,yf:function(v){return v>0?'−'+fmtInt(2800*v/Xeq):'0'},title:'XENON WORTH (pcm)',xl:'hours'});
-    Cx.clip();poly(c,tr.map(function(q){return [Cx.X(q[0]/3600),Cx.Y(q[1])]}),rgba(VI,1),2.4,8);poly(c,tr.map(function(q){return [Cx.X(q[0]/3600),Cx.Y(q[2]*Xeq*.4)]}),'rgba(120,235,140,.7)',1.6);Cx.un();hud(c,W-16,52,'power','#78eb8c',9,'right',true);
-    if(shut>=0&&tS-shut<40*3600)hud(c,Cx.X(Math.min(Cx.x1,(shut/3600+10))),Cx.Y(Xeq*2.05),'xenon peak ≈ 10 h after shutdown','#ffd65a',9,'center',true);st.x.textContent=fmtInt(wor)+' pcm';st.p.textContent=Math.round(pw*100)+'%';st.t.textContent=fx(tS/3600,1);return}
-   if(mode==='growth'){tS+=sd;n=Math.exp(tS/tau);tr.push([tS,n]);if(n>1e4){init(1);n=1}while(tr.length>2&&tr[0][0]<tS-120)tr.shift();band(c,W,'POWER ON A PERIOD · P = P₀ e^(t/τ)','t = '+fx(tS,0)+' s');var Cg=chart(c,52,34,W-66,H-70,{x:[Math.max(0,tS-120),Math.max(120,tS)],y:[.5,2e4],ylog:true,title:'POWER (TIMES THE START)',xl:'seconds'});Cg.clip();poly(c,tr.map(function(q){return [Cg.X(q[0]),Cg.Y(q[1])]}),rgba(CY,1),2.4,8);Cg.un();
-    var dtb=tau*Math.LN2;for(var k=1;k<14;k++){var tx=k*dtb;if(tx>Cg.x1)break;if(tx<Cg.x0)continue;c.setLineDash([3,3]);poly(c,[[Cg.X(tx),Cg.Y(.5)],[Cg.X(tx),Cg.Y(Math.pow(2,k))]],'rgba(255,214,90,.4)',1);c.setLineDash([]);hud(c,Cg.X(tx),Cg.Y(Math.pow(2,k))-6,'×'+Math.pow(2,k),'#ffd65a',8,'center')}st.d.textContent=fx(dtb,1)+' s';st.s.textContent=fx(26.06/tau,2)+' DPM';st.p.textContent=fx(n,n<10?2:0);return}
-   var hmax=mode==='burst'?2e-5:.001,steps2=Math.min(40000,Math.ceil(sd/hmax));if(steps2>0){var h2=sd/steps2;for(var s2=0;s2<steps2;s2++){adv(h2);tS+=h2;if(s2%Math.max(1,Math.floor(steps2/8))===0)tr.push([tS,n])}}
-   var win=mode==='burst'?1.2:mode==='ni'?900:150;while(tr.length>2&&tr[0][0]<tS-win)tr.shift();var tp=per(),sur=isFinite(tp)?26.06/tp:0;
-   if(mode==='period'&&par.goal==='sur'&&!tripped){if(Math.abs(sur-(par.target||1))<.15&&tS>5)held+=sd;else held=Math.max(0,held-sd);if(held>8)ok=true}
-   band(c,W,mode==='trip'?'REACTOR TRIP · power after the rods drop':mode==='burst'?'PROMPT CRITICAL · slowed down 20×':mode==='feedback'?'FEEDBACK · the reactor steadies itself':mode==='ni'?'NUCLEAR INSTRUMENTS · source to power range':'POINT KINETICS · six groups of delayed neutrons','t = '+fx(tS,tS<10?2:0)+' s');
-   var yR=mode==='trip'?[1e-4,2]:mode==='feedback'?[.5,2]:mode==='burst'?[1e-5,1e4]:mode==='ni'?[1e-10,2]:[1e-7,10],Ck=chart(c,52,34,W-66-(mode==='ni'?(nb?62:96):0),H-70,{x:[Math.max(0,tS-win),Math.max(win,tS)],y:yR,ylog:mode!=='feedback',ny:3,title:mode==='feedback'?'POWER (× FULL)':'POWER (LOG SCALE)',xl:'seconds'});
-   Ck.clip();poly(c,tr.map(function(q){return [Ck.X(q[0]),Ck.Y(q[1])]}),rgba(CY,1),2.4,8);Ck.un();if(mode==='trip'&&tripped&&tripT!=null){Ck.fn(function(x){return x<tripT?NaN:.066*Math.pow(x-tripT+1,-.2)},'rgba(255,170,80,.9)',1.8);hud(c,Ck.X(Math.min(Ck.x1,tripT+8)),Ck.Y(.066)-6,'decay heat','#ffaa50',9,'left',true)}
-   if(mode==='ni'){var mx=W-14-(nb?56:88),mw=nb?50:80,yb=function(v){return Ck.Y(v)};[['SR',1e-10,1e-4,[255,170,80],'counts/s'],['IR',1e-8,1.2,[143,128,255],'amps'],['PR',1e-2,1.5,[120,235,140],'%']].forEach(function(rg,i){var x=mx+i*(mw/3);c.fillStyle=rgba(rg[3],.22);c.fillRect(x,yb(rg[2]),mw/3-3,yb(rg[1])-yb(rg[2]));c.strokeStyle=rgba(rg[3],.8);c.strokeRect(x,yb(rg[2]),mw/3-3,yb(rg[1])-yb(rg[2]));hud(c,x+(mw/3-3)/2,Math.max(44,yb(rg[2])-4),rg[0],rgba(rg[3],1),8,'center',true)});c.fillStyle='#fff';c.fillRect(mx-4,yb(n)-1,mw+2,2);hud(c,mx+mw/2,H-14,n<1e-4?'source range':n<1e-2?'intermediate':'power range','#fff',8.5,'center',true);if(!tripped&&n<1&&!moved){rho=Math.max(0,Math.min(110,rho+sd*5))}}
-   var pr=mode==='trip'||mode==='feedback'?fx(n*100,1)+'%':sci(n,2)+' × full';st.p.textContent=pr;st.t.textContent=!isFinite(tp)||Math.abs(tp)>1e4?'steady (∞)':fx(tp,tp<1?3:1)+' s';st.s.textContent=fx(sur,2)+' DPM';
-   panel(c,60,40,nb?150:178,mode==='feedback'||mode==='burst'?46:32);hud(c,68,55,'ρ = '+(rho>0?'+':'')+Math.round(rho)+' pcm  ('+(rho/650).toFixed(2)+' $)',rho>650?'#ff6a5a':'#ffd65a',nb?9:10,'left',true);hud(c,68,69,mode==='feedback'||mode==='burst'?'fuel '+Math.round(T)+' °C · feedback '+Math.round(-3*(T-T0))+' pcm':'','rgba(200,225,255,.85)',8.5,'left');
-   if(par.goal==='sur'){var gw=nb?110:150;c.fillStyle='rgba(255,255,255,.1)';c.fillRect(W-gw-20,40,gw,5);c.fillStyle=ok?'#8dff9a':'#3ad4ff';c.fillRect(W-gw-20,40,gw*Math.min(1,ok?1:held/8),5);hud(c,W-20,56,ok?'HELD':'HOLD '+(par.target||1)+' DPM','rgba(200,225,255,.85)',8.5,'right',true)}
+    else if(fz.ok){var u2=(ph-.5)*2;glow(c,cx2,cy2,70*(1-u2),YE,.8);ball(c,cx2-u2*W*.12,cy2-u

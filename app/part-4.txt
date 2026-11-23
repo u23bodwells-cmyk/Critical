@@ -1,4 +1,6 @@
- 1986.</div>`),
+n class="km">reactivity added</span><span class="ku">no unit</span></div></div>`),
+N(`ρ = +100 pcm and β = 650 pcm. What's the prompt jump, P<sub>1</sub>/P<sub>0</sub>?`,1.18,0.01,'',`650 ÷ (650 − 100) = 1.18: an 18% jump, then a steady rise.`),
+T(`<h3>Prompt critical</h3><p>If reactivity reaches β (1 dollar), the reactor is critical on <b>prompt neutrons alone</b>. It no longer waits for delayed neutrons, and the period drops to milliseconds. Only the fuel heating up (Doppler) can stop it.</p><div class="warnbox"><b>A reactor must never be allowed to go prompt critical.</b> Chernobyl reactor 4 did in 1986.</div>`),
 W('dollarMeter',{},`Increase the reactivity and watch the period. Find where the period suddenly drops to <b>milliseconds</b>.`,`At ρ = β (1 $), the period collapses from minutes to milliseconds. The delayed neutrons no longer control the reactor.`),
 Q(`Which is prompt critical for U-235 fuel (β = 650 pcm)?`,['ρ = 100 pcm','ρ = 400 pcm','ρ = 650 pcm','k = 1'],2,`ρ = β = 650 pcm = 1 dollar.`),
 Q(`As plutonium builds up, β falls to about 500 pcm. Prompt critical is then reached with…`,['More reactivity','Less reactivity','The same reactivity'],1,`Prompt critical happens at ρ = β, so a smaller β means less reactivity is needed. That's one reason end-of-cycle cores respond faster.`)]),
@@ -748,6 +750,4 @@ Q(`A very high boron concentration can make the MTC…`,['less negative, or even
 Q(`Compared with xenon, samarium's effect on reactivity is…`,['smaller and slower','bigger and faster','exactly the same','positive'],0,`Samarium is worth hundreds of pcm and builds over days. Xenon is worth thousands and changes over hours.`)]);
 
 F('r11',[
-T(`<h3>Quick recap</h3><ul><li>Fresh fuel has lots of <b>excess reactivity</b>, held down by boron and burnable poisons</li><li>Over the cycle, boron is diluted to near zero; plutonium-239 builds up and β falls</li><li><b>Shutdown margin = (total rod worth − most reactive rod) − reactivity to overcome</b></li></ul><div class="callout"><b>Worked example:</b> rods 8000, stuck rod 1500, excess 5000: SDM = (8000 − 1500) − 5000 = <b>1500 pcm</b>.</div>`),
-N(`Total rod worth is 6500 pcm, the most reactive rod is worth 1000 pcm, and there's 4000 pcm to overcome. What's the shutdown margin?`,1500,0.01,'pcm',`(6500 − 1000) − 4000 = 1500 pcm.`,`Subtract the stuck rod first.`),
-N(`At full power, boron falls steadily from 1300 ppm to 0 over 500 days
+T(`<h3>Quick recap</h3><ul><li>Fresh fuel has lots of <b>excess reactivity</b>, held down by boron and burnable poisons</li><li>Over the cy
