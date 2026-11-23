@@ -1,4 +1,13 @@
- coolant'],0,`Precursors such as bromine-87 decay and give off a neutron seconds to a minute after fission.`),
+,`1300 ÷ 500 = 2.6 ppm per day.`),
+Q(`At the end of a fuel cycle, the boron concentration at full power is about…`,['0 ppm','1200 ppm','2000 ppm','it isn\'t used'],0,`Boron has been diluted away to compensate for fuel burnup.`),
+Q(`As plutonium-239 builds up, β…`,['falls','rises','stays the same'],0,`Pu-239 has a smaller delayed neutron fraction (about 0.21%) than U-235 (0.65%).`),
+Q(`Shutdown margin is calculated assuming…`,['the most reactive rod is stuck fully out','all rods insert perfectly','boron is zero','xenon is at its peak'],0,`It's a single-failure assumption: the reactor must still shut down even if one rod sticks.`)]);
+
+F('k1',[
+T(`<h3>Quick recap</h3><ul><li>Prompt neutron generation time ℓ ≈ 2 × 10<sup>−5</sup> s</li><li>About <b>0.65%</b> of U-235 fission neutrons are <b>delayed</b> (β = 0.0065)</li><li>With delayed neutrons, the average generation time is about <b>0.08 s</b></li><li>Prompt-only period: <b>τ = ℓ/(k − 1)</b></li></ul><div class="callout"><b>Worked example:</b> ℓ = 2 × 10<sup>−5</sup> s, k − 1 = 0.002: τ = 2 × 10<sup>−5</sup> ÷ 0.002 = <b>0.01 s</b>.</div>`),
+N(`Prompt neutrons only: ℓ = 10<sup>−4</sup> s and k − 1 = 0.0005. What would the period be?`,0.2,0.01,'s',`τ = 10<sup>−4</sup> ÷ 0.0005 = 0.2 s. Still far too fast to control.`),
+N(`1,000,000 fission neutrons are released, and β = 0.0065. How many are delayed?`,6500,0.01,'',`1,000,000 × 0.0065 = 6500.`),
+Q(`Delayed neutrons come from…`,['the decay of certain fission products, called precursors','the control rods','the neutron source','the coolant'],0,`Precursors such as bromine-87 decay and give off a neutron seconds to a minute after fission.`),
 Q(`Which delayed neutron group has the largest share of β?`,['Group 1 (55.7 s)','Group 2 (22.7 s)','Group 4 (2.3 s)','Group 6 (0.2 s)'],2,`Group 4 makes up about 40% of β.`),
 N(`The average generation time with delayed neutrons is 0.08 s, and the prompt generation time is 2 × 10<sup>−5</sup> s. How many times longer is it?`,4000,0.01,'times',`0.08 ÷ 0.00002 = 4000.`)]);
 
@@ -977,11 +986,4 @@ T(`<h3>The magic property of e<sup>x</sup></h3><p>The graph of y = e<sup>x</sup>
 W('fnPlot',{x:[-2,3],y:[0,22],xl:'x',yl:'y',sl:[['a','Point x',-2,3,0.5,1,function(v){return v}]],curves:function(p){var y0=Math.exp(p.a);return [[function(x){return Math.exp(x)},'--accent',3],[function(x){return y0+y0*(x-p.a)},'--coral',2,[6,4]]]},read:function(p){var y=Math.exp(p.a);return 'At x = '+p.a+': height e<sup>x</sup> = <b>'+y.toFixed(2)+'</b>, gradient (dashed tangent) = <b>'+y.toFixed(2)+'</b>. The same!'}},`Move the point along y = e<sup>x</sup>. Compare the height with the gradient of the dashed tangent line.`),
 Q(`What is special about the graph of y = e<sup>x</sup>?`,[`Its gradient at every point equals its height`,'It\'s a straight line through the origin','It crosses the x-axis at exactly x = 0','Its gradient is always the same: 1 at every point'],0,`That's why e describes anything growing in proportion to its own size.`),
 N(`Use a calculator: what is e<sup>2</sup>, to 2 decimal places?`,7.39,0.005,'',`e² = 2.718 × 2.718 ≈ 7.39.`,`Use the e<sup>x</sup> button with x = 2.`),
-QE(`In P = P₀ e<sup>t/τ</sup>, what is P₀?`,[`The power at the start (t = 0)`,`The final power (t → ∞)`,`The power after one period (t = τ)`,`The time taken to double`],0,`At t = 0, e⁰ = 1, so P = P₀.`),
-T(`<h3>Key points</h3><ul><li><b>e ≈ 2.718</b>: the limit of growing in smaller and smaller steps.</li><li>e<sup>x</sup> has a gradient equal to its height, so it describes <b>continuous</b> growth and decay.</li><li>e⁰ = 1, so in P = P₀ e<sup>t/τ</sup>, P₀ is the starting value.</li></ul>`)]),
-LH('m2-2-2','The natural log (ln)',10,'How to get the time out of an exponential. One button: ln.',[
-RM(`<p>In Level 1 you met <b>log₁₀</b>: it answers "10 to the what?". For example log₁₀(1000) = 3, because 10³ = 1000.</p><p>The <b>natural log</b>, written <b>ln</b>, does the same job for e.</p>`),
-T(`<h3>What ln means</h3><div class="eq">ln(y) = x &nbsp; means &nbsp; e<sup>x</sup> = y</div><p>ln answers "e to the what gives this number?"</p><ul><li>ln(e) = 1, because e¹ = e</li><li>ln(1) = 0, because e⁰ = 1</li><li>ln(e<sup>5</sup>) = 5</li></ul><div class="callout">ln and e<sup>x</sup> <b>undo each other</b>, just like square and square-root.</div>`),
-Q(`What is ln(1)?`,[`0`,`1`,`e`,`It doesn't exist`],0,`e⁰ = 1, so ln(1) = 0.`),
-T(`<h3>Three rules you'll use</h3><table><tr><th>Rule</th><th>Example</th></tr><tr><td>ln(a × b) = ln a + ln b</td><td>ln(20) = ln 4 + ln 5</td></tr><tr><td>ln(a ÷ b) = ln a − ln b</td><td>ln(½) = ln 1 − ln 2 = −0.693</td></tr><tr><td>ln(a<sup>n</sup>) = n × ln a</td><td>ln(8) = 3 ln 2</td></tr></table><p>Two values worth remembering: <b>ln 2 ≈ 0.693</b> and <b>ln 10 ≈ 2.303</b>.</p>`),
-T(`<
+QE(`In P = P₀ e<sup>t/τ</sup>, what is P₀?`,[`The power at the start (t = 0)`,`The fina

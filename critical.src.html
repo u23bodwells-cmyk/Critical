@@ -90,6 +90,12 @@ main{max-width:1100px;margin:0 auto;padding:20px 16px 80px}
 .ptop{display:flex;align-items:center;gap:14px;padding:12px 16px;max-width:820px;width:100%;margin:0 auto}
 .pclose{background:none;border:0;font-size:22px;line-height:1;padding:4px 8px;border-radius:8px;color:var(--muted)}
 .pclose:hover{background:var(--soft)}
+.cfm{position:fixed;inset:0;z-index:5000;display:grid;place-items:center;padding:16px;background:rgba(0,0,0,.45)}
+.cfm>div{width:min(400px,100%);box-sizing:border-box;background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:0 18px 50px rgba(0,0,0,.35)}
+.cfm p{margin:0 0 14px;line-height:1.5;white-space:pre-line}
+.cfm .cfb{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+.cfm button{font:inherit;font-weight:700;border-radius:12px;padding:10px 16px;cursor:pointer;border:1.5px solid var(--line);background:var(--soft);color:var(--text)}
+.cfm button.y{background:var(--accent);border-color:var(--accent);color:var(--on-accent,#fff)}
 .pbar{flex:1;height:12px;background:var(--soft2);border-radius:6px;overflow:hidden}
 .pbar div{height:100%;background:var(--accent);border-radius:6px;transition:width .35s}
 .pxp{font-weight:700;font-size:14px;color:var(--accent);min-width:56px;text-align:right}
@@ -1006,7 +1012,7 @@ function lvDone(m,lv){var a=allLessons(m,lv);return [a.filter(function(x){return
 function lvOpen(m,lv){if(isA(m)&&!alOpen())return false;if(lv<=1||(isQ(m)&&lv===2))return true;if(S.lvlOpen&&S.lvlOpen[m+lv])return true;var d=lvDone(m,lv-1);return d[1]>0&&d[0]/d[1]>=0.8}
 function levelPicker(){var m=curMode(),cl=curLevel(m),h='<div class="lvpick" role="tablist" aria-label="Level">';for(var lv=1;lv<=maxLv(m);lv++){var d=lvDone(m,lv),op=lvOpen(m,lv);h+='<button role="tab" aria-selected="'+(lv===cl)+'" class="lvb'+(lv===cl?' on':'')+(op?'':' lk')+'" data-lv="'+lv+'"><b>'+(op?'':LOCK)+'Level '+lv+'</b><span>'+lvInfo(m,lv)[0]+'</span><span class="lvn">'+d[0]+'/'+d[1]+'</span><i style="width:'+(d[1]?d[0]/d[1]*100:0)+'%"></i></button>'}return h+'</div>'}
 function levelCard(){var m=curMode(),lv=curLevel(m),d=lvDone(m,lv),f=d[1]?d[0]/d[1]:0;return '<div class="card levelcard"><h2>Level '+lv+': '+lvInfo(m,lv)[0]+' <span class="modetag">'+modeName(m)+'</span></h2><div class="lvrow">'+ring(f,'#534AB7',104,Math.round(f*100)+'%')+'<div><p class="note" style="font-size:15px;margin-top:0">'+lvInfo(m,lv)[1]+'</p><p class="note"><b>'+d[0]+' of '+d[1]+'</b> lessons done.</p></div></div><div class="lvhow"><b>How these lessons stay easy to follow</b><ul><li>Every lesson starts with a <span class="fromb">Remember</span> card: the earlier ideas it needs, said again.</li><li>Each new idea gets its own card, with a key under every equation.</li><li><span class="fromb">From earlier</span> questions bring back older ideas so you don\'t forget them.</li></ul></div></div>'}
-function setLevel(lv){var m=curMode();if(!lvOpen(m,lv)){var d=lvDone(m,lv-1);if(!confirm('Level '+lv+' builds on Level '+(lv-1)+'. You\'ve done '+d[0]+' of '+d[1]+' Level '+(lv-1)+' lessons. We recommend finishing at least 80% first, so nothing feels new and confusing.\n\nOpen Level '+lv+' anyway?'))return;S.lvlOpen=S.lvlOpen||{};S.lvlOpen[m+lv]=1}S.lvl=S.lvl||{};S.lvl[m]=lv;JUST_BUILT=null;save();renderLearn()}
+function setLevel(lv){var m=curMode();if(!lvOpen(m,lv)){var d=lvDone(m,lv-1);askBox('Level '+lv+' builds on Level '+(lv-1)+'. You\'ve done '+d[0]+' of '+d[1]+' Level '+(lv-1)+' lessons. We recommend finishing at least 80% first, so nothing feels new and confusing.\n\nOpen Level '+lv+' anyway?','Open it','Not yet',function(){S.lvlOpen=S.lvlOpen||{};S.lvlOpen[m+lv]=1;S.lvl=S.lvl||{};S.lvl[m]=lv;JUST_BUILT=null;save();renderLearn()});return}S.lvl=S.lvl||{};S.lvl[m]=lv;JUST_BUILT=null;save();renderLearn()}
 function L(id,title,mins,cards){return {id:id,title:title,mins:mins,cards:cards}}
 function T(h){return {t:'T',h:h}}
 function Q(p,o,a,e,hint){return {t:'Q',p:p,o:o,a:a,e:e,hint:hint}}
@@ -1098,7 +1104,7 @@ function renderLearn(){var TH=curMode()==='theory',CA=curMode()==='calc',el=$('p
  wireProgress();wireStation();
  if($('goNext'))$('goNext').onclick=function(){runAction(na)};if($('goOne'))$('goOne').onclick=function(){ONE.start()};
  if($('goSim'))$('goSim').onclick=function(){showPage('sim')};if($('goSim2'))$('goSim2').onclick=function(){showPage('sim')};if($('goRev'))$('goRev').onclick=function(){startReview(false)};
- $('resetAll').onclick=function(){if(confirm('Reset all your XP, streak, badges and lesson progress?')){S={xp:0,done:{},streak:0,last:'',daily:{d:'',xp:0},missions:{},goal:50};motInit();JUST_BUILT=null;save();updHeader();renderLearn()}};
+ $('resetAll').onclick=function(){askBox('Reset all your XP, streak, badges and lesson progress? This can\'t be undone.','Reset everything','Cancel',function(){S={xp:0,done:{},streak:0,last:'',daily:{d:'',xp:0},missions:{},goal:50};motInit();JUST_BUILT=null;save();updHeader();renderLearn()})};
  [].forEach.call(el.querySelectorAll('.lnode[data-u]'),function(b){b.onclick=function(){startLesson(+b.dataset.u,+b.dataset.l)}});
  [].forEach.call(el.querySelectorAll('.fuchip'),function(b){b.onclick=function(){startFollow(b.dataset.f)}});
  [].forEach.call(el.querySelectorAll('.tnode'),function(b){b.onclick=function(){startTest(+b.dataset.t)}})}
@@ -1153,9 +1159,15 @@ function startLesson(ui,li){var u=UNITS[ui],l=u.lessons[li];if(!S.done[l.id]){va
 function openPlayer(){var pl=$('player');pl.classList.add('open');document.body.classList.add('noscroll');showCombo(false);soundBtnUpd();ac();showCard();
  /* move keyboard focus into the lesson, so Enter presses Continue instead of the (now hidden) button that started it */
  try{var ae=document.activeElement;if(ae&&ae!==document.body&&!pl.contains(ae))ae.blur();if(!pl.contains(document.activeElement)){if(!pl.hasAttribute('tabindex'))pl.setAttribute('tabindex','-1');pl.focus({preventScroll:true})}}catch(_){}}
+/* an in-app yes/no box: the browser's own confirm() can be switched off or blocked, and then the button just did nothing */
+function askBox(msg,yes,no,fn){if(document.querySelector('.cfm'))return;var o=document.createElement('div');o.className='cfm';o.setAttribute('role','alertdialog');o.setAttribute('aria-modal','true');
+ o.innerHTML='<div><p></p><div class="cfb"><button type="button" class="n"></button><button type="button" class="y"></button></div></div>';o.querySelector('p').textContent=msg;o.querySelector('.y').textContent=yes;o.querySelector('.n').textContent=no;
+ var back=document.activeElement;function key(e){e.stopPropagation();if(e.key==='Escape'){e.preventDefault();done(false)}else if(!o.contains(e.target)&&(e.key==='Enter'||e.key===' ')){e.preventDefault()}}function done(ok){window.removeEventListener('keydown',key,true);o.remove();if(!ok&&back&&document.body.contains(back))try{back.focus({preventScroll:true})}catch(_){}if(ok)fn()}
+ o.querySelector('.y').onclick=function(){done(true)};o.querySelector('.n').onclick=function(){done(false)};o.addEventListener('click',function(e){if(e.target===o)done(false)});
+ window.addEventListener('keydown',key,true);document.body.appendChild(o);setTimeout(function(){try{o.querySelector('.y').focus({preventScroll:true})}catch(_){}},30)}
 function closePlayer(){var lu=P&&P.levelUp;stopTimer();$('player').classList.remove('open');document.body.classList.remove('noscroll');DRAWS=[];$('pBody').innerHTML='';P=null;if(PAGE==='learn')renderLearn();if(PAGE==='review')renderReview();if(lu!=null)setTimeout(function(){showLevelUp(lu)},250)}
 $('pUnits').onclick=function(){openUnits()};
-$('pClose').onclick=function(){if(!P||P.finished||confirm('Leave this lesson? Your progress in it won\'t be saved.'))closePlayer()};
+$('pClose').onclick=function(){if(!P||P.finished||(!P.i&&!P.right&&!(P.st&&P.st.tries))){closePlayer();return}askBox('Leave this lesson? Your progress in it won\'t be saved.','Leave','Keep going',function(){if(P)closePlayer()})};
 $('pBtn').onclick=function(){if(P&&P.onMain)P.onMain()};
 $('pSkip').onclick=function(){if(P&&P.onSkip)P.onSkip()};
 document.addEventListener('keydown',function(e){if(!P||e.ctrlKey||e.metaKey||e.altKey)return;var pl=$('player');if(!pl||!pl.classList.contains('open'))return;

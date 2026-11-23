@@ -1,4 +1,14 @@
-ne exception</h3><p>For x⁻¹ (that's 1/x), adding 1 gives x⁰, and dividing by 0 is impossible. So 1/x needs a different rule. You'll meet it in the next unit: it involves ln x.</p>`),
+tiation. Always + C. Check by differentiating.</p>`),
+T(`<h3>Reversing the power rule</h3><p>Differentiating: multiply by the power, then subtract 1. To reverse it, do the opposite moves in the opposite order:</p><div class="eq">∫ xⁿ dx = xⁿ⁺¹ ÷ (n + 1) + C</div><p><b>Add 1 to the power</b>, then <b>divide by the new power</b>.</p>`),
+W('stepCalc',{steps:[`∫ 6x² dx`,`Add 1 to the power: 2 + 1 = 3`,`Divide by the new power: 6 ÷ 3 = 2`,`Answer: <b>2x³ + C</b>`,`Check: d/dx (2x³) = 6x² ✓`]},`Watch the two moves.`,`Up one, divide by the new power, + C.`),
+Q(`∫ x⁴ dx = …`,[`x⁵/5 + C`,`4x³ + C`,`x⁵ + C`,`5x⁵ + C`],0,`Power 5, divide by 5.`),
+T(`<h3>Constants and sums</h3><ul><li>∫ 7 dx = 7x + C (a constant is 7x⁰; the power goes up to 1).</li><li>Integrate sums <b>term by term</b>, with one + C at the end.</li></ul><p>∫ (3x² + 4x + 5) dx = x³ + 2x² + 5x + C.</p>`),
+W('calcDrill',{skill:'intpow',need:8},`Integrate. Get 8 right to master it.`,`Add one to the power, divide by the new power.`),
+T(`<h3>Key points</h3><ul><li><b>∫ axⁿ dx = axⁿ⁺¹ ÷ (n + 1) + C</b>.</li><li>Constants: ∫ k dx = kx + C.</li><li>Term by term; one + C.</li></ul>`)]),
+LH('c4-1-3','Negative and fractional powers',10,'Rewrite first, then the reverse power rule still works. The one exception: x⁻¹.',[
+RM(`<p>∫ xⁿ dx = xⁿ⁺¹ ÷ (n + 1) + C. Rewrite fractions and roots as powers first.</p>`),
+T(`<h3>Rewrite, then integrate</h3><p>∫ 6/x³ dx: rewrite as ∫ 6x⁻³ dx. Add 1 to the power: −3 + 1 = −2. Divide by −2: 6 ÷ (−2) = −3. Answer: <b>−3x⁻² + C</b>.</p>`),
+T(`<h3>The one exception</h3><p>For x⁻¹ (that's 1/x), adding 1 gives x⁰, and dividing by 0 is impossible. So 1/x needs a different rule. You'll meet it in the next unit: it involves ln x.</p>`),
 Q(`Why doesn't the reverse power rule work for 1/x?`,[`It would mean dividing by zero`,'1/x has no graph to find the area under','It does work, giving ln x every time','Because x can never be negative'],0,`x⁻¹ → x⁰ ÷ 0.`),
 W('calcDrill',{skill:['intneg','intfrac'],need:6},`Rewrite and integrate. Get 6 right to master it.`,`Careful with negatives: −3 + 1 = −2.`),
 W('calcDrill',{skill:['intpow','intneg','intfrac'],need:8},`All powers, mixed. Get 8 right to master it.`,`You can integrate any power of x except 1/x.`),
@@ -976,12 +986,4 @@ T(`<h3>Key points</h3><ul><li><b>∂f/∂x</b>: differentiate in x, everything e
 LH('c12-2-2','Second partial derivatives',10,'Differentiate again, in either direction. A surprising symmetry, and the equations of heat.',[
 RM(`<p>f<sub>x</sub> = ∂f/∂x with y held constant. The second derivative measures curvature.</p>`),
 T(`<h3>Four second partials</h3><ul><li><b>f<sub>xx</sub></b>: differentiate f<sub>x</sub> with respect to x.</li><li><b>f<sub>yy</sub></b>: differentiate f<sub>y</sub> with respect to y.</li><li><b>f<sub>xy</sub></b>: differentiate f<sub>x</sub> with respect to y.</li><li><b>f<sub>yx</sub></b>: differentiate f<sub>y</sub> with respect to x.</li></ul>`),
-T(`<h3>Clairaut's theorem</h3><p>For smooth functions, the order doesn't matter:</p><div class="eq">f<sub>xy</sub> = f<sub>yx</sub></div><p>Example: f = x²y³. f<sub>x</sub> = 2xy³, so f<sub>xy</sub> = 6xy². f<sub>y</sub> = 3x²y², so f<sub>yx</sub> = 6xy². ✓</p>`),
-W('calcDrill',{skill:'mixed',need:3},`Mixed partials. Get 3 right to master it.`,`Differentiate in x, then in y.`),
-Q(`f = sin(x) eʸ. f<sub>xy</sub> = …`,[`cos(x) eʸ`,`−sin(x) eʸ`,`sin(x) eʸ`,`0`],0,`f<sub>x</sub> = cos x eʸ; then ∂/∂y leaves it unchanged.`),
-T(`<h3>The heat equation</h3><p>Temperature T(x, t) along a rod obeys:</p><div class="eq">∂T/∂t = α ∂²T/∂x²</div><p>Where the temperature curves upward (∂²T/∂x² > 0, a cold spot between hotter neighbours) it warms up. This <b>partial differential equation</b> governs heat flow out of fuel, and a near-identical one governs neutron diffusion in the core.</p>`),
-QE(`f = x²y. ∂f/∂x = …`,[`2xy`,`x²`,`2x`,`2y`],0,`y is constant.`),
-T(`<h3>Key points</h3><ul><li>Four second partials: f<sub>xx</sub>, f<sub>yy</sub>, f<sub>xy</sub>, f<sub>yx</sub>.</li><li><b>Clairaut</b>: f<sub>xy</sub> = f<sub>yx</sub>.</li><li>PDEs like the heat equation use them.</li></ul>`)]),
-LH('c12-2-3','Tangent planes and approximation',10,'Zoom in on a smooth surface and it looks flat: a tangent plane.',[
-RM(`<p>Linear approximation in 1D: f(a + h) ≈ f(a) + f′(a)h. A plane: z = c + mx + ny.</p>`),
-T(`<h3>The tangent plane</h3><p>At (a, b), the surface is best matched by the plane:</p><div class="eq">z = f(a, b) + f<sub>x</sub>(a, b)(x − a) + f<sub>y</sub>(a, b)(y − b)</div><p>It's the 1D t
+T(`<h3>Clairaut's theorem</h3><p>For smooth func

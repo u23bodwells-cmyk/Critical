@@ -1,4 +1,11 @@
-k:false,msg:'Move the energy slider to the tallest orange spike.'}},lock:function(){s.input.disabled=true}}};
+U-235 fission σ'],['c','U-238 capture σ']]);
+ function sf(E){var s=585*Math.sqrt(0.0253/E);[[0.29,90],[1.14,50],[8.8,60],[19.3,40]].forEach(function(r){s+=r[1]/(1+Math.pow((E-r[0])/(0.04*r[0]),2))});return Math.max(s,1.2)}
+ function sc(E){var s=2.7*Math.sqrt(0.0253/E);RS.forEach(function(r){var w=0.012*r[0];s+=r[1]/(1+Math.pow((E-r[0])/w,2))});return Math.max(s,E>1e4?0.08:0.2)}
+ var xs=[];for(var i=0;i<=900;i++)xs.push(Math.pow(10,-3+10*i/900));RS.forEach(function(r){for(var j=-30;j<=30;j++)xs.push(r[0]*(1+j*0.004))});xs.sort(function(a,b){return a-b});
+ function draw(){var E=Math.pow(10,s.get()),P=plot(cv,{x:[1e-3,1e7],y:[0.05,2e4],xlog:true,ylog:true,xl:'neutron energy (eV)',yl:'cross section (barns)'});P.pts(xs.map(function(x){return [x,sc(x)]}),cssv('--coral'),1.8);P.pts(xs.map(function(x){return [x,sf(x)]}),cssv('--accent'),2.5);P.vline(E,cssv('--text'));P.vline(0.0253,cssv('--teal'),[2,3],1);P.text('thermal',0.03,1.2e4,cssv('--teal'));P.vline(2e6,cssv('--teal'),[2,3],1);P.text('fission neutrons',2.2e6,1.2e4,cssv('--teal'),'right');
+  P.text('— U-235 fission',1.5e-3,0.2,cssv('--accent'));P.text('— U-238 capture',1.5e-3,0.09,cssv('--coral'));st.f.textContent=sf(E).toPrecision(3)+' b';st.c.textContent=sc(E).toPrecision(3)+' b'}
+ onDraw(draw);draw();el('p','small','Simplified curves for learning: real data has thousands of resonances.',box);
+ return {check:function(){var E=Math.pow(10,s.get());return E>=5.5&&E<=8?{ok:true,msg:'At '+E.toFixed(2)+' eV, U-238\'s capture cross section is about '+Math.round(sc(E))+' barns.'}:{ok:false,msg:'Move the energy slider to the tallest orange spike.'}},lock:function(){s.input.disabled=true}}};
 
 WIDGETS.beamSlab=function(box){var cv=canvas(box,170),sg=slider(box,'Σ (per cm)',0.2,2,0.05,0.5,function(v){return v.toFixed(2)+' /cm'},function(){upd()}),th=slider(box,'Thickness',0,30,0.5,2,function(v){return v.toFixed(1)+' cm'},function(){upd()}),st=stats(box,[['t','Beam getting through'],['m','Mean free path']]),parts=[];
  function T(){return Math.exp(-sg.get()*th.get())}function upd(){var t=T();st.t.textContent=(t*100<0.1?(t*100).toExponential(1):(t*100).toFixed(t<0.1?2:1))+'%';st.m.textContent=(1/sg.get()).toFixed(2)+' cm'}upd();
@@ -1206,20 +1213,4 @@ var STUDY=(function(){
  /* autosave: while the timer runs, the session so far is saved every minute, so a crash, a closed tab or a sync can't lose it */
  var lastM=-1;
  function liveIdx(){if(!st.run||!st.run.c)return -1;for(var i=0;i<st.sessions.length;i++)if(st.sessions[i]&&st.sessions[i].c===st.run.c)return i;return -1}
- function liveSave(){if(!st.run)return;
-  try{var cur=JSON.parse(localStorage.getItem(KEY)||'null');if(cur&&Array.isArray(cur.sessions))st.sessions=cur.sessions}catch(_){}
-  if(!st.run.c)st.run.c=new Date(st.run.at).toISOString();
-  var m=Math.min(600,Math.floor((Date.now()-st.run.at)/60000)),i=liveIdx(),t=st.run.t||'Study session';
-  if(m>=1){if(i<0)st.sessions.push({d:ymd(new Date(st.run.at)),m:m,t:t,c:st.run.c});else{st.sessions[i].m=Math.max(m,+st.sessions[i].m||0);st.sessions[i].t=t}}
-  keep()}
- function tk(){paintClock();if(!st.run)return;var m=Math.floor((Date.now()-st.run.at)/60000);if(m!==lastM){var first=lastM<0;lastM=m;liveSave();if(!first&&m%5===0)writeFile(false);if(sh.classList.contains('open'))paint()}}
- function startTick(){clearInterval(tick);lastM=-1;tick=setInterval(tk,1000);tk()}
- function onHide(){if(st.run)liveSave()}
- document.addEventListener('visibilitychange',function(){if(document.visibilityState==='hidden')onHide()});window.addEventListener('pagehide',onHide);
- /* another Critical window changed the timer (started, stopped, or saved): follow it */
- function adopt(raw){var v=null;try{v=JSON.parse(raw||'null')}catch(_){}if(!v||!Array.isArray(v.sessions))return;
-  var was=st.run&&st.run.c;st=v;
-  if(st.run){if(!tick||was!==st.run.c){clearInterval(tick);tick=setInterval(tk,1000)}lastM=Math.floor((Date.now()-st.run.at)/60000)}else{clearInterval(tick);tick=null}
-  paintClock();if(sh.classList.contains('open'))paint()}
- window.addEventListener('storage',function(e){if(e.key===KEY)adopt(e.newValue)});
- $('[data-a=go]'
+ function liv

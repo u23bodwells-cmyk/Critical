@@ -1,4 +1,12 @@
-angent line, with one slope term for each direction.</p>`),
+tions, the order doesn't matter:</p><div class="eq">f<sub>xy</sub> = f<sub>yx</sub></div><p>Example: f = x²y³. f<sub>x</sub> = 2xy³, so f<sub>xy</sub> = 6xy². f<sub>y</sub> = 3x²y², so f<sub>yx</sub> = 6xy². ✓</p>`),
+W('calcDrill',{skill:'mixed',need:3},`Mixed partials. Get 3 right to master it.`,`Differentiate in x, then in y.`),
+Q(`f = sin(x) eʸ. f<sub>xy</sub> = …`,[`cos(x) eʸ`,`−sin(x) eʸ`,`sin(x) eʸ`,`0`],0,`f<sub>x</sub> = cos x eʸ; then ∂/∂y leaves it unchanged.`),
+T(`<h3>The heat equation</h3><p>Temperature T(x, t) along a rod obeys:</p><div class="eq">∂T/∂t = α ∂²T/∂x²</div><p>Where the temperature curves upward (∂²T/∂x² > 0, a cold spot between hotter neighbours) it warms up. This <b>partial differential equation</b> governs heat flow out of fuel, and a near-identical one governs neutron diffusion in the core.</p>`),
+QE(`f = x²y. ∂f/∂x = …`,[`2xy`,`x²`,`2x`,`2y`],0,`y is constant.`),
+T(`<h3>Key points</h3><ul><li>Four second partials: f<sub>xx</sub>, f<sub>yy</sub>, f<sub>xy</sub>, f<sub>yx</sub>.</li><li><b>Clairaut</b>: f<sub>xy</sub> = f<sub>yx</sub>.</li><li>PDEs like the heat equation use them.</li></ul>`)]),
+LH('c12-2-3','Tangent planes and approximation',10,'Zoom in on a smooth surface and it looks flat: a tangent plane.',[
+RM(`<p>Linear approximation in 1D: f(a + h) ≈ f(a) + f′(a)h. A plane: z = c + mx + ny.</p>`),
+T(`<h3>The tangent plane</h3><p>At (a, b), the surface is best matched by the plane:</p><div class="eq">z = f(a, b) + f<sub>x</sub>(a, b)(x − a) + f<sub>y</sub>(a, b)(y − b)</div><p>It's the 1D tangent line, with one slope term for each direction.</p>`),
 W('stepCalc',{steps:[`f = x² + y² at (1, 2)`,`f(1, 2) = 5, f<sub>x</sub> = 2x = 2, f<sub>y</sub> = 2y = 4`,`Tangent plane: z = 5 + 2(x − 1) + 4(y − 2)`,`Estimate f(1.1, 1.9): z ≈ 5 + 2(0.1) + 4(−0.1) = <b>4.8</b>`,`True value: 1.21 + 3.61 = 4.82`]},`A tangent plane estimate.`,`Close to the point, the plane is very accurate.`),
 W('calcDrill',{skill:'tanplane',need:3},`Tangent plane estimates. Get 3 right to master it.`,`f + f<sub>x</sub>Δx + f<sub>y</sub>Δy.`),
 T(`<h3>Error propagation</h3><p>The <b>total differential</b> dz = f<sub>x</sub> dx + f<sub>y</sub> dy estimates how errors in x and y affect z. A cylinder's volume V = πr²h: dV = 2πrh dr + πr² dh. A 1% error in r causes about a 2% error in V; 1% in h, about 1%. Engineers use this to decide which measurement matters most.</p>`),
@@ -828,10 +836,4 @@ T(`<h3>Key points</h3><ul><li>Metallic bonding: positive ions in a sea of deloca
 ]});
 
 U({id:'gc2-3',track:'gc',level:2,title:'Quantitative chemistry',icon:'mol',color:'#BA7517',desc:'Conservation of mass, relative formula mass, moles, reacting masses, limiting reactants, concentration, yield and atom economy.',lessons:[
-LH('gc2-3-1','Conservation of mass and Mr',9,'Mass is never lost in a reaction, how to work out relative formula mass, and percentage by mass.',[
-T(`<h3>Conservation of mass</h3><p>In a chemical reaction, atoms aren't made or destroyed, just rearranged. So the <b>total mass of the products equals the total mass of the reactants</b>. That's why equations must be balanced.</p>`),
-W('calcDrill',{skill:'g_balance',need:4},`Balance the equations. Get 4 right to master it.`,`Count each type of atom on both sides. Change only the big numbers in front.`),
-T(`<h3>When mass seems to change</h3><ul><li>If a <b>gas escapes</b> (like CO₂ when a carbonate is heated), the mass in the flask goes <b>down</b>.</li><li>If something reacts with a <b>gas from the air</b> (like magnesium burning in oxygen), the mass goes <b>up</b>.</li></ul><p>Mass is still conserved: you're just not weighing the gas.</p>`),
-Q(`Magnesium ribbon is burned in air. The white powder left has more mass than the ribbon. Why?`,[`Oxygen from the air has joined onto the magnesium`,'Mass was created by the energy released as it burned','The magnesium absorbed heat, and heat has mass','Water vapour from the flame has soaked into the ash'],0,`Mg + O₂ → MgO: the oxygen's mass is added.`),
-T(`<h3>Relative formula mass (M<sub>r</sub>)</h3><p>Add up the relative atomic masses (A<sub>r</sub>) of every atom in the formula:</p><div class="eq">CO₂: 12 + 2 × 16 = 44</div><p>Brackets multiply everything inside: Ca(OH)₂ = 40 + 2 × (16 + 1) = 74.</p>`),
-W('calcDrill',{skill:'g_mr',need:5},`Work out M<sub>r
+LH('gc2-3-1','Conser

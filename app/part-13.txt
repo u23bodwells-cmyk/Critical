@@ -1,4 +1,14 @@
-'Algorithms',7,'An algorithm is a precise set of steps that solves a problem. Every program starts as one.',[
+es: on and off`,`Binary numbers are shorter`,`It's easier for humans to read`,`It uses less electricity than decimal`],0,`Transistors are either on or off, so two digits are all they need.`)]),
+LH('gcs1-1-3','Counting in binary',8,'Read and write binary numbers using place values.',[
+T(`<h3>Place values</h3><p>In denary (normal numbers) each column is worth 10 times the one to its right: 1, 10, 100…</p><p>In binary each column is worth <b>2 times</b> the one to its right:</p><div class="eq">128 · 64 · 32 · 16 · 8 · 4 · 2 · 1</div><p>To read a binary number, add up the place values where there's a 1.</p>`),
+T(`<h3>Example</h3><p><b>0010 1101</b>: the 1s are under 32, 8, 4 and 1.</p><p>32 + 8 + 4 + 1 = <b>45</b>.</p>`),
+N(`Convert the binary number 1011 to denary.`,11,0.001,'',`8 + 2 + 1 = 11.`),
+N(`Convert 0110 0100 to denary.`,100,0.001,'',`64 + 32 + 4 = 100.`),
+T(`<h3>Denary to binary</h3><p>Start at the biggest place value that fits, and subtract as you go.</p><p>To write <b>37</b>: 32 fits (5 left), 16 no, 8 no, 4 fits (1 left), 2 no, 1 fits. So 37 = <b>0010 0101</b>.</p>`),
+Q(`What is 19 in 8-bit binary?`,[`0001 0011`,`0001 1001`,`0010 0011`,`0000 1011`],0,`16 + 2 + 1 = 19.`),
+N(`What's the largest number you can store in 8 bits?`,255,0.001,'',`1111 1111 = 128 + 64 + 32 + 16 + 8 + 4 + 2 + 1 = 255.`)])]});
+U({id:'gcs1-2',track:'gcs',level:1,title:'Thinking like a programmer',icon:'{ }',color:'#534AB7',desc:'Algorithms, decomposition and abstraction, and the three building blocks of every program.',lessons:[
+LH('gcs1-2-1','Algorithms',7,'An algorithm is a precise set of steps that solves a problem. Every program starts as one.',[
 T(`<h3>What is an algorithm?</h3><p>An <b>algorithm</b> is a sequence of steps that can be followed to complete a task. A recipe is an algorithm. So is a reactor start-up procedure.</p><p>A <b>program</b> is an algorithm written in a language a computer can run.</p>`),
 T(`<h3>Two key skills</h3><ul><li><b>Decomposition</b>: breaking a problem into smaller problems that are easier to solve.</li><li><b>Abstraction</b>: removing unnecessary detail so you can focus on what matters.</li></ul><p>A Tube map is an abstraction: it leaves out real distances because you only need the order of stops.</p>`),
 Q(`Splitting "make a game" into "draw the screen", "move the player" and "keep score" is…`,[`decomposition`,`abstraction`,`iteration`,`selection`],0,`Breaking a big problem into smaller ones is decomposition.`),
@@ -1237,15 +1247,4 @@ LH('ap3-2-3','Capacitors',11,'Store charge, then release it exponentially throug
 RM(`<p>Exponential decay: N = N₀e<sup>−λt</sup> (Calculus Level 5). V = IR.</p>`),
 T(`<h3>Capacitance</h3><div class="eq">C = Q/V&nbsp;&nbsp;&nbsp; energy E = ½QV = ½CV²</div><p>Energy is the area under a Q–V graph.</p>`),
 T(`<h3>Discharging</h3><p>Through a resistor R, the current depends on the charge left, so it's exponential:</p><div class="eq">Q = Q₀e<sup>−t/RC</sup></div><p>The <b>time constant</b> RC is the time to fall to 37% (1/e). It's the same differential equation as radioactive decay.</p>`),
-W('calcDrill',{skill:'p_cap',need:3},`Capacitor discharge. Get 3 right to master it.`,`Q₀e<sup>−t/RC</sup>.`),
-N(`R = 10 kΩ, C = 470 μF. Time constant in seconds? (1 d.p.)`,4.7,0.001,'s',`10⁴ × 4.7 × 10⁻⁴.`),
-T(`<h3>Key points</h3><ul><li><b>C = Q/V</b>, <b>E = ½CV²</b>.</li><li>Discharge: <b>Q = Q₀e<sup>−t/RC</sup></b>.</li><li>Time constant <b>RC</b>: falls to 37%.</li></ul>`)])
-]});
-
-U({id:'ap3-3',track:'ap',level:3,title:'Magnetic fields',icon:'B',color:'#378ADD',desc:'Forces on wires and charges, electromagnetic induction, and transformers.',lessons:[
-LH('ap3-3-1','Magnetic forces',10,'A current or a moving charge in a magnetic field feels a force at right angles.',[
-RM(`<p>Fleming's left-hand rule: First finger Field, seCond finger Current, thuMb Motion. Circular motion: F = mv²/r.</p>`),
-T(`<h3>The force laws</h3><div class="eq">on a wire: F = BIl&nbsp;&nbsp;&nbsp; on a charge: F = BQv</div><p>B is the magnetic flux density, in tesla (T). The force is perpendicular to both B and the motion.</p>`),
-W('calcDrill',{skill:'p_bil',need:3},`F = BIl. Get 3 right to master it.`,`Multiply B, I and l.`),
-T(`<h3>Charges in circles</h3><p>Because F is perpendicular to v, a charge in a uniform field moves in a <b>circle</b>: BQv = mv²/r, so <b>r = mv/(BQ)</b>. This is how <b>cyclotrons</b> accelerate particles and how mass spectrometers sort ions.</p>`),
-Q(`Why does a charged particle move in a circle in a uniform magnetic field?`,[`The force is always perpendicular to its velocity`,`The force is parallel to its velocity`,`Magnetic fields slow particles down`,`It 
+W('calcDrill',{skill:'p_cap',need:

@@ -1,4 +1,20 @@
-).onclick=function(){note('');
+eSave(){if(!st.run)return;
+  try{var cur=JSON.parse(localStorage.getItem(KEY)||'null');if(cur&&Array.isArray(cur.sessions))st.sessions=cur.sessions}catch(_){}
+  if(!st.run.c)st.run.c=new Date(st.run.at).toISOString();
+  var m=Math.min(600,Math.floor((Date.now()-st.run.at)/60000)),i=liveIdx(),t=st.run.t||'Study session';
+  if(m>=1){if(i<0)st.sessions.push({d:ymd(new Date(st.run.at)),m:m,t:t,c:st.run.c});else{st.sessions[i].m=Math.max(m,+st.sessions[i].m||0);st.sessions[i].t=t}}
+  keep()}
+ function tk(){paintClock();if(!st.run)return;var m=Math.floor((Date.now()-st.run.at)/60000);if(m!==lastM){var first=lastM<0;lastM=m;liveSave();if(!first&&m%5===0)writeFile(false);if(sh.classList.contains('open'))paint()}}
+ function startTick(){clearInterval(tick);lastM=-1;tick=setInterval(tk,1000);tk()}
+ function onHide(){if(st.run)liveSave()}
+ document.addEventListener('visibilitychange',function(){if(document.visibilityState==='hidden')onHide()});window.addEventListener('pagehide',onHide);
+ /* another Critical window changed the timer (started, stopped, or saved): follow it */
+ function adopt(raw){var v=null;try{v=JSON.parse(raw||'null')}catch(_){}if(!v||!Array.isArray(v.sessions))return;
+  var was=st.run&&st.run.c;st=v;
+  if(st.run){if(!tick||was!==st.run.c){clearInterval(tick);tick=setInterval(tk,1000)}lastM=Math.floor((Date.now()-st.run.at)/60000)}else{clearInterval(tick);tick=null}
+  paintClock();if(sh.classList.contains('open'))paint()}
+ window.addEventListener('storage',function(e){if(e.key===KEY)adopt(e.newValue)});
+ $('[data-a=go]').onclick=function(){note('');
   if(!st.run){var n0=Date.now();st.run={at:n0,t:$('#stTopic').value.trim(),c:new Date(n0).toISOString()};keep();startTick();note('The timer saves itself every minute.');return}
   try{var cur=JSON.parse(localStorage.getItem(KEY)||'null');if(cur&&Array.isArray(cur.sessions))st.sessions=cur.sessions}catch(_){}
   var m=Math.round((Date.now()-st.run.at)/60000),t=$('#stTopic').value.trim()||st.run.t||'Study session',d=ymd(new Date(st.run.at)),li=liveIdx(),c=st.run.c||new Date(st.run.at).toISOString();
@@ -1129,14 +1145,4 @@ try{window.REW=REW}catch(_){}
  '.shta{width:100%;box-sizing:border-box;min-height:64px;border-radius:10px;border:1.5px solid var(--line);padding:8px 10px;font:inherit;background:var(--soft);color:var(--text);resize:vertical}'+
  '.mycard .myhead{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}.mycard h2{margin:0}.myk{font:700 12px var(--mono);letter-spacing:.08em;color:var(--accent);text-transform:uppercase}'+
  '.myclues{list-style:none;margin:10px 0;padding:0;counter-reset:cl}.myclues li{counter-increment:cl;display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);font-size:15px;line-height:1.45}.myclues li:before{content:counter(cl);flex:none;width:22px;height:22px;border-radius:50%;background:var(--accent-bg);color:var(--accent-text);font:700 12px var(--mono);display:flex;align-items:center;justify-content:center;margin-top:1px}'+
- '.myclues li.lk{color:var(--muted)}.myclues li.lk:before{background:var(--soft);color:var(--faint)}.myrev{background:var(--soft);border-radius:12px;padding:12px 14px;margin-top:10px}.myrev h3{margin:0 0 6px;font-size:17px}';
- document.head.appendChild(c)})();
-function escH(t){return String(t==null?'':t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
-function ymdD(d){return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()}
-function shuffleSeed(a,seed){var r=seedRand(seed),b=a.slice();for(var i=b.length-1;i>0;i--){var j=Math.floor(r()*(i+1)),x=b[i];b[i]=b[j];b[j]=x}return b}
-
-var SHIFT=(function(){
- var OPQ=[
-  ['In a control room, why do operators repeat instructions back word for word?',['So both people know it was heard correctly','Because the radio is too quiet to hear the first time','It is an old naval tradition with no real purpose now','To slow everyone down so nobody rushes a job'],'Repeat-back catches a mishearing before anyone acts on it. In a control room, acting on the wrong number or the wrong valve can be serious.'],
-  ['How do you say the letter B in the NATO phonetic alphabet?',['Bravo','Bob','Bingo','Baker'],'Bravo. Phonetic words stop letters like B, D and P being mixed up over a noisy radio or phone line.'],
-  ['What does a reactor trip (a scram) do?',['Shuts the reactor down fast by dropping in all the control rods','Starts the reactor up by pulling all the control rods out','Lowers power slowly by adding boron to the cooling water','Tests every alarm in the co
+ '.m

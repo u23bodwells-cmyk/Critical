@@ -1,4 +1,10 @@
-(`<h3>When diffusion fails</h3><ul><li>Within a few mean free paths of a <b>boundary</b> (vacuum, reflector edge).</li><li>Near <b>strong absorbers</b>: control rods, burnable poison pins.</li><li>In <b>small</b> or highly heterogeneous systems where neutrons stream far without colliding.</li></ul><p>Away from these, diffusion is a very good approximation, which is why it's still used for whole-core calculations.</p>`),
+utron transport',icon:'Ω',color:'#7F77DD',desc:'Where diffusion theory breaks down, attenuation and mean free paths, and the transport correction.',lessons:[
+LH('m6-1-1','Beyond diffusion',10,'Diffusion theory treats neutrons like a gas. Near edges and strong absorbers that picture fails, and you need transport theory.',[
+RM(`<ul><li>Neutron flux φ = n v: neutrons per cm² per second (Level 4 Maths).</li><li>Diffusion: neutrons flow down the flux gradient, J = −D∇φ (Level 4 Maths).</li><li>The divergence theorem turns leakage through a surface into ∇ · J (Calculus Level 14).</li></ul>`),
+T(`<h3>Direction matters</h3><p>Diffusion theory only tracks <b>how many</b> neutrons are at each point. Transport theory also tracks <b>which way they're going</b>. The <b>angular flux</b> ψ(r, E, Ω) counts neutrons at position r, energy E, travelling in direction Ω.</p><p>Integrate over every direction and you get back the ordinary scalar flux: φ = ∫ ψ dΩ.</p>`),
+Q(`What extra information does the angular flux ψ hold that φ doesn't?`,[`The direction neutrons are travelling`,`The temperature of the fuel`,`The number of delayed neutrons`,`The boron concentration`],0,`ψ depends on Ω, the direction.`),
+T(`<h3>The Boltzmann transport equation</h3><p>In words, for neutrons travelling in direction Ω at energy E:</p><div class="eq">streaming + removal = scattering in + fission source</div><p>It's exact (for average neutron behaviour) but has 7 variables: 3 for position, 2 for direction, 1 energy, 1 time. That's why it needs supercomputers.</p>`),
+T(`<h3>When diffusion fails</h3><ul><li>Within a few mean free paths of a <b>boundary</b> (vacuum, reflector edge).</li><li>Near <b>strong absorbers</b>: control rods, burnable poison pins.</li><li>In <b>small</b> or highly heterogeneous systems where neutrons stream far without colliding.</li></ul><p>Away from these, diffusion is a very good approximation, which is why it's still used for whole-core calculations.</p>`),
 Q(`Where is diffusion theory least accurate?`,[`Next to a control rod`,`In the middle of a large uniform core`,`Far from any boundary`,`In a well-moderated lattice centre`],0,`Strong absorbers make the flux very direction-dependent.`),
 QE(`Fick's law for neutrons says J = …`,[`−D∇φ`,`D∇φ`,`Σ<sub>a</sub>φ`,`νΣ<sub>f</sub>φ`],0,`Flow down the gradient.`),
 T(`<h3>Key points</h3><ul><li><b>Angular flux ψ(r, E, Ω)</b> tracks direction; φ = ∫ ψ dΩ.</li><li>Transport equation: streaming + removal = scattering in + source.</li><li>Diffusion fails near <b>boundaries and strong absorbers</b>.</li></ul>`)]),
@@ -1004,14 +1010,4 @@ T(`<h3>Always check</h3><p>You can check any integral by <b>differentiating</b> 
 Q(`∫ 3x² dx = x³ + C. How can you check this?`,[`Differentiate x³ + C and see if you get 3x²`,'Integrate x³ + C again and see if you get 3x²','Put x = 0 into both sides and see if they match','You can\'t check it without a graph of the curve'],0,`Differentiation undoes integration.`),
 T(`<h3>Key points</h3><ul><li><b>Integration</b> is the reverse of differentiation.</li><li>Always add <b>+ C</b>.</li><li>Check by differentiating your answer.</li></ul>`)]),
 LH('c4-1-2','Integrating xⁿ',10,'The reverse power rule: add one to the power, then divide by the new power.',[
-RM(`<p>Integration reverses differentiation. Always + C. Check by differentiating.</p>`),
-T(`<h3>Reversing the power rule</h3><p>Differentiating: multiply by the power, then subtract 1. To reverse it, do the opposite moves in the opposite order:</p><div class="eq">∫ xⁿ dx = xⁿ⁺¹ ÷ (n + 1) + C</div><p><b>Add 1 to the power</b>, then <b>divide by the new power</b>.</p>`),
-W('stepCalc',{steps:[`∫ 6x² dx`,`Add 1 to the power: 2 + 1 = 3`,`Divide by the new power: 6 ÷ 3 = 2`,`Answer: <b>2x³ + C</b>`,`Check: d/dx (2x³) = 6x² ✓`]},`Watch the two moves.`,`Up one, divide by the new power, + C.`),
-Q(`∫ x⁴ dx = …`,[`x⁵/5 + C`,`4x³ + C`,`x⁵ + C`,`5x⁵ + C`],0,`Power 5, divide by 5.`),
-T(`<h3>Constants and sums</h3><ul><li>∫ 7 dx = 7x + C (a constant is 7x⁰; the power goes up to 1).</li><li>Integrate sums <b>term by term</b>, with one + C at the end.</li></ul><p>∫ (3x² + 4x + 5) dx = x³ + 2x² + 5x + C.</p>`),
-W('calcDrill',{skill:'intpow',need:8},`Integrate. Get 8 right to master it.`,`Add one to the power, divide by the new power.`),
-T(`<h3>Key points</h3><ul><li><b>∫ axⁿ dx = axⁿ⁺¹ ÷ (n + 1) + C</b>.</li><li>Constants: ∫ k dx = kx + C.</li><li>Term by term; one + C.</li></ul>`)]),
-LH('c4-1-3','Negative and fractional powers',10,'Rewrite first, then the reverse power rule still works. The one exception: x⁻¹.',[
-RM(`<p>∫ xⁿ dx = xⁿ⁺¹ ÷ (n + 1) + C. Rewrite fractions and roots as powers first.</p>`),
-T(`<h3>Rewrite, then integrate</h3><p>∫ 6/x³ dx: rewrite as ∫ 6x⁻³ dx. Add 1 to the power: −3 + 1 = −2. Divide by −2: 6 ÷ (−2) = −3. Answer: <b>−3x⁻² + C</b>.</p>`),
-T(`<h3>The o
+RM(`<p>Integration reverses differen
