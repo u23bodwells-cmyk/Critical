@@ -19466,18 +19466,33 @@ var grBED=gotRight;gotRight=function(c){var first=P&&P.st&&!P.st.tries,out=grBED
 /* drills: each miss remembers its skill, so tonight's question uses the same skill with new numbers */
 var lxWeakBED=lxWeak;lxWeak=function(k,ok,rev){try{if(ok)bedNote({ok:true});else bedNote({ok:false,sk:k,lid:lxLid(),p:''})}catch(e){}return lxWeakBED.apply(this,arguments)};
 var finBED=finish;finish=function(){var lid=null,t='';try{if(P&&!P.finished&&P.mode==='lesson'){var l=UNITS[P.ui].lessons[P.li];lid=l.id;t=l.title}}catch(e){}var out=finBED.apply(this,arguments);if(lid)bedNote({lesson:{id:lid,t:t}});return out};
+/* ---- today from records the app already kept (so lessons and mistakes from before the bedtime log still count) ---- */
+var BED_INT=[1,3,7,14,30,60];
+function bedAdd(d,n){var x=new Date(d+'T12:00:00');x.setDate(x.getDate()+n);return dstr(x)}
+function bedPast(D){var out={lessons:[],miss:[],asked:0,right:0},M=(S&&S.mem)||{},lids={};
+ /* the memory log saves each question as [box, due date]: anything due exactly one interval after today was answered today, and box 0 means it was wrong */
+ for(var k in M){var e=M[k];if(!Array.isArray(e))continue;var b=e[0]|0;if(b<0||b>5||e[1]!==bedAdd(D,BED_INT[b]))continue;var sk=String(k),id=sk.replace(/^[FB]/,'').split('#')[0],L=lessonById(id);if(!L)continue;lids[id]=L.l.title;
+  if(b===0){var ci=+sk.split('#')[1],c=sk.charAt(0)==='F'?(typeof FOLLOW!=='undefined'&&FOLLOW[id]||[])[ci]:sk.charAt(0)==='B'?null:L.l.cards[ci];out.miss.push({lid:id,k:sk,p:bedPlain(c&&c.p)})}}
+ out.lessons=Object.keys(lids).map(function(id){return {id:id,t:lids[id]}});
+ /* the activity log keeps questions and right-first-time per subject per day, on every device */
+ try{var A=JSON.parse(localStorage.getItem('critical_act')||'null'),dd=(A&&A.d)||{};for(var dv in dd){var day=dd[dv]&&dd[dv][D];if(!day)continue;for(var tr in day){if(tr.charAt(0)==='_')continue;var a=day[tr]||[];out.asked+=+a[1]||0;out.right+=+a[2]||0}}}catch(e){}
+ return out}
+function bedMerged(){var D=JSON.parse(JSON.stringify(bedLog().day)),p=bedPast(D.d),have={};D.lessons.forEach(function(z){have[z.id]=1});p.lessons.forEach(function(z){if(!have[z.id]){have[z.id]=1;D.lessons.push(z)}});
+ var mk={};D.miss.forEach(function(m){if(m.k)mk[m.k]=1});p.miss.forEach(function(m){if(!mk[m.k]){mk[m.k]=1;D.miss.push(m)}});
+ if(p.asked>D.asked){D.asked=p.asked;D.right=Math.min(p.asked,p.right)}
+ var lc=D.lessons.length;try{var ld=S.lday,un=D.d.split('-').map(Number).join('-');if(ld&&ld.d===un&&ld.n>lc)lc=ld.n}catch(e){}D.nLessons=lc;return D}
 /* ---- building tonight's questions ---- */
 function bedSkills(l){var sk=[];l.cards.forEach(function(c){if(c.t==='W'&&c.w==='calcDrill'&&c.par)[].concat(c.par.skill||[]).forEach(function(k){if(typeof CGEN[k]==='function'&&sk.indexOf(k)<0)sk.push(k)})});return sk}
 function bedFromCard(c){if(!c)return null;if(c.t==='Q'&&c.o&&typeof c.a==='number'){var o=c.o.slice(),a=o.splice(c.a,1)[0];return {p:c.p,o:[a].concat(o),e:c.e||''}}if(c.t==='N'&&isFinite(c.a))return {p:c.p,b:[cB(c.a,'',c.u||'','answer',false,c.tol==null?0.02:c.tol)],e:c.e||''};return null}
 function bedSimilar(lid,avoid){var L=lessonById(lid);if(!L)return null;var sk=bedSkills(L.l);if(sk.length){var k=sk[Math.floor(Math.random()*sk.length)];try{var g=CGEN[k]();g._k=k;return g}catch(e){}}
  var pool=[];try{pool=conceptBank(L.l).slice()}catch(e){}L.l.cards.forEach(function(c){var q=bedFromCard(c);if(q)pool.push(q)});
  pool=pool.filter(function(q){var pt=bedPlain(q.p);return pt&&pt!==avoid});if(!pool.length)return null;return pool[Math.floor(Math.random()*pool.length)]}
-function bedBuild(){var x=bedLog(),D=x.day,out=[],used={},n=function(key){used[key]=(used[key]||0)+1;return used[key]<=2};
+function bedBuild(){var D=bedMerged(),out=[],used={},n=function(key){used[key]=(used[key]||0)+1;return used[key]<=2};
  D.miss.slice().reverse().forEach(function(m){if(out.length>=8)return;var q=null,key=m.sk||m.lid;if(!key||!n(key))return;
   if(m.sk&&typeof CGEN[m.sk]==='function'){try{q=CGEN[m.sk]();q._k=m.sk}catch(e){}}else if(m.lid)q=bedSimilar(m.lid,m.p);
   if(q){q._why='Like one you got wrong'+(m.lid&&lessonById(m.lid)?' in '+bedPlain(lessonById(m.lid).l.title):'');out.push(q)}});
  /* not many mistakes today? top up from today's lessons, then from skills that are due */
- D.lessons.forEach(function(z){if(out.length>=6)return;var q=bedSimilar(z.id,'');if(q){q._why='From today\'s lesson: '+bedPlain(z.t);out.push(q)}});
+ for(var pass=0;pass<2&&out.length<6;pass++)D.lessons.forEach(function(z){if(out.length>=6||!n('L'+z.id))return;var q=bedSimilar(z.id,'');if(q){q._why='From today\'s lesson: '+bedPlain(z.t);out.push(q)}});
  if(out.length<5){try{lxDue().concat(Object.keys(lxGet().weak)).forEach(function(k){if(out.length>=6||!n('w'+k)||typeof CGEN[k]!=='function')return;var q=CGEN[k]();q._k=k;q._why='A skill you slipped on before';out.push(q)})}catch(e){}}
  if(out.length<5){try{shuffle(Object.keys(S.wrong||{})).slice(0,12).forEach(function(k){if(out.length>=6)return;var lid=String(k).replace(/^[FB]/,'').split('#')[0];if(!n(lid))return;var q=bedSimilar(lid,'');if(q){q._why='Like an older mistake';out.push(q)}})}catch(e){}}
  return shuffle(out).slice(0,8)}
@@ -19487,10 +19502,10 @@ function bedClose(){if(bedEl){bedEl.remove();bedEl=null}document.body.classList.
 function bedOpen(){if(bedEl)return;bedEl=document.createElement('div');bedEl.className='bedov';bedEl.setAttribute('role','dialog');bedEl.setAttribute('aria-label','Bedtime review');document.body.appendChild(bedEl);document.body.classList.add('noscroll');bedHome()}
 function bedTop(t){return '<div class="bedtop"><span>🌙 '+t+'</span><button type="button" class="bedx" data-a="close">Close</button></div>'}
 function bedWire(){var x=bedEl.querySelector('[data-a=close]');if(x)x.onclick=bedClose}
-function bedHome(){var x=bedLog(),D=x.day,xp=(S.hist&&S.hist[D.d])||0,acc=D.asked?Math.round(D.right/D.asked*100):null,dt=new Date(D.d+'T12:00:00').toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'}),qs=bedBuild();bedEl._qs=qs;
+function bedHome(){var D=bedMerged(),xp=(S.hist&&S.hist[D.d])||0,acc=D.asked?Math.round(D.right/D.asked*100):null,dt=new Date(D.d+'T12:00:00').toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'}),qs=bedBuild();bedEl._qs=qs;
  var mood=!D.asked&&!xp?'A quiet day. Five calm minutes now still counts.':acc!=null&&acc>=85?'A strong day. Let\'s lock it in.':D.miss.length?'You had a go at some tricky ones. Let\'s tidy them up.':'Nice work today.';
  bedEl.innerHTML='<div class="bedw">'+bedTop('Bedtime review')+'<div class="bedcard"><p class="bedk">'+dt+'</p><h1>Your day</h1><p class="bedmood">'+mood+'</p>'+
-  '<div class="bedstats"><div><b>'+fmtInt(xp)+'</b><span>XP</span></div><div><b>'+D.lessons.length+'</b><span>lesson'+(D.lessons.length===1?'':'s')+'</span></div><div><b>'+D.asked+'</b><span>questions</span></div><div><b>'+(acc==null?'–':acc+'%')+'</b><span>right</span></div></div>'+
+  '<div class="bedstats"><div><b>'+fmtInt(xp)+'</b><span>XP</span></div><div><b>'+D.nLessons+'</b><span>lesson'+(D.nLessons===1?'':'s')+'</span></div><div><b>'+D.asked+'</b><span>questions</span></div><div><b>'+(acc==null?'–':acc+'%')+'</b><span>right</span></div></div>'+
   (D.lessons.length?'<ul class="bedls">'+D.lessons.map(function(z){return '<li>✓ '+qcEsc(bedPlain(z.t))+'</li>'}).join('')+'</ul>':'')+
   ((S.streak||0)>0?'<p class="bedmood">🔥 '+S.streak+'-day streak.</p>':'')+'</div>'+
   '<div class="bedcard"><h2>'+(qs.length?qs.length+' questions, about 5 minutes':'Nothing to review tonight')+'</h2><p class="bedmood">'+(qs.length?(D.miss.length?'Each one is like something you got wrong today: the same idea, but a different question.':'Questions from what you\'ve been learning, to settle it before sleep.'):'Do a lesson tomorrow and tonight\'s review will be ready for you then.')+'</p>'+(qs.length?'<button type="button" class="bedgo" id="bedGo">Start</button>':'<button type="button" class="bedgo" data-a="close2">Good night</button>')+'</div>'+
@@ -19514,7 +19529,7 @@ function bedEnd(n,right,missed){var pc=n?Math.round(right/n*100):0;try{addXP(5+r
   (missed.length?'<p class="bedmood">'+missed.length+' to come back to: '+(missed.some(function(q){return q._k})?'they\'re in your weak skills, ready for tomorrow.':'have another look at those lessons tomorrow.')+'</p>':'')+'<p class="bedtip">+'+(5+right*2)+' XP. Phone down now. 😴</p><button type="button" class="bedgo" data-a="close2">Good night</button></div></div>';
  bedWire();bedEl.querySelector('[data-a=close2]').onclick=bedClose}
 /* ---- where to find it: the Learn page (glowing in the evening) and the Review page ---- */
-function bedCard(){var pg=$('page-learn');if(!pg||document.getElementById('bedCard'))return;var h=new Date().getHours(),eve=h>=19||h<4,D=bedLog().day,c=document.createElement('section');c.id='bedCard';c.className='card bedcardl'+(eve?' eve':'');
+function bedCard(){var pg=$('page-learn');if(!pg||document.getElementById('bedCard'))return;var h=new Date().getHours(),eve=h>=19||h<4,D=bedMerged(),c=document.createElement('section');c.id='bedCard';c.className='card bedcardl'+(eve?' eve':'');
  c.innerHTML='<div class="rcrow"><span class="rcic" aria-hidden="true">🌙</span><div class="rctx"><b>Bedtime review · 5 min</b><span>'+(D.asked?'Today: '+D.asked+' questions, '+D.miss.length+' to tidy up. Questions like the ones you got wrong, then sleep.':'A calm look back at your day, with questions like the ones you got wrong. Made for your phone in bed.')+'</span></div><div class="rcbtns"><button type="button" class="wbtn'+(eve?' pri':'')+'" id="bedBtn">Start</button></div></div>';
  var hero=pg.querySelector('#motCard')||pg.querySelector('.hero');if(eve&&hero&&hero.parentNode)hero.parentNode.insertBefore(c,hero.nextSibling);else{var rc=document.getElementById('raceCard'),u=pg.querySelector('.units');if(rc&&rc.parentNode)rc.parentNode.insertBefore(c,rc.nextSibling);else if(u)u.parentNode.insertBefore(c,u);else pg.appendChild(c)}
  c.querySelector('#bedBtn').onclick=bedOpen}
