@@ -1,4 +1,6 @@
-,11,'Force is the rate of change of momentum. That one idea covers collisions, rockets and impulse.',[
+ag travel less far and land more steeply.</p>`),
+T(`<h3>Key points</h3><ul><li>Horizontal and vertical are <b>independent</b>.</li><li>Time links them.</li><li>Drag: terminal velocity, shorter range.</li></ul>`)]),
+LH('ap2-3-2','Newton\'s laws and momentum',11,'Force is the rate of change of momentum. That one idea covers collisions, rockets and impulse.',[
 RM(`<p>F = ma. Momentum p = mv. Momentum is conserved in a closed system.</p>`),
 T(`<h3>Newton's second law, properly</h3><div class="eq">F = Δ(mv)/Δt</div><p><b>Impulse</b> FΔt = change in momentum = the area under a force–time graph. Airbags and crumple zones increase Δt to reduce F.</p>`),
 W('calcDrill',{skill:'g_impulse',need:2},`Impulse. Get 2 right to master it.`,`FΔt = Δp.`),
@@ -1070,5 +1072,4 @@ function NSIM(w,h,rnd){
     else{if(!fis.pair){fis.pair=fpair();nFis++;var bi=Math.min(29,Math.max(0,Math.floor((fis.pair[0]-70)/3)));yields[bi]++;var bi2=Math.min(29,Math.max(0,Math.floor((fis.pair[1]-70)/3)));yields[bi2]++;fis.nn=Math.random()<.43?3:2}var d=(u-1500)/1000*(W*.18);glow(c,cx,cy,60*Math.max(0,1-(u-1500)/500),YE,.8);
      ball(c,cx-d*.9,cy-d*.25,sc*.55*Math.cbrt(fis.pair[0])*.95,OR);ball(c,cx+d*.9,cy+d*.25,sc*.55*Math.cbrt(fis.pair[1])*.95,VI);hud(c,cx-d*.9,cy-d*.25-sc*3,'A = '+fis.pair[0],'#ffaa50',9,'center',true);hud(c,cx+d*.9,cy+d*.25-sc*3.4,'A = '+fis.pair[1],'#c8bfff',9,'center',true);
      for(var q=0;q<fis.nn;q++){var a=q*2.1+.6,nx3=cx+Math.cos(a)*d*1.4,ny3=cy+Math.sin(a)*d*1.4;glow(c,nx3,ny3,9,CY,.8);ball(c,nx3,ny3,3.5,CY)}if(u>3200){fis.t=-1;fis.pair=null}}
-    var hx=wide?W*.6:46,hy=wide?40:H*.66,Cy=chart(c,hx,hy,W-hx-12,wide?H-80:H-hy-30,{x:[70,160],y:[0,Math.max(3,Math.max.apply(null,yields)*1.2)],ny:2,title:'FRAGMENT SIZES (MASS NUMBER)'});yields.forEach(function(v,i){c.fillStyle='rgba(255,170,80,.6)';c.fillRect(Cy.X(70+i*3)+1,Cy.Y(v),Cy.X(73)-Cy.X(70)-2,Cy.Y(0)-Cy.Y(v))});
-    if(st){st.k.textContent='≈ 168 MeV';st.n.textContent=fis.nn?fis.nn+' (average 2.4)':'2 or 3';st.f.textContent=nFis}return}
+    var hx=wide?W*.6:46,hy=wide?40:H*.66,Cy=chart(c,hx,hy,W-hx-12,wide?H-80:H-hy-30,{x:[70,160],y:[0,Math.max(3,Math.max.apply(null,yields)*1.2)],ny:2,title:'FRAGMENT SIZES (MASS NUMBER)'});yields.

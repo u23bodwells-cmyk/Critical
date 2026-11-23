@@ -1,4 +1,5 @@
-raw()}
+alf-life (hours):</span><input type="number" step="0.5">';var inp=r.querySelector('input');btn(r,'New isotope',function(){nw();inp.value=''});
+ function nw(){th=[4,5,6,7.5,8,10,12][Math.floor(Math.random()*7)];A0=[400,600,800][Math.floor(Math.random()*3)];draw()}
  function draw(){var P=plot(cv,{x:[0,40],y:[0,A0],xl:'time (hours)',yl:'activity (Bq)'});P.fn(function(t){return A0*Math.pow(0.5,t/th)},cssv('--accent'),3);[2,4].forEach(function(f){P.hline(A0/f,cssv('--coral'))})}
  onDraw(draw);nw();
  return {check:function(){var v=parseNum(inp.value);if(isNaN(v))return {ok:false,msg:'Type your half-life reading into the box.'};return Math.abs(v-th)/th<=0.08?{ok:true,msg:'The half-life is '+th+' hours.'}:{ok:false,msg:'Find where the curve crosses '+A0/2+' Bq (half of '+A0+') and read the time.'}}}};
@@ -1212,5 +1213,4 @@ var STUDY=(function(){
   if(!isWin){h+='<p class="stnote">On school days, reminders pop up on your Windows PC at 4:30pm and 4:40pm, then Critical opens by itself at 4:45pm. There are more reminders at 6pm and 8pm if you haven\'t studied. Open Critical on the laptop in Chrome or Edge to set them up.</p>';R.innerHTML=h;return}
   if(!canFS){h+='<p class="stnote">Open Critical in Chrome or Edge to set up reminders. This browser can\'t share your study time with them.</p>';R.innerHTML=h;return}
   h+='<ol><li><a href="https://u23bodwells-cmyk.github.io/Critical/reminders/critical-reminders.zip" target="_blank" rel="noopener" download>Download the reminder setup</a>, right-click it, choose <b>Extract All</b>, then double-click <b>install.cmd</b>. If Windows warns you, click <b>More info → Run anyway</b>.</li>'+
-   '<li>Connect this app to the reminders, so they know when you\'ve studied: <button class="stbtn alt" type="button" data-a="link">'+(linkState==='ok'?'Connected ✓':linkState==='lost'?'Reconnect':'Choose the Critical folder')+'</button><br><span class="stnote">'+(linkState==='ok'?'Your study time is shared with the reminders.':linkState==='lost'?'Windows needs you to allow access again. Tap Reconnect and choose Allow.':'Pick <b>Documents → Critical</b>, then click <b>Select folder</b> and <b>Allow</b>. If it asks, choose “Allow on every visit”.')+'</span></li></ol>'+
-   
+   '<li>Connect this app to the reminders, so they know when you\'ve studied: <button class="stbtn alt" type="button" data-a="link">'+(linkState==='ok'?'Connected ✓':linkState==='lost'?'Reconnect':'Choose the Critical folder')+'</button><br><span class="stnote">'+(linkState==='ok'?'Your study time is shared with the rem
