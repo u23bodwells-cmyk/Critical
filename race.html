@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b0f1a">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="icons/icon-192.png">
+<title>Critical Race</title>
+<style>html,body{margin:0;min-height:100%;background:#0b0f1a;color:#e8ecf6;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}.noscript{padding:24px;text-align:center}</style>
+</head>
+<body>
+<noscript><p class="noscript">Critical Race needs JavaScript turned on.</p></noscript>
+<!-- Join a friend's race with a game code. This page holds no progress or private data: the host's device sends the questions. -->
+<script src="race.js"></script>
+<script>
+(function(){
+ var code=(location.search.match(/[?&]code=([A-Za-z0-9]{1,8})/)||[])[1]||'';
+ /* simple sounds for guests, who don't have the main app loaded */
+ var AC=null;function beep(f,t,d,v){try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();var o=AC.createOscillator(),g=AC.createGain();o.frequency.value=f;o.type='triangle';g.gain.setValueAtTime(0,AC.currentTime+t);g.gain.linearRampToValueAtTime(v||.08,AC.currentTime+t+.01);g.gain.exponentialRampToValueAtTime(.0001,AC.currentTime+t+d);o.connect(g).connect(AC.destination);o.start(AC.currentTime+t);o.stop(AC.currentTime+t+d+.05)}catch(e){}}
+ var SF={right:[[660,0,.12],[990,.08,.2]],combo:[[660,0,.1],[880,.07,.1],[1320,.14,.24]],wrong:[[392,0,.13],[330,.1,.22]],quest:[[880,0,.1],[1175,.09,.22]],start:[[523,0,.12],[784,.12,.2]],done:[[523,0,.16],[659,.12,.16],[784,.24,.3]],level:[[392,0,.16],[523,.15,.16],[659,.3,.16],[784,.45,.3],[1047,.62,.6]]};
+ window.CRACE_SFX=function(k){(SF[k]||[]).forEach(function(n){beep(n[0],n[1],n[2])})};
+ window.CRACE.join({code:code,standalone:true,onLeave:function(){location.href='race.html'}});
+})();
+</script>
+</body>
+</html>
