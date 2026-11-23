@@ -1,4 +1,4 @@
- with the gradient.`,`They're always equal. eˣ is its own derivative.`),
+'</b>'},goal:function(p){return p.a>=2},goalMsg:'Slide all the way to x = 2 or beyond.'},`Slide along y = eˣ and compare the value with the gradient.`,`They're always equal. eˣ is its own derivative.`),
 T(`<h3>The rule</h3><div class="eq">d/dx (eˣ) = eˣ</div><p>And with a number multiplying x in the power:</p><div class="eq">d/dx (e<sup>kx</sup>) = k e<sup>kx</sup></div><p>The k comes down in front. So d/dx (e³ˣ) = 3e³ˣ, and d/dx (e<sup>−2x</sup>) = −2e<sup>−2x</sup>.</p>`),
 Q(`Differentiate y = e⁵ˣ.`,[`5e⁵ˣ`,`e⁵ˣ`,`5xe⁵ˣ⁻¹`,`e⁴ˣ`],0,`k comes down; the power stays the same.`),
 Q(`Can you use the power rule on eˣ?`,[`No: x is the power, not the base`,'Yes: it gives x times e to the x − 1','Only when x is a whole number','Yes, as long as you treat e as x'],0,`The power rule is for xⁿ with a fixed power.`),
@@ -991,6 +991,4 @@ T(`<h3>Work</h3><p>Only the part of the force along the motion does work: <b>W =
 T(`<h3>Key points</h3><ul><li><b>a · b = a₁b₁ + a₂b₂ + a₃b₃ = |a||b|cos θ</b>.</li><li><b>a · b = 0 ⟺ perpendicular</b>.</li><li>Work W = F · d.</li></ul>`)]),
 LH('c11-3-3','The cross product, lines and planes',11,'A vector at right angles to two others, and how to write the equation of a plane.',[
 RM(`<p>a · b = 0 means perpendicular. Vectors add component by component.</p>`),
-T(`<h3>The cross product</h3><p>a × b is a <b>vector</b> perpendicular to both a and b:</p><div class="eq">a × b = ⟨a₂b₃ − a₃b₂,&nbsp; a₃b₁ − a₁b₃,&nbsp; a₁b₂ − a₂b₁⟩</div><p>Its length is |a||b| sin θ: the <b>area of the parallelogram</b> a and b make. Its direction follows the right-hand rule.</p>`),
-Q(`i × j = …`,[`k`,`−k`,`0`,`i + j`],0,`Right-hand rule.`),
-W('calcDrill',{skill:'vcross',need:2},`Cross products. Get 2 right
+T(`<h3>The cross product</h3><p>a × b is a <b>vector</b> perpendicular to both a and b:</p><div class="eq">a × b = ⟨a₂b₃ − a₃b₂,&nbsp; a₃b₁ − a₁b₃,&nbsp; a₁b₂ − a₂b₁⟩</div><p>Its length is |a||b| sin θ: the <b>area of the parallelogram</b> a and b make. Its direction follows the right-hand rule.</p>

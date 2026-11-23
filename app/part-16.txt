@@ -1,4 +1,5 @@
-lse if(g.m===1){A.push({p:g.p.slice(),e:'O'});A.push({p:[g.p[0]+c*1.6,g.p[1]+s*1.6,g.p[2]-.06],e:'H'});A.push({p:[g.p[0]-c*1.6,g.p[1]+s*1.6,g.p[2]-.06],e:'H'})}else{A.push({p:g.p.slice(),e:'C'});A.push({p:[g.p[0]+c*1.5,g.p[1]+s*1.5,g.p[2]],e:'O'});A.push({p:[g.p[0]-c*1.5,g.p[1]-s*1.5,g.p[2]],e:'O'})}});return A},
+.09,s=Math.sin(a)*.09;
+    if(g.m===0){A.push({p:[g.p[0]+c,g.p[1]+s,g.p[2]],e:'O'});A.push({p:[g.p[0]-c,g.p[1]-s,g.p[2]],e:'O'})}else if(g.m===1){A.push({p:g.p.slice(),e:'O'});A.push({p:[g.p[0]+c*1.6,g.p[1]+s*1.6,g.p[2]-.06],e:'H'});A.push({p:[g.p[0]-c*1.6,g.p[1]+s*1.6,g.p[2]-.06],e:'H'})}else{A.push({p:g.p.slice(),e:'C'});A.push({p:[g.p[0]+c*1.5,g.p[1]+s*1.5,g.p[2]],e:'O'});A.push({p:[g.p[0]-c*1.5,g.p[1]-s*1.5,g.p[2]],e:'O'})}});return A},
   read:function(){return 'O₂ is an element · H₂O and CO₂ are compounds · together they are a mixture'},cap:'A mixture of three substances. Oxygen (O₂) is an element: only one type of atom. Water and carbon dioxide are compounds: different atoms chemically bonded. Mixed together but not bonded, they can be separated by physical means.'}};
  SC.react=function(){var R0=[[-.75,0,0,'C'],[-.1,.6,.27,'O'],[-.1,.6,-.03,'O'],[-.1,-.6,.27,'O'],[-.1,-.6,-.03,'O'],[-.55,.2,.2,'H'],[-.95,-.2,.2,'H'],[-.95,.2,-.2,'H'],[-.55,-.2,-.2,'H']],R1=[[.6,0,.35,'C'],[.88,0,.35,'O'],[.32,0,.35,'O'],[.55,.6,-.3,'O'],[.55,-.6,-.3,'O'],[.75,.75,-.2,'H'],[.35,.75,-.2,'H'],[.75,-.75,-.2,'H'],[.35,-.75,-.2,'H']];
   return {k:'mol',box:false,anim:1,t:'CH₄ + 2O₂ → CO₂ + 2H₂O',ms:1.5,zoom:1.05,atoms:function(t){var ph=(t*.15)%1,u=ph<.3?0:ph<.6?(ph-.3)/.3:1;u=u*u*(3-2*u);this._u=u;return R0.map(function(a,i){var b=R1[i];return {p:[a[0]+(b[0]-a[0])*u,a[1]+(b[1]-a[1])*u,a[2]+(b[2]-a[2])*u],e:a[3],lab:a[3]}})},
@@ -556,11 +557,11 @@ var MOT=(function(){
  var DUPXP={C:10,R:20,E:40,L:80},BASEXP={C:5,R:10,E:20,L:40},inCrate=false;
  function pool(ty,r){var a=ty==='fx'?FX.map(function(s){return [s[0],s[2]]}):ty==='skin'?SKINS.filter(function(s){return s[0]!=='cherenkov'}).map(function(s){return [s[0],s[2]]}):ty==='title'?TITLES.map(function(s){return [s[0],s[2]]}):FACTS.map(function(s){return [s[0],s[1]]});var b=a.filter(function(x){return x[1]===r});return (b.length?b:a).map(function(x){return x[0]})}
  function roll(tier){var n=tier==='C'?1:2,dist={C:[75,22,3,0],R:[40,45,13,2],E:[0,45,45,10],L:[0,0,40,60]}[tier],out=[],l=Lget();
-  for(var i=0;i<n;i++){var r=pickW(['C','R','E','L'],dist),ty=pickW(['fact','skin','title','fx','xp','freeze','boost'],[38,13,13,9,15,r==='C'?0:6,6]);
+  for(var i=0;i<n;i++){var r=pickW(['C','R','E','L'],dist),ty=pickW(['fact','skin','title','fx','xp','freeze','boost'],[24,17,15,13,15,r==='C'?0:6,8]);
    if(ty==='xp')out.push({k:'xp',r:r,n:{C:15,R:30,E:60,L:120}[r]});
    else if(ty==='freeze')out.push((S.freeze||0)<2?{k:'freeze',r:r}:{k:'xp',r:r,n:{C:15,R:30,E:60,L:120}[r]});
    else if(ty==='boost')out.push({k:'boost',r:r});
-   else{var p=pool(ty,r),id=p[Math.floor(Math.random()*p.length)],it=item(id);if(l.items[id]||out.some(function(o){return o.id===id}))out.push({k:'dup',id:id,r:it.r,n:DUPXP[it.r]});else out.push({k:'item',id:id,r:it.r})}}
+   else{var p=pool(ty,r),fresh=p.filter(function(x){return !l.items[x]&&!out.some(function(o){return o.id===x})}),id=(fresh.length?fresh:p)[Math.floor(Math.random()*(fresh.length?fresh:p).length)],it=item(id);if(l.items[id]||out.some(function(o){return o.id===id}))out.push({k:'dup',id:id,r:it.r,n:DUPXP[it.r]});else out.push({k:'item',id:id,r:it.r})}}
   out.push({k:'xp',r:tier,n:BASEXP[tier],base:1});return out}
  function grant(res){var l=Lget(),c=Cget(),xp=0;res.forEach(function(o){if(o.k==='item')l.items[o.id]=1;else if(o.k==='xp'||o.k==='dup')xp+=o.n;else if(o.k==='freeze'){S.freeze=Math.min(2,(S.freeze||0)+1);try{save()}catch(e){}}else if(o.k==='boost'){c.boost=(c.boost||0)+1}});
   wrk(LK,l);try{SYNC.mark()}catch(e){}wrk(CK,c);if(xp){inCrate=true;try{addXP(xp)}catch(e){}inCrate=false}ui()}
@@ -577,6 +578,4 @@ var MOT=(function(){
   '<linearGradient id="'+d+'b" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity=".55"/><stop offset=".3" stop-color="'+c+'"/><stop offset="1" stop-color="'+c+'"/></linearGradient>'+
   '<linearGradient id="'+d+'m" x1="0" x2="1"><stop offset="0" stop-color="#4b5468"/><stop offset=".5" stop-color="#dfe4ee"/><stop offset="1" stop-color="#4b5468"/></linearGradient>'+
   '<linearGradient id="'+d+'l" x1="0" x2="0" y1="1" y2="0"><stop offset="0" style="stop-color:var(--bc)" stop-opacity=".95"/><stop offset="1" style="stop-color:var(--bc)" stop-opacity="0"/></linearGradient>'+
-  '<filter id="'+d+'f" x="-20%" y="-300%" width="140%" height="700%"><feGaussianBlur stdDeviation="2.6"/></filter><clipPath id="'+d+'c"><rect x="18" y="58" width="124" height="72" rx="10"/></clipPath></defs>'+
-  '<polygon class="mbeam" points="26,60 134,60 186,-150 -26,-150" fill="url(#'+d+'l)"/>'+
-  '<g class="mcbody"><rect x="18" y="58" width="124" height
+  '<filter id="'+d+'f" x="-20%" y="-300%" width="140%" height="700%"><feGaussianBlur stdDeviation

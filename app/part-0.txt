@@ -964,7 +964,7 @@ function mergeExtras(A,B){A=A||{};B=B||{};var o={};
  /* Critical Clash: guns bought on either device stay bought; coins and settings follow the newest change; the best XP and records win */
  if(A.arena||B.arena){var xa=A.arena||{},xb=B.arena||{},nw=(+xb.at||0)>(+xa.at||0)?xb:xa,ol=nw===xa?xb:xa,ar=Object.assign({},ol,nw);ar.owned=[];[xa,xb].forEach(function(X){(X.owned||[]).forEach(function(k){if(ar.owned.indexOf(k)<0)ar.owned.push(k)})});ar.skins=[];[xa,xb].forEach(function(X){(X.skins||[]).forEach(function(k){if(ar.skins.indexOf(k)<0)ar.skins.push(k)})});ar.cxp=Math.max(+xa.cxp||0,+xb.cxp||0);var ra=xa.rec||{},rb=xb.rec||{};ar.rec={played:Math.max(+ra.played||0,+rb.played||0),kills:Math.max(+ra.kills||0,+rb.kills||0),wins:Math.max(+ra.wins||0,+rb.wins||0)};o.arena=ar}
  /* learning extras: newest version of each of your questions, best medal, newest weak-skill schedule, any 'guessed' flag */
- if(A.lx||B.lx){var lxo={myq:{},medal:{},weak:{},conf:{}};[A.lx||{},B.lx||{}].forEach(function(X){var k4;for(k4 in X.myq||{}){var v4=X.myq[k4],c4=lxo.myq[k4];if(v4&&(!c4||(+v4.at||0)>(+c4.at||0)))lxo.myq[k4]=v4}for(k4 in X.medal||{})lxo.medal[k4]=Math.max(lxo.medal[k4]||0,+X.medal[k4]||0);for(k4 in X.weak||{}){var w4=X.weak[k4],cw=lxo.weak[k4];if(w4&&(!cw||(+w4.at||0)>(+cw.at||0)))lxo.weak[k4]=w4}for(k4 in X.conf||{})lxo.conf[k4]=1});o.lx=lxo}
+ if(A.lx||B.lx){var lxo={myq:{},medal:{},weak:{},conf:{}};[A.lx||{},B.lx||{}].forEach(function(X){var k4;for(k4 in X.myq||{}){var v4=X.myq[k4],c4=lxo.myq[k4];if(v4&&(!c4||(+v4.at||0)>(+c4.at||0)))lxo.myq[k4]=v4}for(k4 in X.medal||{})lxo.medal[k4]=Math.max(lxo.medal[k4]||0,+X.medal[k4]||0);for(k4 in X.weak||{}){var w4=X.weak[k4],cw=lxo.weak[k4];if(w4&&(!cw||(+w4.at||0)>(+cw.at||0)))lxo.weak[k4]=w4}for(k4 in X.conf||{})lxo.conf[k4]=1;var ee=X.enc;if(ee&&(!lxo.enc||(+ee.f||0)>(+lxo.enc.f||0)||((+ee.f||0)===(+lxo.enc.f||0)&&(+ee.m||0)>(+lxo.enc.m||0))))lxo.enc=ee});o.lx=lxo}
  if(A.notes||B.notes){var ia=(A.notes&&A.notes.items)||{},ib=(B.notes&&B.notes.items)||{},it={};Object.keys(ia).concat(Object.keys(ib)).forEach(function(k){var a=ia[k],b=ib[k];it[k]=!a?b:!b?a:((+b.at||0)>(+a.at||0)?b:a)});o.notes={v:1,items:it}}
  return o}
 function saveCode(){var j=JSON.stringify(packSave());return SAVE_PREFIX+btoa(unescape(encodeURIComponent(j)))}
@@ -1134,5 +1134,4 @@ WIDGETS.decayDrill=function(box){var EL={6:'C',7:'N',9:'F',8:'O',11:'Na',10:'Ne'
  return {check:function(){return streak>=3?{ok:true}:{ok:false,msg:'Get 3 in a row using the Check answer button. Current streak: '+streak+'.'}}}};
 
 WIDGETS.halfLife=function(box){var th,A0,cv=canvas(box,240),r=row(box);r.innerHTML='<span class="small">Half-life (hours):</span><input type="number" step="0.5">';var inp=r.querySelector('input');btn(r,'New isotope',function(){nw();inp.value=''});
- function nw(){th=[4,5,6,7.5,8,10,12][Math.floor(Math.random()*7)];A0=[400,600,800][Math.floor(Math.random()*3)];draw()}
- function draw(){var P=plot(cv,{x:[0,40],y:[0,A0],xl:'time (hours)',yl:'activity (Bq)'});P.fn(function(t){return A0*Math.po
+ function nw(){th=[4,5,6,7.5,8,10,12][Math.floor(Math.random()*7)];A0=[400,600,800][Math.floor(Math.random()*3)];d

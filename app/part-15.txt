@@ -1,4 +1,4 @@
-50,3)),sp=1+fz.T/80;fz.t+=dt*sp;var ph=(fz.t%2200)/2200,meet=ph<.5,did=fz.ok;if(ph<.02)fz.ok=Math.random()<prob;
+   if(mode==='fusion'){band(c,W,'FUSION · D + T → He-4 + n','17.6 MeV each');var cx2=W/2,cy2=H*.45,prob=Math.min(1,Math.pow(fz.T/150,3)),sp=1+fz.T/80;fz.t+=dt*sp;var ph=(fz.t%2200)/2200,meet=ph<.5,did=fz.ok;if(ph<.02)fz.ok=Math.random()<prob;
     if(meet){var d2=(1-ph*2)*W*.3;ball(c,cx2-d2,cy2,9,[235,90,80]);ball(c,cx2-d2+7,cy2+3,8,[150,165,190]);ball(c,cx2+d2,cy2,9,[235,90,80]);ball(c,cx2+d2-7,cy2-4,8,[150,165,190]);ball(c,cx2+d2-3,cy2+7,8,[150,165,190]);hud(c,cx2-d2,cy2-18,'D','#fff',10,'center',true);hud(c,cx2+d2,cy2-18,'T','#fff',10,'center',true)}
     else if(fz.ok){var u2=(ph-.5)*2;glow(c,cx2,cy2,70*(1-u2),YE,.8);ball(c,cx2-u2*W*.12,cy2-u2*20,10,OR);hud(c,cx2-u2*W*.12,cy2-u2*20-16,'He-4 · 3.5 MeV','#ffaa50',9,'center',true);glow(c,cx2+u2*W*.38,cy2+u2*10,9,CY,.8);ball(c,cx2+u2*W*.38,cy2+u2*10,4,CY);hud(c,cx2+u2*W*.38,cy2+u2*10-12,'n · 14.1 MeV','#3ad4ff',9,'center',true);if(ph>.5&&ph<.52&&!fz.c){fz.n++;fz.c=1}}
     else{var u3=(ph-.5)*2;hud(c,cx2,cy2+4,'bounced off: not hot enough to beat the repulsion','rgba(255,170,80,.9)',10,'center',true)}if(ph<.5)fz.c=0;
@@ -872,5 +872,4 @@
   read:function(){return ['solid: vibrating in fixed places','liquid: touching but sliding past each other','gas: far apart, moving fast'][this._st||0]},
   cap:'The same particles as a solid, a liquid and a gas. Heating gives them more energy: in a solid they only vibrate, in a liquid they slide past each other, and in a gas they fly about freely. The particles themselves do not change.'}};
  SC.mixture=function(){var R=rnd(23),G=[];for(var i=0;i<14;i++)G.push({p:[R()*1.4-.7,R()*1.4-.7,R()*1-.5],v:[R()-.5,R()-.5,R()-.5],m:i%3});var last=0;
-  return {k:'mol',box:false,anim:1,t:'ELEMENTS, COMPOUNDS AND MIXTURES',atoms:function(t){var dt=Math.max(0,Math.min(.05,t-last));last=t;var A=[];G.forEach(function(g){for(var q=0;q<3;q++){g.p[q]+=g.v[q]*dt*.5;var lim=q===2?.55:.75;if(Math.abs(g.p[q])>lim)g.v[q]*=-1}var a=t*.8+g.p[0]*3,c=Math.cos(a)*.09,s=Math.sin(a)*.09;
-    if(g.m===0){A.push({p:[g.p[0]+c,g.p[1]+s,g.p[2]],e:'O'});A.push({p:[g.p[0]-c,g.p[1]-s,g.p[2]],e:'O'})}e
+  return {k:'mol',box:false,anim:1,t:'ELEMENTS, COMPOUNDS AND MIXTURES',atoms:function(t){var dt=Math.max(0,Math.min(.05,t-last));last=t;var A=[];G.forEach(function(g){for(var q=0;q<3;q++){g.p[q]+=g.v[q]*dt*.5;var lim=q===2?.55:.75;if(Math.abs(g.p[q])>lim)g.v[q]*=-1}var a=t*.8+g.p[0]*3,c=Math.cos(a)*
