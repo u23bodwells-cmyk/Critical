@@ -1,4 +1,69 @@
-,6.283);add({vx:Math.cos(a)*260,vy:Math.sin(a)*260,drag:1,life:1.25,gen:0,split:.2,n:1})}
+4" width="30" height="34" rx="7" fill="url(#'+d+'m)" stroke="#0b0f1a" stroke-width="2.5"/><path class="mgem" d="M80 70l9 10-9 12-9-12z" style="fill:var(--bc)" stroke="#0b0f1a" stroke-width="1.6"/><path d="M80 70l3.5 10h-7z" fill="#fff" opacity=".65"/>'+
+  '<g clip-path="url(#'+d+'c)"><rect class="mshine" x="-50" y="40" width="24" height="110" fill="#fff" opacity=".2"/></g></g>'+
+  '<g class="mlid"><path d="M14 62V47c0-8 6-14 14-14h104c8 0 14 6 14 14v15z" fill="url(#'+d+'b)" stroke="#0b0f1a" stroke-width="3"/><rect x="32" y="34.5" width="10" height="26" fill="url(#'+d+'m)" opacity=".9"/><rect x="118" y="34.5" width="10" height="26" fill="url(#'+d+'m)" opacity=".9"/><rect x="71" y="50" width="18" height="17" rx="4" fill="url(#'+d+'m)" stroke="#0b0f1a" stroke-width="2.5"/></g>'+
+  '<rect class="mseam" x="14" y="57" width="132" height="7" rx="3.5" style="fill:var(--bc)" filter="url(#'+d+'f)"/></svg>'}
+ var ORD='CREL';
+ function bestR(res){var b='C';res.forEach(function(o){if(ORD.indexOf(o.r)>ORD.indexOf(b))b=o.r});return b}
+ function calm(){try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}}
+ function motes(){var h='';for(var i=0;i<12;i++)h+='<i style="--x:'+(12+Math.random()*76).toFixed(1)+'%;--d:'+(2.2+Math.random()*2.2).toFixed(2)+'s;--dl:-'+(Math.random()*4).toFixed(2)+'s;--s:'+(3+Math.random()*4).toFixed(1)+'px"></i>';return h}
+ /* opening a crate: idle bob → tap → it shakes harder and harder while light leaks from the lid (stepping up through the rarities
+    to the best thing inside) → the lid blows off → face-down cards fly out and flip over one by one, best last */
+ function openOne(after){var c=Cget();if(!c.pending.length)return;var cr=c.pending.shift();wrk(CK,c);var res=roll(cr.t),R=RAR[cr.t];
+  var ov=document.createElement('div');ov.className='xov mcov';ov.setAttribute('role','dialog');ov.setAttribute('aria-label',R.n+' crate');
+  ov.innerHTML='<div class="mcx" style="--rc:'+R.c+';--bc:'+R.c+'"><span class="mflash" aria-hidden="true"></span><p class="mtier">'+R.n+' crate</p><div class="mstage"><span class="mrays" aria-hidden="true"></span><span class="mring" aria-hidden="true"></span><span class="mmotes" aria-hidden="true">'+motes()+'</span><span class="mshadow" aria-hidden="true"></span><button type="button" class="mcrate" aria-label="Open the crate">'+crateSvg(cr.t)+'</button></div><p class="mhint">Tap to open</p><button type="button" class="xbtn alt mupg" hidden></button><div class="mloots" aria-live="polite"></div><div class="mbtns" hidden><button type="button" class="xbtn" data-a="more">Open the next one</button><button type="button" class="xbtn alt" data-a="done">Done</button></div></div>';
+  document.body.appendChild(ov);document.body.classList.add('noscroll');
+  var st=0,timers=[],x=ov.querySelector('.mcx'),b=ov.querySelector('.mcrate'),ub=ov.querySelector('.mupg'),hint=ov.querySelector('.mhint'),box=ov.querySelector('.mloots'),flipped=0,order=[];
+  function later(f,ms){timers.push(setTimeout(function(){if(document.body.contains(ov))f()},ms))}
+  var NX={C:'R',R:'E',E:'L'};function upgUi(){var cc=Cget();if(st||!(cc.upg>0)||!NX[cr.t]){ub.hidden=true;return}ub.hidden=false;ub.textContent='⬆️ Upgrade to '+RAR[NX[cr.t]].n+' ('+cc.upg+' token'+(cc.upg>1?'s':'')+')'}
+  ub.onclick=function(){var cc=Cget();if(st||!(cc.upg>0)||!NX[cr.t])return;cc.upg--;wrk(CK,cc);cr.t=NX[cr.t];res=roll(cr.t);R=RAR[cr.t];var tl=ov.querySelector('.mtier');tl.textContent=R.n+' crate';x.style.setProperty('--rc',R.c);x.style.setProperty('--bc',R.c);b.innerHTML=crateSvg(cr.t);b.classList.remove('upg');void b.offsetWidth;b.classList.add('upg');try{burstAt({st:'spark',pal:[R.c,'#ffffff']},b)}catch(e){}ov.setAttribute('aria-label',R.n+' crate');try{sfx('quest')}catch(e){}upgUi();ui()};upgUi();
+  function close(){timers.forEach(clearTimeout);ov.remove();if(!popen()&&!document.querySelector('.xov'))document.body.classList.remove('noscroll');if(after)after()}
+  /* 1. build-up */
+  function charge(best,done){var dur={C:750,R:1000,E:1300,L:1650}[best],steps=ORD.slice(ORD.indexOf(cr.t),ORD.indexOf(best)+1),t0=performance.now(),nt=0,si=-1;b.classList.add('charge');
+   (function fr(now){if(!document.body.contains(ov))return;var t=Math.max(0,now-t0),u=Math.min(1,t/dur),a=1.2+9*u*u,s=now/1000,k=Math.min(steps.length-1,Math.floor(u*steps.length));
+    if(k!==si){si=k;x.style.setProperty('--bc',RAR[steps.charAt(k)].c);if(k>0){b.classList.remove('lvup');void b.offsetWidth;b.classList.add('lvup');try{sfx('quest')}catch(e){}}}
+    x.style.setProperty('--u',u.toFixed(3));
+    b.style.transform='translate('+(Math.sin(s*47)*a*.6).toFixed(2)+'px,'+(Math.cos(s*39)*a*.25-u*8).toFixed(2)+'px) rotate('+(Math.sin(s*31)*a*.55).toFixed(2)+'deg) scale('+(1+u*.1).toFixed(3)+')';
+    if(t>=nt){try{sfx('tap')}catch(e){}nt=t+Math.max(65,240*(1-u))}
+    if(u<1)requestAnimationFrame(fr);else done()})(t0)}
+  /* 2. the burst */
+  function pop(best){st=2;var B=RAR[best];x.style.setProperty('--bc',B.c);x.style.setProperty('--u','1');b.style.transform='';b.classList.remove('charge','lvup');b.classList.add('open');x.classList.add('opened','b'+best);hint.hidden=true;
+   try{sfx('crate')}catch(e){}
+   if(!calm()){try{burstAt({st:best==='L'?'firework':'spark',pal:[B.c,'#ffffff',R.c]},b)}catch(e){}if(best==='L'||best==='E')later(function(){try{burstAt({st:best==='L'?'firework':'dot',pal:[B.c,'#ffd166','#ffffff']},b)}catch(e){}},260)}
+   later(deal,calm()?0:480)}
+  /* 3. cards fly out face down, then flip one by one (the rarest last) */
+  function deal(){st=3;x.classList.add('dealt');order=res.map(function(o,i){return i}).sort(function(p,q){return (ORD.indexOf(res[p].r)-ORD.indexOf(res[q].r))||(p-q)});
+   box.innerHTML=order.map(function(k,i){return resCard(res[k],i)}).join('');var cards=[].slice.call(box.querySelectorAll('.mloot'));
+   cards.forEach(function(el,i){el.onclick=function(e){if(!el.classList.contains('flip')){e.preventDefault();flip(i)}};el.onkeydown=function(e){if((e.key==='Enter'||e.key===' ')&&!el.classList.contains('flip')){e.preventDefault();flip(i)}}});
+   [].forEach.call(box.querySelectorAll('[data-eq]'),function(q){q.onclick=function(e){e.stopPropagation();equip(q.getAttribute('data-eq'));q.textContent='✓ Using it';q.disabled=true}});
+   if(calm()){cards.forEach(function(el,i){flip(i,true)});return}
+   hint.textContent='Tap a card to flip it';hint.hidden=false;var t0=520+cards.length*120;cards.forEach(function(el,i){later(function(){flip(i)},t0+i*(i===cards.length-1&&cards.length>1?560:420))})}
+  function flip(i,quiet){var el=box.querySelectorAll('.mloot')[i];if(!el||el.classList.contains('flip'))return;el.classList.add('flip');el.removeAttribute('role');el.removeAttribute('tabindex');el.removeAttribute('aria-label');flipped++;
+   var r=res[order[i]].r;if(!quiet){try{sfx(r==='C'?'tap':'reveal',{r:r})}catch(e){}if((r==='L'||r==='E')&&!calm())later(function(){try{burstAt({st:r==='L'?'firework':'spark',pal:[RAR[r].c,'#ffffff','#ffd166']},el)}catch(e){}},180)}
+   if(flipped>=order.length)finish()}
+  function flipAll(){var n=order.length;for(var i=0;i<n;i++)flip(i)}
+  function finish(){if(st===4)return;st=4;later(function(){hint.hidden=true;var m=ov.querySelector('.mbtns');m.hidden=false;m.querySelector('[data-a=more]').hidden=!Cget().pending.length;try{m.querySelector(Cget().pending.length?'[data-a=more]':'[data-a=done]').focus({preventScroll:true})}catch(e){}},calm()?0:450)}
+  b.onclick=function(){if(st)return;st=1;ub.hidden=true;hint.hidden=true;grant(res);var best=bestR(res);if(calm())pop(best);else charge(best,function(){pop(best)})};
+  x.addEventListener('click',function(e){if(st===3&&!e.target.closest('.mloot,button'))flipAll()});
+  ov.querySelector('[data-a=done]').onclick=close;ov.querySelector('[data-a=more]').onclick=function(){timers.forEach(clearTimeout);ov.remove();openOne(after)};ov.addEventListener('keydown',function(e){if(e.key==='Escape'&&st)close()});setTimeout(function(){try{b.focus({preventScroll:true})}catch(e){}},60)}
+
+ /* ---------- answer effects ---------- */
+ function fxEq(){var eq=Lget().eq||{};return eq.fx?item(eq.fx):null}
+ function burst(it,x,y){
+  if(!it)return;try{if(matchMedia('(prefers-reduced-motion: reduce)').matches)return}catch(e){}
+  var cv=document.createElement('canvas'),dpr=Math.min(2,window.devicePixelRatio||1),W=innerWidth,H=innerHeight;cv.width=W*dpr;cv.height=H*dpr;cv.setAttribute('aria-hidden','true');cv.style.cssText='position:fixed;left:0;top:0;width:'+W+'px;height:'+H+'px;pointer-events:none;z-index:2147483000';document.body.appendChild(cv);
+  var g=cv.getContext('2d');g.scale(dpr,dpr);var st=it.st,pal=it.pal,A=[],T0=performance.now(),last=T0,slow=/flake|leaf|bubble|heart|digit/.test(st),DUR=slow?1700:st==='chain'?1300:1100;
+  function col(){return pal[Math.floor(Math.random()*pal.length)]}function R(a,b){return a+Math.random()*(b-a)}
+  function add(o){o.x=o.x==null?x:o.x;o.y=o.y==null?y:o.y;o.t0=o.t0||0;o.c=o.c||col();o.rot=o.rot||R(0,6.28);o.vr=o.vr||R(-6,6);A.push(o)}
+  var i,a,sp;
+  if(st==='spark')for(i=0;i<26;i++){a=i/26*6.283+R(-.1,.1);sp=R(260,460);add({vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,drag:4,life:.75})}
+  else if(st==='dot')for(i=0;i<46;i++){a=-1.57+R(-1.2,1.2);sp=R(260,560);add({vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,gy:950,drag:1.2,life:1.1,w:R(5,9),h:R(3,5)})}
+  else if(st==='firework')for(i=0;i<52;i++){a=R(0,6.283);sp=R(140,400);add({vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,gy:320,drag:1.6,life:1.05,trail:1})}
+  else if(st==='flake')for(i=0;i<18;i++){a=R(0,6.283);add({x:x+Math.cos(a)*R(0,40),y:y+Math.sin(a)*R(0,24),vx:R(-70,70),vy:R(-90,-20),gy:70,drag:.6,life:1.6,s:R(4,8),vr:R(-2,2)})}
+  else if(st==='leaf')for(i=0;i<16;i++){add({vx:R(-160,160),vy:R(-320,-140),gy:420,drag:1.4,life:1.6,w:R(7,11),h:R(3,5),ph:R(0,6),fl:1})}
+  else if(st==='bubble')for(i=0;i<16;i++){add({x:x+R(-30,30),y:y+R(-6,6),vx:R(-30,30),vy:R(-230,-110),drag:.4,life:1.6,s:R(4,11),ph:R(0,6),wob:1})}
+  else if(st==='heart')for(i=0;i<13;i++){add({x:x+R(-30,30),vx:R(-50,50),vy:R(-260,-140),drag:.5,life:1.6,s:R(7,13),ph:R(0,6),wob:1})}
+  else if(st==='digit'){var chs=it.chars||'01';for(i=0;i<20;i++)add({x:x+R(-14,14),vx:R(-190,190),vy:R(-430,-190),gy:560,drag:.7,life:1.4,s:R(14,23),ch:chs.charAt(Math.floor(Math.random()*chs.length)),rot:R(-.4,.4),vr:R(-1.5,1.5)})}
+  else if(st==='chain'){a=R(0,6.283);add({vx:Math.cos(a)*260,vy:Math.sin(a)*260,drag:1,life:1.25,gen:0,split:.2,n:1})}
   var rings=st==='ring'?[0,.13,.26]:null,atom=st==='atom';
   function heart(cx,cy,s){g.beginPath();g.moveTo(cx,cy+s*.35);g.bezierCurveTo(cx-s,cy-s*.4,cx-s*.45,cy-s,cx,cy-s*.45);g.bezierCurveTo(cx+s*.45,cy-s,cx+s,cy-s*.4,cx,cy+s*.35);g.fill()}
   function frame(now){var dt=Math.min(.05,(now-last)/1000),t=(now-T0)/1000;last=now;g.clearRect(0,0,W,H);
@@ -794,8 +859,8 @@ function qcEsc(t){return String(t).replace(/[&<>"]/g,function(ch){return {'&':'&
 function qcNum(t){return /\d/.test(t)}
 function qcCls(x){var w=x.toLowerCase().split(' ').pop();return /ing$/.test(w)?'ing':/ed$/.test(w)?'ed':/ly$/.test(w)?'ly':/(er|est)$/.test(w)&&w.length>4?'er':/[^su]s$/.test(w)?'s':'o'}
 function qcCase(x,up){if(/[A-Z].*[A-Z]/.test(x)||/^[A-Z]{2}/.test(x))return x;return up?x.charAt(0).toUpperCase()+x.slice(1):x.charAt(0).toLowerCase()+x.slice(1)}
-function qcBuild(c,pool){var d=document.createElement('div');d.innerHTML=c.h;var hs=[].slice.call(d.querySelectorAll('b,strong'));
- for(var i=0;i<hs.length;i++){var term=qcClean(hs[i].textContent);if(!qcOk(term))continue;
+function qcBuild(c,pool,avoid){var d=document.createElement('div');d.innerHTML=c.h;var hs=[].slice.call(d.querySelectorAll('b,strong'));
+ for(var i=0;i<hs.length;i++){var term=qcClean(hs[i].textContent);if(!qcOk(term)||(avoid&&avoid[term]))continue;
   var blk=hs[i].closest('p,li,td,div.kn')||d,txt=blk.textContent.replace(/\s+/g,' ').trim(),ss=txt.replace(/([.!?])\s+(?=[A-Z0-9"“(])/g,'$1\u0001').split('\u0001'),sen=null;
   for(var j=0;j<ss.length;j++){if(ss[j].indexOf(term)>=0){sen=ss[j].trim();break}}
   if(!sen||sen.length<30||sen.length>200||!/^[A-Z0-9"“]/.test(sen)||!/[.!?"”]$/.test(sen))continue;
@@ -806,15 +871,51 @@ function qcBuild(c,pool){var d=document.createElement('div');d.innerHTML=c.h;var
   pool.forEach(function(x){var xl=x.t.toLowerCase();if(seen[xl]||xl===tl||lo.indexOf(xl)>=0||xl.indexOf(tl)>=0||tl.indexOf(xl)>=0)return;if(qcNum(x.t)!==qcNum(term)||x.t.split(' ').length!==nw||qcCls(x.t)!==qcCls(term))return;var r=x.t.length/term.length;if(r<0.45||r>2.2)return;seen[xl]=1;cand.push({t:x.t,s:(x.same?3:0)-Math.abs(x.t.length-term.length)/6})});
   cand.sort(function(a,b){return b.s-a.s||(a.t<b.t?-1:a.t>b.t?1:0)});if(cand.length<2)continue;
   var ds=cand.slice(0,3).map(function(x){return start?qcCase(x.t,true):x.t});
-  return {t:'Q',_auto:1,p:'<div class="qckick">✏️ Quick check</div>Fill the gap:<div class="qcsen">'+qcEsc(bef)+'<span class="qcgap">______</span>'+qcEsc(aft)+'</div>',o:[qcEsc(term)].concat(ds.map(qcEsc)),a:0,e:qcEsc(bef)+'<b>'+qcEsc(term)+'</b>'+qcEsc(aft)}}
+  return {t:'Q',_auto:1,_term:term,p:'<div class="qckick">✏️ Quick check</div>Fill the gap:<div class="qcsen">'+qcEsc(bef)+'<span class="qcgap">______</span>'+qcEsc(aft)+'</div>',o:[qcEsc(term)].concat(ds.map(qcEsc)),a:0,e:qcEsc(bef)+'<b>'+qcEsc(term)+'</b>'+qcEsc(aft)}}
  return null}
 function qcAsks(c){return c&&c.t!=='T'}
-function playCards(l){if(l._play)return l._play;var cs=l.cards,out=[],added=0,pool=[];
- try{var u=null;for(var ui=0;ui<UNITS.length&&!u;ui++)if(UNITS[ui].lessons.indexOf(l)>=0)u=UNITS[ui];(u?u.lessons:[l]).forEach(function(x){x.cards.forEach(function(c){if(c.t==='T')qcTerms(c.h).forEach(function(t){pool.push({t:t,same:x===l})})})})}catch(e){}
+function qcText(h){var d=document.createElement('div');d.innerHTML=h;return d.textContent.replace(/\s+/g,' ').trim()}
+function playCards(l){if(l._play)return l._play;var cs=l.cards,out=[{t:'S'}],pool=qcPool(l),nx=0;
+ /* predict first: the first multiple-choice question that comes after some teaching, asked as a guess up front */
+ var pi=-1;for(var i=2;i<cs.length;i++){if(cs[i].t==='Q'&&cs[i].o&&typeof cs[i].a==='number'&&!/fromb|from earlier|remember/i.test(cs[i].p||'')&&cs.slice(0,i).some(function(c){return c.t==='T'})){pi=i;break}}
+ if(pi>=2&&cs.length>=5){var pq=Object.assign({},cs[pi]);pq._pre=1;pq._auto=1;pq._key=null;pq._src0=cs[pi]._key||l.id+'#'+pi;out.push(pq)}
  cs.forEach(function(c,ci){var cc=Object.assign({},c);if(!cc._key)cc._key=l.id+'#'+ci;out.push(cc);
-  if(c.t!=='T'||ci===cs.length-1)return;var nx=cs[ci+1];if(qcAsks(nx))return;var hd=(c.h||'').match(/<h3[^>]*>([\s\S]*?)<\/h3>/i);if(hd&&QC_SKIP.test(hd[1]))return;
-  var q=null;try{q=qcBuild(c,pool)}catch(e){}if(q){q._key=null;out.push(q);added++}});
- l._play=added?out:cs;return l._play}
-UNITS.forEach(function(u){u.lessons.forEach(function(l){l.cards.forEach(function(c){if(c.t==='W'&&c.w==='calcDrill'&&c.par&&!c.par.rule&&c.e)c.par.rule=c.e})})});
-checkBadges(true);quests();updHeader();showPage('learn');
-})();
+  if(c.t!=='T'||ci===cs.length-1||/class="fromb"/.test(c.h||''))return;var nxc=cs[ci+1];if(qcAsks(nxc))return;var hd=(c.h||'').match(/<h3[^>]*>([\s\S]*?)<\/h3>/i);if(hd&&QC_SKIP.test(hd[1]))return;
+  var q=null;try{q=qcBuild(c,pool)}catch(e){}if(q){q._key=null;out.push(q);return}
+  /* no gap to fill? then a few explain-it-back cards break up the reading */
+  if(nx<2&&qcText(c.h||'').length>=180){out.push({t:'X',h:c.h,_auto:1});nx++}});
+ out.push({t:'Z'});l._play=out;return out}
+/* ===== learning extras: your own question at the start, explain-it-back, predict first, confidence, medals,
+   mixed and exam-style unit practice, spaced review of weak skills ===== */
+var LXK='critical_lx';
+function lxGet(){var o=null;try{o=JSON.parse(localStorage.getItem(LXK)||'null')}catch(e){}o=o&&typeof o==='object'?o:{};['myq','medal','weak','conf'].forEach(function(k){if(!o[k]||typeof o[k]!=='object'||Array.isArray(o[k]))o[k]={}});return o}
+function lxSet(o){try{localStorage.setItem(LXK,JSON.stringify(o))}catch(e){}try{SYNC.mark()}catch(e){}}
+function lxLid(){if(typeof P==='undefined'||!P)return null;if(P.mode==='lesson'&&UNITS[P.ui])return UNITS[P.ui].lessons[P.li].id;if(P.mode==='follow'&&P.fid)return P.fid;return null}
+function lxMedal(id,t){var x=lxGet();if((x.medal[id]||0)<t){x.medal[id]=t;lxSet(x)}}
+function lxAddD(d,n){var x=new Date(d+'T12:00:00');x.setDate(x.getDate()+n);return dstr(x)}
+/* weak skills: a miss brings the skill back tomorrow; each right answer in a weak-skills session doubles the gap, and after 16 days it's dropped */
+function lxWeak(k,ok,rev){var x=lxGet(),w=x.weak[k],t=today();
+ if(!ok){x.weak[k]={n:((w&&w.n)||0)+1,iv:1,due:lxAddD(t,1),at:Date.now()};lxSet(x);return}
+ if(w&&rev){var iv=Math.min(32,(w.iv||1)*2);if(iv>=16)delete x.weak[k];else x.weak[k]={n:w.n,iv:iv,due:lxAddD(t,iv),at:Date.now()};lxSet(x)}}
+function lxDue(){var x=lxGet(),t=today();return Object.keys(x.weak).filter(function(k){return typeof CGEN[k]==='function'&&x.weak[k].due<=t}).sort(function(a,b){return (x.weak[b].n||0)-(x.weak[a].n||0)})}
+/* common slips in a number answer, so a wrong answer says why it's wrong */
+function numSlip(v,a){if(!isFinite(v)||!isFinite(a)||a===0||v===0)return '';function nr(x,y){return Math.abs(x-y)<=Math.abs(y)*0.015+1e-12}
+ if(nr(v,-a))return 'Right size, wrong sign: check whether the answer should be positive or negative.';
+ for(var k=1;k<=12;k++)if(nr(v,a*Math.pow(10,k))||nr(v,a/Math.pow(10,k)))return 'Your digits are right, but it\'s out by a factor of 10'+(k>1?'<sup>'+k+'</sup>':'')+'. Check the units and the powers of ten.';
+ if(nr(v,1/a))return 'That\'s the answer upside down: check which number divides which.';
+ if(nr(v,a*a))return 'Looks like you squared it once too often.';
+ if(v>0&&a>0&&nr(v*v,a))return 'That\'s the square root of the answer. Did you forget to square?';
+ if(nr(v,a*2)||nr(v,a/2))return 'Out by a factor of 2: look for a ½ or a 2 in the formula.';
+ return ''}
+
+/* ---- the start of every lesson: what it's called, what it's about, and a question of your own ---- */
+function rS(c,b){var u=UNITS[P.ui],l=u.lessons[P.li],hk=(typeof HOOKS!=='undefined'&&HOOKS[l.id])||'',old=lxGet().myq[l.id],tr=trk(P.ui),
+  ph=isQ(tr)?'e.g. How would this come up in an exam question?':'e.g. Why does this matter in a real power station?';
+ var d=el('div','lsx',null,b);d.innerHTML='<div class="lsk">Lesson '+(P.li+1)+' of '+u.lessons.length+'</div><h2 class="lst">'+l.title+'</h2>'+(hk?'<p class="lsh">'+hk+'</p>':'')+
+  '<div class="lsbox"><label for="lsqIn"><b>❓ Before you start: what do you want to find out?</b></label><p class="small">Type one question about this topic. At the end of the lesson we\'ll check whether it got answered.</p><textarea id="lsqIn" rows="2" maxlength="300" placeholder="'+ph+'"></textarea></div>';
+ var ta=d.querySelector('textarea');if(old&&!old.done)ta.value=old.q;
+ function save(){var v=ta.value.trim();if(v.length<3)return;var x=lxGet();x.myq[l.id]={q:v.slice(0,300),t:l.title,d:today(),done:false,at:Date.now()};lxSet(x);P.myq=true;nextCard()}
+ function upd(){mainBtn('Save my question and start',save,ta.value.trim().length<3)}
+ ta.oninput=upd;ta.onkeydown=function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();e.stopPropagation();save()}};upd();
+ skipBtn(function(){P.myq=false;nextCard()},'Skip');setTimeout(function(){try{ta.focus({preventScroll:true})}catch(e){}},60)}
+/*

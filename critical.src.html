@@ -1282,7 +1282,7 @@ function rN(c,b){P.asked++;var p=document.createElement('div');p.className='qpro
  function check(){var v=parseNum(inp.value);if(isNaN(v)){foot('no','That isn\'t a number','<div>Try something like 0.25, 420 or 3e-5.</div>');return}
   var tol=c.tol==null?0.02:c.tol,ok=c.a===0?Math.abs(v)<=(tol||1e-9):Math.abs(v-c.a)<=Math.abs(c.a)*tol+1e-12;
   if(ok){inp.disabled=true;inp.style.borderColor='var(--good-line)';gotRight(c);foot('ok',praise(),c.e?'<div>'+c.e+'</div>':'');mainBtn('Continue',nextCard)}
-  else{P.st.tries++;if(P.st.tries===1)gotWrong(c);inp.style.borderColor='var(--amber)';if(P.st.tries>=2){inp.disabled=true;foot('no','The answer is '+fmtAns(c.a)+(c.u?' '+c.u:''),(c.e?'<div>'+c.e+'</div>':'')+EASE.revNote(c));mainBtn('Continue',nextCard)}else{var hint=Math.abs(v)>0&&Math.abs(c.a)>0&&Math.abs(Math.log10(Math.abs(v/c.a))-Math.round(Math.log10(Math.abs(v/c.a))))<0.02&&Math.round(Math.log10(Math.abs(v/c.a)))!==0?'Check your powers of ten.':(c.hint||'Check your working and try again.');foot('no',EASE.gentle(),'<div>'+hint+'</div>');mainBtn('Check',check,false)}}}}
+  else{P.st.tries++;if(P.st.tries===1)gotWrong(c);inp.style.borderColor='var(--amber)';if(P.st.tries>=2){inp.disabled=true;foot('no','The answer is '+fmtAns(c.a)+(c.u?' '+c.u:''),(c.e?'<div>'+c.e+'</div>':'')+EASE.revNote(c));mainBtn('Continue',nextCard)}else{var hint=numSlip(v,c.a)||(Math.abs(v)>0&&Math.abs(c.a)>0&&Math.abs(Math.log10(Math.abs(v/c.a))-Math.round(Math.log10(Math.abs(v/c.a))))<0.02&&Math.round(Math.log10(Math.abs(v/c.a)))!==0?'Check your powers of ten.':(c.hint||'Check your working and try again.'));foot('no',EASE.gentle(),'<div>'+hint+'</div>');mainBtn('Check',check,false)}}}}
 function rW(c,b){if(c.p){var p=document.createElement('div');p.className='qprompt';p.style.fontSize='18px';p.innerHTML=c.p;b.appendChild(p)}var box=document.createElement('div');box.className='w';b.appendChild(box);
  var inst=null;try{inst=WIDGETS[c.w](box,c.par,{color:P.color})||{}}catch(e){box.innerHTML='<p class="small">This interactive couldn\'t load ('+e.message+').</p>';inst={};if(window.console)console.error(e)}
  if(inst.check){P.asked++;mainBtn('Check',check,false)}else{mainBtn('Continue',nextCard)}
@@ -1834,7 +1834,7 @@ function cleanState(s){
  var uids={};UNITS.forEach(function(u){uids[u.id]=1});o.tests={};if(s.tests&&typeof s.tests==='object')for(var tk in s.tests){var tv=s.tests[tk];if(uids[tk]&&tv&&typeof tv==='object')o.tests[tk]={best:num(tv.best,0,100)||0,passed:!!tv.passed,n:num(tv.n,0,1e5)||0,last:(typeof tv.last==='string'&&dre.test(tv.last))?tv.last:'',lastPct:num(tv.lastPct,0,100)||0}}
  return o}
 var KEEP_FIELDS=['mode','gsub','lvl','lvlOpen','lvtests','seenGcse','seenCalc','seenTheory','plView','exam','plan','habits','dayplan','lacc','hardOff','dayNudge','qsets','lday','pdays','rw','shift','mys'];
-var EXTRA_KEYS={plant:'critical_plant',pslots:'critical_plant_slots',study:'critical_study',shift:'shift-ready-v1',apt:'aptitude-v1',notes:'critical_notes',act:'critical_act',loot:'critical_loot',arena:'critical_arena'};
+var EXTRA_KEYS={plant:'critical_plant',pslots:'critical_plant_slots',study:'critical_study',shift:'shift-ready-v1',apt:'aptitude-v1',notes:'critical_notes',act:'critical_act',loot:'critical_loot',arena:'critical_arena',lx:'critical_lx'};
 function readExtras(){var o={};for(var k in EXTRA_KEYS){try{var v=JSON.parse(localStorage.getItem(EXTRA_KEYS[k])||'null');if(v&&typeof v==='object')o[k]=v}catch(e){}}if(o.study)o.study=Object.assign({},o.study,{run:null});return o}
 function writeExtras(x){if(!x)return;for(var k in EXTRA_KEYS)if(x[k]&&typeof x[k]==='object'){var v=x[k];
   /* the running study timer belongs to this device: keep it whatever comes in from sync */
@@ -1897,6 +1897,8 @@ function mergeExtras(A,B){A=A||{};B=B||{};var o={};
   ['eq','hh'].forEach(function(f){var x=la[f],y=lb[f];if(x||y)lo[f]=!x?y:!y?x:((+y.at||0)>(+x.at||0)?y:x)});o.loot=lo}
  /* Critical Clash: guns bought on either device stay bought; coins and settings follow the newest change; the best XP and records win */
  if(A.arena||B.arena){var xa=A.arena||{},xb=B.arena||{},nw=(+xb.at||0)>(+xa.at||0)?xb:xa,ol=nw===xa?xb:xa,ar=Object.assign({},ol,nw);ar.owned=[];[xa,xb].forEach(function(X){(X.owned||[]).forEach(function(k){if(ar.owned.indexOf(k)<0)ar.owned.push(k)})});ar.skins=[];[xa,xb].forEach(function(X){(X.skins||[]).forEach(function(k){if(ar.skins.indexOf(k)<0)ar.skins.push(k)})});ar.cxp=Math.max(+xa.cxp||0,+xb.cxp||0);var ra=xa.rec||{},rb=xb.rec||{};ar.rec={played:Math.max(+ra.played||0,+rb.played||0),kills:Math.max(+ra.kills||0,+rb.kills||0),wins:Math.max(+ra.wins||0,+rb.wins||0)};o.arena=ar}
+ /* learning extras: newest version of each of your questions, best medal, newest weak-skill schedule, any 'guessed' flag */
+ if(A.lx||B.lx){var lxo={myq:{},medal:{},weak:{},conf:{}};[A.lx||{},B.lx||{}].forEach(function(X){var k4;for(k4 in X.myq||{}){var v4=X.myq[k4],c4=lxo.myq[k4];if(v4&&(!c4||(+v4.at||0)>(+c4.at||0)))lxo.myq[k4]=v4}for(k4 in X.medal||{})lxo.medal[k4]=Math.max(lxo.medal[k4]||0,+X.medal[k4]||0);for(k4 in X.weak||{}){var w4=X.weak[k4],cw=lxo.weak[k4];if(w4&&(!cw||(+w4.at||0)>(+cw.at||0)))lxo.weak[k4]=w4}for(k4 in X.conf||{})lxo.conf[k4]=1});o.lx=lxo}
  if(A.notes||B.notes){var ia=(A.notes&&A.notes.items)||{},ib=(B.notes&&B.notes.items)||{},it={};Object.keys(ia).concat(Object.keys(ib)).forEach(function(k){var a=ia[k],b=ib[k];it[k]=!a?b:!b?a:((+b.at||0)>(+a.at||0)?b:a)});o.notes={v:1,items:it}}
  return o}
 function saveCode(){var j=JSON.stringify(packSave());return SAVE_PREFIX+btoa(unescape(encodeURIComponent(j)))}
@@ -9968,46 +9970,74 @@ CGEN.sepode=function(){var k=cP([0.1,0.2,0.5]),y0=cP([100,200,50]),t=cP([2,5,10]
  '@media (prefers-reduced-motion:no-preference){.mdhd.won::after{animation:mdShine 2.4s .3s ease-in-out infinite}.mdseg i.pop{animation:cdPop .45s ease-out}.mdhd.fin{animation:mdPulse 1.6s ease-in-out infinite}}@keyframes mdShine{0%{left:-40%}55%,100%{left:120%}}@keyframes mdPulse{50%{box-shadow:0 0 0 4px rgba(239,159,39,.18)}}'+
  '.cdsupg{align-self:flex-start;margin-top:-10px}.cdline .cdbox.cdsup{width:54px;font-size:14px;padding:5px 6px}.cdsupg .sgnb{min-width:32px;height:32px;font-size:16px;border-radius:8px}.cdin .opt{margin-top:8px}';
  document.head.appendChild(css)})();
-WIDGETS.calcDrill=function(box,par){var mth=false;try{if(typeof P!=='undefined'&&P&&P.ui!=null)mth=!!{maths:1,calc:1,gm:1,am:1}[trk(P.ui)]}catch(e){}var need=Math.max(par.need||5,mth?5:0),lastPct=0,gens=[].concat(par.skill),score=0,run=0,clean=true,done=false,passed=false,q=null,answered=false,count=0,help=0,wrongs=0,last=-1,xpGot=0;
+WIDGETS.calcDrill=function(box,par){var mth=false;try{if(typeof P!=='undefined'&&P&&P.ui!=null)mth=!!{maths:1,calc:1,gm:1,am:1}[trk(P.ui)]}catch(e){}
+ var bank=null;if(par.bank){try{bank=typeof par.bank==='function'?par.bank():par.bank}catch(e){bank=null}}
+ var gens=[].concat(par.skill||[]).filter(function(k){return typeof CGEN[k]==='function'});
+ if(!gens.length&&!(bank&&bank.length)){box.innerHTML='<p class="small">Nothing to practise here yet.</p>';return {check:function(){return {ok:true}}}}
+ var need=Math.max(par.need||5,mth?5:0);if(bank&&!gens.length)need=Math.min(need,Math.max(3,bank.length-1));
+ var lastPct=0,score=0,run=0,clean=true,done=false,passed=false,q=null,answered=false,count=0,help=0,hadHelp=false,wrongs=0,last=-1,xpGot=0,recent=[],medal=0,
+  weakMode=typeof P!=='undefined'&&P&&P.mode==='weak',exOK=!!gens.length&&!par.noEx&&!weakMode,timed=false,tmr=null,timeUp=false;
+ try{timed=localStorage.getItem('critical_timed')==='1'}catch(e){}
  var PRAISE=['Nice.','Spot on.','That\'s it.','Nailed it.','Exactly right.','Lovely.','Yes!','Clean.','Textbook.','Sharp.'];
- var top=el('div','cdtop md',null,box),card=el('div','cdcard mdc',null,box),qb=el('div','cdq',null,card),inRow=el('div','cdin',null,card),hb=el('div','cdhelp',null,box),r=row(box),chkB=btn(r,'Submit answer',check,'pri'),helpB=btn(r,'Help',helpMe),nxt=btn(r,'Next question',next),skipB=btn(r,'Different question',skip),moveB=btn(r,'Move on for now',moveOn),m=msg(box);r.classList.add('mdrow');
+ var top=el('div','cdtop md',null,box),tbar=el('div','mdtbar',null,box),card=el('div','cdcard mdc',null,box),qb=el('div','cdq',null,card),inRow=el('div','cdin',null,card),hb=el('div','cdhelp',null,box),r=row(box),chkB=btn(r,'Submit answer',check,'pri'),helpB=btn(r,'Help',helpMe),nxt=btn(r,'Next question',next),skipB=btn(r,'Different question',skip),moveB=btn(r,'Move on for now',moveOn),m=msg(box);r.classList.add('mdrow');tbar.hidden=true;
  function inL(){return typeof P!=='undefined'&&P&&P.mode==='lesson'}
  function T(f){try{f()}catch(e){}}
  function give(n,from){if(n<=0)return;xpGot+=n;T(function(){if(inL())award(n);else addXP(n,from||nxt)})}
- var FT=!mth&&need>3;
- /* the header: a ring that fills as you go, what stage you're at, your streak and XP, and a segment for every answer you need */
+ var FT=!mth&&need>3&&!exOK;
+ var MED=['','🥉 Bronze','🥈 Silver','🥇 Gold'];
+ /* the header: a ring that fills as you go, what stage you're at, your streak and XP, a timer switch, and a segment for every answer you need */
  function dots(pop,drop){var fin=!done&&!passed&&score===need-1,pct=done?1:Math.min(1,score/need),C=188.5,fr=score/need,
   stage=done?'Mastered!':passed?'Paused for now':fin?'Final question!':score===0?'Warming up':fr<0.4?'Getting going':fr<0.7?'On a roll':'Nearly there',
-  sub=done?(xpGot?'You earned +'+xpGot+' XP. Lovely work.':'Lovely work.'):passed?'Come back with the Practice button any time.':fin?'Get this one right to master it.':(need-score)+' more right to master it'+(FT&&count<=3&&clean?' · or 3 right first go to fast-track':'')+'.',
-  h='<div class="mdhd'+(fin?' fin':'')+(done?' won':'')+'"><div class="mdring" aria-hidden="true"><svg viewBox="0 0 72 72"><circle class="bg" cx="36" cy="36" r="30"/><circle class="fg" cx="36" cy="36" r="30" stroke-dasharray="'+C+'" stroke-dashoffset="'+(C*(1-lastPct)).toFixed(1)+'"/></svg><span>'+(done?'★':score+'<small>/'+need+'</small>')+'</span></div>'+
-  '<div class="mdtt"><span class="mdk">Mastery'+(par.title?' · '+par.title:'')+'</span><b'+(fin?' class="cdfin"':'')+'>'+stage+'</b><span class="mdsub">'+sub+'</span></div><div class="mdchips">'+(run>=2&&!done?'<span class="cdflame mdchip'+(pop?' pop':'')+'">'+FLAME+'<b>'+run+'</b></span>':'')+(xpGot?'<span class="mdchip mdxp">+'+xpGot+' XP</span>':'')+'</div></div><div class="cddots mdseg" role="img" aria-label="'+score+' of '+need+' right">';
+  sub=done?(medal?MED[medal]+' mastery. ':'')+(xpGot?'You earned +'+xpGot+' XP.':'Lovely work.'):passed?'Come back with the Practice button any time.':fin?'Get this one right to master it.':(need-score)+' more right to master it'+(FT&&count<=3&&clean?' · or 3 right first go to fast-track':'')+'.',
+  h='<div class="mdhd'+(fin?' fin':'')+(done?' won':'')+'"><div class="mdring" aria-hidden="true"><svg viewBox="0 0 72 72"><circle class="bg" cx="36" cy="36" r="30"/><circle class="fg" cx="36" cy="36" r="30" stroke-dasharray="'+C+'" stroke-dashoffset="'+(C*(1-lastPct)).toFixed(1)+'"/></svg><span>'+(done?(medal?['','🥉','🥈','🥇'][medal]:'★'):score+'<small>/'+need+'</small>')+'</span></div>'+
+  '<div class="mdtt"><span class="mdk">'+(par.mix?'Mixed practice':weakMode?'Weak skills':bank&&!gens.length?'Concept check':'Mastery')+(par.title?' · '+par.title:'')+'</span><b'+(fin?' class="cdfin"':'')+'>'+stage+'</b><span class="mdsub">'+sub+'</span></div><div class="mdchips">'+(run>=2&&!done?'<span class="cdflame mdchip'+(pop?' pop':'')+'">'+FLAME+'<b>'+run+'</b></span>':'')+(xpGot?'<span class="mdchip mdxp">+'+xpGot+' XP</span>':'')+(!done&&!passed?'<button type="button" class="mdchip mdtime'+(timed?' on':'')+'" aria-pressed="'+timed+'" title="Answer against the clock">⏱ '+(timed?'Timed':'Timer off')+'</button>':'')+'</div></div><div class="cddots mdseg" role="img" aria-label="'+score+' of '+need+' right">';
   for(var i=0;i<need;i++)h+='<i class="'+(i<Math.min(score,need)?'on':'')+(pop&&i===score-1?' pop':'')+(drop&&i===score?' drop':'')+(done?' gold':'')+(i===need-1?' last':'')+'"></i>';
   top.innerHTML=h+'</div>';card.classList.toggle('fin',fin);
   var fg=top.querySelector('.fg');lastPct=pct;requestAnimationFrame(function(){requestAnimationFrame(function(){if(fg)fg.setAttribute('stroke-dashoffset',(C*(1-pct)).toFixed(1))})});
   if(pop)T(function(){var d=top.querySelector('.cddots i.pop');if(d&&window.NEO&&NEO.burst){var b=d.getBoundingClientRect();NEO.burst(b.left+b.width/2,b.top+b.height/2,{n:14})}})}
+ top.addEventListener('click',function(e){if(!e.target.closest('.mdtime'))return;timed=!timed;try{localStorage.setItem('critical_timed',timed?'1':'0')}catch(_){}if(timed&&!answered)startT();else stopT();dots()});
+ /* timed mode: a bar that runs down; when it empties the question counts as a miss */
+ function stopT(){if(tmr){clearInterval(tmr);tmr=null}tbar.hidden=true}
+ function startT(){stopT();if(!timed||answered||!q)return;var lim=q.o?45:q.b.length>1?120:75,t0=Date.now();tbar.hidden=false;
+  function draw(){var left=Math.max(0,lim-(Date.now()-t0)/1000);tbar.className='mdtbar'+(left<10?' low':'');tbar.innerHTML='<i style="width:'+(left/lim*100).toFixed(1)+'%"></i><span>⏱ '+Math.ceil(left)+' s</span>';return left}
+  draw();tmr=setInterval(function(){if(!document.body.contains(box)){stopT();return}if(draw()<=0){stopT();if(!answered){timeUp=true;check()}}},250)}
  function key(e){if(e.key==='Enter'){e.preventDefault();e.stopPropagation();answered?next():check()}}
- function pick(){var k=cP(gens);if(gens.length>2&&k===last)k=cP(gens);last=k;return CGEN[k]()}
- function next(){q=pick();count++;answered=false;help=0;q.pick=null;hb.innerHTML='';qb.innerHTML='<div class="qprompt">'+q.p+'</div>';inRow.innerHTML='';card.classList.remove('shake','good');void card.offsetWidth;card.classList.add('enter');
+ function pick(){if(bank&&!gens.length){var i,tries=0;do{i=Math.floor(Math.random()*bank.length);tries++}while(recent.indexOf(i)>=0&&tries<30);recent.push(i);if(recent.length>Math.min(3,bank.length-1))recent.shift();var b0=bank[i],qq={p:b0.p,e:b0.e||''};if(b0.o)qq.o=b0.o.slice();if(b0.b)qq.b=b0.b;return qq}
+  var k=cP(gens);if(gens.length>2&&k===last)k=cP(gens);last=k;var q2=CGEN[k]();q2._k=k;return q2}
+ function li(x){return '<li>'+x+'</li>'}
+ function ansTxt(){return q.o?q.o[0]:q.b.map(function(bb){return cNum(bb.a)}).join(' and ')}
+ function next(){stopT();q=pick();count++;answered=false;help=0;timeUp=false;q.pick=null;hb.innerHTML='';qb.innerHTML='<div class="qprompt">'+q.p+'</div>';inRow.innerHTML='';card.classList.remove('shake','good','wex');void card.offsetWidth;card.classList.add('enter');
   if(q.o){shuffle(q.o.map(function(_,i){return i})).forEach(function(k){var b=el('button','opt',q.o[k],inRow);b.dataset.k=k;b.onclick=function(){if(answered)return;[].forEach.call(inRow.children,function(x){x.classList.remove('sel')});b.classList.add('sel');q.pick=k}})}
   else{var line=el('div','cdline',null,inRow);q.b.forEach(function(bb,i){var g=el('span','cdgrp'+(bb.sup?' cdsupg':''),null,line);if(bb.pre)el('span','',bb.pre,g);var inp=el('input','numin cdbox'+(bb.sup?' cdsup':''),null,g);inp.type='text';if(q.pos)inp.__sgn=1;inp.setAttribute('inputmode','decimal');inp.setAttribute('autocomplete','off');inp.setAttribute('aria-label',bb.label||('Answer '+(i+1)));inp.onkeydown=key;if(bb.post)el('span','',bb.post,g)})}
-  chkB.style.display='';helpB.style.display='';helpB.textContent='Help';skipB.style.display=done?'none':'';nxt.style.display='none';nxt.textContent='Next question';moveB.style.display=(!done&&!passed&&count>need+3)?'':'none';m.set('');dots();var f=inRow.querySelector('input');if(f)try{f.focus({preventScroll:true})}catch(e){}}
+  chkB.style.display='';helpB.style.display='';helpB.textContent='Help';skipB.style.display=done?'none':'';nxt.style.display='none';nxt.textContent='Next question';moveB.style.display=(!done&&!passed&&count>need+3)?'':'none';m.set('');
+  /* worked example, then fade: the first question is shown fully worked, the second comes with the first steps done for you */
+  var st=q.b?steps():[];
+  if(exOK&&count===1&&q.b&&q.e){worked(st);return}
+  if(exOK&&count===2&&q.b&&st.length>=3){q.scaf=true;hb.innerHTML='<b>🪜 Start like this</b><ol class="cdsteps">'+st.slice(0,Math.floor(st.length/2)).map(li).join('')+'</ol><div class="cdsm">Now finish it off yourself. This one counts.</div>'}
+  dots();startT();var f=inRow.querySelector('input');if(f)try{f.focus({preventScroll:true})}catch(e){}}
+ function worked(st){answered=true;card.classList.add('wex');hb.innerHTML='<b>📘 Worked example</b> Watch how this one is done first. It doesn\'t count, so take your time.<ol class="cdsteps">'+st.map(li).join('')+'</ol><div class="cdsm">Answer: <b>'+ansTxt()+'</b></div>';
+  [].forEach.call(inRow.querySelectorAll('input'),function(inp,i){inp.value=String(cNum(q.b[i].a)).replace('−','-');inp.disabled=true});
+  chkB.style.display='none';helpB.style.display='none';skipB.style.display='none';nxt.style.display='';nxt.textContent='My turn →';dots();try{nxt.focus({preventScroll:true})}catch(e){}}
  function steps(){return String(q.e||'').split(/\.\s+(?=[A-Z(<])/).map(function(x,i,a){return x+(i<a.length-1?'.':'')})}
- function helpMe(){if(answered)return;help++;clean=false;var st=steps();
+ function helpMe(){if(answered)return;help++;clean=false;hadHelp=true;var st=steps();
   if(help===1){var first=st.length>1?st[0]:'';hb.innerHTML='<b>💡 Hint</b> '+(first||par.rule||'Take it one step at a time.')+(first&&par.rule?'<div class="cdrule">'+par.rule+'</div>':'')+'<div class="cdsm">Get it right after a hint and it still counts (half XP). Still stuck? Press <b>Show me how</b>.</div>';helpB.textContent='Show me how';return}
-  hb.innerHTML='<b>🧭 Here\'s how</b><ol class="cdsteps">'+st.map(function(x){return '<li>'+x+'</li>'}).join('')+'</ol>'+(q.o?'<div class="cdsm">Answer: <b>'+q.o[0]+'</b></div>':'<div class="cdsm">Answer: <b>'+q.b.map(function(bb){return cNum(bb.a)}).join(' and ')+'</b></div>')+'<div class="cdsm">This one doesn\'t count either way, and your combo is safe. Now try a similar one yourself.</div>';
+  stopT();hb.innerHTML='<b>🧭 Here\'s how</b><ol class="cdsteps">'+st.map(li).join('')+'</ol><div class="cdsm">Answer: <b>'+ansTxt()+'</b></div><div class="cdsm">This one doesn\'t count either way, and your combo is safe. Now try a similar one yourself.</div>';
   answered=true;chkB.style.display='none';helpB.style.display='none';skipB.style.display='none';nxt.style.display='';nxt.textContent='Try a similar one';m.set('');dots();try{nxt.focus({preventScroll:true})}catch(e){}}
  function skip(){if(answered)return;clean=false;next()}
- function moveOn(){passed=true;moveB.style.display='none';m.set('No problem. You can carry on now. Come back with the <b>Practice</b> button on this lesson whenever you like: it uses the same questions.',true);dots()}
+ function moveOn(){passed=true;stopT();moveB.style.display='none';m.set('No problem. You can carry on now. Come back with the <b>Practice</b> button on this lesson whenever you like: it uses the same questions.',true);dots()}
  function close(bb,v){var tol=bb.tol==null?0.005:bb.tol;return bb.a===0?Math.abs(v)<1e-9:Math.abs(v-bb.a)<=Math.abs(bb.a)*tol+1e-9}
- function mastered(fast){card.classList.add('good');var st=el('div','cdstamp',fast?'⚡ Fast-tracked':'★ Mastered',card);T(function(){var b=top.getBoundingClientRect();if(window.NEO&&NEO.burst)NEO.burst(b.left+46,b.top+46,{n:30})});setTimeout(function(){T(function(){st.remove()})},2600);
-  var bonus=fast?30:20;give(bonus,top);T(function(){confetti()});T(function(){sfx('done')});return bonus}
- function check(){if(answered)return;var ok;
-  if(q.o){if(q.pick==null){m.set('Pick an answer first.',false);return}ok=q.pick===0;[].forEach.call(inRow.children,function(b){var k=+b.dataset.k;b.disabled=true;if(k===0)b.classList.add('right');else if(k===q.pick)b.classList.add('wrong')})}
-  else{var ins=inRow.querySelectorAll('input'),vals=[].map.call(ins,function(i){return parseNum(i.value)});if(vals.some(function(v){return isNaN(v)})){m.set('Type a number in every box. Decimals like 0.5 and negatives like −3 are fine.',false);return}
+ function mastered(fast){card.classList.add('good');medal=(wrongs===0&&!hadHelp)?3:wrongs<=2?2:1;T(function(){var id=lxLid();if(id&&!par.mix&&!weakMode)lxMedal(id,medal)});
+  var st=el('div','cdstamp',fast?'⚡ Fast-tracked':MED[medal],card);T(function(){var b=top.getBoundingClientRect();if(window.NEO&&NEO.burst)NEO.burst(b.left+46,b.top+46,{n:30})});setTimeout(function(){T(function(){st.remove()})},2600);
+  var bonus=fast?30:[0,15,20,30][medal];give(bonus,top);T(function(){confetti()});T(function(){sfx('done')});return bonus}
+ function check(){if(answered)return;var ok,vals=null;
+  if(timeUp){ok=false;if(q.o)[].forEach.call(inRow.children,function(b){b.disabled=true;if(+b.dataset.k===0)b.classList.add('right')});else [].forEach.call(inRow.querySelectorAll('input'),function(inp){inp.disabled=true;inp.style.borderColor=cssv('--bad-line')})}
+  else if(q.o){if(q.pick==null){m.set('Pick an answer first.',false);return}ok=q.pick===0;[].forEach.call(inRow.children,function(b){var k=+b.dataset.k;b.disabled=true;if(k===0)b.classList.add('right');else if(k===q.pick)b.classList.add('wrong')})}
+  else{var ins=inRow.querySelectorAll('input');vals=[].map.call(ins,function(i){return parseNum(i.value)});if(vals.some(function(v){return isNaN(v)})){m.set('Type a number in every box. Decimals like 0.5 and negatives like −3 are fine.',false);return}
    ok=q.b.every(function(bb,i){return close(bb,vals[i])});[].forEach.call(ins,function(inp,i){inp.disabled=true;inp.style.borderColor=close(q.b[i],vals[i])?cssv('--good-line'):cssv('--bad-line')})}
-  answered=true;var was=done,note='',lost=false,xp=0,bonus=0,fast=false;
+  stopT();answered=true;var was=done,note='',lost=false,xp=0,bonus=0,fast=false;
+  T(function(){if(q._k)lxWeak(q._k,ok,weakMode)});
   if(ok){score++;run++;if(score>=need||(FT&&clean&&run>=3&&count===3)){done=true;fast=score<need}
-   xp=help?5:10+(run>=3?Math.min(5,run-1):0);give(xp,chkB);
+   xp=help?5:q.scaf?8:10+(run>=3?Math.min(5,run-1):0);give(xp,chkB);
    T(function(){if(inL()){P.combo=(P.combo||0)+1;P.best=Math.max(P.best||0,P.combo);if(S.st&&P.combo>S.st.best)S.st.best=P.combo;if(S.st)S.st.right++;showCombo(true);qProg('right',1);qProg('run',P.combo)}});
    T(function(){sfx(run>=3?'combo':'right')});
    if(done&&!was){score=need;bonus=mastered(fast)}
@@ -10015,11 +10045,37 @@ WIDGETS.calcDrill=function(box,par){var mth=false;try{if(typeof P!=='undefined'&
    note='<b>'+pr+'</b> <span class="cdxp">+'+xp+' XP</span>'+(bonus?' <span class="cdxp gold">+'+bonus+' mastery bonus</span>':'')+' '+(done&&!was?(fast?'Three right first go: you\'re through. ':'You\'ve mastered this. '):(!done?(need-score===1?'One more to master it. ':(need-score)+' more to go. '):''))}
   else{wrongs++;run=0;clean=false;lost=score>0&&!done;if(lost)score--;card.classList.remove('shake');void card.offsetWidth;card.classList.add('shake');
    T(function(){if(inL()){P.combo=0;showCombo(false)}});T(function(){sfx('wrong')});
-   note='<b>Not quite.</b> '+(q.o?'':'It\'s '+q.b.map(function(bb){return cNum(bb.a)}).join(' and ')+'. ')+(lost?'You lose one dot, not all of them. ':'')}
+   var sl='';if(vals&&q.b.length===1)T(function(){sl=numSlip(vals[0],q.b[0].a)});
+   note=(timeUp?'<b>Time\'s up.</b> ':'<b>Not quite.</b> ')+(q.o?(timeUp?'The answer was <b>'+q.o[0]+'</b>. ':''):'It\'s '+ansTxt()+'. ')+(lost?'You lose one dot, not all of them. ':'')+(sl?'<div class="cdslip">🔎 '+sl+'</div>':'')}
   m.set(note+(q.e?'<div class="cdexp">'+q.e+'</div>':'')+(!ok&&wrongs>=2&&!done?'<div class="cdsm">Tip: press <b>Help</b> on the next one for a hint or a full walk-through.</div>':''),ok);
   chkB.style.display='none';helpB.style.display='none';skipB.style.display='none';nxt.style.display='';moveB.style.display=(!done&&!passed&&count>=need+3)?'':'none';dots(ok,lost);try{nxt.focus({preventScroll:true})}catch(e){}}
  next();
- return {check:function(){return done||passed?{ok:true}:{ok:false,msg:'Get '+need+' right to master it first ('+score+' so far). Use <b>Help</b> if you\'re stuck'+(count>need+3?', or <b>Move on for now</b>':'')+'.'}},lock:function(){}}};
+ return {check:function(){return done||passed?{ok:true}:{ok:false,msg:'Get '+need+' right to master it first ('+score+' so far). Use <b>Help</b> if you\'re stuck'+(count>need+3?', or <b>Move on for now</b>':'')+'.'}},lock:function(){stopT()}}};
+
+/* ---- exam-style set: a fixed number of parts, 2 marks each (1 if you used the method hint), with a mark scheme after each ---- */
+WIDGETS.examSet=function(box,par){var gens=[].concat(par.skill||[]).filter(function(k){return typeof CGEN[k]==='function'}),bank=null;if(par.bank){try{bank=typeof par.bank==='function'?par.bank():par.bank}catch(e){}}
+ if(!gens.length&&!(bank&&bank.length)){box.innerHTML='<p class="small">Nothing to practise here yet.</p>';return {check:function(){return {ok:true}}}}
+ var N=par.n||5,i=0,q=null,answered=false,hinted=false,marks=0,res=[],done=false,recent=[],last=-1,L='abcdefghij';
+ var top=el('div','exhd',null,box),card=el('div','cdcard mdc',null,box),qb=el('div','cdq',null,card),inRow=el('div','cdin',null,card),hb=el('div','cdhelp',null,box),r=row(box),chk=btn(r,'Submit answer',check,'pri'),hint=btn(r,'Method hint (−1 mark)',hintF),nx=btn(r,'Next part',next),m=msg(box);r.classList.add('mdrow');
+ function head(){var h='<div class="mdhd exh"><div class="exsc"><b>'+marks+'</b><small>/'+(N*2)+'</small><span>marks</span></div><div class="mdtt"><span class="mdk">Exam-style'+(par.title?' · '+par.title:'')+'</span><b>'+(done?'Finished':'Question 1 ('+L.charAt(Math.max(0,i-1))+')')+'</b><span class="mdsub">'+(done?'Look back at the mark schemes for anything you dropped.':'Part '+i+' of '+N+' · [2 marks]. No retries, like the real thing.')+'</span></div></div><div class="cddots mdseg">';
+  for(var k=0;k<N;k++)h+='<i class="'+(res[k]===2?'on':res[k]===1?'half':res[k]===0?'miss':'')+'"></i>';top.innerHTML=h+'</div>'}
+ function pick(){if(bank&&!gens.length){var j,t=0;do{j=Math.floor(Math.random()*bank.length);t++}while(recent.indexOf(j)>=0&&t<30);recent.push(j);var b0=bank[j],qq={p:b0.p,e:b0.e||''};if(b0.o)qq.o=b0.o.slice();if(b0.b)qq.b=b0.b;return qq}var k2=cP(gens);if(gens.length>1&&k2===last)k2=cP(gens);last=k2;return CGEN[k2]()}
+ function next(){if(i>=N){finish();return}q=pick();i++;answered=false;hinted=false;q.pick=null;hb.innerHTML='';m.set('');qb.innerHTML='<div class="qprompt"><b>('+L.charAt(i-1)+')</b> '+q.p+' <span class="exm">[2]</span></div>';inRow.innerHTML='';card.classList.remove('enter');void card.offsetWidth;card.classList.add('enter');
+  if(q.o)shuffle(q.o.map(function(_,j){return j})).forEach(function(k){var b=el('button','opt',q.o[k],inRow);b.dataset.k=k;b.onclick=function(){if(answered)return;[].forEach.call(inRow.children,function(x){x.classList.remove('sel')});b.classList.add('sel');q.pick=k}});
+  else{var line=el('div','cdline',null,inRow);q.b.forEach(function(bb){var g=el('span','cdgrp'+(bb.sup?' cdsupg':''),null,line);if(bb.pre)el('span','',bb.pre,g);var inp=el('input','numin cdbox'+(bb.sup?' cdsup':''),null,g);inp.type='text';inp.setAttribute('inputmode','decimal');inp.setAttribute('autocomplete','off');inp.onkeydown=function(e){if(e.key==='Enter'){e.preventDefault();e.stopPropagation();answered?next():check()}};if(bb.post)el('span','',bb.post,g)})}
+  chk.style.display='';hint.style.display=q.e?'':'none';nx.style.display='none';nx.textContent=i>=N?'See my score':'Next part';head();var f=inRow.querySelector('input');if(f)try{f.focus({preventScroll:true})}catch(e){}}
+ function hintF(){if(answered||hinted)return;hinted=true;var st=String(q.e||'').split(/\.\s+(?=[A-Z(<])/);hb.innerHTML='<b>📐 Method hint</b> '+st[0]+(st.length>1?'.':'')+'<div class="cdsm">This part is now worth 1 mark at most.</div>';hint.style.display='none'}
+ function close(bb,v){var tol=bb.tol==null?0.005:bb.tol;return bb.a===0?Math.abs(v)<1e-9:Math.abs(v-bb.a)<=Math.abs(bb.a)*tol+1e-9}
+ function check(){if(answered)return;var ok,vals=null;
+  if(q.o){if(q.pick==null){m.set('Pick an answer first.',false);return}ok=q.pick===0;[].forEach.call(inRow.children,function(b){var k=+b.dataset.k;b.disabled=true;if(k===0)b.classList.add('right');else if(k===q.pick)b.classList.add('wrong')})}
+  else{var ins=inRow.querySelectorAll('input');vals=[].map.call(ins,function(x){return parseNum(x.value)});if(vals.some(function(v){return isNaN(v)})){m.set('Type a number in every box.',false);return}ok=q.b.every(function(bb,k){return close(bb,vals[k])});[].forEach.call(ins,function(x,k){x.disabled=true;x.style.borderColor=close(q.b[k],vals[k])?cssv('--good-line'):cssv('--bad-line')})}
+  answered=true;var got=ok?(hinted?1:2):0;marks+=got;res.push(got);try{sfx(ok?'right':'wrong')}catch(e){}
+  var ans=q.o?q.o[0]:q.b.map(function(bb){return cNum(bb.a)}).join(' and '),sl='';if(!ok&&vals&&q.b.length===1){try{sl=numSlip(vals[0],q.b[0].a)}catch(e){}}
+  m.set('<b>'+(got===2?'2 marks.':got===1?'1 mark (method hint used).':'0 marks.')+'</b>'+(sl?'<div class="cdslip">🔎 '+sl+'</div>':'')+'<div class="exms"><b>Mark scheme</b><div>'+(q.o?'B2: '+ans:'M1: correct method · A1: '+ans)+'</div>'+(q.e?'<div class="cdexp">'+q.e+'</div>':'')+'</div>',ok);
+  chk.style.display='none';hint.style.display='none';nx.style.display='';head();try{nx.focus({preventScroll:true})}catch(e){}}
+ function finish(){done=true;var pc=Math.round(marks/(N*2)*100);qb.innerHTML='<div class="exend"><div class="exbig">'+marks+'<small>/'+(N*2)+'</small></div><b>'+pc+'%</b><p>'+(pc>=90?'Top marks. You\'re exam ready on this.':pc>=70?'Strong. Check the parts you dropped, then go again.':pc>=50?'Getting there. Redo the lessons behind the parts you missed.':'Worth another go after a look back through this unit.')+'</p></div>';inRow.innerHTML='';hb.innerHTML='';m.set('');chk.style.display='none';hint.style.display='none';nx.style.display='none';head();try{if(marks)addXP(marks*3,top)}catch(e){}try{sfx(pc>=70?'done':'quest')}catch(e){}}
+ next();
+ return {check:function(){return done?{ok:true}:{ok:false,msg:'Finish all '+N+' parts first.'}}}};
 
 /* ---- area under a curve: strips that become the integral ---- */
 WIDGETS.riemann=function(box,par){var f=par.f,a=par.a,b=par.b,exact=par.exact,n=par.n0||4,ok=false,cv=canvas(box,240);
@@ -18537,8 +18593,8 @@ function qcEsc(t){return String(t).replace(/[&<>"]/g,function(ch){return {'&':'&
 function qcNum(t){return /\d/.test(t)}
 function qcCls(x){var w=x.toLowerCase().split(' ').pop();return /ing$/.test(w)?'ing':/ed$/.test(w)?'ed':/ly$/.test(w)?'ly':/(er|est)$/.test(w)&&w.length>4?'er':/[^su]s$/.test(w)?'s':'o'}
 function qcCase(x,up){if(/[A-Z].*[A-Z]/.test(x)||/^[A-Z]{2}/.test(x))return x;return up?x.charAt(0).toUpperCase()+x.slice(1):x.charAt(0).toLowerCase()+x.slice(1)}
-function qcBuild(c,pool){var d=document.createElement('div');d.innerHTML=c.h;var hs=[].slice.call(d.querySelectorAll('b,strong'));
- for(var i=0;i<hs.length;i++){var term=qcClean(hs[i].textContent);if(!qcOk(term))continue;
+function qcBuild(c,pool,avoid){var d=document.createElement('div');d.innerHTML=c.h;var hs=[].slice.call(d.querySelectorAll('b,strong'));
+ for(var i=0;i<hs.length;i++){var term=qcClean(hs[i].textContent);if(!qcOk(term)||(avoid&&avoid[term]))continue;
   var blk=hs[i].closest('p,li,td,div.kn')||d,txt=blk.textContent.replace(/\s+/g,' ').trim(),ss=txt.replace(/([.!?])\s+(?=[A-Z0-9"“(])/g,'$1\u0001').split('\u0001'),sen=null;
   for(var j=0;j<ss.length;j++){if(ss[j].indexOf(term)>=0){sen=ss[j].trim();break}}
   if(!sen||sen.length<30||sen.length>200||!/^[A-Z0-9"“]/.test(sen)||!/[.!?"”]$/.test(sen))continue;
@@ -18549,15 +18605,155 @@ function qcBuild(c,pool){var d=document.createElement('div');d.innerHTML=c.h;var
   pool.forEach(function(x){var xl=x.t.toLowerCase();if(seen[xl]||xl===tl||lo.indexOf(xl)>=0||xl.indexOf(tl)>=0||tl.indexOf(xl)>=0)return;if(qcNum(x.t)!==qcNum(term)||x.t.split(' ').length!==nw||qcCls(x.t)!==qcCls(term))return;var r=x.t.length/term.length;if(r<0.45||r>2.2)return;seen[xl]=1;cand.push({t:x.t,s:(x.same?3:0)-Math.abs(x.t.length-term.length)/6})});
   cand.sort(function(a,b){return b.s-a.s||(a.t<b.t?-1:a.t>b.t?1:0)});if(cand.length<2)continue;
   var ds=cand.slice(0,3).map(function(x){return start?qcCase(x.t,true):x.t});
-  return {t:'Q',_auto:1,p:'<div class="qckick">✏️ Quick check</div>Fill the gap:<div class="qcsen">'+qcEsc(bef)+'<span class="qcgap">______</span>'+qcEsc(aft)+'</div>',o:[qcEsc(term)].concat(ds.map(qcEsc)),a:0,e:qcEsc(bef)+'<b>'+qcEsc(term)+'</b>'+qcEsc(aft)}}
+  return {t:'Q',_auto:1,_term:term,p:'<div class="qckick">✏️ Quick check</div>Fill the gap:<div class="qcsen">'+qcEsc(bef)+'<span class="qcgap">______</span>'+qcEsc(aft)+'</div>',o:[qcEsc(term)].concat(ds.map(qcEsc)),a:0,e:qcEsc(bef)+'<b>'+qcEsc(term)+'</b>'+qcEsc(aft)}}
  return null}
 function qcAsks(c){return c&&c.t!=='T'}
-function playCards(l){if(l._play)return l._play;var cs=l.cards,out=[],added=0,pool=[];
- try{var u=null;for(var ui=0;ui<UNITS.length&&!u;ui++)if(UNITS[ui].lessons.indexOf(l)>=0)u=UNITS[ui];(u?u.lessons:[l]).forEach(function(x){x.cards.forEach(function(c){if(c.t==='T')qcTerms(c.h).forEach(function(t){pool.push({t:t,same:x===l})})})})}catch(e){}
+function qcText(h){var d=document.createElement('div');d.innerHTML=h;return d.textContent.replace(/\s+/g,' ').trim()}
+function playCards(l){if(l._play)return l._play;var cs=l.cards,out=[{t:'S'}],pool=qcPool(l),nx=0;
+ /* predict first: the first multiple-choice question that comes after some teaching, asked as a guess up front */
+ var pi=-1;for(var i=2;i<cs.length;i++){if(cs[i].t==='Q'&&cs[i].o&&typeof cs[i].a==='number'&&!/fromb|from earlier|remember/i.test(cs[i].p||'')&&cs.slice(0,i).some(function(c){return c.t==='T'})){pi=i;break}}
+ if(pi>=2&&cs.length>=5){var pq=Object.assign({},cs[pi]);pq._pre=1;pq._auto=1;pq._key=null;pq._src0=cs[pi]._key||l.id+'#'+pi;out.push(pq)}
  cs.forEach(function(c,ci){var cc=Object.assign({},c);if(!cc._key)cc._key=l.id+'#'+ci;out.push(cc);
-  if(c.t!=='T'||ci===cs.length-1)return;var nx=cs[ci+1];if(qcAsks(nx))return;var hd=(c.h||'').match(/<h3[^>]*>([\s\S]*?)<\/h3>/i);if(hd&&QC_SKIP.test(hd[1]))return;
-  var q=null;try{q=qcBuild(c,pool)}catch(e){}if(q){q._key=null;out.push(q);added++}});
- l._play=added?out:cs;return l._play}
+  if(c.t!=='T'||ci===cs.length-1||/class="fromb"/.test(c.h||''))return;var nxc=cs[ci+1];if(qcAsks(nxc))return;var hd=(c.h||'').match(/<h3[^>]*>([\s\S]*?)<\/h3>/i);if(hd&&QC_SKIP.test(hd[1]))return;
+  var q=null;try{q=qcBuild(c,pool)}catch(e){}if(q){q._key=null;out.push(q);return}
+  /* no gap to fill? then a few explain-it-back cards break up the reading */
+  if(nx<2&&qcText(c.h||'').length>=180){out.push({t:'X',h:c.h,_auto:1});nx++}});
+ out.push({t:'Z'});l._play=out;return out}
+/* ===== learning extras: your own question at the start, explain-it-back, predict first, confidence, medals,
+   mixed and exam-style unit practice, spaced review of weak skills ===== */
+var LXK='critical_lx';
+function lxGet(){var o=null;try{o=JSON.parse(localStorage.getItem(LXK)||'null')}catch(e){}o=o&&typeof o==='object'?o:{};['myq','medal','weak','conf'].forEach(function(k){if(!o[k]||typeof o[k]!=='object'||Array.isArray(o[k]))o[k]={}});return o}
+function lxSet(o){try{localStorage.setItem(LXK,JSON.stringify(o))}catch(e){}try{SYNC.mark()}catch(e){}}
+function lxLid(){if(typeof P==='undefined'||!P)return null;if(P.mode==='lesson'&&UNITS[P.ui])return UNITS[P.ui].lessons[P.li].id;if(P.mode==='follow'&&P.fid)return P.fid;return null}
+function lxMedal(id,t){var x=lxGet();if((x.medal[id]||0)<t){x.medal[id]=t;lxSet(x)}}
+function lxAddD(d,n){var x=new Date(d+'T12:00:00');x.setDate(x.getDate()+n);return dstr(x)}
+/* weak skills: a miss brings the skill back tomorrow; each right answer in a weak-skills session doubles the gap, and after 16 days it's dropped */
+function lxWeak(k,ok,rev){var x=lxGet(),w=x.weak[k],t=today();
+ if(!ok){x.weak[k]={n:((w&&w.n)||0)+1,iv:1,due:lxAddD(t,1),at:Date.now()};lxSet(x);return}
+ if(w&&rev){var iv=Math.min(32,(w.iv||1)*2);if(iv>=16)delete x.weak[k];else x.weak[k]={n:w.n,iv:iv,due:lxAddD(t,iv),at:Date.now()};lxSet(x)}}
+function lxDue(){var x=lxGet(),t=today();return Object.keys(x.weak).filter(function(k){return typeof CGEN[k]==='function'&&x.weak[k].due<=t}).sort(function(a,b){return (x.weak[b].n||0)-(x.weak[a].n||0)})}
+/* common slips in a number answer, so a wrong answer says why it's wrong */
+function numSlip(v,a){if(!isFinite(v)||!isFinite(a)||a===0||v===0)return '';function nr(x,y){return Math.abs(x-y)<=Math.abs(y)*0.015+1e-12}
+ if(nr(v,-a))return 'Right size, wrong sign: check whether the answer should be positive or negative.';
+ for(var k=1;k<=12;k++)if(nr(v,a*Math.pow(10,k))||nr(v,a/Math.pow(10,k)))return 'Your digits are right, but it\'s out by a factor of 10'+(k>1?'<sup>'+k+'</sup>':'')+'. Check the units and the powers of ten.';
+ if(nr(v,1/a))return 'That\'s the answer upside down: check which number divides which.';
+ if(nr(v,a*a))return 'Looks like you squared it once too often.';
+ if(v>0&&a>0&&nr(v*v,a))return 'That\'s the square root of the answer. Did you forget to square?';
+ if(nr(v,a*2)||nr(v,a/2))return 'Out by a factor of 2: look for a ½ or a 2 in the formula.';
+ return ''}
+
+/* ---- the start of every lesson: what it's called, what it's about, and a question of your own ---- */
+function rS(c,b){var u=UNITS[P.ui],l=u.lessons[P.li],hk=(typeof HOOKS!=='undefined'&&HOOKS[l.id])||'',old=lxGet().myq[l.id],tr=trk(P.ui),
+  ph=isQ(tr)?'e.g. How would this come up in an exam question?':'e.g. Why does this matter in a real power station?';
+ var d=el('div','lsx',null,b);d.innerHTML='<div class="lsk">Lesson '+(P.li+1)+' of '+u.lessons.length+'</div><h2 class="lst">'+l.title+'</h2>'+(hk?'<p class="lsh">'+hk+'</p>':'')+
+  '<div class="lsbox"><label for="lsqIn"><b>❓ Before you start: what do you want to find out?</b></label><p class="small">Type one question about this topic. At the end of the lesson we\'ll check whether it got answered.</p><textarea id="lsqIn" rows="2" maxlength="300" placeholder="'+ph+'"></textarea></div>';
+ var ta=d.querySelector('textarea');if(old&&!old.done)ta.value=old.q;
+ function save(){var v=ta.value.trim();if(v.length<3)return;var x=lxGet();x.myq[l.id]={q:v.slice(0,300),t:l.title,d:today(),done:false,at:Date.now()};lxSet(x);P.myq=true;nextCard()}
+ function upd(){mainBtn('Save my question and start',save,ta.value.trim().length<3)}
+ ta.oninput=upd;ta.onkeydown=function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();e.stopPropagation();save()}};upd();
+ skipBtn(function(){P.myq=false;nextCard()},'Skip');setTimeout(function(){try{ta.focus({preventScroll:true})}catch(e){}},60)}
+/* ---- the end: did the lesson answer your question? ---- */
+function askAbout(q){var b=document.querySelector('#player.open .pask')||document.querySelector('.askpill');if(!b)return;b.click();setTimeout(function(){var t=document.querySelector('.asksheet textarea');if(t){t.value=q;try{t.focus()}catch(e){}}},150)}
+function rZ(c,b){var l=UNITS[P.ui].lessons[P.li],mq=lxGet().myq[l.id];if(!P.myq||!mq||mq.done){nextCard();return}
+ var d=el('div','lsx',null,b);d.innerHTML='<div class="lsk">Your question</div><blockquote class="lsqq">'+qcEsc(mq.q)+'</blockquote><p class="lsz">Did this lesson answer it?</p>'+(document.querySelector('.pask')?'<div class="lsact"><button type="button" class="wbtn" id="lsAsk">💬 Ask about it now</button></div>':'')+'<p class="small">Not answered yet? It\'ll wait for you on the Review page, under Your questions.</p>';
+ var ab=d.querySelector('#lsAsk');if(ab)ab.onclick=function(){askAbout(mq.q)};
+ mainBtn('Yes, it did ✓',function(){var y=lxGet();if(y.myq[l.id]){y.myq[l.id].done=true;y.myq[l.id].at=Date.now();lxSet(y)}nextCard()});
+ skipBtn(function(){try{toast('❓','Saved for later','It\'s on the Review page under Your questions')}catch(e){}nextCard()},'Not yet')}
+/* ---- explain it back: put a teach card into your own words, then compare ---- */
+function xModel(h){var d=document.createElement('div');d.innerHTML=h;var ps=[].slice.call(d.querySelectorAll('p,li')),p=ps.filter(function(x){return x.querySelector('b,strong')})[0]||ps[0];if(!p)return qcEsc(d.textContent.trim().slice(0,260));return p.innerHTML}
+function rX(c,b){var hd=(c.h.match(/<h3[^>]*>([\s\S]*?)<\/h3>/i)||[])[1]||'',hdt=hd.replace(/<[^>]+>/g,'').trim(),terms=qcTerms(c.h).filter(function(t,i,a){return a.indexOf(t)===i}).slice(0,6);
+ var d=el('div','lsx xb',null,b);d.innerHTML='<div class="qckick">💬 Explain it back</div><p class="xq">In your own words, what did that card say'+(hdt?' about <b>'+qcEsc(hdt)+'</b>':'')+'? One or two sentences is plenty.</p><textarea rows="3" maxlength="500" placeholder="Explain it as if you were telling a friend…"></textarea><div class="xres" hidden></div>';
+ var ta=d.querySelector('textarea'),res=d.querySelector('.xres');
+ function words(){return ta.value.trim().split(/\s+/).filter(Boolean).length}
+ function upd(){mainBtn('Compare with the card',reveal,words()<3)}
+ function reveal(){if(words()<3)return;ta.disabled=true;skipBtn(null);var v=ta.value.toLowerCase(),hit=terms.filter(function(t){var tl=t.toLowerCase();return v.indexOf(tl)>=0||(tl.length>6&&v.indexOf(tl.slice(0,tl.length-2))>=0)});
+  res.hidden=false;res.innerHTML='<div class="xm"><b>The key idea</b><div>'+xModel(c.h)+'</div></div>'+(terms.length?'<p class="small">Key words: '+terms.map(function(t){var on=hit.indexOf(t)>=0;return '<span class="xk'+(on?' on':'')+'">'+(on?'✓ ':'')+qcEsc(t)+'</span>'}).join(' ')+'</p>':'')+'<details class="xagain"><summary>Show the whole card again</summary><div class="prose">'+c.h+'</div></details><p class="xrate">How close were you?</p><div class="xrb"><button type="button" class="wbtn" data-r="3">Spot on</button><button type="button" class="wbtn" data-r="2">Partly</button><button type="button" class="wbtn" data-r="1">Missed it</button></div>';
+  mainBtn('Continue',nextCard,true);
+  [].forEach.call(res.querySelectorAll('[data-r]'),function(x){x.onclick=function(){var rr=+x.dataset.r;[].forEach.call(res.querySelectorAll('[data-r]'),function(y){y.disabled=true;y.classList.toggle('pri',y===x)});if(rr>=2)try{award(rr===3?4:2)}catch(e){}
+   res.insertAdjacentHTML('beforeend','<p class="small">'+(rr===3?'Great. Explaining it yourself is one of the best ways to remember it.':rr===2?'Good start. Read the key idea once more before you go on.':'No problem. Open the card again above and have another read.')+'</p>');if(rr===1){var dt=res.querySelector('details');if(dt)dt.open=true}mainBtn('Continue',nextCard,false)}})}
+ ta.oninput=upd;ta.onkeydown=function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();e.stopPropagation();reveal()}};upd();skipBtn(nextCard,'Skip');setTimeout(function(){try{ta.focus({preventScroll:true})}catch(e){}},60)}
+/* ---- predict first: the lesson's first question as a no-penalty guess, before the teaching ---- */
+function rPre(c,b){var d=el('div','',null,b);d.innerHTML='<div class="qckick">🔮 Predict first</div><p class="small" style="margin:0 0 10px">Have a guess before you learn it. No score and no penalty: you\'ll find out during this lesson.</p><div class="qprompt">'+c.p+'</div>';var box=el('div','opts',null,b);
+ shuffle(c.o.map(function(_,i){return i})).forEach(function(k){var o=el('button','opt',c.o[k],box);o.onclick=function(){[].forEach.call(box.children,function(x){x.disabled=true;x.classList.toggle('sel',x===o)});P.pre={src:c._src0,txt:c.o[k]};foot('','Guess saved','<div>Keep it in mind. The answer is coming up in this lesson.</div>');skipBtn(null);mainBtn('Continue',nextCard,false)}});
+ mainBtn('Continue',nextCard,true);skipBtn(nextCard,'Skip')}
+var rQ0=rQ;rQ=function(c,b){if(c._pre)return rPre(c,b);var out=rQ0.apply(this,arguments);try{if(P&&P.pre&&c._key&&P.pre.src===c._key){var n=document.createElement('div');n.className='prenote';n.innerHTML='🔮 Earlier you guessed <b>'+P.pre.txt+'</b>. Let\'s see if you were right.';var pr=b.querySelector('.qprompt');if(pr)pr.parentNode.insertBefore(n,pr.nextSibling);else b.appendChild(n)}}catch(e){}return out};
+/* ---- new card types in the player ---- */
+var showCard0=showCard;showCard=function(){var c=P&&P.cards[P.i];if(c&&(c.t==='S'||c.t==='Z'||c.t==='X')){DRAWS=[];$('pBar').style.width=(P.i/P.cards.length*100)+'%';$('pXP').textContent=P.xp?'+'+P.xp+' XP':'';var b=$('pBody');b.innerHTML='';$('pScroll').scrollTop=0;foot('','','');skipBtn(null);P.st={tries:0};P.hintFn=P.hintCan=null;P.rtSrc=null;$('pFoot').style.display='';
+  var k=document.createElement('div');k.className='pkick';k.style.color=P.color;k.textContent=P.unit;b.appendChild(k);({S:rS,Z:rZ,X:rX})[c.t](c,b);return}return showCard0.apply(this,arguments)};
+/* ---- how sure were you? a right answer you guessed comes back in Fix my mistakes ---- */
+function confChips(k){var fb=$('pFb'),ft=$('pFoot');if(!fb||!ft||!ft.classList.contains('ok')||fb.querySelector('.cfc'))return;var d=document.createElement('div');d.className='cfc';d.innerHTML='<span>How sure were you?</span><button type="button" data-c="g">Guessed</button><button type="button" data-c="f">Fairly sure</button><button type="button" data-c="c">Certain</button>';fb.appendChild(d);
+ [].forEach.call(d.querySelectorAll('button'),function(x){x.onclick=function(e){e.stopPropagation();[].forEach.call(d.querySelectorAll('button'),function(y){y.disabled=true;y.classList.toggle('on',y===x)});if(x.dataset.c==='g'){S.wrong[k]=1;try{save()}catch(_){}var lx=lxGet();lx.conf[k]=1;lxSet(lx);d.insertAdjacentHTML('beforeend','<em>We\'ll bring this one back in Fix my mistakes.</em>')}}})}
+var grLX=gotRight;gotRight=function(c){var first=P&&P.st&&!P.st.tries,out=grLX.apply(this,arguments);try{if(first&&P&&(P.mode==='lesson'||P.mode==='review')&&c&&'QNO'.indexOf(c.t)>=0&&!c._auto){var k=cardKey(c);if(k)setTimeout(function(){confChips(k)},0)}}catch(e){}return out};
+
+/* ---- whole-unit practice: mixed (every skill, shuffled) and exam-style (marked parts) ---- */
+function isDrill(c){return c.t==='W'&&c.w==='calcDrill'}
+function unitSkills(ui,doneOnly){var sk={};UNITS[ui].lessons.forEach(function(l){if(doneOnly&&!S.done[l.id])return;l.cards.forEach(function(c){if(isDrill(c)&&c.par)[].concat(c.par.skill||[]).forEach(function(k){if(typeof CGEN[k]==='function')sk[k]=1})})});return Object.keys(sk)}
+function unitBank(ui,doneOnly){var out=[];UNITS[ui].lessons.forEach(function(l){if(doneOnly&&!S.done[l.id])return;l.cards.forEach(function(c){if(isDrill(c)&&c.par&&Array.isArray(c.par.bank))out=out.concat(c.par.bank)})});if(out.length<6)UNITS[ui].lessons.forEach(function(l){if(doneOnly&&!S.done[l.id])return;out=out.concat(conceptBank(l))});return out}
+function lxPlay(mode,ui,card,title){var u=ui!=null?UNITS[ui]:null;P={mode:mode,ui:ui,li:-1,cards:[card],i:0,xp:0,right:0,asked:0,title:title,color:u?u.color:'var(--accent)',unit:(u?u.title+' · ':'')+title,combo:0,best:0,cbonus:0,mistakes:0,fixed:0,newBadges:[],levelUp:null};openPlayer()}
+function startMix(ui){var sk=unitSkills(ui,true),bk=sk.length?null:unitBank(ui,true);if(!sk.length&&(!bk||bk.length<4)){toast('🔀','Not enough to mix yet','Finish more lessons in this unit first');return}
+ lxPlay('mix',ui,W('calcDrill',{skill:sk.length?sk:undefined,bank:bk||undefined,need:Math.min(8,Math.max(5,sk.length+3)),title:UNITS[ui].title,mix:true,noEx:true},'<b>Mixed practice.</b> Every skill from this unit, shuffled, so you have to work out which method each question needs.'),'Mixed practice')}
+function startExam(ui){var sk=unitSkills(ui,true),bk=sk.length?null:unitBank(ui,true);if(!sk.length&&(!bk||bk.length<4)){toast('📝','Not enough for an exam set yet','Finish more lessons in this unit first');return}
+ lxPlay('exam',ui,W('examSet',{skill:sk.length?sk:undefined,bank:bk||undefined,n:5,title:UNITS[ui].title},'<b>Exam-style set.</b> Five parts worth 2 marks each. A method hint costs a mark. Mark scheme after every part.'),'Exam-style set')}
+function startWeak(){var due=lxDue().slice(0,6);if(!due.length){toast('🧠','Nothing due today','Weak skills come back after a day or more');return}var ui=null;
+ UNITS.some(function(u,i){return u.lessons.some(function(l){return l.cards.some(function(c){if(isDrill(c)&&c.par&&[].concat(c.par.skill||[]).indexOf(due[0])>=0){ui=i;return true}return false})})});
+ lxPlay('weak',ui,W('calcDrill',{skill:due,need:Math.min(8,3+due.length),title:due.length+' skill'+(due.length>1?'s':'')+' due',noEx:true},'<b>Weak skills.</b> Skills you slipped up on before. Each one you get right comes back after a longer gap.'),'Weak skills')}
+var finLX=finish;finish=function(){if(P&&(P.mode==='mix'||P.mode==='weak'||P.mode==='exam')){P.finished=true;$('pBar').style.width='100%';var b=$('pBody');
+  b.innerHTML='<div class="lsx" style="text-align:center"><div style="font-size:52px;line-height:1.2">'+(P.mode==='exam'?'📝':P.mode==='weak'?'🧠':'🔀')+'</div><h2 class="lst">'+(P.mode==='weak'?'Weak skills practised':P.mode==='exam'?'Exam-style set done':'Mixed practice done')+'</h2><p class="lsh">'+(P.mode==='weak'?'The ones you got right will come back after a longer gap.':'Nice work. Come back to it whenever you like.')+'</p></div>';
+  foot('','','');skipBtn(null);mainBtn('Done',function(){closePlayer()});return}return finLX.apply(this,arguments)};
+/* ---- the lesson map: medals on lessons, mastery count and unit practice buttons ---- */
+function decorLearn(){var pg=$('page-learn');if(!pg)return;var md=lxGet().medal;
+ [].forEach.call(pg.querySelectorAll('.lnode[data-u][data-l]'),function(b){var u=UNITS[+b.dataset.u],l=u&&u.lessons[+b.dataset.l];if(!l)return;var t=md[l.id];if(t&&!b.querySelector('.lmed')){var s=document.createElement('span');s.className='lmed';s.title=['','Bronze','Silver','Gold'][t]+' mastery';s.textContent=['','🥉','🥈','🥇'][t];b.appendChild(s)}});
+ [].forEach.call(pg.querySelectorAll('.unit'),function(un){if(un.querySelector('.umix'))return;var f=un.querySelector('.lnode[data-u]');if(!f)return;var ui=+f.dataset.u,u=UNITS[ui];if(!u)return;
+  var hasD=u.lessons.some(function(l){return l.cards.some(isDrill)});if(!hasD)return;var dn=u.lessons.some(function(l){return S.done[l.id]}),got=u.lessons.filter(function(l){return md[l.id]}).length,gold=u.lessons.filter(function(l){return md[l.id]===3}).length;
+  var row=document.createElement('div');row.className='umix';row.innerHTML='<span class="umm" title="Lessons you have mastered">🏅 '+got+'/'+u.lessons.length+' mastered'+(gold?' · '+gold+' 🥇':'')+'</span><button type="button" class="wbtn" data-a="mix"'+(dn?'':' disabled title="Finish a lesson in this unit first"')+'>🔀 Mixed practice</button><button type="button" class="wbtn" data-a="exam"'+(dn?'':' disabled title="Finish a lesson in this unit first"')+'>📝 Exam-style</button>';
+  var up=un.querySelector('.uprog');(up||un.querySelector('.uhead')).insertAdjacentElement('afterend',row);
+  row.addEventListener('click',function(e){var bt=e.target.closest('button[data-a]');if(!bt||bt.disabled)return;if(bt.dataset.a==='mix')startMix(ui);else startExam(ui)})})}
+var rlLX=renderLearn;renderLearn=function(){var out=rlLX.apply(this,arguments);try{decorLearn()}catch(e){if(window.console)console.error(e)}return out};
+/* ---- the Review page: your open questions, and weak skills due ---- */
+function decorReview(){var pg=$('page-review');if(!pg||pg.querySelector('#lxRev'))return;var x=lxGet(),open=Object.keys(x.myq).filter(function(k){return !x.myq[k].done}).sort(function(a,b){return (x.myq[b].at||0)-(x.myq[a].at||0)}),due=lxDue(),all=Object.keys(x.weak).filter(function(k){return typeof CGEN[k]==='function'}).length;
+ var c=document.createElement('div');c.id='lxRev';c.className='row2';
+ c.innerHTML='<div class="card lxc"><h2>❓ Your questions</h2>'+(open.length?'<p class="note">Questions you asked at the start of a lesson that the lesson didn\'t answer yet.</p><ul class="lxq">'+open.slice(0,8).map(function(k){var q=x.myq[k];return '<li><b>'+qcEsc(q.q)+'</b><span>'+qcEsc(q.t||'')+'</span><div>'+(document.querySelector('.askpill')?'<button type="button" class="wbtn" data-ask="'+qcEsc(k)+'">💬 Ask</button>':'')+'<button type="button" class="wbtn" data-ok="'+qcEsc(k)+'">✓ Answered</button></div></li>'}).join('')+'</ul>':'<p class="note">At the start of each lesson you can type a question you want answered. Any that the lesson doesn\'t answer will wait here.</p>')+'</div>'+
+  '<div class="card lxc"><h2>🧠 Weak skills</h2><p class="note">'+(all?'Skills you slipped up on in practice come back here a day later, then after longer and longer gaps until they stick.':'Get something wrong in mastery practice and that skill comes back here for spaced review.')+'</p><div class="lxw"><b>'+due.length+'</b><span>due today'+(all>due.length?' · '+(all-due.length)+' waiting':'')+'</span></div>'+(due.length?'<button type="button" class="wbtn pri" id="lxWeakGo">Practise weak skills</button>':'')+'</div>';
+ var first=pg.firstElementChild;if(first&&first.nextSibling)pg.insertBefore(c,first.nextSibling);else pg.appendChild(c);
+ c.addEventListener('click',function(e){var a=e.target.closest('[data-ask]'),o=e.target.closest('[data-ok]');if(a){var q=lxGet().myq[a.dataset.ask];if(q){var b=document.querySelector('.askpill');if(b){b.click();setTimeout(function(){var t=document.querySelector('.asksheet textarea');if(t){t.value=q.q;try{t.focus()}catch(_){}}},150)}}}
+  if(o){var y=lxGet();if(y.myq[o.dataset.ok]){y.myq[o.dataset.ok].done=true;y.myq[o.dataset.ok].at=Date.now();lxSet(y)}c.remove();decorReview()}if(e.target.id==='lxWeakGo')startWeak()})}
+var rrLX=renderReview;renderReview=function(){var out=rrLX.apply(this,arguments);try{decorReview()}catch(e){if(window.console)console.error(e)}return out};
+/* ---- concept drills: for lessons about ideas, practice built from the lesson's own questions plus fill-the-gap questions from every teach card ---- */
+function qcPool(l){var pool=[];try{var u=null;for(var ui=0;ui<UNITS.length&&!u;ui++)if(UNITS[ui].lessons.indexOf(l)>=0)u=UNITS[ui];(u?u.lessons:[l]).forEach(function(x){x.cards.forEach(function(c){if(c.t==='T')qcTerms(c.h).forEach(function(t){pool.push({t:t,same:x===l})})})})}catch(e){}return pool}
+function conceptBank(l){if(l._bank)return l._bank;var out=[],pool=qcPool(l);
+ l.cards.forEach(function(c){if(c.t==='Q'&&c.o&&typeof c.a==='number'&&c.o.length>=2){var o=c.o.slice(),ans=o.splice(c.a,1)[0];out.push({p:c.p,o:[ans].concat(o),e:c.e||''})}
+  else if(c.t==='N'&&typeof c.a==='number'&&isFinite(c.a))out.push({p:c.p,b:[cB(c.a,'',c.u||'','answer',false,c.tol==null?0.02:c.tol)],e:c.e||''});
+  else if(c.t==='T'){var av={};for(var n=0;n<2;n++){var q=null;try{q=qcBuild(c,pool,av)}catch(e){}if(!q)break;av[q._term]=1;out.push({p:q.p.replace('<div class="qckick">✏️ Quick check</div>',''),o:q.o,e:q.e})}}});
+ l._bank=out;return out}
+var DRILL_SCI={'gp2-4-4':['g_halflife','n_dose'],'gp3-2-2':['g_wave'],'gp5-1-1':['g_eff','g_power','n_eff'],'gp5-3-1':['g_dtgraph','g_vt'],
+ 'gc1-3-1':['g_balance'],'gc2-4-2':['g_conc','g_titr'],'gc3-1-1':['g_bond'],'gc3-2-2':['g_ratechem','g_rate'],'gc3-4-4':['g_yield','g_atomecon'],
+ 'ap1-1-3':['p_unc','g_lineeq'],'ap1-2-1':['g_resultant'],'ap2-1-1':['n_nucl','p_massdef'],'ap2-2-1':['g_wave'],'ap2-2-2':['g_wave'],'ap2-2-3':['p_young'],'ap3-3-2':['p_trans'],'ap4-1-1':['p_unc'],'ap4-1-2':['p_unc'],'ap4-1-3':['a_logsolve','n_decades'],'ap4-2-3':['p_prefix','g_stdform','p_unc'],
+ 'ac1-2-1':['c_mr'],'ac2-1-2':['c_mr','g_pcmass'],'ac3-1-3':['c_kc'],'ac3-2-3':['c_ph'],'ac2-3-1':['c_rate'],
+ ta2:['n_nucl'],ta3:['g_halflife'],tf1:['n_mev','n_fiss'],tf2:['n_gen'],tf3:['n_coll'],tk1:['n_rodw'],tk2:['n_boron'],tk3:['n_mtc'],ts2:['n_eff'],tr1:['n_dose'],tr2:['n_dose','n_hvl'],ic2:['n_relia'],
+ 't2-1-2':['n_nucl'],'t2-1-3':['g_halflife'],'t2-2-2':['n_mfp'],'t2-3-1':['n_gen'],'t2-3-2':['n_six'],'t2-3-3':['n_buck'],'t2-4-1':['n_boil'],'t2-4-2':['n_calor'],'t2-4-3':['n_qmct'],'t3-1-1':['n_mtc'],'t3-3-2':['n_dnbr','n_pellet'],
+ 't4-1-3':['n_delayed'],'t4-5-2':['n_hvl','n_atten'],'t4-5-3':['n_dose'],'t5-1-1':['n_burn'],'t5-3-1':['n_relia'],'t5-3-2':['n_relia']};
+UNITS.forEach(function(u){var tr=u.track||'maths';if({maths:1,calc:1,gm:1,am:1}[tr])return;u.lessons.forEach(function(l){if(l.cards.some(isDrill))return;
+ var sk=(DRILL_SCI[l.id]||[]).filter(function(k){return typeof CGEN[k]==='function'}),d=null;
+ if(sk.length)d=W('calcDrill',{skill:sk,need:4,title:l.title},'Practice time. Get 4 right to master this lesson. Stuck? Press <b>Help</b> for a hint or a full walk-through.');
+ else{var bk=[];try{bk=conceptBank(l)}catch(e){}if(bk.length<4)return;d=W('calcDrill',{bank:bk,need:4,title:l.title},'Concept check. Answer these to lock in the lesson: get 4 right to master it.')}
+ var cs=l.cards.slice(),last=cs[cs.length-1],at=(last&&last.t==='T'&&/Key points|Summary|In short|Recap|Remember/i.test(last.h||''))?cs.length-1:cs.length;cs.splice(at,0,d);l.cards=cs})});
+/* ---- styles ---- */
+(function(){var st=document.createElement('style');st.textContent=
+ '.lsx{display:flex;flex-direction:column;gap:10px}.lsk{font:800 12px var(--mono,monospace);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}.lst{font-size:28px;line-height:1.2;margin:0}.lsh{font-size:17px;color:var(--muted);margin:0;line-height:1.5}'+
+ '.lsbox{margin-top:8px;padding:14px 16px;border-radius:16px;border:1.5px solid color-mix(in srgb,var(--accent) 35%,var(--line));background:linear-gradient(120deg,color-mix(in srgb,var(--accent) 10%,var(--panel)),var(--panel))}.lsbox .small{margin:4px 0 8px}'+
+ '.lsx textarea{width:100%;box-sizing:border-box;font:inherit;font-size:17px;line-height:1.5;padding:12px 14px;border-radius:12px;border:2px solid var(--line);background:var(--bg);color:var(--text);resize:vertical}.lsx textarea:focus{outline:none;border-color:var(--accent)}'+
+ '.lsqq{margin:4px 0;padding:14px 16px;border-left:5px solid var(--accent);border-radius:12px;background:var(--soft);font-size:19px;font-weight:600}.lsz{font-size:18px;font-weight:700;margin:6px 0 0}.lsact{display:flex;gap:8px}'+
+ '.xq{font-size:18px;margin:0}.xres{display:flex;flex-direction:column;gap:10px}.xm{padding:12px 14px;border-radius:12px;background:var(--good-bg,var(--soft));border:1.5px solid var(--good-line,var(--line))}.xm>b{display:block;margin-bottom:4px}.xk{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:2px 9px;margin:2px;font-size:13px}.xk.on{border-color:var(--good-line);background:var(--good-bg);color:var(--good)}'+
+ '.xagain summary{cursor:pointer;color:var(--accent);font-weight:700}.xagain .prose{margin-top:8px}.xrate{font-weight:700;margin:4px 0 0}.xrb{display:flex;gap:8px;flex-wrap:wrap}'+
+ '.prenote{margin:10px 0;padding:8px 12px;border-radius:10px;background:var(--accent-bg,var(--soft));color:var(--accent-text,var(--text));font-size:15px}'+
+ '.cfc{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:8px;font-size:13.5px}.cfc span{color:var(--muted);font-weight:700}.cfc button{font:inherit;font-size:13px;font-weight:700;border:1.5px solid var(--line);background:var(--panel);color:var(--text);border-radius:999px;padding:4px 11px;cursor:pointer}.cfc button.on{border-color:var(--accent);background:var(--accent-bg,var(--soft))}.cfc em{flex-basis:100%;font-size:13px;color:var(--muted)}'+
+ '.lmed{margin-left:auto;font-size:20px;line-height:1;align-self:center;flex:none}.umix{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:10px 0 4px}.umm{font:800 13px var(--mono,monospace);color:var(--muted);margin-right:auto}.umix .wbtn{font-size:14px}'+
+ '.lxc .lxq{list-style:none;margin:8px 0 0;padding:0;display:flex;flex-direction:column;gap:8px}.lxq li{border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:4px}.lxq li span{font-size:13px;color:var(--muted)}.lxq li div{display:flex;gap:6px;flex-wrap:wrap}.lxw{display:flex;align-items:baseline;gap:8px;margin:6px 0 10px}.lxw b{font:800 34px var(--mono,monospace)}.lxw span{color:var(--muted)}'+
+ '.mdtime{border:0;cursor:pointer;font:800 13px var(--mono,monospace)}.mdtime.on{background:var(--amber,#ef9f27);color:#2a1800}.mdtbar{position:relative;height:22px;border-radius:999px;background:var(--soft2,var(--line));overflow:hidden;margin:-4px 0 12px}.mdtbar i{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,var(--glow,#0a9fd0),var(--glow2,#6a5af0));transition:width .25s linear}.mdtbar.low i{background:var(--bad-line,#d64545)}.mdtbar span{position:relative;display:block;text-align:center;font:800 12px/22px var(--mono,monospace);color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.4)}.mdtbar[hidden]{display:none}'+
+ '.cdcard.wex{border-color:var(--accent);background:linear-gradient(180deg,var(--accent-bg,var(--soft)),var(--panel) 60%)}.cdslip{margin-top:6px;padding:8px 12px;border-radius:10px;background:rgba(239,159,39,.14);color:var(--text);font-weight:600}'+
+ '.exh .exsc{flex:none;width:72px;height:72px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--panel);border:4px solid var(--accent);font:800 24px var(--mono,monospace);line-height:1}.exh .exsc small{font-size:12px;color:var(--muted)}.exh .exsc span{font:700 10px var(--sans,inherit);color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px}'+
+ '.mdseg i.half{background:var(--amber,#ef9f27)}.mdseg i.miss{background:var(--bad-line,#d64545)}.exm{font:800 13px var(--mono,monospace);color:var(--muted)}.exms{margin-top:8px;padding:10px 12px;border-radius:10px;border:1px dashed var(--line)}.exend{text-align:center;padding:10px 0}.exbig{font:800 54px var(--mono,monospace)}.exbig small{font-size:22px;color:var(--muted)}.exend b{font-size:22px}'+
+ '@media (max-width:560px){.lst{font-size:23px}.lsh{font-size:15.5px}}';document.head.appendChild(st)})();
 UNITS.forEach(function(u){u.lessons.forEach(function(l){l.cards.forEach(function(c){if(c.t==='W'&&c.w==='calcDrill'&&c.par&&!c.par.rule&&c.e)c.par.rule=c.e})})});
 checkBadges(true);quests();updHeader();showPage('learn');
 })();

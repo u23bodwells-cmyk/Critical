@@ -1,4 +1,7 @@
-=== */
+r`],0,`GDF.`)),x('t5-5-2',Q(`Which Gen IV system uses water above its critical point?`,[`SCWR`,`MSR`,`LFR`,`VHTR`],0,`Supercritical.`)),x('t5-5-2',Q(`SMRs aim to cut cost by…`,[`factory-built modules and repetition`,`removing safety systems`,`using no fuel`,`being larger`],0,`Modular.`)),x('t5-5-3',N(`Mass lost 0.0189 u. Energy in MeV? (931.5 MeV/u)`,17.6,0.02,'MeV',`× 931.5.`)),x('t5-5-3',Q(`JET's record was…`,[`69 MJ of fusion energy`,`1 GW for a year`,`ignition`,`zero`],0,`Before closing in 2023.`))]);
+
+/* >>> new content: mt >>> */
+/* ========== LEVEL 6 · MATHS (Specialist: master's level) ========== */
 U({id:'m6-1',track:'maths',level:6,title:'Neutron transport',icon:'Ω',color:'#7F77DD',desc:'Where diffusion theory breaks down, attenuation and mean free paths, and the transport correction.',lessons:[
 LH('m6-1-1','Beyond diffusion',10,'Diffusion theory treats neutrons like a gas. Near edges and strong absorbers that picture fails, and you need transport theory.',[
 RM(`<ul><li>Neutron flux φ = n v: neutrons per cm² per second (Level 4 Maths).</li><li>Diffusion: neutrons flow down the flux gradient, J = −D∇φ (Level 4 Maths).</li><li>The divergence theorem turns leakage through a surface into ∇ · J (Calculus Level 14).</li></ul>`),
@@ -518,46 +521,74 @@ CGEN.sepode=function(){var k=cP([0.1,0.2,0.5]),y0=cP([100,200,50]),t=cP([2,5,10]
  '@media (prefers-reduced-motion:no-preference){.mdhd.won::after{animation:mdShine 2.4s .3s ease-in-out infinite}.mdseg i.pop{animation:cdPop .45s ease-out}.mdhd.fin{animation:mdPulse 1.6s ease-in-out infinite}}@keyframes mdShine{0%{left:-40%}55%,100%{left:120%}}@keyframes mdPulse{50%{box-shadow:0 0 0 4px rgba(239,159,39,.18)}}'+
  '.cdsupg{align-self:flex-start;margin-top:-10px}.cdline .cdbox.cdsup{width:54px;font-size:14px;padding:5px 6px}.cdsupg .sgnb{min-width:32px;height:32px;font-size:16px;border-radius:8px}.cdin .opt{margin-top:8px}';
  document.head.appendChild(css)})();
-WIDGETS.calcDrill=function(box,par){var mth=false;try{if(typeof P!=='undefined'&&P&&P.ui!=null)mth=!!{maths:1,calc:1,gm:1,am:1}[trk(P.ui)]}catch(e){}var need=Math.max(par.need||5,mth?5:0),lastPct=0,gens=[].concat(par.skill),score=0,run=0,clean=true,done=false,passed=false,q=null,answered=false,count=0,help=0,wrongs=0,last=-1,xpGot=0;
+WIDGETS.calcDrill=function(box,par){var mth=false;try{if(typeof P!=='undefined'&&P&&P.ui!=null)mth=!!{maths:1,calc:1,gm:1,am:1}[trk(P.ui)]}catch(e){}
+ var bank=null;if(par.bank){try{bank=typeof par.bank==='function'?par.bank():par.bank}catch(e){bank=null}}
+ var gens=[].concat(par.skill||[]).filter(function(k){return typeof CGEN[k]==='function'});
+ if(!gens.length&&!(bank&&bank.length)){box.innerHTML='<p class="small">Nothing to practise here yet.</p>';return {check:function(){return {ok:true}}}}
+ var need=Math.max(par.need||5,mth?5:0);if(bank&&!gens.length)need=Math.min(need,Math.max(3,bank.length-1));
+ var lastPct=0,score=0,run=0,clean=true,done=false,passed=false,q=null,answered=false,count=0,help=0,hadHelp=false,wrongs=0,last=-1,xpGot=0,recent=[],medal=0,
+  weakMode=typeof P!=='undefined'&&P&&P.mode==='weak',exOK=!!gens.length&&!par.noEx&&!weakMode,timed=false,tmr=null,timeUp=false;
+ try{timed=localStorage.getItem('critical_timed')==='1'}catch(e){}
  var PRAISE=['Nice.','Spot on.','That\'s it.','Nailed it.','Exactly right.','Lovely.','Yes!','Clean.','Textbook.','Sharp.'];
- var top=el('div','cdtop md',null,box),card=el('div','cdcard mdc',null,box),qb=el('div','cdq',null,card),inRow=el('div','cdin',null,card),hb=el('div','cdhelp',null,box),r=row(box),chkB=btn(r,'Submit answer',check,'pri'),helpB=btn(r,'Help',helpMe),nxt=btn(r,'Next question',next),skipB=btn(r,'Different question',skip),moveB=btn(r,'Move on for now',moveOn),m=msg(box);r.classList.add('mdrow');
+ var top=el('div','cdtop md',null,box),tbar=el('div','mdtbar',null,box),card=el('div','cdcard mdc',null,box),qb=el('div','cdq',null,card),inRow=el('div','cdin',null,card),hb=el('div','cdhelp',null,box),r=row(box),chkB=btn(r,'Submit answer',check,'pri'),helpB=btn(r,'Help',helpMe),nxt=btn(r,'Next question',next),skipB=btn(r,'Different question',skip),moveB=btn(r,'Move on for now',moveOn),m=msg(box);r.classList.add('mdrow');tbar.hidden=true;
  function inL(){return typeof P!=='undefined'&&P&&P.mode==='lesson'}
  function T(f){try{f()}catch(e){}}
  function give(n,from){if(n<=0)return;xpGot+=n;T(function(){if(inL())award(n);else addXP(n,from||nxt)})}
- var FT=!mth&&need>3;
- /* the header: a ring that fills as you go, what stage you're at, your streak and XP, and a segment for every answer you need */
+ var FT=!mth&&need>3&&!exOK;
+ var MED=['','🥉 Bronze','🥈 Silver','🥇 Gold'];
+ /* the header: a ring that fills as you go, what stage you're at, your streak and XP, a timer switch, and a segment for every answer you need */
  function dots(pop,drop){var fin=!done&&!passed&&score===need-1,pct=done?1:Math.min(1,score/need),C=188.5,fr=score/need,
   stage=done?'Mastered!':passed?'Paused for now':fin?'Final question!':score===0?'Warming up':fr<0.4?'Getting going':fr<0.7?'On a roll':'Nearly there',
-  sub=done?(xpGot?'You earned +'+xpGot+' XP. Lovely work.':'Lovely work.'):passed?'Come back with the Practice button any time.':fin?'Get this one right to master it.':(need-score)+' more right to master it'+(FT&&count<=3&&clean?' · or 3 right first go to fast-track':'')+'.',
-  h='<div class="mdhd'+(fin?' fin':'')+(done?' won':'')+'"><div class="mdring" aria-hidden="true"><svg viewBox="0 0 72 72"><circle class="bg" cx="36" cy="36" r="30"/><circle class="fg" cx="36" cy="36" r="30" stroke-dasharray="'+C+'" stroke-dashoffset="'+(C*(1-lastPct)).toFixed(1)+'"/></svg><span>'+(done?'★':score+'<small>/'+need+'</small>')+'</span></div>'+
-  '<div class="mdtt"><span class="mdk">Mastery'+(par.title?' · '+par.title:'')+'</span><b'+(fin?' class="cdfin"':'')+'>'+stage+'</b><span class="mdsub">'+sub+'</span></div><div class="mdchips">'+(run>=2&&!done?'<span class="cdflame mdchip'+(pop?' pop':'')+'">'+FLAME+'<b>'+run+'</b></span>':'')+(xpGot?'<span class="mdchip mdxp">+'+xpGot+' XP</span>':'')+'</div></div><div class="cddots mdseg" role="img" aria-label="'+score+' of '+need+' right">';
+  sub=done?(medal?MED[medal]+' mastery. ':'')+(xpGot?'You earned +'+xpGot+' XP.':'Lovely work.'):passed?'Come back with the Practice button any time.':fin?'Get this one right to master it.':(need-score)+' more right to master it'+(FT&&count<=3&&clean?' · or 3 right first go to fast-track':'')+'.',
+  h='<div class="mdhd'+(fin?' fin':'')+(done?' won':'')+'"><div class="mdring" aria-hidden="true"><svg viewBox="0 0 72 72"><circle class="bg" cx="36" cy="36" r="30"/><circle class="fg" cx="36" cy="36" r="30" stroke-dasharray="'+C+'" stroke-dashoffset="'+(C*(1-lastPct)).toFixed(1)+'"/></svg><span>'+(done?(medal?['','🥉','🥈','🥇'][medal]:'★'):score+'<small>/'+need+'</small>')+'</span></div>'+
+  '<div class="mdtt"><span class="mdk">'+(par.mix?'Mixed practice':weakMode?'Weak skills':bank&&!gens.length?'Concept check':'Mastery')+(par.title?' · '+par.title:'')+'</span><b'+(fin?' class="cdfin"':'')+'>'+stage+'</b><span class="mdsub">'+sub+'</span></div><div class="mdchips">'+(run>=2&&!done?'<span class="cdflame mdchip'+(pop?' pop':'')+'">'+FLAME+'<b>'+run+'</b></span>':'')+(xpGot?'<span class="mdchip mdxp">+'+xpGot+' XP</span>':'')+(!done&&!passed?'<button type="button" class="mdchip mdtime'+(timed?' on':'')+'" aria-pressed="'+timed+'" title="Answer against the clock">⏱ '+(timed?'Timed':'Timer off')+'</button>':'')+'</div></div><div class="cddots mdseg" role="img" aria-label="'+score+' of '+need+' right">';
   for(var i=0;i<need;i++)h+='<i class="'+(i<Math.min(score,need)?'on':'')+(pop&&i===score-1?' pop':'')+(drop&&i===score?' drop':'')+(done?' gold':'')+(i===need-1?' last':'')+'"></i>';
   top.innerHTML=h+'</div>';card.classList.toggle('fin',fin);
   var fg=top.querySelector('.fg');lastPct=pct;requestAnimationFrame(function(){requestAnimationFrame(function(){if(fg)fg.setAttribute('stroke-dashoffset',(C*(1-pct)).toFixed(1))})});
   if(pop)T(function(){var d=top.querySelector('.cddots i.pop');if(d&&window.NEO&&NEO.burst){var b=d.getBoundingClientRect();NEO.burst(b.left+b.width/2,b.top+b.height/2,{n:14})}})}
+ top.addEventListener('click',function(e){if(!e.target.closest('.mdtime'))return;timed=!timed;try{localStorage.setItem('critical_timed',timed?'1':'0')}catch(_){}if(timed&&!answered)startT();else stopT();dots()});
+ /* timed mode: a bar that runs down; when it empties the question counts as a miss */
+ function stopT(){if(tmr){clearInterval(tmr);tmr=null}tbar.hidden=true}
+ function startT(){stopT();if(!timed||answered||!q)return;var lim=q.o?45:q.b.length>1?120:75,t0=Date.now();tbar.hidden=false;
+  function draw(){var left=Math.max(0,lim-(Date.now()-t0)/1000);tbar.className='mdtbar'+(left<10?' low':'');tbar.innerHTML='<i style="width:'+(left/lim*100).toFixed(1)+'%"></i><span>⏱ '+Math.ceil(left)+' s</span>';return left}
+  draw();tmr=setInterval(function(){if(!document.body.contains(box)){stopT();return}if(draw()<=0){stopT();if(!answered){timeUp=true;check()}}},250)}
  function key(e){if(e.key==='Enter'){e.preventDefault();e.stopPropagation();answered?next():check()}}
- function pick(){var k=cP(gens);if(gens.length>2&&k===last)k=cP(gens);last=k;return CGEN[k]()}
- function next(){q=pick();count++;answered=false;help=0;q.pick=null;hb.innerHTML='';qb.innerHTML='<div class="qprompt">'+q.p+'</div>';inRow.innerHTML='';card.classList.remove('shake','good');void card.offsetWidth;card.classList.add('enter');
+ function pick(){if(bank&&!gens.length){var i,tries=0;do{i=Math.floor(Math.random()*bank.length);tries++}while(recent.indexOf(i)>=0&&tries<30);recent.push(i);if(recent.length>Math.min(3,bank.length-1))recent.shift();var b0=bank[i],qq={p:b0.p,e:b0.e||''};if(b0.o)qq.o=b0.o.slice();if(b0.b)qq.b=b0.b;return qq}
+  var k=cP(gens);if(gens.length>2&&k===last)k=cP(gens);last=k;var q2=CGEN[k]();q2._k=k;return q2}
+ function li(x){return '<li>'+x+'</li>'}
+ function ansTxt(){return q.o?q.o[0]:q.b.map(function(bb){return cNum(bb.a)}).join(' and ')}
+ function next(){stopT();q=pick();count++;answered=false;help=0;timeUp=false;q.pick=null;hb.innerHTML='';qb.innerHTML='<div class="qprompt">'+q.p+'</div>';inRow.innerHTML='';card.classList.remove('shake','good','wex');void card.offsetWidth;card.classList.add('enter');
   if(q.o){shuffle(q.o.map(function(_,i){return i})).forEach(function(k){var b=el('button','opt',q.o[k],inRow);b.dataset.k=k;b.onclick=function(){if(answered)return;[].forEach.call(inRow.children,function(x){x.classList.remove('sel')});b.classList.add('sel');q.pick=k}})}
   else{var line=el('div','cdline',null,inRow);q.b.forEach(function(bb,i){var g=el('span','cdgrp'+(bb.sup?' cdsupg':''),null,line);if(bb.pre)el('span','',bb.pre,g);var inp=el('input','numin cdbox'+(bb.sup?' cdsup':''),null,g);inp.type='text';if(q.pos)inp.__sgn=1;inp.setAttribute('inputmode','decimal');inp.setAttribute('autocomplete','off');inp.setAttribute('aria-label',bb.label||('Answer '+(i+1)));inp.onkeydown=key;if(bb.post)el('span','',bb.post,g)})}
-  chkB.style.display='';helpB.style.display='';helpB.textContent='Help';skipB.style.display=done?'none':'';nxt.style.display='none';nxt.textContent='Next question';moveB.style.display=(!done&&!passed&&count>need+3)?'':'none';m.set('');dots();var f=inRow.querySelector('input');if(f)try{f.focus({preventScroll:true})}catch(e){}}
+  chkB.style.display='';helpB.style.display='';helpB.textContent='Help';skipB.style.display=done?'none':'';nxt.style.display='none';nxt.textContent='Next question';moveB.style.display=(!done&&!passed&&count>need+3)?'':'none';m.set('');
+  /* worked example, then fade: the first question is shown fully worked, the second comes with the first steps done for you */
+  var st=q.b?steps():[];
+  if(exOK&&count===1&&q.b&&q.e){worked(st);return}
+  if(exOK&&count===2&&q.b&&st.length>=3){q.scaf=true;hb.innerHTML='<b>🪜 Start like this</b><ol class="cdsteps">'+st.slice(0,Math.floor(st.length/2)).map(li).join('')+'</ol><div class="cdsm">Now finish it off yourself. This one counts.</div>'}
+  dots();startT();var f=inRow.querySelector('input');if(f)try{f.focus({preventScroll:true})}catch(e){}}
+ function worked(st){answered=true;card.classList.add('wex');hb.innerHTML='<b>📘 Worked example</b> Watch how this one is done first. It doesn\'t count, so take your time.<ol class="cdsteps">'+st.map(li).join('')+'</ol><div class="cdsm">Answer: <b>'+ansTxt()+'</b></div>';
+  [].forEach.call(inRow.querySelectorAll('input'),function(inp,i){inp.value=String(cNum(q.b[i].a)).replace('−','-');inp.disabled=true});
+  chkB.style.display='none';helpB.style.display='none';skipB.style.display='none';nxt.style.display='';nxt.textContent='My turn →';dots();try{nxt.focus({preventScroll:true})}catch(e){}}
  function steps(){return String(q.e||'').split(/\.\s+(?=[A-Z(<])/).map(function(x,i,a){return x+(i<a.length-1?'.':'')})}
- function helpMe(){if(answered)return;help++;clean=false;var st=steps();
+ function helpMe(){if(answered)return;help++;clean=false;hadHelp=true;var st=steps();
   if(help===1){var first=st.length>1?st[0]:'';hb.innerHTML='<b>💡 Hint</b> '+(first||par.rule||'Take it one step at a time.')+(first&&par.rule?'<div class="cdrule">'+par.rule+'</div>':'')+'<div class="cdsm">Get it right after a hint and it still counts (half XP). Still stuck? Press <b>Show me how</b>.</div>';helpB.textContent='Show me how';return}
-  hb.innerHTML='<b>🧭 Here\'s how</b><ol class="cdsteps">'+st.map(function(x){return '<li>'+x+'</li>'}).join('')+'</ol>'+(q.o?'<div class="cdsm">Answer: <b>'+q.o[0]+'</b></div>':'<div class="cdsm">Answer: <b>'+q.b.map(function(bb){return cNum(bb.a)}).join(' and ')+'</b></div>')+'<div class="cdsm">This one doesn\'t count either way, and your combo is safe. Now try a similar one yourself.</div>';
+  stopT();hb.innerHTML='<b>🧭 Here\'s how</b><ol class="cdsteps">'+st.map(li).join('')+'</ol><div class="cdsm">Answer: <b>'+ansTxt()+'</b></div><div class="cdsm">This one doesn\'t count either way, and your combo is safe. Now try a similar one yourself.</div>';
   answered=true;chkB.style.display='none';helpB.style.display='none';skipB.style.display='none';nxt.style.display='';nxt.textContent='Try a similar one';m.set('');dots();try{nxt.focus({preventScroll:true})}catch(e){}}
  function skip(){if(answered)return;clean=false;next()}
- function moveOn(){passed=true;moveB.style.display='none';m.set('No problem. You can carry on now. Come back with the <b>Practice</b> button on this lesson whenever you like: it uses the same questions.',true);dots()}
+ function moveOn(){passed=true;stopT();moveB.style.display='none';m.set('No problem. You can carry on now. Come back with the <b>Practice</b> button on this lesson whenever you like: it uses the same questions.',true);dots()}
  function close(bb,v){var tol=bb.tol==null?0.005:bb.tol;return bb.a===0?Math.abs(v)<1e-9:Math.abs(v-bb.a)<=Math.abs(bb.a)*tol+1e-9}
- function mastered(fast){card.classList.add('good');var st=el('div','cdstamp',fast?'⚡ Fast-tracked':'★ Mastered',card);T(function(){var b=top.getBoundingClientRect();if(window.NEO&&NEO.burst)NEO.burst(b.left+46,b.top+46,{n:30})});setTimeout(function(){T(function(){st.remove()})},2600);
-  var bonus=fast?30:20;give(bonus,top);T(function(){confetti()});T(function(){sfx('done')});return bonus}
- function check(){if(answered)return;var ok;
-  if(q.o){if(q.pick==null){m.set('Pick an answer first.',false);return}ok=q.pick===0;[].forEach.call(inRow.children,function(b){var k=+b.dataset.k;b.disabled=true;if(k===0)b.classList.add('right');else if(k===q.pick)b.classList.add('wrong')})}
-  else{var ins=inRow.querySelectorAll('input'),vals=[].map.call(ins,function(i){return parseNum(i.value)});if(vals.some(function(v){return isNaN(v)})){m.set('Type a number in every box. Decimals like 0.5 and negatives like −3 are fine.',false);return}
+ function mastered(fast){card.classList.add('good');medal=(wrongs===0&&!hadHelp)?3:wrongs<=2?2:1;T(function(){var id=lxLid();if(id&&!par.mix&&!weakMode)lxMedal(id,medal)});
+  var st=el('div','cdstamp',fast?'⚡ Fast-tracked':MED[medal],card);T(function(){var b=top.getBoundingClientRect();if(window.NEO&&NEO.burst)NEO.burst(b.left+46,b.top+46,{n:30})});setTimeout(function(){T(function(){st.remove()})},2600);
+  var bonus=fast?30:[0,15,20,30][medal];give(bonus,top);T(function(){confetti()});T(function(){sfx('done')});return bonus}
+ function check(){if(answered)return;var ok,vals=null;
+  if(timeUp){ok=false;if(q.o)[].forEach.call(inRow.children,function(b){b.disabled=true;if(+b.dataset.k===0)b.classList.add('right')});else [].forEach.call(inRow.querySelectorAll('input'),function(inp){inp.disabled=true;inp.style.borderColor=cssv('--bad-line')})}
+  else if(q.o){if(q.pick==null){m.set('Pick an answer first.',false);return}ok=q.pick===0;[].forEach.call(inRow.children,function(b){var k=+b.dataset.k;b.disabled=true;if(k===0)b.classList.add('right');else if(k===q.pick)b.classList.add('wrong')})}
+  else{var ins=inRow.querySelectorAll('input');vals=[].map.call(ins,function(i){return parseNum(i.value)});if(vals.some(function(v){return isNaN(v)})){m.set('Type a number in every box. Decimals like 0.5 and negatives like −3 are fine.',false);return}
    ok=q.b.every(function(bb,i){return close(bb,vals[i])});[].forEach.call(ins,function(inp,i){inp.disabled=true;inp.style.borderColor=close(q.b[i],vals[i])?cssv('--good-line'):cssv('--bad-line')})}
-  answered=true;var was=done,note='',lost=false,xp=0,bonus=0,fast=false;
+  stopT();answered=true;var was=done,note='',lost=false,xp=0,bonus=0,fast=false;
+  T(function(){if(q._k)lxWeak(q._k,ok,weakMode)});
   if(ok){score++;run++;if(score>=need||(FT&&clean&&run>=3&&count===3)){done=true;fast=score<need}
-   xp=help?5:10+(run>=3?Math.min(5,run-1):0);give(xp,chkB);
+   xp=help?5:q.scaf?8:10+(run>=3?Math.min(5,run-1):0);give(xp,chkB);
    T(function(){if(inL()){P.combo=(P.combo||0)+1;P.best=Math.max(P.best||0,P.combo);if(S.st&&P.combo>S.st.best)S.st.best=P.combo;if(S.st)S.st.right++;showCombo(true);qProg('right',1);qProg('run',P.combo)}});
    T(function(){sfx(run>=3?'combo':'right')});
    if(done&&!was){score=need;bonus=mastered(fast)}
@@ -565,11 +596,37 @@ WIDGETS.calcDrill=function(box,par){var mth=false;try{if(typeof P!=='undefined'&
    note='<b>'+pr+'</b> <span class="cdxp">+'+xp+' XP</span>'+(bonus?' <span class="cdxp gold">+'+bonus+' mastery bonus</span>':'')+' '+(done&&!was?(fast?'Three right first go: you\'re through. ':'You\'ve mastered this. '):(!done?(need-score===1?'One more to master it. ':(need-score)+' more to go. '):''))}
   else{wrongs++;run=0;clean=false;lost=score>0&&!done;if(lost)score--;card.classList.remove('shake');void card.offsetWidth;card.classList.add('shake');
    T(function(){if(inL()){P.combo=0;showCombo(false)}});T(function(){sfx('wrong')});
-   note='<b>Not quite.</b> '+(q.o?'':'It\'s '+q.b.map(function(bb){return cNum(bb.a)}).join(' and ')+'. ')+(lost?'You lose one dot, not all of them. ':'')}
+   var sl='';if(vals&&q.b.length===1)T(function(){sl=numSlip(vals[0],q.b[0].a)});
+   note=(timeUp?'<b>Time\'s up.</b> ':'<b>Not quite.</b> ')+(q.o?(timeUp?'The answer was <b>'+q.o[0]+'</b>. ':''):'It\'s '+ansTxt()+'. ')+(lost?'You lose one dot, not all of them. ':'')+(sl?'<div class="cdslip">🔎 '+sl+'</div>':'')}
   m.set(note+(q.e?'<div class="cdexp">'+q.e+'</div>':'')+(!ok&&wrongs>=2&&!done?'<div class="cdsm">Tip: press <b>Help</b> on the next one for a hint or a full walk-through.</div>':''),ok);
   chkB.style.display='none';helpB.style.display='none';skipB.style.display='none';nxt.style.display='';moveB.style.display=(!done&&!passed&&count>=need+3)?'':'none';dots(ok,lost);try{nxt.focus({preventScroll:true})}catch(e){}}
  next();
- return {check:function(){return done||passed?{ok:true}:{ok:false,msg:'Get '+need+' right to master it first ('+score+' so far). Use <b>Help</b> if you\'re stuck'+(count>need+3?', or <b>Move on for now</b>':'')+'.'}},lock:function(){}}};
+ return {check:function(){return done||passed?{ok:true}:{ok:false,msg:'Get '+need+' right to master it first ('+score+' so far). Use <b>Help</b> if you\'re stuck'+(count>need+3?', or <b>Move on for now</b>':'')+'.'}},lock:function(){stopT()}}};
+
+/* ---- exam-style set: a fixed number of parts, 2 marks each (1 if you used the method hint), with a mark scheme after each ---- */
+WIDGETS.examSet=function(box,par){var gens=[].concat(par.skill||[]).filter(function(k){return typeof CGEN[k]==='function'}),bank=null;if(par.bank){try{bank=typeof par.bank==='function'?par.bank():par.bank}catch(e){}}
+ if(!gens.length&&!(bank&&bank.length)){box.innerHTML='<p class="small">Nothing to practise here yet.</p>';return {check:function(){return {ok:true}}}}
+ var N=par.n||5,i=0,q=null,answered=false,hinted=false,marks=0,res=[],done=false,recent=[],last=-1,L='abcdefghij';
+ var top=el('div','exhd',null,box),card=el('div','cdcard mdc',null,box),qb=el('div','cdq',null,card),inRow=el('div','cdin',null,card),hb=el('div','cdhelp',null,box),r=row(box),chk=btn(r,'Submit answer',check,'pri'),hint=btn(r,'Method hint (−1 mark)',hintF),nx=btn(r,'Next part',next),m=msg(box);r.classList.add('mdrow');
+ function head(){var h='<div class="mdhd exh"><div class="exsc"><b>'+marks+'</b><small>/'+(N*2)+'</small><span>marks</span></div><div class="mdtt"><span class="mdk">Exam-style'+(par.title?' · '+par.title:'')+'</span><b>'+(done?'Finished':'Question 1 ('+L.charAt(Math.max(0,i-1))+')')+'</b><span class="mdsub">'+(done?'Look back at the mark schemes for anything you dropped.':'Part '+i+' of '+N+' · [2 marks]. No retries, like the real thing.')+'</span></div></div><div class="cddots mdseg">';
+  for(var k=0;k<N;k++)h+='<i class="'+(res[k]===2?'on':res[k]===1?'half':res[k]===0?'miss':'')+'"></i>';top.innerHTML=h+'</div>'}
+ function pick(){if(bank&&!gens.length){var j,t=0;do{j=Math.floor(Math.random()*bank.length);t++}while(recent.indexOf(j)>=0&&t<30);recent.push(j);var b0=bank[j],qq={p:b0.p,e:b0.e||''};if(b0.o)qq.o=b0.o.slice();if(b0.b)qq.b=b0.b;return qq}var k2=cP(gens);if(gens.length>1&&k2===last)k2=cP(gens);last=k2;return CGEN[k2]()}
+ function next(){if(i>=N){finish();return}q=pick();i++;answered=false;hinted=false;q.pick=null;hb.innerHTML='';m.set('');qb.innerHTML='<div class="qprompt"><b>('+L.charAt(i-1)+')</b> '+q.p+' <span class="exm">[2]</span></div>';inRow.innerHTML='';card.classList.remove('enter');void card.offsetWidth;card.classList.add('enter');
+  if(q.o)shuffle(q.o.map(function(_,j){return j})).forEach(function(k){var b=el('button','opt',q.o[k],inRow);b.dataset.k=k;b.onclick=function(){if(answered)return;[].forEach.call(inRow.children,function(x){x.classList.remove('sel')});b.classList.add('sel');q.pick=k}});
+  else{var line=el('div','cdline',null,inRow);q.b.forEach(function(bb){var g=el('span','cdgrp'+(bb.sup?' cdsupg':''),null,line);if(bb.pre)el('span','',bb.pre,g);var inp=el('input','numin cdbox'+(bb.sup?' cdsup':''),null,g);inp.type='text';inp.setAttribute('inputmode','decimal');inp.setAttribute('autocomplete','off');inp.onkeydown=function(e){if(e.key==='Enter'){e.preventDefault();e.stopPropagation();answered?next():check()}};if(bb.post)el('span','',bb.post,g)})}
+  chk.style.display='';hint.style.display=q.e?'':'none';nx.style.display='none';nx.textContent=i>=N?'See my score':'Next part';head();var f=inRow.querySelector('input');if(f)try{f.focus({preventScroll:true})}catch(e){}}
+ function hintF(){if(answered||hinted)return;hinted=true;var st=String(q.e||'').split(/\.\s+(?=[A-Z(<])/);hb.innerHTML='<b>📐 Method hint</b> '+st[0]+(st.length>1?'.':'')+'<div class="cdsm">This part is now worth 1 mark at most.</div>';hint.style.display='none'}
+ function close(bb,v){var tol=bb.tol==null?0.005:bb.tol;return bb.a===0?Math.abs(v)<1e-9:Math.abs(v-bb.a)<=Math.abs(bb.a)*tol+1e-9}
+ function check(){if(answered)return;var ok,vals=null;
+  if(q.o){if(q.pick==null){m.set('Pick an answer first.',false);return}ok=q.pick===0;[].forEach.call(inRow.children,function(b){var k=+b.dataset.k;b.disabled=true;if(k===0)b.classList.add('right');else if(k===q.pick)b.classList.add('wrong')})}
+  else{var ins=inRow.querySelectorAll('input');vals=[].map.call(ins,function(x){return parseNum(x.value)});if(vals.some(function(v){return isNaN(v)})){m.set('Type a number in every box.',false);return}ok=q.b.every(function(bb,k){return close(bb,vals[k])});[].forEach.call(ins,function(x,k){x.disabled=true;x.style.borderColor=close(q.b[k],vals[k])?cssv('--good-line'):cssv('--bad-line')})}
+  answered=true;var got=ok?(hinted?1:2):0;marks+=got;res.push(got);try{sfx(ok?'right':'wrong')}catch(e){}
+  var ans=q.o?q.o[0]:q.b.map(function(bb){return cNum(bb.a)}).join(' and '),sl='';if(!ok&&vals&&q.b.length===1){try{sl=numSlip(vals[0],q.b[0].a)}catch(e){}}
+  m.set('<b>'+(got===2?'2 marks.':got===1?'1 mark (method hint used).':'0 marks.')+'</b>'+(sl?'<div class="cdslip">🔎 '+sl+'</div>':'')+'<div class="exms"><b>Mark scheme</b><div>'+(q.o?'B2: '+ans:'M1: correct method · A1: '+ans)+'</div>'+(q.e?'<div class="cdexp">'+q.e+'</div>':'')+'</div>',ok);
+  chk.style.display='none';hint.style.display='none';nx.style.display='';head();try{nx.focus({preventScroll:true})}catch(e){}}
+ function finish(){done=true;var pc=Math.round(marks/(N*2)*100);qb.innerHTML='<div class="exend"><div class="exbig">'+marks+'<small>/'+(N*2)+'</small></div><b>'+pc+'%</b><p>'+(pc>=90?'Top marks. You\'re exam ready on this.':pc>=70?'Strong. Check the parts you dropped, then go again.':pc>=50?'Getting there. Redo the lessons behind the parts you missed.':'Worth another go after a look back through this unit.')+'</p></div>';inRow.innerHTML='';hb.innerHTML='';m.set('');chk.style.display='none';hint.style.display='none';nx.style.display='none';head();try{if(marks)addXP(marks*3,top)}catch(e){}try{sfx(pc>=70?'done':'quest')}catch(e){}}
+ next();
+ return {check:function(){return done?{ok:true}:{ok:false,msg:'Finish all '+N+' parts first.'}}}};
 
 /* ---- area under a curve: strips that become the integral ---- */
 WIDGETS.riemann=function(box,par){var f=par.f,a=par.a,b=par.b,exact=par.exact,n=par.n0||4,ok=false,cv=canvas(box,240);
@@ -951,61 +1008,4 @@ T(`<h3>Exponential functions</h3><p>A function like y = 2ˣ is called <b>exponen
 W('fnPlot',{x:[-2,2.5],y:[0,12],xl:'x',yl:'y',sl:[['a','Point x',-2,2.5,0.25,0,function(v){return v}]],curves:function(p){var y0=Math.exp(p.a);return [[Math.exp,'--accent',3],[function(x){return y0+y0*(x-p.a)},'--coral',2,[6,4]]]},read:function(p){var y0=Math.exp(p.a);return 'y = eˣ at x = '+p.a+': value <b>'+y0.toFixed(3)+'</b>, gradient <b>'+y0.toFixed(3)+'</b>'},goal:function(p){return p.a>=2},goalMsg:'Slide all the way to x = 2 or beyond.'},`Slide along y = eˣ and compare the value with the gradient.`,`They're always equal. eˣ is its own derivative.`),
 T(`<h3>The rule</h3><div class="eq">d/dx (eˣ) = eˣ</div><p>And with a number multiplying x in the power:</p><div class="eq">d/dx (e<sup>kx</sup>) = k e<sup>kx</sup></div><p>The k comes down in front. So d/dx (e³ˣ) = 3e³ˣ, and d/dx (e<sup>−2x</sup>) = −2e<sup>−2x</sup>.</p>`),
 Q(`Differentiate y = e⁵ˣ.`,[`5e⁵ˣ`,`e⁵ˣ`,`5xe⁵ˣ⁻¹`,`e⁴ˣ`],0,`k comes down; the power stays the same.`),
-Q(`Can you use the power rule on eˣ?`,[`No: x is the power, not the base`,'Yes: it gives x times e to the x − 1','Only when x is a whole number','Yes, as long as you treat e as x'],0,`The power rule is for xⁿ with a fixed power.`),
-W('calcDrill',{skill:'expd',need:5},`Differentiate each exponential. Get 5 right to master it.`,`Bring k down; the e-part stays the same.`),
-T(`<h3>Key points</h3><ul><li><b>e ≈ 2.718</b>.</li><li><b>d/dx (eˣ) = eˣ</b>: its own derivative.</li><li><b>d/dx (e<sup>kx</sup>) = ke<sup>kx</sup></b>. Don't use the power rule here.</li></ul>`)]),
-LH('c3-3-2','ln x',9,'The natural logarithm undoes eˣ, and its derivative is surprisingly simple: 1/x.',[
-RM(`<p>d/dx (e<sup>kx</sup>) = ke<sup>kx</sup>. And e ≈ 2.718.</p>`),
-T(`<h3>Undoing eˣ</h3><p>The <b>natural logarithm</b>, ln, undoes eˣ. If y = eˣ then x = ln y.</p><ul><li>ln(eˣ) = x</li><li>ln 1 = 0, because e⁰ = 1</li><li>ln e = 1, because e¹ = e</li></ul>`),
-Q(`What is ln(e⁴)?`,[`4`,`e⁴`,`1`,`0`],0,`ln undoes e.`),
-Q(`What is ln 1?`,[`0`,`1`,`e`,`It doesn't exist`],0,`e⁰ = 1.`),
-T(`<h3>The derivative of ln x</h3><div class="eq">d/dx (ln x) = 1/x</div><p>And with a number in front: d/dx (5 ln x) = 5/x. Bonus: d/dx (ln 3x) is also 1/x, because ln 3x = ln 3 + ln x, and ln 3 is just a constant.</p>`),
-Q(`Differentiate y = ln x.`,[`1/x`,`ln x`,`x`,`eˣ`],0,`A key result to learn by heart.`),
-W('calcDrill',{skill:'lnd',need:5},`Gradients of ln functions. Get 5 right to master it.`,`d/dx (a ln x) = a/x, then substitute.`),
-T(`<h3>Key points</h3><ul><li><b>ln</b> undoes e: ln(eˣ) = x, ln 1 = 0, ln e = 1.</li><li><b>d/dx (ln x) = 1/x</b>.</li></ul>`)]),
-LH('c3-3-3','sin and cos',10,'The derivatives of sin and cos, and why calculus uses radians.',[
-RM(`<p>A derivative is the gradient at every point. eˣ is its own derivative; ln x gives 1/x.</p>`),
-T(`<h3>Radians</h3><p>In calculus, angles are measured in <b>radians</b>, not degrees. A full turn is 2π radians (about 6.28), so π radians = 180°.</p><p>The rules below only work in radians. Make sure your calculator is in RAD mode.</p>`),
-Q(`How many degrees is π radians?`,[`180°`,`360°`,`90°`,`3.14°`],0,`Half a turn.`),
-T(`<h3>The derivatives</h3><div class="eq">d/dx (sin x) = cos x</div><div class="eq">d/dx (cos x) = −sin x</div><p>Look at the graphs: where sin x is steepest going up (at x = 0), cos x is at its peak of 1. Where sin x is flat at the top, cos x is 0.</p>`),
-W('fnPlot',{x:[-3.2,6.4],y:[-1.5,1.5],xl:'x (radians)',yl:'y',sl:[['a','Point x',-3,6,0.25,0,function(v){return v}]],curves:function(p){var y0=Math.sin(p.a),g=Math.cos(p.a);return [[Math.sin,'--accent',3],[Math.cos,'--teal',1.5,[3,3]],[function(x){return y0+g*(x-p.a)},'--coral',2,[6,4]]]},read:function(p){return 'sin x at x = '+p.a+': gradient <b>'+Math.cos(p.a).toFixed(3)+'</b>, which equals cos '+p.a+' (dotted line)'},goal:function(p){return Math.abs(p.a-1.5)<0.3},goalMsg:'Find where sin x is flat at the top (gradient 0).'},`Slide along sin x. The dotted curve is cos x. Find where sin is flat.`,`Near x = 1.57 (that's π/2), the gradient of sin is 0, and so is cos.`),
-T(`<h3>With a number inside</h3><p>d/dx (sin 3x) = 3 cos 3x, and d/dx (cos 2x) = −2 sin 2x. The number in front of x comes down, just like with e<sup>kx</sup>.</p>`),
-W('calcDrill',{skill:'trigd',need:5},`Trig derivatives. Get 5 right to master it.`,`sin → cos, cos → −sin, and any k comes down.`),
-T(`<h3>Key points</h3><ul><li>Use <b>radians</b> in calculus.</li><li><b>sin x → cos x</b>, <b>cos x → −sin x</b>.</li><li>sin kx → k cos kx; cos kx → −k sin kx.</li></ul>`)])
-]});
-
-U({id:'c3-4',track:'calc',level:3,title:'Chain, product and quotient rules',icon:'∘',color:'#D85A30',desc:'Differentiate functions inside functions, products and fractions.',lessons:[
-LH('c3-4-1','The chain rule',11,'Differentiate a function inside another function, like (3x + 1)⁵.',[
-RM(`<p>Power rule: xⁿ → nxⁿ⁻¹. Exponentials: e<sup>kx</sup> → ke<sup>kx</sup>.</p>`),
-T(`<h3>A function inside a function</h3><p>y = (3x + 1)⁵ has a bracket inside a power. You could expand it, but that's a lot of work. Instead, think of it in two layers:</p><ul><li>the <b>outside</b>: something to the power 5</li><li>the <b>inside</b>: 3x + 1</li></ul>`),
-T(`<h3>The chain rule</h3><div class="eq">dy/dx = (derivative of the outside) × (derivative of the inside)</div><p>Or with letters: let u be the inside. Then</p><div class="eq">dy/dx = dy/du × du/dx</div>`),
-W('stepCalc',{steps:[`y = (3x + 1)⁵`,`Let u = 3x + 1, so y = u⁵`,`Outside: dy/du = 5u⁴`,`Inside: du/dx = 3`,`Multiply: dy/dx = 5u⁴ × 3 = 15u⁴`,`Put x back: dy/dx = <b>15(3x + 1)⁴</b>`]},`The chain rule, step by step.`,`Power down, one off the power, times the derivative of the inside.`),
-Q(`Differentiate y = (2x − 5)³.`,[`6(2x − 5)²`,`3(2x − 5)²`,`6(2x − 5)³`,`(2x − 5)²`],0,`3 × 2 = 6, power 2.`),
-W('calcDrill',{skill:'chain',need:6},`Brackets to a power. Get 6 right to master it.`,`Bring the power down, reduce it by 1, multiply by the inside's derivative.`),
-T(`<h3>The same idea with e</h3><p>y = e<sup>x² + 1</sup>: the inside is x² + 1, whose derivative is 2x. So dy/dx = 2x·e<sup>x² + 1</sup>. The e-part stays; multiply by the derivative of the power.</p>`),
-W('calcDrill',{skill:'chainexp',need:4},`e to a power. Get 4 right to master it.`,`Multiply by the derivative of the power.`),
-T(`<h3>Key points</h3><ul><li><b>Chain rule</b>: derivative of the outside × derivative of the inside.</li><li>(ax + b)ⁿ → na(ax + b)ⁿ⁻¹.</li><li>e<sup>f(x)</sup> → f′(x)e<sup>f(x)</sup>.</li></ul>`)]),
-LH('c3-4-2','The product rule',10,'Differentiate two functions multiplied together.',[
-RM(`<p>Chain rule: derivative of the outside × derivative of the inside.</p>`),
-T(`<h3>Two things multiplied</h3><p>y = x²(x + 1)³ is one function <b>times</b> another. You can't just differentiate each and multiply. Instead, use the <b>product rule</b>:</p><div class="eq">if y = uv, then dy/dx = u′v + uv′</div>${KY([['u, v','the two functions being multiplied',''],['u′, v′','their derivatives','']],'In words: derivative of the first × the second, plus the first × derivative of the second.')}`),
-W('stepCalc',{steps:[`y = x³(x + 2)`,`u = x³, so u′ = 3x²`,`v = x + 2, so v′ = 1`,`dy/dx = u′v + uv′ = 3x²(x + 2) + x³(1)`,`At x = 1: 3(1)(3) + 1 = <b>10</b>`]},`The product rule, step by step.`,`Write u, v, u′ and v′ first. Then put them in the formula.`),
-Q(`The product rule says d/dx (uv) = …`,[`u′v + uv′`,`u′v′`,`u′ + v′`,`uv′ − u′v`],0,`Learn it by heart.`),
-W('calcDrill',{skill:'product',need:5},`Product rule at a point. Get 5 right to master it.`,`List u, u′, v, v′, then u′v + uv′.`),
-T(`<h3>Key points</h3><ul><li><b>Product rule</b>: (uv)′ = u′v + uv′.</li><li>Always write out u, u′, v, v′ first.</li><li>v may need the chain rule.</li></ul>`)]),
-LH('c3-4-3','The quotient rule',10,'Differentiate one function divided by another. Then put every rule together.',[
-RM(`<p>Product rule: (uv)′ = u′v + uv′.</p>`),
-T(`<h3>One function divided by another</h3><p>For y = u ÷ v, use the <b>quotient rule</b>:</p><div class="eq">dy/dx = (vu′ − uv′) ÷ v²</div><p>The order matters, because of the minus. A way to remember it: "bottom times derivative of top, minus top times derivative of bottom, all over bottom squared".</p>`),
-W('stepCalc',{steps:[`y = (x + 1) / (x − 2)`,`u = x + 1, u′ = 1; v = x − 2, v′ = 1`,`dy/dx = ((x − 2)(1) − (x + 1)(1)) ÷ (x − 2)²`,`Simplify the top: −3`,`dy/dx = <b>−3 / (x − 2)²</b>`]},`The quotient rule, step by step.`,`Bottom × top′, minus top × bottom′, over bottom².`),
-Q(`In the quotient rule, what goes underneath?`,[`v², the bottom squared`,'u², the top squared','uv, the top times the bottom','v′, the bottom differentiated'],0,`Bottom squared.`),
-W('calcDrill',{skill:'quotient',need:4},`Quotient rule at a point. Get 4 right to master it.`,`Bottom × top′ − top × bottom′, all over bottom².`),
-W('calcDrill',{skill:['chain','product','quotient','expd','lnd','trigd','power'],need:8},`The big differentiation review: every rule mixed. Get 8 right to master it.`,`You can differentiate almost anything now.`),
-T(`<h3>Key points</h3><ul><li><b>Quotient rule</b>: (u/v)′ = (vu′ − uv′) ÷ v².</li><li>The full toolkit: power rule, eˣ, ln x, sin, cos, chain, product and quotient.</li></ul>`)])
-]});
-
-F('c3-1-1',[GN('statq'),GN('statq'),GN('statq'),Q(`At a stationary point, dy/dx = …`,[`0`,`1`,`y`,`undefined`],0,`Flat.`),Q(`After solving dy/dx = 0 for x, you find y by…`,[`substituting x into the original equation`,`substituting into dy/dx`,`setting y = 0`,`integrating`],0,`Original equation.`)]);
-F('c3-1-2',[GN('second'),GN('second'),GN('second'),Q(`d²y/dx² measures…`,[`how fast the gradient changes`,`the area`,`the gradient`,`y itself`],0,`Second derivative.`),Q(`The second derivative of distance is…`,[`acceleration`,`velocity`,`displacement`,`time`],0,`a = d²s/dt².`)]);
-F('c3-1-3',[GN('statnat'),GN('statnat'),GN('statq'),Q(`d²y/dx² > 0 at a stationary point means…`,[`minimum`,`maximum`,`inconclusive`,`not stationary`],0,`Smile.`),Q(`If d²y/dx² = 0 at a stationary point…`,[`the test is inconclusive`,`it's a maximum`,`it's a minimum`,`there's no point`],0,`Check either side.`)]);
-F('c3-2-1',[GN('optim'),GN('optim'),Q(`The first step in an optimisation problem is to…`,[`write the quantity in terms of one variable`,`set y = 0`,`integrate`,`draw a tangent`],0,`Then differentiate.`),Q(`A rectangle with a fixed perimeter has its largest area when it's a…`,[`square`,`very long, thin rectangle`,`triangle`,`circle`],0,`Equal sides.`),GN('optim')]);
-F('c3-2-2',[GN('kin'),GN('kin'),GN('kin'),Q(`v = ds/dt. What is a?`,[`dv/dt`,`ds/dv`,`v × t`,`s/t`],0,`Rate of change of velocity.`),Q(`When v = 0, the object is…`,[`momentarily at rest`,`accelerating`,`at its starting point`,`moving fastest`],0,`At rest.`)]);
-F('c3-2-3',[N(`T = 50 + 40t (°C, t in hours). Heat-up rate?`,40,0.001,'°C/h',`dT/dt.`),N(`L = 30 + 10t − t². When does L peak (minutes)?`,5,0.001,'min',`10 − 2t = 0.`),N(`L = 30 + 10t − t². Peak level (%)?`,55,0.001,'%',`30 + 50 − 25.`),N(`L = 30 + 10t − t². Rate at t = 2 (% per minute)?`,6,0.001,'%/min',`10 − 4.`),Q(`Setting dL/dt = 0 finds…`,[`when the level peaks or bottoms out`,`the starting level`,`the average level`,`when the tank is empty`],0,`Stationary point.`)]);
-F('c3-3-1',[GN('expd'),GN('expd'),GN('expd'),Q(`d/dx (eˣ) = …`,[`eˣ`,`xeˣ⁻¹`,`1`,`ln x`],0,`Its own der
+Q(`Can you use the power rule on eˣ?`,[`No: x is the power, not the 

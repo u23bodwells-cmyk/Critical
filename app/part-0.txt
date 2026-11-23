@@ -348,7 +348,7 @@ function rN(c,b){P.asked++;var p=document.createElement('div');p.className='qpro
  function check(){var v=parseNum(inp.value);if(isNaN(v)){foot('no','That isn\'t a number','<div>Try something like 0.25, 420 or 3e-5.</div>');return}
   var tol=c.tol==null?0.02:c.tol,ok=c.a===0?Math.abs(v)<=(tol||1e-9):Math.abs(v-c.a)<=Math.abs(c.a)*tol+1e-12;
   if(ok){inp.disabled=true;inp.style.borderColor='var(--good-line)';gotRight(c);foot('ok',praise(),c.e?'<div>'+c.e+'</div>':'');mainBtn('Continue',nextCard)}
-  else{P.st.tries++;if(P.st.tries===1)gotWrong(c);inp.style.borderColor='var(--amber)';if(P.st.tries>=2){inp.disabled=true;foot('no','The answer is '+fmtAns(c.a)+(c.u?' '+c.u:''),(c.e?'<div>'+c.e+'</div>':'')+EASE.revNote(c));mainBtn('Continue',nextCard)}else{var hint=Math.abs(v)>0&&Math.abs(c.a)>0&&Math.abs(Math.log10(Math.abs(v/c.a))-Math.round(Math.log10(Math.abs(v/c.a))))<0.02&&Math.round(Math.log10(Math.abs(v/c.a)))!==0?'Check your powers of ten.':(c.hint||'Check your working and try again.');foot('no',EASE.gentle(),'<div>'+hint+'</div>');mainBtn('Check',check,false)}}}}
+  else{P.st.tries++;if(P.st.tries===1)gotWrong(c);inp.style.borderColor='var(--amber)';if(P.st.tries>=2){inp.disabled=true;foot('no','The answer is '+fmtAns(c.a)+(c.u?' '+c.u:''),(c.e?'<div>'+c.e+'</div>':'')+EASE.revNote(c));mainBtn('Continue',nextCard)}else{var hint=numSlip(v,c.a)||(Math.abs(v)>0&&Math.abs(c.a)>0&&Math.abs(Math.log10(Math.abs(v/c.a))-Math.round(Math.log10(Math.abs(v/c.a))))<0.02&&Math.round(Math.log10(Math.abs(v/c.a)))!==0?'Check your powers of ten.':(c.hint||'Check your working and try again.'));foot('no',EASE.gentle(),'<div>'+hint+'</div>');mainBtn('Check',check,false)}}}}
 function rW(c,b){if(c.p){var p=document.createElement('div');p.className='qprompt';p.style.fontSize='18px';p.innerHTML=c.p;b.appendChild(p)}var box=document.createElement('div');box.className='w';b.appendChild(box);
  var inst=null;try{inst=WIDGETS[c.w](box,c.par,{color:P.color})||{}}catch(e){box.innerHTML='<p class="small">This interactive couldn\'t load ('+e.message+').</p>';inst={};if(window.console)console.error(e)}
  if(inst.check){P.asked++;mainBtn('Check',check,false)}else{mainBtn('Continue',nextCard)}
@@ -900,7 +900,7 @@ function cleanState(s){
  var uids={};UNITS.forEach(function(u){uids[u.id]=1});o.tests={};if(s.tests&&typeof s.tests==='object')for(var tk in s.tests){var tv=s.tests[tk];if(uids[tk]&&tv&&typeof tv==='object')o.tests[tk]={best:num(tv.best,0,100)||0,passed:!!tv.passed,n:num(tv.n,0,1e5)||0,last:(typeof tv.last==='string'&&dre.test(tv.last))?tv.last:'',lastPct:num(tv.lastPct,0,100)||0}}
  return o}
 var KEEP_FIELDS=['mode','gsub','lvl','lvlOpen','lvtests','seenGcse','seenCalc','seenTheory','plView','exam','plan','habits','dayplan','lacc','hardOff','dayNudge','qsets','lday','pdays','rw','shift','mys'];
-var EXTRA_KEYS={plant:'critical_plant',pslots:'critical_plant_slots',study:'critical_study',shift:'shift-ready-v1',apt:'aptitude-v1',notes:'critical_notes',act:'critical_act',loot:'critical_loot',arena:'critical_arena'};
+var EXTRA_KEYS={plant:'critical_plant',pslots:'critical_plant_slots',study:'critical_study',shift:'shift-ready-v1',apt:'aptitude-v1',notes:'critical_notes',act:'critical_act',loot:'critical_loot',arena:'critical_arena',lx:'critical_lx'};
 function readExtras(){var o={};for(var k in EXTRA_KEYS){try{var v=JSON.parse(localStorage.getItem(EXTRA_KEYS[k])||'null');if(v&&typeof v==='object')o[k]=v}catch(e){}}if(o.study)o.study=Object.assign({},o.study,{run:null});return o}
 function writeExtras(x){if(!x)return;for(var k in EXTRA_KEYS)if(x[k]&&typeof x[k]==='object'){var v=x[k];
   /* the running study timer belongs to this device: keep it whatever comes in from sync */
@@ -963,6 +963,8 @@ function mergeExtras(A,B){A=A||{};B=B||{};var o={};
   ['eq','hh'].forEach(function(f){var x=la[f],y=lb[f];if(x||y)lo[f]=!x?y:!y?x:((+y.at||0)>(+x.at||0)?y:x)});o.loot=lo}
  /* Critical Clash: guns bought on either device stay bought; coins and settings follow the newest change; the best XP and records win */
  if(A.arena||B.arena){var xa=A.arena||{},xb=B.arena||{},nw=(+xb.at||0)>(+xa.at||0)?xb:xa,ol=nw===xa?xb:xa,ar=Object.assign({},ol,nw);ar.owned=[];[xa,xb].forEach(function(X){(X.owned||[]).forEach(function(k){if(ar.owned.indexOf(k)<0)ar.owned.push(k)})});ar.skins=[];[xa,xb].forEach(function(X){(X.skins||[]).forEach(function(k){if(ar.skins.indexOf(k)<0)ar.skins.push(k)})});ar.cxp=Math.max(+xa.cxp||0,+xb.cxp||0);var ra=xa.rec||{},rb=xb.rec||{};ar.rec={played:Math.max(+ra.played||0,+rb.played||0),kills:Math.max(+ra.kills||0,+rb.kills||0),wins:Math.max(+ra.wins||0,+rb.wins||0)};o.arena=ar}
+ /* learning extras: newest version of each of your questions, best medal, newest weak-skill schedule, any 'guessed' flag */
+ if(A.lx||B.lx){var lxo={myq:{},medal:{},weak:{},conf:{}};[A.lx||{},B.lx||{}].forEach(function(X){var k4;for(k4 in X.myq||{}){var v4=X.myq[k4],c4=lxo.myq[k4];if(v4&&(!c4||(+v4.at||0)>(+c4.at||0)))lxo.myq[k4]=v4}for(k4 in X.medal||{})lxo.medal[k4]=Math.max(lxo.medal[k4]||0,+X.medal[k4]||0);for(k4 in X.weak||{}){var w4=X.weak[k4],cw=lxo.weak[k4];if(w4&&(!cw||(+w4.at||0)>(+cw.at||0)))lxo.weak[k4]=w4}for(k4 in X.conf||{})lxo.conf[k4]=1});o.lx=lxo}
  if(A.notes||B.notes){var ia=(A.notes&&A.notes.items)||{},ib=(B.notes&&B.notes.items)||{},it={};Object.keys(ia).concat(Object.keys(ib)).forEach(function(k){var a=ia[k],b=ib[k];it[k]=!a?b:!b?a:((+b.at||0)>(+a.at||0)?b:a)});o.notes={v:1,items:it}}
  return o}
 function saveCode(){var j=JSON.stringify(packSave());return SAVE_PREFIX+btoa(unescape(encodeURIComponent(j)))}
@@ -1135,6 +1137,4 @@ WIDGETS.halfLife=function(box){var th,A0,cv=canvas(box,240),r=row(box);r.innerHT
  function nw(){th=[4,5,6,7.5,8,10,12][Math.floor(Math.random()*7)];A0=[400,600,800][Math.floor(Math.random()*3)];draw()}
  function draw(){var P=plot(cv,{x:[0,40],y:[0,A0],xl:'time (hours)',yl:'activity (Bq)'});P.fn(function(t){return A0*Math.pow(0.5,t/th)},cssv('--accent'),3);[2,4].forEach(function(f){P.hline(A0/f,cssv('--coral'))})}
  onDraw(draw);nw();
- return {check:function(){var v=parseNum(inp.value);if(isNaN(v))return {ok:false,msg:'Type your half-life reading into the box.'};return Math.abs(v-th)/th<=0.08?{ok:true,msg:'The half-life is '+th+' hours.'}:{ok:false,msg:'Find where the curve crosses '+A0/2+' Bq (half of '+A0+') and read the time.'}}}};
-
-WIDGETS.crossSection=function(box){var RS=[[6.67,7000],[20.9,3500],[36.7,2700],[66,1600],[80.7,900],[102.5,1300],[116.9,900],[189.7,800]];var cv=canvas(box,280),s=slider(box,'Neutron energy',-3,7,0.005,-1.6,function(v){var E=Math.pow(10,v);return E<1e3?+E.toPrecision(3)+' eV':E<1e6?+(E/1e3).toPrecision(3)+' keV':+(E/1e6).toPrecision(3)+' 
+ return {check:function(){var v=parseNu
