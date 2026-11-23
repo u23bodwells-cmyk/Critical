@@ -1,4 +1,6 @@
-y points</h3><ul><li>Convex: converging, real or virtual images. Concave: diverging, virtual.</li><li>Magnification = image ÷ object height.</li><li>Hotter objects emit more, shorter-wavelength radiation.</li><li>Ultrasound above 20 kHz. S-waves don't pass through liquids.</li></ul>`)])
+s only). S-waves can't pass through the Earth's outer core, which is evidence that it's liquid.</li></ul>`),
+Q(`Why can't S-waves be detected on the opposite side of the Earth from an earthquake?`,[`They're transverse and can't travel through the liquid outer core`,'They\'re too slow to reach the other side before they fade','They\'re absorbed by the oceans that cover most of the Earth','They\'re longitudinal and can\'t travel through the solid inner core'],0,`That's how we know the outer core is liquid.`),
+T(`<h3>Key points</h3><ul><li>Convex: converging, real or virtual images. Concave: diverging, virtual.</li><li>Magnification = image ÷ object height.</li><li>Hotter objects emit more, shorter-wavelength radiation.</li><li>Ultrasound above 20 kHz. S-waves don't pass through liquids.</li></ul>`)])
 ]});
 
 U({id:'gp3-3',track:'gp',level:3,title:'Magnetism and electromagnetism',icon:'N S',color:'#7F77DD',desc:'Magnets and fields, electromagnets, the motor effect and F = BIL, and (Physics only) generators, loudspeakers and transformers.',lessons:[
@@ -803,6 +805,4 @@ F('gm5-2-1',gMixF(['g_functrans'],5));
 F('gm5-2-2',gMixF(['g_circeq','g_perpgrad','g_circeq','g_lineeq','g_circeq'],5));
 F('gm5-3-1',[Q(`OA = a, OB = b. AB = …`,[`b − a`,`a − b`,`a + b`,`2a`],0,`−a + b.`),Q(`Collinear means…`,[`on the same straight line`,`parallel only`,`perpendicular`,`equal`],0,`One line.`),Q(`P divides AB in ratio 2 : 3. AP = …`,[`⅖AB`,`⅔AB`,`⅗AB`,`2AB`],0,`2 out of 5.`),Q(`If PQ = 4(a + b) and QR = a + b, then…`,[`P, Q, R are collinear`,`PQ ⊥ QR`,`they're unrelated`,`PQ = QR`],0,`Parallel with a shared point.`),Q(`M is the midpoint of AB. AM = …`,[`½AB`,`AB`,`2AB`,`¼AB`],0,`Half way.`)]);
 F('gm5-3-2',gMixF(['g_segment','g_pythag3d','g_cosrule','g_sinerule','g_areasine'],5));
-F('gm5-4-1',[Q(`In a worded problem, first…`,[`define a letter for the unknown`,`guess the answer`,`draw a graph`,`write the final answer`],0,`State what x means.`),Q(`A negative solution for a length should be…`,[`rejected`,`kept`,`squared`,`doubled`],0,`Lengths are positive.`),N(`x(x + 2) = 48, x > 0. Find x.`,6,0.001,'',`x² + 2x − 48 = 0 → (x + 8)(x − 6).`),N(`Two consecutive integers multiply to 132. The smaller (positive) one?`,11,0.001,'',`n(n + 1) = 132 → n = 11.`),Q(`After solving, you should…`,[`check the answer fits the context`,`stop immediately`,`round it`,`square it`],0,`Sense check.`)]);
-F('gm5-4-2',gMixF(GM9,5));
-TT('gp5-1',[x('gp5-1-1',N(`Coolant heated 290 → 320 °C, c = 5500. Energy per kg?`,165000,0.005
+F('gm5-4-1',[Q(`In a worded problem, first…`,[`define a letter for the unknown`,`guess the answer`,`draw a graph`,`write the final answer`],0,`State what x means.`),Q(`A negative solution for a length should 

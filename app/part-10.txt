@@ -1,4 +1,6 @@
-p>`),
+ to master it.`,`Cover each column in turn.`),
+T(`<h3>Lines</h3><p>A line through point a with direction d: <b>r = a + td</b>. As t varies, r slides along the line.</p>`),
+T(`<h3>Planes</h3><p>A plane is set by a point r₀ on it and a <b>normal</b> n sticking straight out of it. Every vector lying in the plane is perpendicular to n:</p><div class="eq">n · (r − r₀) = 0 &nbsp;⟺&nbsp; ax + by + cz = d</div><p>where n = ⟨a, b, c⟩ and d = n · r₀. To find a normal from two directions in the plane, use their cross product.</p>`),
 W('calcDrill',{skill:'plane',need:2},`Equations of planes. Get 2 right to master it.`,`d = n · (point).`),
 T(`<h3>Key points</h3><ul><li><b>a × b</b> is perpendicular to both; length = parallelogram area.</li><li>Line: <b>r = a + td</b>.</li><li>Plane: <b>ax + by + cz = d</b> with normal ⟨a, b, c⟩.</li></ul>`)])
 ]});
@@ -848,5 +850,4 @@ U({id:'gc2-1',track:'gc',level:2,title:'Atoms and the periodic table',icon:'Na',
 LH('gc2-1-1','Elements, compounds and mixtures',9,'What everything is made of, and the five ways chemists separate mixtures.',[
 T(`<h3>The three kinds of stuff</h3><ul><li>An <b>element</b> is made of only one type of atom. There are about 100, shown in the periodic table.</li><li>A <b>compound</b> is two or more elements <b>chemically combined</b> in fixed proportions, like water, H₂O. You need a chemical reaction to separate them.</li><li>A <b>mixture</b> is two or more substances <b>not</b> chemically combined, like air or salty water. Each keeps its own properties, and you can separate them physically.</li></ul>`),
 W('sortIt',{bins:['Element','Compound','Mixture'],items:[['Oxygen, O₂',0],['Iron',0],['Water, H₂O',1],['Carbon dioxide, CO₂',1],['Sodium chloride, NaCl',1],['Air',2],['Sea water',2],['Crude oil',2]]},`Element, compound or mixture?`,`O₂ is still an element: both atoms are oxygen.`),
-T(`<h3>Separating mixtures</h3><ul><li><b>Filtration</b>: an insoluble solid from a liquid (sand from water).</li><li><b>Crystallisation</b>: a soluble solid from a solution (salt from salt water). Heat to evaporate some water, then leave to cool and form crystals.</li><li><b>Simple distillation</b>: a liquid from a solution (pure water from sea water).</li><li><b>Fractional distillation</b>: liquids with different boiling points (crude oil, or ethanol from water).</li><li><b>Chromatography</b>: different dissolved substances, like the dyes in ink.</li></ul>`),
-W('matchPairs',{pairs:
+T(`<h3>Separating mixtures</h3><ul><li><b>Filtration</b>: an insolub

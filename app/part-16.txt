@@ -1,4 +1,5 @@
-ioxide are compounds: different atoms chemically bonded. Mixed together but not bonded, they can be separated by physical means.'}};
+lse if(g.m===1){A.push({p:g.p.slice(),e:'O'});A.push({p:[g.p[0]+c*1.6,g.p[1]+s*1.6,g.p[2]-.06],e:'H'});A.push({p:[g.p[0]-c*1.6,g.p[1]+s*1.6,g.p[2]-.06],e:'H'})}else{A.push({p:g.p.slice(),e:'C'});A.push({p:[g.p[0]+c*1.5,g.p[1]+s*1.5,g.p[2]],e:'O'});A.push({p:[g.p[0]-c*1.5,g.p[1]-s*1.5,g.p[2]],e:'O'})}});return A},
+  read:function(){return 'O₂ is an element · H₂O and CO₂ are compounds · together they are a mixture'},cap:'A mixture of three substances. Oxygen (O₂) is an element: only one type of atom. Water and carbon dioxide are compounds: different atoms chemically bonded. Mixed together but not bonded, they can be separated by physical means.'}};
  SC.react=function(){var R0=[[-.75,0,0,'C'],[-.1,.6,.27,'O'],[-.1,.6,-.03,'O'],[-.1,-.6,.27,'O'],[-.1,-.6,-.03,'O'],[-.55,.2,.2,'H'],[-.95,-.2,.2,'H'],[-.95,.2,-.2,'H'],[-.55,-.2,-.2,'H']],R1=[[.6,0,.35,'C'],[.88,0,.35,'O'],[.32,0,.35,'O'],[.55,.6,-.3,'O'],[.55,-.6,-.3,'O'],[.75,.75,-.2,'H'],[.35,.75,-.2,'H'],[.75,-.75,-.2,'H'],[.35,-.75,-.2,'H']];
   return {k:'mol',box:false,anim:1,t:'CH₄ + 2O₂ → CO₂ + 2H₂O',ms:1.5,zoom:1.05,atoms:function(t){var ph=(t*.15)%1,u=ph<.3?0:ph<.6?(ph-.3)/.3:1;u=u*u*(3-2*u);this._u=u;return R0.map(function(a,i){var b=R1[i];return {p:[a[0]+(b[0]-a[0])*u,a[1]+(b[1]-a[1])*u,a[2]+(b[2]-a[2])*u],e:a[3],lab:a[3]}})},
   bonds:function(t){var u=this._u||0;return u<.5?[[0,5],[0,6],[0,7],[0,8],[1,2,2],[3,4,2]]:[[0,1,2],[0,2,2],[3,5],[3,6],[4,7],[4,8]]},
@@ -578,7 +579,4 @@ var MOT=(function(){
   '<linearGradient id="'+d+'l" x1="0" x2="0" y1="1" y2="0"><stop offset="0" style="stop-color:var(--bc)" stop-opacity=".95"/><stop offset="1" style="stop-color:var(--bc)" stop-opacity="0"/></linearGradient>'+
   '<filter id="'+d+'f" x="-20%" y="-300%" width="140%" height="700%"><feGaussianBlur stdDeviation="2.6"/></filter><clipPath id="'+d+'c"><rect x="18" y="58" width="124" height="72" rx="10"/></clipPath></defs>'+
   '<polygon class="mbeam" points="26,60 134,60 186,-150 -26,-150" fill="url(#'+d+'l)"/>'+
-  '<g class="mcbody"><rect x="18" y="58" width="124" height="72" rx="10" fill="url(#'+d+'a)" stroke="#0b0f1a" stroke-width="3"/><path d="M20 82h120M20 106h120" stroke="#0b0f1a" stroke-opacity=".3" stroke-width="2"/>'+
-  '<rect x="32" y="59.5" width="10" height="69" fill="url(#'+d+'m)" opacity=".9"/><rect x="118" y="59.5" width="10" height="69" fill="url(#'+d+'m)" opacity=".9"/>'+
-  '<g fill="#0b0f1a" opacity=".55"><circle cx="37" cy="68" r="2.2"/><circle cx="37" cy="120" r="2.2"/><circle cx="123" cy="68" r="2.2"/><circle cx="123" cy="120" r="2.2"/></g>'+
-  '<rect x="65" y="6
+  '<g class="mcbody"><rect x="18" y="58" width="124" height
