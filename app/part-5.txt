@@ -1,4 +1,21 @@
-ng margin?`,15,0.01,'°C',`345 − 330 = 15 °C.`),
+ heat of 1%. How many MW is that?`,45,0.01,'MW',`4500 × 0.01 = 45 MW.`),
+N(`Decay heat is 0.5% of 3000 MWth. How many MW is that?`,15,0.01,'MW',`3000 × 0.005 = 15 MW.`),
+N(`15 MW of decay heat is warming cooling water from 20 °C to 100 °C (c = 4.18 kJ/kg/K). How many kg/s of water are needed?`,44.9,0.02,'kg/s',`ṁ = P ÷ (c ΔT) = 15,000,000 ÷ (4180 × 80) = 44.9 kg/s.`,`Use joules: 15 MW = 15,000,000 W and c = 4180 J/kg/K.`),
+Q(`Just after a trip, decay heat is about…`,['6–7% of full power','0%','50% of full power','100% of full power'],0,`That's still around 200 MW for a big reactor.`),
+Q(`Why must cooling continue for days after shutdown?`,['Fission products keep decaying and releasing heat','The chain reaction restarts','The pumps need to keep running','The boron needs mixing'],0,`Decay heat falls slowly, so heat removal is needed long after the chain reaction stops.`)]);
+
+/* ---------- follow-up practice: units 6-10 ---------- */
+F('t1',[
+T(`<h3>Quick recap</h3><ul><li><b>K = °C + 273.15</b></li><li>1 bar = 10<sup>5</sup> Pa; <b>1 MPa = 10 bar</b></li><li><b>Absolute = gauge + about 1 bar</b></li><li><b>Q = m c ΔT</b> (c of water ≈ 4.18 kJ/kg/K at room temperature)</li></ul><div class="callout"><b>Worked example:</b> heat 200 kg of water by 50 °C: 200 × 4.18 × 50 = 41,800 kJ = <b>41.8 MJ</b>.</div>`),
+N(`What is 300 °C in kelvin?`,573.15,0.001,'K',`300 + 273.15 = 573.15 K.`),
+N(`Steam generator pressure is 7 MPa. What's that in bar?`,70,0.01,'bar',`7 × 10 = 70 bar.`),
+N(`How much energy heats 500 kg of water by 20 °C (c = 4.18 kJ/kg/K)? Answer in MJ.`,41.8,0.01,'MJ',`500 × 4.18 × 20 = 41,800 kJ = 41.8 MJ.`,`Q = mcΔT gives kJ here. Divide by 1000 for MJ.`),
+N(`The primary circuit has a heat capacity of 1500 MJ/°C, and 15 MW of net heat goes in. How fast does it heat up, in °C per hour?`,36,0.02,'°C per hour',`15 MJ/s ÷ 1500 MJ/°C = 0.01 °C/s. × 3600 = 36 °C per hour.`,`1 MW = 1 MJ per second.`),
+Q(`A pressure gauge reads 0 bar(g). What's the absolute pressure?`,['About 1 bar(a)','0 bar(a)','10 bar(a)','155 bar(a)'],0,`Gauge pressure counts from atmospheric, so 0 bar(g) is about 1 bar absolute.`)]);
+
+F('t2',[
+T(`<h3>Quick recap</h3><ul><li>The boiling point depends on pressure: 1 bar → 100 °C, 70 bar → about 286 °C, 155 bar → about 345 °C</li><li><b>Subcooling margin = T<sub>sat</sub> − T<sub>hot leg</sub></b></li><li>Lower pressure → lower T<sub>sat</sub> → smaller margin</li></ul>`),
+N(`Pressure is 155 bar (T<sub>sat</sub> 345 °C) and the hot leg is at 330 °C. What's the subcooling margin?`,15,0.01,'°C',`345 − 330 = 15 °C.`),
 N(`T<sub>sat</sub> at 70 bar is about 286 °C. Water in a steam generator at 70 bar is boiling. What temperature is it?`,286,0.01,'°C',`Boiling water is at its saturation temperature: about 286 °C.`),
 Q(`Raising the pressure makes the boiling point…`,['higher','lower','no different'],0,`That's why a PWR is pressurised to 155 bar: so water stays liquid at over 300 °C.`),
 Q(`The subcooling margin falls to zero. This means…`,['the hot leg water has reached its boiling point','the reactor has shut down','pressure is very high','the pumps have stopped'],0,`Zero margin means saturated: any more heat or less pressure makes steam.`),
@@ -954,13 +971,4 @@ N(`With λ = 0.231 per hour, what is the half-life?`,3,0.02,'hours',`0.693 ÷ 0.
 QE(`Which is closest to ln 2?`,[`0.693`,`2.303`,`1`,`0.5`],0,`ln 2 ≈ 0.693.`),
 T(`<h3>Key points</h3><ul><li>Taking ln turns N = N₀ e<sup>−λt</sup> into <b>ln N = −λt + ln N₀</b>: a straight line.</li><li>Plot ln N against t: <b>gradient = −λ</b>.</li><li>Half-life = <b>ln 2 ÷ λ</b> = 0.693 ÷ λ.</li></ul>`)])
 ]});
-F('m2-2-1',[T(`<h3>Quick recap</h3><p>e ≈ 2.718. e<sup>x</sup> grows at a rate equal to its own size. e⁰ = 1.</p>`),N(`What is e<sup>1</sup>, to 3 decimal places?`,2.718,0.0005,'',`e itself.`),Q(`What is e<sup>0</sup>?`,[`1`,`0`,`e`,`2.718`],0,`Anything to the power 0 is 1.`),Q(`Which is described by e<sup>x</sup>?`,[`Growth in proportion to the current size`,`Growth by the same amount each second`,`A straight line`,`No change`],0,`Continuous proportional growth.`)]);
-F('m2-2-2',[T(`<h3>Quick recap</h3><p>ln(y) = x means e<sup>x</sup> = y. ln undoes e. ln 2 ≈ 0.693, ln 10 ≈ 2.303.</p>`),N(`What is ln(e<sup>7</sup>)?`,7,0.001,'',`ln undoes e.`),N(`On a 60 s period, how long until power has risen 10 times? (ln 10 = 2.303)`,138,0.01,'s',`60 × 2.303 = 138 s.`),Q(`ln(a × b) equals…`,[`ln a + ln b`,`ln a × ln b`,`ln a − ln b`,`a × ln b`],0,`Logs turn multiplying into adding.`)]);
-F('m2-2-3',[T(`<h3>Quick recap</h3><p>Plot ln N against t: a straight line with gradient −λ. Half-life = 0.693 ÷ λ.</p>`),N(`λ = 0.1 per hour. What is the half-life?`,6.93,0.01,'hours',`0.693 ÷ 0.1 = 6.93 h.`),Q(`On a graph of ln N against t, the intercept is…`,[`ln N₀`,`λ`,`N₀`,`−λ`],0,`At t = 0, ln N = ln N₀.`),N(`A graph of ln N against time has gradient −0.05 per second. What is λ?`,0.05,0.01,'per second',`λ = −gradient.`)]);
-TT('m2-2',[x('m2-2-1',Q(`About what is e?`,[`2.718`,`3.142`,`1.414`,`0.693`],0,`e ≈ 2.718.`)),x('m2-2-2',N(`What is ln(e<sup>3</sup>)?`,3,0.001,'',`ln undoes e.`)),x('m2-2-2',N(`On a 100 s period, how long for power to double?`,69.3,0.01,'s',`100 × 0.693.`)),x('m2-2-3',N(`Half-life is 10 hours. What is λ, per hour?`,0.0693,0.01,'per hour',`0.693 ÷ 10.`)),x('m2-2-3',Q(`Why plot ln N against time?`,[`It turns the decay curve into a straight line`,`It makes the numbers bigger`,`To remove the half-life`,`It shows activity`],0,`Straight lines are easy to measure gradients from.`)),x('m2-2-2',Q(`ln(a<sup>n</sup>) equals…`,[`n ln a`,`ln a + n`,`a ln n`,`(ln a)<sup>n</sup>`],0,`The power comes down in front.`))]);
-
-U({id:'m2-3',track:'maths',level:2,title:'Differentiation',icon:'d/dx',color:'#1D9E75',desc:'Calculus, part 1: finding exactly how fast something is changing at any instant.',lessons:[
-LH('m2-3-1','How steep is a curve?',9,'The gradient of a curve, and the notation dy/dx, explained from scratch.',[
-RM(`<p>For a <b>straight line</b>, the gradient is the same everywhere: change in y ÷ change in x.</p><p>In Level 1 (Rates of change) you saw that the rate of change is the gradient of a graph, like startup rate on a power trace.</p>`),
-T(`<h3>Curves have a different gradient at every point</h3><p>A curve gets steeper or shallower as you move along it. So we ask: how steep is it <b>exactly here</b>?</p><p>Answer: draw the straight line that just touches the curve at that point, called the <b>tangent</b>. The gradient of the curve at that point is the gradient of the tangent.</p>`),
-W('fnPlot',{x:[0,4],
+F('m2-2-1',[T(`<h3>Quick recap</h3><p>e ≈ 2.718. e<sup>x</sup> grows at a rate equal to its own size. e⁰ = 1.</p>`),N(`What is e<sup>1</sup>, to 3 decimal places?`,2.718,0.0005,'',`e itself.`),Q(`What is e<sup>0</sup>?`,[`1`,`0`,`e`,`2.718`],0,`Anything to the power 0 is 1.`),Q(`Which is described by e<sup>x</sup>?`,[`Growth in proportion to the current size`,`Growth by the same amount each second`,`A straight line`,`N

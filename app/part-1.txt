@@ -1,4 +1,8 @@
- {check:function(){return selA&&((selA>=88&&selA<=102)||(selA>=130&&selA<=146))?{ok:true}:{ok:false,msg:selA?'A = '+selA+' is quite unlikely (yield '+y(selA).toFixed(2)+'%). Look for the peaks.':'Click somewhere on the curve.'}}}};
+,Pp;function y(A){return 6.4*Math.exp(-Math.pow(A-95,2)/(2*30))+6.4*Math.exp(-Math.pow(A-139,2)/(2*30))+0.01}
+ var EX={85:'Kr-85',88:'Kr-88',89:'Sr-89',90:'Sr-90, Kr-90',91:'Sr-91',92:'Kr-92',93:'Zr-93',94:'Sr-94',95:'Sr-95, Zr-95',97:'Zr-97',99:'Mo-99',100:'Zr-100',103:'Ru-103',131:'I-131',132:'Te-132',133:'Xe-133',134:'Cs-134',135:'I-135, Xe-135',137:'Cs-137',139:'Ba-139',140:'Ba-140',141:'Ba-141',143:'Nd-143',144:'Ce-144',147:'Pm-147',149:'Pm-149, Sm-149'};
+ function draw(){Pp=plot(cv,{x:[70,170],y:[0,7.5],xl:'mass number of fragment',yl:'yield (%)'});Pp.fn(y,cssv('--accent'),3);if(selA){Pp.vline(selA,cssv('--coral'));Pp.dot(selA,y(selA),cssv('--coral'),6)}Pp.vline(117.5,cssv('--faint'),[2,4],1);Pp.text('equal split',118.5,7,cssv('--faint'))}
+ cv.addEventListener('click',function(e){var r=cv.getBoundingClientRect(),A=Math.round(Pp.inv(e.clientX-r.left));if(A<70||A>170)return;selA=A;var near='';for(var d=0;d<4&&!near;d++){near=EX[A+d]||EX[A-d]||''}m.set('A = '+A+': yield about '+y(A).toFixed(2)+'%'+(near?' (e.g. '+near+')':'')+'.');draw()});
+ onDraw(draw);draw();m.set('Click on the curve.');return {check:function(){return selA&&((selA>=88&&selA<=102)||(selA>=130&&selA<=146))?{ok:true}:{ok:false,msg:selA?'A = '+selA+' is quite unlikely (yield '+y(selA).toFixed(2)+'%). Look for the peaks.':'Click somewhere on the curve.'}}}};
 
 WIDGETS.generations=function(box){var cv=canvas(box,220),s=slider(box,'k',0.9,1.1,0.005,0.95,function(v){return v.toFixed(3)},function(){draw()}),m=msg(box);
  function draw(){var k=s.get(),n=[];for(var g=0;g<=20;g++)n.push(1000*Math.pow(k,g));var mx=Math.max(2000,n[20]*1.05),P=plot(cv,{x:[-0.5,20.5],y:[0,mx],xl:'generation',yl:'neutrons',xticks:[0,5,10,15,20]});P.c.fillStyle=Math.abs(k-1)<1e-9?cssv('--good-line'):k<1?cssv('--blue'):cssv('--coral');n.forEach(function(v,g){var x0=P.X(g-0.35),x1=P.X(g+0.35);P.c.fillRect(x0,P.Y(v),x1-x0,P.Y(0)-P.Y(v))});P.hline(1000,cssv('--muted'));
@@ -1230,13 +1234,4 @@ var STUDY=(function(){
   var x=document.createElement('button');x.className='stx';x.type='button';x.setAttribute('aria-label','Dismiss');x.textContent='✕';x.onclick=function(){b.remove()};b.appendChild(q1);b.appendChild(g);b.appendChild(x);document.body.appendChild(b)}
  setInterval(check,60000);setTimeout(check,4000);
  writeFile(false);
- return {open:open,state:function(){return st},payload:payload,check:check,refresh:function(){try{adopt(localStorage.getItem(KEY))}catch(_){}},start:function(t){if(st.run)return false;var n0=Date.now();st.run={at:n0,t:t||'',c:new Date(n0).toISOString()};keep();startTick();return true},stop:function(){if(st.run)$('[data-a=go]').click()}};
-})();
-try{window.STUDY=STUDY}catch(_){}
-/* ===== revise for a test: each test gets a countdown, and the days before it become revision days in the weekly plan ===== */
-var REV=(function(){
- var SUBJ={gm:'GCSE Maths',gp:'GCSE Physics',gc:'GCSE Chemistry',gcs:'GCSE Computer Science'},COL='#7F77DD';
- function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
- function R(){if(!S.rev||typeof S.rev!=='object')S.rev={};var r=S.rev;if(!Array.isArray(r.tests))r.tests=[];if(!r.miss||typeof r.miss!=='object')r.miss={};if(!r.log||typeof r.log!=='object')r.log={};if(!r.mocks||typeof r.mocks!=='object')r.mocks={};return r}
- function s2d(s){var a=String(s).split('-');return new Date(+a[0],a[1]-1,+a[2],12)}
- function addD(s,n){var d=s2d(s);d.setDate(d.getDate()+
+ return {open:open,state:function(){return st},payload:pa
