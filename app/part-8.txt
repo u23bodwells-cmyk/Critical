@@ -1,4 +1,4 @@
-Prototype around 2040.`)]);
+`,[`14.1 MeV`,`3.5 MeV`,`200 MeV`,`0.025 eV`],0,`Most of the energy.`),Q(`Tritium is bred from…`,[`lithium`,`boron`,`uranium`,`carbon`],0,`In the blanket.`),Q(`STEP is planned at…`,[`West Burton, Nottinghamshire`,`Hinkley Point`,`Sellafield`,`Dounreay`],0,`Prototype around 2040.`)]);
 TT('t5-5',[x('t5-5-1',N(`Product 5.211%, tails 0.211%, feed 0.711%. F/P?`,10,0.01,'',`5/0.5.`)),x('t5-5-1',Q(`HPC spent fuel is planned to be…`,[`stored then disposed of directly`,`reprocessed at THORP`,`dumped at sea`,`burned in a fast reactor next year`],0,`GDF.`)),x('t5-5-2',Q(`Which Gen IV system uses water above its critical point?`,[`SCWR`,`MSR`,`LFR`,`VHTR`],0,`Supercritical.`)),x('t5-5-2',Q(`SMRs aim to cut cost by…`,[`factory-built modules and repetition`,`removing safety systems`,`using no fuel`,`being larger`],0,`Modular.`)),x('t5-5-3',N(`Mass lost 0.0189 u. Energy in MeV? (931.5 MeV/u)`,17.6,0.02,'MeV',`× 931.5.`)),x('t5-5-3',Q(`JET's record was…`,[`69 MJ of fusion energy`,`1 GW for a year`,`ignition`,`zero`],0,`Before closing in 2023.`))]);
 
 /* >>> new content: mt >>> */
@@ -1006,4 +1006,4 @@ U({id:'c3-3',track:'calc',level:3,title:'eˣ, ln x, sin and cos',icon:'eˣ',colo
 LH('c3-3-1','The special number e',10,'Meet e ≈ 2.718, the one number whose exponential is its own derivative.',[
 RM(`<p>The power rule works on xⁿ, where the power is fixed. Now we look at functions like 2ˣ, where <b>x is the power</b>.</p>`),
 T(`<h3>Exponential functions</h3><p>A function like y = 2ˣ is called <b>exponential</b>. It doubles every time x goes up by 1, so it grows faster and faster. Its gradient grows too.</p><p>There's one special base where the gradient is <b>exactly equal</b> to the value, everywhere. That base is:</p><div class="eq">e ≈ 2.718</div>`),
-W('fnPlot',{x:[-2,2.5],y:[0,12],xl:'x',yl:'y',sl:[['a','Point x',-2,2.5,0.25,0,function(v){return v}]],curves:function(p){var y0=Math.exp(p.a);return [[Math.exp,'--accent',3],[function(x){return y0+y0*(x-p.a)},'--coral',2,[6,4]]]},read:function(p){var y0=Math.exp(p.a);return 'y = eˣ at x = '+p.a+': value <b>'+y0.toFixed(3)+'</b>, gradient <b>'+y0.toFixed(3)+
+W('fnPlot',{x:[-2,2.5],y:[0,12],xl:'x',yl:'y',sl:[['a','Point x',-2,2.5,0.25,0,function(v){return v}]],
