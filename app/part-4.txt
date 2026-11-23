@@ -1,4 +1,6 @@
-8 °C per hour. Heat-up rate limits are typically about 55 °C per hour (see unit 9).`)]),
+</span></div><div class="krow"><span class="ks">m</span><span class="km">mass being heated</span><span class="ku">kilograms (kg)</span></div><div class="krow"><span class="ks">c</span><span class="km"><b>specific heat capacity</b>: energy to heat 1 kg by 1 °C</span><span class="ku">J/(kg·°C)</span></div><div class="krow"><span class="ks">ΔT</span><span class="km">temperature rise</span><span class="ku">°C</span></div><div class="kn">Careful: this <b>c</b> is <i>not</i> the speed of light. Same letter, different meaning.</div></div><p>c is the specific heat capacity. For water at room temperature, c = 4.18 kJ/kg/K. At PWR conditions (about 300 °C, 155 bar) it's higher, about 5.5 kJ/kg/K.</p>`),
+N(`How much energy heats 1000 kg of water by 10 °C (c = 4.18 kJ/kg/K)?`,41.8,0.01,'MJ',`1000 × 4.18 × 10 = 41,800 kJ = 41.8 MJ.`),
+N(`During a heat-up after an outage, the reactor coolant pumps add about 20 MW of heat. The primary circuit (water and steel) has a heat capacity of about 1500 MJ/°C. Roughly how fast does it heat up, in °C per hour?`,48,0.03,'°C per hour',`20 MJ/s ÷ 1500 MJ/°C = 0.0133 °C/s × 3600 = 48 °C per hour. Heat-up rate limits are typically about 55 °C per hour (see unit 9).`)]),
 L('t2','Boiling and saturation',12,[
 T(`<h3>Boiling depends on pressure</h3><p>Water boils at 100 °C only at atmospheric pressure. The boiling point at any pressure is the <b>saturation temperature</b>, T<sub>sat</sub>.</p><table><tr><th>Pressure</th><th>T<sub>sat</sub></th></tr><tr><td>1 bar</td><td>100 °C</td></tr><tr><td>70 bar (typical steam generator)</td><td>about 286 °C</td></tr><tr><td>155 bar (PWR primary)</td><td>about 345 °C</td></tr></table><p>That's why a PWR is pressurised: so its water stays liquid at about 325 °C.</p>`),
 W('satCurve',{},`Move the pressure slider to find the pressure at which water boils at <b>300 °C</b>.`,`About 86 bar. Pressure and saturation temperature always go together: control one and you've set the other.`),
@@ -756,11 +758,4 @@ Q(`After a reactor goes prompt critical, what limits the power rise?`,['Doppler 
 
 F('k4',[
 T(`<h3>Quick recap</h3><ul><li>Prompt drop to <b>β / (β − ρ)</b> of starting power</li><li>Then a <b>−80 s period</b>: P = P<sub>1</sub>e<sup>−t/80</sup></li><li>Time to fall from P<sub>1</sub> to P<sub>2</sub>: <b>t = 80 ln(P<sub>1</sub>/P<sub>2</sub>)</b></li></ul><div class="callout"><b>Worked example:</b> from 10% to 1%: t = 80 × ln 10 = <b>184 s</b>.</div>`),
-N(`A trip adds −3250 pcm and β = 650 pcm. What percentage of the original power is left after the prompt drop?`,16.67,0.02,'%',`650 ÷ (650 + 3250) = 650 ÷ 3900 = 0.167 = 16.7%.`),
-N(`On a −80 s period, how long does power take to fall by a factor of e?`,80,0.01,'s',`That's the definition of the period: 80 s.`),
-N(`On a −80 s period, how long does power take to fall by one decade (× 1/10)?`,184.2,0.02,'s',`80 × ln 10 = 80 × 2.303 = 184 s.`),
-N(`What startup rate does a −80 s period correspond to? Include the sign.`,-0.326,0.02,'DPM',`26.06 ÷ −80 = −0.33 DPM: about a third of a decade per minute.`),
-Q(`After a trip, source range counts keep falling slowly for minutes because…`,['long-lived delayed neutron precursors are still decaying','the rods are still moving','xenon is burning out','boron is being added'],0,`The 55 s group keeps feeding neutrons in, setting the −80 s period.`)]);
-
-F('k5',[
-T(`<h3>Quick recap</h3><ul><li>Decay heat: about <b>6–7%</b> just after a trip, <b>1–1.5%</b> after an hour, <b>0.5%</b> after a day</li><li>MW = fraction × rated thermal power</li><li>To boil water: kg/s = power ÷ latent heat; to warm water: kg/s =
+N(`A trip adds −3250 pcm and β = 6

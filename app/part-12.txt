@@ -1,4 +1,7 @@
-The reaction is…`,[`endothermic`,`exothermic`,`neutral`,`fast`],0,`Energy was taken in from the surroundings.`),
+ralisation. Used in hand warmers and self-heating cans.</li><li><b>Endothermic</b>: energy is taken <b>from</b> the surroundings, so the temperature <b>falls</b>. Thermal decomposition, and citric acid with sodium hydrogencarbonate. Used in instant cold packs for sports injuries.</li></ul><p>Energy is conserved: whatever the reaction gains, the surroundings lose, and the other way round.</p>`),
+W('sortIt',{bins:['Exothermic','Endothermic'],items:[['Burning methane',0],['Neutralising an acid',0],['A hand warmer',0],['Thermal decomposition of calcium carbonate',1],['An instant cold pack',1],['Citric acid + sodium hydrogencarbonate',1]]},`Exothermic or endothermic?`,`Gets hot: exo. Gets cold: endo.`),
+T(`<h3>Reaction profiles</h3><p>A reaction profile shows the energy of the reactants and products.</p><ul><li>Exothermic: the products are <b>lower</b> than the reactants.</li><li>Endothermic: the products are <b>higher</b>.</li><li>The hump is the <b>activation energy</b>: the minimum energy particles need to react.</li></ul>`),
+Q(`On a reaction profile, the products are higher in energy than the reactants. The reaction is…`,[`endothermic`,`exothermic`,`neutral`,`fast`],0,`Energy was taken in from the surroundings.`),
 T(`<h3>Required practical: temperature changes</h3><p>Mix solutions in a polystyrene cup with a lid (to reduce heat loss). Record the starting temperature and the highest (or lowest) temperature. Change one variable, like the volume of acid, and repeat.</p>`),
 Q(`Why use a polystyrene cup with a lid?`,[`To reduce energy transfer to or from the surroundings`,'To make the reaction happen faster by trapping the heat','Because glass would react with the acid and the alkali','To stop the mixture boiling over when it heats up'],0,`Insulation gives a more accurate temperature change.`),
 T(`<h3>Key points</h3><ul><li>Exothermic: temperature rises. Endothermic: temperature falls.</li><li>Activation energy: minimum energy needed to react.</li><li>Exothermic profile: products lower than reactants.</li></ul>`)]),
@@ -801,10 +804,3 @@ Q(`A loop that runs a fixed number of times, like FOR i ← 1 TO 10, is called�
 Q(`Which structure is a WHILE loop?`,[`Iteration`,`Selection`,`Sequence`,`Decomposition`],0,`It repeats while a condition is true.`),
 T(`<h3>Flowcharts</h3><ul><li><b>Rounded box</b>: start or end</li><li><b>Parallelogram</b>: input or output</li><li><b>Rectangle</b>: a process</li><li><b>Diamond</b>: a decision (yes or no)</li></ul>`),
 Q(`In a flowchart, which shape means a decision?`,[`Diamond`,`Rectangle`,`Parallelogram`,`Rounded box`],0,`A decision has two exits: yes and no.`)]),
-LH('gcs1-2-3','Variables and inputs',7,'Programs remember things in variables. Meet them, and the difference between a variable and a constant.',[
-T(`<h3>Variables</h3><p>A <b>variable</b> is a named location in memory that stores a value. The value can change while the program runs.</p><pre class="cs">score ← 0
-score ← score + 10</pre><p>After this, score holds 10.</p>`),
-T(`<h3>Constants</h3><p>A <b>constant</b> is a named value that <b>can't</b> change while the program runs, like <code>MAX_TEMP ← 320</code>.</p><p>Using a constant means you only change it in one place, and the code is easier to read.</p>`),
-N(`x ← 5, then x ← x * 2, then x ← x + 3. What is x?`,13,0.001,'',`5 × 2 = 10, then 10 + 3 = 13.`),
-Q(`Why use a constant for VAT_RATE instead of typing 0.2 everywhere?`,[`If it changes, you only update it in one place`,`Constants run faster`,`Variables can't store decimals`,`It uses less storage`],0,`It also makes the code clearer to read.`),
-Q(`What does USERINPUT do in AQA pseudo-code?`,[`Gets a value typed by the user`,`Prints a value`,`Repeats a step`,`Makes a decision`],0,`OUTPUT shows a va

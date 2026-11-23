@@ -1,4 +1,12 @@
-he distance quarters the dose rate, which is why distance is a key protection.</p>`),
+p>,&nbsp;&nbsp; R₀ ≈ 1.2 fm</div><p>Volume ∝ R³ ∝ A, so every nucleus has about the <b>same density</b>, about 10¹⁷ kg/m³.</p>`),
+W('calcDrill',{skill:'p_radius',need:3},`Nuclear radii. Get 3 right to master it.`,`1.2 × A<sup>1/3</sup>.`),
+Q(`R ∝ A<sup>1/3</sup> tells us nuclear density is…`,[`about the same for all nuclei`,`higher for big nuclei`,`higher for small nuclei`,`zero`],0,`Mass ∝ A, volume ∝ A.`),
+T(`<h3>Key points</h3><ul><li>Rutherford: tiny, dense, positive nucleus.</li><li><b>R = R₀A<sup>1/3</sup></b>.</li><li>Constant nuclear density.</li></ul>`)]),
+LH('ap3-4-2','Radioactive decay',10,'Decay constant, half-life, activity and the inverse square law for gamma rays.',[
+RM(`<p>N = N₀e<sup>−λt</sup>, A = λN, T½ = ln 2/λ (Calculus Level 5).</p>`),
+T(`<h3>The equations</h3><div class="eq">A = λN&nbsp;&nbsp;&nbsp; N = N₀e<sup>−λt</sup>&nbsp;&nbsp;&nbsp; T½ = ln 2 / λ</div>`),
+W('calcDrill',{skill:'decay',need:3},`Half-life and λ. Get 3 right to master it.`,`T½ = ln 2/λ.`),
+T(`<h3>Gamma intensity</h3><p>Gamma radiation from a point source follows an <b>inverse square law</b>: I = k/x². Doubling the distance quarters the dose rate, which is why distance is a key protection.</p>`),
 Q(`Moving from 1 m to 3 m from a gamma source, the intensity becomes…`,[`1/9 as much`,`1/3 as much`,`3 times more`,`unchanged`],0,`Inverse square.`),
 T(`<h3>Key points</h3><ul><li><b>A = λN</b>, <b>N = N₀e<sup>−λt</sup></b>, <b>T½ = ln 2/λ</b>.</li><li>Gamma: <b>inverse square</b> with distance.</li><li>Background must be subtracted from count rates.</li></ul>`)]),
 LH('ap3-4-3','Mass defect, fission and fusion',11,'A nucleus weighs less than its parts. That missing mass is where nuclear energy comes from.',[
@@ -1004,8 +1012,4 @@ function NSIM(w,h,rnd){
     for(var a2=0;a2<8;a2++){var aa=a2/8*6.283+.2,u=((tt/900)+a2*.13)%1;arrow(c,cx+Math.cos(aa)*R*.2,cy+Math.sin(aa)*R*.2,cx+Math.cos(aa)*R*(.25+u*.6),cy+Math.sin(aa)*R*(.25+u*.6),'rgba(255,255,255,'+(.45*(1-u)).toFixed(2)+')',1.4)}
     hud(c,cx,cy+R+22,'pellet · gap · cladding · water','rgba(200,225,255,.8)',8.5,'center');
     var gx2=wide?W*.52:46,gy2=wide?40:H*.64,Cr=chart(c,gx2,gy2,W-gx2-12,wide?H-80:H-gy2-30,{x:[0,5.5],y:[250,Math.max(1200,Tcen*1.1)],ny:4,title:'TEMPERATURE ACROSS THE PIN (°C)',xl:'mm from the centre'});
-    Cr.fn(function(rm){var r=rm/1000;return r<=rp?Tps+dP*(1-r*r/(rp*rp)):r<=.00418?Tps-(Tps-Tci)*(r-rp)/(.00418-rp):r<=rc?Tci-(Tci-Ts2)*(r-.00418)/(rc-.00418):Ts2-(Ts2-Tc)*Math.min(1,(r-rc)/.0007)},rgba(OR,1),2.4,8);if(Cr.y1>2800){c.setLineDash([4,4]);poly(c,[[Cr.x,Cr.Y(2800)],[Cr.x+Cr.w,Cr.Y(2800)]],'rgba(255,90,80,.7)',1.2);c.setLineDash([])}if(Cr.y1>2800)hud(c,Cr.x+Cr.w-4,Cr.Y(2800)-4,'UO₂ melts 2,800 °C','#ff6a5a',8,'right',true);
-    st.c.textContent=fmtInt(Tcen)+' °C';st.s.textContent=fmtInt(Ts2)+' °C';st.m.textContent=Tcen<2800?fmtInt(2800-Tcen)+' °C':'MELTING';par._T=Tcen;return}
-   if(mode==='channel'){band(c,W,'A HOT CHANNEL · coolant flowing up past a fuel rod','');var Ts3=tsat(P),Tin=292,Nz=40,cx2=wide?W*.22:24,rw=12,top=34,bot=H-16,hz=bot-top,qmax=pow/100*1.3,dnbr=99,boil=0,Tout=Tin,qs=[];
-    for(var z=0;z<Nz;z++){var u2=(z+.5)/Nz,q2=qmax*Math.sin(Math.PI*u2);qs.push(q2)}var acc=0,cum=[];qs.forEach(function(q3){acc+=q3;cum.push(acc)});
-    for(var z2=0;z2<Nz;z2++){var y=bot-(z2+1)/Nz*hz,Tz=Tin+(36*pow/100)/(flow/100)*cum[z2]/cum[Nz-1]*Math.PI/2,chf=2.6*Math.pow(flow/100,.5)*(1+Math.max(0,Ts3-Tz)/60)*(P/155),q4=qs[z2]*1.5,ratio=chf/Math.max(.01,q4);dnbr=Ma
+    Cr.fn(function(rm){var r=rm/1000;return r<=rp?Tps+dP*(1-r*r/(rp

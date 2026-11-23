@@ -1,4 +1,11 @@
- power ÷ (c ΔT)</li></ul>`),
+50 pcm. What percentage of the original power is left after the prompt drop?`,16.67,0.02,'%',`650 ÷ (650 + 3250) = 650 ÷ 3900 = 0.167 = 16.7%.`),
+N(`On a −80 s period, how long does power take to fall by a factor of e?`,80,0.01,'s',`That's the definition of the period: 80 s.`),
+N(`On a −80 s period, how long does power take to fall by one decade (× 1/10)?`,184.2,0.02,'s',`80 × ln 10 = 80 × 2.303 = 184 s.`),
+N(`What startup rate does a −80 s period correspond to? Include the sign.`,-0.326,0.02,'DPM',`26.06 ÷ −80 = −0.33 DPM: about a third of a decade per minute.`),
+Q(`After a trip, source range counts keep falling slowly for minutes because…`,['long-lived delayed neutron precursors are still decaying','the rods are still moving','xenon is burning out','boron is being added'],0,`The 55 s group keeps feeding neutrons in, setting the −80 s period.`)]);
+
+F('k5',[
+T(`<h3>Quick recap</h3><ul><li>Decay heat: about <b>6–7%</b> just after a trip, <b>1–1.5%</b> after an hour, <b>0.5%</b> after a day</li><li>MW = fraction × rated thermal power</li><li>To boil water: kg/s = power ÷ latent heat; to warm water: kg/s = power ÷ (c ΔT)</li></ul>`),
 N(`A 4500 MWth core has decay heat of 1%. How many MW is that?`,45,0.01,'MW',`4500 × 0.01 = 45 MW.`),
 N(`Decay heat is 0.5% of 3000 MWth. How many MW is that?`,15,0.01,'MW',`3000 × 0.005 = 15 MW.`),
 N(`15 MW of decay heat is warming cooling water from 20 °C to 100 °C (c = 4.18 kJ/kg/K). How many kg/s of water are needed?`,44.9,0.02,'kg/s',`ṁ = P ÷ (c ΔT) = 15,000,000 ÷ (4180 × 80) = 44.9 kg/s.`,`Use joules: 15 MW = 15,000,000 W and c = 4180 J/kg/K.`),
@@ -966,10 +973,4 @@ RM(`<ul><li>A straight line is <b>y = mx + c</b> (gradient m, intercept c).</li>
 T(`<h3>The problem</h3><p>A decay curve bends. It's hard to read an accurate decay constant from a curve by eye.</p><p>But if we take <b>ln</b> of the decay equation, something nice happens.</p>`),
 W('stepCalc',{steps:['Start: <div class="eq">N = N₀ e<sup>−λt</sup></div>','Take ln of both sides: <div class="eq">ln N = ln(N₀ e<sup>−λt</sup>)</div>','Use ln(a × b) = ln a + ln b: <div class="eq">ln N = ln N₀ + ln(e<sup>−λt</sup>)</div>','ln undoes e: <div class="eq">ln N = ln N₀ − λt</div>','Reorder it: <div class="eq">ln N = (−λ) t + ln N₀</div>','Compare with <b>y = m x + c</b>: y is ln N, x is t, the gradient m is <b>−λ</b>, and the intercept c is <b>ln N₀</b>. A straight line!']},`Turn the decay equation into a straight line, step by step.`,`Plot ln N against t: you get a straight line with gradient −λ.`),
 W('fnPlot',{x:[0,10],y:[0,7.5],xl:'time (hours)',yl:'ln N',sl:[['l','Decay constant λ (per hour)',0.1,0.6,0.05,0.3,function(v){return v.toFixed(2)}]],curves:function(p){return [[function(t){return Math.log(1000)-p.l*t},'--accent',3]]},read:function(p){return 'Gradient = <b>−'+p.l.toFixed(2)+'</b> per hour, intercept = ln 1000 = 6.91. Half-life = ln 2 ÷ λ = <b>'+(0.693/p.l).toFixed(2)+' h</b>.'}},`Change λ and watch the straight line of ln N against time get steeper or shallower.`),
-T(`<h3>Finding λ from two readings</h3><p>A sample reads N = 800 counts at t = 0 h, and N = 200 at t = 4 h.</p><ul><li>ln 800 = 6.685 and ln 200 = 5.298</li><li>Gradient = (5.298 − 6.685) ÷ (4 − 0) = −1.386 ÷ 4 = −0.347 per hour</li><li>So λ = <b>0.347 per hour</b>, and the half-life = 0.693 ÷ 0.347 = <b>2.0 hours</b>.</li></ul><p>Check: 800 → 400 → 200 in two half-lives of 2 hours. ✓</p>`),
-N(`A sample reads 1000 at t = 0 and 250 at t = 6 h. What is λ, in per hour? (ln 1000 = 6.908, ln 250 = 5.521)`,0.231,0.01,'per hour',`Gradient = (5.521 − 6.908) ÷ 6 = −0.231, so λ = 0.231 per hour.`,`λ is minus the gradient.`),
-N(`With λ = 0.231 per hour, what is the half-life?`,3,0.02,'hours',`0.693 ÷ 0.231 = 3.0 hours. (Check: 1000 → 500 → 250 in 6 hours.)`),
-QE(`Which is closest to ln 2?`,[`0.693`,`2.303`,`1`,`0.5`],0,`ln 2 ≈ 0.693.`),
-T(`<h3>Key points</h3><ul><li>Taking ln turns N = N₀ e<sup>−λt</sup> into <b>ln N = −λt + ln N₀</b>: a straight line.</li><li>Plot ln N against t: <b>gradient = −λ</b>.</li><li>Half-life = <b>ln 2 ÷ λ</b> = 0.693 ÷ λ.</li></ul>`)])
-]});
-F('m2-2-1',[T(`<h3>Quick recap</h3><p>e ≈ 2.718. e<sup>x</sup> grows at a rate equal to its own size. e⁰ = 1.</p>`),N(`What is e<sup>1</sup>, to 3 decimal places?`,2.718,0.0005,'',`e itself.`),Q(`What is e<sup>0</sup>?`,[`1`,`0`,`e`,`2.718`],0,`Anything to the power 0 is 1.`),Q(`Which is described by e<sup>x</sup>?`,[`Growth in proportion to the current size`,`G
+T(`<h3>Finding λ from two readings</h3><p>A sample reads N = 800 counts at t = 0 h, and N = 200 at t = 4 h.</p><ul><li>ln 800 = 6.685 and ln 200 = 5.298</li><li>Gradient = (5.298 − 6.685) ÷ (4 − 0) = −1.386 ÷ 4 = −0.347 per hour</li><li>So λ = <b>0.347 per hour</b>, and the half-life = 0.693 ÷ 0.347 = <b>2.0 hours</b>

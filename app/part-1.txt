@@ -1072,17 +1072,25 @@ var CALC=(function(){
  invB.onclick=function(){inv=!inv;invUpd()};
  sh.querySelector('.calcgrid').addEventListener('click',function(e){var b=e.target.closest('button');if(b)press(K[+b.dataset.i])});
  modeB.onclick=function(){deg=!deg;modeB.textContent=deg?'DEG':'RAD';preview()};
- function close(){sh.classList.remove('open')}
+ function close(){if(!sh.classList.contains('open'))return;sh.classList.remove('open');var b=back;back=null;if(sh.contains(document.activeElement))try{document.activeElement.blur()}catch(_){}
+  if(b&&document.body.contains(b)&&!b.disabled&&b.getClientRects().length)try{b.focus({preventScroll:true})}catch(_){}}
  sh.querySelector('.calcx').onclick=close;sh.addEventListener('click',function(e){if(e.target===sh)close()});
  function findTarget(){var i=document.querySelector('#player.open #pBody input.numin:not([disabled])')||document.querySelector('.arn .arnum input:not([disabled])');return i||null}
  function updUse(){target=findTarget();useB.disabled=!(target&&last!==null);useB.textContent=!target?'Use answer (open a question first)':justEq&&!expr&&last!==null?'Use answer: press = again':'Use answer ↵'}
  /* = (or Enter) straight after an answer puts that answer into the question, like Use answer */
  function again(){if(!expr&&justEq&&last!==null){updUse();if(target){useB.click();return}}equals()}
- useB.onclick=function(){if(!target||last===null)return;target.value=plain(last);target.dispatchEvent(new Event('input',{bubbles:true}));close();try{target.focus({preventScroll:true})}catch(_){}};
- document.addEventListener('keydown',function(e){if(!sh.classList.contains('open'))return;var k=e.key,map={'*':'×','/':'÷','-':'−','x':'×'};
-  if(k==='Escape'){close();return}if(k==='Enter'||k==='='){e.preventDefault();again();return}if(k==='Backspace'){press(['','DEL']);return}
-  if(/^[0-9.+()^!]$/.test(k)){press(['',k]);e.preventDefault()}else if(map[k]){press(['',map[k]]);e.preventDefault()}});
- function open(){updUse();preview();sh.classList.add('open')}
+ useB.onclick=function(){if(!target||last===null)return;target.value=plain(last);target.dispatchEvent(new Event('input',{bubbles:true}));back=null;close();try{target.focus({preventScroll:true})}catch(_){}};
+ /* while the calculator is open it gets every key first and nothing reaches the box or page behind it */
+ window.addEventListener('keydown',function(e){if(!sh.classList.contains('open'))return;var k=e.key,map={'*':'×','/':'÷','-':'−','x':'×'};
+  if(e.ctrlKey||e.metaKey||e.altKey){if(/^[0-9.+()^!*\/x=-]$/.test(k)||k==='Backspace'||k==='Enter')e.preventDefault();e.stopPropagation();return}
+  e.stopPropagation();if(k==='Tab')return;
+  if(k==='Escape'){e.preventDefault();close();return}if((k==='t'||k==='T')&&!e.repeat&&!e.isComposing){e.preventDefault();close();return}
+  if(k==='Enter'||k==='='){e.preventDefault();again();return}if(k==='Backspace'){e.preventDefault();press(['','DEL']);return}
+  if(/^[0-9.+()^!]$/.test(k)){press(['',k]);e.preventDefault()}else if(map[k]){press(['',map[k]]);e.preventDefault()}
+  else if(k.length===1||k==='Delete'||k==='Enter'||k===' ')e.preventDefault()},true);
+ /* opening it takes you out of whatever box you were typing in; closing it puts you back there */
+ var cbox=sh.querySelector('.calcbox'),back=null;cbox.setAttribute('tabindex','-1');cbox.style.outline='none';
+ function open(){var a=document.activeElement;back=a&&a!==document.body&&!sh.contains(a)?a:null;if(back)try{back.blur()}catch(_){}updUse();preview();sh.classList.add('open');try{cbox.focus({preventScroll:true})}catch(_){}}
  /* T opens (and closes) the calculator, but not while you're typing in a box (Shift+T works there), or over another window */
  function typing(n){if(!n||n===document.body||n===document.documentElement)return false;if(n.isContentEditable)return true;var tg=n.tagName;if(tg==='TEXTAREA'||tg==='SELECT')return true;if(tg!=='INPUT')return false;return !/^(button|checkbox|radio|range|submit|reset|color|file|image)$/i.test(n.type||'text')}
  function busy(){var ds=document.querySelectorAll('[role=dialog],.shmod,.wiov');for(var i=0;i<ds.length;i++){var d=ds[i];if(d.id==='player'||d.classList.contains('calcbox'))continue;if(d.getClientRects().length&&getComputedStyle(d).visibility!=='hidden')return true}return false}
@@ -1091,7 +1099,7 @@ var CALC=(function(){
   /* while you're typing, Shift+T still opens it in answer, number and search boxes (answers ignore capitals);
      in boxes for sentences, names or keys, Shift+T just types a capital T */
   if(tn&&!(e.shiftKey&&tn.tagName==='INPUT'&&(tn.type==='number'||tn.closest('#pBody')||/(^|\s)(numin|tyin|search)(\s|$)/.test(tn.className))))return;
-  if(sh.classList.contains('open')){e.preventDefault();close();return}
+  if(sh.classList.contains('open'))return;
   if(busy())return;e.preventDefault();open()});
  function mk(cls,label){var b=document.createElement('button');b.type='button';b.className=cls;b.innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><rect x="5" y="2.5" width="14" height="19" rx="2.5"/><rect x="8" y="5.5" width="8" height="4" rx="1"/><path d="M8.5 13h.01M12 13h.01M15.5 13h.01M8.5 16.5h.01M12 16.5h.01M15.5 16.5h.01"/></svg>';b.title='Calculator (T, or Shift+T while typing)';b.setAttribute('aria-label',label);b.onclick=open;return b}
  var hq=document.querySelector('.hdr .askpill');if(hq)hq.parentNode.insertBefore(mk('pill calcpill','Open calculator'),hq.nextSibling);
@@ -1227,11 +1235,4 @@ var STUDY=(function(){
   var did=didToday();
   if(did){var ob=document.querySelector('.stbanner');if(ob)ob.remove();if(toldFile!==ymd()){toldFile=ymd();writeFile(false)}return}
   slots.forEach(function(s){var k=ymd()+s[0];if(s[1]&&hm>=s[0]&&hm<s[0]+60&&!shown[k]){shown[k]=1;banner(s[2])}})}
- var toldFile=null;
- function banner(t){var old=document.querySelector('.stbanner');if(old)old.remove();var b=document.createElement('div');b.className='stbanner';b.setAttribute('role','status');b.innerHTML='<p>'+esc(t)+'</p>';
-  var g=document.createElement('button');g.className='stbtn alt';g.type='button';var usePlan=typeof PLAN!=='undefined'&&PLAN.todayLeft&&PLAN.todayLeft()&&!PLAN.running();g.textContent=usePlan?'Start today\'s plan':'Start timer';g.onclick=function(){b.remove();if(usePlan){PLAN.start();return}open();if(!st.run)$('[data-a=go]').click()};
-  var q1=document.createElement('button');q1.className='stbtn alt';q1.type='button';q1.textContent='Just one question';q1.onclick=function(){b.remove();if(typeof ONE!=='undefined')ONE.start()};
-  var x=document.createElement('button');x.className='stx';x.type='button';x.setAttribute('aria-label','Dismiss');x.textContent='✕';x.onclick=function(){b.remove()};b.appendChild(q1);b.appendChild(g);b.appendChild(x);document.body.appendChild(b)}
- setInterval(check,60000);setTimeout(check,4000);
- writeFile(false);
- return {open:open,state:function(){return st},payload:pa
+ var toldFil

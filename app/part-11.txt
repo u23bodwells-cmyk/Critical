@@ -1,4 +1,8 @@
-
+d (Chemistry only)</h3><p>You never get all the product you expect, because the reaction may not finish, some product is lost when separating it, or other reactions happen.</p><div class="eq">% yield = actual mass made ÷ maximum theoretical mass × 100</div>`),
+W('calcDrill',{skill:'g_yield',need:3},`Percentage yield. Get 3 right to master it.`,`Actual ÷ theoretical × 100.`),
+T(`<h3>Atom economy (Chemistry only)</h3><p>Atom economy measures how much of the reactants end up in the product you want:</p><div class="eq">atom economy = M<sub>r</sub> of desired product ÷ total M<sub>r</sub> of reactants × 100</div><p>Use the numbers in front from the balanced equation. A high atom economy means less waste, which is better for the environment and for cost.</p>`),
+W('calcDrill',{skill:'g_atomecon',need:3},`Atom economy. Get 3 right to master it.`,`Useful product ÷ all reactants × 100.`),
+T(`<h3>Key points</h3><ul><li>Concentration = mass (or moles) ÷ volume in dm³.</li><li>% yield = actual ÷ theoretical × 100.</li><li>Atom economy = useful product M<sub>r</sub> ÷ total reactant M<sub>r</sub> × 100.</li></ul>`)])
 ]});
 
 U({id:'gc2-4',track:'gc',level:2,title:'Chemical changes',icon:'H⁺',color:'#D4537E',desc:'The reactivity series, extracting metals, oxidation and reduction, acids, bases and salts, pH, and electrolysis.',lessons:[
@@ -888,7 +892,4 @@ TT('gp3-4',[x('gp3-4-1',Q(`What comes after the main sequence for the Sun?`,[`Re
 /* ========== GCSE CHEMISTRY (AQA 8462) · LEVEL 3 · Year 11 ========== */
 U({id:'gc3-1',track:'gc',level:3,title:'Energy changes',icon:'ΔH',color:'#D85A30',desc:'Exothermic and endothermic reactions, reaction profiles, bond energies, and (Chemistry only) cells and fuel cells.',lessons:[
 LH('gc3-1-1','Exothermic and endothermic',9,'Reactions that give out heat and reactions that take it in, reaction profiles, and the temperature-change practical.',[
-T(`<h3>Two kinds of energy change</h3><ul><li><b>Exothermic</b>: energy is transferred <b>to</b> the surroundings, so the temperature <b>rises</b>. Combustion, most oxidation reactions and neutralisation. Used in hand warmers and self-heating cans.</li><li><b>Endothermic</b>: energy is taken <b>from</b> the surroundings, so the temperature <b>falls</b>. Thermal decomposition, and citric acid with sodium hydrogencarbonate. Used in instant cold packs for sports injuries.</li></ul><p>Energy is conserved: whatever the reaction gains, the surroundings lose, and the other way round.</p>`),
-W('sortIt',{bins:['Exothermic','Endothermic'],items:[['Burning methane',0],['Neutralising an acid',0],['A hand warmer',0],['Thermal decomposition of calcium carbonate',1],['An instant cold pack',1],['Citric acid + sodium hydrogencarbonate',1]]},`Exothermic or endothermic?`,`Gets hot: exo. Gets cold: endo.`),
-T(`<h3>Reaction profiles</h3><p>A reaction profile shows the energy of the reactants and products.</p><ul><li>Exothermic: the products are <b>lower</b> than the reactants.</li><li>Endothermic: the products are <b>higher</b>.</li><li>The hump is the <b>activation energy</b>: the minimum energy particles need to react.</li></ul>`),
-Q(`On a reaction profile, the products are higher in energy than the reactants. 
+T(`<h3>Two kinds of energy change</h3><ul><li><b>Exothermic</b>: energy is transferred <b>to</b> the surroundings, so the temperature <b>rises</b>. Combustion, most oxidation reactions and neut

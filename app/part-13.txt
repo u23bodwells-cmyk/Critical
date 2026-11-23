@@ -1,4 +1,10 @@
-lue; USERINPUT reads one in.`),
+LH('gcs1-2-3','Variables and inputs',7,'Programs remember things in variables. Meet them, and the difference between a variable and a constant.',[
+T(`<h3>Variables</h3><p>A <b>variable</b> is a named location in memory that stores a value. The value can change while the program runs.</p><pre class="cs">score ← 0
+score ← score + 10</pre><p>After this, score holds 10.</p>`),
+T(`<h3>Constants</h3><p>A <b>constant</b> is a named value that <b>can't</b> change while the program runs, like <code>MAX_TEMP ← 320</code>.</p><p>Using a constant means you only change it in one place, and the code is easier to read.</p>`),
+N(`x ← 5, then x ← x * 2, then x ← x + 3. What is x?`,13,0.001,'',`5 × 2 = 10, then 10 + 3 = 13.`),
+Q(`Why use a constant for VAT_RATE instead of typing 0.2 everywhere?`,[`If it changes, you only update it in one place`,`Constants run faster`,`Variables can't store decimals`,`It uses less storage`],0,`It also makes the code clearer to read.`),
+Q(`What does USERINPUT do in AQA pseudo-code?`,[`Gets a value typed by the user`,`Prints a value`,`Repeats a step`,`Makes a decision`],0,`OUTPUT shows a value; USERINPUT reads one in.`),
 Q(`A variable called total starts at 0. A loop adds 5 to it 4 times. What's its final value?`,[`20`,`5`,`9`,`4`],0,`0 + 5 + 5 + 5 + 5 = 20.`)])]});
 /* ----- Level 2: Year 10 ----- */
 U({id:'gcs2-1',track:'gcs',level:2,title:'Algorithms',icon:'⇅',color:'#534AB7',desc:'Searching and sorting algorithms, efficiency and trace tables: AQA 3.1.',lessons:[
@@ -1245,12 +1251,4 @@ U({id:'ap3-4',track:'ap',level:3,title:'Nuclear physics',icon:'☢',color:'#D85A
 LH('ap3-4-1','Inside the nucleus',10,'Rutherford found the nucleus by firing alpha particles at gold. How big is it?',[
 RM(`<p>Coulomb repulsion between charges. The nucleus is tiny compared to the atom.</p>`),
 T(`<h3>Rutherford scattering</h3><p>Most alpha particles passed straight through gold foil; a very few bounced back. So the atom is mostly empty, with a tiny, dense, positive <b>nucleus</b>.</p>`),
-T(`<h3>Nuclear radius</h3><div class="eq">R = R₀A<sup>1/3</sup>,&nbsp;&nbsp; R₀ ≈ 1.2 fm</div><p>Volume ∝ R³ ∝ A, so every nucleus has about the <b>same density</b>, about 10¹⁷ kg/m³.</p>`),
-W('calcDrill',{skill:'p_radius',need:3},`Nuclear radii. Get 3 right to master it.`,`1.2 × A<sup>1/3</sup>.`),
-Q(`R ∝ A<sup>1/3</sup> tells us nuclear density is…`,[`about the same for all nuclei`,`higher for big nuclei`,`higher for small nuclei`,`zero`],0,`Mass ∝ A, volume ∝ A.`),
-T(`<h3>Key points</h3><ul><li>Rutherford: tiny, dense, positive nucleus.</li><li><b>R = R₀A<sup>1/3</sup></b>.</li><li>Constant nuclear density.</li></ul>`)]),
-LH('ap3-4-2','Radioactive decay',10,'Decay constant, half-life, activity and the inverse square law for gamma rays.',[
-RM(`<p>N = N₀e<sup>−λt</sup>, A = λN, T½ = ln 2/λ (Calculus Level 5).</p>`),
-T(`<h3>The equations</h3><div class="eq">A = λN&nbsp;&nbsp;&nbsp; N = N₀e<sup>−λt</sup>&nbsp;&nbsp;&nbsp; T½ = ln 2 / λ</div>`),
-W('calcDrill',{skill:'decay',need:3},`Half-life and λ. Get 3 right to master it.`,`T½ = ln 2/λ.`),
-T(`<h3>Gamma intensity</h3><p>Gamma radiation from a point source follows an <b>inverse square law</b>: I = k/x². Doubling t
+T(`<h3>Nuclear radius</h3><div class="eq">R = R₀A<sup>1/3</su

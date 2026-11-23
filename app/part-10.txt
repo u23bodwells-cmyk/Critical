@@ -1,4 +1,11 @@
-ical points: <b>f<sub>x</sub> = f<sub>y</sub> = 0</b>.</li><li><b>D = f<sub>xx</sub>f<sub>yy</sub> − f<sub>xy</sub>²</b>.</li><li>D > 0: max or min (sign of f<sub>xx</sub>). D < 0: saddle.</li></ul>`)]),
+um. ∇f = ⟨f<sub>x</sub>, f<sub>y</sub>⟩.</p>`),
+T(`<h3>Critical points</h3><p>At a peak or a valley, the surface is flat in every direction: <b>∇f = 0</b>, so f<sub>x</sub> = 0 and f<sub>y</sub> = 0 together. Solve them simultaneously.</p>`),
+N(`f = x² + y² − 4x + 6y. The critical point has x = 2. What is its y?`,-3,0.001,'',`f<sub>y</sub> = 2y + 6 = 0, so y = −3.`),
+T(`<h3>The second derivative test</h3><div class="eq">D = f<sub>xx</sub> f<sub>yy</sub> − (f<sub>xy</sub>)²</div><ul><li><b>D > 0, f<sub>xx</sub> > 0</b>: minimum (a bowl).</li><li><b>D > 0, f<sub>xx</sub> < 0</b>: maximum (a dome).</li><li><b>D < 0</b>: <b>saddle point</b>: up one way, down the other.</li><li>D = 0: the test can't tell.</li></ul>`),
+Q(`D < 0 at a critical point means…`,[`a saddle point`,`a minimum`,`a maximum`,`no conclusion`],0,`Curving opposite ways.`),
+W('calcDrill',{skill:'critclass',need:4},`Classify critical points. Get 4 right to master it.`,`D = f<sub>xx</sub>f<sub>yy</sub> − f<sub>xy</sub>².`),
+QE(`f = x³y². f<sub>xy</sub> = …`,[`6x²y`,`3x²y²`,`2x³y`,`6xy`],0,`3x²y² then ∂/∂y.`),
+T(`<h3>Key points</h3><ul><li>Critical points: <b>f<sub>x</sub> = f<sub>y</sub> = 0</b>.</li><li><b>D = f<sub>xx</sub>f<sub>yy</sub> − f<sub>xy</sub>²</b>.</li><li>D > 0: max or min (sign of f<sub>xx</sub>). D < 0: saddle.</li></ul>`)]),
 LH('c12-3-3','Lagrange multipliers',11,'Find the best value when you\'re only allowed to move along a constraint.',[
 RM(`<p>∇f is perpendicular to the level curves of f. Critical points: ∇f = 0.</p>`),
 T(`<h3>Optimising with a rule</h3><p>Maximise f(x, y) but only along the curve g(x, y) = c (a budget, a fixed perimeter, a fixed amount of material).</p><p>At the best point, the level curve of f just <b>touches</b> the constraint curve. Touching curves share a direction, so their gradients are parallel:</p><div class="eq">∇f = λ∇g,&nbsp;&nbsp; g = c</div>${KY([['λ','the Lagrange multiplier: how much the best value changes if you relax the constraint','']])}`),
@@ -826,8 +833,4 @@ LH('gc2-3-3','Concentration, yield and atom economy',10,'How much is dissolved, 
 RM(`<p>moles = mass ÷ M<sub>r</sub>. Reacting masses: mass → moles → ratio → mass.</p>`),
 T(`<h3>Concentration</h3><p>Concentration is how much solute is dissolved in a volume of solution. Volumes must be in <b>dm³</b>: 1 dm³ = 1000 cm³.</p><div class="eq">concentration (g/dm³) = mass (g) ÷ volume (dm³)</div><p>Chemistry only, Higher: <b>mol/dm³</b> = moles ÷ volume (dm³).</p>`),
 W('calcDrill',{skill:'g_conc',need:5},`Concentration. Get 5 right to master it.`,`Convert cm³ to dm³ by dividing by 1000.`),
-T(`<h3>Percentage yield (Chemistry only)</h3><p>You never get all the product you expect, because the reaction may not finish, some product is lost when separating it, or other reactions happen.</p><div class="eq">% yield = actual mass made ÷ maximum theoretical mass × 100</div>`),
-W('calcDrill',{skill:'g_yield',need:3},`Percentage yield. Get 3 right to master it.`,`Actual ÷ theoretical × 100.`),
-T(`<h3>Atom economy (Chemistry only)</h3><p>Atom economy measures how much of the reactants end up in the product you want:</p><div class="eq">atom economy = M<sub>r</sub> of desired product ÷ total M<sub>r</sub> of reactants × 100</div><p>Use the numbers in front from the balanced equation. A high atom economy means less waste, which is better for the environment and for cost.</p>`),
-W('calcDrill',{skill:'g_atomecon',need:3},`Atom economy. Get 3 right to master it.`,`Useful product ÷ all reactants × 100.`),
-T(`<h3>Key points</h3><ul><li>Concentration = mass (or moles) ÷ volume in dm³.</li><li>% yield = actual ÷ theoretical × 100.</li><li>Atom economy = useful product M<sub>r</sub> ÷ total reactant M<sub>r</sub> × 100.</li></ul>`)])
+T(`<h3>Percentage yiel

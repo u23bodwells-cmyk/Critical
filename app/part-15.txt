@@ -1,4 +1,8 @@
-th.min(dnbr,ratio);var Tw=Tz+q4*25,dnb=ratio<1;if(Tw>Ts3)boil++;
+*rp)):r<=.00418?Tps-(Tps-Tci)*(r-rp)/(.00418-rp):r<=rc?Tci-(Tci-Ts2)*(r-.00418)/(rc-.00418):Ts2-(Ts2-Tc)*Math.min(1,(r-rc)/.0007)},rgba(OR,1),2.4,8);if(Cr.y1>2800){c.setLineDash([4,4]);poly(c,[[Cr.x,Cr.Y(2800)],[Cr.x+Cr.w,Cr.Y(2800)]],'rgba(255,90,80,.7)',1.2);c.setLineDash([])}if(Cr.y1>2800)hud(c,Cr.x+Cr.w-4,Cr.Y(2800)-4,'UO₂ melts 2,800 °C','#ff6a5a',8,'right',true);
+    st.c.textContent=fmtInt(Tcen)+' °C';st.s.textContent=fmtInt(Ts2)+' °C';st.m.textContent=Tcen<2800?fmtInt(2800-Tcen)+' °C':'MELTING';par._T=Tcen;return}
+   if(mode==='channel'){band(c,W,'A HOT CHANNEL · coolant flowing up past a fuel rod','');var Ts3=tsat(P),Tin=292,Nz=40,cx2=wide?W*.22:24,rw=12,top=34,bot=H-16,hz=bot-top,qmax=pow/100*1.3,dnbr=99,boil=0,Tout=Tin,qs=[];
+    for(var z=0;z<Nz;z++){var u2=(z+.5)/Nz,q2=qmax*Math.sin(Math.PI*u2);qs.push(q2)}var acc=0,cum=[];qs.forEach(function(q3){acc+=q3;cum.push(acc)});
+    for(var z2=0;z2<Nz;z2++){var y=bot-(z2+1)/Nz*hz,Tz=Tin+(36*pow/100)/(flow/100)*cum[z2]/cum[Nz-1]*Math.PI/2,chf=2.6*Math.pow(flow/100,.5)*(1+Math.max(0,Ts3-Tz)/60)*(P/155),q4=qs[z2]*1.5,ratio=chf/Math.max(.01,q4);dnbr=Math.min(dnbr,ratio);var Tw=Tz+q4*25,dnb=ratio<1;if(Tw>Ts3)boil++;
      c.fillStyle=rgba(hot((Tz-280)/80*.5),.55);c.fillRect(cx2+rw,y,60,hz/Nz+1);c.fillStyle=rgba(dnb?[255,80,50]:hot(.45+q4*.25),1);c.fillRect(cx2,y,rw,hz/Nz+1);if(dnb){c.fillStyle='rgba(240,240,255,.5)';c.fillRect(cx2+rw,y,6,hz/Nz+1)}
      else if(Tw>Ts3&&Math.random()<.5){c.strokeStyle='rgba(235,245,255,.7)';c.beginPath();c.arc(cx2+rw+3+Math.random()*12,y+Math.random()*hz/Nz,1+Math.random()*2,0,6.283);c.stroke()}if(z2===Nz-1)Tout=Tz}
     for(var p2=0;p2<14;p2++){var yy2=bot-((tt/1000*flow/100*.25+p2/14)%1)*hz;c.fillStyle='rgba(120,200,255,.6)';c.beginPath();c.arc(cx2+rw+30+(p2%3)*9,yy2,1.6,0,6.283);c.fill()}
@@ -823,9 +827,4 @@ th.min(dnbr,ratio);var Tw=Tz+q4*25,dnb=ratio<1;if(Tw>Ts3)boil++;
    read:function(){return n+' steps · '+fr+' of '+qs+' questions right first time · best combo '+best},
    cap:'Your lesson as a 3D chart: one tower per step. <b style="color:#3ad48a">Green</b> is right first time (taller the longer your combo, traced by the yellow line), <b style="color:#e0a526">amber</b> needed another go, <b style="color:#ff7a66">red</b> was shown the answer, <b style="color:#6b9dff">blue</b> is reading and <b style="color:#9b84ff">violet</b> is a lab.'}}
  function fv(v){return S3.fv(v)}
- function show(){var ds=document.querySelector('#pBody .done-screen');if(!ds||ds.querySelector('.sum3d'))return;var L=UNITS[P.ui].lessons[P.li],id=L.id,m=S3MAP[id]||DEF[trk(P.ui)]||['flux'],mk=S3SC.SC[m[0]]||S3SC.SC.flux,par=m[1]||{},cap=m[2];
-  var box=el('div','sum3d'),xb=ds.querySelector('.xpbreak');ds.insertBefore(box,xb?xb.nextSibling:ds.children[4]||null);
-  var hold=el('div','s3hold',null,box),cp=el('p','s3cap',null,box),tabs=el('div','s3tabs',null,box),b1=el('button','wbtn on','This topic in 3D',tabs),b2=el('button','wbtn','Your lesson in 3D',tabs);el('span','s3hint',narrow()?'Swipe sideways to turn it':'Drag to turn it',tabs);b1.type=b2.type='button';
-  function load(w){hold.innerHTML='';var sp;try{sp=w==='you'?skySpec():mk(par)}catch(e){sp=S3SC.SC.flux({})}if(cap&&w!=='you')sp.cap=cap;S3.mount(hold,sp,{h:340,hn:300});cp.innerHTML=sp.cap;b1.classList.toggle('on',w!=='you');b2.classList.toggle('on',w==='you')}
-  b1.onclick=function(){load('topic')};b2.onclick=function(){load('you')};load('topic')}
- var _g3r=gotRight;gotRight=function(c){var first=P&&P.st&&!P.st.tries,i=P&&P.i;var r=_g3r.apply(this,arguments);try{if(P&&P.mode==='lesson'){P.log3=P.log3||{};
+ function show(){var ds=document.querySelector('#pBody .done-
