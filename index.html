@@ -78,6 +78,7 @@ body{min-height:100%;padding-left:max(16px,env(safe-area-inset-left,0px));paddin
 .last{font:700 11px var(--sans);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 .foot{margin:0;font-size:13px;color:var(--muted)}
 @media (prefers-reduced-motion:reduce){.app{transition:none}}
+.app.ch:hover,.app.ch:focus-visible{border-color:#ff3b5c}.ch .ic{background:linear-gradient(135deg,#ff3b5c,#7a3cff 55%,#1aa7e0)}.ch .tag{background:rgba(255,59,92,.13);color:#c4173a}.ch .go span.arrow{background:#ff3b5c;color:#fff}@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .ch .tag{color:#ff8ea2}}:root[data-theme="dark"] .ch .tag{color:#ff8ea2}
 </style>
 </head>
 <body>
@@ -98,6 +99,16 @@ body{min-height:100%;padding-left:max(16px,env(safe-area-inset-left,0px));paddin
       <p class="desc">Nuclear engineering lessons in Maths and Theory, practice sets, unit tests and the control room simulator.</p>
       <div class="stats" id="crStats"></div>
       <div class="go"><span id="crLast"></span><span class="arrow" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></div>
+    </a>
+
+    <a class="app ch" href="chain.html" data-app="chain">
+      <div class="ah">
+        <span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2.5" width="12" height="19" rx="3"/><path d="M12 15.5V8.5M9 11l3-3 3 3"/><circle cx="12" cy="18.3" r=".6" fill="#fff"/></svg></span>
+        <div><h2>Chain</h2><span class="tag">Scroll</span></div>
+      </div>
+      <p class="desc">Bored? Swipe this instead of TikTok. An endless feed of quick facts, quizzes and mini reactor games that actually teach you something.</p>
+      <div class="stats" id="chStats"></div>
+      <div class="go"><span id="chLast"></span><span class="arrow" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></div>
     </a>
 
     <a class="app sr" href="shift-ready.html" data-app="shift">
@@ -213,5 +224,8 @@ if("serviceWorker" in navigator&&location.protocol==="https:"){var _swHad=!!navi
  if(r){var e=r.acc+(r.seg?Date.now()-r.seg:0);a.push(st((r.seg?'Running: ':'Paused: ')+Math.floor(e/60000)+' min'))}
  var m=Math.round(ms/60000);if(m)a.push(st('Today: '+(m<60?m+' min':Math.floor(m/60)+'h '+(m%60<10?'0':'')+m%60)));if(!a.length)a.push(st('Start when you sit down'));
  document.getElementById('hwStats').innerHTML=a.join('');var last=localStorage.getItem('critical_last_app');document.getElementById('hwLast').innerHTML=last==='homework'?'<span class="last">Last opened</span>':'Open Homework Timer'}catch(e){}})();</script>
+<script>(function(){try{var o=JSON.parse(localStorage.getItem('critical_chain_v1')||'null')||{},d=new Date(),k=d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate(),t=(o.days||{})[k]||{},st=function(x){return '<span class="stat">'+x+'</span>'},a=[];
+ if(o.xp)a.push(st(o.xp.toLocaleString('en-GB')+' XP'));if(t.n)a.push(st('Today: '+Math.min(t.n,25)+'/25 cards'));if(!a.length)a.push(st('Swipe for 5 minutes'));
+ document.getElementById('chStats').innerHTML=a.join('');document.getElementById('chLast').innerHTML=localStorage.getItem('critical_last_app')==='chain'?'<span class="last">Last opened</span>':'Open Chain'}catch(e){}})();</script>
 </body>
 </html>
