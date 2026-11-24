@@ -53,6 +53,8 @@ function tick(t){bell(t,1760,.09)}
 function sfx(k){if(!API.sound||!on())return;var t=AU.c.currentTime+.01,g;
   if(k==="ok"){g=eg(t,.003,.16,.12);g.connect(AU.m);osc("sine",880,t,.14,g);g=eg(t+.07,.003,.16,.18);g.connect(AU.m);osc("sine",1320,t+.07,.2,g)}
   else if(k==="no"){var lp=AU.c.createBiquadFilter();lp.type="lowpass";lp.frequency.value=900;g=eg(t,.003,.18,.25);lp.connect(g);g.connect(AU.m);osc("square",140,t,.28,lp);osc("square",147,t,.28,lp)}
+  else if(k==="alarm"){[0,.22].forEach(function(o,i){var gg=eg(t+o,.005,.09,.17);gg.connect(AU.m);osc("square",i?660:880,t+o,.2,gg)})}
+  else if(k==="whoosh"){whoosh(t)}
   else if(k==="pop"){g=eg(t,.002,.12,.08);g.connect(AU.m);var o=osc("sine",500,t,.1,g);o.frequency.exponentialRampToValueAtTime(1200,t+.08)}}
 
 var PH_MEL=[0,null,0,null,3,null,0,-2,null,-2,null,-4,-5,null,-4,null,0,null,0,null,3,null,5,3,null,0,null,-2,-4,null,-5,null];

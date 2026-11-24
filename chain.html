@@ -28,7 +28,7 @@
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:var(--sans);-webkit-font-smoothing:antialiased;overflow:hidden;overscroll-behavior:none}
 button{font:inherit;color:inherit}
-#app{position:relative;height:100%;max-width:540px;margin:0 auto;overflow:hidden}
+#app{position:relative;height:100%;max-width:540px;margin:0 auto;overflow:hidden;overflow:clip}
 @media (min-width:600px){#app{border-left:1px solid var(--line);border-right:1px solid var(--line)}}
 
 /* top bar */
@@ -161,6 +161,69 @@ button{font:inherit;color:inherit}
 .combo{position:absolute;z-index:25;left:50%;top:38%;width:90%;text-align:center;transform:translateX(-50%);font:900 clamp(24px,7.5vw,34px)/1.15 var(--sans);color:var(--gold);text-shadow:0 4px 18px rgba(0,0,0,.6);pointer-events:none;animation:combo 1.1s forwards}
 @keyframes combo{0%{opacity:0;transform:translate(-50%,20px) scale(.6)}25%{opacity:1;transform:translate(-50%,0) scale(1.1)}70%{opacity:1}100%{opacity:0;transform:translate(-50%,-40px)}}
 
+/* stories */
+[hidden]{display:none!important}
+.tabs{gap:2px}.tabs button{font-size:15px;padding:6px 5px}
+.savedBtn{width:36px;height:36px;border-radius:50%;border:0;background:var(--glass);color:var(--text);display:grid;place-items:center;cursor:pointer;flex:none}
+.savedBtn[aria-selected="true"]{background:var(--gold);color:#2B1D00}
+.flame{position:absolute;right:14px;top:calc(var(--st) + 54px)}
+.stcard{display:flex;flex-direction:column;gap:12px;align-items:flex-start}
+.stcover{font-size:clamp(64px,12vh,96px);line-height:1;filter:drop-shadow(0 0 24px var(--a))}
+.stkind{font:900 12px var(--sans);letter-spacing:.08em;text-transform:uppercase;padding:5px 10px;border-radius:999px;background:#ff3b5c;color:#fff}
+.stkind.story{background:#7a5cff}
+.stfound{font:700 13px var(--mono);color:var(--muted)}
+.playbtn{display:inline-flex;align-items:center;gap:8px;background:#fff;color:#111;border:0;border-radius:999px;padding:13px 22px;font:900 17px var(--sans);cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.4);animation:pp 1.8s ease-in-out infinite}
+@keyframes pp{50%{transform:scale(1.05)}}
+.stv{position:absolute;inset:0;z-index:15;overflow-y:auto;background:radial-gradient(120% 70% at 50% 0%,#2a1d52,#07070c 70%);padding:calc(var(--st) + 66px) 16px calc(var(--sb) + 24px)}
+.stv h2{margin:0 0 4px;font-size:26px;letter-spacing:-.02em}.stv>p{margin:0 0 16px;color:var(--muted)}
+.stgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sttile{position:relative;text-align:left;border:1px solid var(--line);border-radius:18px;padding:14px 12px;background:linear-gradient(160deg,rgba(255,255,255,.1),rgba(255,255,255,.03));cursor:pointer;display:flex;flex-direction:column;gap:6px;min-height:170px;color:var(--text)}
+.sttile .ti{font-size:40px}.sttile b{font-size:15px;line-height:1.25}.sttile small{color:var(--muted);font-size:12px;line-height:1.35}
+.sttile .tk{font:900 10px var(--sans);letter-spacing:.08em;text-transform:uppercase;color:#ff6b86}.sttile .tk.story{color:#b9a6ff}
+.sttile .tf{margin-top:auto;font:700 12px var(--mono);color:var(--gold)}
+.sttile.done{border-color:rgba(242,196,109,.6)}
+.sto{position:absolute;inset:0;z-index:55;display:flex;flex-direction:column;background:#05060a;overflow:hidden}
+.stbg{position:absolute;inset:0;pointer-events:none;transition:background .6s}
+.sc-calm .stbg{background:radial-gradient(90% 60% at 50% 30%,#123a5c,#05070d 75%)}
+.sc-ok .stbg{background:radial-gradient(90% 60% at 50% 30%,#0f4a3a,#04100c 75%)}
+.sc-night .stbg{background:radial-gradient(90% 60% at 50% 20%,#1d1640,#030308 75%)}
+.sc-dark .stbg{background:#020203;animation:flick 3s steps(1) infinite}
+@keyframes flick{0%,100%{background:#020203}7%{background:#0d0d10}8%{background:#020203}52%{background:#09090b}53%{background:#020203}}
+.sc-space .stbg{background:radial-gradient(1px 1px at 20% 30%,#fff,transparent),radial-gradient(1px 1px at 70% 60%,#fff,transparent),radial-gradient(1.5px 1.5px at 40% 80%,#fff,transparent),radial-gradient(1px 1px at 85% 20%,#fff,transparent),radial-gradient(1px 1px at 10% 70%,#fff,transparent),radial-gradient(1.5px 1.5px at 55% 15%,#cfe3ff,transparent),radial-gradient(80% 50% at 50% 100%,#14284d,#02030a 70%)}
+.sc-alarm .stbg{background:radial-gradient(90% 60% at 50% 30%,#5c0a0a,#0a0202 75%);animation:alarmbg 1.1s ease-in-out infinite}
+@keyframes alarmbg{50%{background:radial-gradient(90% 60% at 50% 30%,#9a1010,#160303 75%)}}
+.sc-alarm .stbg::after{content:"";position:absolute;inset:0;box-shadow:inset 0 0 90px rgba(255,30,30,.55);animation:alarmbg2 1.1s ease-in-out infinite}
+@keyframes alarmbg2{50%{box-shadow:inset 0 0 30px rgba(255,30,30,.2)}}
+.sc-end .stbg{background:radial-gradient(100% 70% at 50% 25%,#3a2a66,#07060d 75%)}
+.sc-end.fail .stbg{background:radial-gradient(100% 70% at 50% 25%,#4a1010,#0a0303 75%)}
+.sth{position:relative;z-index:2;display:flex;align-items:center;gap:10px;padding:calc(var(--st) + 10px) 14px 8px}
+.stx{width:36px;height:36px;border-radius:50%;border:0;background:rgba(255,255,255,.12);color:#fff;font-size:16px;cursor:pointer;flex:none}
+.stt{flex:1;font-weight:800;font-size:14px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.strisk{display:flex;align-items:center;gap:6px;font:800 11px var(--sans);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.rbar{width:70px;height:8px;border-radius:8px;background:rgba(255,255,255,.14);overflow:hidden}.rbar i{display:block;height:100%;width:10%;border-radius:8px;background:#3fd99a;transition:width .5s,background .5s}
+.stbody{position:relative;z-index:2;flex:1;display:flex;flex-direction:column;justify-content:center;padding:10px 22px;gap:16px;overflow-y:auto;cursor:pointer}
+.stic{font-size:clamp(54px,11vh,84px);line-height:1}.stic.pop{animation:stpop .45s cubic-bezier(.2,1.5,.4,1)}
+@keyframes stpop{from{transform:scale(.3) rotate(-15deg);opacity:0}}
+.sttxt{margin:0;font-size:clamp(19px,2.9vh,23px);line-height:1.45;font-weight:600;min-height:3em}
+.sttxt .cur{display:inline-block;width:.5em;height:1em;background:var(--gold);vertical-align:-.12em;margin-left:2px;animation:blink .8s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.stskip{font-size:12px;color:var(--dim);font-weight:700}
+.sttimer{position:relative;z-index:2;height:6px;margin:0 22px;border-radius:6px;background:rgba(255,255,255,.12);overflow:hidden;visibility:hidden}.sttimer.on{visibility:visible}
+.sttimer i{display:block;height:100%;background:linear-gradient(90deg,#ff3b5c,#F2C46D);transform-origin:0 50%}
+.stch{position:relative;z-index:2;display:flex;flex-direction:column;gap:10px;padding:14px 18px calc(var(--sb) + 22px);min-height:120px}
+.stch button{text-align:left;border:1.5px solid rgba(255,255,255,.28);background:rgba(0,0,0,.45);color:#fff;border-radius:16px;padding:14px 16px;font:700 16px var(--sans);cursor:pointer;opacity:0;transform:translateY(14px);animation:chin .32s forwards;backdrop-filter:blur(6px)}
+.stch button:active{transform:scale(.98);background:rgba(255,255,255,.15)}
+@keyframes chin{to{opacity:1;transform:none}}
+.sc-end .stbody{display:none}.sc-end .stch{flex:1;justify-content:center;overflow-y:auto}
+.stend{display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px}
+.stend .big{font-size:84px;animation:stpop .5s cubic-bezier(.2,1.5,.4,1)}
+.stend .tier{font:900 12px var(--sans);letter-spacing:.1em;text-transform:uppercase;padding:5px 12px;border-radius:999px}
+.tier.best{background:linear-gradient(90deg,#F2C46D,#ff9d2e);color:#2b1700}.tier.good{background:#3fd99a;color:#06231a}.tier.bad{background:#ffb02e;color:#2b1700}.tier.fail{background:#ff3b5c;color:#fff}
+.stend h3{margin:0;font-size:28px;letter-spacing:-.02em}.stend p{margin:0;color:var(--muted);line-height:1.5;font-size:16px}
+.stend .xpw{font:900 22px var(--mono);color:var(--gold)}
+.stend .found{font:700 13px var(--mono);color:var(--muted)}
+.stend .row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:6px}
+.stend .row button{border:0;border-radius:999px;padding:12px 20px;font:900 15px var(--sans);cursor:pointer;background:#fff;color:#111}.stend .row button.ghost{background:rgba(255,255,255,.14);color:#fff}
 /* rewards */
 .flame{font:900 14px var(--sans);padding:5px 10px;border-radius:999px;background:rgba(255,120,40,.22);border:1px solid rgba(255,140,60,.5);color:#ffd2a8;white-space:nowrap}
 .flame.hot{background:linear-gradient(90deg,#ff5f1f,#ff2d6f);color:#fff;border-color:transparent;box-shadow:0 0 16px rgba(255,80,40,.6)}
@@ -265,8 +328,9 @@ button{font:inherit;color:inherit}
     <nav class="tabs" role="tablist">
       <button role="tab" aria-selected="false" id="tEdits">Edits</button>
       <button role="tab" aria-selected="true" id="tFeed">For you</button>
-      <button role="tab" aria-selected="false" id="tSaved">Saved</button>
+      <button role="tab" aria-selected="false" id="tStories">Stories</button>
     </nav>
+    <button class="savedBtn" id="tSaved" aria-label="Saved cards" aria-selected="false"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M6 3.5h12v17l-6-4.2-6 4.2z"/></svg></button>
     <span class="flame" id="flame" hidden></span>
     <button class="xp" id="xpBtn" aria-label="Today's progress and topics">
       <svg class="ring" viewBox="0 0 26 26"><circle class="tr" cx="13" cy="13" r="10"/><circle class="pr" id="ringPr" cx="13" cy="13" r="10" stroke-dasharray="62.83" stroke-dashoffset="62.83"/></svg>
@@ -274,12 +338,20 @@ button{font:inherit;color:inherit}
     </button>
   </header>
   <main id="feed" aria-live="polite"></main>
+  <section class="stv" id="stv" hidden aria-label="Interactive stories"></section>
+  <section class="sto" id="sto" hidden aria-label="Story"><div class="stbg"></div>
+    <header class="sth"><button class="stx" id="stx" aria-label="Close the story">✕</button><div class="stt" id="stt"></div><div class="strisk"><span>Risk</span><div class="rbar"><i id="rbar"></i></div></div></header>
+    <div class="stbody" id="stbody"><div class="stic" id="stic"></div><p class="sttxt" id="sttxt"></p><div class="stskip" id="stskip">tap to skip</div></div>
+    <div class="sttimer" id="sttimer"><i></i></div>
+    <div class="stch" id="stch"></div>
+  </section>
   <div class="scrim" id="scrim"></div>
   <section class="sheet" id="sheet" role="dialog" aria-modal="true"><div class="grab"></div><div id="sheetIn"></div></section>
   <div class="toast" id="toast"></div>
 </div>
 
 <script src="chain-edits.js"></script>
+<script src="chain-stories.js"></script>
 <script>
 (function(){
 "use strict";
@@ -598,6 +670,7 @@ function makeNext(){
   var i=cards.length;
   if(sess.since>=12){sess.since=0;return{type:"check",topic:"maths",id:"chk"+i}}
   /* mystery drops turn up at random (not on a fixed beat), a few a day */
+  sess.sinceStory=(sess.sinceStory||0)+1;if(i>3&&sess.sinceStory>6&&STORIES.length&&Math.random()<.3){sess.sinceStory=0;var sl=STORIES.filter(function(x){return!S.off[x.topic]});if(!sl.length)sl=STORIES;var mn=Infinity;sl.forEach(function(x){mn=Math.min(mn,stInfo(x.id).n)});var pk=pick(sl.filter(function(x){return stInfo(x.id).n===mn}));return{type:"story",topic:pk.topic,sid:pk.id,id:"story-"+pk.id,title:pk.title}}
   sess.sinceDrop=(sess.sinceDrop||0)+1;var dd=today();if(i>3&&sess.sinceDrop>5&&(dd.drops||0)<8&&Math.random()<.11){sess.sinceDrop=0;return{type:"drop",topic:"maths",id:"drop"+Date.now()+i}}
   var prevEd=i>0&&cards[i-1].c.type==="edit";
   /* Edits tab: mostly edits, but every few cards an old-style fact, quiz or game so it never gets samey */
@@ -639,7 +712,8 @@ function rail(c){if(c.type==="check"||c.type==="drop")return"";var sv=isSaved(c.
   '<button class="rb" data-act="share"><span class="c">'+ICON.share+'</span>Share</button>'+(c.type==="edit"?'<div class="disc" aria-hidden="true"></div>':'')+'</aside>'}
 function chipHtml(c,t){return '<div class="chip">'+t.g+" "+t.n+(c.label?" · "+c.label:c.type==="tf"?" · True or false":c.type==="quiz"?" · Quiz":c.type==="sim"?" · Try it":"")+'</div>'}
 function inner(c){var t=TOP[c.topic]||TOP.reactor,h="";
-  if(c.type==="drop")h='<div class="dropc"><div class="dchip">🎁 Mystery drop</div><button class="dbox" data-act="drop" aria-label="Open the mystery drop">🎁</button><div class="dtxt">Tap to open</div><div class="dsub">Could be anything up to a 1,000 XP jackpot</div></div>';
+  if(c.type==="story"){var so=STORY[c.sid],inf=stInfo(c.sid);h='<div class="stcard"><span class="stkind'+(so.kind==="Story"?" story":"")+'">'+(so.kind==="Story"?"📖 Interactive story":"🚨 Emergency · you decide")+'</span><div class="stcover">'+so.icon+'</div><h2 class="hook">'+esc(so.title)+'</h2><p class="body">'+esc(so.blurb)+'</p><div class="stfound">Endings found: '+Object.keys(inf.e).length+' / '+endCount(so)+'</div><button class="playbtn" data-act="play">▶ Play</button></div>'}
+  else if(c.type==="drop")h='<div class="dropc"><div class="dchip">🎁 Mystery drop</div><button class="dbox" data-act="drop" aria-label="Open the mystery drop">🎁</button><div class="dtxt">Tap to open</div><div class="dsub">Could be anything up to a 1,000 XP jackpot</div></div>';
   else if(c.type==="fact")h=(c.rare?'<div class="rchip">✨ Rare fact · 5× XP</div>':'')+chipHtml(c,t)+'<div class="glyph">'+c.glyph+'</div><h2 class="hook">'+c.hook+'</h2><p class="body">'+c.body+'</p>';
   else if(c.type==="quiz"||c.type==="tf"){h=chipHtml(c,t)+'<h2 class="hook">'+c.q+'</h2><div class="qbar"><i></i></div><div class="opts'+(c.type==="tf"?" tf":"")+'">'+
     c.opts.map(function(o,i){return '<button class="opt" data-i="'+i+'">'+(c.type==="tf"?(i?"✗ ":"✓ "):'<span class="k">'+"ABCD"[i]+'</span>')+'<span>'+o+'</span></button>'}).join("")+'</div>'+(c.type==="tf"?'<div class="swh">← swipe False · swipe True →</div>':'')+'<div class="ex"></div>'}
@@ -740,6 +814,7 @@ function act(k,a,b){var c=k.c;
   else if(a==="more")explain(c,k);
   else if(a==="share")share(c);
   else if(a==="drop")openDrop(k,b);
+  else if(a==="play")playStory(k.c.sid);
   else if(a==="snd"){var live=S.sound&&CE&&CE.on();S.sound=!live;if(CE)CE.sound=S.sound;save();
     var done=function(){if(k.el._ed)k.el._ed.resync();allSnd()};if(S.sound&&CE)CE.unlock().then(done);else done()}
 }
@@ -783,7 +858,7 @@ function share(c){var txt=c.type==="edit"?c.def.title+" "+c.def.shots.map(functi
 /* ---------- sheet ---------- */
 var sheet=document.getElementById("sheet"),scrim=document.getElementById("scrim"),sheetIn=document.getElementById("sheetIn");
 function openSheet(h){sheetIn.innerHTML='<button class="close" data-x>Close</button>'+h;sheet.classList.add("show");scrim.classList.add("show")}
-function closeSheet(){sheet.classList.remove("show");scrim.classList.remove("show");setTab(mode)}
+function closeSheet(){sheet.classList.remove("show");scrim.classList.remove("show");setTab(stvOpen?"stories":mode)}
 scrim.addEventListener("click",closeSheet);
 sheet.addEventListener("click",function(e){if(e.target.closest("[data-x]"))closeSheet()});
 var sy=null;sheet.addEventListener("touchstart",function(e){sy=sheet.scrollTop<=0?e.touches[0].clientY:null},{passive:true});
@@ -797,17 +872,17 @@ function explain(c,k){var h;
   openSheet(h)}
 
 /* ---------- tabs: saved, progress ---------- */
-var tFeed=document.getElementById("tFeed"),tSaved=document.getElementById("tSaved"),tEdits=document.getElementById("tEdits");
-function setTab(t){tEdits.setAttribute("aria-selected",t==="edits");tFeed.setAttribute("aria-selected",t==="feed");tSaved.setAttribute("aria-selected",t==="saved")}
+var tFeed=document.getElementById("tFeed"),tSaved=document.getElementById("tSaved"),tEdits=document.getElementById("tEdits"),tStories=document.getElementById("tStories");
+function setTab(t){tEdits.setAttribute("aria-selected",t==="edits");tFeed.setAttribute("aria-selected",t==="feed");tStories.setAttribute("aria-selected",t==="stories");tSaved.setAttribute("aria-selected",t==="saved")}
 function setMode(m){if(m===mode){closeSheet();return}mode=m;closeSheet();
   var p=cards[active];if(p){if(p.el._ed)p.el._ed.stop();if(p.el._sim&&p.el._sim.stop)p.el._sim.stop()}
   feed.innerHTML="";cards=[];active=-1;retry=[];sess.since=0;feed.scrollTop=0;for(var i=0;i<4;i++)add(makeNext());setActive(0);setTab(m)}
-tFeed.onclick=function(){setMode("feed")};tEdits.onclick=function(){setMode("edits")};
+tFeed.onclick=function(){hideStories();setMode("feed");setTab(mode)};tEdits.onclick=function(){hideStories();setMode("edits");setTab(mode)};tStories.onclick=function(){showStories()};
 tSaved.onclick=function(){setTab("saved");
   var h='<h3>Saved</h3>';
   if(!S.saved.length)h+='<p>Nothing saved yet. Tap the bookmark on any card to keep it here.</p>';
   else h+='<p>'+S.saved.length+' saved. Tap one to see it again.</p><div class="savedList">'+S.saved.map(function(s,i){var c=s.c,t=TOP[c.topic]||TOP.reactor;
-    return '<button class="si" data-sv="'+i+'"><span class="g">'+(c.glyph||t.g)+'</span><div><b>'+(c.hook||c.q||esc(c.title||""))+'</b><small>'+t.n+' · '+(c.type==="fact"?"Fact":c.type==="sim"?"Try it":c.type==="edit"?"Edit":"Quiz")+'</small></div></button>'}).join("")+'</div>';
+    return '<button class="si" data-sv="'+i+'"><span class="g">'+(c.glyph||t.g)+'</span><div><b>'+(c.hook||c.q||esc(c.title||""))+'</b><small>'+t.n+' · '+(c.type==="fact"?"Fact":c.type==="sim"?"Try it":c.type==="edit"?"Edit":c.type==="story"?"Story":"Quiz")+'</small></div></button>'}).join("")+'</div>';
   openSheet(h)};
 sheetIn.addEventListener("click",function(e){var s=e.target.closest("[data-sv]");if(s){var c=JSON.parse(JSON.stringify(S.saved[+s.dataset.sv].c));if(c.type==="quiz")c=mkQuiz(c.topic,c.q,[c.opts[c.ans]].concat(c.opts.filter(function(_,k){return k!==c.ans})),c.ex,c.id,c.label);insertNext(c);closeSheet();return}
   var tp=e.target.closest("[data-tp]");if(tp){var key=tp.dataset.tp;if(S.off[key])delete S.off[key];else{if(TK.filter(function(k){return!S.off[k]}).length<=1){toast("Keep at least one topic on");return}S.off[key]=1}
@@ -820,6 +895,48 @@ document.getElementById("xpBtn").onclick=function(){var d=today(),acc=sess.q?Mat
   '<h3>Your feed</h3><p>Tap a topic to turn it off or on. Liking cards and taking your time on them also teaches the feed what you like.</p><div class="topics">'+TK.map(function(k){return '<button class="tp" data-tp="'+k+'" aria-pressed="'+!S.off[k]+'">'+TOP[k].g+' '+TOP[k].n+'</button>'}).join("")+'</div>'+
   '<p style="font-size:14px">Total from Chain: '+S.xp.toLocaleString("en-GB")+' XP · '+Object.keys(S.liked).length+' liked · '+S.saved.length+' saved</p>')};
 
+
+/* ---------- interactive stories ---------- */
+var STORIES=window.CHAIN_STORIES||[],STORY={};STORIES.forEach(function(x){STORY[x.id]=x});S.st=S.st||{};
+function stInfo(id){return S.st[id]||(S.st[id]={e:{},n:0})}
+function endCount(so){return Object.keys(so.nodes).filter(function(k){return so.nodes[k].end}).length}
+/* the app frame must never scroll (focusing a button near the edge could nudge it) */
+var APP=document.getElementById("app");APP.addEventListener("scroll",function(){if(APP.scrollTop||APP.scrollLeft){APP.scrollTop=0;APP.scrollLeft=0}});
+var stvOpen=false,stv=document.getElementById("stv"),sto=document.getElementById("sto"),PL={};
+function pauseFeed(){var k=cards[active];if(k){if(k.el._ed)k.el._ed.stop();if(k.el._sim&&k.el._sim.stop)k.el._sim.stop()}}
+function resumeFeed(){var k=cards[active];if(k&&k.el._ed&&!stvOpen&&sto.hidden)k.el._ed.start()}
+function showStories(){stvOpen=true;closeSheet();pauseFeed();hint(false);
+  stv.innerHTML='<h2>Interactive stories</h2><p>You make the calls. Every choice changes what happens next. Find every ending.</p><div class="stgrid">'+STORIES.map(function(so){var inf=stInfo(so.id),f=Object.keys(inf.e).length,n=endCount(so);
+    return '<button class="sttile'+(f===n?" done":"")+'" data-st="'+so.id+'"><span class="tk'+(so.kind==="Story"?" story":"")+'">'+(so.kind==="Story"?"Story":"Emergency")+'</span><span class="ti">'+so.icon+'</span><b>'+esc(so.title)+'</b><small>'+esc(so.blurb)+'</small><span class="tf">'+(f===n?"🏆 ":"")+f+' / '+n+' endings</span></button>'}).join("")+'</div>';
+  stv.hidden=false;setTab("stories")}
+function hideStories(){if(!stvOpen)return;stvOpen=false;stv.hidden=true;resumeFeed()}
+stv.addEventListener("click",function(e){var b=e.target.closest("[data-st]");if(b)playStory(b.dataset.st)});
+function playStory(id){var so=STORY[id];if(!so)return;pauseFeed();PL={s:so,risk:10,path:0};document.getElementById("stt").textContent=so.icon+" "+so.title;sto.hidden=false;paintRisk();stGo(so.start);vib(10)}
+function stClear(){clearInterval(PL.ty);clearInterval(PL.beep);cancelAnimationFrame(PL.tr);PL.ty=PL.beep=PL.tr=0}
+function closeStory(){stClear();sto.hidden=true;if(stvOpen)showStories();else resumeFeed();save()}
+document.getElementById("stx").onclick=closeStory;
+function paintRisk(){var r=Math.max(0,Math.min(100,PL.risk)),b=document.getElementById("rbar");b.style.width=Math.max(6,r)+"%";b.style.background=r<35?"#3fd99a":r<65?"#F2C46D":"#ff3b5c"}
+function stGo(key){stClear();var n=PL.s.nodes[key];PL.key=key;PL.path++;sto.className="sto sc-"+(n.end?"end"+(n.end==="fail"?" fail":""):(n.sc||"calm"));
+  var tm=document.getElementById("sttimer");tm.classList.remove("on");var ch=document.getElementById("stch");ch.innerHTML="";
+  if(n.end)return stEnd(n,key);
+  var ic=document.getElementById("stic"),tx=document.getElementById("sttxt"),sk=document.getElementById("stskip");ic.textContent=n.ic||"";ic.classList.remove("pop");void ic.offsetWidth;ic.classList.add("pop");sk.style.visibility="visible";
+  if(n.sc==="alarm"){if(CE)CE.sfx("alarm");vib([60,40,60]);PL.beep=setInterval(function(){if(CE)CE.sfx("alarm")},1700)}
+  var full=n.txt,i=0;PL.done=false;tx.innerHTML='<span class="cur"></span>';
+  function fin(){clearInterval(PL.ty);PL.ty=0;PL.done=true;tx.textContent=full;sk.style.visibility="hidden";stChoices(n)}
+  PL.fin=fin;PL.ty=setInterval(function(){i+=2;if(i>=full.length){fin();return}tx.innerHTML=esc(full.slice(0,i))+'<span class="cur"></span>'},16);
+  document.getElementById("stbody").scrollTop=0}
+document.getElementById("stbody").addEventListener("click",function(){if(PL.fin&&!PL.done)PL.fin()});
+function stChoices(n){var ch=document.getElementById("stch");ch.innerHTML=n.ch.map(function(c,i){return'<button data-c="'+i+'" style="animation-delay:'+(i*.08)+'s">'+esc(c[0])+'</button>'}).join("");
+  if(n.timer){var tm=document.getElementById("sttimer"),bar=tm.querySelector("i"),t0=performance.now(),D=n.timer*1000;tm.classList.add("on");
+    (function f(){var e=(performance.now()-t0)/D;bar.style.transform="scaleX("+Math.max(0,1-e)+")";if(e>=1){if(CE)CE.sfx("no");vib(80);PL.risk+=10;paintRisk();toast("⏰ Too slow!");stGo(n.to||n.ch[0][1]);return}PL.tr=requestAnimationFrame(f)})()}}
+document.getElementById("stch").addEventListener("click",function(e){var b=e.target.closest("[data-c]");if(!b||!PL.s)return;var n=PL.s.nodes[PL.key];if(!n||n.end)return;var c=n.ch[+b.dataset.c];
+  PL.risk+=c[2]||0;paintRisk();if(CE)CE.sfx(c[2]>15?"no":"pop");vib(12);b.style.background="rgba(255,255,255,.25)";setTimeout(function(){stGo(c[1])},160)});
+function stEnd(n,key){var so=PL.s,inf=stInfo(so.id),isNew=!inf.e[key];inf.e[key]=1;inf.n++;var raw={best:20,good:12,bad:6,fail:4}[n.end]+(isNew?6:0);award(raw);save();
+  var f=Object.keys(inf.e).length,tot=endCount(so),lab={best:"Best ending",good:"Good ending",bad:"Bad ending",fail:"Disaster"}[n.end];
+  document.getElementById("stic").textContent="";document.getElementById("sttxt").textContent="";document.getElementById("stskip").style.visibility="hidden";
+  document.getElementById("stch").innerHTML='<div class="stend"><div class="big">'+n.ic+'</div><span class="tier '+n.end+'">'+lab+'</span><h3>'+esc(n.title)+'</h3><p>'+esc(n.txt)+'</p><div class="xpw">+'+raw*XPM+' XP'+(isNew?' · new ending!':'')+'</div><div class="found">Endings found: '+f+' / '+tot+(f===tot?' 🏆 all found':'')+'</div><div class="row"><button data-again>↻ Try another path</button><button class="ghost" data-back>'+(stvOpen?"More stories":"Back to the feed")+'</button></div></div>';
+  if(n.end==="best"||isNew){if(CE)CE.sfx("ok");confetti(document.getElementById("stch"),n.end==="best"?50:20)}else if(CE)CE.sfx("no");vib(n.end==="fail"?[80,60,80]:[20,40,20])}
+document.getElementById("stch").addEventListener("click",function(e){if(e.target.closest("[data-again]"))playStory(PL.s.id);else if(e.target.closest("[data-back]"))closeStory()});
 /* ---------- checkpoint ---------- */
 function mins(ms){var m=Math.round(ms/60000);return m<1?"under a minute":m===1?"1 minute":m+" minutes"}
 function renderCheck(k){var el=k.el.querySelector(".chk"),ms=Date.now()-sess.t0,acc=sess.q?Math.round(sess.ok/sess.q*100)+"%":"–",d=today(),m=ms/60000;
@@ -975,7 +1092,7 @@ SIMS.reflex=function(el){var p=el.querySelector("[data-rx]"),out=el.querySelecto
 
 /* ---------- navigation ---------- */
 function goTo(i){if(i<0)i=0;ensure();feed.scrollTo({top:i*cardH(),behavior:"smooth"})}
-addEventListener("keydown",function(e){if(sheet.classList.contains("show")){if(e.key==="Escape")closeSheet();return}if(e.target.closest&&e.target.closest("input"))return;
+addEventListener("keydown",function(e){if(!sto.hidden){if(e.key==="Escape")closeStory();else if(/^[1-4]$/.test(e.key)){var bb=document.querySelectorAll("#stch [data-c]")[+e.key-1];if(bb)bb.click()}else if(e.key===" "&&PL.fin&&!PL.done){e.preventDefault();PL.fin()}return}if(sheet.classList.contains("show")){if(e.key==="Escape")closeSheet();return}if(e.target.closest&&e.target.closest("input"))return;
   var k=cards[active];
   if(e.key==="ArrowDown"||e.key==="j"||e.key===" "||e.key==="PageDown"){e.preventDefault();goTo(active+1)}
   else if(e.key==="ArrowUp"||e.key==="k"||e.key==="PageUp"){e.preventDefault();goTo(active-1)}
