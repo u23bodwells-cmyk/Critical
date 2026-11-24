@@ -81,7 +81,8 @@ var CUR=null;
 setInterval(function(){
   var P=CUR;if(!P||!P.E.playing||!on()||!API.sound||P.E.clk!=="a")return;
   var E=P.E,now=AU.c.currentTime,ahead=now+.15;
-  for(var guard=0;guard<64;guard++){var tc=E.sync+(E.next*E.step-E.base);if(tc>ahead)break;if(tc>=now-.02)try{music(E,E.next%E.steps,Math.max(tc,now))}catch(e){}E.next++}
+  for(var guard=0;guard<64;guard++){var n=E.next,tc=E.sync+(n*E.step-E.base);if(tc>ahead)break;P.scan(n);
+    if(tc>=now-.02)try{var es=P.es(n);music(E,((es%E.steps)+E.steps)%E.steps,Math.max(tc,now))}catch(e){}E.next++}
 },25);
 
 /* ================= drawing helpers ================= */
@@ -245,28 +246,44 @@ D.pellet=function(g,s,u,bt,p,pal,t){var x=g.x,H=g.H,cx=g.cx,cy=H*.47,w=Math.min(
   x.fillStyle=gr;x.fillRect(-w/2,-h/2,w,h);x.beginPath();x.ellipse(0,h/2,w/2,w*.17,0,0,Math.PI);x.fill();x.fillStyle="#5a5a61";x.beginPath();x.ellipse(0,-h/2,w/2,w*.17,0,0,7);x.fill();x.restore();
   text(g,"≈ 1 cm",cx+w*.95,cy,g.cw*.3,H*.04,{kind:"s",max:16,align:"left"});
   if(s.txt){var sc=1+1.2*Math.exp(-16*bt);x.save();x.translate(g.cx,H*.2);x.scale(sc,sc);text(g,s.txt,0,0,g.cw*.86,H*.1,{});x.restore()}};
-function qlayout(g,s,reveal,p){var x=g.x,H=g.H,bw=g.cw*.92,left=g.cx-bw/2,sz=Math.min(g.cw*.075,30),lines;
+function qlayout(g,s,reveal,p,pick){var x=g.x,H=g.H,bw=g.cw*.92,left=g.cx-bw/2,sz=Math.min(g.cw*.075,30),lines;
   for(;sz>12;sz--){x.font=fnt(sz,"s");lines=wrap(x,s.q,bw);if(lines.length*sz*1.2<=H*.19)break}
   x.textAlign="center";x.textBaseline="middle";x.lineJoin="round";lines.forEach(function(l,i){var y=H*.21-(lines.length-1)*sz*.6+i*sz*1.2;x.lineWidth=sz*.18;x.strokeStyle="rgba(0,0,0,.85)";x.strokeText(l,g.cx,y);x.fillStyle="#fff";x.fillText(l,g.cx,y)});
   var oh=H*.07,gap=H*.014,y0=H*.42;
-  s.opts.forEach(function(o,i){var y=y0+i*(oh+gap),ok=i===s.ans;x.globalAlpha=reveal&&!ok?.4:1;x.fillStyle=reveal&&ok?"rgba(46,200,130,.9)":"rgba(0,0,0,.45)";rr(x,left,y,bw,oh,14);x.fill();x.lineWidth=2;x.strokeStyle=reveal&&ok?"#7dffc4":"rgba(255,255,255,.3)";x.stroke();
+  s.opts.forEach(function(o,i){var y=y0+i*(oh+gap),ok=i===s.ans,mine=pick===i;x.globalAlpha=reveal&&!ok&&!mine?.4:1;x.fillStyle=reveal&&ok?"rgba(46,200,130,.9)":reveal&&mine?"rgba(255,70,80,.85)":mine?"rgba(255,225,77,.35)":"rgba(0,0,0,.45)";rr(x,left,y,bw,oh,14);x.fill();x.lineWidth=2;x.strokeStyle=reveal&&ok?"#7dffc4":"rgba(255,255,255,.3)";x.stroke();
     var fs=Math.min(oh*.42,20);x.font=fnt(fs,"s");var label=(reveal&&ok?"✓ ":"ABCD"[i]+"  ")+o;while(x.measureText(label).width>bw-24&&fs>10){fs--;x.font=fnt(fs,"s")}x.textAlign="left";x.fillStyle="#fff";x.fillText(label,left+14,y+oh/2);x.globalAlpha=1});}
 D.qtimer=function(g,s,u,bt,p,pal){var x=g.x,H=g.H,seg=s.b/3,i=Math.min(2,Math.floor(bt/seg)),k=(bt-i*seg)/seg,num=3-i,r=Math.min(g.cw,H)*.06,cy=H*.335;
-  qlayout(g,s,false,p);x.strokeStyle="rgba(255,255,255,.2)";x.lineWidth=6;x.beginPath();x.arc(g.cx,cy,r,0,7);x.stroke();x.strokeStyle=num===1?"#ff4d4d":"#FFE14D";x.beginPath();x.arc(g.cx,cy,r,-Math.PI/2,-Math.PI/2+Math.PI*2*(1-k));x.stroke();
+  qlayout(g,s,false,p);text(g,"👆 tap an answer",g.cx,H*.81,g.cw*.8,H*.04,{kind:"s",col:"#FFE14D",max:18});x.strokeStyle="rgba(255,255,255,.2)";x.lineWidth=6;x.beginPath();x.arc(g.cx,cy,r,0,7);x.stroke();x.strokeStyle=num===1?"#ff4d4d":"#FFE14D";x.beginPath();x.arc(g.cx,cy,r,-Math.PI/2,-Math.PI/2+Math.PI*2*(1-k));x.stroke();
   var sc=1+.5*Math.exp(-12*k*seg);x.save();x.translate(g.cx,cy);x.scale(sc,sc);text(g,String(num),0,2,r*1.2,r*1.3,{col:num===1?"#ff4d4d":"#fff"});x.restore()};
-D.qreveal=function(g,s,u,bt,p,pal){qlayout(g,s,true,p);var sc=1+1.2*Math.exp(-14*bt);g.x.save();g.x.translate(g.cx,g.H*.335);g.x.scale(sc,sc);text(g,"ANSWER",0,0,g.cw*.6,g.H*.06,{col:"#7dffc4"});g.x.restore()};
+D.qreveal=function(g,s,u,bt,p,pal){var pk=g.E&&g.E.picks[g.ln+"_"+(g.i-1)];qlayout(g,s,true,p,pk);var sc=1+1.2*Math.exp(-14*bt),lb=pk==null?"ANSWER":pk===s.ans?"✓ CORRECT +5":"✗ NOPE",col=pk==null||pk===s.ans?"#7dffc4":"#ff6b6b";g.x.save();g.x.translate(g.cx,g.H*.335);g.x.scale(sc,sc);text(g,lb,0,0,g.cw*.8,g.H*.06,{col:col});g.x.restore()};
 D.tfq=function(g,s,u,bt,p,pal){var x=g.x,H=g.H,sz=Math.min(g.cw*.09,38),lines;for(;sz>12;sz--){x.font=fnt(sz,"s");lines=wrap(x,s.q,g.cw*.9);if(lines.length*sz*1.2<=H*.3)break}
   x.textAlign="center";x.textBaseline="middle";x.lineJoin="round";lines.forEach(function(l,i){var y=H*.36-(lines.length-1)*sz*.6+i*sz*1.2;x.lineWidth=sz*.18;x.strokeStyle="rgba(0,0,0,.85)";x.strokeText(l,g.cx,y);x.fillStyle="#fff";x.fillText(l,g.cx,y)});
-  var at=s.b*.5;if(bt<at){var c=Math.ceil((at-bt)/(at/3));text(g,"…"+c,g.cx,H*.62,g.cw*.4,H*.08,{col:pal[0],fitTo:"…8"})}
+  var at=s.b*.5;if(bt<at){var c=Math.ceil((at-bt)/(at/3));text(g,"…"+c,g.cx,H*.6,g.cw*.4,H*.08,{col:pal[0],fitTo:"…8"});
+    if(!(g.E&&g.E.picks[g.ln+"_"+g.i]!=null)){var bw=g.cw*.44,bh=H*.065;["TRUE","FALSE"].forEach(function(l,j){var X=g.cx+(j?g.cw*.02:-g.cw*.02-bw);x.fillStyle=j?"rgba(255,77,77,.85)":"rgba(63,217,154,.85)";rr(x,X,H*.71,bw,bh,bh/2);x.fill();text(g,l,X+bw/2,H*.71+bh/2+1,bw*.7,bh*.6,{stroke:false})});
+      text(g,"tap a side",g.cx,H*.81,g.cw*.6,H*.035,{kind:"s",col:"#FFE14D",max:16})}}
   else{var k=bt-at,sc=k<.15?1+2.5*(1-k/.15):1,col=s.v?"#3fd99a":"#ff4d4d",tx=s.v?"TRUE":"FALSE";x.save();x.translate(g.cx,H*.62);x.rotate(-.16);x.scale(sc,sc);var z=fit(x,[tx],g.cw*.5,H*.1,"a");x.font=fnt(z,"a");var w=x.measureText(tx).width;x.strokeStyle=col;x.lineWidth=6;x.strokeRect(-w/2-14,-z*.62,w+28,z*1.2);x.fillStyle=col;x.textAlign="center";x.fillText(tx,0,z*.04);x.restore()}};
 
 /* ================= player ================= */
+/* Time model: A = absolute play time; the edit time is A minus "shifts". An untapped gate shot adds a hold shift each
+   time playback reaches its end (so it loops, beat and all, until you tap). Tapping adds a negative shift that jumps
+   straight to the next shot. The audio scheduler and the visuals both read the same mapping, so they stay in sync. */
+function gatePrompt(g,s,p,t){var x=g.x,H=g.H,y=H*.69;
+  if(s.gate==="tap"){var r=Math.min(g.cw,H)*.07;for(var k=0;k<2;k++){var a=(t*1.2+k*.5)%1;x.strokeStyle="rgba(255,225,77,"+((1-a)*.8)+")";x.lineWidth=3;x.beginPath();x.arc(g.cx,y,r*(1+a*1.6),0,7);x.stroke()}
+    x.fillStyle="rgba(255,225,77,.95)";x.beginPath();x.arc(g.cx,y,r*(1+.08*p),0,7);x.fill();x.font=Math.round(r*1.05)+"px system-ui,'Apple Color Emoji','Segoe UI Emoji',sans-serif";x.textAlign="center";x.textBaseline="middle";x.fillText("👆",g.cx,y+2);
+    text(g,s.prompt||"TAP!",g.cx,y+r*2.4,g.cw*.92,H*.05,{col:"#FFE14D"})}
+  else if(s.gate==="choice"){var bw=g.cw*.47,bh=H*.075,gap=g.cw*.04;
+    text(g,"TAP ONE",g.cx,y-H*.07,g.cw*.5,H*.032,{kind:"s",col:"#FFE14D",max:16});
+    s.choices.forEach(function(c,i){var X=g.cx-gap/2-bw+i*(bw+gap),sc=1+.05*p;x.save();x.translate(X+bw/2,y);x.scale(sc,sc);x.fillStyle=i?"rgba(40,160,255,.92)":"rgba(255,59,92,.92)";rr(x,-bw/2,-bh/2,bw,bh,bh/2);x.fill();x.lineWidth=3;x.strokeStyle="#fff";x.stroke();text(g,c,0,1,bw*.8,bh*.58,{stroke:false});x.restore()})}}
 function Player(el,def,hooks){
-  var cv=el.querySelector(".ecv"),x=cv.getContext("2d"),g={x:x,cv:cv,W:0,H:0,cx:0,cw:0,dpr:1},bs=60/def.bpm,starts=[],tot=0,drop=-1;
+  var cv=el.querySelector(".ecv"),x=cv.getContext("2d"),g={x:x,cv:cv,W:0,H:0,cx:0,cw:0,dpr:1},bs=60/def.bpm,starts=[],tot=0,drop=-1,N=def.shots.length;
   def.shots.forEach(function(s){starts.push(tot);if(s.drop&&drop<0)drop=tot;tot+=s.b});
-  var E={style:def.style||"phonk",root:220*Math.pow(2,(def.key||0)/12),step:bs/4,steps:tot*4,dropBeat:drop<0?0:drop,evs:{},playing:false,base:0,sync:0,clk:"p",next:0};
-  def.shots.forEach(function(s,i){var s0=starts[i]*4,add=function(step,k){step=Math.round(step)%E.steps;(E.evs[step]=E.evs[step]||[]).push(k)};
-    if(s.drop){add(s0,"impact");if(starts[i]>=3)add(s0-12,"riser")}
+  var E={style:def.style||"phonk",root:220*Math.pow(2,(def.key||0)/12),step:bs/4,steps:tot*4,dropBeat:drop<0?0:drop,evs:{},playing:false,base:0,sync:0,clk:"p",next:0,
+    pend:[],app:0,scan:0,tapped:{},seen:{},picks:{},res:null};
+  var gateEnd={};def.shots.forEach(function(s,i){if(s.gate&&i<N-1)gateEnd[(starts[i]+s.b)*4]=i});
+  g.E=E;
+  def.shots.forEach(function(s,i){var s0=starts[i]*4,add=function(step,k){step=((Math.round(step)%E.steps)+E.steps)%E.steps;(E.evs[step]=E.evs[step]||[]).push(k)};
+    if(s.drop){add(s0,"impact");if(starts[i]>=3&&!(i>0&&def.shots[i-1].gate))add(s0-12,"riser")}
+    if(s.gate)for(var b=0;b<s.b;b++)add(s0+b*4,"tick");
     if(s.tr==="whip")add(s0,"whoosh");
     if(s.t==="stamp"&&!s.drop)add(s0+.6,"thud");
     if(s.t==="list")for(var k=1;k<s.items.length;k++)add(s0+k*(s.per||1)*4,"whoosh");
@@ -276,33 +293,57 @@ function Player(el,def,hooks){
   function clock(){return E.clk==="a"&&AU.c?AU.c.currentTime:performance.now()/1000}
   function T(){return E.playing?E.base+(clock()-E.sync):E.base}
   function resync(){var t=T();E.clk=(API.sound&&on())?"a":"p";E.base=t;E.sync=clock();E.next=Math.ceil(t/E.step-1e-6)}
+  function editTime(A){var s=E.app;for(var j=0;j<E.pend.length;j++)if(E.pend[j].at<=A+1e-9)s+=E.pend[j].amt;return A-s}
+  function es(n){return Math.round(editTime(n*E.step)/E.step)}
+  function scan(n){for(;E.scan<=n;E.scan++){var e=es(E.scan),lp=((e%E.steps)+E.steps)%E.steps,gi=gateEnd[lp];if(gi!=null&&!E.tapped[Math.floor(e/E.steps)+"_"+gi])E.pend.push({at:E.scan*E.step,amt:def.shots[gi].b*bs})}}
+  function shotAt(loc){var beat=loc/bs,i=0;while(i<N-1&&beat>=starts[i+1])i++;return i}
   function size(){var r=el.getBoundingClientRect();if(!r.width)return;g.dpr=Math.min(2,WIN.devicePixelRatio||1);g.W=r.width;g.H=r.height;cv.width=Math.round(g.W*g.dpr);cv.height=Math.round(g.H*g.dpr);var m=g.W<640?Math.min(66,g.W*.17):24;g.cw=g.W-2*m;g.cx=g.W/2}
-  function render(t){var W=g.W,H=g.H;if(!W)return;
-    var loc=((t%dur)+dur)%dur,beat=loc/bs,i=0;while(i<starts.length-1&&beat>=starts[i+1])i++;
+  function render(et,A){var W=g.W,H=g.H;if(!W)return;
+    var loc=((et%dur)+dur)%dur,ln=Math.floor(et/dur),beat=loc/bs,i=shotAt(loc),key=ln+"_"+i;
     var s=def.shots[i],bt=beat-starts[i],u=bt/s.b,p=Math.exp(-5*(beat%1)),pal=PAL[s.c||def.pal[i%def.pal.length]]||PAL.violet;
+    g.ln=ln;g.i=i;if(s.gate&&E.seen[key]==null)E.seen[key]=A;
     G.gl=0;if(s.tr==="glitch"&&bt<.4)G.gl=8*(1-bt/.4);if(s.drop&&bt<.3)G.gl=Math.max(G.gl,7*(1-bt/.3));
     x.setTransform(g.dpr,0,0,g.dpr,0,0);x.globalAlpha=1;x.globalCompositeOperation="source-over";
-    bg(g,pal,p,t);
+    bg(g,pal,p,A);
     x.save();var z=1+(s.z!=null?s.z:.09)*Math.exp(-9*bt)+(s.t==="slam"?.012*p:0),late=s.t==="stamp"?.15:0,amp=(s.drop?16:s.t==="stamp"?12:s.shake?9:0)*(bt<late?0:Math.exp(-6*(bt-late)));
-    var sx=amp*Math.sin(t*93.1),sy=amp*Math.cos(t*71.7),wx=s.tr==="whip"&&bt<.3?W*(1-eo(bt/.3)):0;
+    var sx=amp*Math.sin(A*93.1),sy=amp*Math.cos(A*71.7),wx=s.tr==="whip"&&bt<.3?W*(1-eo(bt/.3)):0;
     x.translate(W/2+sx+wx,H/2+sy);x.scale(z,z);x.translate(-W/2,-H/2);
-    try{(D[s.t]||D.slam)(g,s,u,bt,p,pal,t)}catch(e){}
+    try{(D[s.t]||D.slam)(g,s,u,bt,p,pal,A)}catch(e){}
     x.restore();
     if((s.drop||s.fl)&&bt<.5){x.fillStyle="rgba(255,255,255,"+(.85*Math.exp(-9*bt))+")";x.fillRect(0,0,W,H)}
     if(G.gl>0)slices(g);
-    post(g,p,t);
-    var cy=CAPY[s.t]!=null?CAPY[s.t]:.74;if(s.cap&&cy)caption(g,s.cap,u,cy);
+    post(g,p,A);
+    if(s.gate&&!E.tapped[key])gatePrompt(g,s,p,A);
+    var cy=s.gate?.86:CAPY[s.t]!=null?CAPY[s.t]:.74;if(s.cap&&cy)caption(g,s.cap,u,cy);
+    if(E.res&&A<E.res.until&&s.t!=="qreveal"){var r=E.res,k=1-(r.until-A)/1.4,sc=1+.7*Math.exp(-12*k);x.save();x.translate(g.cx,H*.17);x.scale(sc,sc);text(g,r.txt,0,0,g.cw*.95,H*.075,{col:r.col});x.restore()}
     watermark(g,loc/dur);
     if(prog)prog.style.transform="scaleX("+(loc/dur).toFixed(4)+")";
   }
-  function loop(){raf=requestAnimationFrame(loop);var t=T();render(t);if(!watched&&t>=dur){watched=true;if(hooks&&hooks.watched)hooks.watched()}}
-  P={E:E,
-    start:function(){size();CUR=P;E.base=0;E.clk="p";E.sync=clock();E.playing=true;resync();el.classList.remove("paused");if(!raf)loop()},
+  function loop(){raf=requestAnimationFrame(loop);var A=T();scan(Math.floor(A/E.step));
+    if(E.pend.length)E.pend=E.pend.filter(function(pp){if(pp.at<A-.5){E.app+=pp.amt;return false}return true});
+    var et=editTime(A);render(et,A);if(!watched&&et>=dur){watched=true;if(hooks&&hooks.watched)hooks.watched()}}
+  function reset(){E.base=0;E.next=0;E.pend=[];E.app=0;E.scan=0;E.tapped={};E.seen={};E.picks={};E.res=null}
+  P={E:E,scan:scan,es:es,
+    start:function(){size();CUR=P;reset();E.clk="p";E.sync=clock();E.playing=true;resync();el.classList.remove("paused");if(!raf)loop()},
     stop:function(){if(E.playing){E.base=T();E.playing=false}cancelAnimationFrame(raf);raf=0;if(CUR===P)CUR=null},
     toggle:function(){if(E.playing){E.base=T();E.playing=false;el.classList.add("paused")}else{E.sync=clock();E.playing=true;resync();el.classList.remove("paused")}return E.playing},
     resync:function(){if(E.playing)resync()},
-    size:function(){size();render(T())},
-    poster:function(){size();render((starts[Math.min(1,starts.length-1)]+.7)*bs)}};
+    size:function(){size();var A=T();render(editTime(A),A)},
+    poster:function(){size();var A=(starts[Math.min(1,N-1)]+.7)*bs;render(A,A)},
+    /* returns true if the tap was used by the edit (a gate, a quiz answer or a true/false pick) */
+    tap:function(xf,yf){if(!E.playing||!g.W)return false;var A=T();scan(Math.floor(A/E.step));
+      var et=editTime(A),loc=((et%dur)+dur)%dur,ln=Math.floor(et/dur),i=shotAt(loc),s=def.shots[i],bt=loc/bs-starts[i],key=ln+"_"+i,target=null,r={};
+      if(E.tapped[key])return false;
+      if(s.gate==="tap"){target=s.b;r.ms=Math.max(0,Math.round((A-(E.seen[key]!=null?E.seen[key]:A))*1000));r.txt="⚡ "+(r.ms/1000).toFixed(2)+"s";r.col="#FFE14D"}
+      else if(s.gate==="choice"){r.pick=xf<.5?0:1;r.ok=r.pick===s.ans;target=s.b}
+      else if(s.t==="qtimer"){var H=g.H,oh=H*.07,gap=H*.014,y0=H*.42,yy=yf*H,idx=Math.floor((yy-y0)/(oh+gap));if(idx<0||idx>=s.opts.length||yy-y0-idx*(oh+gap)>oh+gap*.5)return false;r.pick=idx;r.ok=idx===s.ans;target=s.b}
+      else if(s.t==="tfq"&&bt<s.b*.5){r.pick=xf<.5?0:1;r.ok=(r.pick===0)===!!s.v;target=s.b*.5}
+      else return false;
+      if(r.ok!=null){r.txt=r.ok?"✓ CORRECT +5":"✗ NOPE";r.col=r.ok?"#3fd99a":"#ff4d4d"}
+      E.tapped[key]=true;if(r.pick!=null)E.picks[key]=r.pick;
+      var rem=Math.max(0,(target-bt)*bs);E.pend=E.pend.filter(function(pp){return pp.at<=A});E.pend.push({at:A,amt:-rem});
+      E.next=Math.ceil(A/E.step-1e-6);E.scan=E.next;E.res={txt:r.txt,col:r.col,until:A+1.4};
+      if(hooks&&hooks.gate)hooks.gate(r);return true}};
   return P;
 }
 
@@ -310,7 +351,7 @@ function Player(el,def,hooks){
 var EDITS=[
 {id:"e-fission",title:"Splitting an atom in 10 seconds ⚛️",topic:"reactor",tags:"#fission #physics #nuclear",style:"phonk",bpm:140,key:5,pal:["violet","fire","gold","ice","toxic","violet","fire"],shots:[
  {t:"type",b:4,txt:"what actually happens when you split an atom?",cap:"what happens when you split an atom"},
- {t:"atom",b:2,hit:1,cap:"a neutron hits uranium-235"},
+ {t:"atom",b:2,hit:1,gate:"tap",prompt:"TAP TO FIRE THE NEUTRON",cap:"fire a neutron at uranium-235"},
  {t:"atom",b:3,split:1,at:.05,drop:1,cap:"and it splits in two"},
  {t:"count",b:4,from:0,to:200,unit:"MeV",lbl:"ENERGY RELEASED",cap:"releasing about 200 MeV"},
  {t:"slam",b:3,txt:"50,000,000×",sub:"more than burning a molecule",tr:"whip",cap:"fifty million times more than burning"},
@@ -319,62 +360,70 @@ var EDITS=[
 {id:"e-bomb",title:"Can a reactor explode like a nuke? 💥",topic:"reactor",tags:"#mythbusting #nuclear #chernobyl",style:"phonk",bpm:150,key:7,pal:["fire","ice","fire","violet","gold"],shots:[
  {t:"type",b:4,txt:"can a nuclear reactor explode like a bomb?",cap:"can a nuclear reactor explode like a bomb"},
  {t:"versus",b:5,l:"BOMB",ls:"about 90% uranium-235",r:"REACTOR",rs:"only 3–5% uranium-235",lc:"#ff3b30",rc:"#3ad4ff",cap:"a bomb needs 90% uranium-235. fuel is 3 to 5%"},
+ {t:"slam",b:2,txt:"MYTH OR\nFACT?",gate:"choice",choices:["MYTH","FACT"],ans:0,cap:"a reactor can blow up like a nuke. myth or fact"},
  {t:"stamp",b:3,txt:"MYTH",under:"NUCLEAR\nEXPLOSION",col:"#ff3b30",drop:1,cap:"so no. it physically can't"},
  {t:"slam",b:3,txt:"PHYSICALLY\nIMPOSSIBLE",tr:"whip",cap:"physically impossible"},
  {t:"slam",b:4,txt:"STEAM\nEXPLOSION",sub:"what actually wrecked Chernobyl",tr:"glitch",cap:"Chernobyl was a steam explosion, not a nuclear one"}]},
 {id:"e-halflife",title:"Half-life, but make it fast ⏳",topic:"radiation",tags:"#halflife #gcsephysics #radiation",style:"hype",bpm:128,key:0,pal:["gold","toxic","pink","violet"],shots:[
- {t:"slam",b:2,txt:"HALF-LIFE",cap:"half-life"},
+ {t:"slam",b:2,txt:"HALF-LIFE",gate:"tap",prompt:"TAP TO START THE CLOCK",cap:"half-life"},
  {t:"decay",b:7,drop:1,cap:"every half-life, half of what's left decays"},
  {t:"list",b:4,items:["HEAT?","PRESSURE?","CHEMICALS?","NOTHING."],last:"#FFE14D",cap:"and nothing can speed it up"},
  {t:"slam",b:4,txt:"RANDOM.",sub:"but perfectly predictable",tr:"glitch",cap:"one atom is random. a million are predictable"}]},
 {id:"e-pellet",title:"This pellet = a tonne of coal 🪨",topic:"reactor",tags:"#uranium #energy #nuclear",style:"phonk",bpm:145,key:2,pal:["gold","toxic","mono","gold","violet"],shots:[
  {t:"pellet",b:4,txt:"THIS PELLET",cap:"this uranium pellet is about the size of your fingertip"},
+ {t:"slam",b:2,txt:"SAME ENERGY\nAS HOW MUCH\nCOAL?",gate:"choice",choices:["1 KG","1 TONNE"],ans:1},
  {t:"versus",b:4,l:"1 PELLET",ls:"fingertip-sized",r:"1 TONNE",rs:"of coal",lc:"#F2C46D",rc:"#9a9a9a",drop:1,cap:"same energy as burning a tonne of coal"},
  {t:"count",b:4,from:0,to:1000,unit:"KG OF COAL",lbl:"ONE PELLET =",cap:"one thousand kilograms"},
  {t:"slam",b:4,txt:"NUCLEAR.",tr:"glitch",cap:"that's nuclear"}]},
 {id:"e-delayed",title:"Why reactors don't run away 🧠",topic:"reactor",tags:"#reactorphysics #neutrons",style:"hype",bpm:128,key:5,pal:["ice","violet","gold","teal","ice"],shots:[
  {t:"type",b:4,txt:"why don't nuclear reactors just run away?",cap:"why don't reactors just run away"},
  {t:"count",b:4,from:0,to:99.35,dec:2,unit:"%",lbl:"OF NEUTRONS ARE INSTANT",cap:"99.35% of neutrons appear instantly"},
+ {t:"slam",b:2,txt:"SO WHAT\nSLOWS IT?",gate:"tap",prompt:"TAP TO FIND OUT"},
  {t:"slam",b:4,txt:"0.65%",sub:"turn up seconds later",drop:1,cap:"but 0.65% turn up seconds later"},
  {t:"gauge",b:4,from:45,to:55,calm:1,lbl:"SLOW ENOUGH TO CONTROL",cap:"and that slows the whole reactor down"},
  {t:"slam",b:4,txt:"DELAYED\nNEUTRONS",sub:"the whole trick",tr:"glitch",cap:"delayed neutrons. that's the trick"}]},
 {id:"e-scram",title:"What a SCRAM looks like 🚨",topic:"ops",tags:"#controlroom #scram #operator",style:"phonk",bpm:150,key:4,pal:["ice","fire","fire","mono","teal"],shots:[
  {t:"gauge",b:6,from:62,to:104,lbl:"REACTOR POWER",cap:"power climbing too fast"},
- {t:"slam",b:2,txt:"TRIP",col:"#ff4d4d",strobe:1,drop:1,cap:"reactor trip"},
- {t:"slam",b:2,txt:"SCRAM",strobe:1,tr:"glitch",cap:"scram"},
+ {t:"slam",b:2,txt:"TRIP!",col:"#ff4d4d",strobe:1,gate:"tap",prompt:"TAP TO SCRAM!",cap:"reactor trip. hit scram"},
+ {t:"slam",b:2,txt:"SCRAM",strobe:1,drop:1,tr:"glitch",cap:"scram"},
  {t:"list",b:4,items:["MAGNETS CUT","RODS FALL","GRAVITY WINS","SHUT DOWN ✓"],last:"#3fd99a",cap:"every rod drops in on gravity alone"},
  {t:"slam",b:4,txt:"FAIL-SAFE.",sub:"no power needed to stop it",cap:"fail-safe. no power needed to stop it"}]},
 {id:"e-empty",title:"You are 99.9% empty space 🏟️",topic:"atoms",tags:"#atoms #mindblown #physics",style:"hype",bpm:124,key:10,pal:["teal","teal","violet","pink","gold"],shots:[
  {t:"type",b:3,txt:"you are almost entirely empty space",cap:"you are almost entirely empty space"},
+ {t:"slam",b:2,txt:"HOW MUCH WIDER\nIS AN ATOM THAN\nITS NUCLEUS?",gate:"choice",choices:["100×","100,000×"],ans:1},
  {t:"zoom",b:8,drop:1,cap:"if the nucleus were a pea, the atom would be a whole stadium"},
  {t:"slam",b:3,txt:"100,000×",sub:"wider than its nucleus",tr:"whip",cap:"an atom is 100,000 times wider than its nucleus"},
  {t:"slam",b:3,txt:"SO WHY DON'T\nYOU FALL\nTHROUGH?",cap:"so why don't you fall through the floor"},
  {t:"slam",b:3,txt:"ELECTRONS\nPUSH BACK",tr:"glitch",cap:"electrons push back"}]},
 {id:"e-blue",title:"Why reactor pools glow blue 💙",topic:"space",tags:"#cherenkov #physics #satisfying",style:"hype",bpm:128,key:2,pal:["blue","blue","ice","blue"],shots:[
- {t:"glow",b:4,cap:"ever wondered why reactor pools glow blue"},
+ {t:"glow",b:2,gate:"tap",prompt:"TAP TO LOOK INTO THE POOL",cap:"why do reactor pools glow blue"},
  {t:"slam",b:3,txt:"FASTER\nTHAN LIGHT",drop:1,c:"blue",cap:"particles going faster than light"},
  {t:"stamp",b:3,txt:"IN WATER",col:"#3ad4ff",under:"FASTER\nTHAN LIGHT",cap:"in water. light only goes 75% speed there"},
  {t:"glow",b:5,txt:"CHERENKOV\nRADIATION",cap:"it's a sonic boom, but made of light"}]},
 {id:"e-1942",title:"The first reactor was under a squash court 🏟️",topic:"history",tags:"#history #fermi #nuclear",style:"phonk",bpm:136,key:9,pal:["sepia","sepia","gold","sepia","fire"],shots:[
  {t:"year",b:4,y:"1942",sub:"2 December · Chicago",cap:"2nd December 1942. Chicago"},
  {t:"slam",b:3,txt:"UNDER A\nSQUASH COURT",tr:"whip",cap:"under the stands of a university sports field"},
+ {t:"slam",b:2,txt:"READY?",gate:"tap",prompt:"TAP TO GO CRITICAL"},
  {t:"count",b:4,from:0,to:.5,dec:1,unit:"WATTS",lbl:"THE FIRST CHAIN REACTION",drop:1,cap:"the first ever chain reaction made half a watt"},
  {t:"list",b:4,per:1.33,items:["NO SHIELDING","NO COOLING","ONE AXE"],last:"#FFE14D",cap:"no shielding. no cooling. a man with an axe on standby"},
  {t:"slam",b:4,txt:"CHICAGO\nPILE-1",tr:"glitch",cap:"Chicago Pile-1"}]},
 {id:"e-rutherford",title:"The experiment that found the nucleus 🎯",topic:"history",tags:"#rutherford #gcse #atoms",style:"hype",bpm:120,key:7,pal:["sepia","gold","fire","sepia","violet"],shots:[
  {t:"year",b:3,y:"1909",sub:"Manchester",cap:"1909. alpha particles fired at gold foil"},
  {t:"slam",b:3,txt:"GOLD FOIL",cap:"most went straight through"},
+ {t:"slam",b:2,txt:"DID ANY\nBOUNCE BACK?",gate:"choice",choices:["NO","YES"],ans:1},
  {t:"slam",b:3,txt:"1 IN 8,000",sub:"bounced straight back",drop:1,cap:"but about 1 in 8,000 bounced straight back"},
  {t:"quote",b:9,txt:"“As if you fired a 15-inch shell at a piece of tissue paper and it came back and hit you.”",who:"Ernest Rutherford"},
  {t:"slam",b:4,txt:"THE\nNUCLEUS",tr:"glitch",cap:"he'd discovered the nucleus"}]},
 {id:"e-shield",title:"Alpha, beta, gamma in 10 seconds 🛡️",topic:"radiation",tags:"#gcsephysics #radiation #revision",style:"phonk",bpm:145,key:0,pal:["gold","fire","ice","toxic","gold"],shots:[
  {t:"slam",b:2,txt:"KNOW YOUR\nSHIELDING",cap:"know your shielding"},
+ {t:"slam",b:2,txt:"CAN PAPER\nSTOP ALPHA?",gate:"choice",choices:["YES","NO"],ans:0},
  {t:"versus",b:3,l:"ALPHA",ls:"α · most ionising",r:"PAPER",rs:"stops it",lc:"#ff4d4d",rc:"#f3f2ee",drop:1,cap:"alpha. stopped by paper"},
  {t:"versus",b:3,l:"BETA",ls:"β · fast electrons",r:"ALUMINIUM",rs:"a few mm",lc:"#3ad4ff",rc:"#b8c2cc",cap:"beta. a few mm of aluminium"},
  {t:"versus",b:3,l:"GAMMA",ls:"γ · electromagnetic wave",r:"LEAD",rs:"thick lead or concrete",lc:"#9cff3a",rc:"#8a8f99",cap:"gamma. thick lead or concrete"},
  {t:"slam",b:3,txt:"EXAM\nREADY.",tr:"glitch",cap:"exam ready"}]},
 {id:"e-banana",title:"Your banana is radioactive 🍌",topic:"radiation",tags:"#funfact #radiation #science",style:"hype",bpm:128,key:3,pal:["gold","gold","toxic","pink","gold"],shots:[
  {t:"slam",b:2,txt:"YOUR BANANA\nIS RADIOACTIVE",cap:"your banana is radioactive"},
+ {t:"slam",b:2,txt:"HOW MANY\nPER SECOND?",gate:"choice",choices:["15","15,000"],ans:0,cap:"how many atoms decay in a banana every second"},
  {t:"count",b:4,from:0,to:15,unit:"DECAYS / SECOND",lbl:"POTASSIUM-40",drop:1,cap:"about 15 atoms decay inside it every second"},
  {t:"stamp",b:2,txt:"FACT",col:"#3fd99a",cap:"fact"},
  {t:"count",b:4,from:0,to:4000,unit:"DECAYS / SECOND",lbl:"YOUR BODY",cap:"your body? about 4,000"},
@@ -383,32 +432,38 @@ var EDITS=[
  {t:"year",b:4,y:"2011",sub:"Fukushima Daiichi",cap:"2011. Fukushima Daiichi"},
  {t:"slam",b:3,txt:"REACTORS\nSHUT DOWN ✓",cap:"the earthquake hit and the reactors shut down perfectly"},
  {t:"slam",b:3,txt:"THEN THE\nWAVE CAME",strobe:1,drop:1,cap:"then the tsunami flooded the backup generators"},
+ {t:"slam",b:2,txt:"SHUT DOWN =\nNO MORE HEAT?",gate:"choice",choices:["TRUE","FALSE"],ans:1},
  {t:"count",b:4,from:0,to:7,unit:"% OF FULL POWER",lbl:"STILL BEING MADE",cap:"but a shut-down reactor still makes heat"},
  {t:"slam",b:4,txt:"DECAY\nHEAT",sub:"cooling must never stop",tr:"glitch",cap:"decay heat. cooling must never stop"}]},
 {id:"e-sun",title:"The Sun loses 4 million tonnes a second ☀️",topic:"atoms",tags:"#fusion #space #emc2",style:"hype",bpm:126,key:8,pal:["gold","fire","gold","violet"],shots:[
  {t:"rings",b:3,g:"☀️",cap:"every single second the Sun fuses"},
+ {t:"slam",b:2,txt:"FISSION OR\nFUSION?",gate:"choice",choices:["FISSION","FUSION"],ans:1,cap:"what powers the Sun"},
  {t:"count",b:4,from:0,to:600,unit:"MILLION TONNES",lbl:"OF HYDROGEN EVERY SECOND",drop:1,cap:"600 million tonnes of hydrogen"},
  {t:"slam",b:4,txt:"4,000,000\nTONNES",sub:"turn into pure energy",tr:"whip",cap:"and 4 million tonnes of it turns into pure energy"},
  {t:"slam",b:4,txt:"E = mc²",tr:"glitch",cap:"E equals m c squared"}]},
 {id:"e-kettle",title:"Why the grid fears half-time ☕",topic:"energy",tags:"#nationalgrid #tvpickup #uk",style:"phonk",bpm:140,key:6,pal:["blue","gold","ice","blue"],shots:[
  {t:"type",b:3,txt:"the final whistle blows…",cap:"the final whistle blows"},
  {t:"list",b:3,items:["☕","☕☕","☕☕☕"],cap:"and millions of people put the kettle on"},
+ {t:"slam",b:2,txt:"HOW BIG WAS\nTHE SURGE?",gate:"choice",choices:["28 MW","2,800 MW"],ans:1},
  {t:"count",b:4,from:0,to:2800,unit:"MEGAWATTS",lbl:"DEMAND JUMP · 1990",drop:1,cap:"after England v West Germany in 1990 demand jumped 2,800 megawatts"},
  {t:"slam",b:4,txt:"TV PICKUP",sub:"the grid plans for it",tr:"glitch",cap:"it's called TV pickup. the grid plans for it"}]},
 {id:"e-xenon",title:"The reactor poisons itself ☠️",topic:"reactor",tags:"#xenon #reactorphysics",style:"hype",bpm:128,key:4,pal:["toxic","violet","toxic","gold","fire"],shots:[
  {t:"slam",b:3,txt:"THE REACTOR\nPOISONS ITSELF",cap:"a reactor makes its own poison"},
  {t:"rings",b:3,g:"☠️",txt:"XENON-135",drop:1,cap:"xenon-135"},
  {t:"slam",b:3,txt:"NEUTRON\nSPONGE",tr:"whip",cap:"it soaks up neutrons better than almost anything"},
+ {t:"slam",b:2,txt:"WHEN DOES\nXENON PEAK?",gate:"choice",choices:["10 HOURS","10 SECONDS"],ans:0},
  {t:"count",b:4,from:0,to:10,unit:"HOURS AFTER SHUTDOWN",lbl:"IT PEAKS ABOUT",cap:"after a shutdown it peaks about 10 hours later"},
  {t:"slam",b:4,txt:"THE XENON\nPIT",tr:"glitch",cap:"operators call it the xenon pit"}]},
 {id:"e-meitner",title:"She explained fission. He got the Nobel. 🧠",topic:"history",tags:"#womeninscience #history #fission",style:"phonk",bpm:138,key:11,pal:["sepia","sepia","gold","fire","violet"],shots:[
  {t:"year",b:4,y:"1938",sub:"barium where uranium should be",cap:"1938. Otto Hahn finds barium in his uranium"},
  {t:"slam",b:3,txt:"LISE\nMEITNER",tr:"whip",cap:"Lise Meitner works out what happened"},
+ {t:"slam",b:2,txt:"WHAT IF IT\nSPLIT?",gate:"tap",prompt:"TAP TO SPLIT IT"},
  {t:"atom",b:4,split:1,at:.1,drop:1,cap:"the nucleus had split in two"},
  {t:"slam",b:3,txt:"1944 NOBEL",sub:"awarded to Hahn alone",cap:"the 1944 Nobel Prize went to Hahn alone"},
  {t:"slam",b:4,txt:"ELEMENT\n109",sub:"meitnerium is named after her",tr:"glitch",cap:"now element 109 is named after her"}]},
 {id:"e-voyager",title:"Voyager is still running on plutonium 🛰️",topic:"space",tags:"#space #voyager #nuclear",style:"hype",bpm:122,key:9,pal:["violet","blue","gold","violet"],shots:[
  {t:"year",b:3,y:"1977",sub:"Voyager 1 launches",cap:"1977. Voyager 1 launches"},
+ {t:"slam",b:2,txt:"IS VOYAGER\nSTILL WORKING?",gate:"choice",choices:["YES","NO"],ans:0},
  {t:"rings",b:3,g:"🛰️",txt:"STILL TALKING",drop:1,cap:"it's still sending messages home"},
  {t:"slam",b:4,txt:"PLUTONIUM-238",sub:"decay heat → electricity",tr:"whip",cap:"powered by the heat of decaying plutonium-238"},
  {t:"slam",b:4,txt:"NO CHAIN\nREACTION",sub:"just radioactive decay",tr:"glitch",cap:"no reactor. just decay heat"}]}
