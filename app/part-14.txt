@@ -1,4 +1,126 @@
-ag travel less far and land more steeply.</p>`),
+P([1.7e-8,2.8e-8,1.1e-6,5.6e-8]),L=cR(1,20),d=cP([0.2,0.3,0.5,1.0]),A=Math.PI*Math.pow(d/2*1e-3,2),R=rho*L/A,r=Math.round(R*Math.pow(10,2-Math.floor(Math.log10(R))))/Math.pow(10,2-Math.floor(Math.log10(R)));
+ return {p:'A wire has resistivity '+pE(rho,2)+' Ω m, length '+L+' m and diameter '+d+' mm. Find its resistance in Ω. (3 s.f.)',b:[cB(r,'R = ',' Ω','resistance',false,0.006)],e:'A = π(d/2)² = π × ('+cNum(d/2)+' × 10⁻³)² = '+pE(A)+' m². R = ρL/A = '+pE(rho,2)+' × '+L+' ÷ '+pE(A)+' = '+pE(R)+' Ω.'}};
+CGEN.p_emf=function(){var e=cR(3,24),r=cP([0.5,1,1.5,2]),R=cR(2,20),I=e/(R+r),V=Math.round((e-I*r)*100)/100;
+ return {p:'A cell of emf '+e+' V and internal resistance '+r+' Ω is connected to a '+R+' Ω resistor. Find the terminal pd. (2 d.p.)',b:[cB(V,'V = ',' V','pd',false,0.005)],e:'I = ε/(R + r) = '+e+'/'+cNum(R+r)+' = '+cNum(Math.round(I*1000)/1000)+' A. V = ε − Ir = '+cNum(V)+' V ("lost volts" Ir = '+cNum(Math.round(I*r*100)/100)+' V).'}};
+CGEN.p_potdiv=function(){var Vin=cP([6,9,12,5]),R1=cR(1,10)*100,R2=cR(1,10)*100,V=Math.round(Vin*R2/(R1+R2)*100)/100;
+ return {p:'A potential divider has R₁ = '+R1+' Ω and R₂ = '+R2+' Ω across '+Vin+' V. Find V<sub>out</sub> across R₂. (2 d.p.)',b:[cB(V,'V<sub>out</sub> = ',' V','pd',false,0.005)],e:'V<sub>out</sub> = V<sub>in</sub> × R₂/(R₁ + R₂) = '+Vin+' × '+R2+'/'+(R1+R2)+' = '+cNum(V)+' V.'}};
+CGEN.p_young=function(){var M=cP([['steel',200],['copper',120],['brass',100],['aluminium',70]]),F=cR(2,12)*10,d=cP([0.5,0.8,1.0]),L=cR(1,3),A=Math.PI*Math.pow(d/2*1e-3,2),dL=F*L/(A*M[1]*1e9)*1000;dL=Math.round(dL*Math.pow(10,1-Math.floor(Math.log10(dL))))/Math.pow(10,1-Math.floor(Math.log10(dL)));var E=F/A/(dL*1e-3/L),r=Math.round(E/1e9);
+ return {p:(M[0]==='aluminium'?'An ':'A ')+M[0]+' wire '+L+' m long, diameter '+d+' mm, stretches '+cNum(dL)+' mm under '+F+' N. Find the Young modulus in GPa. (nearest whole number)',b:[cB(r,'E = ',' GPa','Young modulus',false,0.01)],e:'Stress = F/A = '+F+' ÷ '+pE(A)+' = '+pE(F/A)+' Pa. Strain = '+cNum(dL)+' × 10⁻³ ÷ '+L+' = '+pE(dL*1e-3/L)+'. E = stress/strain = '+pE(E)+' Pa ≈ '+r+' GPa.'}};
+CGEN.p_moment=function(){var F=cR(2,30),d=cR(1,9)/10,d2=cR(1,9)/10,F2=Math.round(F*d/d2*100)/100;
+ return {p:'A '+F+' N force acts '+cNum(d)+' m from a pivot. What force '+cNum(d2)+' m on the other side balances it? (2 d.p.)',b:[cB(F2,'F = ',' N','force',false,0.005)],e:'Principle of moments: '+F+' × '+cNum(d)+' = F × '+cNum(d2)+', so F = '+cNum(F2)+' N.'}};
+CGEN.p_power=function(){var m=cR(50,900),h=cR(2,30),t=cR(2,30),P=Math.round(m*9.81*h/t*10)/10;
+ return {p:'A motor lifts '+m+' kg through '+h+' m in '+t+' s. Find the useful power output. (g = 9.81, 1 d.p.)',b:[cB(P,'P = ',' W','power',false,0.005)],e:'P = mgh/t = '+m+' × 9.81 × '+h+' ÷ '+t+' = '+cNum(P)+' W.'}};
+
+/* ---- Level 1: GCSE to A-level ---- */
+U({id:'ap1-1',track:'ap',level:1,title:'Measurements and uncertainties',icon:'±',color:'#7F77DD',desc:'SI units and prefixes, uncertainties, and reading gradients from graphs.',lessons:[
+LH('ap1-1-1','SI units and prefixes',9,'Every A-level physics answer needs the right unit and power of ten.',[
+RM(`<p>Standard form: 3.2 × 10⁴ = 32,000. Base SI units: kg, m, s, A, K, mol.</p>`),
+T(`<h3>Base and derived units</h3><p>Every unit can be built from the <b>six base units</b> (kg, m, s, A, K, mol). Newton: F = ma, so N = kg m s⁻². Joule: J = N m = kg m² s⁻². Checking units (<b>homogeneity</b>) catches wrong equations.</p>`),
+Q(`What is the watt in base units?`,[`kg m² s⁻³`,`kg m s⁻²`,`kg m² s⁻²`,`kg s⁻¹`],0,`W = J/s = kg m² s⁻² ÷ s.`),
+T(`<h3>Prefixes</h3><table class="wtable"><tr><th>T</th><th>G</th><th>M</th><th>k</th><th>c</th><th>m</th><th>μ</th><th>n</th><th>p</th></tr><tr><td>10¹²</td><td>10⁹</td><td>10⁶</td><td>10³</td><td>10⁻²</td><td>10⁻³</td><td>10⁻⁶</td><td>10⁻⁹</td><td>10⁻¹²</td></tr></table>`),
+W('calcDrill',{skill:'p_prefix',need:4},`Prefixes. Get 4 right to master it.`,`Replace the prefix with its power of ten.`),
+T(`<h3>Key points</h3><ul><li>Six <b>base units</b>; everything else is built from them.</li><li>Check equations by <b>homogeneity</b>.</li><li>Learn the prefixes from tera to pico.</li></ul>`)]),
+LH('ap1-1-2','Uncertainties',10,'Every measurement has an uncertainty. A-level wants you to calculate and combine them.',[
+RM(`<p>A reading on a ruler is uncertain by about half the smallest division. Percentages: part ÷ whole × 100.</p>`),
+T(`<h3>Absolute and percentage</h3><p>Length = 5.0 ± 0.1 cm. Absolute uncertainty: 0.1 cm. Percentage uncertainty: 0.1/5.0 × 100 = 2%.</p>`),
+W('calcDrill',{skill:'p_unc',need:3},`Percentage uncertainties. Get 3 right to master it.`,`Absolute ÷ value × 100.`),
+T(`<h3>Combining</h3><ul><li><b>Adding or subtracting</b> quantities: <b>add absolute</b> uncertainties.</li><li><b>Multiplying or dividing</b>: <b>add percentage</b> uncertainties.</li><li><b>Raising to a power</b>: multiply the percentage by the power.</li></ul>`),
+Q(`Area = L², with L uncertain by 2%. Uncertainty in area?`,[`4%`,`2%`,`1%`,`8%`],0,`Power 2: double the percentage.`),
+T(`<h3>Errors</h3><p><b>Random errors</b> scatter readings (reduce by repeating and averaging). <b>Systematic errors</b> shift every reading the same way (like a zero error), and repeating doesn't help.</p>`),
+T(`<h3>Key points</h3><ul><li>% uncertainty = absolute ÷ value × 100.</li><li>Add absolutes for ±; add percentages for × ÷; multiply by the power.</li><li>Random vs systematic errors.</li></ul>`)]),
+LH('ap1-1-3','Graphs and gradients',9,'Turn an equation into y = mx + c and a straight-line graph gives you the answer.',[
+RM(`<p>y = mx + c: gradient m, intercept c. Gradient = Δy/Δx.</p>`),
+T(`<h3>Linearising</h3><p>Match your equation to y = mx + c. For example, v² = u² + 2as: plot v² against s, and the gradient is 2a, the intercept u².</p>`),
+Q(`T = 2π√(l/g). Which graph is a straight line through the origin?`,[`T² against l`,`T against l`,`T against l²`,`√T against l`],0,`T² = (4π²/g) l.`),
+T(`<h3>Reading gradients</h3><ul><li>Use a <b>large triangle</b> (at least half the line) to reduce reading error.</li><li>Include <b>units</b> in the gradient.</li><li>For a curve, draw a tangent and find its gradient.</li></ul>`),
+N(`T² against l has gradient 4.0 s²/m. Using gradient = 4π²/g, find g. (2 d.p.)`,9.87,0.005,'m/s²',`g = 4π²/4.0 = 9.87.`),
+T(`<h3>Key points</h3><ul><li>Rearrange into <b>y = mx + c</b>.</li><li>Big triangles; units on gradients.</li><li>Tangents for curves.</li></ul>`)])
+]});
+
+U({id:'ap1-2',track:'ap',level:1,title:'GCSE physics at A-level speed',icon:'F⃗',color:'#1D9E75',desc:'Resolving vectors, energy and power, and moments.',lessons:[
+LH('ap1-2-1','Scalars, vectors and resolving',10,'Split a force into two perpendicular parts and hard problems become two easy ones.',[
+RM(`<p>A vector has size and direction; a scalar only size. SOH CAH TOA.</p>`),
+T(`<h3>Resolving</h3><p>A force F at angle θ to the horizontal has:</p><div class="eq">horizontal F cos θ,&nbsp;&nbsp; vertical F sin θ</div><p>Two perpendicular forces combine with Pythagoras: resultant √(F₁² + F₂²) at angle arctan(F₂/F₁).</p>`),
+N(`A 50 N force acts at 30° above horizontal. Horizontal component? (1 d.p.)`,43.3,0.002,'N',`50 cos 30° = 43.3 N.`),
+Q(`Which is a vector?`,[`Displacement`,`Speed`,`Mass`,`Energy`],0,`Has a direction.`),
+T(`<h3>Equilibrium</h3><p>An object is in equilibrium when the resultant force is zero: resolve in two directions and set each sum to zero. Coplanar forces in equilibrium form a closed triangle.</p>`),
+T(`<h3>Key points</h3><ul><li>Components: <b>F cos θ</b> and <b>F sin θ</b>.</li><li>Combine perpendicular vectors with Pythagoras.</li><li>Equilibrium: resultant zero in every direction.</li></ul>`)]),
+LH('ap1-2-2','Moments',9,'Turning effects, balance and centre of mass.',[
+RM(`<p>Moment = force × perpendicular distance from the pivot.</p>`),
+T(`<h3>Principle of moments</h3><p>For balance: <b>sum of clockwise moments = sum of anticlockwise moments</b> about any point. A <b>couple</b> is two equal, opposite, parallel forces: its moment is force × separation.</p>`),
+W('calcDrill',{skill:'p_moment',need:3},`Balancing moments. Get 3 right to master it.`,`F₁d₁ = F₂d₂.`),
+Q(`The centre of mass of an object is…`,[`where its weight appears to act`,`always its geometric centre`,`its heaviest end`,`always at the bottom`],0,`Uniform objects: the geometric centre.`),
+T(`<h3>Key points</h3><ul><li><b>Clockwise = anticlockwise</b> moments for balance.</li><li>Couple: force × separation.</li><li>Weight acts at the <b>centre of mass</b>.</li></ul>`)]),
+LH('ap1-2-3','Energy, work and power',9,'Work, energy and power at A-level: same ideas, harder numbers.',[
+RM(`<p>W = Fs. KE = ½mv². GPE = mgh. P = W/t.</p>`),
+T(`<h3>Work with an angle</h3><div class="eq">W = Fs cos θ</div><p>Only the force component along the motion does work. Power can also be written <b>P = Fv</b> for a steady speed.</p>`),
+W('calcDrill',{skill:'p_power',need:3},`Power calculations. Get 3 right to master it.`,`mgh/t.`),
+N(`A car moves at 25 m/s against a 600 N resistive force. Power needed (kW)?`,15,0.001,'kW',`P = Fv = 600 × 25 = 15,000 W.`),
+T(`<h3>Efficiency</h3><div class="eq">efficiency = useful output ÷ total input</div>`),
+T(`<h3>Key points</h3><ul><li><b>W = Fs cos θ</b>.</li><li><b>P = W/t = Fv</b>.</li><li>Efficiency = useful ÷ total.</li></ul>`)])
+]});
+
+/* ---- Level 2: Year 12 ---- */
+U({id:'ap2-1',track:'ap',level:2,title:'Particles and quantum phenomena',icon:'γ',color:'#7F77DD',desc:'Inside the atom, particles and antiparticles, quarks, and the photoelectric effect.',lessons:[
+LH('ap2-1-1','Constituents of the atom',10,'Protons, neutrons, electrons, specific charge, and the strong force.',[
+RM(`<p>Atoms: nucleus of protons and neutrons, electrons around it. Isotopes: same protons, different neutrons. Notation ᴬ<sub>Z</sub>X.</p>`),
+T(`<h3>Specific charge</h3><div class="eq">specific charge = charge ÷ mass &nbsp;(C kg⁻¹)</div><p>Electron: 1.76 × 10¹¹ C kg⁻¹, the largest of the three, because its mass is so small.</p>`),
+N(`A proton has charge 1.60 × 10⁻¹⁹ C and mass 1.67 × 10⁻²⁷ kg. Specific charge? (×10⁷ C/kg, 3 s.f.)`,9.58,0.005,'×10⁷ C/kg',`1.60 × 10⁻¹⁹ ÷ 1.67 × 10⁻²⁷ = 9.58 × 10⁷.`),
+T(`<h3>The strong nuclear force</h3><p>Holds the nucleus together against proton repulsion. <b>Repulsive</b> below about 0.5 fm, <b>attractive</b> up to about 3 fm, and negligible beyond.</p>`),
+T(`<h3>Unstable nuclei</h3><ul><li><b>α decay</b>: ᴬ<sub>Z</sub>X → ᴬ⁻⁴<sub>Z−2</sub>Y + ⁴<sub>2</sub>α (very large nuclei).</li><li><b>β⁻ decay</b>: n → p + e⁻ + ν̄<sub>e</sub> (neutron-rich nuclei). The antineutrino was predicted to explain the spread of beta energies.</li></ul>`),
+Q(`Why was the neutrino proposed?`,[`Beta particles had a range of energies, so energy seemed to go missing`,`To explain alpha decay`,`To hold the nucleus together`,`To explain gravity`],0,`Conservation of energy.`),
+T(`<h3>Key points</h3><ul><li>Specific charge = Q/m.</li><li>Strong force: repulsive < 0.5 fm, attractive to ~3 fm.</li><li>β⁻ decay emits an <b>antineutrino</b>.</li></ul>`)]),
+LH('ap2-1-2','Particles, antiparticles and quarks',11,'Hadrons, leptons, quarks, and the conservation laws that decide what\'s allowed.',[
+RM(`<p>Every particle has an antiparticle with the same mass and opposite charge. E = mc².</p>`),
+T(`<h3>Annihilation and pair production</h3><p>A particle and its antiparticle <b>annihilate</b> into two photons. A photon with enough energy can make a particle–antiparticle pair: minimum energy = 2 × rest energy (1.022 MeV for an electron–positron pair).</p>`),
+T(`<h3>Classification</h3><ul><li><b>Hadrons</b> feel the strong force. <b>Baryons</b> (three quarks: proton uud, neutron udd) and <b>mesons</b> (quark + antiquark: pions, kaons).</li><li><b>Leptons</b> don't: electron, muon, neutrinos.</li></ul>`),
+W('matchPairs',{pairs:[['Proton','Baryon: uud'],['Pion','Meson'],['Muon','Lepton'],['Neutron','Baryon: udd']]},`Match each particle to its class.`),
+T(`<h3>Conservation laws</h3><p>Always conserved: <b>charge</b>, <b>baryon number</b>, <b>lepton number</b> (electron and muon separately). <b>Strangeness</b> is conserved in strong interactions but can change by ±1 in weak ones.</p>`),
+Q(`p → n + e⁺ + ν<sub>e</sub> happens inside some nuclei. Which interaction?`,[`Weak`,`Strong`,`Electromagnetic`,`Gravity`],0,`It changes quark type (u → d): weak.`),
+T(`<h3>Key points</h3><ul><li>Annihilation and pair production.</li><li>Hadrons (baryons qqq, mesons qq̄) vs leptons.</li><li>Conserve charge, baryon number, lepton number; strangeness only in strong.</li></ul>`)]),
+LH('ap2-1-3','Photons and the photoelectric effect',11,'Light comes in packets. The photoelectric effect proved it.',[
+RM(`<p>Waves: c = fλ. Energy levels in atoms. 1 eV = 1.60 × 10⁻¹⁹ J.</p>`),
+T(`<h3>Photons</h3><div class="eq">E = hf = hc/λ</div>`),
+W('calcDrill',{skill:'p_photon',need:3},`Photon energies. Get 3 right to master it.`,`E = 1240/λ in eV with λ in nm.`),
+T(`<h3>The photoelectric effect</h3><p>Light only ejects electrons from a metal above a <b>threshold frequency</b>, however bright. One photon gives its energy to one electron:</p><div class="eq">hf = φ + E<sub>k,max</sub></div><p>φ is the <b>work function</b>, the minimum energy to free an electron. Wave theory couldn't explain the threshold: this proved light is particles.</p>`),
+W('calcDrill',{skill:'p_photo',need:3},`Photoelectric equation. Get 3 right to master it.`,`E<sub>k,max</sub> = hf − φ.`),
+T(`<h3>Wave–particle duality</h3><p>Electrons diffract like waves, with <b>de Broglie wavelength λ = h/mv</b>. Light and matter both behave as waves and particles.</p>`),
+W('calcDrill',{skill:'p_debroglie',need:2},`de Broglie wavelengths. Get 2 right to master it.`,`λ = h/mv.`),
+T(`<h3>Key points</h3><ul><li><b>E = hf</b>.</li><li><b>hf = φ + E<sub>k,max</sub></b>; threshold frequency proves photons.</li><li><b>λ = h/mv</b>: matter waves.</li></ul>`)])
+]});
+
+U({id:'ap2-2',track:'ap',level:2,title:'Waves',icon:'∿',color:'#1D9E75',desc:'Progressive and stationary waves, polarisation, interference and diffraction, and refraction.',lessons:[
+LH('ap2-2-1','Progressive waves and polarisation',10,'Waves carry energy without carrying matter. Transverse ones can be polarised.',[
+RM(`<p>c = fλ. Transverse waves oscillate perpendicular to travel; longitudinal parallel to it.</p>`),
+T(`<h3>Describing waves</h3><ul><li>Amplitude, wavelength λ, frequency f, period T = 1/f.</li><li><b>Phase difference</b>: how far out of step two points are, in radians (2π = one whole cycle).</li></ul>`),
+N(`Two points are a quarter of a wavelength apart on a wave. Phase difference in radians? (3 d.p.)`,1.571,0.002,'rad',`¼ × 2π = π/2.`),
+T(`<h3>Polarisation</h3><p>Only <b>transverse</b> waves can be polarised: restricted to oscillate in one plane. Polaroid sunglasses cut glare (reflected light is partly polarised). TV aerials are aligned with the polarisation of the broadcast.</p>`),
+Q(`Polarisation proves a wave is…`,[`transverse`,`longitudinal`,`electromagnetic`,`slow`],0,`Longitudinal waves have no plane to restrict.`),
+T(`<h3>Key points</h3><ul><li><b>c = fλ</b>, T = 1/f.</li><li>Phase difference in radians.</li><li>Only transverse waves polarise.</li></ul>`)]),
+LH('ap2-2-2','Stationary waves',10,'Two waves travelling opposite ways make a wave that doesn\'t go anywhere.',[
+RM(`<p>Superposition: where waves meet, displacements add. c = fλ.</p>`),
+T(`<h3>Nodes and antinodes</h3><p>Two waves of the same frequency travelling in opposite directions superpose into a <b>stationary wave</b>. <b>Nodes</b>: no movement. <b>Antinodes</b>: maximum amplitude. Nodes are λ/2 apart. No energy is transferred along it.</p>`),
+T(`<h3>Strings</h3><p>A string fixed at both ends has a node at each end. The first harmonic is half a wavelength: λ = 2L.</p><div class="eq">f = (1/2L)√(T/μ)</div>${KY([['L','length of string','m'],['T','tension','N'],['μ','mass per unit length','kg/m']])}`),
+N(`A 0.80 m string vibrates in its first harmonic at 200 Hz. Wave speed (m/s)?`,320,0.001,'m/s',`λ = 1.6 m, v = fλ = 320 m/s.`),
+Q(`Doubling the tension multiplies the first harmonic frequency by…`,[`√2`,`2`,`4`,`½`],0,`f ∝ √T.`),
+T(`<h3>Key points</h3><ul><li>Stationary waves: <b>nodes</b> and <b>antinodes</b>, no energy flow.</li><li>First harmonic: λ = 2L.</li><li><b>f = (1/2L)√(T/μ)</b>.</li></ul>`)]),
+LH('ap2-2-3','Interference, diffraction and refraction',11,'Young\'s slits, gratings, and light bending at boundaries.',[
+RM(`<p>Coherent sources: same frequency, constant phase difference. Path difference of whole wavelengths gives constructive interference.</p>`),
+T(`<h3>Young's double slit</h3><div class="eq">w = λD/s</div>${KY([['w','fringe spacing','m'],['D','slits to screen','m'],['s','slit separation','m']])}`),
+N(`λ = 600 nm, D = 2.0 m, s = 0.50 mm. Fringe spacing in mm?`,2.4,0.001,'mm',`600 × 10⁻⁹ × 2.0 ÷ 0.50 × 10⁻³ = 2.4 × 10⁻³ m.`),
+T(`<h3>Diffraction gratings</h3><div class="eq">d sin θ = nλ</div><p>d is the line spacing (1 ÷ lines per metre). Very sharp, bright maxima: used to measure wavelengths precisely.</p>`),
+T(`<h3>Refraction and total internal reflection</h3><p>n₁ sin θ₁ = n₂ sin θ₂. Going into a less dense medium, beyond the <b>critical angle</b> (sin θ<sub>c</sub> = n₂/n₁), all light reflects. Optical fibres use this, with cladding of lower n.</p>`),
+Q(`Why do optical fibres have cladding?`,[`It has a lower refractive index, so light totally internally reflects at the core boundary`,`To make them stronger only`,`To absorb light`,`To make the light faster`],0,`TIR needs n<sub>core</sub> > n<sub>cladding</sub>.`),
+T(`<h3>Key points</h3><ul><li>Young: <b>w = λD/s</b>. Grating: <b>d sin θ = nλ</b>.</li><li>Snell: <b>n₁ sin θ₁ = n₂ sin θ₂</b>.</li><li>TIR beyond the critical angle.</li></ul>`)])
+]});
+
+U({id:'ap2-3',track:'ap',level:2,title:'Mechanics and materials',icon:'F=ma',color:'#378ADD',desc:'Motion and projectiles, Newton\'s laws and momentum, and the properties of materials.',lessons:[
+LH('ap2-3-1','Motion and projectiles',11,'suvat in two dimensions, and the effect of air resistance.',[
+RM(`<p>suvat for constant acceleration. Resolving vectors into components.</p>`),
+T(`<h3>Projectiles</h3><p>Treat horizontal and vertical <b>independently</b>. Horizontal: constant velocity. Vertical: acceleration g downwards. Time links them.</p>`),
+W('calcDrill',{skill:'g_suvat',need:3},`suvat practice. Get 3 right to master it.`,`List s, u, v, a, t.`),
+W('stepCalc',{steps:[`A ball rolls off a 1.25 m high table at 3.0 m/s. How far from the table does it land?`,`Vertical: s = 1.25 m, u = 0, a = 9.81. s = ½at² gives t = √(2 × 1.25/9.81) = 0.505 s`,`Horizontal: distance = 3.0 × 0.505`,`<b>≈ 1.5 m</b>`]},`A horizontal launch.`,`Find the time from the vertical motion first.`),
+T(`<h3>Air resistance</h3><p>Drag increases with speed. A falling object reaches <b>terminal velocity</b> when drag equals weight. Projectiles with drag travel less far and land more steeply.</p>`),
 T(`<h3>Key points</h3><ul><li>Horizontal and vertical are <b>independent</b>.</li><li>Time links them.</li><li>Drag: terminal velocity, shorter range.</li></ul>`)]),
 LH('ap2-3-2','Newton\'s laws and momentum',11,'Force is the rate of change of momentum. That one idea covers collisions, rockets and impulse.',[
 RM(`<p>F = ma. Momentum p = mv. Momentum is conserved in a closed system.</p>`),
@@ -1000,76 +1122,4 @@ function NSIM(w,h,rnd){
   if(mode==='redundancy'){slider(box,'Number of trains',1,4,1,nT,function(v){return v},function(v){nT=v;dem=sysF=indF=0;moved++});slider(box,'Chance one train fails',.01,.3,.01,pf,function(v){return Math.round(v*100)+'%'},function(v){pf=v;dem=sysF=indF=0;moved++});slider(box,'Common cause β',0,.2,.01,beta,function(v){return Math.round(v*100)+'%'},function(v){beta=v;dem=sysF=indF=0;moved++});var st2=stats(box,[['d','Demands'],['f','System failures'],['p','Failure chance'],['i','If fully independent']])}
   if(mode==='tree'){['Reactor trips','Safety injection works','Long-term cooling works'].forEach(function(l,i){slider(box,l,.5,.999,.001,pr[i],function(v){return (v*100).toFixed(1)+'%'},function(v){pr[i]=v;ends={ok:0,cd:0};moved++})});var st3=stats(box,[['o','Safe end states'],['c','Core damage'],['f','Core damage chance']])}
   if(mode==='risk')slider(box,'Risk of death per year',-8,-2,.1,riskE,function(v){return '1 in '+fmtInt(Math.pow(10,-v))},function(v){riskE=v;moved++});
-  if(mode==='galton'){var r=row(box);btn(r,'Start again',function(){bins=new Array(11).fill(0);balls=[]})}
-  function initC(){comps=[];for(var i=0;i<100;i++)comps.push({ok:1,t:0})}initC();
-  run(scr,function(dt,tm){var c=scr.c,W=scr.W,H=scr.H,sd=dt/1000*(calm()?.5:1);tt+=dt;bgf(c,W,H);
-   if(mode==='galton'){band(c,W,'GALTON BOARD · random bounces make a bell curve','balls: '+bins.reduce(function(a,b){return a+b},0));var rows=10,top=36,pg=(H-120)/rows,cx=W/2,sp=Math.min(26,(W-40)/12);
-    for(var rI=0;rI<rows;rI++)for(var k=0;k<=rI;k++){c.fillStyle='rgba(170,200,255,.5)';c.beginPath();c.arc(cx+(k-rI/2)*sp,top+rI*pg+10,2.2,0,6.283);c.fill()}
-    if(Math.random()<dt/(calm()?260:90))balls.push({r:0,k:0,u:0});balls=balls.filter(function(b){b.u+=dt/120;while(b.u>=1){b.u-=1;b.r++;if(b.r>rows){bins[b.k]++;return false}if(Math.random()<.5)b.k++}var x=cx+(b.k-b.r/2)*sp+(b.r<rows?0:0),y=top+b.r*pg+10-8+b.u*pg;glow(c,x,y,7,CY,.5);ball(c,x,y,3.4,CY);return true});
-    var mx=Math.max(4,Math.max.apply(null,bins)),by=H-18,bh=H-top-rows*pg-36;bins.forEach(function(v,i){var x=cx+(i-5)*sp;c.fillStyle='rgba(58,212,255,.55)';c.fillRect(x-sp*.4,by-v/mx*bh,sp*.8,v/mx*bh)});var n=bins.reduce(function(a,b){return a+b},0);if(n>5){c.strokeStyle=rgba(YE,1);c.lineWidth=1.6;c.beginPath();for(var i2=0;i2<=100;i2++){var xv=i2/100*10,g=Math.exp(-Math.pow(xv-5,2)/(2*2.5))/Math.sqrt(2*Math.PI*2.5)*n,x2=cx+(xv-5)*sp,y2=by-g/mx*bh;if(i2)c.lineTo(x2,y2);else c.moveTo(x2,y2)}c.stroke()}return}
-   if(mode==='failure'){band(c,W,'100 PUMPS · random failures','t = '+fx(tt/1000,1)+' s');var cols=10,gs=Math.min((W*.45-20)/cols,(H-40)/10),ok=0;comps.forEach(function(q,i){if(q.ok&&Math.random()<1-Math.exp(-lam*sd))q.ok=0,q.t=0;else if(!q.ok){q.t+=sd;if(rep&&q.t>rep)q.ok=1}if(q.ok)ok++;var x=14+(i%cols)*gs,y=30+Math.floor(i/cols)*gs;c.fillStyle=q.ok?'rgba(120,235,140,.75)':'rgba(255,90,80,.85)';c.fillRect(x,y,gs-3,gs-3)});
-    surv.push([tt/1000,ok]);if(surv.length>600)surv.shift();var gx=W*.5+30,Cf=chart(c,gx,34,W-gx-12,H-70,{x:[Math.max(0,tt/1000-60),Math.max(60,tt/1000)],y:[0,105],ny:4,title:'PUMPS WORKING',xl:'seconds'});Cf.clip();poly(c,surv.map(function(s){return [Cf.X(s[0]),Cf.Y(s[1])]}),rgba(GR,1),2,6);Cf.un();if(!rep)Cf.fn(function(x){return 100*Math.exp(-lam*x)},'rgba(255,255,255,.45)',1.2);
-    st.w.textContent=ok+'/100';st.u.textContent=rep?fx(lam*rep/(1+lam*rep)*100,1)+'%':'–';if(!rep&&ok===0)initC(),tt=0,surv=[];return}
-   if(mode==='redundancy'){band(c,W,'SAFETY TRAINS · 1 working train is enough','');if(Math.random()<dt/(calm()?500:160)){dem++;var cc=Math.random()<beta*pf,f=[];for(var i3=0;i3<nT;i3++)f.push(cc||Math.random()<pf*(1-beta));trains=f;var all=f.every(function(x){return x});if(all)sysF++}
-    var tw=Math.min(90,(W-60)/nT-10);trains.forEach(function(fl,i){var x=30+i*(tw+12),y=60;c.fillStyle=fl?'rgba(255,90,80,.35)':'rgba(120,235,140,.3)';c.strokeStyle=fl?'#ff5a50':'#78eb8c';c.fillRect(x,y,tw,70);c.strokeRect(x,y,tw,70);hud(c,x+tw/2,y+40,'Train '+'ABCD'[i],'#fff',12,'center',true);hud(c,x+tw/2,y+58,fl?'failed':'works','rgba(255,255,255,.8)',9,'center')});
-    var sysOk=trains.length&&!trains.every(function(x){return x});hud(c,W/2,H-40,trains.length?(sysOk?'SYSTEM WORKS':'SYSTEM FAILS'):'waiting for a demand…',sysOk?'#8dff9a':'#ff6a5a',16,'center',true);
-    var pInd=Math.pow(pf,nT),pCC=beta*pf+(1-beta)*Math.pow(pf*(1-beta),nT);if(Math.floor(tm/300)!==Math.floor((tm-dt)/300)){st2.d.textContent=dem;st2.f.textContent=sysF;st2.p.textContent=fx(pCC*100,3)+'%';st2.i.textContent=fx(pInd*100,4)+'%'}return}
-   if(mode==='tree'){band(c,W,'EVENT TREE · initiating events flowing through the safety systems','');var cols2=[40,W*.3,W*.52,W*.74],ly=[H*.5];var nodes=[];
-    if(Math.random()<dt/(calm()?220:70))tree.push({x:cols2[0],y:H*.5,lvl:0,u:0,path:[]});
-    hud(c,8,34,narrow()?'Event':'Initiating event','rgba(220,235,255,.85)',9,'left',true);['Trip','Injection','Cooling'].forEach(function(l,i){hud(c,cols2[i+1],34,l,'rgba(220,235,255,.85)',9,'center',true)});
-    // branch lines
-    function yOf(path){var y=H*.5,sp=H*.22;path.forEach(function(ok,i){y+=ok?-sp/Math.pow(2,i):sp/Math.pow(2,i)});return y}
-    [[],[1],[0],[1,1],[1,0]].forEach(function(p0){if(p0.length>=3)return;var i=p0.length;if(p0.indexOf(0)>=0)return;var y0=yOf(p0);[1,0].forEach(function(ok){var p1=p0.concat([ok]);poly(c,[[cols2[i],y0],[cols2[i+1],y0],[cols2[i+1],yOf(p1)]],ok?'rgba(120,235,140,.35)':'rgba(255,90,80,.35)',1.4)})});
-    tree=tree.filter(function(q){q.u+=dt/700;if(q.u>=1){q.u=0;if(q.lvl>=3||q.path.indexOf(0)>=0){if(q.path.indexOf(0)>=0)ends.cd++;else ends.ok++;return false}q.path.push(Math.random()<pr[q.lvl]?1:0);q.lvl++}
-     var x=cols2[Math.min(3,q.lvl)]+(q.lvl<3?(cols2[q.lvl+1]-cols2[q.lvl])*q.u:q.u*30),y=yOf(q.path);var bad=q.path.indexOf(0)>=0;glow(c,x,y,8,bad?RD:GR,.6);ball(c,x,y,3.2,bad?RD:GR);return true});
-    hud(c,W-14,H*.28,'safe '+ends.ok,'#8dff9a',11,'right',true);hud(c,W-14,H*.82,'core damage '+ends.cd,'#ff6a5a',11,'right',true);var pcd=1-pr[0]*pr[1]*pr[2];if(Math.floor(tm/300)!==Math.floor((tm-dt)/300)){st3.o.textContent=ends.ok;st3.c.textContent=ends.cd;st3.f.textContent=fx(pcd*100,3)+'%'}return}
-   if(mode==='risk'){band(c,W,'TOLERABILITY OF RISK','');var x0=W*.18,x1=W*.82,yT=34,yB=H-24,mid=W/2;function wAt(y){var u=(y-yT)/(yB-yT);return (x1-x0)/2*(1-u*.85)}
-    [[yT,yT+(yB-yT)*.333,'UNACCEPTABLE',[255,90,80]],[yT+(yB-yT)*.333,yT+(yB-yT)*.667,'TOLERABLE IF ALARP',[255,190,80]],[yT+(yB-yT)*.667,yB,'BROADLY ACCEPTABLE',[120,235,140]]].forEach(function(z){c.fillStyle=rgba(z[3],.18);c.strokeStyle=rgba(z[3],.7);c.beginPath();c.moveTo(mid-wAt(z[0]),z[0]);c.lineTo(mid+wAt(z[0]),z[0]);c.lineTo(mid+wAt(z[1]),z[1]);c.lineTo(mid-wAt(z[1]),z[1]);c.closePath();c.fill();c.stroke();hud(c,mid,(z[0]+z[1])/2+4,z[2],rgba(z[3],1),10,'center',true)});
-    var u=( -2-riskE)/6,y=yT+u*(yB-yT);glow(c,mid+wAt(y)+18,y,14,WH,.6);ball(c,mid+wAt(y)+18,y,5,WH);var lt='1 in '+fmtInt(Math.pow(10,-riskE))+' a year',bx=mid+wAt(y)+18;if(bx+12+lt.length*6.3>W-6)hud(c,W-6,y-14,lt,'#fff',10,'right',true);else hud(c,bx+12,y+4,lt,'#fff',10,'left',true);[[.333,'1 in 10,000'],[.667,'1 in 1,000,000']].forEach(function(q){var yq=yT+(yB-yT)*q[0];hud(c,8,yq-2,q[1],'rgba(220,235,255,.75)',8,'left',true);hud(c,8,yq+9,'a year','rgba(220,235,255,.55)',7.5,'left')})}});
-  if(!par.goal)return {};return {check:function(){if(par.goal==='ccf')return nT>=3&&beta>=.05?{ok:true,head:'That\'s common cause!',msg:'Adding trains stops helping once one cause can knock them all out.'}:{ok:false,msg:'Use 3 or more trains and turn common cause β up to at least 5%. Compare the two failure chances.'};return moved?{ok:true}:{ok:false,msg:'Change a setting first.'}}}};
- /* ===== atom lab: 3D nuclei, isotopes, binding energy, stability, the liquid drop, fission, fusion, E = mc² ===== */
- var NUCS=[['Hydrogen-1',1,1,0,1,'one proton, nothing else'],['Deuterium (H-2)',1,2,1.11,1,'heavy hydrogen'],['Tritium (H-3)',1,3,2.83,0,'half-life 12.3 years'],['Helium-4',2,4,7.07,1,'the alpha particle'],['Lithium-7',3,7,5.61,1,''],['Carbon-12',6,12,7.68,1,''],['Carbon-14',6,14,7.52,0,'half-life 5,730 years'],['Oxygen-16',8,16,7.98,1,''],['Iron-56',26,56,8.79,1,'the most tightly bound'],['Cobalt-60',27,60,8.75,0,'half-life 5.3 years'],['Krypton-92',36,92,8.51,0,'fission product · 1.8 s'],['Strontium-90',38,90,8.70,0,'fission product · 28.8 years'],['Iodine-131',53,131,8.42,0,'fission product · 8 days'],['Xenon-135',54,135,8.40,0,'neutron poison · 9.1 hours'],['Caesium-137',55,137,8.39,0,'fission product · 30 years'],['Barium-141',56,141,8.33,0,'fission product · 18 minutes'],['Uranium-235',92,235,7.59,0,'fissile · 700 million years'],['Uranium-238',92,238,7.57,0,'fertile · 4.5 billion years'],['Plutonium-239',94,239,7.56,0,'fissile · 24,100 years']];
- function zStab(A){return A/(1.98+.015*Math.pow(A,2/3))}
- function semf(A){var Z=zStab(A);if(A<4)return 0;return (15.8*A-18.3*Math.pow(A,2/3)-.714*Z*(Z-1)/Math.pow(A,1/3)-23.2*(A-2*Z)*(A-2*Z)/A)/A}
- function nucPts(A,Z){var pts=[],R=Math.cbrt(A),pn=0;for(var i=0;i<A;i++){var u=(i+.5)/A,r=R*Math.cbrt(u)*.92,yy=1-2*((i*.618034)%1),rs=Math.sqrt(Math.max(0,1-yy*yy)),th=i*2.39996;var isP=Math.floor((i+1)*Z/A)>pn;if(isP)pn++;pts.push({x:Math.cos(th)*rs*r,y:yy*r,z:Math.sin(th)*rs*r,p:isP})}return pts}
- function drawNuc(c,pts,cx,cy,sc,yaw,pitch,opt){opt=opt||{};var cyw=Math.cos(yaw),syw=Math.sin(yaw),cp=Math.cos(pitch),sp=Math.sin(pitch),D=opt.D||14,out=[];
-  pts.forEach(function(q){var x=q.x*(opt.sx||1)+(q.ox||0),y=q.y*(opt.sy||1),z=q.z*(opt.sy||1);var X=x*cyw-z*syw,Z=x*syw+z*cyw,Y=y*cp-Z*sp,Z2=y*sp+Z*cp,f=D/(D-Z2);out.push([cx+X*sc*f,cy-Y*sc*f,Z2,f,q.p])});
-  out.sort(function(a,b){return a[2]-b[2]});out.forEach(function(o){ball(c,o[0],o[1],Math.max(1.5,sc*.62*o[3]),o[4]?[235,90,80]:[150,165,190])})}
- WIDGETS.atomLab=function(box,par){par=par||{};var mode=par.mode||'atom',ni=par.n!=null?par.n:5,tt=0,yaw=0,pts=null,ptsK='',st=null,stretch=0,fis={t:-1,pair:null},yields=new Array(30).fill(0),nFis=0,iso=par.iso||'C',dN=0,fz={t:0,n:0,T:par.T||100},emcN=par.n!=null?par.n:3,moved=0,fis2=0;
-  var scr=screen(box,par.h||300,330);
-  var pick=par.pick||(mode==='fission'||mode==='drop'?[16,17]:mode==='emc2'?[3,5,8,16]:null),list=pick?pick:NUCS.map(function(_,i){return i});if(pick&&(mode==='drop'||mode==='fission')&&list.indexOf(ni)<0)ni=list[0];
-  if(mode==='atom'||mode==='binding'||mode==='stability'||mode==='emc2'){var sel=select(box,'Nucleus',list.map(function(i){return NUCS[i][0]}),function(i){ni=list[i];moved++});sel.value=Math.max(0,list.indexOf(ni))}
-  if(mode==='isotope'){var ISO={H:[1,0,2,'Hydrogen',{0:'stable',1:'stable (deuterium)',2:'unstable · 12.3 years'}],C:[6,5,9,'Carbon',{6:'stable',7:'stable',8:'unstable · 5,730 years',5:'unstable · 20 minutes',9:'unstable · 2.4 seconds'}],U:[92,140,146,'Uranium',{140:'unstable · 69 years',141:'fissile · 160,000 years',142:'unstable · 245,000 years',143:'fissile · 700 million years',144:'unstable · 23 million years',145:'unstable · 7 days',146:'fertile · 4.5 billion years'}]},is=select(box,'Element',['Hydrogen','Carbon','Uranium'],function(i){iso='HCU'[i];dN=0;sN.input.min=ISO[iso][1];sN.input.max=ISO[iso][2];sN.set(ISO[iso][1]+1);moved++}),sN=slider(box,'Neutrons',ISO[iso][1],ISO[iso][2],1,ISO[iso][1]+1,function(v){return v},function(v){dN=v;moved++});is.value='HCU'.indexOf(iso);dN=+sN.get()}
-  if(mode==='drop'){var sel2=select(box,'Nucleus that absorbs a slow neutron',['Uranium-235','Uranium-238'],function(i){ni=16+i;moved++});var ss=slider(box,'Stretch the drop',0,1.4,.01,0,function(v){return Math.round(v*100)+'%'},function(v){stretch=v;moved++})}
-  if(mode==='fission'){var r=row(box);btn(r,'Fire a neutron',function(){fis.t=0;moved++},'pri');st=stats(box,[['k','Fragments’ energy'],['n','New neutrons'],['f','Fissions so far']])}
-  if(mode==='fusion'){slider(box,'Plasma temperature',10,300,5,fz.T,function(v){return v+' million °C'},function(v){fz.T=v;moved++});st=stats(box,[['r','Fusions each second'],['e','Energy per fusion']])}
-  if(mode==='binding'||mode==='atom'||mode==='emc2')st=stats(box,mode==='emc2'?[['d','Mass lost (mass defect)'],['e','Energy, E = mc²'],['p','Per nucleon']]:[['z','Protons (Z)'],['n','Neutrons (N)'],['b','Binding energy per nucleon']]);
-  function fpair(){var g=function(){var u=0;for(var i=0;i<6;i++)u+=Math.random();return (u-3)*2.4};var lo=Math.round(95+g()),hi=234-lo;return [lo,hi]}
-  run(scr,function(dt){var c=scr.c,W=scr.W,H=scr.H,nb=narrow(),wide=W>=620;tt+=dt;yaw+=dt*.0006*(calm()?.3:1);bgf(c,W,H);grid(c,W,H,30);
-   var N=NUCS[ni],Z=N[1],A=N[2];if(mode==='isotope'){var I=ISO[iso];Z=I[0];A=Z+dN}
-   var k=Z+'/'+A+'/'+(mode==='drop'?'d':'');if(ptsK!==k){pts=nucPts(A,Z);ptsK=k}
-   var nx=wide?W*.3:W/2,ny=wide?H*.55:H*.36,sc=Math.min(wide?H*.075:H*.05,(wide?W*.22:W*.32)/Math.cbrt(A)/2.2)*(A<20?1.6:1);
-   if(mode==='atom'||mode==='isotope'){band(c,W,mode==='atom'?'INSIDE THE ATOM':'ISOTOPES · same element, different neutrons',mode==='isotope'?I[3]+'-'+A:N[0]);var shells=[2,8,18,32,32,18,8],left=Z,rr=[];for(var s=0;s<shells.length&&left>0;s++){rr.push(Math.min(left,shells[s]));left-=shells[s]}
-    rr.forEach(function(ne,si){var R=Math.min(W,H)*(.2+si*.085)*(wide?.9:1),tilt=si*.9+.3;c.strokeStyle='rgba(120,170,255,.25)';c.lineWidth=1;c.beginPath();c.ellipse(nx,ny,R,R*.38,tilt,0,6.283);c.stroke();var show=Math.min(ne,10);for(var e=0;e<show;e++){var a=tt/1000*(1.6-si*.25)+e/show*6.283,ex=Math.cos(a)*R,ey=Math.sin(a)*R*.38,X=nx+ex*Math.cos(tilt)-ey*Math.sin(tilt),Y=ny+ex*Math.sin(tilt)+ey*Math.cos(tilt);glow(c,X,Y,6,CY,.6);c.fillStyle='#bff3ff';c.beginPath();c.arc(X,Y,1.8,0,6.283);c.fill()}});
-    drawNuc(c,pts,nx,ny,sc*.55,yaw,.35);var tx=wide?W*.62:14,ty=wide?60:H*.72;hud(c,tx,ty,(mode==='isotope'?I[3]+'-'+A:N[0]),'#fff',16,'left',true);hud(c,tx,ty+20,Z+' protons · '+(A-Z)+' neutrons · '+Z+' electrons','rgba(220,235,255,.9)',10,'left');
-    hud(c,tx,ty+36,mode==='isotope'?((I[4][A-Z])||'very unstable'):N[5],mode==='isotope'?(/stable/.test(I[4][A-Z]||'')&&!/unstable/.test(I[4][A-Z]||'')?'#8dff9a':'#ffd65a'):'#ffd65a',10,'left',true);hud(c,tx,ty+52,nb?'Not to scale: atoms are 100,000× wider':'Not to scale: a real atom is about 100,000 times wider than its nucleus.','rgba(160,190,230,.7)',8.5,'left');
-    if(st){st.z.textContent=Z;st.n.textContent=A-Z;st.b.textContent=fx(N[3],2)+' MeV'}return}
-   if(mode==='binding'||mode==='stability'||mode==='emc2'){band(c,W,mode==='binding'?'BINDING ENERGY PER NUCLEON':mode==='stability'?'THE VALLEY OF STABILITY':'MASS DEFECT AND E = mc²',N[0]);var nx2=wide?W*.2:W*.22,ny2=wide?H*.55:H*.28;drawNuc(c,pts,nx2,ny2,Math.min(sc*.5,(wide?W*.15:W*.18)/Math.cbrt(A)/2),yaw,.35);
-    var gx=wide?W*.42:16,gy=wide?36:H*.52,gw=W-gx-12,gh=wide?H-70:H-gy-30;
-    if(mode==='binding'){var Cb=chart(c,gx+28,gy,gw-28,gh,{x:[0,250],y:[0,9.5],ny:4,title:'MeV PER NUCLEON',xl:'mass number A'});Cb.fn(function(a){return a<10?NaN:semf(a)},rgba(CY,.9),2,6);NUCS.forEach(function(q){Cb.dot(q[2],q[3],'rgba(255,255,255,.35)',2.5)});Cb.dot(A,N[3],'#ffd65a',6);arrow(c,Cb.X(8),Cb.Y(3),Cb.X(45),Cb.Y(8.2),'rgba(120,235,140,.8)',1.6,[4,3]);hud(c,Cb.X(16),Cb.Y(2.2),'fusion →','#8dff9a',9,'left',true);arrow(c,Cb.X(235),Cb.Y(7.3),Cb.X(140),Cb.Y(8.15),'rgba(255,170,80,.8)',1.6,[4,3]);hud(c,Cb.X(238),Cb.Y(6.7),'← fission','#ffaa50',9,'right',true);st.z.textContent=Z;st.n.textContent=A-Z;st.b.textContent=fx(N[3],2)+' MeV';return}
-    if(mode==='stability'){var Cs=chart(c,gx+28,gy,gw-28,gh,{x:[0,100],y:[0,150],ny:4,title:'NEUTRONS (N) AGAINST PROTONS (Z)',xl:'protons Z'});Cs.fn(function(z){return z},'rgba(255,255,255,.25)',1);c.strokeStyle='rgba(120,235,140,.25)';c.lineWidth=10;c.beginPath();for(var a2=4;a2<=250;a2+=3){var z2=zStab(a2);if(a2===4)c.moveTo(Cs.X(z2),Cs.Y(a2-z2));else c.lineTo(Cs.X(z2),Cs.Y(a2-z2))}c.stroke();hud(c,Cs.X(60),Cs.Y(150*.95),'N = Z','rgba(255,255,255,.5)',8,'left');
-     NUCS.forEach(function(q){Cs.dot(q[1],q[2]-q[1],q[4]?'rgba(120,235,140,.9)':'rgba(255,170,80,.9)',3)});Cs.dot(Z,A-Z,'#fff',6);var zs=zStab(A),dir=(A-Z)-(A-zs);if(N[4])hud(c,Cs.X(Z)+8,Cs.Y(A-Z),'stable','#8dff9a',9,'left',true);else{var lab=A>200?'α decay':dir>0?'β⁻ decay (too many neutrons)':'β⁺ decay';hud(c,Cs.X(Z)+8,Cs.Y(A-Z),lab,'#ffaa50',9,'left',true)}return}
-    var mp=1.007276,mn=1.008665,me=.000549,Mn=Z*mp+(A-Z)*mn-N[3]*A/931.494,dm=Z*mp+(A-Z)*mn-Mn,E=dm*931.494;hud(c,gx,gy+10,'pieces: '+Z+' × 1.00728 u + '+(A-Z)+' × 1.00866 u = '+fx(Z*mp+(A-Z)*mn,4)+' u','rgba(220,235,255,.9)',nb?8.5:10,'left');hud(c,gx,gy+28,'nucleus: '+fx(Mn,4)+' u','rgba(220,235,255,.9)',nb?8.5:10,'left');hud(c,gx,gy+50,'missing mass Δm = '+fx(dm,5)+' u = '+sci(dm*1.6605e-27,3)+' kg','#ffd65a',nb?9:11,'left',true);hud(c,gx,gy+70,'E = Δm c² = '+fx(E,1)+' MeV = '+sci(E*1.602e-13,3)+' J','#3ad4ff',nb?9:11,'left',true);
-    var bw=Math.min(gw-20,320),bx=gx,by=gy+92,bh=Math.min(24,gh/6);c.fillStyle='rgba(143,128,255,.6)';c.fillRect(bx,by,bw,bh);hud(c,bx+6,by+bh*.7,'separate protons and neutrons','#fff',9,'left',true);var fr=Mn/(Z*mp+(A-Z)*mn),ex=Math.max(4,(1-fr)*bw*120);c.fillStyle='rgba(58,212,255,.6)';c.fillRect(bx,by+bh+8,bw-ex,bh);c.fillStyle='rgba(255,214,90,.85)';c.fillRect(bx+bw-ex,by+bh+8,ex,bh);hud(c,bx+6,by+bh*1.7+8,'the nucleus','#fff',9,'left',true);hud(c,bx+bw-ex/2,by+bh*2+22,'Δm (×120 so you can see it)','#ffd65a',8,'center');
-    st.d.textContent=fx(dm,4)+' u';st.e.textContent=fx(E,1)+' MeV';st.p.textContent=fx(E/A,2)+' MeV';return}
-   if(mode==='drop'){var e=stretch,U5=ni===16,Bn=U5?6.5:4.8,Ef=U5?6.2:6.6;band(c,W,'THE LIQUID DROP · stretch it until it splits',N[0]+' + n');var split=e>1.15;pts.forEach(function(q){q.ox=split?(q.x>0?1:-1)*(e-1.15)*8:0});
-    drawNuc(c,pts,nx,ny,sc*.62,yaw*.3,.25,{sx:1+e*.9,sy:1/Math.sqrt(1+e*.9)});var gx2=wide?W*.56:16,gy2=wide?40:H*.66,gw2=W-gx2-12,gh2=wide?H-80:H-gy2-30,Ce=chart(c,gx2+28,gy2,gw2-28,gh2,{x:[0,1.4],y:[-2,8],ny:3,title:'ENERGY NEEDED TO STRETCH (MeV)',xf:function(v){return Math.round(v*100)+'%'}});
-    var Eb=function(x){return x<.7?Ef*(1-Math.pow((x-.7)/.7,2)):Ef-(x-.7)*12};Ce.fn(Eb,rgba(OR,1),2.2,6);c.setLineDash([4,4]);poly(c,[[Ce.X(0),Ce.Y(Bn)],[Ce.X(1.4),Ce.Y(Bn)]],'#3ad4ff',1.5);c.setLineDash([]);hud(c,Ce.X(.02),Ce.Y(Bn)-5,(nb?'slow neutron brings ':'energy a slow neutron brings: ')+Bn+' MeV','#3ad4ff',8.5,'left',true);hud(c,Ce.X(.7),Ce.Y(Ef)+(Bn>Ef?16:-6),'barrier '+Ef+' MeV','#ffaa50',8.5,'center',true);Ce.dot(e,Math.max(-2,Eb(e)),'#fff',5);
-    hud(c,14,H-12,Bn>Ef?'Over the barrier: a slow neutron is enough. Fissile.':'Not enough: it needs a fast neutron. Fertile.',Bn>Ef?'#8dff9a':'#ffd65a',nb?9:10.5,'left',true);return}
-   if(mode==='fission'){band(c,W,'FISSION · U-235 + n','fissions: '+nFis);if(fis.t<0&&!calm()&&tt%3600<dt)fis.t=0;if(fis.t>=0)fis.t+=dt;var u=fis.t,cx=wide?W*.32:W/2,cy=wide?H*.52:H*.34;
-    if(fis.t<0||u<900){var px=u<0?cx-160:cx-160+(u/900)*140;drawNuc(c,pts,cx,cy,sc*.55,yaw,.35);if(fis.t>=0){glow(c,px,cy,10,CY,.8);ball(c,px,cy,4,CY)}}
-    else if(u<1500){var wob=Math.sin((u-900)/40)*.25*(u-900)/600;drawNuc(c,pts,cx,cy,sc*.55,yaw,.35,{sx:1+wob+.4*(u-900)/600,sy:1-wob*.5})}
-    else{if(!fis.pair){fis.pair=fpair();nFis++;var bi=Math.min(29,Math.max(0,Math.floor((fis.pair[0]-70)/3)));yields[bi]++;var bi2=Math.min(29,Math.max(0,Math.floor((fis.pair[1]-70)/3)));yields[bi2]++;fis.nn=Math.random()<.43?3:2}var d=(u-1500)/1000*(W*.18);glow(c,cx,cy,60*Math.max(0,1-(u-1500)/500),YE,.8);
-     ball(c,cx-d*.9,cy-d*.25,sc*.55*Math.cbrt(fis.pair[0])*.95,OR);ball(c,cx+d*.9,cy+d*.25,sc*.55*Math.cbrt(fis.pair[1])*.95,VI);hud(c,cx-d*.9,cy-d*.25-sc*3,'A = '+fis.pair[0],'#ffaa50',9,'center',true);hud(c,cx+d*.9,cy+d*.25-sc*3.4,'A = '+fis.pair[1],'#c8bfff',9,'center',true);
-     for(var q=0;q<fis.nn;q++){var a=q*2.1+.6,nx3=cx+Math.cos(a)*d*1.4,ny3=cy+Math.sin(a)*d*1.4;glow(c,nx3,ny3,9,CY,.8);ball(c,nx3,ny3,3.5,CY)}if(u>3200){fis.t=-1;fis.pair=null}}
-    var hx=wide?W*.6:46,hy=wide?40:H*.66,Cy=chart(c,hx,hy,W-hx-12,wide?H-80:H-hy-30,{x:[70,160],y:[0,Math.max(3,Math.max.apply(null,yields)*1.2)],ny:2,title:'FRAGMENT SIZES (MASS NUMBER)'});yields.
+  if(mode==='galton'){var r=row(box);btn(r,'Start again',fun
