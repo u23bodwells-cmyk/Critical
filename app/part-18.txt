@@ -1,4 +1,5 @@
-s geometric buckling is B² = (π ÷ a)². Find B², per cm².',b:S.b,e:'π ÷ '+a+' = '+cNum(nSF(Math.PI/a,4))+'. Square it: '+S.s+' per cm². A bigger core has a smaller buckling: fewer neutrons leak.'}};
+],e:'D ÷ Σ<sub>a</sub> = '+cNum(nSF(D2/Sa,4))+' cm². √ that = '+cNum(L)+' cm.'}};
+CGEN.n_buck=function(){var a=cP([100,200,300,150]),B=nSF(Math.pow(Math.PI/a,2),3),S=nStd(B,'B² = ');return {p:'A bare slab reactor is '+a+' cm thick. Its geometric buckling is B² = (π ÷ a)². Find B², per cm².',b:S.b,e:'π ÷ '+a+' = '+cNum(nSF(Math.PI/a,4))+'. Square it: '+S.s+' per cm². A bigger core has a smaller buckling: fewer neutrons leak.'}};
 CGEN.n_deplete=function(){var sp=cP([1e-9,2e-9,3e-9]),d=cP([100,200,300,365]),t=d*86400,f=nSF(Math.exp(-sp*t)*100,3);return {p:'A nuclide is burned by neutrons at σφ = '+nPow(sp*1e9,-9)+' per second. What percentage is left after '+d+' days? (N/N₀ = e<sup>−σφt</sup>, 3 s.f.)',b:[cB(f,'','%','remaining',false,0.01)],e:d+' days = '+cNum(t)+' s. σφt = '+cNum(nSF(sp*t,4))+'. e'+cSup('−'+cNum(nSF(sp*t,4)))+' = '+cNum(f)+'%.'}};
 CGEN.n_power_it=function(){var S0=cP([1000,2000,5000]),k=cP([0.98,1.02,1.05,0.95,1.0]),S1=Math.round(S0*k);return {p:'In a power iteration, one generation has a source of '+S0+' neutrons and the next has '+S1+'. Estimate k.',b:[cB(nSF(S1/S0,4),'k ≈ ','','k',false,0.002)],e:'k ≈ next generation ÷ this one = '+S1+' ÷ '+S0+' = '+cNum(nSF(S1/S0,4))+'.'}};
 CGEN.n_euler=function(){var lam=cP([0.1,0.2,0.5]),N0=cP([100,1000,500]),h=cP([0.5,1,2]),N1=N0-lam*N0*h;return {p:'dN/dt = −'+lam+'N, with N = '+N0+' now. Take one Euler step of '+h+' s: N<sub>new</sub> = N + h × dN/dt. What is N<sub>new</sub>?',b:[cB(N1,'N = ')],e:'dN/dt = −'+lam+' × '+N0+' = '+cNum(-lam*N0)+'. N<sub>new</sub> = '+N0+' + '+h+' × '+cBr(-lam*N0)+' = '+cNum(N1)+'.'}};
@@ -1086,6 +1087,4 @@ function ghRun(ui,tag,ghost){var u=UNITS[ui],pool=ghostPool(ui),order=shuffle(po
    (!prev?'<p class="ghm">Next time you take this test, this attempt races you as a ghost mouse. Try it again after you\'ve done the lessons!</p>':'')+
    '<p class="ghm">+'+(score*2+(beat?15:0))+' XP'+(beat?' (including 15 for beating your ghost)':'')+'</p></div>'+
    '<div class="ghcard"><h2>Question by question'+(prev?' (last time → now)':'')+'</h2>'+rows+'</div><div class="ghbtns"><button type="button" class="ghgo" id="ghAgain">Race again</button><button type="button" class="ghgo alt" data-a="x2">Done</button></div></div>';
-  ghWire();ghEl.querySelector('#ghAgain').onclick=function(){ghStart(ui)};ghEl.querySelector('[data-a=x2]').onclick=ghClose;try{if(beat)confetti()}catch(e){}}
- show()}
-/* the button sits on each unit, next to Mixed practice and Exam-style; it 
+  ghWire(
