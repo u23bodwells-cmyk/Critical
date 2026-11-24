@@ -263,7 +263,7 @@ function Player(el,def,hooks){
   function clock(){return E.clk==="a"&&AU.c?AU.c.currentTime:performance.now()/1000}
   function T(){return E.playing?E.base+(clock()-E.sync):E.base}
   function resync(){var t=T();E.clk=(API.sound&&on())?"a":"p";E.base=t;E.sync=clock();E.next=Math.ceil(t/E.step-1e-6)}
-  function size(){var r=el.getBoundingClientRect();if(!r.width)return;g.dpr=Math.min(2,WIN.devicePixelRatio||1);g.W=r.width;g.H=r.height;cv.width=Math.round(g.W*g.dpr);cv.height=Math.round(g.H*g.dpr);var rail=g.W<640?80:0;g.cw=g.W-rail-16;g.cx=8+g.cw/2}
+  function size(){var r=el.getBoundingClientRect();if(!r.width)return;g.dpr=Math.min(2,WIN.devicePixelRatio||1);g.W=r.width;g.H=r.height;cv.width=Math.round(g.W*g.dpr);cv.height=Math.round(g.H*g.dpr);var m=g.W<640?Math.min(66,g.W*.17):24;g.cw=g.W-2*m;g.cx=g.W/2}
   function render(t){var W=g.W,H=g.H;if(!W)return;
     var loc=((t%dur)+dur)%dur,beat=loc/bs,i=0;while(i<starts.length-1&&beat>=starts[i+1])i++;
     var s=def.shots[i],bt=beat-starts[i],u=bt/s.b,p=Math.exp(-5*(beat%1)),pal=PAL[s.c||def.pal[i%def.pal.length]]||PAL.violet;
