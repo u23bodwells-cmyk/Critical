@@ -6,8 +6,21 @@
 var WIN=window;
 
 /* ================= audio ================= */
-var AU={c:null,m:null,nz:null,sh:null};
+var AU={c:null,m:null,nz:null,sh:null,tag:null};
+/* half a second of silence as a WAV. Playing it on a loop through an <audio> tag makes iPhones treat the page as media,
+   so the music plays even when the ring/silent switch is on silent (otherwise Safari mutes Web Audio). */
+function silentWav(){var sr=8000,n=4000,buf=new Uint8Array(44+n),dv=new DataView(buf.buffer),w=function(o,s){for(var i=0;i<s.length;i++)buf[o+i]=s.charCodeAt(i)};
+  w(0,"RIFF");dv.setUint32(4,36+n,true);w(8,"WAVE");w(12,"fmt ");dv.setUint32(16,16,true);dv.setUint16(20,1,true);dv.setUint16(22,1,true);dv.setUint32(24,sr,true);dv.setUint32(28,sr,true);dv.setUint16(32,1,true);dv.setUint16(34,8,true);w(36,"data");dv.setUint32(40,n,true);
+  for(var i=0;i<n;i++)buf[44+i]=128;var s="";for(i=0;i<buf.length;i++)s+=String.fromCharCode(buf[i]);return"data:audio/wav;base64,"+btoa(s)}
+function mediaMode(){
+  try{if(navigator.audioSession&&navigator.audioSession.type!=="playback")navigator.audioSession.type="playback"}catch(e){}
+  try{if(!AU.tag){var a=document.createElement("audio");a.setAttribute("playsinline","");a.setAttribute("x-webkit-airplay","deny");a.loop=true;a.preload="auto";a.src=silentWav();AU.tag=a}
+    if(AU.tag.paused){var pr=AU.tag.play();if(pr&&pr.catch)pr.catch(function(){})}}catch(e){}
+}
+function needs(){return!on()||!!(AU.tag&&AU.tag.paused)}
+function sleep(){try{if(AU.tag&&!AU.tag.paused)AU.tag.pause()}catch(e){}}
 function unlock(){
+  mediaMode();
   try{
     if(!AU.c){
       var C=WIN.AudioContext||WIN.webkitAudioContext;if(!C)return Promise.resolve(false);
@@ -421,6 +434,6 @@ function genTF(bank){
 }
 
 if(document.fonts&&document.fonts.load){document.fonts.load("40px Anton").then(function(){haveAnton=document.fonts.check("40px Anton");FIT.clear()},function(){})}
-var API={sound:true,unlock:unlock,on:on,Player:Player,EDITS:EDITS,genQuiz:genQuiz,genTF:genTF,sfx:sfx};
+var API={sound:true,unlock:unlock,on:on,needs:needs,sleep:sleep,Player:Player,EDITS:EDITS,genQuiz:genQuiz,genTF:genTF,sfx:sfx};
 WIN.ChainEdits=API;
 })();
