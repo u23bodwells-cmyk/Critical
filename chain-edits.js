@@ -90,6 +90,26 @@ var PAL={fire:["#ff3b30","#1f0000","#ff9d2e"],ice:["#3ad4ff","#00131f","#7a5cff"
   mono:["#ffffff","#050505","#8aa0ff"],pink:["#ff3b8d","#1f000d","#7a3cff"],blue:["#3a8bff","#000a22","#00e0ff"],sepia:["#e0b27a","#160d04","#ff7a3d"],teal:["#2ee6b8","#001a14","#3a8bff"]};
 var SCENE={violet:"grid",pink:"grid",blue:"grid",ice:"stars",teal:"stars",mono:"stars",fire:"smoke",gold:"smoke",toxic:"smoke",sepia:"film"};
 var haveAnton=false,FIT=new Map(),CACHE=new WeakMap(),G={gl:0,pal:null};
+/* Quality: 2 = full effects, 1 = phone default, 0 = lightest. It adapts to the measured frame rate,
+   and drops while the feed is being swiped so scrolling stays smooth. */
+var TOUCH=("ontouchstart" in WIN)||(navigator.maxTouchPoints>0),Q={lv:TOUCH?1:2,ema:16,slow:0,fast:0};
+function qlv(){return API.moving?Math.min(Q.lv,0):Q.lv}
+function qTick(dt){if(dt<=0||dt>200)return;Q.ema=Q.ema*.92+dt*.08;if(Q.ema>21){Q.slow++;Q.fast=0;if(Q.slow>45&&Q.lv>0){Q.lv--;Q.slow=0}}else if(Q.ema<14.5){Q.fast++;Q.slow=0;if(Q.fast>240&&Q.lv<2){Q.lv++;Q.fast=0}}else{Q.slow=0;Q.fast=0}}
+/* each glowing title letter is drawn once to a small canvas and reused, instead of re-blurring it every frame */
+var SPR=new Map();
+function sprite(c,sz,col,pal){var key=c+"|"+sz+"|"+(col||"")+"|"+pal[0]+"|"+haveAnton;var s=SPR.get(key);if(s)return s;
+  var t=document.createElement("canvas"),x=t.getContext("2d"),f=fnt(sz,"a");x.font=f;var w=Math.ceil(x.measureText(c).width),pad=Math.ceil(sz*.45),d=Math.min(2,WIN.devicePixelRatio||1);
+  t.width=(w+pad*2)*d;t.height=(Math.ceil(sz*1.3)+pad*2)*d;x=t.getContext("2d");x.scale(d,d);x.font=f;x.textAlign="center";x.textBaseline="middle";var cx=(w+pad*2)/2,cy=(Math.ceil(sz*1.3)+pad*2)/2;
+  for(var e=5;e>=1;e--){x.fillStyle=e>2?"rgba(0,0,0,.55)":hexA(pal[2]||pal[0],.85);x.fillText(c,cx+e*sz*.012,cy+e*sz*.02)}
+  var gr=x.createLinearGradient(0,cy-sz*.5,0,cy+sz*.5);gr.addColorStop(0,"#ffffff");gr.addColorStop(.5,col||"#ffffff");gr.addColorStop(1,col?hexA(col,1):hexA(pal[0],1));
+  x.shadowColor=hexA(col||pal[0],.95);x.shadowBlur=sz*.35;x.fillStyle=gr;x.fillText(c,cx,cy);x.shadowBlur=0;x.lineWidth=Math.max(1.2,sz*.025);x.strokeStyle="rgba(255,255,255,.35)";x.strokeText(c,cx,cy);
+  s={c:t,w:w+pad*2,h:Math.ceil(sz*1.3)+pad*2};if(SPR.size>600)SPR.clear();SPR.set(key,s);return s}
+/* plain glowing labels: the whole line cached the same way */
+function lineSprite(l,sz,col,pal,kind){var key="L|"+l+"|"+sz+"|"+col+"|"+pal[0]+"|"+haveAnton;var s=SPR.get(key);if(s)return s;
+  var t=document.createElement("canvas"),x=t.getContext("2d"),f=fnt(sz,kind);x.font=f;var w=Math.ceil(x.measureText(l).width),pad=Math.ceil(sz*.4),d=Math.min(2,WIN.devicePixelRatio||1),h=Math.ceil(sz*1.3);
+  t.width=(w+pad*2)*d;t.height=(h+pad*2)*d;x=t.getContext("2d");x.scale(d,d);x.font=f;x.textAlign="center";x.textBaseline="middle";var cx=(w+pad*2)/2,cy=(h+pad*2)/2;
+  x.shadowColor=hexA(col==="#fff"?pal[0]:col,.9);x.shadowBlur=sz*.3;x.fillStyle=col;x.fillText(l,cx,cy);x.shadowBlur=0;x.lineWidth=Math.max(1.5,sz*.035);x.strokeStyle="rgba(0,0,0,.55)";x.strokeText(l,cx,cy);x.fillStyle=col;x.fillText(l,cx,cy);
+  s={c:t,w:w+pad*2,h:h+pad*2,tw:w};if(SPR.size>600)SPR.clear();SPR.set(key,s);return s}
 function cl(v){return v<0?0:v>1?1:v}
 function eo(t){t=cl(t);return 1-Math.pow(1-t,3)}
 function eoe(t){t=cl(t);return t>=1?1:1-Math.pow(2,-10*t)}
@@ -111,23 +131,21 @@ function text(g,txt,cx,cy,maxW,maxH,o){
   if(o.hero&&o.kind!=="s"&&o.stroke!==false){hero(g,lines,cx,y0,lh,sz,o,pal);return sz}
   for(var i=0;i<lines.length;i++){var l=lines[i],y=y0+i*lh;
     if(o.glitch){x.globalCompositeOperation="lighter";x.fillStyle="rgba(255,0,60,.85)";x.fillText(l,cx-o.glitch,y);x.fillStyle="rgba(0,220,255,.85)";x.fillText(l,cx+o.glitch,y);x.globalCompositeOperation="source-over"}
-    if(o.stroke!==false){x.lineJoin="round";if(o.kind==="s"){x.lineWidth=Math.max(2,sz*.16);x.strokeStyle="rgba(0,0,0,.75)";x.strokeText(l,cx,y)}else{x.save();x.shadowColor=hexA(col==="#fff"?pal[0]:col,.9);x.shadowBlur=sz*.3;x.fillStyle=col;x.fillText(l,cx,y);x.restore();x.lineWidth=Math.max(1.5,sz*.035);x.strokeStyle="rgba(0,0,0,.55)";x.strokeText(l,cx,y)}}
+    if(o.stroke!==false){x.lineJoin="round";if(o.kind==="s"){x.lineWidth=Math.max(2,sz*.16);x.strokeStyle="rgba(0,0,0,.75)";x.strokeText(l,cx,y)}else{var ls=lineSprite(l,sz,col,pal,o.kind),ax=o.align==="left"?cx-(ls.w-ls.tw)/2:o.align==="right"?cx-ls.w+(ls.w-ls.tw)/2:cx-ls.w/2;x.drawImage(ls.c,ax,y-ls.h/2,ls.w,ls.h);continue}}
     x.fillStyle=col;x.fillText(l,cx,y)}
   return sz;
 }
 /* big title text: letters fly in one by one, with a 3D extrude, coloured glow and a gradient fill */
-function hero(g,lines,cx,y0,lh,sz,o,pal){var x=g.x,t=o.t==null?9:o.t,st=o.stagger==null?.05:o.stagger,n=0,col=o.col;
+function hero(g,lines,cx,y0,lh,sz,o,pal){var x=g.x,t=o.t==null?9:o.t,st=o.stagger==null?.05:o.stagger,n=0,col=o.col,bz=Math.max(8,Math.round(sz/2)*2);
   for(var li=0;li<lines.length;li++){var l=Array.from(lines[li]),y=y0+li*lh,ws=l.map(function(c){return x.measureText(c).width}),tw=ws.reduce(function(a,b){return a+b},0),X=o.align==="left"?cx:cx-tw/2;
-    var gr=x.createLinearGradient(0,y-sz*.5,0,y+sz*.5);gr.addColorStop(0,"#ffffff");gr.addColorStop(.5,col||"#ffffff");gr.addColorStop(1,col?hexA(col,1):hexA(pal[0],1));
-    for(var ci=0;ci<l.length;ci++){var c=l[ci],w=ws[ci],lt=cl((t-n*st)/.22),a=Math.min(1,lt*2.5),sc=1+1.6*(1-eo(lt)),rot=(1-eo(lt))*(n%2?.35:-.35);n++;
+    for(var ci=0;ci<l.length;ci++){var c=l[ci],w=ws[ci],lt=cl((t-n*st)/.22),a=Math.min(1,lt*2.5),sc=(1+1.6*(1-eo(lt)))*sz/bz,rot=(1-eo(lt))*(n%2?.35:-.35);n++;
       if(a<=0||c===" "){X+=w;continue}
-      x.save();x.translate(X+w/2,y);x.rotate(rot);x.scale(sc,sc);x.globalAlpha=a;x.textAlign="center";
-      for(var e=5;e>=1;e--){x.fillStyle=e>2?"rgba(0,0,0,.55)":hexA(pal[2]||pal[0],.85);x.fillText(c,e*sz*.012,e*sz*.02)}
-      if(o.glitch){x.globalCompositeOperation="lighter";x.fillStyle="rgba(255,0,60,.8)";x.fillText(c,-o.glitch,0);x.fillStyle="rgba(0,220,255,.8)";x.fillText(c,o.glitch,0);x.globalCompositeOperation="source-over"}
-      x.shadowColor=hexA(col||pal[0],.95);x.shadowBlur=sz*.35;x.fillStyle=gr;x.translate(0,-y);x.fillText(c,0,y);x.shadowBlur=0;
-      x.lineWidth=Math.max(1.2,sz*.025);x.strokeStyle="rgba(255,255,255,.35)";x.strokeText(c,0,y);x.restore();X+=w}}
+      var sp=sprite(c,bz,col,pal);x.save();x.translate(X+w/2,y);x.rotate(rot);x.scale(sc,sc);x.globalAlpha=a;
+      if(o.glitch){x.globalCompositeOperation="lighter";x.globalAlpha=a*.7;x.drawImage(sp.c,-sp.w/2-o.glitch*bz/sz,-sp.h/2,sp.w,sp.h);x.drawImage(sp.c,-sp.w/2+o.glitch*bz/sz,-sp.h/2,sp.w,sp.h);x.globalCompositeOperation="source-over";x.globalAlpha=a}
+      x.drawImage(sp.c,-sp.w/2,-sp.h/2,sp.w,sp.h);x.restore();X+=w}}
   x.globalAlpha=1;x.textAlign="center";
 }
+
 function wrap(x,txt,maxW){var out=[];String(txt).split("\n").forEach(function(par){var line="";par.split(" ").forEach(function(w){var t=line?line+" "+w:w;if(x.measureText(t).width>maxW&&line){out.push(line);line=w}else line=t});out.push(line)});return out}
 function rr(x,X,Y,w,h,r){x.beginPath();x.moveTo(X+r,Y);x.arcTo(X+w,Y,X+w,Y+h,r);x.arcTo(X+w,Y+h,X,Y+h,r);x.arcTo(X,Y+h,X,Y,r);x.arcTo(X,Y,X+w,Y,r);x.closePath()}
 function fmt(v,dec){return v.toLocaleString("en-GB",{minimumFractionDigits:dec,maximumFractionDigits:dec})}
@@ -138,7 +156,7 @@ function bg(g,pal,p,t,sc,kp,hot){var x=g.x,W=g.W,H=g.H,cx=g.cx,cy=H*.42,R=Math.m
   var lg=x.createLinearGradient(0,0,0,H);lg.addColorStop(0,pal[1]);lg.addColorStop(.6,"#030308");lg.addColorStop(1,pal[1]);x.fillStyle=lg;x.fillRect(0,0,W,H);
   x.globalCompositeOperation="lighter";
   for(i=0;i<3;i++){var bx=cx+Math.sin(t*.23+i*2.1)*W*.38,by=cy+Math.cos(t*.19+i*1.7)*H*.26,rad=R*(.42+.1*i),c=i===1?pal[2]:pal[0],gr=x.createRadialGradient(bx,by,0,bx,by,rad);gr.addColorStop(0,hexA(c,.2+.1*p+.08*kp));gr.addColorStop(1,hexA(c,0));x.fillStyle=gr;x.fillRect(0,0,W,H)}
-  if(sc==="grid"){var hz=H*.6,sp=hot?2.2:1;x.strokeStyle=hexA(pal[0],.55);x.lineWidth=1.5;x.shadowColor=pal[0];x.shadowBlur=8;
+  if(sc==="grid"){var hz=H*.6,sp=hot?2.2:1;x.strokeStyle=hexA(pal[0],.6);x.lineWidth=1.6;
     for(i=0;i<14;i++){var z=((i+t*sp)%14)/14,yy=hz+(H-hz)*z*z;x.globalAlpha=z;x.beginPath();x.moveTo(0,yy);x.lineTo(W,yy);x.stroke()}
     x.globalAlpha=1;for(i=-9;i<=9;i++){x.beginPath();x.moveTo(cx+i*W*.02,hz);x.lineTo(cx+i*W*.28,H);x.stroke()}
     var hg=x.createLinearGradient(0,hz-H*.08,0,hz+H*.02);hg.addColorStop(0,hexA(pal[2],0));hg.addColorStop(.8,hexA(pal[2],.5));hg.addColorStop(1,hexA(pal[2],0));x.shadowBlur=0;x.fillStyle=hg;x.fillRect(0,hz-H*.08,W,H*.1)}
@@ -149,12 +167,12 @@ function bg(g,pal,p,t,sc,kp,hot){var x=g.x,W=g.W,H=g.H,cx=g.cx,cy=H*.42,R=Math.m
 }
 var BL=null;
 /* cheap bloom: shrink the frame, keep only the bright parts (multiply it by itself) and add it back blurred */
-function bloom(g,amt){try{if(!BL){BL=document.createElement("canvas");BL.c=BL.getContext("2d")}var w=Math.max(1,Math.round(g.W/7)),h=Math.max(1,Math.round(g.H/7));if(BL.width!==w||BL.height!==h){BL.width=w;BL.height=h}
+function bloom(g,amt){if(qlv()<1)return;try{if(!BL){BL=document.createElement("canvas");BL.c=BL.getContext("2d")}var dv=qlv()>1?7:10,w=Math.max(1,Math.round(g.W/dv)),h=Math.max(1,Math.round(g.H/dv));if(BL.width!==w||BL.height!==h){BL.width=w;BL.height=h}
   var b=BL.c;b.globalCompositeOperation="source-over";b.globalAlpha=1;b.imageSmoothingEnabled=true;b.drawImage(g.cv,0,0,w,h);b.globalCompositeOperation="multiply";b.drawImage(BL,0,0);b.drawImage(BL,0,0);b.globalCompositeOperation="source-over";
   var x=g.x;x.save();x.globalCompositeOperation="lighter";x.globalAlpha=amt;x.imageSmoothingEnabled=true;x.drawImage(BL,-g.W*.01,-g.H*.01,g.W*1.02,g.H*1.02);x.restore()}catch(e){}}
 /* motion blurs used by the transitions: zoom blur from the centre, or a sideways whip blur */
-function zblur(g,str){var x=g.x,d=g.dpr,cv=g.cv,cxp=g.cx*d,cyp=g.H*.42*d;x.save();x.setTransform(1,0,0,1,0,0);for(var i=1;i<=3;i++){var s=1+str*.035*i;x.globalAlpha=.24;x.drawImage(cv,cxp*(1-s),cyp*(1-s),cv.width*s,cv.height*s)}x.restore()}
-function dblur(g,dx){var x=g.x,cv=g.cv;x.save();x.setTransform(1,0,0,1,0,0);for(var i=1;i<=3;i++){x.globalAlpha=.22;x.drawImage(cv,dx*g.dpr*i/3,0)}x.restore()}
+function zblur(g,str){var n=qlv()>1?3:qlv()>0?2:0;if(!n)return;var x=g.x,d=g.dpr,cv=g.cv,cxp=g.cx*d,cyp=g.H*.42*d;x.save();x.setTransform(1,0,0,1,0,0);for(var i=1;i<=n;i++){var s=1+str*.035*i;x.globalAlpha=.24;x.drawImage(cv,cxp*(1-s),cyp*(1-s),cv.width*s,cv.height*s)}x.restore()}
+function dblur(g,dx){var n=qlv()>1?3:qlv()>0?2:0;if(!n)return;var x=g.x,cv=g.cv;x.save();x.setTransform(1,0,0,1,0,0);for(var i=1;i<=n;i++){x.globalAlpha=.22;x.drawImage(cv,dx*g.dpr*i/3,0)}x.restore()}
 function dropFX(g,pal,bt,seed){var x=g.x,W=g.W,H=g.H,cx=g.cx,cy=H*.42,R=Math.max(W,H);if(bt>1.6)return;var r=rng(seed);x.save();x.globalCompositeOperation="lighter";x.lineCap="round";
   for(var i=0;i<46;i++){var a=r()*6.283,v=.3+r()*.7,d=R*.75*v*(1-Math.exp(-3.2*bt)),d0=Math.max(0,d-R*.07*v*Math.exp(-1.5*bt)),al=Math.max(0,1-bt/1.4);x.strokeStyle=i%3?hexA(pal[0],al):"rgba(255,255,255,"+al+")";x.lineWidth=1.5+r()*2.5;x.beginPath();x.moveTo(cx+Math.cos(a)*d0,cy+Math.sin(a)*d0);x.lineTo(cx+Math.cos(a)*d,cy+Math.sin(a)*d);x.stroke()}
   if(bt<1){x.globalCompositeOperation="source-over";x.strokeStyle="rgba(255,255,255,"+(.5*(1-bt))+")";x.lineWidth=1.5;for(var k=0;k<36;k++){var b2=k*.1745+r()*.1,L=R*(.12+r()*.2);x.beginPath();x.moveTo(cx+Math.cos(b2)*R*.75,cy+Math.sin(b2)*R*.75);x.lineTo(cx+Math.cos(b2)*(R*.75-L),cy+Math.sin(b2)*(R*.75-L));x.stroke()}}
@@ -163,7 +181,7 @@ function dropFX(g,pal,bt,seed){var x=g.x,W=g.W,H=g.H,cx=g.cx,cy=H*.42,R=Math.max
 function post(g,p,t,kp,pal){var x=g.x,W=g.W,H=g.H;
   var v=x.createRadialGradient(W/2,H/2,Math.min(W,H)*.32,W/2,H/2,Math.max(W,H)*.75);v.addColorStop(0,"rgba(0,0,0,0)");v.addColorStop(1,"rgba(0,0,0,"+(.6-.15*p)+")");x.fillStyle=v;x.fillRect(0,0,W,H);
   if(kp>.05&&pal){var e=x.createRadialGradient(W/2,H/2,Math.min(W,H)*.45,W/2,H/2,Math.max(W,H)*.8);e.addColorStop(0,hexA(pal[0],0));e.addColorStop(1,hexA(pal[0],.28*kp));x.fillStyle=e;x.fillRect(0,0,W,H)}
-  x.save();x.globalAlpha=.07;x.translate(-Math.random()*128,-Math.random()*128);x.fillStyle=grain(x);x.fillRect(0,0,W+128,H+128);x.restore();
+  if(qlv()>0){x.save();x.globalAlpha=.07;x.translate(-Math.random()*128,-Math.random()*128);x.fillStyle=grain(x);x.fillRect(0,0,W+128,H+128);x.restore()}
 }
 function slices(g){var x=g.x,d=g.dpr,W=g.W,H=g.H;for(var k=0;k<5;k++){var y=Math.random()*H,h=Math.random()*H*.06+4,dx=(Math.random()-.5)*G.gl*7;try{x.drawImage(g.cv,0,y*d,W*d,h*d,dx,y,W,h)}catch(e){}}}
 function caption(g,cap,u,y){var x=g.x,pal=G.pal||PAL.violet,ws=cap.toUpperCase().split(" "),n=ws.length,ci=Math.min(n-1,Math.floor(cl(u/.88)*n)),s0=Math.floor(ci/3)*3,chunk=ws.slice(s0,s0+3),sz=Math.min(g.cw*.075,28);
@@ -171,8 +189,8 @@ function caption(g,cap,u,y){var x=g.x,pal=G.pal||PAL.violet,ws=cap.toUpperCase()
   if(tw>g.cw*.95){sz*=g.cw*.95/tw;x.font=F(sz);sp=sz*.45;tw=0;wd=chunk.map(function(w){var m=x.measureText(w).width;tw+=m;return m});tw+=sp*(chunk.length-1)}
   var X=g.cx-tw/2,Y=g.H*y,wordU=(cl(u/.88)*n)-ci;x.textAlign="left";x.textBaseline="middle";x.lineJoin="round";
   chunk.forEach(function(w,i){var cur=s0+i===ci,sc=cur?1+.18*Math.exp(-12*wordU):1;x.save();x.translate(X+wd[i]/2,Y);x.scale(sc,sc);
-    if(cur){x.fillStyle=pal[0];x.shadowColor=hexA(pal[0],.8);x.shadowBlur=14;rr(x,-wd[i]/2-sz*.22,-sz*.62,wd[i]+sz*.44,sz*1.24,sz*.3);x.fill();x.shadowBlur=0;x.fillStyle=pal[0]==="#ffffff"||pal[0]==="#F2C46D"||pal[0]==="#9cff3a"?"#111":"#fff";x.fillText(w,-wd[i]/2,sz*.04)}
-    else{x.shadowColor="rgba(0,0,0,.9)";x.shadowBlur=8;x.shadowOffsetY=2;x.fillStyle="#fff";x.fillText(w,-wd[i]/2,sz*.04)}
+    if(cur){x.fillStyle=pal[0];rr(x,-wd[i]/2-sz*.22,-sz*.62,wd[i]+sz*.44,sz*1.24,sz*.3);x.fill();x.fillStyle=pal[0]==="#ffffff"||pal[0]==="#F2C46D"||pal[0]==="#9cff3a"?"#111":"#fff";x.fillText(w,-wd[i]/2,sz*.04)}
+    else{x.lineWidth=sz*.22;x.strokeStyle="rgba(0,0,0,.85)";x.strokeText(w,-wd[i]/2,sz*.04);x.fillStyle="#fff";x.fillText(w,-wd[i]/2,sz*.04)}
     x.restore();X+=wd[i]+sp});
 }
 function watermark(g,f){var x=g.x,H=g.H,right=f>.5;x.font="700 12px system-ui,sans-serif";x.textBaseline="middle";x.textAlign=right?"right":"left";x.fillStyle="rgba(255,255,255,.55)";x.fillText("♪ Critical",right?g.cx+g.cw/2-6:g.cx-g.cw/2+6,right?H*.8:Math.max(H*.105,74))}
@@ -199,7 +217,7 @@ function nucleus(x,cx,cy,R,n){x.save();x.shadowColor="rgba(255,140,90,.8)";x.sha
 D.atom=function(g,s,u,bt,p,pal,t){var x=g.x,H=g.H,cx=g.cx,cy=H*.42,R=Math.min(g.cw,H*.5)*.14*(1+.05*p),sb=s.split?(s.at||.5)*s.b:1e9,k=bt-sb,oR=Math.min(g.cw*.47,H*.3);
   if(s.lbl)text(g,s.lbl,g.cx,H*.17,g.cw*.9,H*.07,{col:pal[0]});
   for(var o=0;o<3;o++){x.save();x.translate(cx,cy);x.rotate(o*Math.PI/3+(k>0?k*.8:0));var al=k>0?.4*Math.max(0,1-k):.4;x.strokeStyle=hexA(pal[0],al);x.lineWidth=1.5;x.beginPath();x.ellipse(0,0,oR,oR*.33,0,0,7);x.stroke();
-    if(al>.02){var a=t*(2.4+o*.5)+o*2;x.globalAlpha=al/.4;x.fillStyle="#fff";x.shadowColor=pal[0];x.shadowBlur=12;x.beginPath();x.arc(Math.cos(a)*oR,Math.sin(a)*oR*.33,4,0,7);x.fill();x.shadowBlur=0;x.globalAlpha=1}x.restore()}
+    if(al>.02){var a=t*(2.4+o*.5)+o*2;x.globalAlpha=al/.4;var ex=Math.cos(a)*oR,ey=Math.sin(a)*oR*.33,eg2=x.createRadialGradient(ex,ey,0,ex,ey,12);eg2.addColorStop(0,"#fff");eg2.addColorStop(.35,hexA(pal[0],.8));eg2.addColorStop(1,hexA(pal[0],0));x.fillStyle=eg2;x.beginPath();x.arc(ex,ey,12,0,7);x.fill();x.globalAlpha=1}x.restore()}
   if(k>0){var sep=g.cw*.32*eo(k/1.1),rot=k*1.5;
     x.save();x.translate(cx-sep,cy-sep*.25);x.rotate(-rot);nucleus(x,0,0,R*.75,9);x.restore();
     x.save();x.translate(cx+sep,cy+sep*.25);x.rotate(rot);nucleus(x,0,0,R*.75,9);x.restore();
@@ -336,7 +354,7 @@ function Player(el,def,hooks){
   function es(n){return Math.round(editTime(n*E.step)/E.step)}
   function scan(n){for(;E.scan<=n;E.scan++){var e=es(E.scan),lp=((e%E.steps)+E.steps)%E.steps,gi=gateEnd[lp];if(gi!=null&&!E.tapped[Math.floor(e/E.steps)+"_"+gi])E.pend.push({at:E.scan*E.step,amt:def.shots[gi].b*bs})}}
   function shotAt(loc){var beat=loc/bs,i=0;while(i<N-1&&beat>=starts[i+1])i++;return i}
-  function size(){var r=el.getBoundingClientRect();if(!r.width)return;g.dpr=Math.min(2,WIN.devicePixelRatio||1);g.W=r.width;g.H=r.height;cv.width=Math.round(g.W*g.dpr);cv.height=Math.round(g.H*g.dpr);var m=g.W<640?Math.min(66,g.W*.17):24;g.cw=g.W-2*m;g.cx=g.W/2}
+  function size(){var r=el.getBoundingClientRect();if(!r.width)return;g.dpr=Math.min([1,1.5,2][Q.lv],WIN.devicePixelRatio||1);g.W=r.width;g.H=r.height;var cw2=Math.round(g.W*g.dpr),ch2=Math.round(g.H*g.dpr);if(cv.width!==cw2||cv.height!==ch2){cv.width=cw2;cv.height=ch2}g.lv=Q.lv;var m=g.W<640?Math.min(66,g.W*.17):24;g.cw=g.W-2*m;g.cx=g.W/2}
   var TRS=["zoom","whip","spin","zoom","glitch","whip","flash","spin"],KICK={phonk:[0,7,10],hype:[0,4,8,12]};
   function kickP(beat){if(beat<E.dropBeat)return 0;var q16=(beat*4)%16,ks=KICK[E.style]||KICK.hype,last=-99;for(var k=0;k<ks.length;k++)if(ks[k]<=q16)last=ks[k];if(last<0)last=ks[ks.length-1]-16;return Math.exp(-7*(q16-last)/4)}
   function render(et,A){var W=g.W,H=g.H;if(!W)return;
@@ -368,12 +386,13 @@ function Player(el,def,hooks){
     watermark(g,loc/dur);
     if(prog)prog.style.transform="scaleX("+(loc/dur).toFixed(4)+")";
   }
-  function loop(){raf=requestAnimationFrame(loop);var A=T();scan(Math.floor(A/E.step));
+  var lastF=0;
+  function loop(){raf=requestAnimationFrame(loop);var nowF=performance.now();if(lastF&&!API.moving)qTick(nowF-lastF);lastF=nowF;if(g.lv!==Q.lv)size();var A=T();scan(Math.floor(A/E.step));
     if(E.pend.length)E.pend=E.pend.filter(function(pp){if(pp.at<A-.5){E.app+=pp.amt;return false}return true});
     var et=editTime(A);render(et,A);if(!watched&&et>=dur){watched=true;if(hooks&&hooks.watched)hooks.watched()}}
   function reset(){E.base=0;E.next=0;E.pend=[];E.app=0;E.scan=0;E.tapped={};E.seen={};E.picks={};E.res=null}
   P={E:E,scan:scan,es:es,
-    start:function(){size();CUR=P;reset();E.clk="p";E.sync=clock();E.playing=true;resync();el.classList.remove("paused");if(!raf)loop()},
+    start:function(){lastF=0;size();CUR=P;reset();E.clk="p";E.sync=clock();E.playing=true;resync();el.classList.remove("paused");if(!raf)loop()},
     stop:function(){if(E.playing){E.base=T();E.playing=false}cancelAnimationFrame(raf);raf=0;if(CUR===P)CUR=null},
     toggle:function(){if(E.playing){E.base=T();E.playing=false;el.classList.add("paused")}else{E.sync=clock();E.playing=true;resync();el.classList.remove("paused")}return E.playing},
     resync:function(){if(E.playing)resync()},
@@ -515,7 +534,115 @@ var EDITS=[
  {t:"slam",b:2,txt:"IS VOYAGER\nSTILL WORKING?",gate:"choice",choices:["YES","NO"],ans:0},
  {t:"rings",b:3,g:"🛰️",txt:"STILL TALKING",drop:1,cap:"it's still sending messages home"},
  {t:"slam",b:4,txt:"PLUTONIUM-238",sub:"decay heat → electricity",tr:"whip",cap:"powered by the heat of decaying plutonium-238"},
- {t:"slam",b:4,txt:"NO CHAIN\nREACTION",sub:"just radioactive decay",tr:"glitch",cap:"no reactor. just decay heat"}]}
+ {t:"slam",b:4,txt:"NO CHAIN\nREACTION",sub:"just radioactive decay",tr:"glitch",cap:"no reactor. just decay heat"}]},
+/* ---- story edits: true, dramatic and a bit unbelievable ---- */
+{id:"s-bugorski",title:"He put his head in a particle accelerator 😳",topic:"history",tags:"#truestory #physics #storytime",style:"phonk",bpm:146,key:3,pal:["ice","fire","blue","violet","toxic","teal"],shots:[
+ {t:"year",b:4,y:"1978",sub:"Protvino, USSR",cap:"1978. a scientist leans in to check a broken particle accelerator"},
+ {t:"slam",b:3,txt:"THE BEAM\nWAS STILL ON",strobe:1,cap:"nobody had switched the proton beam off"},
+ {t:"rings",b:3,g:"⚡",txt:"STRAIGHT THROUGH\nHIS HEAD",drop:1,cap:"it went straight through the back of his head"},
+ {t:"quote",b:7,txt:"“Brighter than a thousand suns.”",who:"Anatoli Bugorski, on the flash he saw"},
+ {t:"slam",b:2,txt:"DID HE\nSURVIVE?",gate:"choice",choices:["YES","NO"],ans:0,cap:"so did he survive"},
+ {t:"stamp",b:3,txt:"SURVIVED",col:"#3fd99a",under:"HEAD IN\nTHE BEAM",cap:"he survived, with half his face paralysed"},
+ {t:"slam",b:4,txt:"THEN FINISHED\nHIS PHD",tr:"glitch",cap:"and he went back to work and finished his PhD"}]},
+{id:"s-demon",title:"The Demon Core ☠️",topic:"history",tags:"#demoncore #history #storytime",style:"phonk",bpm:140,key:8,pal:["fire","sepia","blue","fire","violet"],shots:[
+ {t:"type",b:4,txt:"scientists nicknamed one plutonium sphere the demon core",cap:"one plutonium sphere got a nickname: the demon core"},
+ {t:"count",b:3,from:0,to:6.2,dec:1,unit:"KG OF PLUTONIUM",lbl:"ONE SPHERE",cap:"6.2 kilograms of plutonium"},
+ {t:"year",b:3,y:"1946",sub:"Los Alamos",cap:"1946. a physicist holds two halves of a cover apart with a screwdriver"},
+ {t:"slam",b:2,txt:"THE SCREWDRIVER\nSLIPS…",gate:"choice",choices:["BLUE FLASH","NOTHING"],ans:0,cap:"the screwdriver slips. what happens"},
+ {t:"glow",b:4,txt:"BLUE\nFLASH",drop:1,cap:"for a split second it went critical. a blue flash filled the room"},
+ {t:"slam",b:3,txt:"TWO\nACCIDENTS",sub:"1945 and 1946",tr:"whip",cap:"the same core killed two scientists in two accidents"},
+ {t:"slam",b:4,txt:"NOW: BY\nREMOTE",sub:"nobody does this by hand any more",tr:"glitch",cap:"experiments like that are now done by remote control"}]},
+{id:"s-boyscout",title:"A teenager tried to build a reactor in a shed 🏚️",topic:"history",tags:"#truestory #nuclear #storytime",style:"hype",bpm:128,key:5,pal:["gold","toxic","pink","fire","gold"],shots:[
+ {t:"type",b:4,txt:"a 17-year-old tried to build a nuclear reactor in his mum's garden shed",cap:"a teenager tried to build a nuclear reactor in a shed"},
+ {t:"year",b:3,y:"1994",sub:"Michigan, USA",cap:"1994. Michigan"},
+ {t:"list",b:4,items:["SMOKE ALARMS","CAMPING LANTERNS","OLD CLOCKS"],cap:"he collected radioactive bits from smoke alarms, lantern mantles and old clocks"},
+ {t:"slam",b:2,txt:"WHAT DID HE\nEND UP WITH?",gate:"choice",choices:["A REACTOR","A HAZMAT SITE"],ans:1,cap:"so what did he end up with"},
+ {t:"stamp",b:3,txt:"HAZMAT",col:"#ff4d4d",under:"THE SHED",drop:1,cap:"the shed got so radioactive it was taken apart and buried as nuclear waste"},
+ {t:"slam",b:4,txt:"DON'T\nTRY THIS",sub:"seriously",tr:"glitch",cap:"please don't try this"}]},
+{id:"s-radium",title:"The Radium Girls 💀",topic:"history",tags:"#history #radium #storytime",style:"phonk",bpm:134,key:10,pal:["sepia","sepia","toxic","fire","gold","violet"],shots:[
+ {t:"year",b:4,y:"1917",sub:"New Jersey, USA",cap:"1917. young women paint glowing numbers on watch dials"},
+ {t:"list",b:4,items:["LIP","DIP","PAINT"],last:"#9cff3a",cap:"they were told to shape their brushes with their lips. lip, dip, paint"},
+ {t:"slam",b:2,txt:"WAS IT\nSAFE?",gate:"choice",choices:["YES","NO"],ans:1,cap:"their bosses said it was perfectly safe"},
+ {t:"slam",b:3,txt:"RADIUM\nPAINT",sub:"it glowed in the dark",drop:1,c:"toxic",cap:"the paint was made with radium"},
+ {t:"slam",b:3,txt:"THEY SUED\nAND WON",tr:"whip",cap:"they became very ill, took the company to court and won"},
+ {t:"slam",b:4,txt:"SAFETY\nLAWS",sub:"exist partly because of them",tr:"glitch",cap:"their fight changed worker safety rules for good"}]},
+{id:"s-pascal",title:"The steel lid blasted at 66 km/s 🚀",topic:"history",tags:"#plumbbob #fastest #storytime",style:"phonk",bpm:150,key:1,pal:["sepia","mono","fire","ice","violet"],shots:[
+ {t:"year",b:3,y:"1957",sub:"Operation Plumbbob",cap:"1957. a small nuclear test at the bottom of a deep shaft"},
+ {t:"slam",b:3,txt:"STEEL LID\nON TOP",sub:"about 900 kg",cap:"the shaft was capped with a huge steel lid"},
+ {t:"slam",b:2,txt:"3… 2… 1…",gate:"tap",prompt:"TAP TO DETONATE",cap:"three, two, one"},
+ {t:"count",b:4,from:0,to:66,unit:"KM PER SECOND",lbl:"ONE ESTIMATE OF THE LID'S SPEED",drop:1,cap:"one estimate put the lid at 66 kilometres per second"},
+ {t:"versus",b:4,l:"THE LID",ls:"about 66 km/s",r:"ESCAPE SPEED",rs:"11 km/s",lc:"#ff4d4d",rc:"#3ad4ff",cap:"about six times faster than you need to escape Earth"},
+ {t:"slam",b:4,txt:"NEVER\nFOUND",sub:"it probably burned up in the air",tr:"glitch",cap:"it was never found. it probably burned up"}]},
+{id:"s-tsar",title:"The biggest explosion humans ever made 💥",topic:"history",tags:"#tsarbomba #history",style:"hype",bpm:126,key:6,pal:["sepia","fire","fire","gold","violet"],shots:[
+ {t:"year",b:3,y:"1961",sub:"Tsar Bomba",cap:"1961. the biggest bomb ever tested"},
+ {t:"slam",b:2,txt:"HOW MANY\nHIROSHIMAS?",gate:"choice",choices:["30","3,000"],ans:1,cap:"how many times bigger than Hiroshima"},
+ {t:"count",b:4,from:0,to:50,unit:"MEGATONS OF TNT",lbl:"TSAR BOMBA",drop:1,cap:"50 megatons. over three thousand Hiroshimas"},
+ {t:"slam",b:3,txt:"CLOUD 60 KM\nHIGH",sub:"about seven Everests",tr:"whip",cap:"the mushroom cloud rose about 60 kilometres"},
+ {t:"slam",b:4,txt:"TOO BIG\nTO USE",sub:"it was a show of strength",tr:"glitch",cap:"it was far too big to ever be useful. it was a show of strength"}]},
+{id:"s-orion",title:"A spaceship that rode on nuclear bombs 🚀",topic:"space",tags:"#projectorion #space #engineering",style:"hype",bpm:130,key:2,pal:["violet","blue","ice","fire","violet"],shots:[
+ {t:"type",b:4,txt:"scientists once seriously designed a spaceship pushed along by nuclear explosions",cap:"scientists once designed a spaceship pushed by nuclear bombs"},
+ {t:"year",b:3,y:"1958",sub:"Project Orion",cap:"1958. Project Orion"},
+ {t:"list",b:4,items:["DROP A BOMB","BOOM","PUSH","REPEAT"],last:"#FFE14D",cap:"drop a small bomb out the back, it explodes, a giant plate takes the push"},
+ {t:"slam",b:2,txt:"DID IT FLY\nWITH REAL NUKES?",gate:"choice",choices:["YES","NO"],ans:1},
+ {t:"stamp",b:3,txt:"NEVER",col:"#ff4d4d",under:"NUCLEAR\nLAUNCH",drop:1,cap:"never. only small models flew, using ordinary explosives"},
+ {t:"slam",b:4,txt:"BANNED",sub:"by the 1963 test ban treaty",tr:"glitch",cap:"the treaty banning nuclear tests in space helped end it"}]},
+{id:"s-elephant",title:"The Elephant's Foot under Chernobyl 🐘",topic:"history",tags:"#chernobyl #elephantsfoot",style:"phonk",bpm:138,key:9,pal:["sepia","fire","fire","gold","teal"],shots:[
+ {t:"type",b:4,txt:"deep under Chernobyl there's a solid lump of melted reactor",cap:"deep under Chernobyl there's a lump of melted reactor"},
+ {t:"slam",b:3,txt:"THE ELEPHANT'S\nFOOT",sub:"melted fuel, sand and concrete",cap:"they call it the elephant's foot"},
+ {t:"slam",b:2,txt:"IN 1986, HOW LONG\nTO A DEADLY DOSE?",gate:"choice",choices:["MINUTES","YEARS"],ans:0},
+ {t:"count",b:4,from:0,to:5,unit:"MINUTES",lbl:"A DEADLY DOSE IN ABOUT",drop:1,cap:"standing next to it in 1986 could kill you in about five minutes"},
+ {t:"slam",b:4,txt:"STILL\nTHERE",sub:"far weaker now",tr:"glitch",cap:"it's still there, much less radioactive than it was"}]},
+{id:"s-goiania",title:"The glowing blue powder 💙",topic:"radiation",tags:"#goiania #truestory",style:"hype",bpm:124,key:4,pal:["sepia","mono","blue","fire","sepia"],shots:[
+ {t:"year",b:3,y:"1987",sub:"Goiânia, Brazil",cap:"1987. Goiânia, Brazil"},
+ {t:"slam",b:3,txt:"SCRAP\nMETAL",cap:"scavengers took an old radiotherapy machine from an abandoned clinic"},
+ {t:"glow",b:4,txt:"IT GLOWED\nBLUE",drop:1,cap:"inside was a powder that glowed blue in the dark"},
+ {t:"slam",b:2,txt:"WHAT DID\nPEOPLE DO?",gate:"choice",choices:["SHARED IT","CALLED EXPERTS"],ans:0},
+ {t:"slam",b:3,txt:"CAESIUM-137",sub:"some rubbed it on their skin",tr:"whip",cap:"they showed it off and shared it. it was caesium-137"},
+ {t:"slam",b:4,txt:"HOMES\nDEMOLISHED",sub:"four people died",tr:"glitch",cap:"four people died, and houses were knocked down in the clean-up"}]},
+{id:"s-bravo",title:"The test that came out 2.5× too big 😬",topic:"history",tags:"#castlebravo #history",style:"phonk",bpm:144,key:0,pal:["sepia","fire","ice","toxic","violet"],shots:[
+ {t:"year",b:3,y:"1954",sub:"Castle Bravo",cap:"1954. a hydrogen bomb test in the Pacific"},
+ {t:"slam",b:2,txt:"HOW BIG\nWAS IT?",gate:"choice",choices:["AS PLANNED","WAY BIGGER"],ans:1},
+ {t:"versus",b:4,l:"EXPECTED",ls:"6 megatons",r:"ACTUAL",rs:"15 megatons",lc:"#3ad4ff",rc:"#ff4d4d",drop:1,cap:"they expected 6 megatons. they got 15"},
+ {t:"slam",b:3,txt:"LITHIUM-7",sub:"the bit they thought wouldn't react",tr:"whip",cap:"an ingredient they thought was harmless joined in"},
+ {t:"slam",b:4,txt:"LUCKY\nDRAGON",sub:"a fishing boat caught the fallout",tr:"glitch",cap:"fallout landed on a Japanese fishing boat called the Lucky Dragon"}]},
+{id:"s-sugar",title:"Every human could fit in a sugar cube 🧊",topic:"atoms",tags:"#mindblown #atoms",style:"hype",bpm:128,key:7,pal:["teal","pink","teal","violet","gold"],shots:[
+ {t:"type",b:3,txt:"every human on Earth could fit inside a sugar cube",cap:"every human on Earth could fit in a sugar cube"},
+ {t:"slam",b:2,txt:"REAL OR\nFAKE?",gate:"choice",choices:["REAL","FAKE"],ans:0},
+ {t:"zoom",b:7,drop:1,cap:"because atoms are almost entirely empty space"},
+ {t:"slam",b:3,txt:"SQUASH OUT\nTHE SPACE",tr:"whip",cap:"squeeze out the empty space and only the nuclei are left"},
+ {t:"slam",b:4,txt:"SUGAR CUBE",sub:"weighing about 500 million tonnes",tr:"glitch",cap:"the whole human race in one sugar cube. it would weigh 500 million tonnes"}]},
+{id:"s-lightning",title:"Lightning is hotter than the Sun ⚡",topic:"space",tags:"#lightning #physics",style:"phonk",bpm:148,key:2,pal:["blue","ice","fire","violet"],shots:[
+ {t:"slam",b:2,txt:"HOTTER THAN\nTHE SUN?",gate:"choice",choices:["YES","NO"],ans:0,cap:"is lightning hotter than the Sun"},
+ {t:"versus",b:4,l:"LIGHTNING",ls:"about 30,000 °C",r:"SUN'S SURFACE",rs:"about 5,500 °C",lc:"#3ad4ff",rc:"#F2C46D",drop:1,cap:"a lightning bolt hits about 30,000 degrees"},
+ {t:"slam",b:3,txt:"5× HOTTER",sub:"for a split second",tr:"whip",cap:"about five times hotter than the surface of the Sun"},
+ {t:"slam",b:4,txt:"THUNDER",sub:"is the air exploding outwards",tr:"glitch",cap:"the air heats so fast it explodes outwards. that's thunder"}]},
+{id:"s-tardigrade",title:"This animal survived open space 🔬",topic:"space",tags:"#tardigrade #space #animals",style:"hype",bpm:122,key:9,pal:["teal","violet","toxic","teal"],shots:[
+ {t:"type",b:3,txt:"there's an animal that survived being left in open space",cap:"one animal survived being left in open space"},
+ {t:"rings",b:3,g:"🔬",txt:"TARDIGRADES",drop:1,cap:"tardigrades. water bears"},
+ {t:"list",b:4,items:["VACUUM","SPACE RADIATION","−272 °C","DRYING OUT"],last:"#9cff3a",cap:"they've survived vacuum, space radiation, near absolute zero and drying out"},
+ {t:"slam",b:2,txt:"HOW BIG\nARE THEY?",gate:"choice",choices:["½ MM","10 CM"],ans:0},
+ {t:"slam",b:4,txt:"HALF A\nMILLIMETRE",sub:"basically indestructible",tr:"glitch",cap:"about half a millimetre long, and almost indestructible"}]},
+{id:"s-venus",title:"A day on Venus is longer than its year 🪐",topic:"space",tags:"#space #venus #mindblown",style:"hype",bpm:126,key:5,pal:["gold","violet","fire","pink"],shots:[
+ {t:"type",b:3,txt:"a day on Venus lasts longer than a year on Venus",cap:"a day on Venus is longer than its year"},
+ {t:"slam",b:2,txt:"TRUE OR\nFALSE?",gate:"choice",choices:["TRUE","FALSE"],ans:0},
+ {t:"versus",b:4,l:"1 DAY",ls:"243 Earth days",r:"1 YEAR",rs:"225 Earth days",lc:"#F2C46D",rc:"#ff3b8d",drop:1,cap:"one spin takes 243 Earth days. one orbit takes 225"},
+ {t:"slam",b:4,txt:"IT SPINS\nBACKWARDS",sub:"the Sun rises in the west",tr:"glitch",cap:"and it spins backwards, so the Sun rises in the west"}]},
+{id:"s-wolves",title:"Chernobyl is now full of wolves 🐺",topic:"history",tags:"#chernobyl #wildlife",style:"phonk",bpm:136,key:11,pal:["sepia","teal","toxic","teal","gold"],shots:[
+ {t:"year",b:3,y:"1986",sub:"everyone leaves",cap:"1986. everyone leaves the area around Chernobyl"},
+ {t:"slam",b:2,txt:"WHAT MOVED\nIN?",gate:"choice",choices:["NOTHING","WILDLIFE"],ans:1},
+ {t:"list",b:4,items:["WOLVES","BEARS","LYNX","WILD HORSES"],last:"#9cff3a",drop:1,cap:"wolves, bears, lynx and wild horses moved in"},
+ {t:"slam",b:4,txt:"PEOPLE WERE\nTHE PROBLEM",sub:"for many animals, more than radiation",tr:"glitch",cap:"for a lot of animals, humans were a bigger problem than the radiation"}]},
+{id:"s-lighthouse",title:"The Soviet nuclear lighthouses 🗼",topic:"energy",tags:"#rtg #history #arctic",style:"hype",bpm:124,key:1,pal:["ice","blue","fire","ice"],shots:[
+ {t:"type",b:4,txt:"the Soviet Union ran Arctic lighthouses on nuclear batteries",cap:"the Soviet Union ran Arctic lighthouses on nuclear batteries"},
+ {t:"slam",b:3,txt:"STRONTIUM-90",sub:"decay heat turned into electricity",drop:1,cap:"strontium-90 decay heat, turned into electricity"},
+ {t:"slam",b:2,txt:"WHAT HAPPENED\nTO SOME?",gate:"choice",choices:["STOLEN","STILL SHINING"],ans:0},
+ {t:"slam",b:4,txt:"SCRAP METAL\nTHIEVES",sub:"most have now been removed",tr:"glitch",cap:"some were broken into by scrap metal thieves. most have now been removed"}]},
+{id:"s-glass",title:"Old windows prove glass flows? 🪟",topic:"chem",tags:"#mythbusting #science",style:"phonk",bpm:142,key:6,pal:["ice","fire","teal","violet"],shots:[
+ {t:"type",b:3,txt:"old church windows are thicker at the bottom because glass slowly flows",cap:"old windows are thicker at the bottom because glass flows"},
+ {t:"slam",b:2,txt:"MYTH OR\nFACT?",gate:"choice",choices:["MYTH","FACT"],ans:0},
+ {t:"stamp",b:3,txt:"MYTH",col:"#ff4d4d",under:"GLASS\nFLOWS",drop:1,cap:"total myth"},
+ {t:"slam",b:3,txt:"UNEVEN\nPANES",sub:"fitted thick side down",tr:"whip",cap:"old glass came out uneven, and builders put the thick side at the bottom"},
+ {t:"slam",b:4,txt:"IT DOESN'T\nFLOW",sub:"not in any time we could notice",tr:"glitch",cap:"room temperature glass doesn't flow in any way you'd ever notice"}]}
 ];
 
 function stripTags(s){return String(s).replace(/<[^>]*>/g,"")}
@@ -537,7 +664,7 @@ function genTF(bank){
     shots:[{t:"slam",b:2,txt:"TRUE OR\nFALSE?",tr:"glitch",cap:"true or false. speed round"}].concat(pk.map(function(t,i){return{t:"tfq",b:4,q:stripTags(t[1]),v:!!t[2],drop:i===0?1:0,c:["ice","violet","gold"][i]}}),[{t:"slam",b:2,txt:"HOW MANY\nDID YOU GET?",cap:"how many did you get"}])};
 }
 
-if(document.fonts&&document.fonts.load){document.fonts.load("40px Anton").then(function(){haveAnton=document.fonts.check("40px Anton");FIT.clear()},function(){})}
-var API={sound:true,unlock:unlock,on:on,needs:needs,sleep:sleep,Player:Player,EDITS:EDITS,genQuiz:genQuiz,genTF:genTF,sfx:sfx};
+if(document.fonts&&document.fonts.load){document.fonts.load("40px Anton").then(function(){haveAnton=document.fonts.check("40px Anton");FIT.clear();SPR.clear()},function(){})}
+var API={moving:false,Q:Q,unlock:unlock,on:on,needs:needs,sleep:sleep,Player:Player,EDITS:EDITS,genQuiz:genQuiz,genTF:genTF,sfx:sfx};
 WIN.ChainEdits=API;
 })();
