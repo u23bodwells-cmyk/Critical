@@ -161,6 +161,17 @@ button{font:inherit;color:inherit}
 .combo{position:absolute;z-index:25;left:50%;top:38%;width:90%;text-align:center;transform:translateX(-50%);font:900 clamp(24px,7.5vw,34px)/1.15 var(--sans);color:var(--gold);text-shadow:0 4px 18px rgba(0,0,0,.6);pointer-events:none;animation:combo 1.1s forwards}
 @keyframes combo{0%{opacity:0;transform:translate(-50%,20px) scale(.6)}25%{opacity:1;transform:translate(-50%,0) scale(1.1)}70%{opacity:1}100%{opacity:0;transform:translate(-50%,-40px)}}
 
+/* music */
+.mtog{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0 14px}
+.mtog button{border:1.5px solid var(--line);background:var(--glass);color:var(--text);border-radius:14px;padding:12px 8px;font-weight:800;font-size:14px;cursor:pointer}
+.mtog button[aria-pressed="true"]{background:#a06bff;border-color:#a06bff;color:#fff}
+.mlist{display:flex;flex-direction:column;gap:8px;margin:10px 0}
+.mt{display:flex;align-items:center;gap:10px;background:var(--glass);border:1px solid var(--line);border-radius:14px;padding:10px 12px}
+.mt.cur{border-color:#a06bff;background:rgba(160,107,255,.16)}
+.mt div{flex:1;min-width:0}.mt b{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mt small{color:var(--dim);font:600 12px var(--mono)}
+.mt button{border:0;background:rgba(255,255,255,.12);color:var(--text);border-radius:10px;padding:7px 9px;font-weight:800;font-size:12px;cursor:pointer}
+.madd{display:block;width:100%;border:2px dashed rgba(160,107,255,.6);background:rgba(160,107,255,.1);color:var(--text);border-radius:16px;padding:16px;font-weight:800;font-size:15px;cursor:pointer}
+.mnote{font-size:13px!important;color:var(--dim)!important}
 /* stories */
 [hidden]{display:none!important}
 .tabs{gap:2px}.tabs button{font-size:15px;padding:6px 5px}
@@ -308,7 +319,7 @@ button{font:inherit;color:inherit}
 .ecap .music span{display:inline-block;padding-left:100%}
 .card.on .ecap .music span{animation:marq 9s linear infinite}
 @keyframes marq{to{transform:translateX(-100%)}}
-.disc{width:46px;height:46px;border-radius:50%;margin-top:4px;background:radial-gradient(circle,#ff3b5c 0 20%,#151515 21% 58%,#333 59% 62%,#151515 63%);border:7px solid #262626;animation:spin 4s linear infinite;animation-play-state:paused}
+.disc{cursor:pointer;padding:0;width:46px;height:46px;border-radius:50%;margin-top:4px;background:radial-gradient(circle,#ff3b5c 0 20%,#151515 21% 58%,#333 59% 62%,#151515 63%);border:7px solid #262626;animation:spin 4s linear infinite;animation-play-state:paused}
 .card.on .disc{animation-play-state:running}.k-edit.paused .disc{animation-play-state:paused}
 @keyframes spin{to{transform:rotate(360deg)}}
 .k-edit .rail{bottom:calc(var(--sb) + 92px)}
@@ -709,7 +720,7 @@ function rail(c){if(c.type==="check"||c.type==="drop")return"";var sv=isSaved(c.
   return '<aside class="rail"><button class="rb'+(lk?" on":"")+'" data-act="like" aria-pressed="'+lk+'"><span class="c">'+ICON.like+'</span>Like</button>'+
   '<button class="rb'+(sv?" on":"")+'" data-act="save" aria-pressed="'+sv+'"><span class="c">'+ICON.save+'</span>Save</button>'+
   '<button class="rb" data-act="more"><span class="c">'+ICON.more+'</span>Explain</button>'+
-  '<button class="rb" data-act="share"><span class="c">'+ICON.share+'</span>Share</button>'+(c.type==="edit"?'<div class="disc" aria-hidden="true"></div>':'')+'</aside>'}
+  '<button class="rb" data-act="share"><span class="c">'+ICON.share+'</span>Share</button>'+(c.type==="edit"?'<button class="disc" data-act="music" aria-label="Edit music"></button>':'')+'</aside>'}
 function chipHtml(c,t){return '<div class="chip">'+t.g+" "+t.n+(c.label?" · "+c.label:c.type==="tf"?" · True or false":c.type==="quiz"?" · Quiz":c.type==="sim"?" · Try it":"")+'</div>'}
 function inner(c){var t=TOP[c.topic]||TOP.reactor,h="";
   if(c.type==="story"){var so=STORY[c.sid],inf=stInfo(c.sid);h='<div class="stcard"><span class="stkind'+(so.kind==="Story"?" story":"")+'">'+(so.kind==="Story"?"📖 Interactive story":"🚨 Emergency · you decide")+'</span><div class="stcover">'+so.icon+'</div><h2 class="hook">'+esc(so.title)+'</h2><p class="body">'+esc(so.blurb)+'</p><div class="stfound">Endings found: '+Object.keys(inf.e).length+' / '+endCount(so)+'</div><button class="playbtn" data-act="play">▶ Play</button></div>'}
@@ -722,7 +733,7 @@ function inner(c){var t=TOP[c.topic]||TOP.reactor,h="";
   return h}
 function build(c){var t=TOP[c.topic]||TOP.reactor,el=document.createElement("section");
   if(c.type==="edit"){el.className="card k-edit";el.innerHTML='<canvas class="ecv"></canvas><button class="snd" data-act="snd"></button><div class="eplay" aria-hidden="true"><svg viewBox="0 0 24 24" fill="#fff"><path d="M7 4.5v15l13-7.5z"/></svg></div>'+rail(c)+
-    '<div class="ecap"><b>@critical</b> · '+esc(c.def.title)+'<div class="tags">'+esc(c.def.tags||"")+'</div><div class="music"><span>♫ original sound · Critical '+(c.def.style==="hype"?"hype mix":"phonk")+'</span></div></div><div class="eprog"><i></i></div>';sndLabel(el);return el}
+    '<div class="ecap"><b>@critical</b> · '+esc(c.def.title)+'<div class="tags">'+esc(c.def.tags||"")+'</div><div class="music"><span>♫ '+(S.music&&S.music.on&&CE&&CE.track?esc(CE.track.name):'original sound · Critical '+(c.def.style==="hype"?"hype mix":"phonk"))+'</span></div></div><div class="eprog"><i></i></div>';sndLabel(el);return el}
   el.className="card k-"+c.type;el.style.setProperty("--a",t.a);el.style.setProperty("--b1",t.b1);el.style.setProperty("--b2",t.b2);
   if(c.type==="check"){el.style.setProperty("--b1","#2a2140");el.style.setProperty("--b2","#09070f");el.style.setProperty("--a","#F2C46D")}
   if(c.type==="drop"){el.style.setProperty("--b1","#4a2a00");el.style.setProperty("--b2","#0d0700");el.style.setProperty("--a","#F2C46D")}
@@ -751,7 +762,7 @@ function setActive(i){var now=Date.now();
   if(active>=0)vib(6);active=i;var k=cards[i];k.el.classList.add("on");k.t=now;
   if(k.c.type==="check")renderCheck(k);
   if((k.c.type==="quiz"||k.c.type==="tf")&&!k.answered)k.qt0=now;
-  if(k.c.type==="edit"){mkPlayer(k);if(k.el._ed){k.el._ed.start();}sndLabel(k.el)}
+  if(k.c.type==="edit"){mkPlayer(k);if(k.el._ed){k.el._ed.start();}sndLabel(k.el);nextSong()}
   if(k.c.type==="sim"){if(!k.el._sim)k.el._sim=SIMS[k.c.sim](k.el,k);if(k.el._sim.start)k.el._sim.start()}
   if(!k.counted){k.counted=true;var d=today();d.n++;sess.n++;sess.since++;S.seen[k.c.id]=(S.seen[k.c.id]||0)+1;save();ring();
     if(d.n===GOAL){toast("🔥 Daily goal done! +50 XP · streak "+streak()+" day"+(streak()>1?"s":""));award(25)}}
@@ -815,6 +826,7 @@ function act(k,a,b){var c=k.c;
   else if(a==="share")share(c);
   else if(a==="drop")openDrop(k,b);
   else if(a==="play")playStory(k.c.sid);
+  else if(a==="music")openMusic();
   else if(a==="snd"){var live=S.sound&&CE&&CE.on();S.sound=!live;if(CE)CE.sound=S.sound;save();
     var done=function(){if(k.el._ed)k.el._ed.resync();allSnd()};if(S.sound&&CE)CE.unlock().then(done);else done()}
 }
@@ -884,18 +896,59 @@ tSaved.onclick=function(){setTab("saved");
   else h+='<p>'+S.saved.length+' saved. Tap one to see it again.</p><div class="savedList">'+S.saved.map(function(s,i){var c=s.c,t=TOP[c.topic]||TOP.reactor;
     return '<button class="si" data-sv="'+i+'"><span class="g">'+(c.glyph||t.g)+'</span><div><b>'+(c.hook||c.q||esc(c.title||""))+'</b><small>'+t.n+' · '+(c.type==="fact"?"Fact":c.type==="sim"?"Try it":c.type==="edit"?"Edit":c.type==="story"?"Story":"Quiz")+'</small></div></button>'}).join("")+'</div>';
   openSheet(h)};
-sheetIn.addEventListener("click",function(e){var s=e.target.closest("[data-sv]");if(s){var c=JSON.parse(JSON.stringify(S.saved[+s.dataset.sv].c));if(c.type==="quiz")c=mkQuiz(c.topic,c.q,[c.opts[c.ans]].concat(c.opts.filter(function(_,k){return k!==c.ans})),c.ex,c.id,c.label);insertNext(c);closeSheet();return}
+sheetIn.addEventListener("click",function(e){if(e.target.closest("[data-music]")){openMusic();return}var s=e.target.closest("[data-sv]");if(s){var c=JSON.parse(JSON.stringify(S.saved[+s.dataset.sv].c));if(c.type==="quiz")c=mkQuiz(c.topic,c.q,[c.opts[c.ans]].concat(c.opts.filter(function(_,k){return k!==c.ans})),c.ex,c.id,c.label);insertNext(c);closeSheet();return}
   var tp=e.target.closest("[data-tp]");if(tp){var key=tp.dataset.tp;if(S.off[key])delete S.off[key];else{if(TK.filter(function(k){return!S.off[k]}).length<=1){toast("Keep at least one topic on");return}S.off[key]=1}
     tp.setAttribute("aria-pressed",!S.off[key]);save();refreshAhead()}});
 function insertNext(c){var at=active+1,el=build(c),k={c:c,el:el,t:0,dwell:0};feed.insertBefore(el,cards[at]?cards[at].el:null);cards.splice(at,0,k);setTimeout(function(){goTo(at)},60)}
 function refreshAhead(){ /* rebuild cards the user hasn't reached yet so topic changes apply */
   for(var i=cards.length-1;i>active+1;i--){cards[i].el.remove();cards.splice(i,1)}ensure()}
 document.getElementById("xpBtn").onclick=function(){var d=today(),acc=sess.q?Math.round(sess.ok/sess.q*100):null;
-  readSP();openSheet('<h3>Today</h3>'+spBlock()+'<p style="font-size:14px;margin-top:10px">Everything you earn in Chain is doubled and goes straight onto your Critical XP: your streak, daily goal and season pass. All 3 sound packs are on this month\'s pass, at 1,850, 4,000 and 4,250 points.</p><div class="stats" style="margin-bottom:14px"><div class="st"><b>'+d.n+'/'+GOAL+'</b><span>cards today</span></div><div class="st"><b>'+streak()+'</b><span>day streak</span></div><div class="st"><b>'+(d.xp*XPM).toLocaleString("en-GB")+'</b><span>XP today</span></div><div class="st"><b>'+(d.q?Math.round(d.ok/d.q*100)+"%":"–")+'</b><span>quiz accuracy</span></div></div>'+
+  readSP();openSheet('<h3>Today</h3>'+spBlock()+'<p style="margin:10px 0 0"><button class="sbtn" data-music style="background:#a06bff;color:#fff">🎵 Edit music</button></p>'+'<p style="font-size:14px;margin-top:10px">Everything you earn in Chain is doubled and goes straight onto your Critical XP: your streak, daily goal and season pass. All 3 sound packs are on this month\'s pass, at 1,850, 4,000 and 4,250 points.</p><div class="stats" style="margin-bottom:14px"><div class="st"><b>'+d.n+'/'+GOAL+'</b><span>cards today</span></div><div class="st"><b>'+streak()+'</b><span>day streak</span></div><div class="st"><b>'+(d.xp*XPM).toLocaleString("en-GB")+'</b><span>XP today</span></div><div class="st"><b>'+(d.q?Math.round(d.ok/d.q*100)+"%":"–")+'</b><span>quiz accuracy</span></div></div>'+
   '<h3>Your feed</h3><p>Tap a topic to turn it off or on. Liking cards and taking your time on them also teaches the feed what you like.</p><div class="topics">'+TK.map(function(k){return '<button class="tp" data-tp="'+k+'" aria-pressed="'+!S.off[k]+'">'+TOP[k].g+' '+TOP[k].n+'</button>'}).join("")+'</div>'+
   '<p style="font-size:14px">Total from Chain: '+S.xp.toLocaleString("en-GB")+' XP · '+Object.keys(S.liked).length+' liked · '+S.saved.length+' saved</p>')};
 
 
+
+/* ---------- your own music for edits ----------
+   Songs you pick stay on this phone (IndexedDB). They're never uploaded and never part of the website.
+   Each one is analysed once for its tempo, beat and drop, so edits cut on the beat and drop with the song. */
+S.music=S.music||{on:false,list:[],cur:0,plays:0};
+var MDB=null;
+function mdb(){return new Promise(function(res,rej){if(MDB)return res(MDB);try{var r=indexedDB.open("chain_music",1);r.onupgradeneeded=function(){r.result.createObjectStore("t",{keyPath:"id"})};r.onsuccess=function(){MDB=r.result;res(MDB)};r.onerror=function(){rej(r.error)}}catch(e){rej(e)}})}
+function mtx(mode,fn){return mdb().then(function(db){return new Promise(function(res,rej){var t=db.transaction("t",mode),st=t.objectStore("t"),q=fn(st);t.oncomplete=function(){res(q&&q.result)};t.onerror=function(){rej(t.error)}})})}
+function mGet(id){return mtx("readonly",function(st){return st.get(id)})}
+function mPut(o){return mtx("readwrite",function(st){return st.put(o)})}
+function mDel(id){return mtx("readwrite",function(st){return st.delete(id)})}
+var mLoading=null;
+function loadTrack(i){var L=S.music.list;if(!CE||!L.length)return Promise.resolve();i=((i%L.length)+L.length)%L.length;var m=L[i];if(CE.track&&CE.track.id===m.id)return Promise.resolve();
+  var job=mGet(m.id).then(function(o){if(!o||!o.blob)throw new Error("missing");return o.blob.arrayBuffer?o.blob.arrayBuffer():new Response(o.blob).arrayBuffer()}).then(function(ab){return CE.decode(ab)}).then(function(buf){if(mLoading!==job)return;
+    CE.track={id:m.id,name:m.name,buf:buf,bpm:m.bpm,beat0:m.beat0,drop:m.drop};S.music.cur=i;save()}).catch(function(){});mLoading=job;return job}
+function useMusic(on){S.music.on=!!on&&S.music.list.length>0;save();if(!CE)return;if(S.music.on)loadTrack(S.music.cur||0);else CE.track=null}
+function nextSong(){if(!S.music.on||S.music.list.length<2)return;S.music.plays=(S.music.plays||0)+1;if(S.music.plays%2===0)loadTrack((S.music.cur||0)+1)}
+function addSongs(files){var arr=[].slice.call(files||[]).filter(function(f){return /^audio\//.test(f.type)||/\.(mp3|m4a|aac|wav|ogg|opus|flac)$/i.test(f.name)});if(!arr.length)return;
+  if(CE)CE.unlock();var st=document.getElementById("mstat");
+  (function one(k){if(k>=arr.length){if(st)st.textContent="";useMusic(true);openMusic();toast("🎵 Edits will now use your music");return}
+    var f=arr[k];if(st)st.textContent="Finding the beat in “"+f.name+"”…";
+    f.arrayBuffer().then(function(ab){return CE.decode(ab)}).then(function(buf){var a=CE.analyse(buf),id="m"+Date.now()+k,name=f.name.replace(/\.[a-z0-9]+$/i,"");
+      return mPut({id:id,blob:f}).then(function(){S.music.list.push({id:id,name:name,bpm:a.bpm,beat0:a.beat0,drop:a.drop,dur:Math.round(a.dur)});save()})})
+    .catch(function(){toast("Couldn't read “"+f.name+"”")}).then(function(){one(k+1)})})(0)}
+function fmtT(s){s=Math.max(0,Math.round(s));return Math.floor(s/60)+":"+(s%60<10?"0":"")+s%60}
+function openMusic(){var L=S.music.list,on=S.music.on&&L.length>0;
+  openSheet('<h3>🎵 Edit music</h3><p>Use your own songs for edits. Chain finds each song\'s beat and drop, so the cuts land on the beat and the drop hits with the song.</p>'+
+   '<div class="mtog"><button data-mon="0" aria-pressed="'+!on+'">Built-in beats</button><button data-mon="1" aria-pressed="'+on+'"'+(L.length?'':' disabled')+'>My music</button></div>'+
+   '<button class="madd" data-madd>+ Add songs from your phone</button><input type="file" id="mfile" accept="audio/*" multiple hidden><p class="mnote" id="mstat"></p>'+
+   (L.length?'<div class="mlist">'+L.map(function(m,i){return'<div class="mt'+(on&&CE&&CE.track&&CE.track.id===m.id?" cur":"")+'"><div><b>'+esc(m.name)+'</b><small>'+Math.round(m.bpm)+' BPM · drop at '+fmtT(m.drop)+'</small></div><button data-mhalf="'+i+'" title="Tempo too fast">½×</button><button data-mdbl="'+i+'" title="Tempo too slow">2×</button><button data-mnow="'+i+'">▶ Use</button><button data-mdel="'+i+'" aria-label="Remove">✕</button></div>'}).join("")+'</div>':'')+
+   '<p class="mnote">Your songs stay on this phone. They\'re never uploaded and aren\'t part of the website. If the cuts feel too fast or slow, use ½× or 2× to fix the tempo.</p>');
+  var fi=document.getElementById("mfile");fi.onchange=function(){addSongs(fi.files)}}
+sheetIn.addEventListener("click",function(e){var t=e.target,b;
+  if(t.closest("[data-madd]")){document.getElementById("mfile").click();return}
+  if((b=t.closest("[data-mon]"))){useMusic(b.dataset.mon==="1");if(CE)CE.unlock();openMusic();resyncActive();return}
+  if((b=t.closest("[data-mnow]"))){S.music.on=true;if(CE)CE.unlock();loadTrack(+b.dataset.mnow).then(function(){openMusic();restartActive()});return}
+  if((b=t.closest("[data-mhalf]"))||(b=t.closest("[data-mdbl]"))){var i=+(b.dataset.mhalf||b.dataset.mdbl),m=S.music.list[i];m.bpm=b.dataset.mhalf!=null?m.bpm/2:m.bpm*2;save();if(CE&&CE.track&&CE.track.id===m.id)CE.track.bpm=m.bpm;openMusic();restartActive();return}
+  if((b=t.closest("[data-mdel]"))){var j=+b.dataset.mdel,mm=S.music.list[j];S.music.list.splice(j,1);mDel(mm.id).catch(function(){});if(CE&&CE.track&&CE.track.id===mm.id)CE.track=null;if(!S.music.list.length)S.music.on=false;else if(S.music.on)loadTrack(0);save();openMusic();return}});
+function restartActive(){var k=cards[active];if(k&&k.el._ed){k.el._ed.start();sndLabel(k.el)}}
+function resyncActive(){restartActive()}
+if(S.music.on&&S.music.list.length)loadTrack(S.music.cur||0);
 /* ---------- interactive stories ---------- */
 var STORIES=window.CHAIN_STORIES||[],STORY={};STORIES.forEach(function(x){STORY[x.id]=x});S.st=S.st||{};
 function stInfo(id){return S.st[id]||(S.st[id]={e:{},n:0})}
