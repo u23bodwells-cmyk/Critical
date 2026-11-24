@@ -479,10 +479,13 @@ function fromPool(kind,topic){var p=pools[kind],c=p.filter(function(x){return to
 function makeNext(){
   var i=cards.length;
   if(sess.since>=12){sess.since=0;return{type:"check",topic:"maths",id:"chk"+i}}
-  if(mode==="edits")return pickEdit()||fromPool("fact",pickTopic());
+  var prevEd=i>0&&cards[i-1].c.type==="edit";
+  /* Edits tab: mostly edits, but every few cards an old-style fact, quiz or game so it never gets samey */
+  var run=0;for(var j=i-1;j>=0&&cards[j].c.type==="edit";j--)run++;
+  if(mode==="edits"&&!(i>1&&prevEd&&(run>=3||Math.random()<.3))){var e0=pickEdit();if(e0)return e0}
   if(retry.length&&retry[0].due<=i){var r=retry.shift().c;return mkQuiz(r.topic,r.q,[r.opts[r.ans]].concat(r.opts.filter(function(_,k){return k!==r.ans})),r.ex,r.id,"Second chance")}
-  if(i>2&&i%7===4){var s=SIMLIST[simI++%SIMLIST.length];if(!S.off[s.topic])return{type:"sim",topic:s.topic,sim:s.sim,hook:s.hook,body:s.body,id:"sim-"+s.sim}}
-  if(i===0||i%3===1){var ed=pickEdit();if(ed)return ed}
+  if(i>2&&i%7===4&&!(mode==="edits"&&!prevEd)){var s=SIMLIST[simI++%SIMLIST.length];if(!S.off[s.topic])return{type:"sim",topic:s.topic,sim:s.sim,hook:s.hook,body:s.body,id:"sim-"+s.sim}}
+  if(mode!=="edits"&&(i===0||(i%3===2&&!prevEd))){var ed=pickEdit();if(ed)return ed}
   var topic=pickTopic(),r2=Math.random(),c=null;
   if(i===0)return fromPool("fact",topic);
   if(r2<.38)c=fromPool("fact",topic);
@@ -495,7 +498,8 @@ function pickEdit(){if(!CE)return null;
   var all=CE.EDITS.filter(function(d){return!S.off[d.topic]}),recent={};cards.slice(-25).forEach(function(k){recent[k.c.id]=1});
   var c=all.filter(function(d){return!recent[d.id]}),min=Infinity;c.forEach(function(d){min=Math.min(min,S.seen[d.id]||0)});c=c.filter(function(d){return(S.seen[d.id]||0)===min});
   var def=null;
-  if(!c.length||(min>0&&Math.random()<.5)||Math.random()<.18){var qb=QUIZ.filter(function(q){return!S.off[q[0]]}),tb=TF.filter(function(t){return!S.off[t[0]]});def=Math.random()<.6?CE.genQuiz(qb.length?qb:QUIZ):CE.genTF(tb.length>=3?tb:TF)}
+  var lastGen=false;for(var j=cards.length-1;j>=0;j--)if(cards[j].c.type==="edit"){lastGen=!!cards[j].c.def.gen;break}
+  if(!c.length||(!lastGen&&((min>0&&Math.random()<.5)||Math.random()<.18))){var qb=QUIZ.filter(function(q){return!S.off[q[0]]}),tb=TF.filter(function(t){return!S.off[t[0]]});def=Math.random()<.6?CE.genQuiz(qb.length?qb:QUIZ):CE.genTF(tb.length>=3?tb:TF)}
   if(!def&&c.length)def=pick(c);if(!def)return null;
   return{type:"edit",topic:def.topic,id:def.id,def:def,title:def.title}}
 var ICON={
