@@ -1,0 +1,710 @@
+<!doctype html>
+<html lang="en">
+<head>
+<script src="gate.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#07070c">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Chain">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<title>Chain · Critical</title>
+<style>
+:root{
+  --bg:#07070c;--text:#f3f2ee;--muted:rgba(243,242,238,.72);--dim:rgba(243,242,238,.5);
+  --glass:rgba(255,255,255,.09);--glass2:rgba(255,255,255,.16);--line:rgba(255,255,255,.16);
+  --good:#3fd99a;--bad:#ff6b6b;--gold:#F2C46D;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SFMono-Regular",Consolas,monospace;
+  --st:env(safe-area-inset-top,0px);--sb:env(safe-area-inset-bottom,0px);
+  color-scheme:dark;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:var(--sans);-webkit-font-smoothing:antialiased;overflow:hidden;overscroll-behavior:none}
+button{font:inherit;color:inherit}
+#app{position:relative;height:100%;max-width:540px;margin:0 auto;overflow:hidden}
+@media (min-width:600px){#app{border-left:1px solid var(--line);border-right:1px solid var(--line)}}
+
+/* top bar */
+.top{position:absolute;z-index:20;left:0;right:0;top:0;padding:calc(var(--st) + 10px) 14px 26px;display:flex;align-items:center;gap:10px;background:linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,0));pointer-events:none}
+.top>*{pointer-events:auto}
+.back{display:inline-flex;align-items:center;gap:4px;color:var(--text);text-decoration:none;font-weight:600;font-size:14px;padding:7px 10px 7px 6px;border-radius:999px;background:var(--glass)}
+.tabs{flex:1;display:flex;justify-content:center;gap:4px}
+.tabs button{background:none;border:0;padding:6px 6px;font-weight:700;font-size:16px;white-space:nowrap;color:var(--dim);cursor:pointer;position:relative}
+.tabs button[aria-selected="true"]{color:var(--text)}
+.tabs button[aria-selected="true"]::after{content:"";position:absolute;left:30%;right:30%;bottom:0;height:3px;border-radius:3px;background:var(--text)}
+.xp{display:flex;align-items:center;gap:7px;background:var(--glass);border-radius:999px;padding:4px 10px 4px 4px;font:700 13px var(--mono);font-variant-numeric:tabular-nums;cursor:pointer;border:0}
+.ring{width:26px;height:26px;flex:none}
+.ring circle{fill:none;stroke-width:3.5}
+.ring .tr{stroke:rgba(255,255,255,.18)}
+.ring .pr{stroke:var(--gold);stroke-linecap:round;transform:rotate(-90deg);transform-origin:50% 50%;transition:stroke-dashoffset .5s}
+
+/* feed */
+#feed{position:absolute;inset:0;overflow-y:scroll;scroll-snap-type:y mandatory;scrollbar-width:none;overscroll-behavior:contain}
+#feed::-webkit-scrollbar{display:none}
+.card{position:relative;height:100vh;height:100dvh;scroll-snap-align:start;scroll-snap-stop:always;overflow:hidden;
+  background:radial-gradient(120% 80% at 20% 0%,var(--b1),var(--b2) 70%);display:flex;flex-direction:column;justify-content:center}
+.bg{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.bg i{position:absolute;border-radius:50%;filter:blur(50px);opacity:.45;background:var(--a);width:60vmin;height:60vmin}
+.bg i:nth-child(1){left:-15vmin;top:12%}
+.bg i:nth-child(2){right:-20vmin;bottom:8%;opacity:.25;width:70vmin;height:70vmin}
+.card.on .bg i:nth-child(1){animation:drift 14s ease-in-out infinite alternate}
+.card.on .bg i:nth-child(2){animation:drift 18s ease-in-out infinite alternate-reverse}
+@keyframes drift{to{transform:translate(18vmin,10vmin) scale(1.2)}}
+.in{position:relative;z-index:1;padding:calc(var(--st) + 70px) 78px calc(var(--sb) + 30px) 20px;display:flex;flex-direction:column;gap:14px;max-height:100%;overflow-y:auto;scrollbar-width:none;overscroll-behavior:auto}
+.in::-webkit-scrollbar{display:none}
+.k-fact .in{padding-bottom:calc(var(--sb) + 78px)}
+.chk{display:flex;flex-direction:column;gap:14px}
+.chip{align-self:flex-start;display:inline-flex;align-items:center;gap:6px;font:700 12px var(--sans);letter-spacing:.06em;text-transform:uppercase;color:var(--a);background:rgba(0,0,0,.28);border:1px solid color-mix(in srgb,var(--a) 40%,transparent);padding:5px 10px;border-radius:999px}
+.glyph{width:clamp(76px,16vh,120px);height:clamp(76px,16vh,120px);border-radius:50%;display:grid;place-items:center;font-size:clamp(40px,8vh,62px);background:rgba(0,0,0,.25);position:relative;flex:none}
+.glyph::before,.glyph::after{content:"";position:absolute;inset:-8px;border-radius:50%;border:2px solid var(--a);opacity:0}
+.card.on .glyph::before{animation:pulse 2.6s ease-out infinite}
+.card.on .glyph::after{animation:pulse 2.6s 1.3s ease-out infinite}
+@keyframes pulse{0%{transform:scale(.9);opacity:.6}100%{transform:scale(1.5);opacity:0}}
+.hook{margin:0;font-size:clamp(23px,3.7vh,32px);line-height:1.15;letter-spacing:-.02em;font-weight:800;text-wrap:balance}
+.body{margin:0;font-size:clamp(15px,2.25vh,18px);line-height:1.5;color:var(--muted)}
+.body b{color:var(--text)}
+.cap{position:absolute;z-index:2;left:20px;right:84px;bottom:calc(var(--sb) + 22px);font-size:13px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cap b{color:var(--muted)}
+
+/* options */
+.opts{display:flex;flex-direction:column;gap:9px}
+.opt{text-align:left;background:var(--glass);border:1.5px solid var(--line);border-radius:16px;padding:12px 14px;font-size:clamp(15px,2.2vh,17px);font-weight:600;cursor:pointer;display:flex;align-items:center;gap:10px;transition:transform .12s,background .2s,border-color .2s}
+.opt:active{transform:scale(.98)}
+.opt .k{width:24px;height:24px;border-radius:8px;background:rgba(255,255,255,.12);display:grid;place-items:center;font:700 12px var(--mono);flex:none}
+.opt.ok{background:rgba(63,217,154,.2);border-color:var(--good)}
+.opt.no{background:rgba(255,107,107,.18);border-color:var(--bad)}
+.opt.fade{opacity:.45}
+.done .opt{cursor:default}
+.tf{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tf .opt{justify-content:center;font-size:19px;padding:16px 10px}
+.ex{display:none;background:rgba(0,0,0,.3);border-left:3px solid var(--a);border-radius:10px;padding:10px 12px;font-size:clamp(14px,2vh,16px);line-height:1.45;color:var(--muted)}
+.done .ex{display:block;animation:up .3s}
+.ex b{color:var(--text)}
+@keyframes up{from{opacity:0;transform:translateY(8px)}}
+.nuc{display:inline-flex;flex-direction:column;line-height:1.05;font-size:.55em;vertical-align:-.3em;text-align:right;margin-right:2px}
+
+/* rail */
+.rail{position:absolute;z-index:3;right:8px;bottom:calc(var(--sb) + 70px);display:flex;flex-direction:column;gap:14px;align-items:center}
+.rb{background:none;border:0;padding:0;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;font-weight:700;color:var(--text);cursor:pointer;text-shadow:0 1px 2px rgba(0,0,0,.5);width:60px}
+.rb span.c{width:48px;height:48px;border-radius:50%;background:rgba(0,0,0,.32);display:grid;place-items:center;transition:transform .15s}
+.rb:active span.c{transform:scale(.88)}
+.rb svg{width:26px;height:26px}
+.rb.on[data-act="like"] svg{fill:#ff3b5c;stroke:#ff3b5c}
+.rb.on[data-act="save"] svg{fill:var(--gold);stroke:var(--gold)}
+.rb.pop span.c{animation:pop .35s}
+@keyframes pop{50%{transform:scale(1.25)}}
+
+/* heart burst */
+.burst{position:absolute;z-index:30;pointer-events:none;width:96px;height:96px;margin:-48px 0 0 -48px;animation:burst .8s forwards}
+.burst svg{width:100%;height:100%;fill:#ff3b5c;filter:drop-shadow(0 4px 12px rgba(0,0,0,.4))}
+@keyframes burst{0%{transform:scale(.2) rotate(-12deg);opacity:0}25%{transform:scale(1.15) rotate(-6deg);opacity:1}60%{transform:scale(1) rotate(-6deg);opacity:1}100%{transform:scale(1.1) translateY(-70px);opacity:0}}
+
+/* sims */
+.sim{display:flex;flex-direction:column;gap:10px}
+.sim canvas{width:100%;height:clamp(200px,38vh,340px);border-radius:18px;background:rgba(0,0,0,.35);border:1px solid var(--line);touch-action:none;display:block}
+.srow{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.srow label{font-size:13px;color:var(--muted);font-weight:600}
+.srow input[type=range]{flex:1;min-width:120px;accent-color:var(--a)}
+.sbtn{background:var(--a);color:#0b0b10;border:0;border-radius:999px;padding:9px 16px;font-weight:800;font-size:14px;cursor:pointer}
+.sbtn.ghost{background:var(--glass2);color:var(--text)}
+.sout{font:600 13px var(--mono);color:var(--muted);font-variant-numeric:tabular-nums}
+.hold{width:100%;padding:16px;border-radius:16px;border:0;background:var(--a);color:#0b0b10;font-weight:800;font-size:17px;user-select:none;-webkit-user-select:none;touch-action:none;cursor:pointer}
+.hold.dn{filter:brightness(.8);transform:scale(.98)}
+.reflex{height:clamp(200px,38vh,340px);border-radius:18px;border:1px solid var(--line);background:rgba(0,0,0,.35);display:grid;place-items:center;text-align:center;padding:16px;cursor:pointer;user-select:none;-webkit-user-select:none;font-weight:800;font-size:22px;line-height:1.3;transition:background .1s}
+.reflex small{display:block;font-weight:600;font-size:14px;color:var(--muted);margin-top:6px}
+.reflex.alarm{background:#c81e1e;animation:flash .25s steps(2) infinite}
+.reflex.alarm small{color:#fff}
+@keyframes flash{50%{background:#ff3b3b}}
+
+/* checkpoint */
+.k-check .in{align-items:stretch}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.st{background:rgba(0,0,0,.28);border:1px solid var(--line);border-radius:16px;padding:12px}
+.st b{display:block;font:800 26px var(--mono);font-variant-numeric:tabular-nums;color:var(--text)}
+.st span{font-size:13px;color:var(--muted)}
+.nudge{background:rgba(0,0,0,.3);border:1px solid var(--line);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.nudge p{margin:0;color:var(--muted);line-height:1.45}
+.nudge .srow a{text-decoration:none}
+.swipe{display:flex;align-items:center;gap:8px;color:var(--dim);font-size:14px;font-weight:600}
+.swipe svg{animation:bob 1.4s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-6px)}}
+
+/* sheets & overlays */
+.scrim{position:absolute;inset:0;z-index:40;background:rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:opacity .2s}
+.scrim.show{opacity:1;pointer-events:auto}
+.sheet{position:absolute;z-index:41;left:0;right:0;bottom:0;max-height:78%;overflow:auto;background:#16161d;border-radius:22px 22px 0 0;padding:10px 20px calc(var(--sb) + 22px);transform:translateY(105%);transition:transform .28s cubic-bezier(.2,.8,.2,1)}
+.sheet.show{transform:none}
+.sheet .grab{width:42px;height:5px;border-radius:5px;background:var(--glass2);margin:0 auto 14px}
+.sheet h3{margin:0 0 8px;font-size:20px;letter-spacing:-.01em}
+.sheet p{color:var(--muted);line-height:1.55;margin:0 0 12px;font-size:16px}
+.sheet p b{color:var(--text)}
+.sheet a.go{display:inline-flex;gap:6px;align-items:center;color:#c9c3ff;font-weight:700;text-decoration:none}
+.sheet .close{float:right;background:var(--glass);border:0;border-radius:999px;padding:6px 12px;font-weight:700;cursor:pointer}
+.savedList{display:flex;flex-direction:column;gap:8px}
+.si{display:flex;gap:12px;align-items:center;background:var(--glass);border:1px solid var(--line);border-radius:14px;padding:10px 12px;cursor:pointer;text-align:left;width:100%}
+.si .g{font-size:26px;flex:none}
+.si div{min-width:0}
+.si b{display:block;font-size:15px;line-height:1.3}
+.si small{color:var(--dim);font-size:12px}
+.topics{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 14px}
+.tp{border:1.5px solid var(--line);background:var(--glass);border-radius:999px;padding:7px 12px;font-weight:700;font-size:14px;cursor:pointer}
+.tp[aria-pressed="false"]{opacity:.4;text-decoration:line-through}
+.toast{position:absolute;z-index:50;left:50%;top:calc(var(--st) + 64px);transform:translate(-50%,-10px);background:rgba(20,20,28,.94);border:1px solid var(--line);border-radius:999px;padding:8px 16px;font-weight:700;font-size:14px;opacity:0;transition:.25s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.combo{position:absolute;z-index:25;left:50%;top:38%;width:90%;text-align:center;transform:translateX(-50%);font:900 clamp(24px,7.5vw,34px)/1.15 var(--sans);color:var(--gold);text-shadow:0 4px 18px rgba(0,0,0,.6);pointer-events:none;animation:combo 1.1s forwards}
+@keyframes combo{0%{opacity:0;transform:translate(-50%,20px) scale(.6)}25%{opacity:1;transform:translate(-50%,0) scale(1.1)}70%{opacity:1}100%{opacity:0;transform:translate(-50%,-40px)}}
+@media (prefers-reduced-motion:reduce){.card.on .bg i,.card.on .glyph::before,.card.on .glyph::after,.swipe svg{animation:none!important}}
+@media (max-height:700px){.in{gap:10px;padding-top:calc(var(--st) + 62px)}.opt{padding:9px 12px}.opts{gap:7px}.hook{font-size:22px}.sim canvas,.reflex{height:min(30vh,240px)}}
+@media (max-height:640px){.glyph{display:none}}
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="top">
+    <a class="back" href="index.html" aria-label="Back to the Critical menu"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>Menu</a>
+    <nav class="tabs" role="tablist">
+      <button role="tab" aria-selected="true" id="tFeed">For you</button>
+      <button role="tab" aria-selected="false" id="tSaved">Saved</button>
+    </nav>
+    <button class="xp" id="xpBtn" aria-label="Today's progress and topics">
+      <svg class="ring" viewBox="0 0 26 26"><circle class="tr" cx="13" cy="13" r="10"/><circle class="pr" id="ringPr" cx="13" cy="13" r="10" stroke-dasharray="62.83" stroke-dashoffset="62.83"/></svg>
+      <span id="xpN">0</span>
+    </button>
+  </header>
+  <main id="feed" aria-live="polite"></main>
+  <div class="scrim" id="scrim"></div>
+  <section class="sheet" id="sheet" role="dialog" aria-modal="true"><div class="grab"></div><div id="sheetIn"></div></section>
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+(function(){
+"use strict";
+/* ---------- storage ---------- */
+var KEY="critical_chain_v1";
+function load(){try{return JSON.parse(localStorage.getItem(KEY)||"null")}catch(e){return null}}
+var S=load()||{};
+S.xp=S.xp||0;S.seen=S.seen||{};S.liked=S.liked||{};S.saved=S.saved||[];S.tw=S.tw||{};S.days=S.days||{};S.best=S.best||{};S.off=S.off||{};
+var saveT=0;function save(){clearTimeout(saveT);saveT=setTimeout(function(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}},250)}
+function dk(d){d=d||new Date();return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate()}
+function today(){var k=dk();return S.days[k]||(S.days[k]={n:0,q:0,ok:0,ms:0,xp:0})}
+var GOAL=25;
+function streak(){var n=0,d=new Date();if((S.days[dk(d)]||{}).n<GOAL)d.setDate(d.getDate()-1);for(;;){var x=S.days[dk(d)];if(x&&x.n>=GOAL){n++;d.setDate(d.getDate()-1)}else break}return n}
+try{localStorage.setItem("critical_last_app","chain")}catch(e){}
+
+/* ---------- topics ---------- */
+var TOP={
+ reactor:{n:"Reactor",g:"⚛️",a:"#b3acff",b1:"#2b2470",b2:"#0c0a22"},
+ atoms:{n:"Atoms",g:"🔬",a:"#5DCAA5",b1:"#0f4a3d",b2:"#06171a"},
+ radiation:{n:"Radiation",g:"☢️",a:"#F2C46D",b1:"#5a3d08",b2:"#140d02"},
+ history:{n:"History",g:"📜",a:"#f5a588",b1:"#5c2414",b2:"#170805"},
+ energy:{n:"Energy",g:"⚡",a:"#7cc0ff",b1:"#0f3260",b2:"#050d1c"},
+ maths:{n:"Maths",g:"➗",a:"#f59bcb",b1:"#5a1742",b2:"#160511"},
+ chem:{n:"Chemistry",g:"🧪",a:"#a6e676",b1:"#2c4d12",b2:"#0a1405"},
+ ops:{n:"Control room",g:"🎛️",a:"#5fdcff",b1:"#0b4256",b2:"#031218"},
+ space:{n:"Wild physics",g:"🌌",a:"#cdb0ff",b1:"#341d66",b2:"#0b0619"}
+};
+var TK=Object.keys(TOP);
+
+/* ---------- content ---------- */
+var FACTS=[
+["reactor","💥","A power reactor can't explode like a nuclear bomb.","A bomb needs around <b>90% uranium-235</b> slammed together in millionths of a second. Power-station fuel is only <b>3–5%</b>. It physically can't make a nuclear explosion.","Chernobyl's reactor was destroyed by a <b>steam explosion</b> after a runaway power surge, not a nuclear detonation. The danger in a reactor accident is heat and the radioactive material that escapes, not a mushroom cloud."],
+["reactor","⚖️","“Critical” is the goal, not the danger.","Critical means each fission causes <b>exactly one more</b> on average (k = 1), so power stays steady. Every reactor making electricity right now is critical.","Below 1 (subcritical) the chain dies away. Above 1 (supercritical) it grows. To raise power, operators go very slightly supercritical, then bring k back to 1 at the new level."],
+["reactor","⏳","Without slow neutrons, nobody could control a reactor.","About <b>99.35%</b> of fission neutrons appear instantly. The other <b>0.65%</b> arrive seconds later from decaying fission products. Those stragglers slow the whole reactor down enough for control rods to keep up.","They're called <b>delayed neutrons</b>, and their fraction for U-235 is written β ≈ 0.0065. If a reactor ever becomes critical on prompt neutrons alone (“prompt critical”), power can rise far faster than any control system can react. That was part of what happened at Chernobyl."],
+["reactor","🐢","Slow neutrons are better at splitting uranium.","A fresh neutron from fission is fast (about 2 MeV). Uranium-235 is <b>hundreds of times</b> more likely to fission with a slow, “thermal” neutron. So reactors need a <b>moderator</b> to slow them down.","Thermal neutrons move at about 2,200 m/s, with an energy of roughly 0.025 eV. Water and graphite are the usual moderators: neutrons slow down by bouncing off light nuclei, like a snooker ball hitting another ball of similar mass."],
+["reactor","💧","In a PWR, water is both the brake and the accelerator.","Water slows neutrons down so fission can happen. If the water gets too hot, it expands, moderates less, and power <b>drops by itself</b>. Physics does the safety job.","This is called a <b>negative temperature coefficient</b>. It's a deliberate design feature of Western reactors. The Soviet RBMK design at Chernobyl had the opposite at low power: more steam meant <b>more</b> power."],
+["reactor","🧽","Control rods are neutron sponges.","They're made of things that gobble neutrons: <b>boron</b>, <b>cadmium</b>, <b>hafnium</b> or silver-indium-cadmium alloy. Push them in and power falls. Pull them out and it rises.","PWRs also dissolve boric acid in the coolant for slow, even control across the whole core, and use the rods for faster changes and shutdown."],
+["reactor","🔥","A reactor keeps making heat after you shut it down.","The radioactive fission products keep decaying. Right after shutdown that's about <b>7% of full power</b>, falling to around 1% after a few hours. That's why cooling must never stop.","It's called <b>decay heat</b>. At Fukushima the reactors had shut down correctly, but the tsunami took out the power to the cooling pumps, and decay heat alone melted the fuel."],
+["reactor","🪂","A SCRAM drops every control rod in seconds.","In a PWR the rods hang from electromagnets. Cut the power and gravity pulls them all into the core within a few seconds. Fail-safe by design.","Any trip signal, or the operator hitting the button, de-energises the magnets. Because they hang on electricity, losing all electricity also shuts the reactor down."],
+["reactor","🔁","A PWR has two water loops that never touch.","The <b>primary</b> loop runs through the core at about 155 bar and 325 °C: so pressurised it can't boil. It heats the <b>secondary</b> loop through thousands of tubes in the steam generators, and that water boils to drive the turbine.","Sizewell B in Suffolk is the UK's PWR. Keeping the loops separate means the water that touches the fuel never goes near the turbine."],
+["reactor","☠️","Reactors make their own poison: xenon-135.","Xe-135 swallows neutrons better than almost anything known. After a shutdown it builds up for about <b>10 hours</b> and can stop you restarting. Operators call it the “xenon pit”.","It's made mostly from iodine-135 decaying. While the reactor runs, neutrons burn the xenon off as fast as it's made. Stop the reactor and the iodine keeps feeding xenon in with nothing burning it away."],
+["reactor","🌬️","Most UK reactors are cooled by gas, not water.","The UK's <b>Advanced Gas-cooled Reactors</b> push carbon dioxide through a graphite core. The gas leaves at around 650 °C, hotter than a PWR, so they're more efficient at making steam.","Heysham and Torness are AGRs. The design is uniquely British: no other country built them."],
+["reactor","🌀","Natural uranium is only 0.7% the useful kind.","99.3% is uranium-238, which barely fissions with slow neutrons. <b>Enrichment</b> spins uranium hexafluoride gas in centrifuges at huge speeds to push the U-235 share up to about 4%.","The lighter U-235 molecules drift very slightly towards the middle of a spinning centrifuge. The difference is tiny, so plants link thousands of centrifuges in “cascades”. The UK's Capenhurst site in Cheshire does this."],
+["reactor","🪨","One uranium fuel pellet ≈ a tonne of coal.","A pellet the size of your fingertip releases about as much energy as burning a tonne of coal. That's what you get when each reaction releases millions of times more energy than burning.","Pellets are stacked into zirconium-alloy tubes about 4 m long. A PWR core holds tens of thousands of these rods, and fuel stays in for 4–6 years, with about a third replaced at each refuelling."],
+["reactor","🏗️","Hinkley Point C will make about 7% of UK electricity.","Two huge EPR reactors in Somerset, 3.2 GW in total: enough for around <b>6 million homes</b>. It's the first new nuclear station built in the UK since Sizewell B in 1995.","Sizewell C in Suffolk is planned as a near-copy. Small modular reactors, built from factory-made sections, are the other big part of the UK's nuclear plans."],
+["atoms","🏟️","An atom is almost entirely empty space.","If the nucleus were a pea on the centre spot at Wembley, the electrons would be buzzing around the <b>top of the stands</b>. Nearly all the mass is in that pea.","The nucleus is about 100,000 times smaller across than the atom. You never fall through the floor because electrons push back electrically, not because anything is solid."],
+["atoms","👯","Isotopes: same element, different neutrons.","Uranium-235 and uranium-238 both have <b>92 protons</b>. U-235 has 143 neutrons and U-238 has 146. Chemically identical, nuclear opposites.","Number of protons (atomic number, Z) decides the element. Protons + neutrons is the mass number, A. So neutrons = A − Z."],
+["atoms","🚀","Splitting one uranium atom releases about 200 MeV.","Burning a molecule of fuel releases a few electronvolts. Fission releases around <b>200 million</b>. That's roughly 50 million times more energy per atom.","Most of it comes out as kinetic energy of the two fission fragments, which smash into surrounding atoms and turn into heat in the fuel."],
+["atoms","⚖️","E = mc²: the pieces weigh less than the whole.","After fission, the fragments and neutrons weigh about <b>0.1% less</b> than the uranium and neutron did before. That missing mass became energy.","c² is 9×10¹⁶, so a tiny mass makes a huge amount of energy. Turning just 1 gram of mass fully into energy would give 9×10¹³ J."],
+["atoms","🧲","The strong force: strongest, but shortest.","It glues protons and neutrons together, about <b>100 times stronger</b> than the electric push between protons. But it only reaches about the width of a proton.","That's why big nuclei are wobbly: protons on opposite sides still repel each other electrically, but they're too far apart to feel each other's strong force."],
+["atoms","🎯","Rutherford fired alpha particles at gold. Some bounced back.","Most went straight through the foil, but about 1 in 8,000 bounced back. Rutherford said it was like firing a <b>shell at tissue paper</b> and having it come back and hit you.","The 1909 Geiger–Marsden experiment killed the “plum pudding” model and showed atoms have a tiny, dense, positive nucleus."],
+["atoms","☀️","The Sun turns 4 million tonnes of itself into energy every second.","It fuses about 600 million tonnes of hydrogen into helium each second. The 4 million tonne difference becomes light and heat, by <b>E = mc²</b>.","Fusion joins light nuclei; fission splits heavy ones. Both release energy because they move towards nuclei around iron, which are the most tightly bound."],
+["atoms","💇","A human hair is about half a million atoms wide.","Atoms are around 0.1 nanometres across. Line up 10 million of them and you'd have about a millimetre.","That's why scientists count atoms in moles: 6.02×10²³ of them. A mole of uranium-235 weighs just 235 grams."],
+["radiation","📄","Alpha is stopped by paper. Gamma laughs at it.","<b>Alpha</b>: a sheet of paper or a few cm of air. <b>Beta</b>: a few mm of aluminium. <b>Gamma</b>: only thick lead or concrete cuts it down.","The trade-off: alpha is the most ionising, so it's the most dangerous <b>inside</b> your body, even though your skin stops it from outside."],
+["radiation","🍌","Bananas are radioactive.","They contain potassium-40. One banana has about <b>15 decays a second</b> going on inside it. Totally harmless, but real.","So are you. An adult body has about 4,000 decays a second, mostly potassium-40 and carbon-14."],
+["radiation","🏠","In Devon and Cornwall, the biggest dose comes from the ground.","Granite contains uranium, which decays into <b>radon gas</b>. It seeps into homes. The South West has some of the highest radon levels in the UK.","Across the UK the average person gets about 2.7 mSv a year, and around half of that is radon. Good ventilation and radon sumps in floors fix most high readings."],
+["radiation","🧼","Irradiated is not the same as contaminated.","Zapping something with gamma rays <b>doesn't</b> make it radioactive. Contamination means radioactive material has got onto or into it.","That's why food and medical equipment can be sterilised with gamma rays and then used safely. Contamination is the thing to avoid: you carry the source around with you."],
+["radiation","🎲","Nothing changes a half-life. Not heat, not pressure, not chemistry.","Each nucleus decays at random. You can't predict one atom, but a big pile of them halves at a perfectly steady rate.","After 10 half-lives, less than a thousandth (1/1024) of the original is left."],
+["radiation","📏","Double the distance, quarter the dose.","Gamma from a small source spreads out like light from a bulb: the <b>inverse square law</b>. Step back from 1 m to 2 m and your dose rate falls to a quarter.","Radiation workers use three tools: <b>time</b> (be quick), <b>distance</b> (stay back) and <b>shielding</b> (put something dense in the way)."],
+["radiation","✈️","A transatlantic flight gives you more dose than living by a power station for a year.","London to New York is roughly 0.05 mSv from cosmic rays. Living next to a nuclear station adds less than 0.01 mSv a year.","At cruising height there's less atmosphere shielding you from cosmic radiation. Aircrew are among the most exposed workers in the UK."],
+["radiation","🚨","Your smoke alarm probably has americium in it.","A tiny americium-241 source fires alpha particles that ionise the air, letting a small current flow. Smoke soaks up the ions, the current drops, and the alarm sounds.","Alpha works perfectly here: it ionises strongly but can't get out of the plastic case."],
+["radiation","👷","UK radiation workers have a legal limit of 20 mSv a year.","Most nuclear workers get <b>far less</b>, typically under 1 mSv, because every dose has to be kept “as low as reasonably practicable”.","Workers wear dosimeters that track their dose all the time. ALARP (as low as reasonably practicable) is a legal duty in the UK, not just advice."],
+["history","🏟️","The first nuclear reactor was built under a sports stadium.","Chicago Pile-1 went critical on <b>2 December 1942</b> in a squash court under the stands at the University of Chicago. It made about half a watt.","Enrico Fermi's team stacked graphite blocks and uranium by hand. No shielding, no cooling. They had cadmium rods and a team ready to pour cadmium solution on it if anything went wrong."],
+["history","👑","Calder Hall: the world's first commercial-scale nuclear power station.","The Queen opened it in Cumbria on <b>17 October 1956</b>. The Soviet Obninsk plant had connected two years earlier, but at only 5 MW.","Calder Hall ran for 47 years until 2003. It's on the same site as Sellafield."],
+["history","🔥","Windscale, 1957: the UK's worst nuclear accident.","A graphite pile in Cumbria caught fire and burned for days. Milk from farms nearby was poured away for weeks because of iodine-131.","The fire started during a routine heating process meant to release energy stored in the graphite. The tall filters on the chimneys, once mocked as “Cockcroft's Folly”, caught a lot of the radioactive material."],
+["history","🧠","Lise Meitner explained fission. Someone else got the Nobel.","In 1938 Otto Hahn found barium in uranium he'd hit with neutrons. Meitner and her nephew Otto Frisch worked out the nucleus had <b>split in two</b>. Hahn won the 1944 Nobel Prize alone.","Frisch borrowed the word “fission” from biology, where it means a cell dividing. Element 109, meitnerium, is named after her."],
+["history","📓","Marie Curie's notebooks are still radioactive.","They're contaminated with radium-226, which has a half-life of about <b>1,600 years</b>. They're kept in lead-lined boxes and you sign a waiver to read them.","Curie discovered polonium and radium and is the only person to win Nobel Prizes in two different sciences."],
+["history","🌍","Nature built nuclear reactors 2 billion years ago.","At Oklo in Gabon, groundwater flowing through uranium ore made natural fission reactors that ran on and off for <b>hundreds of thousands of years</b>.","Back then uranium was about 3% U-235, like modern reactor fuel, because U-235 decays faster than U-238. Today's natural uranium can't do it any more."],
+["history","🪓","SCRAM probably doesn't mean “Safety Control Rod Axe Man”.","At Chicago Pile-1, a man really did stand by with an axe, ready to cut a rope and drop a control rod. But the acronym was most likely invented afterwards.","Whatever its origin, “scram” now means an emergency shutdown in reactors all over the world."],
+["history","📷","Radioactivity was discovered by accident in a drawer.","In 1896 Henri Becquerel left uranium salts on wrapped photographic plates. They fogged in the dark. Something invisible was coming out of the uranium.","The unit of activity, one decay per second, is named after him: the becquerel (Bq)."],
+["history","🚨","Three Mile Island, 1979: a stuck valve and a confusing control room.","A relief valve stuck open but a light told operators it had shut. Water drained away and half the core melted. Very little radiation escaped.","It changed control rooms everywhere: better displays, alarm design, simulator training and procedures built around what operators actually see. Over 100 alarms went off in the first few minutes."],
+["history","🌊","Fukushima, 2011: the reactors shut down perfectly. Then the wave came.","The earthquake tripped the reactors as designed. The tsunami that followed flooded the backup diesel generators, cooling stopped, and <b>decay heat</b> melted three cores.","Hydrogen from hot zirconium cladding reacting with steam caused the explosions that blew the tops off the reactor buildings."],
+["energy","🔌","Power isn't energy.","A watt is a joule <b>per second</b>. A kilowatt-hour is energy: 1 kW running for 1 hour = <b>3.6 million joules</b>.","Your bill charges for kWh. A 3 kW kettle on for 2 minutes uses 0.1 kWh."],
+["energy","🗼","The National Grid runs at up to 400,000 volts.","Higher voltage means lower current for the same power, and heating losses go with <b>current squared</b>. Halve the current, quarter the losses.","Step-up transformers at power stations raise the voltage; step-down transformers near homes bring it back to 230 V."],
+["energy","☕","After big TV moments, the grid braces for a million kettles.","When a match ends, millions of people put the kettle on at once. After England v West Germany in 1990, demand jumped by about <b>2,800 MW</b> in minutes.","Grid controllers watch the TV schedule and have pumped storage like Dinorwig in Wales ready to spin up within seconds."],
+["energy","🌡️","Two-thirds of a reactor's heat is thrown away.","A typical PWR turns only about <b>33–37%</b> of its heat into electricity. The rest goes into the sea or the air. That's not waste by choice: it's the limit for any heat engine at those temperatures.","Hotter steam means higher efficiency. That's why AGRs, running hotter, beat PWRs on efficiency."],
+["energy","☁️","Cooling towers release water vapour, not smoke.","The white clouds are just condensed water. Many UK nuclear stations don't even have towers: they're on the coast and use seawater instead.","Nuclear stations emit almost no CO₂ while running. Over their whole life, including building and mining, they produce about as much CO₂ per kWh as wind."],
+["energy","🔄","Big turbines spin in perfect step with the grid.","UK mains is 50 Hz. A 2-pole generator has to spin at exactly <b>3,000 rpm</b>. Many nuclear turbines are 4-pole, so they turn at a stately 1,500 rpm.","If demand outstrips supply, all the turbines slow down slightly and the frequency drops. Controllers must keep it close to 50 Hz."],
+["energy","🌊","Water is the best coolant you can get for free.","It takes <b>4,200 J</b> to heat 1 kg of water by 1 °C, more than almost any other common substance. It carries a lot of heat for its mass.","That's specific heat capacity. It's also why the sea warms up so slowly in summer."],
+["maths","📉","After 10 half-lives, 99.9% is gone.","½ × ½ × ½… ten times is <b>1/1024</b>. That's why radioactive waste with a short half-life stops mattering quickly.","Long-lived waste is the opposite problem: plutonium-239 has a half-life of about 24,000 years."],
+["maths","7️⃣","The rule of 70: how fast does something double?","Divide 70 by the percentage growth rate. Growing <b>7% a year</b>? It doubles in about 10 years. 1% a year? About 70.","It works because ln 2 ≈ 0.693. It's handy for interest, populations, and power climbing in a reactor."],
+["maths","🔟","Standard form keeps nuclear numbers sane.","The speed of light is 3×10⁸ m/s. A uranium nucleus is about 1.5×10⁻¹⁴ m wide. Multiply: <b>multiply the fronts, add the powers</b>.","(2×10³) × (4×10⁵) = 8×10⁸. Dividing: divide the fronts, subtract the powers."],
+["maths","📈","Tiny growth adds up fast.","1.01 multiplied by itself 100 times is about <b>2.7</b>. A reactor growing just 1% per neutron generation would almost triple in 100 generations.","With only prompt neutrons, 100 generations takes a few hundredths of a second. Delayed neutrons stretch that to many seconds."],
+["chem","🏋️","Uranium is much denser than lead.","Uranium is about <b>19 g/cm³</b>; lead is 11. A 2-litre bottle filled with uranium would weigh 38 kg.","Only a few metals like gold, tungsten and platinum beat it."],
+["chem","💨","Uranium becomes a gas for enrichment.","Uranium hexafluoride, UF₆, turns straight from a solid to a gas at just <b>56.5 °C</b>. That lets centrifuges sort the atoms by weight.","Fluorine only has one natural isotope, so any difference in the weight of UF₆ molecules comes purely from the uranium."],
+["chem","🛡️","Fuel cladding is made from zirconium.","Zirconium alloys are almost <b>invisible to neutrons</b>, resist corrosion, and handle the heat. Perfect, until they get too hot.","Above about 1,200 °C zirconium reacts fast with steam and releases hydrogen. That hydrogen caused the explosions at Fukushima."],
+["chem","🧂","PWRs dissolve boron in their cooling water.","Boric acid soaks up neutrons. Operators lower its concentration as the fuel gets used up over the months, to keep the reactor critical.","Adding boron is called boration; removing it by adding pure water is dilution. Both are everyday control room jobs."],
+["chem","💧","Heavy water lets reactors run on natural uranium.","Heavy water, D₂O, uses deuterium: hydrogen with an extra neutron. It absorbs far fewer neutrons than normal water, so Canada's CANDU reactors don't need enrichment.","Heavy water isn't radioactive. It's about 11% denser than normal water: an ice cube of it sinks."],
+["chem","🔄","Every reactor makes plutonium as it runs.","U-238 grabs a neutron, becomes U-239, then decays twice into <b>plutonium-239</b>. Late in the fuel's life, about a third of the energy comes from that plutonium splitting.","So even though U-238 doesn't fission well, it still ends up contributing fuel."],
+["ops","📻","Why “Bravo” and not “B”?","Over a noisy radio or phone, B, D, E, G, P, T and V all sound alike. The <b>NATO phonetic alphabet</b> gives each letter a word that can't be confused.","Alfa and Juliett are spelt that way on purpose, so people from other countries pronounce them right."],
+["ops","🔁","Three-way communication: say it, repeat it, confirm it.","The sender gives the order. The receiver repeats it back exactly. The sender says <b>“That is correct.”</b> Only then does anyone touch anything.","It catches mishearings before they turn into mistakes. Nuclear plants, aviation and the military all use it."],
+["ops","⭐","STAR: Stop, Think, Act, Review.","Before touching a switch: <b>stop</b>, <b>think</b> about what should happen, <b>act</b>, then <b>review</b> that it did. It takes two seconds and prevents a lot of errors.","It's one of several human performance tools, along with self-checking, peer checking and pre-job briefs."],
+["ops","🎮","Operators train in an exact copy of their control room.","The full-scope simulator has every panel, switch and alarm of the real thing, driven by a computer model of the plant. Instructors can throw any fault at you.","Licensed operators go back regularly to requalify. They practise accidents they hope never to see for real."],
+["ops","9️⃣","On the radio, 9 is “niner”.","Spoken German for “no” is “nein”, and that sounds just like “nine”. Saying <b>“niner”</b> removes any doubt. Numbers are said one digit at a time: 155 is “one five five”.","Operators also say “point” for decimals and avoid words like “increase/decrease” sounding alike by using “raise/lower”."],
+["ops","🛑","When in doubt, take the safe action.","Nuclear operators are trained in <b>conservative decision making</b>: if you're not sure what the plant is doing, you make it safe first and work it out after.","No one at a nuclear plant gets criticised for tripping a reactor when they genuinely thought it was needed."],
+["ops","📋","Before every job: the pre-job brief.","The team runs through the task, what could go wrong, the worst thing that could happen, and what they'll do if it does. It takes minutes.","Everyone gets to raise a concern. A good brief catches problems before anyone touches a valve."],
+["space","🛰️","Voyager 1 still runs on plutonium.","Launched in 1977, it's the most distant human-made object. Its power comes from the heat of decaying <b>plutonium-238</b> turned into electricity.","These are radioisotope thermoelectric generators (RTGs). There's no chain reaction; it's just decay heat. The Perseverance rover on Mars uses one too."],
+["space","💙","Reactor pools glow blue.","Electrons from fission products move faster than light does <b>in water</b> (not in a vacuum). They make a blue shock wave of light called Cherenkov radiation.","Light in water travels at about 75% of its vacuum speed, so fast particles can outrun it. It's like a sonic boom, but for light."],
+["space","🥄","A teaspoon of neutron star weighs about a billion tonnes.","A neutron star squashes more mass than the Sun into a ball about 20 km across. It's basically one giant nucleus.","They form when massive stars collapse. Gravity crushes electrons into protons to make neutrons."],
+["space","🕐","Sunlight is 8 minutes old.","Light takes about <b>8 minutes 20 seconds</b> to travel 150 million km from the Sun. If the Sun vanished, you wouldn't know for 8 minutes.","The energy in that light was made by fusion in the core thousands of years earlier: it takes that long to work its way out."],
+["space","🌙","There are no free neutrons in nature for long.","A neutron on its own decays into a proton, an electron and an antineutrino with a half-life of about <b>10 minutes</b>.","Inside a stable nucleus, neutrons can last forever. That's also exactly what beta-minus decay is: a neutron turning into a proton."]
+];
+
+/* quizzes: [topic, question, [correct, wrong...], explanation] */
+var QUIZ=[
+["reactor","What does a moderator do?",["Slows neutrons down","Absorbs neutrons","Cools the turbine","Speeds up fission"],"Slow (thermal) neutrons are far more likely to split U-235, so the moderator slows them by bouncing them off light nuclei like hydrogen in water."],
+["reactor","What stops the primary water in a PWR from boiling at 325 °C?",["Very high pressure","Dissolved boron","Cold seawater","The control rods"],"The pressuriser keeps the primary loop at about <b>155 bar</b>. At that pressure, water doesn't boil until about 345 °C."],
+["reactor","Which of these is used in control rods?",["Boron","Graphite","Water","Zirconium"],"Boron absorbs neutrons strongly. Graphite and water are moderators; zirconium is used for cladding because it barely absorbs neutrons."],
+["reactor","k = 1 means the reactor is…",["Critical: steady power","About to explode","Shut down","Losing power"],"Each fission causes exactly one more. Every operating reactor sits at k = 1."],
+["reactor","What does a PWR steam generator do?",["Passes heat from the primary to the secondary loop","Makes the electricity","Cools the control rods","Enriches the fuel"],"Hot primary water flows through thousands of tubes, boiling the secondary water around them into steam for the turbine."],
+["reactor","What's the coolant in a UK AGR?",["Carbon dioxide gas","Heavy water","Liquid sodium","Helium"],"Advanced Gas-cooled Reactors blow CO₂ through a graphite-moderated core."],
+["reactor","Typical enrichment of PWR fuel?",["3–5% U-235","0.7% U-235","20% U-235","90% U-235"],"Natural uranium is 0.7% U-235. PWRs need a few percent. Weapons need around 90%."],
+["reactor","Why does a reactor still need cooling after a SCRAM?",["Decay heat from fission products","The rods are still moving","The pumps make heat","Steam is trapped inside"],"Fission products keep decaying, giving about 7% of full power right after shutdown."],
+["reactor","Which neutron poison builds up after a shutdown?",["Xenon-135","Iodine-131","Carbon-14","Helium-4"],"Iodine-135 keeps decaying into xenon-135 with no neutrons to burn it off. It peaks about 10 hours later."],
+["reactor","Roughly what share of fission neutrons are delayed?",["Under 1%","About 10%","About half","All of them"],"About <b>0.65%</b> for U-235. Small, but they're what makes a reactor controllable."],
+["reactor","In a PWR, if the water gets hotter, power…",["Falls by itself","Rises","Stays the same","Trips instantly"],"Hotter water is less dense and moderates less, so fewer fissions: a <b>negative temperature coefficient</b>."],
+["atoms","What holds a nucleus together?",["The strong nuclear force","Gravity","Electrostatic attraction","Magnetism"],"The strong force beats the electric repulsion between protons, but only over very short distances."],
+["atoms","Who discovered the neutron?",["James Chadwick","Ernest Rutherford","Marie Curie","Albert Einstein"],"Chadwick found it in <b>1932</b>. Without neutrons there'd be no chain reaction."],
+["atoms","What powers the Sun?",["Fusion of hydrogen","Fission of uranium","Burning gas","Radioactive decay"],"Hydrogen nuclei fuse into helium, losing a little mass that becomes energy."],
+["atoms","What shocked Rutherford in the gold foil experiment?",["Some alpha particles bounced back","They all went straight through","The foil glowed","The foil melted"],"Only a tiny, dense, positive nucleus could throw an alpha particle back."],
+["atoms","Isotopes of an element have different numbers of…",["Neutrons","Protons","Electrons","Charges"],"Same protons means same element. Different neutrons means different mass number."],
+["atoms","About how much energy does one U-235 fission release?",["200 MeV","2 eV","2 keV","2 J"],"About 200 million electronvolts: roughly 50 million times a chemical reaction."],
+["radiation","Which is the most ionising?",["Alpha","Beta","Gamma","Radio waves"],"Alpha particles are big and doubly charged, so they rip electrons off everything nearby and stop quickly."],
+["radiation","What stops beta radiation?",["A few mm of aluminium","A sheet of paper","Nothing","Thin plastic film"],"Paper stops alpha; a few mm of aluminium stops beta; gamma needs lead or concrete."],
+["radiation","The biggest source of background radiation in the UK?",["Radon gas","Nuclear power stations","Medical X-rays","Flights"],"Radon from rocks like granite is about half of the average UK dose."],
+["radiation","What's the unit of activity?",["Becquerel","Sievert","Gray","Joule"],"1 Bq = one decay per second. Sieverts measure the harm to a body."],
+["radiation","In beta-minus decay, what happens in the nucleus?",["A neutron turns into a proton and an electron","A proton turns into a neutron","Two protons and two neutrons leave","An electron is captured"],"The electron shoots out as the beta particle; the atomic number goes up by 1."],
+["radiation","Gamma emission changes…",["Neither the mass nor atomic number","The mass number by 4","The atomic number by 1","The atomic number by 2"],"Gamma is just energy: the nucleus calms down without changing what it's made of."],
+["radiation","You move from 1 m to 3 m from a gamma source. Dose rate becomes…",["One ninth","One third","Half","The same"],"Inverse square law: 3 times the distance, 1/3² = 1/9 of the dose rate."],
+["history","Where was the first nuclear reactor built in 1942?",["Under a stadium in Chicago","In the New Mexico desert","In Cumbria","In Moscow"],"Chicago Pile-1, under the stands of Stagg Field, led by Enrico Fermi."],
+["history","What caused the Fukushima meltdowns?",["A tsunami cut power to the cooling","A failed safety test","Too much enrichment","A positive void coefficient"],"The reactors had shut down. Without cooling, decay heat melted three cores."],
+["history","Who explained nuclear fission with Otto Frisch?",["Lise Meitner","Marie Curie","Ada Lovelace","Rosalind Franklin"],"Meitner and Frisch worked it out in the winter of 1938–39."],
+["history","When did the Queen open Calder Hall?",["1956","1942","1979","1986"],"17 October 1956, in Cumbria."],
+["history","What made Chernobyl's reactor unstable at low power?",["More steam meant more power","It had too many control rods","It used heavy water","The containment was too strong"],"The RBMK had a <b>positive void coefficient</b>: steam bubbles increased reactivity, so power fed itself."],
+["energy","Why does the grid transmit at 400 kV?",["Lower current means less heat lost","Electricity travels faster","It's safer for birds","Pylons need it to stand up"],"For the same power, high voltage means low current, and losses go with I²R."],
+["energy","1 kWh in joules?",["3.6 million","1,000","60,000","3,600"],"1,000 W × 3,600 s = 3,600,000 J."],
+["energy","UK mains frequency?",["50 Hz","60 Hz","230 Hz","100 Hz"],"230 V at 50 Hz. The USA uses 60 Hz."],
+["energy","Roughly how efficient is a typical PWR at turning heat into electricity?",["About a third","About 90%","About 10%","About two-thirds"],"Around 33–37%. The rest goes to the sea or cooling towers."],
+["ops","In three-way comms, after the receiver repeats back, the sender says…",["“That is correct”","“Roger”","“Over”","“Copy that”"],"Only after “That is correct” does the receiver act."],
+["ops","STAR stands for…",["Stop, Think, Act, Review","Start, Test, Adjust, Run","Safety, Training, Alarms, Rods","Stop, Tell, Ask, Repeat"],"Two seconds of thought before touching anything."],
+["ops","How do you say 9 on the radio?",["Niner","Nine","Nein","Novem"],"“Niner”, so it can't be mistaken for the German “nein” (no)."],
+["ops","How should you read out 155 on the radio?",["One five five","A hundred and fifty-five","Fifteen five","One fifty-five"],"Digit by digit. No room for “fifteen” vs “fifty”."],
+["chem","Fuel cladding is mainly made of…",["Zirconium alloy","Lead","Copper","Aluminium"],"Zirconium barely absorbs neutrons and resists corrosion."],
+["chem","What's dissolved in PWR coolant to control reactivity?",["Boric acid","Salt","Chlorine","Sodium hydroxide"],"Boron absorbs neutrons. Operators adjust its concentration as fuel burns up."],
+["chem","Heavy water contains…",["Deuterium","Tritium","Helium","Lead"],"Deuterium is hydrogen with one neutron. It's stable, not radioactive."],
+["chem","Plutonium-239 in a reactor comes from…",["U-238 capturing a neutron","U-235 splitting","Fusion of hydrogen","Thorium decaying"],"U-238 → U-239 → Np-239 → Pu-239."],
+["space","What powers Voyager 1?",["Decay heat from plutonium-238","Solar panels","A fission reactor","Batteries charged before launch"],"An RTG turns decay heat into electricity. It's been running since 1977."],
+["space","Why do reactor pools glow blue?",["Particles beat light's speed in water","The water is dyed","Uranium glows","Reflected sky"],"Cherenkov radiation: a light “sonic boom”."]
+];
+
+/* true/false: [topic, statement, isTrue, explanation] */
+var TF=[
+["reactor","A power reactor can explode like a nuclear bomb.",false,"Power fuel is only 3–5% U-235. A bomb needs about 90%, assembled in microseconds."],
+["reactor","Pulling control rods out increases power.",true,"Fewer absorbers in the core means more neutrons left to cause fission."],
+["reactor","Most fission neutrons are released instantly.",true,"About 99.35% are prompt. The 0.65% delayed ones are what make control possible."],
+["reactor","Chernobyl's reactor had a strong containment building like Western PWRs.",false,"The RBMK had no full containment structure, which is why so much material escaped."],
+["radiation","Heating a radioactive sample shortens its half-life.",false,"Nothing ordinary changes a half-life: not heat, pressure or chemistry."],
+["radiation","Food sterilised with gamma rays becomes radioactive.",false,"Irradiation doesn't make things radioactive. Contamination is different."],
+["radiation","Gamma rays have no mass and no charge.",true,"They're electromagnetic waves, which is why they're so penetrating."],
+["radiation","You are radioactive.",true,"About 4,000 decays a second in an adult body, mostly potassium-40."],
+["radiation","Coal stations release more radioactivity than nuclear stations in normal running.",true,"Coal contains traces of uranium and thorium, which end up in the ash and smoke."],
+["radiation","A sievert counts decays per second.",false,"That's the becquerel. The sievert measures the effect of a dose on the body."],
+["chem","Heavy water is radioactive.",false,"Deuterium is stable. Tritium (hydrogen with two neutrons) is the radioactive one."],
+["chem","Uranium glows green in the dark.",false,"That's a cartoon. Uranium glass glows green under UV light, which is fluorescence, not radioactivity."],
+["energy","Cooling towers release CO₂.",false,"The clouds are water vapour."],
+["energy","Nuclear power stations make electricity by boiling water.",true,"Fission heats water into steam, the steam spins a turbine, the turbine spins a generator. Same as coal, different heat source."],
+["atoms","The Sun is a giant fission reactor.",false,"It's fusion: hydrogen nuclei joining into helium."],
+["atoms","A free neutron lasts forever.",false,"Outside a nucleus, a neutron's half-life is about 10 minutes."],
+["atoms","Most of an atom's mass is in its nucleus.",true,"Over 99.9%. Electrons are about 1/1836 of a proton's mass."],
+["history","Radioactivity was discovered on purpose.",false,"Becquerel found it by accident in 1896 when uranium fogged his photographic plates."],
+["history","The first reactor had no shielding and no cooling.",true,"Chicago Pile-1 ran at only about half a watt, so it didn't need any."],
+["ops","In a control room, “increase” and “decrease” are preferred over “raise” and “lower”.",false,"“Increase” and “decrease” sound alike over noise. Operators prefer clear words like “raise” and “lower”."],
+["space","Light from the Sun takes about 8 minutes to reach us.",true,"8 minutes 20 seconds over about 150 million km."]
+];
+
+/* ---------- helpers ---------- */
+function rnd(n){return Math.floor(Math.random()*n)}
+function pick(a){return a[rnd(a.length)]}
+function shuf(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=rnd(i+1),t=a[i];a[i]=a[j];a[j]=t}return a}
+function hsh(s){var h=5381;for(var i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))>>>0;return h.toString(36)}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+var SUP={"0":"⁰","1":"¹","2":"²","3":"³","4":"⁴","5":"⁵","6":"⁶","7":"⁷","8":"⁸","9":"⁹","-":"⁻"};
+function sup(n){return String(n).split("").map(function(c){return SUP[c]||c}).join("")}
+function sf(x){if(x===0)return"0";var e=Math.floor(Math.log10(Math.abs(x))),m=x/Math.pow(10,e);m=Math.round(m*100)/100;if(m>=10){m/=10;e++}if(e>=-2&&e<=5)return num(x);return (m+"").replace(/\.?0+$/,"")+"×10"+sup(e)}
+function num(x){var r=Math.abs(x)>=100?Math.round(x):Math.abs(x)>=1?Math.round(x*100)/100:Math.round(x*10000)/10000;return r.toLocaleString("en-GB",{maximumFractionDigits:4})}
+function uniq(a){var o=[],s={};a.forEach(function(x){var k=String(x);if(!s[k]){s[k]=1;o.push(x)}});return o}
+function mkQuiz(topic,q,opts,explain,id,label){ /* opts[0] is correct */
+  opts=uniq(opts).slice(0,4);var order=shuf(opts.map(function(_,i){return i}));
+  return {type:"quiz",topic:topic,id:id||("q"+hsh(q)),q:q,opts:order.map(function(i){return opts[i]}),ans:order.indexOf(0),ex:explain,label:label};
+}
+
+/* ---------- generators (endless fresh questions) ---------- */
+var ZS=["n","H","He","Li","Be","B","C","N","O","F","Ne","Na","Mg","Al","Si","P","S","Cl","Ar","K","Ca","Sc","Ti","V","Cr","Mn","Fe","Co","Ni","Cu","Zn","Ga","Ge","As","Se","Br","Kr","Rb","Sr","Y","Zr","Nb","Mo","Tc","Ru","Rh","Pd","Ag","Cd","In","Sn","Sb","Te","I","Xe","Cs","Ba","La","Ce","Pr","Nd","Pm","Sm","Eu","Gd","Tb","Dy","Ho","Er","Tm","Yb","Lu","Hf","Ta","W","Re","Os","Ir","Pt","Au","Hg","Tl","Pb","Bi","Po","At","Rn","Fr","Ra","Ac","Th","Pa","U","Np","Pu","Am","Cm"];
+function nuc(A,Z){return '<span class="nuc"><span>'+A+'</span><span>'+Z+'</span></span>'+ZS[Z]}
+var ALPHA=[[238,92],[235,92],[239,94],[226,88],[222,86],[210,84],[241,95],[232,90],[218,84]];
+var BETA=[[14,6],[90,38],[137,55],[131,53],[60,27],[3,1],[40,19],[214,82],[234,90],[99,43],[135,54]];
+var NUCS=[[235,92],[238,92],[239,94],[232,90],[137,55],[90,38],[131,53],[60,27],[14,6],[40,19],[222,86],[226,88],[241,95],[135,54],[3,1],[141,56],[92,36]];
+var NATO="Alfa Bravo Charlie Delta Echo Foxtrot Golf Hotel India Juliett Kilo Lima Mike November Oscar Papa Quebec Romeo Sierra Tango Uniform Victor Whiskey X-ray Yankee Zulu".split(" ");
+var FAKE={A:"Apple",B:"Baker",C:"Cobra",D:"David",E:"Easy",F:"Freddie",G:"George",H:"Harry",I:"Indigo",J:"Jack",K:"King",L:"London",M:"Mother",N:"Nancy",O:"Orange",P:"Peter",Q:"Queen",R:"Roger",S:"Sugar",T:"Tommy",U:"Uncle",V:"Venus",W:"William",X:"Xylophone",Y:"Yellow",Z:"Zebra"};
+var WORDS=["PWR","SCRAM","RCS","TRIP","PUMP","VALVE","XENON","BORON","SG","LOCA","AGR","ECCS","CORE","ROD","FUEL","HEAT"];
+function natoOf(w){return w.split("").map(function(c){return NATO[c.charCodeAt(0)-65]}).join(" ")}
+
+var GEN={
+ halflife:function(){var A0=pick([800,1600,640,1200,960,2000,4000,3200]),T=pick([2,3,5,6,8,10,12]),u=pick(["hours","days","minutes","years"]),n=2+rnd(3),a=A0/Math.pow(2,n);
+  return mkQuiz("radiation","A source has an activity of <b>"+A0.toLocaleString("en-GB")+" Bq</b>. Its half-life is "+T+" "+u+". What's the activity after "+(n*T)+" "+u+"?",[num(a)+" Bq",num(a*2)+" Bq",num(a/2)+" Bq",num(A0/(2*n))+" Bq",num(a*4)+" Bq"],
+  (n*T)+" ÷ "+T+" = <b>"+n+" half-lives</b>. Halve "+n+" times: "+[A0].concat([1,2,3,4].slice(0,n).map(function(i){return num(A0/Math.pow(2,i))})).join(" → ")+" Bq.",null,"Half-life");},
+ neutrons:function(){var x=pick(NUCS),A=x[0],Z=x[1],N=A-Z;
+  return mkQuiz("atoms","How many neutrons are in "+nuc(A,Z)+"?",[N,A,Z,N+2,N-1,A+Z],"Neutrons = mass number − atomic number = "+A+" − "+Z+" = <b>"+N+"</b>.",null,"Quick count");},
+ decay:function(){var al=Math.random()<.5,x=pick(al?ALPHA:BETA),A=x[0],Z=x[1],o;
+  if(al)o=[nuc(A-4,Z-2),nuc(A-4,Z+2),nuc(A,Z-2),nuc(A-2,Z-1)];else o=[nuc(A,Z+1),nuc(A,Z-1),nuc(A-1,Z+1),nuc(A-4,Z-2)];
+  return mkQuiz("radiation",nuc(A,Z)+" emits "+(al?"an <b>alpha</b>":"a <b>beta</b>")+" particle. What's left?",o,
+   al?"Alpha = 2 protons + 2 neutrons. Mass number <b>−4</b>, atomic number <b>−2</b>: "+(A-4)+" and "+(Z-2)+", which is "+ZS[Z-2]+".":"Beta-minus: a neutron turns into a proton. Mass number <b>stays</b>, atomic number <b>+1</b>: "+(Z+1)+", which is "+ZS[Z+1]+".",null,"Decay equation");},
+ emc2:function(){var m=pick([[1e-3,"1 g"],[1,"1 kg"],[1e-6,"1 mg"],[0.01,"10 g"],[2e-3,"2 g"],[0.5,"0.5 kg"]]),E=m[0]*9e16,h=E/3.2e9/3600;
+  var comp=h>=1&&h<1e6?" That's about <b>"+(h<100?Math.round(h):Math.round(h/24)+" days")+(h<100?" hours":"")+"</b> of Hinkley Point C at full power.":"";
+  return mkQuiz("atoms","If "+m[1]+" of mass turned completely into energy, how much would you get? (c = 3×10⁸ m/s)",[sf(E)+" J",sf(E*10)+" J",sf(E/10)+" J",sf(m[0]*3e8)+" J"],"E = mc² = "+sf(m[0])+" kg × (3×10⁸)² = <b>"+sf(E)+" J</b>."+comp+" Remember to square c, and to use kilograms.",null,"E = mc²");},
+ physics:function(){var t=rnd(8),q,o,e;
+  if(t===0){var I=pick([0.5,2,3,4,5,10]),R=pick([2,4,5,12,20,23,46]),V=I*R;q="A current of "+I+" A flows through a "+R+" Ω resistor. What's the potential difference?";o=[num(V)+" V",num(I/R)+" V",num(R/I)+" V",num(V*10)+" V"];e="V = IR = "+I+" × "+R+" = <b>"+num(V)+" V</b>.";}
+  else if(t===1){var I2=pick([2,4,5,8,10,13]),P=230*I2;q="A 230 V appliance draws "+I2+" A. What's its power?";o=[num(P)+" W",num(230/I2)+" W",num(P/10)+" W",num(P*I2)+" W"];e="P = IV = "+I2+" × 230 = <b>"+num(P)+" W</b>.";}
+  else if(t===2){var kW=pick([2,3,1.5,0.5,9]),h=pick([2,3,4,6]),p=pick([24,25,28,30]),c=kW*h*p/100;q="A "+kW+" kW heater runs for "+h+" hours. Electricity costs "+p+"p per kWh. What does it cost?";o=["£"+c.toFixed(2),"£"+(c*10).toFixed(2),"£"+(kW*p/100).toFixed(2),"£"+(c/10).toFixed(2)];e="Energy = "+kW+" kW × "+h+" h = "+num(kW*h)+" kWh. Cost = "+num(kW*h)+" × "+p+"p = <b>£"+c.toFixed(2)+"</b>.";}
+  else if(t===3){var m=pick([2,4,10,60,1000]),v=pick([2,3,4,5,10,20]),KE=.5*m*v*v;q="A "+m+" kg object moves at "+v+" m/s. What's its kinetic energy?";o=[num(KE)+" J",num(m*v*v)+" J",num(.5*m*v)+" J",num(KE*2+m)+" J"];e="E = ½mv² = 0.5 × "+m+" × "+v+"² = <b>"+num(KE)+" J</b>. Don't forget to square the speed and halve it.";}
+  else if(t===4){var f=pick([50,200,340,500,1000]),l=pick([0.5,2,3,4,1.5]),w=f*l;q="A wave has a frequency of "+f+" Hz and a wavelength of "+l+" m. What's its speed?";o=[num(w)+" m/s",num(f/l)+" m/s",num(l/f)+" m/s",num(w*10)+" m/s"];e="v = fλ = "+f+" × "+l+" = <b>"+num(w)+" m/s</b>.";}
+  else if(t===5){var th=pick([3000,3400,2700,1500,4500]),ef=pick([30,33,34,36,40]),el=th*ef/100;q="A reactor makes "+th.toLocaleString("en-GB")+" MW of heat and "+num(el)+" MW of electricity. What's its efficiency?";o=[ef+"%",(100-ef)+"%",Math.round(ef/2)+"%",Math.min(99,ef*2)+"%"];e="Efficiency = useful out ÷ total in = "+num(el)+" ÷ "+th+" = <b>"+ef+"%</b>.";}
+  else if(t===6){var mm=pick([2,5,10,20,50]),hh=pick([2,3,5,10,12]),g=9.8,G=mm*g*hh;q="A "+mm+" kg mass is lifted "+hh+" m. How much gravitational potential energy does it gain? (g = 9.8 N/kg)";o=[num(G)+" J",num(mm*hh)+" J",num(G*10)+" J",num(G/2)+" J"];e="E = mgh = "+mm+" × 9.8 × "+hh+" = <b>"+num(G)+" J</b>.";}
+  else{var ms=pick([4,8,19,11,2.7,7.9]),vol=pick([2,5,0.5,10]),D=ms*vol;q="A block of metal has a mass of "+num(D)+" g and a volume of "+vol+" cm³. What's its density?";o=[num(ms)+" g/cm³",num(D*vol)+" g/cm³",num(vol/D)+" g/cm³",num(ms*10)+" g/cm³"];e="ρ = m ÷ V = "+num(D)+" ÷ "+vol+" = <b>"+num(ms)+" g/cm³</b>."+(ms===19?" That's about uranium!":ms===11?" That's about lead.":ms===2.7?" That's aluminium.":"");}
+  return mkQuiz("energy",q,o,e,null,"Physics calc");},
+ units:function(){var U=pick([["W","power"],["Sv","dose"],["J","energy"],["Bq","activity"]]),P=[["G",9],["M",6],["k",3],["",0],["m",-3],["μ",-6]];
+  var i=rnd(P.length),j;do{j=rnd(P.length)}while(j===i||Math.abs(P[i][1]-P[j][1])>6);var v=pick([1.5,2,3.2,4.5,7,12,25,250]),r=v*Math.pow(10,P[i][1]-P[j][1]);
+  return mkQuiz("maths",v+" "+P[i][0]+U[0]+" = how many "+P[j][0]+U[0]+"?",[sf(r),sf(r*1000),sf(r/1000),sf(r*1e6>1e12?r/1e6:r*1e6)],v+" "+P[i][0]+U[0]+" = <b>"+sf(r)+" "+P[j][0]+U[0]+"</b>. Each prefix step (G→M→k→base→m→μ) is a factor of 1,000.",null,"Units");},
+ maths:function(){var t=rnd(4),q,o,e;
+  if(t===0){var p=pick([5,10,15,20,25,35,40,75]),b=pick([40,60,80,120,240,360,480]),a=p*b/100;q="What's "+p+"% of "+b+"?";o=[num(a),num(a*2),num(a/2),num(b-a)];e=p+"% = "+p+"/100. "+p+"/100 × "+b+" = <b>"+num(a)+"</b>.";}
+  else if(t===1){var a1=pick([2,3,4,1.5,2.5]),e1=pick([3,4,5,8,-2]),a2=pick([2,3,4]),e2=pick([2,3,6,-5]),r=a1*a2*Math.pow(10,e1+e2);q="("+a1+"×10"+sup(e1)+") × ("+a2+"×10"+sup(e2)+") = ?";o=[sf(r),sf(r*10),sf(a1*a2*Math.pow(10,e1*e2)),sf(r/10)];e="Multiply the numbers ("+a1+" × "+a2+" = "+num(a1*a2)+") and add the powers ("+e1+" + "+e2+" = "+(e1+e2)+"): <b>"+sf(r)+"</b>.";}
+  else if(t===2){var n=pick([1,2,3,4,5]),f=100/Math.pow(2,n);q="What percentage of a radioactive sample is left after "+n+" half-li"+(n>1?"ves":"fe")+"?";o=[num(f)+"%",num(100-f)+"%",num(100-n*25>0?100-n*25:f*3)+"%",num(f*2>100?f/2:f*2)+"%"];e="Halve 100% "+n+" time"+(n>1?"s":"")+": <b>"+num(f)+"%</b>, which is 1/"+Math.pow(2,n)+".";}
+  else{var x=pick([12,13,14,15,16,17,18,19,21,25]),y=pick([6,7,8,9,11,12]),z=x*y;q="Quick: "+x+" × "+y+" = ?";o=[z,z+y,z-x,z+10];e="Split it: "+x+" × "+y+" = "+(x-x%10)+"×"+y+" + "+(x%10)+"×"+y+" = "+((x-x%10)*y)+" + "+((x%10)*y)+" = <b>"+z+"</b>.";}
+  return mkQuiz("maths",q,o,e,null,"Mental maths");},
+ nato:function(){if(Math.random()<.5){var L=String.fromCharCode(65+rnd(26)),c=NATO[L.charCodeAt(0)-65],w=[c,FAKE[L]];shuf(NATO).forEach(function(x){if(w.length<4&&x!==c&&x[0]!==L)w.push(x)});
+   return mkQuiz("ops","What's the NATO phonetic word for <b>"+L+"</b>?",w,"<b>"+L+" = "+c+"</b>. "+FAKE[L]+" sounds plausible: it's from an old wartime alphabet that was replaced in the 1950s.",null,"Phonetic");}
+  var W=pick(WORDS),r=natoOf(W),ws=W.split(""),k=rnd(ws.length),bad1=ws.map(function(c,i){return i===k?FAKE[c]:NATO[c.charCodeAt(0)-65]}).join(" "),k2=(k+1)%ws.length,bad2=ws.map(function(c,i){return i===k2?FAKE[c]:NATO[c.charCodeAt(0)-65]}).join(" ");
+  var bad3=ws.map(function(c){return FAKE[c]}).join(" ");
+  return mkQuiz("ops","Read <b>"+W+"</b> over the radio:",[r,bad1,bad2,bad3],"<b>"+W+"</b> = "+r+".",null,"Phonetic");}
+};
+var GENK=Object.keys(GEN);
+var GENTOPIC={halflife:"radiation",neutrons:"atoms",decay:"radiation",emc2:"atoms",physics:"energy",units:"maths",maths:"maths",nato:"ops"};
+
+/* ---------- sims ---------- */
+var SIMLIST=[
+ {sim:"chain",topic:"reactor",hook:"Start a chain reaction",body:"Tap to fire a neutron. Slide the control rods in to soak neutrons up."},
+ {sim:"decay",topic:"radiation",hook:"Watch a half-life happen",body:"100 atoms. Each one has a 50% chance of decaying every 2 seconds. You can't predict one atom, but watch the total."},
+ {sim:"hold",topic:"ops",hook:"Hold it critical",body:"Power keeps drifting up. Hold the button to drive rods in. Keep power in the green band for 10 seconds."},
+ {sim:"reflex",topic:"ops",hook:"SCRAM reflex test",body:"Wait for the trip alarm, then hit SCRAM as fast as you can. Don't jump the gun."}
+];
+
+/* ---------- feed engine ---------- */
+var feed=document.getElementById("feed"),cards=[],active=-1,sess={t0:Date.now(),n:0,q:0,ok:0,xp:0,combo:0,since:0},retry=[],simI=rnd(SIMLIST.length);
+var pools={fact:FACTS.map(function(f){return{type:"fact",topic:f[0],glyph:f[1],hook:f[2],body:f[3],more:f[4],id:"f"+hsh(f[2])}}),
+ quiz:QUIZ.map(function(q){return{src:q,id:"q"+hsh(q[1])}}),tf:TF.map(function(t){return{src:t,id:"t"+hsh(t[1])}})};
+function tw(t){return S.off[t]?0:(S.tw[t]||1)}
+function pickTopic(){var tot=0,i;for(i=0;i<TK.length;i++)tot+=tw(TK[i]);if(!tot)return pick(TK);var r=Math.random()*tot;for(i=0;i<TK.length;i++){r-=tw(TK[i]);if(r<=0)return TK[i]}return TK[0]}
+function topicOf(it){return it.topic||(it.src&&it.src[0])}
+function fromPool(kind,topic){var p=pools[kind],c=p.filter(function(x){return topicOf(x)===topic&&!S.off[topicOf(x)]});if(!c.length)c=p.filter(function(x){return!S.off[topicOf(x)]});if(!c.length)c=p;
+  var recent={};cards.slice(-30).forEach(function(k){recent[k.c.id]=1});var fr2=c.filter(function(x){return!recent[x.id]});if(fr2.length)c=fr2;
+  var min=Infinity;c.forEach(function(x){min=Math.min(min,S.seen[x.id]||0)});c=c.filter(function(x){return(S.seen[x.id]||0)===min});var it=pick(c);
+  if(kind==="fact")return it;
+  if(kind==="quiz"){var q=it.src;return mkQuiz(q[0],q[1],q[2],q[3],it.id)}
+  var t=it.src;return{type:"tf",topic:t[0],id:it.id,q:t[1],opts:["True","False"],ans:t[2]?0:1,ex:t[3]};
+}
+function makeNext(){
+  var i=cards.length;
+  if(sess.since>=12){sess.since=0;return{type:"check",topic:"maths",id:"chk"+i}}
+  if(retry.length&&retry[0].due<=i){var r=retry.shift().c;return mkQuiz(r.topic,r.q,[r.opts[r.ans]].concat(r.opts.filter(function(_,k){return k!==r.ans})),r.ex,r.id,"Second chance")}
+  if(i>2&&i%7===4){var s=SIMLIST[simI++%SIMLIST.length];if(!S.off[s.topic])return{type:"sim",topic:s.topic,sim:s.sim,hook:s.hook,body:s.body,id:"sim-"+s.sim}}
+  var topic=pickTopic(),r2=Math.random(),c=null;
+  if(i===0)return fromPool("fact",topic);
+  if(r2<.38)c=fromPool("fact",topic);
+  else if(r2<.6)c=fromPool("quiz",topic);
+  else if(r2<.72)c=fromPool("tf",topic);
+  if(!c){var gk=GENK.filter(function(k){return!S.off[GENTOPIC[k]]});c=GEN[pick(gk.length?gk:GENK)]()}
+  return c;
+}
+var ICON={
+ like:'<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"><path d="M12 20.5s-7.5-4.6-9.3-9.2C1.4 7.9 3.6 4.5 7 4.5c2 0 3.5 1.1 5 3 1.5-1.9 3-3 5-3 3.4 0 5.6 3.4 4.3 6.8-1.8 4.6-9.3 9.2-9.3 9.2z"/></svg>',
+ save:'<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"><path d="M6 3.5h12v17l-6-4.2-6 4.2z"/></svg>',
+ more:'<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.1"/></svg>',
+ share:'<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4l7 7-7 7v-4c-6 0-9 2-11 6 1-6 4-11 11-12z"/></svg>',
+ heart:'<svg viewBox="0 0 24 24"><path d="M12 21s-8-4.9-9.9-9.8C.7 7.6 3 4 6.7 4c2.2 0 3.8 1.2 5.3 3.2C13.5 5.2 15.1 4 17.3 4 21 4 23.3 7.6 21.9 11.2 20 16.1 12 21 12 21z"/></svg>'
+};
+function isSaved(id){return S.saved.some(function(s){return s.id===id})}
+function rail(c){if(c.type==="check")return"";var sv=isSaved(c.id),lk=!!S.liked[c.id];
+  return '<aside class="rail"><button class="rb'+(lk?" on":"")+'" data-act="like" aria-pressed="'+lk+'"><span class="c">'+ICON.like+'</span>Like</button>'+
+  '<button class="rb'+(sv?" on":"")+'" data-act="save" aria-pressed="'+sv+'"><span class="c">'+ICON.save+'</span>Save</button>'+
+  '<button class="rb" data-act="more"><span class="c">'+ICON.more+'</span>Explain</button>'+
+  '<button class="rb" data-act="share"><span class="c">'+ICON.share+'</span>Share</button></aside>'}
+function chipHtml(c,t){return '<div class="chip">'+t.g+" "+t.n+(c.label?" · "+c.label:c.type==="tf"?" · True or false":c.type==="quiz"?" · Quiz":c.type==="sim"?" · Try it":"")+'</div>'}
+function inner(c){var t=TOP[c.topic]||TOP.reactor,h="";
+  if(c.type==="fact")h=chipHtml(c,t)+'<div class="glyph">'+c.glyph+'</div><h2 class="hook">'+c.hook+'</h2><p class="body">'+c.body+'</p>';
+  else if(c.type==="quiz"||c.type==="tf"){h=chipHtml(c,t)+'<h2 class="hook">'+c.q+'</h2><div class="opts'+(c.type==="tf"?" tf":"")+'">'+
+    c.opts.map(function(o,i){return '<button class="opt" data-i="'+i+'">'+(c.type==="tf"?(i?"✗ ":"✓ "):'<span class="k">'+"ABCD"[i]+'</span>')+'<span>'+o+'</span></button>'}).join("")+'</div><div class="ex"></div>'}
+  else if(c.type==="sim")h=chipHtml(c,t)+'<h2 class="hook">'+c.hook+'</h2><p class="body">'+c.body+'</p>'+simHtml(c.sim);
+  else if(c.type==="check")h='<div class="chk"></div>';
+  return h}
+function build(c){var t=TOP[c.topic]||TOP.reactor,el=document.createElement("section");
+  el.className="card k-"+c.type;el.style.setProperty("--a",t.a);el.style.setProperty("--b1",t.b1);el.style.setProperty("--b2",t.b2);
+  if(c.type==="check"){el.style.setProperty("--b1","#2a2140");el.style.setProperty("--b2","#09070f");el.style.setProperty("--a","#F2C46D")}
+  el.innerHTML='<div class="bg"><i></i><i></i></div><div class="in">'+inner(c)+'</div>'+rail(c)+(c.type==="fact"?'<div class="cap"><b>@critical</b> · #'+t.n.toLowerCase().replace(/\s+/g,"")+(c.type==="fact"?" #didyouknow":c.type==="sim"?" #tryit":" #quiz")+'</div>':"");
+  return el}
+function add(c){var el=build(c),k={c:c,el:el,t:0,dwell:0,done:false};cards.push(k);feed.appendChild(el);return k}
+function ensure(){while(cards.length<active+5)add(makeNext())}
+
+/* ---------- active card tracking ---------- */
+function cardH(){return feed.clientHeight||innerHeight}
+function onScroll(){var i=Math.round(feed.scrollTop/cardH());if(i!==active&&i>=0&&i<cards.length)setActive(i)}
+var rafS=0;feed.addEventListener("scroll",function(){if(!rafS)rafS=requestAnimationFrame(function(){rafS=0;onScroll()})},{passive:true});
+function setActive(i){var now=Date.now();
+  if(active>=0&&cards[active]){var p=cards[active];p.el.classList.remove("on");if(p.el._sim&&p.el._sim.stop)p.el._sim.stop();p.dwell+=now-p.t;leave(p)}
+  active=i;var k=cards[i];k.el.classList.add("on");k.t=now;
+  if(k.c.type==="check")renderCheck(k);
+  if(k.c.type==="sim"){if(!k.el._sim)k.el._sim=SIMS[k.c.sim](k.el,k);if(k.el._sim.start)k.el._sim.start()}
+  if(!k.counted){k.counted=true;var d=today();d.n++;sess.n++;sess.since++;S.seen[k.c.id]=(S.seen[k.c.id]||0)+1;save();ring();
+    if(d.n===GOAL){toast("🔥 Daily goal done! Streak: "+streak()+" day"+(streak()>1?"s":""));award(10)}}
+  ensure();if(i>0)hint(false);
+}
+function leave(k){ /* reward reading facts, learn topic taste from dwell */
+  if(k.c.type==="fact"&&!k.done&&k.dwell>2500){k.done=true;award(1)}
+  if(k.c.type==="fact"&&k.dwell<900){var t=k.c.topic;S.tw[t]=Math.max(.4,(S.tw[t]||1)-.03)}
+  if(k.dwell>6000&&k.c.topic){var t2=k.c.topic;S.tw[t2]=Math.min(3,(S.tw[t2]||1)+.05)}
+  today().ms+=Math.min(k.dwell,120000);save();
+}
+function award(n){S.xp+=n;sess.xp+=n;today().xp+=n;document.getElementById("xpN").textContent=S.xp.toLocaleString("en-GB");save()}
+function ring(){var d=today(),f=Math.min(1,d.n/GOAL);document.getElementById("ringPr").setAttribute("stroke-dashoffset",(62.83*(1-f)).toFixed(2))}
+
+/* ---------- interactions ---------- */
+function cardOf(node){var el=node.closest(".card");for(var i=0;i<cards.length;i++)if(cards[i].el===el)return cards[i];return null}
+feed.addEventListener("click",function(e){var k=cardOf(e.target);if(!k)return;
+  var o=e.target.closest(".opt");if(o){answer(k,+o.dataset.i);return}
+  var b=e.target.closest("[data-act]");if(b){act(k,b.dataset.act,b);return}
+});
+function answer(k,i){var c=k.c;if(k.answered)return;k.answered=true;var ok=i===c.ans,box=k.el.querySelector(".opts"),bs=box.querySelectorAll(".opt");
+  bs.forEach(function(b,j){if(j===c.ans)b.classList.add("ok");else if(j===i)b.classList.add("no");else b.classList.add("fade")});
+  k.el.querySelector(".in").classList.add("done");
+  k.el.querySelector(".ex").innerHTML=(ok?"<b>✓ Yes.</b> ":"<b>✗ Not quite.</b> ")+c.ex;
+  var inn=k.el.querySelector(".in");if(inn.scrollHeight>inn.clientHeight)setTimeout(function(){inn.scrollTo({top:inn.scrollHeight,behavior:"smooth"})},150);
+  var d=today();d.q++;sess.q++;
+  if(ok){d.ok++;sess.ok++;sess.combo++;var gain=5+(sess.combo>=3?Math.min(5,sess.combo-2):0);award(gain);vib(18);
+    if(sess.combo>=3)comboPop("🔥 "+sess.combo+" in a row  +"+gain);else comboPop("+"+gain+" XP")}
+  else{sess.combo=0;vib([30,40,30]);if(c.type==="quiz"&&c.label!=="Second chance")retry.push({c:c,due:cards.length+5});S.tw[c.topic]=Math.min(3,(S.tw[c.topic]||1)+.1)}
+  save();
+}
+function act(k,a,b){var c=k.c;
+  if(a==="like")like(k,!S.liked[c.id]);
+  else if(a==="save"){var on=isSaved(c.id);if(on)S.saved=S.saved.filter(function(s){return s.id!==c.id});else{S.saved.unshift({id:c.id,c:strip(c),at:Date.now()});S.saved=S.saved.slice(0,300)}
+    b.classList.toggle("on",!on);b.setAttribute("aria-pressed",!on);pop(b);toast(on?"Removed from Saved":"Saved. Find it in the Saved tab");save()}
+  else if(a==="more")explain(c,k);
+  else if(a==="share")share(c);
+}
+function strip(c){var o={};for(var x in c)if(x!=="el")o[x]=c[x];return o}
+function like(k,on,x,y){var c=k.c,b=k.el.querySelector('[data-act="like"]');if(on)S.liked[c.id]=1;else delete S.liked[c.id];
+  S.tw[c.topic]=Math.max(.4,Math.min(3,(S.tw[c.topic]||1)+(on?.35:-.35)));
+  if(b){b.classList.toggle("on",on);b.setAttribute("aria-pressed",on);if(on)pop(b)}save()}
+function pop(b){b.classList.remove("pop");void b.offsetWidth;b.classList.add("pop")}
+/* double tap to like */
+var lastTap=0,lastXY=null;
+feed.addEventListener("pointerup",function(e){if(e.target.closest("button,a,input,canvas,.reflex"))return;var now=Date.now();
+  if(now-lastTap<320&&lastXY&&Math.abs(lastXY[0]-e.clientX)<40&&Math.abs(lastXY[1]-e.clientY)<40){var k=cardOf(e.target);if(k&&k.c.type!=="check"){like(k,true);burst(e.clientX,e.clientY)}lastTap=0}
+  else{lastTap=now;lastXY=[e.clientX,e.clientY]}});
+function burst(x,y){var r=document.getElementById("app").getBoundingClientRect(),d=document.createElement("div");d.className="burst";d.style.left=(x-r.left)+"px";d.style.top=(y-r.top)+"px";d.innerHTML=ICON.heart;document.getElementById("app").appendChild(d);setTimeout(function(){d.remove()},850)}
+function comboPop(t){var d=document.createElement("div");d.className="combo";d.textContent=t;document.getElementById("app").appendChild(d);setTimeout(function(){d.remove()},1000)}
+function vib(p){try{if(navigator.vibrate)navigator.vibrate(p)}catch(e){}}
+var toastT=0;function toast(t){var el=document.getElementById("toast");el.textContent=t;el.classList.add("show");clearTimeout(toastT);toastT=setTimeout(function(){el.classList.remove("show")},1900)}
+function plain(h){var d=document.createElement("div");d.innerHTML=h;return d.textContent}
+function share(c){var txt=c.type==="fact"?plain(c.hook)+" "+plain(c.body):plain(c.q||c.hook||"")+(c.opts?" "+c.opts.map(plain).join(" / "):"");
+  txt+=" (from Critical)";
+  if(navigator.share){navigator.share({title:"Critical",text:txt}).catch(function(){})}
+  else if(navigator.clipboard){navigator.clipboard.writeText(txt).then(function(){toast("Copied to clipboard")},function(){toast("Couldn't copy")})}}
+
+/* ---------- sheet ---------- */
+var sheet=document.getElementById("sheet"),scrim=document.getElementById("scrim"),sheetIn=document.getElementById("sheetIn");
+function openSheet(h){sheetIn.innerHTML='<button class="close" data-x>Close</button>'+h;sheet.classList.add("show");scrim.classList.add("show")}
+function closeSheet(){sheet.classList.remove("show");scrim.classList.remove("show");setTab("feed")}
+scrim.addEventListener("click",closeSheet);
+sheet.addEventListener("click",function(e){if(e.target.closest("[data-x]"))closeSheet()});
+var sy=null;sheet.addEventListener("touchstart",function(e){sy=sheet.scrollTop<=0?e.touches[0].clientY:null},{passive:true});
+sheet.addEventListener("touchmove",function(e){if(sy!=null&&e.touches[0].clientY-sy>80){sy=null;closeSheet()}},{passive:true});
+var LEARN='<a class="go" href="critical.html">Learn this properly in Critical <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>';
+function explain(c,k){var h;
+  if(c.type==="fact")h='<h3>'+c.hook+'</h3><p>'+c.body+'</p>'+(c.more?'<p>'+c.more+'</p>':"")+LEARN;
+  else if(c.type==="quiz"||c.type==="tf")h=(k&&k.answered)?'<h3>'+c.q+'</h3><p>Answer: <b>'+c.opts[c.ans]+'</b></p><p>'+c.ex+'</p>'+LEARN:'<h3>Have a guess first</h3><p>The explanation appears as soon as you answer. Getting it wrong is fine: wrong answers come back a few cards later so they stick.</p>';
+  else h='<h3>'+c.hook+'</h3><p>'+c.body+'</p>'+LEARN;
+  openSheet(h)}
+
+/* ---------- tabs: saved, progress ---------- */
+var tFeed=document.getElementById("tFeed"),tSaved=document.getElementById("tSaved");
+function setTab(t){tFeed.setAttribute("aria-selected",t==="feed");tSaved.setAttribute("aria-selected",t==="saved")}
+tFeed.onclick=function(){closeSheet()};
+tSaved.onclick=function(){setTab("saved");
+  var h='<h3>Saved</h3>';
+  if(!S.saved.length)h+='<p>Nothing saved yet. Tap the bookmark on any card to keep it here.</p>';
+  else h+='<p>'+S.saved.length+' saved. Tap one to see it again.</p><div class="savedList">'+S.saved.map(function(s,i){var c=s.c,t=TOP[c.topic]||TOP.reactor;
+    return '<button class="si" data-sv="'+i+'"><span class="g">'+(c.glyph||t.g)+'</span><div><b>'+(c.hook||c.q)+'</b><small>'+t.n+' · '+(c.type==="fact"?"Fact":c.type==="sim"?"Try it":"Quiz")+'</small></div></button>'}).join("")+'</div>';
+  openSheet(h)};
+sheetIn.addEventListener("click",function(e){var s=e.target.closest("[data-sv]");if(s){var c=JSON.parse(JSON.stringify(S.saved[+s.dataset.sv].c));if(c.type==="quiz")c=mkQuiz(c.topic,c.q,[c.opts[c.ans]].concat(c.opts.filter(function(_,k){return k!==c.ans})),c.ex,c.id,c.label);insertNext(c);closeSheet();return}
+  var tp=e.target.closest("[data-tp]");if(tp){var key=tp.dataset.tp;if(S.off[key])delete S.off[key];else{if(TK.filter(function(k){return!S.off[k]}).length<=1){toast("Keep at least one topic on");return}S.off[key]=1}
+    tp.setAttribute("aria-pressed",!S.off[key]);save();refreshAhead()}});
+function insertNext(c){var at=active+1,el=build(c),k={c:c,el:el,t:0,dwell:0};feed.insertBefore(el,cards[at]?cards[at].el:null);cards.splice(at,0,k);setTimeout(function(){goTo(at)},60)}
+function refreshAhead(){ /* rebuild cards the user hasn't reached yet so topic changes apply */
+  for(var i=cards.length-1;i>active+1;i--){cards[i].el.remove();cards.splice(i,1)}ensure()}
+document.getElementById("xpBtn").onclick=function(){var d=today(),acc=sess.q?Math.round(sess.ok/sess.q*100):null;
+  openSheet('<h3>Today</h3><div class="stats" style="margin-bottom:14px"><div class="st"><b>'+d.n+'/'+GOAL+'</b><span>cards today</span></div><div class="st"><b>'+streak()+'</b><span>day streak</span></div><div class="st"><b>'+d.xp+'</b><span>XP today</span></div><div class="st"><b>'+(d.q?Math.round(d.ok/d.q*100)+"%":"–")+'</b><span>quiz accuracy</span></div></div>'+
+  '<h3>Your feed</h3><p>Tap a topic to turn it off or on. Liking cards and taking your time on them also teaches the feed what you like.</p><div class="topics">'+TK.map(function(k){return '<button class="tp" data-tp="'+k+'" aria-pressed="'+!S.off[k]+'">'+TOP[k].g+' '+TOP[k].n+'</button>'}).join("")+'</div>'+
+  '<p style="font-size:14px">Total: '+S.xp.toLocaleString("en-GB")+' XP · '+Object.keys(S.liked).length+' liked · '+S.saved.length+' saved</p>')};
+
+/* ---------- checkpoint ---------- */
+function mins(ms){var m=Math.round(ms/60000);return m<1?"under a minute":m===1?"1 minute":m+" minutes"}
+function renderCheck(k){var el=k.el.querySelector(".chk"),ms=Date.now()-sess.t0,acc=sess.q?Math.round(sess.ok/sess.q*100)+"%":"–",d=today(),m=ms/60000;
+  var nudge=m>=25?'<div class="nudge"><p><b>You\'ve been here '+mins(ms)+'.</b> That\'s a full lesson\'s worth of learning, not doom scrolling. Nice. Keep going if you\'re enjoying it, or turn it into proper progress.</p><div class="srow"><a class="sbtn" href="critical.html">Open a Critical lesson</a><a class="sbtn ghost" href="index.html">Back to menu</a></div></div>'
+   :d.n>=GOAL?'<div class="nudge"><p>🔥 Daily goal done. <b>'+streak()+'-day streak.</b> Everything from here is a bonus.</p></div>'
+   :'<div class="nudge"><p><b>'+(GOAL-d.n)+' more cards</b> to hit today\'s goal and keep your streak going.</p></div>';
+  el.innerHTML='<div class="chip">⚡ Checkpoint</div><h2 class="hook">'+pick(["Your brain on Critical.","That's real learning.","Look at you go.","Chain reaction: sustained."])+'</h2>'+
+   '<div class="stats"><div class="st"><b>'+sess.n+'</b><span>cards this session</span></div><div class="st"><b>'+acc+'</b><span>quiz accuracy</span></div><div class="st"><b>+'+sess.xp+'</b><span>XP this session</span></div><div class="st"><b>'+Math.max(1,Math.round(m))+'</b><span>minute'+(Math.round(m)>1?'s':'')+'</span></div></div>'+nudge+
+   '<div class="swipe"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M6 11l6-6 6 6"/></svg>Swipe up to keep going</div>'}
+
+/* ---------- sim implementations ---------- */
+function simHtml(s){
+  if(s==="chain")return '<div class="sim"><canvas></canvas><div class="srow"><label>Rods</label><input type="range" min="0" max="100" value="0" aria-label="Control rod insertion"><button class="sbtn ghost" data-r>Reset</button></div><div class="sout">Tap the box to fire a neutron</div></div>';
+  if(s==="decay")return '<div class="sim"><canvas></canvas><div class="srow"><button class="sbtn" data-go>Start</button><span class="sout">100 atoms left</span></div></div>';
+  if(s==="hold")return '<div class="sim"><canvas></canvas><button class="hold" data-hold>Hold to insert rods</button><div class="sout">Press and hold to start</div></div>';
+  return '<div class="sim"><div class="reflex" data-rx>Tap to arm<small>Then wait for the alarm</small></div><div class="sout"></div></div>';
+}
+function setupCanvas(cv){var r=cv.getBoundingClientRect(),d=Math.min(2,devicePixelRatio||1),x=cv.getContext("2d");cv.width=Math.max(1,r.width*d);cv.height=Math.max(1,r.height*d);x.setTransform(d,0,0,d,0,0);return{x:x,W:r.width,H:r.height}}
+var SIMS={};
+SIMS.chain=function(el,k){var cv=el.querySelector("canvas"),sl=el.querySelector("input"),out=el.querySelector(".sout"),g,nu=[],ne=[],fr=[],fis=0,raf=0,last=0,won=false,peak=0;
+  function reset(){g=setupCanvas(cv);nu=[];ne=[];fr=[];fis=0;peak=0;var cols=9,rows=Math.max(5,Math.round(cols*g.H/g.W));for(var i=0;i<cols;i++)for(var j=0;j<rows;j++)nu.push({x:(i+.5)*g.W/cols+(Math.random()-.5)*10,y:(j+.5)*g.H/rows+(Math.random()-.5)*10,s:0});draw();out.textContent="Tap the box to fire a neutron"}
+  function rodX(){var a=[];for(var i=1;i<=4;i++)a.push(g.W*i/5);return a}
+  function fire(x,y){var a=Math.random()*Math.PI*2;ne.push({x:x,y:y,vx:Math.cos(a),vy:Math.sin(a),l:1.6+Math.random()*1.6})}
+  cv.addEventListener("pointerdown",function(e){var r=cv.getBoundingClientRect();fire(e.clientX-r.left,e.clientY-r.top);if(!raf)loop()});
+  sl.addEventListener("input",draw);
+  el.querySelector("[data-r]").addEventListener("click",reset);
+  function step(dt){var sp=110,depth=sl.value/100*g.H,rx=rodX();
+    for(var i=ne.length-1;i>=0;i--){var n=ne[i];n.x+=n.vx*sp*dt;n.y+=n.vy*sp*dt;n.l-=dt;var dead=n.l<=0||n.x<0||n.y<0||n.x>g.W||n.y>g.H;
+      if(!dead&&n.y<depth)for(var r=0;r<rx.length;r++)if(Math.abs(n.x-rx[r])<5){dead=true;break}
+      if(!dead)for(var j=0;j<nu.length;j++){var u=nu[j];if(!u.s&&Math.abs(u.x-n.x)<7&&Math.abs(u.y-n.y)<7){u.s=1;fis++;dead=true;var m=Math.random()<.4?3:2;for(var q=0;q<m;q++)fire(u.x,u.y);
+        var a=Math.random()*6.28;fr.push({x:u.x,y:u.y,vx:Math.cos(a)*40,vy:Math.sin(a)*40,l:.7},{x:u.x,y:u.y,vx:-Math.cos(a)*40,vy:-Math.sin(a)*40,l:.7});break}}
+      if(dead)ne.splice(i,1)}
+    if(ne.length>250)ne.length=250;
+    for(var f=fr.length-1;f>=0;f--){var z=fr[f];z.x+=z.vx*dt;z.y+=z.vy*dt;z.l-=dt;if(z.l<=0)fr.splice(f,1)}
+    peak=Math.max(peak,ne.length);
+    if(fis>=25&&!won){won=true;award(10);comboPop("+10 XP chain reaction")}
+    out.textContent="Fissions "+fis+" · Neutrons flying "+ne.length+(sl.value>60&&fis>3&&!ne.length?" · Rods stopped it":"")+(fis>=nu.length*.9?" · Core used up, hit Reset":"")}
+  function draw(){var x=g.x,depth=sl.value/100*g.H;x.clearRect(0,0,g.W,g.H);
+    nu.forEach(function(u){x.beginPath();x.arc(u.x,u.y,u.s?2.5:5,0,7);x.fillStyle=u.s?"rgba(255,255,255,.18)":"#F2C46D";x.fill()});
+    x.fillStyle="rgba(200,210,230,.75)";rodX().forEach(function(r){x.fillRect(r-3,0,6,depth)});
+    fr.forEach(function(z){x.globalAlpha=z.l/.7;x.beginPath();x.arc(z.x,z.y,3.5,0,7);x.fillStyle="#ff7a59";x.fill()});x.globalAlpha=1;
+    x.fillStyle="#fff";ne.forEach(function(n){x.beginPath();x.arc(n.x,n.y,2.2,0,7);x.fill()})}
+  function loop(t){raf=requestAnimationFrame(loop);var now=performance.now(),dt=Math.min(.05,(now-(last||now))/1000);last=now;step(dt);draw();if(!ne.length&&!fr.length){cancelAnimationFrame(raf);raf=0;last=0}}
+  return{start:function(){if(!g||!g.W)reset()},stop:function(){if(raf){cancelAnimationFrame(raf);raf=0;last=0}}}};
+SIMS.decay=function(el){var cv=el.querySelector("canvas"),bt=el.querySelector("[data-go]"),out=el.querySelector(".sout"),g,at=[],hist=[],t=0,raf=0,last=0,T=2,won=false;
+  function reset(){g=setupCanvas(cv);at=[];for(var i=0;i<100;i++)at.push(0);hist=[[0,100]];t=0;draw();out.textContent="100 atoms left"}
+  function left(){return at.filter(function(a){return!a}).length}
+  function draw(){var x=g.x,W=g.W,H=g.H,gw=Math.min(W*.45,H*.9),cs=gw/10;x.clearRect(0,0,W,H);
+    for(var i=0;i<100;i++){var cx=10+(i%10)*cs+cs/2,cy=(H-gw)/2+Math.floor(i/10)*cs+cs/2;x.beginPath();x.arc(cx,cy,cs*.34,0,7);x.fillStyle=at[i]?"rgba(255,255,255,.12)":"#F2C46D";x.fill()}
+    var gx=gw+30,gwid=W-gx-10,gy=14,gh=H-40;x.strokeStyle="rgba(255,255,255,.3)";x.lineWidth=1;x.beginPath();x.moveTo(gx,gy);x.lineTo(gx,gy+gh);x.lineTo(gx+gwid,gy+gh);x.stroke();
+    var tm=5*T;x.setLineDash([3,4]);x.fillStyle="rgba(255,255,255,.55)";x.font="10px system-ui";
+    [50,25,12.5].forEach(function(v,i){var yy=gy+gh*(1-v/100),xx=gx+gwid*((i+1)*T/tm);x.beginPath();x.moveTo(gx,yy);x.lineTo(xx,yy);x.lineTo(xx,gy+gh);x.stroke();x.fillText(v,gx+3,yy-3)});x.setLineDash([]);
+    x.fillText("time",gx+gwid-24,gy+gh+13);
+    x.strokeStyle="#F2C46D";x.lineWidth=2;x.beginPath();hist.forEach(function(h,i){var px=gx+gwid*Math.min(1,h[0]/tm),py=gy+gh*(1-h[1]/100);if(i)x.lineTo(px,py);else x.moveTo(px,py)});x.stroke()}
+  function loop(){raf=requestAnimationFrame(loop);var now=performance.now(),dt=Math.min(.05,(now-(last||now))/1000);last=now;t+=dt;var p=1-Math.pow(.5,dt/T);
+    for(var i=0;i<100;i++)if(!at[i]&&Math.random()<p)at[i]=1;var L=left();hist.push([t,L]);
+    out.textContent=L+" atoms left · "+t.toFixed(1)+" s · "+(t/T).toFixed(1)+" half-lives";draw();
+    if(t>=5*T){cancelAnimationFrame(raf);raf=0;last=0;bt.textContent="Run it again";out.textContent+=". Close to 100 → 50 → 25 → 12 → 6 → 3?";if(!won){won=true;award(10);comboPop("+10 XP")}}}
+  bt.addEventListener("click",function(){if(raf)return;reset();bt.textContent="Running…";loop()});
+  return{start:function(){if(!g||!g.W)reset()},stop:function(){if(raf){cancelAnimationFrame(raf);raf=0;last=0;bt.textContent="Start"}}}};
+SIMS.hold=function(el){var cv=el.querySelector("canvas"),hb=el.querySelector("[data-hold]"),out=el.querySelector(".sout"),g,P=50,v=0,bias=0,inb=0,tt=0,dn=false,raf=0,last=0,state="idle",trail=[];
+  function draw(){var x=g.x,W=g.W,H=g.H;x.clearRect(0,0,W,H);var y=function(p){return H-10-(H-20)*p/100};
+    x.fillStyle="rgba(63,217,154,.18)";x.fillRect(0,y(57),W,y(43)-y(57));x.strokeStyle="rgba(63,217,154,.6)";x.strokeRect(0,y(57),W,y(43)-y(57));
+    x.fillStyle="rgba(255,107,107,.15)";x.fillRect(0,0,W,y(90));
+    x.fillStyle="rgba(255,255,255,.55)";x.font="11px system-ui";x.fillText("TRIP",6,14);x.fillText("Target band",6,y(57)-4);
+    x.strokeStyle="#5fdcff";x.lineWidth=2.5;x.beginPath();trail.forEach(function(p,i){var px=W*i/150;if(i)x.lineTo(px,y(p));else x.moveTo(px,y(p))});x.stroke();
+    x.fillStyle="#fff";x.font="bold 20px ui-monospace,monospace";x.fillText(P.toFixed(0)+"%",W-62,28);
+    var bw=W-20;x.fillStyle="rgba(255,255,255,.15)";x.fillRect(10,H-8,bw,4);x.fillStyle="#3fd99a";x.fillRect(10,H-8,bw*Math.min(1,inb/10),4)}
+  function reset(){g=setupCanvas(cv);P=50;v=0;bias=0;inb=0;tt=0;trail=[50];draw()}
+  function loop(){raf=requestAnimationFrame(loop);var now=performance.now(),dt=Math.min(.05,(now-(last||now))/1000);last=now;tt+=dt;
+    bias+=(Math.random()-.5)*dt*3;bias=Math.max(-.6,Math.min(1.4,bias));v+=(dn?-14:7+bias*6)*dt;v*=Math.pow(.6,dt);P+=v*dt;
+    if(P>43&&P<57)inb+=dt;trail.push(P);if(trail.length>150)trail.shift();draw();
+    out.textContent="In band "+inb.toFixed(1)+" / 10 s";
+    if(P>=90){end("⚠️ Reactor trip: power too high. Hold sooner!")}else if(P<=2){end("Power fell to nothing: you shut it down. Let go sooner.")}
+    else if(inb>=10){var b=S.best.hold;if(!b||tt<b){S.best.hold=tt;save()}end("✓ Held it critical in "+tt.toFixed(1)+" s"+(S.best.hold===tt?" · New best!":" · Best "+S.best.hold.toFixed(1)+" s"));award(15);comboPop("+15 XP")}}
+  function end(m){cancelAnimationFrame(raf);raf=0;last=0;state="idle";out.textContent=m;hb.textContent="Hold to try again"}
+  function down(e){e.preventDefault();dn=true;hb.classList.add("dn");if(state==="idle"){reset();state="run";hb.textContent="Rods going in…";loop()}else hb.textContent="Rods going in…"}
+  function up(){dn=false;hb.classList.remove("dn");if(state==="run")hb.textContent="Hold to insert rods"}
+  hb.addEventListener("pointerdown",down);hb.addEventListener("pointerup",up);hb.addEventListener("pointercancel",up);hb.addEventListener("pointerleave",up);hb.addEventListener("contextmenu",function(e){e.preventDefault()});
+  return{start:function(){if(!g||!g.W)reset()},stop:function(){if(raf){end("Paused")}}}};
+SIMS.reflex=function(el){var p=el.querySelector("[data-rx]"),out=el.querySelector(".sout"),st="idle",tm=0,t0=0;
+  function set(h,c){p.innerHTML=h;p.className="reflex"+(c?" "+c:"")}
+  if(S.best.reflex)out.textContent="Your best: "+S.best.reflex+" ms";
+  p.addEventListener("pointerdown",function(e){e.preventDefault();
+    if(st==="idle"||st==="done"){st="wait";set("Watching the panels…<small>Hit it the moment the alarm goes</small>");tm=setTimeout(function(){st="alarm";t0=performance.now();set("REACTOR TRIP<small>Tap to SCRAM!</small>","alarm");vib(60)},1500+Math.random()*3500)}
+    else if(st==="wait"){clearTimeout(tm);st="done";set("Too early!<small>Never act before you've seen the indication. Tap to try again</small>")}
+    else if(st==="alarm"){var ms=Math.round(performance.now()-t0);st="done";var b=S.best.reflex;if(!b||ms<b){S.best.reflex=ms;save()}
+      set(ms+" ms<small>"+(ms<230?"Lightning fast.":ms<300?"Sharp. Typical human reactions are about 250 ms.":"Typical is about 250 ms. Go again?")+" Tap to retry</small>");
+      out.textContent="Your best: "+S.best.reflex+" ms";award(ms<300?8:4)}});
+  return{stop:function(){clearTimeout(tm);if(st==="wait"||st==="alarm"){st="idle";set("Tap to arm<small>Then wait for the alarm</small>")}}}};
+
+/* ---------- navigation ---------- */
+function goTo(i){if(i<0)i=0;ensure();feed.scrollTo({top:i*cardH(),behavior:"smooth"})}
+addEventListener("keydown",function(e){if(sheet.classList.contains("show")){if(e.key==="Escape")closeSheet();return}if(e.target.closest&&e.target.closest("input"))return;
+  var k=cards[active];
+  if(e.key==="ArrowDown"||e.key==="j"||e.key===" "||e.key==="PageDown"){e.preventDefault();goTo(active+1)}
+  else if(e.key==="ArrowUp"||e.key==="k"||e.key==="PageUp"){e.preventDefault();goTo(active-1)}
+  else if(k&&/^[1-4]$/.test(e.key)&&(k.c.type==="quiz"||k.c.type==="tf")){var n=+e.key-1;if(n<k.c.opts.length)answer(k,n)}
+  else if(k&&e.key==="l")like(k,!S.liked[k.c.id]);
+});
+var rzT=0;addEventListener("resize",function(){clearTimeout(rzT);rzT=setTimeout(function(){if(active>=0)feed.scrollTop=active*cardH()},120)});
+addEventListener("pagehide",function(){if(active>=0){var k=cards[active];k.dwell+=Date.now()-k.t;k.t=Date.now();today().ms+=0}try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}});
+document.addEventListener("visibilitychange",function(){var k=cards[active];if(!k)return;if(document.hidden){if(k.el._sim&&k.el._sim.stop)k.el._sim.stop();try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}else k.t=Date.now()});
+
+/* first-run hint */
+var hintEl=null;function hint(show){if(show){hintEl=document.createElement("div");hintEl.className="swipe";hintEl.style.cssText="position:absolute;z-index:22;left:0;right:0;bottom:calc(var(--sb) + 46px);justify-content:center;color:#fff;pointer-events:none";hintEl.innerHTML='<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M6 11l6-6 6 6"/></svg>Swipe up for the next one';document.getElementById("app").appendChild(hintEl)}else if(hintEl){hintEl.remove();hintEl=null}}
+
+/* start */
+document.getElementById("xpN").textContent=S.xp.toLocaleString("en-GB");ring();
+for(var i=0;i<4;i++)add(makeNext());
+setActive(0);
+if(!S.started){S.started=1;save();hint(true)}
+if(location.hash==="#saved")tSaved.onclick();
+})();
+if("serviceWorker" in navigator&&location.protocol==="https:"){navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).catch(function(){})}
+</script>
+</body>
+</html>
