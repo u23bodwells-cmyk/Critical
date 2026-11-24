@@ -3897,7 +3897,47 @@ var PLAN=(function(){
   if(i===todayI()){var rr=runGet();if(rr&&rr.day===i)return null;if(hwGet())return null}try{return REV.dayInfo(dstr(wkDate(i)))}catch(_){return null}}
  function pinRv(i){var p=PS();if(p.rvpin&&p.rvpin[i])return;var r=RVD(i);if(!r)return;if(!p.rvpin||typeof p.rvpin!=='object')p.rvpin={};p.rvpin[i]=r.pin;save()}
  function rvOn(i){var b=DAY(i);return b.length===1&&b[0][5]==='rev'}
- function DAY(i){var rv=RVD(i);if(rv)return [['Revise: '+rv.name,mins(i),rv.desc,[['Start revision','rev']],0,'rev',rv]];var c=CORE(i),x=i<5&&extOn(i);return [WARM(i)].concat(c,x?[BONUS(c)]:[])}
+ function DAY(i){return DAYF(i,layOn())}
+ function DAYF(i,sm){var rv=RVD(i);if(rv)return [['Revise: '+rv.name,mins(i),rv.desc,[['Start revision','rev']],0,'rev',rv]];var c=CORE(i),x=i<5&&extOn(i),L=[WARM(i)].concat(c,x?[BONUS(c)]:[]);return sm?SMART(i,L):L}
+ /* study smart: brain breaks after ~25 minutes and at the end, mixed practice on Wed and Sat, a ghost test on Sunday */
+ function smOn(){return S.smart!==0}
+ function layOn(){var p=S.plan;return !!(p&&typeof p==='object'&&p.sm)}
+ function BRK(end){return [end?'Let it sink in':'Brain break',5,end?'5 minutes of quiet rest straight after studying. Your brain keeps replaying and storing what you just learnt while you rest, so no phone, videos or games. Stand up, get some water, look out of the window.':'You\'ve focused for about 25 minutes, so give your brain 5 minutes off. Move around, drink some water, rest your eyes. Not your phone: scrolling isn\'t a break for your brain.',[['Start break','brk',end?1:0]],0,'brk']}
+ function MIXB(){return ['Mixed practice',6,'Questions from across your current unit, all mixed up. It feels harder than doing one type at a time, and that\'s why it works: you have to spot which method each question needs, like in an exam.',[['Mixed practice','mix']],0,'mix']}
+ function GHB(){return ['Beat your ghost',6,'A 10-question test on this week\'s unit, racing your last attempt, so you can see how much you\'ve really improved. Starting a new unit? Take it first and tag it Before.',[['Beat your ghost','ghost']],0,'ghost']}
+ function SMART(i,L){var out=L.slice();if(i===2||i===5)out.push(MIXB());
+  if(i===6){var k=out.length;if(out[k-1]&&out[k-1][0]==='Weekly review')out.splice(k-1,0,GHB());else out.push(GHB())}
+  var res=[],acc=0;for(var j=0;j<out.length;j++){var b=out[j];res.push(b);if(b[5]==='bonus')continue;acc+=b[1];var rest=0;for(var q=j+1;q<out.length;q++)if(out[q][5]!=='bonus')rest+=out[q][1];if(acc>=25&&rest>=10){res.push(BRK(0));acc=0}}
+  res.push(BRK(1));return res}
+ function TOT(){var s=0;for(var i=0;i<7;i++)s+=DAY(i).reduce(function(a,b){return a+(b[5]==='bonus'?0:b[1])},0);return s}
+ /* switching layouts keeps your ticks: blocks are matched by name, and a day that was all done stays all done */
+ function smSync(){var p=PS(),want=smOn()?1:0,have=p.sm?1:0;if(want===have)return;var nt={},r=runGet(),rj=null,hw=null;try{hw=hwGet()}catch(_){}
+  for(var i=0;i<7;i++){var A=DAYF(i,have),B=DAYF(i,want),used={},map={},all=A.every(function(b,j){return b[5]==='bonus'||!!p.t[i+'-'+j]});
+   A.forEach(function(b,j){for(var q=0;q<B.length;q++)if(!used[q]&&B[q][0]===b[0]){used[q]=1;map[j]=q;return}});
+   if(all&&A.length)B.forEach(function(b,q){if(b[5]!=='bonus')nt[i+'-'+q]=1});else for(var j in map)if(p.t[i+'-'+j])nt[i+'-'+map[j]]=1;
+   if(r&&r.day===i)rj=map[r.j]==null?null:map[r.j];
+   if(hw&&hw.alloc&&i===todayI()){var na={};for(var a in hw.alloc)if(map[a]!=null)na[map[a]]=hw.alloc[a];hw.alloc=na}}
+  p.t=nt;p.sm=want;save();if(r){if(rj==null)runClear();else{r.j=rj;runSet(r)}}if(hw&&hw.alloc)try{hwSet(hw)}catch(_){}}
+ function smUnit(){var m=curMode(),a=[],ui=-1;try{a=allLessons(m)}catch(_){}for(var i=0;i<a.length;i++)if(S.done[UNITS[a[i][0]].lessons[a[i][1]].id])ui=a[i][0];if(ui<0){var nl=nextLesson(m);ui=nl?nl[0]:-1}return ui}
+ function smTrackUnits(){var m=curMode(),a=[],seen={},out=[];try{a=allLessons(m)}catch(_){}a.forEach(function(x){if(S.done[UNITS[x[0]].lessons[x[1]].id]&&!seen[x[0]]){seen[x[0]]=1;out.push(x[0])}});return out.reverse()}
+ function smMix(){var us=smTrackUnits();for(var i=0;i<us.length;i++){var ui=us[i],ok=false;try{var sk=unitSkills(ui,true),bk=sk.length?null:unitBank(ui,true);ok=sk.length>0||!!(bk&&bk.length>=4)}catch(_){}if(ok&&typeof startMix==='function'){startMix(ui);return}}
+  toastIn('Not enough lessons done to mix yet, so here\'s a memory refresh instead.');var mc=null;try{mc=MEM.counts()}catch(_){}if(mc&&mc.total)MEM.start();else ONE.start()}
+ function smGhost(){if(typeof ghOpen!=='function')return;var us=smTrackUnits(),nu=smUnit();if(us.indexOf(nu)<0&&nu>=0)us.unshift(nu);for(var i=0;i<us.length;i++){var n=0;try{n=ghostPool(us[i]).length}catch(_){}if(n>=5){ghOpen(us[i]);return}}toastIn('Finish a few more lessons first, then you can race your ghost.')}
+ /* the break screen: breathing circle and a countdown, no buttons to wander off with */
+ var brkEl=null,brkT=null;
+ function brkClose(){clearInterval(brkT);brkT=null;if(brkEl){brkEl.remove();brkEl=null}}
+ function brkOpen(end){brkClose();var r=runGet(),cb=r?DAY(r.day)[r.j]:null,inPlan=!!(cb&&cb[5]==='brk'),rk=inPlan?r.day+'-'+r.j:null,ends=inPlan?r.ends:Date.now()+5*60000,t0=Date.now();if(inPlan)end=cb[3][0][2];
+  var tips=end?['Close your eyes and let today\'s lesson replay by itself. Don\'t force it.','Get a glass of water.','Look at something far away, out of a window if you can.','Stretch: arms up, then touch your toes.','No phone. New stuff now pushes out what you just learnt.']:['Stand up and walk around for a minute.','Get a glass of water.','Look at something far away to rest your eyes.','Roll your shoulders and stretch.','No phone. Scrolling isn\'t a rest for your brain.'];
+  brkEl=document.createElement('div');brkEl.className='brkov';brkEl.setAttribute('role','dialog');brkEl.setAttribute('aria-modal','true');brkEl.setAttribute('aria-label',end?'Let it sink in':'Brain break');
+  brkEl.innerHTML='<div class="brkin"><p class="brkk">'+(end?'Let it sink in':'Brain break')+'</p><div class="brkc"><i></i><span class="brkt">5:00</span></div><p class="brkb">Breathe in…</p><p class="brktip"></p><p class="brkn">'+(end?'Resting now helps your brain store what you just learnt. You\'re still learning.':'A short rest now means you\'ll focus better for the next part.')+'</p><button type="button" class="brkx">'+(inPlan?'I\'m back early':'Stop the break')+'</button></div>';
+  document.body.appendChild(brkEl);var T=brkEl.querySelector('.brkt'),B=brkEl.querySelector('.brkb'),TP=brkEl.querySelector('.brktip'),lastTip=-1;
+  function finish(){if(!brkEl)return;clearInterval(brkT);brkT=null;brkEl.querySelector('.brkin').innerHTML='<p class="brkk">Break done</p><p class="brkn">Nice. Your brain\'s had time to file it away.</p>';var e0=brkEl;setTimeout(function(){if(brkEl===e0)brkClose()},2200)}
+  function tick(){if(!brkEl)return;var now=Date.now();if(inPlan){var rr=runGet();if(!rr||rr.day+'-'+rr.j!==rk){brkClose();return}ends=rr.ends}var left=ends-now;
+   if(left<=0){if(inPlan)brkClose();else finish();return}var sc=Math.ceil(left/1000);T.textContent=Math.floor(sc/60)+':'+('0'+sc%60).slice(-2);
+   B.textContent=Math.floor((now-t0)/4000)%2?'Breathe out…':'Breathe in…';var ti=Math.floor((now-t0)/20000)%tips.length;if(ti!==lastTip){lastTip=ti;TP.textContent=tips[ti]}}
+  brkEl.querySelector('.brkx').onclick=function(){if(inPlan){var rr=runGet();if(rr&&rr.day+'-'+rr.j===rk){rr.ends=Date.now();rr.early=1;runSet(rr)}brkClose();loop()}else brkClose()};
+  brkT=setInterval(tick,250);tick()}
+
  function isFix(b){return !!(b&&b[3]&&b[3][0]&&b[3][0][1]==='fix')}
  function mins(i){return [WARM(i)].concat(CORE(i)).reduce(function(s,b){return s+b[1]},0)}
  function allMins(i){return DAY(i).reduce(function(s,b){return s+b[1]},0)}
@@ -3919,7 +3959,7 @@ var PLAN=(function(){
  function runClear(){try{localStorage.removeItem(RK)}catch(_){}}
  function firstLeft(day,after){if(feOn(day))return -1;for(var j=0;j<DAY(day).length;j++){if(after!=null&&j<=after)continue;if(!isDone(day,j))return j}if(after!=null)for(j=0;j<after;j++)if(!isDone(day,j))return j;return -1}
  function arenaOpen(){return !!document.querySelector('.arn')}
- function busy(){return (!!document.querySelector('#player.open')&&!(typeof P!=='undefined'&&P&&P.finished))||arenaOpen()}
+ function busy(){return (!!document.querySelector('#player.open')&&!(typeof P!=='undefined'&&P&&P.finished))||arenaOpen()||!!document.querySelector('.ghov,.bedov')}
  var warmP=null;
  function fmtLeft(ms){return ms<60000?Math.max(0,Math.ceil(ms/1000))+' s':Math.ceil(ms/60000)+' min'}
  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
@@ -3982,6 +4022,7 @@ var PLAN=(function(){
  function go(a,title,openUrl){if(PS().auto&&typeof STUDY!=='undefined'&&STUDY.start)STUDY.start(title);
   if(a[1]==='url'){if(openUrl)try{window.open(a[2],'_blank','noopener')}catch(_){}return}close();if(document.querySelector('#player.open')&&typeof closePlayer==='function')closePlayer();
   if(a[1]==='app'){location.href=a[2];return}
+  if(a[1]==='brk'){brkOpen(a[2]);return}if(a[1]==='mix'){smMix();return}if(a[1]==='ghost'){smGhost();return}if(a[1]==='bed'){try{bedOpen()}catch(_){}return}
   if(a[1]==='warm'){var mc=null;try{mc=MEM.counts()}catch(_){}if(mc&&mc.total)MEM.start();else ONE.start();warmP=typeof P!=='undefined'?P:null;return}
   if(a[1]==='rev'){var rr2=runGet(),bl=DAY(rr2?rr2.day:cur)[0];try{REV.hub(bl&&bl[5]==='rev'?bl[6]:null)}catch(e){if(window.console)console.error(e)}return}
   if(a[1]==='clash'){try{ARENA.open()}catch(_){}return}
@@ -3994,9 +4035,52 @@ var PLAN=(function(){
   if(a[1]==='am'||a[1]==='ap'||a[1]==='ac'){if(!alOpen()){showPage('learn');toastIn('A-level unlocks when GCSE is done.');return}S.mode=S.asub=a[1];S.seenAlevel=1;save();showPage('learn');runAction(nextAction(a[1]));return}
   if(a[1]==='calc'||a[1]==='theory'||a[1]==='maths'){S.mode=a[1];if(a[1]==='calc')S.seenCalc=1;else if(a[1]==='theory')S.seenTheory=1;save();showPage('learn');runAction(nextAction(a[1]));return}
   if(a[1]==='calcfu'){S.mode='calc';S.seenCalc=1;save();showPage('learn');var id=null;allLessons('calc',0).forEach(function(x){var l=UNITS[x[0]].lessons[x[1]];if(S.done[l.id]&&FOLLOW[l.id])id=l.id});if(id)startFollow(id);else runAction(nextAction('calc'))}}
+ /* ----- study smart tab: how to study well, and the extras the plan now uses ----- */
+ (function(){var sg=$q('.plseg'),b=document.createElement('button');b.type='button';b.setAttribute('role','tab');b.dataset.v='smt';b.textContent='Study smart';b.onclick=function(){setView('smt')};sg.appendChild(b);
+  var v=document.createElement('div');v.className='plsm';v.hidden=true;$q('.plbox').appendChild(v);
+  var c=document.createElement('style');c.textContent='.plseg{grid-template-columns:repeat(5,minmax(0,1fr))!important}.plseg button{line-height:1.2}@media(max-width:440px){.plseg button{font-size:12px!important;padding:7px 1px!important}}'+
+  '.plsm{display:flex;flex-direction:column;gap:12px}.plsm[hidden]{display:none}'+
+  '.smhero{background:linear-gradient(135deg,var(--accent-bg),var(--bg));border:1.5px solid var(--accent);border-radius:16px;padding:14px}.smhero b{font-size:17px}.smhero p{margin:8px 0 0;font-size:14px;line-height:1.5;color:var(--text)}'+
+  '.smsteps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:10px}.smsteps span{background:var(--panel);border-radius:12px;padding:8px 6px;text-align:center;font-size:13px;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:4px}.smsteps i{font-style:normal;width:24px;height:24px;border-radius:50%;background:var(--accent);color:var(--on-accent);display:grid;place-items:center;font:800 13px var(--mono)}.smsteps span.on{outline:2px solid #f5c542}'+
+  '.smtog{background:var(--bg);border:1.5px solid var(--line);border-radius:14px;padding:12px;align-items:flex-start!important}.smtog .plnote{display:block;margin-top:3px}'+
+  '.smnow{background:var(--bg);border:1.5px solid var(--line);border-radius:14px;padding:12px}.smnow .plgt{margin:0}.smnow .placts button{font:inherit;font-size:13px;font-weight:800;border:0;border-radius:10px;padding:9px 12px;cursor:pointer;background:var(--soft);color:var(--text)}'+
+  '.smqs{display:flex;flex-direction:column;gap:8px}.smq{background:var(--bg);border:1.5px solid var(--line);border-radius:14px;padding:0 12px}.smq[open]{border-color:var(--accent)}.smq summary{cursor:pointer;list-style:none;display:flex;gap:10px;align-items:center;padding:11px 0;font-weight:800;font-size:15px}.smq summary::-webkit-details-marker{display:none}.smq summary::after{content:"▸";margin-left:auto;color:var(--muted)}.smq[open] summary::after{content:"▾"}'+
+  '.sme{font-size:20px;flex:none;width:28px;text-align:center}.smb{padding:0 0 12px}.smb p{margin:0 0 8px;font-size:14.5px;line-height:1.55}.smb .smin{margin:0;background:var(--accent-bg);color:var(--text);border-radius:10px;padding:8px 10px;font-size:14px}'+
+  '.smnight{background:linear-gradient(135deg,#1d1b3a,#2b2860)!important;border-color:#4a45a0!important;color:#eceaff}.smnight .plh{color:#c9c6f2}.smnight .plm{background:rgba(255,255,255,.14);color:#fff}.smnight .plgo.alt{background:rgba(255,255,255,.14);color:#fff}.smmoon{flex:none;width:32px;font-size:24px;text-align:center}'+
+  '.pldr .dot.k-bed{background:#4a45a0}'+
+  '.brkov{position:fixed;inset:0;z-index:3400;display:grid;place-items:center;background:radial-gradient(circle at 50% 40%,#203a4a,#0d1620);color:#eaf6ff;padding:24px;text-align:center}.brkin{max-width:420px;display:flex;flex-direction:column;align-items:center;gap:12px}'+
+  '.brkk{margin:0;font:800 13px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:#8fd3ff}.brkc{position:relative;width:200px;height:200px;display:grid;place-items:center}.brkc i{position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle,rgba(120,210,255,.35),rgba(120,210,255,.06));border:2px solid rgba(143,211,255,.55);animation:brkbr 8s ease-in-out infinite}'+
+  '@keyframes brkbr{0%,100%{transform:scale(.62)}50%{transform:scale(1)}}@media(prefers-reduced-motion:reduce){.brkc i{animation:none;transform:scale(.85)}}'+
+  '.brkt{position:relative;font:800 44px var(--mono);font-variant-numeric:tabular-nums}.brkb{margin:0;font-size:18px;font-weight:700}.brktip{margin:0;font-size:16px;line-height:1.5;min-height:48px;color:#cfe9ff}.brkn{margin:0;font-size:14px;color:#9fbfd6;line-height:1.5}'+
+  '.brkx{margin-top:8px;font:inherit;font-size:14px;font-weight:700;border:1.5px solid rgba(143,211,255,.4);background:none;color:#cfe9ff;border-radius:999px;padding:9px 18px;cursor:pointer}';
+  document.head.appendChild(c)})();
+ var SMQ=[
+  ['🧘','Do I need a break after studying?','Yes. Straight after you learn something, your brain keeps replaying it and filing it away. In experiments, people who rested quietly for about 10 minutes after learning remembered more than people who went straight on to something else. So take 5 to 10 minutes where you don\'t take in anything new. Scrolling TikTok or YouTube doesn\'t count: that\'s new information, and it gets in the way.','Every plan day now ends with a 5-minute <b>Let it sink in</b> break, with a timer and a breathing circle.'],
+  ['⏱️','How long should I study in one go?','A good rule is about 25 minutes of proper focus, then a 5-minute break. After a while your attention drops and you end up reading without anything going in. Longer sessions are fine as long as you break them up.','When a day is longer than about 25 minutes, the plan puts a <b>Brain break</b> in the middle. Weekends get two.'],
+  ['❓','Is re-reading my notes a good way to revise?','Not really. Re-reading feels easy, so it feels like it\'s working, but it does very little. Testing yourself (trying to remember before you look) is one of the best ways to learn there is. Even getting it wrong and then seeing the answer helps.','Every lesson asks questions, the warm-up tests old topics, and Fix my mistakes brings back what you got wrong.'],
+  ['📅','Should I cram the night before?','Spread it out instead. 20 minutes on three different days beats an hour in one go. Each time you nearly forget something and then remember it, the memory gets stronger.','Memory refresh brings things back after 1, 3, 7, 14, 30 and 60 days, and revision days are spread over the week before a test.'],
+  ['🔀','Should I practise one topic at a time?','Once you know the basics, mix topics up. In an exam you have to work out which method each question needs, and doing ten of the same question in a row skips that step. Mixing feels harder and slower, and that\'s normal.','<b>Mixed practice</b> is on Wednesday and Saturday.'],
+  ['😴','Does sleep really matter?','A lot. While you sleep, your brain moves the day\'s learning into long-term memory. Going over a few things before bed and then sleeping helps them stick. Staying up late on your phone cuts that short.','The <b>bedtime review</b> is 5 minutes on today\'s work, with new questions like the ones you got wrong. It\'s in your school day just before screens off.'],
+  ['🗣️','How do I know I really understand something?','Explain it in your own words, as if to a friend. The part you can\'t explain is the part to go back to. Asking yourself "why?" and "how does this link to what I already know?" works too.','Explain-it-back cards, and the question you write at the start of each lesson.'],
+  ['📈','How do I know I\'m getting better?','Test yourself before and after. Feeling like you\'ve improved isn\'t reliable; a score is.','<b>Beat your ghost</b> is on Sunday. Take it before a new unit and again after, and compare.'],
+  ['📵','Where should my phone be?','Out of reach, ideally in another room. Notifications break your focus, and even checking it "for a second" takes a while to recover from.','Critical Focus for Chrome blocks TikTok during your plan, and the Habits tab has a screens-off habit.'],
+  ['💧','Anything else?','Drink water, move about between sessions, and study at a desk rather than in bed (the 5-minute bedtime review is the exception). Do the hardest thing early, while you\'re fresh.','The warm-up gets you going, then the hardest block comes straight after.']];
+ function paintSmart(){$q('.plhd b').textContent='Study smart';var V=$q('.plsm'),on=smOn(),base=0,sm=0,h=new Date().getHours();
+  function sum(a,b){return a+(b[5]==='bonus'?0:b[1])}for(var i=0;i<7;i++){base+=DAYF(i,0).reduce(sum,0);sm+=DAYF(i,1).reduce(sum,0)}
+  var r=runGet(),rb=r?(DAY(r.day)[r.j]||[])[5]:null,step=rb==='brk'?3:r?2:h>=21||h<4?3:0;
+  var x='<div class="smhero"><b>Your brain learns in 3 steps</b><div class="smsteps"><span'+(step===1?' class="on"':'')+'><i>1</i>Take it in</span><span'+(step===2?' class="on"':'')+'><i>2</i>Pull it back out</span><span'+(step===3?' class="on"':'')+'><i>3</i>Let it settle</span></div><p>Lessons do step 1. Questions, warm-ups and reviews do step 2. Breaks and sleep do step 3, and that\'s the one most people skip.</p></div>';
+  x+='<label class="plopt smtog"><input type="checkbox" data-k="smon"'+(on?' checked':'')+'><span><b>Use the study-smart plan</b><span class="plnote">Adds brain breaks, mixed practice on Wednesday and Saturday, a ghost test on Sunday and a bedtime review. Your week goes from '+base+' to '+sm+' minutes.</span></span></label>';
+  x+='<div class="smnow"><div class="plgt">Do one now</div><div class="placts"><button type="button" data-a="brk">🧘 5-minute break</button><button type="button" data-a="mix">🔀 Mixed practice</button><button type="button" data-a="ghost">👻 Beat your ghost</button><button type="button" data-a="bed">🌙 Bedtime review</button></div></div>';
+  x+='<div class="smqs">'+SMQ.map(function(q,i){return '<details class="smq"'+(i===0?' open':'')+'><summary><span class="sme" aria-hidden="true">'+q[0]+'</span><span>'+esc(q[1])+'</span></summary><div class="smb"><p>'+esc(q[2])+'</p><p class="smin"><b>In Critical:</b> '+q[3]+'</p></div></details>'}).join('')+'</div>';
+  V.innerHTML=x;
+  V.querySelector('[data-k=smon]').onchange=function(){S.smart=this.checked?1:0;save();try{smSync()}catch(e){if(window.console)console.error(e)}paintPill();paint()};
+  [].forEach.call(V.querySelectorAll('.smnow button'),function(bt){bt.onclick=function(){var a=bt.dataset.a;close();if(document.querySelector('#player.open')&&typeof closePlayer==='function'&&a!=='brk')closePlayer();
+   if(a==='brk')brkOpen(1);else if(a==='mix')smMix();else if(a==='ghost')smGhost();else try{bedOpen()}catch(_){}}})}
  /* ----- school-day timetable ----- */
  var DAYDEF=[['16:15','Home, snack and a break','home'],['16:45','Homework','study'],['17:30','Critical: today\'s plan','plan'],['18:00','Free time','free'],['19:00','Dinner','eat'],['19:45','Free time','free'],['21:30','Screens off and read','read'],['22:00','Sleep','sleep']];
- function rows(){var r=S.dayplan;if(!r||!r.length||!r.every(function(x){return x&&/^\d\d:\d\d$/.test(x[0])}))r=DAYDEF;return r}
+ function rows(){var r=S.dayplan;if(!r||!r.length||!r.every(function(x){return x&&/^\d\d:\d\d$/.test(x[0])}))r=DAYDEF;return bedRow(r)}
+ function bedRow(r){if(!smOn()||r.some(function(x){return x[2]==='bed'}))return r;var k=-1;r.forEach(function(x,i){if(x[2]==='read'&&k<0)k=i});if(k<0)r.forEach(function(x,i){if(x[2]==='sleep'&&k<0)k=i});if(k<0)return r;
+  var m=tmin(r[k][0])-15;if(k>0&&tmin(r[k-1][0])>=m)m=Math.round((tmin(r[k-1][0])+tmin(r[k][0]))/2);var o=r.slice(),hh=Math.floor(m/60),mm=m%60;o.splice(k,0,[(hh<10?'0':'')+hh+':'+(mm<10?'0':'')+mm,'Bedtime review (5 min, in bed)','bed']);return o}
  function tmin(x){var a=x.split(':');return +a[0]*60+ +a[1]}
  function f12(x){var m=tmin(x),h=Math.floor(m/60),n=m%60;return (h%12||12)+':'+(n<10?'0':'')+n+(h>=12?'pm':'am')}
  function nowMin(){var d=new Date();return d.getHours()*60+d.getMinutes()}
@@ -4026,7 +4110,7 @@ var PLAN=(function(){
   all.forEach(function(r){if(r.m-end>=10&&r.m>A)R.push([end,'Free time','free']);R.push([r.m,r.l,r.k]);end=Math.max(end,r.k==='sleep'?r.m:r.e)});
   info.shift=A-T[0].m;info.rows=R;return info}
  function nowRow(){if(todayI()>4)return -1;var R=sched().rows,m=nowMin(),k=-1;for(var i=0;i<R.length;i++)if(R[i][0]<=m)k=i;return k}
- var view=(S.plView==='day'||S.plView==='hab'||S.plView==='tst')?S.plView:'plan',editing=null;
+ var view=(S.plView==='day'||S.plView==='hab'||S.plView==='tst'||S.plView==='smt')?S.plView:'plan',editing=null;
  function setView(v){view=v;S.plView=v;save();editing=null;paint()}
  [].forEach.call(sh.querySelectorAll('.plseg button'),function(b){b.onclick=function(){setView(b.dataset.v)}});
  function paintDay(){var D2=$q('.pldv'),SC=sched(),R=SC.rows,t=todayI(),school=t<5,k=nowRow(),L=$q('.pldl'),now=$q('[data-k=now]'),A=$q('[data-k=dacts]'),hm=homeGet();L.innerHTML='';A.innerHTML='';
@@ -4049,6 +4133,7 @@ var PLAN=(function(){
   if(school&&SC.skip.length){var sk=document.createElement('p');sk.className='plnote plcarry';sk.textContent=SC.skipK.indexOf('study')>=0?'It\'s late, so not everything fits tonight. If you have homework due tomorrow, do that and skip the rest.':'Doesn\'t fit tonight: '+SC.skip.join(', ')+'. Homework comes first, so leave it for tomorrow.';L.appendChild(sk)}
   R.forEach(function(r,i){var e=document.createElement('div');e.className='pldr'+(school&&k>=0&&i<k?' past':'')+(school&&i===k?' now':'');
    e.innerHTML='<span class="dot k-'+esc(r[2]||'free')+'"></span><span class="tm">'+m12(r[0])+'</span><span class="lb">'+esc(r[1])+'</span>'+(school&&i===k?'<span class="nowb">Now</span>':'');
+   if(r[2]==='bed'){var bb2=document.createElement('button');bb2.type='button';bb2.className='plgo alt';bb2.textContent='Open →';bb2.onclick=function(){close();try{bedOpen()}catch(_){}};e.appendChild(bb2)}
    if(r[2]==='plan'&&school){var dn=firstLeft(t)<0,run=!!runGet(),hwm=hwOn(),b=document.createElement('button');b.type='button';b.className='plgo'+(dn||run||hwm?' alt':'');b.textContent=dn?'Done ✓':run?'Running':hwm?'Homework…':'Start →';if(!dn&&!run&&!hwm)b.onclick=function(){startRun()};else b.onclick=function(){setView('plan')};e.appendChild(b)}
    L.appendChild(e)});
   if(school&&nowMin()>=HOME_FROM){var ih=document.createElement('button');ih.type='button';ih.className='plgo';ih.textContent='I\'m home now';ih.onclick=function(){homeSet(nowMin(),0);paint()};A.appendChild(ih);
@@ -4148,9 +4233,9 @@ var PLAN=(function(){
   var young=on.filter(function(x){return kept(x[0])<10}).length;var nt=document.createElement('p');nt.className='plnote';nt.textContent=on.length>2&&young>2?'That\'s a lot of new habits at once. Two at a time is easier: add the next when these feel normal.':'Start with two. Add another once these feel normal, usually after a few weeks.';K.appendChild(nt)}
  function paint(){var p=PS(),t=todayI(),m=0;
   [].forEach.call(sh.querySelectorAll('.plseg button'),function(b){var on=b.dataset.v===view;b.classList.toggle('on',on);b.setAttribute('aria-selected',on)});
-  $q('.plmain').hidden=view!=='plan';$q('.pldv').hidden=view!=='day';$q('.plhb').hidden=view!=='hab';$q('.pltv').hidden=view!=='tst';$q('.plhd b').textContent=view==='day'?'Your school day':view==='hab'?'Your habits':view==='tst'?'Your tests':'This week\'s plan';if(view==='day'){paintDay();return}if(view==='hab'){paintHab();return}if(view==='tst'){REV.paintTab($q('.pltv'),paint);return}
+  $q('.plmain').hidden=view!=='plan';$q('.pldv').hidden=view!=='day';$q('.plhb').hidden=view!=='hab';$q('.pltv').hidden=view!=='tst';$q('.plhd b').textContent=view==='day'?'Your school day':view==='hab'?'Your habits':view==='tst'?'Your tests':'This week\'s plan';if(view==='day'){paintDay();return}if(view==='hab'){paintHab();return}if(view==='tst'){REV.paintTab($q('.pltv'),paint);return}$q('.plsm').hidden=view!=='smt';if(view==='smt'){paintSmart();return}
   DG.forEach(function(_,i){DAY(i).forEach(function(b,j){if(isDone(i,j))m+=b[1]})});
-  $q('[data-k=wk]').textContent=m+' / '+TOTAL+' min';$q('[data-k=bar]').style.width=Math.min(100,m/TOTAL*100)+'%';
+  var TT=TOT();$q('[data-k=wk]').textContent=m+' / '+TT+' min';$q('[data-k=bar]').style.width=Math.min(100,m/TT*100)+'%';
   [].forEach.call(days.children,function(b,i){var rv=rvOn(i);b.className=(i===cur?'on':'')+(i===t?' td':'')+(dayDone(i)?' full':qsOn(i)?' quick':'')+(rv?' rv':'');b.title=(dayDone(i)?'Plan done':qsOn(i)?'2-minute start done: this day counts':'')+(rv?(dayDone(i)||qsOn(i)?' · ':'')+'Revision day':'');b.setAttribute('aria-selected',i===cur)});
   $q('[data-k=dn]').textContent=(cur===t?'Today, ':'')+DAYS[cur];$q('[data-k=dt]').textContent=allMins(cur)+' min · '+(rvOn(cur)?'revision day':cur<5?(extOn(cur)?'school day, stretched to 45':'school day'):'weekend');
   var tn=$q('[data-k=tnext]'),bh='';try{bh=REV.banner()}catch(_){}tn.hidden=!bh;tn.innerHTML=bh;if(bh){var tb=document.createElement('button');tb.type='button';tb.className='plgo alt';tb.textContent='Tests';tb.onclick=function(){setView('tst')};tn.appendChild(tb)}
@@ -4166,6 +4251,8 @@ var PLAN=(function(){
    if(b[4]){var tp=document.createElement('div');tp.className='pltop';tp.innerHTML='<label for="plTopics">Topics to fix</label><textarea id="plTopics" maxlength="600" placeholder="e.g. Circle theorems, iteration, vectors"></textarea>';
     var ta=tp.querySelector('textarea');ta.value=p.topics;ta.oninput=function(){PS().topics=ta.value;save()};e.querySelector('.plbody').appendChild(tp)}
    L.appendChild(e)});
+  if(smOn()&&cur===t){var tn2=document.createElement('div');tn2.className='plblk smnight';tn2.innerHTML='<div class="smmoon" aria-hidden="true">🌙</div><div class="plbody"><p class="plt"><span>Tonight, in bed</span><span class="plm">5 min</span></p><p class="plh">Bedtime review: a recap of today and new questions like the ones you got wrong. Then phone away and sleep, because sleep is when it sticks.</p><div class="placts"><button class="plgo alt" type="button" data-a="bed">Bedtime review →</button><button class="plgo alt" type="button" data-a="why">Why the breaks?</button></div></div>';
+   tn2.querySelector('[data-a=bed]').onclick=function(){close();try{bedOpen()}catch(_){}};tn2.querySelector('[data-a=why]').onclick=function(){setView('smt')};L.appendChild(tn2)}
   $q('[data-k=done]').hidden=!(cur===t&&dayDone(t))||feOn(t);$q('[data-k=auto]').checked=!!p.auto;paintRun()}
  function paintRun(){var R=$q('[data-k=run]'),t=todayI(),r=runGet();R.innerHTML='';if(cur!==t)return;
   var hw=hwGet();if(!r&&hw&&!hw.done){var lf=hw.end-Date.now();R.innerHTML='<p>Homework first</p><b data-k="hwt">'+(lf>0?fmtLeft(lf)+' left for Critical':'Critical time used up')+'</b><p>Started at '+hhmm(hw.at)+'. When you\'ve finished, press Homework done and Critical gets whatever\'s left until '+hhmm(hw.end)+', with each part shortened to fit.</p><div class="placts"></div>';
@@ -4271,7 +4358,7 @@ var PLAN=(function(){
   if(!r||r.gm||r.ends<=now)return;var b=DAY(r.day)[r.j];if(!isFix(b)||busy())return;if(n<0)n=pile();
   if(n===0){if(r.day===0){p.monClr=1;save()}r.ends=now;r.early=1;r.clr=1;runSet(r);return}
   if(typeof P!=='undefined'&&P&&P.finished&&P.mode==='review'&&!P._plAsk&&!ban){P._plAsk=1;showBan('<b>'+n+' mistake'+(n===1?'':'s')+' left to fix.</b> '+fmtLeft(r.ends-now)+' to go on this part.',[['Next round →',function(){hideBan();go(b[3][0],b[0])}],['Not now',hideBan]])}}
- function highChk(r,left){if(r.high||left>5*60000||ban||busy())return;var hk=(DAY(r.day)[r.j]||[])[5];if(hk==='clash'||hk==='rev')return;if(hwNext(r.day,r.j)>=0)return;var mn=r.mins||(DAY(r.day)[r.j]||[0,0])[1];if(mn<10)return;r.high=1;runSet(r);
+ function highChk(r,left){if(r.high||left>5*60000||ban||busy())return;var hk=(DAY(r.day)[r.j]||[])[5];if(hk==='clash'||hk==='rev'||hk==='brk')return;var nq=hwNext(r.day,r.j);if(nq>=0&&!((DAY(r.day)[nq]||[])[5]==='brk'&&hwNext(r.day,nq)<0))return;var mn=r.mins||(DAY(r.day)[r.j]||[0,0])[1];if(mn<10)return;r.high=1;runSet(r);
   var lapOk=typeof HIGH!=='undefined'&&HIGH.canLap();
   showBan('<b>Last 5 minutes: end on a high.</b> Finish today with something fun.',(lapOk?[['Victory lap',function(){hideBan();HIGH.lap()}]]:[]).concat([['Control room',function(){hideBan();if(document.querySelector('#player.open')&&typeof closePlayer==='function')closePlayer();close();showPage('sim')}],['Keep going',hideBan]]))}
  var lastDayPaint=-1;
@@ -4285,7 +4372,7 @@ var PLAN=(function(){
  function toastIn(t){var d=document.createElement('div');d.className='plban';d.style.bottom='calc(96px + env(safe-area-inset-bottom))';d.setAttribute('role','status');d.innerHTML='<p>'+esc(t)+'</p>';document.body.appendChild(d);setTimeout(function(){d.remove()},6000)}
  $q('[data-k=auto]').onchange=function(){PS().auto=this.checked?1:0;save()};
  function close(){sh.classList.remove('open')}
- function open(v){if(v==='day'||v==='plan'||v==='hab'||v==='tst')view=v;editing=null;cur=todayI();paint();sh.classList.add('open')}
+ function open(v){if(v==='day'||v==='plan'||v==='hab'||v==='tst'||v==='smt')view=v;editing=null;cur=todayI();paint();sh.classList.add('open')}
  $q('.plx').onclick=close;sh.addEventListener('click',function(e){if(e.target===sh)close()});
  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&sh.classList.contains('open'))close()});
  var CAL='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4M8 14l1.6 1.6L13 12.2"/></svg>';
@@ -4306,7 +4393,8 @@ var PLAN=(function(){
  if(location.hash==='#early'){try{history.replaceState(null,'',location.pathname+location.search)}catch(_){}setTimeout(function(){try{finishEarly()}catch(_){}},700)}
  if(location.hash==='#tests'){try{history.replaceState(null,'',location.pathname+location.search)}catch(_){}setTimeout(function(){try{open('tst')}catch(_){}},400)}
  if(location.hash==='#home'){try{history.replaceState(null,'',location.pathname+location.search)}catch(_){}setTimeout(function(){try{homeAuto();open('day')}catch(_){}},400)}
- return {wkKey:wk,wkMins:function(){var m=0;DG.forEach(function(_,i){DAY(i).forEach(function(b,j){if(isDone(i,j))m+=b[1]})});return m},schoolMins:function(){var m=0;for(var i=0;i<5;i++)m+=mins(i);return m},TOTAL:TOTAL,dayMins:function(){return mins(todayI())},fullInfo:function(){var t=todayI(),full=allTicked(t),h=hwGet(),ks=h&&h.alloc?Object.keys(h.alloc):[],hf=ks.length>0&&ks.every(function(j){return isDone(t,+j)});return {t:t,full:full||hf,mins:full?DAY(t).reduce(function(a,b,j){return a+(isDone(t,j)?b[1]:0)},0):hf?ks.reduce(function(a,j){return a+h.alloc[j]},0):0,early:feOn(t),quick:qsOn(t)}},early:finishEarly,qsOn:qsOn,markQuick:markQuick,afterLesson:afterLesson,feOn:feOn,undoEarly:undoEarly,hideBan:hideBan,isDone:isDone,next:function(){var t=todayI(),j=firstLeft(t);return j<0?null:DAY(t)[j]},leftMins:function(){return leftMins(todayI())},open:open,close:close,paint:paint,paintPill:paintPill,start:startRun,stop:stopRun,loop:loop,running:function(){return !!runGet()},todayLeft:function(){return firstLeft(todayI())>=0},get D(){return WEEK()},DAY:DAY,pile:pile,TUE_FIX:TUE_FIX,rows:rows,nowRow:nowRow,sched:sched,home:homeGet,habits:HS,streak:streak,hw:hwGet,hwStart:startHw,hwDone:hwDone,focusStatus:focusStatus,focus:function(){return focusOk},rvOn:rvOn,runLeft:function(){var r=runGet();return r?r.ends-Date.now():null}};
+ try{smSync()}catch(e){if(window.console)console.error(e)}
+return {wkKey:wk,brk:function(){brkOpen(0)},smart:function(){open('smt')},wkMins:function(){var m=0;DG.forEach(function(_,i){DAY(i).forEach(function(b,j){if(isDone(i,j))m+=b[1]})});return m},schoolMins:function(){var m=0;for(var i=0;i<5;i++)m+=mins(i);return m},TOTAL:TOTAL,dayMins:function(){return DAY(todayI()).reduce(function(a,b){return a+(b[5]==='bonus'?0:b[1])},0)},fullInfo:function(){var t=todayI(),full=allTicked(t),h=hwGet(),ks=h&&h.alloc?Object.keys(h.alloc):[],hf=ks.length>0&&ks.every(function(j){return isDone(t,+j)});return {t:t,full:full||hf,mins:full?DAY(t).reduce(function(a,b,j){return a+(isDone(t,j)?b[1]:0)},0):hf?ks.reduce(function(a,j){return a+h.alloc[j]},0):0,early:feOn(t),quick:qsOn(t)}},early:finishEarly,qsOn:qsOn,markQuick:markQuick,afterLesson:afterLesson,feOn:feOn,undoEarly:undoEarly,hideBan:hideBan,isDone:isDone,next:function(){var t=todayI(),j=firstLeft(t);return j<0?null:DAY(t)[j]},leftMins:function(){return leftMins(todayI())},open:open,close:close,paint:paint,paintPill:paintPill,start:startRun,stop:stopRun,loop:loop,running:function(){return !!runGet()},todayLeft:function(){return firstLeft(todayI())>=0},get D(){return WEEK()},DAY:DAY,pile:pile,TUE_FIX:TUE_FIX,rows:rows,nowRow:nowRow,sched:sched,home:homeGet,habits:HS,streak:streak,hw:hwGet,hwStart:startHw,hwDone:hwDone,focusStatus:focusStatus,focus:function(){return focusOk},rvOn:rvOn,runLeft:function(){var r=runGet();return r?r.ends-Date.now():null}};
 })();
 try{window.PLAN=PLAN}catch(_){}
 /* ===== just one question: a tiny way into a study session ===== */

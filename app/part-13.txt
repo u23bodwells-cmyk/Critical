@@ -1,4 +1,77 @@
-ed point.`),Q(`M is the midpoint of AB. AM = …`,[`½AB`,`AB`,`2AB`,`¼AB`],0,`Half way.`)]);
+ber.</p>`),
+W('stepCalc',{steps:[`Prove that the sum of any three consecutive integers is a multiple of 3.`,`Let the integers be n, n + 1 and n + 2`,`Sum = n + (n + 1) + (n + 2) = 3n + 3`,`= 3(n + 1)`,`3 × an integer, so it's always a multiple of 3 ∎`]},`A proof, step by step.`,`Factorise to show the multiple.`),
+W('stepCalc',{steps:[`Prove that (2n + 1)² − (2n − 1)² is a multiple of 8 for any integer n.`,`(2n + 1)² = 4n² + 4n + 1`,`(2n − 1)² = 4n² − 4n + 1`,`Subtract: (4n² + 4n + 1) − (4n² − 4n + 1) = 8n`,`8n = 8 × n, a multiple of 8 ∎`]},`Another proof.`,`Expand, simplify, then factor out the number.`),
+Q(`How should you write "the product of two odd numbers"?`,[`(2a + 1)(2b + 1)`,`(2n + 1)(2n + 1)`,`2n × 2n`,`(n + 1)(n + 2)`],0,`Different letters: the two odd numbers needn't be the same.`),
+Q(`(2a + 1)(2b + 1) = 4ab + 2a + 2b + 1. How does this prove the product is odd?`,[`It equals 2(2ab + a + b) + 1, which is one more than an even number`,'Because it has a + 1 at the end, and anything ending in 1 is odd','Because 4ab is even, and even numbers multiply to make odd ones','It doesn\'t: you would need to try every value of a and b'],0,`Show the form 2k + 1.`),
+T(`<h3>Key points</h3><ul><li>Even 2n, odd 2n + 1, consecutive n, n + 1.</li><li>Use different letters for independent numbers.</li><li>Finish by factorising to show the result.</li></ul>`)]),
+LH('gm5-1-2','Geometric proof',11,'Proving triangles congruent and proving circle facts, with a reason for every step.',[
+RM(`<p>Congruence: SSS, SAS, ASA, RHS. Circle theorems: centre = 2 × circumference, and so on.</p>`),
+T(`<h3>How to write a geometric proof</h3><p>Every line needs a <b>statement</b> and a <b>reason</b>. For congruence, show three matching facts and name the condition (SSS, SAS, ASA or RHS).</p>`),
+O(`Prove that the angle at the centre is twice the angle at the circumference. Put the steps in order.`,[`Draw the radius from the centre O through the point C on the circumference to divide the angle`,`OA = OC and OB = OC (radii), so triangles OAC and OBC are isosceles`,`So the base angles in each triangle are equal: call them x and y`,`The exterior angles at O are 2x and 2y (exterior angle = sum of the two opposite interior angles)`,`So angle AOB = 2x + 2y = 2(x + y) = 2 × angle ACB ∎`],`Isosceles triangles from radii are the key move.`),
+Q(`ABCD is a parallelogram. To prove triangles ABC and CDA are congruent, which reason works?`,[`SSS: AB = CD, BC = DA (opposite sides of a parallelogram), AC is shared`,'AAA: the three angles match (opposite angles of a parallelogram)','RHS: there\'s a right angle, the hypotenuse AC, and a side','They aren\'t congruent: one is a reflection of the other one'],0,`Opposite sides equal plus a common side.`),
+T(`<h3>Key points</h3><ul><li>Statement + reason on every line.</li><li>Radii give isosceles triangles.</li><li>Name the congruence condition at the end.</li></ul>`)])
+]});
+U({id:'gm5-2',track:'gm',level:5,title:'Functions and graphs',icon:'ƒ',color:'#1D9E75',desc:'Graph transformations, the equation of a circle and tangents to circles.',lessons:[
+LH('gm5-2-1','Graph transformations',10,'Translations and reflections of y = f(x).',[
+T(`<h3>Four rules</h3><ul><li><b>y = f(x) + a</b>: up by a.</li><li><b>y = f(x + a)</b>: <b>left</b> by a (inside the bracket does the opposite).</li><li><b>y = −f(x)</b>: reflect in the x-axis.</li><li><b>y = f(−x)</b>: reflect in the y-axis.</li></ul>`),
+W('fnPlot',{x:[-6,6],y:[-6,10],xl:'x',yl:'y',sl:[['a','Shift inside the bracket',-3,3,1,0,function(v){return 'f(x '+(v<0?'− '+(-v):'+ '+v)+')'}]],curves:function(p){return [[function(x){return x*x-2},'--muted',2,[6,4]],[function(x){return (x+p.a)*(x+p.a)-2},'--accent',3]]},read:function(p){return 'y = f(x '+(p.a<0?'− '+(-p.a):'+ '+p.a)+') moves the dashed graph '+(p.a===0?'nowhere':p.a>0?'<b>left</b> by '+p.a:'<b>right</b> by '+(-p.a))+'. The minimum moves from (0, −2) to ('+(-p.a)+', −2).'}},`Slide the shift and watch which way the graph moves.`,`f(x + a) moves left. It catches everyone out once.`),
+W('calcDrill',{skill:'g_functrans',need:5},`Describe the transformations. Get 5 right to master it.`,`Inside the bracket: opposite direction, on x.`),
+T(`<h3>Key points</h3><ul><li>Outside: acts on y as expected. Inside: acts on x, opposite way.</li><li>−f(x): flip in the x-axis. f(−x): flip in the y-axis.</li></ul>`)]),
+LH('gm5-2-2','Circles and tangents',10,'x² + y² = r², and the equation of a tangent to a circle.',[
+RM(`<p>Perpendicular gradients multiply to −1. A tangent meets the radius at 90°.</p>`),
+T(`<h3>Equation of a circle</h3><p>A circle with centre (0, 0) and radius r: <b>x² + y² = r²</b>.</p><h3>Tangent at a point (a, b)</h3><ol><li>Gradient of the radius = b ÷ a.</li><li>Tangent gradient = −a ÷ b (perpendicular).</li><li>Use y − b = m(x − a) to get the equation.</li></ol>`),
+W('stepCalc',{steps:[`Find the tangent to x² + y² = 25 at (3, 4).`,`Radius gradient = 4 ÷ 3`,`Tangent gradient = −3 ÷ 4`,`y − 4 = −¾(x − 3)`,`y = −¾x + 9/4 + 4, so <b>y = −¾x + 25/4</b> (or 4y + 3x = 25)`]},`A worked example.`,`Radius gradient, flip and negate, then y − b = m(x − a).`),
+W('calcDrill',{skill:'g_circeq',need:4},`Circle equations and tangents. Get 4 right to master it.`,`r = √(right-hand side).`),
+T(`<h3>Key points</h3><ul><li>x² + y² = r²: centre (0, 0), radius r.</li><li>Tangent gradient = −1 ÷ radius gradient.</li><li>y − b = m(x − a).</li></ul>`)])
+]});
+U({id:'gm5-3',track:'gm',level:5,title:'Hardest geometry',icon:'△',color:'#D85A30',desc:'Vector proof, segments, 3D trigonometry and the hardest sine and cosine rule problems.',lessons:[
+LH('gm5-3-1','Vector proof',11,'Proving lines are parallel or points are collinear using vectors.',[
+T(`<h3>Key ideas</h3><ul><li>Parallel: one vector is a multiple of the other.</li><li><b>Collinear</b> (on one straight line): AB and BC are parallel <b>and</b> share point B.</li><li>A point dividing AB in the ratio m : n is m/(m + n) of the way along: AP = m/(m + n) × AB.</li></ul>`),
+W('stepCalc',{steps:[`OA = a, OB = b. M is the midpoint of AB. Find OM.`,`AB = b − a`,`AM = ½AB = ½(b − a)`,`OM = OA + AM = a + ½b − ½a`,`<b>OM = ½a + ½b</b> = ½(a + b)`]},`A worked example.`,`Route: from O to A, then along to M.`),
+Q(`AB = 2a + 6b and BC = a + 3b. What can you conclude?`,[`A, B and C are collinear`,`AB is perpendicular to BC`,`AB = BC`,`Nothing`],0,`AB = 2BC, so they're parallel, and B is shared.`),
+Q(`P divides AB in the ratio 1 : 3. What is AP?`,[`¼AB`,`⅓AB`,`¾AB`,`3AB`],0,`1 part out of 4.`),
+T(`<h3>Key points</h3><ul><li>Multiple → parallel. Parallel + shared point → collinear.</li><li>Ratio m : n → m/(m + n) of the way.</li></ul>`)]),
+LH('gm5-3-2','Segments, 3D and harder trig',11,'Combining sectors, triangles, 3D shapes and the cosine rule.',[
+RM(`<p>Segment = sector − triangle. 3D: d = √(a² + b² + c²). Cosine rule for two sides and the included angle.</p>`),
+W('calcDrill',{skill:['g_segment','g_pythag3d','g_cosrule','g_sinerule','g_areasine'],need:8},`Hardest geometry mix. Get 8 right to master it.`,`Draw the triangle you need, label it, then pick the rule.`),
+Q(`The sine rule gives sin B = 0.8. Why might there be two possible angles?`,[`sin 53.1° and sin 126.9° are both 0.8`,'Calculators round sin B, which gives two answers','The triangle is right-angled, so B could be 90°','There aren\'t: inverse sine only ever gives one angle'],0,`The ambiguous case: check which fits the triangle.`),
+T(`<h3>Key points</h3><ul><li>Sketch the triangle you're working in.</li><li>Sine rule angles can be ambiguous: 180° − θ is also possible.</li></ul>`)])
+]});
+U({id:'gm5-4',track:'gm',level:5,title:'Hardest problems',icon:'★',color:'#BA7517',desc:'Forming and solving equations from worded problems, and the grade 9 mixed drill.',lessons:[
+LH('gm5-4-1','Algebraic problem solving',11,'Turning words into equations, especially quadratics, then solving and checking.',[
+T(`<h3>The method</h3><ol><li>Choose a letter for the unknown and write what it means.</li><li>Turn each sentence into algebra.</li><li>Form an equation, rearrange, solve.</li><li>Check the answer makes sense (lengths can't be negative).</li></ol>`),
+W('stepCalc',{steps:[`A rectangle's length is 3 cm more than its width. Its area is 40 cm². Find the width.`,`Let the width be x, so the length is x + 3`,`x(x + 3) = 40 → x² + 3x − 40 = 0`,`(x + 8)(x − 5) = 0 → x = −8 or x = 5`,`A width can't be negative, so <b>x = 5 cm</b>`]},`A worked example.`,`Reject answers that don't fit the context.`),
+Q(`The sum of a number and its reciprocal is 2.5. Which equation fits?`,[`x + 1/x = 2.5, so 2x² − 5x + 2 = 0`,'x² + 1 = 2.5, so x² − 1.5 = 0','x + 1/x = 2.5, so x² − 2.5 = 0','x − 1/x = 2.5, so 2x² − 5x − 2 = 0'],0,`Multiply by 2x: 2x² + 2 = 5x.`),
+N(`A bag has n counters, 4 of them red. Two are taken without replacement. P(both red) = 2/15. Find n.`,10,0.001,'',`4/n × 3/(n − 1) = 2/15 → 12 × 15 = 2n(n − 1) → n² − n − 90 = 0 → (n − 10)(n + 9) = 0, so n = 10.`),
+T(`<h3>Key points</h3><ul><li>Define your letter, translate, form, solve, check.</li><li>Reject negative lengths and non-integer counts.</li></ul>`)]),
+LH('gm5-4-2','Grade 9 mixed',12,'Everything from the top end of the Higher paper, mixed together.',[
+RM(`<p>Read carefully, plan, show working, and check your answers fit the question.</p>`),
+W('calcDrill',{skill:GM9,need:10},`The grade 9 drill. Get 10 right to master it.`,`If one stumps you, read the explanation, then try the next.`),
+T(`<h3>Key points</h3><ul><li>Grade 9 is about combining topics confidently.</li><li>Keep practising mixed questions until they feel routine.</li></ul>`)])
+]});
+
+/* follow-ups and tests, level 5 */
+F('gp5-1-1',[N(`Coolant heated by 30 °C, c = 5500 J/kg °C. Energy per kg?`,165000,0.005,'J',`5500 × 30.`),N(`Thermal power 3000 MW, electrical 1000 MW. Efficiency (%)?`,33.3,0.005,'%',`1000 ÷ 3000 × 100.`),Q(`Why is hot pressurised water used as a coolant?`,[`It has a high specific heat capacity, so it carries lots of energy`,`It's radioactive`,`It's a gas`,`It slows down quickly`],0,`High c.`),Q(`Most wasted energy in a power station goes…`,[`to the cooling water and surroundings`,`nowhere`,`back into the fuel`,`into the generator`],0,`Transferred, not destroyed.`),N(`A fission product with half-life 30 years. Fraction left after 90 years: 1/?`,8,0.001,'',`3 half-lives.`)]);
+F('gp5-1-2',[Q(`With no air resistance, all objects fall with…`,[`the same acceleration`,`different accelerations`,`no acceleration`,`constant speed`],0,`g.`),Q(`Regenerative braking transfers kinetic energy…`,[`electrically back to the supply`,`to the brakes as heat only`,`to chemical energy in petrol`,`nowhere`],0,`Motor as generator.`),N(`A 50 kg mass is lifted 2 m on the Moon (g = 1.6 N/kg). GPE gained?`,160,0.005,'J',`50 × 1.6 × 2.`),Q(`Medical tracers usually emit…`,[`gamma`,`alpha`,`neutrons`,`beta only`],0,`Passes out of the body.`),Q(`An electric car's emissions depend on…`,[`how the electricity is generated`,`its colour`,`its tyres`,`nothing`],0,`Follow the energy.`)]);
+F('gp5-2-1',gMixF(GP9,5));
+F('gp5-2-2',gMixF(['g_emwave','g_stdform','g_sigfig','g_impulse','g_emwave'],5));
+F('gp5-3-1',[Q(`The gradient of a tangent on a distance–time graph gives…`,[`the instantaneous speed`,`the distance`,`the average speed`,`the acceleration`],0,`At that moment.`),Q(`The area under a v–t graph is…`,[`distance`,`acceleration`,`speed`,`force`],0,`Displacement.`),N(`Grid squares are 5 m/s by 2 s. Area is 20 squares. Distance?`,200,0.005,'m',`5 × 2 × 20.`),Q(`A tangent touches the curve at…`,[`one point`,`two points`,`every point`,`the origin only`],0,`Just touches.`),Q(`A curved v–t graph getting steeper shows…`,[`increasing acceleration`,`constant speed`,`deceleration`,`no motion`],0,`Gradient rising.`)]);
+F('gp5-3-2',[N(`Readings 4.1, 4.4, 4.3 s. Uncertainty (±)?`,0.15,0.01,'s',`(4.4 − 4.1) ÷ 2.`),Q(`Correlation proves…`,[`a relationship, not that one causes the other`,`causation`,`nothing at all`,`an error`],0,`Not causation.`),Q(`Conclusions should stay within…`,[`the range tested`,`any range`,`the next experiment`,`the textbook`],0,`Don't extrapolate.`),Q(`Results matching another group's are…`,[`reproducible`,`random`,`anomalous`,`invalid`],0,`Others get the same.`),Q(`A valid experiment…`,[`answers its question with control variables kept constant`,`has lots of data`,`is quick`,`uses expensive equipment`],0,`Fair test.`)]);
+F('gp5-4-1',[Q(`"Explain" means…`,[`give reasons why`,`give a short answer`,`calculate`,`draw`],0,`Because…`),Q(`"Compare" answers should…`,[`mention both things in each point`,`describe one thing`,`only give numbers`,`be one word`],0,`Whereas.`),Q(`"Suggest" means…`,[`apply knowledge to an unfamiliar situation`,`recall a fact`,`copy the question`,`calculate exactly`],0,`Reasoned guess.`),Q(`"Evaluate" needs…`,[`a judgement`,`only facts`,`a graph`,`a definition`],0,`Conclude.`),Q(`"State" needs…`,[`a short answer`,`a long explanation`,`a diagram`,`a calculation`],0,`Brief.`)]);
+F('gp5-4-2',[Q(`Instead of "energy is lost", write…`,[`energy is transferred to the surroundings`,`energy is destroyed`,`energy vanishes`,`energy is used up`],0,`Conserved.`),Q(`When heated, particles…`,[`move faster`,`get bigger`,`melt`,`multiply`],0,`Not bigger.`),Q(`In ½mv², square…`,[`only v`,`½mv`,`m and v`,`nothing`],0,`Order of operations.`),Q(`AQA uses g = …`,[`9.8 N/kg`,`10 N/kg`,`9 N/kg`,`1.6 N/kg`],0,`Use the value given.`),Q(`When should you round?`,[`At the end`,`After every step`,`Never`,`Before calculating`],0,`Avoid rounding errors.`)]);
+F('gc5-1-1',gMixF(GC9,5));
+F('gc5-1-2',gMixF(['g_atomecon','g_yield','g_yieldmass','g_atomecon','g_yield'],5));
+F('gc5-2-1',[Q(`Cooling an exothermic forward reaction…`,[`increases the yield`,`decreases the yield`,`has no effect`,`stops it`],0,`Favours exothermic.`),Q(`For pressure, count…`,[`gas molecules only`,`all atoms`,`solids too`,`electrons`],0,`Gases.`),Q(`A catalyst changes…`,[`how fast equilibrium is reached`,`the position of equilibrium`,`the yield`,`the products`],0,`Rate only.`),Q(`N₂O₄ ⇌ 2NO₂. High pressure favours…`,[`N₂O₄`,`NO₂`,`neither`,`both equally`],0,`Fewer molecules.`),Q(`Removing product from an equilibrium…`,[`shifts it right to make more product`,`shifts it left`,`stops it`,`has no effect`],0,`Replaces it.`)]);
+F('gc5-2-2',[Q(`Cu²⁺ + 2e⁻ → Cu happens at the…`,[`cathode`,`anode`,`electrolyte`,`salt bridge`],0,`Reduction.`),Q(`2Cl⁻ → Cl₂ + 2e⁻ is…`,[`oxidation`,`reduction`,`neutralisation`,`displacement`],0,`Loss of electrons.`),Q(`Oxygen at the anode: 4OH⁻ → O₂ + 2H₂O + …`,[`4e⁻`,`2e⁻`,`e⁻`,`4H⁺`],0,`Charge balance.`),Q(`Zn + Cu²⁺ → Zn²⁺ + Cu. Which is reduced?`,[`Cu²⁺`,`Zn`,`Zn²⁺`,`Cu`],0,`Gains electrons.`),Q(`Half equations must balance…`,[`atoms and charge`,`atoms only`,`charge only`,`mass only`],0,`Both.`)]);
+F('gc5-3-1',[Q(`Caesium compared with sodium is…`,[`more reactive`,`less reactive`,`the same`,`unreactive`],0,`Further down group 1.`),Q(`Fluorine compared with chlorine is…`,[`more reactive`,`less reactive`,`a solid`,`a noble gas`],0,`Top of group 7.`),Q(`Krypton's boiling point compared with argon's is…`,[`higher`,`lower`,`the same`,`below 0 K`],0,`Increases down group 0.`),Q(`A longer alkane is…`,[`less flammable`,`more flammable`,`less viscous`,`lower boiling`],0,`Trend.`),Q(`Astatine is predicted to be…`,[`less reactive than iodine`,`more reactive than fluorine`,`a gas`,`a metal like sodium`],0,`Bottom of group 7.`)]);
+F('gc5-3-2',[Q(`When describing data, you should…`,[`quote numbers from it`,`ignore units`,`describe only the first point`,`guess`],0,`Evidence.`),N(`Rate doubles every 10 °C. Time at 20 °C is 60 s. Time at 40 °C?`,15,0.001,'s',`60 → 30 → 15.`),Q(`To compare fuels fairly, compare CO₂…`,[`per kJ of energy released`,`per bottle`,`per colour`,`per car`],0,`Same basis.`),Q(`An anomaly is…`,[`a result that doesn't fit the pattern`,`the average`,`the biggest value`,`a type of error bar`],0,`Odd one out.`),Q(`Read ___ first.`,[`axis labels and units`,`the title only`,`the last value`,`nothing`],0,`Understand the data.`)]);
+F('gc5-4-1',[Q(`"Describe a test" needs…`,[`method and result`,`method only`,`result only`,`a diagram`],0,`Both.`),Q(`Sodium chloride is made of…`,[`ions`,`molecules`,`atoms sharing electrons`,`delocalised electrons`],0,`Ionic.`),Q(`Graphite conducts because of…`,[`delocalised electrons`,`ions`,`molecules`,`protons`],0,`Free electrons.`),Q(`"Calculate" answers need…`,[`working and units`,`just a number`,`a sentence`,`a graph`],0,`Show steps.`),Q(`"Compare" answers mention…`,[`both substances in each point`,`one substance`,`only similarities`,`only colours`],0,`Both.`)]);
+F('gc5-4-2',[Q(`When water boils, ___ are overcome.`,[`intermolecular forces`,`covalent bonds`,`ionic bonds`,`nuclear forces`],0,`Molecules stay whole.`),Q(`A catalyst works by…`,[`lowering activation energy`,`raising temperature`,`giving energy`,`increasing concentration`],0,`Alternative pathway.`),Q(`Copper sulfate solution is…`,[`clear and blue`,`cloudy and blue`,`colourless`,`white`],0,`Clear ≠ colourless.`),Q(`Strong acid means…`,[`fully ionised`,`concentrated`,`dangerous`,`pH 7`],0,`Ionisation.`),Q(`Convert 250 cm³ to dm³.`,[`0.25 dm³`,`2.5 dm³`,`25 dm³`,`250 dm³`],0,`÷ 1000.`)]);
+F('gm5-1-1',[Q(`An even number is written…`,[`2n`,`2n + 1`,`n + 2`,`n²`],0,`Multiple of 2.`),Q(`Consecutive odd numbers:`,[`2n + 1 and 2n + 3`,`2n + 1 and 2n + 2`,`n and n + 1`,`2n and 2n + 2`],0,`Differ by 2.`),Q(`To show a number is a multiple of 5, write it as…`,[`5 × (an integer)`,`n + 5`,`5n + 1`,`n⁵`],0,`Factorise.`),Q(`Testing three examples is…`,[`not a proof`,`a proof`,`always enough`,`required instead of algebra`],0,`Algebra proves all cases.`),Q(`n + (n + 1) = 2n + 1 shows the sum of two consecutive integers is…`,[`odd`,`even`,`a multiple of 3`,`zero`],0,`2n + 1 form.`)]);
+F('gm5-1-2',[Q(`Every line of a geometric proof needs…`,[`a statement and a reason`,`a diagram only`,`a number`,`a question`],0,`Reasons.`),Q(`Two radii form…`,[`an isosceles triangle`,`a right angle`,`a tangent`,`a parallelogram`],0,`Equal sides.`),Q(`Which proves congruence?`,[`SAS`,`AAA`,`SSA`,`AA`],0,`SAS works.`),Q(`Exterior angle of a triangle equals…`,[`the sum of the two opposite interior angles`,`180°`,`the adjacent angle`,`90°`],0,`Useful in proofs.`),Q(`Opposite sides of a parallelogram are…`,[`equal and parallel`,`perpendicular`,`different lengths`,`curved`],0,`Property.`)]);
+F('gm5-2-1',gMixF(['g_functrans'],5));
+F('gm5-2-2',gMixF(['g_circeq','g_perpgrad','g_circeq','g_lineeq','g_circeq'],5));
+F('gm5-3-1',[Q(`OA = a, OB = b. AB = …`,[`b − a`,`a − b`,`a + b`,`2a`],0,`−a + b.`),Q(`Collinear means…`,[`on the same straight line`,`parallel only`,`perpendicular`,`equal`],0,`One line.`),Q(`P divides AB in ratio 2 : 3. AP = …`,[`⅖AB`,`⅔AB`,`⅗AB`,`2AB`],0,`2 out of 5.`),Q(`If PQ = 4(a + b) and QR = a + b, then…`,[`P, Q, R are collinear`,`PQ ⊥ QR`,`they're unrelated`,`PQ = QR`],0,`Parallel with a shared point.`),Q(`M is the midpoint of AB. AM = …`,[`½AB`,`AB`,`2AB`,`¼AB`],0,`Half way.`)]);
 F('gm5-3-2',gMixF(['g_segment','g_pythag3d','g_cosrule','g_sinerule','g_areasine'],5));
 F('gm5-4-1',[Q(`In a worded problem, first…`,[`define a letter for the unknown`,`guess the answer`,`draw a graph`,`write the final answer`],0,`State what x means.`),Q(`A negative solution for a length should be…`,[`rejected`,`kept`,`squared`,`doubled`],0,`Lengths are positive.`),N(`x(x + 2) = 48, x > 0. Find x.`,6,0.001,'',`x² + 2x − 48 = 0 → (x + 8)(x − 6).`),N(`Two consecutive integers multiply to 132. The smaller (positive) one?`,11,0.001,'',`n(n + 1) = 132 → n = 11.`),Q(`After solving, you should…`,[`check the answer fits the context`,`stop immediately`,`round it`,`square it`],0,`Sense check.`)]);
 F('gm5-4-2',gMixF(GM9,5));
@@ -1057,126 +1130,4 @@ CGEN.p_photo=function(){var E=cR(30,80)/10,phi=cR(18,Math.min(E*10-2,50))/10,K=M
  return {p:'Photons of energy '+cNum(E)+' eV hit a metal with work function '+cNum(phi)+' eV. Maximum kinetic energy of the photoelectrons, in eV?',b:[cB(K,'E<sub>k,max</sub> = ',' eV','energy',false,0.003)],e:'Einstein\'s equation: hf = φ + E<sub>k,max</sub>, so E<sub>k,max</sub> = '+cNum(E)+' − '+cNum(phi)+' = '+cNum(K)+' eV.'}};
 CGEN.p_debroglie=function(){var k=cR(1,9),l=Math.round(0.728/k*1000)/1000;
  return {p:'An electron (m = 9.11 × 10⁻³¹ kg) moves at '+k+' × 10⁶ m/s. Find its de Broglie wavelength in nm. (h = 6.63 × 10⁻³⁴ J s, 3 d.p.)',b:[cB(l,'λ = ',' nm','wavelength',false,0.005)],e:'λ = h/(mv) = 6.63 × 10⁻³⁴ ÷ (9.11 × 10⁻³¹ × '+k+' × 10⁶) = '+pE(l*1e-9)+' m = '+cNum(l)+' nm.'}};
-CGEN.p_resist=function(){var rho=cP([1.7e-8,2.8e-8,1.1e-6,5.6e-8]),L=cR(1,20),d=cP([0.2,0.3,0.5,1.0]),A=Math.PI*Math.pow(d/2*1e-3,2),R=rho*L/A,r=Math.round(R*Math.pow(10,2-Math.floor(Math.log10(R))))/Math.pow(10,2-Math.floor(Math.log10(R)));
- return {p:'A wire has resistivity '+pE(rho,2)+' Ω m, length '+L+' m and diameter '+d+' mm. Find its resistance in Ω. (3 s.f.)',b:[cB(r,'R = ',' Ω','resistance',false,0.006)],e:'A = π(d/2)² = π × ('+cNum(d/2)+' × 10⁻³)² = '+pE(A)+' m². R = ρL/A = '+pE(rho,2)+' × '+L+' ÷ '+pE(A)+' = '+pE(R)+' Ω.'}};
-CGEN.p_emf=function(){var e=cR(3,24),r=cP([0.5,1,1.5,2]),R=cR(2,20),I=e/(R+r),V=Math.round((e-I*r)*100)/100;
- return {p:'A cell of emf '+e+' V and internal resistance '+r+' Ω is connected to a '+R+' Ω resistor. Find the terminal pd. (2 d.p.)',b:[cB(V,'V = ',' V','pd',false,0.005)],e:'I = ε/(R + r) = '+e+'/'+cNum(R+r)+' = '+cNum(Math.round(I*1000)/1000)+' A. V = ε − Ir = '+cNum(V)+' V ("lost volts" Ir = '+cNum(Math.round(I*r*100)/100)+' V).'}};
-CGEN.p_potdiv=function(){var Vin=cP([6,9,12,5]),R1=cR(1,10)*100,R2=cR(1,10)*100,V=Math.round(Vin*R2/(R1+R2)*100)/100;
- return {p:'A potential divider has R₁ = '+R1+' Ω and R₂ = '+R2+' Ω across '+Vin+' V. Find V<sub>out</sub> across R₂. (2 d.p.)',b:[cB(V,'V<sub>out</sub> = ',' V','pd',false,0.005)],e:'V<sub>out</sub> = V<sub>in</sub> × R₂/(R₁ + R₂) = '+Vin+' × '+R2+'/'+(R1+R2)+' = '+cNum(V)+' V.'}};
-CGEN.p_young=function(){var M=cP([['steel',200],['copper',120],['brass',100],['aluminium',70]]),F=cR(2,12)*10,d=cP([0.5,0.8,1.0]),L=cR(1,3),A=Math.PI*Math.pow(d/2*1e-3,2),dL=F*L/(A*M[1]*1e9)*1000;dL=Math.round(dL*Math.pow(10,1-Math.floor(Math.log10(dL))))/Math.pow(10,1-Math.floor(Math.log10(dL)));var E=F/A/(dL*1e-3/L),r=Math.round(E/1e9);
- return {p:(M[0]==='aluminium'?'An ':'A ')+M[0]+' wire '+L+' m long, diameter '+d+' mm, stretches '+cNum(dL)+' mm under '+F+' N. Find the Young modulus in GPa. (nearest whole number)',b:[cB(r,'E = ',' GPa','Young modulus',false,0.01)],e:'Stress = F/A = '+F+' ÷ '+pE(A)+' = '+pE(F/A)+' Pa. Strain = '+cNum(dL)+' × 10⁻³ ÷ '+L+' = '+pE(dL*1e-3/L)+'. E = stress/strain = '+pE(E)+' Pa ≈ '+r+' GPa.'}};
-CGEN.p_moment=function(){var F=cR(2,30),d=cR(1,9)/10,d2=cR(1,9)/10,F2=Math.round(F*d/d2*100)/100;
- return {p:'A '+F+' N force acts '+cNum(d)+' m from a pivot. What force '+cNum(d2)+' m on the other side balances it? (2 d.p.)',b:[cB(F2,'F = ',' N','force',false,0.005)],e:'Principle of moments: '+F+' × '+cNum(d)+' = F × '+cNum(d2)+', so F = '+cNum(F2)+' N.'}};
-CGEN.p_power=function(){var m=cR(50,900),h=cR(2,30),t=cR(2,30),P=Math.round(m*9.81*h/t*10)/10;
- return {p:'A motor lifts '+m+' kg through '+h+' m in '+t+' s. Find the useful power output. (g = 9.81, 1 d.p.)',b:[cB(P,'P = ',' W','power',false,0.005)],e:'P = mgh/t = '+m+' × 9.81 × '+h+' ÷ '+t+' = '+cNum(P)+' W.'}};
-
-/* ---- Level 1: GCSE to A-level ---- */
-U({id:'ap1-1',track:'ap',level:1,title:'Measurements and uncertainties',icon:'±',color:'#7F77DD',desc:'SI units and prefixes, uncertainties, and reading gradients from graphs.',lessons:[
-LH('ap1-1-1','SI units and prefixes',9,'Every A-level physics answer needs the right unit and power of ten.',[
-RM(`<p>Standard form: 3.2 × 10⁴ = 32,000. Base SI units: kg, m, s, A, K, mol.</p>`),
-T(`<h3>Base and derived units</h3><p>Every unit can be built from the <b>six base units</b> (kg, m, s, A, K, mol). Newton: F = ma, so N = kg m s⁻². Joule: J = N m = kg m² s⁻². Checking units (<b>homogeneity</b>) catches wrong equations.</p>`),
-Q(`What is the watt in base units?`,[`kg m² s⁻³`,`kg m s⁻²`,`kg m² s⁻²`,`kg s⁻¹`],0,`W = J/s = kg m² s⁻² ÷ s.`),
-T(`<h3>Prefixes</h3><table class="wtable"><tr><th>T</th><th>G</th><th>M</th><th>k</th><th>c</th><th>m</th><th>μ</th><th>n</th><th>p</th></tr><tr><td>10¹²</td><td>10⁹</td><td>10⁶</td><td>10³</td><td>10⁻²</td><td>10⁻³</td><td>10⁻⁶</td><td>10⁻⁹</td><td>10⁻¹²</td></tr></table>`),
-W('calcDrill',{skill:'p_prefix',need:4},`Prefixes. Get 4 right to master it.`,`Replace the prefix with its power of ten.`),
-T(`<h3>Key points</h3><ul><li>Six <b>base units</b>; everything else is built from them.</li><li>Check equations by <b>homogeneity</b>.</li><li>Learn the prefixes from tera to pico.</li></ul>`)]),
-LH('ap1-1-2','Uncertainties',10,'Every measurement has an uncertainty. A-level wants you to calculate and combine them.',[
-RM(`<p>A reading on a ruler is uncertain by about half the smallest division. Percentages: part ÷ whole × 100.</p>`),
-T(`<h3>Absolute and percentage</h3><p>Length = 5.0 ± 0.1 cm. Absolute uncertainty: 0.1 cm. Percentage uncertainty: 0.1/5.0 × 100 = 2%.</p>`),
-W('calcDrill',{skill:'p_unc',need:3},`Percentage uncertainties. Get 3 right to master it.`,`Absolute ÷ value × 100.`),
-T(`<h3>Combining</h3><ul><li><b>Adding or subtracting</b> quantities: <b>add absolute</b> uncertainties.</li><li><b>Multiplying or dividing</b>: <b>add percentage</b> uncertainties.</li><li><b>Raising to a power</b>: multiply the percentage by the power.</li></ul>`),
-Q(`Area = L², with L uncertain by 2%. Uncertainty in area?`,[`4%`,`2%`,`1%`,`8%`],0,`Power 2: double the percentage.`),
-T(`<h3>Errors</h3><p><b>Random errors</b> scatter readings (reduce by repeating and averaging). <b>Systematic errors</b> shift every reading the same way (like a zero error), and repeating doesn't help.</p>`),
-T(`<h3>Key points</h3><ul><li>% uncertainty = absolute ÷ value × 100.</li><li>Add absolutes for ±; add percentages for × ÷; multiply by the power.</li><li>Random vs systematic errors.</li></ul>`)]),
-LH('ap1-1-3','Graphs and gradients',9,'Turn an equation into y = mx + c and a straight-line graph gives you the answer.',[
-RM(`<p>y = mx + c: gradient m, intercept c. Gradient = Δy/Δx.</p>`),
-T(`<h3>Linearising</h3><p>Match your equation to y = mx + c. For example, v² = u² + 2as: plot v² against s, and the gradient is 2a, the intercept u².</p>`),
-Q(`T = 2π√(l/g). Which graph is a straight line through the origin?`,[`T² against l`,`T against l`,`T against l²`,`√T against l`],0,`T² = (4π²/g) l.`),
-T(`<h3>Reading gradients</h3><ul><li>Use a <b>large triangle</b> (at least half the line) to reduce reading error.</li><li>Include <b>units</b> in the gradient.</li><li>For a curve, draw a tangent and find its gradient.</li></ul>`),
-N(`T² against l has gradient 4.0 s²/m. Using gradient = 4π²/g, find g. (2 d.p.)`,9.87,0.005,'m/s²',`g = 4π²/4.0 = 9.87.`),
-T(`<h3>Key points</h3><ul><li>Rearrange into <b>y = mx + c</b>.</li><li>Big triangles; units on gradients.</li><li>Tangents for curves.</li></ul>`)])
-]});
-
-U({id:'ap1-2',track:'ap',level:1,title:'GCSE physics at A-level speed',icon:'F⃗',color:'#1D9E75',desc:'Resolving vectors, energy and power, and moments.',lessons:[
-LH('ap1-2-1','Scalars, vectors and resolving',10,'Split a force into two perpendicular parts and hard problems become two easy ones.',[
-RM(`<p>A vector has size and direction; a scalar only size. SOH CAH TOA.</p>`),
-T(`<h3>Resolving</h3><p>A force F at angle θ to the horizontal has:</p><div class="eq">horizontal F cos θ,&nbsp;&nbsp; vertical F sin θ</div><p>Two perpendicular forces combine with Pythagoras: resultant √(F₁² + F₂²) at angle arctan(F₂/F₁).</p>`),
-N(`A 50 N force acts at 30° above horizontal. Horizontal component? (1 d.p.)`,43.3,0.002,'N',`50 cos 30° = 43.3 N.`),
-Q(`Which is a vector?`,[`Displacement`,`Speed`,`Mass`,`Energy`],0,`Has a direction.`),
-T(`<h3>Equilibrium</h3><p>An object is in equilibrium when the resultant force is zero: resolve in two directions and set each sum to zero. Coplanar forces in equilibrium form a closed triangle.</p>`),
-T(`<h3>Key points</h3><ul><li>Components: <b>F cos θ</b> and <b>F sin θ</b>.</li><li>Combine perpendicular vectors with Pythagoras.</li><li>Equilibrium: resultant zero in every direction.</li></ul>`)]),
-LH('ap1-2-2','Moments',9,'Turning effects, balance and centre of mass.',[
-RM(`<p>Moment = force × perpendicular distance from the pivot.</p>`),
-T(`<h3>Principle of moments</h3><p>For balance: <b>sum of clockwise moments = sum of anticlockwise moments</b> about any point. A <b>couple</b> is two equal, opposite, parallel forces: its moment is force × separation.</p>`),
-W('calcDrill',{skill:'p_moment',need:3},`Balancing moments. Get 3 right to master it.`,`F₁d₁ = F₂d₂.`),
-Q(`The centre of mass of an object is…`,[`where its weight appears to act`,`always its geometric centre`,`its heaviest end`,`always at the bottom`],0,`Uniform objects: the geometric centre.`),
-T(`<h3>Key points</h3><ul><li><b>Clockwise = anticlockwise</b> moments for balance.</li><li>Couple: force × separation.</li><li>Weight acts at the <b>centre of mass</b>.</li></ul>`)]),
-LH('ap1-2-3','Energy, work and power',9,'Work, energy and power at A-level: same ideas, harder numbers.',[
-RM(`<p>W = Fs. KE = ½mv². GPE = mgh. P = W/t.</p>`),
-T(`<h3>Work with an angle</h3><div class="eq">W = Fs cos θ</div><p>Only the force component along the motion does work. Power can also be written <b>P = Fv</b> for a steady speed.</p>`),
-W('calcDrill',{skill:'p_power',need:3},`Power calculations. Get 3 right to master it.`,`mgh/t.`),
-N(`A car moves at 25 m/s against a 600 N resistive force. Power needed (kW)?`,15,0.001,'kW',`P = Fv = 600 × 25 = 15,000 W.`),
-T(`<h3>Efficiency</h3><div class="eq">efficiency = useful output ÷ total input</div>`),
-T(`<h3>Key points</h3><ul><li><b>W = Fs cos θ</b>.</li><li><b>P = W/t = Fv</b>.</li><li>Efficiency = useful ÷ total.</li></ul>`)])
-]});
-
-/* ---- Level 2: Year 12 ---- */
-U({id:'ap2-1',track:'ap',level:2,title:'Particles and quantum phenomena',icon:'γ',color:'#7F77DD',desc:'Inside the atom, particles and antiparticles, quarks, and the photoelectric effect.',lessons:[
-LH('ap2-1-1','Constituents of the atom',10,'Protons, neutrons, electrons, specific charge, and the strong force.',[
-RM(`<p>Atoms: nucleus of protons and neutrons, electrons around it. Isotopes: same protons, different neutrons. Notation ᴬ<sub>Z</sub>X.</p>`),
-T(`<h3>Specific charge</h3><div class="eq">specific charge = charge ÷ mass &nbsp;(C kg⁻¹)</div><p>Electron: 1.76 × 10¹¹ C kg⁻¹, the largest of the three, because its mass is so small.</p>`),
-N(`A proton has charge 1.60 × 10⁻¹⁹ C and mass 1.67 × 10⁻²⁷ kg. Specific charge? (×10⁷ C/kg, 3 s.f.)`,9.58,0.005,'×10⁷ C/kg',`1.60 × 10⁻¹⁹ ÷ 1.67 × 10⁻²⁷ = 9.58 × 10⁷.`),
-T(`<h3>The strong nuclear force</h3><p>Holds the nucleus together against proton repulsion. <b>Repulsive</b> below about 0.5 fm, <b>attractive</b> up to about 3 fm, and negligible beyond.</p>`),
-T(`<h3>Unstable nuclei</h3><ul><li><b>α decay</b>: ᴬ<sub>Z</sub>X → ᴬ⁻⁴<sub>Z−2</sub>Y + ⁴<sub>2</sub>α (very large nuclei).</li><li><b>β⁻ decay</b>: n → p + e⁻ + ν̄<sub>e</sub> (neutron-rich nuclei). The antineutrino was predicted to explain the spread of beta energies.</li></ul>`),
-Q(`Why was the neutrino proposed?`,[`Beta particles had a range of energies, so energy seemed to go missing`,`To explain alpha decay`,`To hold the nucleus together`,`To explain gravity`],0,`Conservation of energy.`),
-T(`<h3>Key points</h3><ul><li>Specific charge = Q/m.</li><li>Strong force: repulsive < 0.5 fm, attractive to ~3 fm.</li><li>β⁻ decay emits an <b>antineutrino</b>.</li></ul>`)]),
-LH('ap2-1-2','Particles, antiparticles and quarks',11,'Hadrons, leptons, quarks, and the conservation laws that decide what\'s allowed.',[
-RM(`<p>Every particle has an antiparticle with the same mass and opposite charge. E = mc².</p>`),
-T(`<h3>Annihilation and pair production</h3><p>A particle and its antiparticle <b>annihilate</b> into two photons. A photon with enough energy can make a particle–antiparticle pair: minimum energy = 2 × rest energy (1.022 MeV for an electron–positron pair).</p>`),
-T(`<h3>Classification</h3><ul><li><b>Hadrons</b> feel the strong force. <b>Baryons</b> (three quarks: proton uud, neutron udd) and <b>mesons</b> (quark + antiquark: pions, kaons).</li><li><b>Leptons</b> don't: electron, muon, neutrinos.</li></ul>`),
-W('matchPairs',{pairs:[['Proton','Baryon: uud'],['Pion','Meson'],['Muon','Lepton'],['Neutron','Baryon: udd']]},`Match each particle to its class.`),
-T(`<h3>Conservation laws</h3><p>Always conserved: <b>charge</b>, <b>baryon number</b>, <b>lepton number</b> (electron and muon separately). <b>Strangeness</b> is conserved in strong interactions but can change by ±1 in weak ones.</p>`),
-Q(`p → n + e⁺ + ν<sub>e</sub> happens inside some nuclei. Which interaction?`,[`Weak`,`Strong`,`Electromagnetic`,`Gravity`],0,`It changes quark type (u → d): weak.`),
-T(`<h3>Key points</h3><ul><li>Annihilation and pair production.</li><li>Hadrons (baryons qqq, mesons qq̄) vs leptons.</li><li>Conserve charge, baryon number, lepton number; strangeness only in strong.</li></ul>`)]),
-LH('ap2-1-3','Photons and the photoelectric effect',11,'Light comes in packets. The photoelectric effect proved it.',[
-RM(`<p>Waves: c = fλ. Energy levels in atoms. 1 eV = 1.60 × 10⁻¹⁹ J.</p>`),
-T(`<h3>Photons</h3><div class="eq">E = hf = hc/λ</div>`),
-W('calcDrill',{skill:'p_photon',need:3},`Photon energies. Get 3 right to master it.`,`E = 1240/λ in eV with λ in nm.`),
-T(`<h3>The photoelectric effect</h3><p>Light only ejects electrons from a metal above a <b>threshold frequency</b>, however bright. One photon gives its energy to one electron:</p><div class="eq">hf = φ + E<sub>k,max</sub></div><p>φ is the <b>work function</b>, the minimum energy to free an electron. Wave theory couldn't explain the threshold: this proved light is particles.</p>`),
-W('calcDrill',{skill:'p_photo',need:3},`Photoelectric equation. Get 3 right to master it.`,`E<sub>k,max</sub> = hf − φ.`),
-T(`<h3>Wave–particle duality</h3><p>Electrons diffract like waves, with <b>de Broglie wavelength λ = h/mv</b>. Light and matter both behave as waves and particles.</p>`),
-W('calcDrill',{skill:'p_debroglie',need:2},`de Broglie wavelengths. Get 2 right to master it.`,`λ = h/mv.`),
-T(`<h3>Key points</h3><ul><li><b>E = hf</b>.</li><li><b>hf = φ + E<sub>k,max</sub></b>; threshold frequency proves photons.</li><li><b>λ = h/mv</b>: matter waves.</li></ul>`)])
-]});
-
-U({id:'ap2-2',track:'ap',level:2,title:'Waves',icon:'∿',color:'#1D9E75',desc:'Progressive and stationary waves, polarisation, interference and diffraction, and refraction.',lessons:[
-LH('ap2-2-1','Progressive waves and polarisation',10,'Waves carry energy without carrying matter. Transverse ones can be polarised.',[
-RM(`<p>c = fλ. Transverse waves oscillate perpendicular to travel; longitudinal parallel to it.</p>`),
-T(`<h3>Describing waves</h3><ul><li>Amplitude, wavelength λ, frequency f, period T = 1/f.</li><li><b>Phase difference</b>: how far out of step two points are, in radians (2π = one whole cycle).</li></ul>`),
-N(`Two points are a quarter of a wavelength apart on a wave. Phase difference in radians? (3 d.p.)`,1.571,0.002,'rad',`¼ × 2π = π/2.`),
-T(`<h3>Polarisation</h3><p>Only <b>transverse</b> waves can be polarised: restricted to oscillate in one plane. Polaroid sunglasses cut glare (reflected light is partly polarised). TV aerials are aligned with the polarisation of the broadcast.</p>`),
-Q(`Polarisation proves a wave is…`,[`transverse`,`longitudinal`,`electromagnetic`,`slow`],0,`Longitudinal waves have no plane to restrict.`),
-T(`<h3>Key points</h3><ul><li><b>c = fλ</b>, T = 1/f.</li><li>Phase difference in radians.</li><li>Only transverse waves polarise.</li></ul>`)]),
-LH('ap2-2-2','Stationary waves',10,'Two waves travelling opposite ways make a wave that doesn\'t go anywhere.',[
-RM(`<p>Superposition: where waves meet, displacements add. c = fλ.</p>`),
-T(`<h3>Nodes and antinodes</h3><p>Two waves of the same frequency travelling in opposite directions superpose into a <b>stationary wave</b>. <b>Nodes</b>: no movement. <b>Antinodes</b>: maximum amplitude. Nodes are λ/2 apart. No energy is transferred along it.</p>`),
-T(`<h3>Strings</h3><p>A string fixed at both ends has a node at each end. The first harmonic is half a wavelength: λ = 2L.</p><div class="eq">f = (1/2L)√(T/μ)</div>${KY([['L','length of string','m'],['T','tension','N'],['μ','mass per unit length','kg/m']])}`),
-N(`A 0.80 m string vibrates in its first harmonic at 200 Hz. Wave speed (m/s)?`,320,0.001,'m/s',`λ = 1.6 m, v = fλ = 320 m/s.`),
-Q(`Doubling the tension multiplies the first harmonic frequency by…`,[`√2`,`2`,`4`,`½`],0,`f ∝ √T.`),
-T(`<h3>Key points</h3><ul><li>Stationary waves: <b>nodes</b> and <b>antinodes</b>, no energy flow.</li><li>First harmonic: λ = 2L.</li><li><b>f = (1/2L)√(T/μ)</b>.</li></ul>`)]),
-LH('ap2-2-3','Interference, diffraction and refraction',11,'Young\'s slits, gratings, and light bending at boundaries.',[
-RM(`<p>Coherent sources: same frequency, constant phase difference. Path difference of whole wavelengths gives constructive interference.</p>`),
-T(`<h3>Young's double slit</h3><div class="eq">w = λD/s</div>${KY([['w','fringe spacing','m'],['D','slits to screen','m'],['s','slit separation','m']])}`),
-N(`λ = 600 nm, D = 2.0 m, s = 0.50 mm. Fringe spacing in mm?`,2.4,0.001,'mm',`600 × 10⁻⁹ × 2.0 ÷ 0.50 × 10⁻³ = 2.4 × 10⁻³ m.`),
-T(`<h3>Diffraction gratings</h3><div class="eq">d sin θ = nλ</div><p>d is the line spacing (1 ÷ lines per metre). Very sharp, bright maxima: used to measure wavelengths precisely.</p>`),
-T(`<h3>Refraction and total internal reflection</h3><p>n₁ sin θ₁ = n₂ sin θ₂. Going into a less dense medium, beyond the <b>critical angle</b> (sin θ<sub>c</sub> = n₂/n₁), all light reflects. Optical fibres use this, with cladding of lower n.</p>`),
-Q(`Why do optical fibres have cladding?`,[`It has a lower refractive index, so light totally internally reflects at the core boundary`,`To make them stronger only`,`To absorb light`,`To make the light faster`],0,`TIR needs n<sub>core</sub> > n<sub>cladding</sub>.`),
-T(`<h3>Key points</h3><ul><li>Young: <b>w = λD/s</b>. Grating: <b>d sin θ = nλ</b>.</li><li>Snell: <b>n₁ sin θ₁ = n₂ sin θ₂</b>.</li><li>TIR beyond the critical angle.</li></ul>`)])
-]});
-
-U({id:'ap2-3',track:'ap',level:2,title:'Mechanics and materials',icon:'F=ma',color:'#378ADD',desc:'Motion and projectiles, Newton\'s laws and momentum, and the properties of materials.',lessons:[
-LH('ap2-3-1','Motion and projectiles',11,'suvat in two dimensions, and the effect of air resistance.',[
-RM(`<p>suvat for constant acceleration. Resolving vectors into components.</p>`),
-T(`<h3>Projectiles</h3><p>Treat horizontal and vertical <b>independently</b>. Horizontal: constant velocity. Vertical: acceleration g downwards. Time links them.</p>`),
-W('calcDrill',{skill:'g_suvat',need:3},`suvat practice. Get 3 right to master it.`,`List s, u, v, a, t.`),
-W('stepCalc',{steps:[`A ball rolls off a 1.25 m high table at 3.0 m/s. How far from the table does it land?`,`Vertical: s = 1.25 m, u = 0, a = 9.81. s = ½at² gives t = √(2 × 1.25/9.81) = 0.505 s`,`Horizontal: distance = 3.0 × 0.505`,`<b>≈ 1.5 m</b>`]},`A horizontal launch.`,`Find the time from the vertical motion first.`),
-T(`<h3>Air resistance</h3><p>Drag increases with speed. A falling object reaches <b>terminal velocity</b> when drag equals weight. Projectiles with dr
+CGEN.p_resist=function(){var rho=c

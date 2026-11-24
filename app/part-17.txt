@@ -1,4 +1,84 @@
-1" y2="0"><stop offset="0" style="stop-color:var(--bc)" stop-opacity=".95"/><stop offset="1" style="stop-color:var(--bc)" stop-opacity="0"/></linearGradient>'+
+their own fission chain reactions.'],['f15','E','One fingertip-sized uranium fuel pellet holds roughly as much energy as a tonne of coal.'],['f16','E','Calder Hall in Cumbria, opened in 1956, was the first nuclear power station to supply a national grid on a commercial scale.'],['f17','E','The UK\'s Advanced Gas-cooled Reactors use carbon dioxide as the coolant and graphite as the moderator.'],['f18','E','A steam generator\'s thousands of thin tubes keep radioactive primary water completely separate from the steam that drives the turbine.'],
+  ['f19','L','James Chadwick discovered the neutron in 1932, in Cambridge.'],['f20','L','Lise Meitner and Otto Frisch explained fission in 1939. Frisch borrowed the word "fission" from biology.'],['f21','L','E = mc²: turning just 1 gram of mass into energy releases about 90 trillion joules.']];
+ /* answer effects: a little burst on the screen every time you get one right */
+ var FX=[['fx-spark','Sparks','C','spark',['#ffd166','#3ad4ff','#ffffff']],['fx-confetti','Confetti','R','dot',['#ff4d8d','#ffd166','#22d3a6','#3ad4ff','#a78bfa']],['fx-atom','Atoms','R','atom',['#3ad4ff','#a78bfa','#ffffff']],['fx-ripple','Cherenkov ripple','E','ring',['#3ad4ff','#0a9fd0','#a5f3fc']],['fx-chain','Chain reaction','L','chain',['#ffd166','#ff7a2f','#3ad4ff']]];
+ var MFX=[['Frost flakes','flake',['#bfe3ff','#ffffff','#7dd3fc']],['Hearts','heart',['#ff4d8d','#ff9ec4','#ffd1e3']],['Spring petals','leaf',['#f9a8d4','#fbcfe8','#a3e635']],['Rain bubbles','bubble',['#38bdf8','#818cf8','#bae6fd']],['Bloom burst','dot',['#f472b6','#c084fc','#fde68a']],['Sunburst','spark',['#fbbf24','#fb7185','#fde047']],['Heatwave','spark',['#f97316','#facc15','#ef4444']],['Ocean bubbles','bubble',['#06b6d4','#3b82f6','#a5f3fc']],['Harvest leaves','leaf',['#d97706','#b45309','#facc15']],['Embers','firework',['#ea580c','#dc2626','#fbbf24']],['Fireworks','firework',['#f43f5e','#f59e0b','#22d3ee','#a78bfa']],['Snowfall','flake',['#e0f2fe','#ffffff','#a78bfa']]];
+ var SPK=[['synth','Synthwave'],['space','Deep space'],['glass','Glass']];
+ var MFX2=[['Ice crystals','ring',['#e0f2fe','#7dd3fc','#ffffff']],['Love letters','dot',['#ff4d8d','#ffffff','#fda4af']],['Lucky clover','leaf',['#22c55e','#86efac','#facc15']],['Spring storm','chain',['#38bdf8','#e0f2fe','#facc15']],['Pollen','spark',['#fde047','#a3e635','#ffffff']],['Solstice','atom',['#fbbf24','#fb7185','#ffffff']],['Ice lolly','dot',['#f472b6','#38bdf8','#a3e635','#fde047']],['Shooting stars','firework',['#e0e7ff','#a5b4fc','#ffffff']],['Back to school','digit',['#fbbf24','#ffffff','#38bdf8'],'ABC123+=?'],['Ghost lights','bubble',['#a3e635','#c084fc','#ffffff']],['Catherine wheel','ring',['#f59e0b','#f43f5e','#fde68a']],['Tinsel','dot',['#22c55e','#ef4444','#facc15','#ffffff']]];
+ var MSKIN2=[['Polar night','#1e3a8a','#93c5fd'],['Rose quartz','#fda4af','#f0abfc'],['Daffodil','#facc15','#84cc16'],['Rainbow','#f472b6','#38bdf8'],['Lilac','#c4b5fd','#f9a8d4'],['Golden hour','#f59e0b','#fde68a'],['Ice lolly','#ec4899','#22d3ee'],['Perseids','#6366f1','#e0e7ff'],['Conker','#92400e','#f59e0b'],['Pumpkin','#f97316','#7c3aed'],['Toffee apple','#b91c1c','#fbbf24'],['Mistletoe','#16a34a','#f8fafc']];
+ var MSKIN3=[['Snowfall','#e0f2fe','#a5b4fc'],['Candy hearts','#fb7185','#fde68a'],['Shamrock','#16a34a','#bbf7d0'],['Cherry blossom','#f9a8d4','#fef3c7'],['Maypole','#a78bfa','#34d399'],['Solstice','#fb923c','#fde047'],['Beach sunset','#f43f5e','#fbbf24'],['Meteor shower','#6366f1','#f0abfc'],['Harvest moon','#ea580c','#fde68a'],['Pumpkin glow','#f97316','#7c3aed'],['Bonfire night','#dc2626','#fbbf24'],['Northern star','#fef08a','#38bdf8']];
+ var MFX3=[['Blizzard','flake',['#ffffff','#e0f2fe','#93c5fd']],['Cupid sparks','spark',['#ff4d8d','#ffffff','#fda4af']],['Gold coins','dot',['#facc15','#fde68a','#eab308']],['Easter confetti','dot',['#f9a8d4','#a7f3d0','#fde68a']],['Blossom drift','leaf',['#fbcfe8','#f9a8d4','#ffffff']],['Fireflies','bubble',['#fde047','#bef264','#fef9c3']],['Sparklers','firework',['#fbbf24','#ffffff','#fb7185']],['Shooting stars','spark',['#c7d2fe','#ffffff','#f0abfc']],['Atom orbit','atom',['#38bdf8','#a78bfa','#ffffff']],['Ghost chain','chain',['#f97316','#7c3aed','#a3e635']],['Bonfire sparks','firework',['#f97316','#fde047','#dc2626']],['Snow globe','flake',['#ffffff','#bae6fd','#fca5a5']]];
+ var MFACT2=['James Chadwick discovered the neutron in 1932: a particle with no charge and almost the same mass as a proton.','Lise Meitner and Otto Frisch explained nuclear fission in early 1939. Frisch borrowed the word "fission" from biology, where cells split in two.','Calder Hall in Cumbria opened in 1956 as the world\'s first nuclear power station to supply electricity to a national grid on an industrial scale.','A pressurised water reactor keeps its primary coolant at about 155 bar, so the water stays liquid at over 300 °C.','Uranium is about as common in the Earth\'s crust as tin, and far more common than gold or silver.','Natural uranium is only about 0.7% uranium-235. Most reactor fuel is enriched to around 3 to 5%.','Each fission of uranium-235 releases about 200 MeV: roughly 50 million times the energy of burning one carbon atom.','The blue glow in reactor pools is Cherenkov radiation, made when charged particles travel faster than light can travel through water.','Heavy water, used in CANDU reactors, contains deuterium: hydrogen with an extra neutron in its nucleus.','Control rods often contain boron, cadmium or hafnium, because they are very good at absorbing neutrons.','A sievert measures the health effect of radiation. In the UK the average person gets about 2.7 millisieverts a year.','Chicago Pile-1, the first reactor to run a self-sustaining chain reaction, went critical on 2 December 1942.'];
+ var MTT2=['Frozen Fission Overlord','Cupid of the Core','Shamrock Supercritical','Easter Egg Enricher','May Moderator Supreme','Solstice Sievert Sage','July Joule Juggernaut','August Alpha Ace','September Spin Master','Ghoul of the Gamma Rays','November Neutron Ninja','December Decay Deity'];
+ var PS=[['ps-nova','Supernova','#fde047','#f43f5e'],['ps-horizon','Event horizon','#1e1b4b','#f59e0b'],['ps-quasar','Quasar','#22d3ee','#e879f9'],['ps-anti','Antimatter','#f0abfc','#4ade80'],['ps-dark','Dark matter','#312e81','#a78bfa'],['ps-flare','Solar flare','#f97316','#fef08a']];
+ var MTT=['New Year Neutron','Heart of the Core','Spring Fission','April Isotope','Meltdown-Proof in May','Midsummer Moderator','Summer Supercritical','August Atom Smasher','Back-to-School Boffin','Spooky Sievert','Guy Fission','Festive Fusion'];
+ var MFACT=['Marie Curie is the only person to win Nobel Prizes in two different sciences: physics in 1903 and chemistry in 1911.','Henri Becquerel discovered radioactivity in 1896, when uranium salts fogged a photographic plate he had wrapped up in a drawer.','Marie Curie came up with the word "radioactivity" in 1898.','Ernest Rutherford named alpha and beta radiation in 1899, after the first two letters of the Greek alphabet.','Neutrons have no electric charge, so they can reach a nucleus without being pushed away. That\'s why they\'re so good at causing fission.','Tritium (hydrogen-3) has a half-life of about 12.3 years.','Carbon dating works because carbon-14 has a half-life of about 5,730 years.','Plutonium-239 is made inside reactors: uranium-238 absorbs a neutron, then beta decays twice.','The Sun turns about 4 million tonnes of mass into energy every second through fusion.','Hinkley Point C in Somerset is being built with two EPR reactors of about 1.6 GW each.','Sizewell B in Suffolk is the only pressurised water reactor running in the UK.','EBR-I in Idaho was the first reactor to make electricity: on 20 December 1951 it lit four light bulbs.'];
+ function monthName(id){return new Date(id+'-01T12:00:00').toLocaleDateString('en-GB',{month:'long',year:'numeric'})}
+ function item(id){var i;for(i=0;i<SKINS.length;i++)if(SKINS[i][0]===id)return {id:id,ty:'skin',n:SKINS[i][1],r:SKINS[i][2],c1:SKINS[i][3],c2:SKINS[i][4]};
+  for(i=0;i<TITLES.length;i++)if(TITLES[i][0]===id)return {id:id,ty:'title',n:TITLES[i][1],r:TITLES[i][2]};
+  for(i=0;i<FACTS.length;i++)if(FACTS[i][0]===id)return {id:id,ty:'fact',n:'Fact card '+FACTS[i][0].slice(1),r:FACTS[i][1],x:FACTS[i][2]};
+  var m;if((m=/^ss-(\d{4}-\d{2})$/.exec(id))){var k=MSKIN[+m[1].slice(5)-1];return {id:id,ty:'skin',n:k[0]+' ('+monthName(m[1])+')',r:'L',c1:k[1],c2:k[2],ex:1}}
+  if((m=/^st-(\d{4}-\d{2})$/.exec(id)))return {id:id,ty:'title',n:monthName(m[1])+' veteran',r:'E',ex:1};
+  if((m=/^sc-(\d{4}-\d{2})$/.exec(id)))return {id:id,ty:'title',n:monthName(m[1])+' champion',r:'L',ex:1};
+  for(i=0;i<FX.length;i++)if(FX[i][0]===id)return {id:id,ty:'fx',n:FX[i][1],r:FX[i][2],st:FX[i][3],pal:FX[i][4]};
+  if((m=/^sx-(\d{4}-\d{2})$/.exec(id))){var f=MFX[+m[1].slice(5)-1];return {id:id,ty:'fx',n:f[0]+' ('+monthName(m[1])+')',r:'L',st:f[1],pal:f[2],ex:1}}
+  for(i=0;i<SPK.length;i++)if('sp-'+SPK[i][0]===id)return {id:id,ty:'sound',n:SPK[i][1]+' sound pack',r:'E',pk:SPK[i][0],ex:1};
+  if((m=/^sf-(\d{4}-\d{2})$/.exec(id)))return {id:id,ty:'fact',n:monthName(m[1])+' season fact',r:'L',x:MFACT[+m[1].slice(5)-1],ex:1};
+  if((m=/^se-(\d{4}-\d{2})$/.exec(id)))return {id:id,ty:'title',n:monthName(m[1])+' elite',r:'E',ex:1};
+  if((m=/^sl-(\d{4}-\d{2})$/.exec(id)))return {id:id,ty:'title',n:monthName(m[1])+' legend',r:'L',ex:1};
+  for(i=0;i<XS.length;i++)if(XS[i][0]===id)return {id:id,ty:'skin',n:XS[i][1],r:'E',c1:XS[i][2],c2:XS[i][3],ex:1,how:'Comes round on the season pass'};
+  if((m=/^(ssk|sfx|stt|bd-S)-([a-z]+)$/.exec(id))){var sj=subj(m[2]);if(sj){if(m[1]==='ssk')return {id:id,ty:'skin',n:sj.skin[0],r:'E',c1:sj.skin[1],c2:sj.skin[2],ex:1,how:'On the '+sj.n+' pass'};if(m[1]==='sfx')return {id:id,ty:'fx',n:sj.fx[0],r:'E',st:sj.fx[1],pal:sj.fx[2],chars:sj.fx[3],ex:1,how:'On the '+sj.n+' pass'};if(m[1]==='stt')return {id:id,ty:'title',n:sj.title,r:'L',ex:1,how:'End of the '+sj.n+' pass'};return {id:id,ty:'badge',n:sj.n+' pass',r:'E',em:sj.ic,ex:1,how:'On the '+sj.n+' pass'}}}
+  if((m=/^lmt-([a-z]+)$/.exec(id))){var mn2=m[1];try{mn2=modeName(m[1])}catch(e){}return {id:id,ty:'title',n:mn2+' master',r:'L',ex:1,how:'Finish '+mn2+' level 5'}}
+  if(id==='tt-director')return {id:id,ty:'title',n:'Station Director',r:'L',ex:1,how:'Reach the Station director rank'};if(id==='tt-plasma')return {id:id,ty:'title',n:'Plasma Tamer',r:'L',ex:1,how:'Reach the Tokamak commander rank'};if(id==='tt-star')return {id:id,ty:'title',n:'Star Maker',r:'L',ex:1,how:'Reach the very top rank'};
+  if((m=/^bd-L-([a-z]+)-(\d+)$/.exec(id))){var mn3=m[1];try{mn3=modeName(m[1])}catch(e){}return {id:id,ty:'badge',n:mn3+' level '+m[2],r:['R','E','E','L','L'][+m[2]-1]||'L',em:MODEIC[m[1]]||'📘',num:m[2],ex:1,how:'Finish every lesson in '+mn3+' level '+m[2]}}
+  if((m=/^bd-R-(\d+)$/.exec(id))){var ri=+m[1],nm='Rank '+ri;try{nm=LEVELS[ri][1]}catch(e){}return {id:id,ty:'badge',n:nm,r:ri>=9?'L':ri>=6?'E':ri>=3?'R':'C',rank:ri,ex:1,how:'Get promoted to '+nm}}
+  if((m=/^mx-(\d{4}-\d{2})$/.exec(id))){var f2=MFX2[+m[1].slice(5)-1];return {id:id,ty:'fx',n:f2[0]+' ('+monthName(m[1])+')',r:'L',st:f2[1],pal:f2[2],chars:f2[3],ex:1,how:'On the '+monthName(m[1])+' season pass'}}
+  if((m=/^sk2-(\d{4}-\d{2})$/.exec(id))){var k2=MSKIN2[+m[1].slice(5)-1];return {id:id,ty:'skin',n:k2[0]+' ('+monthName(m[1])+')',r:'L',c1:k2[1],c2:k2[2],ex:1,how:'On the '+monthName(m[1])+' season pass'}}
+  if((m=/^sk3-(\d{4}-\d{2})$/.exec(id))){var k3=MSKIN3[+m[1].slice(5)-1];return {id:id,ty:'skin',n:k3[0]+' ('+monthName(m[1])+')',r:'L',c1:k3[1],c2:k3[2],ex:1,how:'On the '+monthName(m[1])+' season pass'}}
+  if((m=/^mx3-(\d{4}-\d{2})$/.exec(id))){var f3=MFX3[+m[1].slice(5)-1];return {id:id,ty:'fx',n:f3[0]+' ('+monthName(m[1])+')',r:'L',st:f3[1],pal:f3[2],ex:1,how:'On the '+monthName(m[1])+' prestige road'}}
+  if((m=/^mf2-(\d{4}-\d{2})$/.exec(id)))return {id:id,ty:'fact',n:monthName(m[1])+' season fact II',r:'L',x:MFACT2[+m[1].slice(5)-1],ex:1,how:'On the '+monthName(m[1])+' season pass'};
+  if((m=/^pt-(\d{4}-\d{2})$/.exec(id)))return {id:id,ty:'title',n:monthName(m[1])+' prestige',r:'L',ex:1,how:'On the '+monthName(m[1])+' prestige road'};
+  if((m=/^pm-(\d{4}-\d{2})$/.exec(id)))return {id:id,ty:'title',n:MTT2[+m[1].slice(5)-1],r:'L',ex:1,how:'The very end of the '+monthName(m[1])+' prestige road'};
+  for(i=0;i<PS.length;i++)if(PS[i][0]===id)return {id:id,ty:'skin',n:PS[i][1],r:'L',c1:PS[i][2],c2:PS[i][3],ex:1,how:'Comes round on the prestige road of the season pass'};
+  if(id==='bd-week2')return {id:id,ty:'badge',n:'Weekly legend',r:'L',em:'🏆',ex:1,how:'Reach the end of a weekly pass'};
+  if((m=/^mt-(\d{4}-\d{2})$/.exec(id)))return {id:id,ty:'title',n:MTT[+m[1].slice(5)-1],r:'L',ex:1,how:'The very end of the '+monthName(m[1])+' season pass'};
+  if((m=/^bd-M-(\d{4}-\d{2})-([1-5])$/.exec(id))){var tn=+m[2];return {id:id,ty:'badge',n:monthName(m[1])+' '+['','bronze','silver','mythic','prestige','grandmaster'][tn],r:['','R','E','L','L','L'][tn],em:['','🥉','🥈','💎','👑','🌌'][tn],num:new Date(m[1]+'-01T12:00:00').toLocaleDateString('en-GB',{month:'short'}).toUpperCase(),ex:1,how:'On the '+monthName(m[1])+' season pass'}}
+  if((m=/^bd-M-(\d{4}-\d{2})$/.exec(id)))return {id:id,ty:'badge',n:monthName(m[1])+' season',r:'L',em:'🏆',num:new Date(m[1]+'-01T12:00:00').toLocaleDateString('en-GB',{month:'short'}).toUpperCase(),ex:1,how:'Finish a season pass'};
+  if(id==='bd-week')return {id:id,ty:'badge',n:'Weekly finisher',r:'E',em:'📅',ex:1,how:'Finish a weekly pass'};
+  if(id==='story-1')return {id:id,ty:'title',n:'Kestrel Point Hero',r:'L',ex:1};return null}
+ function applySkin(){var eq=Lget().eq||{},it=eq.skin&&eq.skin!=='cherenkov'?item(eq.skin):null,d=document.documentElement.style;if(it){d.setProperty('--glow',it.c1);d.setProperty('--glow2',it.c2)}else{d.removeProperty('--glow');d.removeProperty('--glow2')}}
+ function equip(id){if(id==='fx-off'){var l0=Lget();l0.eq=l0.eq||{};l0.eq.fx=null;l0.eq.at=Date.now();Lset(l0);return}var it=item(id);if(!it)return;var l=Lget();if(!l.items[id]&&id!=='cherenkov')return;if(it.ty==='sound'){try{SND.use(it.pk);SND.play('right',{n:3})}catch(e){}ui();return}l.eq=l.eq||{};l.eq[it.ty]=id;l.eq.at=Date.now();Lset(l);applySkin()}
+ function icOf(it){return it.ty==='badge'?badgeArt(it,30):it.ty==='skin'?'<span class="mswatch" style="background:linear-gradient(135deg,'+it.c1+','+it.c2+')"></span>':it.ty==='title'?'🏷️':it.ty==='fx'?'🎆':it.ty==='sound'?'🎵':'⚛️'}
+ function badgeMini(){var eq=Lget().eq||{},it=eq.badge?item(eq.badge):null;return it?badgeArt(it,18)+' ':''}
+ function title(){var eq=Lget().eq||{},it=eq.title?item(eq.title):null;return it?it.n:''}
+
+ /* ---------- crates ---------- */
+ function earn(tier,src){var c=Cget(),t=today();if(src==='session'){if(c.daily.d!==t)c.daily={d:t,n:0};if(c.daily.n>=5)return null;c.daily.n++}c.pending.push({t:tier,at:Date.now(),src:src||''});Cset(c);return tier}
+ function rollTier(acc,asked){var w=[62,27,9,2];if(acc>=0.8)w=[50,34,13,3];if(acc>=1&&asked>=4)w=[0,65,28,7];if((S.streak||0)>=7){w[2]+=3;w[3]+=1}return pickW(['C','R','E','L'],w)}
+ var DUPXP={C:10,R:20,E:40,L:80},BASEXP={C:5,R:10,E:20,L:40},inCrate=false;
+ function pool(ty,r){var a=ty==='fx'?FX.map(function(s){return [s[0],s[2]]}):ty==='skin'?SKINS.filter(function(s){return s[0]!=='cherenkov'}).map(function(s){return [s[0],s[2]]}):ty==='title'?TITLES.map(function(s){return [s[0],s[2]]}):FACTS.map(function(s){return [s[0],s[1]]});var b=a.filter(function(x){return x[1]===r});return (b.length?b:a).map(function(x){return x[0]})}
+ function roll(tier){var n=tier==='C'?1:2,dist={C:[75,22,3,0],R:[40,45,13,2],E:[0,45,45,10],L:[0,0,40,60]}[tier],out=[],l=Lget();
+  for(var i=0;i<n;i++){var r=pickW(['C','R','E','L'],dist),ty=pickW(['fact','skin','title','fx','xp','freeze','boost'],[24,17,15,13,15,r==='C'?0:6,8]);
+   if(ty==='xp')out.push({k:'xp',r:r,n:{C:15,R:30,E:60,L:120}[r]});
+   else if(ty==='freeze')out.push((S.freeze||0)<2?{k:'freeze',r:r}:{k:'xp',r:r,n:{C:15,R:30,E:60,L:120}[r]});
+   else if(ty==='boost')out.push({k:'boost',r:r});
+   else{var p=pool(ty,r),fresh=p.filter(function(x){return !l.items[x]&&!out.some(function(o){return o.id===x})}),id=(fresh.length?fresh:p)[Math.floor(Math.random()*(fresh.length?fresh:p).length)],it=item(id);if(l.items[id]||out.some(function(o){return o.id===id}))out.push({k:'dup',id:id,r:it.r,n:DUPXP[it.r]});else out.push({k:'item',id:id,r:it.r})}}
+  out.push({k:'xp',r:tier,n:BASEXP[tier],base:1});return out}
+ function grant(res){var l=Lget(),c=Cget(),xp=0;res.forEach(function(o){if(o.k==='item')l.items[o.id]=1;else if(o.k==='xp'||o.k==='dup')xp+=o.n;else if(o.k==='freeze'){S.freeze=Math.min(2,(S.freeze||0)+1);try{save()}catch(e){}}else if(o.k==='boost'){c.boost=(c.boost||0)+1}});
+  wrk(LK,l);try{SYNC.mark()}catch(e){}wrk(CK,c);if(xp){inCrate=true;try{addXP(xp)}catch(e){}inCrate=false}ui()}
+ function resCard(o,i){var it=o.id?item(o.id):null,R=RAR[o.r]||RAR.C,ic,nm,sub;
+  if(o.k==='item'||o.k==='dup'){ic=icOf(it);nm=it.ty==='fact'?'Fact card':it.n;sub=o.k==='dup'?'Already yours: +'+o.n+' XP instead':it.ty==='fact'?esc(it.x):it.ty==='skin'?'Reactor glow skin':it.ty==='fx'?'Answer effect: plays every time you get one right':'Title'}
+  else if(o.k==='xp'){ic='✨';nm='+'+o.n+' XP';sub=o.base?'Crate bonus':'Bonus XP'}
+  else if(o.k==='freeze'){ic='❄️';nm='Streak freeze';sub='Saves your streak if you miss a day'}
+  else{ic='⚡';nm='2× XP boost';sub='Use it in Rewards for 20 minutes of double XP'}
+  return '<div class="mloot r'+o.r+'" style="--rc:'+R.c+';--i:'+i+'" role="button" tabindex="0" aria-label="Face-down card. Tap to flip it"><div class="mlin"><div class="mlf"><div class="mrar">'+R.n+(o.k==='item'?' · <span class="mnew">New!</span>':'')+'</div><div class="mic">'+ic+'</div><b>'+esc(nm)+'</b><p>'+sub+'</p>'+(o.k==='item'&&(it.ty==='skin'||it.ty==='title'||it.ty==='fx')?'<button type="button" class="xbtn alt" data-eq="'+o.id+'">Use it</button>':'')+'</div><div class="mlb" aria-hidden="true"><span class="mlbq">?</span></div></div></div>'}
+ /* the crate: a banded chest with a gem lock. --bc (the colour of the best thing inside) lights the seam, the gem and the beam */
+ var crN=0;
+ function crateSvg(t){var c=(RAR[t]||RAR.C).c,d='mcg'+(++crN);return '<svg viewBox="0 0 160 140" width="180" height="158" aria-hidden="true" style="overflow:visible"><defs>'+
+  '<linearGradient id="'+d+'a" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="'+c+'"/><stop offset="1" stop-color="#151a2b"/></linearGradient>'+
+  '<linearGradient id="'+d+'b" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity=".55"/><stop offset=".3" stop-color="'+c+'"/><stop offset="1" stop-color="'+c+'"/></linearGradient>'+
+  '<linearGradient id="'+d+'m" x1="0" x2="1"><stop offset="0" stop-color="#4b5468"/><stop offset=".5" stop-color="#dfe4ee"/><stop offset="1" stop-color="#4b5468"/></linearGradient>'+
+  '<linearGradient id="'+d+'l" x1="0" x2="0" y1="1" y2="0"><stop offset="0" style="stop-color:var(--bc)" stop-opacity=".95"/><stop offset="1" style="stop-color:var(--bc)" stop-opacity="0"/></linearGradient>'+
   '<filter id="'+d+'f" x="-20%" y="-300%" width="140%" height="700%"><feGaussianBlur stdDeviation="2.6"/></filter><clipPath id="'+d+'c"><rect x="18" y="58" width="124" height="72" rx="10"/></clipPath></defs>'+
   '<polygon class="mbeam" points="26,60 134,60 186,-150 -26,-150" fill="url(#'+d+'l)"/>'+
   '<g class="mcbody"><rect x="18" y="58" width="124" height="72" rx="10" fill="url(#'+d+'a)" stroke="#0b0f1a" stroke-width="3"/><path d="M20 82h120M20 106h120" stroke="#0b0f1a" stroke-opacity=".3" stroke-width="2"/>'+
@@ -781,134 +861,4 @@ CGEN.n_unc=function(){var a=cP([1,2,0.5,1.5]),b=cP([2,3,1,0.5]),t=cR(0,1);
 CGEN.n_diff=function(){var t=cR(0,1);
  if(t===0){var Str=cP([1,2,3,0.5]),D=nSF(1/(3*Str),3);return {p:'Σ<sub>tr</sub> = '+Str+' per cm. What is the diffusion coefficient D = 1 ÷ (3Σ<sub>tr</sub>), in cm? (3 s.f.)',b:[cB(D,'D = ','cm','D',false,0.01)],e:'D = 1 ÷ (3 × '+Str+') = 1 ÷ '+cNum(3*Str)+' = '+cNum(D)+' cm.'}}
  var D2=cP([0.16,0.2,0.9,1.2]),Sa=cP([0.01,0.02,0.004]),L=nSF(Math.sqrt(D2/Sa),3);return {p:'D = '+D2+' cm and Σ<sub>a</sub> = '+Sa+' per cm. What is the diffusion length L = √(D ÷ Σ<sub>a</sub>)? (3 s.f.)',b:[cB(L,'L = ','cm','diffusion length',false,0.01)],e:'D ÷ Σ<sub>a</sub> = '+cNum(nSF(D2/Sa,4))+' cm². √ that = '+cNum(L)+' cm.'}};
-CGEN.n_buck=function(){var a=cP([100,200,300,150]),B=nSF(Math.pow(Math.PI/a,2),3),S=nStd(B,'B² = ');return {p:'A bare slab reactor is '+a+' cm thick. Its geometric buckling is B² = (π ÷ a)². Find B², per cm².',b:S.b,e:'π ÷ '+a+' = '+cNum(nSF(Math.PI/a,4))+'. Square it: '+S.s+' per cm². A bigger core has a smaller buckling: fewer neutrons leak.'}};
-CGEN.n_deplete=function(){var sp=cP([1e-9,2e-9,3e-9]),d=cP([100,200,300,365]),t=d*86400,f=nSF(Math.exp(-sp*t)*100,3);return {p:'A nuclide is burned by neutrons at σφ = '+nPow(sp*1e9,-9)+' per second. What percentage is left after '+d+' days? (N/N₀ = e<sup>−σφt</sup>, 3 s.f.)',b:[cB(f,'','%','remaining',false,0.01)],e:d+' days = '+cNum(t)+' s. σφt = '+cNum(nSF(sp*t,4))+'. e'+cSup('−'+cNum(nSF(sp*t,4)))+' = '+cNum(f)+'%.'}};
-CGEN.n_power_it=function(){var S0=cP([1000,2000,5000]),k=cP([0.98,1.02,1.05,0.95,1.0]),S1=Math.round(S0*k);return {p:'In a power iteration, one generation has a source of '+S0+' neutrons and the next has '+S1+'. Estimate k.',b:[cB(nSF(S1/S0,4),'k ≈ ','','k',false,0.002)],e:'k ≈ next generation ÷ this one = '+S1+' ÷ '+S0+' = '+cNum(nSF(S1/S0,4))+'.'}};
-CGEN.n_euler=function(){var lam=cP([0.1,0.2,0.5]),N0=cP([100,1000,500]),h=cP([0.5,1,2]),N1=N0-lam*N0*h;return {p:'dN/dt = −'+lam+'N, with N = '+N0+' now. Take one Euler step of '+h+' s: N<sub>new</sub> = N + h × dN/dt. What is N<sub>new</sub>?',b:[cB(N1,'N = ')],e:'dN/dt = −'+lam+' × '+N0+' = '+cNum(-lam*N0)+'. N<sub>new</sub> = '+N0+' + '+h+' × '+cBr(-lam*N0)+' = '+cNum(N1)+'.'}};
-CGEN.n_xenon=function(){var o=cP([['After a trip, xenon-135 first…','builds up, then decays away',['falls straight to zero','stays exactly constant','turns into uranium']],['Xenon-135 matters because it…','absorbs thermal neutrons very strongly',['releases extra neutrons','speeds neutrons up','makes the coolant boil']],['The xenon peak after a trip comes after about…','10 hours',['10 seconds','10 days','10 years']],['Samarium-149, unlike xenon, is…','stable, so it does not decay away',['a gas that leaves the fuel','a strong neutron source','only made in fast reactors']]]);return {p:o[0],o:[o[1]].concat(o[2]),e:'The answer: '+o[1]+'.'}};
-CGEN.n_gen=function(){var k=cP([1.1,1.2,0.9,0.8,1.5,0.5]),N0=cP([100,1000,500]),n=cR(2,4),N=nSF(N0*Math.pow(k,n),3);return {p:'A chain starts with '+N0+' neutrons and k = '+k+'. How many neutrons are in generation '+n+'? (N = N₀kⁿ, 3 s.f.)',b:[cB(N,'N = ','neutrons','neutrons',false,0.01)],e:N0+' × '+k+cSup(n)+' = '+N0+' × '+cNum(nSF(Math.pow(k,n),4))+' = '+cNum(N)+'. '+(k>1?'k > 1, so the chain grows.':'k < 1, so the chain dies away.')}};
-CGEN.n_rodw=function(){var w=cP([4,5,6,8,10]),s=cP([10,20,25,40,50]),t=cR(0,1);
- if(t===0)return {p:'Near this height the differential rod worth is '+w+' pcm per step. Rods are withdrawn '+s+' steps. How much reactivity is added, in pcm?',b:[cB(w*s,'Δρ = ','pcm','reactivity')],e:w+' pcm/step × '+s+' steps = '+(w*s)+' pcm.'};
- var R=w*s;return {p:'The differential rod worth is '+w+' pcm per step. How many steps must the rods move to add '+R+' pcm?',b:[cB(s,'','steps','steps')],e:R+' ÷ '+w+' = '+s+' steps.'}};
-CGEN.n_sdm=function(){var T=cP([6000,7000,8000]),X=cP([1000,1200,1500,2000]),St=cP([800,1000,1200]);
- if(Math.random()<0.5)return {p:'All rods together are worth '+T+' pcm. With all rods out, the core has '+X+' pcm of excess reactivity. What is the shutdown margin with every rod in, in pcm?',b:[cB(T-X,'SDM = ','pcm','shutdown margin')],e:'SDM = rod worth − excess reactivity = '+T+' − '+X+' = '+(T-X)+' pcm below critical.'};
- return {p:'Rods are worth '+T+' pcm, the excess reactivity is '+X+' pcm, and the single most valuable rod (assumed stuck out) is worth '+St+' pcm. What is the shutdown margin, in pcm?',b:[cB(T-X-St,'SDM = ','pcm','shutdown margin')],e:'Take away the stuck rod: '+T+' − '+X+' − '+St+' = '+(T-X-St)+' pcm.'}};
-CGEN.n_delayed=function(){if(Math.random()<0.5){var N=cP([1000,10000,100000,1000000]),D=N*0.0065;return {p:N.toLocaleString('en-GB')+' fission neutrons are released, and β = 0.0065. How many are delayed?',b:[cB(D,'','delayed','delayed neutrons')],e:N.toLocaleString('en-GB')+' × 0.0065 = '+cNum(D)+'.'}}
- var r=cP([0.001,0.002,0.0005]),l=cP([1e-4,2e-5]),t=nSF(l/r,3);return {p:'With prompt neutrons only, the period is about τ = ℓ ÷ ρ. Take ℓ = '+nPow(l/Math.pow(10,Math.floor(Math.log10(l))),Math.floor(Math.log10(l)))+' s and ρ = '+r+'. What is τ, in seconds?',b:[cB(t,'τ = ','s','period',false,0.01)],e:'τ = '+cNum(l)+' ÷ '+r+' = '+cNum(t)+' s. Far too fast to control, which is why delayed neutrons matter.'}};
-CGEN.n_dnbr=function(){var C=cP([1.5,1.8,2.0,2.4]),q=cP([0.8,1.0,1.2]),d=nSF(C/q,3);return {p:'At the hot spot the critical heat flux is '+C+' MW/m² and the actual heat flux is '+q+' MW/m². What is the DNB ratio? (3 s.f.)',b:[cB(d,'DNBR = ','','DNBR',false,0.01)],e:'DNBR = CHF ÷ actual = '+C+' ÷ '+q+' = '+cNum(d)+'. It must stay well above 1.'}};
-CGEN.n_dilute=function(){var V=cP([200,250,300]),C0=cP([1200,1000,800]),C1=C0-cP([50,100,150]),W=nSF(V*Math.log(C0/C1),3);return {p:'Feed-and-bleed dilution: the coolant volume is '+V+' m³. How much pure water must be fed in to take the boron from '+C0+' ppm to '+C1+' ppm? (W = V ln(C₀/C), 3 s.f.)',b:[cB(W,'W = ','m³','water',false,0.01)],e:'ln('+C0+' ÷ '+C1+') = '+cNum(nSF(Math.log(C0/C1),4))+'. × '+V+' = '+cNum(W)+' m³.'}};
-/* ---------- every maths lesson ends with a mastery drill ----------
-   lessons that didn't have one get one here, built from the generators that fit the lesson */
-var DRILL_ADD={
- m1:['n_units','p_prefix','g_stdform'],m2:['n_double','n_period'],m3:['n_decades','a_logsolve'],m4:['n_slope','gradat'],m5:['n_euler','euler','sepode'],m6:['n_poisson'],
- e1:['g_work','g_power','g_eff','n_eff'],e2:['g_mom','g_ke'],e3:['n_emc'],e3b:['n_emc','n_units'],e3c:['n_mev','n_u931'],e3d:['n_u931','n_fiss','n_mev'],
- a1:['n_nucl'],a2:['n_bea','n_u931'],a3:['n_nucl','g_decay','decay'],a4:['g_halflife','decay','n_act'],a5:['n_mfp','n_atten'],a6:['n_rate','n_mfp'],a7:['n_fiss','n_mev','n_u931'],
- r1:['n_gen','n_mult'],r2:['n_six'],r3:['n_coll'],r4:['n_rho'],r5:['n_mult','n_1m'],r6:['n_rodw','n_rho'],r7:['n_boron','n_dilute'],r8:['n_mtc'],r9:['n_xenon'],r10:['n_xenon','n_deplete'],r11:['n_sdm','n_rodw'],
- k1:['n_delayed'],k2:['n_sur','n_period'],k3:['n_jump','n_rho'],k4:['n_jump','n_sur'],k5:['n_dheat'],
- t1:['g_shc','g_pressure','n_qmct'],t2:['n_boil'],t3:['n_qmct','n_calor'],t4:['n_eff'],
- h1:['n_cond','n_pellet'],h2:['n_dnbr','n_boil'],h3:['n_cont','n_bern'],h4:['n_qmct','n_cont'],
- p1:['n_dose','n_units'],p2:['n_dose','n_hvl'],p3:['n_dose','g_halflife'],
- s1:['n_eff','n_qmct'],s2:['g_boyle','n_units'],s3:['n_calor','n_eff'],s4:['n_decades','n_sur'],s5:['n_relia'],s6:['n_boron','g_conc'],o3:['n_mult','n_1m','n_sur'],o1:[],o2:[],
- 'm2-1-1':['g_solvelin','g_subst'],'m2-1-2':['g_lineeq','gradeq'],'m2-1-3':['g_dirprop','g_invprop','n_dose'],
- 'm2-2-1':['n_period','decay'],'m2-2-2':['a_logsolve','n_period'],'m2-2-3':['a_logsolve','n_decades'],
- 'm2-3-1':['gradat','n_slope'],'m2-3-2':['power','fpx2','expd'],'m2-3-3':['n_slope','expd','n_period'],
- 'm2-4-1':['area','defint'],'m2-4-2':['intpow','const0'],'m2-4-3':['defint','n_burn'],
- 'm2-5-1':['g_halflife','n_act'],'m2-5-2':['n_atoms'],'m2-5-3':['n_fiss','n_burn'],
- 'm3-1-1':['n_rho'],'m3-1-2':['n_rho'],'m3-1-3':['n_mtc','n_boron','n_rodw'],
- 'm3-2-1':['n_rodw'],'m3-2-2':['n_boron'],'m3-2-3':['n_boron','n_dilute'],
- 'm3-3-1':['n_period','n_sur'],'m3-3-2':['n_sur'],'m3-3-3':['n_jump'],
- 'm3-4-1':['n_mult'],'m3-4-2':['n_1m'],'m3-4-3':['n_1m','n_mult'],
- 'm3-5-1':['n_qmct'],'m3-5-2':['n_calor'],'m3-5-3':['n_eff'],
- 'm4-1-1':['n_euler','sepode'],'m4-1-2':['n_euler','decay'],'m4-1-3':['g_halflife','n_act'],
- 'm4-2-1':['n_mfp','n_atoms'],'m4-2-2':['n_mfp','n_atten'],'m4-2-3':['n_rate','n_fiss'],
- 'm4-3-1':['n_diff'],'m4-3-2':['n_diff','n_buck'],'m4-3-3':['n_buck'],
- 'm4-4-1':['n_cond'],'m4-4-2':['n_pellet'],'m4-4-3':['n_pellet','n_cond'],
- 'm4-5-1':['n_cont','n_bern'],'m4-5-2':['n_re'],'m4-5-3':['n_cont','n_qmct'],
- 'm5-1-1':['n_jump','n_period'],'m5-1-2':['n_euler'],'m5-1-3':['n_period','n_rho'],
- 'm5-2-1':['n_mtc','n_rho'],'m5-2-2':['n_rho','n_adiab'],'m5-2-3':['n_adiab'],
- 'm5-3-1':['n_diff'],'m5-3-2':['n_diff','n_buck'],'m5-3-3':['n_power_it','n_euler'],
- 'm5-4-1':['n_relia'],'m5-4-2':['n_relia'],'m5-4-3':['n_relia'],
- 'm5-5-1':['n_dheat'],'m5-5-2':['n_boil'],'m5-5-3':['n_adiab'],
- 'm6-1-1':['n_mfp','n_diff'],'m6-1-2':['n_atten','n_mfp'],'m6-1-3':['n_diff'],
- 'm6-2-1':['n_deplete'],'m6-2-2':['g_halflife','n_act'],'m6-2-3':['n_deplete','n_nucl'],
- 'm6-3-1':['n_mcerr','n_atten'],'m6-3-2':['n_mcerr','n_poisson'],'m6-3-3':['n_power_it','n_mcerr'],
- 'm7-1-1':['n_euler'],'m7-1-2':['n_power_it','n_euler'],'m7-1-3':['n_power_it'],
- 'm7-2-1':['n_rho','n_unc'],'m7-2-2':['n_unc'],'m7-2-3':['n_unc'],
- 'm7-3-1':['n_adiab','n_euler'],'m7-3-2':['n_jump','n_mtc'],'m7-3-3':['n_euler','n_mtc'],
- 'c1-1-3':['fsub','flin','polyval'],'c1-3-3':['gradpts','avgrate','speed'],'c2-1-1':['chord','gradat','tangent'],'c2-2-1':['power','gradat','fpx2'],'c2-2-2':['power','gradat','chord'],
- 'c3-2-3':['kin','avgrate','gradat'],'c4-1-1':['intpow','const0','intneg'],'c4-2-1':['area','defint','trap'],'c4-3-2':['trigd','defint'],
- 'c5-1-1':['sepode','euler'],'c5-1-3':['decay','period','expd'],'c5-2-1':['decay','g_halflife'],'c5-2-3':['decay','n_act'],'c5-3-2':['period','n_sur','n_double'],'c5-3-3':['period','n_period','n_sur'],
- 'c6-1-1':['limfac','liminf'],'c6-1-3':['limfac','liminf'],'c6-2-1':['limfac','liminf'],'c6-2-3':['lhop','liminf'],
- 'c7-1-3':['lnd','product','chain'],'c7-2-3':['relcirc','ladder'],'c8-1-1':['subst','defint'],'c8-1-2':['subst'],'c8-2-3':['pfrac','pfint','subst','parts'],'c8-3-2':['improper','expimp'],
- 'c9-1-2':['areabetween'],'c9-1-3':['areabetween','area'],'c9-2-2':['discvol','shellvol'],
- 'c10-1-1':['geomsum','partsum'],'c10-1-2':['partsum','geomsum'],'c10-2-1':['ratiotest','partsum'],'c10-2-2':['ratiotest','improper'],'c10-3-3':['taylorcoef'],
- 'c11-1-1':['paramgrad'],'c11-1-3':['arclen','paramgrad'],'c11-2-2':['polar2cart','polararea'],'c12-1-2':['fxyeval','partial'],'c12-1-3':['vmag','fxyeval'],
- 'c13-3-3':['polarint','cylvol','jacobian'],'c14-1-1':['div3','curl2'],'c14-2-2':['scalarline','potential'],
- 'gm2-5-1':['g_angle1','g_polygon'],'gm2-5-2':['g_angle1','g_polygon'],'gm2-5-3':['g_pyth','g_angle1'],'gm2-5-4':['g_circle','g_pyth'],'gm2-5-5':['g_angle1','g_ratio','g_trig'],
- 'gm3-2-1':['g_angle1','g_polygon','g_circle'],'gm3-4-2':['g_median','g_groupmean'],'gm5-1-1':['g_expand','g_factorise'],'gm5-1-2':['g_angle1','g_polygon','g_pyth'],'gm5-3-1':['g_vector'],'gm5-4-1':['g_simul','g_solvequad','g_simulquad'],
- 'am2-1-1':['a_disc','g_expand'],'am2-1-3':['a_disc','g_factorise','polyval'],'am2-2-2':['a_rcos','g_trig'],'am2-4-2':['a_binomP','a_zscore'],'am3-1-3':['a_binom'],'am3-2-2':['a_rcos'],
- 'am4-1-1':['a_disc','a_surd'],'am4-1-2':['a_proj','a_newton','decay'],'am4-1-3':['a_logsolve','a_circle','a_arith'],'am4-2-1':['a_surd','a_logsolve'],'am4-2-2':['a_zscore','a_proj','a_moment'],'am4-2-3':['a_disc','a_arith','a_logsolve','a_surd']};
-var DRILL_MISSING=[];
-UNITS.forEach(function(u){var tr=u.track||'maths',mt={maths:1,calc:1,gm:1,am:1}[tr];u.lessons.forEach(function(l){var has=l.cards.some(function(c){return c.t==='W'&&c.w==='calcDrill'});
- if(has){l.cards.forEach(function(c){if(c.t==='W'&&c.w==='calcDrill'&&c.par&&!c.par.title)c.par.title=l.title});return}
- if(!mt)return;var sk=(DRILL_ADD[l.id]||[]).filter(function(k){return typeof CGEN[k]==='function'});if(!sk.length){if(DRILL_ADD[l.id]===undefined)DRILL_MISSING.push(l.id);return}
- var d=W('calcDrill',{skill:sk,need:5,title:l.title},'Practice time. Get 5 right to master this lesson. Stuck? Press <b>Help</b> for a hint or a full walk-through.');
- var cs=l.cards.slice(),last=cs[cs.length-1],at=(last&&last.t==='T'&&/Key points|Summary|In short|Recap|Remember/i.test(last.h||''))?cs.length-1:cs.length;cs.splice(at,0,d);l.cards=cs})});
-/* ---------- quick checks: a teach card that nothing asks about gets a fill-the-gap question straight after it ----------
-   built when the lesson is played (the lesson itself is untouched, and every original card keeps its usual key),
-   from the card's own key terms in bold, with other key terms from the same unit as the wrong options */
-var QC_SKIP=/key points|summary|in short|recap|remember|well done|what'?s next|coming up|you'?ve just|the plan|why this matters|exam technique/i;
-function qcTerms(h){var d=document.createElement('div');d.innerHTML=h;return [].map.call(d.querySelectorAll('b,strong'),function(b){return qcClean(b.textContent)}).filter(qcOk)}
-function qcClean(t){return String(t||'').replace(/\s+/g,' ').replace(/^[\s:;,.(]+|[\s:;,.)]+$/g,'').trim()}
-function qcOk(t){return t.length>=3&&t.length<=32&&!/[=<>÷×+()\[\]\/]/.test(t)&&/[a-z]/i.test(t)&&t.split(' ').length<=4}
-function qcEsc(t){return String(t).replace(/[&<>"]/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]})}
-function qcNum(t){return /\d/.test(t)}
-function qcCls(x){var w=x.toLowerCase().split(' ').pop();return /ing$/.test(w)?'ing':/ed$/.test(w)?'ed':/ly$/.test(w)?'ly':/(er|est)$/.test(w)&&w.length>4?'er':/[^su]s$/.test(w)?'s':'o'}
-function qcCase(x,up){if(/[A-Z].*[A-Z]/.test(x)||/^[A-Z]{2}/.test(x))return x;return up?x.charAt(0).toUpperCase()+x.slice(1):x.charAt(0).toLowerCase()+x.slice(1)}
-function qcBuild(c,pool,avoid){var d=document.createElement('div');d.innerHTML=c.h;var hs=[].slice.call(d.querySelectorAll('b,strong'));
- for(var i=0;i<hs.length;i++){var term=qcClean(hs[i].textContent);if(!qcOk(term)||(avoid&&avoid[term]))continue;
-  var blk=hs[i].closest('p,li,td,div.kn')||d,txt=blk.textContent.replace(/\s+/g,' ').trim(),ss=txt.replace(/([.!?])\s+(?=[A-Z0-9"“(])/g,'$1\u0001').split('\u0001'),sen=null;
-  for(var j=0;j<ss.length;j++){if(ss[j].indexOf(term)>=0){sen=ss[j].trim();break}}
-  if(!sen||sen.length<30||sen.length>200||!/^[A-Z0-9"“]/.test(sen)||!/[.!?"”]$/.test(sen))continue;
-  var lo=sen.toLowerCase(),tl=term.toLowerCase();if(lo.split(tl).length!==2)continue;
-  var at=sen.indexOf(term),bef=sen.slice(0,at),aft=sen.slice(at+term.length);if(/^\s*\(/.test(aft)||/\(\s*$/.test(bef))continue;
-  if((bef+' '+aft).replace(/[^A-Za-z ]/g,' ').trim().split(/\s+/).filter(function(w){return w.length>1}).length<5)continue;
-  var start=at===0,low=!start&&/^[a-z]/.test(term),nw=term.split(' ').length,seen={},cand=[];
-  pool.forEach(function(x){var xl=x.t.toLowerCase();if(seen[xl]||xl===tl||lo.indexOf(xl)>=0||xl.indexOf(tl)>=0||tl.indexOf(xl)>=0)return;if(qcNum(x.t)!==qcNum(term)||x.t.split(' ').length!==nw||qcCls(x.t)!==qcCls(term))return;var r=x.t.length/term.length;if(r<0.45||r>2.2)return;seen[xl]=1;cand.push({t:x.t,s:(x.same?3:0)-Math.abs(x.t.length-term.length)/6})});
-  cand.sort(function(a,b){return b.s-a.s||(a.t<b.t?-1:a.t>b.t?1:0)});if(cand.length<2)continue;
-  var ds=cand.slice(0,3).map(function(x){return start?qcCase(x.t,true):x.t});
-  return {t:'Q',_auto:1,_term:term,p:'<div class="qckick">✏️ Quick check</div>Fill the gap:<div class="qcsen">'+qcEsc(bef)+'<span class="qcgap">______</span>'+qcEsc(aft)+'</div>',o:[qcEsc(term)].concat(ds.map(qcEsc)),a:0,e:qcEsc(bef)+'<b>'+qcEsc(term)+'</b>'+qcEsc(aft)}}
- return null}
-function qcAsks(c){return c&&c.t!=='T'}
-function qcText(h){var d=document.createElement('div');d.innerHTML=h;return d.textContent.replace(/\s+/g,' ').trim()}
-function playCards(l){if(l._play)return l._play;var cs=l.cards,out=[{t:'S'}],pool=qcPool(l),nx=0;
- /* predict first: the first multiple-choice question that comes after some teaching, asked as a guess up front */
- var pi=-1;for(var i=2;i<cs.length;i++){if(cs[i].t==='Q'&&cs[i].o&&typeof cs[i].a==='number'&&!/fromb|from earlier|remember/i.test(cs[i].p||'')&&cs.slice(0,i).some(function(c){return c.t==='T'})){pi=i;break}}
- if(pi>=2&&cs.length>=5){var pq=Object.assign({},cs[pi]);pq._pre=1;pq._auto=1;pq._key=null;pq._src0=cs[pi]._key||l.id+'#'+pi;out.push(pq)}
- cs.forEach(function(c,ci){var cc=Object.assign({},c);if(!cc._key)cc._key=l.id+'#'+ci;out.push(cc);
-  if(c.t!=='T'||ci===cs.length-1||/class="fromb"/.test(c.h||''))return;var nxc=cs[ci+1];if(qcAsks(nxc))return;var hq=typeof HANDQ!=='undefined'&&HANDQ[l.id+'#'+ci];if(hq){var hc=Object.assign({},hq);hc._auto=1;hc._key=null;out.push(hc);return}var hd=(c.h||'').match(/<h3[^>]*>([\s\S]*?)<\/h3>/i);if(hd&&QC_SKIP.test(hd[1]))return;
-  var q=null;try{q=qcBuild(c,pool)}catch(e){}if(q){q._key=null;out.push(q);return}
-  /* no gap to fill? then a few explain-it-back cards break up the reading */
-  if(nx<2&&qcText(c.h||'').length>=180){out.push({t:'X',h:c.h,_auto:1});nx++}});
- out.push({t:'Z'});l._play=out;return out}
-/* ===== learning extras: your own question at the start, explain-it-back, predict first, confidence, medals,
-   mixed and exam-style unit practice, spaced review of weak skills ===== */
-var LXK='critical_lx';
-function lxGet(){var o=null;try{o=JSON.parse(localStorage.getItem(LXK)||'null')}catch(e){}o=o&&typeof o==='object'?o:{};['myq','medal','weak','conf'].forEach(function(k){if(!o[k]||typeof o[k]!=='object'||Array.isArray(o[k]))o[k]={}});return o}
-function lxSet(o){try{localStorage.setItem(LXK,JSON.stringify(o))}catch(e){}try{SYNC.mark()}catch(e){}}
-function lxLid(){if(typeof P==='undefined'||!P)return null;if(P.mode==='lesson'&&UNITS[P.ui])return UNITS[P.ui].lessons[P.li].id;if(P.mode==='follow'&&P.fid)return P.fid;return null}
-function lxMedal(id,t){var x=lxGet();if((x.medal[id]||0)<t){x.medal[id]=t;lxSet(x)}}
-function lxAddD(d,n){var x=new Date(d+'T12:00:00');x.setDate(x.getDate()+n);return dstr(x)}
-/* weak skills: a miss brings the skill back tomorrow; each right answer in a weak-skills session doubles the gap, and after 16 days it's dropped */
-function lxWeak(k,ok,rev){var x=lxGet(),w=x.weak[k],t=today();
- if(!ok){x.weak[k]={n:((w&&w.n)||0)+1,iv:1,due:lxAddD(t,1),at:Date.now()};lxSet(x);return}
- if(w&&rev){var iv=Math.min(32,(w.iv||1)*2);if(iv>=16)delete x.weak[k];else x.weak[k]={n:w.n,iv:iv,due:lxAddD(t,iv),at:Date.now()};lxSet(x)}}
-function lxDue(){var x=lxGet(),t=today();return Object.keys(x.weak).filter(function(k){return typeof CGEN[k]==='function'&&x.weak[k].due<=t}).sort(function(a,b){return (x.weak[b].n||0)-(x.weak[a].n||0)})}
-/* common slips in a number answer, so a wrong answer says why it's wrong */
-function numSlip(v,a){if(!isFinite(v)||!isFinite(a)||a===0||v===0)return '';function nr(x,y){return Math.abs(x-y)<=Math.abs(y)*0.015+1e-12}
- if(nr(v,-a))return 'Right size, wrong sign: check whether the answer should be positive or negative.';
- for(var k=1;k<=12;k++)if(nr(v,a*Math.pow(10,k))||nr(v,a/Math.pow(10,k)))return 'Your digits are right, but it\'s out by a factor of 10'+(k>1?'<sup>'+k+'</sup>':'')+'. Check the units and the powers of ten.';
- if(nr(v,1/a))return 'That\'s the answer upside down: check which number divides which.';
- if(nr(v,a*a))return 'Looks like you squared it once too often.';
- if(v>0&&a>0&&nr(v*v,a))return 'That\'s the square root of the answer. Did you forget to square?';
- if(nr(v,a*2)||nr(v,a/2))return 'Out by a factor of 2: look
+CGEN.n_buck=function(){var a=cP([100,200,300,150]),B=nSF(Math.pow(Math.PI/a,2),3),S=nStd(B,'B² = ');return {p:'A bare slab reactor is '+a+' cm thick. It
