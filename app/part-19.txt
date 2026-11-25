@@ -16,6 +16,90 @@ var decorLearnGH=decorLearn;decorLearn=function(){var out=decorLearnGH.apply(thi
  '.ghqt{font-size:19px;line-height:1.5;margin:4px 0 12px}.ghfb{margin-top:10px;font-weight:700;min-height:1.4em}.ghfb.ok{color:var(--good,#1a7f37)}.ghfb.no{color:var(--bad,#c33)}.ghin{width:130px}'+
  '.ghend{text-align:center}.ghbig{font-size:60px;line-height:1.1}.ghscore{font-size:20px;margin:4px 0}.ghscore b{font:800 34px var(--mono,monospace)}.ghcmp{display:flex;flex-direction:column;gap:2px;margin:10px auto 0;padding:10px 14px;border-radius:12px;background:var(--soft);max-width:420px}.ghcmp em{font-style:normal;font-weight:800}.ghcmp em.up{color:var(--good,#1a7f37)}.ghcmp em.dn{color:var(--bad,#c33)}'+
  '.ghrow{display:flex;gap:10px;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--line);font-size:14px}.ghrow:last-child{border-bottom:0}.ghrq{color:var(--muted)}.ghrr{flex:none;font-weight:800}';document.head.appendChild(st)})();
+/* ===== Theory at your pace: teach cards one bit at a time, a "not sure yet" button that slows down,
+   a quick recall of last lesson before you start, and words from earlier lessons you can tap to recall ===== */
+var PACE_STOP=/^(up|down|slow|fast|not|no|more|less|all|every|only|never|always|both|one|two|three|before|after|same|higher|lower|bigger|smaller|increase|decrease|rises|falls|first|last|key points?|very|much|most|least|safe|unsafe)$/i;
+var GLOSS=null;
+function paceOn(){return typeof P!=='undefined'&&P&&P.mode==='lesson'&&UNITS[P.ui]&&trk(P.ui)==='theory'}
+function paceSents(t){return (t.replace(/\s+/g,' ').trim().match(/[^.!?]+[.!?]*/g)||[]).map(function(s){return s.trim()}).filter(Boolean)}
+/* key words: the first sentence in the course that defines each bold term */
+function glossBuild(){if(GLOSS)return GLOSS;GLOSS={};
+ UNITS.forEach(function(u,ui){u.lessons.forEach(function(l,li){l.cards.forEach(function(c,ci){if(c.t!=='T'||!c.h)return;var d=document.createElement('div');d.innerHTML=c.h;var h3=d.querySelector('h3');if(h3&&/key points|recap|summary/i.test(h3.textContent))return;
+  [].forEach.call(d.querySelectorAll('p,li'),function(blk){[].forEach.call(blk.querySelectorAll('b,strong'),function(bn){var term=bn.textContent.replace(/\s+/g,' ').trim(),k=term.toLowerCase();
+   if(term.length<4||term.length>40||/^\d|[→=<>]/.test(term)||term.split(' ').length>4||PACE_STOP.test(term)||GLOSS[k])return;
+   var ss=paceSents(blk.textContent),s=null;for(var i=0;i<ss.length;i++)if(ss[i].toLowerCase().indexOf(k)>=0){s=ss[i];break}
+   if(!s)return;var wc=s.split(' ').length;if(wc<4||wc>45)return;if(!/\b(is|are|means|mean|called|known as|stands for|measures?|does|do)\b|[:=(]/i.test(s))return;
+   GLOSS[k]={t:term,d:s,ui:ui,li:li,ci:ci,lt:l.title,ord:ui*1000+li}})})})})});return GLOSS}
+function paceCi(c){var m=String(c&&c._key||'').match(/#(\d+)$/);return m?+m[1]:999}
+/* words met earlier get a dotted underline: tap to see what they mean */
+function paceLinks(prose,c){var G=glossBuild(),ord=P.ui*1000+P.li,ci=paceCi(c),low=prose.textContent.toLowerCase(),cand=[];
+ for(var k in G){var g=G[k];if(!(g.ord<ord||(g.ord===ord&&g.ci<ci)))continue;if(low.indexOf(k)<0)continue;cand.push(k)}
+ cand.sort(function(a,b){return b.length-a.length});var used=0;
+ cand.forEach(function(k){if(used>=4)return;var w=document.createTreeWalker(prose,NodeFilter.SHOW_TEXT,null,false),n,re=new RegExp('(^|[^a-z0-9])('+k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')(?=[^a-z0-9]|$)','i');
+  while((n=w.nextNode())){var pa=n.parentNode;if(pa.closest&&pa.closest('b,strong,h3,a,button,.pcterm,code'))continue;var m=re.exec(n.nodeValue);if(!m)continue;
+   var st=m.index+m[1].length,mid=n.splitText(st);mid.splitText(m[2].length);var sp=document.createElement('span');sp.className='pcterm';sp.tabIndex=0;sp.setAttribute('role','button');sp.dataset.k=k;sp.textContent=mid.nodeValue;mid.parentNode.replaceChild(sp,mid);used++;return}});
+ prose.addEventListener('click',function(e){var t=e.target.closest&&e.target.closest('.pcterm');if(t)paceTip(t)});
+ prose.addEventListener('keydown',function(e){if((e.key==='Enter'||e.key===' ')&&e.target.classList&&e.target.classList.contains('pcterm')){e.preventDefault();e.stopPropagation();paceTip(e.target)}})}
+function paceTip(t){var g=glossBuild()[t.dataset.k],blk=t.closest('p,li,div')||t.parentNode,old=blk.nextElementSibling&&blk.nextElementSibling.classList.contains('pcpop')?blk.nextElementSibling:null;
+ if(old&&old.dataset.k===t.dataset.k){old.remove();return}if(old)old.remove();if(!g)return;
+ var d=document.createElement('div');d.className='pcpop pcin';d.dataset.k=t.dataset.k;d.innerHTML='<div class="pcpk">You learnt this in “'+qcEsc(g.lt)+'”</div><p>'+qcEsc(g.d)+'</p>';blk.parentNode.insertBefore(d,blk.nextSibling)}
+/* the steps of a teach card: everything after the heading and first paragraph, list points one at a time */
+function paceSteps(prose){var kids=[].slice.call(prose.children).filter(function(x){return x.tagName!=='H3'}),steps=[];
+ kids.forEach(function(x,i){if(i===0){if(/^(UL|OL)$/.test(x.tagName)){var li=[].slice.call(x.children);li.slice(1).forEach(function(y){steps.push(y)})}return}
+  if(/^(UL|OL)$/.test(x.tagName)&&x.children.length>=3){steps.push(x.children[0]);[].slice.call(x.children).forEach(function(y,j){if(j)steps.push(y)});x.dataset.pcl=1}else steps.push(x)});
+ return steps}
+var rT_pc=rT;rT=function(c,b){rT_pc(c,b);if(!paceOn())return;var prose=b.lastElementChild;if(!prose||!prose.classList.contains('prose'))return;
+ try{paceLinks(prose,c)}catch(e){if(window.console)console.error(e)}
+ var h3=prose.querySelector('h3'),kp=h3&&/key points|recap|summary/i.test(h3.textContent);
+ if(c._again||kp){mainBtn('Continue',nextCard);return}
+ var steps=paceSteps(prose),k=0,dots=null;
+ function done(){if(dots)dots.remove();mainBtn('Got it → Continue',nextCard);skipBtn(function(){paceHelp(c,b,prose)},'🤔 Not sure yet')}
+ if(!steps.length){done();return}
+ steps.forEach(function(x){x.classList.add('pchid')});
+ /* a list that starts hidden keeps its first point with it */
+ [].forEach.call(prose.querySelectorAll('[data-pcl]'),function(ul){if(ul.children[0].classList.contains('pchid')&&ul.previousElementSibling)ul.classList.add('pchid')});
+ dots=document.createElement('div');dots.className='pcdots';dots.setAttribute('aria-hidden','true');dots.innerHTML='<i class="on"></i>'+steps.map(function(){return '<i></i>'}).join('');prose.appendChild(dots);
+ function show(x){x.classList.remove('pchid');x.classList.add('pcin');var ul=x.parentNode;if(ul&&ul.classList&&ul.classList.contains('pchid'))ul.classList.remove('pchid')}
+ function next(){if(k>=steps.length){done();return}show(steps[k]);k++;var is=dots.querySelectorAll('i');if(is[k])is[k].classList.add('on');
+  try{steps[k-1].scrollIntoView({block:'nearest',behavior:'smooth'})}catch(e){}if(k>=steps.length)done();else label()}
+ function label(){mainBtn('Next bit ↓',next);skipBtn(function(){while(k<steps.length){show(steps[k]);k++}done()},'Show it all')}
+ label()};
+/* "not sure yet": key words, a question to try now, and the card again before the end of the lesson */
+function paceHelp(c,b,prose){skipBtn(null);if(c._pcHelp)return;c._pcHelp=1;var G=glossBuild(),here=[],before=[],seen={};
+ [].forEach.call(prose.querySelectorAll('b,strong'),function(x){var k=x.textContent.replace(/\s+/g,' ').trim().toLowerCase();if(seen[k]||!G[k])return;seen[k]=1;here.push(G[k])});
+ [].forEach.call(prose.querySelectorAll('.pcterm'),function(x){var k=x.dataset.k;if(seen[k]||!G[k])return;seen[k]=1;before.push(G[k])});
+ function row(g){return '<li><b>'+qcEsc(g.t)+'</b><span>'+qcEsc(g.d)+'</span></li>'}
+ var l=UNITS[P.ui].lessons[P.li],q=null;try{q=qcBuild(c,qcPool(l))}catch(e){}if(!q&&typeof HANDQ!=='undefined'){var hk=HANDQ[c._key];if(hk)q=Object.assign({},hk)}
+ if(!P._pcCopy){P.cards=P.cards.slice();P._pcCopy=1}
+ if(q){q._auto=1;q._key=null;P.cards.splice(P.i+1,0,q)}
+ var at=-1;for(var i=P.i+1;i<P.cards.length;i++){var x=P.cards[i];if(x.t==='T'&&/<h3[^>]*>\s*(key points|recap|summary)/i.test(x.h||'')){at=i;break}}
+ if(at<0)for(i=P.cards.length-1;i>P.i;i--)if(P.cards[i].t==='Z'){at=i;break}
+ if(at>P.i)P.cards.splice(at,0,{t:'T',h:'<div class="pcagain">🔁 One more look</div>'+c.h,_again:1,_key:null});
+ var box=el('div','pchelp pcin',null,b);
+ box.innerHTML='<div class="pchk">No rush. Let\'s slow down.</div>'+
+  '<ol class="pcsteps"><li><b>Read it once more, slowly.</b> One sentence at a time. Picture what\'s happening in the reactor.</li>'+
+  (here.length?'<li><b>The new words on this card:</b><ul class="pcgl">'+here.map(row).join('')+'</ul></li>':'')+
+  (before.length?'<li><b>It builds on these, from earlier:</b><ul class="pcgl">'+before.map(row).join('')+'</ul></li>':'')+
+  '<li><b>'+(q?'Try a question on it next.':'Carry on, and it\'ll make more sense with the questions.')+'</b> Getting it wrong is fine: it\'s how it sticks.</li></ol>'+
+  '<p class="small">You\'ll see this card again before the end of the lesson'+(at>P.i?'':'')+'.</p>'+
+  (document.querySelector('#player.open .pask')?'<button type="button" class="wbtn" id="pcAsk">💬 Ask about this card</button>':'');
+ var ab=box.querySelector('#pcAsk');if(ab)ab.onclick=function(){var h=prose.querySelector('h3');askAbout('Can you explain this more simply, with an everyday example? '+(h?h.textContent:l.title))};
+ mainBtn(q?'Try a question →':'Continue',nextCard);try{box.scrollIntoView({block:'nearest',behavior:'smooth'})}catch(e){}}
+/* before you start: two questions from last lesson, so what this lesson builds on is fresh */
+var rS_pc=rS;rS=function(c,b){if(paceOn()&&!P._pcRec&&P.i===0){P._pcRec=1;var u=UNITS[P.ui],prev=P.li>0?u.lessons[P.li-1]:null;
+  if(prev&&S.done[prev.id]){var qs=prev.cards.filter(function(x){return x.t==='Q'&&x.o&&typeof x.a==='number'&&x.o.length>=2}).slice();
+   for(var i=qs.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=qs[i];qs[i]=qs[j];qs[j]=t}
+   var add=qs.slice(0,2).map(function(x){var y=Object.assign({},x);y.p='<span class="fromb">From last lesson</span> '+x.p;y._auto=1;y._key=null;return y});
+   if(add.length){if(!P._pcCopy){P.cards=P.cards.slice();P._pcCopy=1}Array.prototype.splice.apply(P.cards,[1,0].concat(add))}}}
+ rS_pc(c,b)};
+(function(){var st=document.createElement('style');st.textContent='.pchid{display:none!important}.pcin{animation:pcin .35s ease}@keyframes pcin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}@media(prefers-reduced-motion:reduce){.pcin{animation:none}}'+
+ '.pcdots{display:flex;gap:6px;margin:14px 0 0}.pcdots i{width:9px;height:9px;border-radius:50%;background:var(--soft2);transition:background .2s}.pcdots i.on{background:var(--accent)}'+
+ '.pcterm{border-bottom:2px dotted var(--accent);cursor:pointer;border-radius:2px}.pcterm:hover,.pcterm:focus{background:var(--accent-bg);outline:none}'+
+ '.pcpop{background:var(--accent-bg);border-radius:12px;padding:9px 12px;margin:4px 0 10px;font-size:15px;line-height:1.5}.pcpop p{margin:2px 0 0}.pcpk{font:800 11px var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--accent-text)}'+
+ '.pchelp{margin-top:16px;background:var(--bg);border:2px solid var(--accent);border-radius:16px;padding:14px 16px}.pchk{font-weight:800;font-size:17px;margin-bottom:6px}.pcsteps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:9px;font-size:15px;line-height:1.5}'+
+ '.pcgl{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:6px}.pcgl li{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:7px 10px;display:flex;flex-direction:column;gap:2px}.pcgl li span{font-size:14px;color:var(--muted)}'+
+ '.pchelp .small{margin:10px 0 0}.pchelp .wbtn{margin-top:10px}.pcagain{display:inline-block;font:800 11px var(--sans);letter-spacing:.05em;text-transform:uppercase;background:var(--accent-bg);color:var(--accent-text);border-radius:999px;padding:3px 10px;margin-bottom:8px}';
+ document.head.appendChild(st)})();
 UNITS.forEach(function(u){u.lessons.forEach(function(l){l.cards.forEach(function(c){if(c.t==='W'&&c.w==='calcDrill'&&c.par&&!c.par.rule&&c.e)c.par.rule=c.e})})});
 checkBadges(true);quests();updHeader();showPage('learn');
 })();
