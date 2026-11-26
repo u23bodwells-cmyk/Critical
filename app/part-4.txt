@@ -1,4 +1,4 @@
- neutrons made per neutron absorbed in the fuel</span><span class="ku">no unit (about 2)</span></div><div class="kn">The dots mean multiply.</div></div>`),
+v><div class="krow"><span class="ks">L<sub>f</sub></span><span class="km">chance a fast neutron <b>doesn’t</b> leak out of the core</span><span class="ku">no unit (0 to 1)</span></div><div class="krow"><span class="ks">p</span><span class="km">chance a neutron slows down without being captured on the way</span><span class="ku">no unit (0 to 1)</span></div><div class="krow"><span class="ks">L<sub>t</sub></span><span class="km">chance a slow neutron doesn’t leak out</span><span class="ku">no unit (0 to 1)</span></div><div class="krow"><span class="ks">f</span><span class="km">fraction of slow neutrons absorbed in the fuel (not elsewhere)</span><span class="ku">no unit (0 to 1)</span></div><div class="krow"><span class="ks">η</span><span class="km">“eta”, new neutrons made per neutron absorbed in the fuel</span><span class="ku">no unit (about 2)</span></div><div class="kn">The dots mean multiply.</div></div>`),
 W('sixFactor',{},`Follow 1000 neutrons through one generation. Adjust the factors to make the reactor <b>critical (k = 1.000 ± 0.005)</b>.`,`Every way of changing k (rods, boron, temperature, fuel) works by changing one or more of these factors.`),
 Q(`Adding boron to the coolant mainly reduces which factor?`,['ε (fast fission)','p (resonance escape)','f (thermal utilisation)','η (neutrons per absorption)'],2,`Boron absorbs thermal neutrons in the coolant, so fewer thermal absorptions happen in the fuel. That lowers f.`),
 Q(`Adding a bit more moderator (water) mainly increases which factor?`,['ε (fast fission)','p (resonance escape)','η (neutrons per absorption)','L<sub>f</sub>'],1,`More moderator slows neutrons faster and keeps them away from the fuel while they pass through U-238's resonance energies, so p goes up. (Too much water starts to lower f, because water absorbs neutrons too.)`),
@@ -697,8 +697,4 @@ Q(`Why do physicists use u and MeV instead of kg and J for single atoms?`,[`Atom
 Q(`About what is the mass of a carbon-12 atom?`,[`12 u`,`6 u`,`1 u`,`12 kg`],0,`About 12 u: 6 protons and 6 neutrons, each about 1 u.`)]);
 
 F('e3d',[
-T(`<h3>Quick recap</h3><ol class="steps"><li>Add up the mass before and after the reaction (in u).</li><li>Missing mass = before − after.</li><li>Energy (MeV) = missing mass × 931.5.</li></ol><div class="callout">One fission ≈ <b>200 MeV</b> ≈ 3.2 × 10<sup>−11</sup> J.</div>`),
-N(`Before a reaction: 10.0129 u. After: 10.0104 u. How much mass went missing?`,0.0025,0.02,'u',`10.0129 − 10.0104 = 0.0025 u.`),
-N(`How much energy is 0.0025 u, in MeV?`,2.33,0.02,'MeV',`0.0025 × 931.5 = 2.3 MeV.`),
-N(`How many fissions (3.2 × 10<sup>−11</sup> J each) release 1 MJ (10<sup>6</sup> J)? Give the number in front of × 10<sup>16</sup>.`,3.125,0.03,'× 10¹⁶ fissions',`10<sup>6</sup> ÷ 3.2 × 10<sup>−11</sup> = 3.1 × 10<sup>16</sup> fissions.`,`Divide 10<sup>6</sup> J by the energy per fission.`),
-Q(`After a fission, the pi
+T(`<h3>Quick recap</h3><ol class="steps"><li>Add u

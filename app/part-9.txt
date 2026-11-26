@@ -1,4 +1,9 @@
-he derivative of x⁵?`,[`5x⁴`,`4x⁵`,`5x⁶`,`x⁴`],0,`Bring the 5 down; 5 − 1 = 4.`),
+ instead'],0,`Any term with an h shrinks away.`),
+T(`<h3>Key points</h3><ul><li>(a + h)³ = a³ + 3a²h + 3ah² + h³.</li><li>The chord gradient simplifies to 3a² + 3ah + h², which tends to <b>3a²</b>.</li><li>So for y = x³, <b>dy/dx = 3x²</b>.</li></ul>`)]),
+LH('c2-2-3','Spotting the pattern',8,'x² → 2x, x³ → 3x². Can you guess the rule for any power?',[
+RM(`<p>From first principles: the derivative of x² is <b>2x</b>, and of x³ is <b>3x²</b>.</p>`),
+T(`<h3>Line them up</h3><table><tr><th>y</th><td>x</td><td>x²</td><td>x³</td><td>x⁴</td></tr><tr><th>dy/dx</th><td>1</td><td>2x</td><td>3x²</td><td>4x³</td></tr></table><p>Look closely. Each time, the <b>power comes down in front</b>, and the new power is <b>one less</b>.</p>`),
+Q(`Following the pattern, what is the derivative of x⁵?`,[`5x⁴`,`4x⁵`,`5x⁶`,`x⁴`],0,`Bring the 5 down; 5 − 1 = 4.`),
 T(`<h3>Even y = x fits</h3><p>y = x is x¹. Bring the 1 down and take 1 off: 1x⁰ = 1 × 1 = <b>1</b>. That's right: y = x is a straight line with gradient 1.</p>`),
 Q(`What is the derivative of x⁷?`,[`7x⁶`,`6x⁷`,`7x⁸`,`x⁶`],0,`Power down, take one off.`),
 W('calcDrill',{skill:'gradat',need:5},`Use the pattern to find gradients at points. Get 5 right to master it.`,`Bring the power down, take one off, then substitute.`),
@@ -987,9 +992,4 @@ T(`<h3>The ratio test</h3><p>Look at how each term compares to the one before:</
 W('calcDrill',{skill:'ratiotest',need:3},`Use the ratio test. Get 3 right to master it.`,`The power of n doesn't matter; the kⁿ does.`),
 Q(`For Σ 1/n, the ratio test gives L = 1. What does that mean?`,[`The ratio test can't decide (we know it diverges)`,`It converges`,`It diverges because L = 1`,`The sum is 1`],0,`L = 1 is inconclusive.`),
 T(`<h3>Factorials</h3><p>For Σ 1/n!: aₙ₊₁/aₙ = n!/(n + 1)! = 1/(n + 1) → 0. L = 0 < 1: converges (to e − 1, as you'll see). Factorials beat any power.</p>`),
-T(`<h3>Alternating series</h3><p>1 − ½ + ⅓ − ¼ + … The signs alternate. The <b>alternating series test</b>: if the sizes decrease to 0, it converges. This one converges to <b>ln 2</b>, even though without the minus signs it diverges.</p><ul><li><b>Absolutely convergent</b>: converges even with all terms made positive.</li><li><b>Conditionally convergent</b>: only converges because of the alternating signs.</li></ul>`),
-Q(`1 − ½ + ⅓ − ¼ + … is…`,[`conditionally convergent`,`absolutely convergent`,`divergent`,`equal to 0`],0,`Converges, but Σ 1/n diverges.`),
-T(`<h3>Key points</h3><ul><li><b>Ratio test</b>: L < 1 converges, L > 1 diverges, L = 1 can't tell.</li><li><b>Alternating</b>: decreasing to 0 is enough to converge.</li><li><b>Absolute</b> vs <b>conditional</b> convergence.</li></ul>`)])
-]});
-
-U({id:'c10-3',track:'calc',level:10,title:'Power and Taylor series',icon
+T(`<h3>Alternating series</h3><p>1 − ½ + ⅓ − ¼ + … The signs alternate. The <b>alternating series test</b>: if the s

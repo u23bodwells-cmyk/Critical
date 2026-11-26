@@ -1,4 +1,671 @@
- answer is <b>'+ans+'</b>.')+(q.e?'<div class="bede">'+q.e+'</div>':'');nx.hidden=false;nx.textContent=i+1>=qs.length?'Finish':'Next';try{nx.focus({preventScroll:true})}catch(e){}}
+ttom", "It's the same everywhere"], "The flux is highest mid-core, so that's where the rods absorb the most. The differential rod worth peaks in the middle."], "@t4-2-3": ["Watch the Plutonium-239 made counter and the conversion ratio.", "Where does the plutonium come from?", ["U-238 catching neutrons", "U-235 splitting", "The control rods", "The water"], "U-238 + n → U-239 → Np-239 → Pu-239. The conversion ratio is how many new fissile atoms are made for each one used up."], "@m5-3-1": ["Turn on Slow motion and watch the red and blue neutrons.", "In two-group theory, what are the two groups?", ["Fast neutrons and thermal neutrons", "Protons and neutrons", "Hot water and cold water", "Rods in and rods out"], "Group 1 is fast neutrons straight from fission; group 2 is thermal neutrons after the water has slowed them down."], "@m4-2-3": ["Turn the surface and find where the flux is highest.", "Where does most of the power come from?", ["The middle of the core, where the flux is highest", "The edges", "Only the top", "Everywhere equally"], "Reaction rate = Σφ, so power density follows the flux. The middle of the core does most of the work."], "@m4-3-1": ["Add a reflector round the core and watch the edges.", "By Fick's law, neutrons diffuse from…", ["High flux towards low flux", "Low flux towards high flux", "The edge to the middle only", "Nowhere: they stay put"], "Like heat or a smell spreading out, neutrons drift down the flux gradient, from the middle out towards the edges."], "@m5-3-3": ["Push the rods into the middle and watch the mesh change.", "What does each square of the mesh stand for?", ["One cell where the computer solves for the flux", "One fuel pellet", "One control rod", "One neutron"], "Codes split the core into a grid and solve the diffusion equation in every cell. More cells give a more detailed answer."], "@e2": ["Turn on Momentum arrows and fire at a few different targets.", "In every collision, the total momentum…", ["Stays the same", "Doubles", "Disappears", "Always increases"], "Momentum is conserved: the neutron's arrow before always equals the two arrows after, added together."], "@c2-4-2": ["Drag the point until the tangent's gradient reads 2.", "If the tangent's gradient is 2, what is the normal's gradient?", ["−½", "2", "−2", "½"], "The normal is at right angles to the tangent, so its gradient is −1/m = −1/2."], "@c4-2-3": ["Sweep the shading all the way from x = 0 to x = 4.", "What is the area under y = 4x − x² from 0 to 4?", ["32/3 (about 10.7)", "16", "8", "4"], "∫₀⁴ (4x − x²) dx = [2x² − x³/3]₀⁴ = 32 − 64/3 = 32/3."], "@m3-2-3": ["Drop particles above and below the feed concentration.", "Where do all the solutions end up?", ["At the feed concentration", "At zero", "They grow for ever", "Each at a different value"], "Feed and bleed drives the boron towards the feed concentration from either side, exponentially."], "@m4-1-2": ["Drop particles above and below y = 6.", "Where do all the solutions end up?", ["At the equilibrium, y = 6", "At zero", "They grow for ever", "Each at a different value"], "dy/dt = k(6 − y) is zero at y = 6. Above it the slope is negative, below it positive, so everything heads to 6."], "@t5-4-2": ["Start the loss of coolant and watch the containment trend.", "Where does the steam from the break go, and what does it do?", ["Into the containment, raising its pressure", "Out to the sea", "Back into the pressuriser", "Into the turbine"], "The containment building is the last barrier: it holds the steam and keeps radioactive material in, so its pressure rises."], "@m3-5-2": ["Follow the feed and steam flows round the plant.", "How does a secondary calorimetric work out reactor power?", ["From the feedwater flow and the heat added to turn it into steam", "From the control rod position", "From the neutron detectors only", "From the generator's speed"], "Power = feed flow × (steam enthalpy − feed enthalpy). It's the most accurate measure of reactor power, used to calibrate the nuclear instruments."], "@m3-1-2": ["Add some reactivity and compare the pcm and dollar readouts.", "About how many pcm is one dollar of reactivity in a PWR?", ["About 650 pcm", "About 65 pcm", "About 6,500 pcm", "Exactly 100 pcm"], "One dollar equals β, the delayed neutron fraction: about 0.0065, or 650 pcm."], "@c4-4-2": ["Drag the tracer and watch the two parts, u′v and uv′, add up.", "Integration by parts comes from which rule?", ["The product rule", "The chain rule", "The quotient rule", "The power rule"], "Integrate both sides of (uv)′ = u′v + uv′ and rearrange: ∫uv′ dx = uv − ∫u′v dx."], "@c4-4-1": ["Drag the tracer and spot du/dx inside the gradient.", "Integration by substitution is…", ["The chain rule used backwards", "The product rule used backwards", "Differentiating twice", "Integration by parts"], "If you can see a function and its derivative, du/dx, together, substitute u and the integral becomes simpler."], "@c2-3-3": ["Set n = −1 and move the tracer to x = 2.", "What is the gradient of y = x⁻¹ at x = 2?", ["−0.25", "0.25", "−0.5", "−2"], "d/dx (x⁻¹) = −x⁻², so at x = 2 it is −1/4."], "@c3-3-3": ["Watch the point go round and compare its height with the sine curve.", "A point goes round a circle of radius 1. What is its height at angle θ?", ["sin θ", "cos θ", "tan θ", "θ"], "The height is sin θ and the distance across is cos θ. That's where both graphs come from."], "@t4-5-2": ["Turn buildup on and off and compare the doses.", "With buildup turned on, the real dose is…", ["Higher than the simple exponential predicts", "Lower than it predicts", "Exactly the same", "Zero"], "Scattered gammas still reach you, so the real dose is the simple exponential times a buildup factor bigger than 1."], "@m4-2-1": ["Compare the materials at the same thickness.", "What does Σ = Nσ tell you?", ["More nuclei per cm³, or bigger targets, means more interactions per cm", "Thicker shields always weigh less", "Every material blocks radiation equally", "Σ depends only on temperature"], "Σ (the macroscopic cross-section) is the number of targets per cm³ times the size of each target."], "@m2-5-3": ["Zoom between 1 kg of coal and 1 kg of U-235.", "1 kg of U-235 gives roughly how many times the energy of 1 kg of coal?", ["About three million times", "About 3 times", "About 1,000 times", "About the same"], "Fission releases millions of times more energy per atom than burning, so a kilogram of fuel goes a very long way."], "@t2-5-1": ["Add irradiation damage, then turn on annealing.", "What does annealing do?", ["Heats the steel so displaced atoms move back, healing some damage", "Fires more neutrons at it", "Freezes the steel", "Replaces the steel"], "Warming the steel lets atoms jump back into their places, filling vacancies and recovering some toughness."], "@tp3": ["Turn the main pumps off and watch the flow.", "With the pumps off, what keeps some water moving?", ["Natural circulation: hot water rises and cold water sinks", "Gravity draining the loop", "The control rods", "Nothing: the flow stops completely"], "Water heated in the core gets lighter and rises; cooler water from the steam generator sinks. That keeps decay heat moving with no pumps."]});
+/* a challenge written for one lesson ('@' + lesson id) wins over the general one for that lab */
+function labKey(c){if(c.lid&&LABCH['@'+c.lid])return '@'+c.lid;var p=c.par||{},w=c.w,m=p.mode,f=p.f,ev=p.event,cand=[];if(m&&f)cand.push(w+':'+m+':'+f);if(m&&ev)cand.push(w+':'+m+':'+ev);if(m)cand.push(w+':'+m);cand.push(w);for(var i=0;i<cand.length;i++)if(LABCH[cand[i]])return cand[i];return null}
+var rWLX=rW;rW=function(c,b){var out=rWLX.apply(this,arguments);try{var p=c.par||{};if(p.goal&&p.goal!=='touch')return out;var k=labKey(c);if(!k||!P)return out;var ch=LABCH[k];
+  var d=el('div','labch',null,b);d.innerHTML='<div class="qckick">🎯 Lab challenge</div><p class="lct"><b>Your task:</b> '+ch[0]+'</p><div class="qprompt">'+ch[1]+'</div>';var box=el('div','opts',null,d),fb=el('div','lcfb',null,d),tries=0;P.lch={done:false};
+  shuffle(ch[2].map(function(_,i){return i})).forEach(function(i){var o=el('button','opt',ch[2][i],box);o.onclick=function(){if(P.lch.done||o.disabled)return;if(i===0){P.lch.done=true;o.classList.add('right');[].forEach.call(box.children,function(x){x.disabled=true});fb.innerHTML='<b>✓ Right.</b> '+ch[3];try{if(!tries)award(5)}catch(e){}try{sfx('right')}catch(e){}foot('','','')}
+   else{tries++;o.classList.add('wrong');o.disabled=true;try{sfx('wrong')}catch(e){}if(tries>=2){P.lch.done=true;[].forEach.call(box.children,function(x){x.disabled=true;if(x.textContent===ch[2][0])x.classList.add('right')});fb.innerHTML='<b>The answer:</b> '+ch[2][0]+'. '+ch[3]}else fb.innerHTML='Not quite. Try the task in the lab and watch closely, then pick again.'}}});
+  var om=P.onMain;P.onMain=function(){if(P.lch&&!P.lch.done){foot('no','Lab challenge first','<div>Do the 🎯 task in the simulation, then answer the question underneath it.</div>');try{d.scrollIntoView({behavior:'smooth',block:'center'})}catch(e){}return}return om&&om.apply(this,arguments)}}catch(e){if(window.console)console.error(e)}return out};
+(function(){var st=document.createElement('style');st.textContent='.labch{margin-top:16px;padding:14px 16px;border-radius:16px;border:2px dashed color-mix(in srgb,var(--accent) 45%,var(--line));background:color-mix(in srgb,var(--accent) 6%,var(--panel))}.labch .lct{margin:6px 0 8px;line-height:1.5}.labch .qprompt{font-size:18px}.labch .opts{margin-top:8px}.lcfb{margin-top:8px;line-height:1.5}.lcfb:empty{display:none}';document.head.appendChild(st)})();
+/* ===== real exam-style questions: one written, multi-part question per GCSE and A-level unit =====
+   parts: ['n', question, answer, tolerance, unit, marks, working]  number, marked automatically
+          ['c', question, [right, wrong...], marks, why]            multiple choice
+          ['s', question, marks, [mark-scheme points]]              written: you tick the points you made */
+var EXQ={};
+function EQ(id,title,stem,parts){(EXQ[id]=EXQ[id]||[]).push({title:title,stem:stem,parts:parts})}
+/* ---------- GCSE Physics ---------- */
+EQ('gp1-1','Power station output','A nuclear power station generates 3.2 GW of electrical power.',[
+ ['n','Write 3.2 GW in watts. Give your answer in standard form.',3.2e9,0.01,'W',1,'G means × 10⁹, so 3.2 GW = 3.2 × 10⁹ W.'],
+ ['n','Calculate the energy it generates in one hour, in joules. Give your answer to 2 significant figures.',1.2e13,0.04,'J',2,'E = P × t = 3.2 × 10⁹ × 3600 = 1.152 × 10¹³ J ≈ 1.2 × 10¹³ J.'],
+ ['c','Which of these is an SI base unit?',['kilogram','gram','newton','watt'],1,'The SI base unit of mass is the kilogram. The newton and watt are derived units.']]);
+EQ('gp1-2','An accelerating car','A car of mass 1200 kg accelerates uniformly from rest to 15 m/s in 6.0 s.',[
+ ['n','Calculate the acceleration of the car.',2.5,0.01,'m/s²',2,'a = Δv ÷ t = 15 ÷ 6.0 = 2.5 m/s².'],
+ ['n','Calculate the resultant force on the car.',3000,0.01,'N',2,'F = ma = 1200 × 2.5 = 3000 N.'],
+ ['n','Calculate the kinetic energy of the car at 15 m/s.',135000,0.01,'J',2,'Eₖ = ½mv² = 0.5 × 1200 × 15² = 135 000 J.']]);
+EQ('gp1-3','Stretching a spring','A student hangs loads on a spring. With 2.0 N the extension is 4.0 cm. With 5.0 N it is 10.0 cm.',[
+ ['n','The student plots force (y-axis) against extension (x-axis). Calculate the gradient, in N/cm.',0.5,0.02,'N/cm',2,'Gradient = Δy ÷ Δx = (5.0 − 2.0) ÷ (10.0 − 4.0) = 0.5 N/cm.'],
+ ['c','What is the independent variable?',['The load (force)','The extension','The spring constant','The length of the ruler'],1,'The independent variable is the one you change: the load.'],
+ ['s','Suggest two ways the student could make the results more accurate or repeatable.',2,['Repeat each reading and take a mean','Read the ruler at eye level to avoid parallax','Use a fixed pointer or set square against the ruler','Wait for the spring to stop bouncing before reading']]]);
+EQ('gp1-4','A steady cyclist','A cyclist travels 1.2 km in 4.0 minutes at a constant speed.',[
+ ['n','Calculate her speed in m/s.',5,0.01,'m/s',2,'1.2 km = 1200 m, 4.0 min = 240 s. Speed = 1200 ÷ 240 = 5.0 m/s.'],
+ ['c','How is constant speed shown on a distance–time graph?',['A straight sloping line','A horizontal line','A curve getting steeper','A vertical line'],1,'Equal distance in equal times gives a constant gradient.'],
+ ['s','She keeps pedalling but her speed stays the same. Explain why.',2,['The forward (driving) force equals the resistive forces (air resistance and friction)','So the resultant force is zero and there is no acceleration']]]);
+EQ('gp2-1','Boiling a kettle','A kettle heats 0.50 kg of water from 20 °C to 100 °C. The specific heat capacity of water is 4200 J/kg °C. The kettle\'s power is 2.0 kW.',[
+ ['n','Calculate the energy needed to heat the water.',168000,0.01,'J',2,'ΔE = mcΔθ = 0.50 × 4200 × 80 = 168 000 J.'],
+ ['n','Calculate the shortest time this could take.',84,0.01,'s',2,'t = E ÷ P = 168 000 ÷ 2000 = 84 s.'],
+ ['n','It actually takes 100 s. Calculate the efficiency of the kettle as a percentage.',84,0.01,'%',2,'Energy supplied = 2000 × 100 = 200 000 J. Efficiency = 168 000 ÷ 200 000 × 100 = 84%.'],
+ ['s','Suggest one way to reduce the energy wasted.',1,['Insulate the kettle (or use a lid) to cut heat loss to the surroundings','Only boil the water you need (less heating of the kettle itself)']]]);
+EQ('gp2-2','A series circuit','A 12 V battery is connected to a 4.0 Ω resistor and a 2.0 Ω resistor in series.',[
+ ['n','What is the total resistance?',6,0.01,'Ω',1,'In series, add: 4.0 + 2.0 = 6.0 Ω.'],
+ ['n','Calculate the current.',2,0.01,'A',2,'I = V ÷ R = 12 ÷ 6.0 = 2.0 A.'],
+ ['n','Calculate the potential difference across the 4.0 Ω resistor.',8,0.01,'V',2,'V = IR = 2.0 × 4.0 = 8.0 V.'],
+ ['n','Calculate the power transferred in the 2.0 Ω resistor.',8,0.01,'W',2,'P = I²R = 2.0² × 2.0 = 8.0 W.']]);
+EQ('gp2-3','Density and gases','A metal block has a mass of 540 g and a volume of 200 cm³.',[
+ ['n','Calculate its density in g/cm³.',2.7,0.01,'g/cm³',2,'ρ = m ÷ V = 540 ÷ 200 = 2.7 g/cm³.'],
+ ['n','Give the density in kg/m³.',2700,0.01,'kg/m³',1,'1 g/cm³ = 1000 kg/m³, so 2.7 g/cm³ = 2700 kg/m³.'],
+ ['s','A sealed container of gas is heated. Explain, in terms of particles, why the pressure rises.',3,['The particles gain kinetic energy and move faster','They hit the walls more often','They hit the walls harder (bigger force per collision), so more force per unit area']]]);
+EQ('gp2-4','Iodine-131','Iodine-131 has a half-life of 8 days. A sample has an activity of 1600 Bq.',[
+ ['n','Calculate the activity after 24 days.',200,0.01,'Bq',2,'24 days = 3 half-lives. 1600 → 800 → 400 → 200 Bq.'],
+ ['c','Iodine-131 decays by beta-minus emission. What happens to its atomic (proton) number?',['It increases by 1','It decreases by 1','It decreases by 2','It stays the same'],1,'A neutron becomes a proton (and an electron is emitted), so Z goes up by 1.'],
+ ['s','A factory uses a beta source to monitor paper thickness. Explain why beta is used rather than alpha or gamma.',3,['Alpha would be absorbed completely by the paper','Gamma would pass straight through almost unaffected','Beta is partly absorbed, so the count rate changes measurably with thickness']]]);
+EQ('gp3-1','Braking','A 1500 kg car travelling at 20 m/s brakes to a stop with a constant braking force of 6000 N.',[
+ ['n','Calculate the deceleration.',4,0.01,'m/s²',2,'a = F ÷ m = 6000 ÷ 1500 = 4.0 m/s².'],
+ ['n','Calculate the braking distance.',50,0.01,'m',3,'v² = u² + 2as → 0 = 20² − 2 × 4.0 × s → s = 400 ÷ 8 = 50 m.'],
+ ['n','Calculate the car\'s momentum before braking.',30000,0.01,'kg m/s',2,'p = mv = 1500 × 20 = 30 000 kg m/s.'],
+ ['s','Explain why the stopping distance is greater on a wet road.',2,['There is less friction (grip) between the tyres and the road','So the braking force is smaller and the braking distance is longer (thinking distance is unchanged)']]]);
+EQ('gp3-2','Waves','A water wave has a frequency of 2.0 Hz and a wavelength of 0.75 m.',[
+ ['n','Calculate the wave speed.',1.5,0.01,'m/s',2,'v = fλ = 2.0 × 0.75 = 1.5 m/s.'],
+ ['n','Calculate the period of the wave.',0.5,0.01,'s',1,'T = 1 ÷ f = 1 ÷ 2.0 = 0.50 s.'],
+ ['c','Which electromagnetic wave has the highest frequency?',['Gamma rays','Radio waves','Visible light','Microwaves'],1,'Gamma rays are at the high-frequency, short-wavelength end of the spectrum.'],
+ ['s','Give one use and one hazard of ultraviolet radiation.',2,['Use: e.g. fluorescent lamps, sterilising water, security marking, sun tanning','Hazard: e.g. skin cancer, sunburn, premature skin ageing, eye damage']]]);
+EQ('gp3-3','Motors and transformers','A wire 0.20 m long carries a current of 3.0 A at right angles to a magnetic field of flux density 0.50 T.',[
+ ['n','Calculate the force on the wire.',0.3,0.01,'N',2,'F = BIL = 0.50 × 3.0 × 0.20 = 0.30 N.'],
+ ['n','A transformer has 200 turns on the primary and 1000 on the secondary. The primary voltage is 230 V. Calculate the secondary voltage.',1150,0.01,'V',2,'Vs ÷ Vp = Ns ÷ Np → Vs = 230 × 1000 ÷ 200 = 1150 V.'],
+ ['s','Explain why step-up transformers are used in the National Grid.',3,['They increase the voltage, which lowers the current for the same power','A lower current means less heating of the cables (P = I²R)','So less energy is wasted and the grid is more efficient']]]);
+EQ('gp3-4','Stars and the universe','Our Sun is a main sequence star.',[
+ ['c','What will the Sun become when it leaves the main sequence?',['A red giant','A supernova','A black hole','A neutron star'],1,'Stars about the Sun\'s mass swell into red giants, then become white dwarfs.'],
+ ['c','What provides the centripetal force that keeps a satellite in orbit?',['Gravity','Air resistance','The satellite\'s engines','Magnetism'],1,'Gravity pulls the satellite towards the planet\'s centre, curving its path into an orbit.'],
+ ['s','Explain how red-shift is evidence for the Big Bang.',3,['Light from distant galaxies is shifted towards the red end (longer wavelength)','So galaxies are moving away from us','More distant galaxies have bigger red-shift, so they move faster: the universe is expanding from a single starting point']]]);
+EQ('gp4-1','Specific heat capacity practical','A 1.0 kg aluminium block is heated by a 50 W heater for 300 s. Its temperature rises from 20 °C to 36 °C.',[
+ ['n','Calculate the energy supplied by the heater.',15000,0.01,'J',1,'E = Pt = 50 × 300 = 15 000 J.'],
+ ['n','Calculate the specific heat capacity of aluminium from these results.',937.5,0.01,'J/kg °C',2,'c = E ÷ (mΔθ) = 15 000 ÷ (1.0 × 16) = 937.5 J/kg °C.'],
+ ['s','The accepted value is 900 J/kg °C. Explain why the experimental value is higher, and how to improve the experiment.',2,['Some energy is lost to the surroundings, so not all the measured energy heats the block','Insulate the block (and use oil in the thermometer hole for good contact)']]]);
+EQ('gp4-2','A climber','A 60 kg climber climbs 25 m up a rock face in 50 s. g = 9.8 N/kg.',[
+ ['n','Calculate the gravitational potential energy gained.',14700,0.01,'J',2,'Eₚ = mgh = 60 × 9.8 × 25 = 14 700 J.'],
+ ['n','Calculate the useful power output of the climber.',294,0.01,'W',2,'P = E ÷ t = 14 700 ÷ 50 = 294 W.'],
+ ['n','Her body is 25% efficient. How much energy does she use from her food?',58800,0.01,'J',2,'Input = useful output ÷ efficiency = 14 700 ÷ 0.25 = 58 800 J.']]);
+EQ('gp4-3','Six-mark: resistance of a wire','You are asked to investigate how the resistance of a wire depends on its length.',[
+ ['n','At one length the pd is 3.0 V and the current is 0.60 A. Calculate the resistance.',5,0.01,'Ω',1,'R = V ÷ I = 3.0 ÷ 0.60 = 5.0 Ω.'],
+ ['s','Describe a method for the investigation. [6 marks]',6,['Put the wire in a circuit with an ammeter in series and a voltmeter in parallel across the wire','Use a crocodile clip and a metre ruler to set different lengths','Measure the current and the pd at each length','Calculate R = V ÷ I for each length','Keep the current low / switch off between readings so the wire doesn\'t heat up','Repeat and take means, then plot resistance against length']]]);
+EQ('gp4-4','An electric car','An electric car\'s battery stores 2.16 × 10⁸ J. On average the motor uses 15 kW.',[
+ ['n','How long, in seconds, can the motor run on a full battery?',14400,0.01,'s',2,'t = E ÷ P = 2.16 × 10⁸ ÷ 15 000 = 14 400 s.'],
+ ['n','Give this time in hours.',4,0.01,'hours',1,'14 400 ÷ 3600 = 4.0 hours.'],
+ ['n','At an average speed of 20 m/s, how far can the car go, in km?',288,0.01,'km',2,'Distance = 20 × 14 400 = 288 000 m = 288 km.']]);
+EQ('gp5-1','The power station','A reactor makes 3000 MW of heat. The power station is 35% efficient.',[
+ ['n','Calculate the electrical power output.',1050,0.01,'MW',2,'0.35 × 3000 = 1050 MW.'],
+ ['n','How much power is wasted as heat?',1950,0.01,'MW',1,'3000 − 1050 = 1950 MW.'],
+ ['n','The waste heat warms sea water by 10 °C (c = 4200 J/kg °C). Calculate the mass of sea water needed each second. Give your answer to 2 significant figures.',46000,0.02,'kg/s',3,'Mass per second = P ÷ (cΔθ) = 1.95 × 10⁹ ÷ (4200 × 10) ≈ 46 000 kg/s.'],
+ ['s','Explain why the reactor must still be cooled after it has been shut down.',2,['Fission products keep decaying and releasing heat (decay heat)','Without cooling the fuel would overheat and could be damaged']]]);
+EQ('gp5-2','A falling ball','A 0.20 kg ball is dropped from a height of 5.0 m. g = 9.8 N/kg. Ignore air resistance.',[
+ ['n','Calculate the gravitational potential energy lost by the time it reaches the ground.',9.8,0.01,'J',2,'Eₚ = mgh = 0.20 × 9.8 × 5.0 = 9.8 J.'],
+ ['n','Calculate its speed just before it hits the ground. Give your answer to 2 significant figures.',9.9,0.02,'m/s',3,'All Eₚ becomes Eₖ: ½ × 0.20 × v² = 9.8 → v² = 98 → v ≈ 9.9 m/s.'],
+ ['n','Calculate its momentum just before it hits the ground.',1.98,0.02,'kg m/s',2,'p = mv = 0.20 × 9.9 ≈ 2.0 kg m/s.']]);
+EQ('gp5-3','A velocity–time graph','A car accelerates uniformly from rest to 12 m/s in 4.0 s, then travels at 12 m/s for 6.0 s.',[
+ ['n','Calculate the acceleration.',3,0.01,'m/s²',1,'Gradient = 12 ÷ 4.0 = 3.0 m/s².'],
+ ['n','Calculate the total distance travelled.',96,0.01,'m',3,'Area under the graph = triangle + rectangle = ½ × 4 × 12 + 12 × 6 = 24 + 72 = 96 m.'],
+ ['s','How would you find the acceleration at one instant on a curved velocity–time graph?',2,['Draw a tangent to the curve at that time','Calculate the gradient of the tangent']]]);
+EQ('gp5-4','Full-marks technique','A filament lamp is connected to a variable power supply.',[
+ ['c','What does the command word "calculate" mean?',['Work out a value, showing your working','Give a reason for something','Say what happens, without reasons','Draw a graph'],1,'Calculate = use numbers to work out an answer, showing the steps.'],
+ ['n','A 2.5 kW heater runs for 3.0 hours. How much energy does it transfer, in kWh?',7.5,0.01,'kWh',1,'E = P × t = 2.5 kW × 3.0 h = 7.5 kWh.'],
+ ['s','Explain why the current through a filament lamp is not directly proportional to the potential difference.',3,['As the current increases the filament gets hotter','The ions vibrate more, so electrons collide more often and the resistance increases','So the current rises less than in proportion: the I–V graph curves']]]);
+/* ---------- GCSE Chemistry ---------- */
+EQ('gc1-1','States of matter','Water can exist as a solid, a liquid and a gas.',[
+ ['c','In which state are the particles touching and vibrating in fixed positions?',['Solid','Liquid','Gas','All three'],1,'In a solid the particles are held in a regular arrangement and only vibrate.'],
+ ['c','What is the change from gas to liquid called?',['Condensing','Evaporating','Melting','Subliming'],1,'Gas → liquid is condensing (condensation).'],
+ ['s','Explain why a gas can be compressed but a liquid cannot easily be compressed.',2,['In a gas the particles are far apart with lots of space between them','In a liquid the particles are already touching (close together)']]]);
+EQ('gc1-2','Atoms and elements','Sulfuric acid has the formula H₂SO₄.',[
+ ['n','How many atoms are there in one molecule of H₂SO₄?',7,0,'atoms',1,'2 H + 1 S + 4 O = 7 atoms.'],
+ ['c','Which is a property of most metals?',['They conduct electricity','They are brittle','They have low melting points','They form negative ions'],1,'Metals conduct electricity and heat, are malleable and form positive ions.'],
+ ['s','Explain the difference between an element and a compound.',2,['An element contains only one type of atom','A compound contains two or more elements chemically combined (bonded)']]]);
+EQ('gc1-3','Balancing equations','Magnesium reacts with hydrochloric acid: Mg + __HCl → MgCl₂ + H₂',[
+ ['n','What number goes in front of HCl to balance the equation?',2,0,'',1,'There are 2 Cl and 2 H on the right, so 2HCl.'],
+ ['c','Which equation is balanced?',['2H₂ + O₂ → 2H₂O','H₂ + O₂ → H₂O','H₂ + O₂ → 2H₂O','2H₂ + 2O₂ → 2H₂O'],1,'Left: 4 H, 2 O. Right: 4 H, 2 O. Balanced.'],
+ ['s','Name the two products when methane burns completely in oxygen.',2,['Carbon dioxide','Water']]]);
+EQ('gc1-4','Acids and gases','Zinc is added to dilute hydrochloric acid and bubbles are given off.',[
+ ['c','What is the pH of a neutral solution?',['7','0','1','14'],1,'pH 7 is neutral; below is acidic, above is alkaline.'],
+ ['c','What is the test for hydrogen gas?',['A lighted splint gives a squeaky pop','A glowing splint relights','Limewater turns milky','Damp litmus paper bleaches'],1,'Hydrogen burns with a squeaky pop.'],
+ ['s','Write the word equation for zinc reacting with hydrochloric acid.',2,['Zinc + hydrochloric acid → zinc chloride','… + hydrogen']]]);
+EQ('gc2-1','Isotopes of chlorine','Chlorine (atomic number 17) has two isotopes: chlorine-35 (75%) and chlorine-37 (25%).',[
+ ['n','Calculate the relative atomic mass of chlorine.',35.5,0.005,'',2,'(35 × 75 + 37 × 25) ÷ 100 = 35.5.'],
+ ['n','How many neutrons are in an atom of chlorine-37?',20,0,'',1,'37 − 17 = 20 neutrons.'],
+ ['s','Explain why the group 1 metals get more reactive down the group.',3,['The outer electron is further from the nucleus (more shells)','There is more shielding, so the attraction to the nucleus is weaker','So the outer electron is lost more easily']]]);
+EQ('gc2-2','Bonding and structure','Sodium chloride and graphite have very different properties.',[
+ ['c','What structure does sodium chloride have?',['A giant ionic lattice','Simple molecules','A giant covalent structure','A metallic lattice'],1,'Na⁺ and Cl⁻ ions are held in a giant lattice.'],
+ ['s','Explain why sodium chloride has a high melting point.',2,['There are strong electrostatic forces of attraction between oppositely charged ions','A lot of energy is needed to overcome them']],
+ ['s','Explain why graphite conducts electricity.',2,['Each carbon atom is bonded to only three others','So there are delocalised electrons that can move through the structure and carry charge']]]);
+EQ('gc2-3','Decomposing calcium carbonate','Calcium carbonate decomposes when heated: CaCO₃ → CaO + CO₂. Relative atomic masses: Ca = 40, C = 12, O = 16.',[
+ ['n','Calculate the relative formula mass of CaCO₃.',100,0,'',1,'40 + 12 + 3 × 16 = 100.'],
+ ['n','Calculate the mass of calcium oxide made from 25 g of calcium carbonate.',14,0.01,'g',3,'Moles CaCO₃ = 25 ÷ 100 = 0.25. 1 : 1, so 0.25 mol CaO = 0.25 × 56 = 14 g.'],
+ ['n','In practice 11.2 g of calcium oxide is made. Calculate the percentage yield.',80,0.01,'%',2,'11.2 ÷ 14 × 100 = 80%.']]);
+EQ('gc2-4','Metals and electrolysis','Some metals are extracted using carbon, others using electrolysis.',[
+ ['c','Which metal has to be extracted by electrolysis rather than reduction with carbon?',['Aluminium','Iron','Zinc','Copper'],1,'Aluminium is more reactive than carbon, so carbon can\'t reduce its oxide.'],
+ ['c','What type of reaction is acid + alkali → salt + water?',['Neutralisation','Oxidation','Thermal decomposition','Electrolysis'],1,'H⁺ + OH⁻ → H₂O is neutralisation.'],
+ ['s','Molten lead bromide is electrolysed. Name the product at each electrode.',2,['Lead at the cathode (negative electrode)','Bromine at the anode (positive electrode)']]]);
+EQ('gc3-1','Bond energies','Hydrogen reacts with chlorine: H–H + Cl–Cl → 2 H–Cl. Bond energies (kJ/mol): H–H 436, Cl–Cl 243, H–Cl 432.',[
+ ['n','Calculate the energy needed to break the bonds.',679,0.005,'kJ/mol',1,'436 + 243 = 679 kJ/mol.'],
+ ['n','Calculate the energy released making the bonds.',864,0.005,'kJ/mol',1,'2 × 432 = 864 kJ/mol.'],
+ ['n','Calculate the overall energy change. Include the sign.',-185,0.005,'kJ/mol',2,'679 − 864 = −185 kJ/mol.'],
+ ['c','Is the reaction exothermic or endothermic?',['Exothermic','Endothermic','Neither','It depends on the temperature'],1,'More energy is released making bonds than is used breaking them, so ΔH is negative: exothermic.']]);
+EQ('gc3-2','Rates of reaction','Marble chips react with hydrochloric acid. 60 cm³ of carbon dioxide is collected in the first 30 s.',[
+ ['n','Calculate the mean rate of reaction over the first 30 s.',2,0.01,'cm³/s',2,'60 ÷ 30 = 2.0 cm³/s.'],
+ ['c','What does a catalyst do?',['Provides a route with a lower activation energy','Increases the temperature','Gives the particles more energy','Is used up in the reaction'],1,'A catalyst offers an alternative pathway with lower activation energy and isn\'t used up.'],
+ ['s','Use collision theory to explain why raising the temperature increases the rate.',3,['The particles move faster (have more kinetic energy)','They collide more often','More of the collisions have energy greater than or equal to the activation energy']]]);
+EQ('gc3-3','Crude oil and hydrocarbons','Crude oil is a mixture of hydrocarbons, mainly alkanes.',[
+ ['n','How many hydrogen atoms are there in an alkane with 8 carbon atoms?',18,0,'',1,'Alkanes are CₙH₂ₙ₊₂: 2 × 8 + 2 = 18.'],
+ ['c','What is the test for an alkene?',['Bromine water turns from orange to colourless','Limewater turns milky','A lighted splint pops','Litmus turns red'],1,'Alkenes add across the C=C double bond and decolourise bromine water.'],
+ ['s','Explain how fractional distillation separates crude oil.',2,['The fractions have different boiling points (different chain lengths)','They condense at different heights in the column, which is hotter at the bottom and cooler at the top']]]);
+EQ('gc3-4','Analysis and the atmosphere','In paper chromatography a spot moves 3.0 cm while the solvent front moves 7.5 cm.',[
+ ['n','Calculate the Rf value.',0.4,0.01,'',2,'Rf = distance moved by spot ÷ distance moved by solvent = 3.0 ÷ 7.5 = 0.40.'],
+ ['c','What is the test for carbon dioxide?',['Limewater turns milky','A glowing splint relights','A lighted splint pops','Damp litmus bleaches'],1,'CO₂ makes limewater cloudy.'],
+ ['s','Explain how increasing carbon dioxide in the atmosphere causes global warming.',3,['Carbon dioxide is a greenhouse gas that absorbs infrared radiation given off by the Earth','It re-emits the radiation in all directions, including back towards the Earth','So the lower atmosphere and surface warm up']]]);
+EQ('gc4-1','Titration','25.0 cm³ of sodium hydroxide is exactly neutralised by 20.0 cm³ of 0.10 mol/dm³ hydrochloric acid. NaOH + HCl → NaCl + H₂O',[
+ ['n','Calculate the number of moles of HCl used.',0.002,0.01,'mol',2,'0.10 × 20.0 ÷ 1000 = 0.0020 mol.'],
+ ['n','Calculate the concentration of the sodium hydroxide.',0.08,0.01,'mol/dm³',2,'1 : 1, so 0.0020 mol NaOH in 0.0250 dm³: 0.0020 ÷ 0.0250 = 0.080 mol/dm³.'],
+ ['s','Give two ways to make sure the titre is accurate.',2,['Add the acid drop by drop near the end point','Swirl the flask, and use a white tile to see the colour change','Read the burette at eye level at the bottom of the meniscus','Repeat until you get concordant results (within 0.10 cm³)']]]);
+EQ('gc4-2','Making sodium chloride','Sodium burns in chlorine: 2Na + Cl₂ → 2NaCl. 4.6 g of sodium reacts. Na = 23, Cl = 35.5. One mole of gas occupies 24 dm³ at room temperature and pressure.',[
+ ['n','Calculate the moles of sodium.',0.2,0.01,'mol',1,'4.6 ÷ 23 = 0.20 mol.'],
+ ['n','Calculate the mass of sodium chloride made.',11.7,0.01,'g',2,'0.20 mol NaCl × 58.5 = 11.7 g.'],
+ ['n','Calculate the volume of chlorine that reacts, at RTP.',2.4,0.01,'dm³',2,'0.20 ÷ 2 = 0.10 mol Cl₂ × 24 = 2.4 dm³.']]);
+EQ('gc4-3','Six-mark: diamond and graphite','Diamond and graphite are both forms of carbon.',[
+ ['c','What type of structure do both diamond and graphite have?',['Giant covalent','Simple molecular','Giant ionic','Metallic'],1,'Both are giant covalent structures of carbon atoms.'],
+ ['s','Explain why diamond is hard with a very high melting point, but graphite is soft and conducts electricity. [6 marks]',6,['Both are giant covalent structures with strong covalent bonds','In diamond each carbon is bonded to four others in a rigid 3D network','Lots of energy is needed to break the many strong bonds, so its melting point is very high','In graphite each carbon is bonded to three others in layers','There are weak forces between the layers, so the layers can slide: graphite is soft','Graphite has delocalised electrons that can move and carry charge']]]);
+EQ('gc4-4','Burning magnesium','Magnesium burns in oxygen: 2Mg + O₂ → 2MgO. Mg = 24, O = 16.',[
+ ['n','Calculate the relative formula mass of MgO.',40,0,'',1,'24 + 16 = 40.'],
+ ['n','Calculate the mass of magnesium oxide made from 6.0 g of magnesium.',10,0.01,'g',2,'6.0 ÷ 24 = 0.25 mol Mg → 0.25 mol MgO × 40 = 10 g.'],
+ ['n','What is the atom economy for making MgO by this reaction, in %?',100,0.005,'%',1,'MgO is the only product, so 100%.'],
+ ['s','Explain why the mass in the crucible goes up when magnesium burns in air.',2,['Oxygen from the air combines with the magnesium','So the product contains the mass of the oxygen as well']]]);
+EQ('gc5-1','Limiting reactants','1.2 g of magnesium is added to 40 cm³ of 2.0 mol/dm³ hydrochloric acid. Mg + 2HCl → MgCl₂ + H₂. Mg = 24. 1 mol of gas = 24 dm³ at RTP.',[
+ ['n','Calculate the moles of magnesium.',0.05,0.01,'mol',1,'1.2 ÷ 24 = 0.050 mol.'],
+ ['n','Calculate the moles of HCl.',0.08,0.01,'mol',1,'2.0 × 40 ÷ 1000 = 0.080 mol.'],
+ ['c','Which reactant is limiting?',['Hydrochloric acid','Magnesium','Neither','Hydrogen'],1,'0.050 mol Mg needs 0.10 mol HCl, but only 0.080 mol is there: HCl runs out first.'],
+ ['n','Calculate the volume of hydrogen made, at RTP.',0.96,0.01,'dm³',2,'0.080 mol HCl → 0.040 mol H₂ × 24 = 0.96 dm³.']]);
+EQ('gc5-2','The Haber process','N₂ + 3H₂ ⇌ 2NH₃. The forward reaction is exothermic.',[
+ ['c','What happens to the equilibrium yield of ammonia if the pressure is increased?',['It increases: the right-hand side has fewer gas molecules','It decreases','It stays the same','The reaction stops'],1,'4 molecules of gas on the left, 2 on the right: higher pressure favours the side with fewer molecules.'],
+ ['c','What happens to the yield if the temperature is raised?',['It decreases','It increases','It stays the same','It doubles'],1,'Raising the temperature favours the endothermic (backward) reaction.'],
+ ['s','Molten sodium chloride is electrolysed. Write the half equation at the cathode and say what type of reaction it is.',2,['Na⁺ + e⁻ → Na','Reduction: gain of electrons']]]);
+EQ('gc5-3','Predicting from trends','Melting points: lithium 181 °C, sodium 98 °C, potassium 63 °C.',[
+ ['c','Predict the melting point of rubidium.',['About 39 °C','About 120 °C','About 250 °C','About −50 °C'],1,'Melting point falls down the group, so rubidium is lower than potassium: its actual value is 39 °C.'],
+ ['s','Predict how caesium reacts with water, and explain your prediction.',3,['It reacts more vigorously than potassium (very violently or explosively)','Its outer electron is further from the nucleus, with more shielding','So it is lost more easily']]]);
+EQ('gc5-4','Full-marks technique','A student follows the rate of a reaction between magnesium and acid.',[
+ ['c','What does the command word "describe" mean?',['Say what happens, without giving reasons','Explain why something happens','Work out a value','Compare two things'],1,'Describe = give an account of what happens. Explain = give reasons.'],
+ ['n','Calculate the mass of 0.50 mol of carbon dioxide (Mr = 44).',22,0.01,'g',1,'0.50 × 44 = 22 g.'],
+ ['s','Explain why the rate of reaction decreases as the reaction goes on.',2,['The reactants are used up, so their concentration falls','So there are fewer collisions per second']]]);
+/* ---------- GCSE Maths ---------- */
+EQ('gm1-1','Number skills','Work these out without a calculator.',[
+ ['n','Work out −3 × (4 − 10).',18,0,'',2,'Brackets first: 4 − 10 = −6. Then −3 × −6 = 18.'],
+ ['n','Find the highest common factor (HCF) of 36 and 60.',12,0,'',1,'36 = 2² × 3², 60 = 2² × 3 × 5. Common: 2² × 3 = 12.'],
+ ['c','Write 84 as a product of its prime factors.',['2² × 3 × 7','4 × 21','2 × 42','2 × 3 × 14'],1,'84 = 2 × 42 = 2 × 2 × 21 = 2² × 3 × 7.']]);
+EQ('gm1-2','Algebra basics','',[
+ ['n','Solve 3x + 7 = 22.',5,0,'x =',2,'3x = 15, so x = 5.'],
+ ['n','Find the value of 2a² − b when a = 3 and b = 4.',14,0,'',2,'2 × 3² − 4 = 18 − 4 = 14.'],
+ ['c','Find the nth term of the sequence 5, 8, 11, 14, …',['3n + 2','n + 3','3n + 5','5n + 3'],1,'It goes up in 3s, so 3n. When n = 1, 3n = 3, and we need 5: add 2.']]);
+EQ('gm1-3','Fractions, decimals and percentages','',[
+ ['n','Work out 3/4 + 2/5. Give your answer as a decimal.',1.15,0.001,'',2,'15/20 + 8/20 = 23/20 = 1.15.'],
+ ['n','Find 15% of 240.',36,0,'',1,'10% = 24, 5% = 12, so 15% = 36.'],
+ ['c','Write 0.375 as a fraction in its simplest form.',['3/8','37/100','375/100','3/4'],1,'0.375 = 375/1000 = 3/8.']]);
+EQ('gm1-4','Shapes and angles','',[
+ ['n','Two angles in a triangle are 47° and 68°. Find the third angle.',65,0,'°',1,'180 − 47 − 68 = 65°.'],
+ ['n','A trapezium has parallel sides of 6 cm and 10 cm and a height of 4 cm. Find its area.',32,0,'cm²',2,'½ × (6 + 10) × 4 = 32 cm².'],
+ ['s','Explain why the angles in any quadrilateral add up to 360°.',2,['A diagonal splits the quadrilateral into two triangles','The angles in each triangle add to 180°, so 2 × 180° = 360°']]]);
+EQ('gm2-1','Indices, standard form and bounds','',[
+ ['n','2³ × 2⁵ = 2ⁿ. Find n.',8,0,'n =',1,'Add the powers: 3 + 5 = 8.'],
+ ['n','Work out (3 × 10⁴) × (4 × 10⁵). Give your answer in standard form.',1.2e10,0.001,'',2,'3 × 4 = 12 and 10⁴ × 10⁵ = 10⁹: 12 × 10⁹ = 1.2 × 10¹⁰.'],
+ ['n','A length is 8.4 cm, correct to 1 decimal place. Write down its upper bound.',8.45,0.001,'cm',1,'Half of 0.1 is 0.05: the upper bound is 8.45 cm.'],
+ ['n','√50 can be written as k√2. Find k.',5,0,'k =',2,'√50 = √25 × √2 = 5√2.']]);
+EQ('gm2-2','Quadratics and simultaneous equations','',[
+ ['n','Solve x² − 5x + 6 = 0. Give the larger solution.',3,0,'x =',2,'(x − 2)(x − 3) = 0, so x = 2 or 3.'],
+ ['n','Solve 2x + y = 11 and x − y = 1. What is x?',4,0,'x =',3,'Add the equations: 3x = 12, so x = 4 (and y = 3).'],
+ ['c','Factorise x² − 9.',['(x − 3)(x + 3)','(x − 3)²','(x − 9)(x + 1)','x(x − 9)'],1,'Difference of two squares: a² − b² = (a − b)(a + b).']]);
+EQ('gm2-3','Percentages and ratio','',[
+ ['n','£800 is increased by 15%, then the new amount is decreased by 15%. Find the final amount.',782,0.001,'£',2,'800 × 1.15 × 0.85 = £782. (Not back to £800!)'],
+ ['n','£4000 is invested at 3% compound interest per year. Find its value after 2 years.',4243.6,0.0005,'£',2,'4000 × 1.03² = £4243.60.'],
+ ['n','£120 is shared in the ratio 3 : 5. Find the larger share.',75,0,'£',2,'8 parts = £120, so 1 part = £15. The larger share is 5 × 15 = £75.']]);
+EQ('gm2-4','Pythagoras, trigonometry and volume','',[
+ ['n','A right-angled triangle has shorter sides of 9 cm and 12 cm. Find the hypotenuse.',15,0,'cm',2,'√(9² + 12²) = √225 = 15 cm.'],
+ ['n','In a right-angled triangle the side opposite angle x is 5 cm and the hypotenuse is 10 cm. Find x.',30,0.001,'°',2,'sin x = 5 ÷ 10 = 0.5, so x = 30°.'],
+ ['n','Find the volume of a cylinder with radius 3 cm and height 10 cm. Give your answer to 1 decimal place.',282.7,0.001,'cm³',2,'π × 3² × 10 = 90π ≈ 282.7 cm³.']]);
+EQ('gm2-5','Bearings and constructions','',[
+ ['c','The bearing of A from B is 070°. What is the bearing of B from A?',['250°','070°','110°','290°'],1,'Add 180°: 070° + 180° = 250°.'],
+ ['n','A map has a scale of 1 : 50 000. Two towns are 4 cm apart on the map. How far apart are they in real life, in km?',2,0.001,'km',2,'4 × 50 000 = 200 000 cm = 2000 m = 2 km.'],
+ ['s','Describe how to construct the perpendicular bisector of a line AB with a ruler and compasses.',3,['Open the compasses to more than half of AB and draw arcs above and below the line from A','Keep the same radius and draw arcs from B that cross the first two','Draw a straight line through the two crossing points']]]);
+EQ('gm3-1','Lines and quadratics','',[
+ ['n','Find the gradient of the line through (1, 3) and (4, 12).',3,0,'',2,'(12 − 3) ÷ (4 − 1) = 9 ÷ 3 = 3.'],
+ ['n','x² + 6x + 2 = (x + 3)² − k. Find k.',7,0,'k =',2,'(x + 3)² = x² + 6x + 9, so x² + 6x + 2 = (x + 3)² − 7.'],
+ ['n','Solve 2x² − 3x − 4 = 0. Give the positive solution to 2 decimal places.',2.35,0.002,'x =',3,'x = (3 + √(9 + 32)) ÷ 4 = (3 + √41) ÷ 4 ≈ 2.35.']]);
+EQ('gm3-2','Circles and the cosine rule','',[
+ ['c','What is the angle in a semicircle?',['90°','180°','45°','60°'],1,'The angle subtended by a diameter at the circumference is a right angle.'],
+ ['n','A triangle has sides of 7 cm and 9 cm with an angle of 60° between them. Find the third side to 2 decimal places.',8.19,0.002,'cm',3,'c² = 7² + 9² − 2 × 7 × 9 × cos 60° = 49 + 81 − 63 = 67, so c ≈ 8.19 cm.'],
+ ['n','Two similar shapes have a length scale factor of 3. What is the area scale factor?',9,0,'',1,'Areas scale by the square: 3² = 9.']]);
+EQ('gm3-3','Probability','A bag holds 3 red and 5 blue counters.',[
+ ['n','Two fair coins are thrown. Find the probability of two heads.',0.25,0.001,'',1,'½ × ½ = ¼.'],
+ ['n','Two counters are taken from the bag without replacement. Find the probability that both are red, to 3 decimal places.',0.107,0.01,'',3,'3/8 × 2/7 = 6/56 ≈ 0.107.'],
+ ['c','A and B are independent. P(A) = 0.3 and P(B) = 0.5. What is P(A and B)?',['0.15','0.8','0.2','0.65'],1,'Independent: multiply. 0.3 × 0.5 = 0.15.']]);
+EQ('gm3-4','Averages and spread','',[
+ ['n','Find the mean of 4, 7, 9, 12, 13.',9,0,'',1,'45 ÷ 5 = 9.'],
+ ['n','A box plot has a lower quartile of 12 and an upper quartile of 27. Find the interquartile range.',15,0,'',1,'27 − 12 = 15.'],
+ ['s','Class A has median 62 and IQR 20; class B has median 55 and IQR 8. Compare the two classes.',2,['Compare an average in context: class A did better on average (higher median)','Compare spread in context: class B\'s marks are more consistent (smaller IQR)']]]);
+EQ('gm4-1','Harder number and algebra','',[
+ ['n','v² = u² + 2as. Find a when u = 4, v = 10 and s = 7.',6,0.001,'a =',2,'a = (v² − u²) ÷ 2s = (100 − 16) ÷ 14 = 6.'],
+ ['n','6/√3 can be written as k√3. Find k.',2,0,'k =',2,'6/√3 × √3/√3 = 6√3 / 3 = 2√3.'],
+ ['n','After a 20% discount a jacket costs £64. What was the original price?',80,0.001,'£',2,'£64 is 80% of the original: 64 ÷ 0.8 = £80.']]);
+EQ('gm4-2','Geometry problems','',[
+ ['n','A cuboid measures 3 cm by 4 cm by 12 cm. Find the length of its longest diagonal.',13,0.001,'cm',2,'√(3² + 4² + 12²) = √169 = 13 cm.'],
+ ['n','Two similar solids have lengths in the ratio 2 : 3. The smaller has a volume of 40 cm³. Find the volume of the larger.',135,0.001,'cm³',2,'Volume scale factor = (3/2)³ = 27/8. 40 × 27/8 = 135 cm³.'],
+ ['n','A sector has radius 6 cm and angle 60°. Find its arc length to 2 decimal places.',6.28,0.002,'cm',2,'60/360 × 2π × 6 = 2π ≈ 6.28 cm.']]);
+EQ('gm4-3','Probability and data problems','',[
+ ['n','A fair dice is rolled twice. Find the probability of at least one six, to 3 decimal places.',0.306,0.005,'',2,'1 − (5/6)² = 11/36 ≈ 0.306.'],
+ ['n','A histogram bar has frequency density 2.5 and class width 8. What is the frequency?',20,0,'',2,'Frequency = frequency density × class width = 2.5 × 8 = 20.'],
+ ['s','A survey asks only people leaving a gym how often they exercise. Explain why the sample is biased.',1,['It is not random / not representative: people at a gym probably exercise more than average']]]);
+EQ('gm4-4','Mixed exam questions','',[
+ ['n','Without a calculator, work out 2.4 × 0.3.',0.72,0.001,'',1,'24 × 3 = 72, with two decimal places: 0.72.'],
+ ['n','Estimate (49.7 × 3.98) ÷ 0.51 by rounding each number to 1 significant figure.',400,0.001,'',2,'(50 × 4) ÷ 0.5 = 200 ÷ 0.5 = 400.'],
+ ['n','A car worth £12 000 loses 15% of its value each year. Find its value after 3 years.',7369.5,0.001,'£',2,'12 000 × 0.85³ = £7369.50.']]);
+EQ('gm5-1','Algebraic proof','',[
+ ['n','(2n + 1)² − (2n − 1)² simplifies to kn. Find k.',8,0,'k =',2,'4n² + 4n + 1 − (4n² − 4n + 1) = 8n.'],
+ ['s','Prove that the sum of any three consecutive integers is a multiple of 3.',3,['Call the integers n, n + 1 and n + 2','Their sum is 3n + 3','3n + 3 = 3(n + 1), which is a multiple of 3']]]);
+EQ('gm5-2','Graphs and circles','',[
+ ['c','The graph of y = f(x) is transformed to y = f(x) + 3. Describe the transformation.',['A translation 3 units up','A translation 3 units right','A stretch by scale factor 3','A reflection in the x-axis'],1,'Adding outside the function moves the graph up.'],
+ ['n','The circle x² + y² = 25 passes through (3, 4). Find the gradient of the tangent at (3, 4).',-0.75,0.001,'',3,'Radius gradient = 4/3. The tangent is perpendicular: −3/4 = −0.75.'],
+ ['c','Describe the transformation from y = f(x) to y = f(−x).',['A reflection in the y-axis','A reflection in the x-axis','A translation left','A rotation of 180°'],1,'Replacing x with −x reflects the graph in the y-axis.']]);
+EQ('gm5-3','Hardest geometry','',[
+ ['n','A circle has radius 10 cm. Find the area of the segment cut off by a 90° sector, to 2 decimal places.',28.54,0.002,'cm²',3,'Sector = ¼π × 10² = 25π ≈ 78.54. Triangle = ½ × 10 × 10 = 50. Segment ≈ 28.54 cm².'],
+ ['n','A cuboid has a base 6 cm by 8 cm and height 5 cm. Find the angle between the long diagonal and the base, to 2 decimal places.',26.57,0.002,'°',3,'Base diagonal = √(6² + 8²) = 10. tan θ = 5/10, so θ ≈ 26.57°.']]);
+EQ('gm5-4','Hardest problems','',[
+ ['n','Solve 2x² + x − 10 = 0. Give the positive solution.',2,0.001,'x =',2,'(2x + 5)(x − 2) = 0, so x = 2 or x = −2.5.'],
+ ['n','A rectangle has a perimeter of 26 cm and an area of 40 cm². Find the length of the longer side.',8,0.001,'cm',3,'x + y = 13 and xy = 40, so x² − 13x + 40 = 0: (x − 5)(x − 8) = 0. The sides are 5 and 8 cm.'],
+ ['c','For any whole number n, n² + n is always…',['Even','Odd','Prime','A square number'],1,'n² + n = n(n + 1), a product of two consecutive integers, one of which must be even.']]);
+/* ---------- GCSE Computer Science ---------- */
+EQ('gcs1-1','Data in a computer','',[
+ ['n','Convert the binary number 10110110 to denary.',182,0,'',2,'128 + 32 + 16 + 4 + 2 = 182.'],
+ ['n','How many bytes are in 2 kilobytes? (1 KB = 1000 bytes)',2000,0,'bytes',1,'2 × 1000 = 2000 bytes.'],
+ ['c','What does the CPU do over and over?',['Fetch, decode, execute','Input, output, store','Save, load, delete','Compile, link, run'],1,'The fetch–decode–execute cycle.']]);
+EQ('gcs1-2','Thinking like a programmer','',[
+ ['c','Which of these is an example of iteration?',['A FOR loop','An IF statement','A variable assignment','A print statement'],1,'Iteration means repeating: loops.'],
+ ['s','Explain what decomposition means in computational thinking.',2,['Breaking a problem down into smaller sub-problems','Each smaller part is easier to understand and solve']]]);
+EQ('gcs2-1','Searching and sorting','',[
+ ['n','In the worst case, how many comparisons does a linear search make on a list of 50 items?',50,0,'',1,'It may have to check every item.'],
+ ['c','About how many comparisons does a binary search need at most for 1000 sorted items?',['10','500','1000','100'],1,'Each comparison halves the list: 2¹⁰ = 1024, so about 10.'],
+ ['s','Explain why a binary search only works on sorted data.',2,['It compares with the middle item and discards half the list','That only works if you know which half the target must be in, i.e. the data is in order']]]);
+EQ('gcs2-2','Programming','',[
+ ['n','What is 17 MOD 5?',2,0,'',1,'17 = 3 × 5 + 2, so the remainder is 2.'],
+ ['n','What is 17 DIV 5?',3,0,'',1,'Integer division: 17 ÷ 5 = 3 remainder 2.'],
+ ['s','Give two benefits of using subroutines.',2,['Code can be reused without rewriting it','Programs are easier to test and debug in small parts','Programs are easier to read and maintain','Different people can work on different subroutines']]]);
+EQ('gcs2-3','Data representation','',[
+ ['n','Convert the hexadecimal number 2F to denary.',47,0,'',2,'2 × 16 + 15 = 47.'],
+ ['n','Add the binary numbers 0101 and 0011. Give the answer in denary.',8,0,'',1,'0101 + 0011 = 1000 = 8.'],
+ ['c','Why is Unicode used instead of ASCII?',['It can represent far more characters, including other languages and emoji','It uses fewer bits per character','It is faster to type','It only stores numbers'],1,'ASCII has 128 (or 256) characters; Unicode has over a million code points.']]);
+EQ('gcs2-4','Logic and the CPU','',[
+ ['c','What is the output of an AND gate with inputs 1 and 0?',['0','1','2','It depends on the clock'],1,'AND only outputs 1 when both inputs are 1.'],
+ ['c','Which register holds the address of the next instruction?',['Program counter','Accumulator','MDR','ALU'],1,'The program counter (PC) points to the next instruction.'],
+ ['s','Explain two differences between RAM and ROM.',2,['RAM is volatile (loses its contents without power); ROM is non-volatile','RAM can be read and written and holds running programs; ROM is read-only and holds the start-up (boot) instructions']]]);
+EQ('gcs3-1','Images and sound','',[
+ ['n','An image is 100 × 100 pixels with 8 bits per pixel. What is its file size in bytes?',10000,0,'bytes',2,'100 × 100 × 8 = 80 000 bits = 10 000 bytes.'],
+ ['n','A mono sound is sampled at 44 100 Hz with 16 bits per sample for 10 seconds. What is its size in bytes?',882000,0,'bytes',2,'44 100 × 16 × 10 = 7 056 000 bits = 882 000 bytes.'],
+ ['c','Which of these is a lossless compression method?',['Run-length encoding','Removing sounds people can\'t hear','Reducing the colour depth','Lowering the sample rate'],1,'RLE stores runs of repeated data without throwing any information away.']]);
+EQ('gcs3-2','Networks','',[
+ ['c','Which protocol is used for secure web pages?',['HTTPS','FTP','SMTP','POP'],1,'HTTPS encrypts web traffic.'],
+ ['c','Which layer of the TCP/IP model does IP belong to?',['Internet (network) layer','Application layer','Transport layer','Link layer'],1,'IP handles addressing and routing packets between networks.'],
+ ['s','Give two advantages of a star network.',2,['If one cable fails, only that device is affected','It is easy to add new devices','Fast, with few data collisions because each device has its own link']]]);
+EQ('gcs3-3','Cyber security','',[
+ ['c','An email pretends to be from your bank and asks for your password. What is this?',['Phishing','A brute-force attack','A DDoS attack','SQL injection'],1,'Phishing tricks people into giving away details.'],
+ ['s','Give two ways to protect an account against a brute-force attack.',2,['Use strong, long passwords','Lock the account after several failed attempts','Use two-factor authentication','Use CAPTCHAs or delays between attempts']]]);
+EQ('gcs3-4','Databases and SQL','A table called students has fields name and age.',[
+ ['c','Which SQL query lists the names of students older than 16?',['SELECT name FROM students WHERE age > 16','SELECT students FROM name WHERE age > 16','GET name FROM students IF age > 16','SELECT * WHERE age > 16'],1,'SELECT field FROM table WHERE condition.'],
+ ['s','Explain what a primary key is.',2,['A field whose value is unique for each record','It is used to identify each record (and to link tables)']]]);
+EQ('gcs3-5','Robust programs','',[
+ ['c','Which is an example of a range check?',['Age must be between 0 and 120','A postcode must have a space','A field must not be empty','A password must be typed twice'],1,'A range check tests that a value falls between limits.'],
+ ['s','Explain the difference between iterative testing and final testing.',2,['Iterative testing happens during development, testing each part as it is written','Final (terminal) testing happens at the end, testing the whole program']]]);
+EQ('gcs4-1','Exam problem solving','x = 3. REPEAT x = x × 2 UNTIL x > 20. OUTPUT x',[
+ ['n','What is output?',24,0,'',2,'3 → 6 → 12 → 24. 24 > 20, so it stops and outputs 24.'],
+ ['n','How many different values can 4 bits represent?',16,0,'',1,'2⁴ = 16.'],
+ ['c','What is NOT (A OR B) when A = 0 and B = 0?',['1','0','2','Undefined'],1,'A OR B = 0, so NOT gives 1.']]);
+EQ('gcs5-1','Huffman coding','In some text, the letter E appears 12 times and has the Huffman code 0. The letter Z appears once and has the code 11010.',[
+ ['n','How many bits are used to store all the Es?',12,0,'bits',1,'12 × 1 bit = 12 bits.'],
+ ['n','In 8-bit ASCII, how many bits would the 12 Es take?',96,0,'bits',1,'12 × 8 = 96 bits.'],
+ ['s','Explain why Huffman coding usually makes a file smaller.',3,['Frequent characters get short codes','Rare characters get longer codes','So the total number of bits is lower than with fixed-length codes like ASCII']]]);
+/* ---------- A-level Physics ---------- */
+EQ('ap1-1','Uncertainties','The side of a square tile is measured as 25.0 ± 0.1 cm.',[
+ ['n','Calculate the percentage uncertainty in the length.',0.4,0.01,'%',1,'0.1 ÷ 25.0 × 100 = 0.4%.'],
+ ['n','Calculate the percentage uncertainty in the area of the tile.',0.8,0.01,'%',1,'Area = L², so double the percentage: 0.8%.'],
+ ['n','A V–I graph through the origin passes through V = 6.0 V at I = 0.40 A. Calculate the resistance from the gradient.',15,0.01,'Ω',2,'R = V ÷ I = 6.0 ÷ 0.40 = 15 Ω.']]);
+EQ('ap1-2','Work at an angle','A 2.0 kg box is pulled 5.0 m along a floor by a force of 20 N at 30° above the horizontal.',[
+ ['n','Calculate the horizontal component of the force.',17.3,0.005,'N',2,'20 cos 30° = 17.3 N.'],
+ ['n','Calculate the work done by the force.',86.6,0.005,'J',2,'W = Fs cos θ = 20 × 5.0 × cos 30° = 86.6 J.'],
+ ['n','The pull takes 4.0 s. Calculate the average power.',21.7,0.01,'W',1,'P = W ÷ t = 86.6 ÷ 4.0 = 21.7 W.']]);
+EQ('ap2-1','The photoelectric effect','Light of wavelength 400 nm falls on a metal with a work function of 2.3 eV. h = 6.63 × 10⁻³⁴ J s, c = 3.00 × 10⁸ m/s, e = 1.60 × 10⁻¹⁹ C.',[
+ ['n','Calculate the photon energy in eV.',3.11,0.005,'eV',2,'E = hc/λ = 6.63 × 10⁻³⁴ × 3.00 × 10⁸ ÷ 400 × 10⁻⁹ = 4.97 × 10⁻¹⁹ J ÷ 1.60 × 10⁻¹⁹ = 3.11 eV.'],
+ ['n','Calculate the maximum kinetic energy of the photoelectrons in eV.',0.81,0.02,'eV',2,'Eₖ(max) = hf − φ = 3.11 − 2.3 = 0.81 eV.'],
+ ['s','Explain why making the light brighter does not increase the maximum kinetic energy of the electrons.',2,['Each electron absorbs the energy of one photon, which depends only on frequency','Brighter light means more photons per second, so more electrons are emitted, but each still has the same maximum energy']]]);
+EQ('ap2-2','A vibrating string','A string 0.80 m long vibrates in its fundamental mode at 250 Hz.',[
+ ['n','What is the wavelength of the stationary wave?',1.6,0.005,'m',1,'The fundamental is half a wavelength: λ = 2L = 1.6 m.'],
+ ['n','Calculate the speed of the waves on the string.',400,0.005,'m/s',2,'v = fλ = 250 × 1.6 = 400 m/s.'],
+ ['n','What is the frequency of the second harmonic?',500,0.005,'Hz',1,'Twice the fundamental: 500 Hz.'],
+ ['c','What is the amplitude at a node?',['Zero','Maximum','Half the maximum','It varies with time'],1,'Nodes are points of zero amplitude.']]);
+EQ('ap2-3','A projectile','A ball is thrown horizontally at 12 m/s from the top of a 20 m cliff. g = 9.81 m/s². Ignore air resistance.',[
+ ['n','Calculate the time it takes to reach the ground.',2.02,0.01,'s',2,'s = ½gt² → t = √(2 × 20 ÷ 9.81) = 2.02 s.'],
+ ['n','Calculate how far from the base of the cliff it lands.',24.2,0.01,'m',2,'Horizontal distance = 12 × 2.02 = 24.2 m.'],
+ ['c','What happens to the horizontal velocity during the flight?',['It stays constant','It increases','It decreases','It becomes zero at the top'],1,'With no air resistance there is no horizontal force.']]);
+EQ('ap2-4','EMF and internal resistance','A cell of emf 6.0 V and internal resistance 0.50 Ω is connected to a 2.5 Ω resistor.',[
+ ['n','Calculate the current.',2,0.01,'A',2,'I = ε ÷ (R + r) = 6.0 ÷ 3.0 = 2.0 A.'],
+ ['n','Calculate the terminal potential difference.',5,0.01,'V',1,'V = IR = 2.0 × 2.5 = 5.0 V.'],
+ ['n','Calculate the "lost volts".',1,0.01,'V',1,'Ir = 2.0 × 0.50 = 1.0 V (and 6.0 − 5.0 = 1.0 V).'],
+ ['n','A copper wire is 2.0 m long with cross-sectional area 1.0 × 10⁻⁷ m². ρ = 1.7 × 10⁻⁸ Ω m. Calculate its resistance.',0.34,0.01,'Ω',2,'R = ρL ÷ A = 1.7 × 10⁻⁸ × 2.0 ÷ 1.0 × 10⁻⁷ = 0.34 Ω.']]);
+EQ('ap3-1','Oscillations and gases','A mass on a spring moves with simple harmonic motion: amplitude 0.050 m, period 0.80 s.',[
+ ['n','Calculate the frequency.',1.25,0.005,'Hz',1,'f = 1 ÷ T = 1.25 Hz.'],
+ ['n','Calculate the maximum speed of the mass.',0.393,0.01,'m/s',2,'v(max) = 2πfA = 2π × 1.25 × 0.050 = 0.393 m/s.'],
+ ['n','A gas occupies 0.020 m³ at 300 K and 1.0 × 10⁵ Pa. Calculate the number of moles. R = 8.31 J/mol K.',0.802,0.01,'mol',2,'n = pV ÷ RT = 1.0 × 10⁵ × 0.020 ÷ (8.31 × 300) = 0.802 mol.']]);
+EQ('ap3-2','Capacitors and fields','A 470 μF capacitor is charged to 12 V and then discharged through a 10 kΩ resistor.',[
+ ['n','Calculate the charge stored at 12 V.',5.64e-3,0.01,'C',2,'Q = CV = 470 × 10⁻⁶ × 12 = 5.64 × 10⁻³ C.'],
+ ['n','Calculate the time constant.',4.7,0.01,'s',1,'τ = RC = 10 000 × 470 × 10⁻⁶ = 4.7 s.'],
+ ['n','Calculate the pd across the capacitor after 4.7 s.',4.41,0.01,'V',2,'After one time constant, V = 12 × e⁻¹ = 4.41 V.'],
+ ['c','How does the gravitational field strength change at twice the distance from a planet\'s centre?',['It falls to a quarter','It halves','It stays the same','It doubles'],1,'g = GM/r²: double r, ÷ 4.']]);
+EQ('ap3-3','Electromagnetic induction','A coil of 200 turns and area 4.0 × 10⁻³ m² sits in a magnetic field that falls uniformly from 0.50 T to zero in 0.10 s.',[
+ ['n','Calculate the change in flux linkage.',0.4,0.01,'Wb turns',2,'ΔNΦ = NBA = 200 × 0.50 × 4.0 × 10⁻³ = 0.40 Wb turns.'],
+ ['n','Calculate the induced emf.',4,0.01,'V',2,'ε = ΔNΦ ÷ Δt = 0.40 ÷ 0.10 = 4.0 V.'],
+ ['n','The mains supply is 230 V rms. Calculate the peak voltage.',325,0.005,'V',1,'V₀ = √2 × 230 = 325 V.'],
+ ['s','Use Lenz\'s law to explain the direction of the induced current.',2,['The induced current flows in a direction that opposes the change in flux that caused it','This follows from conservation of energy']]]);
+EQ('ap3-4','Binding energy','The mass defect of a helium-4 nucleus is 0.0304 u. 1 u = 931.5 MeV.',[
+ ['n','Calculate the binding energy of helium-4.',28.3,0.005,'MeV',2,'0.0304 × 931.5 = 28.3 MeV.'],
+ ['n','Calculate the binding energy per nucleon.',7.08,0.01,'MeV',1,'28.3 ÷ 4 = 7.08 MeV.'],
+ ['n','Cobalt-60 has a half-life of 5.27 years. Calculate its decay constant, per year.',0.1315,0.01,'per year',2,'λ = ln 2 ÷ T½ = 0.693 ÷ 5.27 = 0.132 per year.'],
+ ['c','Why do both fission of heavy nuclei and fusion of light nuclei release energy?',['The products have a higher binding energy per nucleon','The products have more mass','Neutrons are created from nothing','The nuclei gain electrons'],1,'Both move towards the peak of the binding energy curve near iron.']]);
+EQ('ap4-1','Logarithmic graphs','A student plots ln(count rate) against absorber thickness x for gamma rays. The gradient is −0.11 per mm.',[
+ ['n','What is the attenuation coefficient μ?',0.11,0.01,'per mm',1,'I = I₀e^(−μx), so ln I = ln I₀ − μx: the gradient is −μ.'],
+ ['n','Calculate the half-value thickness.',6.3,0.01,'mm',2,'x½ = ln 2 ÷ μ = 0.693 ÷ 0.11 = 6.3 mm.'],
+ ['s','Describe how to find the uncertainty in the gradient.',2,['Draw a worst-fit line (steepest or shallowest that still goes through all the error bars)','The uncertainty is the difference between the best-fit and worst-fit gradients']]]);
+EQ('ap4-2','Exam technique','An electron is accelerated from rest through a potential difference of 2000 V. e = 1.60 × 10⁻¹⁹ C.',[
+ ['c','What does "show that" mean?',['Reach the given answer, showing every step','Just write the answer','Draw a diagram','Give a reason'],1,'The answer is given, so the marks are all for the working.'],
+ ['n','Calculate the kinetic energy gained, in joules.',3.2e-16,0.01,'J',2,'E = eV = 1.60 × 10⁻¹⁹ × 2000 = 3.2 × 10⁻¹⁶ J.'],
+ ['s','Describe how to find g using a simple pendulum.',3,['Measure the length from the pivot to the centre of the bob','Time 10 or more oscillations and divide to get T; repeat for several lengths','Plot T² against L: g = 4π² ÷ gradient']]]);
+/* ---------- A-level Chemistry ---------- */
+EQ('ac1-1','A titration','25.0 cm³ of 0.100 mol/dm³ NaOH is neutralised by 12.5 cm³ of sulfuric acid. 2NaOH + H₂SO₄ → Na₂SO₄ + 2H₂O',[
+ ['n','Calculate the moles of NaOH.',2.5e-3,0.01,'mol',1,'0.100 × 25.0 ÷ 1000 = 2.50 × 10⁻³ mol.'],
+ ['n','Calculate the moles of H₂SO₄.',1.25e-3,0.01,'mol',1,'Ratio 2 : 1, so 1.25 × 10⁻³ mol.'],
+ ['n','Calculate the concentration of the sulfuric acid.',0.1,0.01,'mol/dm³',2,'1.25 × 10⁻³ ÷ 0.0125 = 0.100 mol/dm³.'],
+ ['c','What is the ionic equation for the neutralisation?',['H⁺ + OH⁻ → H₂O','Na⁺ + SO₄²⁻ → Na₂SO₄','2H⁺ + SO₄²⁻ → H₂SO₄','NaOH → Na⁺ + OH⁻'],1,'The spectator ions cancel out.']]);
+EQ('ac1-2','Atoms and bonding','An element has two isotopes: mass 69 (60.1%) and mass 71 (39.9%).',[
+ ['n','Calculate its relative atomic mass to 1 decimal place.',69.8,0.002,'',2,'(69 × 60.1 + 71 × 39.9) ÷ 100 = 69.8.'],
+ ['c','What is the electron configuration of iron (Z = 26)?',['[Ar] 3d⁶ 4s²','[Ar] 3d⁸','[Ar] 4s² 4p⁶','[Ar] 3d⁴ 4s² 4p²'],1,'4s fills before 3d: [Ar] 3d⁶ 4s².'],
+ ['s','Explain why sodium chloride conducts electricity when molten but not when solid.',2,['When molten the ions are free to move and carry charge','In the solid the ions are held in fixed positions in the lattice']]]);
+EQ('ac2-1','Amount of substance','A compound is 40.0% carbon, 6.7% hydrogen and 53.3% oxygen by mass.',[
+ ['n','Its empirical formula is CH₂O. What is the empirical formula mass?',30,0,'',2,'12 + 2 + 16 = 30.'],
+ ['c','Why does first ionisation energy decrease down a group?',['The outer electron is further from the nucleus and more shielded','The nuclear charge decreases','There are fewer electrons','The atoms get smaller'],1,'Distance and shielding outweigh the extra nuclear charge.'],
+ ['n','0.50 mol of an ideal gas is in 0.010 m³ at 300 K. Calculate its pressure. R = 8.31 J/mol K.',1.25e5,0.01,'Pa',2,'p = nRT ÷ V = 0.50 × 8.31 × 300 ÷ 0.010 = 1.25 × 10⁵ Pa.']]);
+EQ('ac2-2','Shapes and enthalpy','A student dissolves 0.025 mol of a solid in 50 g of water. The temperature rises by 6.0 °C. c = 4.18 J/g K.',[
+ ['c','What is the shape of an ammonia molecule?',['Trigonal pyramidal','Trigonal planar','Tetrahedral','Bent'],1,'Three bonding pairs and one lone pair.'],
+ ['n','What is the bond angle in methane?',109.5,0.002,'°',1,'Four bonding pairs repel equally: 109.5°.'],
+ ['n','Calculate the enthalpy change in kJ/mol. Include the sign.',-50.2,0.01,'kJ/mol',3,'q = mcΔT = 50 × 4.18 × 6.0 = 1254 J. ΔH = −1.254 ÷ 0.025 = −50.2 kJ/mol (temperature rose: exothermic).']]);
+EQ('ac2-3','Equilibria','For H₂ + I₂ ⇌ 2HI at equilibrium: [H₂] = 0.10, [I₂] = 0.10 and [HI] = 0.70 mol/dm³.',[
+ ['n','Calculate Kc.',49,0.01,'',2,'Kc = [HI]² ÷ ([H₂][I₂]) = 0.49 ÷ 0.010 = 49.'],
+ ['c','How does a catalyst change the Maxwell–Boltzmann picture?',['More particles have energy above the new, lower activation energy','The curve shifts to higher energies','The area under the curve increases','Particles move faster'],1,'The curve is unchanged; the activation energy line moves left.'],
+ ['s','Explain why the oxidising power of the halogens decreases down group 7.',2,['The atoms get bigger, so the outer shell is further from the nucleus (more shielding)','So there is less attraction for an extra electron']]]);
+EQ('ac2-4','Organic chemistry','',[
+ ['c','Name CH₃CH₂CH(CH₃)CH₃.',['2-methylbutane','3-methylbutane','pentane','2-ethylpropane'],1,'Longest chain of 4 carbons, methyl on carbon 2.'],
+ ['c','What is the mechanism when bromine reacts with ethene?',['Electrophilic addition','Nucleophilic substitution','Free-radical substitution','Elimination'],1,'The C=C electron density attracts the electrophile.'],
+ ['s','Explain why tertiary alcohols are not oxidised by acidified potassium dichromate.',2,['There is no hydrogen atom on the carbon bonded to the OH group','So a C=O bond can\'t form without breaking a C–C bond']]]);
+EQ('ac3-1','Thermodynamics and rates','For N₂ + 3H₂ → 2NH₃: ΔH = −92 kJ/mol and ΔS = −199 J/K/mol.',[
+ ['n','Calculate ΔG at 298 K in kJ/mol. Include the sign.',-32.7,0.01,'kJ/mol',2,'ΔG = ΔH − TΔS = −92 − 298 × (−0.199) = −32.7 kJ/mol.'],
+ ['n','Above what temperature is the reaction no longer feasible?',462,0.01,'K',2,'ΔG = 0 when T = ΔH ÷ ΔS = 92 ÷ 0.199 = 462 K.'],
+ ['n','Rate = k[A]²[B]. By what factor does the rate change if [A] is doubled?',4,0,'',1,'Second order in A: 2² = 4.']]);
+EQ('ac3-2','Acids and cells','',[
+ ['n','Calculate the pH of 0.010 mol/dm³ hydrochloric acid.',2,0.005,'',1,'[H⁺] = 0.010, so pH = −log 0.010 = 2.00.'],
+ ['n','Calculate the pH of 0.10 mol/dm³ ethanoic acid. Ka = 1.74 × 10⁻⁵ mol/dm³. (2 d.p.)',2.88,0.005,'',3,'[H⁺] = √(Ka × c) = √(1.74 × 10⁻⁶) = 1.32 × 10⁻³, so pH = 2.88.'],
+ ['n','Calculate the emf of a cell made from Zn²⁺/Zn (−0.76 V) and Cu²⁺/Cu (+0.34 V).',1.1,0.01,'V',1,'E = E(right) − E(left) = 0.34 − (−0.76) = 1.10 V.']]);
+EQ('ac3-3','Inorganic chemistry','',[
+ ['c','What colour is the [Cu(H₂O)₆]²⁺ ion?',['Pale blue','Green','Colourless','Yellow'],1,'Hexaaqua copper(II) is pale blue.'],
+ ['c','Which Period 3 oxide dissolves in water to give a strongly alkaline solution?',['Na₂O','SO₂','P₄O₁₀','SiO₂'],1,'Na₂O + H₂O → 2NaOH.'],
+ ['s','Explain why transition metals and their compounds are often good catalysts.',2,['They have variable oxidation states, so they can transfer electrons','They can adsorb reactants onto their surface (or form intermediates)']]]);
+EQ('ac3-4','Carbonyls and spectroscopy','',[
+ ['c','Which reagent tells an aldehyde from a ketone?',['Tollens\' reagent (gives a silver mirror)','Bromine water','Limewater','Sodium hydroxide'],1,'Aldehydes are oxidised; ketones are not.'],
+ ['n','How many peaks are there in the ¹³C NMR spectrum of propanone, CH₃COCH₃?',2,0,'',1,'The two CH₃ carbons are equivalent, plus the C=O carbon: 2 environments.'],
+ ['s','Explain why phenylamine is a weaker base than ammonia.',2,['The lone pair on nitrogen is delocalised into the benzene ring','So it is less available to accept a proton']]]);
+EQ('ac4-1','A back titration','0.500 g of impure calcium carbonate reacts with 50.0 cm³ of 0.200 mol/dm³ HCl (an excess). The leftover HCl needs 21.0 cm³ of 0.100 mol/dm³ NaOH. CaCO₃ + 2HCl → CaCl₂ + H₂O + CO₂. Mr CaCO₃ = 100.',[
+ ['n','Calculate the moles of HCl added at the start.',0.01,0.01,'mol',1,'0.200 × 50.0 ÷ 1000 = 0.0100 mol.'],
+ ['n','Calculate the moles of HCl left over.',0.0021,0.01,'mol',1,'0.100 × 21.0 ÷ 1000 = 0.00210 mol.'],
+ ['n','Calculate the percentage purity of the calcium carbonate.',79,0.01,'%',3,'HCl reacted = 0.0100 − 0.0021 = 0.0079 mol → CaCO₃ = 0.00395 mol = 0.395 g. 0.395 ÷ 0.500 × 100 = 79%.']]);
+EQ('ac4-2','Mechanisms and practicals','',[
+ ['c','In the reaction of bromoethane with OH⁻, where does the first curly arrow start?',['A lone pair on the OH⁻, going to the δ+ carbon','The C–Br bond, going to OH⁻','The bromine atom, going to the hydrogen','The δ+ carbon, going to OH⁻'],1,'Nucleophilic substitution: the nucleophile\'s lone pair attacks the δ+ carbon.'],
+ ['c','A strong IR absorption near 1700 cm⁻¹ shows which bond?',['C=O','O–H','C–H','C–C'],1,'C=O stretches absorb strongly around 1680–1750 cm⁻¹.'],
+ ['s','Describe how to measure the enthalpy of neutralisation of HCl with NaOH.',3,['Measure known volumes of known concentrations into an insulated (polystyrene) cup','Record the starting temperature, mix, and record the highest temperature (or extrapolate a cooling curve)','Use q = mcΔT, then divide by the moles of water formed']]]);
+/* ---------- A-level Maths ---------- */
+EQ('am1-1','Algebra fluency','',[
+ ['n','Evaluate 8^(2/3).',4,0,'',1,'Cube root of 8 is 2; 2² = 4.'],
+ ['n','Solve 2^(x + 1) = 32.',4,0,'x =',1,'32 = 2⁵, so x + 1 = 5.'],
+ ['n','x² − 8x + 3 = (x − 4)² + q. What is the minimum value of x² − 8x + 3?',-13,0,'',2,'(x − 4)² − 16 + 3 = (x − 4)² − 13. The minimum is −13, at x = 4.']]);
+EQ('am1-2','Lines and simultaneous equations','',[
+ ['n','A line passes through (2, 5) with gradient 3. Find its y-intercept.',-1,0,'',2,'y − 5 = 3(x − 2) → y = 3x − 1.'],
+ ['n','Solve y = x² − 2 and y = x + 4. Give the positive value of x.',3,0,'x =',3,'x² − 2 = x + 4 → x² − x − 6 = 0 → (x − 3)(x + 2) = 0.'],
+ ['c','Solve x² − 4x − 5 < 0.',['−1 < x < 5','x < −1 or x > 5','x < 5','−5 < x < 1'],1,'(x − 5)(x + 1) < 0 between the roots.']]);
+EQ('am2-1','Proof and polynomials','',[
+ ['n','kx² + 4x + 1 = 0 has equal roots. Find k.',4,0,'k =',2,'b² − 4ac = 0 → 16 − 4k = 0 → k = 4.'],
+ ['n','(x − 2) is a factor of x³ − 3x² + ax + 2. Find a.',1,0,'a =',2,'f(2) = 8 − 12 + 2a + 2 = 0 → a = 1.'],
+ ['s','Disprove the statement "n² + n + 41 is prime for every positive integer n".',2,['Find a counter-example: n = 40 gives 1681 (or n = 41 gives 1763)','1681 = 41² (1763 = 41 × 43) is not prime, so the statement is false']]]);
+EQ('am2-2','Circles, trig and the binomial','',[
+ ['n','Find the radius of the circle x² + y² − 6x + 4y − 12 = 0.',5,0,'',2,'(x − 3)² + (y + 2)² = 12 + 9 + 4 = 25, so r = 5.'],
+ ['n','Solve sin x = 0.5 for 0° ≤ x ≤ 180°. Give the larger solution.',150,0,'°',2,'x = 30° or 180° − 30° = 150°.'],
+ ['n','Find the coefficient of x² in the expansion of (1 + 2x)⁶.',60,0,'',2,'⁶C₂ × 2² = 15 × 4 = 60.']]);
+EQ('am2-3','Calculus and logs','',[
+ ['n','y = 2x³ − 3x² − 12x. Find the x-coordinate of the local minimum.',2,0,'x =',3,'dy/dx = 6x² − 6x − 12 = 6(x − 2)(x + 1). d²y/dx² = 12x − 6 > 0 at x = 2.'],
+ ['n','Evaluate ∫₁³ (3x² + 2) dx.',30,0,'',2,'[x³ + 2x]₁³ = (27 + 6) − (1 + 2) = 30.'],
+ ['n','Solve e^(2x) = 10. Give your answer to 3 decimal places.',1.151,0.001,'x =',2,'2x = ln 10, so x = ln 10 ÷ 2 ≈ 1.151.']]);
+EQ('am2-4','Statistics and mechanics','X ~ B(10, 0.3).',[
+ ['n','Find P(X = 3) to 3 decimal places.',0.267,0.005,'',2,'¹⁰C₃ × 0.3³ × 0.7⁷ = 120 × 0.027 × 0.0824 ≈ 0.267.'],
+ ['c','A test checks whether p has increased from 0.3. What is H₁?',['p > 0.3','p = 0.3','p < 0.3','p ≠ 0.3'],1,'"Increased" means a one-tailed test with H₁: p > 0.3.'],
+ ['n','A particle starts from rest with acceleration 2.5 m/s². How far does it go in 4.0 s?',20,0.001,'m',2,'s = ut + ½at² = 0 + 0.5 × 2.5 × 16 = 20 m.']]);
+EQ('am3-1','Functions and series','f(x) = 2x + 3 and g(x) = x².',[
+ ['n','Find fg(2).',11,0,'',1,'g(2) = 4, then f(4) = 11.'],
+ ['n','Find f⁻¹(11).',4,0,'',1,'f⁻¹(x) = (x − 3) ÷ 2, so f⁻¹(11) = 4.'],
+ ['n','A geometric series has first term 12 and common ratio 1/3. Find its sum to infinity.',18,0.001,'',2,'S∞ = a ÷ (1 − r) = 12 ÷ (2/3) = 18.'],
+ ['n','Find the coefficient of x³ in the expansion of (1 + x)⁻¹.',-1,0,'',1,'(1 + x)⁻¹ = 1 − x + x² − x³ + …']]);
+EQ('am3-2','Radians and R cos(θ − α)','',[
+ ['n','Convert 150° to radians, to 3 decimal places.',2.618,0.001,'',1,'150 × π ÷ 180 = 5π/6 ≈ 2.618.'],
+ ['n','3 cos θ + 4 sin θ = R cos(θ − α). Find R.',5,0,'R =',2,'R = √(3² + 4²) = 5.'],
+ ['n','Find α in degrees, to 2 decimal places.',53.13,0.001,'°',2,'tan α = 4/3, so α ≈ 53.13°.']]);
+EQ('am3-3','Further calculus','',[
+ ['n','Find d/dx (x²eˣ) at x = 1, to 3 decimal places.',8.155,0.002,'',2,'Product rule: (2x + x²)eˣ. At x = 1: 3e ≈ 8.155.'],
+ ['n','Evaluate ∫₀¹ x eˣ dx.',1,0.001,'',3,'By parts: [x eˣ − eˣ]₀¹ = (e − e) − (0 − 1) = 1.'],
+ ['n','dy/dx = 3y and y = 2 when x = 0. Find y when x = 1, to 2 decimal places.',40.17,0.002,'y =',2,'y = 2e^(3x). At x = 1: 2e³ ≈ 40.17.']]);
+EQ('am3-4','Normal distribution and mechanics','X ~ N(50, 4²).',[
+ ['n','Find P(X < 56) to 4 decimal places.',0.9332,0.002,'',2,'z = (56 − 50) ÷ 4 = 1.5. Φ(1.5) = 0.9332.'],
+ ['n','A 5.0 kg block on a rough horizontal floor (μ = 0.3) is pulled by a horizontal 20 N force. g = 9.8. Find its acceleration.',1.06,0.01,'m/s²',3,'Friction = μmg = 0.3 × 5 × 9.8 = 14.7 N. a = (20 − 14.7) ÷ 5 = 1.06 m/s².'],
+ ['n','A projectile is launched at 20 m/s at 30° above horizontal ground. g = 9.8. Find its time of flight, to 2 decimal places.',2.04,0.01,'s',2,'Vertical speed = 20 sin 30° = 10 m/s. Time = 2 × 10 ÷ 9.8 ≈ 2.04 s.']]);
+EQ('am4-1','Proof and modelling','A population is modelled by P = 500e^(0.04t), where t is in years.',[
+ ['n','How long does the population take to double, to 2 decimal places?',17.33,0.002,'years',2,'e^(0.04t) = 2 → t = ln 2 ÷ 0.04 ≈ 17.33 years.'],
+ ['s','Prove by contradiction that √2 is irrational.',3,['Assume √2 = a/b where a and b are integers with no common factors','Then a² = 2b², so a² is even and a is even; write a = 2k, so 4k² = 2b² and b² = 2k²','So b is even too: a and b share a factor of 2, a contradiction, so √2 is irrational']]]);
+EQ('am4-2','Exam technique','',[
+ ['c','A question asks for an "exact" answer. What does that mean?',['Leave it in surd, π or ln form, not as a rounded decimal','Give it to 3 significant figures','Give it as a fraction only','Round to the nearest whole number'],1,'Exact means no rounding: e.g. 2√3 or ln 5.'],
+ ['n','Find the exact value of ∫₁^e (1/x) dx.',1,0,'',1,'[ln x]₁^e = ln e − ln 1 = 1 − 0 = 1.'],
+ ['c','X is a continuous random variable with a normal distribution. What is P(X = 5)?',['0','0.5','It depends on the mean','1'],1,'For a continuous variable the probability of any single exact value is 0.']]);
+/* ---------- the exam-question card ---------- */
+WIDGETS.examQ=function(box,par){var Q=par.q,parts=Q.parts,L='abcdefghij',got=[],max=0,done=0;parts.forEach(function(p){max+=p[0]==='n'?p[5]:p[0]==='c'?p[3]:p[2]});
+ var hd=el('div','exqhd',null,box),st=el('div','exqstem',null,box),list=el('div','exqparts',null,box),end=el('div','exqend',null,box);
+ function head(){var sc=got.reduce(function(a,b){return a+(b||0)},0);hd.innerHTML='<div class="mdhd exh"><div class="exsc"><b>'+sc+'</b><small>/'+max+'</small><span>marks</span></div><div class="mdtt"><span class="mdk">Exam question'+(par.unit?' · '+par.unit:'')+'</span><b>'+Q.title+'</b><span class="mdsub">'+parts.length+' parts · '+max+' marks · answer each part, then mark it</span></div></div>'}
+ st.innerHTML=Q.stem?'<p>'+Q.stem+'</p>':'';st.hidden=!Q.stem;head();
+ parts.forEach(function(p,i){var mk=p[0]==='n'?p[5]:p[0]==='c'?p[3]:p[2],d=el('div','exqp',null,list);d.innerHTML='<div class="exqq"><b>('+L.charAt(i)+')</b> '+p[1]+' <span class="exm">['+mk+' mark'+(mk>1?'s':'')+']</span></div>';var ui=el('div','exqui',null,d),fb=el('div','exqfb',null,d);
+  function fin(g){got[i]=g;done++;d.classList.add(g===mk?'full':g>0?'part':'zero');head();if(done===parts.length)finish()}
+  if(p[0]==='n'){ui.innerHTML='<div class="cdline"><input class="numin cdbox" type="text" inputmode="decimal" autocomplete="off" aria-label="Answer to part '+L.charAt(i)+'"><span>'+(p[4]||'')+'</span></div>';var inp=ui.querySelector('input'),b=btn(ui,'Mark it',mark,'pri');inp.onkeydown=function(e){if(e.key==='Enter'){e.preventDefault();e.stopPropagation();mark()}};
+   function mark(){var v=parseNum(inp.value);if(isNaN(v)){fb.innerHTML='<span class="small">Type a number. Standard form like 3.2e9 or 3.2 × 10^9 is fine.</span>';return}var ok=p[2]===0?Math.abs(v)<1e-9:Math.abs(v-p[2])<=Math.abs(p[2])*(p[3]||0.005)+1e-12;inp.disabled=true;b.remove();inp.style.borderColor=ok?cssv('--good-line'):cssv('--bad-line');var sl='';if(!ok){try{sl=numSlip(v,p[2])}catch(e){}}
+    fb.innerHTML='<b>'+(ok?mk+'/'+mk+' ✓':'0/'+mk)+'</b>'+(sl?'<div class="cdslip">🔎 '+sl+'</div>':'')+'<div class="exms"><b>Mark scheme</b><div>'+p[6]+'</div></div>';try{sfx(ok?'right':'wrong')}catch(e){}fin(ok?mk:0)}}
+  else if(p[0]==='c'){var box2=el('div','opts',null,ui),sel=-1;shuffle(p[2].map(function(_,k){return k})).forEach(function(k){var o=el('button','opt',p[2][k],box2);o.onclick=function(){if(o.disabled)return;sel=k;[].forEach.call(box2.children,function(x){x.disabled=true;if(x===o)x.classList.add(k===0?'right':'wrong')});if(k!==0)[].forEach.call(box2.children,function(x){if(x.textContent===p[2][0])x.classList.add('right')});var ok=k===0;fb.innerHTML='<b>'+(ok?mk+'/'+mk+' ✓':'0/'+mk)+'</b><div class="exms"><b>Mark scheme</b><div>'+p[4]+'</div></div>';try{sfx(ok?'right':'wrong')}catch(e){}fin(ok?mk:0)}})}
+  else{ui.innerHTML='<textarea rows="4" placeholder="Write your answer as you would in the exam…"></textarea>';var ta=ui.querySelector('textarea'),b2=btn(ui,'Check against the mark scheme',reveal,'pri');
+   function reveal(){if(ta.value.trim().split(/\s+/).length<3){fb.innerHTML='<span class="small">Write your answer first, then compare it with the mark scheme.</span>';return}ta.disabled=true;b2.remove();
+    fb.innerHTML='<div class="exms"><b>Mark scheme</b> · tick each point your answer makes (1 mark each, up to '+mk+')<div class="exck">'+p[3].map(function(pt,k){return '<label><input type="checkbox" data-k="'+k+'"> '+pt+'</label>'}).join('')+'</div></div>';var cb=btn(fb,'Done marking',function(){var n=fb.querySelectorAll('input:checked').length,g=Math.min(mk,n);[].forEach.call(fb.querySelectorAll('input'),function(x){x.disabled=true});cb.remove();fb.insertAdjacentHTML('beforeend','<b>'+g+'/'+mk+(g===mk?' ✓':'')+'</b>');fin(g)},'pri')}}});
+ function finish(){var sc=got.reduce(function(a,b){return a+b},0),pc=Math.round(sc/max*100);end.innerHTML='<div class="exend"><div class="exbig">'+sc+'<small>/'+max+'</small></div><b>'+pc+'%</b><p>'+(pc>=90?'Full marks territory. Well done.':pc>=70?'Strong answer. Check the mark scheme for the marks you dropped.':pc>=50?'Getting there. Look at what each mark scheme rewards.':'Worth going back over this unit, then trying again.')+'</p></div>';try{addXP(sc*3,end)}catch(e){}try{sfx(pc>=70?'done':'quest')}catch(e){}}
+ return {check:function(){return done===parts.length?{ok:true}:{ok:false,msg:'Answer and mark every part first ('+done+' of '+parts.length+' done).'}}}};
+(function(){var s2=document.createElement('style');s2.textContent='.exqstem{margin:12px 0;padding:12px 14px;border-left:4px solid var(--accent);border-radius:10px;background:var(--soft);font-size:16.5px;line-height:1.55}.exqstem p{margin:0}.exqparts{display:flex;flex-direction:column;gap:12px}.exqp{border:1.5px solid var(--line);border-radius:14px;padding:12px 14px;background:var(--panel)}.exqp.full{border-color:var(--good-line)}.exqp.part{border-color:var(--amber,#ef9f27)}.exqp.zero{border-color:var(--bad-line,#d64545)}.exqq{font-size:16.5px;line-height:1.5}.exqui{margin-top:8px;display:flex;flex-direction:column;gap:8px;align-items:flex-start}.exqui textarea{width:100%;box-sizing:border-box;font:inherit;font-size:16px;padding:10px 12px;border-radius:10px;border:2px solid var(--line);background:var(--bg);color:var(--text)}.exqui .opts{width:100%}.exqfb{margin-top:6px}.exqfb:empty{display:none}.exck{display:flex;flex-direction:column;gap:6px;margin-top:8px}.exck label{display:flex;gap:8px;align-items:flex-start;line-height:1.4}.exck input{width:18px;height:18px;flex:none;margin-top:2px;accent-color:var(--accent)}';document.head.appendChild(s2)})();
+/* the unit's Exam-style button: the written exam question(s) for the unit if there are any, otherwise the generated marked set */
+var startExam0=startExam;startExam=function(ui){var u=UNITS[ui],qs=EXQ[u.id];if(!qs||!qs.length)return startExam0(ui);
+ P={mode:'exam',ui:ui,li:-1,cards:qs.map(function(q){return W('examQ',{q:q,unit:u.title},'')}),i:0,xp:0,right:0,asked:0,title:'Exam question',color:u.color,unit:u.title+' · exam question',combo:0,best:0,cbonus:0,mistakes:0,fixed:0,newBadges:[],levelUp:null};openPlayer()};
+/* ===== hand-written questions for teach cards that nothing asked about (keyed by the card's lesson and position) ===== */
+var HANDQ={
+ 'e3b#0':Q('Using E = mc², what is the first thing you do with a mass given in grams?',['Divide by 1000 to get kilograms','Multiply by 1000','Square it','Multiply by 9 × 10¹⁶ straight away'],0,'Mass must be in kilograms. Then multiply by c² = 9 × 10¹⁶ to get joules.'),
+ 'a1#2':Q('Why is PWR fuel enriched?',['Natural uranium is only 0.72% U-235, and a PWR needs about 3–5%','To remove all the U-238','To make it less radioactive','So it fissions with fast neutrons'],0,'U-235 is the isotope that fissions easily with slow neutrons, so the fuel needs more of it than nature provides.'),
+ 'ee3#6':Q('How does Hinkley Point C protect against losing all its emergency diesels at once?',['Several diesels per reactor kept apart, plus extra backup diesels in separate buildings','One very large diesel for the whole site','Batteries only','It doesn\'t need backup power'],0,'Separation means one fire, flood or failure can\'t take them all out together.'),
+ 'm2-1-1#1':Q('What is the golden rule for rearranging an equation?',['Whatever you do to one side, do exactly the same to the other','Only change the left-hand side','Move numbers across and keep their signs','Always multiply both sides by 2'],0,'An equation is a balance: treat both whole sides the same and it stays balanced.'),
+ 'm2-1-2#1':Q('In y = mx + c, what does c tell you?',['Where the line crosses the y-axis','How steep the line is','The speed of light','Where the line crosses the x-axis'],0,'c is the intercept: the value of y when x = 0. m is the gradient.'),
+ 'm2-1-3#1':Q('Dose is directly proportional to time. You stay three times as long. What happens to your dose?',['It triples','It stays the same','It falls to a third','It goes up nine times'],0,'Directly proportional: y = kx, so multiplying x by 3 multiplies y by 3.'),
+ 'm2-1-3#2':Q('y is inversely proportional to x. What happens to y when x doubles?',['It halves','It doubles','It quadruples','It stays the same'],0,'y = k/x: double x and y is divided by 2.'),
+ 'm2-2-2#3':Q('Using ln(aⁿ) = n ln a and ln 2 ≈ 0.693, what is ln 8?',['About 2.079','About 0.693','About 5.545','About 1.386'],0,'8 = 2³, so ln 8 = 3 ln 2 = 3 × 0.693 ≈ 2.079.'),
+ 'm2-3-2#3':Q('Differentiate y = 4x³ + 2x.',['12x² + 2','12x² + 2x','4x² + 2','12x³ + 2'],0,'Differentiate each term: 4 × 3x² = 12x², and 2x → 2.'),
+ 'm2-4-2#1':Q('What is ∫ 3x² dx?',['x³ + C','6x + C','3x³ + C','x² + C'],0,'Ask what differentiates to 3x²: x³ does. Add the constant C.'),
+ 'm2-5-1#1':Q('A nuclide has a half-life of 10 s. What is its decay constant?',['About 0.0693 per second','About 6.93 per second','10 per second','0.1 per second'],0,'λ = ln 2 ÷ T½ = 0.693 ÷ 10 = 0.0693 s⁻¹.'),
+ 'm2-5-2#1':Q('About how much does one mole of uranium-235 weigh?',['235 g','235 kg','6.022 × 10²³ g','1 g'],0,'One mole of an isotope has a mass in grams equal to its mass number.'),
+ 't2-1-2#1':Q('Which two things are always conserved in a nuclear decay?',['Mass number and charge (proton number)','Mass and the number of neutrons','Energy and the number of electrons','The element and its mass'],0,'The totals of mass number and charge are the same on both sides, which tells you the new nucleus.'),
+ 't2-2-3#1':Q('Why does a PWR need a moderator?',['U-235\'s fission cross-section is hundreds of times bigger for slow (thermal) neutrons','Fast neutrons can\'t be absorbed by anything','To speed the neutrons up','To make the water boil'],0,'The 1/v rule: slower neutrons spend longer near each nucleus, so they are far more likely to cause fission.'),
+ 't2-4-3#1':Q('For a steam generator running steadily, what does the first law of thermodynamics say?',['Energy in per second equals energy out per second','Energy out is always more than energy in','Energy is used up as it passes through','Only the water\'s temperature matters'],0,'Energy can\'t be created or destroyed, so in a steady state what flows in must flow out.'),
+ 't2-5-2#1':Q('A thin, tough oxide layer forms on metal in the primary circuit. What problem remains even with it there?',['Some metal still dissolves, and oxide flakes can travel round the circuit','The metal becomes radioactive straight away','The water stops flowing','The oxide makes the water boil'],0,'Dissolved metal and loose flakes can be carried into the core and activated, raising radiation levels around the plant.'),
+ 't2-5-3#2':Q('Why is lithium-7 used in the primary water rather than lithium-6?',['Lithium-6 would absorb neutrons and make tritium','Lithium-7 is cheaper to find in sea water','Lithium-6 is not alkaline','Lithium-7 makes the boron work better'],0,'Lithium-7 barely absorbs neutrons, so it can control pH without making tritium.'),
+ 't3-2-1#1':Q('At 50% power, roughly how big is equilibrium xenon compared with full power?',['About 80% of the full-power value','About 50%','About 10%','Exactly the same'],0,'Xenon isn\'t proportional to power: at lower power, less is burnt out by neutrons, so it stays high.'),
+ 't3-3-2#1':Q('Why do limits on linear heat rate also matter in a loss-of-coolant accident?',['A rod that was very hot beforehand has more stored heat to get rid of','The coolant turns into boron','Hot rods produce fewer neutrons','LHR limits only matter at start-up'],0,'Stored heat in the fuel has to go somewhere when cooling is disturbed; lower LHR means less to get rid of.'),
+ 't3-4-3#1':Q('In a large-break LOCA, what is the first protection to inject water?',['The accumulators: pressurised tanks of borated water','The main feedwater pumps','The pressuriser heaters','The turbine'],0,'Accumulators discharge passively as soon as pressure falls, followed by low-head safety injection.'),
+ 't3-5-3#1':Q('During startup, an alarm sounds that nobody can explain. What does conservative decision-making say to do?',['Stop and investigate before going on','Carry on and check it later','Silence it and continue','Raise power to see if it clears'],0,'When in doubt, choose the action that puts the plant in a safer state, even if it costs time or output.'),
+ 'm4-2-1#1':Q('Why are there 6.7 × 10²² hydrogen atoms per cm³ of water when there are 3.35 × 10²² molecules?',['Each water molecule contains two hydrogen atoms','Hydrogen is lighter than oxygen','The density of water is 2 g/cm³','Avogadro\'s number doubles for liquids'],0,'H₂O has two hydrogen atoms per molecule: 2 × 3.35 × 10²² = 6.7 × 10²².'),
+ 'm4-2-2#1':Q('A neutron beam enters a slab. How does the number of uncollided neutrons fall with depth?',['Exponentially: I = I₀e^(−Σx)','In a straight line','It doesn\'t fall until halfway','As 1/x²'],0,'Each thin slice removes the same fraction, which gives exponential decay with distance.'),
+ 'm4-2-3#1':Q('Σ = 0.1 cm⁻¹ and φ = 2 × 10¹³ cm⁻² s⁻¹. What is the reaction rate density R = Σφ?',['2 × 10¹² per cm³ per second','2 × 10¹⁴ per cm³ per second','2 × 10¹³ per cm² per second','0.2 per cm³ per second'],0,'0.1 × 2 × 10¹³ = 2 × 10¹² reactions per cm³ per second.'),
+ 'm4-3-3#1':Q('What happens to the geometric buckling as a core gets bigger?',['It gets smaller, so fewer neutrons leak','It gets bigger, so more leak','It stays the same','It becomes negative'],0,'Buckling measures how curved the flux must be to reach zero at the edges; a bigger core needs less curvature.'),
+ 'm4-4-1#1':Q('A material has a low thermal conductivity k. What does it need to push heat through it?',['A big temperature difference','A small temperature difference','No temperature difference','A higher density'],0,'q″ = −k dT/dx: with small k, a large temperature gradient is needed for the same heat flux. That is why UO₂ fuel centres run so hot.'),
+ 't4-1-2#1':Q('About how much excitation energy must a uranium nucleus get to climb the fission barrier?',['About 6 MeV','About 200 MeV','About 0.025 eV','About 2 MeV'],0,'Stretching the nucleus costs surface energy at first, giving a barrier of about 6 MeV.'),
+ 't4-2-1#1':Q('In which energy region are U-238\'s resonances found?',['The slowing-down (epithermal) region, 1 eV to 0.1 MeV','The fast region above 1 MeV','The thermal region below 1 eV','Above 10 MeV'],0,'Neutrons pass through the resonance region as they slow down, which is why resonance escape probability matters.'),
+ 't4-2-2#1':Q('Which fissile nucleus has the highest η with fast neutrons?',['Plutonium-239 (about 2.9)','Uranium-235 (about 2.3)','Uranium-233 (about 2.4)','Uranium-238'],0,'That high fast η is why fast breeder reactors use plutonium.'),
+ 't4-5-2#1':Q('For 1 MeV gammas, which material has the smallest half-value layer?',['Lead (about 0.9 cm)','Concrete (about 4.7 cm)','Water (about 9.8 cm)','Air'],0,'Lead has the biggest attenuation coefficient μ, so HVL = ln 2 ÷ μ is smallest.'),
+ 't4-5-3#1':Q('Which dose quantity are radiation limits set on?',['Effective dose, in sieverts','Absorbed dose, in grays','Activity, in becquerels','Exposure time, in hours'],0,'Effective dose adds up the weighted doses to each organ, giving one number that reflects overall risk.'),
+ 'm5-2-3#1':Q('Why do designers limit control rod worths, especially at hot zero power?',['So an ejected rod can only insert a limited amount of reactivity','To make the reactor start faster','Because rods are worth nothing at full power','To save boron'],0,'A rod ejection inserts its local worth in about 0.1 s; limiting the worth limits the power pulse.'),
+ 'm5-3-3#1':Q('In the finite-difference method, what does each mesh point give you?',['One equation linking it to its neighbours','The exact flux everywhere','A random neutron history','The value of k directly'],0,'Together all the point equations form the matrix equation Aφ = (1/k)Fφ.'),
+ 'm5-4-1#1':Q('A component has a failure rate λ = 10⁻⁴ per hour. What is its mean time to failure?',['10 000 hours','10⁻⁴ hours','1000 hours','100 hours'],0,'MTTF = 1/λ = 1 ÷ 10⁻⁴ = 10 000 hours.'),
+ 't5-1-3#1':Q('What is the EPR\'s aeroball system used for?',['Making a detailed flux map to calibrate the fixed in-core detectors','Cooling the core in an accident','Adding boron to the water','Moving the control rods'],0,'Vanadium balls are blown into the core, activated by neutrons, then counted outside.'),
+ 't5-2-3#1':Q('Under ALARP, when can you decide not to take a safety measure?',['Only when its cost is grossly disproportionate to the risk reduction it gives','Whenever it costs money','When the risk is already below the legal limit','Never'],0,'The law requires risks to be reduced so far as is reasonably practicable; "grossly disproportionate" is a high bar.'),
+ 't5-3-2#1':Q('What is a typical human error probability for a complex diagnosis under high stress and little time?',['About 10⁻¹ or worse','About 10⁻³','About 10⁻⁶','Zero, with training'],0,'That is why training, clear procedures and time margins matter so much.'),
+ 'm6-1-1#3':Q('Why does solving the Boltzmann transport equation need supercomputers?',['It has 7 variables: position, direction, energy and time','It is only approximate','It has no solution','It ignores scattering'],0,'Three position, two direction, one energy and one time variable make it enormous to solve numerically.'),
+ 'm6-2-2#1':Q('In dN₂/dt = λ₁N₁ − λ₂N₂, what does the λ₁N₁ term represent?',['The daughter being made by the parent\'s decay','The daughter decaying','The parent being made','The neutron flux'],0,'The daughter gains what the parent loses (λ₁N₁) and loses its own decays (λ₂N₂).'),
+ 'm6-3-2#1':Q('In Monte Carlo, what does a track-length tally in a cell estimate?',['The neutron flux in that cell','The number of fuel pins','The mass of the cell','The temperature'],0,'Total track length per unit volume, averaged per source neutron, estimates the flux.'),
+ 't6-1-1#1':Q('Why must η be comfortably above 2 for breeding?',['One neutron keeps the chain going, one makes a new fissile atom, and some are lost to leakage','Because two fuels are used','So the reactor runs twice as hot','Because η is always exactly 2'],0,'1 for the chain + 1 for breeding + losses means η must exceed 2 with some margin.'),
+ 't6-1-3#3':Q('What does the PUREX process do?',['Dissolves spent fuel in nitric acid and separates out uranium and plutonium','Turns waste into glass','Enriches uranium','Cools the spent fuel ponds'],0,'Solvent extraction separates U and Pu for reuse; the remaining fission products are high-level waste.'),
+ 't6-2-3#1':Q('Why do 14.1 MeV fusion neutrons damage steel so badly?',['They knock atoms out of place many times over and make helium inside the steel','They are slower than fission neutrons','They melt the steel instantly','They carry an electric charge'],0,'Displacement damage and helium build-up cause swelling and embrittlement.'),
+ 't6-3-1#4':Q('Why is liquid high-level waste turned into glass?',['Glass locks the fission products into a solid that dissolves extremely slowly','Glass makes the waste stop being radioactive','It makes the waste lighter to transport','So it can be recycled as fuel'],0,'Vitrified waste is stable and leaches very slowly, ready for storage and eventual disposal.'),
+ 'm7-3-3#1':Q('What combination tends to make a feedback system oscillate?',['A delay plus strong correction','No delay and weak correction','No feedback at all','A very fast sensor'],0,'Like a shower with a long pipe: you overcorrect before you see the effect of the last change.'),
+ 't7-2-1#1':Q('Which UK body regulates nuclear safety and security?',['The Office for Nuclear Regulation (ONR)','The Environment Agency','Ofgem','The National Grid'],0,'The Environment Agency regulates radioactive discharges and waste; ONR regulates safety and security.'),
+ 't7-2-2#1':Q('How long is a nuclear safety case kept up to date?',['Through the plant\'s whole life, including decommissioning','Only until the plant is licensed','Only during construction','It never changes once written'],0,'It is a living document: a structured argument backed by evidence, updated as the plant changes.'),
+ 't7-3-3#1':Q('Roughly what fraction of a PWR\'s output becomes electricity?',['About 35%','About 90%','About 10%','All of it'],0,'Most of the output is heat. That is why using nuclear heat directly for industry is attractive.')};
+/* ===== encouragement: a chest meter fed by XP, a lesson-end screen that shows how far you've come, highlights and daily bonuses ===== */
+var ENC_STEP=250,ENC_RAR={C:{n:'Common',c:'#8a94a6'},R:{n:'Rare',c:'#2f8fe6'},E:{n:'Epic',c:'#9b5de5'},L:{n:'Legendary',c:'#f5a524'}};
+function encGet(){var x=lxGet();x.enc=x.enc&&typeof x.enc==='object'?x.enc:{m:0,f:0,d:'',n:0,ld:''};return x}
+function encTier(f){return f%10===0?'E':f%4===0?'R':'C'}
+/* every 250 XP fills the meter and drops a chest: every 4th is Rare, every 10th is Epic */
+function encGain(g){var x=encGet(),e=x.enc,won=[];e.m=(e.m||0)+g;while(e.m>=ENC_STEP){e.m-=ENC_STEP;e.f=(e.f||0)+1;var t=encTier(e.f);won.push(t);try{MOT.earn(t,'meter')}catch(_){}}lxSet(x);
+ if(won.length){if(typeof P!=='undefined'&&P&&!P.finished){P.encWon=(P.encWon||[]).concat(won);var b=won.indexOf('E')>=0?'Epic':won.indexOf('R')>=0?'Rare':'Common';try{toast('🎁','Chest meter full!','+'+won.length+' '+b+' chest'+(won.length>1?'s':'')+' waiting at the end','badge')}catch(_){}}
+  else{try{toast('🎁','Chest meter full!','A chest is waiting in Rewards','badge')}catch(_){}}}
+ try{encMeterDraw()}catch(_){}}
+var axENC=addXP;addXP=function(n,el){var x0=S.xp,out=axENC.apply(this,arguments),g=S.xp-x0;if(g>0)try{encGain(g)}catch(e){}return out};
+/* remember where you started, so the end screen can show the change */
+var opENC=openPlayer;openPlayer=function(){try{if(P){P.encX0=S.xp;P.encB=S.st.best||0;P.encR0=level().i;P.encD0=(S.hist&&S.hist[today()])||0}}catch(e){}return opENC.apply(this,arguments)};
+function chestArt(t,sz){var c=(ENC_RAR[t]||ENC_RAR.C).c;sz=sz||64;return '<svg viewBox="0 0 160 140" width="'+sz+'" height="'+Math.round(sz*0.875)+'" aria-hidden="true"><rect x="18" y="58" width="124" height="72" rx="10" fill="'+c+'" stroke="#0b0f1a" stroke-width="5"/><rect x="18" y="80" width="124" height="10" fill="#0b0f1a" opacity=".3"/><rect x="32" y="59" width="10" height="70" fill="#e5e9f0" opacity=".8"/><rect x="118" y="59" width="10" height="70" fill="#e5e9f0" opacity=".8"/><path d="M14 62V47c0-8 6-14 14-14h104c8 0 14 6 14 14v15z" fill="'+c+'" stroke="#0b0f1a" stroke-width="5"/><rect x="66" y="62" width="28" height="30" rx="6" fill="#e5e9f0" stroke="#0b0f1a" stroke-width="4"/><path d="M80 68l8 9-8 11-8-11z" fill="#fff"/></svg>'}
+function encMeterHTML(){var e=encGet().enc,m=e.m||0,nf=(e.f||0)+1,nt=encTier(nf),R=ENC_RAR[nt];return '<div class="encmeter" id="encMeter"><span class="encmi">'+chestArt(nt,34)+'</span><div class="encmx"><div class="encmt"><b>Chest meter</b><span>'+Math.round(m)+' / '+ENC_STEP+' XP</span></div><div class="encbar"><i style="width:'+(m/ENC_STEP*100).toFixed(1)+'%;background:'+R.c+'"></i></div><div class="encms">'+(ENC_STEP-Math.round(m))+' XP to your next chest'+(nt!=='C'?': a <b style="color:'+R.c+'">'+R.n+'</b> one!':'')+'</div></div></div>'}
+function encMeterDraw(){var o=document.getElementById('encMeter');if(o)o.outerHTML=encMeterHTML()}
+function encChestHTML(){var c=[];try{c=MOT._C().pending||[]}catch(e){}if(!c.length)return '';var best='C';c.forEach(function(x){if('CREL'.indexOf(x.t)>'CREL'.indexOf(best))best=x.t});var R=ENC_RAR[best];
+ return '<div class="encchest" id="encChest" style="--rc:'+R.c+'"><span class="encca">'+chestArt(best,84)+'</span><div class="enccx"><b>'+(c.length===1?'A '+R.n.toLowerCase()+' chest is waiting!':c.length+' chests are waiting!')+'</b><span>'+(c.length>1?'Including '+(best==='C'?'a Common':best==='R'?'a Rare':best==='E'?'an Epic':'a Legendary')+' one. ':'')+'See what\'s inside.</span></div><button type="button" class="xbtn" id="encOpen">Open now</button></div>'}
+function encChestDraw(){var o=document.getElementById('encChest'),h=encChestHTML(),host=document.getElementById('encWrap');if(o){if(h)o.outerHTML=h;else o.remove()}else if(h&&host)host.insertAdjacentHTML('afterbegin',h);var b=document.getElementById('encOpen');if(b)b.onclick=function(){try{MOT.open(function(){encChestDraw();encMeterDraw()})}catch(e){}}}
+/* what was good about this session, in plain words */
+function encHighlights(acc){var o=[],t=today(),y=dstr(new Date(Date.now()-864e5)),xt=(S.hist&&S.hist[t])||0,xy=(S.hist&&S.hist[y])||0,g=S.goal||50,d0=P.encD0||0;
+ if(d0<g&&xt>=g)o.push(['🎯','Daily goal reached!','You hit '+g+' XP today.']);
+ if(P.best>=5&&P.best>(P.encB||0))o.push(['🔥','New best combo!',P.best+' right in a row.']);
+ if(xy>0&&xt>xy&&d0<=xy)o.push(['📈','Better than yesterday','Already '+fmtInt(xt)+' XP today, beating yesterday\'s '+fmtInt(xy)+'.']);
+ if(P.asked>=3&&acc>=90)o.push(['⭐',acc+'% right first time','That\'s mastery-level accuracy.']);
+ else if(P.asked>=3&&acc>=70)o.push(['👍',acc+'% right first time','Solid. The mistakes are now in Fix my mistakes, ready to clear.']);
+ var lt=encGet().enc;if(lt.d===t&&lt.n>=2)o.push(['📚',lt.n===2?'Second lesson today':lt.n+' lessons today','Every one adds up.']);
+ if((S.streak||0)>=2)o.push(['🔥',S.streak+'-day streak','Come back tomorrow to make it '+(S.streak+1)+'.']);
+ if(!o.length)o.push(['💪','Another one done','Every lesson moves you up the ranks.']);return o.slice(0,3)}
+var finENC=finish;finish=function(){var lessonish=P&&!P.finished&&(P.mode==='lesson'||(P.mode==='review'&&!P.rev));var out=finENC.apply(this,arguments);
+ if(!lessonish||!P||!P.finished)return out;
+ try{var ds=document.querySelector('#pBody .done-screen');if(!ds)return out;var t=today(),x=encGet(),e=x.enc,bonus=[];
+  /* first lesson of the day, and coming back after a break */
+  if(e.d!==t){if(e.ld&&dayDiff(e.ld,t)>=3)bonus.push(['👋 Welcome back',30]);bonus.push(['☀️ First lesson today',25]);e.d=t;e.n=0}
+  e.n=(e.n||0)+1;e.ld=t;lxSet(x);
+  bonus.forEach(function(b){P.xp+=b[1];addXP(b[1])});
+  if(bonus.length){var xb=ds.querySelector('.xpbreak');if(xb)xb.insertAdjacentHTML('beforeend',bonus.map(function(b){return '<div class="encb"><span>'+b[0]+'</span><b>+'+b[1]+'</b></div>'}).join(''));var dx=$('dsXP');if(dx)setTimeout(function(){dx.textContent='+'+fmtInt(P.xp)},950);$('pXP').textContent='+'+P.xp+' XP'}
+  var acc=P.asked?Math.round(P.right/P.asked*100):100,lv=level(),r0=P.encR0==null?lv.i:P.encR0,x0=P.encX0==null?S.xp-P.xp:P.encX0,lo=LEVELS[lv.i][0],hi=lv.i<LEVELS.length-1?LEVELS[lv.i+1][0]:lo+2000,f0=lv.i>r0?0:Math.max(0,Math.min(1,(x0-lo)/(hi-lo))),f1=lv.frac,gain=S.xp-x0,lessons=gain>0?Math.ceil(lv.toNext/gain):0;
+  var h='<div id="encWrap"><div class="encrank"><div class="encrt"><span class="encrk">Rank '+(lv.i+1)+'</span><b>'+lv.name+'</b>'+(lv.i>r0?'<em class="encnew">New rank!</em>':'')+'</div><div class="encbar big"><i id="encRankBar" style="width:'+(f0*100).toFixed(1)+'%"></i><s style="left:'+(f0*100).toFixed(1)+'%;width:'+Math.max(0,(f1-f0)*100).toFixed(1)+'%"></s></div><div class="encrs"><span><b>+'+fmtInt(gain)+' XP</b> this session</span><span>'+(lv.next?fmtInt(lv.toNext)+' XP to <b>'+lv.next+'</b>'+(lessons&&lessons<40?' · about '+lessons+' more session'+(lessons>1?'s':'')+' like this':''):'Top rank!')+'</span></div></div>'+
+   encMeterHTML()+'<div class="enchl">'+encHighlights(acc).map(function(z){return '<div class="enchi"><span>'+z[0]+'</span><div><b>'+z[1]+'</b><em>'+z[2]+'</em></div></div>'}).join('')+'</div></div>';
+  var st=ds.querySelector('.done-stats');if(st)st.insertAdjacentHTML('afterend',h);else ds.insertAdjacentHTML('beforeend',h);
+  setTimeout(function(){[].forEach.call(ds.querySelectorAll('.neorank'),function(n){n.remove()})},0);
+  setTimeout(function(){var bar=document.getElementById('encRankBar');if(bar)bar.style.width=(f1*100).toFixed(1)+'%'},350);
+  setTimeout(encChestDraw,450)}catch(err){if(window.console)console.error(err)}return out};
+(function(){var st=document.createElement('style');st.textContent=
+ '#encWrap{display:flex;flex-direction:column;gap:10px;margin:14px 0 4px;text-align:left}'+
+ '.encrank{padding:14px 16px;border-radius:16px;border:1.5px solid color-mix(in srgb,var(--accent) 35%,var(--line));background:linear-gradient(120deg,color-mix(in srgb,var(--accent) 12%,var(--panel)),var(--panel) 75%)}.encrt{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}.encrk{font:800 11px var(--mono,monospace);letter-spacing:.1em;text-transform:uppercase;color:var(--accent)}.encrt b{font-size:19px}.encnew{font-style:normal;font-weight:800;font-size:12px;color:#7a5200;background:#ffe08a;border-radius:999px;padding:2px 9px}'+
+ '.encbar{position:relative;height:10px;border-radius:6px;background:var(--soft2,var(--line));overflow:hidden;margin:8px 0 6px}.encbar.big{height:14px;border-radius:8px}.encbar i{position:absolute;left:0;top:0;bottom:0;border-radius:inherit;background:linear-gradient(90deg,var(--glow,#0a9fd0),var(--glow2,#6a5af0));transition:width 1.1s cubic-bezier(.3,1,.4,1)}.encbar s{position:absolute;top:0;bottom:0;background:repeating-linear-gradient(45deg,rgba(255,255,255,.35) 0 4px,transparent 4px 8px);pointer-events:none}'+
+ '.encrs{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:13.5px;color:var(--muted)}.encrs b{color:var(--text)}'+
+ '.encmeter{display:flex;gap:12px;align-items:center;padding:10px 14px;border-radius:14px;border:1.5px solid var(--line);background:var(--panel)}.encmi{flex:none;display:grid}.encmx{flex:1;min-width:0}.encmt{display:flex;justify-content:space-between;gap:8px;font-size:14px}.encmt span{font:700 13px var(--mono,monospace);color:var(--muted)}.encmeter .encbar{margin:6px 0 4px}.encms{font-size:13px;color:var(--muted)}'+
+ '.encchest{display:flex;gap:14px;align-items:center;padding:14px 16px;border-radius:18px;border:2px solid var(--rc);background:linear-gradient(120deg,color-mix(in srgb,var(--rc) 22%,var(--panel)),var(--panel) 75%);box-shadow:0 0 24px -6px var(--rc)}.encca{flex:none;display:grid}.enccx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.enccx b{font-size:18px}.enccx span{font-size:14px;color:var(--muted)}.encchest .xbtn{font-size:16px;padding:12px 18px}'+
+ '@media (prefers-reduced-motion:no-preference){.encca svg{animation:encw 2.4s ease-in-out infinite}}@keyframes encw{0%,70%,100%{transform:rotate(0)}76%{transform:rotate(-7deg)}84%{transform:rotate(7deg)}92%{transform:rotate(-3deg)}}'+
+ '.enchl{display:grid;gap:8px}.enchi{display:flex;gap:10px;align-items:center;padding:10px 12px;border-radius:12px;background:var(--soft)}.enchi>span{font-size:22px}.enchi b{display:block;font-size:15px}.enchi em{font-style:normal;font-size:13.5px;color:var(--muted)}.encb span{font-weight:700}'+
+ '@media (max-width:560px){.encchest{flex-wrap:wrap}.encchest .xbtn{width:100%}}';document.head.appendChild(st)})();
+/* ===== Critical Race: host a live race (the code appears on screen) or join a friend's ===== */
+function raceLoad(cb){if(window.CRACE){cb();return}var s=document.createElement('script');s.src='race.js?v='+encodeURIComponent(String(APPV).split(' ')[0]);s.onload=function(){if(window.CRACE)cb()};s.onerror=function(){toast('🏁','Couldn\'t load races','Check your internet and try again','')};document.head.appendChild(s)}
+function raceTracks(){var A=window.CRIT_ARENA_API;if(!A)return [];return A.tracks().map(function(t){var n=0,d=0;t.levels.forEach(function(l){n+=l.q||0;d+=l.done||0});return {id:t.id,name:t.name,ic:t.ic,n:n,d:d}}).filter(function(t){return t.n>=10}).sort(function(a,b){return b.d-a.d})}
+function racePack(id){var A=window.CRIT_ARENA_API,t=A.tracks().filter(function(x){return x.id===id})[0],all=[];if(!t)return [];t.levels.forEach(function(l){if(l.q)all=all.concat(A.questions(id,l.lv))});var dn=all.filter(function(q){return q.done});return dn.length>=20?dn:all}
+window.CRACE_SFX=function(k){try{sfx(k)}catch(e){}};
+function raceOpts(){return {openClash:function(){try{ARENA.open()}catch(e){}},onWin:function(){try{addXP(25);toast('🏆','You won the race!','+25 XP','badge')}catch(e){}},onLeave:function(){try{if(PAGE==='learn')renderLearn()}catch(e){}}}}
+function raceHost(){raceLoad(function(){var o=raceOpts();o.tracks=raceTracks();o.pack=racePack;CRACE.host(o)})}
+function raceJoin(){raceLoad(function(){CRACE.join(raceOpts())})}
+function raceCard(){var pg=$('page-learn');if(!pg||document.getElementById('raceCard'))return;var c=document.createElement('section');c.id='raceCard';c.className='card racecard';
+ c.innerHTML='<div class="rcrow"><span class="rcic" aria-hidden="true">🏁</span><div class="rctx"><b>Race friends</b><span>Live, with a game code like Quizlet Live. First to a set number right in a row wins: one wrong answer and your streak starts again. Streak race, or Clash race in Critical Clash.</span></div><div class="rcbtns"><button type="button" class="wbtn pri" data-a="host">Host a race</button><button type="button" class="wbtn" data-a="join">Join with a code</button></div></div>';
+ var ar=document.getElementById('arnCard');if(ar&&ar.parentNode)ar.parentNode.insertBefore(c,ar.nextSibling);else{var u=pg.querySelector('.units');if(u)u.parentNode.insertBefore(c,u);else pg.appendChild(c)}
+ c.addEventListener('click',function(e){var b=e.target.closest('[data-a]');if(!b)return;if(b.dataset.a==='host')raceHost();else raceJoin()})}
+var rlRACE=renderLearn;renderLearn=function(){var out=rlRACE.apply(this,arguments);try{setTimeout(raceCard,0)}catch(e){}return out};
+(function(){var st=document.createElement('style');st.textContent='.racecard{padding:12px 14px!important;background:linear-gradient(110deg,color-mix(in srgb,#7c6cf0 16%,var(--panel)),var(--panel) 60%)!important;border-color:color-mix(in srgb,#7c6cf0 40%,var(--line))!important}.rcrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.rcic{font-size:30px}.rctx{flex:1 1 260px;min-width:0;display:flex;flex-direction:column;gap:2px}.rctx b{font-size:16px}.rctx span{font-size:13.5px;color:var(--muted);line-height:1.4}.rcbtns{display:flex;gap:6px;flex-wrap:wrap}';document.head.appendChild(st)})();
+/* ===== bedtime review: a calm 5 minutes on your phone before sleep =====
+   what you did today, then questions like the ones you got wrong (same skill or lesson, different question) */
+/* the "study day" runs until 4 am, so a review after midnight still counts as today's */
+function bedDay(){return dstr(new Date(Date.now()-4*3600e3))}
+function bedLog(){var x=lxGet(),d=bedDay();if(!x.day||x.day.d!==d)x.day={d:d,lessons:[],miss:[],asked:0,right:0};return x}
+function bedPlain(h){var t=document.createElement('div');t.innerHTML=String(h||'');return t.textContent.replace(/\s+/g,' ').trim().slice(0,160)}
+function bedNote(m){try{var x=bedLog(),D=x.day;if(m.ok===true){D.asked++;D.right++}else if(m.ok===false){D.asked++;if(D.miss.length<60)D.miss.push({lid:m.lid||null,sk:m.sk||null,k:m.k||null,p:bedPlain(m.p)})}if(m.lesson&&D.lessons.every(function(z){return z.id!==m.lesson.id}))D.lessons.push(m.lesson);lxSet(x)}catch(e){}}
+/* record right and wrong answers in lessons and reviews */
+var gwBED=gotWrong;gotWrong=function(c){var out=gwBED.apply(this,arguments);try{if(c&&'QNO'.indexOf(c.t)>=0&&!c._pre){var k=cardKey(c),lid=lxLid()||(k?String(k).replace(/^[FB]/,'').split('#')[0]:null);bedNote({ok:false,lid:lid,k:k,p:c.p})}}catch(e){}return out};
+var grBED=gotRight;gotRight=function(c){var first=P&&P.st&&!P.st.tries,out=grBED.apply(this,arguments);try{if(first&&c&&'QNO'.indexOf(c.t)>=0&&!c._pre)bedNote({ok:true})}catch(e){}return out};
+/* drills: each miss remembers its skill, so tonight's question uses the same skill with new numbers */
+var lxWeakBED=lxWeak;lxWeak=function(k,ok,rev){try{if(ok)bedNote({ok:true});else bedNote({ok:false,sk:k,lid:lxLid(),p:''})}catch(e){}return lxWeakBED.apply(this,arguments)};
+var finBED=finish;finish=function(){var lid=null,t='';try{if(P&&!P.finished&&P.mode==='lesson'){var l=UNITS[P.ui].lessons[P.li];lid=l.id;t=l.title}}catch(e){}var out=finBED.apply(this,arguments);if(lid)bedNote({lesson:{id:lid,t:t}});return out};
+/* ---- today from records the app already kept (so lessons and mistakes from before the bedtime log still count) ---- */
+var BED_INT=[1,3,7,14,30,60];
+function bedAdd(d,n){var x=new Date(d+'T12:00:00');x.setDate(x.getDate()+n);return dstr(x)}
+function bedPast(D){var out={lessons:[],miss:[],asked:0,right:0},M=(S&&S.mem)||{},lids={};
+ /* the memory log saves each question as [box, due date]: anything due exactly one interval after today was answered today, and box 0 means it was wrong */
+ for(var k in M){var e=M[k];if(!Array.isArray(e))continue;var b=e[0]|0;if(b<0||b>5||e[1]!==bedAdd(D,BED_INT[b]))continue;var sk=String(k),id=sk.replace(/^[FB]/,'').split('#')[0],L=lessonById(id);if(!L)continue;lids[id]=L.l.title;
+  if(b===0){var ci=+sk.split('#')[1],c=sk.charAt(0)==='F'?(typeof FOLLOW!=='undefined'&&FOLLOW[id]||[])[ci]:sk.charAt(0)==='B'?null:L.l.cards[ci];out.miss.push({lid:id,k:sk,p:bedPlain(c&&c.p)})}}
+ out.lessons=Object.keys(lids).map(function(id){return {id:id,t:lids[id]}});
+ /* the activity log keeps questions and right-first-time per subject per day, on every device */
+ try{var A=JSON.parse(localStorage.getItem('critical_act')||'null'),dd=(A&&A.d)||{};for(var dv in dd){var day=dd[dv]&&dd[dv][D];if(!day)continue;for(var tr in day){if(tr.charAt(0)==='_')continue;var a=day[tr]||[];out.asked+=+a[1]||0;out.right+=+a[2]||0}}}catch(e){}
+ return out}
+function bedMerged(){var D=JSON.parse(JSON.stringify(bedLog().day)),p=bedPast(D.d),have={};D.lessons.forEach(function(z){have[z.id]=1});p.lessons.forEach(function(z){if(!have[z.id]){have[z.id]=1;D.lessons.push(z)}});
+ var mk={};D.miss.forEach(function(m){if(m.k)mk[m.k]=1});p.miss.forEach(function(m){if(!mk[m.k]){mk[m.k]=1;D.miss.push(m)}});
+ if(p.asked>D.asked){D.asked=p.asked;D.right=Math.min(p.asked,p.right)}
+ var lc=D.lessons.length;try{var ld=S.lday,un=D.d.split('-').map(Number).join('-');if(ld&&ld.d===un&&ld.n>lc)lc=ld.n}catch(e){}D.nLessons=lc;return D}
+/* ---- building tonight's questions ---- */
+function bedSkills(l){var sk=[];l.cards.forEach(function(c){if(c.t==='W'&&c.w==='calcDrill'&&c.par)[].concat(c.par.skill||[]).forEach(function(k){if(typeof CGEN[k]==='function'&&sk.indexOf(k)<0)sk.push(k)})});return sk}
+function bedFromCard(c){if(!c)return null;if(c.t==='Q'&&c.o&&typeof c.a==='number'){var o=c.o.slice(),a=o.splice(c.a,1)[0];return {p:c.p,o:[a].concat(o),e:c.e||''}}if(c.t==='N'&&isFinite(c.a))return {p:c.p,b:[cB(c.a,'',c.u||'','answer',false,c.tol==null?0.02:c.tol)],e:c.e||''};return null}
+function bedSimilar(lid,avoid){var L=lessonById(lid);if(!L)return null;var sk=bedSkills(L.l);if(sk.length){var k=sk[Math.floor(Math.random()*sk.length)];try{var g=CGEN[k]();g._k=k;return g}catch(e){}}
+ var pool=[];try{pool=conceptBank(L.l).slice()}catch(e){}L.l.cards.forEach(function(c){var q=bedFromCard(c);if(q)pool.push(q)});
+ pool=pool.filter(function(q){var pt=bedPlain(q.p);return pt&&pt!==avoid});if(!pool.length)return null;return pool[Math.floor(Math.random()*pool.length)]}
+function bedBuild(){var D=bedMerged(),out=[],used={},n=function(key){used[key]=(used[key]||0)+1;return used[key]<=2};
+ D.miss.slice().reverse().forEach(function(m){if(out.length>=8)return;var q=null,key=m.sk||m.lid;if(!key||!n(key))return;
+  if(m.sk&&typeof CGEN[m.sk]==='function'){try{q=CGEN[m.sk]();q._k=m.sk}catch(e){}}else if(m.lid)q=bedSimilar(m.lid,m.p);
+  if(q){q._why='Like one you got wrong'+(m.lid&&lessonById(m.lid)?' in '+bedPlain(lessonById(m.lid).l.title):'');out.push(q)}});
+ /* not many mistakes today? top up from today's lessons, then from skills that are due */
+ for(var pass=0;pass<2&&out.length<6;pass++)D.lessons.forEach(function(z){if(out.length>=6||!n('L'+z.id))return;var q=bedSimilar(z.id,'');if(q){q._why='From today\'s lesson: '+bedPlain(z.t);out.push(q)}});
+ if(out.length<5){try{lxDue().concat(Object.keys(lxGet().weak)).forEach(function(k){if(out.length>=6||!n('w'+k)||typeof CGEN[k]!=='function')return;var q=CGEN[k]();q._k=k;q._why='A skill you slipped on before';out.push(q)})}catch(e){}}
+ if(out.length<5){try{shuffle(Object.keys(S.wrong||{})).slice(0,12).forEach(function(k){if(out.length>=6)return;var lid=String(k).replace(/^[FB]/,'').split('#')[0];if(!n(lid))return;var q=bedSimilar(lid,'');if(q){q._why='Like an older mistake';out.push(q)}})}catch(e){}}
+ return shuffle(out).slice(0,8)}
+/* ---- the screen ---- */
+var bedEl=null;
+function bedClose(){if(bedEl){bedEl.remove();bedEl=null}document.body.classList.remove('noscroll');try{if(PAGE==='learn')renderLearn();else if(PAGE==='review')renderReview()}catch(e){}}
+function bedOpen(){if(bedEl)return;bedEl=document.createElement('div');bedEl.className='bedov';bedEl.setAttribute('role','dialog');bedEl.setAttribute('aria-label','Bedtime review');document.body.appendChild(bedEl);document.body.classList.add('noscroll');bedHome()}
+function bedTop(t){return '<div class="bedtop"><span>🌙 '+t+'</span><button type="button" class="bedx" data-a="close">Close</button></div>'}
+function bedWire(){var x=bedEl.querySelector('[data-a=close]');if(x)x.onclick=bedClose}
+function bedHome(){var D=bedMerged(),xp=(S.hist&&S.hist[D.d])||0,acc=D.asked?Math.round(D.right/D.asked*100):null,dt=new Date(D.d+'T12:00:00').toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'}),qs=bedBuild();bedEl._qs=qs;
+ var mood=!D.asked&&!xp?'A quiet day. Five calm minutes now still counts.':acc!=null&&acc>=85?'A strong day. Let\'s lock it in.':D.miss.length?'You had a go at some tricky ones. Let\'s tidy them up.':'Nice work today.';
+ bedEl.innerHTML='<div class="bedw">'+bedTop('Bedtime review')+'<div class="bedcard"><p class="bedk">'+dt+'</p><h1>Your day</h1><p class="bedmood">'+mood+'</p>'+
+  '<div class="bedstats"><div><b>'+fmtInt(xp)+'</b><span>XP</span></div><div><b>'+D.nLessons+'</b><span>lesson'+(D.nLessons===1?'':'s')+'</span></div><div><b>'+D.asked+'</b><span>questions</span></div><div><b>'+(acc==null?'–':acc+'%')+'</b><span>right</span></div></div>'+
+  (D.lessons.length?'<ul class="bedls">'+D.lessons.map(function(z){return '<li>✓ '+qcEsc(bedPlain(z.t))+'</li>'}).join('')+'</ul>':'')+
+  ((S.streak||0)>0?'<p class="bedmood">🔥 '+S.streak+'-day streak.</p>':'')+'</div>'+
+  '<div class="bedcard"><h2>'+(qs.length?qs.length+' questions, about 5 minutes':'Nothing to review tonight')+'</h2><p class="bedmood">'+(qs.length?(D.miss.length?'Each one is like something you got wrong today: the same idea, but a different question.':'Questions from what you\'ve been learning, to settle it before sleep.'):'Do a lesson tomorrow and tonight\'s review will be ready for you then.')+'</p>'+(qs.length?'<button type="button" class="bedgo" id="bedGo">Start</button>':'<button type="button" class="bedgo" data-a="close2">Good night</button>')+'</div>'+
+  '<p class="bedtip">Reviewing just before sleep helps your brain keep what you learned. Keep the screen dim and stop when you\'re done.</p></div>';
+ bedWire();var g=bedEl.querySelector('#bedGo');if(g)g.onclick=function(){bedRun(qs,0,0,[])};var c2=bedEl.querySelector('[data-a=close2]');if(c2)c2.onclick=bedClose}
+function bedRun(qs,i,right,missed){if(!bedEl)return;if(i>=qs.length){bedEnd(qs.length,right,missed);return}var q=qs[i],L='',dots='';for(var j=0;j<qs.length;j++)dots+='<i class="'+(j<i?'done':j===i?'now':'')+'"></i>';
+ bedEl.innerHTML='<div class="bedw">'+bedTop('Question '+(i+1)+' of '+qs.length)+'<div class="beddots">'+dots+'</div><div class="bedcard"><p class="bedk">'+qcEsc(q._why||'')+'</p><div class="bedq">'+q.p+'</div><div id="bedA"></div><div class="bedfb" id="bedFb"></div></div><button type="button" class="bedgo" id="bedNext" hidden>Next</button></div>';
+ bedWire();var A=bedEl.querySelector('#bedA'),fb=bedEl.querySelector('#bedFb'),nx=bedEl.querySelector('#bedNext'),done=false;
+ function fin(ok,ans){if(done)return;done=true;if(ok)right++;else missed.push(q);try{if(q._k)lxWeakBED(q._k,ok,false)}catch(e){}
+  fb.innerHTML=(ok?'<b class="bedok">✓ Yes, that\'s right.</b>':'<b class="bedno">Not quite.</b> The answer is <b>'+ans+'</b>.')+(q.e?'<div class="bede">'+q.e+'</div>':'');nx.hidden=false;nx.textContent=i+1>=qs.length?'Finish':'Next';try{nx.focus({preventScroll:true})}catch(e){}}
  nx.onclick=function(){bedRun(qs,i+1,right,missed)};
  if(q.o){var box=document.createElement('div');box.className='bedopts';A.appendChild(box);shuffle(q.o.map(function(_,k){return k})).forEach(function(k){var b=document.createElement('button');b.type='button';b.className='bedopt';b.innerHTML=q.o[k];b.onclick=function(){if(done)return;[].forEach.call(box.children,function(x){x.disabled=true});b.classList.add(k===0?'ok':'no');if(k!==0)[].forEach.call(box.children,function(x){if(x.innerHTML===q.o[0])x.classList.add('ok')});fin(k===0,q.o[0])};box.appendChild(b)})}
  else{A.innerHTML='<div class="bednum">'+q.b.map(function(bb,k){return (bb.pre?'<span>'+bb.pre+'</span>':'')+'<input class="bedin'+(bb.sup?' sup':'')+'" inputmode="decimal" autocomplete="off" aria-label="'+qcEsc(bb.label||('Answer '+(k+1)))+'">'+(bb.post?'<span>'+bb.post+'</span>':'')}).join('')+'</div><button type="button" class="bedgo sm" id="bedChk">Check</button>';
@@ -104,7 +771,7 @@ var decorLearnGH=decorLearn;decorLearn=function(){var out=decorLearnGH.apply(thi
    a quick recall of last lesson before you start, and words from earlier lessons you can tap to recall ===== */
 var PACE_STOP=/^(up|down|slow|fast|not|no|more|less|all|every|only|never|always|both|one|two|three|before|after|same|higher|lower|bigger|smaller|increase|decrease|rises|falls|first|last|key points?|very|much|most|least|safe|unsafe)$/i;
 var GLOSS=null;
-function paceOn(){return typeof P!=='undefined'&&P&&P.mode==='lesson'&&UNITS[P.ui]&&(trk(P.ui)==='theory'||trk(P.ui)==='maths')}
+function paceOn(){return typeof P!=='undefined'&&P&&P.mode==='lesson'&&UNITS[P.ui]&&(trk(P.ui)==='theory'||trk(P.ui)==='maths'||trk(P.ui)==='qm')}
 function paceSents(t){return (t.replace(/\s+/g,' ').trim().match(/[^.!?]+[.!?]*/g)||[]).map(function(s){return s.trim()}).filter(Boolean)}
 /* key words: the first sentence in the course that defines each bold term */
 function glossBuild(){if(GLOSS)return GLOSS;GLOSS={};
@@ -487,143 +1154,4 @@ function fxDrawPad(A,an,c,o){A.innerHTML='<div class="fxpad"><canvas></canvas><d
   C.innerHTML='<div class="fxcmp"><div class="fxk">Here\'s the real one. Compare carefully.</div><div class="eq fxbig" data-fx="1">'+fxR(an.tree)+'</div><p class="fxlead">Check the = sign, every symbol, what\'s on the top and the bottom, and any powers or brackets.</p><div class="fxself"><button type="button" class="fxyes">✓ Mine matches</button><button type="button" class="fxno">✗ Not quite</button></div></div>';
   wrap.classList.add('lock');mainBtn('Mark yourself above',function(){},true);skipBtn(null);try{C.scrollIntoView({block:'nearest',behavior:'smooth'})}catch(e){}
   C.querySelector('.fxyes').onclick=function(){o.result(true)};C.querySelector('.fxno').onclick=function(){o.result(false,true)}}
- mainBtn('Check my writing',check);skipBtn(function(){o.peek();var e=document.createElement('div');e.className='eq fxbig fxpeekv';e.dataset.fx='1';e.innerHTML=fxR(an.tree);wrap.appendChild(e);setTimeout(function(){e.remove()},2500)},'👀 Peek');
- return function(){if(ro)try{ro.disconnect()}catch(e){}}}
-/* 🧩 build it: boxes like a calculator. A fraction gives you a box on top and a box underneath. */
-function fxBoxPad(A,an,c,o){var root=[],cur={s:root,i:0},reg=[],keyH=null;
- var syms=[],seen={};an.idx.list.forEach(function(x){var b=fxBase(x.h),n=fxNorm(b);if(n.charAt(0)==='√'){b=b.slice(1);n=fxNorm(b)}if(!n||/^[0-9.]+$/.test(n)||seen[n])return;seen[n]=1;syms.push(b)});
- var extra=[];function addX(h){var n=fxNorm(h);if(seen[n]||!/^[A-Za-zα-ωΑ-ΩϕΔ](<sub>[^<]{1,10}<\/sub>)?$/.test(n))return;seen[n]=1;extra.push(h)}(c.rows||[]).slice(0,14).forEach(function(r){addX(r.h)});['x','y','n','t','k'].forEach(addX);
- syms=syms.concat(extra.slice(0,syms.length>5?2:3));for(var i=syms.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),tt=syms[i];syms[i]=syms[j];syms[j]=tt}
- var hasPow=/<sup>|[²³⁴ⁿˣ⁻]/.test(an.h),hasRoot=/√/.test(an.h),hasFrac=fxHas(an.tree,'f'),hasNum=an.idx.list.some(function(x){return /\d/.test(fxBase(x.h))});
- A.innerHTML='<div class="eq fxbig fxwrite" data-fx="1" id="fxW"></div><div class="fxkeys" id="fxKeys"></div>';var Wb=A.querySelector('#fxW'),K=A.querySelector('#fxKeys');
- /* every list of boxes knows where it lives, so the cursor can move in and out */
- function parentOf(s){for(var i=0;i<reg.length;i++)if(reg[i].s===s)return reg[i];return null}
- function rs(s,ps,node,role){if(!parentOf(s))reg.push({s:s,ps:ps,node:node,role:role});return s}
- function render(){reg=reg.filter(function(r){return r.s===root||alive(r.s)});var html=seq(root);Wb.innerHTML=html||'';
-  [].forEach.call(Wb.querySelectorAll('[data-s]'),function(el){el.onclick=function(e){e.stopPropagation();var r=reg[+el.dataset.s];if(r){cur={s:r.s,i:r.s.length};render()}}})}
- function alive(s){var found=false;(function w(q){q.forEach(function(n){if(found)return;['n','d','ch'].forEach(function(k){if(n[k]){if(n[k]===s)found=true;else w(n[k])}})})})(root);return found}
- function seq(s){var id=reg.indexOf(parentOf(s)),out='',isCur=cur.s===s;
-  s.forEach(function(n,i){if(isCur&&cur.i===i)out+='<span class="fxcaret"></span>';out+=node(n)});if(isCur&&cur.i===s.length)out+='<span class="fxcaret"></span>';
-  if(s===root)return out||'<span class="fxph">Tap the keys below</span><span class="fxcaret"></span>';
-  return '<span class="fxbox'+(s.length?'':' empty')+(isCur?' on':'')+'" data-s="'+id+'">'+out+'</span>'}
- function node(n){if(n.t==='a')return '<span class="fxa">'+n.h+'</span>';if(n.t==='n')return '<span class="fxa">'+n.v+'</span>';if(n.t==='op')return '<span class="fxo">'+n.c+'</span>';
-  if(n.t==='f')return '<span class="fxf"><span class="fxn">'+seq(n.n)+'</span><span class="fxd">'+seq(n.d)+'</span></span>';
-  if(n.t==='g')return '<span class="fxb">(</span>'+seq(n.ch)+'<span class="fxb">)</span>';if(n.t==='p')return '<sup>'+seq(n.ch)+'</sup>';if(n.t==='r')return '<span class="fxrt">√<span class="fxrtin">'+seq(n.ch)+'</span></span>';return ''}
- function ins(n){var last=cur.s[cur.i-1];if(n.t==='n'&&last&&last.t==='n'){last.v+=n.v;render();return}cur.s.splice(cur.i,0,n);cur.i++;
-  if(n.t==='f'){rs(n.n,cur.s,n,'n');rs(n.d,cur.s,n,'d');cur={s:n.n,i:0}}else if(n.ch){rs(n.ch,cur.s,n,'ch');cur={s:n.ch,i:0}}o.fb.textContent='';o.fb.className='fxfb';render()}
- function next(){var r=parentOf(cur.s);if(!r){if(cur.i<cur.s.length){cur.i++;render()}return}if(r.role==='n'){cur={s:r.node.d,i:r.node.d.length};render();return}var pi=r.ps.indexOf(r.node);cur={s:r.ps,i:pi+1};render()}
- function prev(){var r=parentOf(cur.s);if(cur.i>0){var n=cur.s[cur.i-1];if(n.t==='f'){cur={s:n.d,i:n.d.length}}else if(n.ch){cur={s:n.ch,i:n.ch.length}}else cur.i--;render();return}if(!r)return;if(r.role==='d'){cur={s:r.node.n,i:r.node.n.length};render();return}cur={s:r.ps,i:r.ps.indexOf(r.node)};render()}
- function back(){if(cur.i>0){var n=cur.s[cur.i-1];if(n.t==='n'&&n.v.length>1){n.v=n.v.slice(0,-1);render();return}if(n.t==='f'||n.ch){if(n.t==='f'?(n.n.length||n.d.length):n.ch.length){prev();return}}cur.s.splice(cur.i-1,1);cur.i--;render();return}
-  var r=parentOf(cur.s);if(!r)return;var nd=r.node,empty=nd.t==='f'?!nd.n.length&&!nd.d.length:!nd.ch.length;var pi=r.ps.indexOf(nd);if(empty){r.ps.splice(pi,1);cur={s:r.ps,i:pi}}else if(r.role==='d'){cur={s:nd.n,i:nd.n.length}}else cur={s:r.ps,i:pi};render()}
- function key(lbl,cls,fn,tip){var b=document.createElement('button');b.type='button';b.className='fxkey'+(cls?' '+cls:'');b.innerHTML=lbl;if(tip)b.title=tip;b.onclick=function(){fn();try{b.blur()}catch(e){}};return b}
- function row(cls){var r=document.createElement('div');r.className='fxkrow'+(cls?' '+cls:'');K.appendChild(r);return r}
- var r1=row('syms');syms.forEach(function(h){r1.appendChild(key(h,'sym',function(){ins({t:'a',h:h})}))});
- var r2=row('ops');[['=','='],['+','+'],['−','−'],['×','×']].forEach(function(x){r2.appendChild(key(x[0],'op',function(){ins({t:'op',c:x[1]})}))});
- r2.appendChild(key('<span class="fxkf"><i></i><i></i></span>','op tpl',function(){ins({t:'f',n:[],d:[]})},'Fraction: a box on top and a box underneath'));
- r2.appendChild(key('( )','op tpl',function(){ins({t:'g',ch:[]})},'Brackets'));
- if(hasPow)r2.appendChild(key('x<sup>□</sup>','op tpl',function(){var last=cur.s[cur.i-1];if(!last||last.t==='op'){o.fb.className='fxfb meh';o.fb.textContent='Put the thing being raised to a power first, then press the power key.';return}ins({t:'p',ch:[]})},'Power'));
- if(hasRoot)r2.appendChild(key('√□','op tpl',function(){ins({t:'r',ch:[]})},'Square root'));
- var r3=row('nums');(hasNum?'1234567890.':'12').split('').forEach(function(n){r3.appendChild(key(n,'num',function(){ins({t:'n',v:n})}))});
- var r4=row('nav');r4.appendChild(key('◀','ctl',prev,'Back a box'));r4.appendChild(key('Next box ▶','ctl wide2',next,'Move to the next box'));r4.appendChild(key('⌫','ctl',back,'Delete'));r4.appendChild(key('Clear','ctl',function(){root.length=0;reg=[];cur={s:root,i:0};render()}));
- render();
- /* boxes to an equation tree the checker understands */
- function lin(s){return s.map(function(n){return n.t==='a'?n.h:n.t==='n'?n.v:n.t==='op'?n.c:n.t==='f'?'('+lin(n.n)+') ÷ ('+lin(n.d)+')':n.t==='g'?'('+lin(n.ch)+')':n.t==='r'?'√('+lin(n.ch)+')':''}).join(' ')}
- function conv(s){var out=[];s.forEach(function(n){var last=out[out.length-1];
-  if(n.t==='a')out.push({k:'a',h:n.h});else if(n.t==='n')out.push({k:'a',h:n.v});else if(n.t==='op')out.push({k:'op',c:n.c});
-  else if(n.t==='f')out.push({k:'f',n:conv(n.n),d:conv(n.d)});else if(n.t==='g')out.push({k:'g',o:'(',c:')',ch:conv(n.ch)});
-  else if(n.t==='r'){out.push({k:'a',h:'√'});out.push({k:'g',o:'(',c:')',ch:conv(n.ch)})}
-  else if(n.t==='p'&&last){var sp=lin(n.ch);if(last.k==='a'){last.h+='<sup>'+sp+'</sup>';last.sup=sp}else if(last.k==='g'){last.c=')<sup>'+sp+'</sup>';last.sup=sp}else if(last.k==='f'){out[out.length-1]={k:'g',o:'(',c:')<sup>'+sp+'</sup>',sup:sp,ch:[last]}}}});
-  return out}
- function emptyBox(s){return s.some(function(n){return n.t==='f'?(!n.n.length||!n.d.length||emptyBox(n.n)||emptyBox(n.d)):n.ch?(!n.ch.length||emptyBox(n.ch)):false})}
- function check(){if(!root.length){o.fb.className='fxfb meh';o.fb.textContent='Build it first.';return}if(emptyBox(root)){o.fb.className='fxfb meh';o.fb.textContent='There\'s an empty box. Fill it in or delete it.';return}
-  var res=fxJudgeT(an,conv(root));if(res.ok){o.result(true);return}o.result(false,false);var t=o.tries();
-  o.fb.className='fxfb meh';o.fb.innerHTML=res.msg+(t>=2?' <button type="button" class="fxshow">Show me</button>':'');var sb=o.fb.querySelector('.fxshow');if(sb)sb.onclick=function(){o.peek();o.result(false,true)};
-  Wb.classList.remove('shake');void Wb.offsetWidth;Wb.classList.add('shake')}
- mainBtn('Check',check);skipBtn(function(){o.peek();var keep=Wb.innerHTML;Wb.innerHTML=fxR(an.tree);Wb.classList.add('peek');setTimeout(function(){Wb.classList.remove('peek');render()},2500)},'👀 Peek');
- keyH=function(e){if(!Wb.isConnected){document.removeEventListener('keydown',keyH,true);return}if(e.ctrlKey||e.metaKey||e.altKey)return;var k=e.key,hit=true;
-  if(/^[0-9.]$/.test(k))ins({t:'n',v:k});else if(k==='+')ins({t:'op',c:'+'});else if(k==='-')ins({t:'op',c:'−'});else if(k==='*')ins({t:'op',c:'×'});else if(k==='=')ins({t:'op',c:'='});
-  else if(k==='/')ins({t:'f',n:[],d:[]});else if(k==='('||k==='[')ins({t:'g',ch:[]});else if(k===')'||k===']'||k==='ArrowRight'||k==='Tab')next();else if(k==='ArrowLeft')prev();else if(k==='^'&&hasPow)ins({t:'p',ch:[]});else if(k==='Backspace')back();
-  else if(k==='Enter'){if(P.onMain)P.onMain()}else if(k.length===1&&/[a-zA-Z]/.test(k)){var m=syms.filter(function(h){return fxStrip(h).charAt(0)===k});if(m.length)ins({t:'a',h:m[0]});else hit=false}else hit=false;
-  if(hit){e.preventDefault();e.stopImmediatePropagation()}};
- document.addEventListener('keydown',keyH,true);
- return function(){document.removeEventListener('keydown',keyH,true)}}
-(function(){var st=document.createElement('style');st.textContent='.fxwrite{min-height:70px;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;border:2px dashed var(--line)}.fxwrite.right{border:2px solid var(--good-line);background:var(--good-bg)}.fxwrite.shown,.fxwrite.peek{border:2px solid #c98a12}.fxwrite.shake{animation:fxshake .35s}'+'.fxph{font-family:var(--sans);font-size:15px;color:var(--muted)}.fxcaret{display:inline-block;width:2px;height:1.1em;background:var(--accent);margin-left:3px;vertical-align:middle;animation:fxpulse 1s steps(2) infinite}.fxcaret.up{height:.7em;vertical-align:super}'+'.fxkeys{display:flex;flex-direction:column;gap:7px}.fxkrow{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}.fxkey{font:inherit;min-width:44px;height:44px;padding:0 10px;border-radius:11px;border:1.5px solid var(--line);background:var(--panel);color:var(--text);cursor:pointer;font-size:17px}'+'.fxkey.sym{font-family:var(--serif);font-size:21px;background:var(--accent-bg);border-color:transparent;color:var(--accent-text)}.fxkey.op{font-size:20px;font-weight:700}.fxkey.wide{font-size:14px}.fxkey.on{background:var(--accent);color:var(--on-accent)}.fxkey.num{background:var(--bg)}.fxkey.ctl{font-size:14px;color:var(--muted)}.fxkey:active{transform:scale(.95)}'+'.fxshow{font:inherit;font-weight:800;border:0;background:none;color:var(--accent-text);text-decoration:underline;cursor:pointer}.fxpeek{margin:6px 0}.fxpeek summary{cursor:pointer;color:var(--muted);font-size:14px}';document.head.appendChild(st)})();
-(function(){var st=document.createElement('style');st.textContent='.fxmode{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:var(--soft);border-radius:12px;padding:4px}.fxmode button{font:inherit;font-size:15px;font-weight:800;border:0;border-radius:9px;padding:9px;background:none;color:var(--muted);cursor:pointer}.fxmode button.on{background:var(--panel);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.14)}'+'.fxpad{position:relative;border:2px solid var(--line);border-radius:16px;background:var(--panel);overflow:hidden}.fxpad canvas{display:block;width:100%;touch-action:none;cursor:crosshair}.fxpad.lock canvas{pointer-events:none;opacity:.9}'+'.fxpadh{position:absolute;left:0;right:0;top:38%;text-align:center;color:var(--muted);font-size:15px;pointer-events:none}.fxpadt{position:absolute;right:8px;top:8px;display:flex;gap:6px}.fxpadt button{font:inherit;font-size:13px;font-weight:700;border:1.5px solid var(--line);background:var(--bg);color:var(--text);border-radius:999px;padding:5px 11px;cursor:pointer}'+'.fxpeekv{position:absolute;inset:auto 8px 8px 8px;margin:0;background:var(--accent-bg)}.fxcmp{margin-top:12px;display:flex;flex-direction:column;gap:8px;border:2px solid var(--accent);border-radius:16px;padding:12px 14px;background:var(--bg)}'+'.fxself{display:flex;gap:8px}.fxself button{flex:1;font:inherit;font-size:16px;font-weight:800;border:0;border-radius:12px;padding:12px;cursor:pointer}.fxyes{background:var(--good-line);color:#fff}.fxno{background:var(--soft);color:var(--text)}'+'.fxbox{display:inline-flex;align-items:center;justify-content:center;min-width:1.1em;min-height:1.15em;padding:0 .12em;border-radius:5px;cursor:pointer}.fxbox.empty{border:1.5px dashed var(--muted);min-width:1.3em}.fxbox.on{background:var(--accent-bg);outline:2px solid var(--accent)}.fxwrite .fxf{margin:0 .2em}'+'.fxrt{white-space:nowrap}.fxrtin{border-top:.07em solid currentColor;padding:0 .1em;margin-left:.05em}.fxkf{display:inline-flex;flex-direction:column;align-items:center;gap:3px}.fxkf i{display:block;width:13px;height:10px;border:1.5px solid currentColor;border-radius:2px}.fxkf i:first-child{margin-bottom:1px;box-shadow:0 3px 0 -1.5px currentColor}'+'.fxkey.tpl{min-width:52px;font-size:17px}.fxkey.wide2{min-width:120px;font-weight:800;color:var(--accent-text)}.fxans.right{border:2px solid var(--good-line);background:var(--good-bg)}.fxans.shown{border:2px solid #c98a12}';document.head.appendChild(st)})();
-/* ----- putting the cards into lessons ----- */
-var FX_TRACKS={theory:1,maths:1,gp:1,ap:1,gc:1,ac:1,gcs:1,calc:1,gm:1,am:1},FX_MTR={calc:1,gm:1,am:1,maths:1};
-function fxLoc(l){for(var ui=0;ui<UNITS.length;ui++){var li=UNITS[ui].lessons.indexOf(l);if(li>=0)return {ui:ui,li:li}}return null}
-var FX_TROWS={};function fxTrackRows(tr){if(FX_TROWS[tr])return FX_TROWS[tr];var rel={ap:['ap','gp'],ac:['ac','gc'],gp:['gp','ap'],gc:['gc','ac'],theory:['theory','maths'],maths:['maths','theory'],gcs:['gcs','gp','gc']}[tr]||[tr],out=[];
- UNITS.forEach(function(u,ui){if(rel.indexOf(trk(ui))<0)return;u.lessons.forEach(function(x){x.cards.forEach(function(c){if(c.t==='T'&&c.h&&c.h.indexOf('class="key"')>=0)out=out.concat(fxRows(c.h))})})});return FX_TROWS[tr]=out}
-function fxLessonEqs(l,ui){var unitRows=[],utext='';UNITS[ui].lessons.forEach(function(x){x.cards.forEach(function(c){if(c.h)utext+=' '+c.h;if(c.e)utext+=' '+c.e})});UNITS[ui].lessons.forEach(function(x){x.cards.forEach(function(c){if(c.t==='T'&&c.h&&c.h.indexOf('class="key"')>=0)unitRows=unitRows.concat(fxRows(c.h))})});
- var out=[],words=trk(ui)==='gc'||trk(ui)==='gcs'||trk(ui)==='ac',maths=!!FX_MTR[trk(ui)],rule=trk(ui)==='calc'||trk(ui)==='gm'||trk(ui)==='am';
- l.cards.forEach(function(c,ci){if(c.t!=='T'||!c.h||c.h.indexOf('class="eq"')<0)return;var d=document.createElement('div');d.innerHTML=c.h;
-  [].forEach.call(d.querySelectorAll('.eq'),function(e,k0){var nx=e.nextElementSibling,rows=nx&&nx.classList.contains('key')?fxRows('<div>'+nx.outerHTML+'</div>'):[];rows=rows.concat(fxRows(c.h));if(rule)l.cards.forEach(function(c2){if(c2.t==='T'&&c2.h&&c2!==c)rows=rows.concat(fxRows(c2.h))});else rows=rows.concat(unitRows).concat(fxTrackRows(trk(ui)));
-   String(e.innerHTML).split(/(?:\s*&nbsp;\s*){2,}|\s{3,}/).forEach(function(part,pk){var eh=part.trim().replace(/^[A-Za-z][a-z]{2,}(?:\s+[a-z]{3,})*\s+(?=[^\s=]+\s*=)/,'');if(!eh)return;var k=k0*10+pk;var an=fxAn(eh,rows,{words:words,text:utext,maths:maths});if(an&&maths&&(an.idx.list.some(function(a){var n=fxNorm(fxBase(a.h));return FX_EN.test(n)||(/^[a-z]{4,}$/i.test(n)&&!FX_FN.test(n)&&!FX_DICT[n])})||(fxStrip(eh).match(/=/g)||[]).length>1))an=null;if(an&&rule&&an.idx.list.filter(function(a){return a.kd&&a.kd.t==='n'&&!/^[012]$/.test(fxNorm(fxBase(a.h)))}).length)an=null;if(an&&an.formula&&!out.some(function(o){return fxNorm(o.h)===fxNorm(eh)}))out.push({ci:ci,k:k,h:eh,rows:rows,an:an,words:words,text:utext,maths:maths})})})});
- return out}
-var playCards_fx=playCards;playCards=function(l){var out=playCards_fx(l);if(out._fx)return out;out._fx=1;
- try{var lc=fxLoc(l);if(!lc||!FX_TRACKS[trk(lc.ui)])return out;var eqs=fxLessonEqs(l,lc.ui).slice(0,2);if(!eqs.length)return out;
-  eqs.slice().reverse().forEach(function(q){var at=-1;for(var i=0;i<out.length;i++)if(out[i]._key===l.id+'#'+q.ci){at=i;break}if(at<0)return;var j=at+1;while(j<out.length&&out[j]._auto&&out[j].t!=='E')j++;
-   var card=fxCard(q.h,q.rows,l.id,l.title,l.id+'#'+q.ci+'@'+q.k,'learn',q.words,q.maths);if(card){card.text=q.text;out.splice(j,0,card)}});
-  var kp=-1;for(var i=out.length-1;i>=0;i--){if(out[i].t==='T'&&/<h3[^>]*>\s*(key points|recap|summary)/i.test(out[i].h||'')){kp=i;break}}if(kp<0)for(i=out.length-1;i>=0;i--)if(out[i].t==='Z'){kp=i;break}
-  if(kp>0)eqs.slice().reverse().forEach(function(q){var card=fxCard(q.h,q.rows,l.id,l.title,l.id+'#'+q.ci+'@'+q.k,'recall',q.words,q.maths);if(card){card.text=q.text;out.splice(kp,0,card)}});
-  /* number practice from the formula, where the lesson doesn't already have a calculation drill */
-  var hasSkill=l.cards.some(function(c){return c.t==='W'&&c.w==='calcDrill'&&c.par&&[].concat(c.par.skill||[]).length});
-  var evl=eqs.filter(function(q){return q.an.f&&q.an.lhs});
-  if(!hasSkill&&evl.length){var z=out.length-1;while(z>0&&out[z].t!=='Z')z--;if(z>0)out.splice(z,0,{t:'W',w:'calcDrill',par:{bank:function(){return fxBank(evl.map(function(q){return fxAn(q.h,q.rows,{words:q.words,text:q.text,maths:q.maths})}),10)},need:4,title:l.title,label:'Equation practice'},p:'<b>Equation practice.</b> Use the formula from this lesson. Get 4 right to master it.',_auto:1,_key:null})}
- }catch(e){if(window.console)console.error(e)}return out};
-/* ----- equations to remember (Review page) ----- */
-function fxReview(){var due=fxDue();if(!due.length){toast('🧮','No equations due','They come back a few days after you learn them');return}var x=fxMem();
- var cs=due.slice(0,8).map(function(k){var e=x.eqs[k];return {t:'E',eqh:e.h,rows:e.rows||[],lid:e.lid,title:e.t,key:k,stage:'review',words:!!e.words,maths:!!e.maths,_auto:1,_key:null}});
- if(document.querySelector('#player.open'))closePlayer();P={mode:'eqrev',cards:cs,i:0,xp:0,right:0,asked:0,title:'Equations to remember',color:'#534AB7',unit:'Equations to remember',combo:0,best:0,cbonus:0,mistakes:0,fixed:0,newBadges:[],levelUp:null};openPlayer()}
-var finish_fx=finish;finish=function(){if(typeof P!=='undefined'&&P&&P.mode==='eqrev'){P.finished=true;P.quiet=true;$('pBar').style.width='100%';var left=fxDue().length;
-  $('pBody').innerHTML='<div class="done-screen"><div class="dicon" style="font-size:64px">🧮</div><h2>Equations done</h2><p class="note" style="font-size:16px">'+(left?left+' still due: they\'ll come back soon.':'All your equations are fresh. They\'ll come back in a few days.')+'</p></div>';foot('','','');skipBtn(null);mainBtn('Done',function(){closePlayer()});$('pXP').textContent=P.xp?'+'+P.xp+' XP':'';try{sfx('done')}catch(e){}return}
- return finish_fx.apply(this,arguments)};
-var decorReview_fx=decorReview;decorReview=function(){decorReview_fx.apply(this,arguments);var pg=$('page-review');if(!pg||pg.querySelector('#fxRev'))return;var x=fxMem(),n=Object.keys(x.eqs).length;if(!n)return;var due=fxDue().length;
- var c=document.createElement('section');c.id='fxRev';c.className='card fxrev';c.innerHTML='<div class="fxrh"><span class="fxri">🧮</span><div><b>Equations to remember</b><p class="small">'+n+' learnt · '+(due?'<b>'+due+' due today</b>':'none due today')+'</p></div></div><button type="button" class="wbtn"'+(due?'':' disabled')+'>'+(due?'Write them from memory':'Come back later')+'</button>';
- c.querySelector('button').onclick=fxReview;var lx=pg.querySelector('#lxRev');if(lx)lx.parentNode.insertBefore(c,lx.nextSibling);else pg.appendChild(c)};
-(function(){var st=document.createElement('style');st.textContent=
- '.fxf{display:inline-flex;flex-direction:column;align-items:stretch;vertical-align:middle;margin:0 .18em;line-height:1.2;text-align:center}.fxn{border-bottom:.07em solid currentColor;padding:0 .3em .1em}.fxd{padding:.12em .3em 0}.fxf .fxf{font-size:.9em}'+
- '.fxo{padding:0 .22em}.fxo.fxc{padding:0 .3em 0 0}.fxs{display:inline-block;width:.18em}.fxb.tall{font-size:1.75em;font-weight:300;line-height:1;vertical-align:middle;position:relative;top:-.04em}.eq.fxon{line-height:1.3;padding-top:12px;padding-bottom:12px}'+
- '.fxcard{display:flex;flex-direction:column;gap:12px}.fxk{font:800 12px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--accent-text)}.eq.fxbig{font-size:24px;margin:4px 0}.eq.fxmid{font-size:19px;margin:6px 0;text-align:left}'+
- '.fxhl{background:#f5c542;color:#2b2000;border-radius:5px;padding:0 .12em;box-shadow:0 0 0 3px rgba(245,197,66,.35)}.fxlead{margin:0;font-size:16px;line-height:1.55}'+
- '.fxpart{display:flex;gap:14px;align-items:flex-start;background:var(--bg);border:1.5px solid var(--line);border-radius:14px;padding:12px 14px}.fxsym{font-family:var(--serif);font-size:30px;min-width:52px;text-align:center;line-height:1.1}.fxsym.sm{font-size:22px}.fxpart b{font-size:16px}'+
- '.fxu{display:block;font-size:14px;color:var(--muted);margin-top:2px}.fxdo{margin:6px 0 0;font-size:15px;line-height:1.5}.fxsay{font-family:var(--serif);font-size:19px;line-height:1.5;background:var(--accent-bg);border-radius:12px;padding:12px 14px;margin:0}'+
- '.fxwk{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:8px;font-size:15px;line-height:1.5}.fxv{color:var(--accent-text);font-weight:700}.fxstep{font-family:var(--serif);font-size:17px;margin:4px 0}'+
- '.fxslot{display:inline-block;min-width:1.4em;padding:0 .2em;border-bottom:3px solid var(--line);color:var(--muted);font-family:var(--sans);font-size:.8em;text-align:center}.fxslot.now{border-color:var(--accent);color:var(--accent-text);animation:fxpulse 1s ease-in-out infinite}@keyframes fxpulse{50%{opacity:.45}}'+
- '.fxok{color:var(--good)}.fxok.fxhelp{color:#c98a12}.fxtiles{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}.fxtile{font-family:var(--serif);font-size:21px;min-width:52px;padding:8px 12px;border-radius:12px;border:2px solid var(--line);background:var(--panel);color:var(--text);cursor:pointer}.fxtile.used{opacity:.25}.fxtile.shake{animation:fxshake .35s}@keyframes fxshake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}'+
- '.fxfb{margin:0;min-height:22px;text-align:center;font-size:15px}.fxfb.good{color:var(--good)}.fxfb.meh{color:#c98a12}.fxrev .fxrh{display:flex;gap:12px;align-items:center;margin-bottom:10px}.fxri{font-size:30px}.fxrev p{margin:2px 0 0}';
- document.head.appendChild(st)})();
-/* ===== fairer multiple choice: when the right answer is a full sentence, weak wrong answers (much shorter, or silly)
-   are swapped for real statements from the same unit, of a similar length. Each one is the right answer to a different
-   question, so you have to know which fact answers this one instead of picking the one that sounds most formal. ===== */
-var MCF_STOP={that:1,this:1,with:1,from:1,they:1,them:1,their:1,there:1,what:1,when:1,which:1,will:1,would:1,into:1,have:1,more:1,less:1,than:1,then:1,each:1,only:1,does:1,because:1,about:1,very:1,much:1,some:1,also:1,been:1,being:1};
-var MCF_IDX=null,MCF_LID=null;
-/* the kind of question, and the kind of answer: only like-for-like answers are swapped in */
-function mcfQK(p){p=p.toLowerCase().replace(/^[^a-z]+/,'');var m;if(/^why\b/.test(p))return 'why';if(/^how (does|do|is|are|can)\b/.test(p))return 'how';if(/^what (does|do)\b.*\b(do|mean|measure|show|tell)\b/.test(p))return 'whatdo';if(/^what (is|are)\b/.test(p))return 'whatis';if(/^what happens\b/.test(p))return 'happens';if(/^when\b/.test(p))return 'when';if(/^where\b/.test(p))return 'where';if(/^(a|an|the|if|you|after|during|in)\b.*\?$/.test(p))return 'scen';return null}
-function mcfAK(t){var w=t.split(' ')[0].toLowerCase().replace(/[^a-z']/g,'');if(/^(to|because|it|its|it's|they|they're|there|the|a|an|by|so|when|if|more|less|only|no|nothing)$/.test(w))return w==='its'||w==="it's"?'it':w==='they\'re'?'they':w==='an'?'a':w;if(/[^s]s$/.test(w)&&w.length>3)return 'verbs';if(/ing$/.test(w))return 'ing';return 'other'}
-function mcfText(h){var d=document.createElement('div');d.innerHTML=h||'';return d.textContent.replace(/\s+/g,' ').trim()}
-function mcfWords(s){var o={};String(s).toLowerCase().replace(/[^a-z0-9 ]/g,' ').split(' ').forEach(function(w){if(w.length>=4&&!MCF_STOP[w])o[w]=1});return o}
-function mcfOver(a,b){var ka=Object.keys(a),kb=Object.keys(b),n=0;if(!ka.length||!kb.length)return 0;ka.forEach(function(k){if(b[k])n++});return n/Math.min(ka.length,kb.length)}
-function mcfBuild(){if(MCF_IDX)return;MCF_IDX={};MCF_LID={};UNITS.forEach(function(u,ui){var list=MCF_IDX[ui]=[];u.lessons.forEach(function(l){MCF_LID[l.id]=ui;l.cards.forEach(function(c){if(c.t!=='Q'||!c.o||typeof c.a!=='number')return;var h=c.o[c.a];if(/<(img|svg|table)/i.test(h))return;var t=mcfText(h);if(t.split(' ').length<3)return;
-  list.push({h:h,t:t,w:mcfWords(t),pw:mcfWords(mcfText(c.p)),dig:/\d/.test(t),qk:mcfQK(mcfText(c.p)),ak:mcfAK(t)})})})})}
-var MCF_SKIP=/\b(true|correct|false|not|isn't|aren't|except|incorrect|wrong|untrue|odd one|best describes|which (of these|statement|one|two|three|four|list|pair|row|option))\b/i;
-function mcfFix(c){if(!c||c.t!=='Q'||!c.o||typeof c.a!=='number'||c._mcFix||c.o.length<3||c._ty)return null;var pt=mcfText(c.p);if(MCF_SKIP.test(pt)||/fill the gap/i.test(pt)||/qchk|QUICK CHECK/i.test(c.p||''))return null;
- if(c.o.some(function(o){return /<(img|svg|table|input)/i.test(o)}))return null;var ct=mcfText(c.o[c.a]);if(ct.split(' ').length<3)return null;
- mcfBuild();var ui=null,m=String(c._key||c._src0||c._rk||'').replace(/^[FB]/,'').match(/^([^#@]+)/);if(m&&MCF_LID[m[1]]!=null)ui=MCF_LID[m[1]];if(ui==null&&typeof P!=='undefined'&&P&&P.mode==='lesson')ui=P.ui;if(ui==null||!MCF_IDX[ui])return null;
- var L=ct.length,weak=[],keep=[];c.o.forEach(function(o,i){if(i===c.a)return;var t=mcfText(o);if(t.length<L*0.72)weak.push(i);else keep.push(i)});
- if(!weak.length)return null;if(!keep.length){weak.sort(function(a,b){return mcfText(c.o[b]).length-mcfText(c.o[a]).length});keep.push(weak.shift());if(!weak.length)return null}
- var cw=mcfWords(ct),pw=mcfWords(pt),have={};c.o.forEach(function(o){have[mcfText(o).toLowerCase()]=1});var dig=/\d/.test(ct),qk=mcfQK(pt),ak=mcfAK(ct);if(!qk||(ak==='other'&&qk!=='why'))return null;
- var src=MCF_IDX[ui].map(function(x){x.near=0;return x}),tk=trk(ui);for(var du=-2;du<=2;du++){var u2=ui+du;if(du&&MCF_IDX[u2]&&trk(u2)===tk)src=src.concat(MCF_IDX[u2].map(function(x){x.near=Math.abs(du)*0.15;return x}))}
- var cand=src.filter(function(x){return !have[x.t.toLowerCase()]&&x.t.length>=L*0.7&&x.t.length<=L*1.35&&x.dig===dig&&x.qk===qk&&(qk==='why'?x.ak!=='other'||ak==='other':x.ak===ak)&&mcfOver(x.w,cw)<0.45&&mcfOver(x.pw,pw)<0.5});
- if(!cand.length)return null;cand.forEach(function(x){x.s=Math.abs(x.t.length-L)/L+x.near+(x.ak===ak?0:0.2)+Math.random()*0.3});cand.sort(function(a,b){return a.s-b.s});
- var o=c.o.slice(),used=0;weak.forEach(function(i){var x=cand[used];if(!x)return;if(cand.slice(0,used).some(function(y){return mcfOver(y.w,x.w)>0.6})){used++;x=cand[used];if(!x)return}o[i]=x.h;used++});
- if(!used)return null;return Object.assign({},c,{o:o,_mcFix:1})}
-var showCard_mcf=showCard;showCard=function(){try{if(typeof P!=='undefined'&&P&&P.cards){var c=P.cards[P.i],f=mcfFix(c);if(f){if(!P._pcCopy){P.cards=P.cards.slice();P._pcCopy=1}P.cards[P.i]=f}else if(c&&c.t==='Q'&&!c._mcFix){c._mcFix=1}}}catch(e){if(window.console)console.error(e)}return showCard_mcf.apply(this,arguments)};
-UNITS.forEach(function(u){u.lessons.forEach(function(l){l.cards.forEach(function(c){if(c.t==='W'&&c.w==='calcDrill'&&c.par&&!c.par.rule&&c.e)c.par.rule=c.e})})});
-/* XP earned in other Critical apps (Chain) waits in critical_xp_inbox as {days:{'YYYY-MM-DD':xp}} until Critical is open, then lands here as normal XP on the day it was earned, so it counts for the streak, daily goal and season pass */
-(function(){var K='critical_xp_inbox';function take(){var o=null;try{o=JSON.parse(localStorage.getItem(K)||'null')}catch(e){}if(!o||!o.days)return;try{localStorage.removeItem(K)}catch(e){}
-  var t=today(),tot=0;Object.keys(o.days).sort().forEach(function(d){var n=Math.round(+o.days[d]||0);if(n<=0||!/^\d{4}-\d{2}-\d{2}$/.test(d)||d>t)return;tot+=n;if(d===t)addXP(n);else{S.xp+=n;S.hist[d]=(S.hist[d]||0)+n;pruneHist();save();updHeader()}});
-  if(tot){try{checkBadges()}catch(e){}try{toast('📱','+'+tot.toLocaleString('en-GB')+' XP from Chain','Your scrolling counts towards your season pass','quest')}catch(e){}}}
- setTimeout(take,1200);document.addEventListener('visibilitychange',function(){if(!document.hidden)setTimeout(take,300)});addEventListener('storage',function(e){if(e.key===K)setTimeout(take,100)})})();
-checkBadges(true);quests();updHeader();showPage('learn');
-})();
+ mainBtn('Check my writing',check);ski

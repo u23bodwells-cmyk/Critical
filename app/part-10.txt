@@ -1,4 +1,9 @@
-:'Σcₙxⁿ',color:'#378ADD',desc:'Functions written as infinite polynomials: power series, radius of convergence, and Taylor series.',lessons:[
+izes decrease to 0, it converges. This one converges to <b>ln 2</b>, even though without the minus signs it diverges.</p><ul><li><b>Absolutely convergent</b>: converges even with all terms made positive.</li><li><b>Conditionally convergent</b>: only converges because of the alternating signs.</li></ul>`),
+Q(`1 − ½ + ⅓ − ¼ + … is…`,[`conditionally convergent`,`absolutely convergent`,`divergent`,`equal to 0`],0,`Converges, but Σ 1/n diverges.`),
+T(`<h3>Key points</h3><ul><li><b>Ratio test</b>: L < 1 converges, L > 1 diverges, L = 1 can't tell.</li><li><b>Alternating</b>: decreasing to 0 is enough to converge.</li><li><b>Absolute</b> vs <b>conditional</b> convergence.</li></ul>`)])
+]});
+
+U({id:'c10-3',track:'calc',level:10,title:'Power and Taylor series',icon:'Σcₙxⁿ',color:'#378ADD',desc:'Functions written as infinite polynomials: power series, radius of convergence, and Taylor series.',lessons:[
 LH('c10-3-1','Power series',10,'An infinite polynomial in x. For some x it adds up; for others it doesn\'t.',[
 RM(`<p>Geometric: 1 + r + r² + … = 1/(1 − r) for |r| < 1. Ratio test: L < 1 converges.</p>`),
 T(`<h3>An infinite polynomial</h3><p>A <b>power series</b> is Σ cₙxⁿ = c₀ + c₁x + c₂x² + … Plug in a number for x and you get an ordinary series.</p><p>The simplest: 1 + x + x² + x³ + … It's geometric with r = x, so:</p><div class="eq">1 + x + x² + … = 1/(1 − x)&nbsp;&nbsp;for |x| < 1</div>`),
@@ -906,7 +911,4 @@ T(`<h3>Required practical: density</h3><ul><li><b>Regular solid</b>: weigh it, m
 Q(`How do you find the volume of a small stone?`,[`Lower it into water in a measuring cylinder and see how much the level rises`,'Measure its length, width and height with a ruler and multiply','Weigh it on a balance, then divide the mass by the density of water','Heat it and see how much it expands, then work back to its volume'],0,`Water displacement works for any shape.`),
 T(`<h3>Key points</h3><ul><li><b>ρ = m ÷ V</b>. Learn it.</li><li>Gases are far less dense: their particles are spread out.</li><li>Irregular objects: use water displacement.</li></ul>`)]),
 LH('gp2-3-2','Changes of state and internal energy',10,'What heating does to particles, why temperature stops rising while things melt, and specific latent heat.',[
-RM(`<p>Solid: particles packed and vibrating. Liquid: close but moving past each other. Gas: far apart and fast. Specific heat capacity: ΔE = mcΔθ.</p>`),
-T(`<h3>Internal energy</h3><p>The particles in a substance have energy: <b>kinetic</b> (moving) and <b>potential</b> (from the bonds between them). The total is its <b>internal energy</b>.</p><p>Heating raises the internal energy. It either <b>raises the temperature</b> or <b>changes the state</b>, not both at once.</p>`),
-T(`<h3>Changes of state</h3><p>Melting, freezing, boiling, evaporating, condensing and sublimating are <b>physical changes</b>. They're reversible and the mass stays the same.</p><p>While a substance melts or boils, its temperature <b>stays the same</b>. The energy goes into breaking the bonds between particles, not into speeding them up. On a heating graph, that's a <b>flat section</b>.</p>`),
-Q(`On a heating graph, why is the line f
+RM(`<p>Solid: particles packed and vibrating. Liquid: close but moving past each other. Gas: far apart and fast. Specific heat capacity: ΔE = mcΔθ.</p>`

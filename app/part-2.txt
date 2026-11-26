@@ -1,4 +1,6 @@
-inders.':linkState==='lost'?'Windows needs you to allow access again. Tap Reconnect and choose Allow.':'Pick <b>Documents → Critical</b>, then click <b>Select folder</b> and <b>Allow</b>. If it asks, choose “Allow on every visit”.')+'</span></li></ol>'+
+ical in Chrome or Edge to set up reminders. This browser can\'t share your study time with them.</p>';R.innerHTML=h;return}
+  h+='<ol><li><a href="https://u23bodwells-cmyk.github.io/Critical/reminders/critical-reminders.zip" target="_blank" rel="noopener" download>Download the reminder setup</a>, right-click it, choose <b>Extract All</b>, then double-click <b>install.cmd</b>. If Windows warns you, click <b>More info → Run anyway</b>.</li>'+
+   '<li>Connect this app to the reminders, so they know when you\'ve studied: <button class="stbtn alt" type="button" data-a="link">'+(linkState==='ok'?'Connected ✓':linkState==='lost'?'Reconnect':'Choose the Critical folder')+'</button><br><span class="stnote">'+(linkState==='ok'?'Your study time is shared with the reminders.':linkState==='lost'?'Windows needs you to allow access again. Tap Reconnect and choose Allow.':'Pick <b>Documents → Critical</b>, then click <b>Select folder</b> and <b>Allow</b>. If it asks, choose “Allow on every visit”.')+'</span></li></ol>'+
    '<p class="stnote">On school days you\'ll get a break reminder at 4:15pm and warnings at 4:30pm and 4:40pm. Then Critical opens by itself at 4:45pm, in its own app window. There are more reminders at 6pm and 8pm if you still haven\'t studied, and any session counts. It also opens Critical when you turn on or unlock your PC after 3pm on a school day, so your evening timetable starts from when you get home. Already set up? Download it again and rerun install.cmd to get the latest version.</p>';
   R.innerHTML=h;var lb=R.querySelector('[data-a=link]');if(lb)lb.onclick=function(){linkState==='lost'?writeFile(true):link()}}
  /* autosave: while the timer runs, the session so far is saved every minute, so a crash, a closed tab or a sync can't lose it */
@@ -1111,9 +1113,4 @@ var PLAN=(function(){
   if(todayI()===0&&!p.monClr){n=pile();if(n===0){p.monClr=1;save()}}
   if(!r||r.gm||r.ends<=now)return;var b=DAY(r.day)[r.j];if(!isFix(b)||busy())return;if(n<0)n=pile();
   if(n===0){if(r.day===0){p.monClr=1;save()}r.ends=now;r.early=1;r.clr=1;runSet(r);return}
-  if(typeof P!=='undefined'&&P&&P.finished&&P.mode==='review'&&!P._plAsk&&!ban){P._plAsk=1;showBan('<b>'+n+' mistake'+(n===1?'':'s')+' left to fix.</b> '+fmtLeft(r.ends-now)+' to go on this part.',[['Next round →',function(){hideBan();go(b[3][0],b[0])}],['Not now',hideBan]])}}
- function highChk(r,left){if(r.high||left>5*60000||ban||busy())return;var hk=(DAY(r.day)[r.j]||[])[5];if(hk==='clash'||hk==='rev'||hk==='brk')return;var nq=hwNext(r.day,r.j);if(nq>=0&&!((DAY(r.day)[nq]||[])[5]==='brk'&&hwNext(r.day,nq)<0))return;var mn=r.mins||(DAY(r.day)[r.j]||[0,0])[1];if(mn<10)return;r.high=1;runSet(r);
-  var lapOk=typeof HIGH!=='undefined'&&HIGH.canLap();
-  showBan('<b>Last 5 minutes: end on a high.</b> Finish today with something fun.',(lapOk?[['Victory lap',function(){hideBan();HIGH.lap()}]]:[]).concat([['Control room',function(){hideBan();if(document.querySelector('#player.open')&&typeof closePlayer==='function')closePlayer();close();showPage('sim')}],['Keep going',hideBan]]))}
- var lastDayPaint=-1;
- function 
+  if(typeof P!=='undefined'&&P&&P.finished&&P.mode==='review'&&!P._plAsk&&!ban){P._plAsk=1;showBan('<b>'+n+' mistake'+(n===1?'':'s')+' left to fix.</b> '+fmtLeft(r.ends-now)+' to go on this part.',[['Next round →',function(){hideBan();go(b[3][0],b[0])}],[

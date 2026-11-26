@@ -1,4 +1,8 @@
-oxidised?`,[`Fe`,`Cu²⁺`,`Fe²⁺`,`Cu`],0,`Iron loses 2 electrons.`),
+duction (gain of electrons). Anode: oxidation (loss of electrons). OIL RIG.</p>`),
+T(`<h3>Writing half equations</h3><ul><li>Cathode (metal or hydrogen): <b>Cu²⁺ + 2e⁻ → Cu</b>; <b>2H⁺ + 2e⁻ → H₂</b>.</li><li>Anode (halogen): <b>2Cl⁻ → Cl₂ + 2e⁻</b>.</li><li>Anode (oxygen): <b>4OH⁻ → O₂ + 2H₂O + 4e⁻</b>.</li></ul><p>Check that both atoms and charges balance on each side.</p>`),
+Q(`Which half equation happens at the cathode when molten aluminium oxide is electrolysed?`,[`Al³⁺ + 3e⁻ → Al`,`Al → Al³⁺ + 3e⁻`,`2O²⁻ → O₂ + 4e⁻`,`Al³⁺ → Al + 3e⁻`],0,`Positive ions gain electrons at the cathode.`),
+Q(`Complete: 2Br⁻ → Br₂ + ___`,[`2e⁻`,`e⁻`,`2e⁺`,`Br⁻`],0,`Two negative charges on the left, so 2 electrons on the right.`),
+Q(`Fe + Cu²⁺ → Fe²⁺ + Cu. Which species is oxidised?`,[`Fe`,`Cu²⁺`,`Fe²⁺`,`Cu`],0,`Iron loses 2 electrons.`),
 T(`<h3>Key points</h3><ul><li>Cathode: ions gain electrons. Anode: ions lose electrons.</li><li>Balance atoms and charge.</li><li>4OH⁻ → O₂ + 2H₂O + 4e⁻ for oxygen at the anode.</li></ul>`)])
 ]});
 U({id:'gc5-3',track:'gc',level:5,title:'Unfamiliar contexts',icon:'?',color:'#1D9E75',desc:'Predicting properties from trends, and interpreting unfamiliar data.',lessons:[
@@ -1118,8 +1122,4 @@ RM(`<p>Differential equations model rates. Exponential models y = Ae<sup>kt</sup
 T(`<h3>The cycle</h3><ol><li>State <b>assumptions</b>.</li><li>Build the model (an equation).</li><li>Solve it.</li><li><b>Interpret</b> the answer in context, with units.</li><li><b>Evaluate</b>: limitations, and how to refine it.</li></ol>`),
 O(`Order the modelling cycle.`,['State assumptions','Build the equation','Solve it','Interpret in context','Evaluate and refine'],`Top marks need the last two steps.`),
 T(`<h3>Typical criticisms</h3><ul><li>Exponential growth can't continue forever: resources run out (use a logistic model).</li><li>Treating an object as a particle ignores its size and spin.</li><li>Ignoring air resistance overestimates range.</li><li>A model fitted to limited data may not extrapolate.</li></ul>`),
-Q(`A model predicts a population of 10 billion rabbits on an island in 20 years. The best criticism?`,[`Exponential growth can't continue: food and space are limited`,`The arithmetic must be wrong`,`Rabbits don't reproduce`,`The model has too few letters`],0,`Limits to growth.`),
-T(`<h3>Key points</h3><ul><li>Assume, model, solve, <b>interpret, evaluate</b>.</li><li>Always comment on limits of the model.</li><li>Answers need context and units.</li></ul>`)]),
-LH('am4-1-3','Multi-step problems',11,'The hardest questions combine topics. Plan before you calculate.',[
-RM(`<p>Every Year 12 and 13 topic: algebra, trig, calculus, vectors, statistics, mechanics.</p>`),
-T(`<h3>A strategy</h3><ol><li><b>Read it all</b>, underlining what's given and what's asked.</li><li><b>Sketch</b> a diagram or graph.</li><li>Ask: which topics does this link? Calculus + trig? Vectors + geometry?</li><li>Work <b>backwards</b> from what you need.</li><li>Keep <b>exact values</b> (surds, π, ln) u
+Q(`A model predicts a population of 10 billion rabbits on an island in 20 years. The best criticism?`,[`Exponential growth can't continue: food and space are limited`,`The arithmetic must be wrong`,`Rabbits don't rep
