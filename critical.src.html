@@ -20041,77 +20041,123 @@ function rE(c,b){var an=fxAn(c.eqh,c.rows||[],{words:c.words,text:c.text||'',mat
    FB.className='fxfb '+(ok?'good':'meh');T.innerHTML='';mainBtn('Continue',nextCard);skipBtn(ok||c.stage!=='learn'?null:function(){build(false)},'Try again')}
   if(memo){E.innerHTML=fxR(an.tree);T.innerHTML='';mainBtn('Hide it →',function(){paint();tilesUI();mainBtn('Fill in the gaps',function(){},true);skipBtn(function(){var o=E.innerHTML;E.innerHTML=fxR(an.tree);helped++;setTimeout(function(){paint()},2500)},'👀 Peek')});skipBtn(null);return}
   paint();tilesUI();mainBtn('Fill in the gaps',function(){},true);skipBtn(function(){E.innerHTML=fxR(an.tree);helped++;setTimeout(function(){paint()},2500)},'👀 Peek')}}
-/* ----- write it from scratch: build the whole equation on a keypad. Formulas we can work out are checked with numbers,
-   so any correct rearrangement counts; the rest (calculus rules) are checked symbol by symbol. ----- */
+/* ----- write it from scratch: draw it by hand, or build it with boxes like a calculator. ----- */
 var FX_UNI={'⁰':'0','¹':'1','²':'2','³':'3','⁴':'4','⁵':'5','⁶':'6','⁷':'7','⁸':'8','⁹':'9','⁻':'-','⁺':'+','ⁿ':'n','ˣ':'x'};
 function fxBase(h){var b=String(h).replace(/<sup>[\s\S]*?<\/sup>/g,'');var m=b.match(/[⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺ⁿˣ]+$/);if(m&&m[0].length<b.length)b=b.slice(0,-m[0].length);return b}
-function fxCanon(html){var t=fxTok(html);if(!t)return fxStrip(html).replace(/\s+/g,'');var out='';
- t.forEach(function(x){if(x.k==='sp')return;if(x.k==='op'){out+=x.c==='×'||x.c==='·'?'':x.c==='÷'||x.c==='/'?'/':x.c==='−'||x.c==='-'?'-':x.c;return}
-  if(x.k==='o'){out+='(';return}var h=x.k==='c'?')'+(x.h||'').slice(1):x.h;var sup=(h.match(/<sup>([\s\S]*?)<\/sup>/)||[])[1];var core=h.replace(/<sup>[\s\S]*?<\/sup>/g,'');var m=core.match(/[⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺ⁿˣ]+$/);
-  if(m&&m[0].length<core.length){sup=m[0].split('').map(function(c){return FX_UNI[c]}).join('');core=core.slice(0,-m[0].length)}
-  out+=fxNorm(core)+(sup!=null?'^('+fxCanon(sup)+')':'')});
- return out.replace(/\(\(([^()]*)\)\)/g,'($1)')}
-function fxScratch(an,d,c,after){var toks=[],sup=-1,tries=0,helped=0,keyH=null;
- /* the keypad: this equation's symbols (without their powers), plus a few that aren't in it */
- var syms=[],seen={};an.idx.list.forEach(function(x){var b=fxBase(x.h),n=fxNorm(b);if(!n||/^[0-9.]+$/.test(n)||n==='√'||seen[n])return;if(n.charAt(0)==='√'){b=b.slice(1);n=fxNorm(b);if(!n||seen[n])return}seen[n]=1;syms.push(b)});
- var extra=[];function addX(h){var n=fxNorm(h);if(seen[n]||!/^[A-Za-zα-ωΑ-ΩϕΔ](<sub>[^<]{1,10}<\/sub>)?$/.test(n))return;seen[n]=1;extra.push(h)}
- (c.rows||[]).slice(0,14).forEach(function(r){addX(r.h)});['x','y','n','t','k'].forEach(addX);syms=syms.concat(extra.slice(0,syms.length>5?2:3));
- for(var i=syms.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),tt=syms[i];syms[i]=syms[j];syms[j]=tt}
- var hasPow=/<sup>|[²³⁴ⁿˣ⁻]/.test(an.h),hasRoot=/√/.test(an.h),hasNum=an.idx.list.some(function(x){return /\d/.test(fxBase(x.h))});
- d.innerHTML='<div class="fxk">✍️ Write it from scratch</div><p class="fxlead">'+(c.title&&c.stage!=='learn'?'From “'+qcEsc(c.title)+'”. ':'')+'Build the whole equation yourself, '+(an.lhs?'starting with '+an.S[an.lhs].h+' =':'both sides')+'. '+(an.f?'Any correct rearrangement counts.':'Write it the way the lesson did.')+'</p>'+
-  '<div class="eq fxbig fxwrite" data-fx="1" id="fxW"></div><div class="fxkeys" id="fxKeys"></div><p class="fxfb" id="fxFb2"></p>';
- var W=d.querySelector('#fxW'),K=d.querySelector('#fxKeys'),FB=d.querySelector('#fxFb2');
- function html(){var parts=[],i=0;function seq(stop){var out=[];while(i<toks.length){var x=toks[i];if(x.k==='supC'){if(stop){i++;return out}i++;continue}
-   if(x.k==='supO'){i++;var inner=seq(true);if(out.length)out[out.length-1]+='<sup>'+inner.join(' ')+'</sup>';continue}
-   out.push(x.k==='n'?x.v:x.k==='op'?x.c:x.k==='o'?'(':x.k==='c'?')':x.h);i++}return out}
-  return seq(false).join(' ').replace(/\( /g,'(').replace(/ \)/g,')').replace(/ (<sup>)/g,'$1')}
- function inSup(){var n=0;toks.forEach(function(x){if(x.k==='supO')n++;else if(x.k==='supC')n--});return n>0}
- function paint(){var h=html(),r='';try{var t=fxTok(h),tr=t&&fxNest(t);r=tr?fxR(tr):h}catch(e){r=h}if(inSup()){var open=html()+'';}W.innerHTML=(r||'<span class="fxph">Tap the keys to build it</span>')+'<span class="fxcaret'+(inSup()?' up':'')+'"></span>';
-  var pw=K.querySelector('[data-k=pow]');if(pw){pw.textContent=inSup()?'⤶ end power':'xʸ power';pw.classList.toggle('on',inSup())}}
- function add(x){var last=toks[toks.length-1];if(x.k==='n'&&last&&last.k==='n'){last.v+=x.v}else toks.push(x);FB.textContent='';FB.className='fxfb';paint()}
- function back(){var last=toks.pop();if(last&&last.k==='n'&&last.v.length>1){last.v=last.v.slice(0,-1);toks.push(last)}paint()}
- function key(lbl,cls,fn,k){var b=document.createElement('button');b.type='button';b.className='fxkey'+(cls?' '+cls:'');b.innerHTML=lbl;if(k)b.dataset.k=k;b.onclick=function(){fn();try{b.blur()}catch(e){}};return b}
- function row(cls){var r=document.createElement('div');r.className='fxkrow'+(cls?' '+cls:'');K.appendChild(r);return r}
- var r1=row('syms');syms.forEach(function(h){r1.appendChild(key(h,'sym',function(){add({k:'a',h:h})}))});
- var r2=row('ops');[['=','='],['+','+'],['−','−'],['×','×'],['÷','÷']].forEach(function(o){r2.appendChild(key(o[0],'op',function(){add({k:'op',c:o[1]})}))});
- r2.appendChild(key('(','op',function(){add({k:'o'})}));r2.appendChild(key(')','op',function(){add({k:'c'})}));
- if(hasPow)r2.appendChild(key('xʸ power','op wide',function(){if(inSup())add({k:'supC'});else{var last=toks[toks.length-1];if(!last||last.k==='op'||last.k==='o'||last.k==='supO'){FB.textContent='Put the thing being raised to a power first, then press power.';return}add({k:'supO'})}},'pow'));
- if(hasRoot)r2.appendChild(key('√','op',function(){add({k:'a',h:'√'});add({k:'o'})}));
- var r3=row('nums');(hasNum?'1234567890.':'12').split('').forEach(function(n){r3.appendChild(key(n,'num',function(){add({k:'n',v:n})}))});
- r3.appendChild(key('⌫','ctl',back));r3.appendChild(key('Clear','ctl',function(){toks=[];paint()}));
- paint();
- /* typing on a keyboard works too */
- keyH=function(e){if(!W.isConnected){document.removeEventListener('keydown',keyH,true);return}if(e.ctrlKey||e.metaKey||e.altKey)return;var k=e.key,hit=true;
-  if(/^[0-9.]$/.test(k)&&(hasNum||k==='1'||k==='2'))add({k:'n',v:k});else if(k==='+')add({k:'op',c:'+'});else if(k==='-')add({k:'op',c:'−'});else if(k==='*')add({k:'op',c:'×'});else if(k==='/')add({k:'op',c:'÷'});else if(k==='=')add({k:'op',c:'='});
-  else if(k==='('||k==='[')add({k:'o'});else if(k===')'||k===']')add({k:'c'});else if(k==='^'&&hasPow)K.querySelector('[data-k=pow]').click();else if(k==='Backspace')back();
-  else if(k==='Enter'){if(P.onMain)P.onMain()}
-  else if(k.length===1&&/[a-zA-Z]/.test(k)){var m=syms.filter(function(h){return fxStrip(h).charAt(0)===k});if(m.length)add({k:'a',h:m[0]});else hit=false}else hit=false;
-  if(hit){e.preventDefault();e.stopImmediatePropagation()}};
- document.addEventListener('keydown',keyH,true);
- function check(){var h=html();if(!toks.length)return;var res=fxJudge(an,h);tries++;
-  if(res.ok){finish(true);return}
-  FB.className='fxfb meh';FB.innerHTML=res.msg+(tries>=2?' <button type="button" class="fxshow" id="fxShow">Show me</button>':'');var sb=FB.querySelector('#fxShow');if(sb)sb.onclick=function(){helped++;finish(false)};
-  W.classList.remove('shake');void W.offsetWidth;W.classList.add('shake')}
- function finish(ok){document.removeEventListener('keydown',keyH,true);var good=ok&&helped===0&&tries<=2;
-  fxLearnt(c,good);if(good){P.xp+=8;try{addXP(8)}catch(e){}}
-  K.innerHTML='';W.innerHTML=fxR(an.tree);W.classList.add(ok?'right':'shown');
-  FB.className='fxfb '+(good?'good':'meh');FB.innerHTML=good?'<b>'+(tries>1?'Got it on the second go.':'Perfect: written from memory!')+'</b> '+(c.stage==='learn'?'You\'ll write it again at the end of the lesson.':'It\'ll come back in a few days.'):ok?'<b>Got there.</b> It\'ll come back soon so it sticks.':'<b>Here it is.</b> Say it out loud, then write it on paper once. It\'ll come back soon.';
-  mainBtn('Continue',after||nextCard);skipBtn(good?null:function(){fxScratch(an,d,c,after)},'Try again')}
- mainBtn('Check',check);skipBtn(function(){var o=W.innerHTML;helped++;W.innerHTML=fxR(an.tree);W.classList.add('peek');setTimeout(function(){W.classList.remove('peek');paint()},2500)},'👀 Peek')}
-/* is what you wrote the same equation? */
-function fxJudge(an,h){var t=fxTok(h),tr=t&&fxNest(t);if(!tr)return {ok:false,msg:'The brackets don\'t match up. Every ( needs a ).'};
- var top=tr.filter(function(x){return x.k!=='sp'}),eqs=top.filter(function(x){return x.k==='op'&&x.c==='='}).length;if(eqs!==1)return {ok:false,msg:eqs?'Only one = sign, please.':'It needs an = sign: what does it equal?'};
- tr=fxSplitAtoms(tr,an.S);fxIndex(tr);var at=-1;for(var i=0;i<tr.length;i++)if(tr[i].k==='op'&&tr[i].c==='='){at=i;break}var L=tr.slice(0,at),R=tr.slice(at+1);
- var mine={},want={};function names(items,o){items.forEach(function(x){if(x.k==='a'){var n=fxNorm(fxBase(x.h));if(n&&!/^[0-9.]+$/.test(n))o[n]=x.h}else if(x.k==='g')names(x.ch,o);else if(x.k==='f'){names(x.n,o);names(x.d,o)}})}
- names(tr,mine);an.idx.list.forEach(function(x){var n=fxNorm(fxBase(x.h));if(n.charAt(0)==='√')n=n.slice(1);if(n&&!/^[0-9.]+$/.test(n))want[n]=x.h});
- var miss=Object.keys(want).filter(function(k){return !mine[k]}),extra=Object.keys(mine).filter(function(k){return !want[k]&&k!=='√'});
+/* a canonical string for an equation tree, so two ways of writing the same thing compare equal */
+function fxCanonT(items){var out='';function strip(a){var b=a.filter(function(x){return x.k!=='sp'});return b.length===1&&b[0].k==='g'&&!/<su[bp]>/.test(b[0].c||'')?b[0].ch:a}
+ function supC(s){var t=fxTok(s),tr=t&&fxNest(t);return tr?fxCanonT(tr):fxStrip(s).replace(/\s+/g,'')}
+ items.forEach(function(x){if(x.k==='sp')return;if(x.k==='op'){out+=x.c==='×'||x.c==='·'?'':x.c==='÷'||x.c==='/'?'/':x.c==='−'||x.c==='-'?'-':x.c;return}
+  if(x.k==='a'){var h=x.h,sup=(h.match(/<sup>([\s\S]*?)<\/sup>/)||[])[1],core=h.replace(/<sup>[\s\S]*?<\/sup>/g,''),m=core.match(/[⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺ⁿˣ]+$/),pw=null;
+   if(m&&m[0].length<core.length){pw=m[0].split('').map(function(c){return FX_UNI[c]}).join('');core=core.slice(0,-m[0].length)}
+   out+=fxNorm(core)+(pw!=null?'^('+pw.replace(/\s/g,'')+')':sup!=null?'^('+supC(sup)+')':'');return}
+  if(x.k==='g'){var sp=(String(x.c||'').match(/<sup>([\s\S]*?)<\/sup>/)||[])[1];out+=(x.bare&&sp==null?fxCanonT(x.ch):'('+fxCanonT(x.ch)+')')+(sp!=null?'^('+supC(sp)+')':'');return}
+  if(x.k==='f')out+='F('+fxCanonT(strip(x.n))+')('+fxCanonT(strip(x.d))+')'});
+ return out}
+/* judging an equation tree against the real one */
+function fxJudgeT(an,tr){if(!tr||!tr.length)return {ok:false,msg:'Write something first.'};var top=tr.filter(function(x){return x.k!=='sp'}),eqs=top.filter(function(x){return x.k==='op'&&x.c==='='}).length;
+ var wantEq=an.tree.filter(function(x){return x.k==='op'&&x.c==='='}).length||1;if(eqs!==wantEq&&!(an.f&&eqs===1))return {ok:false,msg:!eqs?'It needs an = sign: what does it equal?':wantEq===1?'Only one = sign, please.':'This one has '+wantEq+' = signs: it\'s a chain of equal things.'};
+ fxIndex(tr);var at=-1;for(var i=0;i<tr.length;i++)if(tr[i].k==='op'&&tr[i].c==='='){at=i;break}var L=tr.slice(0,at),R=tr.slice(at+1);if(!L.length||!R.length)return {ok:false,msg:'Something needs to go on both sides of the = sign.'};
+ var mine={},want={};function names(items,o){items.forEach(function(x){if(x.k==='a'){var n=fxNorm(fxBase(x.h));if(n.charAt(0)==='√')n=n.slice(1);if(n&&!/^[0-9.]+$/.test(n))o[n]=fxBase(x.h)}else if(x.k==='g')names(x.ch,o);else if(x.k==='f'){names(x.n,o);names(x.d,o)}})}
+ names(tr,mine);names(an.tree,want);delete mine['√'];
+ var miss=Object.keys(want).filter(function(k){return !mine[k]}),extra=Object.keys(mine).filter(function(k){return !want[k]});
  var hint=miss.length?'Something\'s missing: '+miss.slice(0,2).map(function(k){return want[k]}).join(' and ')+' should be in it.':extra.length?extra.slice(0,2).map(function(k){return mine[k]}).join(' and ')+(extra.length>1?' aren\'t':' isn\'t')+' in this equation.':'You\'ve got the right symbols, but not in the right places. Think about what goes on the top, and what goes on the bottom.';
- if(an.f&&an.lhs){var fL=fxCompile(L,an.S),fR=fxCompile(R,an.S);if(!fL||!fR)return {ok:false,msg:'I can\'t read that yet. Check each part is joined with + − × or ÷. '+hint};
+ if(an.f&&an.lhs){var fL=fxCompile(L,an.S),fR=fxCompile(R,an.S);if(!fL||!fR)return {ok:false,msg:'Something\'s not joined up: put + − × between the parts. '+hint};
   var good=0,bad=0,diff=0;for(var g=0;g<10;g++){var V=fxVals(an);V[an.lhs]=an.f(V);var a=fL(V),b=fR(V);if(!isFinite(a)||!isFinite(b))continue;var sc=Math.max(Math.abs(a),Math.abs(b),1e-9);if(Math.abs(a-b)/sc<1e-6)good++;else bad++;
    var V2=Object.assign({},V);V2[an.lhs]=V[an.lhs]*1.37+0.5;var a2=fL(V2),b2=fR(V2);if(isFinite(a2)&&isFinite(b2)&&Math.abs(a2-b2)/Math.max(Math.abs(a2),Math.abs(b2),1e-9)>1e-4)diff++}
   if(good>=4&&!bad&&diff>0)return {ok:true};return {ok:false,msg:'Not quite. '+hint}}
- if(fxCanon(h)===fxCanon(an.h))return {ok:true};return {ok:false,msg:'Not quite. '+hint}}
+ if(fxCanonT(tr)===fxCanonT(an.tree))return {ok:true};return {ok:false,msg:'Not quite. '+hint}}
+function fxScratch(an,d,c,after){var mode='draw';try{mode=localStorage.getItem('critical_eqmode')||'draw'}catch(e){}var tries=0,helped=0,done=false;
+ d.innerHTML='<div class="fxk">✍️ Write it from scratch</div><p class="fxlead">'+(c.title&&c.stage!=='learn'?'From “'+qcEsc(c.title)+'”. ':'')+'Write the whole equation from memory'+(an.lhs?', starting with '+an.S[an.lhs].h+' =':'')+'.</p>'+
+  '<div class="fxmode" role="tablist"><button type="button" data-m="draw">✏️ Draw it</button><button type="button" data-m="build">🧩 Build it</button></div><div id="fxArea"></div><p class="fxfb" id="fxFb2"></p>';
+ var A=d.querySelector('#fxArea'),FB=d.querySelector('#fxFb2'),cleanup=null;
+ function setMode(m){if(done)return;mode=m;try{localStorage.setItem('critical_eqmode',m)}catch(e){}if(cleanup){cleanup();cleanup=null}[].forEach.call(d.querySelectorAll('.fxmode button'),function(b){b.classList.toggle('on',b.dataset.m===m);b.setAttribute('aria-selected',b.dataset.m===m)});FB.textContent='';FB.className='fxfb';
+  cleanup=(m==='draw'?fxDrawPad:fxBoxPad)(A,an,c,{fb:FB,result:function(ok,hard){tries++;if(ok)finish(true);else if(hard)finish(false)},peek:function(){helped++},tries:function(){return tries}})}
+ [].forEach.call(d.querySelectorAll('.fxmode button'),function(b){b.onclick=function(){setMode(b.dataset.m)}});
+ function finish(ok){done=true;if(cleanup){cleanup();cleanup=null}var good=ok&&helped===0&&tries<=2;fxLearnt(c,good);if(good){P.xp+=8;try{addXP(8)}catch(e){}}
+  d.querySelector('.fxmode').remove();A.innerHTML='<div class="eq fxbig fxans '+(ok?'right':'shown')+'" data-fx="1">'+fxR(an.tree)+'</div>';
+  FB.className='fxfb '+(good?'good':'meh');FB.innerHTML=good?'<b>'+(tries>1?'Got it on the second go.':'Perfect: written from memory!')+'</b> '+(c.stage==='learn'?'You\'ll write it again at the end of the lesson.':'It\'ll come back in a few days.'):ok?'<b>Got there.</b> It\'ll come back soon so it sticks.':'<b>Here it is.</b> Say it out loud, then write it once more. It\'ll come back soon.';
+  mainBtn('Continue',after||nextCard);skipBtn(good?null:function(){fxScratch(an,d,c,after)},'Try again')}
+ setMode(mode)}
+/* ✏️ draw it: a writing pad, then compare with the real one and mark yourself */
+function fxDrawPad(A,an,c,o){A.innerHTML='<div class="fxpad"><canvas></canvas><div class="fxpadh">Write it here with your finger, pen or mouse</div><div class="fxpadt"><button type="button" data-a="undo">↶ Undo</button><button type="button" data-a="clear">Clear</button></div></div><div id="fxCmp"></div>';
+ var wrap=A.querySelector('.fxpad'),cv=A.querySelector('canvas'),hint=A.querySelector('.fxpadh'),g=cv.getContext('2d'),strokes=[],cur=null,dpr=Math.max(1,window.devicePixelRatio||1),W=0,H=0,ink='#222';
+ function size(){var r=wrap.getBoundingClientRect();W=Math.max(200,Math.round(r.width));H=Math.round(Math.min(300,Math.max(190,W*0.55)));cv.width=W*dpr;cv.height=H*dpr;cv.style.height=H+'px';g.setTransform(dpr,0,0,dpr,0,0);try{ink=getComputedStyle(document.body).color||ink}catch(e){}redraw()}
+ function redraw(){g.clearRect(0,0,W,H);g.strokeStyle='rgba(127,127,127,.25)';g.lineWidth=1;g.setLineDash([5,6]);g.beginPath();g.moveTo(14,H*0.62);g.lineTo(W-14,H*0.62);g.stroke();g.setLineDash([]);
+  g.strokeStyle=ink;g.lineCap='round';g.lineJoin='round';g.lineWidth=3.2;strokes.forEach(function(s){if(s.length===1){g.beginPath();g.arc(s[0][0],s[0][1],1.8,0,7);g.fillStyle=ink;g.fill();return}g.beginPath();g.moveTo(s[0][0],s[0][1]);for(var i=1;i<s.length-1;i++){var mx=(s[i][0]+s[i+1][0])/2,my=(s[i][1]+s[i+1][1])/2;g.quadraticCurveTo(s[i][0],s[i][1],mx,my)}var l=s[s.length-1];g.lineTo(l[0],l[1]);g.stroke()});hint.style.display=strokes.length?'none':''}
+ function pt(e){var r=cv.getBoundingClientRect();return [e.clientX-r.left,e.clientY-r.top]}
+ cv.addEventListener('pointerdown',function(e){e.preventDefault();try{cv.setPointerCapture(e.pointerId)}catch(_){}cur=[pt(e)];strokes.push(cur);redraw()});
+ cv.addEventListener('pointermove',function(e){if(!cur)return;e.preventDefault();var p=pt(e),l=cur[cur.length-1];if(Math.abs(p[0]-l[0])+Math.abs(p[1]-l[1])<1.5)return;cur.push(p);redraw()});
+ function up(){cur=null}cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);cv.addEventListener('pointerleave',up);
+ A.querySelector('[data-a=undo]').onclick=function(){strokes.pop();redraw()};A.querySelector('[data-a=clear]').onclick=function(){strokes=[];redraw()};
+ var ro=null;try{ro=new ResizeObserver(function(){var r=wrap.getBoundingClientRect();if(Math.round(r.width)!==W)size()});ro.observe(wrap)}catch(e){}setTimeout(size,0);size();
+ var C=A.querySelector('#fxCmp');
+ function check(){if(!strokes.length){o.fb.className='fxfb meh';o.fb.textContent='Write it on the pad first.';return}
+  C.innerHTML='<div class="fxcmp"><div class="fxk">Here\'s the real one. Compare carefully.</div><div class="eq fxbig" data-fx="1">'+fxR(an.tree)+'</div><p class="fxlead">Check the = sign, every symbol, what\'s on the top and the bottom, and any powers or brackets.</p><div class="fxself"><button type="button" class="fxyes">✓ Mine matches</button><button type="button" class="fxno">✗ Not quite</button></div></div>';
+  wrap.classList.add('lock');mainBtn('Mark yourself above',function(){},true);skipBtn(null);try{C.scrollIntoView({block:'nearest',behavior:'smooth'})}catch(e){}
+  C.querySelector('.fxyes').onclick=function(){o.result(true)};C.querySelector('.fxno').onclick=function(){o.result(false,true)}}
+ mainBtn('Check my writing',check);skipBtn(function(){o.peek();var e=document.createElement('div');e.className='eq fxbig fxpeekv';e.dataset.fx='1';e.innerHTML=fxR(an.tree);wrap.appendChild(e);setTimeout(function(){e.remove()},2500)},'👀 Peek');
+ return function(){if(ro)try{ro.disconnect()}catch(e){}}}
+/* 🧩 build it: boxes like a calculator. A fraction gives you a box on top and a box underneath. */
+function fxBoxPad(A,an,c,o){var root=[],cur={s:root,i:0},reg=[],keyH=null;
+ var syms=[],seen={};an.idx.list.forEach(function(x){var b=fxBase(x.h),n=fxNorm(b);if(n.charAt(0)==='√'){b=b.slice(1);n=fxNorm(b)}if(!n||/^[0-9.]+$/.test(n)||seen[n])return;seen[n]=1;syms.push(b)});
+ var extra=[];function addX(h){var n=fxNorm(h);if(seen[n]||!/^[A-Za-zα-ωΑ-ΩϕΔ](<sub>[^<]{1,10}<\/sub>)?$/.test(n))return;seen[n]=1;extra.push(h)}(c.rows||[]).slice(0,14).forEach(function(r){addX(r.h)});['x','y','n','t','k'].forEach(addX);
+ syms=syms.concat(extra.slice(0,syms.length>5?2:3));for(var i=syms.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),tt=syms[i];syms[i]=syms[j];syms[j]=tt}
+ var hasPow=/<sup>|[²³⁴ⁿˣ⁻]/.test(an.h),hasRoot=/√/.test(an.h),hasFrac=fxHas(an.tree,'f'),hasNum=an.idx.list.some(function(x){return /\d/.test(fxBase(x.h))});
+ A.innerHTML='<div class="eq fxbig fxwrite" data-fx="1" id="fxW"></div><div class="fxkeys" id="fxKeys"></div>';var Wb=A.querySelector('#fxW'),K=A.querySelector('#fxKeys');
+ /* every list of boxes knows where it lives, so the cursor can move in and out */
+ function parentOf(s){for(var i=0;i<reg.length;i++)if(reg[i].s===s)return reg[i];return null}
+ function rs(s,ps,node,role){if(!parentOf(s))reg.push({s:s,ps:ps,node:node,role:role});return s}
+ function render(){reg=reg.filter(function(r){return r.s===root||alive(r.s)});var html=seq(root);Wb.innerHTML=html||'';
+  [].forEach.call(Wb.querySelectorAll('[data-s]'),function(el){el.onclick=function(e){e.stopPropagation();var r=reg[+el.dataset.s];if(r){cur={s:r.s,i:r.s.length};render()}}})}
+ function alive(s){var found=false;(function w(q){q.forEach(function(n){if(found)return;['n','d','ch'].forEach(function(k){if(n[k]){if(n[k]===s)found=true;else w(n[k])}})})})(root);return found}
+ function seq(s){var id=reg.indexOf(parentOf(s)),out='',isCur=cur.s===s;
+  s.forEach(function(n,i){if(isCur&&cur.i===i)out+='<span class="fxcaret"></span>';out+=node(n)});if(isCur&&cur.i===s.length)out+='<span class="fxcaret"></span>';
+  if(s===root)return out||'<span class="fxph">Tap the keys below</span><span class="fxcaret"></span>';
+  return '<span class="fxbox'+(s.length?'':' empty')+(isCur?' on':'')+'" data-s="'+id+'">'+out+'</span>'}
+ function node(n){if(n.t==='a')return '<span class="fxa">'+n.h+'</span>';if(n.t==='n')return '<span class="fxa">'+n.v+'</span>';if(n.t==='op')return '<span class="fxo">'+n.c+'</span>';
+  if(n.t==='f')return '<span class="fxf"><span class="fxn">'+seq(n.n)+'</span><span class="fxd">'+seq(n.d)+'</span></span>';
+  if(n.t==='g')return '<span class="fxb">(</span>'+seq(n.ch)+'<span class="fxb">)</span>';if(n.t==='p')return '<sup>'+seq(n.ch)+'</sup>';if(n.t==='r')return '<span class="fxrt">√<span class="fxrtin">'+seq(n.ch)+'</span></span>';return ''}
+ function ins(n){var last=cur.s[cur.i-1];if(n.t==='n'&&last&&last.t==='n'){last.v+=n.v;render();return}cur.s.splice(cur.i,0,n);cur.i++;
+  if(n.t==='f'){rs(n.n,cur.s,n,'n');rs(n.d,cur.s,n,'d');cur={s:n.n,i:0}}else if(n.ch){rs(n.ch,cur.s,n,'ch');cur={s:n.ch,i:0}}o.fb.textContent='';o.fb.className='fxfb';render()}
+ function next(){var r=parentOf(cur.s);if(!r){if(cur.i<cur.s.length){cur.i++;render()}return}if(r.role==='n'){cur={s:r.node.d,i:r.node.d.length};render();return}var pi=r.ps.indexOf(r.node);cur={s:r.ps,i:pi+1};render()}
+ function prev(){var r=parentOf(cur.s);if(cur.i>0){var n=cur.s[cur.i-1];if(n.t==='f'){cur={s:n.d,i:n.d.length}}else if(n.ch){cur={s:n.ch,i:n.ch.length}}else cur.i--;render();return}if(!r)return;if(r.role==='d'){cur={s:r.node.n,i:r.node.n.length};render();return}cur={s:r.ps,i:r.ps.indexOf(r.node)};render()}
+ function back(){if(cur.i>0){var n=cur.s[cur.i-1];if(n.t==='n'&&n.v.length>1){n.v=n.v.slice(0,-1);render();return}if(n.t==='f'||n.ch){if(n.t==='f'?(n.n.length||n.d.length):n.ch.length){prev();return}}cur.s.splice(cur.i-1,1);cur.i--;render();return}
+  var r=parentOf(cur.s);if(!r)return;var nd=r.node,empty=nd.t==='f'?!nd.n.length&&!nd.d.length:!nd.ch.length;var pi=r.ps.indexOf(nd);if(empty){r.ps.splice(pi,1);cur={s:r.ps,i:pi}}else if(r.role==='d'){cur={s:nd.n,i:nd.n.length}}else cur={s:r.ps,i:pi};render()}
+ function key(lbl,cls,fn,tip){var b=document.createElement('button');b.type='button';b.className='fxkey'+(cls?' '+cls:'');b.innerHTML=lbl;if(tip)b.title=tip;b.onclick=function(){fn();try{b.blur()}catch(e){}};return b}
+ function row(cls){var r=document.createElement('div');r.className='fxkrow'+(cls?' '+cls:'');K.appendChild(r);return r}
+ var r1=row('syms');syms.forEach(function(h){r1.appendChild(key(h,'sym',function(){ins({t:'a',h:h})}))});
+ var r2=row('ops');[['=','='],['+','+'],['−','−'],['×','×']].forEach(function(x){r2.appendChild(key(x[0],'op',function(){ins({t:'op',c:x[1]})}))});
+ r2.appendChild(key('<span class="fxkf"><i></i><i></i></span>','op tpl',function(){ins({t:'f',n:[],d:[]})},'Fraction: a box on top and a box underneath'));
+ r2.appendChild(key('( )','op tpl',function(){ins({t:'g',ch:[]})},'Brackets'));
+ if(hasPow)r2.appendChild(key('x<sup>□</sup>','op tpl',function(){var last=cur.s[cur.i-1];if(!last||last.t==='op'){o.fb.className='fxfb meh';o.fb.textContent='Put the thing being raised to a power first, then press the power key.';return}ins({t:'p',ch:[]})},'Power'));
+ if(hasRoot)r2.appendChild(key('√□','op tpl',function(){ins({t:'r',ch:[]})},'Square root'));
+ var r3=row('nums');(hasNum?'1234567890.':'12').split('').forEach(function(n){r3.appendChild(key(n,'num',function(){ins({t:'n',v:n})}))});
+ var r4=row('nav');r4.appendChild(key('◀','ctl',prev,'Back a box'));r4.appendChild(key('Next box ▶','ctl wide2',next,'Move to the next box'));r4.appendChild(key('⌫','ctl',back,'Delete'));r4.appendChild(key('Clear','ctl',function(){root.length=0;reg=[];cur={s:root,i:0};render()}));
+ render();
+ /* boxes to an equation tree the checker understands */
+ function lin(s){return s.map(function(n){return n.t==='a'?n.h:n.t==='n'?n.v:n.t==='op'?n.c:n.t==='f'?'('+lin(n.n)+') ÷ ('+lin(n.d)+')':n.t==='g'?'('+lin(n.ch)+')':n.t==='r'?'√('+lin(n.ch)+')':''}).join(' ')}
+ function conv(s){var out=[];s.forEach(function(n){var last=out[out.length-1];
+  if(n.t==='a')out.push({k:'a',h:n.h});else if(n.t==='n')out.push({k:'a',h:n.v});else if(n.t==='op')out.push({k:'op',c:n.c});
+  else if(n.t==='f')out.push({k:'f',n:conv(n.n),d:conv(n.d)});else if(n.t==='g')out.push({k:'g',o:'(',c:')',ch:conv(n.ch)});
+  else if(n.t==='r'){out.push({k:'a',h:'√'});out.push({k:'g',o:'(',c:')',ch:conv(n.ch)})}
+  else if(n.t==='p'&&last){var sp=lin(n.ch);if(last.k==='a'){last.h+='<sup>'+sp+'</sup>';last.sup=sp}else if(last.k==='g'){last.c=')<sup>'+sp+'</sup>';last.sup=sp}else if(last.k==='f'){out[out.length-1]={k:'g',o:'(',c:')<sup>'+sp+'</sup>',sup:sp,ch:[last]}}}});
+  return out}
+ function emptyBox(s){return s.some(function(n){return n.t==='f'?(!n.n.length||!n.d.length||emptyBox(n.n)||emptyBox(n.d)):n.ch?(!n.ch.length||emptyBox(n.ch)):false})}
+ function check(){if(!root.length){o.fb.className='fxfb meh';o.fb.textContent='Build it first.';return}if(emptyBox(root)){o.fb.className='fxfb meh';o.fb.textContent='There\'s an empty box. Fill it in or delete it.';return}
+  var res=fxJudgeT(an,conv(root));if(res.ok){o.result(true);return}o.result(false,false);var t=o.tries();
+  o.fb.className='fxfb meh';o.fb.innerHTML=res.msg+(t>=2?' <button type="button" class="fxshow">Show me</button>':'');var sb=o.fb.querySelector('.fxshow');if(sb)sb.onclick=function(){o.peek();o.result(false,true)};
+  Wb.classList.remove('shake');void Wb.offsetWidth;Wb.classList.add('shake')}
+ mainBtn('Check',check);skipBtn(function(){o.peek();var keep=Wb.innerHTML;Wb.innerHTML=fxR(an.tree);Wb.classList.add('peek');setTimeout(function(){Wb.classList.remove('peek');render()},2500)},'👀 Peek');
+ keyH=function(e){if(!Wb.isConnected){document.removeEventListener('keydown',keyH,true);return}if(e.ctrlKey||e.metaKey||e.altKey)return;var k=e.key,hit=true;
+  if(/^[0-9.]$/.test(k))ins({t:'n',v:k});else if(k==='+')ins({t:'op',c:'+'});else if(k==='-')ins({t:'op',c:'−'});else if(k==='*')ins({t:'op',c:'×'});else if(k==='=')ins({t:'op',c:'='});
+  else if(k==='/')ins({t:'f',n:[],d:[]});else if(k==='('||k==='[')ins({t:'g',ch:[]});else if(k===')'||k===']'||k==='ArrowRight'||k==='Tab')next();else if(k==='ArrowLeft')prev();else if(k==='^'&&hasPow)ins({t:'p',ch:[]});else if(k==='Backspace')back();
+  else if(k==='Enter'){if(P.onMain)P.onMain()}else if(k.length===1&&/[a-zA-Z]/.test(k)){var m=syms.filter(function(h){return fxStrip(h).charAt(0)===k});if(m.length)ins({t:'a',h:m[0]});else hit=false}else hit=false;
+  if(hit){e.preventDefault();e.stopImmediatePropagation()}};
+ document.addEventListener('keydown',keyH,true);
+ return function(){document.removeEventListener('keydown',keyH,true)}}
 (function(){var st=document.createElement('style');st.textContent='.fxwrite{min-height:70px;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;border:2px dashed var(--line)}.fxwrite.right{border:2px solid var(--good-line);background:var(--good-bg)}.fxwrite.shown,.fxwrite.peek{border:2px solid #c98a12}.fxwrite.shake{animation:fxshake .35s}'+'.fxph{font-family:var(--sans);font-size:15px;color:var(--muted)}.fxcaret{display:inline-block;width:2px;height:1.1em;background:var(--accent);margin-left:3px;vertical-align:middle;animation:fxpulse 1s steps(2) infinite}.fxcaret.up{height:.7em;vertical-align:super}'+'.fxkeys{display:flex;flex-direction:column;gap:7px}.fxkrow{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}.fxkey{font:inherit;min-width:44px;height:44px;padding:0 10px;border-radius:11px;border:1.5px solid var(--line);background:var(--panel);color:var(--text);cursor:pointer;font-size:17px}'+'.fxkey.sym{font-family:var(--serif);font-size:21px;background:var(--accent-bg);border-color:transparent;color:var(--accent-text)}.fxkey.op{font-size:20px;font-weight:700}.fxkey.wide{font-size:14px}.fxkey.on{background:var(--accent);color:var(--on-accent)}.fxkey.num{background:var(--bg)}.fxkey.ctl{font-size:14px;color:var(--muted)}.fxkey:active{transform:scale(.95)}'+'.fxshow{font:inherit;font-weight:800;border:0;background:none;color:var(--accent-text);text-decoration:underline;cursor:pointer}.fxpeek{margin:6px 0}.fxpeek summary{cursor:pointer;color:var(--muted);font-size:14px}';document.head.appendChild(st)})();
+(function(){var st=document.createElement('style');st.textContent='.fxmode{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:var(--soft);border-radius:12px;padding:4px}.fxmode button{font:inherit;font-size:15px;font-weight:800;border:0;border-radius:9px;padding:9px;background:none;color:var(--muted);cursor:pointer}.fxmode button.on{background:var(--panel);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.14)}'+'.fxpad{position:relative;border:2px solid var(--line);border-radius:16px;background:var(--panel);overflow:hidden}.fxpad canvas{display:block;width:100%;touch-action:none;cursor:crosshair}.fxpad.lock canvas{pointer-events:none;opacity:.9}'+'.fxpadh{position:absolute;left:0;right:0;top:38%;text-align:center;color:var(--muted);font-size:15px;pointer-events:none}.fxpadt{position:absolute;right:8px;top:8px;display:flex;gap:6px}.fxpadt button{font:inherit;font-size:13px;font-weight:700;border:1.5px solid var(--line);background:var(--bg);color:var(--text);border-radius:999px;padding:5px 11px;cursor:pointer}'+'.fxpeekv{position:absolute;inset:auto 8px 8px 8px;margin:0;background:var(--accent-bg)}.fxcmp{margin-top:12px;display:flex;flex-direction:column;gap:8px;border:2px solid var(--accent);border-radius:16px;padding:12px 14px;background:var(--bg)}'+'.fxself{display:flex;gap:8px}.fxself button{flex:1;font:inherit;font-size:16px;font-weight:800;border:0;border-radius:12px;padding:12px;cursor:pointer}.fxyes{background:var(--good-line);color:#fff}.fxno{background:var(--soft);color:var(--text)}'+'.fxbox{display:inline-flex;align-items:center;justify-content:center;min-width:1.1em;min-height:1.15em;padding:0 .12em;border-radius:5px;cursor:pointer}.fxbox.empty{border:1.5px dashed var(--muted);min-width:1.3em}.fxbox.on{background:var(--accent-bg);outline:2px solid var(--accent)}.fxwrite .fxf{margin:0 .2em}'+'.fxrt{white-space:nowrap}.fxrtin{border-top:.07em solid currentColor;padding:0 .1em;margin-left:.05em}.fxkf{display:inline-flex;flex-direction:column;align-items:center;gap:3px}.fxkf i{display:block;width:13px;height:10px;border:1.5px solid currentColor;border-radius:2px}.fxkf i:first-child{margin-bottom:1px;box-shadow:0 3px 0 -1.5px currentColor}'+'.fxkey.tpl{min-width:52px;font-size:17px}.fxkey.wide2{min-width:120px;font-weight:800;color:var(--accent-text)}.fxans.right{border:2px solid var(--good-line);background:var(--good-bg)}.fxans.shown{border:2px solid #c98a12}';document.head.appendChild(st)})();
 /* ----- putting the cards into lessons ----- */
 var FX_TRACKS={theory:1,maths:1,gp:1,ap:1,gc:1,ac:1,gcs:1,calc:1,gm:1,am:1},FX_MTR={calc:1,gm:1,am:1,maths:1};
 function fxLoc(l){for(var ui=0;ui<UNITS.length;ui++){var li=UNITS[ui].lessons.indexOf(l);if(li>=0)return {ui:ui,li:li}}return null}
@@ -20120,8 +20166,8 @@ var FX_TROWS={};function fxTrackRows(tr){if(FX_TROWS[tr])return FX_TROWS[tr];var
 function fxLessonEqs(l,ui){var unitRows=[],utext='';UNITS[ui].lessons.forEach(function(x){x.cards.forEach(function(c){if(c.h)utext+=' '+c.h;if(c.e)utext+=' '+c.e})});UNITS[ui].lessons.forEach(function(x){x.cards.forEach(function(c){if(c.t==='T'&&c.h&&c.h.indexOf('class="key"')>=0)unitRows=unitRows.concat(fxRows(c.h))})});
  var out=[],words=trk(ui)==='gc'||trk(ui)==='gcs'||trk(ui)==='ac',maths=!!FX_MTR[trk(ui)],rule=trk(ui)==='calc'||trk(ui)==='gm'||trk(ui)==='am';
  l.cards.forEach(function(c,ci){if(c.t!=='T'||!c.h||c.h.indexOf('class="eq"')<0)return;var d=document.createElement('div');d.innerHTML=c.h;
-  [].forEach.call(d.querySelectorAll('.eq'),function(e,k){var nx=e.nextElementSibling,rows=nx&&nx.classList.contains('key')?fxRows('<div>'+nx.outerHTML+'</div>'):[];rows=rows.concat(fxRows(c.h));if(rule)l.cards.forEach(function(c2){if(c2.t==='T'&&c2.h&&c2!==c)rows=rows.concat(fxRows(c2.h))});else rows=rows.concat(unitRows).concat(fxTrackRows(trk(ui)));
-   var an=fxAn(e.innerHTML,rows,{words:words,text:utext,maths:maths});if(an&&maths&&(an.idx.list.some(function(a){var n=fxNorm(fxBase(a.h));return FX_EN.test(n)||(/^[a-z]{4,}$/i.test(n)&&!FX_FN.test(n)&&!FX_DICT[n])})||(fxStrip(e.innerHTML).match(/=/g)||[]).length>1))an=null;if(an&&rule&&an.idx.list.filter(function(a){return a.kd&&a.kd.t==='n'&&!/^[012]$/.test(fxNorm(fxBase(a.h)))}).length)an=null;if(an&&an.formula&&!out.some(function(o){return fxNorm(o.h)===fxNorm(e.innerHTML)}))out.push({ci:ci,k:k,h:e.innerHTML,rows:rows,an:an,words:words,text:utext,maths:maths})})});
+  [].forEach.call(d.querySelectorAll('.eq'),function(e,k0){var nx=e.nextElementSibling,rows=nx&&nx.classList.contains('key')?fxRows('<div>'+nx.outerHTML+'</div>'):[];rows=rows.concat(fxRows(c.h));if(rule)l.cards.forEach(function(c2){if(c2.t==='T'&&c2.h&&c2!==c)rows=rows.concat(fxRows(c2.h))});else rows=rows.concat(unitRows).concat(fxTrackRows(trk(ui)));
+   String(e.innerHTML).split(/(?:\s*&nbsp;\s*){2,}|\s{3,}/).forEach(function(part,pk){var eh=part.trim().replace(/^[A-Za-z][a-z]{2,}(?:\s+[a-z]{3,})*\s+(?=[^\s=]+\s*=)/,'');if(!eh)return;var k=k0*10+pk;var an=fxAn(eh,rows,{words:words,text:utext,maths:maths});if(an&&maths&&(an.idx.list.some(function(a){var n=fxNorm(fxBase(a.h));return FX_EN.test(n)||(/^[a-z]{4,}$/i.test(n)&&!FX_FN.test(n)&&!FX_DICT[n])})||(fxStrip(eh).match(/=/g)||[]).length>1))an=null;if(an&&rule&&an.idx.list.filter(function(a){return a.kd&&a.kd.t==='n'&&!/^[012]$/.test(fxNorm(fxBase(a.h)))}).length)an=null;if(an&&an.formula&&!out.some(function(o){return fxNorm(o.h)===fxNorm(eh)}))out.push({ci:ci,k:k,h:eh,rows:rows,an:an,words:words,text:utext,maths:maths})})})});
  return out}
 var playCards_fx=playCards;playCards=function(l){var out=playCards_fx(l);if(out._fx)return out;out._fx=1;
  try{var lc=fxLoc(l);if(!lc||!FX_TRACKS[trk(lc.ui)])return out;var eqs=fxLessonEqs(l,lc.ui).slice(0,2);if(!eqs.length)return out;
