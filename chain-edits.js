@@ -59,6 +59,10 @@ function tick(t){bell(t,1760,.09)}
 function sfx(k){if(!API.sound||!on())return;var t=AU.c.currentTime+.01,g;
   if(k==="ok"){g=eg(t,.003,.16,.12);g.connect(AU.m);osc("sine",880,t,.14,g);g=eg(t+.07,.003,.16,.18);g.connect(AU.m);osc("sine",1320,t+.07,.2,g)}
   else if(k==="no"){var lp=AU.c.createBiquadFilter();lp.type="lowpass";lp.frequency.value=900;g=eg(t,.003,.18,.25);lp.connect(g);g.connect(AU.m);osc("square",140,t,.28,lp);osc("square",147,t,.28,lp)}
+  else if(k==="send"){g=eg(t,.002,.09,.07);g.connect(AU.m);var os=osc("sine",620,t,.09,g);os.frequency.exponentialRampToValueAtTime(1240,t+.07)}
+  else if(k==="recv"){g=eg(t,.002,.08,.16);g.connect(AU.m);osc("sine",1046,t,.18,g);g=eg(t+.06,.002,.07,.2);g.connect(AU.m);osc("sine",1568,t+.06,.22,g)}
+  else if(k==="click"){nz(t,.012,"highpass",3000,.7,.5);return}
+  else if(k==="beep"){g=eg(t,.003,.06,.08);g.connect(AU.m);osc("square",1200,t,.1,g)}
   else if(k==="alarm"){[0,.22].forEach(function(o,i){var gg=eg(t+o,.005,.09,.17);gg.connect(AU.m);osc("square",i?660:880,t+o,.2,gg)})}
   else if(k==="whoosh"){whoosh(t)}
   else if(k==="pop"){g=eg(t,.002,.12,.08);g.connect(AU.m);var o=osc("sine",500,t,.1,g);o.frequency.exponentialRampToValueAtTime(1200,t+.08)}}
