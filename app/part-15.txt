@@ -1,4 +1,4 @@
-ction(){bins=new Array(11).fill(0);balls=[]})}
+(r,'Start again',function(){bins=new Array(11).fill(0);balls=[]})}
   function initC(){comps=[];for(var i=0;i<100;i++)comps.push({ok:1,t:0})}initC();
   run(scr,function(dt,tm){var c=scr.c,W=scr.W,H=scr.H,sd=dt/1000*(calm()?.5:1);tt+=dt;bgf(c,W,H);
    if(mode==='galton'){band(c,W,'GALTON BOARD · random bounces make a bell curve','balls: '+bins.reduce(function(a,b){return a+b},0));var rows=10,top=36,pg=(H-120)/rows,cx=W/2,sp=Math.min(26,(W-40)/12);
@@ -864,4 +864,4 @@ ction(){bins=new Array(11).fill(0);balls=[]})}
   cap:gen?'A coil spinning in a magnetic field. As it turns, the sides cut through the field lines and a voltage is induced, first one way then the other: alternating current. Power station generators work like this, with spinning magnets.':'A current-carrying coil in a magnetic field. The force on each side (green, F = BIL) pushes one side up and the other down, so the coil turns. Fleming\'s left-hand rule gives the directions.'}};
  SC.solar=function(){var PL=[['Mercury',.39,.24,[200,190,180],2.5],['Venus',.72,.62,[240,210,140],3.5],['Earth',1,1,[90,170,255],3.7],['Mars',1.52,1.88,[240,110,70],3],['Jupiter',2.4,4.5,[230,190,150],6]];
   return {k:'free',box:false,anim:1,t:'THE INNER SOLAR SYSTEM',pitch:.55,
-  extra:function(prims,pr,t){prims.push(ballP(pr,[0,0,0],[255,210,90],14,null,true));PL.forEach(function(q){var R=q[1]/2.6,pts=[];for(var i=0;i<=72;i++){var a=i/72*TAU;pts
+  extra:function(prims,pr,t){prims.push(ballP(pr,[0,0,0],[255,210,90],14,null,true));PL.forEach(function(q){var R=q[1]/2.6,pts=[];for(var i=0;i<=72;i++

@@ -1,4 +1,4 @@
-P([1.7e-8,2.8e-8,1.1e-6,5.6e-8]),L=cR(1,20),d=cP([0.2,0.3,0.5,1.0]),A=Math.PI*Math.pow(d/2*1e-3,2),R=rho*L/A,r=Math.round(R*Math.pow(10,2-Math.floor(Math.log10(R))))/Math.pow(10,2-Math.floor(Math.log10(R)));
+function(){var rho=cP([1.7e-8,2.8e-8,1.1e-6,5.6e-8]),L=cR(1,20),d=cP([0.2,0.3,0.5,1.0]),A=Math.PI*Math.pow(d/2*1e-3,2),R=rho*L/A,r=Math.round(R*Math.pow(10,2-Math.floor(Math.log10(R))))/Math.pow(10,2-Math.floor(Math.log10(R)));
  return {p:'A wire has resistivity '+pE(rho,2)+' Ω m, length '+L+' m and diameter '+d+' mm. Find its resistance in Ω. (3 s.f.)',b:[cB(r,'R = ',' Ω','resistance',false,0.006)],e:'A = π(d/2)² = π × ('+cNum(d/2)+' × 10⁻³)² = '+pE(A)+' m². R = ρL/A = '+pE(rho,2)+' × '+L+' ÷ '+pE(A)+' = '+pE(R)+' Ω.'}};
 CGEN.p_emf=function(){var e=cR(3,24),r=cP([0.5,1,1.5,2]),R=cR(2,20),I=e/(R+r),V=Math.round((e-I*r)*100)/100;
  return {p:'A cell of emf '+e+' V and internal resistance '+r+' Ω is connected to a '+R+' Ω resistor. Find the terminal pd. (2 d.p.)',b:[cB(V,'V = ',' V','pd',false,0.005)],e:'I = ε/(R + r) = '+e+'/'+cNum(R+r)+' = '+cNum(Math.round(I*1000)/1000)+' A. V = ε − Ir = '+cNum(V)+' V ("lost volts" Ir = '+cNum(Math.round(I*r*100)/100)+' V).'}};
@@ -1122,4 +1122,4 @@ function NSIM(w,h,rnd){
   if(mode==='redundancy'){slider(box,'Number of trains',1,4,1,nT,function(v){return v},function(v){nT=v;dem=sysF=indF=0;moved++});slider(box,'Chance one train fails',.01,.3,.01,pf,function(v){return Math.round(v*100)+'%'},function(v){pf=v;dem=sysF=indF=0;moved++});slider(box,'Common cause β',0,.2,.01,beta,function(v){return Math.round(v*100)+'%'},function(v){beta=v;dem=sysF=indF=0;moved++});var st2=stats(box,[['d','Demands'],['f','System failures'],['p','Failure chance'],['i','If fully independent']])}
   if(mode==='tree'){['Reactor trips','Safety injection works','Long-term cooling works'].forEach(function(l,i){slider(box,l,.5,.999,.001,pr[i],function(v){return (v*100).toFixed(1)+'%'},function(v){pr[i]=v;ends={ok:0,cd:0};moved++})});var st3=stats(box,[['o','Safe end states'],['c','Core damage'],['f','Core damage chance']])}
   if(mode==='risk')slider(box,'Risk of death per year',-8,-2,.1,riskE,function(v){return '1 in '+fmtInt(Math.pow(10,-v))},function(v){riskE=v;moved++});
-  if(mode==='galton'){var r=row(box);btn(r,'Start again',fun
+  if(mode==='galton'){var r=row(box);btn

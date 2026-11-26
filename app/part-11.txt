@@ -1,4 +1,5 @@
-('C',14,6)}: 6 protons, 14 − 6 = 8 neutrons. Isotopes have the same protons, different neutrons.</p>`),
+ns.',[
+RM(`<p>${gNuc('C',14,6)}: 6 protons, 14 − 6 = 8 neutrons. Isotopes have the same protons, different neutrons.</p>`),
 T(`<h3>Unstable nuclei</h3><p>Some nuclei are unstable. They give out radiation to become more stable. This is <b>radioactive decay</b>. It is <b>random</b>: you can't predict which nucleus decays next.</p><p><b>Activity</b> is the rate of decay, in <b>becquerels</b> (Bq): 1 Bq is 1 decay per second. A Geiger-Müller tube measures the <b>count rate</b>.</p>`),
 T(`<h3>Alpha, beta and gamma</h3><ul><li><b>Alpha (α)</b>: 2 protons + 2 neutrons (a helium nucleus). Stopped by paper or a few cm of air. <b>Very ionising</b>.</li><li><b>Beta (β)</b>: a fast electron made when a neutron turns into a proton. Stopped by a few mm of aluminium. Moderately ionising.</li><li><b>Gamma (γ)</b>: an electromagnetic wave. Only reduced by thick lead or concrete. <b>Weakly ionising</b>.</li></ul><p>Some nuclei also give out a <b>neutron</b>.</p>`),
 W('sortIt',{bins:['Alpha','Beta','Gamma'],items:[['A helium nucleus',0],['Stopped by a sheet of paper',0],['The most ionising',0],['A fast electron from the nucleus',1],['Stopped by a few mm of aluminium',1],['An electromagnetic wave',2],['Needs thick lead to absorb most of it',2],['The least ionising',2]]},`Sort the facts into alpha, beta and gamma.`,`The more ionising it is, the shorter its range.`),
@@ -878,4 +879,4 @@ CGEN.g_alkane=function(){var n=cR(1,6),alk=n>=2&&Math.random()<0.45,f=function(h
  return {pos:1,p:'How many hydrogen atoms are in one molecule of '+GALK[n]+'ane, the alkane with '+n+' carbon atom'+(n>1?'s':'')+'?',b:[cB(2*n+2,'','','H atoms')],e:'Alkanes are C<sub>n</sub>H<sub>2n+2</sub>. With n = '+n+': '+f(2*n+2)+'.'}};
 CGEN.g_lineeq=function(){var m=cP([-3,-2,-1,1,2,3,4]),c=cR(-6,8),x1=cR(-3,2),x2=x1+cR(1,4),y1=m*x1+c,y2=m*x2+c;
  return {p:'Find the equation of the straight line through ('+cNum(x1)+', '+cNum(y1)+') and ('+cNum(x2)+', '+cNum(y2)+'). Write it as y = mx + c.',b:[cB(m,'y = ','x +','gradient m'),cB(c,'','','intercept c')],e:'Gradient m = ('+cNum(y2)+' − '+cBr(y1)+') ÷ ('+cNum(x2)+' − '+cBr(x1)+') = '+cNum(y2-y1)+' ÷ '+(x2-x1)+' = '+cNum(m)+'. Put in ('+cNum(x1)+', '+cNum(y1)+'): '+cNum(y1)+' = '+cNum(m)+' × '+cBr(x1)+' + c, so c = '+cNum(c)+'. Answer: y = '+gMx(m)+gTm(c,'')+'.'}};
-CGEN.g_venn=function(){var both=cR(2,8),a=cR(3,12),b=cR(3,12),nei=cR(1,
+CGEN.g_venn=function(){var both=cR(2,8),a=cR(3,12),

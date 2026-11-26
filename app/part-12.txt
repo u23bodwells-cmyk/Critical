@@ -1,4 +1,4 @@
-8),T=a+b+both+nei,k=cR(0,2),r=function(x){return Math.round(x*1000)/1000};
+b=cR(3,12),nei=cR(1,8),T=a+b+both+nei,k=cR(0,2),r=function(x){return Math.round(x*1000)/1000};
  var desc='In a class of '+T+' students, '+(a+both)+' study French, '+(b+both)+' study Spanish and '+both+' study both.';
  if(k===0)return {p:desc+' How many study neither?',b:[cB(nei,'','','neither')],e:'Fill the middle of the Venn diagram first: '+both+'. French only = '+(a+both)+' − '+both+' = '+a+'. Spanish only = '+(b+both)+' − '+both+' = '+b+'. Neither = '+T+' − '+a+' − '+both+' − '+b+' = '+nei+'.'};
  if(k===1)return {p:desc+' A student is picked at random. Find P(French or Spanish) as a decimal (3 d.p.).',b:[cB(r((a+b+both)/T),'','','probability',false,0.003)],e:'French or Spanish (including both) = '+a+' + '+both+' + '+b+' = '+(a+b+both)+'. P = '+(a+b+both)+'/'+T+' = '+cNum(r((a+b+both)/T))+'.'};
@@ -816,4 +816,4 @@ T(`<h3>Key points</h3><ul><li>Boiling simple molecules: intermolecular forces.</
 
 U({id:'gm5-1',track:'gm',level:5,title:'Proof',icon:'∎',color:'#7F77DD',desc:'Algebraic proof with odd, even and consecutive numbers, and geometric proof using congruence and circle theorems.',lessons:[
 LH('gm5-1-1','Algebraic proof',11,'Writing numbers with algebra so you can prove things for every case.',[
-T(`<h3>The building blocks</h3><ul><li>Any integer: <b>n</b>. Consecutive integers: n, n + 1, n + 2.</li><li>Even: <b>2n</b>. Odd: <b>2n + 1</b>. Consecutive odd numbers: 2n + 1, 2n + 3.</li><li>A multiple of k: <b>k × (an integer)</b>. Take k out as a factor to show it.</li></ul><p>Checking a few examples isn't a proof. Algebra proves it for every num
+T(`<h3>The building blocks</h3><ul><li>Any integer: <b>n</b>. Consecutive integers: n, n + 1, n + 2.</li><li>Even: <b>2n</b>. Odd: <b>2n + 1</b>. Consecutive odd numbers: 2n + 1, 2n + 3.</li><li>A multiple of k: <b>k × (an integer)</b>. Take k out as a factor to show it.</li></ul><p>Checking a few examples isn't a proof. Algebra pro

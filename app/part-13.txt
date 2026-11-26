@@ -1,4 +1,4 @@
-ber.</p>`),
+ves it for every number.</p>`),
 W('stepCalc',{steps:[`Prove that the sum of any three consecutive integers is a multiple of 3.`,`Let the integers be n, n + 1 and n + 2`,`Sum = n + (n + 1) + (n + 2) = 3n + 3`,`= 3(n + 1)`,`3 × an integer, so it's always a multiple of 3 ∎`]},`A proof, step by step.`,`Factorise to show the multiple.`),
 W('stepCalc',{steps:[`Prove that (2n + 1)² − (2n − 1)² is a multiple of 8 for any integer n.`,`(2n + 1)² = 4n² + 4n + 1`,`(2n − 1)² = 4n² − 4n + 1`,`Subtract: (4n² + 4n + 1) − (4n² − 4n + 1) = 8n`,`8n = 8 × n, a multiple of 8 ∎`]},`Another proof.`,`Expand, simplify, then factor out the number.`),
 Q(`How should you write "the product of two odd numbers"?`,[`(2a + 1)(2b + 1)`,`(2n + 1)(2n + 1)`,`2n × 2n`,`(n + 1)(n + 2)`],0,`Different letters: the two odd numbers needn't be the same.`),
@@ -1130,4 +1130,4 @@ CGEN.p_photo=function(){var E=cR(30,80)/10,phi=cR(18,Math.min(E*10-2,50))/10,K=M
  return {p:'Photons of energy '+cNum(E)+' eV hit a metal with work function '+cNum(phi)+' eV. Maximum kinetic energy of the photoelectrons, in eV?',b:[cB(K,'E<sub>k,max</sub> = ',' eV','energy',false,0.003)],e:'Einstein\'s equation: hf = φ + E<sub>k,max</sub>, so E<sub>k,max</sub> = '+cNum(E)+' − '+cNum(phi)+' = '+cNum(K)+' eV.'}};
 CGEN.p_debroglie=function(){var k=cR(1,9),l=Math.round(0.728/k*1000)/1000;
  return {p:'An electron (m = 9.11 × 10⁻³¹ kg) moves at '+k+' × 10⁶ m/s. Find its de Broglie wavelength in nm. (h = 6.63 × 10⁻³⁴ J s, 3 d.p.)',b:[cB(l,'λ = ',' nm','wavelength',false,0.005)],e:'λ = h/(mv) = 6.63 × 10⁻³⁴ ÷ (9.11 × 10⁻³¹ × '+k+' × 10⁶) = '+pE(l*1e-9)+' m = '+cNum(l)+' nm.'}};
-CGEN.p_resist=function(){var rho=c
+CGEN.p_resist=
