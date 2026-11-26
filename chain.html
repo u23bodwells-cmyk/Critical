@@ -1170,7 +1170,8 @@ document.getElementById("stch").addEventListener("click",function(e){if(e.target
 
 /* ---------- voices: the phone's own text-to-speech, a different voice for each character ---------- */
 var VOX={list:[],un:false},HASV=("speechSynthesis" in window)&&("SpeechSynthesisUtterance" in window);
-if(S.voice===undefined)S.voice=true;
+/* voices are off by default (the built-in phone voices sound robotic); they can be switched on from the progress sheet */
+if(!S.voiceV2){S.voice=false;S.voiceV2=1}
 function vOn(){return HASV&&S.voice!==false&&S.sound!==false}
 function vLoad(){if(!HASV)return;try{var all=speechSynthesis.getVoices()||[],bad=/Novelty|Bells|Bad News|Whisper|Zarvox|Trinoids|Albert|Bubbles|Cellos|Organ|Boing|Jester|Superstar|Wobble|Bahh|Hysterical|Pipe|Good News|Deranged|Grandma|Grandpa|Eddy|Flo|Reed|Rocko|Sandy|Shelley/i;
   var en=all.filter(function(v){return/^en([-_]|$)/i.test(v.lang)&&!bad.test(v.name)});
