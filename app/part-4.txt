@@ -1,4 +1,33 @@
-e neutron source gets weaker as it is used up, so each step adds fewer neutrons to count'],1,`Near k = 1 the chains are very long, so the population takes much longer to reach its new level. That's why patience matters during an approach to criticality.`)]),
+ neutrons made per neutron absorbed in the fuel</span><span class="ku">no unit (about 2)</span></div><div class="kn">The dots mean multiply.</div></div>`),
+W('sixFactor',{},`Follow 1000 neutrons through one generation. Adjust the factors to make the reactor <b>critical (k = 1.000 ± 0.005)</b>.`,`Every way of changing k (rods, boron, temperature, fuel) works by changing one or more of these factors.`),
+Q(`Adding boron to the coolant mainly reduces which factor?`,['ε (fast fission)','p (resonance escape)','f (thermal utilisation)','η (neutrons per absorption)'],2,`Boron absorbs thermal neutrons in the coolant, so fewer thermal absorptions happen in the fuel. That lowers f.`),
+Q(`Adding a bit more moderator (water) mainly increases which factor?`,['ε (fast fission)','p (resonance escape)','η (neutrons per absorption)','L<sub>f</sub>'],1,`More moderator slows neutrons faster and keeps them away from the fuel while they pass through U-238's resonance energies, so p goes up. (Too much water starts to lower f, because water absorbs neutrons too.)`),
+Q(`Which factor counts fissions caused by fast neutrons?`,['ε','p','f','L<sub>t</sub>'],0,`ε is the fast fission factor, usually about 1.03.`),
+N(`ε = 1.03, L<sub>f</sub> = 0.97, p = 0.75, L<sub>t</sub> = 0.99, f = 0.73, η = 1.85. What is k?`,1.0018,0.003,'',`1.03 × 0.97 × 0.75 × 0.99 × 0.73 × 1.85 = 1.002: just supercritical.`)]),
+L('r3','Moderation',12,[
+T(`<h3>Slowing neutrons down</h3><p>Fission neutrons are born at about <b>2 MeV</b>. To cause fission well in U-235 they need slowing to about <b>0.025 eV</b>: almost 100 million times less energy.</p><p>A good moderator has light nuclei (to take lots of energy per collision), scatters neutrons often, and absorbs very few.</p>`),
+W('thermalise',{},`Fire neutrons into different moderators and count how many collisions each one needs to reach thermal energy.`,null),
+Q(`Which moderator needs the fewest collisions to slow a neutron down?`,['Graphite','Heavy water','Light water'],2,`Light water: about 20 collisions, because hydrogen is as heavy as a neutron. Heavy water needs about 35, graphite about 115.`),
+Q(`Heavy water takes more collisions than light water. Why do CANDU reactors use it?`,['It\'s cheaper than light water, so the plant costs less','It absorbs far fewer neutrons, so natural uranium can be used','It boils at a lower temperature, so it makes steam more easily','It speeds neutrons up, so more of them cause fission'],1,`Hydrogen absorbs some neutrons; deuterium hardly any. The neutron economy is so good that CANDU reactors can run on unenriched uranium.`),
+T(`<h3>The moderator-to-fuel ratio</h3><p>PWRs are deliberately <b>undermoderated</b>: there's slightly less water than would give the maximum k.</p><p>So if the water heats up and expands, there's less moderation and <b>k falls</b>. This is a key safety feature: overheating automatically reduces power.</p>`),
+W('modRatio',{},`Heat the coolant and watch where the reactor sits on the curve.`,null),
+Q(`In an undermoderated PWR core, the coolant temperature rises. What happens to k?`,['It rises','It falls','No change'],1,`Hotter water is less dense, so there's less moderation. In an undermoderated core that lowers k: a negative moderator temperature coefficient.`)]),
+L('r4','Reactivity',10,[
+T(`<h3>How far from critical?</h3><p>Operators rarely talk about k. They use <b>reactivity</b>, ρ (rho):</p><div class="eq">ρ = (k − 1) / k</div><div class="key"><div class="kt">What each part means</div><div class="krow"><span class="ks">ρ</span><span class="km">“rho”, <b>reactivity</b>: how far from exactly critical. 0 = critical, + = power rising, − = falling</span><span class="ku">no unit (often given in pcm)</span></div><div class="krow"><span class="ks">k</span><span class="km">the multiplication factor (neutrons now ÷ neutrons last generation)</span><span class="ku">no unit</span></div></div><p>ρ = 0 means critical, positive means supercritical, negative means subcritical. It's measured in Δk/k, usually as <b>pcm</b> (10<sup>−5</sup> Δk/k).</p>`),
+W('reactivityCalc',{target:100},`Set k to give a reactivity of <b>+100 pcm</b>.`,`k = 1.0010 gives ρ = 0.001/1.001 ≈ 100 pcm. Near k = 1, reactivity in pcm is about (k − 1) × 100,000.`),
+N(`k = 0.98. What is ρ in pcm?`,-2041,0.01,'pcm',`ρ = (0.98 − 1)/0.98 = −0.0204 = −2041 pcm.`),
+T(`<h3>Reactivity adds up</h3><p>The great thing about reactivity is that effects simply <b>add</b>. Pulling rods out might add +200 pcm, while hotter coolant adds −50 pcm. Operators keep a running <b>reactivity balance</b>.</p>`),
+W('reactivityBalance',{},`Choose events that together keep the reactor <b>exactly critical</b> (total = 0 pcm). Pick at least two.`,`Operators do this constantly: when something adds reactivity, something else must take it away.`),
+T(`<h3>Dollars</h3><p>Reactivity is sometimes given in <b>dollars ($)</b>: 1 $ equals the delayed neutron fraction β, about 650 pcm for U-235 fuel. You'll see why that matters in unit 5.</p>`),
+Q(`Which reactor is supercritical?`,['ρ = −20 pcm','ρ = 0','ρ = +20 pcm','k = 0.999'],2,`Any positive reactivity is supercritical: power will rise.`)]),
+L('r5','Subcritical multiplication',14,[
+T(`<h3>A shut-down reactor isn't silent</h3><p>Even when shut down, there are always some neutrons: from a <b>neutron source</b> placed in the core, from spontaneous fission, and from gamma rays knocking neutrons out of nuclei.</p><p>With k below 1, each source neutron starts a chain that dies away. The closer k gets to 1, the longer each chain lasts.</p>`),
+T(`<h3>Multiplication</h3><div class="eq">total neutrons per source neutron, M = 1 / (1 − k)</div><div class="key"><div class="kt">What each part means</div><div class="krow"><span class="ks">M</span><span class="km">subcritical multiplication: how many neutrons each source neutron ends up giving</span><span class="ku">no unit</span></div><div class="krow"><span class="ks">k</span><span class="km">multiplication factor (below 1 here)</span><span class="ku">no unit</span></div><div class="kn">As k gets close to 1, M shoots up.</div></div><p>So the count rate is proportional to 1/(1 − k). As k approaches 1, the count rate shoots up.</p>`),
+N(`k = 0.95. Each source neutron leads to how many neutrons in total?`,20,0.01,'',`M = 1/(1 − 0.95) = 20.`),
+T(`<h3>The 1/M plot</h3><p>During a startup, operators withdraw rods in steps. After each step they wait for the count rate to settle and plot <b>1/M = (first count rate) ÷ (new count rate)</b>.</p><p>1/M falls towards zero as k approaches 1. Drawing a line through the last two points and extending it to zero <b>predicts</b> where the reactor will go critical.</p>`),
+W('approachCrit',{},`Withdraw the rods step by step, recording a 1/M point after each step. Predict the <b>critical rod position</b> to within 5%.`,`This is how every reactor startup approaches criticality: carefully, in steps, using predictions rather than guesswork.`),
+N(`The count rate goes from 100 cps to 200 cps after a rod step. 1/M started at 1. What is it now?`,0.5,0.01,'',`1/M = 100/200 = 0.5.`),
+Q(`As you get closer to critical, why does the count rate take longer to settle after each step?`,['The detector slows down as it gets closer to its limit','Each neutron chain lasts more generations, so it takes longer to build up','The control rods move more slowly near the top of the core','The neutron source gets weaker as it is used up, so each step adds fewer neutrons to count'],1,`Near k = 1 the chains are very long, so the population takes much longer to reach its new level. That's why patience matters during an approach to criticality.`)]),
 L('r6','Control rods',10,[
 T(`<h3>Absorbers you can move</h3><p>Control rods contain strong neutron absorbers such as boron carbide or a silver-indium-cadmium alloy. They're grouped into <b>banks</b>:</p><ul><li><b>Shutdown banks</b>: fully withdrawn at power, ready to shut the reactor down</li><li><b>Control banks</b>: moved to adjust reactivity</li></ul><p>On a trip, all rods drop into the core under gravity in about 2 seconds.</p>`),
 W('rodWorth',{},`Move a control rod through the core. Find the position where moving it has the <b>biggest effect</b>.`,`Rod worth depends on the neutron flux where the rod tip is. Flux is highest in the middle of the core, so the middle few percent of travel are worth the most.`),
@@ -672,48 +701,4 @@ T(`<h3>Quick recap</h3><ol class="steps"><li>Add up the mass before and after th
 N(`Before a reaction: 10.0129 u. After: 10.0104 u. How much mass went missing?`,0.0025,0.02,'u',`10.0129 − 10.0104 = 0.0025 u.`),
 N(`How much energy is 0.0025 u, in MeV?`,2.33,0.02,'MeV',`0.0025 × 931.5 = 2.3 MeV.`),
 N(`How many fissions (3.2 × 10<sup>−11</sup> J each) release 1 MJ (10<sup>6</sup> J)? Give the number in front of × 10<sup>16</sup>.`,3.125,0.03,'× 10¹⁶ fissions',`10<sup>6</sup> ÷ 3.2 × 10<sup>−11</sup> = 3.1 × 10<sup>16</sup> fissions.`,`Divide 10<sup>6</sup> J by the energy per fission.`),
-Q(`After a fission, the pieces weigh…`,[`slightly less than what you started with`,`slightly more`,`exactly the same`,`about half as much`],0,`They're about 0.19 u lighter. That missing mass is the energy released.`),
-Q(`Where does the energy released in fission come from?`,[`A small loss of mass`,`The incoming neutron's kinetic energy`,`Chemical bonds`,'The electrons dropping into lower energy levels'],0,`The products weigh slightly less than the starting nucleus and neutron. That missing mass becomes energy through E = mc<sup>2</sup>.`)]);
-
-F('a1',[
-T(`<h3>Quick recap</h3><p>In <sup>A</sup><sub>Z</sub>X:</p><ul><li><b>A</b> (top) = protons + neutrons</li><li><b>Z</b> (bottom) = protons, which decides the element</li><li><b>Neutrons = A − Z</b></li><li>Isotopes: same Z, different numbers of neutrons</li></ul><div class="callout"><b>Worked example:</b> <sup>235</sup><sub>92</sub>U has 235 − 92 = <b>143 neutrons</b>.</div>`),
-N(`How many neutrons are in U-238 (Z = 92)?`,146,0.001,'',`238 − 92 = 146.`,`Neutrons = A − Z.`),
-N(`How many neutrons are in Xe-135 (Z = 54)?`,81,0.001,'',`135 − 54 = 81.`),
-Q(`Which pair are isotopes of each other?`,['U-235 and U-238','U-235 and Pu-239','C-12 and N-14','B-10 and Li-7'],0,`Both are uranium (Z = 92), with different numbers of neutrons.`),
-Q(`PWR fuel is enriched to about…`,['0.7% U-235','3–5% U-235','50% U-235','90% U-235'],1,`Natural uranium is 0.72% U-235. PWR fuel is enriched to about 3–5%.`),
-Q(`What decides which element an atom is?`,['The number of neutrons','The number of protons','The number of nucleons','Its mass'],1,`The proton number Z defines the element: every atom with 92 protons is uranium.`)]);
-
-F('a2',[
-T(`<h3>Quick recap</h3><ul><li><b>Mass defect</b> = mass of the separate nucleons − mass of the nucleus</li><li><b>Binding energy</b> = mass defect × 931.5 MeV per u</li><li>Binding energy <b>per nucleon</b> = binding energy ÷ A</li><li>The curve peaks at iron-56, at about 8.8 MeV per nucleon</li></ul><div class="callout"><b>Worked example:</b> a mass defect of 0.03 u gives 0.03 × 931.5 = <b>28 MeV</b> of binding energy.</div>`),
-N(`A nucleus has a mass defect of 0.1 u. What's its binding energy?`,93.15,0.01,'MeV',`0.1 × 931.5 = 93.15 MeV.`),
-N(`Helium-4 has a binding energy of 28.3 MeV. What's that per nucleon?`,7.08,0.02,'MeV per nucleon',`28.3 ÷ 4 = 7.1 MeV per nucleon.`,`Divide by the number of nucleons, A = 4.`),
-Q(`Which is the most tightly bound per nucleon?`,['Hydrogen-2','Uranium-235','Iron-56','Helium-4'],2,`Iron-56 sits at the peak of the binding energy curve.`),
-Q(`A nucleus weighs less than its separate protons and neutrons because…`,['energy was released when it formed','neutrons lose mass inside nuclei','its electrons are missing','it is radioactive'],0,`That released energy is the binding energy. Its mass equivalent is the mass defect.`),
-N(`Uranium has about 7.6 MeV per nucleon and its fission fragments about 8.5. How much energy is released per nucleon?`,0.9,0.01,'MeV',`8.5 − 7.6 = 0.9 MeV per nucleon. Times 235 nucleons gives about 210 MeV.`)]);
-
-F('a3',[
-T(`<h3>Quick recap</h3><table><tr><th>Decay</th><th>A</th><th>Z</th></tr><tr><td>Alpha</td><td>− 4</td><td>− 2</td></tr><tr><td>Beta-minus</td><td>same</td><td>+ 1</td></tr><tr><td>Beta-plus</td><td>same</td><td>− 1</td></tr><tr><td>Gamma</td><td>same</td><td>same</td></tr></table><div class="callout"><b>Worked example:</b> Ra-226 (Z = 88) alpha decays to A = 222, Z = 86: <b>radon-222</b>.</div>`),
-Q(`U-238 (Z = 92) alpha decays. What does it become?`,['Th-234 (Z = 90)','U-234 (Z = 92)','Pa-238 (Z = 91)','Pu-242 (Z = 94)'],0,`Alpha: A − 4 = 234 and Z − 2 = 90, which is thorium.`,`Alpha takes away 4 from A and 2 from Z.`),
-Q(`Sr-90 (Z = 38) beta-minus decays. What does it become?`,['Y-90 (Z = 39)','Rb-90 (Z = 37)','Sr-89 (Z = 38)','Kr-86 (Z = 36)'],0,`Beta-minus: Z + 1 = 39 (yttrium), and A stays 90.`,`In beta-minus decay a neutron turns into a proton.`),
-Q(`Which radiation is stopped by a sheet of paper?`,['Alpha','Beta','Gamma','Neutrons'],0,`Alpha particles are big and heavily charged, so they stop in a few cm of air or a sheet of paper.`),
-Q(`Xe-135 (Z = 54) beta-minus decays. What does it become?`,['Cs-135 (Z = 55)','I-135 (Z = 53)','Xe-134 (Z = 54)','Ba-135 (Z = 56)'],0,`Z goes from 54 to 55 (caesium), and A stays 135.`),
-N(`In alpha decay, by how much does the mass number go down?`,4,0.001,'',`An alpha particle is 2 protons + 2 neutrons, so A falls by 4.`)]);
-
-F('a4',[
-T(`<h3>Quick recap</h3><ul><li>After <b>n</b> half-lives, the fraction left is <b>(½)<sup>n</sup></b></li><li><b>λ = 0.693 ÷ t<sub>½</sub></b>, and t<sub>½</sub> = 0.693 ÷ λ</li><li>Activity A = λN halves every half-life too</li></ul><div class="callout"><b>Worked example:</b> half-life 5 h, after 15 h: 15 ÷ 5 = 3 half-lives, so (½)<sup>3</sup> = <b>1/8</b> is left.</div>`),
-N(`An isotope has a half-life of 6 hours. What fraction is left after 24 hours?`,0.0625,0.01,'',`24 ÷ 6 = 4 half-lives: (½)<sup>4</sup> = 1/16 = 0.0625.`,`How many half-lives is 24 hours?`),
-N(`A sample has an activity of 3200 Bq and a half-life of 2 days. What's its activity after 6 days?`,400,0.01,'Bq',`6 days is 3 half-lives: 3200 → 1600 → 800 → 400 Bq.`),
-N(`An isotope has λ = 0.0693 per second. What's its half-life?`,10,0.01,'s',`t<sub>½</sub> = 0.693 ÷ 0.0693 = 10 s.`,`t<sub>½</sub> = 0.693 ÷ λ.`),
-N(`Cobalt-60 has a half-life of 5.27 years. What's its decay constant, per year?`,0.1315,0.02,'per year',`λ = 0.693 ÷ 5.27 = 0.132 per year.`),
-Q(`How many half-lives until less than 1% is left?`,['3','5','7','10'],2,`(½)<sup>6</sup> = 1.6% and (½)<sup>7</sup> = 0.78%, so 7 half-lives.`,`Keep halving 100% and count.`)]);
-
-F('a5',[
-T(`<h3>Quick recap</h3><ul><li>A neutron can <b>scatter</b>, be <b>captured</b> (n,γ), cause <b>fission</b>, or cause another reaction like (n,α)</li><li>The <b>cross section σ</b> measures how likely an interaction is, in barns (1 b = 10<sup>−24</sup> cm<sup>2</sup>)</li><li>Many cross sections follow <b>1/v</b>: slower neutron, bigger σ</li><li>Fission neutrons ≈ 2 MeV; thermal neutrons ≈ 0.025 eV</li></ul>`),
-Q(`U-238 absorbs a neutron and gives off a gamma ray. What's this called?`,['Radiative capture (n,γ)','Fission','Elastic scattering','Alpha decay'],0,`It's radiative capture. The U-239 made this way decays into plutonium-239.`),
-N(`Convert 3840 barns to cm<sup>2</sup>. Give the number in front of × 10<sup>−21</sup> cm<sup>2</sup>.`,3.84,0.01,'× 10⁻²¹ cm²',`3840 × 10<sup>−24</sup> = 3.84 × 10<sup>−21</sup> cm<sup>2</sup>.`,`1 barn = 10<sup>−24</sup> cm<sup>2</sup>.`),
-Q(`A neutron slows from 1 eV to 0.25 eV, so its speed halves. Under the 1/v law, its cross section…`,['halves','doubles','quadruples','stays the same'],1,`σ ∝ 1/v. Speed halves, so σ doubles. (Energy is ¼, but it's speed that matters.)`,`Kinetic energy depends on v<sup>2</sup>. What does that mean for the speed?`),
-Q(`Neutrons are born in fission with about…`,['0.025 eV','2 MeV','200 MeV','6.7 eV'],1,`About 2 MeV. They must be slowed to about 0.025 eV to be thermal.`),
-Q(`Why can neutrons get close to nuclei so easily?`,['They have no charge, so they aren\'t repelled','They\'re very fast','They\'re very heavy','Electrons attract them'],0,`Protons and alpha particles are pushed away by the nucleus\'s positive charge. Neutrons aren\'t.`)]);
-
-F('a6',[
-T(`<h3>Quick recap</h3><ul><li><b>Σ = Nσ</b> (per cm); mean free path
+Q(`After a fission, the pi

@@ -1,4 +1,29 @@
-vel:5,title:'Severe accidents',icon:'☢︎',color:'#D85A30',desc:'How a core melts, hydrogen, threats to containment, the EPR core catcher, the source term, and severe accident management.',lessons:[
+ignificant`,'It isn\'t included, because the reactor is shut down and can\'t go critical','Nothing can go wrong at shutdown, so it only needs to be checked for completeness','Only for cost reasons, because outages are expensive and need to be planned'],0,`Decay heat remains and defences are reduced.`),
+QE(`An event tree starts from…`,[`an initiating event`,`a top event (the failure)`,`a minimal cut set`,`the core damage frequency`],0,`Level 5 Maths.`),
+T(`<h3>Key points</h3><ul><li><b>Level 1</b>: CDF. <b>Level 2</b>: large release frequency. <b>Level 3</b>: off-site consequences.</li><li>PSA is realistic and complete; deterministic is conservative and bounded.</li><li>Covers internal and external hazards and all operating states.</li></ul>`)]),
+LH('t5-3-2','Inside a Level 1 PSA',10,'Human error probabilities, and measures that show which equipment matters most to risk.',[
+RM(`<ul><li>Event trees × fault trees → sequence frequencies (Level 5 Maths).</li><li>Common cause failures dominate redundant systems.</li></ul>`),
+T(`<h3>Human reliability analysis (HRA)</h3><p>Operators are part of the system. HRA estimates the probability that a required action isn't done correctly in time. Typical values:</p><table><tr><th>Situation</th><th>Human error probability</th></tr><tr><td>Simple, well-practised task with plenty of time</td><td>about 10⁻³</td></tr><tr><td>Routine task under some stress</td><td>about 10⁻²</td></tr><tr><td>Complex diagnosis under high stress and little time</td><td>about 10⁻¹ or worse</td></tr></table><p>That's why training, clear procedures and time margins matter so much.</p>`),
+T(`<h3>Importance measures</h3><ul><li><b>Fussell–Vesely (FV)</b>: the fraction of total CDF from sequences involving this component. "How much of the risk goes through it?"</li><li><b>Risk achievement worth (RAW)</b>: CDF if this component is assumed failed ÷ normal CDF. "How bad is it if it's out of service?"</li></ul>`),
+W('stepCalc',{steps:['Base CDF: 5 × 10<sup>−7</sup> per year.','If one emergency diesel is assumed failed, CDF = 2 × 10<sup>−6</sup> per year.','RAW = 2 × 10<sup>−6</sup> ÷ 5 × 10<sup>−7</sup> = <b>4</b>','Sequences involving that diesel contribute 1 × 10<sup>−7</sup>: FV = 1 × 10<sup>−7</sup> ÷ 5 × 10<sup>−7</sup> = <b>0.2</b>','High RAW: protect it during maintenance. High FV: improving it reduces risk most.']},`Work out two importance measures.`),
+N(`Base CDF 10⁻⁶ per year. With a pump failed, CDF = 8 × 10⁻⁶. RAW?`,8,0.01,'',`8 × 10⁻⁶ ÷ 10⁻⁶ = 8.`),
+QE(`Fault tree OR gate output for 0.01 and 0.02 is about…`,[`0.03`,`0.0002`,`0.02`,`1`],0,`Add for rare events.`),
+T(`<h3>Key points</h3><ul><li><b>HRA</b>: human error probabilities from 10⁻³ (easy, time) to 10⁻¹ (hard, stressed).</li><li><b>FV</b>: share of risk through a component. <b>RAW</b>: risk increase if it fails.</li><li>Importance measures guide maintenance, testing and design changes.</li></ul>`)]),
+LH('t5-3-3','Using risk to make decisions',10,'Risk monitors, maintenance planning and what PSA numbers do and don\'t tell you.',[
+RM(`<ul><li>RAW: how much risk rises if equipment is out of service.</li><li>Defence in depth: several independent layers (Level 1 Theory).</li></ul>`),
+T(`<h3>Risk monitors</h3><p>Plants run a live PSA model called a <b>risk monitor</b>. When equipment is taken out for maintenance, it shows the current CDF. Planners avoid combinations that push risk up sharply, for example never taking two high-RAW items out together.</p>`),
+W('stepCalc',{steps:['Base CDF: 10<sup>−6</sup> per year.','Plan: take diesel A out (RAW 4) for 3 days.','Instantaneous CDF rises to 4 × 10<sup>−6</sup> per year.','Extra risk = (4 − 1) × 10<sup>−6</sup> × (3/365) ≈ <b>2.5 × 10<sup>−8</sup></b> (incremental core damage probability)','Compare with a guideline (often around 10<sup>−6</sup> to 10<sup>−7</sup> for a single activity): acceptable. Two high-RAW items together could multiply it.']},`Work out the extra risk from a maintenance outage.`),
+N(`CDF rises from 10⁻⁶ to 6 × 10⁻⁶ per year for 73 days (0.2 year). Incremental core damage probability? Give the number in front of × 10⁻⁶.`,1,0.01,'× 10⁻⁶',`(6 − 1) × 10⁻⁶ × 0.2 = 10⁻⁶.`),
+T(`<h3>Limits of PSA</h3><ul><li><b>Uncertainty</b>: data are sparse for rare events; results can be uncertain by a factor of 10.</li><li><b>Completeness</b>: you can only model what you think of. Fukushima's tsunami height was underestimated.</li><li>So PSA <b>informs</b> decisions alongside deterministic rules and engineering judgement; it doesn't replace them.</li></ul><p>For new designs like the EPR, the estimated CDF is around 10⁻⁶ per year or lower.</p>`),
+QE(`Defence in depth means…`,[`several independent layers of protection`,`making the containment walls thicker`,`putting the core deep underground, away from people`,`one very strong barrier that can't fail`],0,`Level 1 Theory.`),
+T(`<h3>Key points</h3><ul><li><b>Risk monitors</b> show live CDF during maintenance.</li><li>Incremental risk = ΔCDF × duration.</li><li>PSA is <b>risk-informed</b>, not risk-based: uncertainty and completeness limit it.</li></ul>`)])
+]});
+F('t5-3-1',[T(`<h3>Quick recap</h3><p>L1 CDF, L2 releases, L3 consequences.</p>`),Q(`Level 2 PSA studies…`,[`containment response and releases`,`core damage frequency`,`public doses`,`turbine faults`],0,`Middle level.`),Q(`PSA uses…`,[`realistic (best-estimate) data`,`only conservative assumptions`,`no data`,`random guesses`],0,`Realistic.`),Q(`External hazards include…`,[`earthquakes and flooding`,`pump failures`,`operator training`,`boron dilution`],0,`From outside.`)]);
+F('t5-3-2',[T(`<h3>Quick recap</h3><p>HRA; FV share; RAW ratio.</p>`),N(`Sequences with a valve contribute 3 × 10⁻⁷ of 10⁻⁶ CDF. FV?`,0.3,0.01,'',`Share.`),Q(`A high RAW means…`,[`risk rises a lot if it's out of service`,`it never fails`,`it's unimportant`,`it's expensive`],0,`Protect it.`),Q(`Human error probability is lowest when…`,[`the task is simple, practised and there's plenty of time`,`stress is high`,`time is short`,`the task is new`],0,`About 10⁻³.`)]);
+F('t5-3-3',[T(`<h3>Quick recap</h3><p>Risk monitors; ΔCDF × time.</p>`),N(`ΔCDF 2 × 10⁻⁶ /yr for 0.5 yr. Extra probability? Number in front of × 10⁻⁶.`,1,0.01,'× 10⁻⁶',`2 × 0.5.`),Q(`PSA decisions are best described as…`,[`risk-informed`,`risk-based only`,`random`,`purely deterministic`],0,`Combined.`),Q(`A big limit of PSA is…`,[`completeness: you can only model what you think of`,`it has no numbers`,`it ignores equipment`,`it's illegal`],0,`Fukushima.`)]);
+TT('t5-3',[x('t5-3-1',Q(`Level 1 PSA estimates…`,[`core damage frequency`,`public doses`,`plant cost`,`turbine efficiency`],0,`CDF.`)),x('t5-3-1',Q(`PSA should cover shutdown states because…`,[`defences are reduced while decay heat remains`,`nothing happens`,`fuel is removed`,`it's cheaper`],0,`Real risk.`)),x('t5-3-2',N(`Base CDF 2 × 10⁻⁷; failed-component CDF 1 × 10⁻⁶. RAW?`,5,0.01,'',`Ratio.`)),x('t5-3-2',Q(`HRA is used to estimate…`,[`human error probabilities`,`hydrogen levels`,`heat rates`,`half-lives`],0,`People.`)),x('t5-3-3',Q(`A risk monitor shows…`,[`current CDF given equipment out of service`,`radiation dose`,`turbine speed`,`stock prices`],0,`Live PSA.`)),x('t5-3-3',Q(`Taking two high-RAW items out together…`,[`can multiply risk and should be avoided`,`is always fine`,`reduces risk`,`is required`],0,`Planning.`))]);
+
+U({id:'t5-4',track:'theory',level:5,title:'Severe accidents',icon:'☢︎',color:'#D85A30',desc:'How a core melts, hydrogen, threats to containment, the EPR core catcher, the source term, and severe accident management.',lessons:[
 LH('t5-4-1','How a core melts',10,'The sequence from uncovered fuel to molten core, and the chemistry that speeds it up.',[
 RM(`<ul><li>Uncovered fuel heats at about 1 °C/s an hour after shutdown (Level 5 Maths).</li><li>Zirconium reacts with steam above about 1,200 °C (Level 3 Theory).</li></ul>`),
 T(`<h3>Zirconium and steam</h3><div class="eq">Zr + 2H₂O → ZrO₂ + 2H₂ + heat</div><p>Above about 1,200 °C this reaction speeds up rapidly. It releases a lot of heat (more than decay heat, locally), which makes the cladding even hotter: a runaway. It also produces <b>hydrogen</b>.</p>`),
@@ -925,53 +950,4 @@ T(`<h3>Key points</h3><ul><li>(a + h)³ = a³ + 3a²h + 3ah² + h³.</li><li>The
 LH('c2-2-3','Spotting the pattern',8,'x² → 2x, x³ → 3x². Can you guess the rule for any power?',[
 RM(`<p>From first principles: the derivative of x² is <b>2x</b>, and of x³ is <b>3x²</b>.</p>`),
 T(`<h3>Line them up</h3><table><tr><th>y</th><td>x</td><td>x²</td><td>x³</td><td>x⁴</td></tr><tr><th>dy/dx</th><td>1</td><td>2x</td><td>3x²</td><td>4x³</td></tr></table><p>Look closely. Each time, the <b>power comes down in front</b>, and the new power is <b>one less</b>.</p>`),
-Q(`Following the pattern, what is the derivative of x⁵?`,[`5x⁴`,`4x⁵`,`5x⁶`,`x⁴`],0,`Bring the 5 down; 5 − 1 = 4.`),
-T(`<h3>Even y = x fits</h3><p>y = x is x¹. Bring the 1 down and take 1 off: 1x⁰ = 1 × 1 = <b>1</b>. That's right: y = x is a straight line with gradient 1.</p>`),
-Q(`What is the derivative of x⁷?`,[`7x⁶`,`6x⁷`,`7x⁸`,`x⁶`],0,`Power down, take one off.`),
-W('calcDrill',{skill:'gradat',need:5},`Use the pattern to find gradients at points. Get 5 right to master it.`,`Bring the power down, take one off, then substitute.`),
-QE(`Write 1/x² as a power of x.`,[`x⁻²`,`x²`,`−x²`,`2x`],0,`From Level 1: negative power.`),
-T(`<h3>Key points</h3><ul><li>Pattern: the derivative of <b>xⁿ</b> is <b>nxⁿ⁻¹</b>.</li><li>Bring the power down in front, then subtract 1 from the power.</li><li>It's called the <b>power rule</b>, and it's next.</li></ul>`)])
-]});
-
-U({id:'c2-3',track:'calc',level:2,title:'The power rule',icon:'nxⁿ⁻¹',color:'#378ADD',desc:'Differentiate any power of x, sums of terms and constants, including negative and fractional powers.',lessons:[
-LH('c2-3-1','Differentiating axⁿ',9,'The power rule, with a number in front. Practise until it\'s automatic.',[
-RM(`<p>The derivative of xⁿ is <b>nxⁿ⁻¹</b>: bring the power down, take one off.</p>`),
-T(`<h3>The power rule</h3><div class="eq">y = axⁿ&nbsp;&nbsp;→&nbsp;&nbsp;dy/dx = anxⁿ⁻¹</div>${KY([['a','the number in front (stays and gets multiplied)',''],['n','the power: multiply by it, then subtract 1','']])}<p>Two moves: <b>multiply by the power</b>, then <b>reduce the power by 1</b>.</p>`),
-W('stepCalc',{steps:[`y = 5x³`,`Multiply the number in front by the power: 5 × 3 = 15`,`Reduce the power by 1: 3 − 1 = 2`,`dy/dx = <b>15x²</b>`]},`Watch the two moves.`,`Multiply by the power, then take one off.`),
-Q(`Differentiate y = 4x⁵.`,[`20x⁴`,`20x⁵`,`9x⁴`,`4x⁴`],0,`4 × 5 = 20, power 5 − 1 = 4.`),
-Q(`Differentiate y = −2x³.`,[`−6x²`,`6x²`,`−6x³`,`−2x²`],0,`−2 × 3 = −6, power 2.`),
-T(`<h3>A single x</h3><p>y = 7x is 7x¹. Multiply by 1, power becomes 0, and x⁰ = 1. So dy/dx = <b>7</b>. The gradient of a straight line is the number in front of x, just as you learned in Level 1.</p>`),
-W('calcDrill',{skill:'power',need:8},`The power rule, over and over. Get 8 right to master it.`,`Multiply by the power, then reduce it by 1. Negative powers work exactly the same way.`),
-T(`<h3>Key points</h3><ul><li><b>axⁿ → anxⁿ⁻¹</b></li><li>Multiply by the power, then reduce the power by 1.</li><li>kx → k (a straight line's gradient).</li></ul>`)]),
-LH('c2-3-2','Sums and constants',9,'Differentiate whole expressions like 3x² − 5x + 7, one term at a time.',[
-RM(`<p>Power rule: <b>axⁿ → anxⁿ⁻¹</b>. And kx → k.</p>`),
-T(`<h3>Constants vanish</h3><p>y = 7 is a flat horizontal line. Its gradient is <b>0</b> everywhere.</p><div class="eq">d/dx (constant) = 0</div><p>It also fits the power rule: 7 = 7x⁰, and 7 × 0 = 0.</p>`),
-Q(`Differentiate y = 12.`,[`0`,`12`,`1`,`12x`],0,`A constant has zero gradient.`),
-T(`<h3>One term at a time</h3><p>To differentiate a sum, differentiate <b>each term separately</b> and keep the plus and minus signs.</p><div class="eq">y = 3x² − 5x + 7&nbsp;&nbsp;→&nbsp;&nbsp;dy/dx = 6x − 5</div><p>3x² → 6x, −5x → −5, and 7 → 0.</p>`),
-Q(`Differentiate y = x³ + 4x² − 2x + 9.`,[`3x² + 8x − 2`,`3x² + 8x − 2 + 9`,`x² + 8x − 2`,`3x² + 4x − 2`],0,`Term by term; the 9 disappears.`),
-W('calcDrill',{skill:'const0',need:3},`Quick check on constants. Get 3 right to master it.`,`Constants always differentiate to 0.`),
-T(`<h3>Finding a gradient value</h3><p>Once you have f′(x), substitute to get the gradient at a point. If f(x) = x³ − 2x, then f′(x) = 3x² − 2, and f′(2) = 12 − 2 = <b>10</b>.</p>`),
-W('calcDrill',{skill:'polyval',need:6},`Differentiate, then substitute. Get 6 right to master it.`,`Term by term, then put the number in.`),
-T(`<h3>Key points</h3><ul><li>Constants differentiate to <b>0</b>.</li><li>Differentiate sums <b>term by term</b>.</li><li>Then substitute to find the gradient at a point.</li></ul>`)]),
-LH('c2-3-3','Negative and fractional powers',10,'Rewrite 5/x² and √x as powers first, then the power rule works as normal.',[
-RM(`<p>From Level 1: 1/xⁿ = <b>x⁻ⁿ</b> and √x = <b>x⁰·⁵</b>. Power rule: <b>axⁿ → anxⁿ⁻¹</b>.</p>`),
-T(`<h3>Rewrite first, then differentiate</h3><p>The power rule only works on powers of x. So fractions and roots must be <b>rewritten as powers</b> first.</p>`),
-W('stepCalc',{steps:[`y = 6/x²`,`Rewrite as a power: y = 6x⁻²`,`Multiply by the power: 6 × (−2) = −12`,`Reduce the power by 1: −2 − 1 = −3`,`dy/dx = −12x⁻³, which you can write as <b>−12/x³</b>`]},`A negative power, step by step.`,`Careful: −2 − 1 = −3, not −1.`),
-Q(`Differentiate y = x⁻¹.`,[`−x⁻²`,`x⁻²`,`−x⁰`,`−1x⁻¹`],0,`−1 × x^(−1−1) = −x⁻².`),
-W('stepCalc',{steps:[`y = 4√x`,`Rewrite as a power: y = 4x⁰·⁵`,`Multiply by the power: 4 × 0.5 = 2`,`Reduce the power by 1: 0.5 − 1 = −0.5`,`dy/dx = 2x⁻⁰·⁵, which is <b>2/√x</b>`]},`A fractional power, step by step.`,`Same rule, just with decimals.`),
-W('calcDrill',{skill:['rewrite','powfrac'],need:6},`Rewrite and differentiate. Get 6 right to master it.`,`Rewrite as a power, then the usual two moves.`),
-W('calcDrill',{skill:['power','powfrac','rewrite','polyval','const0'],need:8},`Everything from this unit, mixed. Get 8 right to master it.`,`You can differentiate any power of x.`),
-T(`<h3>Key points</h3><ul><li><b>Rewrite</b> fractions and roots as powers first.</li><li>Negative powers: subtracting 1 makes them <b>more</b> negative.</li><li>Fractional powers: 0.5 − 1 = −0.5.</li></ul>`)])
-]});
-
-U({id:'c2-4',track:'calc',level:2,title:'Using the derivative',icon:'y=mx+c',color:'#D85A30',desc:'Gradients at points, equations of tangents and normals, and where a function is increasing or decreasing.',lessons:[
-LH('c2-4-1','The gradient at a point',8,'Differentiate, then substitute: the gradient anywhere on a curve.',[
-RM(`<p>Differentiate term by term with the power rule, then substitute to get a value.</p>`),
-T(`<h3>Two steps, every time</h3><ol><li><b>Differentiate</b> to get the gradient function.</li><li><b>Substitute</b> the x-value.</li></ol><p>Never substitute first: that turns the curve into a single number, and a number's gradient is 0.</p>`),
-Q(`f(x) = x³. A student puts x = 2 in first, gets 8, then differentiates 8 to get 0. What went wrong?`,[`They substituted before differentiating`,'Nothing: the gradient there really is 0','They forgot to add + C at the end','They should have differentiated twice'],0,`Differentiate first, then substitute: f′(2) = 3 × 4 = 12.`),
-W('calcDrill',{skill:['polyval','gradat'],need:6},`Gradients at points. Get 6 right to master it.`,`Differentiate first, then substitute.`),
-T(`<h3>Key points</h3><ul><li>To find a gradient at a point: <b>differentiate, then substitute</b>.</li><li>Never the other way round.</li></ul>`)]),
-LH('c2-4-2','Tangents and normals',10,'Write the equation of the tangent and the normal at any point on a curve.',[
-RM(`<p>A tangent touches a curve with the same gradient. A straight line is <b>y = mx + c</b>. The gradient at a point is f′(x).</p>`),
-T(`<h3>The equation of a tangent</h3><p>You need two things: the <b>gradient</b> m and a <b>point</b> the line goes through.</p><ul><li>m: differentiate and substitute.</li><li>The point: (x, f(x)) on the curve.</li><li>Then find c: c = y − mx.</li></ul>`),
-W('stepCalc',{steps:[`Tangent to y = x² + 3x at x = 1`,`Gradi
+Q(`Following the pattern, what is t

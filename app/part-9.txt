@@ -1,4 +1,53 @@
-ent: dy/dx = 2x + 3, so m = 2(1) + 3 = 5`,`Point: y = 1² + 3(1) = 4, so (1, 4)`,`Find c: 4 = 5 × 1 + c, so c = −1`,`Tangent: <b>y = 5x − 1</b>`]},`Follow the method.`,`Gradient, point, then c.`),
+he derivative of x⁵?`,[`5x⁴`,`4x⁵`,`5x⁶`,`x⁴`],0,`Bring the 5 down; 5 − 1 = 4.`),
+T(`<h3>Even y = x fits</h3><p>y = x is x¹. Bring the 1 down and take 1 off: 1x⁰ = 1 × 1 = <b>1</b>. That's right: y = x is a straight line with gradient 1.</p>`),
+Q(`What is the derivative of x⁷?`,[`7x⁶`,`6x⁷`,`7x⁸`,`x⁶`],0,`Power down, take one off.`),
+W('calcDrill',{skill:'gradat',need:5},`Use the pattern to find gradients at points. Get 5 right to master it.`,`Bring the power down, take one off, then substitute.`),
+QE(`Write 1/x² as a power of x.`,[`x⁻²`,`x²`,`−x²`,`2x`],0,`From Level 1: negative power.`),
+T(`<h3>Key points</h3><ul><li>Pattern: the derivative of <b>xⁿ</b> is <b>nxⁿ⁻¹</b>.</li><li>Bring the power down in front, then subtract 1 from the power.</li><li>It's called the <b>power rule</b>, and it's next.</li></ul>`)])
+]});
+
+U({id:'c2-3',track:'calc',level:2,title:'The power rule',icon:'nxⁿ⁻¹',color:'#378ADD',desc:'Differentiate any power of x, sums of terms and constants, including negative and fractional powers.',lessons:[
+LH('c2-3-1','Differentiating axⁿ',9,'The power rule, with a number in front. Practise until it\'s automatic.',[
+RM(`<p>The derivative of xⁿ is <b>nxⁿ⁻¹</b>: bring the power down, take one off.</p>`),
+T(`<h3>The power rule</h3><div class="eq">y = axⁿ&nbsp;&nbsp;→&nbsp;&nbsp;dy/dx = anxⁿ⁻¹</div>${KY([['a','the number in front (stays and gets multiplied)',''],['n','the power: multiply by it, then subtract 1','']])}<p>Two moves: <b>multiply by the power</b>, then <b>reduce the power by 1</b>.</p>`),
+W('stepCalc',{steps:[`y = 5x³`,`Multiply the number in front by the power: 5 × 3 = 15`,`Reduce the power by 1: 3 − 1 = 2`,`dy/dx = <b>15x²</b>`]},`Watch the two moves.`,`Multiply by the power, then take one off.`),
+Q(`Differentiate y = 4x⁵.`,[`20x⁴`,`20x⁵`,`9x⁴`,`4x⁴`],0,`4 × 5 = 20, power 5 − 1 = 4.`),
+Q(`Differentiate y = −2x³.`,[`−6x²`,`6x²`,`−6x³`,`−2x²`],0,`−2 × 3 = −6, power 2.`),
+T(`<h3>A single x</h3><p>y = 7x is 7x¹. Multiply by 1, power becomes 0, and x⁰ = 1. So dy/dx = <b>7</b>. The gradient of a straight line is the number in front of x, just as you learned in Level 1.</p>`),
+W('calcDrill',{skill:'power',need:8},`The power rule, over and over. Get 8 right to master it.`,`Multiply by the power, then reduce it by 1. Negative powers work exactly the same way.`),
+T(`<h3>Key points</h3><ul><li><b>axⁿ → anxⁿ⁻¹</b></li><li>Multiply by the power, then reduce the power by 1.</li><li>kx → k (a straight line's gradient).</li></ul>`)]),
+LH('c2-3-2','Sums and constants',9,'Differentiate whole expressions like 3x² − 5x + 7, one term at a time.',[
+RM(`<p>Power rule: <b>axⁿ → anxⁿ⁻¹</b>. And kx → k.</p>`),
+T(`<h3>Constants vanish</h3><p>y = 7 is a flat horizontal line. Its gradient is <b>0</b> everywhere.</p><div class="eq">d/dx (constant) = 0</div><p>It also fits the power rule: 7 = 7x⁰, and 7 × 0 = 0.</p>`),
+Q(`Differentiate y = 12.`,[`0`,`12`,`1`,`12x`],0,`A constant has zero gradient.`),
+T(`<h3>One term at a time</h3><p>To differentiate a sum, differentiate <b>each term separately</b> and keep the plus and minus signs.</p><div class="eq">y = 3x² − 5x + 7&nbsp;&nbsp;→&nbsp;&nbsp;dy/dx = 6x − 5</div><p>3x² → 6x, −5x → −5, and 7 → 0.</p>`),
+Q(`Differentiate y = x³ + 4x² − 2x + 9.`,[`3x² + 8x − 2`,`3x² + 8x − 2 + 9`,`x² + 8x − 2`,`3x² + 4x − 2`],0,`Term by term; the 9 disappears.`),
+W('calcDrill',{skill:'const0',need:3},`Quick check on constants. Get 3 right to master it.`,`Constants always differentiate to 0.`),
+T(`<h3>Finding a gradient value</h3><p>Once you have f′(x), substitute to get the gradient at a point. If f(x) = x³ − 2x, then f′(x) = 3x² − 2, and f′(2) = 12 − 2 = <b>10</b>.</p>`),
+W('calcDrill',{skill:'polyval',need:6},`Differentiate, then substitute. Get 6 right to master it.`,`Term by term, then put the number in.`),
+T(`<h3>Key points</h3><ul><li>Constants differentiate to <b>0</b>.</li><li>Differentiate sums <b>term by term</b>.</li><li>Then substitute to find the gradient at a point.</li></ul>`)]),
+LH('c2-3-3','Negative and fractional powers',10,'Rewrite 5/x² and √x as powers first, then the power rule works as normal.',[
+RM(`<p>From Level 1: 1/xⁿ = <b>x⁻ⁿ</b> and √x = <b>x⁰·⁵</b>. Power rule: <b>axⁿ → anxⁿ⁻¹</b>.</p>`),
+T(`<h3>Rewrite first, then differentiate</h3><p>The power rule only works on powers of x. So fractions and roots must be <b>rewritten as powers</b> first.</p>`),
+W('stepCalc',{steps:[`y = 6/x²`,`Rewrite as a power: y = 6x⁻²`,`Multiply by the power: 6 × (−2) = −12`,`Reduce the power by 1: −2 − 1 = −3`,`dy/dx = −12x⁻³, which you can write as <b>−12/x³</b>`]},`A negative power, step by step.`,`Careful: −2 − 1 = −3, not −1.`),
+Q(`Differentiate y = x⁻¹.`,[`−x⁻²`,`x⁻²`,`−x⁰`,`−1x⁻¹`],0,`−1 × x^(−1−1) = −x⁻².`),
+W('stepCalc',{steps:[`y = 4√x`,`Rewrite as a power: y = 4x⁰·⁵`,`Multiply by the power: 4 × 0.5 = 2`,`Reduce the power by 1: 0.5 − 1 = −0.5`,`dy/dx = 2x⁻⁰·⁵, which is <b>2/√x</b>`]},`A fractional power, step by step.`,`Same rule, just with decimals.`),
+W('calcDrill',{skill:['rewrite','powfrac'],need:6},`Rewrite and differentiate. Get 6 right to master it.`,`Rewrite as a power, then the usual two moves.`),
+W('calcDrill',{skill:['power','powfrac','rewrite','polyval','const0'],need:8},`Everything from this unit, mixed. Get 8 right to master it.`,`You can differentiate any power of x.`),
+T(`<h3>Key points</h3><ul><li><b>Rewrite</b> fractions and roots as powers first.</li><li>Negative powers: subtracting 1 makes them <b>more</b> negative.</li><li>Fractional powers: 0.5 − 1 = −0.5.</li></ul>`)])
+]});
+
+U({id:'c2-4',track:'calc',level:2,title:'Using the derivative',icon:'y=mx+c',color:'#D85A30',desc:'Gradients at points, equations of tangents and normals, and where a function is increasing or decreasing.',lessons:[
+LH('c2-4-1','The gradient at a point',8,'Differentiate, then substitute: the gradient anywhere on a curve.',[
+RM(`<p>Differentiate term by term with the power rule, then substitute to get a value.</p>`),
+T(`<h3>Two steps, every time</h3><ol><li><b>Differentiate</b> to get the gradient function.</li><li><b>Substitute</b> the x-value.</li></ol><p>Never substitute first: that turns the curve into a single number, and a number's gradient is 0.</p>`),
+Q(`f(x) = x³. A student puts x = 2 in first, gets 8, then differentiates 8 to get 0. What went wrong?`,[`They substituted before differentiating`,'Nothing: the gradient there really is 0','They forgot to add + C at the end','They should have differentiated twice'],0,`Differentiate first, then substitute: f′(2) = 3 × 4 = 12.`),
+W('calcDrill',{skill:['polyval','gradat'],need:6},`Gradients at points. Get 6 right to master it.`,`Differentiate first, then substitute.`),
+T(`<h3>Key points</h3><ul><li>To find a gradient at a point: <b>differentiate, then substitute</b>.</li><li>Never the other way round.</li></ul>`)]),
+LH('c2-4-2','Tangents and normals',10,'Write the equation of the tangent and the normal at any point on a curve.',[
+RM(`<p>A tangent touches a curve with the same gradient. A straight line is <b>y = mx + c</b>. The gradient at a point is f′(x).</p>`),
+T(`<h3>The equation of a tangent</h3><p>You need two things: the <b>gradient</b> m and a <b>point</b> the line goes through.</p><ul><li>m: differentiate and substitute.</li><li>The point: (x, f(x)) on the curve.</li><li>Then find c: c = y − mx.</li></ul>`),
+W('stepCalc',{steps:[`Tangent to y = x² + 3x at x = 1`,`Gradient: dy/dx = 2x + 3, so m = 2(1) + 3 = 5`,`Point: y = 1² + 3(1) = 4, so (1, 4)`,`Find c: 4 = 5 × 1 + c, so c = −1`,`Tangent: <b>y = 5x − 1</b>`]},`Follow the method.`,`Gradient, point, then c.`),
 W('calcDrill',{skill:'tangent',need:4},`Find the tangent equations. Get 4 right to master it.`,`m from the derivative, the point from the curve, then c = y − mx.`),
 T(`<h3>The normal</h3><p>The <b>normal</b> is the line at right angles to the tangent, through the same point. Their gradients multiply to −1:</p><div class="eq">normal gradient = −1 ÷ tangent gradient</div><p>If the tangent's gradient is 2, the normal's is −½ = −0.5.</p>`),
 W('calcDrill',{skill:'normal',need:4},`Normal gradients. Get 4 right to master it.`,`Flip it and change its sign.`),
@@ -943,39 +992,4 @@ Q(`1 − ½ + ⅓ − ¼ + … is…`,[`conditionally convergent`,`absolutely co
 T(`<h3>Key points</h3><ul><li><b>Ratio test</b>: L < 1 converges, L > 1 diverges, L = 1 can't tell.</li><li><b>Alternating</b>: decreasing to 0 is enough to converge.</li><li><b>Absolute</b> vs <b>conditional</b> convergence.</li></ul>`)])
 ]});
 
-U({id:'c10-3',track:'calc',level:10,title:'Power and Taylor series',icon:'Σcₙxⁿ',color:'#378ADD',desc:'Functions written as infinite polynomials: power series, radius of convergence, and Taylor series.',lessons:[
-LH('c10-3-1','Power series',10,'An infinite polynomial in x. For some x it adds up; for others it doesn\'t.',[
-RM(`<p>Geometric: 1 + r + r² + … = 1/(1 − r) for |r| < 1. Ratio test: L < 1 converges.</p>`),
-T(`<h3>An infinite polynomial</h3><p>A <b>power series</b> is Σ cₙxⁿ = c₀ + c₁x + c₂x² + … Plug in a number for x and you get an ordinary series.</p><p>The simplest: 1 + x + x² + x³ + … It's geometric with r = x, so:</p><div class="eq">1 + x + x² + … = 1/(1 − x)&nbsp;&nbsp;for |x| < 1</div>`),
-Q(`1 + x + x² + … equals 1/(1 − x) when…`,[`|x| < 1`,`x > 1`,`x = 1`,`always`],0,`Geometric with r = x.`),
-T(`<h3>Radius of convergence</h3><p>Every power series converges for |x| < R and diverges for |x| > R. R is the <b>radius of convergence</b>. Find it with the ratio test: work out L in terms of x, and solve L < 1.</p>`),
-W('calcDrill',{skill:'radius',need:3},`Radius of convergence. Get 3 right to master it.`,`Ratio test, then solve for |x|.`),
-T(`<h3>New series from old</h3><p>Replace x by −x²: 1/(1 + x²) = 1 − x² + x⁴ − … Integrate term by term: <b>arctan x = x − x³/3 + x⁵/5 − …</b>. Put x = 1: π/4 = 1 − ⅓ + ⅕ − … (Leibniz's formula for π).</p>`),
-QE(`Does Σ 1/n² converge?`,[`Yes`,`No`,`Only for even n`,`It can't be tested`],0,`p = 2 > 1.`),
-T(`<h3>Key points</h3><ul><li><b>Power series</b>: Σ cₙxⁿ.</li><li>Converges for |x| < <b>R</b>, found by the ratio test.</li><li>You can substitute, differentiate and integrate them term by term.</li></ul>`)]),
-LH('c10-3-2','Taylor and Maclaurin series',11,'Any smooth function can be built from its derivatives at one point. eˣ, sin and cos as infinite polynomials.',[
-RM(`<p>d/dx eˣ = eˣ. d/dx sin x = cos x, d/dx cos x = −sin x. n! = n × (n − 1) × … × 1, and 0! = 1.</p>`),
-T(`<h3>Match every derivative</h3><p>Suppose f(x) = c₀ + c₁x + c₂x² + c₃x³ + … Differentiate n times and put x = 0: only cₙ survives, as n! × cₙ. So:</p><div class="eq">cₙ = f⁽ⁿ⁾(0) / n!</div><p>This is the <b>Maclaurin series</b> (a Taylor series centred at 0).</p>`),
-W('stepCalc',{steps:[`f(x) = eˣ. Every derivative is eˣ, and at 0 they're all 1.`,`So cₙ = 1/n!`,`<b>eˣ = 1 + x + x²/2! + x³/3! + x⁴/4! + …</b>`,`Put x = 1: e = 1 + 1 + ½ + ⅙ + 1/24 + … = 2.7182…`,`The ratio test gives L = 0 for every x: it converges everywhere.`]},`Build the series for eˣ.`,`The derivatives of eˣ at 0 are all 1.`),
-Q(`In a Maclaurin series, cₙ = …`,[`f⁽ⁿ⁾(0)/n!`,`f(n)/n`,`f⁽ⁿ⁾(0)`,`n!/f(0)`],0,`The nth derivative at 0, divided by n!.`),
-T(`<h3>sin and cos</h3><p>The derivatives of sin x at 0 cycle 0, 1, 0, −1, …, so:</p><div class="eq">sin x = x − x³/3! + x⁵/5! − …&nbsp;&nbsp;&nbsp;cos x = 1 − x²/2! + x⁴/4! − …</div><p>sin is odd (only odd powers); cos is even (only even powers).</p>`),
-W('fnPlot',{x:[-7,7],y:[-3,3],xl:'x',yl:'y',sl:[['n','Terms used',1,8,1,1]],curves:function(p){return [[function(x){return Math.sin(x)},'--muted',4],[function(x){var s=0,t=x;for(var k=0;k<p.n;k++){s+=t;t*=-x*x/((2*k+2)*(2*k+3))}return s},'--accent',2.5]]},read:function(p){var t=[],d=1;for(var k=0;k<p.n;k++){t.push((k?(k%2?' − ':' + '):'')+'x'+(2*k+1>1?'<sup>'+(2*k+1)+'</sup>/'+(2*k+1)+'!':''))}return 'sin x ≈ '+t.join('')},goal:function(p){return p.n>=6},goalMsg:'Use at least 6 terms.'},`Add terms of the sin x series. Watch the polynomial wrap itself around the sine wave.`,`More terms, accurate over a wider range.`),
-W('calcDrill',{skill:'taylorcoef',need:3},`Coefficients of e<sup>ax</sup>. Get 3 right to master it.`,`aⁿ/n!.`),
-T(`<h3>Key points</h3><ul><li><b>cₙ = f⁽ⁿ⁾(0)/n!</b>.</li><li><b>eˣ = Σ xⁿ/n!</b>; sin and cos alternate odd and even powers.</li><li>More terms give a better fit over a wider range.</li></ul>`)]),
-LH('c10-3-3','Using Taylor series',10,'Small-angle approximations, limits without L\'Hôpital, and the most beautiful equation in maths.',[
-RM(`<p>sin x = x − x³/6 + …, cos x = 1 − x²/2 + …, eˣ = 1 + x + x²/2 + …</p>`),
-T(`<h3>Approximations</h3><p>For small x, the first terms do almost all the work:</p><ul><li><b>sin x ≈ x</b>, <b>cos x ≈ 1 − x²/2</b>, <b>tan x ≈ x</b> (radians)</li><li><b>eˣ ≈ 1 + x</b></li><li><b>(1 + x)ⁿ ≈ 1 + nx</b></li></ul><p>Engineers use these constantly. The pendulum formula and many reactor kinetics models depend on them.</p>`),
-N(`Use eˣ ≈ 1 + x + x²/2 to estimate e<sup>0.1</sup>. (3 decimal places)`,1.105,0.001,'',`1 + 0.1 + 0.005 = 1.105. True: 1.10517.`),
-T(`<h3>Limits made easy</h3><p>(sin x)/x = (x − x³/6 + …)/x = 1 − x²/6 + … → <b>1</b>. And (1 − cos x)/x² = (x²/2 − …)/x² → <b>½</b>. No L'Hôpital needed.</p>`),
-Q(`Using series, lim<sub>x→0</sub> (eˣ − 1 − x)/x² = …`,[`½`,`1`,`0`,`2`],0,`(x²/2 + x³/6 + …)/x² → ½.`),
-T(`<h3>Euler's formula</h3><p>Put x = iθ into the series for eˣ, where i² = −1. The real terms are exactly the cos series and the imaginary terms are the sin series:</p><div class="eq">e<sup>iθ</sup> = cos θ + i sin θ</div><p>With θ = π: <b>e<sup>iπ</sup> + 1 = 0</b>, linking e, i, π, 1 and 0. It's also how engineers handle anything that oscillates, from AC circuits to vibrations.</p>`),
-Q(`What does e<sup>iπ</sup> equal?`,[`−1`,`1`,`0`,`i`],0,`cos π + i sin π = −1 + 0i.`),
-QE(`Radius of convergence of Σ xⁿ/3ⁿ?`,[`3`,`1`,`1/3`,`∞`],0,`|x|/3 < 1.`),
-T(`<h3>Key points</h3><ul><li>Small x: <b>sin x ≈ x</b>, <b>cos x ≈ 1 − x²/2</b>, <b>eˣ ≈ 1 + x</b>.</li><li>Series make tricky limits easy.</li><li><b>e<sup>iθ</sup> = cos θ + i sin θ</b>. You've finished Calculus 2.</li></ul>`)])
-]});
-
-F('c10-1-1',[Q(`aₙ = 5 − 2/n converges to…`,[`5`,`3`,`0`,`−2`],0,`2/n → 0.`),Q(`(−1)ⁿ…`,[`oscillates and diverges`,`converges to 0`,`converges to 1`,`grows`],0,`No limit.`),Q(`rⁿ → 0 when…`,[`|r| < 1`,`r > 1`,`r = 1`,`r = −1`],0,`Fractions shrink.`),Q(`aₙ = n² …`,[`diverges to ∞`,`converges to 0`,`oscillates`,`converges to 1`],0,`Grows.`),N(`lim (3n + 1)/n?`,3,0.001,'',`3 + 1/n.`)]);
-F('c10-1-2',[Q(`A series converges if its … converge.`,[`partial sums`,`first terms`,`differences`,`squares`],0,`Sₙ.`),N(`1/(1×2) + … + 1/(99×100)? (2 d.p.)`,0.99,0.001,'',`1 − 1/100.`),Q(`Telescoping works because…`,[`most terms cancel`,`all terms are equal`,`the terms grow`,`there are no terms`],0,`Collapsing.`),Q(`½ + ¼ + ⅛ + … = …`,[`1`,`2`,`½`,`∞`],0,`Fills the gap to 1.`),Q(`Σ means…`,[`add up`,`multiply`,`differentiate`,`integrate`],0,`Sum.`)]);
-F('c10-1-3',[GN('geomsum'),GN('geomsum'),GN('partsum'),Q(`0.333… as a geometric series sums to…`,[`1/3`,`0.3`,`3`,`1`],0,`0.3/(1 − 0.1).`),N(`k = 0.9. Neutrons per source neutron?`,10,0.001,'',`1/(1 − 0.9).`)]);
-F('c10-2-1',[Q(`If aₙ → 2, Σ aₙ…`,[`diverges`,`converges`,`equals 2`,`can't be decided`],0,`Divergence test.`),Q(`The harmonic series…`,[`diverges`,`converges to 2`,`converges to 1`,`converges to ln 2`],0,`Grows like ln N.`),Q(`If aₙ → 0, the divergence test…`,[`says nothing`,`proves convergence`,`proves divergence`,`gives the sum`],0,`Inconclusive.`),Q(`Each bracket in the harmonic grouping is at least…`,[`½`,`1`,`¼`,`0`],0,`Grouping proof.`),Q(`The harmonic partial sums grow like…`,[`ln N`,`N²`,`√N`,`they stop growing`],0,`Slowly.`)]);
-F('c10-2-2',[Q(`Σ 1/nᵖ converges when…`,[`p > 1`,`p ≥ 1`,`p < 1`,`p = 1`],0,`p-series.`),Q(`Σ 1/n²…`,[`converges`,`diverges`,`equals 1`,`oscillates`],0,`p = 2.`),Q(`aₙ ≤ bₙ and Σ bₙ converges. Then Σ aₙ…`,[`converges`,`diverges`,`can't be 
+U({id:'c10-3',track:'calc',level:10,title:'Power and Taylor series',icon

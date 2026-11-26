@@ -1,4 +1,48 @@
-function(){var rho=cP([1.7e-8,2.8e-8,1.1e-6,5.6e-8]),L=cR(1,20),d=cP([0.2,0.3,0.5,1.0]),A=Math.PI*Math.pow(d/2*1e-3,2),R=rho*L/A,r=Math.round(R*Math.pow(10,2-Math.floor(Math.log10(R))))/Math.pow(10,2-Math.floor(Math.log10(R)));
+ntil the end.</li><li><b>Check</b> the answer makes sense.</li></ol>`),
+W('stepCalc',{steps:[`The curve y = x² − 4x + 7 and the line y = 2x − 2 enclose a region. Find its area.`,`Link: simultaneous equations, then integration.`,`Meet: x² − 4x + 7 = 2x − 2, so x² − 6x + 9 = 0, (x − 3)² = 0. Only x = 3!`,`One meeting point means the line is a tangent: there's no enclosed region.`,`<b>Checking the set-up saved you from a meaningless integral.</b>`]},`A trap that rewards checking.`,`Strong candidates check their set-up before integrating.`),
+Q(`Why keep exact values until the end?`,[`Rounding early loses accuracy and marks`,`Examiners dislike decimals at all times`,`Exact values are always smaller`,`To make it look harder`],0,`Errors compound.`),
+T(`<h3>Key points</h3><ul><li>Read, sketch, link topics, plan.</li><li>Keep <b>exact</b> values.</li><li>Check answers make sense.</li></ul>`)])
+]});
+
+U({id:'am4-2',track:'am',level:4,title:'Exam technique',icon:'✓',color:'#1D9E75',desc:'Show-that questions, exact answers, statistics and mechanics traps, and timing.',lessons:[
+LH('am4-2-1','Show that and exact answers',10,'A "show that" gives you the answer. The marks are all for the working.',[
+RM(`<p>Exact values: surds, π, ln and fractions. Proofs end with a clear conclusion.</p>`),
+T(`<h3>Show that</h3><ul><li>Every step must be visible. Skipping a step loses marks even if the answer is right.</li><li>Work towards the given result; never write it down then work backwards silently.</li><li>Finish by writing the given result exactly as stated.</li></ul>`),
+Q(`In a "show that x = 2 + √3" question, what earns the marks?`,[`Clear working that reaches 2 + √3`,`Writing 2 + √3 on its own`,`A decimal answer of 3.732`,`Checking with a calculator only`],0,`The working is the answer.`),
+T(`<h3>Exact answers</h3><p>"Exact" means no rounding: leave √3, π, ln 5, ⅓. "Give your answer in the form a + b√c" tells you the shape: match it exactly.</p>`),
+Q(`An answer of 1.0986 when ln 3 was asked "exactly" will…`,[`lose the final mark`,`get full marks`,`get extra marks`,`be marked as ln 3`],0,`Not exact.`),
+T(`<h3>Key points</h3><ul><li><b>Show that</b>: every step visible.</li><li><b>Exact</b>: surds, π, ln, fractions.</li><li>Match any requested form.</li></ul>`)]),
+LH('am4-2-2','Statistics and mechanics traps',10,'The mistakes that cost the most marks in Paper 3, and how to avoid them.',[
+RM(`<p>Hypothesis tests conclude in context. suvat needs constant acceleration. Friction opposes motion.</p>`),
+T(`<h3>Statistics</h3><ul><li>Hypotheses use the <b>parameter</b> (p or μ), not the sample result.</li><li>Conclusions in context, never "H₀ is true".</li><li>"At least" and "fewer than" with discrete distributions: P(X ≥ 4) = 1 − P(X ≤ 3).</li><li>Normal: sketch the curve and shade the region.</li></ul>`),
+T(`<h3>Mechanics</h3><ul><li>Draw a <b>force diagram</b> every time.</li><li>Choose a positive direction and stick to it.</li><li>Use g = 9.8 unless told otherwise; give answers to 2 or 3 s.f. if you used 9.8.</li><li>Don't use suvat when acceleration varies.</li></ul>`),
+W('matchPairs',{pairs:[['H₁: p > 0.3','A one-tailed test'],['P(X ≥ 4)','1 − P(X ≤ 3)'],['Acceleration depends on t','Use calculus, not suvat'],['Limiting friction','F = μR']]},`Match each.`),
+Q(`After using g = 9.8, how many significant figures should a final answer have?`,[`2 or 3`,`10`,`1`,`As many as the calculator shows`],0,`g is given to 2 s.f.`),
+T(`<h3>Key points</h3><ul><li>Hypotheses about the parameter; conclude in context.</li><li>Force diagram, positive direction, suvat only for constant a.</li><li>2 or 3 s.f. after g = 9.8.</li></ul>`)]),
+LH('am4-2-3','Timing and checking',9,'Two-hour papers, one mark per minute or so. Use the time like an expert.',[
+RM(`<p>Each A-level Maths paper: 2 hours, 100 marks.</p>`),
+T(`<h3>About a mark a minute</h3><p>100 marks in 120 minutes: roughly <b>1.2 minutes per mark</b>. A 6-mark question deserves about 7 minutes. If you're stuck for twice that, move on and come back.</p>`),
+N(`An 8-mark question at 1.2 minutes per mark. Time to spend (minutes, 1 d.p.)?`,9.6,0.01,'min',`8 × 1.2.`),
+T(`<h3>Checking</h3><ul><li><b>Differentiate</b> your integral to check it.</li><li><b>Substitute</b> roots back into the equation.</li><li>Is the probability between 0 and 1? Is the length positive?</li><li>Does the answer match the rough size you'd expect?</li></ul>`),
+Q(`The fastest way to check ∫ result?`,[`Differentiate it`,`Integrate it again`,`Ask a friend`,`Plot it`],0,`Differentiation undoes integration.`),
+T(`<h3>Key points</h3><ul><li>About <b>1.2 minutes per mark</b>.</li><li>Move on when stuck; come back.</li><li>Check by reversing: differentiate, substitute, sanity-check.</li></ul>`)])
+]});
+
+GOALS.am3={icon:'📗',title:'Master Year 13 maths',story:'Each unit covers a strand of Edexcel A-level Maths Year 2.',final:'Full A-level content covered',steps:['Functions and sequences','Trigonometry in Year 13','Further calculus','Vectors, statistics and mechanics']};
+GOALS.am4={icon:'🏆',title:'Go for an A* in maths',story:'The hardest questions and the habits that earn the top grade.',final:'A* standard',steps:['Hard problem solving','Exam technique']};
+/* ========== A-LEVEL PHYSICS (AQA 7408) · LEVEL 1 bridge · LEVEL 2 Year 12 ========== */
+function pE(v,sf){sf=sf||3;if(v===0)return '0';var e=Math.floor(Math.log10(Math.abs(v))),m=v/Math.pow(10,e);m=Math.round(m*Math.pow(10,sf-1))/Math.pow(10,sf-1);if(Math.abs(m)>=10){m/=10;e++}return e===0?cNum(m):cNum(m)+' × 10'+cSup(e)}
+CGEN.p_prefix=function(){var P=cP([['k',3],['M',6],['G',9],['m',-3],['μ',-6],['n',-9]]),v=cR(1,99),u=cP(['m','g','A','V','W','J','s']);
+ return {p:'Write '+v+' '+P[0]+u+' in '+u+'. Give the power of ten.',b:[cB(P[1],cNum(v)+' × 10','','power',true)],e:P[0]+' means × 10'+cSup(P[1])+'. So '+v+' '+P[0]+u+' = '+v+' × 10'+cSup(P[1])+' '+u+'.'}};
+CGEN.p_unc=function(){var x=cR(20,80)/10,dx=cP([0.1,0.05,0.2]),pct=Math.round(dx/x*1000)/10;
+ return {p:'A length is measured as '+x.toFixed(1)+' ± '+dx+' cm. What\'s the percentage uncertainty? (1 d.p.)',b:[cB(pct,'','%','percentage',false,0.02)],e:'% uncertainty = absolute ÷ value × 100 = '+dx+' ÷ '+x.toFixed(1)+' × 100 = '+cNum(pct)+'%. (If the length were squared, you\'d double it.)'}};
+CGEN.p_photon=function(){var l=cR(200,700),E=Math.round(1240/l*1000)/1000;
+ return {p:'Find the energy of a photon of wavelength '+l+' nm, in eV. (3 d.p.)',b:[cB(E,'E = ',' eV','energy',false,0.003)],e:'E = hc/λ. In handy units, hc ≈ 1240 eV nm, so E = 1240 ÷ '+l+' = '+cNum(E)+' eV.'}};
+CGEN.p_photo=function(){var E=cR(30,80)/10,phi=cR(18,Math.min(E*10-2,50))/10,K=Math.round((E-phi)*100)/100;
+ return {p:'Photons of energy '+cNum(E)+' eV hit a metal with work function '+cNum(phi)+' eV. Maximum kinetic energy of the photoelectrons, in eV?',b:[cB(K,'E<sub>k,max</sub> = ',' eV','energy',false,0.003)],e:'Einstein\'s equation: hf = φ + E<sub>k,max</sub>, so E<sub>k,max</sub> = '+cNum(E)+' − '+cNum(phi)+' = '+cNum(K)+' eV.'}};
+CGEN.p_debroglie=function(){var k=cR(1,9),l=Math.round(0.728/k*1000)/1000;
+ return {p:'An electron (m = 9.11 × 10⁻³¹ kg) moves at '+k+' × 10⁶ m/s. Find its de Broglie wavelength in nm. (h = 6.63 × 10⁻³⁴ J s, 3 d.p.)',b:[cB(l,'λ = ',' nm','wavelength',false,0.005)],e:'λ = h/(mv) = 6.63 × 10⁻³⁴ ÷ (9.11 × 10⁻³¹ × '+k+' × 10⁶) = '+pE(l*1e-9)+' m = '+cNum(l)+' nm.'}};
+CGEN.p_resist=function(){var rho=cP([1.7e-8,2.8e-8,1.1e-6,5.6e-8]),L=cR(1,20),d=cP([0.2,0.3,0.5,1.0]),A=Math.PI*Math.pow(d/2*1e-3,2),R=rho*L/A,r=Math.round(R*Math.pow(10,2-Math.floor(Math.log10(R))))/Math.pow(10,2-Math.floor(Math.log10(R)));
  return {p:'A wire has resistivity '+pE(rho,2)+' Ω m, length '+L+' m and diameter '+d+' mm. Find its resistance in Ω. (3 s.f.)',b:[cB(r,'R = ',' Ω','resistance',false,0.006)],e:'A = π(d/2)² = π × ('+cNum(d/2)+' × 10⁻³)² = '+pE(A)+' m². R = ρL/A = '+pE(rho,2)+' × '+L+' ÷ '+pE(A)+' = '+pE(R)+' Ω.'}};
 CGEN.p_emf=function(){var e=cR(3,24),r=cP([0.5,1,1.5,2]),R=cR(2,20),I=e/(R+r),V=Math.round((e-I*r)*100)/100;
  return {p:'A cell of emf '+e+' V and internal resistance '+r+' Ω is connected to a '+R+' Ω resistor. Find the terminal pd. (2 d.p.)',b:[cB(V,'V = ',' V','pd',false,0.005)],e:'I = ε/(R + r) = '+e+'/'+cNum(R+r)+' = '+cNum(Math.round(I*1000)/1000)+' A. V = ε − Ir = '+cNum(V)+' V ("lost volts" Ir = '+cNum(Math.round(I*r*100)/100)+' V).'}};
@@ -1090,36 +1134,4 @@ function NSIM(w,h,rnd){
   if(mode==='types'){var ms=select(box,'Shield',MAT.map(function(m){return m[0]}),function(i){mi=i;hitW=[];moved++});ms.value=mi}
   else{if(mode!=='invsq'){var ms2=select(box,'Shield material',MAT.slice(1).map(function(m){return m[0]}),function(i){mi=i+1;hitW=[];moved++});ms2.value=mi-1;slider(box,'Shield thickness',0,mode==='atten'?20:10,.5,th,function(v){return v+' cm'},function(v){th=v;hitW=[];moved++})}
    slider(box,'Distance from the source',.5,8,.1,dist,function(v){return v.toFixed(1)+' m'},function(v){dist=v;hitW=[];moved++});if(mode==='tds')slider(box,'Time spent on the job',5,120,5,job,function(v){return v+' min'},function(v){job=v;moved++});if(mode==='atten'){var r=row(box),bb=btn(r,'Include buildup',function(){B=!B;tog(bb,B)});tog(bb,B)}}
-  var st=stats(box,mode==='tds'?[['r','Dose rate'],['d','Dose for the job'],['b','Your budget']]:mode==='atten'?[['t','Getting through'],['h','Half-value thickness'],['m','Mean free path']]:[['r','Dose rate at the detector'],['c','Counts per second']]);
-  var MU={a:0,b:0,g:3,n:4};function mu(k){return MAT[mi][MU[k]]}
-  function rate(){var m=MAT[mi],tr=Math.exp(-m[3]*th),bu=B?1+m[3]*th:1;return (par.S||400)*tr*bu/(dist*dist)}
-  run(scr,function(dt){var c=scr.c,W=scr.W,H=scr.H,nb=narrow();tt+=dt;bgf(c,W,H);grid(c,W,H,28);band(c,W,mode==='types'?'WHAT STOPS WHAT':mode==='tds'?'TIME · DISTANCE · SHIELDING':mode==='atten'?'GAMMA ATTENUATION':'THE INVERSE SQUARE LAW',MAT[mi][0]+(mode!=='types'&&mode!=='invsq'?' · '+th+' cm':''));
-   var sx=34,cy=mode==='atten'?H*.38:H*.55,scale=(W-90)/8.5,shx=mode==='types'?W*.36:sx+Math.min(dist*.45,1.2)*scale,dx=Math.min(W-30,sx+dist*scale),shw=mode==='types'?(mi===0?0:mi===1?3:mi===2?8:16):Math.max(0,th)*Math.min(5,scale*.08)*2;
-   if(MAT[mi][1]||mode!=='types'&&th>0){var shc=mi===3?[120,130,150]:mi===4?[58,140,255]:mi===5?[160,150,130]:mi===1?[230,230,220]:[190,200,215];c.fillStyle=rgba(shc,.55);c.fillRect(shx,30,Math.max(2,shw),H-60);c.strokeStyle=rgba(shc,.9);c.strokeRect(shx,30,Math.max(2,shw),H-60);hud(c,shx+shw/2,H-18,MAT[mi][0],'rgba(220,235,255,.85)',9,'center',true)}
-   glow(c,sx,cy,26,OR,.6);ball(c,sx,cy,8,OR);hud(c,sx,cy+24,'source','rgba(200,225,255,.8)',9,'center');
-   var dw=16,dh=46;c.fillStyle='rgba(58,212,255,.15)';c.strokeStyle='rgba(58,212,255,.85)';c.fillRect(dx-dw/2,cy-dh/2,dw,dh);c.strokeRect(dx-dw/2,cy-dh/2,dw,dh);hud(c,dx,cy-dh/2-6,'detector','rgba(200,225,255,.8)',9,'center');
-   if(mode!=='types'){c.setLineDash([3,4]);poly(c,[[sx,cy+40],[dx,cy+40]],'rgba(255,214,90,.5)',1);c.setLineDash([]);hud(c,(sx+dx)/2,cy+52,fx(dist,1)+' m','#ffd65a',9,'center',true)}
-   var spawn=(calm()?.3:1)*dt/16*(mode==='types'?1.2:1.6);for(var s=0;s<spawn;s++){if(Math.random()>spawn-s)break;var k=TY[Math.floor(Math.random()*TY.length)],a=(Math.random()-.5)*(mode==='types'?.5:1.1);ps.push({x:sx,y:cy,vx:Math.cos(a),vy:Math.sin(a),k:k,d:0,ph:Math.random()*6,alive:1,pass:null})}
-   ps=ps.filter(function(q){var sp=q.k==='a'?2.2:q.k==='b'?4:q.k==='n'?3.2:6,st2=sp*dt/16;q.x+=q.vx*st2;q.y+=q.vy*st2;q.d+=st2;
-    if(q.k==='a'&&q.d>W*.22){q.alive-=.08}if(q.k==='b'&&q.d>W*.6){q.alive-=.05}
-    if(q.pass===null&&q.x>=shx&&(MAT[mi][1]||mode!=='types'&&th>0)){var m=MAT[mi],stop=mode==='types'?(q.k==='a'?m[1]>=1:q.k==='b'?m[1]>=2:q.k==='g'?Math.random()>Math.exp(-m[3]*(mi===3?5:mi===4||mi===5?30:mi===2?.5:.01)):Math.random()>Math.exp(-m[4]*(mi===4||mi===5?30:5))):Math.random()>Math.exp(-(q.k==='n'?m[4]:m[3])*th);q.pass=!stop;if(stop){q.stopx=shx+Math.random()*Math.max(2,shw);}}
-    if(q.pass===false&&q.x>=q.stopx){q.alive-=.25}
-    if(q.x>=dx-dw/2&&q.x<=dx+dw/2&&Math.abs(q.y-cy)<dh/2&&!q.hit){q.hit=1;hits++;hitW.push(tt)}
-    if(q.alive<=0||q.x>W+10||q.y<20||q.y>H)return false;
-    var col=q.k==='a'?RD:q.k==='b'?CY:q.k==='n'?GR:YE;c.globalAlpha=Math.max(0,q.alive);if(q.k==='g'){c.strokeStyle=rgba(col,.9);c.lineWidth=1.4;c.beginPath();for(var i=0;i<6;i++){var xx=q.x-q.vx*i*3,yy=q.y-q.vy*i*3+Math.sin(q.d*.4+i)*2.5;if(i)c.lineTo(xx,yy);else c.moveTo(xx,yy)}c.stroke()}else{glow(c,q.x,q.y,q.k==='a'?7:5,col,.5);c.fillStyle=rgba(col,1);c.beginPath();c.arc(q.x,q.y,q.k==='a'?3.2:2,0,6.283);c.fill()}c.globalAlpha=1;return true});
-   while(hitW.length&&tt-hitW[0]>2000)hitW.shift();
-   if(mode==='types'){var lx=W-112,ly=30;panel(c,lx,ly,104,TY.length*14+10);TY.forEach(function(k,i){var col=k==='a'?RD:k==='b'?CY:k==='n'?GR:YE;c.fillStyle=rgba(col,1);c.beginPath();c.arc(lx+12,ly+12+i*14,3.5,0,6.283);c.fill();hud(c,lx+22,ly+15+i*14,{a:'alpha',b:'beta',g:'gamma',n:'neutron'}[k],'rgba(220,235,255,.9)',9)});st.r.textContent=fx(hitW.length/2*.6,1)+' µSv/h';st.c.textContent=fx(hitW.length/2,1);return}
-   var R=rate();if(mode==='tds'){var dose=R*job/60,bud=par.budget||50;st.r.textContent=fx(R,1)+' µSv/h';st.d.textContent=fx(dose,1)+' µSv';st.b.textContent=bud+' µSv';var bw=W-40,bx=20,by=H-32;c.fillStyle='rgba(255,255,255,.08)';c.fillRect(bx,by,bw,8);c.fillStyle=dose>bud?'#ff5a50':'#78eb8c';c.fillRect(bx,by,Math.min(bw,bw*dose/(bud*2)),8);c.fillStyle='#fff';c.fillRect(bx+bw/2-1,by-3,2,14);hud(c,bx+bw/2,by-6,'budget','rgba(220,235,255,.8)',8,'center')}
-   else if(mode==='atten'){var m2=MAT[mi][3],tr=Math.exp(-m2*th)*(B?1+m2*th:1);st.t.textContent=fx(tr*100,2)+'%';st.h.textContent=fx(Math.LN2/m2,2)+' cm';st.m.textContent=fx(1/m2,2)+' cm';var Ca=chart(c,46,H*.62,W-60,H*.38-30,{x:[0,20],y:[0,1.05],ny:2,yf:function(v){return Math.round(v*100)+'%'},title:'FRACTION GETTING THROUGH',xl:'thickness (cm)'});Ca.fn(function(x){return Math.exp(-m2*x)*(B?1+m2*x:1)},rgba(YE,1),2,6);Ca.dot(th,Math.min(1.05,tr),'#fff',4)}
-   else{st.r.textContent=fx(R,1)+' µSv/h';st.c.textContent=fx(R*2.5,0);var Ci=chart(c,W-(nb?150:200),32,nb?138:188,nb?70:90,{x:[.5,8],y:[0,(par.S||400)/0.25*1.05],ny:2,title:'DOSE RATE vs DISTANCE'});Ci.fn(function(x){return (par.S||400)/(x*x)},rgba(YE,1),1.6);Ci.dot(dist,(par.S||400)/(dist*dist),'#fff',3.5)}});
-  if(!par.goal)return {};return {check:function(){if(par.goal==='budget'){var d=rate()*job/60,b=par.budget||50;return job<(par.need||30)?{ok:false,msg:'The job needs at least '+(par.need||30)+' minutes.'}:d<=b?{ok:true,head:'Under budget!',msg:'Job dose '+fx(d,1)+' µSv.'}:{ok:false,msg:'Job dose '+fx(d,1)+' µSv: over the '+b+' µSv budget. Use more distance or more shielding.'}}
-   if(par.goal==='stopall')return (mi===3||mi===5)?{ok:true,head:'Stopped!'}:{ok:false,msg:'Something still gets through. Try a thicker, denser shield.'};return moved?{ok:true}:{ok:false,msg:'Change the shield or the distance first.'}}}};
-
- /* ===== statistics and risk lab: Galton board, failures, redundancy, event trees, ALARP ===== */
- WIDGETS.statsLab=function(box,par){par=par||{};var mode=par.mode||'galton',tt=0,balls=[],bins=new Array(11).fill(0),comps=[],lam=par.lam||.08,rep=par.rep||5,surv=[],nT=par.n||2,pf=par.p||.05,beta=par.beta||0,dem=0,sysF=0,indF=0,trains=[],pr=par.pr||[.99,.95,.9],tree=[],ends={ok:0,cd:0},riskE=par.risk||-5,moved=0;
-  var scr=screen(box,par.h||290,320);
-  if(mode==='failure'){slider(box,'Failure rate λ',.01,.3,.01,lam,function(v){return v.toFixed(2)+' per s'},function(v){lam=v;moved++});slider(box,'Repair time',0,20,1,rep,function(v){return v?v+' s':'no repairs'},function(v){rep=v;moved++});var st=stats(box,[['w','Working now'],['u','Unavailability']])}
-  if(mode==='redundancy'){slider(box,'Number of trains',1,4,1,nT,function(v){return v},function(v){nT=v;dem=sysF=indF=0;moved++});slider(box,'Chance one train fails',.01,.3,.01,pf,function(v){return Math.round(v*100)+'%'},function(v){pf=v;dem=sysF=indF=0;moved++});slider(box,'Common cause β',0,.2,.01,beta,function(v){return Math.round(v*100)+'%'},function(v){beta=v;dem=sysF=indF=0;moved++});var st2=stats(box,[['d','Demands'],['f','System failures'],['p','Failure chance'],['i','If fully independent']])}
-  if(mode==='tree'){['Reactor trips','Safety injection works','Long-term cooling works'].forEach(function(l,i){slider(box,l,.5,.999,.001,pr[i],function(v){return (v*100).toFixed(1)+'%'},function(v){pr[i]=v;ends={ok:0,cd:0};moved++})});var st3=stats(box,[['o','Safe end states'],['c','Core damage'],['f','Core damage chance']])}
-  if(mode==='risk')slider(box,'Risk of death per year',-8,-2,.1,riskE,function(v){return '1 in '+fmtInt(Math.pow(10,-v))},function(v){riskE=v;moved++});
-  if(mode==='galton'){var r=row(box);btn
+  var st=stats(box,mode==='tds'?[['r','Dose rate'],['d','Dose for the job'],['b','Your budget']]:mode==='atten'?[['t','Ge

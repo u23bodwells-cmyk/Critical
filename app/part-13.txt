@@ -1,4 +1,40 @@
-ves it for every number.</p>`),
+oxidised?`,[`Fe`,`Cu²⁺`,`Fe²⁺`,`Cu`],0,`Iron loses 2 electrons.`),
+T(`<h3>Key points</h3><ul><li>Cathode: ions gain electrons. Anode: ions lose electrons.</li><li>Balance atoms and charge.</li><li>4OH⁻ → O₂ + 2H₂O + 4e⁻ for oxygen at the anode.</li></ul>`)])
+]});
+U({id:'gc5-3',track:'gc',level:5,title:'Unfamiliar contexts',icon:'?',color:'#1D9E75',desc:'Predicting properties from trends, and interpreting unfamiliar data.',lessons:[
+LH('gc5-3-1','Predicting from trends',10,'Using periodic table and homologous series trends to predict unfamiliar substances.',[
+T(`<h3>Trends you can extend</h3><ul><li>Group 1 gets more reactive going down; group 7 gets less reactive; group 0 boiling points rise.</li><li>In a homologous series, boiling point rises and flammability falls as the chain gets longer.</li></ul>`),
+Q(`Predict how rubidium (below potassium in group 1) reacts with water.`,[`Even more violently than potassium, making rubidium hydroxide and hydrogen`,'Less violently than lithium, because its atoms are much heavier','It doesn\'t react, because its outer electron is held too tightly','Gently, like magnesium, making rubidium oxide and bubbles of oxygen gas at the surface'],0,`Reactivity increases down group 1.`),
+Q(`Astatine is below iodine in group 7. Predict its state at room temperature.`,[`Solid`,`Gas`,`Liquid`,`Plasma`],0,`Melting points increase down group 7; iodine is already a solid.`),
+Q(`Would astatine displace iodine from potassium iodide?`,[`No, astatine is less reactive than iodine`,'Yes, astatine is more reactive than iodine','Only when hot, because heat makes it react','Yes, because astatine is the biggest halogen'],0,`Reactivity decreases down group 7.`),
+Q(`Pentane (C₅H₁₂) boils at 36 °C and heptane (C₇H₁₆) at 98 °C. Estimate the boiling point of hexane (C₆H₁₄).`,[`About 69 °C`,`About 20 °C`,`About 120 °C`,`About 36 °C`],0,`Halfway between gives a sensible estimate (it's actually 69 °C).`),
+T(`<h3>Key points</h3><ul><li>Extend the trend, and explain it with electrons or forces.</li><li>Estimates between known values are reasonable; say "about".</li></ul>`)]),
+LH('gc5-3-2','Interpreting data',10,'Reading tables and graphs about reactions you\'ve never met.',[
+RM(`<p>Rate = amount ÷ time. Exothermic: temperature rises. Moles = mass ÷ M<sub>r</sub>.</p>`),
+T(`<h3>Strategy</h3><p>Read the axes or column headings and units first. Look for the pattern, then any anomaly. Use numbers from the data in your answer: "the rate doubled from 0.2 to 0.4 g/s when the temperature rose by 10 °C".</p>`),
+Q(`Reaction times: 20 °C, 80 s; 30 °C, 40 s; 40 °C, 20 s. What's the pattern?`,[`Every 10 °C rise halves the time, so doubles the rate`,'Every 10 °C rise doubles the time, so halves the rate','There\'s no clear pattern, so more data is needed','The rate stays the same, only the time changes'],0,`Quote the numbers.`),
+N(`Using that pattern, predict the time at 50 °C.`,10,0.001,'s',`Halve again: 20 → 10 s.`),
+Q(`Fuel A releases 30 kJ/g and makes 3.0 g CO₂ per g; fuel B releases 45 kJ/g and makes 3.1 g CO₂ per g. Which is better for the environment per kJ?`,[`Fuel B: less CO₂ per kJ of energy`,'Fuel A: less CO₂ per gram of fuel burned','They\'re about the same: CO₂ is nearly equal','You can\'t tell without knowing their prices'],0,`A: 0.10 g CO₂ per kJ; B: about 0.069 g per kJ.`),
+T(`<h3>Key points</h3><ul><li>Headings and units first.</li><li>Describe the pattern with numbers from the data.</li><li>Compare fairly: per kJ, per gram, per mole.</li></ul>`)])
+]});
+U({id:'gc5-4',track:'gc',level:5,title:'Full-marks technique',icon:'✓',color:'#D4537E',desc:'Command words in chemistry, and the precise wording that grade 9 answers need.',lessons:[
+LH('gc5-4-1','Command words and precise wording',10,'What each command word wants, and the chemistry words that get marks.',[
+W('matchPairs',{pairs:[['Describe (a test)','Give the method and the result you\'d see'],['Explain (a property)','Link structure, bonding and forces to the property'],['Compare','Similarities and differences, mentioning both'],['Evaluate','Weigh up advantages and disadvantages, then judge'],['Calculate','Show working, give units and sensible significant figures']]},`Match each command word to what it wants in chemistry.`,`"Describe a test" needs the result too.`),
+Q(`"Describe the test for carbon dioxide." Which answer gets full marks?`,[`Bubble the gas through limewater; it turns milky (cloudy)`,'Use limewater, and look for a change','It turns limewater cloudy, so it\'s CO₂','Hold a lit splint in the gas; it goes out with a squeaky pop'],0,`Method and result.`),
+Q(`Which word should replace "atoms" in "sodium chloride is made of atoms held by strong bonds"?`,[`Ions`,`Molecules`,`Electrons`,`Elements`],0,`It's ionic: Na⁺ and Cl⁻ ions.`),
+T(`<h3>Key points</h3><ul><li>Tests: method + result.</li><li>Use the right particle word: atom, ion, molecule, electron.</li></ul>`)]),
+LH('gc5-4-2','How marks are lost',10,'Common slips in chemistry answers.',[
+RM(`<p>Simple molecules: weak intermolecular forces, strong covalent bonds.</p>`),
+T(`<h3>The usual suspects</h3><ul><li>"Breaking covalent bonds" when water boils (it's intermolecular forces).</li><li>"Cloudy" vs "clear": a colourless solution can still be clear.</li><li>Unbalanced equations, or wrong state symbols.</li><li>Forgetting to divide cm³ by 1000.</li><li>Saying a catalyst "gives energy" (it lowers activation energy).</li><li>Saying a strong acid is "concentrated" (strength is about ionisation).</li></ul>`),
+Q(`A student says "a catalyst speeds up a reaction by giving particles more energy". Correct it.`,[`It provides a pathway with a lower activation energy`,'It heats the mixture, so the particles move faster','It adds more particles, so there are more collisions','It increases the concentration of the reactants'],0,`Particles have the same energy; more of them now have enough.`),
+Q(`Which is the correct description of a dilute strong acid?`,[`Fully ionised, but with a low concentration of acid`,'Partly ionised, with a low concentration of acid','Fully ionised, with a high concentration of acid','Not ionised at all, with a lot of water added'],0,`Strength and concentration are different.`),
+Q(`"Clear" and "colourless" mean…`,[`different things: clear means see-through, colourless means no colour`,'the same thing: both mean you can see through it','different things: clear means no colour, colourless means see-through','the same thing: both mean it has a pale white colour'],0,`Copper sulfate solution is clear but blue.`),
+T(`<h3>Key points</h3><ul><li>Boiling simple molecules: intermolecular forces.</li><li>Catalyst: lower activation energy.</li><li>Strength ≠ concentration. Clear ≠ colourless.</li></ul>`)])
+]});
+
+U({id:'gm5-1',track:'gm',level:5,title:'Proof',icon:'∎',color:'#7F77DD',desc:'Algebraic proof with odd, even and consecutive numbers, and geometric proof using congruence and circle theorems.',lessons:[
+LH('gm5-1-1','Algebraic proof',11,'Writing numbers with algebra so you can prove things for every case.',[
+T(`<h3>The building blocks</h3><ul><li>Any integer: <b>n</b>. Consecutive integers: n, n + 1, n + 2.</li><li>Even: <b>2n</b>. Odd: <b>2n + 1</b>. Consecutive odd numbers: 2n + 1, 2n + 3.</li><li>A multiple of k: <b>k × (an integer)</b>. Take k out as a factor to show it.</li></ul><p>Checking a few examples isn't a proof. Algebra proves it for every number.</p>`),
 W('stepCalc',{steps:[`Prove that the sum of any three consecutive integers is a multiple of 3.`,`Let the integers be n, n + 1 and n + 2`,`Sum = n + (n + 1) + (n + 2) = 3n + 3`,`= 3(n + 1)`,`3 × an integer, so it's always a multiple of 3 ∎`]},`A proof, step by step.`,`Factorise to show the multiple.`),
 W('stepCalc',{steps:[`Prove that (2n + 1)² − (2n − 1)² is a multiple of 8 for any integer n.`,`(2n + 1)² = 4n² + 4n + 1`,`(2n − 1)² = 4n² − 4n + 1`,`Subtract: (4n² + 4n + 1) − (4n² − 4n + 1) = 8n`,`8n = 8 × n, a multiple of 8 ∎`]},`Another proof.`,`Expand, simplify, then factor out the number.`),
 Q(`How should you write "the product of two odd numbers"?`,[`(2a + 1)(2b + 1)`,`(2n + 1)(2n + 1)`,`2n × 2n`,`(n + 1)(n + 2)`],0,`Different letters: the two odd numbers needn't be the same.`),
@@ -1086,48 +1122,4 @@ Q(`A model predicts a population of 10 billion rabbits on an island in 20 years.
 T(`<h3>Key points</h3><ul><li>Assume, model, solve, <b>interpret, evaluate</b>.</li><li>Always comment on limits of the model.</li><li>Answers need context and units.</li></ul>`)]),
 LH('am4-1-3','Multi-step problems',11,'The hardest questions combine topics. Plan before you calculate.',[
 RM(`<p>Every Year 12 and 13 topic: algebra, trig, calculus, vectors, statistics, mechanics.</p>`),
-T(`<h3>A strategy</h3><ol><li><b>Read it all</b>, underlining what's given and what's asked.</li><li><b>Sketch</b> a diagram or graph.</li><li>Ask: which topics does this link? Calculus + trig? Vectors + geometry?</li><li>Work <b>backwards</b> from what you need.</li><li>Keep <b>exact values</b> (surds, π, ln) until the end.</li><li><b>Check</b> the answer makes sense.</li></ol>`),
-W('stepCalc',{steps:[`The curve y = x² − 4x + 7 and the line y = 2x − 2 enclose a region. Find its area.`,`Link: simultaneous equations, then integration.`,`Meet: x² − 4x + 7 = 2x − 2, so x² − 6x + 9 = 0, (x − 3)² = 0. Only x = 3!`,`One meeting point means the line is a tangent: there's no enclosed region.`,`<b>Checking the set-up saved you from a meaningless integral.</b>`]},`A trap that rewards checking.`,`Strong candidates check their set-up before integrating.`),
-Q(`Why keep exact values until the end?`,[`Rounding early loses accuracy and marks`,`Examiners dislike decimals at all times`,`Exact values are always smaller`,`To make it look harder`],0,`Errors compound.`),
-T(`<h3>Key points</h3><ul><li>Read, sketch, link topics, plan.</li><li>Keep <b>exact</b> values.</li><li>Check answers make sense.</li></ul>`)])
-]});
-
-U({id:'am4-2',track:'am',level:4,title:'Exam technique',icon:'✓',color:'#1D9E75',desc:'Show-that questions, exact answers, statistics and mechanics traps, and timing.',lessons:[
-LH('am4-2-1','Show that and exact answers',10,'A "show that" gives you the answer. The marks are all for the working.',[
-RM(`<p>Exact values: surds, π, ln and fractions. Proofs end with a clear conclusion.</p>`),
-T(`<h3>Show that</h3><ul><li>Every step must be visible. Skipping a step loses marks even if the answer is right.</li><li>Work towards the given result; never write it down then work backwards silently.</li><li>Finish by writing the given result exactly as stated.</li></ul>`),
-Q(`In a "show that x = 2 + √3" question, what earns the marks?`,[`Clear working that reaches 2 + √3`,`Writing 2 + √3 on its own`,`A decimal answer of 3.732`,`Checking with a calculator only`],0,`The working is the answer.`),
-T(`<h3>Exact answers</h3><p>"Exact" means no rounding: leave √3, π, ln 5, ⅓. "Give your answer in the form a + b√c" tells you the shape: match it exactly.</p>`),
-Q(`An answer of 1.0986 when ln 3 was asked "exactly" will…`,[`lose the final mark`,`get full marks`,`get extra marks`,`be marked as ln 3`],0,`Not exact.`),
-T(`<h3>Key points</h3><ul><li><b>Show that</b>: every step visible.</li><li><b>Exact</b>: surds, π, ln, fractions.</li><li>Match any requested form.</li></ul>`)]),
-LH('am4-2-2','Statistics and mechanics traps',10,'The mistakes that cost the most marks in Paper 3, and how to avoid them.',[
-RM(`<p>Hypothesis tests conclude in context. suvat needs constant acceleration. Friction opposes motion.</p>`),
-T(`<h3>Statistics</h3><ul><li>Hypotheses use the <b>parameter</b> (p or μ), not the sample result.</li><li>Conclusions in context, never "H₀ is true".</li><li>"At least" and "fewer than" with discrete distributions: P(X ≥ 4) = 1 − P(X ≤ 3).</li><li>Normal: sketch the curve and shade the region.</li></ul>`),
-T(`<h3>Mechanics</h3><ul><li>Draw a <b>force diagram</b> every time.</li><li>Choose a positive direction and stick to it.</li><li>Use g = 9.8 unless told otherwise; give answers to 2 or 3 s.f. if you used 9.8.</li><li>Don't use suvat when acceleration varies.</li></ul>`),
-W('matchPairs',{pairs:[['H₁: p > 0.3','A one-tailed test'],['P(X ≥ 4)','1 − P(X ≤ 3)'],['Acceleration depends on t','Use calculus, not suvat'],['Limiting friction','F = μR']]},`Match each.`),
-Q(`After using g = 9.8, how many significant figures should a final answer have?`,[`2 or 3`,`10`,`1`,`As many as the calculator shows`],0,`g is given to 2 s.f.`),
-T(`<h3>Key points</h3><ul><li>Hypotheses about the parameter; conclude in context.</li><li>Force diagram, positive direction, suvat only for constant a.</li><li>2 or 3 s.f. after g = 9.8.</li></ul>`)]),
-LH('am4-2-3','Timing and checking',9,'Two-hour papers, one mark per minute or so. Use the time like an expert.',[
-RM(`<p>Each A-level Maths paper: 2 hours, 100 marks.</p>`),
-T(`<h3>About a mark a minute</h3><p>100 marks in 120 minutes: roughly <b>1.2 minutes per mark</b>. A 6-mark question deserves about 7 minutes. If you're stuck for twice that, move on and come back.</p>`),
-N(`An 8-mark question at 1.2 minutes per mark. Time to spend (minutes, 1 d.p.)?`,9.6,0.01,'min',`8 × 1.2.`),
-T(`<h3>Checking</h3><ul><li><b>Differentiate</b> your integral to check it.</li><li><b>Substitute</b> roots back into the equation.</li><li>Is the probability between 0 and 1? Is the length positive?</li><li>Does the answer match the rough size you'd expect?</li></ul>`),
-Q(`The fastest way to check ∫ result?`,[`Differentiate it`,`Integrate it again`,`Ask a friend`,`Plot it`],0,`Differentiation undoes integration.`),
-T(`<h3>Key points</h3><ul><li>About <b>1.2 minutes per mark</b>.</li><li>Move on when stuck; come back.</li><li>Check by reversing: differentiate, substitute, sanity-check.</li></ul>`)])
-]});
-
-GOALS.am3={icon:'📗',title:'Master Year 13 maths',story:'Each unit covers a strand of Edexcel A-level Maths Year 2.',final:'Full A-level content covered',steps:['Functions and sequences','Trigonometry in Year 13','Further calculus','Vectors, statistics and mechanics']};
-GOALS.am4={icon:'🏆',title:'Go for an A* in maths',story:'The hardest questions and the habits that earn the top grade.',final:'A* standard',steps:['Hard problem solving','Exam technique']};
-/* ========== A-LEVEL PHYSICS (AQA 7408) · LEVEL 1 bridge · LEVEL 2 Year 12 ========== */
-function pE(v,sf){sf=sf||3;if(v===0)return '0';var e=Math.floor(Math.log10(Math.abs(v))),m=v/Math.pow(10,e);m=Math.round(m*Math.pow(10,sf-1))/Math.pow(10,sf-1);if(Math.abs(m)>=10){m/=10;e++}return e===0?cNum(m):cNum(m)+' × 10'+cSup(e)}
-CGEN.p_prefix=function(){var P=cP([['k',3],['M',6],['G',9],['m',-3],['μ',-6],['n',-9]]),v=cR(1,99),u=cP(['m','g','A','V','W','J','s']);
- return {p:'Write '+v+' '+P[0]+u+' in '+u+'. Give the power of ten.',b:[cB(P[1],cNum(v)+' × 10','','power',true)],e:P[0]+' means × 10'+cSup(P[1])+'. So '+v+' '+P[0]+u+' = '+v+' × 10'+cSup(P[1])+' '+u+'.'}};
-CGEN.p_unc=function(){var x=cR(20,80)/10,dx=cP([0.1,0.05,0.2]),pct=Math.round(dx/x*1000)/10;
- return {p:'A length is measured as '+x.toFixed(1)+' ± '+dx+' cm. What\'s the percentage uncertainty? (1 d.p.)',b:[cB(pct,'','%','percentage',false,0.02)],e:'% uncertainty = absolute ÷ value × 100 = '+dx+' ÷ '+x.toFixed(1)+' × 100 = '+cNum(pct)+'%. (If the length were squared, you\'d double it.)'}};
-CGEN.p_photon=function(){var l=cR(200,700),E=Math.round(1240/l*1000)/1000;
- return {p:'Find the energy of a photon of wavelength '+l+' nm, in eV. (3 d.p.)',b:[cB(E,'E = ',' eV','energy',false,0.003)],e:'E = hc/λ. In handy units, hc ≈ 1240 eV nm, so E = 1240 ÷ '+l+' = '+cNum(E)+' eV.'}};
-CGEN.p_photo=function(){var E=cR(30,80)/10,phi=cR(18,Math.min(E*10-2,50))/10,K=Math.round((E-phi)*100)/100;
- return {p:'Photons of energy '+cNum(E)+' eV hit a metal with work function '+cNum(phi)+' eV. Maximum kinetic energy of the photoelectrons, in eV?',b:[cB(K,'E<sub>k,max</sub> = ',' eV','energy',false,0.003)],e:'Einstein\'s equation: hf = φ + E<sub>k,max</sub>, so E<sub>k,max</sub> = '+cNum(E)+' − '+cNum(phi)+' = '+cNum(K)+' eV.'}};
-CGEN.p_debroglie=function(){var k=cR(1,9),l=Math.round(0.728/k*1000)/1000;
- return {p:'An electron (m = 9.11 × 10⁻³¹ kg) moves at '+k+' × 10⁶ m/s. Find its de Broglie wavelength in nm. (h = 6.63 × 10⁻³⁴ J s, 3 d.p.)',b:[cB(l,'λ = ',' nm','wavelength',false,0.005)],e:'λ = h/(mv) = 6.63 × 10⁻³⁴ ÷ (9.11 × 10⁻³¹ × '+k+' × 10⁶) = '+pE(l*1e-9)+' m = '+cNum(l)+' nm.'}};
-CGEN.p_resist=
+T(`<h3>A strategy</h3><ol><li><b>Read it all</b>, underlining what's given and what's asked.</li><li><b>Sketch</b> a diagram or graph.</li><li>Ask: which topics does this link? Calculus + trig? Vectors + geometry?</li><li>Work <b>backwards</b> from what you need.</li><li>Keep <b>exact values</b> (surds, π, ln) u
