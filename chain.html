@@ -58,6 +58,7 @@ button{font:inherit;color:inherit}
 .card.on .bg i:nth-child(2){animation:drift 18s ease-in-out infinite alternate-reverse}
 @keyframes drift{to{transform:translate(18vmin,10vmin) scale(1.2)}}
 .in{position:relative;z-index:1;padding:calc(var(--st) + 70px) 78px calc(var(--sb) + 30px) 20px;display:flex;flex-direction:column;gap:14px;max-height:100%;overflow-y:auto;scrollbar-width:none;overscroll-behavior:auto}
+.in>:first-child{margin-top:auto}.in>:last-child{margin-bottom:auto}
 .in::-webkit-scrollbar{display:none}
 .k-fact .in{padding-bottom:calc(var(--sb) + 78px)}
 .chk{display:flex;flex-direction:column;gap:14px}
@@ -178,6 +179,7 @@ button{font:inherit;color:inherit}
 .chat{flex:1;min-height:0;display:flex;flex-direction:column;background:rgba(5,6,12,.62);border:1px solid var(--line);border-radius:22px;overflow:hidden}
 .chhead{display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(255,255,255,.06);border-bottom:1px solid var(--line);flex:none}
 .chav{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.12);display:grid;place-items:center;font-size:20px;flex:none;letter-spacing:-6px;padding-right:6px}
+.chav.grp{width:auto;min-width:40px;border-radius:999px;padding:0 10px 0 6px;font-size:16px;white-space:nowrap;letter-spacing:-5px}
 .chtt{flex:1;min-width:0}.chtt b{display:block;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.chtt small{display:block;font-size:11.5px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .chvo{width:34px;height:34px;border-radius:50%;border:0;background:rgba(255,255,255,.1);font-size:16px;cursor:pointer;flex:none}
 .chlog{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:5px;padding:12px 10px;scrollbar-width:none}
@@ -211,7 +213,7 @@ button{font:inherit;color:inherit}
 .drake p,.brain p{display:flex;align-items:center;padding:12px 14px;font-weight:800;font-size:clamp(15px,2.3vh,19px);line-height:1.25}
 .brain .mrow{display:grid;grid-template-columns:1fr 32%;min-height:clamp(66px,10.5vh,96px)}.brain .mrow+.mrow{border-top:3px solid #111}
 .brain .mi{font-size:clamp(30px,5.5vh,46px)}.brain .b0 .mi{background:#d9d9d9}.brain .b1 .mi{background:#bfe3ff}.brain .b2 .mi{background:radial-gradient(#fff6b0,#ffb300)}.brain .b3 .mi{background:radial-gradient(#fff,#b67cff 45%,#2b0a6b);text-shadow:0 0 18px #fff}
-.nob{padding:18px;font-size:clamp(17px,2.6vh,21px);line-height:1.45;font-weight:600}.nob p+p{margin-top:10px}.nob .hl{font-weight:800}
+.nob{padding:18px;font-size:clamp(17px,2.6vh,21px);line-height:1.45;font-weight:600}.nob p+p{margin-top:10px}.nob .nhl{font-weight:800}
 .mtop{background:#121212;color:#fff;text-align:center;padding:12px 10px}
 .mtop .tt,.mtop .tb{font:400 clamp(22px,3.6vh,30px)/1.1 Anton,Impact,"Arial Black",sans-serif;text-transform:uppercase;letter-spacing:.01em;text-shadow:2px 2px 0 #000,-2px -2px 0 #000,2px -2px 0 #000,-2px 2px 0 #000}
 .mtop .mimg{font-size:clamp(84px,17vh,140px);line-height:1.2;filter:drop-shadow(0 0 30px rgba(255,255,255,.25))}
@@ -255,6 +257,67 @@ button{font:inherit;color:inherit}
 .at.on.junk{background:#7a5a00}.at.done{background:#1f8f5a}.at.missed{background:#4a0000}.at.wrong{background:#6b4a00;animation:shake .35s}
 @keyframes aflash{50%{background:#ff3b3b}}
 .agame .sbtn{align-self:center;padding:12px 24px;font-size:16px}
+/* more formats */
+.lex{display:none;background:rgba(0,0,0,.4);border-left:3px solid var(--a);border-radius:10px;padding:10px 12px;font-size:clamp(14px,2vh,16px);line-height:1.45;color:var(--muted)}.lex.on{display:block;animation:up .3s}.lex b{color:var(--text)}
+.lies{display:flex;flex-direction:column;gap:8px}
+.lie{position:relative;text-align:left;border:1.5px solid var(--line);background:var(--glass);color:var(--text);border-radius:16px;padding:14px 14px;font:700 clamp(15px,2.3vh,18px) var(--sans);cursor:pointer;transition:background .2s,border-color .2s}
+.lie .lmark{display:none;font:900 11px var(--sans);letter-spacing:.06em;margin-bottom:4px}.lies.done .lmark{display:block}
+.lie.istrue{border-color:var(--good);background:rgba(63,217,154,.16)}.lie.islie{border-color:var(--bad);background:rgba(255,107,107,.2);animation:shake .4s}.lie.wrongpick{box-shadow:0 0 0 2px #fff}
+.paper{position:relative;background:#f4efe3;color:#1a1a1a;border-radius:6px;padding:12px 14px 10px;box-shadow:0 12px 30px rgba(0,0,0,.45);font-family:Georgia,"Times New Roman",serif;transform:rotate(-1deg)}
+.pmast{font:900 clamp(20px,3.2vh,26px)/1 Georgia,serif;text-align:center;border-bottom:3px double #1a1a1a;padding-bottom:6px;letter-spacing:.02em}
+.pdate{font:600 11px var(--sans);text-align:center;color:#555;padding:4px 0;border-bottom:1px solid #1a1a1a;margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em}
+.phead{margin:0;font:900 clamp(20px,3.3vh,27px)/1.12 Georgia,serif}.pimg{font-size:clamp(46px,8vh,64px);text-align:center;padding:6px 0;filter:grayscale(.3) sepia(.3)}
+.pstamp{position:absolute;right:10px;top:40%;font:900 34px var(--sans);letter-spacing:.06em;padding:4px 12px;border:5px solid;border-radius:8px;transform:rotate(-14deg) scale(2.4);opacity:0;transition:.25s cubic-bezier(.2,1.5,.4,1)}
+.pstamp.on{opacity:.92;transform:rotate(-14deg) scale(1)}.pstamp.real{color:#1f8f5a}.pstamp.fake{color:#d8263e}
+.rfb{display:grid;grid-template-columns:1fr 1fr;gap:10px}.rfb button{border:0;border-radius:16px;padding:15px 8px;font:900 17px var(--sans);cursor:pointer;color:#fff;background:#1f8f5a}.rfb button+button{background:#d8263e}
+.rfb.done button{opacity:.45}.rfb.done button.ok,.rfb.done button.no{opacity:1;box-shadow:0 0 0 3px #fff}
+.gbox{display:flex;flex-direction:column;gap:10px;background:rgba(0,0,0,.35);border:1px solid var(--line);border-radius:18px;padding:14px}
+.gval{text-align:center}.gval b{font:900 clamp(30px,5.5vh,44px) var(--mono);color:var(--gold)}.gval span{color:var(--muted);font-weight:700}
+.gtrack{position:relative}.grange{width:100%;accent-color:var(--gold);height:30px}
+.gans{position:absolute;top:-6px;width:4px;height:42px;margin-left:-2px;background:#3fd99a;border-radius:2px;box-shadow:0 0 10px #3fd99a;display:none}.gans.on{display:block;animation:mpop .4s}
+.gscale{display:flex;justify-content:space-between;font:700 12px var(--mono);color:var(--dim)}.gbox .sbtn{align-self:center;padding:11px 22px}
+.gstars{font-size:26px;color:var(--gold);letter-spacing:4px}.gstars span{color:rgba(255,255,255,.2)}
+.spot{display:flex;flex-direction:column;gap:6px;background:#f8f6ef;border-radius:14px;padding:10px;box-shadow:0 10px 26px rgba(0,0,0,.4)}
+.sl{display:flex;gap:10px;align-items:center;text-align:left;border:0;border-radius:10px;padding:10px;background:transparent;color:#1a1a1a;font:600 clamp(15px,2.3vh,18px) "Segoe Print","Comic Sans MS","Bradley Hand",cursive;cursor:pointer;border-bottom:1px dashed #cfcab9}
+.sl .slt{flex:1;min-width:0}.sl .sn{font:800 12px var(--sans);color:#999;width:16px;flex:none}.sl.fine{opacity:.5;animation:shake .3s}.sl.bad{background:#ffd9d9;color:#b0001f;text-decoration:line-through wavy #d8263e;animation:shake .4s}
+.shint{font-size:13px;color:var(--dim);font-weight:700;text-align:center}
+.brow{display:flex;flex-direction:column;gap:5px}.brow small{font:800 11px var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
+.bch{display:flex;gap:6px;flex-wrap:wrap}.bch button{border:1.5px solid var(--line);background:var(--glass);color:var(--text);border-radius:12px;padding:7px 10px;font:700 13.5px var(--sans);cursor:pointer;text-align:left}
+.bch button em{display:block;font-style:normal;font-size:11px;color:var(--dim);font-weight:600}.bch button.on{border-color:var(--a);background:color-mix(in srgb,var(--a) 22%,transparent)}
+.bgo{align-self:flex-start;padding:12px 20px}.bhook{font-size:clamp(20px,3vh,26px)}.t-build .in{gap:10px}
+@media (max-height:760px){.bch button em{display:none}.bch button{padding:6px 9px}}
+.bres{display:none;border-radius:14px;padding:11px 13px;font-size:14.5px;line-height:1.45;color:var(--muted)}.bres.on{display:block;animation:mpop .35s}.bres b{display:block;font-size:17px;color:var(--text);margin-bottom:3px}.bres em{display:block;font-style:normal;font-weight:900;color:var(--gold);margin-top:5px}
+.bres.r-win{background:rgba(63,217,154,.16);border:1px solid var(--good)}.bres.r-warn{background:rgba(242,196,109,.15);border:1px solid var(--gold)}.bres.r-fail,.bres.r-meh{background:rgba(255,255,255,.07);border:1px solid var(--line)}.bres.r-funny{background:rgba(160,107,255,.18);border:1px solid #a06bff}
+.bfound{font-size:12px;color:var(--dim);line-height:1.8}.bfound b{color:var(--text)}.bfound span{display:inline-block;margin:0 3px;padding:1px 7px;border-radius:999px;background:rgba(255,255,255,.07)}.bfound span.got{background:rgba(63,217,154,.2);color:#9dffd0}
+.gm{display:flex;align-items:center;gap:16px;background:#14161b;border:1px solid var(--line);border-radius:18px;padding:12px 16px}
+.gdial{position:relative;width:110px;height:62px;overflow:hidden;flex:none}.gdial::before{content:"";position:absolute;inset:0 0 -48px;border-radius:50%;border:8px solid transparent;border-top-color:#3fd99a;border-right-color:#ff3b5c;border-left-color:#F2C46D;transform:rotate(0)}
+.gnd{position:absolute;left:53px;bottom:0;width:4px;height:54px;background:#fff;border-radius:2px;transform-origin:50% 100%;transform:rotate(-70deg);transition:transform .25s}.gnd.hit{background:#ffe14d}
+.gm b{display:block;font:900 30px var(--mono);color:var(--gold)}.gm small{color:var(--dim);font-size:12px}
+.gitems{display:grid;grid-template-columns:1fr 1fr;gap:6px}.gitems button{display:flex;align-items:center;gap:7px;text-align:left;border:1.5px solid var(--line);background:var(--glass);color:var(--text);border-radius:12px;padding:8px 9px;font:700 13px var(--sans);cursor:pointer}
+.gitems button span{font-size:20px}.gitems button.on{border-color:var(--gold);background:rgba(242,196,109,.16)}
+.t-vlog .in{height:100%;justify-content:flex-start;padding-bottom:calc(var(--sb) + 18px)}
+.vlog{position:relative;flex:1;min-height:0;display:flex;flex-direction:column;background:linear-gradient(180deg,rgba(0,0,0,.25),rgba(0,0,0,.55));border:1px solid var(--line);border-radius:22px;overflow:hidden;padding:10px 12px 14px}
+.vbars{display:flex;gap:4px}.vbars i{flex:1;height:3px;border-radius:3px;background:rgba(255,255,255,.25);overflow:hidden}.vbars b{display:block;height:100%;background:#fff;transform-origin:0 50%;transform:scaleX(0)}
+.vhead{display:flex;align-items:center;gap:8px;margin-top:10px}.vav{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.14);display:grid;place-items:center;font-size:18px}.vhead b{font-size:14px;line-height:1.25}
+.vstage{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:12px;padding:0 6px}
+.vtime{font:900 clamp(30px,5.5vh,44px) var(--mono);color:var(--gold)}.vem{font-size:clamp(60px,12vh,96px);line-height:1}.vtx{margin:0;font-size:clamp(18px,2.8vh,22px);line-height:1.4;font-weight:700}
+.vstage .vin{animation:rise .45s cubic-bezier(.2,.9,.3,1.25) both}.vem.vin{animation-delay:.08s}.vtx.vin{animation-delay:.16s}
+.vnav{position:absolute;inset:60px 0 0;display:grid;grid-template-columns:1fr 2fr;z-index:1}.vnav button{background:none;border:0;cursor:pointer}
+.vend{display:none;position:relative;z-index:2;background:rgba(242,196,109,.14);border:1px solid rgba(242,196,109,.45);border-radius:14px;padding:10px 12px;font-size:14px;line-height:1.45}.vend.on{display:block;animation:mpop .35s}
+.vend b{display:block;color:var(--text);font-weight:700;margin-bottom:8px}.vend button{border:0;border-radius:999px;background:rgba(255,255,255,.16);color:#fff;font-weight:800;padding:7px 12px;cursor:pointer}
+.t5{display:flex;flex-direction:column;gap:6px}
+.t5r{display:grid;grid-template-columns:38px 40px 1fr;align-items:center;gap:6px;background:rgba(0,0,0,.35);border:1px solid var(--line);border-radius:14px;padding:8px 10px;min-height:50px}
+.t5r>*:not(.t5n){visibility:hidden}.t5r.on>*{visibility:visible}.t5r.on{animation:mpop .4s;border-color:color-mix(in srgb,var(--a) 50%,transparent)}
+.t5r[data-r="1"].on{background:linear-gradient(90deg,rgba(242,196,109,.25),rgba(0,0,0,.35));border-color:var(--gold)}
+.t5n{font:900 17px var(--mono);color:var(--a)}.t5e{font-size:26px}.t5r b{font-size:15px;line-height:1.2;display:block}.t5r small{color:var(--dim);font-size:12.5px;line-height:1.3;display:block}
+.t5go{align-self:center;padding:12px 24px;font-size:16px}
+.eltabs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.eltabs button{border:1.5px solid var(--line);background:var(--glass);color:var(--text);border-radius:12px;padding:9px 4px;font:800 13px var(--sans);cursor:pointer}
+.eltabs button.on{background:var(--a);border-color:var(--a);color:#0b0b10}
+.eltext{background:rgba(0,0,0,.38);border:1px solid var(--line);border-radius:16px;padding:14px;font-size:clamp(16px,2.5vh,19px);line-height:1.5;min-height:7em}.eltext.vin{animation:up .3s}
+.elhint{font-size:12.5px;color:var(--dim);font-weight:700;text-align:center}
+.emq{font-size:clamp(54px,11vh,90px);text-align:center;line-height:1.15;letter-spacing:4px;filter:drop-shadow(0 6px 20px rgba(0,0,0,.4))}
+.card.on .emq{animation:stpop .5s cubic-bezier(.2,1.5,.4,1)}
+.emo.done .opt{cursor:default}
 /* story speech */
 .stsay{display:none;align-self:flex-start;max-width:94%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22);border-radius:18px 18px 18px 4px;padding:10px 14px;font-size:clamp(16px,2.4vh,19px);line-height:1.4;font-style:italic}
 .stsay.on{display:block;animation:stpop .4s cubic-bezier(.2,1.5,.4,1)}
@@ -451,6 +514,7 @@ button{font:inherit;color:inherit}
 <script src="chain-edits.js"></script>
 <script src="chain-stories.js"></script>
 <script src="chain-fun.js"></script>
+<script src="chain-more.js"></script>
 <script>
 (function(){
 "use strict";
@@ -774,6 +838,7 @@ function makeNext(){
   sess.sinceDrop=(sess.sinceDrop||0)+1;var dd=today();if(i>3&&sess.sinceDrop>5&&(dd.drops||0)<8&&Math.random()<.11){sess.sinceDrop=0;return{type:"drop",topic:"maths",id:"drop"+Date.now()+i}}
   if(retry.length&&retry[0].due<=i){var r=retry.shift().c;return mkQuiz(r.topic,r.q,[r.opts[r.ans]].concat(r.opts.filter(function(_,k){return k!==r.ans})),r.ex,r.id,"Second chance")}
   if(i===0){var e0=pickEdit();if(e0)return e0}
+  if(i===4&&!S.swaps.length&&S.beatDay!==dk()){S.beatDay=dk();save();return{type:"beat",topic:"ops",id:"beat"+dk()}}
   var W=mode==="edits"?KW_EDITS:KW_FEED,last=i>0?kindOf(cards[i-1].c):null,last2=i>1?kindOf(cards[i-2].c):null,skip={};
   if(last&&!(mode==="edits"&&last==="edit"&&last2!=="edit"))skip[last]=1;
   if(i<3){skip.story=1;skip.tier=1}
@@ -804,6 +869,9 @@ function rail(c){if(c.type==="check"||c.type==="drop")return"";var sv=isSaved(c.
 function chipHtml(c,t){return '<div class="chip">'+t.g+" "+t.n+(c.label?" · "+c.label:c.type==="tf"?" · True or false":c.type==="quiz"?" · Quiz":c.type==="sim"?" · Try it":"")+'</div>'}
 function inner(c){var t=TOP[c.topic]||TOP.reactor,h="";
   if(c.type==="chat")h=chatHtml(c);
+  else if(c.type==="lie")h=lieHtml(c);else if(c.type==="head")h=headHtml(c);else if(c.type==="guess")h=guessHtml(c);else if(c.type==="spot")h=spotHtml(c);else if(c.type==="build")h=buildHtml(c);
+  else if(c.type==="geiger")h=geigerHtml(c);else if(c.type==="vlog")h=vlogHtml(c);else if(c.type==="top5")h=top5Html(c);else if(c.type==="eli")h=eliHtml(c);else if(c.type==="emoji")h=emojiHtml(c);
+  else if(c.type==="beat")h='<div class="chchip">📵 Beat the scroll</div><div class="glyph">📵</div><h2 class="hook">Make TikTok open Chain instead</h2><p class="body">Takes one minute on an iPhone: every time you open TikTok on autopilot, Chain pops up and it counts as a win. There are tips for Android and screen-time limits too.</p><button class="playbtn" data-act="beat">Show me how</button>';
   else if(c.type==="meme")h=memeHtml(c);
   else if(c.type==="tier")h=tierHtml(c);
   else if(c.type==="wyr")h=wyrHtml(c);
@@ -881,7 +949,7 @@ function award(n){n=Math.round(n*XPM);if(n<=0)return;var before=SP;S.xp+=n;sess.
   if(ns&&SP>=ns){setTimeout(function(){bigWin("🎵","Sound pack unlocked!","Claim it on the season pass in Critical")},400)}
   else if(nx&&SP>=nx){setTimeout(function(){toast("🎁 Season pass reward unlocked! Claim it in Critical")},400)}}
 function xpFloat(n){var b=document.getElementById("xpBtn"),r=b.getBoundingClientRect(),a=document.getElementById("app").getBoundingClientRect(),f=document.createElement("div");f.className="xpf";f.textContent="+"+n;f.style.left=(r.left-a.left+r.width/2)+"px";f.style.top=(r.bottom-a.top+4)+"px";document.getElementById("app").appendChild(f);setTimeout(function(){f.remove()},900);b.classList.remove("bump");void b.offsetWidth;b.classList.add("bump")}
-function bigWin(ic,t,sub){var d=document.createElement("div");d.className="win";d.innerHTML='<div class="wi">'+ic+'</div><b>'+t+'</b><span>'+sub+'</span><a class="sbtn" href="critical.html#rewards">Open Critical</a>';document.getElementById("app").appendChild(d);if(CE)CE.sfx("ok");vib([40,60,40,60,80]);d.addEventListener("click",function(e){if(!e.target.closest("a"))d.remove()});setTimeout(function(){if(d.isConnected)d.remove()},6000)}
+function bigWin(ic,t,sub,btn){var d=document.createElement("div");d.className="win";d.innerHTML='<div class="wi">'+ic+'</div><b>'+t+'</b><span>'+sub+'</span>'+(btn||'<a class="sbtn" href="critical.html#rewards">Open Critical</a>');document.getElementById("app").appendChild(d);if(CE)CE.sfx("ok");vib([40,60,40,60,80]);d.addEventListener("click",function(e){if(!e.target.closest("a")||e.target.closest("[data-wclose]"))d.remove()});setTimeout(function(){if(d.isConnected)d.remove()},6000)}
 function ring(){var d=today(),f=Math.min(1,d.n/GOAL);document.getElementById("ringPr").setAttribute("stroke-dashoffset",(62.83*(1-f)).toFixed(2))}
 
 /* ---------- interactions ---------- */
@@ -916,6 +984,7 @@ function act(k,a,b){var c=k.c;
   else if(a==="play")playStory(k.c.sid);
   else if(a==="music")openMusic();
   else if(a==="chatagain"){if(k.el._pl)k.el._pl.start()}
+  else if(a==="beat")openBeat();
   else if(a==="voice"){setVoice(S.voice===false);toast(S.voice!==false?"🗣️ Voices on":"🤐 Voices off");if(S.voice===false&&k.el._pl&&k.el._pl.speed){}}
   else if(a==="snd"){var live=S.sound&&CE&&CE.on();S.sound=!live;if(CE)CE.sound=S.sound;save();
     var done=function(){if(k.el._ed)k.el._ed.resync();allSnd()};if(S.sound&&CE)CE.unlock().then(done);else done()}
@@ -949,10 +1018,12 @@ feed.addEventListener("pointerup",function(e){var onEd=!!(e.target.classList&&e.
     lastTap=now;lastXY=[e.clientX,e.clientY];if(onEd){var k2=cardOf(e.target);clearTimeout(tapT);var needed=downNeed;tapT=setTimeout(function(){if(!(k2&&k2.el._ed&&k2===cards[active]))return;if(needed){toast("🔊 Sound on");return}k2.el._ed.toggle()},300)}}});
 function burst(x,y){var r=document.getElementById("app").getBoundingClientRect(),d=document.createElement("div");d.className="burst";d.style.left=(x-r.left)+"px";d.style.top=(y-r.top)+"px";d.innerHTML=ICON.heart;document.getElementById("app").appendChild(d);setTimeout(function(){d.remove()},850)}
 function comboPop(t){var d=document.createElement("div");d.className="combo";d.textContent=t;document.getElementById("app").appendChild(d);setTimeout(function(){d.remove()},1000)}
-function vib(p){try{if(navigator.vibrate)navigator.vibrate(p)}catch(e){}}
+function vib(p){try{if(navigator.userActivation&&!navigator.userActivation.hasBeenActive)return;if(navigator.vibrate)navigator.vibrate(p)}catch(e){}}
 var toastT=0;function toast(t){var el=document.getElementById("toast");el.textContent=t;el.classList.add("show");clearTimeout(toastT);toastT=setTimeout(function(){el.classList.remove("show")},1900)}
 function plain(h){var d=document.createElement("div");d.innerHTML=h;return d.textContent}
-function share(c){var txt=c.type==="chat"?CHAT[c.ref].title+": "+CHAT[c.ref].lesson:c.type==="meme"?memeText(MEME[c.ref]):c.type==="tier"?TIER[c.ref].title:c.type==="wyr"?"Would you rather "+WYR[c.ref].a+" or "+WYR[c.ref].b+"?":c.type==="edit"?c.def.title+" "+c.def.shots.map(function(s){return s.cap}).filter(Boolean).join(". "):c.type==="fact"?plain(c.hook)+" "+plain(c.body):plain(c.q||c.hook||"")+(c.opts?" "+c.opts.map(plain).join(" / "):"");
+function share(c){var ITX={lie:LIES,head:HEADS,guess:GUESS,spot:SPOT,emoji:EMO,top5:TOP5,eli:ELI,vlog:VLOG}[c.type],it0=ITX&&ITX[c.ref];
+  if(it0){var t0=c.type==="lie"?"Two truths and a lie: "+it0.s.map(function(x){return x[0]}).join(" / "):c.type==="head"?"Real or fake? "+it0.h:c.type==="emoji"?"Emoji riddle: "+it0.e:(it0.q||it0.title||"");t0+=" (from Critical)";if(navigator.share){navigator.share({title:"Critical",text:t0}).catch(function(){})}else if(navigator.clipboard){navigator.clipboard.writeText(t0).then(function(){toast("Copied to clipboard")},function(){})}return}
+  var txt=c.type==="chat"?CHAT[c.ref].title+": "+CHAT[c.ref].lesson:c.type==="meme"?memeText(MEME[c.ref]):c.type==="tier"?TIER[c.ref].title:c.type==="wyr"?"Would you rather "+WYR[c.ref].a+" or "+WYR[c.ref].b+"?":c.type==="edit"?c.def.title+" "+c.def.shots.map(function(s){return s.cap}).filter(Boolean).join(". "):c.type==="fact"?plain(c.hook)+" "+plain(c.body):plain(c.q||c.hook||"")+(c.opts?" "+c.opts.map(plain).join(" / "):"");
   txt+=" (from Critical)";
   if(navigator.share){navigator.share({title:"Critical",text:txt}).catch(function(){})}
   else if(navigator.clipboard){navigator.clipboard.writeText(txt).then(function(){toast("Copied to clipboard")},function(){toast("Couldn't copy")})}}
@@ -967,6 +1038,13 @@ var sy=null;sheet.addEventListener("touchstart",function(e){sy=sheet.scrollTop<=
 sheet.addEventListener("touchmove",function(e){if(sy!=null&&e.touches[0].clientY-sy>80){sy=null;closeSheet()}},{passive:true});
 var LEARN='<a class="go" href="critical.html">Learn this properly in Critical <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>';
 function explain(c,k){var h;
+  var X={lie:LIES,head:HEADS,guess:GUESS,spot:SPOT,emoji:EMO}[c.type];if(X&&X[c.ref]){var it=X[c.ref];openSheet('<h3>'+esc(it.q||it.title||it.h||"The answer")+'</h3><p>'+esc(it.ex)+'</p>'+LEARN);return}
+  if(c.type==="top5"){var P5=TOP5[c.ref];openSheet('<h3>'+esc(P5.title)+'</h3>'+P5.items.map(function(x,j){return'<p><b>#'+(5-j)+' '+x[0]+' '+esc(x[1])+'</b><br>'+esc(x[2])+'</p>'}).reverse().join("")+LEARN);return}
+  if(c.type==="eli"){var E3=ELI[c.ref];openSheet('<h3>'+esc(E3.q)+'</h3>'+E3.lv.map(function(x,j){return'<p><b>'+["🧸 Like I'm 5","📘 GCSE","🎓 Physicist"][j]+'</b><br>'+esc(x)+'</p>'}).join("")+LEARN);return}
+  if(c.type==="vlog"){var V3=VLOG[c.ref];openSheet('<h3>'+esc(V3.title)+'</h3>'+V3.steps.map(function(x){return'<p><b>'+esc(x[0])+' '+x[1]+'</b> '+esc(x[2])+'</p>'}).join("")+'<p>💡 '+esc(V3.lesson)+'</p>');return}
+  if(c.type==="build"){var Bd=window.CHAIN_BUILD.designs;openSheet('<h3>Real reactor designs</h3><p>💧 <b>PWR</b>: enriched uranium, water moderator and coolant.</p><p>🇨🇦 <b>CANDU</b>: natural uranium, heavy water.</p><p>👑 <b>Magnox</b>: natural uranium, graphite, CO₂.</p><p>🇬🇧 <b>AGR</b>: enriched uranium, graphite, CO₂.</p><p>🚀 <b>Fast breeder</b>: plutonium-rich fuel, no moderator, liquid sodium.</p><p>⚠️ <b>RBMK</b>: enriched uranium, graphite, water (Chernobyl).</p><p>🏭 <b>Hanford pile</b>: natural uranium, graphite, water (1940s plutonium production).</p>');return}
+  if(c.type==="geiger"){openSheet('<h3>About the readings</h3><p>These are rough counts per minute for a typical handheld Geiger counter. Real readings vary a lot between detectors and distances. Background radiation is everywhere: rocks, soil, the air and space.</p>'+LEARN);return}
+  if(c.type==="beat"){openBeat();return}
   if(c.type==="chat"){var C=CHAT[c.ref];openSheet('<h3>'+esc(C.title)+'</h3><p>'+esc(C.lesson)+'</p>'+LEARN);return}
   if(c.type==="meme"){openSheet('<h3>It\'s a meme, but it\'s true</h3><p>'+esc(memeText(MEME[c.ref]))+'</p><p>The characters are made up. The science in Chain memes is real.</p>'+LEARN);return}
   if(c.type==="tier"){var L=TIER[c.ref];openSheet('<h3>'+esc(L.title)+'</h3>'+L.items.map(function(it){return'<p><b>'+it[2]+' · '+it[0]+' '+esc(it[1])+'</b><br>'+esc(it[3])+'</p>'}).join("")+LEARN);return}
@@ -988,16 +1066,16 @@ tSaved.onclick=function(){setTab("saved");
   var h='<h3>Saved</h3>';
   if(!S.saved.length)h+='<p>Nothing saved yet. Tap the bookmark on any card to keep it here.</p>';
   else h+='<p>'+S.saved.length+' saved. Tap one to see it again.</p><div class="savedList">'+S.saved.map(function(s,i){var c=s.c,t=TOP[c.topic]||TOP.reactor;
-    return '<button class="si" data-sv="'+i+'"><span class="g">'+(c.glyph||(c.type==="chat"&&CHAT[c.ref]?chatAv(CHAT[c.ref]).slice(0,2):c.type==="meme"?"😂":c.type==="tier"?"🏆":c.type==="wyr"?"🤔":t.g))+'</span><div><b>'+(c.hook||c.q||esc(c.title||(c.type==="chat"&&CHAT[c.ref]?CHAT[c.ref].title:c.type==="tier"&&TIER[c.ref]?TIER[c.ref].title:c.type==="wyr"&&WYR[c.ref]?"Would you rather: "+WYR[c.ref].a:c.type==="meme"&&MEME[c.ref]?memeText(MEME[c.ref]).slice(0,70):"")))+'</b><small>'+t.n+' · '+(c.type==="fact"?"Fact":c.type==="sim"?"Try it":c.type==="edit"?"Edit":c.type==="story"?"Story":c.type==="chat"?"Text story":c.type==="meme"?"Meme":c.type==="tier"?"Tier list":c.type==="wyr"?"Would you rather":"Quiz")+'</small></div></button>'}).join("")+'</div>';
+    return '<button class="si" data-sv="'+i+'"><span class="g">'+(c.glyph||(c.type==="chat"&&CHAT[c.ref]?chatAv(CHAT[c.ref]).slice(0,2):c.type==="meme"?"😂":c.type==="tier"?"🏆":c.type==="wyr"?"🤔":({lie:"🕵️",head:"📰",guess:"🎯",spot:"🔍",build:"🛠️",geiger:"📟",vlog:"📱",top5:"🔢",eli:"🧠",emoji:"🧩"})[c.type]||t.g))+'</span><div><b>'+(c.hook||c.q||esc(c.title||(c.type==="chat"&&CHAT[c.ref]?CHAT[c.ref].title:c.type==="tier"&&TIER[c.ref]?TIER[c.ref].title:c.type==="wyr"&&WYR[c.ref]?"Would you rather: "+WYR[c.ref].a:c.type==="lie"&&LIES[c.ref]?"Two truths and a lie":c.type==="head"&&HEADS[c.ref]?HEADS[c.ref].h:c.type==="guess"&&GUESS[c.ref]?GUESS[c.ref].q:c.type==="spot"&&SPOT[c.ref]?"Spot the mistake: "+SPOT[c.ref].title:c.type==="top5"&&TOP5[c.ref]?TOP5[c.ref].title:c.type==="eli"&&ELI[c.ref]?ELI[c.ref].q:c.type==="emoji"&&EMO[c.ref]?"Emoji riddle "+EMO[c.ref].e:c.type==="vlog"&&VLOG[c.ref]?VLOG[c.ref].title:c.type==="build"?"Build a reactor":c.type==="geiger"?"Geiger counter":c.type==="meme"&&MEME[c.ref]?memeText(MEME[c.ref]).slice(0,70):"")))+'</b><small>'+t.n+' · '+(c.type==="fact"?"Fact":c.type==="sim"?"Try it":c.type==="edit"?"Edit":c.type==="story"?"Story":c.type==="chat"?"Text story":c.type==="meme"?"Meme":c.type==="tier"?"Tier list":c.type==="wyr"?"Would you rather":({lie:"Two truths and a lie",head:"Real or fake",guess:"Guess the number",spot:"Spot the mistake",build:"Build a reactor",geiger:"Geiger counter",vlog:"Day in the life",top5:"Top 5",eli:"Explain it 3 ways",emoji:"Emoji riddle"})[c.type]||"Quiz")+'</small></div></button>'}).join("")+'</div>';
   openSheet(h)};
-sheetIn.addEventListener("click",function(e){if(e.target.closest("[data-music]")){openMusic();return}var vt=e.target.closest("[data-vtog]");if(vt){setVoice(S.voice===false);vt.textContent=S.voice!==false?"🗣️ Voices: on":"🤐 Voices: off";if(S.voice!==false){vUnlock();say("Voices are on.","narr")}return}var s=e.target.closest("[data-sv]");if(s){var c=JSON.parse(JSON.stringify(S.saved[+s.dataset.sv].c));if(c.type==="quiz")c=mkQuiz(c.topic,c.q,[c.opts[c.ans]].concat(c.opts.filter(function(_,k){return k!==c.ans})),c.ex,c.id,c.label);insertNext(c);closeSheet();return}
+sheetIn.addEventListener("click",function(e){if(e.target.closest("[data-music]")){openMusic();return}if(e.target.closest("[data-beat]")){openBeat();return}var vt=e.target.closest("[data-vtog]");if(vt){setVoice(S.voice===false);vt.textContent=S.voice!==false?"🗣️ Voices: on":"🤐 Voices: off";if(S.voice!==false){vUnlock();say("Voices are on.","narr")}return}var s=e.target.closest("[data-sv]");if(s){var c=JSON.parse(JSON.stringify(S.saved[+s.dataset.sv].c));if(c.type==="quiz")c=mkQuiz(c.topic,c.q,[c.opts[c.ans]].concat(c.opts.filter(function(_,k){return k!==c.ans})),c.ex,c.id,c.label);insertNext(c);closeSheet();return}
   var tp=e.target.closest("[data-tp]");if(tp){var key=tp.dataset.tp;if(S.off[key])delete S.off[key];else{if(TK.filter(function(k){return!S.off[k]}).length<=1){toast("Keep at least one topic on");return}S.off[key]=1}
     tp.setAttribute("aria-pressed",!S.off[key]);save();refreshAhead()}});
 function insertNext(c){var at=active+1,el=build(c),k={c:c,el:el,t:0,dwell:0};feed.insertBefore(el,cards[at]?cards[at].el:null);cards.splice(at,0,k);setTimeout(function(){goTo(at)},60)}
 function refreshAhead(){ /* rebuild cards the user hasn't reached yet so topic changes apply */
   for(var i=cards.length-1;i>active+1;i--){cards[i].el.remove();cards.splice(i,1)}ensure()}
 document.getElementById("xpBtn").onclick=function(){var d=today(),acc=sess.q?Math.round(sess.ok/sess.q*100):null;
-  readSP();openSheet('<h3>Today</h3>'+spBlock()+'<p style="margin:10px 0 0;display:flex;gap:8px;flex-wrap:wrap"><button class="sbtn" data-music style="background:#a06bff;color:#fff">🎵 Edit music</button><button class="sbtn ghost" data-vtog>'+(S.voice!==false?"🗣️ Voices: on":"🤐 Voices: off")+'</button></p>'+'<p style="font-size:14px;margin-top:10px">Everything you earn in Chain is doubled and goes straight onto your Critical XP: your streak, daily goal and season pass. All 3 sound packs are on this month\'s pass, at 1,850, 4,000 and 4,250 points.</p><div class="stats" style="margin-bottom:14px"><div class="st"><b>'+d.n+'/'+GOAL+'</b><span>cards today</span></div><div class="st"><b>'+streak()+'</b><span>day streak</span></div><div class="st"><b>'+(d.xp*XPM).toLocaleString("en-GB")+'</b><span>XP today</span></div><div class="st"><b>'+(d.q?Math.round(d.ok/d.q*100)+"%":"–")+'</b><span>quiz accuracy</span></div></div>'+
+  readSP();openSheet('<h3>Today</h3>'+spBlock()+'<p style="margin:10px 0 0;display:flex;gap:8px;flex-wrap:wrap"><button class="sbtn" data-music style="background:#a06bff;color:#fff">🎵 Edit music</button><button class="sbtn" data-beat style="background:#ff3b5c;color:#fff">📵 Beat TikTok</button><button class="sbtn ghost" data-vtog>'+(S.voice!==false?"🗣️ Voices: on":"🤐 Voices: off")+'</button></p>'+'<p style="font-size:14px;margin-top:10px">Everything you earn in Chain is doubled and goes straight onto your Critical XP: your streak, daily goal and season pass. All 3 sound packs are on this month\'s pass, at 1,850, 4,000 and 4,250 points.</p><div class="stats" style="margin-bottom:14px"><div class="st"><b>'+d.n+'/'+GOAL+'</b><span>cards today</span></div><div class="st"><b>'+streak()+'</b><span>day streak</span></div><div class="st"><b>'+(d.xp*XPM).toLocaleString("en-GB")+'</b><span>XP today</span></div><div class="st"><b>'+(d.q?Math.round(d.ok/d.q*100)+"%":"–")+'</b><span>quiz accuracy</span></div></div>'+
   '<h3>Your feed</h3><p>Tap a topic to turn it off or on. Liking cards and taking your time on them also teaches the feed what you like.</p><div class="topics">'+TK.map(function(k){return '<button class="tp" data-tp="'+k+'" aria-pressed="'+!S.off[k]+'">'+TOP[k].g+' '+TOP[k].n+'</button>'}).join("")+'</div>'+
   '<p style="font-size:14px">Total from Chain: '+S.xp.toLocaleString("en-GB")+' XP · '+Object.keys(S.liked).length+' liked · '+S.saved.length+' saved</p>')};
 
@@ -1127,7 +1205,7 @@ var PLAYERS={},CHAT={},MEME={},TIER={},WYR={};
 (window.CHAIN_CHATS||[]).forEach(function(c){CHAT[c.id]=c});(window.CHAIN_MEMES||[]).forEach(function(c){MEME[c.id]=c});(window.CHAIN_TIERS||[]).forEach(function(c){TIER[c.id]=c});(window.CHAIN_WYR||[]).forEach(function(c){WYR[c.id]=c});
 function chatAv(C){var a=[];for(var id in C.p)if(id!==C.me)a.push(C.p[id].av);return C.group?a.slice(0,3).join(""):a[0]}
 function chatSub(C){if(!C.group)return C.play?"you're in this one: pick your replies":"online";var a=[];for(var id in C.p)a.push(C.p[id].n);return a.join(", ")}
-function chatHtml(c){var C=CHAT[c.ref];return '<div class="chchip">'+(C.play?'💬 Text story · you reply':'💬 Text story')+'</div><div class="chat"><div class="chhead"><span class="chav">'+chatAv(C)+'</span><div class="chtt"><b>'+esc(C.title)+'</b><small>'+esc(chatSub(C))+'</small></div><button class="chvo" data-act="voice" aria-label="Voices on or off" aria-pressed="'+(S.voice!==false)+'">'+(S.voice!==false?"🗣️":"🤐")+'</button></div><div class="chlog"></div><div class="chrep"></div><div class="chtap">tap the chat to speed up</div></div>'}
+function chatHtml(c){var C=CHAT[c.ref];return '<div class="chchip">'+(C.play?'💬 Text story · you reply':'💬 Text story')+'</div><div class="chat"><div class="chhead"><span class="chav'+(C.group?" grp":"")+'">'+chatAv(C)+'</span><div class="chtt"><b>'+esc(C.title)+'</b><small>'+esc(chatSub(C))+'</small></div><button class="chvo" data-act="voice" aria-label="Voices on or off" aria-pressed="'+(S.voice!==false)+'">'+(S.voice!==false?"🗣️":"🤐")+'</button></div><div class="chlog"></div><div class="chrep"></div><div class="chtap">tap the chat to speed up</div></div>'}
 PLAYERS.chat=function(el,k){var C=CHAT[k.c.ref],log=el.querySelector(".chlog"),rep=el.querySelector(".chrep"),tap=el.querySelector(".chtap"),q=[],run=0,T=0,fast=false,ended=false;
   function add(n){log.appendChild(n);log.scrollTop=log.scrollHeight}
   function bub(who,text){var P=C.p[who],me=who===C.me,d=document.createElement("div"),act=/^\*.*\*$/.test(text),big=false;try{big=text.length<=8&&/^[\p{Extended_Pictographic}‍️\s]+$/u.test(text)}catch(e){}
@@ -1152,7 +1230,7 @@ PLAYERS.chat=function(el,k){var C=CHAT[k.c.ref],log=el.querySelector(".chlog"),r
 function memeHtml(c){var M=MEME[c.ref],h="";
   if(M.t==="drake")h='<div class="meme drake"><div class="mrow no"><span class="mi">🙅</span><p>'+esc(M.no)+'</p></div><div class="mrow yes"><span class="mi">😌👉</span><p>'+esc(M.yes)+'</p></div></div>';
   else if(M.t==="brain")h='<div class="meme brain">'+M.lines.map(function(l,i){return'<div class="mrow b'+i+'"><p>'+esc(l)+'</p><span class="mi">'+["🧠","🧠✨","🧠⚡","🌌🧠"][i]+'</span></div>'}).join("")+'</div>';
-  else if(M.t==="nobody")h='<div class="meme nob"><p>Nobody:</p><p>Absolutely nobody:</p><p class="hl">'+esc(M.line)+'</p></div>';
+  else if(M.t==="nobody")h='<div class="meme nob"><p>Nobody:</p><p>Absolutely nobody:</p><p class="nhl">'+esc(M.line)+'</p></div>';
   else if(M.t==="top")h='<div class="meme mtop"><div class="tt">'+esc(M.top)+'</div><div class="mimg">'+M.img+'</div><div class="tb">'+esc(M.bot)+'</div></div>';
   else if(M.t==="tweet")h='<div class="meme tweet"><div class="th"><span class="tav">'+M.av+'</span><div><b>'+esc(M.name)+' <span class="tick">✔</span></b><small>'+esc(M.handle)+'</small></div></div><p>'+esc(M.text)+'</p><div class="tf"><span>💬 '+Math.max(1,Math.round(parseFloat(M.rts)/3))+'K</span><span>🔁 '+esc(M.rts)+'</span><span>❤️ '+esc(M.likes)+'</span></div></div>';
   else if(M.t==="expect")h='<div class="meme exp"><div class="mrow"><small>Expectation</small><span class="mi">'+M.ei+'</span><p>'+esc(M.et)+'</p></div><div class="mrow"><small>Reality</small><span class="mi">'+M.ri+'</span><p>'+esc(M.rt)+'</p></div></div>';
@@ -1182,23 +1260,163 @@ PLAYERS.wyr=function(el,k){var W=WYR[k.c.ref],box=el.querySelector(".wyr"),T=0;
   return{start:function(){clearTimeout(T);if(!box.classList.contains("done"))T=setTimeout(function(){if(cards[active]===k)say("Would you rather "+W.a+", or "+W.b+"?","hype")},700)},stop:function(){clearTimeout(T);hush()}}};
 
 /* ---------- picking the next card: a weighted shuffle that never repeats a format back to back ---------- */
-var KW_FEED={edit:26,chat:12,meme:11,wyr:6,tier:4,game:9,story:4,quiz:11,tf:4,gen:6,fact:5},KW_EDITS={edit:70,chat:7,meme:6,game:6,wyr:4,tier:2,story:2,quiz:2,gen:1};
+var KW_FEED={edit:20,chat:10,meme:9,wyr:5,tier:3,game:7,story:3,quiz:6,tf:2,gen:4,fact:3,lie:6,head:5,guess:5,spot:4,build:2,geiger:2,vlog:3,top5:4,eli:3,emoji:5},
+  KW_EDITS={edit:66,chat:6,meme:5,game:4,wyr:3,tier:2,story:2,quiz:1,gen:1,lie:3,head:3,guess:2,emoji:2,top5:2,vlog:1};
 function kindOf(c){if(!c)return null;var t=c.type;return t==="sim"?"game":t==="quiz"&&c.label?"gen":t}
 function pickItem(list,type){var recent={};cards.slice(-60).forEach(function(k){recent[k.c.id]=1});var c=list.filter(function(x){return!S.off[x.topic]&&!recent[x.id]});if(!c.length)c=list.filter(function(x){return!recent[x.id]});if(!c.length)return null;
   var mn=Infinity;c.forEach(function(x){mn=Math.min(mn,S.seen[x.id]||0)});var x=pick(c.filter(function(y){return(S.seen[y.id]||0)===mn}));return{type:type,topic:x.topic,id:x.id,ref:x.id}}
 function pickGame(){for(var tries=0;tries<6;tries++){var s=SIMLIST[SIMORD[simI++%SIMORD.length]],o={type:"sim",topic:s.topic,sim:s.sim,hook:s.hook,body:s.body,id:"sim-"+s.sim};if(s.mk){var m=s.mk();for(var mk in m)o[mk]=m[mk];o.id="sim-"+s.sim+"-"+m.v}if(!S.off[o.topic])return o}return null}
 function pickStoryCard(){if(!STORIES.length)return null;var sl=STORIES.filter(function(x){return!S.off[x.topic]});if(!sl.length)sl=STORIES;var recent={};cards.slice(-30).forEach(function(k){recent[k.c.id]=1});var s2=sl.filter(function(x){return!recent["story-"+x.id]});if(!s2.length)return null;var mn=Infinity;s2.forEach(function(x){mn=Math.min(mn,stInfo(x.id).n)});var pk=pick(s2.filter(function(x){return stInfo(x.id).n===mn}));return{type:"story",topic:pk.topic,sid:pk.id,id:"story-"+pk.id,title:pk.title}}
 function makeKind(k){if(k==="edit")return pickEdit();if(k==="chat")return pickItem(window.CHAIN_CHATS||[],"chat");if(k==="meme")return pickItem(window.CHAIN_MEMES||[],"meme");if(k==="tier")return pickItem(window.CHAIN_TIERS||[],"tier");if(k==="wyr")return pickItem(window.CHAIN_WYR||[],"wyr");
+  if(k==="lie")return pickItem(window.CHAIN_LIES||[],"lie");if(k==="head")return pickItem(window.CHAIN_HEADS||[],"head");if(k==="guess")return pickItem(window.CHAIN_GUESS||[],"guess");if(k==="spot")return pickItem(window.CHAIN_SPOT||[],"spot");
+  if(k==="top5")return pickItem(window.CHAIN_TOP5||[],"top5");if(k==="eli")return pickItem(window.CHAIN_ELI||[],"eli");if(k==="emoji")return pickItem(window.CHAIN_EMOJI||[],"emoji");if(k==="vlog")return pickItem(window.CHAIN_VLOGS||[],"vlog");
+  if(k==="build")return pickItem(BUILD_ITEM,"build");if(k==="geiger")return pickItem(GEIGER_ITEM,"geiger");
   if(k==="game")return pickGame();if(k==="story")return pickStoryCard();var topic=pickTopic();if(k==="quiz")return fromPool("quiz",topic);if(k==="tf")return fromPool("tf",topic);
   if(k==="fact"){var c=fromPool("fact",topic);if(c&&Math.random()<.1){var rc={};for(var kk in c)rc[kk]=c[kk];rc.rare=1;c=rc}return c}
   var gk=GENK.filter(function(x){return!S.off[GENTOPIC[x]]});return GEN[pick(gk.length?gk:GENK)]()}
 function wpick(W,skip){var tot=0,k;for(k in W)if(!skip[k])tot+=W[k];var r=Math.random()*tot;for(k in W){if(skip[k])continue;r-=W[k];if(r<=0)return k}return"quiz"}
+
+/* ---------- even more formats ---------- */
+var LIES={},HEADS={},GUESS={},SPOT={},TOP5={},ELI={},EMO={},VLOG={};
+[[window.CHAIN_LIES,LIES],[window.CHAIN_HEADS,HEADS],[window.CHAIN_GUESS,GUESS],[window.CHAIN_SPOT,SPOT],[window.CHAIN_TOP5,TOP5],[window.CHAIN_ELI,ELI],[window.CHAIN_EMOJI,EMO],[window.CHAIN_VLOGS,VLOG]].forEach(function(p){(p[0]||[]).forEach(function(x){p[1][x.id]=x})});
+var BUILD_ITEM=[{id:"build",topic:"reactor"}],GEIGER_ITEM=[{id:"geiger",topic:"radiation"}];
+
+/* two truths and a lie */
+function lieHtml(c){var L=LIES[c.ref],o=c.order||(c.order=shuf([0,1,2]));return '<div class="chchip">🕵️ Two truths and a lie</div><h2 class="hook">Which one is the lie?</h2><div class="lies">'+o.map(function(i){return'<button class="lie" data-l="'+i+'"><span class="lmark"></span>'+esc(L.s[i][0])+'</button>'}).join("")+'</div><div class="lex"></div>'}
+PLAYERS.lie=function(el,k){var L=LIES[k.c.ref],box=el.querySelector(".lies"),T=0;
+  box.addEventListener("click",function(e){var b=e.target.closest("[data-l]");if(!b||box.classList.contains("done"))return;box.classList.add("done");var i=+b.dataset.l,ok=!L.s[i][1];
+    box.querySelectorAll(".lie").forEach(function(x){var j=+x.dataset.l,isLie=!L.s[j][1];x.classList.add(isLie?"islie":"istrue");x.querySelector(".lmark").textContent=isLie?"🤥 LIE":"✅ TRUE"});if(!ok)b.classList.add("wrongpick");
+    el.querySelector(".lex").innerHTML='<b>'+(ok?"🕵️ Got it.":"😅 Fooled you.")+'</b> '+esc(L.ex);el.querySelector(".lex").classList.add("on");if(CE)CE.sfx(ok?"ok":"no");vib(ok?14:[20,30,20]);
+    if(!k.done){k.done=true;award(ok?4:1)}if(ok){sess.combo++;flame()}hush();say((ok?"Correct. ":"Nope. ")+L.ex,"narr")});
+  return{start:function(){clearTimeout(T);if(!box.classList.contains("done"))T=setTimeout(function(){if(cards[active]===k)say("Two truths and a lie. "+L.s.map(function(x){return x[0]}).join(". ")+".","hype")},600)},stop:function(){clearTimeout(T);hush()}}};
+
+/* real or fake headline */
+function headHtml(c){var H=HEADS[c.ref],d=new Date();return '<div class="chchip">📰 Real or fake?</div><div class="paper"><div class="pmast">'+esc(H.paper)+'</div><div class="pdate">'+d.toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"})+' · 60p</div><h3 class="phead">'+esc(H.h)+'</h3><div class="pimg">'+H.img+'</div><div class="pstamp"></div></div><div class="rfb"><button data-rf="1">✅ Real</button><button data-rf="0">🧢 Fake</button></div><div class="lex"></div>'}
+PLAYERS.head=function(el,k){var H=HEADS[k.c.ref],T=0,done=false;
+  el.querySelector(".rfb").addEventListener("click",function(e){var b=e.target.closest("[data-rf]");if(!b||done)return;done=true;var ok=(+b.dataset.rf===1)===!!H.real,st=el.querySelector(".pstamp");
+    st.textContent=H.real?"REAL":"FAKE";st.className="pstamp on "+(H.real?"real":"fake");b.classList.add(ok?"ok":"no");el.querySelector(".rfb").classList.add("done");
+    el.querySelector(".lex").innerHTML='<b>'+(ok?"✓ Spot on.":"✗ Got you.")+'</b> '+esc(H.ex);el.querySelector(".lex").classList.add("on");if(CE)CE.sfx(ok?"ok":"no");vib(ok?14:[20,30,20]);
+    if(!k.done){k.done=true;award(ok?3:1)}if(ok){sess.combo++;flame()}hush();say(H.ex,"narr")});
+  return{start:function(){clearTimeout(T);if(!done)T=setTimeout(function(){if(cards[active]===k)say("Real or fake? "+H.h,"hype")},600)},stop:function(){clearTimeout(T);hush()}}};
+
+/* guess the number */
+function fmtBig(v){if(v>=1e7||v<0.01){var e=Math.floor(Math.log10(v)),m=v/Math.pow(10,e);return(Math.round(m*10)/10)+"×10"+sup(e)}return v>=100?Math.round(v).toLocaleString("en-GB"):String(Math.round(v*10)/10)}
+function guessHtml(c){var G=GUESS[c.ref];return '<div class="chchip">🎯 Guess the number</div><h2 class="hook">'+esc(G.q)+'</h2><div class="gbox"><div class="gval"><b>?</b> <span>'+esc(G.unit)+'</span></div><div class="gtrack"><input type="range" min="0" max="1000" value="500" class="grange" aria-label="Your guess"><i class="gans"></i></div><div class="gscale"><span>'+fmtBig(G.min)+'</span><span>'+fmtBig(G.max)+'</span></div><button class="sbtn" data-gl>🔒 Lock it in</button></div><div class="lex"></div>'}
+PLAYERS.guess=function(el,k){var G=GUESS[k.c.ref],rg=el.querySelector(".grange"),val=el.querySelector(".gval b"),done=false,T=0;
+  function toV(x){x=x/1000;return G.log?Math.pow(10,Math.log10(G.min)+(Math.log10(G.max)-Math.log10(G.min))*x):G.min+(G.max-G.min)*x}
+  function toX(v){return G.log?(Math.log10(v)-Math.log10(G.min))/(Math.log10(G.max)-Math.log10(G.min)):(v-G.min)/(G.max-G.min)}
+  rg.addEventListener("input",function(){if(!done)val.textContent=fmtBig(toV(+rg.value))});val.textContent=fmtBig(toV(500));
+  el.querySelector("[data-gl]").addEventListener("click",function(e){if(done)return;done=true;var v=toV(+rg.value),r=G.log?Math.max(v,G.ans)/Math.min(v,G.ans):1+Math.abs(v-G.ans)/Math.max(1,G.ans),stars=r<=1.5?3:r<=3?2:r<=10?1:0;
+    rg.disabled=true;e.target.hidden=true;var a=el.querySelector(".gans");a.style.left=(toX(G.ans)*100)+"%";a.classList.add("on");
+    el.querySelector(".lex").innerHTML='<div class="gstars">'+"★★★".slice(0,stars)+'<span>'+"★★★".slice(stars)+'</span></div><b>You said '+fmtBig(v)+'. The answer: '+fmtBig(G.ans)+' '+esc(G.unit)+'.</b> '+esc(G.ex);el.querySelector(".lex").classList.add("on");
+    if(CE)CE.sfx(stars>=2?"ok":"no");vib(stars>=2?14:20);if(!k.done){k.done=true;award(1+stars*2)}if(stars===3)comboPop("🎯 Bullseye!");hush();say(["Way off.","Not bad.","Close!","Bullseye!"][stars]+" "+G.ex,"narr")});
+  return{start:function(){clearTimeout(T);if(!done)T=setTimeout(function(){if(cards[active]===k)say(G.q,"hype")},500)},stop:function(){clearTimeout(T);hush()}}};
+
+/* spot the mistake */
+function spotHtml(c){var P=SPOT[c.ref];return '<div class="chchip">🔍 Spot the mistake</div><h2 class="hook">'+esc(P.title)+'</h2><p class="body">'+esc(P.q)+'</p><div class="spot">'+P.lines.map(function(l,i){return'<button class="sl" data-sl="'+i+'"><span class="sn">'+(i+1)+'</span><span class="slt">'+esc(l)+'</span></button>'}).join("")+'</div><div class="shint">Tap the line with the mistake</div><div class="lex"></div>'}
+PLAYERS.spot=function(el,k){var P=SPOT[k.c.ref],box=el.querySelector(".spot"),tries=0,done=false;
+  box.addEventListener("click",function(e){var b=e.target.closest("[data-sl]");if(!b||done||b.classList.contains("fine"))return;var i=+b.dataset.sl;
+    if(i===P.bad){done=true;b.classList.add("bad");el.querySelector(".shint").textContent=tries?"Found it.":"First try. Examiner energy.";el.querySelector(".lex").innerHTML='<b>❌ Line '+(i+1)+'.</b> '+esc(P.ex);el.querySelector(".lex").classList.add("on");if(CE)CE.sfx("ok");vib(14);if(!k.done){k.done=true;award(tries?2:5)}hush();say(P.ex,"narr");if(!tries){sess.combo++;flame()}}
+    else{tries++;b.classList.add("fine");el.querySelector(".shint").textContent="That line's fine. Look again.";if(CE)CE.sfx("no");vib(20);if(tries>=2){done=true;var bb=box.querySelector('[data-sl="'+P.bad+'"]');bb.classList.add("bad");el.querySelector(".lex").innerHTML='<b>It was line '+(P.bad+1)+'.</b> '+esc(P.ex);el.querySelector(".lex").classList.add("on");if(!k.done){k.done=true;award(1)}}}});
+  return{stop:function(){hush()}}};
+
+/* build a reactor */
+function buildEval(f,m,c){
+  if(m==="lem")return["funny","🍋 The lemonade reactor","The lemonade caramelised onto the fuel and the control room now smells like a sweet shop. Lemonade is not a moderator. Water, heavy water or graphite would work."];
+  if(c==="hair")return["funny","💨 Hairdryer cooling","A 2 kW hairdryer against a few thousand megawatts of heat. The hairdryer tried its best. Try water, CO₂ gas or liquid sodium."];
+  if(c==="na"&&(m==="w"||m==="hw"))return["fail","💥 Sodium meets water","Liquid sodium reacts violently with water, so never put them together. Sodium-cooled reactors usually have no moderator at all."];
+  if(f==="fast"){if(m==="none"&&c==="na")return["win","🚀 Fast breeder reactor","No moderator, so the neutrons stay fast, and liquid sodium carries the heat away. It can make more plutonium than it burns. The UK ran fast reactors at Dounreay in Scotland.","fbr"];
+    if(m!=="none")return["meh","🐢 Wrong kind of neutron","This fuel is designed for fast neutrons, but your moderator slows them down. Take the moderator out."];return["meh","🌡️ Wrong coolant","Fast reactors need a coolant that doesn't slow neutrons down. Liquid sodium is the usual choice."]}
+  if(m==="none")return["fail","😴 Nothing happens","With no moderator the neutrons stay fast, and uranium-235 rarely fissions with fast neutrons. No chain reaction."];
+  if(f==="nat"){if(m==="w")return["fail","📉 It won't go critical","Light water absorbs too many neutrons for natural uranium. That's exactly why PWRs need enriched fuel."];
+    if(m==="hw")return c==="w"?["win","🇨🇦 CANDU","Heavy water absorbs so few neutrons that natural uranium works without any enrichment. That's Canada's CANDU design.","candu"]:["meh","🤔 Nearly CANDU","Heavy water with natural uranium is right. Real CANDUs are cooled by (heavy) water, not gas or sodium."];
+    if(m==="g"&&c==="co2")return["win","👑 Magnox","Natural uranium, graphite and CO₂ gas: the UK's first generation of reactors, starting with Calder Hall in 1956.","magnox"];
+    if(m==="g"&&c==="w")return["win","🏭 Hanford pile","Natural uranium, graphite and water cooling, like the 1940s Hanford reactors in the USA. They were built to make plutonium, not electricity.","hanford"]}
+  if(f==="enr"){if(m==="w"&&c==="w")return["win","💧 PWR","Enriched uranium with ordinary water as moderator and coolant: the world's most common reactor, like Sizewell B and Hinkley Point C.","pwr"];
+    if(m==="g"&&c==="co2")return["win","🇬🇧 AGR","Enriched uranium, graphite and hot CO₂ gas: the UK's Advanced Gas-cooled Reactors, like Heysham and Torness.","agr"];
+    if(m==="g"&&c==="w")return["warn","⚠️ RBMK","That's the Chernobyl design. It works, but at low power it can have a positive void coefficient: more steam means more power. Handle with extreme care.","rbmk"];
+    if(m==="hw")return["meh","💸 Overkill","It would work, but the whole point of heavy water is that you don't need to enrich the fuel."]}
+  if(m==="g"&&c==="na")return["meh","🤔 Unusual","Graphite with sodium cooling was tried in an early US experiment, but it never caught on."];
+  return["meh","🤔 Not a real design","No real reactor uses that mix. Try a moderator and coolant that work together."]}
+function buildHtml(){var B=window.CHAIN_BUILD,row=function(key,lab,list){return'<div class="brow"><small>'+lab+'</small><div class="bch">'+list.map(function(o,i){return'<button data-b'+key+'="'+o[0]+'"'+(i===0?' class="on"':'')+'>'+esc(o[1])+(o[2]?'<em>'+esc(o[2])+'</em>':'')+'</button>'}).join("")+'</div></div>'};
+  return '<div class="chchip">🛠️ Build a reactor</div><h2 class="hook bhook">Build a reactor that works</h2>'+row("f","Fuel",B.fuel)+row("m","Moderator",B.mod)+row("c","Coolant",B.cool)+'<button class="sbtn bgo" data-bgo>⚛️ Start it up</button><div class="bres"></div><div class="bfound"></div>'}
+PLAYERS.build=function(el,k){var B=window.CHAIN_BUILD,sel={f:"nat",m:"w",c:"w"},res=el.querySelector(".bres"),fd=el.querySelector(".bfound");S.builds=S.builds||{};
+  function paintFound(){var n=Object.keys(S.builds).length,t=Object.keys(B.designs).length;fd.innerHTML='Designs found: <b>'+n+' / '+t+'</b> '+Object.keys(B.designs).map(function(d){return'<span class="'+(S.builds[d]?"got":"")+'">'+(S.builds[d]?B.designs[d]:"???")+'</span>'}).join("")}
+  paintFound();
+  el.addEventListener("click",function(e){var b=e.target.closest("[data-bf],[data-bm],[data-bc]");if(b){var key=b.dataset.bf?"f":b.dataset.bm?"m":"c";sel[key]=b.dataset["b"+key];b.parentNode.querySelectorAll("button").forEach(function(x){x.classList.toggle("on",x===b)});res.className="bres";res.innerHTML="";if(CE)CE.sfx("pop");return}
+    if(!e.target.closest("[data-bgo]"))return;var r=buildEval(sel.f,sel.m,sel.c),isNew=r[3]&&!S.builds[r[3]];res.className="bres on r-"+r[0];res.innerHTML='<b>'+r[1]+'</b>'+esc(r[2])+(isNew?'<em>New design unlocked!</em>':'');
+    if(r[3]){S.builds[r[3]]=1;save();paintFound()}var inn=el.querySelector(".in");setTimeout(function(){inn.scrollTo({top:inn.scrollHeight,behavior:"smooth"})},80);if(r[0]==="win"){if(CE)CE.sfx("ok");vib([20,40,20]);if(isNew){award(6);confetti(res,40)}}else{if(CE)CE.sfx(r[0]==="funny"?"pop":"no");vib(30)}hush();say(r[1].replace(/^\S+\s/,"")+". "+r[2],"narr")});
+  return{stop:function(){hush()}}};
+
+/* geiger counter toy */
+function geigerHtml(){return '<div class="chchip">📟 Geiger counter · sound on</div><h2 class="hook">What\'s radioactive in your house?</h2><div class="gm"><div class="gdial"><i class="gnd"></i></div><div><b class="gcpm">25</b><small>counts per minute</small></div></div><div class="gitems">'+window.CHAIN_GEIGER.map(function(g,i){return'<button data-gi="'+i+'"'+(i===0?' class="on"':'')+'><span>'+g[0]+'</span>'+esc(g[1])+'</button>'}).join("")+'</div><div class="lex on">'+esc(window.CHAIN_GEIGER[0][3])+'</div>'}
+PLAYERS.geiger=function(el,k){var Gs=window.CHAIN_GEIGER,cur=0,shown=25,iv=0,tried={},nd=el.querySelector(".gnd"),num=el.querySelector(".gcpm"),lex=el.querySelector(".lex");
+  function rate(){return Gs[cur][2]}
+  function tick(){var lam=rate()/60*0.05,n=0,L=Math.exp(-lam),p=1;do{n++;p*=Math.random()}while(p>L);n--;for(var i=0;i<Math.min(n,6);i++)(function(d){setTimeout(function(){if(CE&&S.sound!==false)CE.sfx("click");nd.classList.remove("hit");void nd.offsetWidth;nd.classList.add("hit")},d)})(Math.random()*50);
+    shown+=(rate()*(0.9+Math.random()*.2)-shown)*.08;num.textContent=Math.round(shown).toLocaleString("en-GB");nd.style.transform="rotate("+(-70+140*Math.min(1,Math.log10(Math.max(10,shown))/Math.log10(5000)))+"deg)"}
+  el.querySelector(".gitems").addEventListener("click",function(e){var b=e.target.closest("[data-gi]");if(!b)return;cur=+b.dataset.gi;el.querySelectorAll(".gitems button").forEach(function(x){x.classList.toggle("on",x===b)});lex.textContent=Gs[cur][3];tried[cur]=1;
+    if(Object.keys(tried).length>=4&&!k.done){k.done=true;award(4);toast("📟 Radiation detective +"+4*XPM+" XP")}hush();say(Gs[cur][1]+". "+Gs[cur][3],"narr")});
+  return{start:function(){clearInterval(iv);iv=setInterval(tick,50)},stop:function(){clearInterval(iv);hush()}}};
+
+/* day in the life */
+function vlogHtml(c){var V=VLOG[c.ref];return '<div class="vlog"><div class="vbars">'+V.steps.map(function(){return'<i><b></b></i>'}).join("")+'</div><div class="vhead"><span class="vav">'+V.av+'</span><b>'+esc(V.title)+'</b></div><div class="vstage"><div class="vtime"></div><div class="vem"></div><p class="vtx"></p></div><div class="vnav"><button data-vp aria-label="Back"></button><button data-vn aria-label="Next"></button></div><div class="vend"></div></div>'}
+PLAYERS.vlog=function(el,k){var V=VLOG[k.c.ref],i=0,run=0,T=0,t0=0,raf=0,dur=3800,bars=el.querySelectorAll(".vbars i b"),tm=el.querySelector(".vtime"),em=el.querySelector(".vem"),tx=el.querySelector(".vtx"),endEl=el.querySelector(".vend");
+  function paint(){bars.forEach(function(b,j){b.style.transform="scaleX("+(j<i?1:0)+")"})}
+  function show(r){if(r!==run)return;if(i>=V.steps.length){finish();return}var s=V.steps[i];paint();endEl.classList.remove("on");tm.textContent=s[0];em.textContent=s[1];tx.textContent=s[2];[tm,em,tx].forEach(function(x){x.classList.remove("vin");void x.offsetWidth;x.classList.add("vin")});if(CE)CE.sfx("pop");
+    t0=performance.now();var spoke=vOn()?say(s[0].replace(/:/," ")+". "+s[2],"narr"):Promise.resolve(),min=new Promise(function(res){T=setTimeout(res,vOn()?1200:dur)});cancelAnimationFrame(raf);
+    (function f(){var e=Math.min(1,(performance.now()-t0)/dur);if(bars[i])bars[i].style.transform="scaleX("+e+")";if(e<1&&r===run)raf=requestAnimationFrame(f)})();
+    Promise.all([spoke,min]).then(function(){if(r!==run)return;T=setTimeout(function(){if(r===run){i++;show(r)}},350)})}
+  function finish(){paint();bars.forEach(function(b){b.style.transform="scaleX(1)"});endEl.innerHTML='<b>💡 '+esc(V.lesson)+'</b><button data-vagain>↻ Watch again</button>';endEl.classList.add("on");if(!k.done){k.done=true;award(3)}}
+  el.addEventListener("click",function(e){if(e.target.closest("[data-vagain]")){i=0;run++;show(run);return}if(e.target.closest("[data-vn]")){if(i<V.steps.length){hush();clearTimeout(T);i++;run++;show(run)}return}if(e.target.closest("[data-vp]")){hush();clearTimeout(T);i=Math.max(0,i-1);run++;show(run)}});
+  return{start:function(){i=0;run++;hush();show(run)},stop:function(){run++;clearTimeout(T);cancelAnimationFrame(raf);hush()}}};
+
+/* top 5 countdown */
+function top5Html(c){var P=TOP5[c.ref];return '<div class="chchip">🔢 Top 5</div><h2 class="hook">'+esc(P.title)+'</h2><div class="t5">'+P.items.map(function(it,j){return'<div class="t5r" data-r="'+(5-j)+'"><span class="t5n">#'+(5-j)+'</span><span class="t5e">'+it[0]+'</span><div><b>'+esc(it[1])+'</b><small>'+esc(it[2])+'</small></div></div>'}).reverse().join("")+'</div><button class="sbtn t5go" data-t5>Reveal #5</button>'}
+PLAYERS.top5=function(el,k){var P=TOP5[k.c.ref],n=0,btn=el.querySelector("[data-t5]");
+  btn.addEventListener("click",function(){if(n>=5)return;var it=P.items[n],row=el.querySelector('.t5r[data-r="'+(5-n)+'"]');row.classList.add("on");n++;if(CE)CE.sfx(n===5?"ok":"pop");vib(n===5?[20,40,60]:10);
+    hush();say("Number "+(6-n)+". "+it[1]+". "+it[2],n===5?"hype":"narr");if(n<5)btn.textContent="Reveal #"+(5-n);else{btn.hidden=true;confetti(row,30);if(!k.done){k.done=true;award(3)}}});
+  return{start:function(){if(!n)setTimeout(function(){if(cards[active]===k)say(P.title,"hype")},500)},stop:function(){hush()}}};
+
+/* explain it three ways */
+function eliHtml(c){var E=ELI[c.ref];return '<div class="chchip">🧠 Explain it 3 ways</div><h2 class="hook">'+esc(E.q)+'</h2><div class="eltabs"><button data-el="0" class="on">🧸 Like I\'m 5</button><button data-el="1">📘 GCSE</button><button data-el="2">🎓 Physicist</button></div><div class="eltext">'+esc(E.lv[0])+'</div><div class="elhint">Tap through all three</div>'}
+PLAYERS.eli=function(el,k){var E=ELI[k.c.ref],seen={0:1},tx=el.querySelector(".eltext"),T=0;
+  el.querySelector(".eltabs").addEventListener("click",function(e){var b=e.target.closest("[data-el]");if(!b)return;var i=+b.dataset.el;seen[i]=1;el.querySelectorAll(".eltabs button").forEach(function(x){x.classList.toggle("on",x===b)});tx.textContent=E.lv[i];tx.classList.remove("vin");void tx.offsetWidth;tx.classList.add("vin");if(CE)CE.sfx("pop");
+    if(Object.keys(seen).length===3&&!k.done){k.done=true;award(3);el.querySelector(".elhint").textContent="Big brain unlocked 🧠 +"+3*XPM+" XP"}hush();say(E.lv[i],["mum","narr","posh"][i])});
+  return{start:function(){clearTimeout(T);T=setTimeout(function(){if(cards[active]===k)say(E.q+" "+E.lv[0],"mum")},500)},stop:function(){clearTimeout(T);hush()}}};
+
+/* emoji riddles */
+function emojiHtml(c){var M=EMO[c.ref],o=c.order||(c.order=shuf([0,1,2,3]));return '<div class="chchip">🧩 Emoji riddle</div><div class="emq">'+M.e+'</div><p class="body" style="text-align:center">What does it mean?</p><div class="opts emo">'+o.map(function(i,j){return'<button class="opt" data-em="'+i+'"><span class="k">'+"ABCD"[j]+'</span><span>'+esc(M.opts[i])+'</span></button>'}).join("")+'</div><div class="lex"></div>'}
+PLAYERS.emoji=function(el,k){var M=EMO[k.c.ref],box=el.querySelector(".emo");
+  box.addEventListener("click",function(e){var b=e.target.closest("[data-em]");if(!b||box.classList.contains("done"))return;box.classList.add("done");var ok=b.dataset.em==="0";
+    box.querySelectorAll(".opt").forEach(function(x){x.classList.add(x.dataset.em==="0"?"ok":x===b?"no":"fade")});el.querySelector(".lex").innerHTML='<b>'+(ok?"🧩 Solved.":"Not quite.")+'</b> '+esc(M.ex);el.querySelector(".lex").classList.add("on");
+    if(CE)CE.sfx(ok?"ok":"no");vib(ok?14:[20,30,20]);if(!k.done){k.done=true;award(ok?3:1)}if(ok){sess.combo++;flame()}hush();say(M.opts[0]+". "+M.ex,"narr")});
+  return{stop:function(){hush()}}};
+
+/* ---------- beating the TikTok habit ----------
+   Open Chain with ?from=tiktok (for example from an iPhone Shortcuts automation that runs whenever TikTok opens)
+   and it counts as a swap. The count and the setup guide live in the "Beat TikTok" sheet. */
+S.swaps=S.swaps||[];
+function weekSwaps(){var cut=Date.now()-7*864e5;return S.swaps.filter(function(t){return t>cut}).length}
+function swapLink(){return location.origin+location.pathname+"?from=tiktok"}
+function openBeat(){var w=weekSwaps(),tot=S.swaps.length;
+  openSheet('<h3>📵 Beat TikTok</h3><div class="stats" style="margin-bottom:12px"><div class="st"><b>'+w+'</b><span>swaps this week</span></div><div class="st"><b>'+tot+'</b><span>swaps ever</span></div></div>'+
+   '<p>The trick isn’t willpower. It’s making TikTok slightly harder to open on autopilot, and putting something better in its place.</p>'+
+   '<p><b>iPhone: make TikTok open Chain instead</b><br>1. Open the <b>Shortcuts</b> app → <b>Automation</b> → <b>+</b><br>2. Choose <b>App</b>, pick <b>TikTok</b>, tick <b>Is Opened</b>, choose <b>Run Immediately</b><br>3. Add the action <b>Open URLs</b> and paste your Chain link (button below)<br>4. Done. Now every time you open TikTok, Chain pops up, and it counts as a swap here.</p>'+
+   '<p><button class="sbtn" data-copyswap>📋 Copy my Chain link</button></p>'+
+   '<p><b>Set a limit that actually holds</b><br>iPhone: Settings → Screen Time → App Limits → TikTok → 30 minutes. Ask a parent to set the Screen Time passcode so you can’t just tap “ignore”.<br>Android: Settings → Digital Wellbeing → TikTok → App timer.</p>'+
+   '<p><b>Small changes that help a lot</b><br>• Move TikTok off your home screen and put Chain where it was<br>• Turn TikTok notifications off<br>• Charge your phone outside your bedroom at night<br>• Try one TikTok-free day a week</p>'+
+   '<p class="mnote">On your computer, the Critical Browser already blocks TikTok until your plan for the day is done.</p>')}
+sheetIn.addEventListener("click",function(e){if(e.target.closest("[data-copyswap]")){var l=swapLink();(navigator.clipboard?navigator.clipboard.writeText(l):Promise.reject()).then(function(){toast("📋 Copied. Paste it into Shortcuts")},function(){prompt("Copy this link:",l)})}});
+(function(){var q=location.search||"";if(/[?&]from=tiktok/.test(q)){S.swaps.push(Date.now());if(S.swaps.length>2000)S.swaps=S.swaps.slice(-2000);save();
+  try{history.replaceState(null,"",location.pathname+location.hash)}catch(e){}
+  var n=weekSwaps();setTimeout(function(){bigWin("💪","You chose Chain over TikTok","That’s swap #"+n+" this week. Every one breaks the habit a bit more.","<button class=\"sbtn\" data-wclose>Let’s go</button>")},700)}})();
 /* ---------- checkpoint ---------- */
 function mins(ms){var m=Math.round(ms/60000);return m<1?"under a minute":m===1?"1 minute":m+" minutes"}
 function renderCheck(k){var el=k.el.querySelector(".chk"),ms=Date.now()-sess.t0,acc=sess.q?Math.round(sess.ok/sess.q*100)+"%":"–",d=today(),m=ms/60000;
   var nudge=m>=25?'<div class="nudge"><p><b>You\'ve been here '+mins(ms)+'.</b> That\'s a full lesson\'s worth of learning, not doom scrolling. Nice. Keep going if you\'re enjoying it, or turn it into proper progress.</p><div class="srow"><a class="sbtn" href="critical.html">Open a Critical lesson</a><a class="sbtn ghost" href="index.html">Back to menu</a></div></div>'
    :d.n>=GOAL?'<div class="nudge"><p>🔥 Daily goal done. <b>'+streak()+'-day streak.</b> Everything from here is a bonus.</p></div>'
    :'<div class="nudge"><p><b>'+(GOAL-d.n)+' more cards</b> to hit today\'s goal and keep your streak going.</p></div>';
+  var swp=weekSwaps();nudge+='<div class="nudge"><p>📵 <b>'+swp+' TikTok swap'+(swp===1?"":"s")+'</b> this week.</p><div class="srow"><button class="sbtn ghost" data-act="beat">'+(S.swaps.length?"See your swaps":"Make TikTok open Chain")+'</button></div></div>';
   el.innerHTML='<div class="chip">⚡ Checkpoint</div><h2 class="hook">'+pick(["Your brain on Critical.","That's real learning.","Look at you go.","Chain reaction: sustained."])+'</h2>'+
    spBlock()+'<div class="stats"><div class="st"><b>'+sess.n+'</b><span>cards this session</span></div><div class="st"><b>'+acc+'</b><span>quiz accuracy</span></div><div class="st"><b>+'+sess.xp.toLocaleString("en-GB")+'</b><span>XP to Critical</span></div><div class="st"><b>'+Math.max(1,Math.round(m))+'</b><span>minute'+(Math.round(m)>1?'s':'')+'</span></div></div>'+nudge+
    '<div class="swipe"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M6 11l6-6 6 6"/></svg>Swipe up to keep going</div>'}
