@@ -1,0 +1,196 @@
+/* Chain fun content: text-message skits, memes, tier lists, would-you-rather, and more stories.
+   Everything here is meant to be funny AND true. Characters are made up (no real people's accounts). */
+
+/* ---------- text-message skits ----------
+   p: people {id:{n:name, av:avatar, col:colour, v:voice}}  me: whose messages sit on the right
+   m: messages [who, text]  ("!" = system line, "*text*" = an action, "?" = you pick a reply: [[reply, [messages that follow]]]) */
+window.CHAIN_CHATS=[
+{id:"c-uranium",topic:"atoms",title:"U-235 vs U-238",me:"a",
+ p:{a:{n:"U-235",av:"🟢",col:"#5DCAA5",v:"hype"},b:{n:"U-238",av:"🟤",col:"#c49a6c",v:"deep"}},
+ m:[["a","bro I just got hit by a slow neutron and split in half 💀"],["b","skill issue"],["b","I just absorbed mine and kept it"],["a","and now what"],["b","now I'm U-239"],["b","give it a few days and I'm plutonium 😎"],["a","wait so you GLOW UP when you get hit??"],["b","it's called character development"],["a","I release 200 MeV and 2 or 3 neutrons every time"],["a","I literally run the whole reactor"],["b","you're 0.7% of natural uranium"],["b","I'm 99.3%"],["a","quality over quantity 💅"]],
+ lesson:"U-235 splits when it catches a slow neutron. U-238 usually just absorbs it, becomes U-239, and decays into plutonium-239. Natural uranium is 99.3% U-238."},
+{id:"c-rods",topic:"reactor",title:"Control room group chat 🔴",me:"rod",group:1,
+ p:{rod:{n:"Control rod",av:"🎛️",col:"#a06bff",v:"narr"},boron:{n:"Boron",av:"🧂",col:"#F2C46D",v:"high"},water:{n:"Water",av:"💧",col:"#3ad4ff",v:"calm"},op:{n:"The operator",av:"👷",col:"#ff7a59",v:"deep"}},
+ m:[["op","Raising power by 5%. Pulling the rods out a bit."],["rod","every time I get comfy 😩"],["water","don't worry, I'll slow the neutrons down for you"],["boron","and I'm literally dissolved in the water doing half the work"],["boron","nobody ever thanks the boron"],["rod","you're a chemical, not a coworker"],["op","SCRAM drill in 5 minutes."],["rod","my favourite part. gravity does everything 😌"],["water","if anyone gets too hot I expand, moderate less, and power drops by itself"],["op","That's a negative temperature coefficient, and it's why I sleep at night."],["boron","you work nights"],["op","…why I sleep in the DAY then."]],
+ lesson:"PWRs control power with control rods for quick changes and boron in the water for slow ones. Water adds automatic safety: hotter water moderates less, so power falls by itself."},
+{id:"c-neutron",topic:"reactor",title:"A neutron texts its mum",me:"n",
+ p:{n:{n:"Neutron",av:"⚪",col:"#dfe6ff",v:"hype"},m:{n:"Mum",av:"👩",col:"#ff8fd0",v:"mum"}},
+ m:[["n","mum I've just been born in a fission and I'm going 20,000 km/s"],["m","slow down sweetie"],["n","I'm trying!! I keep bumping into water molecules"],["m","that's good, they're the moderator"],["n","ok I'm down to about 2 km/s now. everything feels so chill"],["m","that's called being thermal 🥰"],["n","a uranium-235 nucleus is looking at me"],["m","be careful"],["n","too late"],["n","it split 💀 there are THREE of me now"],["m","WHAT"],["n","and we're all going 20,000 km/s"],["m","here we go again"]],
+ lesson:"Fission neutrons are born fast, about 20,000 km/s. The moderator slows them to about 2.2 km/s, where U-235 is far more likely to absorb one and split, releasing 2 or 3 new fast neutrons."},
+{id:"c-xenon",topic:"reactor",title:"The reactor vs Xenon-135",me:"r",group:1,
+ p:{r:{n:"Reactor",av:"⚛️",col:"#a06bff",v:"narr"},x:{n:"Xenon-135",av:"😈",col:"#9cff3a",v:"villain"},o:{n:"Operator",av:"👷",col:"#ff7a59",v:"deep"}},
+ m:[["o","Right, shutting down for a couple of hours."],["r","finally, a nap 😴"],["x","hey bestie 😈"],["r","who invited you"],["x","iodine-135 did. I'm its daughter"],["o","OK, let's restart."],["r","I… can't. something's eating all my neutrons"],["x","that would be me 🍽️"],["x","one of the biggest neutron appetites ever measured"],["o","How long are you staying?"],["x","I peak about 10 hours after shutdown 💅"],["x","then I slowly decay away"],["o","This is why we call it the xenon pit."],["r","can I block her"]],
+ lesson:"After a shutdown, iodine-135 keeps decaying into xenon-135, which absorbs neutrons extremely well. Xenon peaks about 10 hours later and can stop a restart."},
+{id:"c-club",topic:"radiation",title:"Alpha, Beta and Gamma try to get into the club",me:"g",group:1,
+ p:{a:{n:"Alpha",av:"🔴",col:"#ff4d4d",v:"deep"},b:{n:"Beta",av:"🔵",col:"#3ad4ff",v:"hype"},g:{n:"Gamma",av:"🟢",col:"#9cff3a",v:"calm"},p:{n:"Paper (bouncer)",av:"📄",col:"#e8e8e8",v:"narr"},al:{n:"Aluminium",av:"🥫",col:"#b8c2cc",v:"robot"},l:{n:"Lead",av:"🧱",col:"#8a8f99",v:"villain"}},
+ m:[["p","Names?"],["a","Alpha. 2 protons, 2 neutrons. I'm a big deal"],["p","Not getting past me."],["a","a SHEET OF PAPER?? 😤"],["b","move, I'm going through"],["b","*goes straight through the paper*"],["al","A few millimetres of me says no."],["b","ugh"],["g","hi"],["g","*walks through the paper, the aluminium and the wall*"],["l","I'll slow you down."],["g","a bit 💅"],["l","Then stack more of me."],["a","for the record, if I get INSIDE someone I'm the most dangerous one here"],["p","That's exactly why we keep you out."]],
+ lesson:"Alpha is stopped by paper but is the most damaging inside the body. Beta is stopped by a few mm of aluminium. Gamma is only cut down by thick lead or concrete."},
+{id:"c-mum",topic:"radiation",title:"Mum finds out what I'm revising at 1am",me:"me",
+ p:{me:{n:"Me",av:"😴",col:"#a06bff",v:"narr"},m:{n:"Mum",av:"👩",col:"#ff8fd0",v:"mum"}},
+ m:[["m","why is your light still on"],["me","learning about xenon poisoning"],["m","is that a game"],["me","it's when a reactor poisons itself"],["m","should I be worried"],["me","no. the reactor should"],["m","go to sleep"],["me","ok but did you know bananas are radioactive"],["m","I just bought 12 bananas"],["me","you'd need about 50 million at once for it to be dangerous"],["m","I'll have 11 then"],["me","also you're radioactive. about 4,000 decays a second"],["m","I'm turning the wifi off"],["!","Wifi has left the chat"]],
+ lesson:"Bananas contain potassium-40, but one gives a tiny dose, about 0.1 μSv. Your body has about 4,000 radioactive decays a second, mostly potassium-40 and carbon-14."},
+{id:"c-sun",topic:"atoms",title:"The Sun's group chat ☀️",me:"he",group:1,
+ p:{s:{n:"The Sun",av:"☀️",col:"#F2C46D",v:"deep"},h:{n:"Hydrogen",av:"🔴",col:"#ff7a59",v:"high"},he:{n:"Helium",av:"🎈",col:"#ff8fd0",v:"hype"},e:{n:"E = mc²",av:"📐",col:"#cdb0ff",v:"robot"}},
+ m:[["h","I keep getting squished into helium 😩"],["s","It's literally your job."],["s","600 million tonnes of you, every second."],["he","hi I'm new here 👋"],["h","you used to be FOUR of us"],["he","glow up"],["s","Anyway, we keep losing 4 million tonnes a second."],["he","where does it go??"],["e","hi 👋 I turn it into light"],["s","And that's why Earth gets summer."],["h","how long can we keep this up"],["s","About another 5 billion years."],["h","ok cool I'll pace myself"]],
+ lesson:"The Sun fuses about 600 million tonnes of hydrogen into helium every second. Four hydrogen nuclei make one helium, and about 4 million tonnes of mass a second becomes energy, by E = mc²."},
+{id:"c-rtg",topic:"space",title:"My phone vs Voyager's nuclear battery",me:"p",
+ p:{p:{n:"My phone",av:"📱",col:"#ff4d4d",v:"high"},v:{n:"Voyager's RTG",av:"🛰️",col:"#cdb0ff",v:"robot"}},
+ m:[["p","3% battery 😰"],["v","lol"],["p","how long have you been running"],["v","since 1977"],["p","on ONE charge??"],["v","plutonium-238. half-life 88 years"],["p","I need a charger after one scroll session"],["v","skill issue"],["p","what's your secret"],["v","decay makes heat. I turn the heat straight into electricity"],["v","no moving parts. no charger. no drama"],["p","can I borrow some"],["v","no"],["p","*dies at 1%*"]],
+ lesson:"Voyager runs on radioisotope thermoelectric generators: decaying plutonium-238 makes heat, and thermocouples turn it straight into electricity. They've been running since 1977."},
+{id:"c-atom",topic:"atoms",title:"Electron, proton and neutron's group chat",me:"e",group:1,
+ p:{e:{n:"Electron",av:"⚡",col:"#3ad4ff",v:"hype"},pr:{n:"Proton",av:"➕",col:"#ff4d4d",v:"deep"},n:{n:"Neutron",av:"⚪",col:"#dfe6ff",v:"calm"}},
+ m:[["e","why am I so attracted to you"],["pr","opposite charges, babe ⚡"],["n","I'm just here"],["e","you're so heavy though"],["pr","about 1,836 times heavier than you, yes"],["n","me too, roughly"],["e","and you two just sit in the middle all day"],["pr","the strong force holds us together 💪"],["n","it's the only thing stopping the protons pushing each other apart"],["e","and I just zoom around outside"],["pr","the atom is mostly empty space because of you"],["e","it's called having my own space"]],
+ lesson:"Protons and neutrons are about 1,836 times heavier than electrons. They sit in the tiny nucleus, held together by the strong force, while electrons fill the much bigger space around it."},
+{id:"c-pluto",topic:"space",title:"The planets' group chat, 2006",me:"pl",group:1,
+ p:{pl:{n:"Pluto",av:"🥲",col:"#c49a6c",v:"high"},as:{n:"Astronomers",av:"🔭",col:"#e8e8e8",v:"robot"},j:{n:"Jupiter",av:"🟠",col:"#F2C46D",v:"deep"},e:{n:"Earth",av:"🌍",col:"#3ad4ff",v:"calm"}},
+ m:[["as","Update: Pluto is now a dwarf planet."],["pl","excuse me??"],["j","be honest Pluto, you haven't cleared your orbit"],["pl","I've been busy"],["e","you're smaller than our Moon tbh"],["pl","wow"],["pl","plutonium was named after me btw"],["j","and uranium was named after Uranus"],["e","neptunium after Neptune"],["pl","so the periodic table is basically my fan club"],["as","Pretty much, yes."],["pl","I'm still a planet in my heart 💔"]],
+ lesson:"In 2006 Pluto was reclassified as a dwarf planet because it hasn't cleared its orbit. Uranium, neptunium and plutonium are named after Uranus, Neptune and Pluto."},
+{id:"c-super",topic:"ops",title:"Your supervisor, 3am, mid-emergency",me:"me",play:1,
+ p:{s:{n:"Supervisor",av:"👷‍♀️",col:"#ff7a59",v:"boss"},me:{n:"You",av:"🧑",col:"#a06bff",v:"narr"}},
+ m:[["s","Reactor's tripped. Start auxiliary feed pump B."],
+  ["?",[["👍",[["s","…"],["s","A thumbs up is not three-way communication."],["s","What did I just ask you to do?"],["?",[["Start auxiliary feed pump B.",[["s","That is correct. 👌"]]],["the pump thing",[["s","I'm writing you up."],["s","Start. Auxiliary. Feed. Pump. B."]]]]]]],
+   ["Start auxiliary feed pump B.",[["s","That is correct. 👌"]]],
+   ["on it bestie",[["s","Did you just call me bestie during an emergency?"],["s","Repeat it back properly."],["?",[["Start auxiliary feed pump B.",[["s","That is correct. And don't call me bestie. 👌"]]]]]]]]],
+  ["s","Is pump B running?"],
+  ["?",[["Pump B is running. Flow is rising.",[["s","Good. That's how it's done."]]],["yeah prob",[["s","'Prob' is not a word we use in a control room."],["s","Check it and tell me what you see."],["me","Pump B is running. Flow is rising."],["s","Better."]]]]]],
+ lesson:"Three-way communication: the sender gives the order, the receiver repeats it back word for word, and the sender says “That is correct”. It catches mishearings before anyone touches anything."},
+{id:"c-crush",topic:"chem",title:"Texting your crush, but make it physics",me:"me",play:1,
+ p:{c:{n:"Your crush",av:"😊",col:"#ff8fd0",v:"mum"},me:{n:"You",av:"🧑",col:"#a06bff",v:"narr"}},
+ m:[["c","hey 👋"],
+  ["?",[["Are you made of copper and tellurium? Because you're Cu-Te",[["c","…did you just use the periodic table on me"],["c","ok that was actually good 😂"]]],
+   ["You must be a neutron, because you're attractive and have no charge",[["c","neutrons aren't attracted to anything"],["c","that's literally the point of having no charge 💀"],["c","0/10 physics"]]],
+   ["Are you U-235? Because I'm going critical",[["c","you're going to need some control rods"],["c","7/10 for effort though"]]]]],
+  ["c","ok what are you up to"],
+  ["?",[["Learning reactor physics",[["c","so you're the person who knows bananas are radioactive"],["c","respect"]]],["Doom scrolling",[["c","same 😭"],["c","wait isn't there an app that's basically that but you learn stuff"]]]]]],
+ lesson:"Cu is copper and Te is tellurium. Neutrons have no charge, so they aren't attracted to anything electrically, which is exactly why they can slip into a nucleus so easily."},
+{id:"c-handover",topic:"ops",title:"Night shift → day shift handover",me:"n",
+ p:{n:{n:"Night shift",av:"🌙",col:"#7a5cff",v:"calm"},d:{n:"Day shift",av:"☀️",col:"#F2C46D",v:"boss"}},
+ m:[["n","handover time"],["d","How was the night?"],["n","plant's at 100%. one alarm at 3am, sorted. log's up to date"],["d","What was the alarm?"],["n","a valve position light said open. the valve was actually shut"],["d","You checked it another way?"],["n","pipe temperature and flow. never trust one indication"],["d","Three Mile Island flashbacks."],["n","exactly. also the coffee machine is broken"],["d","WHAT"],["n","that's the real emergency"],["d","I'm putting that in the log."]],
+ lesson:"Shift handovers pass on plant status, alarms and anything odd. Checking one reading against others is a habit learned from Three Mile Island, where a misleading valve light confused the crew."},
+{id:"c-cat",topic:"space",title:"Schrödinger's cat texts from the box",me:"c",
+ p:{c:{n:"The cat",av:"🐱",col:"#F2C46D",v:"high"},s:{n:"The physicist",av:"🧑‍🔬",col:"#3ad4ff",v:"narr"}},
+ m:[["c","am I alive or not"],["s","Until someone opens the box, the idea is you're in a superposition of both."],["c","so I'm alive AND not alive"],["s","In the thought experiment, yes."],["c","that's a lot of pressure for a Tuesday"],["s","It's meant to show how weird quantum rules look if you apply them to everyday things."],["c","can you open the box"],["s","It's a thought experiment. There's no real box."],["c","then why am I in it"],["s","…"],["c","*knocks your glass off the table*"]],
+ lesson:"Schrödinger's cat is a 1935 thought experiment. It shows how strange quantum superposition sounds when you apply it to big, everyday objects. No real cats were involved."},
+{id:"c-mod",topic:"reactor",title:"Graphite vs water vs heavy water",me:"w",group:1,
+ p:{w:{n:"Water",av:"💧",col:"#3ad4ff",v:"hype"},g:{n:"Graphite",av:"⬛",col:"#9a9a9a",v:"deep"},h:{n:"Heavy water",av:"💎",col:"#cdb0ff",v:"posh"}},
+ m:[["w","I slow neutrons down faster than anyone"],["g","but you absorb some of them"],["w","…a few"],["h","I barely absorb any 😌 that's why CANDU reactors can run on natural uranium"],["g","the UK used me in Magnox and AGR stations"],["w","and I'm in most of the world's reactors"],["g","I was the first moderator ever. Chicago Pile-1, 1942"],["h","and I'm 11% heavier than you, Water"],["w","are you calling me light"],["h","I'm calling you H₂O, darling"]],
+ lesson:"Moderators slow neutrons by bouncing them off light nuclei. Water is excellent but absorbs some neutrons; heavy water absorbs far fewer; graphite moderated the first reactor and the UK's Magnox and AGR stations."}
+];
+
+/* ---------- memes (our own layouts, no copied images) ---------- */
+window.CHAIN_MEMES=[
+{id:"m-drake1",topic:"history",t:"drake",no:"Revising for the physics test",yes:"Learning how the Demon Core went critical at 2am"},
+{id:"m-drake2",topic:"energy",t:"drake",no:"Calling it ‘nuclear power’",yes:"Calling it ‘a very expensive kettle’"},
+{id:"m-drake3",topic:"maths",t:"drake",no:"Writing units on your answer",yes:"Losing the mark and pretending you meant to"},
+{id:"m-drake4",topic:"energy",t:"drake",no:"Coal: 24.6 deaths per TWh",yes:"Nuclear: 0.03 deaths per TWh"},
+{id:"m-brain1",topic:"energy",t:"brain",lines:["Nuclear power is scary","Nuclear power is low carbon","Per TWh, nuclear is about as safe as wind and solar","Bananas are radioactive and I eat one every day anyway"]},
+{id:"m-brain2",topic:"energy",t:"brain",lines:["Power stations make electricity","Fission makes the heat","Mass turns into energy: E = mc²","It's all just boiling water with extra steps"]},
+{id:"m-nobody1",topic:"atoms",t:"nobody",line:"Me at 2am: “on average, a free neutron only lasts about 15 minutes”"},
+{id:"m-nobody2",topic:"reactor",t:"nobody",line:"The control rods during a SCRAM: *falls with confidence*"},
+{id:"m-top1",topic:"radiation",t:"top",img:"🍌",top:"Me: eats a banana",bot:"Also me: absorbs 0.1 microsieverts"},
+{id:"m-top2",topic:"space",t:"top",img:"💙",top:"It's not green goo",bot:"It's blue and it's called Cherenkov"},
+{id:"m-top3",topic:"maths",t:"top",img:"😐",top:"Teacher: “this won't be on the test”",bot:"The test: 6 marks on it"},
+{id:"m-top4",topic:"atoms",t:"top",img:"🥶",top:"Fusion: needs 100 million °C",bot:"Me in the exam hall: 12 °C"},
+{id:"m-top5",topic:"radiation",t:"top",img:"🧱",top:"Gamma rays: *exist*",bot:"Lead: halves you every half-value layer"},
+{id:"m-tw1",topic:"atoms",t:"tweet",name:"Neutron",handle:"@no_charge",av:"⚪",text:"people keep asking about my charge. I don't have one. that's the whole point. that's my personality.",likes:"92.4K",rts:"18K"},
+{id:"m-tw2",topic:"atoms",t:"tweet",name:"U-238",handle:"@99point3percent",av:"🟤",text:"being 99.3% of natural uranium and still not invited to the fission party 🙃",likes:"41K",rts:"7.2K"},
+{id:"m-tw3",topic:"chem",t:"tweet",name:"Boron",handle:"@dissolved_and_tired",av:"🧂",text:"absorbing neutrons in a PWR for 18 months straight and the operator just keeps diluting me 😒",likes:"12.8K",rts:"2.1K"},
+{id:"m-tw4",topic:"atoms",t:"tweet",name:"The Sun",handle:"@literally_fusion",av:"☀️",text:"lost 4 million tonnes today. no I don't want to talk about it",likes:"1.1M",rts:"240K"},
+{id:"m-exp1",topic:"reactor",t:"expect",ei:"🟢🛢️",et:"Glowing green goo and bubbling barrels",ri:"👷📋☕",rt:"Very calm people checking very boring numbers"},
+{id:"m-exp2",topic:"maths",t:"expect",ei:"📚",et:"“I'll study for 5 minutes”",ri:"📱⚛️",rt:"An hour later, still learning about Apollo 13 on Chain"},
+{id:"m-pov1",topic:"reactor",t:"pov",img:"⚪💧💧💧💧",line:"POV: you're a fast neutron and the water won't stop bumping into you"},
+{id:"m-pov2",topic:"chem",t:"pov",img:"🍽️😐😐😐",line:"POV: you just told the whole family at dinner that uranium is denser than lead"},
+{id:"m-starter1",topic:"ops",t:"starter",title:"Nuclear operator starter pack",items:["☕ Third coffee","📋 The procedure","📟 Dosimeter","🔁 “That is correct”","🌙 Night shifts","🧠 Trusting physics over one dodgy light"]},
+{id:"m-starter2",topic:"maths",t:"starter",title:"Physics student starter pack",items:["🧮 Calculator in the wrong mode","📏 “Show your working”","🍌 Knows bananas are radioactive","😵 Forgot the units","⚛️ “It's all just E = mc²”","🔋 Phone on 3%"]},
+{id:"m-chart1",topic:"history",t:"chart",a:"Chicago Pile-1, 1942: half a watt, under a squash court",b:"Hinkley Point C: 3,200 MW"},
+{id:"m-chart2",topic:"maths",t:"chart",a:"Me: “I'll just do one card”",b:"Me: now knows how Apollo 13 got home"}
+];
+
+/* ---------- tier lists (guess the tier, then see where the critic puts it) ---------- */
+window.CHAIN_TIERS=[
+{id:"t-power",topic:"energy",title:"Ways to make electricity, ranked by deaths per TWh",tiers:["S","A","B","C","F"],fact:1,
+ items:[["☀️","Solar","S","0.02 deaths per TWh. Basically nothing."],["⚛️","Nuclear","S","0.03, including Chernobyl and Fukushima. Surprised?"],["🌬️","Wind","S","0.04. Mostly from accidents during building and maintenance."],["💧","Hydro","A","1.3, mostly from rare dam failures."],["🔥","Gas","B","2.8, mainly from air pollution and accidents."],["🛢️","Oil","C","18.4. The air pollution adds up."],["⛏️","Coal","F","24.6 deaths per TWh, mostly from air pollution. F tier, sorry coal."]]},
+{id:"t-shield",topic:"radiation",title:"Gamma ray shields, ranked",tiers:["S","A","B","C","F"],
+ items:[["🧱","Lead","S","Dense, packed with electrons. The gold standard (well, the lead standard)."],["🏗️","Concrete","A","Not as dense, but cheap. Make it thick and it's brilliant."],["🔩","Steel","A","Solid. Reactor vessels and casks use loads of it."],["💧","Water","B","Needs metres, but you can see through it. Spent fuel pools love it."],["📄","Paper","F","Great against alpha. Gamma doesn't even notice."],["✉️","A strongly worded letter","F","Gamma rays do not read."]]},
+{id:"t-ines",topic:"history",title:"Nuclear accidents: guess the INES level",tiers:["7","6","5","4"],fact:1,
+ items:[["☢️","Chernobyl, 1986","7","The maximum. A major release across Europe."],["🌊","Fukushima, 2011","7","Also 7, though the release was smaller than Chernobyl's."],["🏭","Kyshtym, 1957","6","A waste tank exploded in the Soviet Union and was kept secret for years."],["🔥","Windscale fire, 1957","5","The UK's worst: a graphite pile fire in Cumbria."],["🔴","Three Mile Island, 1979","5","Half the core melted, but almost nothing escaped."],["💙","Goiânia, 1987","5","The glowing blue caesium powder in Brazil."],["⚗️","Tokaimura, 1999","4","Workers mixed too much uranium in a bucket and caused a criticality."]]},
+{id:"t-elements",topic:"chem",title:"Elements, ranked by drama",tiers:["S","A","B","C","F"],
+ items:[["😈","Xenon-135","S","Poisons reactors for fun. Peaks 10 hours after shutdown just to be petty."],["🪐","Plutonium","S","Named after Pluto, which then got demoted. Iconic redemption arc."],["⭐","Hydrogen","A","Main character. About three-quarters of all normal matter."],["🟢","Uranium","A","Splits under pressure. Relatable."],["🎈","Helium","B","Makes your voice squeaky. Otherwise very chill."],["🥇","Gold","C","All looks, no fission."],["🔩","Iron","C","One of the most tightly bound nuclei. Boring on purpose."],["😶","Argon","F","Almost 1% of the air you're breathing right now. Does absolutely nothing."]]},
+{id:"t-particles",topic:"atoms",title:"Particles, ranked by vibes",tiers:["S","A","B","C","F"],
+ items:[["⚪","Neutron","S","No charge, no drama, starts chain reactions. Legend."],["✨","Higgs boson","S","Predicted in 1964, found in 2012. The ultimate slow burn."],["💡","Photon","A","No mass, always in a hurry."],["⚡","Electron","A","Light, fast, attracted to everyone."],["➕","Proton","B","Positive attitude. Can be a bit repulsive to other protons."],["👻","Neutrino","C","Trillions pass through you every second and do nothing at all."]]},
+{id:"t-coolant",topic:"reactor",title:"Ways to cool a reactor, ranked",tiers:["S","A","B","C","F"],
+ items:[["💧","Water","S","Cheap, great at carrying heat, and moderates too. Most reactors use it."],["🌬️","Carbon dioxide gas","A","The UK's AGRs. Runs hot and efficient."],["🧪","Liquid sodium","A","Amazing at moving heat. Also catches fire in air and reacts with water. Spicy."],["🧂","Molten salt","B","Works at low pressure. Still mostly experimental."],["🎈","Helium","B","Doesn't react with anything. Hard to keep from leaking."],["🪟","Opening a window","F","No."],["😮‍💨","Blowing on it","F","Absolutely not."]]}
+];
+
+/* ---------- would you rather ---------- */
+window.CHAIN_WYR=[
+{id:"w-pool",topic:"radiation",a:"Swim at the surface of a spent fuel pool",b:"Spend a week on the International Space Station",ra:"Water is amazing shielding. Near the surface you'd probably get less radiation than on a normal day outside, as long as you stay away from the bottom (and you'd be arrested).",rb:"About 3 to 5 mSv of space radiation in a week: more than a whole UK year of background. Plus zero gravity.",v:"Physics says the pool is the lower dose. Security says absolutely not."},
+{id:"w-flight",topic:"radiation",a:"Live next to a nuclear power station for a year",b:"Take one flight from London to New York",ra:"Less than 0.01 mSv for the whole year.",rb:"About 0.05 mSv from cosmic rays at cruising height.",v:"The flight gives you more radiation. Planes are the spicy option."},
+{id:"w-banana",topic:"radiation",a:"Eat 10 bananas",b:"Have one chest X-ray",ra:"About 1 μSv: 10 × 0.1 μSv from potassium-40.",rb:"About 14 μSv. That's roughly 140 bananas' worth.",v:"Both are tiny. Eat the bananas."},
+{id:"w-planet",topic:"space",a:"Visit Venus",b:"Visit Mars",ra:"465 °C, 90 times Earth's air pressure and clouds of sulfuric acid. The longest any probe survived was about 2 hours.",rb:"Freezing, with thin air you can't breathe, but survivable in a suit. Bonus: the sunsets are blue.",v:"Mars. Venus would cook you, crush you and dissolve you, in that order."},
+{id:"w-force",topic:"atoms",a:"Have the strong force as your superpower",b:"Have gravity as your superpower",ra:"About 10³⁸ times stronger than gravity… but it only reaches about the width of a proton. You could hold quarks together. That's it.",rb:"The weakest force by miles, but it reaches across the whole universe. You could hold galaxies together, slowly.",v:"Gravity. Weaker, but you'd actually get to use it."},
+{id:"w-particle",topic:"atoms",a:"Be a neutron",b:"Be an electron",ra:"No charge, no drama, and you can slip straight into a nucleus. But on your own you only last about 15 minutes on average.",rb:"Light, fast and attracted to every proton you meet. You'd last forever, but never sit still.",v:"Electron for a long life. Neutron if you want to start a chain reaction."},
+{id:"w-distance",topic:"radiation",a:"Stand 1 metre from a gamma source",b:"Stand 3 metres from a source twice as strong",ra:"Dose rate: 1 unit.",rb:"Twice as strong, but 3² = 9 times weaker from the distance: about 0.22 units.",v:"3 metres wins easily. Inverse square law: distance is your best friend."},
+{id:"w-pellet",topic:"energy",a:"Power your home for a year with one uranium pellet",b:"Burn a tonne of coal",ra:"One fingertip-sized pellet holds about as much energy as a tonne of coal: roughly a year of a typical UK home's electricity.",rb:"The same energy, plus about 2.5 tonnes of CO₂ and a lot of shovelling.",v:"Same energy. One of them fits in your pocket."},
+{id:"w-hold",topic:"radiation",a:"Hold a lump of natural uranium",b:"Hold a smoke alarm's americium source",ra:"Natural uranium is only weakly radioactive, and its alphas are stopped by your skin. It's very heavy and chemically toxic, so wash your hands.",rb:"A tiny americium-241 alpha source. Safe in its case; don't take it apart.",v:"Both are alpha emitters: fine outside you, bad inside you. Don't eat either."},
+{id:"w-cornwall",topic:"radiation",a:"Live on the ISS for a year",b:"Live in Cornwall for 100 years",ra:"Roughly 150 to 300 mSv in a year from space radiation.",rb:"Granite radon gives Cornwall an average of about 7.8 mSv a year: roughly 780 mSv over 100 years.",v:"Cornwall adds up to more in total, but spread over a lifetime. Space gives it to you all at once."},
+{id:"w-sub",topic:"radiation",a:"Spend 3 months on a nuclear-powered submarine",b:"Spend 3 months in a city flat",ra:"Submariners get less radiation than people on land: seawater blocks cosmic rays and there's no radon from the ground.",rb:"Normal background radiation, plus sunlight and Wi-Fi.",v:"The sub gives you less radiation. The flat gives you windows."},
+{id:"w-shift",topic:"ops",a:"Work night shifts in a control room",b:"Sit a 3-hour exam every day",ra:"Long quiet hours, coffee, then real adrenaline when an alarm goes. Operators train for years in full-size simulators first.",rb:"You'd get very good at exams. And very, very tired.",v:"Operators say nights are fine once you're used to them. Nobody says that about daily exams."}
+];
+
+/* ---------- more stories, some of them funny (characters speak with their own voices) ---------- */
+window.CHAIN_STORIES=(window.CHAIN_STORIES||[]).concat([
+{id:"firstday",kind:"Funny",icon:"🎒",topic:"ops",title:"First day at Critical Point",blurb:"Your first day as a trainee operator. Your mentor, Big Steve, has one rule: touch nothing.",cast:{steve:"deep",priya:"boss"},start:"a",nodes:{
+ a:{sc:"calm",ic:"🎒",txt:"Your first day as a trainee operator at Critical Point power station. Your mentor, Big Steve, hands you a dosimeter and a coffee.",say:["steve","Right, rookie. Rule one: touch nothing. Rule two: see rule one."],ch:[["Clip the dosimeter on straight away","b",0],["Put it in your bag for later","b_bag",10],["Ask what the big red button does","b_red",15]]},
+ b_bag:{sc:"calm",ic:"🚪",txt:"At the entrance to the controlled area, the monitor beeps at you. No dosimeter, no entry.",say:["steve","Rookie. Dosimeter. On. Now."],ch:[["Put it on, sheepishly","b",5]]},
+ b_red:{sc:"calm",ic:"🔴",txt:"Steve stares at you for a long, long time.",say:["steve","That's the reactor trip. Press it and the whole station shuts down. Then you get to explain it to the National Grid."],ch:[["I will definitely not press it","b",0],["Press it, for science","end_scram",30]]},
+ b:{sc:"calm",ic:"📟",txt:"Dosimeter on. Steve nods. In the control room, a quiet alarm chimes: “COOLING WATER PUMP VIBRATION HIGH”.",say:["steve","Alarm. What do we do?"],ch:[["Look at the trend, then tell the operator","c",0],["Acknowledge it and hope it goes away","c_hope",15],["Panic, quietly","c_panic",10]]},
+ c_hope:{sc:"alarm",ic:"🙈",txt:"The alarm comes back. Louder. It's brought friends.",say:["steve","Alarms don't go away because you stared at them."],ch:[["OK: check the trend and tell the operator","c",5]]},
+ c_panic:{sc:"alarm",ic:"😰",txt:"Steve hands you a laminated card. It says: STAR. Stop, Think, Act, Review.",say:["steve","Stop. Think. Then act. Then check it worked. Breathe, rookie."],ch:[["Stop, think: check the trend and tell the operator","c",0]]},
+ c:{sc:"ok",ic:"📈",txt:"The trend shows the vibration creeping up. The operator switches to the standby pump and it settles. Priya, the shift manager, walks over.",say:["priya","Nice spot. Good instincts. Want to lead a pre-job brief?"],ch:[["Yes: the task, what could go wrong, and what we'd do","d",0],["A pre-job what?","d_what",5]]},
+ d_what:{sc:"calm",ic:"📋",txt:"Priya explains: before any job, the team talks through the task, the hazards, the worst case and what they'd do about it.",say:["priya","Five minutes of talking saves five hours of paperwork."],ch:[["Got it. Let's brief","d",0]]},
+ d:{sc:"calm",ic:"🍲",txt:"Brief done. Lunchtime. The break room has one microwave, and you have leftover fish curry.",ch:[["Microwave the fish curry","end_fish",10],["Eat a cold sandwich like a hero","e",0]]},
+ e:{sc:"calm",ic:"🖥️",txt:"Afternoon: the full-size simulator. Priya gives you your first order.",say:["priya","Start charging pump B."],ch:[["“Start charging pump B.”","end_best",0],["“Yeah, sure”","end_good",10]]},
+ end_best:{end:"best",ic:"🏆",title:"Born for the control room",txt:"Repeat-backs, dosimeter on, alarms handled, no fish. Big Steve gives you his highest honour: a second coffee."},
+ end_good:{end:"good",ic:"👍",title:"Solid first day",txt:"Priya makes you redo the order with a proper repeat-back. You'll get there. Everyone does."},
+ end_fish:{end:"bad",ic:"🐟",title:"The fish incident",txt:"The whole floor smells of fish curry for a week. Nobody forgets. Your nickname is now ‘Curry’. Safety lesson: none. Social lesson: enormous."},
+ end_scram:{end:"fail",ic:"🔴",title:"The most expensive button",txt:"The reactor trips safely, exactly as designed. Then the phone calls start. A trip costs a fortune in lost electricity, and you're on the front of the station newsletter. At least now you know it works?"}}},
+
+{id:"examnight",kind:"Funny",icon:"📚",topic:"maths",title:"The night before the physics exam",blurb:"21:30. Exam tomorrow at 9. Your phone buzzes. Choose wisely.",cast:{mum:"mum"},start:"a",nodes:{
+ a:{sc:"night",ic:"🌙",txt:"21:30. Physics exam tomorrow at 9am. You open your books. Your phone buzzes.",ch:[["Put the phone in another room","b_good",0],["Check it. Just for one minute","b_phone",15]]},
+ b_phone:{sc:"night",ic:"📱",txt:"One minute becomes 47. You've learned a dance, a recipe and a conspiracy theory. Physics learned: zero.",say:["mum","Is your light still on?"],ch:[["Panic-revise the hardest topic","c_panic",10],["Open Chain: at least it's physics","c_chain",0],["Keep scrolling. It's fine.","end_doom",30]]},
+ b_good:{sc:"night",ic:"📖",txt:"Phone gone. You make flashcards for half-lives and E = mc². It's weirdly satisfying.",ch:[["Test yourself with past paper questions","c_paper",0],["Re-read your notes for the fifth time","c_reread",10]]},
+ c_chain:{sc:"night",ic:"⚛️",txt:"You learn why reactor pools glow blue and how Apollo 13 got home. Somehow, it all counts as revision.",ch:[["Do one past paper question, then sleep","c_paper",0],["One more story… just one…","c_more",15]]},
+ c_more:{sc:"night",ic:"🌀",txt:"It's 01:30. You know everything about the Demon Core and nothing about specific heat capacity.",ch:[["Sleep. NOW.","d_late",0]]},
+ c_reread:{sc:"night",ic:"😵",txt:"Re-reading feels productive, but nothing sticks. Testing yourself works far better. It's called active recall.",ch:[["Switch to past papers","c_paper",5]]},
+ c_panic:{sc:"night",ic:"😰",txt:"You start the hardest topic at 22:20, which is also exactly when your brain leaves the building.",ch:[["Do one easy past paper question to calm down","c_paper",5]]},
+ c_paper:{sc:"night",ic:"✍️",txt:"A half-life question: nailed it. Then a specific heat capacity question. You do not nail it.",ch:[["Look up the method and try it again","d_sleep",0],["Ignore it. It won't come up.","d_risky",15]]},
+ d_sleep:{sc:"ok",ic:"😴",txt:"You sleep 8 hours. Your brain stores memories while you sleep, which makes it the laziest study technique ever discovered.",ch:[["Wake up and go","e_exam",0]]},
+ d_late:{sc:"night",ic:"😪",txt:"You get 6 hours. Not ideal. Not a disaster.",ch:[["Wake up and go","e_tired",0]]},
+ d_risky:{sc:"ok",ic:"🎲",txt:"You sleep 8 hours, feeling smug.",ch:[["Wake up and go","e_shc",0]]},
+ e_exam:{sc:"ok",ic:"📝",txt:"Question 1: “Calculate the energy released when 2 g of mass is converted completely into energy.”",ch:[["E = mc² = 0.002 × (3×10⁸)² = 1.8×10¹⁴ J","end_best",0],["E = mc = 0.002 × 3×10⁸ = 6×10⁵ J","end_mid",10]]},
+ e_tired:{sc:"ok",ic:"📝",txt:"Question 1: “Calculate the energy released when 2 g of mass is converted completely into energy.” Your eyes are doing their best.",ch:[["E = mc² = 0.002 × (3×10⁸)² = 1.8×10¹⁴ J","end_good",0],["E = mc = 0.002 × 3×10⁸ = 6×10⁵ J","end_mid",10]]},
+ e_shc:{sc:"alarm",ic:"😱",txt:"Question 1 is a 6-mark question on the specific heat capacity practical.",ch:[["Write everything you can remember","end_mid",0],["Stare at the ceiling","end_ceiling",10]]},
+ end_best:{end:"best",ic:"🏆",title:"Grade 9 energy",txt:"Sleep, active recall, and you remembered to square the c. You walk out feeling like a reactor at full power."},
+ end_good:{end:"good",ic:"😮‍💨",title:"Tired, but you squared the c",txt:"Less sleep made it harder, but you got there. Next time: phone in the other room."},
+ end_mid:{end:"bad",ic:"✖️",title:"Forgot to square it",txt:"E = mc² has a squared in it for a reason. Lost marks, gained a lesson. (Or the question you skipped came up. It always does.)"},
+ end_ceiling:{end:"bad",ic:"🫠",title:"The ceiling wasn't on the mark scheme",txt:"Six marks for: mass with a balance, heater and thermometer in the block, insulation, energy from a joulemeter, temperature rise, then c = E ÷ (m × Δθ)."},
+ end_doom:{end:"fail",ic:"🌀",title:"The doom scroll ending",txt:"04:00. You know 300 things about strangers and nothing about physics. This is the ending Chain was built to stop."}}},
+
+{id:"mars",kind:"Story",icon:"🔴",topic:"space",title:"Dust storm on Mars",blurb:"You're choosing the power supply for a 10-year Mars rover. Then the whole sky goes orange.",cast:{mc:"robot"},start:"a",nodes:{
+ a:{sc:"space",ic:"🚀",txt:"You're in charge of power for a new rover going to Mars for 10 years. Two options are on the table.",ch:[["Solar panels: light and simple","b_solar",10],["A nuclear battery (RTG): heavier, but works day and night","b_rtg",0]]},
+ b_solar:{sc:"space",ic:"☀️",txt:"The landing is perfect and the panels soak up sunlight. Two years in, the forecast turns orange.",say:["mc","Mission Control. A dust storm is spreading across the whole planet."],ch:[["Shut everything down and wait it out","c_wait",0],["Keep driving to finish the science","fail_dark",30]]},
+ b_rtg:{sc:"space",ic:"☢️",txt:"The rover lands, its plutonium-238 battery humming along, warm and steady, day and night.",say:["mc","Mission Control. A dust storm is spreading across the whole planet."],ch:[["Keep working: the RTG doesn't care about dust","c_rtg",0],["Shut down anyway, just in case","c_cautious",5]]},
+ c_wait:{sc:"dark",ic:"🌪️",txt:"The sky goes dark for weeks. The batteries drain. The heaters struggle against nights of minus 70 degrees.",ch:[["Wait for the storm to clear","end_opp",0]]},
+ c_rtg:{sc:"ok",ic:"🔬",txt:"While the sky is dark, your rover keeps working, measuring the storm from the inside. Scientists back home are thrilled.",say:["mc","Data received. This is incredible."],ch:[["Send the data home","end_best",0]]},
+ c_cautious:{sc:"ok",ic:"😌",txt:"You lose a few weeks of science, but the rover is perfectly fine.",ch:[["Wake up when it clears","end_good",0]]},
+ end_best:{end:"best",ic:"🏆",title:"Storm chaser",txt:"Curiosity and Perseverance both run on plutonium-238 batteries, so dust storms don't stop them. Your rover just did science nobody else could."},
+ end_good:{end:"good",ic:"🛰️",title:"Safe and steady",txt:"With an RTG you could have kept working, but safe is never wrong."},
+ end_opp:{end:"bad",ic:"🌑",title:"Silence on Mars",txt:"This is what happened to NASA's Opportunity rover in 2018: a planet-wide dust storm blocked the Sun and it never woke up. It did last almost 15 years on a 90-day mission, though."},
+ fail_dark:{end:"fail",ic:"🥶",title:"Frozen in the dark",txt:"Driving through the storm drains the batteries flat and the rover freezes. Mission over."}}}
+]);
+
+/* ---------- alarm flood game ---------- */
+window.CHAIN_ALARMS={
+ crit:["REACTOR TRIP","SG LEVEL LOW","PRZR PRESS LOW","RCP TRIP","FEED PUMP TRIP","CONTAINMENT PRESS HIGH","FIRE: TURBINE HALL","AUX FEED FAIL","SAFETY INJECTION","DIESEL FAIL","RAD MONITOR HIGH","LOSS OF GRID"],
+ junk:["COFFEE LOW ☕","DAVE IS SINGING","FRIDGE DOOR OPEN","LIFT MUSIC TOO LOUD","PRINTER JAMMED (AGAIN)","NO CRISPS LEFT","SOMEONE'S BIRTHDAY 🎂","WIFI SLOW","PARKING SPACE TAKEN","PIGEON ON ROOF 🐦","MICROWAVE: FISH 🐟","KETTLE BOILED"]};
