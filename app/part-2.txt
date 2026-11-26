@@ -1,4 +1,5 @@
-ical in Chrome or Edge to set up reminders. This browser can\'t share your study time with them.</p>';R.innerHTML=h;return}
+tnote">On school days, reminders pop up on your Windows PC at 4:30pm and 4:40pm, then Critical opens by itself at 4:45pm. There are more reminders at 6pm and 8pm if you haven\'t studied. Open Critical on the laptop in Chrome or Edge to set them up.</p>';R.innerHTML=h;return}
+  if(!canFS){h+='<p class="stnote">Open Critical in Chrome or Edge to set up reminders. This browser can\'t share your study time with them.</p>';R.innerHTML=h;return}
   h+='<ol><li><a href="https://u23bodwells-cmyk.github.io/Critical/reminders/critical-reminders.zip" target="_blank" rel="noopener" download>Download the reminder setup</a>, right-click it, choose <b>Extract All</b>, then double-click <b>install.cmd</b>. If Windows warns you, click <b>More info → Run anyway</b>.</li>'+
    '<li>Connect this app to the reminders, so they know when you\'ve studied: <button class="stbtn alt" type="button" data-a="link">'+(linkState==='ok'?'Connected ✓':linkState==='lost'?'Reconnect':'Choose the Critical folder')+'</button><br><span class="stnote">'+(linkState==='ok'?'Your study time is shared with the reminders.':linkState==='lost'?'Windows needs you to allow access again. Tap Reconnect and choose Allow.':'Pick <b>Documents → Critical</b>, then click <b>Select folder</b> and <b>Allow</b>. If it asks, choose “Allow on every visit”.')+'</span></li></ol>'+
    '<p class="stnote">On school days you\'ll get a break reminder at 4:15pm and warnings at 4:30pm and 4:40pm. Then Critical opens by itself at 4:45pm, in its own app window. There are more reminders at 6pm and 8pm if you still haven\'t studied, and any session counts. It also opens Critical when you turn on or unlock your PC after 3pm on a school day, so your evening timetable starts from when you get home. Already set up? Download it again and rerun install.cmd to get the latest version.</p>';
@@ -1112,5 +1113,4 @@ var PLAN=(function(){
  function fixChk(r){var now=Date.now();if(now-lastChk<3000)return;lastChk=now;var p=PS(),n=-1;
   if(todayI()===0&&!p.monClr){n=pile();if(n===0){p.monClr=1;save()}}
   if(!r||r.gm||r.ends<=now)return;var b=DAY(r.day)[r.j];if(!isFix(b)||busy())return;if(n<0)n=pile();
-  if(n===0){if(r.day===0){p.monClr=1;save()}r.ends=now;r.early=1;r.clr=1;runSet(r);return}
-  if(typeof P!=='undefined'&&P&&P.finished&&P.mode==='review'&&!P._plAsk&&!ban){P._plAsk=1;showBan('<b>'+n+' mistake'+(n===1?'':'s')+' left to fix.</b> '+fmtLeft(r.ends-now)+' to go on this part.',[['Next round →',function(){hideBan();go(b[3][0],b[0])}],[
+  if(n===0){if(r.day===0){

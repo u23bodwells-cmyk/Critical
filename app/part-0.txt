@@ -50,6 +50,8 @@ function psat(T){for(var i=1;i<TSAT.length;i++){if(T<=TSAT[i][1]){var a=TSAT[i-1
 
 var $=function(id){return document.getElementById(id)};
 function cssv(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim()||'#888'}
+/* animations can ease a radius a hair below zero for one frame; the browser throws on that, so clamp it */
+try{(function(){var A=CanvasRenderingContext2D.prototype.arc;if(A._safe)return;var F=function(x,y,r,a,b,c){return A.call(this,x,y,r>0?r:0,a,b,c)};F._safe=1;CanvasRenderingContext2D.prototype.arc=F})()}catch(e){}
 var UNITS=[],WIDGETS={};
 function U(o){UNITS.push(o)}
 function trk(ui){return (UNITS[ui]&&UNITS[ui].track)||'maths'}
@@ -1128,6 +1130,4 @@ WIDGETS.beCurve=function(box){var cv=canvas(box,260),m=msg(box),sel=null,Pp;
 WIDGETS.decayDrill=function(box){var EL={6:'C',7:'N',9:'F',8:'O',11:'Na',10:'Ne',12:'Mg',19:'K',20:'Ca',18:'Ar',26:'Fe',27:'Co',28:'Ni',36:'Kr',37:'Rb',38:'Sr',39:'Y',52:'Te',53:'I',54:'Xe',55:'Cs',56:'Ba',82:'Pb',84:'Po',86:'Rn',88:'Ra',90:'Th',91:'Pa',92:'U',93:'Np',94:'Pu',95:'Am',83:'Bi',97:'Bk'};
  var QS=[[238,92,'a'],[226,88,'a'],[239,94,'a'],[241,95,'a'],[210,84,'a'],[90,38,'b'],[137,55,'b'],[135,53,'b'],[135,54,'b'],[60,27,'b'],[131,53,'b'],[239,92,'b'],[239,93,'b'],[92,36,'b'],[18,9,'p'],[22,11,'p'],[11,6,'p']],q,streak=0;
  var qp=el('p','',null,box);qp.style.fontSize='18px';var r=row(box);r.innerHTML='<span class="small">Daughter: A =</span><input type="number" class="dA"><span class="small">Z =</span><input type="number" class="dZ">';var iA=r.querySelector('.dA'),iZ=r.querySelector('.dZ');var r2=row(box);btn(r2,'Check answer',chk,'pri');var m=msg(box),sk=el('p','small','Streak: 0',box);
- function nq(){q=QS[Math.floor(Math.random()*QS.length)];var nm={a:'alpha',b:'beta-minus',p:'beta-plus'}[q[2]];qp.innerHTML='<b>'+(EL[q[1]]||'Z'+q[1])+'-'+q[0]+'</b> (Z = '+q[1]+') undergoes <b>'+nm+'</b> decay.';iA.value='';iZ.value=''}
- function chk(){if(iA.value===''||iZ.value===''){m.set('Enter both A and Z.',false);return}var A=q[0],Z=q[1];if(q[2]==='a'){A-=4;Z-=2}else if(q[2]==='b')Z++;else Z--;
-  if(+iA.value===A&&+iZ.v
+ function nq(){q=QS[Math.floor(Math.random()*QS.length)];var nm={a:'alpha',b:'beta-minus',p:'beta-plus'}[q[2]]

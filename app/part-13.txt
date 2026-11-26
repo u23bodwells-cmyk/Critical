@@ -1,4 +1,7 @@
-duction (gain of electrons). Anode: oxidation (loss of electrons). OIL RIG.</p>`),
+rections equally.`),
+T(`<h3>Key points</h3><ul><li>Equilibrium shifts to oppose the change.</li><li>Count gas molecules only for pressure.</li><li>Catalysts don't move the equilibrium.</li></ul>`)]),
+LH('gc5-2-2','Half equations',11,'Writing and balancing half equations for electrolysis and redox.',[
+RM(`<p>Cathode: reduction (gain of electrons). Anode: oxidation (loss of electrons). OIL RIG.</p>`),
 T(`<h3>Writing half equations</h3><ul><li>Cathode (metal or hydrogen): <b>Cu²⁺ + 2e⁻ → Cu</b>; <b>2H⁺ + 2e⁻ → H₂</b>.</li><li>Anode (halogen): <b>2Cl⁻ → Cl₂ + 2e⁻</b>.</li><li>Anode (oxygen): <b>4OH⁻ → O₂ + 2H₂O + 4e⁻</b>.</li></ul><p>Check that both atoms and charges balance on each side.</p>`),
 Q(`Which half equation happens at the cathode when molten aluminium oxide is electrolysed?`,[`Al³⁺ + 3e⁻ → Al`,`Al → Al³⁺ + 3e⁻`,`2O²⁻ → O₂ + 4e⁻`,`Al³⁺ → Al + 3e⁻`],0,`Positive ions gain electrons at the cathode.`),
 Q(`Complete: 2Br⁻ → Br₂ + ___`,[`2e⁻`,`e⁻`,`2e⁺`,`Br⁻`],0,`Two negative charges on the left, so 2 electrons on the right.`),
@@ -1121,5 +1124,4 @@ LH('am4-1-2','Modelling',10,'Turn a real situation into maths, solve, then criti
 RM(`<p>Differential equations model rates. Exponential models y = Ae<sup>kt</sup>. Mechanics models make assumptions (particle, light rod, smooth surface).</p>`),
 T(`<h3>The cycle</h3><ol><li>State <b>assumptions</b>.</li><li>Build the model (an equation).</li><li>Solve it.</li><li><b>Interpret</b> the answer in context, with units.</li><li><b>Evaluate</b>: limitations, and how to refine it.</li></ol>`),
 O(`Order the modelling cycle.`,['State assumptions','Build the equation','Solve it','Interpret in context','Evaluate and refine'],`Top marks need the last two steps.`),
-T(`<h3>Typical criticisms</h3><ul><li>Exponential growth can't continue forever: resources run out (use a logistic model).</li><li>Treating an object as a particle ignores its size and spin.</li><li>Ignoring air resistance overestimates range.</li><li>A model fitted to limited data may not extrapolate.</li></ul>`),
-Q(`A model predicts a population of 10 billion rabbits on an island in 20 years. The best criticism?`,[`Exponential growth can't continue: food and space are limited`,`The arithmetic must be wrong`,`Rabbits don't rep
+T(`<h3>Typical criticisms</h3><ul><li>Exponential growth can't continue forever: resources run out (use a logistic model).</li><li>Treating an object as a particle ignores its size and spin.</li><li>Ignoring air r

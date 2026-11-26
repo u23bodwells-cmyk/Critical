@@ -1,4 +1,6 @@
-alue===Z){streak++;m.set('Correct: '+(EL[Z]||'element '+Z)+'-'+A+'.',true);setTimeout(nq,700)}else{streak=0;m.set('Not quite: it\'s A = '+A+', Z = '+Z+'. '+(q[2]==='a'?'Alpha removes 4 nucleons and 2 protons.':q[2]==='b'?'Beta-minus: a neutron becomes a proton (Z + 1, A unchanged).':'Beta-plus: a proton becomes a neutron (Z − 1).'),false);setTimeout(nq,1800)}sk.textContent='Streak: '+streak}
+;qp.innerHTML='<b>'+(EL[q[1]]||'Z'+q[1])+'-'+q[0]+'</b> (Z = '+q[1]+') undergoes <b>'+nm+'</b> decay.';iA.value='';iZ.value=''}
+ function chk(){if(iA.value===''||iZ.value===''){m.set('Enter both A and Z.',false);return}var A=q[0],Z=q[1];if(q[2]==='a'){A-=4;Z-=2}else if(q[2]==='b')Z++;else Z--;
+  if(+iA.value===A&&+iZ.value===Z){streak++;m.set('Correct: '+(EL[Z]||'element '+Z)+'-'+A+'.',true);setTimeout(nq,700)}else{streak=0;m.set('Not quite: it\'s A = '+A+', Z = '+Z+'. '+(q[2]==='a'?'Alpha removes 4 nucleons and 2 protons.':q[2]==='b'?'Beta-minus: a neutron becomes a proton (Z + 1, A unchanged).':'Beta-plus: a proton becomes a neutron (Z − 1).'),false);setTimeout(nq,1800)}sk.textContent='Streak: '+streak}
  iZ.addEventListener('keydown',function(e){if(e.key==='Enter'){e.stopPropagation();e.preventDefault();chk()}});nq();
  return {check:function(){return streak>=3?{ok:true}:{ok:false,msg:'Get 3 in a row using the Check answer button. Current streak: '+streak+'.'}}}};
 
@@ -1214,5 +1216,4 @@ var STUDY=(function(){
   pills.forEach(function(b){var t=b.querySelector('.stt');b.classList.toggle('live',!!st.run);if(t)t.textContent=st.run?clock(Date.now()-st.run.at).replace(/^00:/,''):''})}
  function paintLink(){var R=$('.strem');if(!R)return;var studied=didToday();
   var h='<p class="stlab">Reminders on Windows</p><p>'+(studied?'<span class="stok">✓ Studied today'+(todayMin()?' ('+fmtM(todayMin())+')':'')+'.</span> Tonight\'s reminders will stay quiet.':'<span class="stwarn">Not studied yet today.</span>')+'</p>';
-  if(!isWin){h+='<p class="stnote">On school days, reminders pop up on your Windows PC at 4:30pm and 4:40pm, then Critical opens by itself at 4:45pm. There are more reminders at 6pm and 8pm if you haven\'t studied. Open Critical on the laptop in Chrome or Edge to set them up.</p>';R.innerHTML=h;return}
-  if(!canFS){h+='<p class="stnote">Open Crit
+  if(!isWin){h+='<p class="s

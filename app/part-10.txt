@@ -1,4 +1,6 @@
-izes decrease to 0, it converges. This one converges to <b>ln 2</b>, even though without the minus signs it diverges.</p><ul><li><b>Absolutely convergent</b>: converges even with all terms made positive.</li><li><b>Conditionally convergent</b>: only converges because of the alternating signs.</li></ul>`),
+,`The sum is 1`],0,`L = 1 is inconclusive.`),
+T(`<h3>Factorials</h3><p>For Σ 1/n!: aₙ₊₁/aₙ = n!/(n + 1)! = 1/(n + 1) → 0. L = 0 < 1: converges (to e − 1, as you'll see). Factorials beat any power.</p>`),
+T(`<h3>Alternating series</h3><p>1 − ½ + ⅓ − ¼ + … The signs alternate. The <b>alternating series test</b>: if the sizes decrease to 0, it converges. This one converges to <b>ln 2</b>, even though without the minus signs it diverges.</p><ul><li><b>Absolutely convergent</b>: converges even with all terms made positive.</li><li><b>Conditionally convergent</b>: only converges because of the alternating signs.</li></ul>`),
 Q(`1 − ½ + ⅓ − ¼ + … is…`,[`conditionally convergent`,`absolutely convergent`,`divergent`,`equal to 0`],0,`Converges, but Σ 1/n diverges.`),
 T(`<h3>Key points</h3><ul><li><b>Ratio test</b>: L < 1 converges, L > 1 diverges, L = 1 can't tell.</li><li><b>Alternating</b>: decreasing to 0 is enough to converge.</li><li><b>Absolute</b> vs <b>conditional</b> convergence.</li></ul>`)])
 ]});
@@ -909,6 +911,4 @@ Q(`Why is a gas much less dense than the same substance as a solid?`,[`Its parti
 W('calcDrill',{skill:'g_density',need:5},`Practise density. Get 5 right to master it.`,`ρ = m ÷ V, m = ρV, V = m ÷ ρ. Watch the units.`),
 T(`<h3>Required practical: density</h3><ul><li><b>Regular solid</b>: weigh it, measure its sides with a ruler, work out the volume.</li><li><b>Irregular solid</b>: weigh it, then lower it into water (a eureka can or measuring cylinder). The volume of water it pushes out is its volume.</li><li><b>Liquid</b>: weigh an empty measuring cylinder, pour in a known volume, weigh again.</li></ul>`),
 Q(`How do you find the volume of a small stone?`,[`Lower it into water in a measuring cylinder and see how much the level rises`,'Measure its length, width and height with a ruler and multiply','Weigh it on a balance, then divide the mass by the density of water','Heat it and see how much it expands, then work back to its volume'],0,`Water displacement works for any shape.`),
-T(`<h3>Key points</h3><ul><li><b>ρ = m ÷ V</b>. Learn it.</li><li>Gases are far less dense: their particles are spread out.</li><li>Irregular objects: use water displacement.</li></ul>`)]),
-LH('gp2-3-2','Changes of state and internal energy',10,'What heating does to particles, why temperature stops rising while things melt, and specific latent heat.',[
-RM(`<p>Solid: particles packed and vibrating. Liquid: close but moving past each other. Gas: far apart and fast. Specific heat capacity: ΔE = mcΔθ.</p>`
+T(`<h3>Key points</h3><ul><li><b>ρ = m ÷ V</b>. Learn it.</li><li>Gases are far less dense: their particles are spread out.</li><li>Irregular objects: use water displacement.</li></ul>`)]

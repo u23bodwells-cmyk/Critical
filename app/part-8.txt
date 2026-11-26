@@ -1,4 +1,5 @@
-m up. The two complement each other.</p>`),
+ge paths.</li></ul>`),
+T(`<h3>Deterministic vs probabilistic</h3><p>Deterministic analysis checks a fixed list of faults with conservative assumptions. <b>Probabilistic safety assessment (PSA)</b> tries to find <b>every</b> sequence that could lead to harm, estimates how likely each is with realistic data, and adds them up. The two complement each other.</p>`),
 W('matchPairs',{pairs:[['Level 1 PSA','Frequency of core damage (CDF)'],['Level 2 PSA','Containment response: frequency of large releases'],['Level 3 PSA','Off-site consequences: doses and health effects'],['Initiating event','The fault that starts a sequence']]},`Match each PSA term to what it covers.`),
 T(`<h3>What's included</h3><p>A full PSA covers internal faults (pipe breaks, equipment failures), internal hazards (fire, flooding), external hazards (earthquakes, extreme weather, flooding from the sea) and all operating states (full power, low power, shutdown with the vessel open).</p>`),
 Q(`Why is shutdown included in PSA?`,[`The core is less protected (vessel open, fewer systems available), so risk can be significant`,'It isn\'t included, because the reactor is shut down and can\'t go critical','Nothing can go wrong at shutdown, so it only needs to be checked for completeness','Only for cost reasons, because outages are expensive and need to be planned'],0,`Decay heat remains and defences are reduced.`),
@@ -946,6 +947,4 @@ RM(`<p>For y = x², the chord from a to a + h has gradient 2a + h, which tends t
 T(`<h3>Expanding (a + h)³</h3><p>(a + h)³ = (a + h)² × (a + h) = (a² + 2ah + h²)(a + h).</p><p>Multiply out and collect like terms:</p><div class="eq">(a + h)³ = a³ + 3a²h + 3ah² + h³</div>`),
 Q(`(a + h)³ expands to…`,[`a³ + 3a²h + 3ah² + h³`,'a³ + 3a²h + 3ah + h³','a³ + 2a²h + 2ah² + h³','a³ + 3a²h² + 3ah + h³'],0,`Four terms, with 3s in the middle two.`),
 W('stepCalc',{steps:[`Chord gradient = ((a + h)³ − a³) ÷ h`,`Expand: (a³ + 3a²h + 3ah² + h³ − a³) ÷ h`,`The a³ terms cancel: (3a²h + 3ah² + h³) ÷ h`,`Divide each term by h: <b>3a² + 3ah + h²</b>`,`As h → 0, both 3ah and h² vanish`,`So the gradient of y = x³ at x = a is <b>3a²</b>`]},`Reveal each step. It's the same plan as for x².`,`For y = x³, dy/dx = 3x².`),
-N(`For y = x³, what's the gradient at x = 2?`,12,0.001,'',`3 × 2² = 12.`),
-N(`For y = x³, what's the gradient at x = −1?`,3,0.001,'',`3 × (−1)² = 3. Positive, even on the left.`),
-Q(`Why does 3ah vanish as h → 0?`,[`It has an h in it, so it shrinks to 0`,'It has an a in it, and a is always 0','It is multiplied by 3, which cancels it','It doesn\'t vanish: it becomes 3a
+N(`For y = x³, what's the gradient at x = 2?`,12,0
