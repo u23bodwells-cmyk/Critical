@@ -701,6 +701,30 @@ function genTF(bank){
 }
 
 if(document.fonts&&document.fonts.load){document.fonts.load("40px Anton").then(function(){haveAnton=document.fonts.check("40px Anton");FIT.clear();SPR.clear()},function(){})}
-var API={moving:false,Q:Q,track:null,decode:decode,analyse:analyse,ensureCtx:ensureCtx,unlock:unlock,on:on,needs:needs,sleep:sleep,Player:Player,EDITS:EDITS,genQuiz:genQuiz,genTF:genTF,sfx:sfx};
+/* storytime background: your own song if one is loaded, otherwise a soft lo-fi loop */
+var BED=null;
+function bed(play){
+  if(!play){if(BED){var b=BED;BED=null;clearInterval(b.iv);try{var t1=AU.c.currentTime;b.g.gain.cancelScheduledValues(t1);b.g.gain.setValueAtTime(b.g.gain.value,t1);b.g.gain.linearRampToValueAtTime(0,t1+.3);b.src.forEach(function(s){s.stop(t1+.35)})}catch(e){}setTimeout(function(){try{b.g.disconnect()}catch(e){}},700)}return}
+  if(BED||!API.sound||!on())return;
+  var c=AU.c,g=c.createGain(),t0=c.currentTime+.06;g.gain.setValueAtTime(0,t0);g.gain.linearRampToValueAtTime(1,t0+1.4);BED={g:g,iv:0,src:[]};
+  if(API.track&&API.track.buf){var tr=API.track,s=c.createBufferSource(),vg=c.createGain(),lp0=c.createBiquadFilter();lp0.type="lowpass";lp0.frequency.value=3200;vg.gain.value=.38;
+    s.buffer=tr.buf;s.loop=true;s.connect(lp0);lp0.connect(vg);vg.connect(g);g.connect(AU.trk||AU.m);s.start(t0,Math.max(0,Math.min(tr.buf.duration-1,(tr.drop||0)-6)));BED.src.push(s);return}
+  g.connect(AU.m);
+  var lp=c.createBiquadFilter();lp.type="lowpass";lp.frequency.value=1400;lp.Q.value=.4;lp.connect(g);
+  var spb=60/76,next=t0+.05,step=0,CH=[[53,57,60,64],[52,55,59,62],[50,53,57,60],[48,52,55,59]];
+  function mf(m){return 440*Math.pow(2,(m-69)/12)}
+  function env(t,a,pk,d,dest){var e=c.createGain();e.gain.setValueAtTime(.0001,t);e.gain.exponentialRampToValueAtTime(pk,t+a);e.gain.exponentialRampToValueAtTime(.0001,t+a+d);e.connect(dest);return e}
+  function o(type,f,t,d,dest){var x=c.createOscillator();x.type=type;x.frequency.setValueAtTime(f,t);x.connect(dest);x.start(t);x.stop(t+d+.05);return x}
+  function n(t,d,type,f,q,v){var s=c.createBufferSource();s.buffer=AU.nz;var fl=c.createBiquadFilter();fl.type=type;fl.frequency.value=f;fl.Q.value=q;s.connect(fl);fl.connect(env(t,.002,v,d,g));s.start(t,Math.random()*.8);s.stop(t+d+.05)}
+  function sched(){if(!BED||BED.g!==g)return;var now=c.currentTime;while(next<now+.7){var t=next,q=step%8,ch=CH[Math.floor(step/8)%4];
+      if(q===0){ch.forEach(function(m,i){var tt=t+i*.02;o("sine",mf(m),tt,spb*3.6,env(tt,.04,.05,spb*3.4,lp));o("triangle",mf(m)*2,tt,spb*1.2,env(tt,.01,.012,spb,lp))});o("sine",mf(ch[0]-12),t,spb*1.8,env(t,.01,.2,spb*1.6,g))}
+      if(q===5)o("sine",mf(ch[0]-12),t,spb,env(t,.01,.13,spb*.9,g));
+      if(q===0||q===5){var ko=o("sine",110,t,.32,env(t,.003,.45,.28,g));ko.frequency.exponentialRampToValueAtTime(42,t+.12)}
+      if(q===2||q===6)n(t,.17,"bandpass",1700,.8,.11);
+      n(t+(q%2?spb*.09:0),.03,"highpass",7500,.6,q%2?.022:.036);
+      step++;next+=spb/2}}
+  var hs=c.createBufferSource(),hf=c.createBiquadFilter(),hg=c.createGain();hs.buffer=AU.nz;hs.loop=true;hf.type="bandpass";hf.frequency.value=4500;hf.Q.value=.6;hg.gain.value=.01;hs.connect(hf);hf.connect(hg);hg.connect(g);hs.start(t0);BED.src.push(hs);
+  sched();BED.iv=setInterval(sched,150)}
+var API={moving:false,Q:Q,track:null,decode:decode,analyse:analyse,ensureCtx:ensureCtx,unlock:unlock,on:on,needs:needs,sleep:sleep,Player:Player,EDITS:EDITS,genQuiz:genQuiz,genTF:genTF,sfx:sfx,bed:bed};
 WIN.ChainEdits=API;
 })();

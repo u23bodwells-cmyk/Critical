@@ -480,6 +480,65 @@ button{font:inherit;color:inherit}
 @media (prefers-reduced-motion:reduce){.card.on .bg i,.card.on .glyph::before,.card.on .glyph::after,.swipe svg,.card.on .in>*{animation:none!important}}
 @media (max-height:700px){.in{gap:10px;padding-top:calc(var(--st) + 62px)}.opt{padding:9px 12px}.opts{gap:7px}.hook{font-size:22px}.sim canvas,.reflex{height:min(30vh,240px)}}
 @media (max-height:640px){.glyph{display:none}}
+/* storytimes over gameplay */
+.k-tale{background:#05030c}
+.tgame{position:absolute;inset:0;background:#120a26 center/cover no-repeat}
+.k-tale.th0 .tgame{background-color:#3a0f5c}.k-tale.th1 .tgame{background-color:#0a1a4a}.k-tale.th2 .tgame{background-color:#003a2c}.k-tale.th3 .tgame{background-color:#5a1335}
+.k-tale.nogl .tgame{background-image:repeating-linear-gradient(0deg,rgba(255,255,255,.08) 0 2px,transparent 2px 46px),linear-gradient(#1a0533,#ff2d95 62%,#ffb347);background-size:100% 46px,100% 100%;animation:noglr .5s linear infinite}
+@keyframes noglr{to{background-position:0 46px,0 0}}
+.tvig{position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(0,0,0,.45),transparent 20%,transparent 62%,rgba(0,0,0,.6))}
+.tpost{position:absolute;z-index:3;left:18px;right:18px;top:calc(var(--st) + 100px);background:#fff;color:#1a1a1b;border-radius:18px;padding:14px 16px 12px;box-shadow:0 18px 50px rgba(0,0,0,.5);opacity:0;transform:translateY(-18px) scale(.94);transition:transform .4s cubic-bezier(.2,1.3,.4,1),opacity .25s;pointer-events:none}
+.tpost.show{opacity:1;transform:none}
+.tph{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+.tsi{width:36px;height:36px;flex:none;border-radius:50%;background:linear-gradient(135deg,#ff4500,#ff8a3d);display:grid;place-items:center;font-size:18px}
+.tph b{display:block;font:800 14px/1.2 system-ui,-apple-system,sans-serif}.tph small{display:block;color:#787c7e;font:500 12px/1.3 system-ui,-apple-system,sans-serif}
+.tpost h3{margin:0;font:800 20px/1.22 system-ui,-apple-system,"Segoe UI",sans-serif;letter-spacing:-.015em}
+.tpf{display:flex;gap:16px;margin-top:11px;color:#787c7e;font:700 13px system-ui,-apple-system,sans-serif}
+.tcap{position:absolute;z-index:3;left:40px;right:70px;top:36%;text-align:center;font:800 44px/1.08 Anton,Impact,"Arial Narrow","Helvetica Neue",Arial,sans-serif;font-synthesis:none;color:#fff;letter-spacing:.01em;pointer-events:none;
+  text-shadow:-3px -3px 0 #000,3px -3px 0 #000,-3px 3px 0 #000,3px 3px 0 #000,0 -3px 0 #000,0 3px 0 #000,-3px 0 0 #000,3px 0 0 #000,0 6px 0 #000,0 10px 24px rgba(0,0,0,.55)}
+.tcap span{display:inline-block;margin:0 .07em;transition:color .06s,transform .1s cubic-bezier(.2,1.6,.4,1)}
+.tcap span.on{color:#ffe14d;transform:scale(1.07) rotate(-1.5deg)}
+.k-tale.th2 .tcap span.on{color:#9cff3a}.k-tale.th1 .tcap span.on{color:#5fe1ff}
+.tcap.pop{animation:tcpop .2s cubic-bezier(.2,1.6,.4,1)}
+@keyframes tcpop{from{transform:scale(.78);opacity:.3}to{transform:none;opacity:1}}
+.tcoin{position:absolute;z-index:3;left:14px;top:calc(var(--st) + 62px);display:flex;align-items:center;gap:7px;background:rgba(0,0,0,.45);border-radius:999px;padding:5px 13px 5px 6px;color:#ffd166;font:800 16px system-ui,-apple-system,sans-serif;font-variant-numeric:tabular-nums}
+.tcoin i{width:20px;height:20px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff3b0,#ffc83d 45%,#b27600);box-shadow:0 0 10px rgba(255,200,61,.7)}
+.tcoin.bump i{animation:cbump .3s ease-out}@keyframes cbump{50%{transform:scale(1.35) rotate(25deg)}}
+.k-tale.paused .eplay,.k-yt.paused .eplay{opacity:1;transform:translate(-50%,-50%) scale(1)}
+.k-tale .rail,.k-yt .rail{bottom:calc(var(--sb) + 92px)}
+.tend{position:absolute;z-index:4;left:18px;right:78px;top:50%;transform:translateY(-50%);background:rgba(12,8,24,.84);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.14);border-radius:22px;padding:20px 18px;text-align:center;color:#fff;animation:rise .4s cubic-bezier(.2,.9,.3,1.25) both}
+.tek{display:inline-block;font:800 13px system-ui,-apple-system,sans-serif;letter-spacing:.06em;text-transform:uppercase;background:#a06bff;padding:6px 12px;border-radius:999px}
+.tek.tru{background:#1db954}
+.tend .sbtn{background:#fff;color:#111;padding:11px 18px;font-size:15px}.tend .sbtn.ghost{background:rgba(255,255,255,.14);color:#fff}
+.ytform .sbtn{background:#ff0033;color:#fff}.sheet a.sbtn,a.sbtn{display:inline-block;text-decoration:none}
+.tend p{font-size:16px;line-height:1.45;margin:12px 0 16px}
+.teb{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+/* real YouTube Shorts */
+.k-yt{background:#000}
+.ytbox{position:absolute;inset:0;overflow:hidden;background:#000 center/cover no-repeat}
+.ytshield{position:absolute;inset:0;z-index:2}
+.ytload{position:absolute;inset:0;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:30px 40px;text-align:center;color:#fff;background:radial-gradient(circle at 50% 38%,rgba(120,10,30,.85),rgba(0,0,0,.92) 72%)}
+.ytav{width:88px;height:88px;border-radius:50%;background:linear-gradient(135deg,#ff0033,#ff7a00);display:grid;place-items:center;font-size:42px;box-shadow:0 0 0 4px rgba(255,255,255,.14),0 10px 40px rgba(255,0,51,.4)}
+.ytload b{font-size:22px;font-weight:800}
+.ytst{font-size:14px;opacity:.8;display:flex;align-items:center;gap:8px;justify-content:center}
+.ytspin{display:inline-block;width:16px;height:16px;border:2.5px solid rgba(255,255,255,.25);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite}
+.ytadd{position:relative;z-index:3}
+.ytbadge{position:absolute;z-index:3;left:14px;top:calc(var(--st) + 64px);background:#ff0033;color:#fff;font:800 12px system-ui,-apple-system,sans-serif;letter-spacing:.02em;padding:5px 9px;border-radius:7px;pointer-events:none}
+.ecap a{color:#fff;font-weight:700}
+.ytform{display:flex;gap:8px}.ytform input{flex:1;min-width:0;border:1px solid var(--line);background:rgba(255,255,255,.07);color:var(--text);border-radius:12px;padding:11px 12px;font-size:16px}
+.ytmsg{font-size:13px;color:#ff8a9a;min-height:1em;margin:6px 0}
+.ytlist{display:flex;flex-direction:column;gap:6px;margin:8px 0}
+.yti{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.06);border-radius:12px;padding:6px 8px;font-size:13px}
+.yti img{width:48px;height:36px;object-fit:cover;border-radius:6px}.yti .ytci{width:48px;text-align:center;font-size:22px}
+.yti span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.yti button{border:0;background:rgba(255,255,255,.12);color:var(--text);border-radius:8px;width:30px;height:30px;cursor:pointer}
+/* storytime tiles on the Stories screen */
+.tlrow{display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;margin:0 -16px 18px;padding:0 16px 4px;scroll-snap-type:x mandatory}
+.tltile{flex:none;width:150px;height:200px;scroll-snap-align:start;border:0;border-radius:18px;padding:12px;display:flex;flex-direction:column;justify-content:flex-end;gap:6px;text-align:left;color:#fff;cursor:pointer;position:relative;overflow:hidden}
+.tltile.th0{background:linear-gradient(170deg,#1a0533,#ff2d95 70%,#ffb347)}.tltile.th1{background:linear-gradient(170deg,#020412,#1b3b8a)}.tltile.th2{background:linear-gradient(170deg,#00100c,#00b383)}.tltile.th3{background:linear-gradient(170deg,#14062b,#c2185b 65%,#ff9800)}
+.tltile b{font-size:14px;line-height:1.25;text-shadow:0 2px 6px rgba(0,0,0,.6)}
+.tlk{position:absolute;top:10px;left:10px;font:800 10px system-ui,-apple-system,sans-serif;letter-spacing:.08em;background:rgba(0,0,0,.4);padding:4px 7px;border-radius:6px}
+.tlw{font-size:11px;opacity:.8}
 </style>
 </head>
 <body>
@@ -515,6 +574,7 @@ button{font:inherit;color:inherit}
 <script src="chain-stories.js"></script>
 <script src="chain-fun.js"></script>
 <script src="chain-more.js"></script>
+<script src="chain-tales.js"></script>
 <script>
 (function(){
 "use strict";
@@ -838,10 +898,14 @@ function makeNext(){
   sess.sinceDrop=(sess.sinceDrop||0)+1;var dd=today();if(i>3&&sess.sinceDrop>5&&(dd.drops||0)<8&&Math.random()<.11){sess.sinceDrop=0;return{type:"drop",topic:"maths",id:"drop"+Date.now()+i}}
   if(retry.length&&retry[0].due<=i){var r=retry.shift().c;return mkQuiz(r.topic,r.q,[r.opts[r.ans]].concat(r.opts.filter(function(_,k){return k!==r.ans})),r.ex,r.id,"Second chance")}
   if(i===0){var e0=pickEdit();if(e0)return e0}
+  /* a real Short and a storytime early on, so the best stuff shows up straight away */
+  if(i===2&&mode==="feed"){var y0=pickYT();if(y0)return y0}
+  if(i===6&&mode==="feed"){var t0=pickItem(window.CHAIN_TALES||[],"tale");if(t0)return t0}
   if(i===4&&!S.swaps.length&&S.beatDay!==dk()){S.beatDay=dk();save();return{type:"beat",topic:"ops",id:"beat"+dk()}}
   var W=mode==="edits"?KW_EDITS:KW_FEED,last=i>0?kindOf(cards[i-1].c):null,last2=i>1?kindOf(cards[i-2].c):null,skip={};
   if(last&&!(mode==="edits"&&last==="edit"&&last2!=="edit"))skip[last]=1;
   if(i<3){skip.story=1;skip.tier=1}
+  cards.slice(-4).forEach(function(kk){var kd=kindOf(kk.c);if(kd==="tale"||kd==="story")skip[kd]=1});
   for(var t=0;t<10;t++){var k=wpick(W,skip),c=makeKind(k);if(c)return c;skip[k]=1}
   return fromPool("quiz",pickTopic())||GEN.maths();
 }
@@ -886,6 +950,8 @@ function inner(c){var t=TOP[c.topic]||TOP.reactor,h="";
 function build(c){var t=TOP[c.topic]||TOP.reactor,el=document.createElement("section");
   if(c.type==="edit"){el.className="card k-edit";el.innerHTML='<canvas class="ecv"></canvas><button class="snd" data-act="snd"></button><div class="eplay" aria-hidden="true"><svg viewBox="0 0 24 24" fill="#fff"><path d="M7 4.5v15l13-7.5z"/></svg></div>'+rail(c)+
     '<div class="ecap"><b>@critical</b> · '+esc(c.def.title)+'<div class="tags">'+esc(c.def.tags||"")+'</div><div class="music"><span>♫ '+(S.music&&S.music.on&&CE&&CE.track?esc(CE.track.name):'original sound · Critical '+(c.def.style==="hype"?"hype mix":"phonk"))+'</span></div></div><div class="eprog"><i></i></div>';sndLabel(el);return el}
+  if(c.type==="tale"){el.className="card k-tale th"+(TALE[c.ref].theme%4);el.dataset.th=TALE[c.ref].theme%4;el.innerHTML=taleHtml(c);talePoster(el);sndLabel(el);if(!threeP)setTimeout(function(){loadThree().catch(function(){})},400);return el}
+  if(c.type==="yt"){el.className="card k-yt";el.innerHTML=ytHtml(c);return el}
   el.className="card k-"+c.type;el.style.setProperty("--a",t.a);el.style.setProperty("--b1",t.b1);el.style.setProperty("--b2",t.b2);
   el.classList.add("t-"+c.type);
   if(c.type==="check"){el.style.setProperty("--b1","#2a2140");el.style.setProperty("--b2","#09070f");el.style.setProperty("--a","#F2C46D")}
@@ -898,8 +964,8 @@ function add(c){var el=build(c),k={c:c,el:el,t:0,dwell:0,done:false};cards.push(
 function mkPlayer(k){if(!k.el._ed&&CE)k.el._ed=CE.Player(k.el,k.c.def,{watched:function(){if(!k.done){k.done=true;award(2)}},
   gate:function(r){var d=today();if(r.ok===true){award(5);d.q++;d.ok++;sess.q++;sess.ok++;sess.combo++;CE.sfx("ok");vib(18)}else if(r.ok===false){d.q++;sess.q++;sess.combo=0;CE.sfx("no");vib([30,40,30])}else{award(2);vib(15)}save();flame()}})}
 function sndLabel(el){var b=el.querySelector(".snd");if(!b)return;var live=!!(S.sound&&CE&&CE.on());b.classList.toggle("live",live);b.textContent=live?"🔊":S.sound?"🔊 Tap for sound":"🔇 Sound off";b.setAttribute("aria-label",live?"Mute":"Turn sound on")}
-function allSnd(){cards.forEach(function(k){if(k.c.type==="edit")sndLabel(k.el)})}
-function wake(e){vUnlock();if(!CE||!S.sound||!CE.needs())return;if(e&&e.target&&e.target.closest&&e.target.closest(".snd"))return;CE.unlock().then(function(){if(!CE.on())return;var k=cards[active];if(k&&k.el._ed)k.el._ed.resync();allSnd()})}
+function allSnd(){cards.forEach(function(k){if(k.c.type==="edit"||k.c.type==="tale")sndLabel(k.el)})}
+function wake(e){vUnlock();if(!CE||!S.sound||!CE.needs())return;if(e&&e.target&&e.target.closest&&e.target.closest(".snd"))return;CE.unlock().then(function(){if(!CE.on())return;var k=cards[active];if(k&&k.el._ed)k.el._ed.resync();if(k&&k.c.type==="tale"&&k.el._pl)k.el._pl.snd();allSnd()})}
 ["pointerdown","pointerup","touchend","click","keydown"].forEach(function(ev){document.addEventListener(ev,wake,true)});
 function ensure(){while(cards.length<active+5)add(makeNext())}
 
@@ -921,7 +987,7 @@ function setActive(i){var now=Date.now();
   if(PLAYERS[k.c.type]){if(!k.el._pl)k.el._pl=PLAYERS[k.c.type](k.el,k);if(k.el._pl.start)k.el._pl.start()}
   if(!k.counted){k.counted=true;var d=today();d.n++;sess.n++;sess.since++;S.seen[k.c.id]=(S.seen[k.c.id]||0)+1;save();ring();
     if(d.n===GOAL){toast("🔥 Daily goal done! +50 XP · streak "+streak()+" day"+(streak()>1?"s":""));award(25)}}
-  ensure();if(i>0)hint(false);
+  ensure();ytManage();if(i>0)hint(false);
 }
 function leave(k){ /* reward reading facts, learn topic taste from dwell */
   if(k.c.type==="fact"&&!k.done&&k.dwell>2500){k.done=true;award(k.c.rare?5:1);if(k.c.rare)comboPop("✨ Rare fact +"+5*XPM)}
@@ -958,6 +1024,8 @@ feed.addEventListener("click",function(e){var k=cardOf(e.target);if(!k)return;
   if(k.c.type==="chat"&&k.el._pl&&e.target.closest(".chlog")){k.el._pl.speed();return}
   var o=e.target.closest(".opt");if(o&&(k.c.type==="quiz"||k.c.type==="tf")&&!o.closest(".sim")){answer(k,+o.dataset.i);return}
   var b=e.target.closest("[data-act]");if(b){act(k,b.dataset.act,b);return}
+  if(k.c.type==="yt"&&k.el._pl&&e.target.closest(".ytshield")){k.el._pl.tap();return}
+  if(k.c.type==="tale"&&k.el._pl&&k===cards[active]&&!e.target.closest("a,button,.rail,.ecap,.tend")){k.el._pl.toggle();return}
 });
 function answer(k,i){var c=k.c;if(k.answered)return;k.answered=true;var ok=i===c.ans,box=k.el.querySelector(".opts"),bs=box.querySelectorAll(".opt");
   bs.forEach(function(b,j){if(j===c.ans)b.classList.add("ok");else if(j===i)b.classList.add("no");else b.classList.add("fade")});
@@ -987,7 +1055,11 @@ function act(k,a,b){var c=k.c;
   else if(a==="beat")openBeat();
   else if(a==="voice"){setVoice(S.voice===false);toast(S.voice!==false?"🗣️ Voices on":"🤐 Voices off");if(S.voice===false&&k.el._pl&&k.el._pl.speed){}}
   else if(a==="snd"){var live=S.sound&&CE&&CE.on();S.sound=!live;if(CE)CE.sound=S.sound;save();
-    var done=function(){if(k.el._ed)k.el._ed.resync();allSnd()};if(S.sound&&CE)CE.unlock().then(done);else done()}
+    var done=function(){if(k.el._ed)k.el._ed.resync();if(k.c.type==="tale"&&k.el._pl)k.el._pl.snd();allSnd()};if(S.sound&&CE)CE.unlock().then(done);else done()}
+  else if(a==="ytsnd"){if(k.el._pl&&k.el._pl.sound)k.el._pl.sound()}
+  else if(a==="ytadd")openYT();
+  else if(a==="treplay"){if(k.el._pl)k.el._pl.replay()}
+  else if(a==="tnext")goTo(active+1);
 }
 function openDrop(k,b){if(k.opened)return;k.opened=true;var d=today();d.drops=(d.drops||0)+1;save();b.classList.add("shake");if(CE)CE.sfx("pop");vib([10,40,10,40,10]);
   var r=Math.random(),raw=r<.01?500:r<.08?50+rnd(26):r<.3?20+rnd(21):5+rnd(11),xp=raw*XPM,box=k.el.querySelector(".dropc");
@@ -1021,7 +1093,8 @@ function comboPop(t){var d=document.createElement("div");d.className="combo";d.t
 function vib(p){try{if(navigator.userActivation&&!navigator.userActivation.hasBeenActive)return;if(navigator.vibrate)navigator.vibrate(p)}catch(e){}}
 var toastT=0;function toast(t){var el=document.getElementById("toast");el.textContent=t;el.classList.add("show");clearTimeout(toastT);toastT=setTimeout(function(){el.classList.remove("show")},1900)}
 function plain(h){var d=document.createElement("div");d.innerHTML=h;return d.textContent}
-function share(c){var ITX={lie:LIES,head:HEADS,guess:GUESS,spot:SPOT,emoji:EMO,top5:TOP5,eli:ELI,vlog:VLOG}[c.type],it0=ITX&&ITX[c.ref];
+function share(c){if(c.type==="tale"||c.type==="yt"){var t1=c.type==="tale"?TALE[c.ref].title+" (a storytime on Critical)":ytLink(c);if(navigator.share)navigator.share({title:"Critical",text:t1,url:c.type==="yt"?ytLink(c):undefined}).catch(function(){});else if(navigator.clipboard)navigator.clipboard.writeText(t1).then(function(){toast("Copied to clipboard")},function(){});return}
+  var ITX={lie:LIES,head:HEADS,guess:GUESS,spot:SPOT,emoji:EMO,top5:TOP5,eli:ELI,vlog:VLOG}[c.type],it0=ITX&&ITX[c.ref];
   if(it0){var t0=c.type==="lie"?"Two truths and a lie: "+it0.s.map(function(x){return x[0]}).join(" / "):c.type==="head"?"Real or fake? "+it0.h:c.type==="emoji"?"Emoji riddle: "+it0.e:(it0.q||it0.title||"");t0+=" (from Critical)";if(navigator.share){navigator.share({title:"Critical",text:t0}).catch(function(){})}else if(navigator.clipboard){navigator.clipboard.writeText(t0).then(function(){toast("Copied to clipboard")},function(){})}return}
   var txt=c.type==="chat"?CHAT[c.ref].title+": "+CHAT[c.ref].lesson:c.type==="meme"?memeText(MEME[c.ref]):c.type==="tier"?TIER[c.ref].title:c.type==="wyr"?"Would you rather "+WYR[c.ref].a+" or "+WYR[c.ref].b+"?":c.type==="edit"?c.def.title+" "+c.def.shots.map(function(s){return s.cap}).filter(Boolean).join(". "):c.type==="fact"?plain(c.hook)+" "+plain(c.body):plain(c.q||c.hook||"")+(c.opts?" "+c.opts.map(plain).join(" / "):"");
   txt+=" (from Critical)";
@@ -1038,6 +1111,8 @@ var sy=null;sheet.addEventListener("touchstart",function(e){sy=sheet.scrollTop<=
 sheet.addEventListener("touchmove",function(e){if(sy!=null&&e.touches[0].clientY-sy>80){sy=null;closeSheet()}},{passive:true});
 var LEARN='<a class="go" href="critical.html">Learn this properly in Critical <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>';
 function explain(c,k){var h;
+  if(c.type==="tale"){var T0=TALE[c.ref];openSheet('<h3>'+esc(T0.title)+'</h3><p>'+esc(T0.text)+'</p><p><b>'+(T0.true?"✅ True story.":"📝 Made up.")+'</b> '+esc(T0.end)+'</p>');return}
+  if(c.type==="yt"){openSheet('<h3>'+esc(c.name||"YouTube")+'</h3><p>This is a real Short from YouTube, played with YouTube\'s own player. Tap the video for sound, tap again to pause.</p><p><a class="sbtn" style="background:#ff0033;color:#fff" href="'+ytLink(c)+'" target="_blank" rel="noopener">▶ Watch on YouTube</a> <button class="sbtn ghost" data-yt>📺 Add your own Shorts</button></p>');return}
   var X={lie:LIES,head:HEADS,guess:GUESS,spot:SPOT,emoji:EMO}[c.type];if(X&&X[c.ref]){var it=X[c.ref];openSheet('<h3>'+esc(it.q||it.title||it.h||"The answer")+'</h3><p>'+esc(it.ex)+'</p>'+LEARN);return}
   if(c.type==="top5"){var P5=TOP5[c.ref];openSheet('<h3>'+esc(P5.title)+'</h3>'+P5.items.map(function(x,j){return'<p><b>#'+(5-j)+' '+x[0]+' '+esc(x[1])+'</b><br>'+esc(x[2])+'</p>'}).reverse().join("")+LEARN);return}
   if(c.type==="eli"){var E3=ELI[c.ref];openSheet('<h3>'+esc(E3.q)+'</h3>'+E3.lv.map(function(x,j){return'<p><b>'+["🧸 Like I'm 5","📘 GCSE","🎓 Physicist"][j]+'</b><br>'+esc(x)+'</p>'}).join("")+LEARN);return}
@@ -1059,23 +1134,28 @@ function explain(c,k){var h;
 var tFeed=document.getElementById("tFeed"),tSaved=document.getElementById("tSaved"),tEdits=document.getElementById("tEdits"),tStories=document.getElementById("tStories");
 function setTab(t){tEdits.setAttribute("aria-selected",t==="edits");tFeed.setAttribute("aria-selected",t==="feed");tStories.setAttribute("aria-selected",t==="stories");tSaved.setAttribute("aria-selected",t==="saved")}
 function setMode(m){if(m===mode){closeSheet();return}mode=m;closeSheet();
-  var p=cards[active];if(p){if(p.el._ed)p.el._ed.stop();if(p.el._sim&&p.el._sim.stop)p.el._sim.stop()}
+  var p=cards[active];if(p){if(p.el._ed)p.el._ed.stop();if(p.el._sim&&p.el._sim.stop)p.el._sim.stop();if(p.el._pl&&p.el._pl.stop)p.el._pl.stop()}
+  cards.forEach(function(kk){if(kk.c.type==="yt"&&kk.el._pl)kk.el._pl.destroy()});
   feed.innerHTML="";cards=[];active=-1;retry=[];sess.since=0;feed.scrollTop=0;for(var i=0;i<4;i++)add(makeNext());setActive(0);setTab(m)}
 tFeed.onclick=function(){hideStories();setMode("feed");setTab(mode)};tEdits.onclick=function(){hideStories();setMode("edits");setTab(mode)};tStories.onclick=function(){showStories()};
 tSaved.onclick=function(){setTab("saved");
   var h='<h3>Saved</h3>';
   if(!S.saved.length)h+='<p>Nothing saved yet. Tap the bookmark on any card to keep it here.</p>';
   else h+='<p>'+S.saved.length+' saved. Tap one to see it again.</p><div class="savedList">'+S.saved.map(function(s,i){var c=s.c,t=TOP[c.topic]||TOP.reactor;
-    return '<button class="si" data-sv="'+i+'"><span class="g">'+(c.glyph||(c.type==="chat"&&CHAT[c.ref]?chatAv(CHAT[c.ref]).slice(0,2):c.type==="meme"?"😂":c.type==="tier"?"🏆":c.type==="wyr"?"🤔":({lie:"🕵️",head:"📰",guess:"🎯",spot:"🔍",build:"🛠️",geiger:"📟",vlog:"📱",top5:"🔢",eli:"🧠",emoji:"🧩"})[c.type]||t.g))+'</span><div><b>'+(c.hook||c.q||esc(c.title||(c.type==="chat"&&CHAT[c.ref]?CHAT[c.ref].title:c.type==="tier"&&TIER[c.ref]?TIER[c.ref].title:c.type==="wyr"&&WYR[c.ref]?"Would you rather: "+WYR[c.ref].a:c.type==="lie"&&LIES[c.ref]?"Two truths and a lie":c.type==="head"&&HEADS[c.ref]?HEADS[c.ref].h:c.type==="guess"&&GUESS[c.ref]?GUESS[c.ref].q:c.type==="spot"&&SPOT[c.ref]?"Spot the mistake: "+SPOT[c.ref].title:c.type==="top5"&&TOP5[c.ref]?TOP5[c.ref].title:c.type==="eli"&&ELI[c.ref]?ELI[c.ref].q:c.type==="emoji"&&EMO[c.ref]?"Emoji riddle "+EMO[c.ref].e:c.type==="vlog"&&VLOG[c.ref]?VLOG[c.ref].title:c.type==="build"?"Build a reactor":c.type==="geiger"?"Geiger counter":c.type==="meme"&&MEME[c.ref]?memeText(MEME[c.ref]).slice(0,70):"")))+'</b><small>'+t.n+' · '+(c.type==="fact"?"Fact":c.type==="sim"?"Try it":c.type==="edit"?"Edit":c.type==="story"?"Story":c.type==="chat"?"Text story":c.type==="meme"?"Meme":c.type==="tier"?"Tier list":c.type==="wyr"?"Would you rather":({lie:"Two truths and a lie",head:"Real or fake",guess:"Guess the number",spot:"Spot the mistake",build:"Build a reactor",geiger:"Geiger counter",vlog:"Day in the life",top5:"Top 5",eli:"Explain it 3 ways",emoji:"Emoji riddle"})[c.type]||"Quiz")+'</small></div></button>'}).join("")+'</div>';
+    return '<button class="si" data-sv="'+i+'"><span class="g">'+(c.glyph||(c.type==="chat"&&CHAT[c.ref]?chatAv(CHAT[c.ref]).slice(0,2):c.type==="meme"?"😂":c.type==="tier"?"🏆":c.type==="wyr"?"🤔":({lie:"🕵️",head:"📰",guess:"🎯",spot:"🔍",build:"🛠️",geiger:"📟",vlog:"📱",top5:"🔢",eli:"🧠",emoji:"🧩",tale:"🎮",yt:"▶️"})[c.type]||t.g))+'</span><div><b>'+(c.hook||c.q||esc(c.title||(c.type==="chat"&&CHAT[c.ref]?CHAT[c.ref].title:c.type==="tier"&&TIER[c.ref]?TIER[c.ref].title:c.type==="wyr"&&WYR[c.ref]?"Would you rather: "+WYR[c.ref].a:c.type==="lie"&&LIES[c.ref]?"Two truths and a lie":c.type==="head"&&HEADS[c.ref]?HEADS[c.ref].h:c.type==="guess"&&GUESS[c.ref]?GUESS[c.ref].q:c.type==="spot"&&SPOT[c.ref]?"Spot the mistake: "+SPOT[c.ref].title:c.type==="top5"&&TOP5[c.ref]?TOP5[c.ref].title:c.type==="eli"&&ELI[c.ref]?ELI[c.ref].q:c.type==="emoji"&&EMO[c.ref]?"Emoji riddle "+EMO[c.ref].e:c.type==="vlog"&&VLOG[c.ref]?VLOG[c.ref].title:c.type==="build"?"Build a reactor":c.type==="tale"&&TALE[c.ref]?TALE[c.ref].title:c.type==="yt"?(c.name||"YouTube")+" Short":c.type==="geiger"?"Geiger counter":c.type==="meme"&&MEME[c.ref]?memeText(MEME[c.ref]).slice(0,70):"")))+'</b><small>'+t.n+' · '+(c.type==="fact"?"Fact":c.type==="sim"?"Try it":c.type==="edit"?"Edit":c.type==="story"?"Story":c.type==="chat"?"Text story":c.type==="meme"?"Meme":c.type==="tier"?"Tier list":c.type==="wyr"?"Would you rather":({lie:"Two truths and a lie",head:"Real or fake",guess:"Guess the number",spot:"Spot the mistake",build:"Build a reactor",geiger:"Geiger counter",vlog:"Day in the life",top5:"Top 5",eli:"Explain it 3 ways",emoji:"Emoji riddle",tale:"Storytime",yt:"YouTube"})[c.type]||"Quiz")+'</small></div></button>'}).join("")+'</div>';
   openSheet(h)};
-sheetIn.addEventListener("click",function(e){if(e.target.closest("[data-music]")){openMusic();return}if(e.target.closest("[data-beat]")){openBeat();return}var vt=e.target.closest("[data-vtog]");if(vt){setVoice(S.voice===false);vt.textContent=S.voice!==false?"🗣️ Voices: on":"🤐 Voices: off";if(S.voice!==false){vUnlock();say("Voices are on.","narr")}return}var s=e.target.closest("[data-sv]");if(s){var c=JSON.parse(JSON.stringify(S.saved[+s.dataset.sv].c));if(c.type==="quiz")c=mkQuiz(c.topic,c.q,[c.opts[c.ans]].concat(c.opts.filter(function(_,k){return k!==c.ans})),c.ex,c.id,c.label);insertNext(c);closeSheet();return}
+sheetIn.addEventListener("click",function(e){if(e.target.closest("[data-music]")){openMusic();return}
+  if(e.target.closest("[data-yt]")){openYT();return}if(e.target.closest("[data-ytadd]")){ytAdd();return}
+  var yd=e.target.closest("[data-ytdel]");if(yd){var pr=yd.dataset.ytdel.split(":");if(pr[0]==="v")S.yt.v=S.yt.v.filter(function(v){return v!==pr[1]});else S.yt.ch=S.yt.ch.filter(function(x){return x.ch!==pr[1]});save();openYT();return}
+  if(e.target.closest("[data-ytretry]")){S.ytBad={};ytDown=0;save();toast("OK, they'll get another go");openYT();return}
+  if(e.target.closest("[data-ytoff]")){S.ytOff=!S.ytOff;save();refreshAhead();toast(S.ytOff?"YouTube hidden from your feed":"YouTube is back in your feed");openYT();return}if(e.target.closest("[data-beat]")){openBeat();return}var vt=e.target.closest("[data-vtog]");if(vt){setVoice(S.voice===false);vt.textContent=S.voice!==false?"🗣️ Voices: on":"🤐 Voices: off";if(S.voice!==false){vUnlock();say("Voices are on.","narr")}return}var s=e.target.closest("[data-sv]");if(s){var c=JSON.parse(JSON.stringify(S.saved[+s.dataset.sv].c));if(c.type==="quiz")c=mkQuiz(c.topic,c.q,[c.opts[c.ans]].concat(c.opts.filter(function(_,k){return k!==c.ans})),c.ex,c.id,c.label);insertNext(c);closeSheet();return}
   var tp=e.target.closest("[data-tp]");if(tp){var key=tp.dataset.tp;if(S.off[key])delete S.off[key];else{if(TK.filter(function(k){return!S.off[k]}).length<=1){toast("Keep at least one topic on");return}S.off[key]=1}
     tp.setAttribute("aria-pressed",!S.off[key]);save();refreshAhead()}});
 function insertNext(c){var at=active+1,el=build(c),k={c:c,el:el,t:0,dwell:0};feed.insertBefore(el,cards[at]?cards[at].el:null);cards.splice(at,0,k);setTimeout(function(){goTo(at)},60)}
 function refreshAhead(){ /* rebuild cards the user hasn't reached yet so topic changes apply */
-  for(var i=cards.length-1;i>active+1;i--){cards[i].el.remove();cards.splice(i,1)}ensure()}
+  for(var i=cards.length-1;i>active+1;i--){if(cards[i].el._pl&&cards[i].el._pl.destroy)cards[i].el._pl.destroy();cards[i].el.remove();cards.splice(i,1)}ensure()}
 document.getElementById("xpBtn").onclick=function(){var d=today(),acc=sess.q?Math.round(sess.ok/sess.q*100):null;
-  readSP();openSheet('<h3>Today</h3>'+spBlock()+'<p style="margin:10px 0 0;display:flex;gap:8px;flex-wrap:wrap"><button class="sbtn" data-music style="background:#a06bff;color:#fff">🎵 Edit music</button><button class="sbtn" data-beat style="background:#ff3b5c;color:#fff">📵 Beat TikTok</button><button class="sbtn ghost" data-vtog>'+(S.voice!==false?"🗣️ Voices: on":"🤐 Voices: off")+'</button></p>'+'<p style="font-size:14px;margin-top:10px">Everything you earn in Chain is doubled and goes straight onto your Critical XP: your streak, daily goal and season pass. All 3 sound packs are on this month\'s pass, at 1,850, 4,000 and 4,250 points.</p><div class="stats" style="margin-bottom:14px"><div class="st"><b>'+d.n+'/'+GOAL+'</b><span>cards today</span></div><div class="st"><b>'+streak()+'</b><span>day streak</span></div><div class="st"><b>'+(d.xp*XPM).toLocaleString("en-GB")+'</b><span>XP today</span></div><div class="st"><b>'+(d.q?Math.round(d.ok/d.q*100)+"%":"–")+'</b><span>quiz accuracy</span></div></div>'+
+  readSP();openSheet('<h3>Today</h3>'+spBlock()+'<p style="margin:10px 0 0;display:flex;gap:8px;flex-wrap:wrap"><button class="sbtn" data-music style="background:#a06bff;color:#fff">🎵 Edit music</button><button class="sbtn" data-beat style="background:#ff3b5c;color:#fff">📵 Beat TikTok</button><button class="sbtn" data-yt style="background:#ff0033;color:#fff">📺 YouTube Shorts</button><button class="sbtn ghost" data-vtog>'+(S.voice!==false?"🗣️ Voices: on":"🤐 Voices: off")+'</button></p>'+'<p style="font-size:14px;margin-top:10px">Everything you earn in Chain is doubled and goes straight onto your Critical XP: your streak, daily goal and season pass. All 3 sound packs are on this month\'s pass, at 1,850, 4,000 and 4,250 points.</p><div class="stats" style="margin-bottom:14px"><div class="st"><b>'+d.n+'/'+GOAL+'</b><span>cards today</span></div><div class="st"><b>'+streak()+'</b><span>day streak</span></div><div class="st"><b>'+(d.xp*XPM).toLocaleString("en-GB")+'</b><span>XP today</span></div><div class="st"><b>'+(d.q?Math.round(d.ok/d.q*100)+"%":"–")+'</b><span>quiz accuracy</span></div></div>'+
   '<h3>Your feed</h3><p>Tap a topic to turn it off or on. Liking cards and taking your time on them also teaches the feed what you like.</p><div class="topics">'+TK.map(function(k){return '<button class="tp" data-tp="'+k+'" aria-pressed="'+!S.off[k]+'">'+TOP[k].g+' '+TOP[k].n+'</button>'}).join("")+'</div>'+
   '<p style="font-size:14px">Total from Chain: '+S.xp.toLocaleString("en-GB")+' XP · '+Object.keys(S.liked).length+' liked · '+S.saved.length+' saved</p>')};
 
@@ -1128,14 +1208,15 @@ function endCount(so){return Object.keys(so.nodes).filter(function(k){return so.
 /* the app frame must never scroll (focusing a button near the edge could nudge it) */
 var APP=document.getElementById("app");APP.addEventListener("scroll",function(){if(APP.scrollTop||APP.scrollLeft){APP.scrollTop=0;APP.scrollLeft=0}});
 var stvOpen=false,stv=document.getElementById("stv"),sto=document.getElementById("sto"),PL={};
-function pauseFeed(){var k=cards[active];if(k){if(k.el._ed)k.el._ed.stop();if(k.el._sim&&k.el._sim.stop)k.el._sim.stop()}}
-function resumeFeed(){var k=cards[active];if(k&&k.el._ed&&!stvOpen&&sto.hidden)k.el._ed.start()}
+function pauseFeed(){var k=cards[active];if(k){if(k.el._ed)k.el._ed.stop();if(k.el._sim&&k.el._sim.stop)k.el._sim.stop();if((k.c.type==="tale"||k.c.type==="yt")&&k.el._pl)k.el._pl.stop()}}
+function resumeFeed(){var k=cards[active];if(!k||stvOpen||!sto.hidden)return;if(k.el._ed)k.el._ed.start();if((k.c.type==="tale"||k.c.type==="yt")&&k.el._pl&&k.el._pl.resume)k.el._pl.resume()}
 function showStories(){stvOpen=true;closeSheet();pauseFeed();hint(false);
-  stv.innerHTML='<h2>Interactive stories</h2><p>You make the calls. Every choice changes what happens next. Find every ending.</p><div class="stgrid">'+STORIES.slice().sort(function(a,b){return(stInfo(a.id).n?1:0)-(stInfo(b.id).n?1:0)}).map(function(so){var inf=stInfo(so.id),f=Object.keys(inf.e).length,n=endCount(so);
+  var TL=window.CHAIN_TALES||[];
+  stv.innerHTML=(TL.length?'<h2>🎮 Storytimes</h2><p>Wild true stories and funny made-up ones, told over gameplay.</p><div class="tlrow">'+TL.map(function(x){return'<button class="tltile th'+(x.theme%4)+'" data-tl="'+x.id+'"><span class="tlk">'+(x.true?"TRUE STORY":"STORYTIME")+'</span><b>'+esc(x.title)+'</b>'+(S.seen[x.id]?'<span class="tlw">✓ watched</span>':'')+'</button>'}).join("")+'</div>':'')+'<h2>Interactive stories</h2><p>You make the calls. Every choice changes what happens next. Find every ending.</p><div class="stgrid">'+STORIES.slice().sort(function(a,b){return(stInfo(a.id).n?1:0)-(stInfo(b.id).n?1:0)}).map(function(so){var inf=stInfo(so.id),f=Object.keys(inf.e).length,n=endCount(so);
     return '<button class="sttile'+(f===n?" done":"")+'" data-st="'+so.id+'"><span class="tk'+(so.kind==="Story"?" story":so.kind==="Funny"?" funny":"")+'">'+(so.kind==="Story"?"Story":so.kind==="Funny"?"Comedy":"Emergency")+'</span><span class="ti">'+so.icon+'</span><b>'+esc(so.title)+'</b><small>'+esc(so.blurb)+'</small><span class="tf">'+(f===n?"🏆 ":"")+f+' / '+n+' endings</span></button>'}).join("")+'</div>';
   stv.hidden=false;setTab("stories")}
 function hideStories(){if(!stvOpen)return;stvOpen=false;stv.hidden=true;resumeFeed()}
-stv.addEventListener("click",function(e){var b=e.target.closest("[data-st]");if(b)playStory(b.dataset.st)});
+stv.addEventListener("click",function(e){var tl=e.target.closest("[data-tl]");if(tl){var x=TALE[tl.dataset.tl];hideStories();setTab(mode);insertNext({type:"tale",topic:x.topic,id:x.id,ref:x.id});return}var b=e.target.closest("[data-st]");if(b)playStory(b.dataset.st)});
 function playStory(id){var so=STORY[id];if(!so)return;pauseFeed();PL={s:so,risk:10,path:0};document.getElementById("stt").textContent=so.icon+" "+so.title;sto.hidden=false;paintRisk();stGo(so.start);vib(10)}
 function stClear(){clearInterval(PL.ty);clearInterval(PL.beep);cancelAnimationFrame(PL.tr);PL.ty=PL.beep=PL.tr=0;PL.vr=(PL.vr||0)+1;hush()}
 var CASTN={steve:"Big Steve",priya:"Priya",mum:"Mum",mc:"Mission Control"};
@@ -1261,14 +1342,14 @@ PLAYERS.wyr=function(el,k){var W=WYR[k.c.ref],box=el.querySelector(".wyr"),T=0;
   return{start:function(){clearTimeout(T);if(!box.classList.contains("done"))T=setTimeout(function(){if(cards[active]===k)say("Would you rather "+W.a+", or "+W.b+"?","hype")},700)},stop:function(){clearTimeout(T);hush()}}};
 
 /* ---------- picking the next card: a weighted shuffle that never repeats a format back to back ---------- */
-var KW_FEED={edit:20,chat:10,meme:9,wyr:5,tier:3,game:7,story:3,quiz:6,tf:2,gen:4,fact:3,lie:6,head:5,guess:5,spot:4,build:2,geiger:2,vlog:3,top5:4,eli:3,emoji:5},
-  KW_EDITS={edit:66,chat:6,meme:5,game:4,wyr:3,tier:2,story:2,quiz:1,gen:1,lie:3,head:3,guess:2,emoji:2,top5:2,vlog:1};
+var KW_FEED={yt:20,tale:12,edit:20,chat:10,meme:9,wyr:5,tier:3,game:7,story:3,quiz:6,tf:2,gen:4,fact:3,lie:6,head:5,guess:5,spot:4,build:2,geiger:2,vlog:3,top5:4,eli:3,emoji:5},
+  KW_EDITS={yt:14,tale:6,edit:60,chat:6,meme:5,game:4,wyr:3,tier:2,story:2,quiz:1,gen:1,lie:3,head:3,guess:2,emoji:2,top5:2,vlog:1};
 function kindOf(c){if(!c)return null;var t=c.type;return t==="sim"?"game":t==="quiz"&&c.label?"gen":t}
 function pickItem(list,type){var recent={};cards.slice(-60).forEach(function(k){recent[k.c.id]=1});var c=list.filter(function(x){return!S.off[x.topic]&&!recent[x.id]});if(!c.length)c=list.filter(function(x){return!recent[x.id]});if(!c.length)return null;
   var mn=Infinity;c.forEach(function(x){mn=Math.min(mn,S.seen[x.id]||0)});var x=pick(c.filter(function(y){return(S.seen[y.id]||0)===mn}));return{type:type,topic:x.topic,id:x.id,ref:x.id}}
 function pickGame(){for(var tries=0;tries<6;tries++){var s=SIMLIST[SIMORD[simI++%SIMORD.length]],o={type:"sim",topic:s.topic,sim:s.sim,hook:s.hook,body:s.body,id:"sim-"+s.sim};if(s.mk){var m=s.mk();for(var mk in m)o[mk]=m[mk];o.id="sim-"+s.sim+"-"+m.v}if(!S.off[o.topic])return o}return null}
 function pickStoryCard(){if(!STORIES.length)return null;var sl=STORIES.filter(function(x){return!S.off[x.topic]});if(!sl.length)sl=STORIES;var recent={};cards.slice(-30).forEach(function(k){recent[k.c.id]=1});var s2=sl.filter(function(x){return!recent["story-"+x.id]});if(!s2.length)return null;var mn=Infinity;s2.forEach(function(x){mn=Math.min(mn,stInfo(x.id).n)});var pk=pick(s2.filter(function(x){return stInfo(x.id).n===mn}));return{type:"story",topic:pk.topic,sid:pk.id,id:"story-"+pk.id,title:pk.title}}
-function makeKind(k){if(k==="edit")return pickEdit();if(k==="chat")return pickItem(window.CHAIN_CHATS||[],"chat");if(k==="meme")return pickItem(window.CHAIN_MEMES||[],"meme");if(k==="tier")return pickItem(window.CHAIN_TIERS||[],"tier");if(k==="wyr")return pickItem(window.CHAIN_WYR||[],"wyr");
+function makeKind(k){if(k==="edit")return pickEdit();if(k==="yt")return pickYT();if(k==="tale")return pickItem(window.CHAIN_TALES||[],"tale");if(k==="chat")return pickItem(window.CHAIN_CHATS||[],"chat");if(k==="meme")return pickItem(window.CHAIN_MEMES||[],"meme");if(k==="tier")return pickItem(window.CHAIN_TIERS||[],"tier");if(k==="wyr")return pickItem(window.CHAIN_WYR||[],"wyr");
   if(k==="lie")return pickItem(window.CHAIN_LIES||[],"lie");if(k==="head")return pickItem(window.CHAIN_HEADS||[],"head");if(k==="guess")return pickItem(window.CHAIN_GUESS||[],"guess");if(k==="spot")return pickItem(window.CHAIN_SPOT||[],"spot");
   if(k==="top5")return pickItem(window.CHAIN_TOP5||[],"top5");if(k==="eli")return pickItem(window.CHAIN_ELI||[],"eli");if(k==="emoji")return pickItem(window.CHAIN_EMOJI||[],"emoji");if(k==="vlog")return pickItem(window.CHAIN_VLOGS||[],"vlog");
   if(k==="build")return pickItem(BUILD_ITEM,"build");if(k==="geiger")return pickItem(GEIGER_ITEM,"geiger");
@@ -1413,6 +1494,130 @@ sheetIn.addEventListener("click",function(e){if(e.target.closest("[data-copyswap
   var n=weekSwaps();setTimeout(function(){bigWin("💪","You chose Chain over TikTok","That’s swap #"+n+" this week. Every one breaks the habit a bit more.","<button class=\"sbtn\" data-wclose>Let’s go</button>")},700)}})();
 /* ---------- checkpoint ---------- */
 function mins(ms){var m=Math.round(ms/60000);return m<1?"under a minute":m===1?"1 minute":m+" minutes"}
+/* ---------- storytimes told over original 3D gameplay ---------- */
+var TALE={};(window.CHAIN_TALES||[]).forEach(function(x){TALE[x.id]=x});
+var POSTER={},threeP=null,PLAYSVG='<svg viewBox="0 0 24 24" fill="#fff"><path d="M7 4.5v15l13-7.5z"/></svg>';
+function addJs(src){return new Promise(function(ok,no){var s=document.createElement("script");s.src=src;s.async=true;s.onload=ok;s.onerror=no;document.head.appendChild(s)})}
+function loadThree(){if(threeP)return threeP;
+  threeP=(window.THREE?Promise.resolve():addJs("vendor/three.min.js")).then(function(){return window.ChainRun?0:addJs("chain-run.js")}).then(function(){
+    if(!window.ChainRun||!window.THREE)throw 0;
+    if(ChainRun.snap)for(var i=0;i<ChainRun.themes;i++)if(!POSTER[i])POSTER[i]=ChainRun.snap(i,270,480);
+    cards.forEach(function(k){if(k.c.type==="tale")talePoster(k.el)})});
+  threeP.catch(function(){threeP=null});return threeP}
+function talePoster(el){var p=POSTER[+el.dataset.th];if(p)el.querySelector(".tgame").style.backgroundImage="url("+p+")"}
+function fmtK(n){return n>=1000?(Math.round(n/100)/10)+"k":String(Math.round(n))}
+function taleHtml(c){var T=TALE[c.ref],up=parseFloat(T.up)*(/k/.test(T.up)?1000:1);
+  return '<div class="tgame"></div><div class="tvig"></div>'+
+  '<div class="tpost"><div class="tph"><span class="tsi">'+(T.true?"📜":"💬")+'</span><div><b>'+esc(T.sub)+'</b><small>'+esc(T.user)+' · '+(T.true?"true story":"storytime")+'</small></div></div><h3>'+esc(T.title)+'</h3><div class="tpf"><span>⬆ '+esc(T.up)+'</span><span>💬 '+fmtK(up*.031)+'</span><span>↗ Share</span></div></div>'+
+  '<div class="tcap"></div><div class="tcoin"><i></i><b>0</b></div><div class="eplay" aria-hidden="true">'+PLAYSVG+'</div><button class="snd" data-act="snd"></button>'+
+  '<div class="tend" hidden><div class="tek'+(T.true?" tru":"")+'">'+(T.true?"✅ True story":"📝 Made-up story")+'</div><p>'+esc(T.end)+'</p><div class="teb"><button class="sbtn" data-act="treplay">↻ Watch again</button><button class="sbtn ghost" data-act="tnext">Next ↓</button></div></div>'+
+  rail(c)+'<div class="ecap"><b>@critical</b> · storytime 🎮<div class="tags">#storytime '+(T.true?"#truestory #history":"#funny #relatable")+' #'+["synthwave","nightcity","reactor","sunset"][T.theme%4]+'run</div><div class="music"><span>♫ '+(S.music&&S.music.on&&CE&&CE.track?esc(CE.track.name):"lo-fi storytime beat · Critical")+'</span></div></div><div class="eprog"><i></i></div>'}
+/* split the story into 1 to 3 word captions, timed at a quick reading pace with pauses at commas and full stops */
+function taleWords(T){if(T._w)return T._w;var ws=T.text.split(/\s+/).filter(Boolean),t=0,ch=[],chunks=[];
+  ws.forEach(function(w){var end=/[.!?…]["”’)]*$/.test(w),cm=/[,;:—]["”’)]*$/.test(w);ch.push({w:w,t:t});t+=.17+.026*w.replace(/[^\w]/g,"").length+(end?.34:cm?.15:0);
+    if(end||cm||ch.length>=3||(ch.length>=2&&w.length>9)){chunks.push({ws:ch,t0:ch[0].t});ch=[]}});
+  if(ch.length)chunks.push({ws:ch,t0:ch[0].t});T._w={chunks:chunks,dur:t};return T._w}
+PLAYERS.tale=function(el,k){var T=TALE[k.c.ref],W=taleWords(T),cap=el.querySelector(".tcap"),post=el.querySelector(".tpost"),bar=el.querySelector(".eprog i"),coin=el.querySelector(".tcoin"),coinB=coin.querySelector("b"),endEl=el.querySelector(".tend"),game=el.querySelector(".tgame");
+  var head=Math.max(2.6,T.title.split(/\s+/).length*.3+.9),total=head+W.dur+.7,t=0,last=0,raf=0,paused=false,ci=-1,wi=-1,run=false,attached=false,finished=false;
+  function music(){if(!CE)return;if(run&&!paused&&!finished&&S.sound&&CE.on())CE.bed(true);else CE.bed(false)}
+  function finish(){finished=true;cap.innerHTML="";endEl.hidden=false;music();if(!k.done){k.done=true;award(2)}vib(12)}
+  function frame(now){raf=requestAnimationFrame(frame);var dt=last?Math.min(.1,(now-last)/1000):0;last=now;if(paused||finished)return;t+=dt;
+    post.classList.toggle("show",t<head);var st=t-head;
+    if(st>=0){var n=ci;while(n+1<W.chunks.length&&W.chunks[n+1].t0<=st)n++;
+      if(n!==ci){ci=n;wi=-1;cap.innerHTML=W.chunks[n].ws.map(function(x){return"<span>"+esc(x.w)+"</span>"}).join(" ");cap.classList.remove("pop");void cap.offsetWidth;cap.classList.add("pop")}
+      if(ci>=0){var ws=W.chunks[ci].ws,j=0;while(j+1<ws.length&&ws[j+1].t<=st)j++;if(j!==wi){var sp=cap.children;if(sp[wi])sp[wi].classList.remove("on");wi=j;if(sp[j])sp[j].classList.add("on")}}}
+    bar.style.transform="scaleX("+Math.min(1,t/total)+")";if(t>=total)finish()}
+  function go(){run=true;last=0;cancelAnimationFrame(raf);raf=requestAnimationFrame(frame);el.classList.toggle("paused",paused);
+    loadThree().then(function(){if(!run||attached||cards[active]!==k)return;try{if(ChainRun.attach(game,T.theme)){attached=true;ChainRun.pause(paused);ChainRun.onCoin(function(n){coinB.textContent=n;coin.classList.remove("bump");void coin.offsetWidth;coin.classList.add("bump")})}}catch(e){el.classList.add("nogl")}}).catch(function(){el.classList.add("nogl")});
+    music()}
+  function halt(){run=false;cancelAnimationFrame(raf);raf=0;if(attached&&window.ChainRun){ChainRun.detach();attached=false}if(CE)CE.bed(false)}
+  function reset(){t=0;ci=-1;wi=-1;finished=false;paused=false;endEl.hidden=true;cap.innerHTML="";coinB.textContent="0";bar.style.transform="scaleX(0)"}
+  return{start:function(){reset();go()},resume:function(){if(!run)go()},stop:halt,snd:music,
+    toggle:function(){if(finished)return;paused=!paused;el.classList.toggle("paused",paused);if(attached&&window.ChainRun)ChainRun.pause(paused);music();vib(8)},
+    replay:function(){halt();reset();go()}}};
+
+/* ---------- real YouTube Shorts, played with YouTube's own embedded player ---------- */
+S.yt=S.yt||{v:[],ch:[]};S.ytBad=S.ytBad||{};S.ytSeen=S.ytSeen||{};
+var ytP=null,ytDown=0;
+function loadYT(){if(window.YT&&YT.Player)return Promise.resolve(window.YT);if(ytP)return ytP;
+  ytP=new Promise(function(ok,no){var prev=window.onYouTubeIframeAPIReady;window.onYouTubeIframeAPIReady=function(){if(typeof prev==="function")try{prev()}catch(e){}ok(window.YT)};
+    addJs("https://www.youtube.com/iframe_api").catch(no);setTimeout(function(){if(window.YT&&YT.Player)ok(window.YT);else no()},15000)});
+  ytP.catch(function(){ytP=null;ytDown=Date.now()});return ytP}
+function ytLink(c){return c.vid?"https://www.youtube.com/shorts/"+c.vid:c.ch?"https://www.youtube.com/channel/"+c.ch+"/shorts":"https://www.youtube.com"}
+function ytHtml(c){return '<div class="ytbox"></div><div class="ytload"><div class="ytav">'+(c.em||"▶️")+'</div><b>'+esc(c.name||"YouTube")+'</b><span class="ytst"><i class="ytspin"></i> Loading Shorts…</span><button class="sbtn ghost ytadd" data-act="ytadd" hidden>＋ Add your own Shorts</button></div><div class="ytshield"></div>'+
+  '<div class="ytbadge">▶ YouTube Shorts</div><div class="eplay" aria-hidden="true">'+PLAYSVG+'</div><button class="snd ytsnd" data-act="ytsnd">🔇 Tap for sound</button>'+rail(c)+
+  '<div class="ecap"><b>@'+esc(c.name||"YouTube")+'</b>'+(c.mine?" · ⭐ your pick":"")+'<div class="tags">#shorts #science</div><div class="music"><a class="ytopen" href="'+ytLink(c)+'" target="_blank" rel="noopener">▶ Watch on YouTube ↗</a></div></div>'}
+function pickYT(){if(S.ytOff||(ytDown&&Date.now()-ytDown<6e5))return null;var recent={};cards.slice(-30).forEach(function(k){if(k.c.type==="yt")recent[k.c.ch||k.c.v]=1});
+  var mineV=function(v){return{type:"yt",topic:"energy",id:"yt-"+v,v:v,vid:v,name:"Your Shorts",em:"⭐",mine:1}};
+  var un=S.yt.v.filter(function(v){return!S.ytSeen[v]&&!recent[v]});if(un.length&&Math.random()<.7)return mineV(pick(un));
+  var L=S.yt.ch.map(function(x){return{id:"ytc-"+x.ch,name:x.name||"Your channel",ch:x.ch,topic:"energy",em:"⭐",mine:1}}).concat(window.CHAIN_YT||[]).filter(function(x){return!S.ytBad[x.ch]&&!recent[x.ch]&&(x.mine||!S.off[x.topic])});
+  if(!L.length){var sv=S.yt.v.filter(function(v){return!recent[v]});return sv.length?mineV(pick(sv)):null}
+  var sc=function(x){return(S.seen[x.id]||0)-(x.mine?2:0)},mn=Infinity;L.forEach(function(x){mn=Math.min(mn,sc(x))});var x=pick(L.filter(function(y){return sc(y)===mn}));
+  return{type:"yt",topic:x.topic,id:x.id,ch:x.ch,name:x.name,em:x.em,mine:x.mine?1:0}}
+PLAYERS.yt=function(el,k){var c=k.c,box=el.querySelector(".ytbox"),ld=el.querySelector(".ytload"),stx=el.querySelector(".ytst"),sb=el.querySelector(".ytsnd"),ln=el.querySelector(".ytopen");
+  var Y={p:null,ready:false,cued:false,ids:null,tries:0,full:false,phase:"",want:false,playing:false,dead:false,fb:false,timer:0,chk:0};
+  if(c.vid)box.style.backgroundImage="url(https://i.ytimg.com/vi/"+c.vid+"/hqdefault.jpg)";
+  function msg(t,add){ld.hidden=false;stx.textContent=t;ld.querySelector(".ytadd").hidden=!add}
+  function skipSoon(){setTimeout(function(){if(cards[active]===k)goTo(active+1)},1600)}
+  function paintSnd(){var on=!!(Y.p&&Y.cued&&S.ytSound&&!Y.fb&&Y.p.isMuted&&!Y.p.isMuted());sb.classList.toggle("live",on);sb.textContent=on?"🔊":"🔇 Tap for sound"}
+  function fit(){var f=box.querySelector("iframe");if(!f)return;var w=el.clientWidth,h=el.clientHeight;
+    if(Y.full){f.style.cssText="position:absolute;inset:0;width:100%;height:100%;border:0";return}
+    var Wd=Math.max(w,h*9/16),Hd=Math.max(h,Wd*16/9);f.style.cssText="position:absolute;border:0;left:"+((w-Wd)/2)+"px;top:"+((h-Hd)/2)+"px;width:"+Wd+"px;height:"+Hd+"px"}
+  function arm(){clearTimeout(Y.timer);Y.timer=setTimeout(function(){if(!Y.cued)msg("This one's taking ages… swipe on",true)},12000)}
+  function cueList(){Y.phase="list";try{Y.p.cuePlaylist({listType:"playlist",list:(Y.full?"UU":"UUSH")+c.ch.slice(2),index:0})}catch(e){}arm()}
+  function cueVid(v){Y.phase="vid";c.vid=v;ln.href=ytLink(c);try{Y.p.cueVideoById(v)}catch(e){}arm()}
+  function make(){if(Y.p||Y.dead||Y.loading)return;if(ytDown&&Date.now()-ytDown<6e5&&!(window.YT&&YT.Player)){msg("YouTube isn't loading right now (it may be blocked on this Wi-Fi)",false);if(Y.want)skipSoon();return}Y.loading=true;msg("Loading Shorts…");stx.insertAdjacentHTML("afterbegin",'<i class="ytspin"></i> ');
+    loadYT().then(function(YT){Y.loading=false;if(Y.p||Y.dead||!el.isConnected)return;var hold=document.createElement("div");box.innerHTML="";box.appendChild(hold);
+      var opt={host:"https://www.youtube-nocookie.com",width:"100%",height:"100%",playerVars:{autoplay:0,mute:1,playsinline:1,controls:0,rel:0,iv_load_policy:3,fs:0,disablekb:1,modestbranding:1,origin:location.origin},
+        events:{onReady:ready,onStateChange:state,onError:err}};
+      if(c.vid){opt.videoId=c.vid;Y.phase="vid"}Y.p=new YT.Player(hold,opt);fit();arm()},function(){Y.loading=false;msg("YouTube didn't load. It might be blocked on this Wi-Fi.",false);skipSoon()})}
+  function ready(){Y.ready=true;fit();if(!c.vid&&c.ch)cueList()}
+  function state(e){var s=e.data;
+    if((s===5||s===1)&&Y.phase==="list"&&!Y.ids){var ids=[];try{ids=Y.p.getPlaylist()||[]}catch(x){}
+      if(ids.length){Y.ids=ids;var pool=ids.slice(0,60),un=pool.filter(function(v){return!S.ytSeen[v]});cueVid(pick(un.length?un:pool));return}}
+    if(s===5||s===1){if(!Y.cued){Y.cued=true;clearTimeout(Y.timer);ld.hidden=true;fit();paintSnd();if(Y.want&&s===5)play()}}
+    if(s===1){Y.playing=true;el.classList.remove("paused");if(c.vid&&!S.ytSeen[c.vid]){S.ytSeen[c.vid]=1;save()}paintSnd()}
+    else if(s===2)Y.playing=false;
+    else if(s===0){Y.playing=false;if(!k.done){k.done=true;award(2)}if(Y.want)try{Y.p.seekTo(0,true);Y.p.playVideo()}catch(x){}}}
+  function err(e){clearTimeout(Y.timer);
+    if(Y.phase==="list"){if(!Y.full){Y.full=true;fit();cueList();return}S.ytBad[c.ch]=1;save();msg("This channel won't play here. Skipping…",false);skipSoon();return}
+    if(Y.ids&&Y.tries<3){Y.tries++;Y.cued=false;var rest=Y.ids.slice(0,60).filter(function(v){return v!==c.vid});if(rest.length){cueVid(pick(rest));return}}
+    msg("This video won't play here. Skipping…",false);skipSoon()}
+  function play(){Y.want=true;if(!Y.p)return make();if(!Y.cued)return;
+    try{if(S.ytSound&&!Y.fb){Y.p.unMute();Y.p.setVolume(100)}else Y.p.mute();Y.p.playVideo()}catch(x){}
+    clearTimeout(Y.chk);Y.chk=setTimeout(function(){if(Y.want&&!Y.playing&&Y.p&&Y.p.isMuted&&!Y.p.isMuted()){Y.fb=true;try{Y.p.mute();Y.p.playVideo()}catch(x){}paintSnd()}},2000)}
+  function sound(on){if(!Y.p||!Y.cued)return;S.ytSound=on;save();Y.fb=false;
+    try{if(on){Y.p.unMute();Y.p.setVolume(100);Y.p.playVideo()}else Y.p.mute()}catch(x){}paintSnd();
+    if(on){clearTimeout(Y.chk);Y.chk=setTimeout(function(){if(Y.want&&!Y.playing){Y.fb=true;try{Y.p.mute();Y.p.playVideo()}catch(x){}paintSnd();toast("Sound's blocked in here: tap “Watch on YouTube” for sound")}},1800)}}
+  return{prep:function(){make()},start:function(){hush();play()},resume:function(){play()},
+    stop:function(){Y.want=false;clearTimeout(Y.chk);try{if(Y.p&&Y.cued)Y.p.pauseVideo()}catch(x){}},
+    destroy:function(){Y.want=false;clearTimeout(Y.chk);clearTimeout(Y.timer);try{if(Y.p)Y.p.destroy()}catch(x){}Y.p=null;Y.ready=Y.cued=Y.playing=false;Y.ids=null;Y.phase="";box.innerHTML="";if(c.vid)box.style.backgroundImage="url(https://i.ytimg.com/vi/"+c.vid+"/hqdefault.jpg)";msg("Loading Shorts…")},
+    tap:function(){if(!Y.p||!Y.cued){if(!Y.p){Y.dead=false;make()}return}
+      if(Y.p.isMuted()||Y.fb){sound(true);return}
+      try{if(Y.playing){Y.p.pauseVideo();el.classList.add("paused")}else{Y.p.playVideo();el.classList.remove("paused")}}catch(x){}},
+    sound:function(){sound(!(S.ytSound&&!Y.fb&&Y.p&&!Y.p.isMuted()))},resize:fit}};
+/* only the Short on screen and the next one get a player; the rest are let go to save memory */
+function ytManage(){cards.forEach(function(kk,j){if(kk.c.type!=="yt")return;var near=j===active||j===active+1;
+  if(near){if(!kk.el._pl)kk.el._pl=PLAYERS.yt(kk.el,kk);kk.el._pl.prep()}else if(kk.el._pl&&(j<active-1||j>active+2))kk.el._pl.destroy()})}
+function ytParse(s){s=(s||"").trim();var m;
+  if((m=s.match(/(?:youtu\.be\/|\/shorts\/|[?&]v=|\/embed\/|\/live\/)([\w-]{11})/)))return{v:m[1]};
+  if((m=s.match(/\/channel\/(UC[\w-]{22})/))||(m=s.match(/^(UC[\w-]{22})$/)))return{ch:m[1]};
+  if(/^[\w-]{11}$/.test(s))return{v:s};if(/@[\w.-]+/.test(s))return{err:"handle"};return{err:"bad"}}
+function openYT(){var bad=(window.CHAIN_YT||[]).filter(function(x){return S.ytBad[x.ch]});
+  var h='<h3>📺 YouTube Shorts</h3><p>Real Shorts from science creators play right in your feed through YouTube\'s own player. Add your favourites too: paste a link to a Short, a video or a channel.</p>'+
+  '<div class="ytform"><input id="ytIn" type="url" inputmode="url" placeholder="Paste a YouTube link" autocomplete="off"><button class="sbtn" data-ytadd>Add</button></div><p class="ytmsg" id="ytMsg"></p>';
+  if(S.yt.v.length||S.yt.ch.length)h+='<div class="ytlist">'+S.yt.v.map(function(v){return'<div class="yti"><img src="https://i.ytimg.com/vi/'+v+'/default.jpg" alt=""><span>Short · '+v+'</span><button data-ytdel="v:'+v+'" aria-label="Remove">✕</button></div>'}).join("")+
+    S.yt.ch.map(function(x){return'<div class="yti"><span class="ytci">📺</span><span>Channel · '+esc(x.ch.slice(0,10))+'…</span><button data-ytdel="c:'+x.ch+'" aria-label="Remove">✕</button></div>'}).join("")+'</div>';
+  h+='<p style="font-size:13px">On YouTube: open a Short → Share → Copy link, then paste it here. Channel links need the long ID (youtube.com/channel/UC…): @handles can\'t be looked up without a YouTube developer key, so for those paste a few of their Shorts instead.</p>'+
+  '<p style="font-size:13px">Built in: '+(window.CHAIN_YT||[]).map(function(x){return esc(x.name)+(S.ytBad[x.ch]?" (won\'t load)":"")}).join(", ")+'.</p>'+
+  (bad.length?'<p><button class="sbtn ghost" data-ytretry>Try the ones that wouldn\'t load again</button></p>':'')+
+  '<p><button class="sbtn ghost" data-ytoff>'+(S.ytOff?"▶ Show YouTube in my feed":"🙈 Hide YouTube from my feed")+'</button></p>';
+  openSheet(h);var inp=document.getElementById("ytIn");if(inp)inp.addEventListener("keydown",function(e){if(e.key==="Enter")ytAdd()})}
+function ytAdd(){var inp=document.getElementById("ytIn"),out=document.getElementById("ytMsg");if(!inp)return;var r=ytParse(inp.value);
+  if(r.err){out.textContent=r.err==="handle"?"@handles can't be looked up without a YouTube key. Paste a link to one of their Shorts instead (Share → Copy link).":"That doesn't look like a YouTube link.";return}
+  if(r.v){if(S.yt.v.indexOf(r.v)<0)S.yt.v.unshift(r.v);S.yt.v=S.yt.v.slice(0,200);delete S.ytSeen[r.v];save();closeSheet();insertNext({type:"yt",topic:"energy",id:"yt-"+r.v,v:r.v,vid:r.v,name:"Your Shorts",em:"⭐",mine:1});toast("Added. Here it is!");return}
+  if(!S.yt.ch.some(function(x){return x.ch===r.ch}))S.yt.ch.unshift({ch:r.ch});delete S.ytBad[r.ch];save();closeSheet();insertNext({type:"yt",topic:"energy",id:"ytc-"+r.ch,ch:r.ch,name:"Your channel",em:"⭐",mine:1});toast("Channel added. Its Shorts will turn up in your feed")}
+addEventListener("resize",function(){if(window.ChainRun)ChainRun.resize();var k=cards[active];if(k&&k.c.type==="yt"&&k.el._pl)k.el._pl.resize()});
 function renderCheck(k){var el=k.el.querySelector(".chk"),ms=Date.now()-sess.t0,acc=sess.q?Math.round(sess.ok/sess.q*100)+"%":"–",d=today(),m=ms/60000;
   var nudge=m>=25?'<div class="nudge"><p><b>You\'ve been here '+mins(ms)+'.</b> That\'s a full lesson\'s worth of learning, not doom scrolling. Nice. Keep going if you\'re enjoying it, or turn it into proper progress.</p><div class="srow"><a class="sbtn" href="critical.html">Open a Critical lesson</a><a class="sbtn ghost" href="index.html">Back to menu</a></div></div>'
    :d.n>=GOAL?'<div class="nudge"><p>🔥 Daily goal done. <b>'+streak()+'-day streak.</b> Everything from here is a bonus.</p></div>'
@@ -1593,7 +1798,7 @@ addEventListener("keydown",function(e){if(!sto.hidden){if(e.key==="Escape")close
 });
 var rzT=0;addEventListener("resize",function(){clearTimeout(rzT);rzT=setTimeout(function(){if(active>=0){feed.scrollTop=active*cardH();var k=cards[active];if(k&&k.el._ed)k.el._ed.size()}},120)});
 addEventListener("pagehide",function(){if(active>=0){var k=cards[active];k.dwell+=Date.now()-k.t;k.t=Date.now();today().ms+=0}try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}});
-document.addEventListener("visibilitychange",function(){var k=cards[active];if(!k)return;if(document.hidden){if(k.el._sim&&k.el._sim.stop)k.el._sim.stop();if(k.el._ed)k.el._ed.stop();if(k.el._pl&&k.el._pl.stop)k.el._pl.stop();hush();if(CE)CE.sleep();try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}else{k.t=Date.now();readSP();if(k.el._ed)k.el._ed.start()}});
+document.addEventListener("visibilitychange",function(){var k=cards[active];if(!k)return;if(document.hidden){if(k.el._sim&&k.el._sim.stop)k.el._sim.stop();if(k.el._ed)k.el._ed.stop();if(k.el._pl&&k.el._pl.stop)k.el._pl.stop();hush();if(CE)CE.sleep();try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}else{k.t=Date.now();readSP();if(k.el._ed)k.el._ed.start();if((k.c.type==="tale"||k.c.type==="yt")&&k.el._pl&&k.el._pl.resume)k.el._pl.resume()}});
 
 /* first-run hint */
 var hintEl=null;function hint(show){if(show){hintEl=document.createElement("div");hintEl.className="swipe";hintEl.style.cssText="position:absolute;z-index:22;left:0;right:0;bottom:calc(var(--sb) + 130px);justify-content:center;text-shadow:0 1px 4px rgba(0,0,0,.8);color:#fff;pointer-events:none";hintEl.innerHTML='<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M6 11l6-6 6 6"/></svg>Swipe up for the next one';document.getElementById("app").appendChild(hintEl)}else if(hintEl){hintEl.remove();hintEl=null}}
