@@ -1,4 +1,7 @@
-nt.createElement('div');d.innerHTML=h;var sup=d.querySelector('sup'),sub=d.querySelector('sub'),sp=sup?sup.textContent:null,sb=sub?sub.textContent:'';if(sup)sup.remove();if(sub)sub.remove();
+)':n)+' over '+(cd?'('+d+')':d))}});
+ return out.join(' ').replace(/\s+,/g,',').replace(/\(\s+/g,'(').replace(/\s+\)/g,')')}
+function fxSaySup(sup){if(sup==null)return '';var s=fxStrip(sup).trim();return s==='2'?' squared':s==='3'?' cubed':' to the power of '+s}
+function fxSayAtom(h){var d=document.createElement('div');d.innerHTML=h;var sup=d.querySelector('sup'),sub=d.querySelector('sub'),sp=sup?sup.textContent:null,sb=sub?sub.textContent:'';if(sup)sup.remove();if(sub)sub.remove();
  var base=d.textContent,pw=base.match(/[⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺]+$/);if(pw){base=base.slice(0,-pw[0].length);sp=pw[0].split('').map(function(c){return FX_SUPD[c]}).join('')}
  var w=base.split('').map(function(c){return FX_GREEK[c]?' '+FX_GREEK[c]+' ':c}).join('').replace(/√/g,' the square root of ').replace(/\s+/g,' ').trim();
  if(base==='e'&&sp!=null)return 'e to the power of '+sp;return w+(sb?' '+sb:'')+(sp!=null?fxSaySup(sp):'')}
@@ -267,6 +270,92 @@ function mcfFix(c){if(!c||c.t!=='Q'||!c.o||typeof c.a!=='number'||c._mcFix||c.o.
  var o=c.o.slice(),used=0;weak.forEach(function(i){var x=cand[used];if(!x)return;if(cand.slice(0,used).some(function(y){return mcfOver(y.w,x.w)>0.6})){used++;x=cand[used];if(!x)return}o[i]=x.h;used++});
  if(!used)return null;return Object.assign({},c,{o:o,_mcFix:1})}
 var showCard_mcf=showCard;showCard=function(){try{if(typeof P!=='undefined'&&P&&P.cards){var c=P.cards[P.i],f=mcfFix(c);if(f){if(!P._pcCopy){P.cards=P.cards.slice();P._pcCopy=1}P.cards[P.i]=f}else if(c&&c.t==='Q'&&!c._mcFix){c._mcFix=1}}}catch(e){if(window.console)console.error(e)}return showCard_mcf.apply(this,arguments)};
+/* ===== Symbols to remember: meet each new symbol (like λ) on its own screen, check it after its equation, then spaced review ===== */
+var SYM_GREEK={'α':['alpha','AL-fuh','Greek a. Often an angle, a fraction, or an alpha particle.'],'β':['beta','BEE-tuh','Greek b. Beta particles, or the delayed-neutron fraction in a reactor.'],'γ':['gamma','GAM-uh','Greek g. Gamma rays, or the Lorentz factor in relativity.'],'Γ':['capital gamma','GAM-uh','Capital Greek G. Often a width or a decay rate.'],
+ 'δ':['delta','DEL-tuh','Greek d: a tiny change (δx is a very small bit of x).'],'Δ':['capital delta','DEL-tuh','A triangle, like a capital D for Difference. Δx means "the change in x".'],'ε':['epsilon','EP-si-lon','Greek e. Usually something small, or the fast fission factor in a reactor.'],'ζ':['zeta','ZAY-tuh','Greek z.'],'η':['eta','EE-tuh','Greek long e. Often efficiency, or neutrons made per neutron absorbed.'],
+ 'θ':['theta','THEE-tuh','An O with a bar: the usual letter for an angle.'],'κ':['kappa','KAP-uh','Greek k. Often a decay constant inside a barrier, or conductivity.'],'λ':['lambda','LAM-duh','An upside-down y. It\'s the Greek L: think L for the Length of a wave (wavelength), or L for Lifetime (the decay constant).'],
+ 'μ':['mu','MYOO','Greek m, with a tail. μ in front of a unit means micro (a millionth); on its own it\'s often a mean, a reduced mass or an attenuation coefficient.'],'ν':['nu','NYOO','Greek n, but it looks like a v. Frequency, or the number of neutrons per fission. Don\'t mix it up with v (speed)!'],'ξ':['xi','KSY','Greek x, a squiggle. In reactors, the average log energy loss per collision.'],
+ 'π':['pi','PIE','Greek p. The circle number, 3.14159…'],'ρ':['rho','ROE','Looks like a p, but it\'s Greek r. Density, resistivity, or reactivity.'],'σ':['sigma','SIG-muh','Small Greek s. A spread (standard deviation), or a cross section (the size a nucleus looks to a neutron).'],'Σ':['capital sigma','SIG-muh','Capital Greek S. S for Sum: Σ means "add them all up". In reactors it\'s also the macroscopic cross section.'],
+ 'τ':['tau','TOW (rhymes with cow)','Greek t. T for Time: a time constant, period or lifetime.'],'υ':['upsilon','UP-si-lon','Greek u.'],'φ':['phi','FY (or FEE)','Greek f. F for Flux (neutron flux), or a phase angle, or a work function.'],'Φ':['capital phi','FY','Capital Greek F. Flux, or a potential.'],'χ':['chi','KY','Greek ch, like an x. χ² measures how well a model fits.'],
+ 'ψ':['psi','SY (or PSY)','Like a trident. The wavefunction in quantum mechanics.'],'Ψ':['capital psi','SY','Capital psi: a wavefunction, often of the whole system.'],'ω':['omega','oh-MAY-guh','Small omega, shaped like a w. Angular frequency: how fast something goes round, in radians per second.'],'Ω':['capital omega','oh-MAY-guh','The symbol for ohms, the unit of resistance.'],
+ 'ħ':['h-bar','AITCH-bar','h with a line through it: h ÷ 2π. It turns up all over quantum mechanics.'],'∇':['nabla (del)','DEL','An upside-down triangle: the "slope in every direction" operator.'],'∂':['partial','PAR-shul dee','A curly d: a partial derivative, changing one variable while the others stay fixed.'],'∞':['infinity','in-FIN-it-ee','Bigger than any number.']};
+var SYM_SUP={'⁰':'0','¹':'1','²':'2','³':'3','⁴':'4','⁵':'5','⁶':'6','⁷':'7','⁸':'8','⁹':'9','⁻':'-'},SYM_TOSUP={'0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹','-':'⁻'};
+function symTxt(h){var d=document.createElement('div');d.innerHTML=h||'';return d.textContent.replace(/\s+/g,' ').trim()}
+function symShort(m){var t=symTxt(m);t=t.replace(/\s*\([^)]*\d[^)]*\)/g,'').split(/,\s*(?=[−\-]?\d)/)[0].split(/;\s/)[0].trim();return t.length>70?t.slice(0,67)+'…':t}
+function symNum(m){var t=symTxt(m),r=/(\d+(?:\.\d+)?)\s*×\s*10\s*(?:([⁻⁰¹²³⁴⁵⁶⁷⁸⁹]+)|([−-]?\d+))/.exec(t);if(!r)return null;var ex=r[2]?r[2].split('').map(function(c){return SYM_SUP[c]}).join(''):r[3].replace('−','-');return {txt:r[1]+' × 10'+symExpStr(ex),man:r[1],exp:ex}}
+function symExpStr(n){return String(n).split('').map(function(c){return SYM_TOSUP[c]||c}).join('')}
+function symGreek(s){return SYM_GREEK[s.charAt(0)]?s.charAt(0):null}
+function symKey(r){return r.s+'|'+r.ms.toLowerCase().replace(/[^a-z0-9 ]/g,'').slice(0,40)}
+function symRows(l,ui){var out=[],seen={};l.cards.forEach(function(c,ci){if(c.t!=='T'||!c.h||c.h.indexOf('class="key"')<0)return;var rs=[];try{rs=fxRows(c.h)}catch(e){}
+  rs.forEach(function(r){var s=symTxt(r.h),ms=symShort(r.m);if(!s||!ms||s.length>12||/^[0-9.]+$/.test(s)||ms.length<3)return;var o={s:s,h:r.h,m:r.m,ms:ms,u:symTxt(r.u),v:symNum(r.m),ci:ci,lid:l.id,tr:trk(ui),ui:ui,ord:ui*1000+UNITS[ui].lessons.indexOf(l)};o.k=symKey(o);if(seen[o.k])return;seen[o.k]=1;out.push(o)})});
+ var ss={};out.forEach(function(o){ss[o.s]=1});return out.filter(function(o){return !(o.s.length>1&&!/<su[bp]/.test(o.h)&&o.s.split('').every(function(c){return ss[c]}))})}
+var SYM_ALL=null;function symAll(){if(SYM_ALL)return SYM_ALL;SYM_ALL=[];var seen={};UNITS.forEach(function(u,ui){u.lessons.forEach(function(l){symRows(l,ui).forEach(function(r){var dk=r.tr+'#'+r.k;if(!seen[dk]){seen[dk]=1;SYM_ALL.push(r)}})})});return SYM_ALL}
+function symMem(){var x=lxGet();if(!x.syms||typeof x.syms!=='object'||Array.isArray(x.syms))x.syms={};return x}
+function symAdd(rows,due){var x=symMem(),t=today(),ch=false;rows.forEach(function(r,i){if(x.syms[r.k])return;x.syms[r.k]={b:0,due:lxAddD(t,due==null?1:due(i)),at:Date.now(),s:r.s,h:r.h,ms:r.ms,u:r.u,v:r.v,tr:r.tr,lid:r.lid};ch=true});if(ch)lxSet(x)}
+function symDue(){var x=symMem(),t=today();return Object.keys(x.syms).filter(function(k){return x.syms[k].due<=t})}
+function symShuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t}return a}
+/* distractors: other meanings or symbols, same subject first */
+function symOthers(r,field,n){var pool=symAll(),seen={},own=(field==='ms'?r.ms:r.s).toLowerCase(),ord=r.ord!=null?r.ord:null,lid=r.lid,gk=!!symGreek(r.s),c=[];seen[own]=1;
+ if(ord==null){pool.forEach(function(q){if(q.k===r.k){ord=q.ord;lid=q.lid}})}if(ord==null)ord=1e9;
+ symShuffle(pool.slice()).forEach(function(q){var v=field==='ms'?q.ms:q.s,lv=v.toLowerCase();if(q.s===r.s)return;if(field==='ms'&&(lv.indexOf(own)>=0||own.indexOf(lv)>=0))return;
+  /* closeness: same lesson, then same unit, then earlier lessons in the same subject; later or other-subject symbols last */
+  var sc=q.lid===lid?0:Math.floor(q.ord/1000)===Math.floor(ord/1000)?1:q.tr!==r.tr?9:q.ord<=ord?2+Math.min(4,(ord-q.ord)/3000):7;if(field==='s'&&gk&&symGreek(q.s))sc-=0.8;if(field==='s'&&q.s.length>3)sc+=3;c.push([sc+Math.random()*0.5,lv,field==='s'?q.h:v])});
+ c.sort(function(a,b){return a[0]-b[0]});var out=[];c.forEach(function(x){if(out.length<n&&!seen[x[1]]){seen[x[1]]=1;out.push(x[2])}});return out}
+function symQ(r,kind){var o,p,e,g=symGreek(r.s),nm=g?' ('+SYM_GREEK[g][0]+')':'';
+ if(kind==='val'&&r.v){var ex=+r.v.exp,man=r.v.man,opts=[r.v.txt,man+' × 10'+symExpStr(-ex),man+' × 10'+symExpStr(ex+(ex<0?-1:1)),man+' × 10'+symExpStr(ex-(ex<0?-1:1))];o=opts;p='What is the value of <b>'+r.h+'</b>, '+r.ms+'?';e=r.h+' = '+r.v.txt+(r.u?' '+r.u:'')+'. Watch the sign of the power: '+(ex<0?'a negative power means a tiny number.':'a positive power means a huge number.')}
+ else if(kind==='rev'){var oth=symOthers(r,'s',3);if(oth.length<3)return null;o=[r.h].concat(oth);p='Which symbol means <b>'+r.ms+'</b>?';e='It\'s '+r.h+nm+'.'+(g?' '+SYM_GREEK[g][2]:'')}
+ else{var om=symOthers(r,'ms',3);if(om.length<3)return null;o=[r.ms].concat(om);p='What does <b class="symin">'+r.h+'</b>'+nm+' stand for here?';e=r.h+nm+' is '+r.ms+(r.u?', measured in '+r.u:'')+'.'+(g?' '+SYM_GREEK[g][2]:'')}
+ var idx=o.map(function(_,i){return i});symShuffle(idx);return {t:'Q',p:p,o:idx.map(function(i){return o[i]}),a:idx.indexOf(0),e:e,_auto:1,_key:null,_mcFix:1,_symk:r.k}}
+/* the meet-the-symbol screen */
+WIDGETS.symMeet=function(box,par){var r=par.r,g=symGreek(r.s),G=g?SYM_GREEK[g]:null,x=symMem(),warn=null;for(var k in x.syms){var e=x.syms[k];if(e.s===r.s&&k!==r.k){warn=e;break}}
+ var w=el('div','symc','',box);w.innerHTML='<div class="symg">'+r.h+'</div>'+(G?'<div class="symn"><b>'+G[0]+'</b> · say it "'+G[1]+'"'+(r.s.length>1?' · with '+tlEsc(r.s.slice(1))+' added':'')+'</div>':'')+
+  '<p class="symm">Here, <b>'+r.h+'</b> means <b>'+tlEsc(r.ms)+'</b>'+(r.u?', measured in <b>'+tlEsc(r.u)+'</b>':'')+'.</p>'+(G?'<p class="symhook">💡 '+G[2]+'</p>':'')+
+  (r.v?'<p class="symval">🔢 A number to remember: <b>'+r.h+' = '+tlEsc(r.v.txt)+(r.u?' '+tlEsc(r.u):'')+'</b>. Say it out loud once. You\'ll be asked for it later.</p>':'')+
+  (warn?'<p class="symwarn">⚠️ You\'ve met <b>'+r.h+'</b> before, meaning <b>'+tlEsc(warn.ms)+'</b>. Same letter, different job: the lesson tells you which.</p>':'');
+ if(G){var tw=el('div','symtr','',box);tw.innerHTML='<div class="symtl">✍️ Trace it with your finger (or mouse) to help it stick</div>';var cv=document.createElement('canvas');cv.className='symcv';cv.setAttribute('height','170');tw.appendChild(cv);var strokes=[],cur=null;
+  function draw(){var gg=prep(cv),c=gg.c,W=gg.W,H=gg.H;c.fillStyle=cssv('--muted');c.globalAlpha=0.18;c.font='150px "Cambria Math","STIX Two Math",Georgia,serif';c.textAlign='center';c.textBaseline='middle';c.fillText(g,W/2,H/2+6);c.globalAlpha=1;c.strokeStyle=cssv('--accent');c.lineWidth=7;c.lineCap='round';c.lineJoin='round';strokes.forEach(function(s){c.beginPath();s.forEach(function(p,i){if(i)c.lineTo(p[0],p[1]);else c.moveTo(p[0],p[1])});c.stroke()})}
+  function pt(e){var b=cv.getBoundingClientRect();return [e.clientX-b.left,e.clientY-b.top]}
+  cv.addEventListener('pointerdown',function(e){cv.setPointerCapture(e.pointerId);cur=[pt(e)];strokes.push(cur);draw()});cv.addEventListener('pointermove',function(e){if(cur){cur.push(pt(e));draw()}});cv.addEventListener('pointerup',function(){cur=null});
+  var rr=row(tw);btn(rr,'Clear',function(){strokes=[];draw()});onDraw(draw);setTimeout(draw,0)}};
+/* put the screens into lessons: meet each new symbol before its equation, check it straight after */
+function symNew(r){var x=symMem();return !x.syms[r.k]}
+var playCards_sym=playCards;playCards=function(l){var out=playCards_sym(l);if(out._sym)return out;out._sym=1;
+ try{var lc=fxLoc(l);if(!lc)return out;var rows=symRows(l,lc.ui).filter(symNew);if(!rows.length)return out;var byCi={};rows.forEach(function(r){(byCi[r.ci]=byCi[r.ci]||[]).push(r)});
+  Object.keys(byCi).map(Number).sort(function(a,b){return b-a}).forEach(function(ci){var rs=byCi[ci].slice().sort(function(a,b){return (symGreek(b.s)?2:0)+(b.v?1:0)-(symGreek(a.s)?2:0)-(a.v?1:0)}).slice(0,4);
+   var at=-1;for(var i=0;i<out.length;i++)if(out[i]._key===l.id+'#'+ci){at=i;break}if(at<0)return;
+   var j=at+1;while(j<out.length&&out[j]._auto&&out[j].t!=='E'&&!out[j]._symk)j++;var qs=[],didRev=false,didVal=false;
+   rs.forEach(function(r){var q=symQ(r,'fwd');if(q)qs.push(q);if(!didRev&&symGreek(r.s)){var q2=symQ(r,'rev');if(q2){qs.push(q2);didRev=true}}if(!didVal&&r.v){var q3=symQ(r,'val');if(q3){qs.push(q3);didVal=true}}});
+   if(qs.length){var intro={t:'T',h:'<h3>🔤 Quick check: the symbols</h3><p>Before moving on, make sure the symbols you just met have stuck.</p>',_auto:1,_key:null};out.splice.apply(out,[j,0,intro].concat(qs))}
+   var meets=rs.map(function(r,n){return Object.assign(W('symMeet',{r:r},n?'🔤 Another new symbol':'🔤 New symbol before the next equation',''),{_auto:1,_key:null,_symMeet:r.k})});out.splice.apply(out,[at,0].concat(meets))})}catch(e){if(window.console)console.error(e)}return out};
+/* after a lesson, its symbols join the spaced review deck */
+var finish_sym=finish;finish=function(){var lid=null,ui=null,was=false;try{if(typeof P!=='undefined'&&P&&P.mode==='symrev'){symFinish();return}if(P&&P.mode==='lesson'&&UNITS[P.ui]){ui=P.ui;lid=UNITS[ui].lessons[P.li].id;was=!!S.done[lid]}}catch(e){}
+ var r=finish_sym.apply(this,arguments);try{if(lid&&S.done[lid]){var l=UNITS[ui].lessons.filter(function(x){return x.id===lid})[0];symAdd(symRows(l,ui))}}catch(e){if(window.console)console.error(e)}return r};
+/* symbols from lessons finished before this existed go into the deck too, spread over the next week */
+function symSeed(){try{if(S.symSeeded)return;var rows=[];UNITS.forEach(function(u,ui){u.lessons.forEach(function(l){if(S.done[l.id])rows=rows.concat(symRows(l,ui))})});symAdd(rows,function(i){return 1+(i%7)});S.symSeeded=1;save()}catch(e){if(window.console)console.error(e)}}
+setTimeout(symSeed,1500);
+var SYM_INT=[1,3,7,14,30,60];
+function symReview(){var due=symDue();if(!due.length){toast('🔤','No symbols due','They come back a day after each lesson, then after longer gaps');return}var x=symMem(),keys=symShuffle(due).slice(0,12),cs=[];
+ keys.forEach(function(k,n){var e=x.syms[k],r={s:e.s,h:e.h,ms:e.ms,u:e.u,v:e.v,tr:e.tr,k:k,lid:e.lid},kind=e.v&&n%3===2?'val':(n%2?'rev':'fwd'),q=symQ(r,kind)||symQ(r,'fwd');if(q){q._src='🔤 Symbols';cs.push(q)}});
+ if(!cs.length){toast('🔤','Nothing to review yet','');return}if(document.querySelector('#player.open'))closePlayer();
+ P={mode:'symrev',cards:cs,i:0,xp:0,right:0,asked:0,title:'Symbols to remember',color:'#378ADD',unit:'Symbols to remember',combo:0,best:0,cbonus:0,mistakes:0,fixed:0,newBadges:[],levelUp:null,_miss:{},_keys:keys};openPlayer()}
+var gotWrong_sym=gotWrong;gotWrong=function(c){try{if(typeof P!=='undefined'&&P&&c&&c._symk){if(P.mode==='symrev')P._miss[c._symk]=1;else{var x=symMem();if(x.syms[c._symk]){x.syms[c._symk].b=0;x.syms[c._symk].due=lxAddD(today(),1);lxSet(x)}}}}catch(e){}return gotWrong_sym.apply(this,arguments)};
+function symFinish(){P.finished=true;P.quiet=true;$('pBar').style.width='100%';var x=symMem(),t=today(),ok=0,ks=P._keys||[];
+ ks.forEach(function(k){var e=x.syms[k];if(!e)return;if(P._miss[k])e.b=0;else{e.b=Math.min(SYM_INT.length-1,e.b+1);ok++}e.due=lxAddD(t,SYM_INT[e.b]);e.at=Date.now()});lxSet(x);
+ $('pBody').innerHTML='<div class="done-screen"><div class="dicon" style="font-size:64px">🔤</div><h2>Symbols reviewed</h2><p class="note" style="font-size:16px">'+ok+' of '+ks.length+' remembered: they\'ll come back after a longer gap.'+(ks.length-ok?' The ones you missed come back tomorrow.':'')+'</p></div>';
+ foot('','','');skipBtn(null);mainBtn('Done',function(){closePlayer()});$('pXP').textContent=P.xp?'+'+P.xp+' XP':'';try{sfx('done')}catch(e){}}
+var decorReview_sym=decorReview;decorReview=function(){decorReview_sym.apply(this,arguments);var pg=$('page-review');if(!pg||pg.querySelector('#symRev'))return;var x=symMem(),n=Object.keys(x.syms).length;if(!n)return;var due=symDue().length;
+ var c=document.createElement('section');c.id='symRev';c.className='card fxrev';c.innerHTML='<div class="fxrh"><span class="fxri">🔤</span><div><b>Symbols to remember</b><p class="small">'+n+' symbol'+(n===1?'':'s')+' and numbers like λ, σ and h · '+(due?'<b>'+due+' due today</b>':'none due today')+'</p></div></div><button type="button" class="wbtn"'+(due?'':' disabled')+'>'+(due?'Test yourself on them':'Come back later')+'</button>';
+ c.querySelector('button').onclick=symReview;var a=pg.querySelector('#ideaRev')||pg.querySelector('#fxRev')||pg.querySelector('#lxRev');if(a)a.parentNode.insertBefore(c,a.nextSibling);else pg.appendChild(c)};
+/* a symbol reference page next to the glossary */
+function tlSyms(m){var x=symMem(),mine={},list=[];for(var k in x.syms){mine[k]=x.syms[k];if(x.syms[k].tr===m)list.push(Object.assign({k:k},x.syms[k]))}var later=symAll().filter(function(r){return r.tr===m&&!mine[r.k]}).length;
+ tlOpen('🔤 '+tlName(m)+' symbols',function(B){
+  B.innerHTML='<p class="tlnote">'+(list.length?list.length+' symbol'+(list.length===1?'':'s')+' you\'ve met, with how to say each Greek letter.':'Symbols appear here as you meet them in lessons.')+(later?' '+later+' more to come.':'')+'</p><div class="tllist">'+list.sort(function(a,b){return a.s.toLowerCase()<b.s.toLowerCase()?-1:1}).map(function(r){var g=symGreek(r.s),G=g?SYM_GREEK[g]:null,e=mine[r.k];
+   return '<div class="tlitem symli"><span class="symlg">'+r.h+'</span><div><b>'+tlEsc(r.ms)+'</b>'+(r.u?' <span class="tlsrc">('+tlEsc(r.u)+')</span>':'')+(G?'<p>'+G[0]+', said "'+G[1]+'"</p>':'')+(r.v?'<p>= '+tlEsc(r.v.txt)+(r.u?' '+tlEsc(r.u):'')+'</p>':'')+'<div class="tlsrc">'+(e.b>=2?'✓ remembered':e.b===1?'🔁 getting there':'🆕 new')+'</div></div></div>'}).join('')+'</div>'})}
+TL_EXTRA.push(function(m){return ['🔤','Symbols',function(){tlSyms(m)}]});
+(function(){var st=document.createElement('style');st.textContent='.symc{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px}.symg{font:600 84px/1.1 "Cambria Math","STIX Two Math",Georgia,serif;color:var(--accent);margin:4px 0}.symg sub,.symg sup{font-size:.45em}.symn{font-size:15px;color:var(--muted)}.symn b{color:var(--text);text-transform:capitalize}.symm{font-size:17px;line-height:1.5;margin:4px 0}.symhook,.symval,.symwarn{font-size:14.5px;line-height:1.5;margin:0;padding:8px 12px;border-radius:10px;background:color-mix(in srgb,var(--accent) 8%,var(--panel));text-align:left;width:100%;box-sizing:border-box}.symwarn{background:color-mix(in srgb,#c98a12 12%,var(--panel))}'+
+ '.symtr{margin-top:10px;display:flex;flex-direction:column;gap:6px}.symtl{font-size:13px;color:var(--muted);text-align:center}.symcv{width:100%;border-radius:12px;border:1.5px dashed var(--line);background:var(--panel);touch-action:none}.symin{font-family:"Cambria Math","STIX Two Math",Georgia,serif;font-size:1.25em}'+
+ '.symli{display:flex;gap:12px;align-items:flex-start}.symlg{min-width:52px;text-align:center;font:600 30px/1.1 "Cambria Math","STIX Two Math",Georgia,serif;color:var(--accent)}.symli p{margin:2px 0;font-size:13.5px}';document.head.appendChild(st)})();
+
 UNITS.forEach(function(u){u.lessons.forEach(function(l){l.cards.forEach(function(c){if(c.t==='W'&&c.w==='calcDrill'&&c.par&&!c.par.rule&&c.e)c.par.rule=c.e})})});
 /* XP earned in other Critical apps (Chain) waits in critical_xp_inbox as {days:{'YYYY-MM-DD':xp}} until Critical is open, then lands here as normal XP on the day it was earned, so it counts for the streak, daily goal and season pass */
 (function(){var K='critical_xp_inbox';function take(){var o=null;try{o=JSON.parse(localStorage.getItem(K)||'null')}catch(e){}if(!o||!o.days)return;try{localStorage.removeItem(K)}catch(e){}

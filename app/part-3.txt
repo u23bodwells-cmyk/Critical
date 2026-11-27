@@ -1,4 +1,5 @@
-cts').appendChild(uu)}return}
+'':'s')+' done</b><p>Today\'s plan is finished. Changed your mind? You can carry on with it.</p><div class="placts"></div>';
+   var uu=document.createElement('button');uu.type='button';uu.className='plgo alt';uu.textContent='Undo: carry on with the plan';uu.onclick=undoEarly;R.querySelector('.placts').appendChild(uu)}return}
   var bb=document.createElement('button');bb.type='button';bb.className='plbig';var rvT=rvOn(t);bb.textContent=(rvT?'Start revision':DAY(t).some(function(_,k){return isDone(t,k)})?'Carry on with today\'s plan':'Start today\'s plan')+' ('+DAY(t).slice(j).filter(function(_,k){return !isDone(t,j+k)}).reduce(function(s2,x){return s2+x[1]},0)+' min)';
   bb.onclick=function(){startRun()};R.appendChild(bb);
   var o1=document.createElement('button');o1.type='button';o1.className='plgo alt';o1.textContent='Just one question';o1.onclick=function(){close();ONE.start()};
@@ -2059,5 +2060,4 @@ W('nuclideChart',{},`This is a chart of nuclides: protons up, neutrons across. S
 Q(`Fission fragments have too many neutrons. How do they usually decay?`,['Alpha decay','Beta-minus decay','Beta-plus decay','They never decay'],1,`Beta-minus decay turns a neutron into a proton, moving the nucleus towards the stable band. Each fragment usually goes through a chain of these decays.`)]),
 L('a2','Binding energy',8,[
 T(`<h3>The missing mass</h3><p>A nucleus weighs <b>less</b> than the protons and neutrons it's made of. The missing mass, the <b>mass defect</b>, was released as energy when the nucleus formed.</p><p>The <b>binding energy</b> is the energy needed to pull a nucleus completely apart. Divide it by the number of nucleons to compare nuclei fairly.</p>`),
-W('beCurve',{},`Click the points on the curve. Find the <b>most tightly bound</b> nucleus.`,`Iron-56 (and nickel-62) sit at the top of the curve. Moving any nucleus towards the top releases energy.`),
-T(`<h3>Why fission releases energy</h3><p>Uranium sits on the right of the curve at about 7.6 MeV per nucleon. Its fission fragments are higher, at about 8.5 MeV per nucleon. Splitting
+W('beCurve',{},`Click the points on the curve. Find the <b>most tightly bound</b> nucleu

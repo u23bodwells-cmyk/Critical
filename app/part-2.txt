@@ -661,9 +661,10 @@ var PLAN=(function(){
  function pFor(n){/* the first quantum level that needs this */for(var q=1;q<=7;q++){var t='qm'+q;if(pDone(t))continue;if(t===n||pNeeds(t).indexOf(n)>=0)return t}return null}
  var pathC={t:0,v:null};
  function pathPlan(fresh){var now=Date.now();if(!fresh&&pathC.v&&now-pathC.t<4000)return pathC.v;var plan=null;
-  try{var pf=null;try{pf=pendingFollow('all')}catch(e){}var eq=0,wk=0,pl=0;try{eq=fxDue().length}catch(e){}var idn=0;try{idn=ideasDue().length}catch(e){}try{wk=lxDue().length}catch(e){}try{pl=pile()}catch(e){}
+  try{var pf=null;try{pf=pendingFollow('all')}catch(e){}var eq=0,wk=0,pl=0;try{eq=fxDue().length}catch(e){}var idn=0;try{idn=ideasDue().length}catch(e){}var sdn=0;try{sdn=symDue().length}catch(e){}try{wk=lxDue().length}catch(e){}try{pl=pile()}catch(e){}
    if(pf)plan={kind:'follow',label:'Follow-up practice',why:'A follow-up is waiting. Pass it to unlock new lessons.'};
    else if(eq>=4)plan={kind:'eq',label:'Equations to remember',why:eq+' equations are due to rebuild from memory. Catching up first keeps them in your head.'};
+   else if(sdn>=10)plan={kind:'syms',label:'Symbols to remember',why:sdn+' symbols and numbers (like λ) are due, so they don\'t slip away.'};
    else if(idn>=5)plan={kind:'ideas',label:'Ideas to remember',why:idn+' quantum lessons are due for a quick test so the ideas stick.'};
    else if(wk>=3)plan={kind:'weak',label:'Weak maths skills',why:wk+' maths skills you slipped up on are due for practice.'};
    else if(pl>=12)plan={kind:'fix',label:'Fix my mistakes',why:pl+' mistakes are waiting. Clearing them first stops gaps building up.'};
@@ -679,9 +680,9 @@ var PLAN=(function(){
   }catch(e){plan={kind:'done',label:'Learning path',why:''};if(window.console)console.error(e)}
   pathC={t:now,v:plan};return plan}
  function PATHR(){return ['Quick path review',5,'A busy day, so no new lessons: a 5-minute review of ideas or equations that are due, so your quantum and maths path doesn\'t go cold.',[['Go','pathrev']],0,'pathrev']}
- function pathReview(){var n=0;try{n=ideasDue().length}catch(e){}if(n){ideaReview();return}try{n=fxDue().length}catch(e){}if(n){fxReview();return}ONE.start()}
+ function pathReview(){var n=0;try{n=ideasDue().length}catch(e){}if(n){ideaReview();return}try{n=symDue().length}catch(e){}if(n){symReview();return}try{n=fxDue().length}catch(e){}if(n){fxReview();return}ONE.start()}
  function PATHB(i,ver){var m=(ver===3?20:10)*(i>=5?1.5:1),pl=pathPlan();return ['Quantum & maths path',Math.round(m),(pl.kind==='study'?'Next: '+pl.label+'. ':pl.kind==='done'?'':'Catch up first: '+pl.label+'. ')+pl.why+(pl.behind&&pl.kind==='study'?' '+pl.behind:''),[['Go','path']],0,'path']}
- function pathGo(){var pl=pathPlan(true);if(pl.kind==='follow'){var na=nextAction('all');if(na)runAction(na);return}if(pl.kind==='eq'){try{fxReview()}catch(e){}return}if(pl.kind==='ideas'){try{ideaReview()}catch(e){}return}if(pl.kind==='weak'){try{startWeak()}catch(e){}return}if(pl.kind==='fix'){showPage('review');try{startReview(true)}catch(e){}return}
+ function pathGo(){var pl=pathPlan(true);if(pl.kind==='follow'){var na=nextAction('all');if(na)runAction(na);return}if(pl.kind==='eq'){try{fxReview()}catch(e){}return}if(pl.kind==='ideas'){try{ideaReview()}catch(e){}return}if(pl.kind==='syms'){try{symReview()}catch(e){}return}if(pl.kind==='weak'){try{startWeak()}catch(e){}return}if(pl.kind==='fix'){showPage('review');try{startReview(true)}catch(e){}return}
   if(pl.kind==='done'){toastIn('You\'ve finished the whole quantum and maths path. Amazing.');return}
   var t=pTrack(pl.node),lv=pLv(pl.node);S.lvl=S.lvl||{};S.lvl[t]=lv;S.lvlOpen=S.lvlOpen||{};S.lvlOpen[t+lv]=1;S.mode=t;if(t==='qm')S.seenQm=1;else S.seenCalc=1;S.pathTurn=(S.pathTurn||0)+1;save();pathC.v=null;
   showPage('learn');var a=nextAction(t);if(a)runAction(a);else toastIn('Nothing left to do in '+pl.label+'.')}
@@ -1104,5 +1105,4 @@ var PLAN=(function(){
    var x2=document.createElement('button');x2.type='button';x2.className='plgo alt';x2.textContent='Next part now';x2.onclick=function(){var rr=runGet();if(rr){rr.ends=Date.now();runSet(rr);loop();paint()}};if(!isRv)A.appendChild(x2);
    var x4=document.createElement('button');x4.type='button';x4.className='plgo alt';x4.textContent='Finished early';x4.onclick=function(){finishEarly()};if(!isRv)A.appendChild(x4);
    var x3=document.createElement('button');x3.type='button';x3.className='plgo alt';x3.textContent='Stop the plan';x3.onclick=function(){stopRun(false)};A.appendChild(x3);return}
-  var j=firstLeft(t);if(j<0){if(feOn(t)){var fz0=PS().fe[t],fn=fz0.n||1;R.innerHTML='<p>Finished early today ✓</p><b>'+fn+' lesson'+(fn===1?'':'s')+' done</b><p>Today\'s plan is finished. Changed your mind? You can carry on with it.</p><div class="placts"></div>';
-   var uu=document.createElement('button');uu.type='button';uu.className='plgo alt';uu.textContent='Undo: carry on with the plan';uu.onclick=undoEarly;R.querySelector('.pla
+  var j=firstLeft(t);if(j<0){if(feOn(t)){var fz0=PS().fe[t],fn=fz0.n||1;R.innerHTML='<p>Finished early today ✓</p><b>'+fn+' lesson'+(fn===1?

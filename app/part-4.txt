@@ -1,4 +1,5 @@
- uranium moves nucleons up the curve, and the difference comes out as energy.</p>`),
+s.`,`Iron-56 (and nickel-62) sit at the top of the curve. Moving any nucleus towards the top releases energy.`),
+T(`<h3>Why fission releases energy</h3><p>Uranium sits on the right of the curve at about 7.6 MeV per nucleon. Its fission fragments are higher, at about 8.5 MeV per nucleon. Splitting uranium moves nucleons up the curve, and the difference comes out as energy.</p>`),
 N(`Estimate the energy released when 235 nucleons go from 7.6 to 8.5 MeV per nucleon.`,211.5,0.06,'MeV',`(8.5 − 7.6) × 235 ≈ 210 MeV. That matches the ~200 MeV per fission measured in reactors.`),
 Q(`Why do both fission of uranium and fusion of hydrogen release energy?`,['Both join small nuclei together to make heavier nuclei','Both move nuclei towards the peak of the binding energy curve','Both are chemical reactions that break bonds between atoms','Both absorb neutrons, which adds energy to the nuclei'],1,`Fusion climbs the curve from the left, fission from the right. Either way the products are more tightly bound.`)]),
 L('a3','Radioactive decay',10,[
@@ -660,6 +661,3 @@ F('m1',[
 T(`<h3>Quick recap</h3><p>Multiplying by 10<sup>n</sup> moves the decimal point <b>n places right</b>. Multiplying by 10<sup>−n</sup> moves it <b>n places left</b>.</p><table><tr><th>Prefix</th><th>Means</th></tr><tr><td>k (kilo)</td><td>10<sup>3</sup></td></tr><tr><td>M (mega)</td><td>10<sup>6</sup></td></tr><tr><td>G (giga)</td><td>10<sup>9</sup></td></tr><tr><td>m (milli)</td><td>10<sup>−3</sup></td></tr><tr><td>µ (micro)</td><td>10<sup>−6</sup></td></tr></table><p><b>Reactivity:</b> Δk/k × 100,000 = pcm, and %Δk/k × 1000 = pcm.</p><div class="callout"><b>Worked example:</b> 0.0035 Δk/k × 100,000 = <b>350 pcm</b>.</div>`),
 N(`Write 6.2 × 10<sup>−3</sup> as an ordinary decimal.`,0.0062,0.001,'',`10<sup>−3</sup> moves the point 3 places left: 6.2 → 0.0062.`,`Move the decimal point 3 places to the left.`),
 Q(`How many watts is 1630 MW?`,['1.63 × 10<sup>9</sup> W','1.63 × 10<sup>6</sup> W','1.63 × 10<sup>3</sup> W','1.63 × 10<sup>12</sup> W'],0,`1630 MW = 1630 × 10<sup>6</sup> W = 1.63 × 10<sup>9</sup> W, about one Hinkley Point C unit's electrical output.`,`Mega means 10<sup>6</sup>, and 1630 is 1.63 × 10<sup>3</sup>.`),
-N(`Convert 0.0015 Δk/k to pcm.`,150,0.01,'pcm',`0.0015 × 100,000 = 150 pcm.`,`Multiply by 100,000.`),
-N(`Convert 0.3 %Δk/k to pcm.`,300,0.01,'pcm',`0.3 × 1000 = 300 pcm. (0.3% = 0.003 Δk/k = 300 pcm.)`,`1 %Δk/k is 1000 pcm.`),
-Q(`Which time is shortest?`,['3 × 10<sup>−5</sup> s','0.0002 s','50 µ

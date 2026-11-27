@@ -1,4 +1,6 @@
-DNBR limits (Level 3 Theory).</li><li>Critical boron, rod worth and temperature coefficients (Level 3).</li></ul>`),
+rnable poisons</b> (gadolinium).</li><li>Poisons cut start-of-cycle boron and keep the MTC negative.</li></ul>`)]),
+LH('t5-1-3','Checking the core: monitoring and startup tests',10,'The core design is a prediction. How the plant proves the real core matches it.',[
+RM(`<ul><li>Peaking factors and DNBR limits (Level 3 Theory).</li><li>Critical boron, rod worth and temperature coefficients (Level 3).</li></ul>`),
 T(`<h3>Measuring the power shape</h3><p>The EPR measures its in-core power distribution in two ways:</p><ul><li><b>Self-powered neutron detectors</b> fixed in the core, giving continuous readings used by the protection and limitation systems.</li><li>An <b>aeroball system</b>: small vanadium balls blown into the core with gas, activated by neutrons, then blown out and counted. This gives a detailed flux map used to calibrate the fixed detectors.</li></ul>`),
 T(`<h3>Startup physics tests</h3><p>After every refuelling, before going to full power, operators and reactor engineers check that measured values match the design predictions within set tolerances.</p>`),
 O(`Put a typical post-refuelling startup test sequence in order.`,[`Approach to criticality by diluting boron or withdrawing rods`,`Measure the critical boron concentration at hot zero power`,`Measure the isothermal temperature coefficient`,`Measure control rod bank worths`,`Raise power in steps, taking flux maps to check the power distribution`],`Low-power tests first, then flux maps at increasing power.`),
@@ -908,6 +910,4 @@ LH('c1-3-2','y = mx + c',8,'Read the gradient straight from the equation of a li
 RM(`<p>Gradient = change in y ÷ change in x. Positive slopes up, negative slopes down.</p>`),
 T(`<h3>The equation of a straight line</h3><div class="eq">y = mx + c</div>${KY([['m','the gradient',''],['c','the y-intercept: where it crosses the y-axis','']])}<p>So y = 3x + 2 has gradient 3 and crosses the y-axis at 2.</p>`),
 Q(`What is the gradient of y = 5x − 7?`,[`5`,`−7`,`7`,`−5`],0,`The number in front of x is the gradient.`),
-T(`<h3>Watch out for the order</h3><p>y = 8 − 2x is still a straight line. The gradient is the number multiplying x, including its sign: <b>−2</b>.</p>`),
-Q(`What is the gradient of y = 8 − 2x?`,[`−2`,`8`,`2`,`−8`],0,`It's the coefficient of x: −2.`),
-T(`<h3>Make y the subject first</h3><p>If the equation is 2y = 6x + 4, d
+T(`<h3>Watch out for the or

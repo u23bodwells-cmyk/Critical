@@ -1,4 +1,5 @@
-,
+Fuel and batteries: chemical. Hot: thermal.`),
+Q(`You drop a ball. Which energy transfer happens as it falls?`,[`Gravitational potential → kinetic`,`Kinetic → gravitational potential`,`Chemical → kinetic`,`Thermal → kinetic`],0,`It loses height (gravitational potential) and speeds up (kinetic).`),
 T(`<h3>Kinetic energy</h3><p>The energy in an object's kinetic store depends on its mass and its speed:</p><div class="eq">E<sub>k</sub> = ½ m v²</div>${KY([['E<sub>k</sub>','kinetic energy','J'],['m','mass','kg'],['v','speed','m/s']],'Your exams (summer 2028) come with an equation sheet, but learn it anyway: knowing it by heart makes you much faster.')}`),
 T(`<h3>Speed counts double</h3><p>Speed is <b>squared</b>. That means:</p><ul><li>Double the mass → double the kinetic energy.</li><li>Double the speed → <b>four times</b> the kinetic energy (2² = 4).</li></ul><p>That's why a crash at 60 mph is so much worse than one at 30 mph.</p>`),
 Q(`A car doubles its speed. What happens to its kinetic energy?`,[`It becomes 4 times bigger`,'It becomes 2 times bigger','It becomes 8 times bigger','It becomes 4 times smaller'],0,`E<sub>k</sub> depends on v². (2v)² = 4v².`),
@@ -866,7 +867,4 @@ RM(`<p>A formula counts the atoms: H₂O is 2 H and 1 O. reactants → products.
 T(`<h3>Why balance?</h3><p>Atoms aren't made or destroyed in a reaction, just rearranged. So there must be the same number of each type of atom on both sides.</p><p>H₂ + O₂ → H₂O isn't balanced: 2 O on the left, only 1 on the right.</p>`),
 T(`<h3>How to balance</h3><ol><li>Count each type of atom on both sides.</li><li>Put a <b>big number in front</b> of a formula to fix one element.</li><li>Recount and repeat until everything matches.</li></ol><p>Never change the small numbers: that would change the substance.</p>`),
 W('stepCalc',{steps:[`Balance: H₂ + O₂ → H₂O`,`Count: left has 2 H and 2 O; right has 2 H and 1 O`,`Fix O: put 2 in front of H₂O → H₂ + O₂ → 2H₂O. Now the right has 4 H and 2 O`,`Fix H: put 2 in front of H₂ → 2H₂ + O₂ → 2H₂O`,`Check: 4 H and 2 O on each side. <b>Balanced</b>`]},`A worked example.`,`Fix one element at a time, then recount.`),
-W('calcDrill',{skill:'g_balance',need:4},`Balance the equations. Get 4 right to master it.`,`Type 1 where no number is needed.`),
-T(`<h3>Key points</h3><ul><li>Same number of each atom on both sides.</li><li>Change the big numbers in front, never the small ones.</li><li>Recount after every change.</li></ul>`)])
-]});
-U({id:'gc1-4',track:'gc',level:1,title:'Acids and reactions',icon:'
+W('calcDrill',{skill:'g_balance',need:4},`Balance the equations. Get 4 right to master i
