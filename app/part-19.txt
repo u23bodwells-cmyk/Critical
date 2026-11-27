@@ -1,4 +1,35 @@
-k=lv?lv*2-(ord.checked?0:1):0;return {n:n,lv:lv,mk:mk}}
+tLessonIn(ui){var u=UNITS[ui];for(var i=0;i<u.lessons.length;i++)if(!S.done[u.lessons[i].id])return i;return -1}
+ function focusFor(t,wk){/* weakest topics first, then the next unfinished unit, then anything finished for review */var us=[];UNITS.forEach(function(u,ui){if(trk(ui)===t)us.push(ui)});
+  var weak=us.map(uStats).filter(function(s){return s.s!=null&&s.s<.75}).sort(function(a,b){return a.s-b.s}).map(function(s){return s.ui}),todo=us.filter(function(ui){return nextLessonIn(ui)>=0}),done=us.filter(function(ui){return nextLessonIn(ui)<0});
+  var order=weak.concat(todo.filter(function(x){return weak.indexOf(x)<0})).concat(done.filter(function(x){return weak.indexOf(x)<0}));if(!order.length)return null;return order[wk%order.length]}
+ function timetable(){var start=gx().start,m0=monday(),weeks=Math.max(1,Math.ceil(daysTo(start)/7)),out=[];
+  for(var w=0;w<Math.min(weeks,90);w++){var row={m:dAdd(m0,w*7),f:{}};GSUBS.forEach(function(t,i){var weak=w<4?0:w;row.f[t]=focusFor(t,w)});out.push(row)}return out}
+ function cdCard(){var g=gx(),d=daysTo(g.start),tot=0,dn=0;GSUBS.forEach(function(t){UNITS.forEach(function(u,ui){if(trk(ui)!==t)return;u.lessons.forEach(function(l){tot++;if(S.done[l.id])dn++})})});
+  var tt=timetable(),wk=tt[0],h='<div class="card xcard" id="xCount"><h2>GCSE countdown</h2><div class="xcd"><div><div class="xnum">'+fmtInt(d)+'</div><div class="u">days until your GCSEs start</div></div></div>'+
+   '<div class="xcdrow"><div><b>'+Math.floor(d/7)+'</b><span>weeks</span></div><div><b>'+Math.round(dn/Math.max(1,tot)*100)+'%</b><span>of GCSE lessons done</span></div><div><b>'+Math.max(0,tot-dn)+'</b><span>lessons to go</span></div><div><b>'+(Math.floor(d/7)?Math.ceil(Math.max(0,tot-dn)/Math.max(1,Math.floor(d/7))):Math.max(0,tot-dn))+'</b><span>a week keeps you on track</span></div></div>'+
+   '<div class="xdate"><label for="xStart">First exam</label><input type="date" id="xStart" value="'+g.start+'"><span>'+(g.set?'Set by you.':'About 8 May 2028 is an estimate. Change it when school gives you the timetable.')+'</span></div>'+
+   '<h3 style="margin:16px 0 0;font-size:17px">This week\'s revision focus</h3><p class="note" style="margin:2px 0 0">One topic per subject. Your weakest topics come first, then the ones you haven\'t finished.</p><div class="xweek">'+GSUBS.map(function(t){var ui=wk.f[t];if(ui==null)return '';var s=uStats(ui),nx=nextLessonIn(ui);return '<div class="xfoc" style="--fc:'+GCOL[t]+'"><span class="s">'+TRK[t].replace('GCSE ','')+'</span><b>'+esc(UNITS[ui].title)+'</b><p>'+(s.s!=null?Math.round(s.s*100)+'% strong':'Not started')+(nx>=0?' · next: '+esc(UNITS[ui].lessons[nx].title):' · all lessons done')+'</p><button type="button" data-fo="'+ui+'">'+(nx>=0?'Start':'Revise it')+'</button></div>'}).join('')+'</div>'+
+   '<details class="xplan"><summary>See the full plan to the exams ('+tt.length+' weeks)</summary><ol>'+tt.slice(0,60).map(function(r){return '<li><span>w/c '+nice(r.m,{day:'numeric',month:'short'})+':</span> '+GSUBS.map(function(t){return r.f[t]!=null?esc(UNITS[r.f[t]].title):''}).filter(Boolean).join(' · ')+'</li>'}).join('')+'</ol></details></div>';return h}
+ function wireCd(){var c=$q('#xCount');if(!c)return;var i=$q('#xStart');if(i)i.onchange=function(){if(!/^\d{4}-\d\d-\d\d$/.test(i.value))return;gx().start=i.value;gx().set=1;save();var n=document.createElement('div');n.innerHTML=cdCard();c.replaceWith(n.firstChild);wireCd()};
+  [].forEach.call(c.querySelectorAll('[data-fo]'),function(b){b.onclick=function(){var ui=+b.getAttribute('data-fo'),nx=nextLessonIn(ui);if(nx>=0)startLesson(ui,nx);else fixUnits([{ui:ui}],'Revise: '+UNITS[ui].title)}})}
+
+ /* ---------- 6-mark question trainer ---------- */
+ var SIX=window.SIXQ||[];
+ function sixState(){if(!S.six)S.six={};return S.six}
+ function sixCard(){var st=sixState(),done=SIX.filter(function(q){return st[q.id]}).length;
+  return '<div class="card xcard" id="xSix"><h2>6-mark question trainer <span class="note">'+done+' of '+SIX.length+' tried</span></h2><p class="note" style="font-size:15px">Write a full answer, then mark it yourself against the mark scheme points, the way an AQA examiner would. Practicals, explain and evaluate questions.</p><div class="xsix">'+
+   SIX.map(function(q){var s=st[q.id];return '<button type="button" class="q" data-six="'+q.id+'"><span class="tg">'+q.s+'</span><span>'+esc(q.short)+'</span><span class="sc">'+(s?'Best '+s.best+'/6':'New')+'</span></button>'}).join('')+'</div></div>'}
+ function sixOpen(id){var q=SIX.filter(function(x){return x.id===id})[0];if(!q)return;var ov=document.createElement('div');ov.className='xov';ov.setAttribute('role','dialog');ov.setAttribute('aria-modal','true');ov.setAttribute('aria-label','6-mark question');document.body.appendChild(ov);document.body.classList.add('noscroll');
+  var t0=Date.now(),tm=0;function close(){clearInterval(tm);ov.remove();document.body.classList.remove('noscroll');try{EXAM.render()}catch(e){}}
+  function write(){ov.innerHTML='<div class="xin"><div class="xtop"><b>'+(q.s==='Physics'?'GCSE Physics':'GCSE Chemistry')+' · 6 marks</b><button type="button" class="xclose">Close</button></div><div class="xqbox"><span class="m">'+q.s.toUpperCase()+' · 6 MARKS</span><p style="margin:6px 0 0">'+q.q+'</p></div><div class="xmeta"><span data-k="wc">0 words</span><span data-k="tm">0:00</span><span>Aim for about 7 minutes and 100 to 150 words</span></div><textarea placeholder="Write your answer in full sentences. Plan it in a logical order." aria-label="Your answer"></textarea><div class="xbtns"><button type="button" class="xbtn" data-a="mark">Mark my answer</button></div></div>';
+   var ta=ov.querySelector('textarea'),wc=ov.querySelector('[data-k=wc]'),tme=ov.querySelector('[data-k=tm]');ta.value=q._draft||'';function cnt(){var n=(ta.value.trim().match(/\S+/g)||[]).length;wc.textContent=n+' word'+(n===1?'':'s')}cnt();ta.oninput=function(){q._draft=ta.value;cnt()};
+   tm=setInterval(function(){var s=Math.floor((Date.now()-t0)/1000);tme.textContent=Math.floor(s/60)+':'+String(s%60).padStart(2,'0');tme.style.color=s>480?'var(--warn)':''},1000);
+   ov.querySelector('.xclose').onclick=close;ov.querySelector('[data-a=mark]').onclick=function(){if((ta.value.trim().match(/\S+/g)||[]).length<15){wc.textContent='Write a bit more first (15 words or more)';wc.style.color='var(--warn)';return}clearInterval(tm);mark(ta.value)};setTimeout(function(){ta.focus()},50)}
+  function mark(ans){var low=ans.toLowerCase();ov.innerHTML='<div class="xin"><div class="xtop"><b>Mark your answer</b><button type="button" class="xclose">Close</button></div><div class="xqbox"><span class="m">YOUR ANSWER</span><p style="margin:6px 0 0;white-space:pre-wrap">'+esc(ans)+'</p></div><p style="margin:0">Tick every point your answer makes clearly. Green ones look like they\'re in there, but you decide.</p><div class="xpts">'+
+   q.pts.map(function(p,i){var hit=p.k.some(function(k){return new RegExp(k,'i').test(low)});return '<label class="'+(hit?'sug':'')+'"><input type="checkbox" data-i="'+i+'"'+(hit?' checked':'')+'><span>'+p.p+(hit?' <span class="hint">looks like it\'s there</span>':'')+'</span></label>'}).join('')+
+   '</div><label style="display:flex;gap:8px;align-items:center;font-size:15px"><input type="checkbox" data-k="order" style="width:20px;height:20px"> My answer is in a logical order, with the points linked together</label><div class="xscore" data-k="sc"></div><details><summary style="cursor:pointer;font-weight:700">See a model answer</summary><div class="xmodel" style="margin-top:8px">'+q.model+'</div></details><div class="xbtns"><button type="button" class="xbtn" data-a="save">Save my mark</button><button type="button" class="xbtn alt" data-a="retry">Try it again</button></div></div>';
+   var boxes=ov.querySelectorAll('.xpts input'),ord=ov.querySelector('[data-k=order]'),sc=ov.querySelector('[data-k=sc]');
+   function score(){var n=[].filter.call(boxes,function(b){return b.checked}).length,lv=n>=5?3:n>=3?2:n>=1?1:0,mk=lv?lv*2-(ord.checked?0:1):0;return {n:n,lv:lv,mk:mk}}
    function upd(){var r=score();sc.innerHTML='<div class="xnum">'+r.mk+'/6</div><p><b>'+(r.lv?'Level '+r.lv:'No marks yet')+'</b> · '+r.n+' of '+q.pts.length+' points.<br>'+(r.lv===3?'Detailed and coherent. That\'s the top band.':r.lv===2?'Good, but add more detail and link the points for level 3.':r.lv===1?'Some relevant points. Level 2 needs more, in a clear order.':'Check the points above against your answer.')+'</p>'}
    [].forEach.call(boxes,function(b){b.onchange=upd});ord.onchange=upd;upd();
    ov.querySelector('.xclose').onclick=close;ov.querySelector('[data-a=retry]').onclick=function(){t0=Date.now();write()};
@@ -850,60 +881,4 @@ var SND=(function(){
   wrong:function(B,T){tone(B,T,{f:110,to:52,st:0.4,d:0.55,v:0.16,rev:0.5});noise(B,T,{f:900,to:200,q:0.7,d:0.5,at:0.02,v:0.04,rev:0.6})},
   done:function(B,T){spad(B,T,[0,7,12,16],0,2.2,0.03);[12,19,24,28,31].forEach(function(s,i){ping(B,T,nf(s),0.15+i*0.15,0.08,1.2,(i-2)*0.25)});noise(B,T,{f:300,to:5000,q:0.5,d:1.2,at:0.6,v:0.03,rev:0.9})},
   level:function(B,T){noise(B,T,{f:200,to:6000,q:0.5,d:1.0,at:0.8,v:0.05,rev:0.7});thump(B,T,0.95,0.3,90);spad(B,T,[0,7,12,16,19],0.9,2.4,0.032);[24,28,31,36].forEach(function(s,i){ping(B,T,nf(s),1.0+i*0.12,0.07,1.3,(i%2?.4:-.4))})},
-  badge:function(B,T){[19,24,26,31,36].forEach(function(s,i){ping(B,T,nf(s),i*0.08,0.08,1.1,(i%2?.4:-.4))})},
-  quest:function(B,T){ping(B,T,nf(21),0,0.11,1);ping(B,T,nf(28),0.14,0.11,1.3)},
-  start:function(B,T){noise(B,T,{f:150,to:4000,q:0.6,d:0.7,at:0.5,v:0.05,rev:0.6});tone(B,T,{f:55,to:220,st:0.65,d:0.8,v:0.08,rev:0.5});ping(B,T,nf(24),0.68,0.12,1.4)}};
- /* Glass: bowed-glass tones with the uneven overtones of a real wine glass */
- function gl(B,T,f,t,v,d,pan){[[1,1],[2.32,0.32],[4.25,0.12]].forEach(function(h){tone(B,T,{f:f*h[0],t:t,d:d*(h[0]>2?0.55:1),v:v*h[1],at:h[0]>1?0.004:0.02,rev:0.55,pan:pan||0})})}
- PK.glass={name:'Glass',ex:1,
-  right:function(B,T,o){var n=combo(o),f=nf(LAD[Math.min(n-1,8)]+12);gl(B,T,f,0,0.12,1.4,rnd(-.2,.2));if(n>=5&&n%5===0)gl(B,T,f*2,0.12,0.07,1.6,.3)},
-  wrong:function(B,T){gl(B,T,nf(-2),0,0.09,0.6,-.2);gl(B,T,nf(-1),0.03,0.07,0.6,.2)},
-  done:function(B,T){[0,4,7,12,16].forEach(function(s,i){gl(B,T,nf(s+12),i*0.12,0.085,1.6,(i-2)*0.2)})},
-  level:function(B,T){[0,4,7,12,16,19,24].forEach(function(s,i){gl(B,T,nf(s+12),i*0.1,0.08,1.8,(i%2?.3:-.3))});[0,7,12].forEach(function(s){gl(B,T,nf(s+12),0.75,0.05,2.2)})},
-  badge:function(B,T){[12,16,19,24].forEach(function(s,i){gl(B,T,nf(s+12),i*0.08,0.08,1.4,(i%2?.25:-.25))})},
-  quest:function(B,T){gl(B,T,nf(19),0,0.09,1.2);gl(B,T,nf(24),0.13,0.09,1.5)},
-  start:function(B,T){[0,7,12].forEach(function(s,i){gl(B,T,nf(s+12),i*0.14,0.09,1.4)})}};
- PK.classic={name:'Classic beeps'};
- function classic(B,T,k,o){if(k==='reveal')k=(o&&(o.r==='L'||o.r==='E'))?'level':'badge';else if(FALL[k])k=FALL[k];if(k==='tap'){tone(B,T,{f:1650,d:0.035,type:'triangle',v:0.06});return}
-  (OLD[k]||[]).forEach(function(n){tone(B,T,{f:n[0],t:n[1],d:n[2],type:n[3],v:n[4]||(n[3]==='triangle'?0.07:0.08),at:0.012})})}
-
- function play(k,o,packName,B){if(!B){if(S.sound===false)return;B=out();if(!B)return}var pk=packName||cfg().pack,T=B.a.currentTime+0.01;if(k==='combo')k='right';
-  try{if(pk==='classic'){classic(B,T,k==='right'&&combo(o)>=3?'combo':k,o);return}var P2=PK[pk]||PK.reactor;if(P2[k])P2[k](B,T,o||{});else if(P2.ex&&PK.reactor[k])PK.reactor[k](B,T,o||{});else if(OLD[k])classic(B,T,k,o)}catch(e){}}
-
- /* take over the app's sound functions */
- sfx=function(k,o){play(k,o)};
- beep=function(f,t0,d,type,vol){if(S.sound===false)return;if(f===1650&&Math.abs(d-0.035)<1e-6){play('tap');return}var B=out();if(!B)return;try{tone(B,B.a.currentTime,{f:f,t:t0,d:d,type:type,v:(vol||0.08)*1.2,at:0.012,rev:0.1})}catch(e){}};
-
- /* ---------- settings: pick a pack, set the volume, try every sound ---------- */
- var TRY=[['right','✓ Right',{n:1}],['right','3 in a row',{n:3}],['right','5 in a row',{n:5}],['right','10 in a row',{n:10}],['wrong','✗ Wrong'],['done','Lesson done'],['level','Level up'],['badge','Badge'],['quest','Quest'],['crate','Crate opening'],['reveal','Legendary',{r:'L'}],['start','Just start'],['hh','Happy hour'],['tap','Tap']];
- function rows(){var sel=$('sndSel');if(!sel||$('sndPack'))return;var row=sel.closest('.wrow');if(!row)return;var c=cfg(),w=document.createElement('div');w.id='sndBox';
-  w.innerHTML='<div class="wrow"><label for="sndPack">Sound pack</label><select id="sndPack">'+Object.keys(PK).map(function(k){var ow=owned(k);return '<option value="'+k+'"'+(c.pack===k?' selected':'')+(ow?'':' disabled')+'>'+PK[k].name+(ow?'':' (on the season pass, from 1,850 points)')+'</option>'}).join('')+'</select></div>'+
-   '<div class="wrow"><label for="sndVol">Volume</label><input type="range" id="sndVol" min="0" max="100" step="5" value="'+Math.round(c.vol*100)+'" aria-describedby="sndVolV"><span class="note" id="sndVolV" style="min-width:42px;font-family:var(--mono)">'+Math.round(c.vol*100)+'%</span></div>'+
-   '<div class="wrow sndtry"><label>Try them</label><div class="sndbtns">'+TRY.map(function(x,i){return '<button type="button" data-i="'+i+'">'+x[1]+'</button>'}).join('')+'</div></div>';
-  row.parentNode.insertBefore(w,row.nextSibling);
-  $('sndPack').onchange=function(){var c2=cfg();c2.pack=this.value;setCfg(c2);play('right',{n:1})};
-  var v=$('sndVol');v.oninput=function(){var c2=cfg();c2.vol=+v.value/100;setCfg(c2);$('sndVolV').textContent=v.value+'%'};v.onchange=function(){play('right',{n:1})};
-  [].forEach.call(w.querySelectorAll('[data-i]'),function(b){b.onclick=function(){var x=TRY[+b.getAttribute('data-i')];if(S.sound===false){b.blur();var s=$('sndSel');if(s){s.focus()}try{toast('🔇','Sound effects are off','Turn them on in the box above')}catch(e){}return}play(x[0],x[2]);b.classList.remove('on');void b.offsetWidth;b.classList.add('on')}})}
- var rr=renderReview;renderReview=function(){var r=rr.apply(this,arguments);try{rows()}catch(e){}return r};
- var st=document.createElement('style');st.textContent='.sndtry{align-items:flex-start}.sndbtns{display:flex;flex-wrap:wrap;gap:6px;flex:1;min-width:0}.sndbtns button{font:inherit;font-size:13.5px;font-weight:700;border:1.5px solid var(--line);background:var(--panel);color:var(--text);border-radius:10px;padding:6px 10px;cursor:pointer}.sndbtns button:hover{border-color:var(--accent)}.sndbtns button.on{animation:sndp .35s}@keyframes sndp{40%{transform:scale(.93);border-color:var(--accent);background:var(--accent-bg,var(--soft))}}@media (prefers-reduced-motion:reduce){.sndbtns button.on{animation:none}}';document.head.appendChild(st);
-
- /* render a sound offline (used by the tests) */
- function render(k,o,pk,secs){var OC=window.OfflineAudioContext||window.webkitOfflineAudioContext;var a=new OC(2,Math.floor(44100*(secs||3)),44100),B=mk(a,cfg().vol);NB=null;play(k,o,pk,B);return a.startRendering()}
- function use(k){if(!owned(k))return false;var c=cfg();c.pack=k;setCfg(c);var sel=document.getElementById('sndPack');if(sel)sel.value=k;return true}
- return {play:play,cfg:cfg,set:setCfg,packs:PK,use:use,owned:owned,_render:render}})();
-try{window.SND=SND}catch(e){}
-/* ===== sounds end ===== */
-/* ---------------- Nuclear maths: generators for the operator maths track ---------------- */
-function nSF(x,n){return Number(Number(x).toPrecision(n||3))}
-/* a value as A × 10ⁿ in two boxes (A to 3 s.f.) */
-function nStd(v,pre){var n=Math.floor(Math.log10(Math.abs(v))),A=nSF(v/Math.pow(10,n),3);if(Math.abs(A)>=10){A=nSF(A/10,3);n++}return {A:A,n:n,b:[cB(A,pre||'','× 10','A',false,0.01),cB(n,'','','power',true)],s:cNum(A)+' × 10'+cSup(n)}}
-function nPow(a,n){return cNum(a)+' × 10'+cSup(n)}
-CGEN.n_units=function(){var P=cP([['GW','MW',1000],['MW','kW',1000],['kW','W',1000],['MW','W',1e6],['mSv','μSv',1000],['Sv','mSv',1000],['km','m',1000],['MPa','kPa',1000]]),v=cP([1.2,2.5,3.4,0.6,4.8,0.25,7.5,15]);
- return {p:'Convert '+cNum(v)+' '+P[0]+' to '+P[1]+'.',b:[cB(v*P[2],'',P[1],'value')],e:'1 '+P[0]+' = '+cNum(P[2])+' '+P[1]+', so multiply by '+cNum(P[2])+': '+cNum(v)+' × '+cNum(P[2])+' = '+cNum(v*P[2])+' '+P[1]+'.'}};
-CGEN.n_double=function(){var D=cP([10,20,30,40,60]),n=cR(2,5),P0=cP([1,2,5,10,25]),t=n*D,P=P0*Math.pow(2,n);
- return {p:'Reactor power doubles every '+D+' s. It starts at '+P0+' W. What is it after '+t+' s?',b:[cB(P,'','W','power')],e:t+' s is '+n+' doubling times ('+t+' ÷ '+D+'). Double '+n+' times: '+P0+' × 2'+cSup(n)+' = '+P0+' × '+Math.pow(2,n)+' = '+P+' W.'}};
-CGEN.n_decades=function(){var k=cR(0,2);
- if(k===0){var a=cR(0,3),d=cR(2,5);return {p:'A count rate rises from 10'+cSup(a)+' to 10'+cSup(a+d)+' counts per second. How many decades (powers of ten) is that?',b:[cB(d,'','decades','decades')],e:'Each decade is a factor of 10. From 10'+cSup(a)+' to 10'+cSup(a+d)+' the power goes up by '+d+', so that is '+d+' decades.'}}
- if(k===1){var n=cR(-6,8);return {p:'What is log₁₀(10'+cSup(n)+')?',b:[cB(n,'log = ')],e:'log₁₀ undoes "10 to the power": log₁₀(10'+cSup(n)+') = '+cNum(n)+'.'}}
- var x=cP([2,3,5]),lx={2:0.301,3:0.477,5:0.699}[x],m=cR(1,5);return {p:'log₁₀ '+x+' ≈ '+lx+'. Use it to find log₁₀('+x+' × 10'+cSup(m)+'). (3 d.p.)',b:[cB(lx+m,'log = ','','log',false,0.002)],e:'log(a × b) = log a + log b, so it is '+lx+' + '+m+' = '+cNum(lx+m)+'.'}};
-CGEN.n_slope=
+  badge:functio

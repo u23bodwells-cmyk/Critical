@@ -3902,26 +3902,71 @@ var PLAN=(function(){
  function pinRv(i){var p=PS();if(p.rvpin&&p.rvpin[i])return;var r=RVD(i);if(!r)return;if(!p.rvpin||typeof p.rvpin!=='object')p.rvpin={};p.rvpin[i]=r.pin;save()}
  function rvOn(i){var b=DAY(i);return b.length===1&&b[0][5]==='rev'}
  function DAY(i){return DAYF(i,layOn())}
- function DAYF(i,sm){var rv=RVD(i);if(rv)return [['Revise: '+rv.name,mins(i),rv.desc,[['Start revision','rev']],0,'rev',rv]];var oth=OTH(i);if(oth)return sm?oth.concat([BRK(1)]):oth;if(freeDay()===i){var FR=[FREEB(mins(i))];return sm?FR.concat([BRK(1)]):FR}var c=CORE(i),x=i<5&&extOn(i),L=[WARM(i)].concat(c,x?[BONUS(c)]:[]);return sm?SMART(i,L):L}
+ function DAYF(i,sm){var rv=RVD(i);if(rv)return [['Revise: '+rv.name,mins(i),rv.desc,[['Start revision','rev']],0,'rev',rv]];var oth=OTH(i);if(oth)return sm?oth.concat([BRK(1)]):oth;if(freeDay()===i){var FR=[FREEB(mins(i))];return sm?FR.concat([BRK(1)]):FR}var c=CORE(i),x=i<5&&extOn(i),L=[WARM(i)].concat(c,x?[BONUS(c)]:[]);return sm?SMART(i,L,sm):L}
  /* study smart: brain breaks after ~25 minutes and at the end, mixed practice on Wed and Sat, a ghost test on Sunday */
  function smOn(){return S.smart!==0}
- function layOn(){var p=S.plan;return !!(p&&typeof p==='object'&&p.sm)}
+ function layOn(){var p=S.plan;return p&&typeof p==='object'&&p.sm?(+p.sm||1):0}
  function BRK(end){return [end?'Let it sink in':'Brain break',5,end?'5 minutes of quiet rest straight after studying. Your brain keeps replaying and storing what you just learnt while you rest, so no phone, videos or games. Stand up, get some water, look out of the window.':'You\'ve focused for about 25 minutes, so give your brain 5 minutes off. Move around, drink some water, rest your eyes. Not your phone: scrolling isn\'t a break for your brain.',[['Start break','brk',end?1:0]],0,'brk']}
  function MIXB(){return ['Mixed practice',6,'Questions from across your current unit, all mixed up. It feels harder than doing one type at a time, and that\'s why it works: you have to spot which method each question needs, like in an exam.',[['Mixed practice','mix']],0,'mix']}
  function GHB(){return ['Beat your ghost',6,'A 10-question test on this week\'s unit, racing your last attempt, so you can see how much you\'ve really improved. Starting a new unit? Take it first and tag it Before.',[['Beat your ghost','ghost']],0,'ghost']}
- function SMART(i,L){var out=L.slice();if(i===2||i===5)out.push(MIXB());
+ function SMART(i,L,ver){var out=L.slice();if(i===2||i===5)out.push(MIXB());
   if(i===6){var k=out.length;if(out[k-1]&&out[k-1][0]==='Weekly review')out.splice(k-1,0,GHB());else out.push(GHB())}
+  if(ver>=2)out.push(PATHB(i,ver));
   var res=[],acc=0;for(var j=0;j<out.length;j++){var b=out[j];res.push(b);if(b[5]==='bonus')continue;acc+=b[1];var rest=0;for(var q=j+1;q<out.length;q++)if(out[q][5]!=='bonus')rest+=out[q][1];if(acc>=25&&rest>=10){res.push(BRK(0));acc=0}}
   res.push(BRK(1));return res}
  function TOT(){var s=0;for(var i=0;i<7;i++)s+=DAY(i).reduce(function(a,b){return a+(b[5]==='bonus'?0:b[1])},0);return s}
  /* switching layouts keeps your ticks: blocks are matched by name, and a day that was all done stays all done */
- function smSync(){var p=PS(),want=smOn()?1:0,have=p.sm?1:0;if(want===have)return;var nt={},r=runGet(),rj=null,hw=null;try{hw=hwGet()}catch(_){}
+ function pathCode(){return S.pathMode==null?1:+S.pathMode||0}
+ function smSync(){var p=PS(),want=smOn()?1+pathCode():0,have=p.sm?(+p.sm||1):0;if(want===have)return;var nt={},r=runGet(),rj=null,hw=null;try{hw=hwGet()}catch(_){}
   for(var i=0;i<7;i++){var A=DAYF(i,have),B=DAYF(i,want),used={},map={},all=A.every(function(b,j){return b[5]==='bonus'||!!p.t[i+'-'+j]});
    A.forEach(function(b,j){for(var q=0;q<B.length;q++)if(!used[q]&&B[q][0]===b[0]){used[q]=1;map[j]=q;return}});
    if(all&&A.length)B.forEach(function(b,q){if(b[5]!=='bonus')nt[i+'-'+q]=1});else for(var j in map)if(p.t[i+'-'+j])nt[i+'-'+map[j]]=1;
    if(r&&r.day===i)rj=map[r.j]==null?null:map[r.j];
    if(hw&&hw.alloc&&i===todayI()){var na={};for(var a in hw.alloc)if(map[a]!=null)na[map[a]]=hw.alloc[a];hw.alloc=na}}
   p.t=nt;p.sm=want;save();if(r){if(rj==null)runClear();else{r.j=rj;runSet(r)}}if(hw&&hw.alloc)try{hwSet(hw)}catch(_){}}
+ /* ----- the quantum & maths learning path: the best order, with catch-ups first ----- */
+ var PATH_REQ={qm1:[],qm2:['qm1'],qm3:['qm2','calc4','calc15','calc16'],qm4:['qm3','calc17'],qm5:['qm4'],qm6:['qm5','calc18'],qm7:['qm6','calc19','calc20','calc21'],
+  calc1:[],calc15:['calc3'],calc16:['calc1'],calc17:['calc5'],calc18:['calc17','calc10','calc12'],calc19:['calc15','calc14'],calc20:['calc16','calc17'],calc21:['calc16','calc12']};
+ for(var _pc=2;_pc<=14;_pc++)PATH_REQ['calc'+_pc]=['calc'+(_pc-1)];
+ var PATH_ORDER=(function(){var out=[],seen={};function visit(n){if(seen[n])return;seen[n]=1;(PATH_REQ[n]||[]).slice().sort(function(a,b){return pNum(a)-pNum(b)}).forEach(visit);out.push(n)}for(var q=1;q<=7;q++)visit('qm'+q);return out})();
+ function pNum(n){return (n.indexOf('qm')===0?1000:0)+(+n.replace(/\D/g,''))}
+ function pTrack(n){return n.indexOf('qm')===0?'qm':'calc'}function pLv(n){return +n.replace(/\D/g,'')}
+ function pName(n){var t=pTrack(n),lv=pLv(n),nm='';try{nm=lvInfo(t,lv)[0]}catch(e){}return (t==='qm'?'Quantum':'Calculus')+' Level '+lv+(nm?': '+nm:'')}
+ function pProg(n){try{return lvDone(pTrack(n),pLv(n))}catch(e){return [0,0]}}
+ function pDone(n){var d=pProg(n);return d[1]>0&&d[0]/d[1]>=0.8}
+ function pReady(n){return (PATH_REQ[n]||[]).every(pDone)}
+ function pNeeds(n){var out=[],seen={};(function w(x){(PATH_REQ[x]||[]).forEach(function(r){if(seen[r])return;seen[r]=1;if(!pDone(r))out.push(r);w(r)})})(n);return out.sort(function(a,b){return PATH_ORDER.indexOf(a)-PATH_ORDER.indexOf(b)})}
+ function pFor(n){/* the first quantum level that needs this */for(var q=1;q<=7;q++){var t='qm'+q;if(pDone(t))continue;if(t===n||pNeeds(t).indexOf(n)>=0)return t}return null}
+ var pathC={t:0,v:null};
+ function pathPlan(fresh){var now=Date.now();if(!fresh&&pathC.v&&now-pathC.t<4000)return pathC.v;var plan=null;
+  try{var pf=null;try{pf=pendingFollow('all')}catch(e){}var eq=0,wk=0,pl=0;try{eq=fxDue().length}catch(e){}try{wk=lxDue().length}catch(e){}try{pl=pile()}catch(e){}
+   if(pf)plan={kind:'follow',label:'Follow-up practice',why:'A follow-up is waiting. Pass it to unlock new lessons.'};
+   else if(eq>=4)plan={kind:'eq',label:'Equations to remember',why:eq+' equations are due to rebuild from memory. Catching up first keeps them in your head.'};
+   else if(wk>=3)plan={kind:'weak',label:'Weak maths skills',why:wk+' maths skills you slipped up on are due for practice.'};
+   else if(pl>=12)plan={kind:'fix',label:'Fix my mistakes',why:pl+' mistakes are waiting. Clearing them first stops gaps building up.'};
+   if(!plan){var ready=PATH_ORDER.filter(function(n){return !pDone(n)&&pReady(n)});
+    if(!ready.length)plan={kind:'done',label:'Path complete',why:'You\'ve finished the whole quantum and maths path.'};
+    else{var a=ready[0],pick=a;
+     /* if quantum is ready now, mix in the maths the next quantum level will need, so it's ready in time */
+     if(pTrack(a)==='qm'){var later=ready.filter(function(n){return pTrack(n)==='calc'})[0];if(later&&(S.pathTurn||0)%2===1)pick=later}
+     var fq=pFor(pick),why=pTrack(pick)==='qm'?'You have the maths for it, so this is the next step.':fq&&fq!==pick?pName(fq).replace(/:.*/,'')+' needs this first.':'Next maths step.';
+     if(pick!==a)why='Mixed in now so the maths is ready when '+(fq?pName(fq).replace(/:.*/,''):'quantum')+' needs it.';
+     plan={kind:'study',node:pick,label:pName(pick),why:why}}}
+   var tq=null;for(var q=1;q<=7;q++)if(!pDone('qm'+q)){tq='qm'+q;break}if(tq){var nd=pNeeds(tq).filter(function(n){return pTrack(n)==='calc'});plan.behind=nd.length?'Maths gap: '+pName(tq).replace(/:.*/,'')+' still needs '+nd.length+' Calculus level'+(nd.length===1?'':'s')+'.':''}
+  }catch(e){plan={kind:'done',label:'Learning path',why:''};if(window.console)console.error(e)}
+  pathC={t:now,v:plan};return plan}
+ function PATHB(i,ver){var m=(ver===3?20:10)*(i>=5?1.5:1),pl=pathPlan();return ['Quantum & maths path',Math.round(m),(pl.kind==='study'?'Next: '+pl.label+'. ':pl.kind==='done'?'':'Catch up first: '+pl.label+'. ')+pl.why+(pl.behind&&pl.kind==='study'?' '+pl.behind:''),[['Go','path']],0,'path']}
+ function pathGo(){var pl=pathPlan(true);if(pl.kind==='follow'){var na=nextAction('all');if(na)runAction(na);return}if(pl.kind==='eq'){try{fxReview()}catch(e){}return}if(pl.kind==='weak'){try{startWeak()}catch(e){}return}if(pl.kind==='fix'){showPage('review');try{startReview(true)}catch(e){}return}
+  if(pl.kind==='done'){toastIn('You\'ve finished the whole quantum and maths path. Amazing.');return}
+  var t=pTrack(pl.node),lv=pLv(pl.node);S.lvl=S.lvl||{};S.lvl[t]=lv;S.lvlOpen=S.lvlOpen||{};S.lvlOpen[t+lv]=1;S.mode=t;if(t==='qm')S.seenQm=1;else S.seenCalc=1;S.pathTurn=(S.pathTurn||0)+1;save();pathC.v=null;
+  showPage('learn');var a=nextAction(t);if(a)runAction(a);else toastIn('Nothing left to do in '+pl.label+'.')}
+ function pathCard(){var pl=pathPlan(),c=document.createElement('div');c.className='plpath';var cur=pl.node;
+  var rows=PATH_ORDER.map(function(n){var d=pProg(n),st=pDone(n)?'done':n===cur?'next':pReady(n)?'ready':'lock',need=st==='lock'?pNeeds(n).slice(0,2).map(function(x){return pName(x).replace(/:.*/,'')}):[];
+   return '<li class="pp-'+st+'"><span class="ppi">'+(st==='done'?'✓':st==='next'?'▶':st==='ready'?'○':'🔒')+'</span><span class="ppn">'+esc(pName(n))+(need.length?'<small>needs '+esc(need.join(', '))+'</small>':'')+'</span><span class="ppd">'+d[0]+'/'+d[1]+'</span></li>'}).join('');
+  var dn=PATH_ORDER.filter(pDone).length;
+  c.innerHTML='<div class="plgt">🧭 Your quantum & maths path</div><p class="plpnow"><b>'+(pl.kind==='study'?'Right now: '+esc(pl.label):pl.kind==='done'?esc(pl.label):'Catch up first: '+esc(pl.label))+'</b><br>'+esc(pl.why)+'</p>'+(pl.behind?'<p class="plnote">'+esc(pl.behind)+'</p>':'')+
+   '<div class="placts"><button type="button" class="plgo">Go →</button></div><details><summary>The whole path ('+dn+' of '+PATH_ORDER.length+' stages done)</summary><ol class="pplist">'+rows+'</ol><p class="plnote">A stage counts as done at 80% of its lessons. Calculus levels open as soon as their real prerequisites are done.</p></details>';
+  c.querySelector('.plgo').onclick=function(){close();pathGo()};return c}
  function smUnit(){var m=curMode(),a=[],ui=-1;try{a=allLessons(m)}catch(_){}for(var i=0;i<a.length;i++)if(S.done[UNITS[a[i][0]].lessons[a[i][1]].id])ui=a[i][0];if(ui<0){var nl=nextLesson(m);ui=nl?nl[0]:-1}return ui}
  function smTrackUnits(){var m=curMode(),a=[],seen={},out=[];try{a=allLessons(m)}catch(_){}a.forEach(function(x){if(S.done[UNITS[x[0]].lessons[x[1]].id]&&!seen[x[0]]){seen[x[0]]=1;out.push(x[0])}});return out.reverse()}
  function smMix(){var us=smTrackUnits();for(var i=0;i<us.length;i++){var ui=us[i],ok=false;try{var sk=unitSkills(ui,true),bk=sk.length?null:unitBank(ui,true);ok=sk.length>0||!!(bk&&bk.length>=4)}catch(_){}if(ok&&typeof startMix==='function'){startMix(ui);return}}
@@ -4040,6 +4085,8 @@ var PLAN=(function(){
  '.plban{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom));z-index:3500;width:min(460px,calc(100% - 32px));background:var(--panel);color:var(--text);border:2px solid var(--accent);border-radius:16px;padding:12px 14px;box-shadow:0 8px 30px rgba(0,0,0,.25);display:flex;flex-direction:column;gap:8px}.plban p{margin:0;font-size:15px;line-height:1.45}.plban .placts{margin-top:0}'+
  '.plpill .plc{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:12px}.plpill.run{background:var(--accent);color:var(--on-accent)}.plpill.run .pldot{display:none}'+
  '.plpill{position:relative}.plpill .pldot{position:absolute;top:2px;right:2px;width:8px;height:8px;border-radius:50%;background:#e8742a;border:2px solid var(--panel);display:none}.plpill.left .pldot{display:block}.plpill.run .pldot{display:none!important}@media(max-width:374px){.hdr .plpill{padding:5px 7px}}';
+ css.textContent+='.plpath{background:var(--bg);border:1.5px solid var(--accent);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:8px}.plpath .plgt{margin:0}.plpnow{margin:0;font-size:14px;line-height:1.5}.plpath details summary{cursor:pointer;font-size:13px;font-weight:700;color:var(--muted)}.pplist{list-style:none;margin:8px 0 0;padding:0;display:flex;flex-direction:column;gap:4px}.pplist li{display:flex;gap:8px;align-items:flex-start;font-size:13px;padding:5px 6px;border-radius:8px}.pplist .ppi{width:20px;flex:none;text-align:center}.pplist .ppn{flex:1;min-width:0}.pplist .ppn small{display:block;color:var(--muted)}.pplist .ppd{font-family:var(--mono);color:var(--muted);flex:none}.pp-done{opacity:.6}.pp-next{background:var(--accent-bg);font-weight:800}.pp-lock .ppn{color:var(--muted)}'+
+ '.smtog select{font:inherit;font-size:14px;padding:6px 8px;border-radius:9px;border:1.5px solid var(--line);background:var(--panel);color:var(--text);flex:none;align-self:center}';
  css.textContent+='.plx2{display:flex;flex-direction:column;gap:10px;margin-top:4px}.plx2r{display:flex;gap:10px;align-items:center;justify-content:space-between;background:var(--bg);border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;font-size:14px;line-height:1.45}.plx2r>span:first-child{flex:1;min-width:0}.plx2b{display:flex;gap:6px;flex:none}'+
  '.plx2o{display:flex;flex-direction:column;gap:8px;background:var(--panel);border:1.5px dashed var(--line);border-radius:14px;padding:12px}.plx2o .plgt{margin:0}.plx2o>.plgo{align-self:flex-start}.plx2f{display:flex;flex-direction:column;gap:9px}.plx2f[hidden]{display:none}.plx2f label{display:flex;flex-direction:column;gap:4px;font-size:13px;font-weight:800;color:var(--muted)}'+
  '.plx2f input,.plx2f select,.plx2f textarea{font:inherit;font-size:15px;font-weight:400;color:var(--text);background:var(--bg);border:1.5px solid var(--line);border-radius:10px;padding:8px 10px}.plx2f textarea{min-height:60px;resize:vertical}.plx2f .plnote{font-weight:400}';
@@ -4063,7 +4110,7 @@ var PLAN=(function(){
  function go(a,title,openUrl){if(PS().auto&&typeof STUDY!=='undefined'&&STUDY.start)STUDY.start(title);
   if(a[1]==='url'){if(openUrl)try{window.open(a[2],'_blank','noopener')}catch(_){}return}close();if(document.querySelector('#player.open')&&typeof closePlayer==='function')closePlayer();
   if(a[1]==='app'){location.href=a[2];return}
-  if(a[1]==='brk'){brkOpen(a[2]);return}if(a[1]==='other'){toastIn('Timer running: '+(a[2]||'your project')+'. Come back here when it\'s done.');return}if(a[1]==='freelearn'){showPage('learn');return}if(a[1]==='freerev'){showPage('review');return}if(a[1]==='mix'){smMix();return}if(a[1]==='ghost'){smGhost();return}if(a[1]==='bed'){try{bedOpen()}catch(_){}return}
+  if(a[1]==='path'){pathGo();return}if(a[1]==='brk'){brkOpen(a[2]);return}if(a[1]==='other'){toastIn('Timer running: '+(a[2]||'your project')+'. Come back here when it\'s done.');return}if(a[1]==='freelearn'){showPage('learn');return}if(a[1]==='freerev'){showPage('review');return}if(a[1]==='mix'){smMix();return}if(a[1]==='ghost'){smGhost();return}if(a[1]==='bed'){try{bedOpen()}catch(_){}return}
   if(a[1]==='warm'){var mc=null;try{mc=MEM.counts()}catch(_){}if(mc&&mc.total)MEM.start();else ONE.start();warmP=typeof P!=='undefined'?P:null;return}
   if(a[1]==='rev'){var rr2=runGet(),bl=DAY(rr2?rr2.day:cur)[0];try{REV.hub(bl&&bl[5]==='rev'?bl[6]:null)}catch(e){if(window.console)console.error(e)}return}
   if(a[1]==='clash'){try{ARENA.open()}catch(_){}return}
@@ -4111,9 +4158,11 @@ var PLAN=(function(){
   var r=runGet(),rb=r?(DAY(r.day)[r.j]||[])[5]:null,step=rb==='brk'?3:r?2:h>=21||h<4?3:0;
   var x='<div class="smhero"><b>Your brain learns in 3 steps</b><div class="smsteps"><span'+(step===1?' class="on"':'')+'><i>1</i>Take it in</span><span'+(step===2?' class="on"':'')+'><i>2</i>Pull it back out</span><span'+(step===3?' class="on"':'')+'><i>3</i>Let it settle</span></div><p>Lessons do step 1. Questions, warm-ups and reviews do step 2. Breaks and sleep do step 3, and that\'s the one most people skip.</p></div>';
   x+='<label class="plopt smtog"><input type="checkbox" data-k="smon"'+(on?' checked':'')+'><span><b>Use the study-smart plan</b><span class="plnote">Adds brain breaks, mixed practice on Wednesday and Saturday, a ghost test on Sunday and a bedtime review. Your week goes from '+base+' to '+sm+' minutes.</span></span></label>';
+  x+='<label class="plopt smtog"><span><b>Quantum & maths path in your plan</b><span class="plnote">A daily slot that picks the best next step: Quantum or the Calculus it needs, catching up on anything you\'re behind on first.</span></span><select data-k="pathm"><option value="0">Off</option><option value="1">10 min a day</option><option value="2">20 min a day</option></select></label>';
   x+='<div class="smnow"><div class="plgt">Do one now</div><div class="placts"><button type="button" data-a="brk">🧘 5-minute break</button><button type="button" data-a="mix">🔀 Mixed practice</button><button type="button" data-a="ghost">👻 Beat your ghost</button><button type="button" data-a="bed">🌙 Bedtime review</button></div></div>';
   x+='<div class="smqs">'+SMQ.map(function(q,i){return '<details class="smq"'+(i===0?' open':'')+'><summary><span class="sme" aria-hidden="true">'+q[0]+'</span><span>'+esc(q[1])+'</span></summary><div class="smb"><p>'+esc(q[2])+'</p><p class="smin"><b>In Critical:</b> '+q[3]+'</p></div></details>'}).join('')+'</div>';
   V.innerHTML=x;
+  var pm=V.querySelector('[data-k=pathm]');pm.value=String(pathCode());pm.onchange=function(){S.pathMode=+pm.value;save();try{smSync()}catch(e){if(window.console)console.error(e)}paintPill();paint()};
   V.querySelector('[data-k=smon]').onchange=function(){S.smart=this.checked?1:0;save();try{smSync()}catch(e){if(window.console)console.error(e)}paintPill();paint()};
   [].forEach.call(V.querySelectorAll('.smnow button'),function(bt){bt.onclick=function(){var a=bt.dataset.a;close();if(document.querySelector('#player.open')&&typeof closePlayer==='function'&&a!=='brk')closePlayer();
    if(a==='brk')brkOpen(1);else if(a==='mix')smMix();else if(a==='ghost')smGhost();else try{bedOpen()}catch(_){}}})}
@@ -4292,6 +4341,7 @@ var PLAN=(function(){
    if(b[4]){var tp=document.createElement('div');tp.className='pltop';tp.innerHTML='<label for="plTopics">Topics to fix</label><textarea id="plTopics" maxlength="600" placeholder="e.g. Circle theorems, iteration, vectors"></textarea>';
     var ta=tp.querySelector('textarea');ta.value=p.topics;ta.oninput=function(){PS().topics=ta.value;save()};e.querySelector('.plbody').appendChild(tp)}
    L.appendChild(e)});
+  if(pathCode()>0&&cur===t)L.appendChild(pathCard());
   L.appendChild(planExtras(cur));
   if(smOn()&&cur===t&&!OTH(cur)){var tn2=document.createElement('div');tn2.className='plblk smnight';tn2.innerHTML='<div class="smmoon" aria-hidden="true">🌙</div><div class="plbody"><p class="plt"><span>Tonight, in bed</span><span class="plm">5 min</span></p><p class="plh">Bedtime review: a recap of today and new questions like the ones you got wrong. Then phone away and sleep, because sleep is when it sticks.</p><div class="placts"><button class="plgo alt" type="button" data-a="bed">Bedtime review →</button><button class="plgo alt" type="button" data-a="why">Why the breaks?</button></div></div>';
    tn2.querySelector('[data-a=bed]').onclick=function(){close();try{bedOpen()}catch(_){}};tn2.querySelector('[data-a=why]').onclick=function(){setView('smt')};L.appendChild(tn2)}

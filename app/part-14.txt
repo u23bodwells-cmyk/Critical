@@ -1,4 +1,53 @@
-nts</h3><ul><li>Assume the opposite, reach a contradiction.</li><li>√2 irrational; infinitely many primes.</li><li>State clearly what's contradicted.</li></ul>`)]),
+ (function of a function), product, quotient.</li><li>Parametric and implicit differentiation.</li><li>f″ changing sign: <b>point of inflection</b>.</li></ul>`)]),
+LH('am3-3-2','Integration techniques',11,'Substitution, by parts, partial fractions and trig identities: the Year 13 integration kit.',[
+RM(`<p>Calculus Levels 4 and 8 build these slowly. ∫ f′/f dx = ln|f| + c. By parts: ∫ u dv = uv − ∫ v du.</p>`),
+T(`<h3>The Year 13 kit</h3><ul><li>Standard integrals: eˣ, 1/x, sin, cos, sec², and f(ax + b).</li><li><b>Reverse chain rule</b> and ∫ f′/f = ln|f|.</li><li><b>Substitution</b>, <b>by parts</b>, <b>partial fractions</b>.</li><li><b>Trig identities</b> for sin², cos², tan².</li><li><b>Area</b> between curves and under parametric curves: ∫ y (dx/dt) dt.</li></ul>`),
+W('calcDrill',{skill:['intexp','int1x','subst','parts','pfrac'],need:5},`Mixed Year 13 integration. Get 5 right to master it.`,`Work down the decision list.`),
+Q(`∫ x eˣ dx needs…`,[`integration by parts`,`partial fractions`,`a trig identity`,`no technique`],0,`Product of types.`),
+T(`<h3>Key points</h3><ul><li>Spot standard forms and f′/f first.</li><li>Then substitution, parts or partial fractions.</li><li>Parametric area: ∫ y (dx/dt) dt.</li></ul>`)]),
+LH('am3-3-3','Differential equations and numerical methods',11,'Separate variables to solve, and use iteration when algebra runs out.',[
+RM(`<p>Separating variables (Calculus Level 5). Newton's method (Calculus Level 7). Trapezium rule (Calculus Level 5).</p>`),
+T(`<h3>Differential equations</h3><p>Separate, integrate both sides, include one constant, use the initial condition. Then interpret the model: what happens as t → ∞?</p>`),
+W('calcDrill',{skill:'sepode',need:2},`Separable differential equations. Get 2 right to master it.`,`Separate, integrate, use the start value.`),
+T(`<h3>Numerical methods</h3><ul><li><b>Change of sign</b>: if f is continuous and changes sign on [a, b], a root lies between.</li><li><b>Iteration</b> xₙ₊₁ = g(xₙ): staircase or cobweb diagrams show convergence.</li><li><b>Newton–Raphson</b>: xₙ₊₁ = xₙ − f(xₙ)/f′(xₙ). Fails if f′(xₙ) ≈ 0.</li><li><b>Trapezium rule</b>: overestimates for a convex curve, underestimates for concave.</li></ul>`),
+Q(`When does Newton–Raphson fail?`,[`When f′(xₙ) is zero or close to zero`,`When f(xₙ) is zero`,`When x is negative`,`It never fails`],0,`The tangent is flat and shoots far away.`),
+W('calcDrill',{skill:'trap',need:2},`The trapezium rule. Get 2 right to master it.`,`(h/2)[ends + 2 × middles].`),
+T(`<h3>Key points</h3><ul><li>Separate, integrate, apply the condition, interpret.</li><li>Change of sign, iteration, <b>Newton–Raphson</b>.</li><li>Trapezium rule: over for convex, under for concave.</li></ul>`)])
+]});
+
+U({id:'am3-4',track:'am',level:3,title:'Vectors, statistics and mechanics',icon:'N(μ,σ²)',color:'#D85A30',desc:'3D vectors, the normal distribution, moments, friction and projectiles.',lessons:[
+LH('am3-4-1','The normal distribution',11,'The bell curve: heights, errors, exam marks, and the approximation to the binomial.',[
+RM(`<p>Mean μ and standard deviation σ. Hypothesis testing: compare a probability with the significance level.</p>`),
+T(`<h3>X ~ N(μ, σ²)</h3><ul><li>Symmetrical about μ; bell-shaped.</li><li>About <b>68%</b> within 1σ, <b>95%</b> within 2σ, <b>99.7%</b> within 3σ.</li><li>Points of inflection at μ ± σ.</li><li>Standardise with <b>z = (x − μ)/σ</b> to use Z ~ N(0, 1).</li></ul>`),
+W('calcDrill',{skill:'a_zscore',need:3},`Standardising. Get 3 right to master it.`,`z = (x − μ)/σ.`),
+Q(`About what percentage of a normal distribution lies within 2 standard deviations of the mean?`,[`95%`,`68%`,`99.7%`,`50%`],0,`The 68–95–99.7 rule.`),
+T(`<h3>More Year 13 statistics</h3><ul><li><b>Binomial → normal</b> when n is large and p near 0.5: N(np, np(1 − p)), with a continuity correction.</li><li><b>Hypothesis test for a mean</b>: X̄ ~ N(μ, σ²/n).</li><li><b>Correlation test</b> using the product moment correlation coefficient r.</li><li><b>Conditional probability</b> and Venn and tree diagrams.</li></ul>`),
+T(`<h3>Key points</h3><ul><li><b>68–95–99.7</b> rule.</li><li><b>z = (x − μ)/σ</b>.</li><li>Sample mean: X̄ ~ N(μ, σ²/n).</li></ul>`)]),
+LH('am3-4-2','Moments and friction',11,'Turning effects, balance, and objects on slopes.',[
+RM(`<p>Moment = force × perpendicular distance. Friction F ≤ μR. Resolve forces into perpendicular components.</p>`),
+T(`<h3>Equilibrium</h3><p>For a rigid body at rest: forces balance in every direction <b>and</b> moments balance about <b>any</b> point. Take moments about a point where an unknown force acts, to remove it.</p>`),
+W('calcDrill',{skill:'a_moment',need:3},`Moments on a rod. Get 3 right to master it.`,`Moments about the left end.`),
+T(`<h3>Slopes</h3><p>On a slope at angle θ: resolve weight into mg sin θ <b>down the slope</b> and mg cos θ <b>into the slope</b>. So R = mg cos θ, and limiting friction is μmg cos θ.</p>`),
+Q(`A block is about to slide down a rough slope. tan θ = …`,[`μ`,`1/μ`,`μ²`,`g`],0,`mg sin θ = μmg cos θ.`),
+T(`<h3>Key points</h3><ul><li>Equilibrium: forces <b>and</b> moments balance.</li><li>Take moments about an unknown force.</li><li>Slope: R = mg cos θ; limiting friction when μ = tan θ.</li></ul>`)]),
+LH('am3-4-3','Projectiles and 3D vectors',11,'Split motion into horizontal and vertical, and extend vectors into three dimensions.',[
+RM(`<p>suvat with constant acceleration. Vectors in 3D: ⟨a, b, c⟩, magnitude √(a² + b² + c²) (Calculus Level 11).</p>`),
+T(`<h3>Projectiles</h3><ul><li><b>Horizontal</b>: constant velocity u cos θ (no acceleration).</li><li><b>Vertical</b>: suvat with a = −g, starting at u sin θ.</li><li>Time links them. Range on flat ground = u² sin 2θ / g, greatest at 45°.</li></ul>`),
+W('calcDrill',{skill:'a_proj',need:3},`Times of flight. Get 3 right to master it.`,`t = 2u sin θ / g.`),
+T(`<h3>3D vectors at A-level</h3><p>Position vectors, distances between points, and vector problems in 3D. A-level uses i, j, k notation. (The dot and cross products are Further Maths, covered in Calculus Level 11.)</p>`),
+W('calcDrill',{skill:'vmag',need:2},`Magnitudes in 3D. Get 2 right to master it.`,`√(a² + b² + c²).`),
+T(`<h3>Key points</h3><ul><li>Projectiles: horizontal constant, vertical suvat with −g.</li><li>Range u² sin 2θ / g, max at 45°.</li><li>3D vectors with i, j, k.</li></ul>`)])
+]});
+
+/* ---- Level 4: A* technique ---- */
+U({id:'am4-1',track:'am',level:4,title:'Hard problem solving',icon:'A*',color:'#7F77DD',desc:'Proof by contradiction, modelling, and multi-step problems that combine topics.',lessons:[
+LH('am4-1-1','Proof by contradiction',11,'Assume the opposite, follow the logic, and hit something impossible.',[
+RM(`<p>Proof by deduction and exhaustion (Level 2). Even = 2n, odd = 2n + 1. A rational number is a/b with integers a, b and b ≠ 0.</p>`),
+T(`<h3>The method</h3><ol><li>Assume the statement is <b>false</b>.</li><li>Reason logically from that assumption.</li><li>Reach a <b>contradiction</b>: something impossible.</li><li>So the assumption was wrong, and the statement is true.</li></ol>`),
+W('stepCalc',{steps:[`Prove √2 is irrational.`,`Assume √2 = a/b, a fraction in its simplest form (a and b share no factor).`,`Square: 2 = a²/b², so a² = 2b². So a² is even, so a is even: a = 2k.`,`Then 4k² = 2b², so b² = 2k²: b² is even, so b is even.`,`a and b are both even: they share a factor of 2. <b>Contradiction</b>. So √2 is irrational. ∎`]},`The classic proof.`,`The contradiction is with "simplest form".`),
+Q(`To prove "there are infinitely many primes" by contradiction, you start by assuming…`,[`there are only finitely many primes`,`there are infinitely many primes`,`every number is prime`,`2 is the only prime`],0,`Assume the opposite.`),
+Q(`What's the key step that makes a proof by contradiction work?`,[`Showing the assumption leads to something impossible`,`Checking many examples`,`Finding one counter-example`,`Drawing a graph`],0,`The contradiction.`),
+T(`<h3>Key points</h3><ul><li>Assume the opposite, reach a contradiction.</li><li>√2 irrational; infinitely many primes.</li><li>State clearly what's contradicted.</li></ul>`)]),
 LH('am4-1-2','Modelling',10,'Turn a real situation into maths, solve, then criticise your own model.',[
 RM(`<p>Differential equations model rates. Exponential models y = Ae<sup>kt</sup>. Mechanics models make assumptions (particle, light rod, smooth surface).</p>`),
 T(`<h3>The cycle</h3><ol><li>State <b>assumptions</b>.</li><li>Build the model (an equation).</li><li>Solve it.</li><li><b>Interpret</b> the answer in context, with units.</li><li><b>Evaluate</b>: limitations, and how to refine it.</li></ol>`),
@@ -969,46 +1018,4 @@ WIDGETS.qRadial=function(box,par){par=par||{};var cv=canvas(box,230),sn=slider(b
  function P(n,l,r){var rho=2*r/n,R=Math.pow(rho,l)*Math.exp(-rho/2)*lag(n-l-1,2*l+1,rho);return r*r*R*R}
  function draw(){var n=sn.get(),l=Math.min(sl.get(),n-1),g=prep(cv),c=g.c,W=g.W,H=g.H,rmax=Math.max(10,n*n*3+6),N=500,pts=[],mx=0,s=0,sr=0,pk=0,pv=0,i;
   for(i=1;i<=N;i++){var r=i/N*rmax,p=P(n,l,r);if(p>pv){pv=p;pk=r}mx=Math.max(mx,p);s+=p;sr+=r*p}
-  for(i=0;i<=N;i++){r=i/N*rmax;pts.push([20+r/rmax*(W-40),H-26-P(n,l,r)/mx*(H-50)])}c.fillStyle=cssv('--accent-bg');c.beginPath();c.moveTo(20,H-26);pts.forEach(function(q){c.lineTo(q[0],q[1])});c.lineTo(W-20,H-26);c.fill();qLine(c,pts,cssv('--accent'),2.5);
-  var avg=sr/s;c.fillStyle='#e8742a';c.fillRect(20+avg/rmax*(W-40)-1,20,2,H-46);c.fillStyle=cssv('--muted');c.font='12px system-ui';c.fillText('P(r) = r²|R|²: chance of finding the electron at distance r',22,14);c.fillText('r (Bohr radii, a₀ = 0.0529 nm) →',W-200,H-8);c.fillText('⟨r⟩',20+avg/rmax*(W-40)+4,32);
-  st.p.textContent=pk.toFixed(1)+' a₀';st.m.textContent=avg.toFixed(1)+' a₀';st.b.textContent=n-l}
- onDraw(draw);draw();
- if(par.goal)return {check:function(){var n=sn.get(),l=Math.min(sl.get(),n-1);return n-l===par.goal[0]?{ok:true,msg:'n = '+n+', l = '+l+': '+(n-l)+' bumps, with '+(n-l-1)+' radial nodes between them.'}:{ok:false,msg:'This has '+(n-l)+' bumps. The number of bumps is n − l.'}}}};
-
-/* filling electrons into orbitals */
-WIDGETS.qFill=function(box,par){par=par||{};var ORD=[['1s',2],['2s',2],['2p',6],['3s',2],['3p',6],['4s',2],['3d',10],['4p',6]],SYM='H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe Co Ni Cu Zn Ga Ge As Se Br Kr'.split(' '),cv=canvas(box,200),sz=slider(box,'Element (number of electrons)',1,36,1,6,function(v){return v+': '+SYM[v-1]},function(){draw()}),st=stats(box,[['c','Electron configuration']]);
- if(par.goal)qChal(box,par.goal[1]);
- function draw(){var Z=sz.get(),g=prep(cv),c=g.c,W=g.W,H=g.H,left=Z,conf=[],y=H-24,bw=Math.max(11,Math.min(18,(W-170)/9-3)),rowH=(H-30)/ORD.length*1.0;c.font='12px system-ui';
-  var rows={1:[],2:[],3:[],4:[]};ORD.forEach(function(o){var cap=o[1],put=Math.min(cap,left);left-=put;if(put)conf.push(o[0]+'<sup>'+put+'</sup>');var boxes=cap/2,arr=[];for(var b=0;b<boxes;b++)arr.push(0);for(var e=0;e<put;e++){var bi=e<boxes?e:e-boxes;arr[bi]++}rows[o[0][0]].push([o[0],arr])});
-  var yy=14;[4,3,2,1].forEach(function(n){var x=44;c.fillStyle=cssv('--muted');c.fillText('n = '+n,6,yy+12);rows[n].forEach(function(o){c.fillStyle=cssv('--muted');c.fillText(o[0],x,yy+12);x+=22;o[1].forEach(function(k){c.strokeStyle=cssv('--line');c.lineWidth=1.5;c.strokeRect(x,yy,bw,bw);c.fillStyle=cssv('--accent');c.font='bold '+(bw<15?11:13)+'px system-ui';if(k>=1)c.fillText('↑',x+1,yy+bw*0.78);if(k>=2)c.fillText('↓',x+bw*0.48,yy+bw*0.78);c.font='12px system-ui';x+=bw+3});x+=12});yy+=(H-20)/4});
-  st.c.innerHTML=conf.join(' ')}
- onDraw(draw);draw();el('p','small','Each box holds two electrons with opposite spins (Pauli). Boxes in a set fill singly first (Hund\'s rule). Chromium and copper break the simple order slightly.',box);
- if(par.goal)return {check:function(){return sz.get()===par.goal[0]?{ok:true,msg:par.goal[2]}:{ok:false,msg:SYM[sz.get()-1]+' isn\'t it. Watch the boxes as you add electrons.'}}}};
-
-/* the variational principle: guess a wavefunction, minimise its energy */
-WIDGETS.qVariational=function(box,par){par=par||{};var cv=canvas(box,230),sa=slider(box,'Width parameter α of your guess e^(−αr²)',0.03,1.5,0.001,0.8,function(v){return v.toFixed(3)},function(){draw()}),st=stats(box,[['e','Energy of your guess'],['t','True ground state'],['b','Best a Gaussian can do']]);
- if(par.goal)qChal(box,'Tune α to get the energy as low as it will go. Can you beat −13.6 eV?');
- var HA=27.211;function E(a){return (1.5*a-2*Math.sqrt(2*a/Math.PI))*HA}
- function draw(){var a=sa.get(),g=prep(cv),c=g.c,W=g.W,H=g.H,X=function(v){return 40+(v-0.03)/1.47*(W-60)},Y=function(e){return 20+(e+15)/17*(H-50)},i,pts=[];c.strokeStyle=cssv('--line');c.lineWidth=1;[-13.6,-10,-5,0].forEach(function(e){c.beginPath();c.moveTo(40,Y(e));c.lineTo(W-20,Y(e));c.stroke();c.fillStyle=cssv('--muted');c.font='11px system-ui';c.fillText(e+' eV',2,Y(e)+4)});
-  c.setLineDash([5,4]);qLine(c,[[40,Y(-13.6)],[W-20,Y(-13.6)]],cssv('--good-line'),1.5);c.setLineDash([]);c.fillStyle=cssv('--good-line');c.fillText('true answer −13.6 eV',W-140,Y(-13.6)-5);
-  for(i=0;i<=200;i++){var v=0.03+1.47*i/200;pts.push([X(v),Y(Math.min(2,E(v)))])}qLine(c,pts,cssv('--accent'),2.5);c.fillStyle='#e8742a';c.beginPath();c.arc(X(a),Y(Math.min(2,E(a))),7,0,7);c.fill();c.fillStyle=cssv('--muted');c.fillText('energy of the guess as α changes',44,14);c.fillText('α →',W-40,H-8);
-  st.e.textContent=E(a).toFixed(2)+' eV';st.t.textContent='−13.60 eV';st.b.textContent='−11.55 eV (α = 0.283)'}
- onDraw(draw);draw();
- if(par.goal)return {check:function(){var e=E(sa.get());return e<-11.35?{ok:true,msg:'About −11.5 eV: the best a Gaussian guess can do. It never goes below −13.6 eV. That\'s the variational principle: every guess is an upper bound on the true ground-state energy.'}:{ok:false,msg:'Your guess gives '+e.toFixed(2)+' eV. Find the bottom of the curve.'}}}};
-
-/* decoherence on the Bloch sphere */
-WIDGETS.qBloch=function(box,par){par=par||{};var cv=canvas(box,240),run=false,t=0,v=null,v0=null,s0=slider(box,'Starting tilt θ',0,180,1,90,function(x){return x+'°'},function(){reset()}),s1=slider(box,'T₁ (energy loss) time',0.5,60,0.5,10,function(x){return x.toFixed(1)},function(){}),s2=slider(box,'T₂ (phase loss) time',0.2,20,0.1,2,function(x){return x.toFixed(1)},function(){});
- var r=row(box),bt=btn(r,'▶ Run',function(){run=!run;bt.textContent=run?'⏸ Pause':'▶ Run'});btn(r,'Reset',function(){reset()});var st=stats(box,[['r','Length of the arrow'],['p','Purity Tr(ρ²)'],['z','Chance of |0⟩']]);
- if(par.goal)qChal(box,'Start in a 50/50 superposition (θ = 90°). Make it lose its superposition (arrow shrinks to the axis) while keeping its 50/50 populations: short T₂, long T₁.');
- function reset(){var th=s0.get()*Math.PI/180;v=[Math.sin(th),0,Math.cos(th)];v0=v.slice();t=0;draw()}
- function draw(){var g=prep(cv),c=g.c,W=g.W,H=g.H,cx=W*0.3,cy=H/2,R=Math.min(H*0.4,W*0.24);c.strokeStyle=cssv('--line');c.lineWidth=1.3;c.beginPath();c.arc(cx,cy,R,0,7);c.stroke();c.beginPath();c.ellipse(cx,cy,R,R*0.3,0,0,7);c.stroke();c.fillStyle=cssv('--muted');c.font='12px system-ui';c.fillText('|0⟩',cx-9,cy-R-5);c.fillText('|1⟩',cx-9,cy+R+14);
-  var px=cx+R*(v[0]*0.95+v[1]*0.3),py=cy-R*(v[2]-v[1]*0.15);qArrow(c,cx,cy,px,py,cssv('--accent'),3);var len=Math.sqrt(v[0]*v[0]+v[1]*v[1]+v[2]*v[2]);
-  var bx=W*0.62,bw=W*0.32;c.fillStyle=cssv('--muted');c.fillText('density matrix ρ',bx,24);var rho=[[(1+v[2])/2,Math.sqrt(v[0]*v[0]+v[1]*v[1])/2],[Math.sqrt(v[0]*v[0]+v[1]*v[1])/2,(1-v[2])/2]];
-  for(var i=0;i<2;i++)for(var j=0;j<2;j++){var val=rho[i][j],x=bx+j*(bw/2),y=34+i*(bw/2);c.fillStyle=i===j?'rgba(74,163,255,'+(0.15+val*0.85)+')':'rgba(232,116,42,'+(0.12+val*1.7)+')';c.fillRect(x,y,bw/2-6,bw/2-6);c.fillStyle=cssv('--text');c.fillText(val.toFixed(2),x+8,y+bw/4)}
-  c.fillStyle=cssv('--muted');c.font='11px system-ui';c.fillText('blue: populations',bx,34+bw+4);c.fillText('orange: coherences',bx,34+bw+18);st.r.textContent=len.toFixed(2);st.p.textContent=((1+len*len)/2).toFixed(2);st.z.textContent=Math.round((1+v[2])/2*100)+'%'}
- anim(cv,function(dt){if(run&&v){t+=dt*2;var T1=s1.get(),T2=Math.min(s2.get(),2*T1),w=2.5,d=dt*2;var x=v[0],y=v[1];v[0]=(x*Math.cos(w*d)-y*Math.sin(w*d))*Math.exp(-d/T2);v[1]=(x*Math.sin(w*d)+y*Math.cos(w*d))*Math.exp(-d/T2);v[2]=1-(1-v[2])*Math.exp(-d/T1);draw()}});reset();
- el('p','small','The arrow is the Bloch vector. On the surface: a pure state. Inside: a mixed state. It precesses around the z-axis while the environment shrinks it.',box);
- if(par.goal)return {check:function(){var xy=Math.sqrt(v[0]*v[0]+v[1]*v[1]);if(Math.abs(s0.get()-90)>3)return {ok:false,msg:'Start at θ = 90°: a 50/50 superposition.'};if(xy>0.1)return {ok:false,msg:'The arrow still points sideways ('+xy.toFixed(2)+'). Run it longer, with a short T₂.'};return Math.abs(v[2])<0.22?{ok:true,msg:'Still 50/50 populations, but no coherence left: a mixed state, not a superposition. It can\'t interfere any more. That\'s decoherence, and it\'s what quantum computers fight.'}:{ok:false,msg:'It lost its coherence, but also its populations drifted to |0⟩. Make T₁ longer.'}}}};
-
-/* a two-qubit circuit */
-WIDGETS.qCircuit=function(box,par
+  for(i=0;i<=N;i++){r=i/N*rmax;pts.push([20+r/rmax*(W-40),H-26-P(n,l,r)/mx*(H-

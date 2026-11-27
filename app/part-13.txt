@@ -1,4 +1,41 @@
-cooling always favours the left-hand side'],0,`Cooling favours the exothermic direction.`),
+thing causes another.</li><li>A <b>valid</b> experiment answers the question it set out to answer, with control variables kept the same.</li></ul>`),
+Q(`A student finds resistance increases with wire length for lengths 10–50 cm. Which conclusion is valid?`,[`Between 10 and 50 cm, resistance increases with length`,`Resistance always increases with length, at any length`,`Length causes all resistance`,`Thicker wires have more resistance`],0,`Don't extrapolate beyond the data.`),
+Q(`Two groups get different results with the same method. Their results are not…`,[`reproducible`,`accurate`,`random`,`valid by definition`],0,`Reproducible means others get the same results.`),
+T(`<h3>Key points</h3><ul><li>Uncertainty ≈ half the range.</li><li>Conclusions only within the range tested.</li><li>Correlation isn't causation.</li></ul>`)])
+]});
+U({id:'gp5-4',track:'gp',level:5,title:'Full-marks technique',icon:'✓',color:'#BA7517',desc:'Command words, and the small mistakes that cost grade 9 candidates marks.',lessons:[
+LH('gp5-4-1','Command words',9,'Exactly what each command word is asking for.',[
+W('matchPairs',{pairs:[['State / Give','A short answer, no explanation'],['Describe','Say what happens, step by step'],['Explain','Say why: give reasons with "because"'],['Compare','Similarities and differences, both sides in each sentence'],['Evaluate','Pros and cons, then a justified judgement'],['Suggest','Apply your knowledge to an unfamiliar situation']]},`Match each command word to what it asks for.`,`Answer the command word, not the topic.`),
+Q(`"Explain why the current in a filament lamp doesn't increase in proportion to the p.d." What must your answer include?`,[`A reason: the filament heats up, so its resistance increases`,'A description: the graph is a curve, not a straight line','A labelled circuit diagram of the lamp and the meters','A calculation of the resistance at two different p.d.s'],0,`Explain = why.`),
+Q(`"Compare alpha and gamma radiation." Which is a good comparison sentence?`,[`Alpha is strongly ionising, whereas gamma is weakly ionising`,'Alpha is strongly ionising and gamma is a type of radiation','Gamma is an electromagnetic wave, and alpha is a particle','Both are ionising radiation given out by unstable nuclei'],0,`Mention both in the same sentence.`),
+T(`<h3>Key points</h3><ul><li>State: short. Describe: what. Explain: why.</li><li>Compare: both sides each time ("whereas").</li><li>Evaluate: finish with a judgement.</li></ul>`)]),
+LH('gp5-4-2','How marks are lost',10,'The small errors that cost top candidates marks, and how to avoid them.',[
+RM(`<p>Write the equation, convert, substitute, calculate, give the unit.</p>`),
+T(`<h3>The usual suspects</h3><ul><li>Forgetting to convert cm → m, g → kg, minutes → s, kW → W.</li><li>Missing or wrong units.</li><li>Squaring at the wrong time (½mv²: square v only).</li><li>Rounding too early.</li><li>Using 10 instead of 9.8 N/kg.</li><li>Writing "energy is lost" instead of "energy is transferred to the surroundings".</li><li>Saying "particles get bigger" when heated (they move faster).</li></ul>`),
+Q(`A student writes "the energy is lost as heat". How should a grade 9 answer say it?`,[`Energy is transferred to the thermal store of the surroundings`,'Energy is destroyed as heat leaves the system and the surroundings','The energy disappears into the air as heat','Heat energy is lost from the system forever'],0,`Energy is conserved, so be precise.`),
+Q(`What's wrong with "the particles expand when heated"?`,[`The particles stay the same size; they move faster and further apart`,'Nothing: particles do get bigger when they are heated','The particles shrink when heated, so there\'s more space','Only gas particles expand when heated; solid and liquid particles don\'t'],0,`A very common lost mark.`),
+Q(`E = ½mv² with m = 2 kg, v = 3 m/s. Which is right?`,[`9 J`,`36 J`,`18 J`,`3 J`],0,`0.5 × 2 × 3² = 9. Squaring (½ × 2 × 3) gives 9 by luck here, but usually it's wrong.`),
+T(`<h3>Key points</h3><ul><li>Convert, include units, and round only at the end.</li><li>Energy is transferred, never lost.</li><li>Particles don't change size.</li></ul>`)])
+]});
+
+U({id:'gc5-1',track:'gc',level:5,title:'Hardest calculations',icon:'∑',color:'#BA7517',desc:'Multi-step mole calculations, and using yield and atom economy to choose between routes.',lessons:[
+LH('gc5-1-1','Multi-step mole problems',12,'Mass, solutions and gases in one question.',[
+T(`<h3>Every route goes through moles</h3><div class="eq">mass ⇄ moles ⇄ concentration × volume ⇄ gas volume</div><p>Use the equation's ratio to jump from one substance's moles to another's.</p>`),
+W('stepCalc',{steps:[`2.50 g of CaCO₃ reacts with excess HCl. What volume of CO₂ forms, and what volume of 2.0 mol/dm³ HCl is needed? (CaCO₃ = 100)`,`Moles of CaCO₃ = 2.50 ÷ 100 = 0.0250 mol`,`CaCO₃ + 2HCl → CaCl₂ + H₂O + CO₂: 0.0250 mol CO₂ → 0.0250 × 24 = <b>0.600 dm³</b>`,`HCl needed = 2 × 0.0250 = 0.0500 mol`,`Volume = 0.0500 ÷ 2.0 = 0.0250 dm³ = <b>25.0 cm³</b>`]},`A grade 9 worked example.`,`One set of moles, three different answers.`),
+W('calcDrill',{skill:GC9,need:8},`Grade 9 mole problems. Get 8 right to master it.`,`Moles first, every time.`),
+T(`<h3>Key points</h3><ul><li>Mass, solution and gas all convert through moles.</li><li>Use the ratio to switch substances.</li></ul>`)]),
+LH('gc5-1-2','Choosing a route',11,'Using yield, atom economy, rate, equilibrium and cost to decide which reaction an industry should use.',[
+RM(`<p>Percentage yield = actual ÷ theoretical × 100. Atom economy = useful M<sub>r</sub> ÷ total reactant M<sub>r</sub> × 100.</p>`),
+T(`<h3>Comparing routes</h3><p>Ethanol can be made two ways:</p><ul><li><b>Fermentation</b>: C₆H₁₂O₆ → 2C₂H₅OH + 2CO₂. Atom economy 51%, renewable sugar, slow, impure product, low temperature.</li><li><b>Hydration of ethene</b>: C₂H₄ + H₂O → C₂H₅OH. Atom economy 100%, fast, pure, but ethene comes from crude oil and needs 300 °C and 60–70 atm.</li></ul>`),
+Q(`Which is the best argument for fermentation?`,[`It uses a renewable raw material`,`It has a 100% atom economy`,'It\'s a much faster process than hydration','It gives purer ethanol than any other method'],0,`Evaluate: renewable vs efficient.`),
+W('calcDrill',{skill:['g_atomecon','g_yield','g_yieldmass'],need:5},`Atom economy and yield. Get 5 right to master it.`,`High atom economy and high yield are different things.`),
+Q(`A reaction has 100% atom economy but a 40% yield. What does that mean?`,[`No waste products in theory, but much less product is actually made`,'It\'s perfectly efficient, and everything made is the product','40% of what it makes is waste, and 60% is the product','It can\'t happen, because the two numbers must be the same'],0,`Atom economy is about the equation; yield is about what really happens.`),
+T(`<h3>Key points</h3><ul><li>Atom economy: from the equation. Yield: from the experiment.</li><li>Choose a route by weighing yield, atom economy, rate, cost, energy and sustainability.</li></ul>`)])
+]});
+U({id:'gc5-2',track:'gc',level:5,title:'Equilibrium and electrolysis',icon:'⇌',color:'#378ADD',desc:'Predicting equilibrium shifts in unfamiliar reactions, and writing half equations.',lessons:[
+LH('gc5-2-1','Predicting equilibrium shifts',11,'Applying Le Chatelier to reactions you\'ve never seen.',[
+T(`<h3>The method</h3><ol><li>What changed? (concentration, temperature, pressure)</li><li>Which direction opposes that change?</li><li>So which way does the equilibrium shift, and what happens to the yield?</li></ol><p>For pressure, count only gas molecules on each side. A catalyst never changes the position, only how fast equilibrium is reached.</p>`),
+Q(`2NO₂(g) ⇌ N₂O₄(g); forward reaction exothermic. NO₂ is brown, N₂O₄ colourless. The mixture is cooled. What happens?`,[`It gets paler: equilibrium shifts right, the exothermic direction`,'It gets darker: equilibrium shifts left, making more NO₂','No change: cooling only affects how fast it reacts','It gets darker: cooling always favours the left-hand side'],0,`Cooling favours the exothermic direction.`),
 Q(`H₂(g) + I₂(g) ⇌ 2HI(g). Pressure is increased. What happens to the yield of HI?`,[`No change: 2 gas molecules on each side`,'It increases: higher pressure always favours products','It decreases: equilibrium moves to the left side','It doubles: there are twice as many HI molecules'],0,`Equal numbers of gas molecules.`),
 Q(`CO(g) + 2H₂(g) ⇌ CH₃OH(g), forward exothermic. Which conditions give the highest yield of methanol?`,[`Low temperature and high pressure`,`High temperature and high pressure`,`Low temperature and low pressure`,`High temperature and low pressure`],0,`Exothermic forward: low T. 3 molecules → 1: high P.`),
 Q(`Adding a catalyst to an equilibrium mixture…`,[`doesn't change the position, but equilibrium is reached faster`,'increases the yield, because it speeds up the forward reaction','decreases the yield, because it speeds up the reverse reaction','moves the position right, but equilibrium takes longer to reach'],0,`It speeds up both directions equally.`),
@@ -1073,53 +1110,4 @@ RM(`<p>The Calculus track covers these in Levels 3, 7 and 11. Chain: dy/dx = dy/
 T(`<h3>The Year 13 toolkit</h3><ul><li>eˣ, ln x, sin, cos, tan, and aˣ (d/dx aˣ = aˣ ln a).</li><li><b>Chain, product and quotient</b> rules.</li><li><b>Parametric</b>: dy/dx = (dy/dt)/(dx/dt).</li><li><b>Implicit</b>: differentiate y terms and multiply by dy/dx.</li><li><b>Connected rates</b>: chain rule with time.</li><li>Second derivative for <b>concave/convex</b> and <b>points of inflection</b>.</li></ul>`),
 W('calcDrill',{skill:['chain','product','quotient','paramgrad','implicit'],need:6},`Mixed Year 13 differentiation. Get 6 right to master it.`,`Pick the right rule first.`),
 Q(`A point of inflection is where…`,[`the curve changes between concave and convex`,`the gradient is always zero`,`the function has a maximum`,`the curve crosses the y-axis`],0,`f″ changes sign.`),
-T(`<h3>Key points</h3><ul><li>Choose the rule: chain (function of a function), product, quotient.</li><li>Parametric and implicit differentiation.</li><li>f″ changing sign: <b>point of inflection</b>.</li></ul>`)]),
-LH('am3-3-2','Integration techniques',11,'Substitution, by parts, partial fractions and trig identities: the Year 13 integration kit.',[
-RM(`<p>Calculus Levels 4 and 8 build these slowly. ∫ f′/f dx = ln|f| + c. By parts: ∫ u dv = uv − ∫ v du.</p>`),
-T(`<h3>The Year 13 kit</h3><ul><li>Standard integrals: eˣ, 1/x, sin, cos, sec², and f(ax + b).</li><li><b>Reverse chain rule</b> and ∫ f′/f = ln|f|.</li><li><b>Substitution</b>, <b>by parts</b>, <b>partial fractions</b>.</li><li><b>Trig identities</b> for sin², cos², tan².</li><li><b>Area</b> between curves and under parametric curves: ∫ y (dx/dt) dt.</li></ul>`),
-W('calcDrill',{skill:['intexp','int1x','subst','parts','pfrac'],need:5},`Mixed Year 13 integration. Get 5 right to master it.`,`Work down the decision list.`),
-Q(`∫ x eˣ dx needs…`,[`integration by parts`,`partial fractions`,`a trig identity`,`no technique`],0,`Product of types.`),
-T(`<h3>Key points</h3><ul><li>Spot standard forms and f′/f first.</li><li>Then substitution, parts or partial fractions.</li><li>Parametric area: ∫ y (dx/dt) dt.</li></ul>`)]),
-LH('am3-3-3','Differential equations and numerical methods',11,'Separate variables to solve, and use iteration when algebra runs out.',[
-RM(`<p>Separating variables (Calculus Level 5). Newton's method (Calculus Level 7). Trapezium rule (Calculus Level 5).</p>`),
-T(`<h3>Differential equations</h3><p>Separate, integrate both sides, include one constant, use the initial condition. Then interpret the model: what happens as t → ∞?</p>`),
-W('calcDrill',{skill:'sepode',need:2},`Separable differential equations. Get 2 right to master it.`,`Separate, integrate, use the start value.`),
-T(`<h3>Numerical methods</h3><ul><li><b>Change of sign</b>: if f is continuous and changes sign on [a, b], a root lies between.</li><li><b>Iteration</b> xₙ₊₁ = g(xₙ): staircase or cobweb diagrams show convergence.</li><li><b>Newton–Raphson</b>: xₙ₊₁ = xₙ − f(xₙ)/f′(xₙ). Fails if f′(xₙ) ≈ 0.</li><li><b>Trapezium rule</b>: overestimates for a convex curve, underestimates for concave.</li></ul>`),
-Q(`When does Newton–Raphson fail?`,[`When f′(xₙ) is zero or close to zero`,`When f(xₙ) is zero`,`When x is negative`,`It never fails`],0,`The tangent is flat and shoots far away.`),
-W('calcDrill',{skill:'trap',need:2},`The trapezium rule. Get 2 right to master it.`,`(h/2)[ends + 2 × middles].`),
-T(`<h3>Key points</h3><ul><li>Separate, integrate, apply the condition, interpret.</li><li>Change of sign, iteration, <b>Newton–Raphson</b>.</li><li>Trapezium rule: over for convex, under for concave.</li></ul>`)])
-]});
-
-U({id:'am3-4',track:'am',level:3,title:'Vectors, statistics and mechanics',icon:'N(μ,σ²)',color:'#D85A30',desc:'3D vectors, the normal distribution, moments, friction and projectiles.',lessons:[
-LH('am3-4-1','The normal distribution',11,'The bell curve: heights, errors, exam marks, and the approximation to the binomial.',[
-RM(`<p>Mean μ and standard deviation σ. Hypothesis testing: compare a probability with the significance level.</p>`),
-T(`<h3>X ~ N(μ, σ²)</h3><ul><li>Symmetrical about μ; bell-shaped.</li><li>About <b>68%</b> within 1σ, <b>95%</b> within 2σ, <b>99.7%</b> within 3σ.</li><li>Points of inflection at μ ± σ.</li><li>Standardise with <b>z = (x − μ)/σ</b> to use Z ~ N(0, 1).</li></ul>`),
-W('calcDrill',{skill:'a_zscore',need:3},`Standardising. Get 3 right to master it.`,`z = (x − μ)/σ.`),
-Q(`About what percentage of a normal distribution lies within 2 standard deviations of the mean?`,[`95%`,`68%`,`99.7%`,`50%`],0,`The 68–95–99.7 rule.`),
-T(`<h3>More Year 13 statistics</h3><ul><li><b>Binomial → normal</b> when n is large and p near 0.5: N(np, np(1 − p)), with a continuity correction.</li><li><b>Hypothesis test for a mean</b>: X̄ ~ N(μ, σ²/n).</li><li><b>Correlation test</b> using the product moment correlation coefficient r.</li><li><b>Conditional probability</b> and Venn and tree diagrams.</li></ul>`),
-T(`<h3>Key points</h3><ul><li><b>68–95–99.7</b> rule.</li><li><b>z = (x − μ)/σ</b>.</li><li>Sample mean: X̄ ~ N(μ, σ²/n).</li></ul>`)]),
-LH('am3-4-2','Moments and friction',11,'Turning effects, balance, and objects on slopes.',[
-RM(`<p>Moment = force × perpendicular distance. Friction F ≤ μR. Resolve forces into perpendicular components.</p>`),
-T(`<h3>Equilibrium</h3><p>For a rigid body at rest: forces balance in every direction <b>and</b> moments balance about <b>any</b> point. Take moments about a point where an unknown force acts, to remove it.</p>`),
-W('calcDrill',{skill:'a_moment',need:3},`Moments on a rod. Get 3 right to master it.`,`Moments about the left end.`),
-T(`<h3>Slopes</h3><p>On a slope at angle θ: resolve weight into mg sin θ <b>down the slope</b> and mg cos θ <b>into the slope</b>. So R = mg cos θ, and limiting friction is μmg cos θ.</p>`),
-Q(`A block is about to slide down a rough slope. tan θ = …`,[`μ`,`1/μ`,`μ²`,`g`],0,`mg sin θ = μmg cos θ.`),
-T(`<h3>Key points</h3><ul><li>Equilibrium: forces <b>and</b> moments balance.</li><li>Take moments about an unknown force.</li><li>Slope: R = mg cos θ; limiting friction when μ = tan θ.</li></ul>`)]),
-LH('am3-4-3','Projectiles and 3D vectors',11,'Split motion into horizontal and vertical, and extend vectors into three dimensions.',[
-RM(`<p>suvat with constant acceleration. Vectors in 3D: ⟨a, b, c⟩, magnitude √(a² + b² + c²) (Calculus Level 11).</p>`),
-T(`<h3>Projectiles</h3><ul><li><b>Horizontal</b>: constant velocity u cos θ (no acceleration).</li><li><b>Vertical</b>: suvat with a = −g, starting at u sin θ.</li><li>Time links them. Range on flat ground = u² sin 2θ / g, greatest at 45°.</li></ul>`),
-W('calcDrill',{skill:'a_proj',need:3},`Times of flight. Get 3 right to master it.`,`t = 2u sin θ / g.`),
-T(`<h3>3D vectors at A-level</h3><p>Position vectors, distances between points, and vector problems in 3D. A-level uses i, j, k notation. (The dot and cross products are Further Maths, covered in Calculus Level 11.)</p>`),
-W('calcDrill',{skill:'vmag',need:2},`Magnitudes in 3D. Get 2 right to master it.`,`√(a² + b² + c²).`),
-T(`<h3>Key points</h3><ul><li>Projectiles: horizontal constant, vertical suvat with −g.</li><li>Range u² sin 2θ / g, max at 45°.</li><li>3D vectors with i, j, k.</li></ul>`)])
-]});
-
-/* ---- Level 4: A* technique ---- */
-U({id:'am4-1',track:'am',level:4,title:'Hard problem solving',icon:'A*',color:'#7F77DD',desc:'Proof by contradiction, modelling, and multi-step problems that combine topics.',lessons:[
-LH('am4-1-1','Proof by contradiction',11,'Assume the opposite, follow the logic, and hit something impossible.',[
-RM(`<p>Proof by deduction and exhaustion (Level 2). Even = 2n, odd = 2n + 1. A rational number is a/b with integers a, b and b ≠ 0.</p>`),
-T(`<h3>The method</h3><ol><li>Assume the statement is <b>false</b>.</li><li>Reason logically from that assumption.</li><li>Reach a <b>contradiction</b>: something impossible.</li><li>So the assumption was wrong, and the statement is true.</li></ol>`),
-W('stepCalc',{steps:[`Prove √2 is irrational.`,`Assume √2 = a/b, a fraction in its simplest form (a and b share no factor).`,`Square: 2 = a²/b², so a² = 2b². So a² is even, so a is even: a = 2k.`,`Then 4k² = 2b², so b² = 2k²: b² is even, so b is even.`,`a and b are both even: they share a factor of 2. <b>Contradiction</b>. So √2 is irrational. ∎`]},`The classic proof.`,`The contradiction is with "simplest form".`),
-Q(`To prove "there are infinitely many primes" by contradiction, you start by assuming…`,[`there are only finitely many primes`,`there are infinitely many primes`,`every number is prime`,`2 is the only prime`],0,`Assume the opposite.`),
-Q(`What's the key step that makes a proof by contradiction work?`,[`Showing the assumption leads to something impossible`,`Checking many examples`,`Finding one counter-example`,`Drawing a graph`],0,`The contradiction.`),
-T(`<h3>Key poi
+T(`<h3>Key points</h3><ul><li>Choose the rule: chain

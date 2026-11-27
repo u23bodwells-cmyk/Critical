@@ -1,4 +1,45 @@
-dP/dt and so on are rates of change with time.</li></ul>`)]),
+ents',icon:'→',color:'#7F77DD',desc:'The tangent, the idea of a limit, and working out the gradient of y = x² from scratch.',lessons:[
+LH('c2-1-1','The tangent to a curve',8,'The line that just touches a curve, and why its gradient is the curve\'s gradient.',[
+RM(`<p>A <b>chord</b> joins two points on a curve. As the chord gets shorter, its gradient gets closer to the exact gradient at a point. On y = x² at x = 3, that was <b>6</b>.</p>`),
+T(`<h3>The tangent</h3><p>A <b>tangent</b> is a straight line that touches a curve at one point and has exactly the same steepness as the curve there.</p><p>So the gradient of a curve at a point is defined as the <b>gradient of the tangent</b> at that point.</p>`),
+W('fnPlot',{x:[-3,3],y:[-1,9],xl:'x',yl:'y',sl:[['a','Point x',-3,3,0.5,1,function(v){return v}]],curves:function(p){var g=2*p.a,y0=p.a*p.a;return [[function(x){return x*x},'--accent',3],[function(x){return y0+g*(x-p.a)},'--coral',2,[6,4]]]},read:function(p){return 'At x = '+p.a+': tangent gradient = <b>'+(2*p.a)+'</b>'},goal:function(p){return p.a===-2},goalMsg:'Move the point to x = −2.'},`Slide the point along y = x². Watch the tangent. Finish at x = −2.`,`The gradient is negative on the left, zero at the bottom, and positive on the right. At x = −2 it's −4.`),
+Q(`On y = x², what's the gradient of the tangent at x = 0?`,[`0`,`1`,`2`,`It has no tangent`],0,`At the bottom of the U, the tangent is flat.`),
+T(`<h3>Spot the pattern</h3><table><tr><th>x</th><td>−2</td><td>−1</td><td>0</td><td>1</td><td>2</td><td>3</td></tr><tr><th>gradient</th><td>−4</td><td>−2</td><td>0</td><td>2</td><td>4</td><td>6</td></tr></table><p>The gradient is always <b>double</b> the x-value. For y = x², gradient = <b>2x</b>.</p>`),
+N(`For y = x², what's the gradient at x = 7?`,14,0.001,'',`2 × 7 = 14.`),
+N(`For y = x², what's the gradient at x = −5?`,-10,0.001,'',`2 × (−5) = −10.`),
+T(`<h3>Key points</h3><ul><li>A <b>tangent</b> touches a curve at one point, with the same steepness there.</li><li>The gradient of a curve at a point = the gradient of its tangent.</li><li>For y = x², the gradient at any x is <b>2x</b>.</li></ul>`)]),
+LH('c2-1-2','Limits',8,'What "gets closer and closer to" really means, and how we write it.',[
+RM(`<p>Shrinking a chord makes its gradient approach the tangent's gradient. On y = x² from x = 3, chord gradients were 7, 6.5, 6.1, 6.01… heading to 6.</p>`),
+T(`<h3>A limit</h3><p>When something gets closer and closer to a value without us ever needing to reach it, that value is called the <b>limit</b>.</p><p>The chord from x = 3 to x = 3 + h has gradient <b>6 + h</b>. As h shrinks towards 0, that heads to 6. We write:</p><div class="eq">as h → 0,&nbsp; 6 + h → 6</div>${KY([['h','the width of the chord: a small step in x',''],['→','"tends to" or "gets closer and closer to"','']])}`),
+Q(`What does "h → 0" mean?`,[`h gets closer and closer to 0`,'h is set to exactly 0 straight away','h gets further and further from 0','h keeps getting bigger without limit'],0,`It shrinks towards 0. We never actually divide by 0.`),
+T(`<h3>Why not just put h = 0?</h3><p>A chord needs two different points. If h = 0, both points are the same, and the gradient calculation becomes 0 ÷ 0, which has no answer.</p><p>So instead of setting h to 0, we ask what the answer <b>approaches</b> as h gets tiny. That's the limit.</p>`),
+Q(`Why can't we just put h = 0 into the chord gradient?`,[`It gives 0 ÷ 0, which has no answer`,'It gives a negative answer every time','It makes the answer far too big to use','We can, and it gives the exact gradient'],0,`Two points become one point.`),
+N(`As h → 0, what does 10 + 3h tend to?`,10,0.001,'',`3h shrinks to 0, leaving 10.`),
+N(`As h → 0, what does 2 × 4 + h tend to?`,8,0.001,'',`2 × 4 = 8, and h vanishes.`),
+W('calcDrill',{skill:'chord',need:5},`Chord gradients on y = x². Get 5 right to master it, and notice where they're heading.`,`Every one is 2 × start + h. The limit is 2 × start.`),
+T(`<h3>Key points</h3><ul><li>A <b>limit</b> is the value something approaches.</li><li><b>h → 0</b> means h gets closer and closer to 0.</li><li>We can't set h = 0 in a chord, so we take the limit instead.</li></ul>`)]),
+LH('c2-1-3','The gradient of x², from scratch',10,'Prove that the gradient of y = x² is 2x using algebra. Your first derivation.',[
+RM(`<p>The chord from x = a to x = a + h has gradient (f(a + h) − f(a)) ÷ h. As h → 0, it tends to the gradient at x = a.</p>`),
+T(`<h3>The plan</h3><p>Instead of trying numbers, we'll use letters, so the answer works for <b>every</b> point at once. On y = x², take a chord from x = <b>a</b> to x = <b>a + h</b>.</p>`),
+T(`<h3>Expanding (a + h)²</h3><p>We'll need this:</p><div class="eq">(a + h)² = (a + h)(a + h) = a² + 2ah + h²</div><p>Multiply every term in the first bracket by every term in the second: a×a, a×h, h×a, h×h.</p>`),
+Q(`Expand (a + h)².`,[`a² + 2ah + h²`,`a² + h²`,`a² + ah + h²`,`2a + 2h`],0,`Don't forget the middle term 2ah.`),
+W('stepCalc',{steps:[`Chord gradient = (f(a + h) − f(a)) ÷ h`,`For f(x) = x²: ((a + h)² − a²) ÷ h`,`Expand: (a² + 2ah + h² − a²) ÷ h`,`The a² terms cancel: (2ah + h²) ÷ h`,`Divide each term by h: <b>2a + h</b>`,`As h → 0, the h disappears: the gradient is <b>2a</b>`]},`Here's the whole derivation. Reveal it one step at a time and make sure each line makes sense.`,`For y = x², the gradient at x = a is 2a. That's exactly the 2x pattern you spotted.`),
+Q(`In the derivation, why do the a² terms disappear?`,[`+a² and −a² cancel`,'a is always zero','We divide them by a','h² is always zero'],0,`a² − a² = 0.`),
+Q(`After dividing by h, the chord gradient is 2a + h. What happens as h → 0?`,[`It becomes 2a`,`It becomes 0`,`It becomes 2a + 1`,`It has no answer`],0,`The h term shrinks away.`),
+W('calcDrill',{skill:'fpx2',need:4},`Use the result: gradient = 2a. Get 4 right to master it.`,`Double the x-value.`),
+T(`<h3>You've just done calculus</h3><p>What you just did is called <b>differentiation from first principles</b>. It's how every rule in calculus is proved. Next unit, you'll learn the notation and do it again for x³.</p>`),
+T(`<h3>Key points</h3><ul><li>Chord from a to a + h on y = x²: gradient <b>2a + h</b>.</li><li>As h → 0, it tends to <b>2a</b>.</li><li>So the gradient of y = x² at any x is <b>2x</b>.</li></ul>`)])
+]});
+
+U({id:'c2-2',track:'calc',level:2,title:'First principles and notation',icon:'dy/dx',color:'#1D9E75',desc:'dy/dx and f′(x), first principles for x³, and the pattern that becomes the power rule.',lessons:[
+LH('c2-2-1','dy/dx and f′(x)',8,'Two ways of writing "the gradient function", and what they mean.',[
+RM(`<p>The gradient of y = x² at any point x is <b>2x</b>. We found it as a limit as h → 0.</p>`),
+T(`<h3>The derivative</h3><p>The formula for the gradient at any x, like 2x for y = x², is called the <b>derivative</b>. Finding it is called <b>differentiating</b>.</p><p>There are two common ways to write it:</p><div class="eq">dy/dx&nbsp;&nbsp;&nbsp;or&nbsp;&nbsp;&nbsp;f′(x)</div>${KY([['dy/dx','"dee y by dee x": the rate of change of y with respect to x',''],['f′(x)','"f dash of x": the derivative of the function f','']],'dy/dx is one symbol. It is NOT d × y ÷ d × x.')}`),
+Q(`If y = x², what is dy/dx?`,[`2x`,`x²`,`2`,`x`],0,`The derivative of x² is 2x.`),
+Q(`If f(x) = x², what is f′(3)?`,[`6`,`9`,`3`,`2`],0,`f′(x) = 2x, so f′(3) = 6.`),
+T(`<h3>Other letters</h3><p>The letters change with the situation. If temperature T changes with time t, its rate of change is <b>dT/dt</b>, in °C per second. If power P changes with time, it's <b>dP/dt</b>.</p>`),
+Q(`What does dT/dt measure?`,[`How fast temperature changes with time`,'Temperature multiplied by the time taken','The total temperature rise over the day','How long the temperature takes to settle'],0,`A rate of change, like °C per minute.`),
+T(`<h3>Key points</h3><ul><li>The <b>derivative</b> is the gradient formula. Finding it is <b>differentiating</b>.</li><li>Written <b>dy/dx</b> or <b>f′(x)</b>.</li><li>dT/dt, dP/dt and so on are rates of change with time.</li></ul>`)]),
 LH('c2-2-2','First principles for x³',10,'The same method, a little more algebra: prove that the gradient of x³ is 3x².',[
 RM(`<p>For y = x², the chord from a to a + h has gradient 2a + h, which tends to 2a as h → 0.</p>`),
 T(`<h3>Expanding (a + h)³</h3><p>(a + h)³ = (a + h)² × (a + h) = (a² + 2ah + h²)(a + h).</p><p>Multiply out and collect like terms:</p><div class="eq">(a + h)³ = a³ + 3a²h + 3ah² + h³</div>`),
@@ -950,46 +991,4 @@ LH('c10-1-1','Sequences that settle down',9,'A list of numbers can head towards 
 RM(`<p>lim<sub>x→∞</sub> f(x) = L means f(x) gets as close as we like to L when x is big enough. lim 1/x = 0.</p>`),
 T(`<h3>A sequence</h3><p>A <b>sequence</b> is an ordered list: a₁, a₂, a₃, … The nth term is a formula like aₙ = 1/n, giving 1, ½, ⅓, ¼, …</p><p>The sequence <b>converges</b> to L if aₙ gets as close as we like to L for big enough n:</p><div class="eq">lim<sub>n→∞</sub> aₙ = L</div>`),
 Q(`aₙ = (n + 1)/n. What does it converge to?`,[`1`,`0`,`2`,`It diverges`],0,`1 + 1/n → 1.`),
-T(`<h3>Three behaviours</h3><ul><li><b>Converges</b>: 1/n → 0.</li><li><b>Diverges to ∞</b>: n² grows without bound.</li><li><b>Diverges by oscillating</b>: (−1)ⁿ goes −1, 1, −1, 1, … and never settles.</li></ul>`),
-W('matchPairs',{pairs:[['aₙ = 3 + 1/n','Converges to 3'],['aₙ = 2ⁿ','Diverges to ∞'],['aₙ = (−1)ⁿ','Oscillates, no limit'],['aₙ = (0.5)ⁿ','Converges to 0']]},`Match each sequence to its behaviour.`),
-T(`<h3>Powers of r</h3><p>rⁿ is the sequence everything else is built on:</p><ul><li><b>|r| < 1</b>: rⁿ → 0 (each term is a fraction of the last).</li><li><b>r = 1</b>: stays at 1.</li><li><b>|r| > 1</b> or r = −1: diverges.</li></ul>`),
-Q(`Does (0.9)ⁿ converge?`,[`Yes, to 0`,`Yes, to 0.9`,`No, it grows`,`No, it oscillates`],0,`|r| < 1.`),
-T(`<h3>Key points</h3><ul><li>A <b>sequence</b> converges if lim aₙ exists.</li><li>Diverging: growing without bound, or oscillating.</li><li><b>rⁿ → 0 when |r| < 1</b>.</li></ul>`)]),
-LH('c10-1-2','Series and partial sums',10,'Add up infinitely many numbers. Sometimes the total is a perfectly ordinary number.',[
-RM(`<p>A sequence converges if its terms settle to a limit. Partial fractions: 1/(n(n + 1)) = 1/n − 1/(n + 1).</p>`),
-T(`<h3>A series is a sum</h3><p>A <b>series</b> adds the terms of a sequence: a₁ + a₂ + a₃ + … = Σ aₙ.</p><p>To give it meaning, look at the <b>partial sums</b>: S₁ = a₁, S₂ = a₁ + a₂, S₃ = a₁ + a₂ + a₃, … If the partial sums converge to S, the series converges and its sum is S.</p>`),
-W('stepCalc',{steps:[`½ + ¼ + ⅛ + 1/16 + …`,`S₁ = 0.5`,`S₂ = 0.75`,`S₃ = 0.875`,`S₄ = 0.9375: each time, half of the gap to 1 is filled`,`The partial sums → 1, so <b>½ + ¼ + ⅛ + … = 1</b>`]},`Partial sums, step by step.`,`Infinitely many terms, finite total.`),
-Q(`A series converges when…`,[`its partial sums approach a finite limit`,`it has finitely many terms`,`its first term is small`,`every term is positive`],0,`Watch the partial sums.`),
-T(`<h3>Telescoping</h3><p>Σ 1/(n(n + 1)) = Σ [1/n − 1/(n + 1)]. Write out the partial sum:</p><p>(1 − ½) + (½ − ⅓) + (⅓ − ¼) + … + (1/N − 1/(N + 1)) = 1 − 1/(N + 1)</p><p>Almost everything cancels, like a collapsing telescope. As N → ∞, the sum is <b>1</b>.</p>`),
-N(`Using telescoping, find 1/(1×2) + 1/(2×3) + … + 1/(9×10). (2 decimal places)`,0.9,0.001,'',`1 − 1/10 = 0.9.`),
-QE(`∫<sub>0</sub><sup>∞</sup> e<sup>−2x</sup> dx = …`,[`½`,`2`,`1`,`It diverges`],0,`1/a with a = 2.`),
-T(`<h3>Key points</h3><ul><li>A <b>series</b> is an infinite sum Σ aₙ.</li><li>It converges if its <b>partial sums</b> converge.</li><li><b>Telescoping</b> series cancel down to a few terms.</li></ul>`)]),
-LH('c10-1-3','The geometric series',10,'The most important infinite sum, from 0.999… = 1 to how a subcritical reactor multiplies neutrons.',[
-RM(`<p>Partial sums Sₙ. rⁿ → 0 when |r| < 1.</p>`),
-W('stepCalc',{steps:[`Geometric: S = a + ar + ar² + … + arⁿ⁻¹`,`Multiply by r: rS = ar + ar² + … + arⁿ`,`Subtract: S − rS = a − arⁿ`,`So <b>Sₙ = a(1 − rⁿ)/(1 − r)</b>`,`If |r| < 1, rⁿ → 0, so the infinite sum is <b>S = a/(1 − r)</b>`]},`Derive the geometric sum.`,`If |r| ≥ 1, the series diverges.`),
-W('calcDrill',{skill:'partsum',need:2},`Finite geometric sums. Get 2 right to master it.`,`a(1 − rⁿ)/(1 − r).`),
-W('calcDrill',{skill:'geomsum',need:3},`Sums to infinity. Get 3 right to master it.`,`a/(1 − r), for |r| < 1.`),
-T(`<h3>0.999… = 1</h3><p>0.999… = 0.9 + 0.09 + 0.009 + … : a = 0.9, r = 0.1. Sum = 0.9/0.9 = <b>1</b>. Not "nearly 1": exactly 1.</p>`),
-T(`<h3>Subcritical multiplication</h3><p>In a subcritical reactor, each neutron leads on average to k neutrons in the next generation (k < 1). One source neutron gives 1 + k + k² + … neutrons in total:</p><div class="eq">total = 1/(1 − k)</div><p>At k = 0.95 that's 20 neutrons per source neutron. As k → 1, the total blows up: that's why the count rate rises sharply as a reactor approaches criticality.</p>`),
-N(`k = 0.98. How many neutrons in total per source neutron?`,50,0.001,'',`1/(1 − 0.98) = 1/0.02 = 50.`),
-T(`<h3>Key points</h3><ul><li><b>Sₙ = a(1 − rⁿ)/(1 − r)</b>.</li><li><b>S∞ = a/(1 − r)</b> for |r| < 1.</li><li>Subcritical multiplication: <b>1/(1 − k)</b>.</li></ul>`)])
-]});
-
-U({id:'c10-2',track:'calc',level:10,title:'Convergence tests',icon:'✓?',color:'#1D9E75',desc:'How to tell whether an infinite series adds up: divergence, integral, comparison, ratio and alternating tests.',lessons:[
-LH('c10-2-1','The divergence test and the harmonic series',10,'If the terms don\'t shrink to zero, the sum can\'t settle. But shrinking to zero isn\'t enough.',[
-RM(`<p>A series converges if its partial sums approach a limit. ∫<sub>1</sub><sup>∞</sup> 1/x dx diverges.</p>`),
-T(`<h3>The divergence test</h3><p>If the terms aₙ <b>don't</b> go to 0, you keep adding chunks that don't shrink, so the series <b>diverges</b>.</p><div class="eq">aₙ ↛ 0 &nbsp;⟹&nbsp; Σ aₙ diverges</div>`),
-Q(`Σ n/(n + 1): what does the divergence test say?`,[`Diverges, because the terms go to 1, not 0`,`Converges, because the terms are below 1`,`Nothing: the test can't decide`,`Converges to 1`],0,`Adding numbers close to 1 forever.`),
-T(`<h3>The catch: the harmonic series</h3><p>1 + ½ + ⅓ + ¼ + … : the terms go to 0. Does it converge? Group the terms:</p><p>1 + ½ + (⅓ + ¼) + (⅕ + … + ⅛) + …</p><p>Each bracket is at least ½ (⅓ + ¼ > ¼ + ¼ = ½, and so on). Infinitely many halves: the sum is <b>infinite</b>.</p>`),
-Q(`aₙ → 0. What does that tell you about Σ aₙ?`,[`Nothing on its own: it might converge or diverge`,`It definitely converges`,`It definitely diverges`,`Its sum is 0`],0,`The harmonic series has aₙ → 0 but diverges.`),
-W('fnPlot',{x:[0,1000],y:[0,8],xl:'number of terms N',yl:'partial sum',sl:[['N','Terms added',10,1000,10,100,function(v){return v}]],curves:function(){return [[function(n){return n<1?NaN:Math.log(n)+0.5772},'--accent',3]]},read:function(p){var s=0;for(var i=1;i<=p.N;i++)s+=1/i;return 'Sum of the first '+p.N+' terms = <b>'+s.toFixed(4)+'</b>. It never stops growing, just very slowly (about ln N).'}},`Add more terms of the harmonic series. It keeps creeping up.`,`It grows like ln N: slowly, but forever.`),
-QE(`Sum to infinity of 6 + 3 + 1.5 + …?`,[`12`,`6`,`10.5`,`It diverges`],0,`6/(1 − 0.5).`),
-T(`<h3>Key points</h3><ul><li><b>Divergence test</b>: if aₙ ↛ 0, the series diverges.</li><li>If aₙ → 0, the test says <b>nothing</b>.</li><li>The <b>harmonic series</b> Σ 1/n diverges.</li></ul>`)]),
-LH('c10-2-2','The integral and comparison tests',10,'Compare a series to an integral, or to a series you already understand.',[
-RM(`<p>p-test for integrals: ∫<sub>1</sub><sup>∞</sup> 1/xᵖ dx converges if p > 1. The harmonic series diverges.</p>`),
-T(`<h3>The integral test</h3><p>If f is positive and decreasing, Σ f(n) and ∫<sub>1</sub><sup>∞</sup> f(x) dx either <b>both converge or both diverge</b>. The terms are the heights of unit-width rectangles that hug the curve.</p>`),
-T(`<h3>p-series</h3><p>From the integral p-test:</p><div class="eq">Σ 1/nᵖ converges if p > 1, diverges if p ≤ 1</div><p>Σ 1/n² converges (to π²/6, a famous result of Euler). Σ 1/√n diverges.</p>`),
-Q(`Does Σ 1/n³ converge?`,[`Yes: p = 3 > 1`,`No: p = 3 is too big`,`No: like the harmonic series`,`You can't tell`],0,`p-series with p > 1.`),
-T(`<h3>The comparison test</h3><p>For positive terms:</p><ul><li>If aₙ ≤ bₙ and Σ bₙ <b>converges</b>, so does Σ aₙ (smaller than something finite).</li><li>If aₙ ≥ bₙ and Σ bₙ <b>diverges</b>, so does Σ aₙ (bigger than something infinite).</li></ul><p>Example: 1/(n² + 5) < 1/n², and Σ 1/n² converges, so Σ 1/(n² + 5) converges.</p>`),
-Q(`1/(n + 3) is compared with 1/n. Why doesn't "smaller than a divergent series" prove anything?`,[`Being smaller than infinity doesn't make it finite`,`Because 1/(n + 3) is bigger`,`It does prove it converges`,`Because n + 3 is never zero`],0,`You need smaller-than-convergent or bigger-than-divergent.`),
-W('matchPairs',{pairs:[['Σ 1/n²','Converges (p = 2)'],['Σ 1/n','Diverges (harmonic)'],['Σ 1/√n','Diverges (p = ½)'],['Σ 1/(n² + 1)','Converges (compare with 1/n²)']]},`Match each series to its ver
+T(`<h3>Three behaviours</h3><ul><li><b>Converges</b>: 1/n → 0.</li><li
