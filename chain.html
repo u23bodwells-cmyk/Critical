@@ -324,7 +324,13 @@ button{font:inherit;color:inherit}
 .stsay b{display:block;font-style:normal;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);margin-bottom:3px}
 /* stories */
 [hidden]{display:none!important}
-.tabs{gap:2px}.tabs button{font-size:15px;padding:6px 5px}
+.tabs{gap:0}.tabs button{font-size:15px;padding:6px 5px}
+/* four tabs: centred when there's room, scrollable instead of pushing the buttons off screen when there isn't */
+.tabs{min-width:0;justify-content:flex-start;overflow-x:auto;scrollbar-width:none}.tabs::-webkit-scrollbar{display:none}
+.tabs button:first-child{margin-left:auto}.tabs button:last-child{margin-right:auto}
+@media (max-width:400px){.top{gap:6px;padding-left:10px;padding-right:10px}.tabs button{font-size:14px;padding:6px 4px}}
+@media (max-width:379px){.xp{padding:4px}.xp #xpN{display:none}}
+@media (max-width:345px){.tabs button{font-size:13px;padding:6px 3px}}
 .savedBtn{width:36px;height:36px;border-radius:50%;border:0;background:var(--glass);color:var(--text);display:grid;place-items:center;cursor:pointer;flex:none}
 .savedBtn[aria-selected="true"]{background:var(--gold);color:#2B1D00}
 .flame{position:absolute;right:14px;top:calc(var(--st) + 54px)}
@@ -539,6 +545,20 @@ button{font:inherit;color:inherit}
 .tltile b{font-size:14px;line-height:1.25;text-shadow:0 2px 6px rgba(0,0,0,.6)}
 .tlk{position:absolute;top:10px;left:10px;font:800 10px system-ui,-apple-system,sans-serif;letter-spacing:.08em;background:rgba(0,0,0,.4);padding:4px 7px;border-radius:6px}
 .tlw{font-size:11px;opacity:.8}
+
+/* scroll pass */
+.pfrom{font-size:17px;font-weight:700}
+.pwal{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}
+.pwal div{background:rgba(255,255,255,.07);border:1px solid var(--line);border-radius:16px;padding:12px 14px}
+.pwal small{display:block;color:var(--dim);font-size:12px;font-weight:700}.pwal b{font-size:26px;font-variant-numeric:tabular-nums}
+.papps{display:flex;flex-direction:column;gap:8px;margin:12px 0}.papps .sbtn{text-align:center;padding:13px 16px;font-size:16px}
+.plab{margin:14px 0 6px;font-weight:800}
+.pbuy{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.pb{border:0;border-radius:16px;padding:14px 6px;background:linear-gradient(160deg,#fe2c55,#a01aff);color:#fff;cursor:pointer;display:flex;flex-direction:column;gap:3px;align-items:center}
+.pb b{font-size:18px}.pb span{font-size:13px;font-weight:700;opacity:.9}
+.pb.no{background:rgba(255,255,255,.08);color:var(--dim)}
+.pneed{font-size:14px;color:var(--dim)}.pbuy{margin-bottom:12px}
+.sheet code{background:rgba(255,255,255,.1);padding:1px 6px;border-radius:6px;font-size:13px}
 </style>
 </head>
 <body>
@@ -548,6 +568,7 @@ button{font:inherit;color:inherit}
     <nav class="tabs" role="tablist">
       <button role="tab" aria-selected="false" id="tEdits">Edits</button>
       <button role="tab" aria-selected="true" id="tFeed">For you</button>
+      <button role="tab" aria-selected="false" id="tShorts">Shorts</button>
       <button role="tab" aria-selected="false" id="tStories">Stories</button>
     </nav>
     <button class="savedBtn" id="tSaved" aria-label="Saved cards" aria-selected="false"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M6 3.5h12v17l-6-4.2-6 4.2z"/></svg></button>
@@ -894,6 +915,7 @@ function fromPool(kind,topic){var p=pools[kind],c=p.filter(function(x){return to
 function makeNext(){
   var i=cards.length;
   if(sess.since>=12){sess.since=0;return{type:"check",topic:"maths",id:"chk"+i}}
+  if(mode==="shorts"){var ys=pickYT(true);if(ys)return ys;if(!cards.some(function(k){return k.c.type==="ytdown"}))return{type:"ytdown",topic:"energy",id:"ytdown"+i}}
   /* mystery drops turn up at random (not on a fixed beat), a few a day */
   sess.sinceDrop=(sess.sinceDrop||0)+1;var dd=today();if(i>3&&sess.sinceDrop>5&&(dd.drops||0)<8&&Math.random()<.11){sess.sinceDrop=0;return{type:"drop",topic:"maths",id:"drop"+Date.now()+i}}
   if(retry.length&&retry[0].due<=i){var r=retry.shift().c;return mkQuiz(r.topic,r.q,[r.opts[r.ans]].concat(r.opts.filter(function(_,k){return k!==r.ans})),r.ex,r.id,"Second chance")}
@@ -902,7 +924,7 @@ function makeNext(){
   if(i===2&&mode==="feed"){var y0=pickYT();if(y0)return y0}
   if(i===6&&mode==="feed"){var t0=pickItem(window.CHAIN_TALES||[],"tale");if(t0)return t0}
   if(i===4&&!S.swaps.length&&S.beatDay!==dk()){S.beatDay=dk();save();return{type:"beat",topic:"ops",id:"beat"+dk()}}
-  var W=mode==="edits"?KW_EDITS:KW_FEED,last=i>0?kindOf(cards[i-1].c):null,last2=i>1?kindOf(cards[i-2].c):null,skip={};
+  var W=mode==="edits"?KW_EDITS:KW_FEED,last=i>0?kindOf(cards[i-1].c):null,last2=i>1?kindOf(cards[i-2].c):null,skip={};if(mode==="shorts")skip.yt=1;
   if(last&&!(mode==="edits"&&last==="edit"&&last2!=="edit"))skip[last]=1;
   if(i<3){skip.story=1;skip.tier=1}
   cards.slice(-4).forEach(function(kk){var kd=kindOf(kk.c);if(kd==="tale"||kd==="story")skip[kd]=1});
@@ -925,7 +947,7 @@ var ICON={
  heart:'<svg viewBox="0 0 24 24"><path d="M12 21s-8-4.9-9.9-9.8C.7 7.6 3 4 6.7 4c2.2 0 3.8 1.2 5.3 3.2C13.5 5.2 15.1 4 17.3 4 21 4 23.3 7.6 21.9 11.2 20 16.1 12 21 12 21z"/></svg>'
 };
 function isSaved(id){return S.saved.some(function(s){return s.id===id})}
-function rail(c){if(c.type==="check"||c.type==="drop")return"";var sv=isSaved(c.id),lk=!!S.liked[c.id];
+function rail(c){if(c.type==="check"||c.type==="drop"||c.type==="ytdown")return"";var sv=isSaved(c.id),lk=!!S.liked[c.id];
   return '<aside class="rail"><button class="rb'+(lk?" on":"")+'" data-act="like" aria-pressed="'+lk+'"><span class="c">'+ICON.like+'</span>Like</button>'+
   '<button class="rb'+(sv?" on":"")+'" data-act="save" aria-pressed="'+sv+'"><span class="c">'+ICON.save+'</span>Save</button>'+
   '<button class="rb" data-act="more"><span class="c">'+ICON.more+'</span>Explain</button>'+
@@ -940,6 +962,7 @@ function inner(c){var t=TOP[c.topic]||TOP.reactor,h="";
   else if(c.type==="tier")h=tierHtml(c);
   else if(c.type==="wyr")h=wyrHtml(c);
   else if(c.type==="story"){var so=STORY[c.sid],inf=stInfo(c.sid);h='<div class="stcard"><span class="stkind'+(so.kind==="Story"?" story":so.kind==="Funny"?" funny":"")+'">'+(so.kind==="Story"?"📖 Interactive story":so.kind==="Funny"?"😂 Comedy · you decide":"🚨 Emergency · you decide")+'</span><div class="stcover">'+so.icon+'</div><h2 class="hook">'+esc(so.title)+'</h2><p class="body">'+esc(so.blurb)+'</p><div class="stfound">Endings found: '+Object.keys(inf.e).length+' / '+endCount(so)+'</div><button class="playbtn" data-act="play">▶ Play</button></div>'}
+  else if(c.type==="ytdown")h='<div class="chchip">📺 Shorts</div><div class="glyph">📡</div><h2 class="hook">YouTube isn\'t loading</h2><p class="body">It might be blocked on this Wi-Fi, or you\'re offline. The normal feed carries on below this card.</p><button class="playbtn" data-act="ytretry">↻ Try again</button>';
   else if(c.type==="drop")h='<div class="dropc"><div class="dchip">🎁 Mystery drop</div><button class="dbox" data-act="drop" aria-label="Open the mystery drop">🎁</button><div class="dtxt">Tap to open</div><div class="dsub">Could be anything up to a 1,000 XP jackpot</div></div>';
   else if(c.type==="fact")h=(c.rare?'<div class="rchip">✨ Rare fact · 5× XP</div>':'')+chipHtml(c,t)+'<div class="glyph">'+c.glyph+'</div><h2 class="hook">'+c.hook+'</h2><p class="body">'+c.body+'</p>';
   else if(c.type==="quiz"||c.type==="tf"){h=chipHtml(c,t)+'<h2 class="hook">'+c.q+'</h2><div class="qbar"><i></i></div><div class="opts'+(c.type==="tf"?" tf":"")+'">'+
@@ -1010,7 +1033,7 @@ function nextSound(p){for(var i=0;i<SOUND_AT.length;i++)if(SOUND_AT[i]>p)return 
 function paintSP(){var e=document.getElementById("xpN");if(e)e.textContent=SP.toLocaleString("en-GB")}
 function spBlock(){var nx=nextAt(SP),pv=prevAt(SP),f=nx?(SP-pv)/(nx-pv):1,ns=nextSound(SP);
   return '<div class="spb"><div class="sph"><b>🏆 Season pass</b><span>'+SP.toLocaleString("en-GB")+' pts</span></div><div class="spbar"><i style="width:'+Math.round(f*100)+'%"></i></div><div class="spn">'+(nx?'<b>'+(nx-SP).toLocaleString("en-GB")+'</b> to your next reward':'Every reward reached. Legend.')+(ns?' · 🎵 sound pack in <b>'+(ns-SP).toLocaleString("en-GB")+'</b>':' · 🎵 all 3 sound packs reached')+'</div></div>'}
-function award(n){n=Math.round(n*XPM);if(n<=0)return;var before=SP;S.xp+=n;sess.xp+=n;today().xp+=n;SP+=n;inbox(n);paintSP();xpFloat(n);save();
+function award(n){n=Math.round(n*XPM);if(n<=0)return;var before=SP;S.xp+=n;sess.xp+=n;today().xp+=n;SP+=n;inbox(n);walletEarn(n);paintSP();xpFloat(n);save();
   var nx=nextAt(before),ns=nextSound(before);
   if(ns&&SP>=ns){setTimeout(function(){bigWin("🎵","Sound pack unlocked!","Claim it on the season pass in Critical")},400)}
   else if(nx&&SP>=nx){setTimeout(function(){toast("🎁 Season pass reward unlocked! Claim it in Critical")},400)}}
@@ -1058,6 +1081,7 @@ function act(k,a,b){var c=k.c;
     var done=function(){if(k.el._ed)k.el._ed.resync();if(k.c.type==="tale"&&k.el._pl)k.el._pl.snd();allSnd()};if(S.sound&&CE)CE.unlock().then(done);else done()}
   else if(a==="ytsnd"){if(k.el._pl&&k.el._pl.sound)k.el._pl.sound()}
   else if(a==="ytadd")openYT();
+  else if(a==="ytretry"){ytDown=0;for(var ri=cards.length-1;ri>active;ri--){if(cards[ri].el._pl&&cards[ri].el._pl.destroy)cards[ri].el._pl.destroy();cards[ri].el.remove();cards.splice(ri,1)}ensure();toast("Trying YouTube again…");goTo(active+1)}
   else if(a==="treplay"){if(k.el._pl)k.el._pl.replay()}
   else if(a==="tnext")goTo(active+1);
 }
@@ -1131,13 +1155,13 @@ function explain(c,k){var h;
   openSheet(h)}
 
 /* ---------- tabs: saved, progress ---------- */
-var tFeed=document.getElementById("tFeed"),tSaved=document.getElementById("tSaved"),tEdits=document.getElementById("tEdits"),tStories=document.getElementById("tStories");
-function setTab(t){tEdits.setAttribute("aria-selected",t==="edits");tFeed.setAttribute("aria-selected",t==="feed");tStories.setAttribute("aria-selected",t==="stories");tSaved.setAttribute("aria-selected",t==="saved")}
+var tShorts=document.getElementById("tShorts"),tFeed=document.getElementById("tFeed"),tSaved=document.getElementById("tSaved"),tEdits=document.getElementById("tEdits"),tStories=document.getElementById("tStories");
+function setTab(t){tEdits.setAttribute("aria-selected",t==="edits");tShorts.setAttribute("aria-selected",t==="shorts");tFeed.setAttribute("aria-selected",t==="feed");tStories.setAttribute("aria-selected",t==="stories");tSaved.setAttribute("aria-selected",t==="saved")}
 function setMode(m){if(m===mode){closeSheet();return}mode=m;closeSheet();
   var p=cards[active];if(p){if(p.el._ed)p.el._ed.stop();if(p.el._sim&&p.el._sim.stop)p.el._sim.stop();if(p.el._pl&&p.el._pl.stop)p.el._pl.stop()}
   cards.forEach(function(kk){if(kk.c.type==="yt"&&kk.el._pl)kk.el._pl.destroy()});
   feed.innerHTML="";cards=[];active=-1;retry=[];sess.since=0;feed.scrollTop=0;for(var i=0;i<4;i++)add(makeNext());setActive(0);setTab(m)}
-tFeed.onclick=function(){hideStories();setMode("feed");setTab(mode)};tEdits.onclick=function(){hideStories();setMode("edits");setTab(mode)};tStories.onclick=function(){showStories()};
+tFeed.onclick=function(){hideStories();setMode("feed");setTab(mode)};tShorts.onclick=function(){hideStories();setMode("shorts");setTab(mode)};tEdits.onclick=function(){hideStories();setMode("edits");setTab(mode)};tStories.onclick=function(){showStories()};
 tSaved.onclick=function(){setTab("saved");
   var h='<h3>Saved</h3>';
   if(!S.saved.length)h+='<p>Nothing saved yet. Tap the bookmark on any card to keep it here.</p>';
@@ -1155,7 +1179,7 @@ function insertNext(c){var at=active+1,el=build(c),k={c:c,el:el,t:0,dwell:0};fee
 function refreshAhead(){ /* rebuild cards the user hasn't reached yet so topic changes apply */
   for(var i=cards.length-1;i>active+1;i--){if(cards[i].el._pl&&cards[i].el._pl.destroy)cards[i].el._pl.destroy();cards[i].el.remove();cards.splice(i,1)}ensure()}
 document.getElementById("xpBtn").onclick=function(){var d=today(),acc=sess.q?Math.round(sess.ok/sess.q*100):null;
-  readSP();openSheet('<h3>Today</h3>'+spBlock()+'<p style="margin:10px 0 0;display:flex;gap:8px;flex-wrap:wrap"><button class="sbtn" data-music style="background:#a06bff;color:#fff">🎵 Edit music</button><button class="sbtn" data-beat style="background:#ff3b5c;color:#fff">📵 Beat TikTok</button><button class="sbtn" data-yt style="background:#ff0033;color:#fff">📺 YouTube Shorts</button><button class="sbtn ghost" data-vtog>'+(S.voice!==false?"🗣️ Voices: on":"🤐 Voices: off")+'</button></p>'+'<p style="font-size:14px;margin-top:10px">Everything you earn in Chain is doubled and goes straight onto your Critical XP: your streak, daily goal and season pass. All 3 sound packs are on this month\'s pass, at 1,850, 4,000 and 4,250 points.</p><div class="stats" style="margin-bottom:14px"><div class="st"><b>'+d.n+'/'+GOAL+'</b><span>cards today</span></div><div class="st"><b>'+streak()+'</b><span>day streak</span></div><div class="st"><b>'+(d.xp*XPM).toLocaleString("en-GB")+'</b><span>XP today</span></div><div class="st"><b>'+(d.q?Math.round(d.ok/d.q*100)+"%":"–")+'</b><span>quiz accuracy</span></div></div>'+
+  readSP();openSheet('<h3>Today</h3>'+spBlock()+'<p style="margin:10px 0 0;display:flex;gap:8px;flex-wrap:wrap"><button class="sbtn" data-music style="background:#a06bff;color:#fff">🎵 Edit music</button><button class="sbtn" data-beat style="background:#ff3b5c;color:#fff">📵 Beat TikTok</button><button class="sbtn" data-yt style="background:#ff0033;color:#fff">📺 YouTube Shorts</button><button class="sbtn" data-ppass style="background:#fe2c55;color:#fff">🎟️ Scroll pass · '+syncWallet().toLocaleString("en-GB")+' XP</button><button class="sbtn ghost" data-vtog>'+(S.voice!==false?"🗣️ Voices: on":"🤐 Voices: off")+'</button></p>'+'<p style="font-size:14px;margin-top:10px">Everything you earn in Chain is doubled and goes straight onto your Critical XP: your streak, daily goal and season pass. All 3 sound packs are on this month\'s pass, at 1,850, 4,000 and 4,250 points.</p><div class="stats" style="margin-bottom:14px"><div class="st"><b>'+d.n+'/'+GOAL+'</b><span>cards today</span></div><div class="st"><b>'+streak()+'</b><span>day streak</span></div><div class="st"><b>'+(d.xp*XPM).toLocaleString("en-GB")+'</b><span>XP today</span></div><div class="st"><b>'+(d.q?Math.round(d.ok/d.q*100)+"%":"–")+'</b><span>quiz accuracy</span></div></div>'+
   '<h3>Your feed</h3><p>Tap a topic to turn it off or on. Liking cards and taking your time on them also teaches the feed what you like.</p><div class="topics">'+TK.map(function(k){return '<button class="tp" data-tp="'+k+'" aria-pressed="'+!S.off[k]+'">'+TOP[k].g+' '+TOP[k].n+'</button>'}).join("")+'</div>'+
   '<p style="font-size:14px">Total from Chain: '+S.xp.toLocaleString("en-GB")+' XP · '+Object.keys(S.liked).length+' liked · '+S.saved.length+' saved</p>')};
 
@@ -1485,13 +1509,63 @@ function openBeat(){var w=weekSwaps(),tot=S.swaps.length;
    '<p>The trick isn’t willpower. It’s making TikTok slightly harder to open on autopilot, and putting something better in its place.</p>'+
    '<p><b>iPhone: make TikTok open Chain instead</b><br>1. Open the <b>Shortcuts</b> app → <b>Automation</b> → <b>+</b><br>2. Choose <b>App</b>, pick <b>TikTok</b>, tick <b>Is Opened</b>, choose <b>Run Immediately</b><br>3. Add the action <b>Open URLs</b> and paste your Chain link (button below)<br>4. Done. Now every time you open TikTok, Chain pops up, and it counts as a swap here.</p>'+
    '<p><button class="sbtn" data-copyswap>📋 Copy my Chain link</button></p>'+
+   '<p><b>Or earn your TikTok time</b><br>Spend XP on a scroll pass (5 minutes for 100 XP) and lock TikTok so it only opens while a pass is running.</p><p><button class="sbtn" data-ppass style="background:#fe2c55;color:#fff">🎟️ Scroll pass</button> <button class="sbtn ghost" data-psetup>🔒 Set up the lock</button></p>'+
    '<p><b>Set a limit that actually holds</b><br>iPhone: Settings → Screen Time → App Limits → TikTok → 30 minutes. Ask a parent to set the Screen Time passcode so you can’t just tap “ignore”.<br>Android: Settings → Digital Wellbeing → TikTok → App timer.</p>'+
    '<p><b>Small changes that help a lot</b><br>• Move TikTok off your home screen and put Chain where it was<br>• Turn TikTok notifications off<br>• Charge your phone outside your bedroom at night<br>• Try one TikTok-free day a week</p>'+
    '<p class="mnote">On your computer, the Critical Browser already blocks TikTok until your plan for the day is done.</p>')}
 sheetIn.addEventListener("click",function(e){if(e.target.closest("[data-copyswap]")){var l=swapLink();(navigator.clipboard?navigator.clipboard.writeText(l):Promise.reject()).then(function(){toast("📋 Copied. Paste it into Shortcuts")},function(){prompt("Copy this link:",l)})}});
-(function(){var q=location.search||"";if(/[?&]from=tiktok/.test(q)){S.swaps.push(Date.now());if(S.swaps.length>2000)S.swaps=S.swaps.slice(-2000);save();
+/* ---------- scroll pass: spend XP to unlock TikTok (or Instagram, YouTube) for a few minutes ----------
+   Every XP earned in Chain or Critical from the first day this is used goes into a wallet. It still counts for the
+   level and season pass as normal; buying a pass only empties the wallet. The lock itself is an iPhone Shortcuts
+   automation: tapping "Open TikTok" copies a pass code that ends at the right minute, and the automation lets TikTok
+   open only while that code is still valid (otherwise it sends you here). */
+var PASS_PRICES=[[5,100],[10,200],[15,300]],PASS_APPS=[["TikTok","https://www.tiktok.com/","#fe2c55"],["Instagram","https://www.instagram.com/","#d62976"],["YouTube","https://www.youtube.com/","#ff0033"]],passIv=0,passFrom=0;
+function dayTotals(){var st=J("critical_state"),h=(st&&st.hist)||{},ib=J(IBK),o={},d;for(d in h)o[d]=(o[d]||0)+(+h[d]||0);if(ib&&ib.days)for(d in ib.days)o[d]=(o[d]||0)+(+ib.days[d]||0);return o}
+if(!S.wallet)S.wallet={start:isoDay(),seen:{},bal:0,until:0,spent:0,buys:[]};
+/* add whatever has been earned since the last look (never takes anything away, so Critical moving Chain's XP across can't double count) */
+function syncWallet(){var w=S.wallet,t=dayTotals(),ch=false,d;for(d in t){if(d<w.start)continue;var v=Math.round(t[d]),sn=w.seen[d]||0;if(v>sn){w.bal+=v-sn;w.seen[d]=v;ch=true}}
+  var ks=Object.keys(w.seen).sort();while(ks.length>90){delete w.seen[ks.shift()];ch=true}if(ch)save();return w.bal}
+function walletEarn(n){var w=S.wallet,td=isoDay();if(!w||td<w.start)return;w.bal+=n;w.seen[td]=(w.seen[td]||0)+n}
+function passLeft(){return Math.max(0,(S.wallet.until||0)-Date.now())}
+function mmss(ms){var s=Math.ceil(ms/1000),m=Math.floor(s/60);s%=60;return m+":"+(s<10?"0":"")+s}
+function passToken(){var d=new Date(Math.ceil(S.wallet.until/60000)*60000),p=function(n){return(n<10?"0":"")+n};return"CHAINPASS "+d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+p(d.getHours())+p(d.getMinutes())}
+function openPass(from){var bal=syncWallet(),left=passLeft(),xpN=bal.toLocaleString("en-GB");
+  var h='<h3>🎟️ Scroll pass</h3>'+(from?'<p class="pfrom">'+(left>0?'Your pass is still running. Tap below to go back.':'You opened TikTok. Spend XP on it, or stay here and earn some more?')+'</p>':'')+
+  '<div class="pwal"><div><small>XP to spend</small><b>'+xpN+'</b></div><div><small>Pass time left</small><b id="pLeft">'+(left>0?mmss(left):"none")+'</b></div></div>';
+  if(left>0)h+='<div class="papps">'+PASS_APPS.map(function(a,i){return'<a class="sbtn" style="background:'+a[2]+';color:#fff" href="'+a[1]+'" target="_blank" rel="noopener" data-passgo>'+(i?"":"▶ ")+'Open '+a[0]+'</a>'}).join("")+'</div>';
+  h+='<p class="plab">'+(left>0?"Add more time":"Buy time")+'</p><div class="pbuy">'+PASS_PRICES.map(function(p){return'<button class="pb'+(bal>=p[1]?"":" no")+'" data-pbuy="'+p[0]+'"><b>'+p[0]+' min</b><span>'+p[1]+' XP</span></button>'}).join("")+'</div>'+
+  (bal<PASS_PRICES[0][1]?'<p class="pneed">'+(PASS_PRICES[0][1]-bal)+' more XP for 5 minutes. A few quizzes or a Critical lesson will do it.</p>':'')+
+  (from&&left<=0?'<p><button class="sbtn ghost" data-pstay>💪 Stay in Chain</button></p>':'')+
+  '<p class="mnote">Every XP you earn in Chain or Critical goes into this wallet. It still counts for your level and season pass; spending only empties the wallet. Buying more time adds to what\'s left.</p>'+
+  '<p class="mnote">If you use Critical from a home-screen icon, iPhone keeps its data separate from Safari, so your XP may show up in only one of them. Buy the pass wherever your XP is: the code it copies works from either.</p>'+
+  '<p><button class="sbtn ghost" data-psetup>🔒 How to make TikTok actually lock</button></p>';
+  openSheet(h);clearInterval(passIv);passIv=setInterval(function(){if(!sheet.classList.contains("show")){clearInterval(passIv);return}var e=document.getElementById("pLeft");if(!e){clearInterval(passIv);return}var l=passLeft();e.textContent=l>0?mmss(l):"none";if(l<=0&&sheetIn.querySelector("[data-passgo]")){clearInterval(passIv);openPass()}},1000)}
+function buyPass(min){var bal=syncWallet(),cost=0;PASS_PRICES.forEach(function(p){if(p[0]===min)cost=p[1]});if(!cost)return;
+  if(bal<cost){toast("You need "+(cost-bal)+" more XP for that");vib([20,30,20]);return}
+  var w=S.wallet;w.bal-=cost;w.spent=(w.spent||0)+cost;w.until=Math.max(Date.now(),w.until||0)+min*60000;w.buys.push([Date.now(),min,cost]);w.buys=w.buys.slice(-300);
+  if(passFrom&&S.swaps.length&&S.swaps[S.swaps.length-1]===passFrom){S.swaps.pop();passFrom=0}
+  save();if(CE)CE.sfx("ok");vib(20);toast("🎟️ "+min+" minutes unlocked");openPass()}
+function openPassSetup(){openSheet('<h3>🔒 Lock TikTok behind your XP</h3>'+
+  '<p>A website can\'t block another app on its own, but an iPhone Shortcuts automation can. With this set up, TikTok sends you to Chain unless you have a pass running. (If you already made the simple “open Chain” automation from Beat TikTok, delete it and make this one instead.)</p>'+
+  '<p><b>1.</b> Copy your Chain link: <button class="sbtn" data-copyswap>📋 Copy link</button></p>'+
+  '<p><b>2.</b> Shortcuts app → <b>Automation</b> → <b>+</b> → <b>App</b> → choose <b>TikTok</b> (add Instagram or YouTube too if you like) → tick <b>Is Opened</b> → <b>Run Immediately</b> → <b>New Blank Automation</b>.</p>'+
+  '<p><b>3.</b> Add <b>Get Clipboard</b>.</p>'+
+  '<p><b>4.</b> Add <b>If</b>: <i>Clipboard</i> · <b>contains</b> · <code>CHAINPASS</code></p>'+
+  '<p><b>5.</b> Inside that If, add <b>Get Numbers from Input</b> and set its input to <i>Clipboard</i>.</p>'+
+  '<p><b>6.</b> Still inside, add <b>Format Date</b>: date <i>Current Date</i>, format <b>Custom</b>, <code>yyyyMMddHHmm</code></p>'+
+  '<p><b>7.</b> Still inside, add another <b>If</b>: <i>Numbers</i> · <b>is greater than</b> · <i>Formatted Date</i>. Leave its top part empty. Under its <b>Otherwise</b>, add <b>Open URLs</b> with your Chain link.</p>'+
+  '<p><b>8.</b> Under the first If\'s <b>Otherwise</b>, add <b>Open URLs</b> with your Chain link too.</p>'+
+  '<p>Now: no pass, and TikTok bounces you to Chain. Buy a pass, tap <b>Open TikTok</b> (that copies your pass code), and TikTok opens normally until the time runs out.</p>'+
+  '<p class="mnote">Honest limits: iPhone won\'t let anything close TikTok mid-scroll, so the lock kicks in the next time you open it after your time is up. Copying something else wipes the code: just tap Open TikTok in Chain again. For a hard daily cap as well, ask a parent to set a Screen Time limit on TikTok with their passcode. On Android there\'s no equivalent, so the pass is on your honour.</p>')}
+sheetIn.addEventListener("click",function(e){
+  if(e.target.closest("[data-passgo]")){try{if(navigator.clipboard)navigator.clipboard.writeText(passToken()).catch(function(){})}catch(x){}return}
+  var pb=e.target.closest("[data-pbuy]");if(pb){buyPass(+pb.dataset.pbuy);return}
+  if(e.target.closest("[data-psetup]")){openPassSetup();return}
+  if(e.target.closest("[data-ppass]")){openPass();return}
+  if(e.target.closest("[data-pstay]")){closeSheet();passFrom=0;var n=weekSwaps();setTimeout(function(){bigWin("💪","You chose Chain over TikTok","That’s swap #"+n+" this week. Every one breaks the habit a bit more.","<button class=\"sbtn\" data-wclose>Let’s go</button>")},200);return}});
+(function(){var q=location.search||"";if(/[?&]from=tiktok/.test(q)){passFrom=Date.now();S.swaps.push(passFrom);if(S.swaps.length>2000)S.swaps=S.swaps.slice(-2000);save();
   try{history.replaceState(null,"",location.pathname+location.hash)}catch(e){}
-  var n=weekSwaps();setTimeout(function(){bigWin("💪","You chose Chain over TikTok","That’s swap #"+n+" this week. Every one breaks the habit a bit more.","<button class=\"sbtn\" data-wclose>Let’s go</button>")},700)}})();
+  setTimeout(function(){openPass(true)},700)}})();
 /* ---------- checkpoint ---------- */
 function mins(ms){var m=Math.round(ms/60000);return m<1?"under a minute":m===1?"1 minute":m+" minutes"}
 /* ---------- storytimes told over original 3D gameplay ---------- */
@@ -1538,19 +1612,22 @@ PLAYERS.tale=function(el,k){var T=TALE[k.c.ref],W=taleWords(T),cap=el.querySelec
 
 /* ---------- real YouTube Shorts, played with YouTube's own embedded player ---------- */
 S.yt=S.yt||{v:[],ch:[]};S.ytBad=S.ytBad||{};S.ytSeen=S.ytSeen||{};
-var ytP=null,ytDown=0;
+var ytP=null,ytDown=0,ytUsed={};
 function loadYT(){if(window.YT&&YT.Player)return Promise.resolve(window.YT);if(ytP)return ytP;
   ytP=new Promise(function(ok,no){var prev=window.onYouTubeIframeAPIReady;window.onYouTubeIframeAPIReady=function(){if(typeof prev==="function")try{prev()}catch(e){}ok(window.YT)};
     addJs("https://www.youtube.com/iframe_api").catch(no);setTimeout(function(){if(window.YT&&YT.Player)ok(window.YT);else no()},15000)});
-  ytP.catch(function(){ytP=null;ytDown=Date.now()});return ytP}
+  ytP.catch(function(){ytP=null;ytDown=Date.now();
+    /* YouTube is blocked or offline: take the Shorts already queued up out of the feed rather than skipping them one by one */
+    for(var i=cards.length-1;i>active;i--)if(cards[i].c.type==="yt"){if(cards[i].el._pl)cards[i].el._pl.destroy();cards[i].el.remove();cards.splice(i,1)}ensure()});return ytP}
 function ytLink(c){return c.vid?"https://www.youtube.com/shorts/"+c.vid:c.ch?"https://www.youtube.com/channel/"+c.ch+"/shorts":"https://www.youtube.com"}
 function ytHtml(c){return '<div class="ytbox"></div><div class="ytload"><div class="ytav">'+(c.em||"▶️")+'</div><b>'+esc(c.name||"YouTube")+'</b><span class="ytst"><i class="ytspin"></i> Loading Shorts…</span><button class="sbtn ghost ytadd" data-act="ytadd" hidden>＋ Add your own Shorts</button></div><div class="ytshield"></div>'+
   '<div class="ytbadge">▶ YouTube Shorts</div><div class="eplay" aria-hidden="true">'+PLAYSVG+'</div><button class="snd ytsnd" data-act="ytsnd">🔇 Tap for sound</button>'+rail(c)+
   '<div class="ecap"><b>@'+esc(c.name||"YouTube")+'</b>'+(c.mine?" · ⭐ your pick":"")+'<div class="tags">#shorts #science</div><div class="music"><a class="ytopen" href="'+ytLink(c)+'" target="_blank" rel="noopener">▶ Watch on YouTube ↗</a></div></div>'}
-function pickYT(){if(S.ytOff||(ytDown&&Date.now()-ytDown<6e5))return null;var recent={};cards.slice(-30).forEach(function(k){if(k.c.type==="yt")recent[k.c.ch||k.c.v]=1});
+function pickYT(force){if((S.ytOff&&!force)||(ytDown&&Date.now()-ytDown<6e5))return null;var recent={};cards.slice(mode==="shorts"?-6:-30).forEach(function(k){if(k.c.type==="yt")recent[k.c.ch||k.c.v]=1});
   var mineV=function(v){return{type:"yt",topic:"energy",id:"yt-"+v,v:v,vid:v,name:"Your Shorts",em:"⭐",mine:1}};
   var un=S.yt.v.filter(function(v){return!S.ytSeen[v]&&!recent[v]});if(un.length&&Math.random()<.7)return mineV(pick(un));
   var L=S.yt.ch.map(function(x){return{id:"ytc-"+x.ch,name:x.name||"Your channel",ch:x.ch,topic:"energy",em:"⭐",mine:1}}).concat(window.CHAIN_YT||[]).filter(function(x){return!S.ytBad[x.ch]&&!recent[x.ch]&&(x.mine||!S.off[x.topic])});
+  if(!L.length&&mode==="shorts")L=S.yt.ch.map(function(x){return{id:"ytc-"+x.ch,name:x.name||"Your channel",ch:x.ch,topic:"energy",em:"⭐",mine:1}}).concat(window.CHAIN_YT||[]).filter(function(x){return!S.ytBad[x.ch]});
   if(!L.length){var sv=S.yt.v.filter(function(v){return!recent[v]});return sv.length?mineV(pick(sv)):null}
   var sc=function(x){return(S.seen[x.id]||0)-(x.mine?2:0)},mn=Infinity;L.forEach(function(x){mn=Math.min(mn,sc(x))});var x=pick(L.filter(function(y){return sc(y)===mn}));
   return{type:"yt",topic:x.topic,id:x.id,ch:x.ch,name:x.name,em:x.em,mine:x.mine?1:0}}
@@ -1559,13 +1636,14 @@ PLAYERS.yt=function(el,k){var c=k.c,box=el.querySelector(".ytbox"),ld=el.querySe
   if(c.vid)box.style.backgroundImage="url(https://i.ytimg.com/vi/"+c.vid+"/hqdefault.jpg)";
   function msg(t,add){ld.hidden=false;stx.textContent=t;ld.querySelector(".ytadd").hidden=!add}
   function skipSoon(){setTimeout(function(){if(cards[active]===k)goTo(active+1)},1600)}
+  function relabel(){ld.querySelector("b").textContent=c.name||"YouTube";ld.querySelector(".ytav").textContent=c.em||"▶️";el.querySelector(".ecap b").textContent="@"+(c.name||"YouTube");ln.href=ytLink(c)}
   function paintSnd(){var on=!!(Y.p&&Y.cued&&S.ytSound&&!Y.fb&&Y.p.isMuted&&!Y.p.isMuted());sb.classList.toggle("live",on);sb.textContent=on?"🔊":"🔇 Tap for sound"}
   function fit(){var f=box.querySelector("iframe");if(!f)return;var w=el.clientWidth,h=el.clientHeight;
     if(Y.full){f.style.cssText="position:absolute;inset:0;width:100%;height:100%;border:0";return}
     var Wd=Math.max(w,h*9/16),Hd=Math.max(h,Wd*16/9);f.style.cssText="position:absolute;border:0;left:"+((w-Wd)/2)+"px;top:"+((h-Hd)/2)+"px;width:"+Wd+"px;height:"+Hd+"px"}
   function arm(){clearTimeout(Y.timer);Y.timer=setTimeout(function(){if(!Y.cued)msg("This one's taking ages… swipe on",true)},12000)}
   function cueList(){Y.phase="list";try{Y.p.cuePlaylist({listType:"playlist",list:(Y.full?"UU":"UUSH")+c.ch.slice(2),index:0})}catch(e){}arm()}
-  function cueVid(v){Y.phase="vid";c.vid=v;ln.href=ytLink(c);try{Y.p.cueVideoById(v)}catch(e){}arm()}
+  function cueVid(v){Y.phase="vid";c.vid=v;ytUsed[v]=1;ln.href=ytLink(c);try{Y.p.cueVideoById(v)}catch(e){}arm()}
   function make(){if(Y.p||Y.dead||Y.loading)return;if(ytDown&&Date.now()-ytDown<6e5&&!(window.YT&&YT.Player)){msg("YouTube isn't loading right now (it may be blocked on this Wi-Fi)",false);if(Y.want)skipSoon();return}Y.loading=true;msg("Loading Shorts…");stx.insertAdjacentHTML("afterbegin",'<i class="ytspin"></i> ');
     loadYT().then(function(YT){Y.loading=false;if(Y.p||Y.dead||!el.isConnected)return;var hold=document.createElement("div");box.innerHTML="";box.appendChild(hold);
       var opt={host:"https://www.youtube-nocookie.com",width:"100%",height:"100%",playerVars:{autoplay:0,mute:1,playsinline:1,controls:0,rel:0,iv_load_policy:3,fs:0,disablekb:1,modestbranding:1,origin:location.origin},
@@ -1574,13 +1652,15 @@ PLAYERS.yt=function(el,k){var c=k.c,box=el.querySelector(".ytbox"),ld=el.querySe
   function ready(){Y.ready=true;fit();if(!c.vid&&c.ch)cueList()}
   function state(e){var s=e.data;
     if((s===5||s===1)&&Y.phase==="list"&&!Y.ids){var ids=[];try{ids=Y.p.getPlaylist()||[]}catch(x){}
-      if(ids.length){Y.ids=ids;var pool=ids.slice(0,60),un=pool.filter(function(v){return!S.ytSeen[v]});cueVid(pick(un.length?un:pool));return}}
+      if(ids.length){Y.ids=ids;var pool=ids.slice(0,60),un=pool.filter(function(v){return!S.ytSeen[v]&&!ytUsed[v]});if(!un.length)un=pool.filter(function(v){return!ytUsed[v]});cueVid(pick(un.length?un:pool));return}}
     if(s===5||s===1){if(!Y.cued){Y.cued=true;clearTimeout(Y.timer);ld.hidden=true;fit();paintSnd();if(Y.want&&s===5)play()}}
     if(s===1){Y.playing=true;el.classList.remove("paused");if(c.vid&&!S.ytSeen[c.vid]){S.ytSeen[c.vid]=1;save()}paintSnd()}
     else if(s===2)Y.playing=false;
     else if(s===0){Y.playing=false;if(!k.done){k.done=true;award(2)}if(Y.want)try{Y.p.seekTo(0,true);Y.p.playVideo()}catch(x){}}}
   function err(e){clearTimeout(Y.timer);
-    if(Y.phase==="list"){if(!Y.full){Y.full=true;fit();cueList();return}S.ytBad[c.ch]=1;save();msg("This channel won't play here. Skipping…",false);skipSoon();return}
+    if(Y.phase==="list"){if(!Y.full){Y.full=true;fit();cueList();return}S.ytBad[c.ch]=1;save();
+      if((Y.swaps||0)<4){var n=pickYT(true);if(n&&n.ch){Y.swaps=(Y.swaps||0)+1;c.ch=n.ch;c.name=n.name;c.em=n.em;c.mine=n.mine;Y.full=false;Y.ids=null;relabel();msg("Loading Shorts…");stx.insertAdjacentHTML("afterbegin",'<i class="ytspin"></i> ');cueList();return}}
+      msg("This channel won't play here. Skipping…",false);skipSoon();return}
     if(Y.ids&&Y.tries<3){Y.tries++;Y.cued=false;var rest=Y.ids.slice(0,60).filter(function(v){return v!==c.vid});if(rest.length){cueVid(pick(rest));return}}
     msg("This video won't play here. Skipping…",false);skipSoon()}
   function play(){Y.want=true;if(!Y.p)return make();if(!Y.cued)return;

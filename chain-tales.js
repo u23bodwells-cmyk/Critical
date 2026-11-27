@@ -48,5 +48,20 @@ window.CHAIN_YT=[
  {id:"yt-minute",name:"minutephysics",ch:"UCUHW94eEFW7hkUMVaZz4eDg",topic:"atoms",em:"✏️"},
  {id:"yt-practical",name:"Practical Engineering",ch:"UCMOqf8ab-42UUQIdVoKwjlQ",topic:"energy",em:"🏗️"},
  {id:"yt-real",name:"Real Engineering",ch:"UCR1IuLEqb6UEA_zQ81kwXfg",topic:"energy",em:"✈️"},
- {id:"yt-physgirl",name:"Physics Girl",ch:"UC7DdEm33SyaTDtWYGO2CwdA",topic:"space",em:"🌈"}
+ {id:"yt-physgirl",name:"Physics Girl",ch:"UC7DdEm33SyaTDtWYGO2CwdA",topic:"space",em:"🌈"},
+ {id:"yt-kylehill",name:"Kyle Hill",ch:"UCbRP3c757lWg9M-U7TyEkXA",topic:"reactor",em:"☢️"},
+ {id:"yt-scishow",name:"SciShow",ch:"UCZYTClx2T1of7BRZ86-8fow",topic:"atoms",em:"🔭"},
+ {id:"yt-teded",name:"TED-Ed",ch:"UCsooa4yRKGN_zEE8iknghZA",topic:"history",em:"💡"},
+ {id:"yt-numberphile",name:"Numberphile",ch:"UCoxcjq-8xIDTYp3uz647V5A",topic:"maths",em:"🔢"},
+ {id:"yt-3b1b",name:"3Blue1Brown",ch:"UCYO_jab_esuFRV4b17AJtAw",topic:"maths",em:"🥧"},
+ {id:"yt-sixty",name:"Sixty Symbols",ch:"UCvBqzzvUBLCs8Y7Axb-jZew",topic:"atoms",em:"⚛️"},
+ {id:"yt-periodic",name:"Periodic Videos",ch:"UCtESv1e7ntJaLJYKIO1FoYw",topic:"chem",em:"🧪"},
+ {id:"yt-spacetime",name:"PBS Space Time",ch:"UC7_gcs09iThXybpVgjHZ_7g",topic:"space",em:"🕳️"},
+ {id:"yt-nasa",name:"NASA",ch:"UCLA_DiR1FfKNvjuUpBHmylQ",topic:"space",em:"🛰️"},
+ {id:"yt-ri",name:"The Royal Institution",ch:"UCYeF244yNGuFefuFKqxIAXw",topic:"atoms",em:"🎓"},
+ {id:"yt-wendover",name:"Wendover Productions",ch:"UC9RM-iSvTu1uPJb8X5yp3EQ",topic:"energy",em:"🌍"},
+ {id:"yt-manley",name:"Scott Manley",ch:"UCxzC4EngIsMrPmbm6Nxvb-A",topic:"space",em:"🚀"},
+ {id:"yt-everyday",name:"Everyday Astronaut",ch:"UC6uKrU_WqJ1R2HMTY3LIx5Q",topic:"space",em:"👨‍🚀"},
+ {id:"yt-upatom",name:"Up and Atom",ch:"UCSIvk78tK2TiviLQn4fSHaw",topic:"atoms",em:"⚛️"},
+ {id:"yt-asylum",name:"The Science Asylum",ch:"UCXgNowiGxwwnLeQ7DXTwXPg",topic:"atoms",em:"🌀"}
 ];
