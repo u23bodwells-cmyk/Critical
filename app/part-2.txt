@@ -624,7 +624,7 @@ var PLAN=(function(){
  function pinRv(i){var p=PS();if(p.rvpin&&p.rvpin[i])return;var r=RVD(i);if(!r)return;if(!p.rvpin||typeof p.rvpin!=='object')p.rvpin={};p.rvpin[i]=r.pin;save()}
  function rvOn(i){var b=DAY(i);return b.length===1&&b[0][5]==='rev'}
  function DAY(i){return DAYF(i,layOn())}
- function DAYF(i,sm){var rv=RVD(i);if(rv)return [['Revise: '+rv.name,mins(i),rv.desc,[['Start revision','rev']],0,'rev',rv]];var oth=OTH(i);if(oth)return sm?oth.concat([BRK(1)]):oth;if(freeDay()===i){var FR=[FREEB(mins(i))];return sm?FR.concat([BRK(1)]):FR}var c=CORE(i),x=i<5&&extOn(i),L=[WARM(i)].concat(c,x?[BONUS(c)]:[]);return sm?SMART(i,L,sm):L}
+ function DAYF(i,sm){var rv=RVD(i);if(rv)return [['Revise: '+rv.name,mins(i),rv.desc,[['Start revision','rev']],0,'rev',rv]];var oth=OTH(i);if(oth)return sm?oth.concat(sm>=2?[PATHR()]:[],[BRK(1)]):oth;if(freeDay()===i){var FR=[FREEB(mins(i))];return sm?FR.concat([BRK(1)]):FR}var c=CORE(i),x=i<5&&extOn(i),L=[WARM(i)].concat(c,x?[BONUS(c)]:[]);return sm?SMART(i,L,sm):L}
  /* study smart: brain breaks after ~25 minutes and at the end, mixed practice on Wed and Sat, a ghost test on Sunday */
  function smOn(){return S.smart!==0}
  function layOn(){var p=S.plan;return p&&typeof p==='object'&&p.sm?(+p.sm||1):0}
@@ -661,9 +661,10 @@ var PLAN=(function(){
  function pFor(n){/* the first quantum level that needs this */for(var q=1;q<=7;q++){var t='qm'+q;if(pDone(t))continue;if(t===n||pNeeds(t).indexOf(n)>=0)return t}return null}
  var pathC={t:0,v:null};
  function pathPlan(fresh){var now=Date.now();if(!fresh&&pathC.v&&now-pathC.t<4000)return pathC.v;var plan=null;
-  try{var pf=null;try{pf=pendingFollow('all')}catch(e){}var eq=0,wk=0,pl=0;try{eq=fxDue().length}catch(e){}try{wk=lxDue().length}catch(e){}try{pl=pile()}catch(e){}
+  try{var pf=null;try{pf=pendingFollow('all')}catch(e){}var eq=0,wk=0,pl=0;try{eq=fxDue().length}catch(e){}var idn=0;try{idn=ideasDue().length}catch(e){}try{wk=lxDue().length}catch(e){}try{pl=pile()}catch(e){}
    if(pf)plan={kind:'follow',label:'Follow-up practice',why:'A follow-up is waiting. Pass it to unlock new lessons.'};
    else if(eq>=4)plan={kind:'eq',label:'Equations to remember',why:eq+' equations are due to rebuild from memory. Catching up first keeps them in your head.'};
+   else if(idn>=5)plan={kind:'ideas',label:'Ideas to remember',why:idn+' quantum lessons are due for a quick test so the ideas stick.'};
    else if(wk>=3)plan={kind:'weak',label:'Weak maths skills',why:wk+' maths skills you slipped up on are due for practice.'};
    else if(pl>=12)plan={kind:'fix',label:'Fix my mistakes',why:pl+' mistakes are waiting. Clearing them first stops gaps building up.'};
    if(!plan){var ready=PATH_ORDER.filter(function(n){return !pDone(n)&&pReady(n)});
@@ -677,18 +678,42 @@ var PLAN=(function(){
    var tq=null;for(var q=1;q<=7;q++)if(!pDone('qm'+q)){tq='qm'+q;break}if(tq){var nd=pNeeds(tq).filter(function(n){return pTrack(n)==='calc'});plan.behind=nd.length?'Maths gap: '+pName(tq).replace(/:.*/,'')+' still needs '+nd.length+' Calculus level'+(nd.length===1?'':'s')+'.':''}
   }catch(e){plan={kind:'done',label:'Learning path',why:''};if(window.console)console.error(e)}
   pathC={t:now,v:plan};return plan}
+ function PATHR(){return ['Quick path review',5,'A busy day, so no new lessons: a 5-minute review of ideas or equations that are due, so your quantum and maths path doesn\'t go cold.',[['Go','pathrev']],0,'pathrev']}
+ function pathReview(){var n=0;try{n=ideasDue().length}catch(e){}if(n){ideaReview();return}try{n=fxDue().length}catch(e){}if(n){fxReview();return}ONE.start()}
  function PATHB(i,ver){var m=(ver===3?20:10)*(i>=5?1.5:1),pl=pathPlan();return ['Quantum & maths path',Math.round(m),(pl.kind==='study'?'Next: '+pl.label+'. ':pl.kind==='done'?'':'Catch up first: '+pl.label+'. ')+pl.why+(pl.behind&&pl.kind==='study'?' '+pl.behind:''),[['Go','path']],0,'path']}
- function pathGo(){var pl=pathPlan(true);if(pl.kind==='follow'){var na=nextAction('all');if(na)runAction(na);return}if(pl.kind==='eq'){try{fxReview()}catch(e){}return}if(pl.kind==='weak'){try{startWeak()}catch(e){}return}if(pl.kind==='fix'){showPage('review');try{startReview(true)}catch(e){}return}
+ function pathGo(){var pl=pathPlan(true);if(pl.kind==='follow'){var na=nextAction('all');if(na)runAction(na);return}if(pl.kind==='eq'){try{fxReview()}catch(e){}return}if(pl.kind==='ideas'){try{ideaReview()}catch(e){}return}if(pl.kind==='weak'){try{startWeak()}catch(e){}return}if(pl.kind==='fix'){showPage('review');try{startReview(true)}catch(e){}return}
   if(pl.kind==='done'){toastIn('You\'ve finished the whole quantum and maths path. Amazing.');return}
   var t=pTrack(pl.node),lv=pLv(pl.node);S.lvl=S.lvl||{};S.lvl[t]=lv;S.lvlOpen=S.lvlOpen||{};S.lvlOpen[t+lv]=1;S.mode=t;if(t==='qm')S.seenQm=1;else S.seenCalc=1;S.pathTurn=(S.pathTurn||0)+1;save();pathC.v=null;
   showPage('learn');var a=nextAction(t);if(a)runAction(a);else toastIn('Nothing left to do in '+pl.label+'.')}
+ function pathRemaining(goal){var nodes=pNeeds(goal).concat(pDone(goal)?[]:[goal]),n=0;nodes.forEach(function(x){var d=pProg(x);n+=Math.max(0,Math.ceil(d[1]*0.8)-d[0])});return n}
+ function pathRate(){var L=S.pathLog||{},first=null;Object.keys(L).forEach(function(k){var p=k.split('-'),d=new Date(+p[0],p[1]-1,+p[2]);if(!first||d<first)first=d});var span=first?Math.min(14,Math.max(7,Math.round((new Date()-first)/864e5)+1)):14,real=plogCount(span,['qm','calc'])/(span/7);if(real>=2)return {r:real,est:false};var m=pathCode()===2?20:pathCode()===1?10:0,est=m*8/12;return {r:Math.max(est,real),est:true}}
+ function pDate(n){var d=new Date();d.setDate(d.getDate()+n);return d}
+ function fmtD(d){try{return d.toLocaleDateString(undefined,{day:'numeric',month:'long',year:d.getFullYear()!==new Date().getFullYear()?'numeric':undefined})}catch(e){return d.toDateString()}}
+ function pathForecast(){var g=S.pathGoal&&S.pathGoal.node?S.pathGoal.node:null,target=g;if(!target){for(var q=1;q<=7;q++)if(!pDone('qm'+q)){target='qm'+q;break}}if(!target)return null;
+  var rem=pathRemaining(target),rt=pathRate(),out={target:target,rem:rem,rate:rt.r,est:rt.est};if(rt.r>0){out.weeks=rem/rt.r;out.eta=pDate(Math.ceil(out.weeks*7))}
+  if(g&&S.pathGoal.date){var dl=new Date(S.pathGoal.date+'T12:00:00'),wk=Math.max(0.1,(dl-new Date())/(7*864e5));out.goal={date:dl,need:rem/wk,weeks:wk};out.goal.ok=rem===0||rt.r>=out.goal.need;out.goal.mins=out.goal.need*12/8}
+  return out}
+ function pathWeek(){var w=wk(),pw=S.pathWk;if(!pw||pw.wk!==w){var prog={};PATH_ORDER.forEach(function(n){prog[n]=pProg(n)[0]});S.pathWk={wk:w,prog:prog};save();pw=S.pathWk}
+  var since=(new Date().getDay()+6)%7+1,L=S.pathLog||{},qm=0,ca=0,now=new Date();for(var i=0;i<since;i++){var d=new Date(now);d.setDate(d.getDate()-i);var e=L[ymdLof(d)];if(e){qm+=e.qm||0;ca+=e.calc||0}}
+  var fin=PATH_ORDER.filter(function(n){var d=pProg(n);return pDone(n)&&(pw.prog[n]||0)<Math.ceil(d[1]*0.8)});var nxt=PATH_ORDER.filter(function(n){return !pDone(n)&&pReady(n)}).slice(0,2);
+  return {qm:qm,calc:ca,fin:fin,next:nxt}}
  function pathCard(){var pl=pathPlan(),c=document.createElement('div');c.className='plpath';var cur=pl.node;
   var rows=PATH_ORDER.map(function(n){var d=pProg(n),st=pDone(n)?'done':n===cur?'next':pReady(n)?'ready':'lock',need=st==='lock'?pNeeds(n).slice(0,2).map(function(x){return pName(x).replace(/:.*/,'')}):[];
    return '<li class="pp-'+st+'"><span class="ppi">'+(st==='done'?'✓':st==='next'?'▶':st==='ready'?'○':'🔒')+'</span><span class="ppn">'+esc(pName(n))+(need.length?'<small>needs '+esc(need.join(', '))+'</small>':'')+'</span><span class="ppd">'+d[0]+'/'+d[1]+'</span></li>'}).join('');
   var dn=PATH_ORDER.filter(pDone).length;
   c.innerHTML='<div class="plgt">🧭 Your quantum & maths path</div><p class="plpnow"><b>'+(pl.kind==='study'?'Right now: '+esc(pl.label):pl.kind==='done'?esc(pl.label):'Catch up first: '+esc(pl.label))+'</b><br>'+esc(pl.why)+'</p>'+(pl.behind?'<p class="plnote">'+esc(pl.behind)+'</p>':'')+
-   '<div class="placts"><button type="button" class="plgo">Go →</button></div><details><summary>The whole path ('+dn+' of '+PATH_ORDER.length+' stages done)</summary><ol class="pplist">'+rows+'</ol><p class="plnote">A stage counts as done at 80% of its lessons. Calculus levels open as soon as their real prerequisites are done.</p></details>';
-  c.querySelector('.plgo').onclick=function(){close();pathGo()};return c}
+   '<div class="placts"><button type="button" class="plgo">Go →</button></div>'+pathExtrasHTML()+'<details><summary>The whole path ('+dn+' of '+PATH_ORDER.length+' stages done)</summary><ol class="pplist">'+rows+'</ol><p class="plnote">A stage counts as done at 80% of its lessons. Calculus levels open as soon as their real prerequisites are done.</p></details>';
+  c.querySelector('.plgo').onclick=function(){close();pathGo()};wirePathExtras(c);return c}
+ function pathExtrasHTML(){var f=pathForecast(),w=pathWeek(),h='',t=todayI();
+  if(f){var nm=esc(pName(f.target).replace(/:.*/,''));if(f.rem===0)h+='<p class="plpf">📅 You\'ve already reached '+nm+'.</p>';else if(f.eta)h+='<p class="plpf">📅 At your pace (about '+(Math.round(f.rate*10)/10)+' lessons a week'+(f.est?', estimated from your plan until there\'s more to go on':'')+'), you\'ll reach <b>'+nm+'</b> around <b>'+fmtD(f.eta)+'</b>: '+f.rem+' lesson'+(f.rem===1?'':'s')+' to go.</p>';else h+='<p class="plpf">📅 Turn the path on in Study smart to see when you\'ll reach '+nm+'.</p>';
+   if(f.goal){var g=f.goal;h+='<p class="plpg '+(g.ok?'ok':'behind')+'">🎯 Goal: '+nm+' by '+fmtD(g.date)+'. '+(f.rem===0?'Done!':g.ok?'On track: you need about '+(Math.round(g.need*10)/10)+' lessons a week.':'Behind: you need about '+(Math.round(g.need*10)/10)+' lessons a week. '+(g.mins<=20?'Switch the path to 20 minutes a day in Study smart.':'That\'s more than 20 minutes a day: add some free-choice days, or pick a later date.'))+'</p>'}}
+  h+='<div class="plpgoal"><button type="button" class="plgo alt" data-a="goal">'+(S.pathGoal&&S.pathGoal.node?'Change goal':'🎯 Set a goal date')+'</button><div class="plpgf" hidden></div></div>';
+  var tot=w.qm+w.calc;h+='<details class="plpw"'+(t===6||t===0?' open':'')+'><summary>📈 This week on your path: '+tot+' lesson'+(tot===1?'':'s')+'</summary><p class="plnote">'+w.qm+' Quantum, '+w.calc+' Calculus.'+(w.fin.length?' Finished: '+w.fin.map(function(n){return esc(pName(n).replace(/:.*/,''))+' ✓'}).join(', ')+'.':'')+(w.next.length?' Next up: '+w.next.map(function(n){return esc(pName(n).replace(/:.*/,''))}).join(', then ')+'.':'')+'</p></details>';
+  return h}
+ function wirePathExtras(c){var b=c.querySelector('[data-a=goal]'),F=c.querySelector('.plpgf');if(!b)return;b.onclick=function(){F.hidden=false;b.hidden=true;var g=S.pathGoal||{},d=g.date||(function(){var x=pDate(120);return x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0')})();
+  F.innerHTML='<label>Reach<select data-f="n">'+[1,2,3,4,5,6,7].map(function(q){return '<option value="qm'+q+'">'+esc(pName('qm'+q))+'</option>'}).join('')+'</select></label><label>By<input type="date" data-f="d"></label><div class="placts"><button type="button" class="plgo" data-f="s">Save goal</button>'+(g.node?'<button type="button" class="plgo alt" data-f="c">Clear goal</button>':'')+'<button type="button" class="plgo alt" data-f="x">Cancel</button></div>';
+  var sel=F.querySelector('[data-f=n]'),dt=F.querySelector('[data-f=d]');sel.value=g.node||(function(){for(var q=1;q<=7;q++)if(!pDone('qm'+q))return 'qm'+q;return 'qm7'})();dt.value=d;
+  F.querySelector('[data-f=s]').onclick=function(){if(!dt.value)return;S.pathGoal={node:sel.value,date:dt.value};save();paint()};var cl=F.querySelector('[data-f=c]');if(cl)cl.onclick=function(){delete S.pathGoal;save();paint()};F.querySelector('[data-f=x]').onclick=function(){paint()}}}
  function smUnit(){var m=curMode(),a=[],ui=-1;try{a=allLessons(m)}catch(_){}for(var i=0;i<a.length;i++)if(S.done[UNITS[a[i][0]].lessons[a[i][1]].id])ui=a[i][0];if(ui<0){var nl=nextLesson(m);ui=nl?nl[0]:-1}return ui}
  function smTrackUnits(){var m=curMode(),a=[],seen={},out=[];try{a=allLessons(m)}catch(_){}a.forEach(function(x){if(S.done[UNITS[x[0]].lessons[x[1]].id]&&!seen[x[0]]){seen[x[0]]=1;out.push(x[0])}});return out.reverse()}
  function smMix(){var us=smTrackUnits();for(var i=0;i<us.length;i++){var ui=us[i],ok=false;try{var sk=unitSkills(ui,true),bk=sk.length?null:unitBank(ui,true);ok=sk.length>0||!!(bk&&bk.length>=4)}catch(_){}if(ok&&typeof startMix==='function'){startMix(ui);return}}
@@ -807,6 +832,7 @@ var PLAN=(function(){
  '.plban{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom));z-index:3500;width:min(460px,calc(100% - 32px));background:var(--panel);color:var(--text);border:2px solid var(--accent);border-radius:16px;padding:12px 14px;box-shadow:0 8px 30px rgba(0,0,0,.25);display:flex;flex-direction:column;gap:8px}.plban p{margin:0;font-size:15px;line-height:1.45}.plban .placts{margin-top:0}'+
  '.plpill .plc{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:12px}.plpill.run{background:var(--accent);color:var(--on-accent)}.plpill.run .pldot{display:none}'+
  '.plpill{position:relative}.plpill .pldot{position:absolute;top:2px;right:2px;width:8px;height:8px;border-radius:50%;background:#e8742a;border:2px solid var(--panel);display:none}.plpill.left .pldot{display:block}.plpill.run .pldot{display:none!important}@media(max-width:374px){.hdr .plpill{padding:5px 7px}}';
+ css.textContent+='.plpf,.plpg{margin:0;font-size:13.5px;line-height:1.5}.plpg.ok{color:var(--good)}.plpg.behind{color:#c98a12}.plpgf{display:flex;flex-direction:column;gap:8px;margin-top:6px}.plpgf label{display:flex;flex-direction:column;gap:3px;font-size:12px;font-weight:800;color:var(--muted)}.plpgf select,.plpgf input{font:inherit;font-size:14px;padding:7px 9px;border-radius:9px;border:1.5px solid var(--line);background:var(--panel);color:var(--text)}.plpw summary{cursor:pointer;font-size:13px;font-weight:700}.plpw p{margin:6px 0 0}';
  css.textContent+='.plpath{background:var(--bg);border:1.5px solid var(--accent);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:8px}.plpath .plgt{margin:0}.plpnow{margin:0;font-size:14px;line-height:1.5}.plpath details summary{cursor:pointer;font-size:13px;font-weight:700;color:var(--muted)}.pplist{list-style:none;margin:8px 0 0;padding:0;display:flex;flex-direction:column;gap:4px}.pplist li{display:flex;gap:8px;align-items:flex-start;font-size:13px;padding:5px 6px;border-radius:8px}.pplist .ppi{width:20px;flex:none;text-align:center}.pplist .ppn{flex:1;min-width:0}.pplist .ppn small{display:block;color:var(--muted)}.pplist .ppd{font-family:var(--mono);color:var(--muted);flex:none}.pp-done{opacity:.6}.pp-next{background:var(--accent-bg);font-weight:800}.pp-lock .ppn{color:var(--muted)}'+
  '.smtog select{font:inherit;font-size:14px;padding:6px 8px;border-radius:9px;border:1.5px solid var(--line);background:var(--panel);color:var(--text);flex:none;align-self:center}';
  css.textContent+='.plx2{display:flex;flex-direction:column;gap:10px;margin-top:4px}.plx2r{display:flex;gap:10px;align-items:center;justify-content:space-between;background:var(--bg);border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;font-size:14px;line-height:1.45}.plx2r>span:first-child{flex:1;min-width:0}.plx2b{display:flex;gap:6px;flex:none}'+
@@ -832,7 +858,7 @@ var PLAN=(function(){
  function go(a,title,openUrl){if(PS().auto&&typeof STUDY!=='undefined'&&STUDY.start)STUDY.start(title);
   if(a[1]==='url'){if(openUrl)try{window.open(a[2],'_blank','noopener')}catch(_){}return}close();if(document.querySelector('#player.open')&&typeof closePlayer==='function')closePlayer();
   if(a[1]==='app'){location.href=a[2];return}
-  if(a[1]==='path'){pathGo();return}if(a[1]==='brk'){brkOpen(a[2]);return}if(a[1]==='other'){toastIn('Timer running: '+(a[2]||'your project')+'. Come back here when it\'s done.');return}if(a[1]==='freelearn'){showPage('learn');return}if(a[1]==='freerev'){showPage('review');return}if(a[1]==='mix'){smMix();return}if(a[1]==='ghost'){smGhost();return}if(a[1]==='bed'){try{bedOpen()}catch(_){}return}
+  if(a[1]==='path'){pathGo();return}if(a[1]==='pathrev'){pathReview();return}if(a[1]==='brk'){brkOpen(a[2]);return}if(a[1]==='other'){toastIn('Timer running: '+(a[2]||'your project')+'. Come back here when it\'s done.');return}if(a[1]==='freelearn'){showPage('learn');return}if(a[1]==='freerev'){showPage('review');return}if(a[1]==='mix'){smMix();return}if(a[1]==='ghost'){smGhost();return}if(a[1]==='bed'){try{bedOpen()}catch(_){}return}
   if(a[1]==='warm'){var mc=null;try{mc=MEM.counts()}catch(_){}if(mc&&mc.total)MEM.start();else ONE.start();warmP=typeof P!=='undefined'?P:null;return}
   if(a[1]==='rev'){var rr2=runGet(),bl=DAY(rr2?rr2.day:cur)[0];try{REV.hub(bl&&bl[5]==='rev'?bl[6]:null)}catch(e){if(window.console)console.error(e)}return}
   if(a[1]==='clash'){try{ARENA.open()}catch(_){}return}
@@ -1080,38 +1106,4 @@ var PLAN=(function(){
    var x3=document.createElement('button');x3.type='button';x3.className='plgo alt';x3.textContent='Stop the plan';x3.onclick=function(){stopRun(false)};A.appendChild(x3);return}
   var j=firstLeft(t);if(j<0){if(feOn(t)){var fz0=PS().fe[t],fn=fz0.n||1;R.innerHTML='<p>Finished early today ✓</p><b>'+fn+' lesson'+(fn===1?'':'s')+' done</b><p>Today\'s plan is finished. Changed your mind? You can carry on with it.</p><div class="placts"></div>';
    var uu=document.createElement('button');uu.type='button';uu.className='plgo alt';uu.textContent='Undo: carry on with the plan';uu.onclick=undoEarly;R.querySelector('.placts').appendChild(uu)}return}
-  var bb=document.createElement('button');bb.type='button';bb.className='plbig';var rvT=rvOn(t);bb.textContent=(rvT?'Start revision':DAY(t).some(function(_,k){return isDone(t,k)})?'Carry on with today\'s plan':'Start today\'s plan')+' ('+DAY(t).slice(j).filter(function(_,k){return !isDone(t,j+k)}).reduce(function(s2,x){return s2+x[1]},0)+' min)';
-  bb.onclick=function(){startRun()};R.appendChild(bb);
-  var o1=document.createElement('button');o1.type='button';o1.className='plgo alt';o1.textContent='Just one question';o1.onclick=function(){close();ONE.start()};
-  var hf=document.createElement('button');hf.type='button';hf.className='plgo alt';hf.textContent='Homework first';hf.onclick=startHw;var hr=document.createElement('div');hr.className='placts';if(!rvT)hr.appendChild(o1);hr.appendChild(hf);if(lessonsN()>=1&&!rvT){var fe1=document.createElement('button');fe1.type='button';fe1.className='plgo alt';fe1.textContent='Finished early';fe1.onclick=function(){finishEarly()};hr.appendChild(fe1)}R.appendChild(hr);
-  if(!focusOk&&/Windows|Macintosh|CrOS|Linux x86/.test(navigator.userAgent)&&!/Mobile|Android/.test(navigator.userAgent)&&window.chrome){var fg=document.createElement('p');fg.className='plnote';fg.innerHTML='Strict mode: <a href="https://u23bodwells-cmyk.github.io/Critical/reminders/critical-focus.zip" target="_blank" rel="noopener">get the Critical Focus extension for Chrome</a>. It closes TikTok at plan time and keeps Critical on screen until you\'re done.';R.appendChild(fg)}
-  if(focusOk){var fz=document.createElement('p');fz.className='plnote';fz.textContent=focusOk.locked?'Critical Focus is locked on: TikTok is blocked and Critical stays on screen until today\'s plan is done.':'Critical Focus is on: from plan time, TikTok is closed and blocked until today\'s plan is done.';R.appendChild(fz)}
-  var n=document.createElement('p');n.className='plnote';n.textContent=hw&&hw.done&&!hw.alloc?'Homework used up today\'s Critical time. You can still start it if you want to.':'It times each part and moves you on when it\'s time. Got homework that\'s running over? Press Homework first: Critical gets whatever time is left when you\'ve finished.';R.appendChild(n)}
- /* ----- homework first: homework uses the plan's time until it's finished, then Critical gets what's left ----- */
- var HWK='critical_plan_hw';
- function hwGet(){try{var o=JSON.parse(localStorage.getItem(HWK)||'null');return o&&o.d===ymdN()?o:null}catch(_){return null}}
- function hwSet(o){try{if(o)localStorage.setItem(HWK,JSON.stringify(o));else localStorage.removeItem(HWK)}catch(_){}}
- function hwOn(){var h=hwGet();return !!(h&&!h.done)}
- function leftMins(t){return DAY(t).filter(function(_,j){return !isDone(t,j)}).reduce(function(a,b){return a+b[1]},0)}
- function hhmm(ms){var d=new Date(ms),h=d.getHours(),m=d.getMinutes();return (h%12||12)+':'+(m<10?'0':'')+m+(h>=12?'pm':'am')}
- function startHw(){var t=todayI();if(runGet()||firstLeft(t)<0)return;pinRv(t);var L=leftMins(t),now=Date.now();hwSet({d:ymdN(),at:now,end:now+L*60000,mins:L});setTimeout(function(){try{focusSend(true)}catch(_){}},50);warned={};hideBan();paintPill();
-  if(sh.classList.contains('open')){cur=t;view='plan';paint()}else showBan('<b>Homework first.</b> When you\'ve finished, tap the calendar button and press Homework done. Critical gets whatever\'s left until '+hhmm(now+L*60000)+'.',[['Open homework timer',function(){hideBan();location.href='homework.html'}],['OK',hideBan]])}
- function hwDone(){var h=hwGet(),t=todayI();if(!h||h.done)return;setTimeout(function(){try{focusSend(true)}catch(_){}},80);var rem=Math.floor((h.end-Date.now())/60000);h.done=Date.now();
-  var idx=DAY(t).map(function(_,j){return j}).filter(function(j){return !isDone(t,j)});
-  if(rem<5||!idx.length){h.alloc=null;hwSet(h);paintPill();if(sh.classList.contains('open'))paint();showBan('<b>No time left for Critical today.</b> That\'s fine: homework comes first. Pick it up tomorrow.',[['OK',hideBan]]);return}
-  var tot=idx.reduce(function(a,j){return a+DAY(t)[j][1]},0),f=Math.min(1,rem/tot),alloc={},acc=0;
-  idx.forEach(function(j){var m=Math.round(DAY(t)[j][1]*f);if(m>=5){alloc[j]=m;acc+=m}});
-  var ks=Object.keys(alloc);if(!ks.length){alloc[idx[0]]=Math.min(rem,DAY(t)[idx[0]][1]);ks=[String(idx[0])]}else if(f<1)alloc[ks[0]]=Math.max(5,alloc[ks[0]]+rem-acc);
-  h.alloc=alloc;hwSet(h);var go2=function(){if(typeof STUDY!=='undefined'&&STUDY.start)STUDY.start('Weekly plan · '+DAYS[t]);begin(t,+ks[0],true)};if(!rvOn(t)&&typeof SHIFT!=='undefined'&&SHIFT.brief(go2))return;go2()}
- function hwNext(day,j){var h=hwGet();if(!h||!h.alloc||day!==todayI())return firstLeft(day,j);var ks=Object.keys(h.alloc).map(Number).sort(function(a,b){return a-b});for(var i=0;i<ks.length;i++)if(ks[i]>j&&!isDone(day,ks[i]))return ks[i];return -1}
- /* ----- Critical Focus (Chrome extension): tell it today's plan time and when the plan is done ----- */
- var FOCUS_ID='dofdocaillphcjghjdjodhippjldkibo',focusOk=null,lastFocus=0,GUARD_ID='ophdjhoiolnmepbdhbdjgcgnfpdogfnp';
- function focusStatus(){var t=todayI(),school=t<5,SC=sched(),R=SC.rows,pr=R.filter(function(r){return r[2]==='plan'})[0],rd=R.filter(function(r){return r[2]==='read'})[0],base=new Date();base.setHours(0,0,0,0);
-  var hw=hwGet(),done=firstLeft(t)<0||!!(hw&&hw.done&&!hw.alloc)||!!(hw&&hw.alloc&&Object.keys(hw.alloc).every(function(j){return isDone(t,+j)}))||(school&&!pr)||qsOn(t)||!!OTH(t);
-  return {type:'status',due:school&&pr?base.getTime()+pr[0]*60000:null,end:rd?base.getTime()+rd[0]*60000:null,done:done,hw:hwOn(),running:!!runGet(),lessons:lessonsN(),early:feOn(t)}}
- function focusSend(force){var now=Date.now();if(!force&&now-lastFocus<30000)return;lastFocus=now;
-  /* Critical Browser (the desktop app) gets the same status, plus how much of today's plan is left */
-  try{if(window.criticalBrowser&&criticalBrowser.status){var cs=focusStatus(),ct=todayI();cs.left=DAY(ct).filter(function(b,j){return !isDone(ct,j)}).length;cs.mins=restMins(ct);
-   try{cs.sync=!!(SYNC.cfg&&SYNC.cfg())}catch(_){cs.sync=false}cs.locked=document.documentElement.classList.contains('cglock');criticalBrowser.status(cs);
-   /* inside Critical Browser the page never goes "hidden" when you switch tabs, so it wouldn't notice progress you made in Chrome.
-      Let the browser ask for a fresh check, and also check by oursel
+  var bb=document.createElement(

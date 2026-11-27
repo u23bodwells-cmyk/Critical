@@ -1,4 +1,35 @@
-thing causes another.</li><li>A <b>valid</b> experiment answers the question it set out to answer, with control variables kept the same.</li></ul>`),
+t happens?`,[`They land at the same time, because there's no air resistance`,'The hammer lands first, because it has a bigger weight','The feather floats, because the Moon\'s gravity is so weak','The feather lands first, because it has less mass to move'],0,`With no air, all objects have the same acceleration.`),
+N(`A 70 kg astronaut climbs 4 m up a ladder on the Moon (g = 1.6 N/kg). How much gravitational potential energy does she gain?`,448,0.005,'J',`E<sub>p</sub> = mgh = 70 × 1.6 × 4 = 448 J.`),
+Q(`Electric cars are often described as "zero emission". Why might a physicist disagree?`,[`The electricity may come from power stations that burn fossil fuels`,'They give out CO₂ from the exhaust pipe whenever the battery is running low','Their batteries give out radiation when they are charging','They use a small amount of petrol to start the motor'],0,`Emissions move to the power station, unless it's low-carbon (like nuclear or wind).`),
+T(`<h3>Key points</h3><ul><li>Medical sources: choose type and half-life for the job.</li><li>No air resistance: everything falls with the same acceleration.</li><li>Evaluate claims by following the energy back to its source.</li></ul>`)])
+]});
+U({id:'gp5-2',track:'gp',level:5,title:'Multi-step problems',icon:'⇶',color:'#D85A30',desc:'The hardest calculations: several equations, conversions and rearranging in one question.',lessons:[
+LH('gp5-2-1','Chaining equations',12,'Three-step problems, with conversions, where you have to plan the route.',[
+T(`<h3>Plan the route first</h3><p>Write the target quantity at the bottom of the page and the given quantities at the top. Find a chain of equations connecting them. Only then put numbers in.</p>`),
+W('stepCalc',{steps:[`A 1200 kg car at 25 m/s brakes to rest in 4.0 s. Find the average braking force and the braking distance.`,`Momentum change: 1200 × 25 = 30 000 kg m/s`,`Force = change in momentum ÷ time = 30 000 ÷ 4.0 = <b>7500 N</b>`,`Deceleration a = F ÷ m = 7500 ÷ 1200 = 6.25 m/s²`,`v² − u² = 2as: 0 − 625 = 2 × (−6.25) × s, so <b>s = 50 m</b>`]},`A grade 9 worked example.`,`One answer feeds the next.`),
+W('calcDrill',{skill:GP9,need:8},`Grade 9 mixed calculations. Get 8 right to master it.`,`Plan the chain before calculating.`),
+T(`<h3>Key points</h3><ul><li>Target at the bottom, givens at the top, then join them.</li><li>Keep full values until the end.</li></ul>`)]),
+LH('gp5-2-2','Standard form and significant figures under pressure',11,'Exam-style answers with very big or small numbers, and rounding correctly.',[
+RM(`<p>Standard form: A × 10ⁿ. Give answers to the same significant figures as the data.</p>`),
+N(`A radio station broadcasts at 97.0 MHz. What is the wavelength? (v = 3.00 × 10⁸ m/s, 3 significant figures)`,3.09,0.005,'m',`λ = 3.00 × 10⁸ ÷ 97.0 × 10⁶ = 3.09 m.`),
+N(`The Sun's power output is 3.8 × 10²⁶ W. How much energy does it give out in one day? Give the number in front of × 10³¹ J.`,3.28,0.01,'× 10³¹ J',`E = Pt = 3.8 × 10²⁶ × 86 400 = 3.28 × 10³¹ J.`),
+N(`A nucleus has a radius of about 1.2 × 10⁻¹⁵ m and an atom 1.0 × 10⁻¹⁰ m. How many times bigger is the atom? Give the number in front of × 10⁴.`,8.3,0.02,'× 10⁴',`1.0 × 10⁻¹⁰ ÷ 1.2 × 10⁻¹⁵ = 8.3 × 10⁴ times.`),
+W('calcDrill',{skill:['g_emwave','g_stdform','g_sigfig','g_impulse'],need:6},`Big and small numbers. Get 6 right to master it.`,`Use the ×10ˣ button and round at the end.`),
+T(`<h3>Key points</h3><ul><li>Use your calculator's ×10ˣ button, not "× 10 ^".</li><li>Round to the s.f. of the least precise data.</li></ul>`)])
+]});
+U({id:'gp5-3',track:'gp',level:5,title:'Data and graphs',icon:'📉',color:'#1D9E75',desc:'Tangents to curves, areas under graphs, uncertainty, and evaluating data and conclusions.',lessons:[
+LH('gp5-3-1','Tangents and areas',11,'Finding the gradient of a curve at a point, and estimating areas under curved graphs.',[
+T(`<h3>Gradient of a curve</h3><p>A curve's gradient changes. To find it at one point, draw a <b>tangent</b>: a straight line that just touches the curve there. Then find the gradient of the tangent using two points far apart on it.</p><p>On a distance–time graph, the tangent's gradient is the speed at that instant.</p>`),
+W('fnPlot',{x:[0,10],y:[0,100],xl:'time (s)',yl:'distance (m)',sl:[['t','Time of tangent',1,9,1,5,function(v){return v+' s'}]],curves:function(p){var f=function(x){return x*x},m=2*p.t,c=p.t*p.t-m*p.t;return [[f,'--accent',3],[function(x){return m*x+c},'--muted',2,[6,4]]]},read:function(p){return 'At t = '+p.t+' s, the tangent has gradient <b>'+(2*p.t)+' m/s</b>: that\'s the speed at that moment. The curve gets steeper, so the object is accelerating.'}},`Move the tangent along the curve d = t².`,`The gradient of the tangent is the instantaneous speed.`),
+Q(`On a velocity–time graph that curves upward, how do you find the acceleration at a point?`,[`Draw a tangent there and find its gradient`,`Find the area under the curve`,`Read the y-value`,`Divide velocity by time from the origin`],0,`Gradient of v–t = acceleration.`),
+T(`<h3>Area under a curve</h3><p>For a curved velocity–time graph, estimate the distance by counting squares (each square is worth so many metres) or by splitting it into trapeziums.</p>`),
+N(`On a v–t graph, each grid square is 2 m/s by 1 s. The area under the curve is about 37 squares. Roughly how far did it travel?`,74,0.01,'m',`Each square = 2 × 1 = 2 m. 37 × 2 = 74 m.`),
+T(`<h3>Key points</h3><ul><li>Tangent gradient = rate at that instant.</li><li>Area under v–t = distance; count squares and multiply by each square's value.</li></ul>`)]),
+LH('gp5-3-2','Evaluating data and conclusions',10,'Uncertainty, valid conclusions, and what you can and can\'t claim from data.',[
+RM(`<p>Precise: readings close together. Accurate: close to the true value. Random and systematic errors.</p>`),
+T(`<h3>Uncertainty</h3><p>The <b>uncertainty</b> in a set of repeat readings is about <b>half the range</b>: (largest − smallest) ÷ 2. Write the answer as mean ± uncertainty.</p>`),
+N(`Repeat readings: 2.4 s, 2.6 s, 2.5 s, 2.7 s. What is the uncertainty (± seconds)?`,0.15,0.01,'s',`Range = 2.7 − 2.4 = 0.3 s. Half the range = ± 0.15 s.`),
+T(`<h3>Valid conclusions</h3><ul><li>A conclusion should only describe what the data shows, within the range tested.</li><li>A correlation doesn't prove one thing causes another.</li><li>A <b>valid</b> experiment answers the question it set out to answer, with control variables kept the same.</li></ul>`),
 Q(`A student finds resistance increases with wire length for lengths 10–50 cm. Which conclusion is valid?`,[`Between 10 and 50 cm, resistance increases with length`,`Resistance always increases with length, at any length`,`Length causes all resistance`,`Thicker wires have more resistance`],0,`Don't extrapolate beyond the data.`),
 Q(`Two groups get different results with the same method. Their results are not…`,[`reproducible`,`accurate`,`random`,`valid by definition`],0,`Reproducible means others get the same results.`),
 T(`<h3>Key points</h3><ul><li>Uncertainty ≈ half the range.</li><li>Conclusions only within the range tested.</li><li>Correlation isn't causation.</li></ul>`)])
@@ -1067,47 +1098,4 @@ T(`<h3>The formulas</h3><ul><li>Arithmetic: uₙ = a + (n − 1)d, <b>Sₙ = n/2
 W('calcDrill',{skill:'a_arith',need:3},`Arithmetic series. Get 3 right to master it.`,`n/2 [2a + (n − 1)d].`),
 W('calcDrill',{skill:'geomsum',need:2},`Geometric sums to infinity. Get 2 right to master it.`,`a/(1 − r).`),
 T(`<h3>Recurrence relations</h3><p>uₙ₊₁ = f(uₙ) defines each term from the one before. A sequence is <b>increasing</b>, <b>decreasing</b> or <b>periodic</b> (repeats). Σ notation: Σ<sub>r=1</sub><sup>n</sup> means "add up for r = 1 to n".</p>`),
-Q(`uₙ₊₁ = 1/uₙ with u₁ = 3 gives 3, 1/3, 3, 1/3, … This sequence is…`,[`periodic with period 2`,`increasing`,`decreasing`,`arithmetic`],0,`It repeats every 2 terms.`),
-T(`<h3>Key points</h3><ul><li>Arithmetic Sₙ = n/2[2a + (n − 1)d]. Geometric Sₙ = a(1 − rⁿ)/(1 − r).</li><li>S∞ only if |r| < 1.</li><li>Recurrences can be increasing, decreasing or periodic.</li></ul>`)]),
-LH('am3-1-3','The general binomial expansion',11,'For negative and fractional powers, the binomial expansion goes on forever, and partial fractions help.',[
-RM(`<p>(1 + x)ⁿ for positive whole n: Pascal's triangle. Partial fractions split a fraction into simpler pieces (Calculus Level 8).</p>`),
-T(`<h3>Any power n</h3><div class="eq">(1 + x)ⁿ = 1 + nx + n(n − 1)x²/2! + n(n − 1)(n − 2)x³/3! + …</div><p>For negative or fractional n it never ends, and it's only valid for <b>|x| < 1</b>.</p>`),
-W('stepCalc',{steps:[`Expand (1 + x)<sup>−1</sup> up to x³`,`n = −1: 1 + (−1)x + (−1)(−2)x²/2 + (−1)(−2)(−3)x³/6`,`<b>= 1 − x + x² − x³ + …</b>`,`Valid for |x| < 1. It's the geometric series with r = −x.`]},`A negative power.`,`Check against what you know.`),
-Q(`(1 + 3x)<sup>½</sup> is valid for…`,[`|x| < 1/3`,`|x| < 1`,`|x| < 3`,`all x`],0,`|3x| < 1.`),
-N(`Use (1 + x)<sup>½</sup> ≈ 1 + x/2 − x²/8 with x = 0.02 to estimate √1.02. (5 d.p.)`,1.00995,0.00001,'',`1 + 0.01 − 0.00005 = 1.00995.`),
-T(`<h3>With partial fractions</h3><p>To expand something like (5x + 1)/((1 − x)(1 + 2x)), split it into partial fractions first, then expand each piece and add. The overall validity is the narrower range.</p>`),
-T(`<h3>Key points</h3><ul><li><b>(1 + x)ⁿ = 1 + nx + n(n − 1)x²/2! + …</b></li><li>Infinite for negative/fractional n; valid for <b>|x| < 1</b>.</li><li>Partial fractions first for messy fractions.</li></ul>`)])
-]});
-
-U({id:'am3-2',track:'am',level:3,title:'Trigonometry in Year 13',icon:'R cos',color:'#1D9E75',desc:'Radians, reciprocal and inverse functions, compound angle formulae and R cos(θ − α).',lessons:[
-LH('am3-2-1','Radians',10,'Measure angles by arc length, and sectors and small-angle approximations become simple.',[
-RM(`<p>π radians = 180°. Calculus with trig always uses radians (Calculus Level 6).</p>`),
-T(`<h3>Sectors</h3><div class="eq">arc length = rθ&nbsp;&nbsp;&nbsp; sector area = ½r²θ&nbsp;&nbsp;(θ in radians)</div>`),
-W('calcDrill',{skill:'a_sector',need:3},`Arcs and sectors. Get 3 right to master it.`,`rθ and ½r²θ.`),
-T(`<h3>Small angles</h3><p>For small θ in radians: <b>sin θ ≈ θ</b>, <b>tan θ ≈ θ</b>, <b>cos θ ≈ 1 − θ²/2</b>. (They're the first terms of the Taylor series.)</p>`),
-Q(`For small θ, (sin 3θ)/θ ≈ …`,[`3`,`1`,`θ`,`1/3`],0,`sin 3θ ≈ 3θ.`),
-T(`<h3>Key points</h3><ul><li><b>π rad = 180°</b>.</li><li>Arc rθ, sector ½r²θ.</li><li>Small angles: sin θ ≈ θ, cos θ ≈ 1 − θ²/2.</li></ul>`)]),
-LH('am3-2-2','Reciprocal functions and compound angles',11,'sec, cosec and cot, two more identities, and the addition formulae.',[
-RM(`<p>sin²θ + cos²θ = 1. tan θ = sin θ / cos θ.</p>`),
-T(`<h3>Reciprocals</h3><p>sec θ = 1/cos θ, cosec θ = 1/sin θ, cot θ = 1/tan θ. Divide sin² + cos² = 1 by cos²θ or sin²θ:</p><div class="eq">1 + tan²θ = sec²θ&nbsp;&nbsp;&nbsp; 1 + cot²θ = cosec²θ</div>`),
-Q(`1 + tan²θ = …`,[`sec²θ`,`cosec²θ`,`cos²θ`,`cot²θ`],0,`Divide by cos²θ.`),
-T(`<h3>Compound angles</h3><div class="eq">sin(A ± B) = sin A cos B ± cos A sin B<br>cos(A ± B) = cos A cos B ∓ sin A sin B</div><p>Put A = B to get the double-angle formulae: sin 2A = 2 sin A cos A, cos 2A = cos²A − sin²A = 2cos²A − 1 = 1 − 2sin²A.</p>`),
-N(`Use sin(45° + 30°) to find sin 75°. (4 d.p.)`,0.9659,0.001,'',`(√2/2)(√3/2) + (√2/2)(1/2) = (√6 + √2)/4 ≈ 0.9659.`),
-T(`<h3>Inverse trig</h3><p>arcsin, arccos and arctan undo sin, cos and tan, on restricted domains so they're one-to-one: arcsin and arctan give answers in [−π/2, π/2], arccos in [0, π].</p>`),
-T(`<h3>Key points</h3><ul><li><b>1 + tan² = sec²</b>, <b>1 + cot² = cosec²</b>.</li><li>Addition formulae → double-angle formulae.</li><li>Inverse trig functions have restricted ranges.</li></ul>`)]),
-LH('am3-2-3','R cos(θ − α)',10,'Any mix of sin and cos is one wave in disguise.',[
-RM(`<p>cos(A − B) = cos A cos B + sin A sin B. Pythagoras.</p>`),
-T(`<h3>The harmonic form</h3><p>a cos θ + b sin θ = R cos(θ − α), where:</p><div class="eq">R = √(a² + b²),&nbsp;&nbsp; tan α = b/a</div><p>Expand R cos(θ − α) = R cos α cos θ + R sin α sin θ, and match: R cos α = a, R sin α = b.</p>`),
-W('calcDrill',{skill:'a_rcos',need:3},`Harmonic form. Get 3 right to master it.`,`R = √(a² + b²), tan α = b/a.`),
-Q(`3cos θ + 4sin θ has a maximum value of…`,[`5`,`7`,`4`,`1`],0,`R = 5, and cos has max 1.`),
-T(`<h3>Why it's useful</h3><p>It gives the maximum (R), minimum (−R) and where they happen, and turns equations like 3cos θ + 4sin θ = 2 into one cos equation. In AC circuits and vibrations it combines two waves into one.</p>`),
-T(`<h3>Key points</h3><ul><li><b>a cos θ + b sin θ = R cos(θ − α)</b>.</li><li><b>R = √(a² + b²)</b>, <b>tan α = b/a</b>.</li><li>Max R, min −R.</li></ul>`)])
-]});
-
-U({id:'am3-3',track:'am',level:3,title:'Further calculus',icon:'∫ u dv',color:'#378ADD',desc:'The chain, product and quotient rules, parametric and implicit differentiation, integration techniques, differential equations and numerical methods.',lessons:[
-LH('am3-3-1','Differentiation techniques',11,'Every Year 13 differentiation rule, and where to practise each slowly in the Calculus track.',[
-RM(`<p>The Calculus track covers these in Levels 3, 7 and 11. Chain: dy/dx = dy/du × du/dx. Product: u′v + uv′. Quotient: (u′v − uv′)/v².</p>`),
-T(`<h3>The Year 13 toolkit</h3><ul><li>eˣ, ln x, sin, cos, tan, and aˣ (d/dx aˣ = aˣ ln a).</li><li><b>Chain, product and quotient</b> rules.</li><li><b>Parametric</b>: dy/dx = (dy/dt)/(dx/dt).</li><li><b>Implicit</b>: differentiate y terms and multiply by dy/dx.</li><li><b>Connected rates</b>: chain rule with time.</li><li>Second derivative for <b>concave/convex</b> and <b>points of inflection</b>.</li></ul>`),
-W('calcDrill',{skill:['chain','product','quotient','paramgrad','implicit'],need:6},`Mixed Year 13 differentiation. Get 6 right to master it.`,`Pick the right rule first.`),
-Q(`A point of inflection is where…`,[`the curve changes between concave and convex`,`the gradient is always zero`,`the function has a maximum`,`the curve crosses the y-axis`],0,`f″ changes sign.`),
-T(`<h3>Key points</h3><ul><li>Choose the rule: chain
+Q(`uₙ₊₁ = 1/uₙ with u₁ = 3 gives 3, 1/3, 3, 1/3, … This sequence is…`,[`periodic with period 2`,`increasing`,`decrea

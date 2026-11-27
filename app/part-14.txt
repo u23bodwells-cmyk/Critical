@@ -1,4 +1,47 @@
- (function of a function), product, quotient.</li><li>Parametric and implicit differentiation.</li><li>f″ changing sign: <b>point of inflection</b>.</li></ul>`)]),
+sing`,`arithmetic`],0,`It repeats every 2 terms.`),
+T(`<h3>Key points</h3><ul><li>Arithmetic Sₙ = n/2[2a + (n − 1)d]. Geometric Sₙ = a(1 − rⁿ)/(1 − r).</li><li>S∞ only if |r| < 1.</li><li>Recurrences can be increasing, decreasing or periodic.</li></ul>`)]),
+LH('am3-1-3','The general binomial expansion',11,'For negative and fractional powers, the binomial expansion goes on forever, and partial fractions help.',[
+RM(`<p>(1 + x)ⁿ for positive whole n: Pascal's triangle. Partial fractions split a fraction into simpler pieces (Calculus Level 8).</p>`),
+T(`<h3>Any power n</h3><div class="eq">(1 + x)ⁿ = 1 + nx + n(n − 1)x²/2! + n(n − 1)(n − 2)x³/3! + …</div><p>For negative or fractional n it never ends, and it's only valid for <b>|x| < 1</b>.</p>`),
+W('stepCalc',{steps:[`Expand (1 + x)<sup>−1</sup> up to x³`,`n = −1: 1 + (−1)x + (−1)(−2)x²/2 + (−1)(−2)(−3)x³/6`,`<b>= 1 − x + x² − x³ + …</b>`,`Valid for |x| < 1. It's the geometric series with r = −x.`]},`A negative power.`,`Check against what you know.`),
+Q(`(1 + 3x)<sup>½</sup> is valid for…`,[`|x| < 1/3`,`|x| < 1`,`|x| < 3`,`all x`],0,`|3x| < 1.`),
+N(`Use (1 + x)<sup>½</sup> ≈ 1 + x/2 − x²/8 with x = 0.02 to estimate √1.02. (5 d.p.)`,1.00995,0.00001,'',`1 + 0.01 − 0.00005 = 1.00995.`),
+T(`<h3>With partial fractions</h3><p>To expand something like (5x + 1)/((1 − x)(1 + 2x)), split it into partial fractions first, then expand each piece and add. The overall validity is the narrower range.</p>`),
+T(`<h3>Key points</h3><ul><li><b>(1 + x)ⁿ = 1 + nx + n(n − 1)x²/2! + …</b></li><li>Infinite for negative/fractional n; valid for <b>|x| < 1</b>.</li><li>Partial fractions first for messy fractions.</li></ul>`)])
+]});
+
+U({id:'am3-2',track:'am',level:3,title:'Trigonometry in Year 13',icon:'R cos',color:'#1D9E75',desc:'Radians, reciprocal and inverse functions, compound angle formulae and R cos(θ − α).',lessons:[
+LH('am3-2-1','Radians',10,'Measure angles by arc length, and sectors and small-angle approximations become simple.',[
+RM(`<p>π radians = 180°. Calculus with trig always uses radians (Calculus Level 6).</p>`),
+T(`<h3>Sectors</h3><div class="eq">arc length = rθ&nbsp;&nbsp;&nbsp; sector area = ½r²θ&nbsp;&nbsp;(θ in radians)</div>`),
+W('calcDrill',{skill:'a_sector',need:3},`Arcs and sectors. Get 3 right to master it.`,`rθ and ½r²θ.`),
+T(`<h3>Small angles</h3><p>For small θ in radians: <b>sin θ ≈ θ</b>, <b>tan θ ≈ θ</b>, <b>cos θ ≈ 1 − θ²/2</b>. (They're the first terms of the Taylor series.)</p>`),
+Q(`For small θ, (sin 3θ)/θ ≈ …`,[`3`,`1`,`θ`,`1/3`],0,`sin 3θ ≈ 3θ.`),
+T(`<h3>Key points</h3><ul><li><b>π rad = 180°</b>.</li><li>Arc rθ, sector ½r²θ.</li><li>Small angles: sin θ ≈ θ, cos θ ≈ 1 − θ²/2.</li></ul>`)]),
+LH('am3-2-2','Reciprocal functions and compound angles',11,'sec, cosec and cot, two more identities, and the addition formulae.',[
+RM(`<p>sin²θ + cos²θ = 1. tan θ = sin θ / cos θ.</p>`),
+T(`<h3>Reciprocals</h3><p>sec θ = 1/cos θ, cosec θ = 1/sin θ, cot θ = 1/tan θ. Divide sin² + cos² = 1 by cos²θ or sin²θ:</p><div class="eq">1 + tan²θ = sec²θ&nbsp;&nbsp;&nbsp; 1 + cot²θ = cosec²θ</div>`),
+Q(`1 + tan²θ = …`,[`sec²θ`,`cosec²θ`,`cos²θ`,`cot²θ`],0,`Divide by cos²θ.`),
+T(`<h3>Compound angles</h3><div class="eq">sin(A ± B) = sin A cos B ± cos A sin B<br>cos(A ± B) = cos A cos B ∓ sin A sin B</div><p>Put A = B to get the double-angle formulae: sin 2A = 2 sin A cos A, cos 2A = cos²A − sin²A = 2cos²A − 1 = 1 − 2sin²A.</p>`),
+N(`Use sin(45° + 30°) to find sin 75°. (4 d.p.)`,0.9659,0.001,'',`(√2/2)(√3/2) + (√2/2)(1/2) = (√6 + √2)/4 ≈ 0.9659.`),
+T(`<h3>Inverse trig</h3><p>arcsin, arccos and arctan undo sin, cos and tan, on restricted domains so they're one-to-one: arcsin and arctan give answers in [−π/2, π/2], arccos in [0, π].</p>`),
+T(`<h3>Key points</h3><ul><li><b>1 + tan² = sec²</b>, <b>1 + cot² = cosec²</b>.</li><li>Addition formulae → double-angle formulae.</li><li>Inverse trig functions have restricted ranges.</li></ul>`)]),
+LH('am3-2-3','R cos(θ − α)',10,'Any mix of sin and cos is one wave in disguise.',[
+RM(`<p>cos(A − B) = cos A cos B + sin A sin B. Pythagoras.</p>`),
+T(`<h3>The harmonic form</h3><p>a cos θ + b sin θ = R cos(θ − α), where:</p><div class="eq">R = √(a² + b²),&nbsp;&nbsp; tan α = b/a</div><p>Expand R cos(θ − α) = R cos α cos θ + R sin α sin θ, and match: R cos α = a, R sin α = b.</p>`),
+W('calcDrill',{skill:'a_rcos',need:3},`Harmonic form. Get 3 right to master it.`,`R = √(a² + b²), tan α = b/a.`),
+Q(`3cos θ + 4sin θ has a maximum value of…`,[`5`,`7`,`4`,`1`],0,`R = 5, and cos has max 1.`),
+T(`<h3>Why it's useful</h3><p>It gives the maximum (R), minimum (−R) and where they happen, and turns equations like 3cos θ + 4sin θ = 2 into one cos equation. In AC circuits and vibrations it combines two waves into one.</p>`),
+T(`<h3>Key points</h3><ul><li><b>a cos θ + b sin θ = R cos(θ − α)</b>.</li><li><b>R = √(a² + b²)</b>, <b>tan α = b/a</b>.</li><li>Max R, min −R.</li></ul>`)])
+]});
+
+U({id:'am3-3',track:'am',level:3,title:'Further calculus',icon:'∫ u dv',color:'#378ADD',desc:'The chain, product and quotient rules, parametric and implicit differentiation, integration techniques, differential equations and numerical methods.',lessons:[
+LH('am3-3-1','Differentiation techniques',11,'Every Year 13 differentiation rule, and where to practise each slowly in the Calculus track.',[
+RM(`<p>The Calculus track covers these in Levels 3, 7 and 11. Chain: dy/dx = dy/du × du/dx. Product: u′v + uv′. Quotient: (u′v − uv′)/v².</p>`),
+T(`<h3>The Year 13 toolkit</h3><ul><li>eˣ, ln x, sin, cos, tan, and aˣ (d/dx aˣ = aˣ ln a).</li><li><b>Chain, product and quotient</b> rules.</li><li><b>Parametric</b>: dy/dx = (dy/dt)/(dx/dt).</li><li><b>Implicit</b>: differentiate y terms and multiply by dy/dx.</li><li><b>Connected rates</b>: chain rule with time.</li><li>Second derivative for <b>concave/convex</b> and <b>points of inflection</b>.</li></ul>`),
+W('calcDrill',{skill:['chain','product','quotient','paramgrad','implicit'],need:6},`Mixed Year 13 differentiation. Get 6 right to master it.`,`Pick the right rule first.`),
+Q(`A point of inflection is where…`,[`the curve changes between concave and convex`,`the gradient is always zero`,`the function has a maximum`,`the curve crosses the y-axis`],0,`f″ changes sign.`),
+T(`<h3>Key points</h3><ul><li>Choose the rule: chain (function of a function), product, quotient.</li><li>Parametric and implicit differentiation.</li><li>f″ changing sign: <b>point of inflection</b>.</li></ul>`)]),
 LH('am3-3-2','Integration techniques',11,'Substitution, by parts, partial fractions and trig identities: the Year 13 integration kit.',[
 RM(`<p>Calculus Levels 4 and 8 build these slowly. ∫ f′/f dx = ln|f| + c. By parts: ∫ u dv = uv − ∫ v du.</p>`),
 T(`<h3>The Year 13 kit</h3><ul><li>Standard integrals: eˣ, 1/x, sin, cos, sec², and f(ax + b).</li><li><b>Reverse chain rule</b> and ∫ f′/f = ln|f|.</li><li><b>Substitution</b>, <b>by parts</b>, <b>partial fractions</b>.</li><li><b>Trig identities</b> for sin², cos², tan².</li><li><b>Area</b> between curves and under parametric curves: ∫ y (dx/dt) dt.</li></ul>`),
@@ -981,41 +1024,4 @@ WIDGETS.qSHO=function(box,par){par=par||{};var cv=canvas(box,250),cl=false,sn=sl
   qLine(c,(function(){var a=[];for(var i=-60;i<=60;i++){var x=i/60*L;a.push([X(x),H-20-(x*x/2)/14*(H-40)])}return a})(),cssv('--muted'),1.5);
   var yE=H-20-E/14*(H-40);c.setLineDash([5,4]);qLine(c,[[X(-A),yE],[X(A),yE]],cssv('--accent'),1);c.setLineDash([]);
   for(i=-300;i<=300;i++){var x=i/300*L,p=Math.pow(psi(n,x),2);mx=Math.max(mx,p);tot+=p;if(Math.abs(x)>A)out+=p}
-  for(i=-300;i<=300;i++){x=i/300*L;p=Math.pow(psi(n,x),2);pts.push([X(x),yE-p/mx*(H*0.28)]);if(cl&&Math.abs(x)<A*0.995){var q=1/(Math.PI*Math.sqrt(A*A-x*x));pc.push([X(x),yE-Math.min(q/mx,1.6)*(H*0.28)])}}
-  qLine(c,pts,'#4aa3ff',2.2);if(cl)qLine(c,pc,'#e8742a',1.8);c.fillStyle=cssv('--muted');c.font='12px system-ui';c.fillText('potential ½kx² and |ψₙ|² (blue)'+(cl?', classical (orange)':''),14,14);[[-A,'turning point'],[A,'']].forEach(function(t){c.fillRect(X(t[0])-1,yE-4,2,8)});
-  st.e.textContent='('+n+' + ½) ħω = '+E.toFixed(1)+' ħω';st.o.textContent=(out/tot*100).toFixed(1)+'%'}
- onDraw(draw);draw();
- if(par.goal)return {check:function(){var n=sn.get();return n===par.goal[0]?{ok:true,msg:par.goal[2]}:{ok:false,msg:'That\'s level '+n+'.'}}}};
-
-/* states as vectors: measuring in different bases */
-WIDGETS.qVector=function(box,par){par=par||{};var cv=canvas(box,250),sa=slider(box,'State |ψ⟩ angle',0,180,1,30,function(v){return v+'°'},function(){draw()}),sb=slider(box,'Measurement basis angle',0,90,1,0,function(v){return v+'°'},function(){draw()}),st=stats(box,[['a','P(first outcome)'],['b','P(second outcome)']]);
- if(par.goal)qChal(box,'Choose a measurement basis where the outcome is completely certain.');
- function draw(){var g=prep(cv),c=g.c,W=g.W,H=g.H,cx=W/2,cy=H/2+10,R=Math.min(W,H)*0.38,a=sa.get()*Math.PI/180,b=sb.get()*Math.PI/180;c.strokeStyle=cssv('--line');c.lineWidth=1;c.beginPath();c.arc(cx,cy,R,0,7);c.stroke();
-  var e1=[Math.cos(b),Math.sin(b)],e2=[-Math.sin(b),Math.cos(b)],v=[Math.cos(a),Math.sin(a)];qArrow(c,cx,cy,cx+R*e1[0],cy-R*e1[1],cssv('--muted'),2);qArrow(c,cx,cy,cx+R*e2[0],cy-R*e2[1],cssv('--muted'),2);
-  var p1=v[0]*e1[0]+v[1]*e1[1],p2=v[0]*e2[0]+v[1]*e2[1];c.setLineDash([4,4]);qLine(c,[[cx+R*v[0],cy-R*v[1]],[cx+R*p1*e1[0],cy-R*p1*e1[1]]],'#4aa3ff',1.5);qLine(c,[[cx+R*v[0],cy-R*v[1]],[cx+R*p2*e2[0],cy-R*p2*e2[1]]],'#e8742a',1.5);c.setLineDash([]);
-  qLine(c,[[cx,cy],[cx+R*p1*e1[0],cy-R*p1*e1[1]]],'#4aa3ff',5);qLine(c,[[cx,cy],[cx+R*p2*e2[0],cy-R*p2*e2[1]]],'#e8742a',5);qArrow(c,cx,cy,cx+R*v[0],cy-R*v[1],cssv('--accent'),3.5);
-  c.fillStyle=cssv('--muted');c.font='12px system-ui';c.fillText('|ψ⟩ (purple), basis vectors (grey), projections ⟨eᵢ|ψ⟩ (blue, orange)',10,14);st.a.textContent=Math.round(p1*p1*100)+'%';st.b.textContent=Math.round(p2*p2*100)+'%'}
- onDraw(draw);draw();
- if(par.goal)return {check:function(){var d=(sa.get()-sb.get())*Math.PI/180,p=Math.pow(Math.cos(d),2);return p>0.995||p<0.005?{ok:true,msg:'The state lines up with one of the basis vectors, so it\'s an eigenstate of that measurement: the result is certain. In any other basis, it\'s a superposition.'}:{ok:false,msg:'The chances are '+Math.round(p*100)+'% and '+Math.round((1-p)*100)+'%. Line a basis vector up with the state.'}}}};
-
-/* hydrogen orbitals: a slice through the electron cloud */
-WIDGETS.qOrbital=function(box,par){par=par||{};var OR={'1s':[1,0,function(x,z,r){return Math.exp(-r)}],'2s':[2,0,function(x,z,r){return (2-r)*Math.exp(-r/2)}],'2p_z':[2,1,function(x,z,r){return z*Math.exp(-r/2)}],'2p_x':[2,1,function(x,z,r){return x*Math.exp(-r/2)}],'3s':[3,0,function(x,z,r){return (27-18*r+2*r*r)*Math.exp(-r/3)}],'3p_z':[3,1,function(x,z,r){return (6-r)*z*Math.exp(-r/3)}],'3d_z²':[3,2,function(x,z,r){return (3*z*z-r*r)*Math.exp(-r/3)}],'3d_xz':[3,2,function(x,z,r){return x*z*Math.exp(-r/3)}],'4f_z³':[4,3,function(x,z,r){return z*(5*z*z-3*r*r)*Math.exp(-r/4)}]},k=par.start||'1s';
- var cv=canvas(box,300);qSeg(box,'Orbital',Object.keys(OR).map(function(x){return [x,x.replace('_',' ')]}),k,function(v){k=v;draw()});var st=stats(box,[['q','Quantum numbers'],['n','Nodes']]);
- if(par.goal)qChal(box,par.goal[1]);
- function draw(){var g=prep(cv),c=g.c,W=g.W,H=g.H,o=OR[k],n=o[0],ext=n*n*2.6+4,S=Math.min(W,H-12),res=110,img=c.createImageData(res,res),mx=0,vals=[],i,j;
-  for(j=0;j<res;j++)for(i=0;i<res;i++){var x=(i/(res-1)*2-1)*ext,z=(1-j/(res-1)*2)*ext,r=Math.sqrt(x*x+z*z),v=o[2](x,z,r);vals.push(v);mx=Math.max(mx,v*v)}
-  for(i=0;i<vals.length;i++){var lv=vals[i]*vals[i]/mx,d=lv<=1e-12?0:Math.max(0,Math.min(1,(Math.log(lv)/Math.LN10+3.5)/3.5)),pos=vals[i]>=0;img.data[i*4]=pos?Math.round(74*d+20*(1-d)):Math.round(232*d+20*(1-d));img.data[i*4+1]=pos?Math.round(163*d+20*(1-d)):Math.round(116*d+20*(1-d));img.data[i*4+2]=pos?Math.round(255*d+30*(1-d)):Math.round(42*d+30*(1-d));img.data[i*4+3]=255}
-  var tmp=document.createElement('canvas');tmp.width=res;tmp.height=res;tmp.getContext('2d').putImageData(img,0,0);c.imageSmoothingEnabled=true;var sz=S-20,ox=(W-sz)/2;c.drawImage(tmp,ox,10,sz,sz);c.fillStyle='#fff';c.beginPath();c.arc(W/2,10+sz/2,2.5,0,7);c.fill();
-  c.fillStyle=cssv('--muted');c.font='12px system-ui';c.fillText('blue = +ψ, orange = −ψ, dark = node',8,H-6);
-  var l=o[1],ml=k==='2p_x'||k==='3d_xz'?'±1 mix':'0';st.q.textContent='n = '+n+', l = '+l+' ('+'spdf'[l]+'), m = '+ml;st.n.textContent=(n-1)+' total: '+(n-l-1)+' spherical, '+l+' angular'}
- onDraw(draw);draw();
- if(par.goal)return {check:function(){var o=OR[k],g=par.goal;if(g[0]==='n3')return o[0]===3&&o[1]===0?{ok:true,msg:'3s: two spherical nodes (rings in the slice) where ψ changes sign.'}:{ok:false,msg:'Look for an s orbital (l = 0) with n − 1 = 2 nodes.'};if(g[0]==='plane')return o[1]>=1?{ok:true,msg:'A '+'spdf'[o[1]]+' orbital: it has a nodal plane (or cone) through the nucleus, where ψ flips sign.'}:{ok:false,msg:'s orbitals are round: no planes through the nucleus. Try p or d.'};return {ok:true}}}};
-
-/* radial probability for hydrogen */
-WIDGETS.qRadial=function(box,par){par=par||{};var cv=canvas(box,230),sn=slider(box,'n',1,5,1,1,function(v){return v},function(){if(sl.get()>sn.get()-1)sl.set(sn.get()-1);draw()}),sl=slider(box,'l',0,4,1,0,function(v){return v+' ('+'spdfg'[v]+')'},function(){if(sl.get()>sn.get()-1)sl.set(sn.get()-1);draw()}),st=stats(box,[['p','Most likely radius'],['m','Average radius ⟨r⟩'],['b','Bumps (n − l)']]);
- if(par.goal)qChal(box,par.goal[1]);
- function lag(k,a,x){if(k===0)return 1;var l0=1,l1=1+a-x;for(var j=1;j<k;j++){var l2=((2*j+1+a-x)*l1-(j+a)*l0)/(j+1);l0=l1;l1=l2}return l1}
- function P(n,l,r){var rho=2*r/n,R=Math.pow(rho,l)*Math.exp(-rho/2)*lag(n-l-1,2*l+1,rho);return r*r*R*R}
- function draw(){var n=sn.get(),l=Math.min(sl.get(),n-1),g=prep(cv),c=g.c,W=g.W,H=g.H,rmax=Math.max(10,n*n*3+6),N=500,pts=[],mx=0,s=0,sr=0,pk=0,pv=0,i;
-  for(i=1;i<=N;i++){var r=i/N*rmax,p=P(n,l,r);if(p>pv){pv=p;pk=r}mx=Math.max(mx,p);s+=p;sr+=r*p}
-  for(i=0;i<=N;i++){r=i/N*rmax;pts.push([20+r/rmax*(W-40),H-26-P(n,l,r)/mx*(H-
+  for(i=-300;i<=300;i++){x=i/300*L;p=Math.pow(psi(n,x),2);pts.push([X(x),yE-p/mx*(H*0.28)]);if(cl&&Math.abs(x)<A*0.995){var q=1/(Math.PI*Math.sqrt(A*A-x*x));pc.push([X(x),yE-Math.min(q/mx,1.6)*(H*0.28)

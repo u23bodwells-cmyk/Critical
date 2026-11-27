@@ -1,4 +1,194 @@
-ossil fuels: from about 315 ppm to over 420 ppm.'}};
+x)*(u-rx)+(v-ry)*(v-ry))/.035))},
+  read:function(){return p.refl?'reflector: edge flux ≈ '+fv(Math.cos(rf*PI/2)*100)+'% of the centre':'peak ≈ 2.5 × the average · power follows the flux'},
+  cap:p.cap||(p.refl?'The flux across a reflected core. Water round the outside bounces leaking neutrons back, so the edges stay higher and the shape is flatter. The moving dip is a bank of control rods soaking up neutrons.':'The neutron flux across a slice of the core. It peaks in the middle and falls towards the edges, where neutrons leak out. Power follows the flux. The moving dip is a bank of control rods soaking up neutrons.')}};
+ SC.decay=function(p){p=p||{};return {k:'surf',t:'RADIOACTIVE DECAY',ax:['time (years)','half-life (years)','% left'],xr:[0,40],yr:[2,20],zr:[0,100],xf:unit(0,' y'),yf:unit(0,' y'),zf:unit(0,'%'),
+  f:function(x,y){return 100*Math.pow(.5,x/y)},slice:{lab:'half-life',f:unit(0,' years'),note:'halves every half-life'},
+  cap:p.cap||'Every possible half-life at once. Each slice from front to back is one decay curve: it halves, then halves again. Short half-lives (front) die away fast; long ones (back) hang on.'}};
+ SC.chain=function(p){var lP=Math.LN2/8;return {k:'surf',t:'PARENT → DAUGHTER',ax:['time (hours)','daughter half-life (h)','daughter activity'],xr:[0,48],yr:[.5,20],zr:[0,1],xf:unit(0,' h'),yf:unit(0,' h'),
+  f:function(x,y){var lD=Math.LN2/y;if(Math.abs(lD-lP)<1e-6)lD+=1e-4;var a=lD*lP/(lD-lP)*(E(-lP*x)-E(-lD*x));return a/(lP)*1.0},slice:{lab:'daughter half-life',f:unit(0,' h'),note:'rises, peaks, then decays'},
+  cap:'A parent with an 8-hour half-life feeding a daughter. The daughter builds up, peaks and then decays with its parent. A short-lived daughter (front) keeps pace with the parent; a long-lived one (back) builds slowly.'}};
+ SC.atten=function(p){p=p||{};return {k:'surf',t:'SHIELDING: I = I₀ e^(−μx)',ax:['thickness (cm)','μ (per cm)','% getting through'],xr:[0,10],yr:[.05,1.2],zr:[0,100],xf:unit(0,' cm'),zf:unit(0,'%'),
+  f:function(x,y){return 100*E(-y*x)},slice:{lab:'μ',f:function(v){return fv(v)+' /cm · half-value '+fv(Math.LN2/v)+' cm'},note:''},
+  cap:p.cap||'How much radiation gets through a shield for every thickness and every material at once. A bigger μ (lead, at the back) stops it faster. Each half-value thickness cuts it in half again, so it never quite reaches zero.'}};
+ SC.dosefield=function(p){var mu=.5,wall=1.2,wt=4;return {k:'surf',anim:1,n:34,t:'DOSE RATE AROUND A SOURCE',ax:['x (m)','y (m)','dose rate'],xr:[-4,4],yr:[-4,4],zr:[0,3.7],xf:unit(0,' m'),yf:unit(0,' m'),zf:function(v){return fv(Math.pow(10,v))},pal:'fire',
+  f:function(x,y){var r2=Math.max(.09,x*x+y*y),d=400/r2;if(x>wall&&Math.abs(y/x)<1.1)d*=E(-mu*wt);return L10(Math.max(1,d))},
+  mark:function(t){return [2.6*Math.cos(t*.4),2.6*Math.sin(t*.4)]},read:function(m,z){return 'worker at '+fv(Math.hypot(m[0],m[1]))+' m: '+fv(Math.pow(10,z))+' µSv/h'+(m[0]>wall&&Math.abs(m[1]/m[0])<1.1?' (behind the shield)':'')},
+  cap:'Dose rate on the floor around a gamma source (400 µSv/h at 1 m). It falls with the inverse square of distance, and the concrete wall casts a shadow. Height is on a log scale: each step up is ten times more.'}};
+ SC.kin=function(p){var b=.0065,lam=.08;function P(t,r){r/=1e5;if(Math.abs(r)<1e-7)return 1;var tau=(b-r)/(lam*r);if(r<0)tau=-Math.max(80,Math.abs(tau));return b/(b-r)*E(t/tau)}
+  return {k:'surf',t:'POWER AFTER A REACTIVITY STEP',ax:['time (s)','reactivity (pcm)','power'],xr:[0,60],yr:[-100,200],zr:[-.45,1.5],xf:unit(0,' s'),yf:unit(0,' pcm'),zf:function(v){return '×'+fv(Math.pow(10,v))},
+  f:function(x,y){return L10(P(x,y))},slice:{lab:'reactivity',f:unit(0,' pcm'),note:'prompt jump, then a steady period'},
+  cap:'Reactor power (log scale) for every reactivity step from −100 to +200 pcm. Each slice jumps promptly, then rises or falls on a steady period set by the delayed neutrons. More reactivity means a shorter period. (One-group model.)'}};
+ SC.xenon=function(){var lI=Math.LN2/6.6,lX=Math.LN2/9.2;return {k:'surf',t:'XENON-135 AFTER A SHUTDOWN',ax:['hours after shutdown','power before (%)','xenon (×equilibrium)'],xr:[0,48],yr:[10,100],zr:[0,2.6],xf:unit(0,' h'),yf:unit(0,'%'),
+  f:function(t,P){P/=100;var X0=P*1.3/(P+.3),I0=4.5*P;return X0*E(-lX*t)+I0*lI/(lX-lI)*(E(-lI*t)-E(-lX*t))},slice:{lab:'power before',f:unit(0,'%'),note:'peaks about 10 hours later'},
+  cap:'Xenon-135 after a shutdown, for every power level the reactor was running at. Iodine keeps decaying into xenon, so xenon rises and peaks about 10 hours later. The higher the power before, the bigger the peak and the harder a restart.'}};
+ SC.decayheat=function(){var lab=['1 s','10 s','2 min','17 min','3 h','1 day','12 days'];return {k:'surf',t:'DECAY HEAT',ax:['time after trip','days at power','% of full power'],xr:[0,6],yr:[1,400],zr:[0,7],xf:function(v){return lab[Math.round(v)]||''},yf:unit(0,' d'),zf:unit(0,'%'),
+  f:function(x,y){var t=Math.pow(10,x),T=y*86400;return 6.6*(Math.pow(t,-.2)-Math.pow(t+T,-.2))},slice:{lab:'days at power',f:unit(0,' days'),note:'never drops to zero quickly'},
+  cap:'Heat from fission products after a trip: about 6% at first, about 1% after an hour and around 0.5% after a day. Time runs on a log scale. A reactor that has run for longer (back) has built up more long-lived products.'}};
+ SC.binding=function(){var av=15.75,as=17.8,ac=.711,aa=23.7;function BA(N,Z){var A=N+Z;if(A<4||Z<1)return 0;var B=av*A-as*Math.pow(A,2/3)-ac*Z*(Z-1)/Math.pow(A,1/3)-aa*(N-Z)*(N-Z)/A;return Math.max(0,B/A)}
+  return {k:'surf',n:40,t:'BINDING ENERGY PER NUCLEON',ax:['neutrons N','protons Z','MeV per nucleon'],xr:[0,150],yr:[0,100],zr:[0,9.2],pal:'turbo',
+  f:function(x,y){return BA(x,y)},
+  extra:function(prims,pr,t){var sp=this;[[30,26,'Fe-56'],[143,92,'U-235'],[2,2,'He-4']].forEach(function(q,i){var w=W3(sp,q[0],q[1],BA(q[0],q[1])+.2);prims.push(ballP(pr,w,i===0?YE:i===1?RD:CY,5,null,true));prims.push(txt(pr,[w[0],w[1],w[2]+.12],q[2],'#fff',9,'center',true))})},
+  cap:'Binding energy per nucleon for every mix of protons and neutrons. Stable nuclei sit along the ridge. Iron-56 is near the top, so splitting heavy nuclei (uranium) or fusing light ones (helium) moves up the ridge and releases energy.'}};
+ SC.fbarrier=function(){var Ef=6;return {k:'surf',anim:1,t:'THE FISSION BARRIER',ax:['stretch','lopsidedness','energy (MeV)'],xr:[0,1.8],yr:[-1,1],zr:[-16,9],
+  f:function(u,s){return Ef*(3*u*u-2*u*u*u)*(1+.3*s*s)},mark:function(t){var ph=(t*.18)%1;return [ph*1.8,.35*Math.sin(t*.7)*(1-ph)]},read:function(m,z){return 'barrier ≈ 6 MeV · a slow neutron gives U-235 6.5 MeV, enough to get over'},
+  cap:'The energy of a uranium nucleus as it stretches. It has to climb a barrier of about 6 MeV before it can split. A slow neutron gives U-235 about 6.5 MeV, enough to get over, but it only gives U-238 about 4.8 MeV.'}};
+ SC.coulomb=function(){var r0=4;function V(x,y){var r=Math.max(.3,Math.hypot(x,y));return r>r0?1.44/r:-.9+(1.44/r0+.9)*(r/r0)*(r/r0)}return {k:'surf',anim:1,n:36,t:'THE COULOMB BARRIER',ax:['x (fm)','y (fm)','energy (MeV)'],xr:[-10,10],yr:[-10,10],zr:[-.6,.5],
+  f:function(x,y){return Math.max(-.6,V(x,y))},mark:function(t){var ph=(t*.25)%2,r=ph<1?10-6.2*ph:3.8+6.2*(ph-1);return [r*Math.cos(.6),r*Math.sin(.6)]},read:function(m){return 'D + T barrier ≈ 0.36 MeV · nuclei need huge speeds (or to tunnel through)'},
+  cap:'Two nuclei repel each other electrically: that is the volcano. Only when they get within a few femtometres does the strong force pull them into the pit (cut off here; it is tens of MeV deep). That is why fusion needs temperatures of over 100 million °C.'}};
+ SC.scatterE=function(){return {k:'surf',t:'ENERGY KEPT AFTER ONE COLLISION',ax:['scattering angle','target mass A','fraction kept'],xr:[0,180],yr:[1,30],zr:[0,1],xf:unit(0,'°'),zf:function(v){return fv(v*100)+'%'},
+  f:function(th,A){var c=Math.cos(th*PI/180);return (A*A+2*A*c+1)/((A+1)*(A+1))},slice:{lab:'A',f:function(v){return fv(v)+(Math.round(v)===1?' (hydrogen)':Math.round(v)===12?' (carbon)':'')},note:''},
+  cap:'The fraction of its energy a neutron keeps after bouncing off a nucleus of mass A. Light targets (front) can take almost everything in a head-on hit, which is why water (hydrogen) is such a good moderator.'}};
+ SC.coremap=function(p){p=p||{};var RW=[7,11,13,13,15,15,15,15,15,15,15,13,13,11,7],M=[];RW.forEach(function(n,r){M.push([]);for(var c=0;c<15;c++)M[r].push(Math.abs(c-7)<=(n-1)/2)});
+  function batch(r,c){var d=Math.hypot(r-7,c-7);if(d>5.6)return 2;return (r+c)%2===0?0:(r%2?1:2)}
+  return {k:'bars',t:p.batch?'CORE LOADING PATTERN':'POWER IN EVERY FUEL ASSEMBLY',ax:['','','relative power'],xr:null,yr:null,zr:[0,1.5],rows:15,cols:15,bw:.86,
+  v:function(r,c){if(!M[r][c])return null;var d=Math.hypot(r-7,c-7)/8.2,b=batch(r,c),f=[1.18,1,.82][b];return Math.max(.15,Math.cos(d*1.25)*f*1.28)},
+  col:p.batch?function(r,c){return [[255,214,90],[90,200,255],[150,120,255]][batch(r,c)]}:null,
+  read:function(){return p.batch?'yellow = fresh fuel · blue = once-burnt · violet = twice-burnt':'193 assemblies · the tallest makes about 1.4 × the average'},
+  cap:p.batch?'A low-leakage loading pattern: fresh fuel (yellow) is spread through the middle, mixed with older fuel, and the oldest fuel goes round the edge where neutrons leak out. This flattens the power and saves neutrons.':'Each column is one of the 193 fuel assemblies in a large PWR core, and its height is the power it makes. The power is highest in the middle and lowest at the edge, and fresh fuel makes the bumps.'}};
+ SC.chainrx=function(){var R=rnd(7),U=[],Nn=[],fl=[];for(var i=0;i<5;i++)for(var j=0;j<5;j++)for(var k=0;k<4;k++)U.push({p:[-.8+i*.4,-.8+j*.4,-.6+k*.4],e:'M',c:[150,165,190]});
+  var NB=[];function spawn(p,par){var a=R()*TAU,b=Math.acos(2*R()-1);NB.push({p:p.slice(),v:[Math.sin(b)*Math.cos(a)*.8,Math.sin(b)*Math.sin(a)*.8,Math.cos(b)*.65],l:0,par:par})}
+  var last=0,count=0;return {k:'mol',box:false,anim:1,t:'A CHAIN REACTION',zoom:1.05,
+  atoms:function(t){var dt=Math.min(.05,Math.max(0,t-last));last=t;if(!Nn.length||Nn.length>60){Nn=[];NB=[];spawn([0,0,0],-1);Nn=NB;NB=[]}
+   Nn=Nn.filter(function(n){n.p[0]+=n.v[0]*dt;n.p[1]+=n.v[1]*dt;n.p[2]+=n.v[2]*dt;n.l+=dt;if(Math.abs(n.p[0])>1.02||Math.abs(n.p[1])>1.02||Math.abs(n.p[2])>.85)return false;
+    for(var i=0;i<U.length;i++){if(i===n.par)continue;var u=U[i],d=Math.hypot(u.p[0]-n.p[0],u.p[1]-n.p[1],u.p[2]-n.p[2]);if(d<.2){if(R()<.7){fl.push({p:u.p.slice(),t:t});count++;var nn=R()<.4?3:2;for(var q=0;q<nn;q++)spawn(u.p,i)}return false}}return true});
+   Nn=Nn.concat(NB);NB=[];fl=fl.filter(function(f){return t-f.t<.6});
+   var A=U.map(function(u){return {p:u.p,e:'M',c:[120,200,150],r:.3}});fl.forEach(function(f){A.push({p:f.p,e:'X',r:.9*(1-(t-f.t)/.6)+.3,c:[255,200,90],glow:true,a:.9})});Nn.forEach(function(n){A.push({p:n.p,e:'e',r:.32,c:CY,glow:true})});return A},
+  read:function(){return 'neutrons flying: '+Nn.length+' · fissions so far: '+count},
+  cap:'A chain reaction in 3D. Each fission (flash) releases 2 or 3 neutrons, which fly off and can split more uranium nuclei; others escape or are absorbed. Here more than one goes on to cause another fission, so the chain grows until it restarts. A reactor is controlled so that, on average, exactly one does.'}};
+
+ SC.doppler=function(){var E0=6.67,G=.027;function w(T){return sq(G*G+4*E0*8.617e-5*T/238)}return {k:'surf',n:34,t:'DOPPLER BROADENING',ax:['neutron energy (eV)','fuel temperature (K)','chance of capture'],xr:[6.2,7.15],yr:[300,1500],zr:[0,.5],yf:unit(0,' K'),zf:function(){return ''},
+  f:function(Ee,T){var W=w(T),d=(Ee-E0)/W;return (G/W)/(1+4*d*d)},slice:{lab:'fuel temperature',f:unit(0,' K'),note:'lower, but wider'},
+  cap:'The giant U-238 capture resonance at 6.67 eV. Hotter fuel makes the uranium nuclei jiggle, smearing the resonance out so it is lower but wider and catches more of the neutrons slowing down past it. That is Doppler feedback: it acts within a fraction of a second.'}};
+ SC.coolant=function(){return {k:'surf',t:'BORON–LITHIUM CHEMISTRY',ax:['boron (ppm)','lithium (ppm)','pH at 300 °C'],xr:[0,1800],yr:[.2,4],zr:[5.6,8],yf:unit(0,' ppm'),
+  f:function(B,Li){return 7.34+.9*L10(Li)-.00054*B},colf:function(x,y,z){return z>=7.1&&z<=7.4?[70,220,130]:z<7.1?[90,140,240]:[245,160,60]},
+  read:function(){return 'green = target band, pH 7.1 to 7.4'},
+  cap:'The coolant\'s pH at 300 °C for every mix of boron (acid) and lithium hydroxide (alkali). As the boron is diluted through the cycle, the lithium is lowered to stay on the green band, which keeps corrosion and crud down.'}};
+ /* ---------- heat, flow and the plant ---------- */
+ SC.heatcurve=function(){function T(E,P){var Ts=ts(P),es=4.18*(Ts-20),hf=2257*Math.pow(Math.max(0,(374-Ts)/274),.38);if(E<es)return 20+E/4.18;if(E<es+hf)return Ts;return Math.min(500,Ts+(E-es-hf)/2.1)}
+  return {k:'surf',n:34,t:'HEATING WATER AT DIFFERENT PRESSURES',ax:['energy in (kJ/kg)','pressure (bar)','temperature (°C)'],xr:[0,2900],yr:[1,160],zr:[0,500],zf:unit(0,'°'),yf:unit(0,' bar'),
+  f:function(E,P){return T(E,P)},slice:{lab:'pressure',f:function(v){return fv(v)+' bar · boils at '+fv(ts(v))+' °C'},note:''},
+  cap:'Heat 1 kg of water at every pressure from 1 to 160 bar. The flat steps are boiling: the energy goes into turning water to steam, not heating it. Higher pressure boils hotter, which is why a PWR at 155 bar can be at 300 °C without boiling.'}};
+ SC.idealgas=function(){return {k:'surf',t:'GAS PRESSURE: pV = nRT',ax:['volume (litres)','temperature (K)','pressure (kPa)'],xr:[5,50],yr:[100,600],zr:[0,1000],yf:unit(0,' K'),xf:unit(0,' L'),
+  f:function(V,T){return 8.314*T/V},slice:{lab:'temperature',f:unit(0,' K'),note:'squash it: pressure rises'},
+  cap:'Pressure of a mole of gas for every volume and temperature. Along each slice the temperature is fixed: halve the volume and the pressure doubles. Heat it up (back) and the particles hit the walls harder, so the pressure rises.'}};
+ SC.pin=function(){var rp=4.1,rc=4.75;function T(r,q){var Tc=310,h=35,Tw=Tc+q/(TAU*rc*h)*1e3,Tci=Tw+q*Math.log(rc/4.18)/(TAU*16)*1e3,Tps=Tci+q/(TAU*rp*5)*1e3/1;return r>rc?Tc+(Tw-Tc)*Math.max(0,1-(r-rc)/1.5):r>4.18?Tci-(Tci-Tw)*(r-4.18)/(rc-4.18):r>rp?Tps-(Tps-Tci)*(r-rp)/(.08):Tps+q*1000/(4*PI*3)*(1-r*r/(rp*rp))}
+  return {k:'surf',anim:1,n:38,t:'TEMPERATURE INSIDE A FUEL PIN',ax:['x (mm)','y (mm)','temperature (°C)'],xr:[-6.3,6.3],yr:[-6.3,6.3],zr:[280,1400],zf:unit(0,'°'),pal:'fire',
+  f:function(x,y,t){return T(Math.hypot(x,y),20+5*Math.sin(t*.5))},read:function(){return 'pellet centre ≈ '+fmtInt(T(0,20))+' °C · surface of the cladding ≈ 340 °C'},
+  cap:'The temperature across one fuel pin, about 12 mm wide. Uranium dioxide conducts heat badly, so the centre of the pellet is a dome at around 1,000 °C while the water outside is about 310 °C. The steep step at the edge is the gap and cladding.'}};
+ SC.hotchannel=function(){function q(h,P){return 1.45*Math.sin(PI*h/4.2)*P/100}function chf(h){return 3.4-.6*h}
+  return {k:'surf',t:'HEAT FLUX vs THE DNB LIMIT',ax:['height up the core (m)','reactor power (%)','heat flux (MW/m²)'],xr:[0,4.2],yr:[60,160],zr:[0,2.6],xf:unit(0,' m'),yf:unit(0,'%'),
+  f:function(h,P){return q(h,P)},hot:function(h,P,z){return q(h,P)>chf(h)},
+  meshes:function(){var sp=this;return [{nu:14,nv:6,c:[180,220,255],a:.13,wa:.25,f:function(u,v){return W3(sp,u*4.2,60+v*100,chf(u*4.2))}}]},
+  read:function(){return 'glass sheet = DNB limit · red = steam blanket (DNB)'},
+  cap:'Heat flux up the hottest fuel rod at every reactor power. The glass sheet is the DNB limit. Where the heat flux pokes through it (red), a steam blanket forms and the cladding overheats. Trips keep the reactor well below this.'}};
+ SC.carnot=function(){return {k:'surf',t:'THE EFFICIENCY LIMIT',ax:['hot side (°C)','cold side (°C)','efficiency limit'],xr:[150,600],yr:[5,60],zr:[0,70],xf:unit(0,'°'),yf:unit(0,'°'),zf:unit(0,'%'),
+  f:function(Th,Tc){return 100*(1-(Tc+273)/(Th+273))},mark:function(){return [285,20]},read:function(m,z){return 'steam at 285 °C, sea at 20 °C: limit '+fv(z)+'% · Hinkley Point C gets about 36%'},
+  cap:'The highest efficiency any heat engine can have, 1 − T_cold/T_hot (in kelvin). Hotter steam and a colder sea both help. Real plants lose more on top of this limit, which is why about two thirds of the heat goes into the sea.'}};
+ SC.pump=function(){function Q0(N){return sq(Math.max(0,(100*N*N-10)/90))}return {k:'surf',t:'PUMP CURVES AT EVERY SPEED',ax:['flow (× design)','pump speed','head (m)'],xr:[0,1.3],yr:[.5,1.1],zr:[0,125],yf:function(v){return fv(v*100)+'%'},
+  f:function(Q,N){var h=100*N*N-60*Q*Q;return h<0?NaN:h},
+  extra:function(prims,pr){var sp=this,pts=[];for(var i=0;i<=24;i++){var N=.5+.6*i/24,Q=Q0(N);if(Q<=1.3)pts.push(W3(sp,Q,N,10+30*Q*Q+.5))}line(pr,pts,YE,2.5,1,true).forEach(function(o){o.d-=.5;prims.push(o)})},
+  read:function(){return 'yellow = operating points (pump curve meets the system curve)'},
+  cap:'Head a pump can deliver at every flow and speed. Turning the pump faster lifts the whole curve. The yellow line is where each pump curve meets the system curve: that is the flow you actually get.'}};
+ SC.pipeflow=function(){return {k:'surf',anim:1,n:34,t:'FLOW ACROSS A PIPE',ax:['across (mm)','across (mm)','speed (× average)'],xr:[-1,1],yr:[-1,1],zr:[0,2.1],xf:function(v){return fv(v*50)},yf:function(v){return fv(v*50)},pal:'ice',
+  mask:function(x,y){return x*x+y*y<=1.001},f:function(x,y,t){var r=Math.min(1,Math.hypot(x,y)),a=(Math.sin(t*.45)+1)/2;return (1-a)*2*(1-r*r)+a*1.22*Math.pow(Math.max(0,1-r),1/7)},
+  read:function(n,z,t){var a=(Math.sin(t*.45)+1)/2;return 'Reynolds number ≈ '+fmtInt(1000*Math.pow(100,a))+(a<.25?' · smooth (laminar)':a>.6?' · turbulent':' · changing over')},
+  cap:'The speed of the water across a pipe. Smooth (laminar) flow is a pointed paraboloid, twice as fast in the middle. Turbulent flow mixes, so the profile goes flat with a thin slow layer at the wall. Reactor coolant is very turbulent.'}};
+ SC.natcirc=function(){return {k:'surf',t:'NATURAL CIRCULATION',ax:['decay heat (% power)','height difference (m)','flow (% of full)'],xr:[0,8],yr:[2,20],zr:[0,10],xf:unit(0,'%'),yf:unit(0,' m'),zf:unit(0,'%'),
+  f:function(Q,H){return 2.2*Math.pow(Q*H/10,1/3)},slice:{lab:'height',f:unit(0,' m'),note:'no pumps needed'},
+  cap:'With the pumps off, hot water rising from the core and cold water sinking from the steam generators keep the coolant moving. More heat, or a taller loop, drives more flow. A few percent of full flow is enough to carry decay heat away.'}};
+ SC.pid=function(){return {k:'surf',t:'CONTROLLER RESPONSE',ax:['time (s)','controller gain','level (× change)'],xr:[0,20],yr:[.5,4.4],zr:[0,1.9],xf:unit(0,' s'),
+  f:function(t,g){var z=Math.max(.08,1.15-.25*g),w=.6+.25*g;if(z>=1){return 1-E(-w*t)*(1+w*t)}var wd=w*sq(1-z*z);return 1-E(-z*w*t)*(Math.cos(wd*t)+z/sq(1-z*z)*Math.sin(wd*t))},slice:{lab:'gain',f:function(v){return fv(v)},note:'more gain: faster but more overshoot'},
+  cap:'How a level controller responds to a step change, for every gain setting. Low gain (front) is slow and smooth. High gain (back) gets there fast but overshoots and rings. Tuning is choosing a slice in between.'}};
+ SC.signal=function(){return {k:'surf',t:'A 4–20 mA LOOP',ax:['pressure (bar)','time (s)','current (mA)'],xr:[0,200],yr:[0,20],zr:[0,21],yf:unit(0,' s'),zf:unit(0,' mA'),
+  f:function(p,t){return t>13&&t<16?0:4+16*p/200},read:function(){return '4 mA = 0 bar · 20 mA = 200 bar · 0 mA = broken wire (the trench)'},
+  cap:'The current from a pressure transmitter for every pressure, over time. 4 mA means zero and 20 mA means full scale. The trench is a broken wire: the current drops to 0 mA, which can never be a real reading, so the fault shows up at once.'}};
+ SC.state=function(p){p=p||{};var ev=p.ev||'loca';var PATH={
+   loca:function(s){return [155-140*Math.min(1,s*1.4),300-110*s*s,60-50*Math.sin(Math.min(1,s*1.6)*PI/2)+38*Math.max(0,s-.6)/.4]},
+   sgtr:function(s){return [155-75*Math.min(1,s*1.5),300-25*s,60-30*s+10*Math.max(0,s-.7)]},
+   feed:function(s){return [155+10*Math.sin(Math.min(1,s*2)*PI)-5*s,300+15*Math.sin(Math.min(1,s*1.5)*PI/2)-20*Math.max(0,s-.5),60-35*Math.min(1,s*1.6)+25*Math.max(0,s-.6)/.4]},
+   slb:function(s){return [155-55*Math.sin(Math.min(1,s*1.3)*PI/2)+20*Math.max(0,s-.6),300-60*Math.min(1,s*1.4)+15*Math.max(0,s-.7),60-40*Math.min(1,s*1.5)+30*Math.max(0,s-.6)]},
+   turbine:function(s){return [155+8*Math.sin(Math.min(1,s*2.2)*PI)-3*s,300+8*Math.sin(Math.min(1,s*2.2)*PI)-8*s,60+10*Math.sin(Math.min(1,s*2)*PI)-15*s]},
+   loop:function(s){return [155-6*s,300+12*Math.sin(Math.min(1,s*1.5)*PI/2)-6*s,60-15*Math.min(1,s*1.8)+8*s]},
+   normal:function(s){return [155+2*Math.sin(s*TAU*2),300+1.5*Math.sin(s*TAU*3),60+4*Math.sin(s*TAU)]}};
+  var NM={loca:'a small LOCA',sgtr:'a tube rupture',feed:'loss of feedwater',slb:'a steam line break',turbine:'a turbine trip',loop:'loss of offsite power',normal:'steady full power'};var f=PATH[ev]||PATH.loca;
+  return {k:'free',anim:1,yaw:-2.35,pitch:.42,t:'PLANT STATE · '+NM[ev].toUpperCase(),ax:['pressure (bar)','temperature (°C)','pressuriser level'],xr:[0,170],yr:[150,350],zr:[0,100],yf:unit(0,'°'),zf:unit(0,'%'),
+  extra:function(prims,pr,t){var sp=this,s=(t*.1+.3)%1.25,ss=Math.min(1,s),pts=[],sat=[];for(var i=0;i<=60;i++){var q=f(ss*i/60);pts.push(W3(sp,q[0],q[1],q[2]))}
+   for(i=0;i<=40;i++){var P=5+165*i/40,T=ts(P);if(T>=150&&T<=350)sat.push(W3(sp,P,T,0).slice(0,2).concat([-ZS]))}
+   line(pr,sat,YE,2,.85).forEach(function(o){prims.push(o)});
+   var bx=[[140,160],[280,325],[40,75]].map(function(r,k){return r.map(function(v){return k===0?nr(v,sp.xr):k===1?nr(v,sp.yr):nr(v,sp.zr)*ZS})});
+   var B=bx,ed=[[[0,0,0],[1,0,0]],[[0,1,0],[1,1,0]],[[0,0,1],[1,0,1]],[[0,1,1],[1,1,1]],[[0,0,0],[0,1,0]],[[1,0,0],[1,1,0]],[[0,0,1],[0,1,1]],[[1,0,1],[1,1,1]],[[0,0,0],[0,0,1]],[[1,0,0],[1,0,1]],[[0,1,0],[0,1,1]],[[1,1,0],[1,1,1]]];
+   ed.forEach(function(e){prims.push({k:'l',p:e.map(function(a){var q=pr(B[0][a[0]],B[1][a[1]],B[2][a[2]]);return q}),s:'rgba(80,230,150,.6)',w:1.2,d:0})});
+   line(pr,pts,CY,2.4,1,true).forEach(function(o){prims.push(o)});var q=f(ss),w=W3(sp,q[0],q[1],q[2]);prims.push(ballP(pr,w,YE,5,null,true));
+   var wf=W3(sp,q[0],q[1],0);prims.push({k:'l',p:[pr(w[0],w[1],w[2]),pr(wf[0],wf[1],-ZS)],s:'rgba(255,255,255,.4)',w:1,d:0,dash:[3,3]});
+   sp._r=fmtInt(q[0])+' bar · '+fmtInt(q[1])+' °C · level '+fmtInt(q[2])+'% · subcooling '+fmtInt(ts(q[0])-q[1])+' °C'},
+  read:function(){return this._r||''},
+  cap:'The plant\'s state as a path through pressure, temperature and pressuriser level during '+NM[ev]+'. The green box is normal operation. The yellow line on the floor is boiling: the gap between the dot and that line is the subcooling margin.'}};
+ SC.cycle=function(){var N=['Mine','Conversion','Enrichment','Fuel factory','Reactor','Cooling pond','Store / reprocess'],R=rnd(3),T=[];for(var i=0;i<14;i++)T.push(R());
+  return {k:'free',box:false,anim:1,t:'THE FUEL CYCLE',pitch:.75,
+  extra:function(prims,pr,t){var n=N.length,pos=N.map(function(_,i){var a=i/n*TAU-PI/2;return [Math.cos(a)*.95,Math.sin(a)*.95,.12*Math.sin(a*2)]}),ring=[];for(var i=0;i<=80;i++){var a=i/80*TAU-PI/2;ring.push([Math.cos(a)*.95,Math.sin(a)*.95,.12*Math.sin(a*2)])}
+   line(pr,ring,[90,140,230],2,.6).forEach(function(o){prims.push(o)});var rp=[pos[6],[pos[6][0]*.3,pos[6][1]*.3,.5],pos[3]];line(pr,rp,GR,1.6,.7).forEach(function(o){o.dash=[4,4];prims.push(o)});
+   pos.forEach(function(p,i){prims.push(ballP(pr,p,i===4?OR:i>4?VI:CY,9,null,true));prims.push(txt(pr,[p[0]*1.22,p[1]*1.22,p[2]+.08],N[i],'#fff',narrow()?8:9.5,'center',true))});
+   T.forEach(function(s,k){var u=(s+t*.05)%1,a=u*TAU-PI/2;prims.push(ballP(pr,[Math.cos(a)*.95,Math.sin(a)*.95,.12*Math.sin(a*2)],YE,2.6,null,true))})},
+  read:function(){return 'green dashes = reprocessing: uranium and plutonium go back into new fuel'},
+  cap:'Uranium\'s journey from the mine to the reactor and on to storage. Each yellow dot is a batch of fuel. Reprocessing (green dashes) can recover uranium and plutonium from used fuel and send them back to the fuel factory.'}};
+
+ /* ---------- materials, risk and people ---------- */
+ SC.dbtt=function(){function Ev(T,f){var T0=-20+55*sq(f),US=180-20*f;return 15+(US-15)/2*(1+Math.tanh((T-T0)/25))}return {k:'surf',anim:1,t:'TOUGHNESS OF VESSEL STEEL',ax:['temperature (°C)','neutron dose (×10¹⁹/cm²)','impact energy (J)'],xr:[-100,200],yr:[0,4],zr:[0,200],xf:unit(0,'°'),zf:unit(0,' J'),
+  f:Ev,mark:function(t){return [20,2*(1+Math.sin(t*.3))]},read:function(m,z){return 'at 20 °C after dose '+fv(m[1])+': '+fmtInt(z)+' J'+(z<41?' · brittle!':'')},
+  cap:'Charpy impact energy of reactor vessel steel at every temperature. Cold steel is brittle (low) and warm steel is tough (high). Neutron dose (back) pushes the change to higher temperatures, which is why the vessel must be warm before it is fully pressurised.'}};
+ SC.sn=function(){return {k:'surf',t:'FATIGUE LIFE',ax:['stress amplitude (MPa)','mean stress (MPa)','cycles to failure'],xr:[100,450],yr:[0,300],zr:[1,9],zf:function(v){return pw(v)},
+  f:function(a,m){var x=a/(900*(1-m/600));return Math.min(9,L10(.5*Math.pow(x,-1/.09)))},slice:{lab:'mean stress',f:unit(0,' MPa'),note:''},
+  cap:'How many load cycles steel survives (log scale). Small stress swings (left) last for billions of cycles; big swings crack it in thousands. A higher steady (mean) stress shortens the life too. Plant thermal cycles are counted for this reason.'}};
+ SC.creep=function(){return {k:'surf',t:'CREEP',ax:['time (hours)','stress (MPa)','strain (%)'],xr:[0,10000],yr:[50,150],zr:[0,5],zf:unit(0,'%'),
+  f:function(t,s){var tr=10000*Math.pow(110/s,4),u=t/tr;return Math.min(5,.08*s/100+.25*(1-E(-u*8))+.9*u+(u>.7?6*(u-.7)*(u-.7):0))},slice:{lab:'stress',f:unit(0,' MPa'),note:'primary, steady, then runaway'},
+  cap:'Slow stretching of hot metal under a steady load. It starts fast (primary), settles to a steady creep, then speeds up before it breaks (tertiary). More stress (back) brings the failure much sooner.'}};
+ SC.tensile=function(){return {k:'surf',t:'A TENSILE TEST',n:40,ax:['strain (%)','temperature (°C)','stress (MPa)'],xr:[0,24],yr:[20,600],zr:[0,650],xf:unit(0,'%'),yf:unit(0,'°'),
+  f:function(e,T){var k=1-.0011*(T-20),sy=420*k,su=560*k,ey=sy/2000;if(e<ey)return 200000*e/100;var ef=24+6*(T-20)/580;if(e>ef)return 0;var h=sy+(su-sy)*(1-E(-(e-ey)/5));return e>ef*.8?h*(1-(e-ef*.8)/(ef*.2)*.35):h},
+  slice:{lab:'temperature',f:unit(0,' °C'),note:'elastic, yield, harden, neck, break'},
+  cap:'Stress against stretch for steel at every test temperature. It goes up steeply (elastic), yields, hardens, necks and breaks. Hot steel (back) is weaker, so it yields and breaks at lower stress.'}};
+ SC.oxide=function(){return {k:'surf',t:'CLADDING CORROSION',ax:['days in the reactor','cladding temperature (°C)','oxide layer (µm)'],xr:[0,1500],yr:[280,360],zr:[0,100],yf:unit(0,'°'),zf:unit(0,' µm'),
+  f:function(d,T){return Math.min(100,2.2*Math.pow(d,1/3)*E((T-300)/22))},slice:{lab:'temperature',f:unit(0,' °C'),note:''},
+  cap:'The oxide layer growing on Zircaloy cladding. It grows quickly at first, then slows down. A little hotter cladding (back) corrodes much faster, which is one reason crud on the fuel and hot spots matter.'}};
+ SC.damage=function(){var R=rnd(11),A=[],D=[];for(var i=0;i<6;i++)for(var j=0;j<6;j++)for(var k=0;k<4;k++)A.push({h:[-.75+i*.3,-.75+j*.3,-.45+k*.3]});var last=0,hit=0;
+  return {k:'mol',box:false,anim:1,t:'RADIATION DAMAGE',atoms:function(t){var dt=Math.max(0,Math.min(.05,t-last));last=t;if(t-hit>3){hit=t;D=[];var c=A[(R()*A.length)|0];A.forEach(function(a){var d=Math.hypot(a.h[0]-c.h[0],a.h[1]-c.h[1],a.h[2]-c.h[2]);if(d<.5&&R()<.7){var g=R()*TAU;D.push({a:a,v:[(a.h[0]-c.h[0]+.01)*3+Math.cos(g)*.4,(a.h[1]-c.h[1]+.01)*3+Math.sin(g)*.4,(a.h[2]-c.h[2])*3]})}})}
+    var age=t-hit;return A.map(function(a){var dd=D.filter(function(d){return d.a===a})[0],p=a.h;if(dd){var u=Math.min(1,age*1.5)*(age>2.2?Math.max(0,1-(age-2.2)*1.5):1);p=[a.h[0]+dd.v[0]*u*.18,a.h[1]+dd.v[1]*u*.18,a.h[2]+dd.v[2]*u*.18]}var j=.012*Math.sin(t*9+a.h[0]*20);return {p:[p[0]+j,p[1],p[2]],e:'M',r:.42,c:dd&&age<2.2?OR:[150,175,215]}}).concat(age<.4?[{p:[A[0].h[0]-1,0,0],e:'X',r:.5,c:CY,glow:true}]:[])},
+  read:function(){return 'orange = atoms knocked out of place · they settle back (annealing) when it is hot'},
+  cap:'A fast neutron hits the steel and knocks atoms out of their places in the crystal (orange). Most hop back, but some leave gaps and squeezed-in atoms behind. Over years this makes the steel harder and more brittle.'}};
+ SC.tolerability=function(){return {k:'surf',t:'RISK = HOW OFTEN × HOW BAD',ax:['how often (per year)','how bad (people affected)','risk'],xr:[-9,-3],yr:[0,2],zr:[-9,-1],xf:function(v){return pw(v)},yf:function(v){return pw(v)},zf:function(v){return pw(v)},
+  f:function(x,y){return x+y},alpha:.95,colf:function(x,y,z){return z>-4?[240,80,70]:z>-6?[245,180,60]:[70,200,120]},
+  read:function(){return 'green: broadly acceptable · amber: reduce ALARP · red: not tolerable'},
+  cap:'Risk combines how often something happens with how bad it would be. Rare and mild is low (green); frequent and serious is high (red). In the amber band in between, the law says the risk must be reduced as low as reasonably practicable.'}};
+ SC.reliab=function(){return {k:'surf',t:'RELIABILITY OVER TIME',ax:['time (years)','failure rate λ (per year)','chance still working'],xr:[0,5],yr:[.05,1],zr:[0,100],xf:unit(0,' y'),zf:unit(0,'%'),
+  f:function(t,l){return 100*E(-l*t)},slice:{lab:'λ',f:function(v){return fv(v)+' per year'},note:'R = e^(−λt)'},
+  cap:'The chance that a component is still working after time t, for every failure rate. Each slice is R = e^(−λt). Testing and repairs reset the clock, which is why safety equipment is tested regularly.'}};
+ SC.redund=function(){var B=[0,.02,.05,.1,.2],p=.01;return {k:'bars',t:'ALL TRAINS FAILING TOGETHER',ax:['common cause β','safety trains','chance all fail'],xr:[0,4],yr:[1,4],zr:[-8,-1],base:-8,rows:4,cols:5,bw:.7,
+  xf:function(v){var i=Math.round(v);return B[i]!=null?fv(B[i]*100)+'%':''},yf:function(v){return fv(Math.round(v))},zf:function(v){return pw(v)},
+  v:function(r,c){var n=r+1,b=B[c];return L10((1-b)*Math.pow(p,n)+b*p)},lab:function(r,c,v){return '10'+supStr(Math.round(v))},
+  read:function(){return 'each train fails 1 time in 100 · common cause sets a floor'},
+  cap:'The chance that every safety train fails at once (log scale), when each fails 1 time in 100. More trains (back) multiply the protection, until common-cause failures (to the right) set a floor that extra trains cannot get below.'}};
+ SC.hep=function(){return {k:'surf',t:'WHAT MAKES SLIPS MORE LIKELY',ax:['time pressure','stress','chance of a slip'],xr:[0,1],yr:[0,1],zr:[-4,-.5],xf:function(v){return v<.2?'low':v>.8?'high':''},yf:function(v){return v<.2?'low':v>.8?'high':''},zf:function(v){return pw(v)},pal:'fire',
+  f:function(a,b){return -3.5+1.3*a+1.1*b+.4*a*b},read:function(){return 'illustration: stress and time pressure multiply the chance of error'},
+  cap:'An illustration of how human-reliability methods treat error: time pressure and stress each multiply the chance of a slip, and together they are worse. Self-checking (STAR) and three-way communication pull it back down.'}};
+ SC.mb=function(p){p=p||{};var Ea=p.Ea||30;return {k:'surf',t:'MOLECULE ENERGIES (MAXWELL–BOLTZMANN)',ax:['energy (kJ/mol)','temperature (K)','fraction of molecules'],xr:[0,50],yr:[250,500],zr:[0,1],yf:unit(0,' K'),zf:function(){return ''},
+  f:function(Ee,T){var kT=8.314e-3*T;return 2.4*sq(Ee/kT)*E(-Ee/kT)/kT*1.6},hot:function(x){return x>Ea},
+  read:function(){return 'orange = molecules with at least the activation energy ('+Ea+' kJ/mol)'},
+  cap:p.cap||'How energy is shared among molecules at each temperature. Only those past the activation energy (orange) can react when they collide. Heating it up (back) spreads the hump out, so many more molecules make it over.'}};
+ SC.profile=function(p){p=p||{};var dH=p.endo?50:-60,Ea0=p.endo?110:90;function V(x,c){var s=x*x*(3-2*x),b=E(-Math.pow((x-.5)/.13,2));return dH*s+(Ea0*(1-.5*c)+(dH>0?dH*.5:0))*b}
+  return {k:'surf',anim:1,t:p.endo?'AN ENDOTHERMIC REACTION':'AN EXOTHERMIC REACTION',ax:['progress of reaction','catalyst','energy (kJ/mol)'],xr:[0,1],yr:[0,1],zr:[-80,170],xf:function(v){return v<.1?'reactants':v>.9?'products':''},yf:function(v){return v<.1?'none':v>.9?'strong':''},
+  f:V,mark:function(t){var u=(t*.15)%1;return [u,.5+.5*Math.sin(t*.4)]},read:function(m,z){return 'ΔH = '+(dH>0?'+':'−')+Math.abs(dH)+' kJ/mol · a catalyst lowers the hump, not ΔH'},
+  cap:p.endo?'The energy along a reaction that takes in heat: the products end up higher than the reactants. The hump is the activation energy, and a catalyst (back) lowers it without changing the overall energy change.':'The energy along a reaction that gives out heat: the products end up lower, and the difference is released. The hump is the activation energy. A catalyst (back) gives a lower route over, without changing the overall energy change.'}};
+ SC.haber=function(){function Y(T,P){return 100/(1+E((T-355-200*L10(P/200))/100))}return {k:'surf',t:'AMMONIA YIELD AT EQUILIBRIUM',ax:['temperature (°C)','pressure (atm)','yield of NH₃'],xr:[300,550],yr:[50,400],zr:[0,100],xf:unit(0,'°'),yf:unit(0,''),zf:unit(0,'%'),
+  f:Y,mark:function(){return [450,200]},read:function(m,z){return 'Haber process: 450 °C, 200 atm → about '+fmtInt(z)+'% at equilibrium (about 15% per pass)'},
+  cap:'Equilibrium yield of ammonia, N₂ + 3H₂ ⇌ 2NH₃. High pressure (back) favours the side with fewer gas molecules, so yield rises. The forward reaction is exothermic, so heating lowers the yield, but 450 °C is used so it happens fast enough.'}};
+ SC.titration=function(){function pH(V,c){var na=25*c,nb=.1*V,v=25+V,e=(na-nb)/v,h=e/2+sq(e*e/4+1e-14);return -L10(h)}return {k:'surf',t:'A TITRATION',ax:['alkali added (cm³)','acid concentration (M)','pH'],xr:[0,50],yr:[.05,.2],zr:[0,14],xf:unit(0,''),pal:'ph',
+  f:pH,slice:{lab:'acid',f:function(v){return fv(v)+' M · end point at '+fv(250*v)+' cm³'},note:''},
+  cap:'pH as 0.1 M sodium hydroxide is added to 25 cm³ of hydrochloric acid, for every acid concentration. The colours are universal indicator. The cliff is the end point: one drop takes the pH from acid to alkali. A stronger acid (back) needs more alkali.'}};
+ SC.rate=function(){return {k:'surf',t:'RATE AND TEMPERATURE',ax:['time (s)','temperature (°C)','product made'],xr:[0,120],yr:[10,60],zr:[0,100],xf:unit(0,' s'),yf:unit(0,'°'),zf:unit(0,'%'),
+  f:function(t,T){var k=.01*Math.pow(2,(T-20)/10);return 100*(1-E(-k*t))},slice:{lab:'temperature',f:unit(0,' °C'),note:'gradient = rate'},
+  cap:'Product made over time at every temperature. The gradient of each slice is the rate. As a rule of thumb, 10 °C hotter roughly doubles the rate, because many more collisions have enough energy to react.'}};
+ SC.keeling=function(){return {k:'surf',t:'CARBON DIOXIDE IN THE AIR',ax:['month','year','CO₂ (ppm)'],xr:[1,12],yr:[1960,2025],zr:[310,430],xf:function(v){return 'JFMAMJJASOND'.charAt(Math.round(v)-1)},yf:unit(0,''),
+  f:function(m,y){var d=y-1958;return 315.5+.78*d+.0125*d*d+3.1*Math.sin((m-1.3)/12*TAU)},slice:{lab:'year',f:function(v){return fmtInt(v)},note:'plants breathe in each summer'},
+  cap:'Carbon dioxide in the air at Mauna Loa, month by month for every year since 1960 (modelled). It wiggles every year as northern plants grow in summer, and climbs steadily from burning fossil fuels: from about 315 ppm to over 420 ppm.'}};
 
  /* ---------- GCSE physics ---------- */
  SC.ke=function(){return {k:'surf',t:'KINETIC ENERGY: ½mv²',ax:['speed (m/s)','mass (kg)','energy (kJ)'],xr:[0,40],yr:[0,2000],zr:[0,1600],xf:unit(0,''),yf:unit(0,''),
@@ -383,188 +573,4 @@ window.SIXQ=[
  pts:[{p:'Very unreactive metals such as gold are found as the metal itself',k:['gold','unreactive','native','found as']},{p:'Metals less reactive than carbon can be extracted by reduction with carbon',k:['less reactive than carbon','reduc','carbon']},{p:'Example: iron oxide is heated with carbon to give iron and carbon dioxide',k:['iron','blast furnace','carbon dioxide']},{p:'Reduction means losing oxygen',k:['loss of oxygen','loses oxygen','removes oxygen','remove the oxygen']},{p:'Metals more reactive than carbon, such as aluminium, are extracted by electrolysis',k:['electrolysis','aluminium','more reactive than carbon']},{p:'Electrolysis needs lots of energy (electricity and high temperatures), so it is expensive',k:['expensive','energy','electricity','cost']}],
  model:'The method depends on where the metal is in the reactivity series compared with carbon. Very unreactive metals such as gold are found as the metal itself. Metals less reactive than carbon, such as iron, are extracted by reduction with carbon: iron oxide is heated with carbon, which removes the oxygen to give iron and carbon dioxide. Reduction is the loss of oxygen. Metals more reactive than carbon, such as aluminium, can\'t be reduced by carbon, so they are extracted by electrolysis of the molten compound. Electrolysis uses a lot of electricity and high temperatures, so it is expensive.'},
 {id:'c-crude',s:'Chemistry',short:'Fractional distillation of crude oil',q:'Describe and explain how crude oil is separated into fractions by fractional distillation.',
- pts:[{p:'Crude oil is heated until most of it evaporates (vaporises)',k:['heat','evaporat','vapor','vapour','gas']},{p:'The vapour goes into a fractionating column',k:['column']},{p:'The column is hot at the bottom and cooler at the top',k:['hot.{0,20}bottom','cool.{0,20}top','temperature gradient']},{p:'The vapours rise and condense when they reach a level below their boiling point',k:['condense','boiling point']},{p:'Long-chain hydrocarbons have high boiling points and are collected near the bottom',k:['long.?chain','bottom','high boiling']},{p:'Short-chain hydrocarbons have low boiling points and rise higher up the column',k:['short.?chain','top','low boiling','higher up']},{p:'Each fraction contains hydrocarbons with similar chain lengths and boiling points',k:['similar','fraction']}],
- model:'Crude oil is heated until most of it evaporates, and the vapour is fed into the bottom of a fractionating column. The column is hot at the bottom and gets cooler towards the top. As the vapours rise, each hydrocarbon condenses when it reaches a level that is cooler than its boiling point. Long-chain hydrocarbons have high boiling points, so they condense and are collected near the bottom, as bitumen and heavy fuel oil. Short-chain hydrocarbons have low boiling points, so they rise higher before condensing, giving fractions like petrol and gases at the top. Each fraction contains hydrocarbons with similar chain lengths and boiling points.'},
-{id:'c-water',s:'Chemistry',short:'Potable water from fresh water and sea water',q:'Describe how potable water is produced in the UK, and explain how sea water can be made drinkable.',
- pts:[{p:'Choose a source of fresh water: lakes, rivers, reservoirs or groundwater',k:['lake','river','reservoir','ground ?water','rain']},{p:'Pass it through filter beds to remove solid particles',k:['filter']},{p:'Sterilise it to kill microbes, using chlorine, ozone or ultraviolet light',k:['steril','chlorine','ozone','uv','ultraviolet','microb','bacteria']},{p:'Potable water is safe to drink but is not pure: it still has dissolved substances',k:['not pure','dissolved','safe to drink']},{p:'Sea water can be desalinated by distillation (boil it and condense the steam)',k:['distil','desalinat','boil','condense']},{p:'Or by reverse osmosis, pushing it through a membrane',k:['reverse osmosis','membrane']},{p:'Desalination needs lots of energy, so it is expensive',k:['energy','expensive','cost']}],
- model:'In the UK, potable water usually comes from fresh water such as rain collected in reservoirs, rivers and lakes, or groundwater. It is passed through filter beds to remove solid particles, then sterilised to kill harmful microbes using chlorine, ozone or ultraviolet light. Potable water is safe to drink, but it isn\'t pure: it still contains dissolved substances. Sea water has too much dissolved salt to drink, so it has to be desalinated, either by distillation, where it is boiled and the steam condensed, or by reverse osmosis, where it is forced through a membrane. Both need a lot of energy, so desalination is expensive and only used where fresh water is scarce.'}];
-/* ===== extras start ===== */
-/* Weakness radar, GCSE countdown and timetable, 6-mark trainer, ghost race, focus reactor, overtime shifts,
-   weekly report card, and XP from the other apps. */
-var XTRA=(function(){
- var css=document.createElement('style');css.id='xtraCss';css.textContent=[
-  '.xcard h2 .note{font-weight:400}','pre.cs{font-family:var(--mono);font-size:14px;font-weight:500;letter-spacing:0;line-height:1.55;background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:10px 12px;overflow-x:auto;white-space:pre;margin:8px 0;tab-size:3}',
-  '.xtabs{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 10px}.xtab{font:inherit;font-size:13px;font-weight:700;padding:6px 11px;border-radius:999px;border:1.5px solid var(--line);background:var(--panel);color:var(--text);cursor:pointer}.xtab.on{border-color:var(--accent);background:var(--accent-bg);color:var(--accent-text)}',
-  '.xradar{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:16px;align-items:center}@media (max-width:720px){.xradar{grid-template-columns:1fr}}',
-  '.xradar svg{width:100%;max-width:420px;height:auto;display:block;margin:0 auto;overflow:visible}.xradar svg text{font:600 11px var(--sans);fill:var(--muted)}',
-  '.xweak{display:flex;flex-direction:column;gap:8px}.xweak .w{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;align-items:center;font-size:14px}.xweak .w b{font-family:var(--mono)}.xweak .w .lvlbar{grid-column:1/-1}',
-  '.xbtns{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.xbtn{font:inherit;font-weight:800;font-size:14px;border-radius:12px;padding:10px 16px;border:0;cursor:pointer;background:var(--accent);color:var(--on-accent,#fff)}.xbtn.alt{background:var(--soft);color:var(--text);border:1px solid var(--line)}.xbtn[disabled]{opacity:.5;cursor:default}',
-  '.xcd{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end}.xcd .xnum{font:800 clamp(40px,9vw,64px)/1 var(--mono);letter-spacing:-.02em}.xcd .u{font-size:14px;color:var(--muted);font-weight:700}',
-  '.xcdrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}.xcdrow div{background:var(--soft);border-radius:12px;padding:8px 12px;min-width:90px}.xcdrow b{display:block;font:800 20px var(--mono)}.xcdrow span{font-size:12px;color:var(--muted)}',
-  '.xdate{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px;font-size:13.5px;color:var(--muted)}.xdate input{font:inherit;padding:6px 8px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--text)}',
-  '.xweek{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:8px;margin-top:10px}.xfoc{border:1px solid var(--line);border-left:4px solid var(--fc,var(--accent));border-radius:12px;padding:10px 12px;background:var(--panel);display:flex;flex-direction:column;gap:4px;min-width:0}.xfoc .s{font:700 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}.xfoc b{font-size:15px}.xfoc p{margin:0;font-size:13px;color:var(--muted)}.xfoc button{align-self:flex-start;margin-top:4px;font:inherit;font-size:13px;font-weight:800;padding:6px 12px;border-radius:999px;border:0;background:var(--accent-bg);color:var(--accent-text);cursor:pointer}',
-  '.xplan{margin-top:10px;font-size:13.5px}.xplan summary{cursor:pointer;font-weight:700;color:var(--accent-text,var(--accent))}.xplan ol{margin:8px 0 0;padding-left:20px;display:flex;flex-direction:column;gap:4px}.xplan li span{color:var(--muted)}',
-  '.xsix{display:flex;flex-direction:column;gap:6px}.xsix button.q{font:inherit;text-align:left;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:var(--text);cursor:pointer}.xsix button.q:hover{border-color:var(--accent)}.xsix .tg{font:700 11px var(--mono);padding:3px 7px;border-radius:6px;background:var(--soft)}.xsix .sc{font:700 12px var(--mono);color:var(--muted)}',
-  '.xov{position:fixed;inset:0;z-index:3200;background:var(--bg);overflow-y:auto;overscroll-behavior:contain;padding:calc(14px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) calc(24px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}',
-  '.xov .xin{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:14px}.xov .xtop{display:flex;align-items:center;gap:10px}.xov .xtop b{flex:1;font-size:17px}.xov .xclose{font:inherit;font-weight:700;border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:10px;padding:8px 12px;cursor:pointer}',
-  '.xov textarea{width:100%;min-height:220px;font:inherit;font-size:16px;line-height:1.55;padding:12px;border-radius:12px;border:1.5px solid var(--line);background:var(--panel);color:var(--text);resize:vertical;box-sizing:border-box}.xov textarea:focus{outline:none;border-color:var(--accent)}',
-  '.xqbox{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px 16px;font-size:16px;line-height:1.5}.xqbox .m{font:700 12px var(--mono);color:var(--muted)}',
-  '.xmeta{display:flex;gap:12px;flex-wrap:wrap;font:600 13px var(--mono);color:var(--muted)}',
-  '.xpts{display:flex;flex-direction:column;gap:6px}.xpts label{display:grid;grid-template-columns:24px minmax(0,1fr);gap:8px;align-items:start;padding:9px 11px;border-radius:12px;border:1px solid var(--line);background:var(--panel);cursor:pointer;font-size:15px}.xpts label.sug{border-color:var(--good-line,#4f7a22)}.xpts input{width:20px;height:20px;margin:1px 0 0}.xpts .hint{font-size:12px;color:var(--good,#4f8a1b);font-weight:700}',
-  '.xscore{display:flex;gap:16px;align-items:center;flex-wrap:wrap;background:var(--accent-bg);border-radius:16px;padding:14px 16px}.xscore .xnum{font:800 44px/1 var(--mono);color:var(--accent-text)}.xscore p{margin:0;font-size:14.5px}',
-  '.xmodel{background:var(--soft);border-radius:14px;padding:12px 14px;font-size:15px;line-height:1.55}',
-  '.xghost{position:absolute;top:50%;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;background:rgba(160,170,255,.55);box-shadow:0 0 0 2px rgba(255,255,255,.7),0 0 10px rgba(140,150,255,.8);transition:left .4s;pointer-events:none;z-index:2}',
-  '.xghtag{position:absolute;right:0;top:calc(100% + 4px);font:700 11px var(--mono);color:var(--muted);white-space:nowrap;pointer-events:none}',
-  '.xghres{display:flex;gap:12px;align-items:center;border-radius:14px;padding:12px 14px;margin:0 0 12px;background:var(--accent-bg);color:var(--accent-text);font-weight:700}.xghres .gi{font-size:26px}',
-  '.xfr{position:fixed;inset:0;z-index:3300;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:24px max(16px,env(safe-area-inset-right,0px)) 24px max(16px,env(safe-area-inset-left,0px));color:#e8edf7;background:radial-gradient(circle at 50% 55%,#0d1a3a,#050812 70%);text-align:center}',
-  '.xfr canvas{width:min(340px,70vw);height:min(340px,70vw)}.xfr .t{font:800 clamp(44px,12vw,76px)/1 var(--mono);letter-spacing:.02em;text-shadow:0 0 24px rgba(58,212,255,.5)}',
-  '.xfr .st{font:700 13px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:#7fe3ff}.xfr .st.bad{color:#ff8aa0}.xfr p{margin:0;max-width:30em;color:#c9d3ef}',
-  '.xfr .pw{width:min(420px,86vw)}.xfr .pw .lvlbar{height:10px;background:rgba(255,255,255,.1)}.xfr .pw .lvlbar div{background:linear-gradient(90deg,#8f80ff,#3ad4ff)}.xfr .pw .l{display:flex;justify-content:space-between;font:700 12px var(--mono);color:#9fb0d8;margin-bottom:5px}',
-  '.xfr .xbtns{justify-content:center}.xfr .xbtn.alt{background:rgba(255,255,255,.08);color:#dfe6ff;border:1px solid rgba(255,255,255,.16)}.xfr .xbtn{background:linear-gradient(135deg,#8f80ff,#3ad4ff);color:#fff}',
-  '.xfr .mins{display:flex;gap:8px;justify-content:center}.xfr .mins button{font:inherit;font-weight:800;padding:8px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:#dfe6ff;cursor:pointer}.xfr .mins button.on{background:#3ad4ff;color:#04202b;border-color:#3ad4ff}',
-  '.xrc img{width:100%;max-width:420px;border-radius:14px;display:block;border:1px solid var(--line)}.xrc .row{display:grid;grid-template-columns:minmax(0,420px) minmax(0,1fr);gap:16px;align-items:start}@media (max-width:720px){.xrc .row{grid-template-columns:1fr}}',
-  '.xrc ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px;font-size:14px}'].join('\n');
- document.head.appendChild(css);
- function $q(s,r){return (r||document).querySelector(s)}
- function esc(t){return String(t).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
- function lsJ(k){try{return JSON.parse(localStorage.getItem(k)||'null')}catch(e){return null}}
- function dAdd(s,n){var d=new Date(s+'T12:00:00');d.setDate(d.getDate()+n);return dstr(d)}
- function monday(s){var d=new Date((s||today())+'T12:00:00'),w=(d.getDay()+6)%7;d.setDate(d.getDate()-w);return dstr(d)}
- function nice(s,o){return new Date(s+'T12:00:00').toLocaleDateString('en-GB',o||{weekday:'short',day:'numeric',month:'short'})}
- var TRK={maths:'Maths',theory:'Theory',calc:'Calculus',gp:'GCSE Physics',gc:'GCSE Chemistry',gm:'GCSE Maths',gcs:'GCSE Computer Science',am:'A-level Maths',ap:'A-level Physics',ac:'A-level Chemistry'};
- var LID={};UNITS.forEach(function(u,ui){u.lessons.forEach(function(l){LID[l.id]=ui})});
- function uid(ui){var u=UNITS[ui];return u.id||('u'+ui)}
-
- /* ---------- XP earned in Control Room, Practicals Lab and Career ---------- */
- function drain(){var q=lsJ('critical_xpq');if(!q||!q.length)return;var lk=+(localStorage.getItem('critical_xpq_lock')||0);if(Date.now()-lk<3000)return;
-  try{localStorage.setItem('critical_xpq_lock',String(Date.now()));localStorage.setItem('critical_xpq','[]')}catch(e){return}
-  var tot=0,from={};q.forEach(function(x){var n=Math.max(0,Math.min(300,Math.round(+x.n||0)));if(!n)return;tot+=n;from[x.app||'another app']=1});
-  if(tot){addXP(tot);toast('⚡','+'+fmtInt(tot)+' XP','from '+Object.keys(from).join(' and '),'quest')}}
- window.addEventListener('storage',function(e){if(e.key==='critical_xpq')setTimeout(drain,300)});setInterval(drain,20000);setTimeout(drain,2500);
-
- /* ---------- overtime: 50 XP past your daily goal earns a streak freeze ---------- */
- var OTX=50,inOT=false;
- var ax0=addXP;addXP=function(n,el){var t=today(),b=S.daily&&S.daily.d===t?S.daily.xp:0;ax0(n,el);if(inOT)return;try{overtime(b)}catch(e){}};
- function overtime(before){var t=today();if(!S.daily||S.daily.d!==t)return;var g=S.goal||50,x=S.daily.xp;
-  if(before<g&&x>=g&&S.otTold!==t){S.otTold=t;save();toast('⏱️','Daily goal done','Overtime starts now: '+OTX+' more XP earns a streak freeze','quest')}
-  if(S.ot===t||x<g+OTX)return;S.ot=t;S.otN=(S.otN||0)+1;
-  if((S.freeze||0)<2){S.freeze=(S.freeze||0)+1;save();toast('🛡️','Overtime shift complete','Streak freeze earned ('+S.freeze+'/2)','badge')}
-  else{inOT=true;try{ax0(20)}finally{inOT=false}save();toast('🛡️','Overtime shift complete','Your freezes are full, so here\'s +20 XP','badge')}}
- function otLine(){var t=today(),g=S.goal||50,x=S.daily&&S.daily.d===t?S.daily.xp:0;if(S.ot===t)return 'Overtime done today. '+((S.freeze||0)>=2?'Freezes full.':'Freezes: '+S.freeze+'/2.');if(x<g)return 'Overtime starts once you hit your daily goal ('+(g-x)+' XP to go).';return 'Overtime: '+(g+OTX-x)+' more XP today earns a streak freeze.'}
-
- /* ---------- topic stats, for the radar ---------- */
- function unitOf(c){if(P&&(P.mode==='lesson'||P.mode==='follow')&&P.ui!=null)return P.ui;var k=c&&c._key;if(!k)return null;k=String(k).replace(/^F/,'').split('#')[0];return LID[k]!=null?LID[k]:null}
- function rec(c,ok){var ui=unitOf(c);if(ui==null||'QNO'.indexOf(c.t)<0)return;if(!S.tst)S.tst={};var k=uid(ui),a=S.tst[k]||[0,0];a[ok?0:1]++;S.tst[k]=a}
- var gr0=gotRight;gotRight=function(c){var first=P&&P.st&&!P.st.tries;gr0(c);try{if(first)rec(c,true)}catch(e){}};
- var gw0=gotWrong;gotWrong=function(c){gw0(c);try{rec(c,false)}catch(e){}};
- function uStats(ui){var u=UNITS[ui],q=0,w=0,d=0;u.lessons.forEach(function(l){if(!S.done[l.id])return;d++;l.cards.forEach(function(c,ci){if('QNO'.indexOf(c.t)<0)return;q++;if(S.wrong[l.id+'#'+ci])w++})});var t=(S.tst||{})[uid(ui)]||[0,0],seen=q+t[0]+t[1];
-  return {ui:ui,done:d,q:q,w:w,s:seen?Math.max(0,Math.min(1,((q-w)+t[0])/seen)):null}}
- function weakest(n,track){var a=[];UNITS.forEach(function(u,ui){if(track&&trk(ui)!==track)return;var s=uStats(ui);if(s.s!=null&&s.done)a.push(s)});a.sort(function(x,y){return x.s-y.s||y.w-x.w});return a.slice(0,n)}
- function fixUnits(list,title){var set={};list.forEach(function(x){set[x.ui]=1});var all=reviewPool().filter(function(c){var k=String(c._key).replace(/^F/,'').split('#')[0];return set[LID[k]]});
-  if(!all.length){toast('🎯','Nothing to fix there yet','Finish a lesson in those topics first');return}
-  var wr=shuffle(all.filter(function(c){return S.wrong[c._key]})),rest=shuffle(all.filter(function(c){return !S.wrong[c._key]})),pool=wr.concat(rest).slice(0,12);
-  P={mode:'review',fix:true,cards:shuffle(pool),i:0,xp:0,right:0,asked:0,title:title||'Fix my weakest 3',color:'var(--accent)',unit:'Review',combo:0,best:0,cbonus:0,mistakes:0,fixed:0,newBadges:[],levelUp:null};openPlayer()}
- function radarSVG(items){var n=items.length,R=120,cx=170,cy=150,pts=[],h='<svg viewBox="0 0 340 300" role="img" aria-label="Strength in each topic">';
-  [.25,.5,.75,1].forEach(function(f){var p=[];for(var i=0;i<n;i++){var a=-Math.PI/2+i*2*Math.PI/n;p.push((cx+Math.cos(a)*R*f).toFixed(1)+','+(cy+Math.sin(a)*R*f).toFixed(1))}h+='<polygon points="'+p.join(' ')+'" fill="none" stroke="var(--line)" stroke-width="1"/>'});
-  items.forEach(function(it,i){var a=-Math.PI/2+i*2*Math.PI/n,x=cx+Math.cos(a)*R,y=cy+Math.sin(a)*R;h+='<line x1="'+cx+'" y1="'+cy+'" x2="'+x.toFixed(1)+'" y2="'+y.toFixed(1)+'" stroke="var(--line)"/>';var f=Math.max(.04,it.s);pts.push((cx+Math.cos(a)*R*f).toFixed(1)+','+(cy+Math.sin(a)*R*f).toFixed(1));
-   var lx=cx+Math.cos(a)*(R+14),ly=cy+Math.sin(a)*(R+14),an=Math.abs(Math.cos(a))<.2?'middle':Math.cos(a)>0?'start':'end',t=UNITS[it.ui].title;if(t.length>18)t=t.slice(0,17)+'…';h+='<text x="'+lx.toFixed(1)+'" y="'+(ly+4).toFixed(1)+'" text-anchor="'+an+'">'+esc(t)+'</text>'});
-  h+='<polygon points="'+pts.join(' ')+'" fill="color-mix(in srgb,var(--accent) 28%,transparent)" stroke="var(--accent)" stroke-width="2.5" stroke-linejoin="round"/>';
-  pts.forEach(function(p){var xy=p.split(',');h+='<circle cx="'+xy[0]+'" cy="'+xy[1]+'" r="3.5" fill="var(--accent)"/>'});return h+'</svg>'}
- function radarCard(){var tracks=Object.keys(TRK).filter(function(t){return UNITS.some(function(u,ui){return trk(ui)===t})}),sel=(function(){try{return localStorage.getItem('critical_radar')}catch(e){return null}})();
-  var withData=tracks.filter(function(t){return UNITS.some(function(u,ui){return trk(ui)===t&&uStats(ui).done})});if(tracks.indexOf(sel)<0)sel=withData[0]||curMode();
-  var its=[];UNITS.forEach(function(u,ui){if(trk(ui)!==sel)return;var s=uStats(ui);if(s.s!=null&&s.done)its.push(s)});its.sort(function(a,b){return b.q-a.q});its=its.slice(0,10);
-  var w3=weakest(3),h='<div class="card xcard" id="xRadar"><h2>Weakness radar</h2><p class="note" style="font-size:15px">How strong you are in each topic, from your answers and the mistakes still waiting to be fixed. The further out, the stronger.</p><div class="xtabs" role="tablist">'+tracks.map(function(t){return '<button type="button" role="tab" class="xtab'+(t===sel?' on':'')+'" data-rt="'+t+'" aria-selected="'+(t===sel)+'">'+TRK[t]+'</button>'}).join('')+'</div><div class="xradar"><div>';
-  h+=its.length>=3?radarSVG(its):'<p class="note">Finish lessons in at least 3 '+TRK[sel]+' topics to see your radar here.</p>';
-  h+='</div><div class="xweak"><b>Your weakest 3, across everything</b>'+(w3.length?w3.map(function(s){return '<div class="w"><span>'+esc(UNITS[s.ui].title)+' <span class="note">'+TRK[trk(s.ui)]+(s.w?' · '+s.w+' to fix':'')+'</span></span><b>'+Math.round(s.s*100)+'%</b><div class="lvlbar"><div style="width:'+Math.round(s.s*100)+'%"></div></div></div>'}).join(''):'<p class="note">Do a few lessons and your weakest topics show up here.</p>')+
-   '<div class="xbtns"><button type="button" class="xbtn" id="xFix3"'+(w3.length?'':' disabled')+'>Fix my weakest 3</button><button type="button" class="xbtn" id="x3d">📈 Progress in 3D</button></div></div></div></div>';return h}
- function wireRadar(){var c=$q('#xRadar');if(!c)return;var b3=c.querySelector('#x3d');if(b3)b3.onclick=function(){try{SCR.prog3d()}catch(e){}};[].forEach.call(c.querySelectorAll('[data-rt]'),function(b){b.onclick=function(){try{localStorage.setItem('critical_radar',b.getAttribute('data-rt'))}catch(e){}var n=document.createElement('div');n.innerHTML=radarCard();c.replaceWith(n.firstChild);wireRadar()}});var f=$q('#xFix3');if(f)f.onclick=function(){fixUnits(weakest(3))}}
-
- /* ---------- ghost race: replay a lesson against your last attempt ---------- */
- var sl0=startLesson;startLesson=function(ui,li){sl0(ui,li);try{if(P&&P.mode==='lesson'&&P.ui===ui){var lid=UNITS[ui].lessons[li].id;P._lid=lid;P._was=!!S.done[lid];P._t0=Date.now();P._mk=[0];P._gh=(S.ghost||{})[lid]||null;if(P._gh)ghostOn()}}catch(e){}};
- var sc0=showCard;showCard=function(){sc0.apply(this,arguments);try{if(P&&P._lid&&P._mk&&P._mk[P.i]==null)P._mk[P.i]=Date.now()-P._t0}catch(e){}};
- var gtk=0;
- function ghostOn(){var bar=$('pBar'),tr=bar&&bar.parentNode;if(!tr)return;tr.style.position='relative';var g=document.createElement('i');g.className='xghost';g.id='xGhost';g.title='Your ghost';var tg=document.createElement('span');tg.className='xghtag';tg.id='xGhTag';tr.appendChild(g);tr.appendChild(tg);clearInterval(gtk);gtk=setInterval(ghostTick,500);ghostTick()}
- function ghostOff(){clearInterval(gtk);['xGhost','xGhTag'].forEach(function(id){var e=document.getElementById(id);if(e)e.remove()})}
- function ghostTick(){if(!P||!P._gh||P.finished||!$('player').classList.contains('open')){ghostOff();return}var el=Date.now()-P._t0,m=P._gh.mk||[],gi=0;while(gi+1<m.length&&m[gi+1]!=null&&m[gi+1]<=el)gi++;if(el>=P._gh.ms)gi=P.cards.length;
-  var g=document.getElementById('xGhost'),t=document.getElementById('xGhTag');if(!g)return;g.style.left=(Math.min(1,gi/P.cards.length)*100)+'%';var d=P.i-gi;t.textContent=d>0?'Ghost: you\'re '+d+' ahead':d<0?'Ghost: '+(-d)+' ahead of you':'Ghost: neck and neck'}
- var fi0=finish;finish=function(){var lesson=P&&P.mode==='lesson'&&P._lid&&!P.finished,lid=lesson?P._lid:null,me=lesson?{ms:Date.now()-P._t0,right:P.right,asked:P.asked,mk:P._mk,at:today()}:null,gh=lesson?P._gh:null,was=lesson?P._was:true;
-  fi0.apply(this,arguments);if(!lesson)return;try{ghostOff();if(!S.ghost)S.ghost={};S.ghost[lid]=me;var ks=Object.keys(S.ghost);if(ks.length>150){ks.sort(function(a,b){return String(S.ghost[a].at).localeCompare(String(S.ghost[b].at))});ks.slice(0,ks.length-150).forEach(function(k){delete S.ghost[k]})}
-   if(!was){if(!S.ldays)S.ldays={};var t=today();S.ldays[t]=(S.ldays[t]||0)+1;var lk=Object.keys(S.ldays).sort();if(lk.length>70)lk.slice(0,lk.length-70).forEach(function(k){delete S.ldays[k]})}
-   save();if(gh){var dt=Math.round((gh.ms-me.ms)/1000),ds=me.right-gh.right,msg;
-    if(ds>0&&dt>=0)msg='You beat your ghost: '+ds+' more right and '+dt+' s faster.';else if(ds>0)msg='You beat your ghost with '+ds+' more right, even though it was '+(-dt)+' s quicker.';else if(ds===0&&dt>0)msg='You beat your ghost by '+dt+' s.';else if(ds===0&&dt===0)msg='Dead heat with your ghost.';else if(ds<0)msg='Your ghost won by '+(-ds)+' answer'+(ds===-1?'':'s')+'. Rematch?';else msg='Your ghost was '+(-dt)+' s faster. Rematch?';
-    var b=$('pBody');if(b){var r=document.createElement('div');r.className='xghres';r.innerHTML='<span class="gi">👻</span><span>'+msg+'</span>';b.insertBefore(r,b.firstChild)}}}catch(e){}};
-
- /* ---------- focus reactor ---------- */
- var FR=null;
- function focusOpen(){if(FR)return;var mins=25;try{mins=+(localStorage.getItem('critical_focus_m')||25)||25}catch(e){}
-  var ov=document.createElement('div');ov.className='xfr';ov.setAttribute('role','dialog');ov.setAttribute('aria-modal','true');ov.setAttribute('aria-label','Focus reactor');document.body.appendChild(ov);document.body.classList.add('noscroll');
-  FR={ov:ov,mins:mins,state:'setup',power:0,trans:0,hidden:0,cv:null};
-  function setup(){FR.state='setup';ov.innerHTML='<span class="st">Focus reactor</span><canvas width="680" height="680" aria-hidden="true"></canvas><p>Keep the reactor stable and it climbs to full power. Switch tabs or minimise and it has a <b>transient</b> and loses power. Leave for more than a minute and it <b>trips</b>.</p><div class="mins">'+[15,25,45].map(function(m){return '<button type="button" data-m="'+m+'"'+(m===FR.mins?' class="on"':'')+'>'+m+' min</button>'}).join('')+'</div><div class="xbtns"><button type="button" class="xbtn" data-a="go">Start the reactor</button><button type="button" class="xbtn alt" data-a="x">Not now</button></div>';
-   [].forEach.call(ov.querySelectorAll('[data-m]'),function(b){b.onclick=function(){FR.mins=+b.getAttribute('data-m');try{localStorage.setItem('critical_focus_m',String(FR.mins))}catch(e){}setup()}});
-   ov.querySelector('[data-a=go]').onclick=start;ov.querySelector('[data-a=x]').onclick=close;draw();try{ov.querySelector('[data-a=go]').focus()}catch(e){}}
-  function start(){FR.state='run';FR.t0=Date.now();FR.end=FR.t0+FR.mins*60000;FR.lost=0;FR.trans=0;FR.startedTimer=false;
-   try{if(STUDY&&STUDY.start)FR.startedTimer=STUDY.start('Focus reactor')}catch(e){}
-   ov.innerHTML='<span class="st" data-k="st">Reactor stable</span><canvas width="680" height="680" aria-hidden="true"></canvas><div class="t" data-k="t"></div><div class="pw"><div class="l"><span>Power</span><span data-k="p">0%</span></div><div class="lvlbar"><div data-k="pb" style="width:0%"></div></div></div><p data-k="m">Stay on this tab. Your other screens are fine.</p><div class="xbtns"><button type="button" class="xbtn alt" data-a="q">End early</button></div>';
-   var armed=0;ov.querySelector('[data-a=q]').onclick=function(){if(!armed){armed=1;this.textContent='Sure? Tap again';var b=this;setTimeout(function(){armed=0;if(b.isConnected)b.textContent='End early'},2500);return}end(false,'You ended the session early.')};
-   tick()}
-  function tick(){if(!FR||FR.state!=='run')return;var now=Date.now(),left=Math.max(0,FR.end-now),tot=FR.mins*60000,f=1-left/tot;FR.power=Math.max(0,Math.min(100,f*100-FR.lost));
-   var m=Math.floor(left/60000),s=Math.floor(left%60000/1000);ov.querySelector('[data-k=t]').textContent=m+':'+String(s).padStart(2,'0');ov.querySelector('[data-k=p]').textContent=Math.round(FR.power)+'%';ov.querySelector('[data-k=pb]').style.width=FR.power+'%';
-   if(FR.flash&&now>FR.flash){FR.flash=0;var st=ov.querySelector('[data-k=st]');st.textContent='Reactor stable';st.classList.remove('bad')}
-   draw();if(left<=0){end(true);return}FR.raf=requestAnimationFrame(tick)}
-  function onVis(){if(!FR||FR.state!=='run')return;if(document.hidden){FR.hidden=Date.now()}else if(FR.hidden){var gone=Date.now()-FR.hidden;FR.hidden=0;
-    if(gone>60000){end(false,'You were away for over a minute, so the reactor tripped.',true);return}FR.trans++;FR.lost+=8+Math.min(12,gone/5000);var st=ov.querySelector('[data-k=st]');st.textContent='Transient! Power lost';st.classList.add('bad');FR.flash=Date.now()+4000;ov.querySelector('[data-k=m]').textContent='Transient '+FR.trans+'. Stay on this tab to keep power up.';try{sfx('wrong')}catch(e){}}}
-  document.addEventListener('visibilitychange',onVis);FR.onVis=onVis;
-  function end(done,why,tripped){cancelAnimationFrame(FR.raf);var used=Math.round((Date.now()-FR.t0)/60000),clean=done&&FR.trans===0,xp=done?(clean?FR.mins:Math.round(FR.mins*.6)):Math.min(10,Math.round(used/3));FR.state='end';
-   try{if(FR.startedTimer&&STUDY&&STUDY.stop)STUDY.stop()}catch(e){}if(xp>0)addXP(xp);if(clean){S.focusClean=(S.focusClean||0)+1;save()}
-   ov.innerHTML='<span class="st'+(done?'':' bad')+'">'+(done?(clean?'Full power, no transients':'Session complete'):tripped?'Reactor trip':'Session ended')+'</span><canvas width="680" height="680" aria-hidden="true"></canvas><div class="t">'+(done?Math.round(FR.power)+'%':used+' min')+'</div><p>'+(done?(clean?'A perfect '+FR.mins+' minutes. That\'s how operators work a shift.':FR.trans+' transient'+(FR.trans===1?'':'s')+' this time. Try for a clean run next.'):why)+'</p><p><b>+'+xp+' XP</b>'+(FR.startedTimer?' · your minutes are saved in the study timer':'')+'</p><div class="xbtns"><button type="button" class="xbtn" data-a="again">Go again</button><button type="button" class="xbtn alt" data-a="x">Done</button></div>';
-   ov.querySelector('[data-a=again]').onclick=setup;ov.querySelector('[data-a=x]').onclick=close;if(done)try{sfx(clean?'level':'done')}catch(e){};draw()}
-  function draw(){var cv=ov.querySelector('canvas');if(!cv)return;var c=cv.getContext('2d'),W=cv.width,H=cv.height,x=W/2,y=H/2,t=Date.now()/1000,p=(FR.power||0)/100,calm=document.documentElement.classList.contains('neocalm');
-   c.clearRect(0,0,W,H);var g=c.createRadialGradient(x,y,20,x,y,W*.48);g.addColorStop(0,'rgba(58,212,255,'+(.18+.5*p)+')');g.addColorStop(1,'rgba(58,212,255,0)');c.fillStyle=g;c.fillRect(0,0,W,H);
-   c.strokeStyle='rgba(160,190,255,.35)';c.lineWidth=6;c.beginPath();c.arc(x,y,W*.36,0,6.283);c.stroke();
-   c.strokeStyle='#3ad4ff';c.lineWidth=12;c.lineCap='round';c.beginPath();c.arc(x,y,W*.36,-Math.PI/2,-Math.PI/2+6.283*p);c.stroke();
-   for(var i=0;i<7;i++){var rx=x-150+i*50,h=140,ins=1-p;c.fillStyle='rgba(120,150,220,.25)';c.fillRect(rx-12,y-h/2,24,h);c.fillStyle=FR.flash?'#ff6a7d':'rgba(230,240,255,.85)';c.fillRect(rx-12,y-h/2,24,h*ins*.9+8)}
-   var glow=calm?p:p*(0.85+0.15*Math.sin(t*3));c.fillStyle='rgba(120,220,255,'+(.25+.6*glow)+')';c.beginPath();c.arc(x,y+110,40,0,6.283);c.fill();
-   c.fillStyle='#fff';c.font='800 34px ui-monospace,monospace';c.textAlign='center';c.fillText(Math.round(p*100)+'%',x,y+122)}
-  function close(){if(!FR)return;if(FR.state==='run'){end(false,'Session ended.');}cancelAnimationFrame(FR.raf);document.removeEventListener('visibilitychange',FR.onVis);ov.remove();document.body.classList.remove('noscroll');FR=null}
-  setup()}
- (function(){var g=$q('.stsheet [data-a=go]');if(g&&!$q('.stsheet [data-a=focus]')){var b=document.createElement('button');b.type='button';b.className='stbtn alt wide';b.setAttribute('data-a','focus');b.textContent='Focus reactor: keep it stable for 25 minutes';b.style.marginTop='8px';g.insertAdjacentElement('afterend',b);b.onclick=function(){var sh=$q('.stsheet');if(sh)sh.classList.remove('open');focusOpen()}}})();
-
- /* ---------- weekly report card ---------- */
- function weekData(){var m=monday(),days=[],xp=0,met=0,best=null,g=S.goal||50,st=lsJ('critical_study')||{},mins=0,les=0;
-  for(var i=0;i<7;i++){var d=dAdd(m,i),x=(S.hist||{})[d]||0;days.push({d:d,x:x});xp+=x;if(x>=g)met++;if(!best||x>best.x)best={d:d,x:x};les+=(S.ldays||{})[d]||0}
-  (st.sessions||[]).forEach(function(s){if(s.d>=m&&s.d<=dAdd(m,6))mins+=+s.m||0});
-  var promos=(S.ladLog||[]).filter(function(p){return p.d>=m});return {m:m,days:days,xp:xp,met:met,best:best,mins:mins,les:les,streak:streakNow(),promos:promos,goal:g}}
- function verdict(D){return D.met>=6?'Outstanding week':D.met>=4?'Strong week':D.met>=2?'Solid start':D.xp>0?'Keep building':'Fresh start next week'}
- function reportPNG(D){var W=1080,H=1350,cv=document.createElement('canvas');cv.width=W;cv.height=H;var c=cv.getContext('2d');
-  var g=c.createLinearGradient(0,0,W,H);g.addColorStop(0,'#0b1430');g.addColorStop(1,'#060a13');c.fillStyle=g;c.fillRect(0,0,W,H);
-  var r=c.createRadialGradient(W*.8,80,10,W*.8,80,700);r.addColorStop(0,'rgba(58,212,255,.28)');r.addColorStop(1,'rgba(58,212,255,0)');c.fillStyle=r;c.fillRect(0,0,W,H);
-  c.fillStyle='#7fe3ff';c.font='700 30px ui-monospace,monospace';c.fillText('CRITICAL · WEEKLY REPORT CARD',70,110);
-  c.fillStyle='#fff';c.font='800 76px system-ui,sans-serif';c.fillText(verdict(D),70,205);
-  c.fillStyle='#b8c4e4';c.font='500 34px system-ui,sans-serif';c.fillText(nice(D.m,{day:'numeric',month:'long'})+' to '+nice(dAdd(D.m,6),{day:'numeric',month:'long',year:'numeric'}),70,260);
-  var tiles=[[fmtInt(D.xp),'XP this week'],[D.met+'/7','days on goal'],[String(D.les),'new lessons'],[(D.mins/60).toFixed(1)+' h','on the study timer'],[String(D.streak),'day streak'],[D.best&&D.best.x?nice(D.best.d,{weekday:'long'}):'–','best day']];
-  tiles.forEach(function(t,i){var x=70+(i%3)*320,y=320+Math.floor(i/3)*200;c.fillStyle='rgba(255,255,255,.06)';rr(c,x,y,300,170,26);c.fill();c.fillStyle='#fff';c.font='800 58px ui-monospace,monospace';c.fillText(t[0],x+28,y+88);c.fillStyle='#9fb0d8';c.font='600 28px system-ui,sans-serif';c.fillText(t[1],x+28,y+136)});
-  var mx=Math.max(D.goal,1);D.days.forEach(function(d){mx=Math.max(mx,d.x)});var bx=70,by=1060,bw=940,bh=300,col=bw/7;
-  c.fillStyle='#9fb0d8';c.font='600 28px system-ui,sans-serif';c.fillText('XP each day',70,745);
-  var gy=by-bh*(D.goal/mx);c.strokeStyle='rgba(255,214,90,.6)';c.setLineDash([10,10]);c.lineWidth=3;c.beginPath();c.moveTo(bx,gy);c.lineTo(bx+bw,gy);c.stroke();c.setLineDash([]);
-  D.days.forEach(function(d,i){var h=bh*(d.x/mx),x=bx+i*col+18,w=col-36,gr=c.createLinearGradient(0,by-h,0,by);gr.addColorStop(0,'#3ad4ff');gr.addColorStop(1,'#8f80ff');c.fillStyle=d.x?gr:'rgba(255,255,255,.08)';rr(c,x,by-Math.max(h,6),w,Math.max(h,6),12);c.fill();
-   c.fillStyle='#cfd8f5';c.font='700 26px system-ui,sans-serif';c.textAlign='center';c.fillText(['M','T','W','T','F','S','S'][i],x+w/2,by+44);if(d.x){c.fillText(String(d.x),x+w/2,by-Math.max(h,6)-14)}c.textAlign='left'});
-  c.fillStyle='#ffd65a';c.font='700 30px system-ui,sans-serif';var pl=D.promos.length?'Promoted: '+D.promos.map(function(p){return p.n}).slice(0,2).join(', ')+(D.promos.length>2?' and more':''):'Next goal: hit your daily goal 5 days out of 7';c.fillText(pl.length>58?pl.slice(0,57)+'…':pl,70,1200);
-  c.fillStyle='#6f7da6';c.font='600 24px ui-monospace,monospace';c.fillText('Training to be a nuclear control room operator',70,1285);
-  return cv.toDataURL('image/png')}
- function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath()}
- function reportCard(){var D=weekData(),url='';try{url=reportPNG(D)}catch(e){}
-  return '<div class="card xcard xrc" id="xReport"><h2>Weekly report card</h2><p class="note" style="font-size:15px">Your week, Monday to Sunday, as one picture. Save it or send it to someone. A new one fills in every week.</p><div class="row">'+(url?'<img alt="Weekly report card" src="'+url+'">':'')+'<div><ul><li><b>'+fmtInt(D.xp)+' XP</b> this week, on goal '+D.met+' of 7 days</li><li><b>'+D.les+'</b> new lesson'+(D.les===1?'':'s')+' finished</li><li><b>'+(D.mins/60).toFixed(1)+' hours</b> on the study timer</li><li><b>'+D.streak+'</b>-day streak</li>'+(D.promos.length?'<li>Promoted: '+D.promos.map(function(p){return esc(p.n)}).join(', ')+'</li>':'')+'<li>'+esc(otLine())+'</li></ul><div class="xbtns"><button type="button" class="xbtn" id="xRcSave">Save picture</button>'+(navigator.share?'<button type="button" class="xbtn alt" id="xRcShare">Share</button>':'')+'</div></div></div></div>'}
- function wireReport(){var s=$q('#xRcSave'),sh=$q('#xRcShare'),img=$q('#xReport img');if(s&&img)s.onclick=function(){var a=document.createElement('a');a.href=img.src;a.download='critical-week-'+monday()+'.png';document.body.appendChild(a);a.click();a.remove()};
-  if(sh&&img)sh.onclick=function(){fetch(img.src).then(function(r){return r.blob()}).then(function(b){var f=new File([b],'critical-week.png',{type:'image/png'});var d={title:'My week in Critical',files:[f]};if(navigator.canShare&&!navigator.canShare(d))delete d.files;return navigator.share(d)}).catch(function(){})}}
- setTimeout(function(){try{var d=new Date();if(d.getDay()===0&&d.getHours()>=17&&S.rcTold!==monday()){S.rcTold=monday();save();toast('📊','Your weekly report card is ready','Find it on the Progress page','badge')}}catch(e){}},6000);
-
- /* the Progress page gets the radar and the report card */
- var rr0=renderReview;renderReview=function(){rr0.apply(this,arguments);try{var pg=$('page-review'),st=null;[].forEach.call(pg.querySelectorAll('.card h2'),function(h){if(!st&&/Your stats/.test(h.textContent))st=h.parentNode});var at=st||pg.lastChild,box=document.createElement('div');box.innerHTML=radarCard()+reportCard();
-  while(box.lastChild)at.insertAdjacentElement('afterend',box.lastChild);wireRadar();wireReport()}catch(e){if(window.console)console.error(e)}};
-
- /* ---------- GCSE countdown and revision timetable ---------- */
- var GSUBS=['gm','gp','gc','gcs'].filter(function(t){return UNITS.some(function(u,ui){return trk(ui)===t})});
- var GCOL={gm:'#534AB7',gp:'#D85A30',gc:'#1D9E75',gcs:'#1f8fb3'};
- function gx(){if(!S.gx)S.gx={start:'2028-05-08'};return S.gx}
- function daysTo(s){return Math.max(0,Math.round((new Date(s+'T09:00:00')-new Date(today()+'T09:00:00'))/864e5))}
- function nex
+ pts:[{p:'Crude oil is heated until most of it evaporates (vaporises)',k:['heat','evaporat','vapor','vapour','gas']},{p:'The vapour goes into a fractionating column',k:['column']},{p:'The column is hot at the bottom and cooler at the top',k:['hot.{0,20}bottom','cool.{0,20}top','temperature gradient']},{p:'The vapours rise and condense when they reach a level below their boiling point',k:['condense','boiling point']},{p:'Long-chain hydrocarbons have high boiling points and are collected near the bottom',k:['long.?chain','bottom','high boiling']},{p:'Short-chain hydrocarbons have low boiling points and rise higher up the column',k:['short.?chain','top','low boiling','hig

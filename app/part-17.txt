@@ -1,4 +1,180 @@
-,[[c1.X(x0s-sp),c1.Y(fx0-gs*sp)],[c1.X(x0s+sp),c1.Y(fx0+gs*sp)]],'rgba(255,214,90,.9)',1.8);c.setLineDash([4,4]);poly(c,[[c1.X(x0s-sp),c1.Y(fx0-gt*sp)],[c1.X(x0s+sp),c1.Y(fx0+gt*sp)]],'rgba(255,255,255,.35)',1.2);c.setLineDash([]);c1.un();
+illStyle='rgba(255,255,255,.03)';c.fillRect(px,py,pw,ph2);c.strokeStyle='rgba(120,160,255,.25)';c.strokeRect(px+.5,py+.5,pw-1,ph2-1);
+   hud(c,px,py-8,'ENERGY KEPT vs BOUNCE ANGLE','rgba(200,225,255,.85)',8.5,'left',true);
+   for(var gi=0;gi<=4;gi++){var yy=py+ph2-gi/4*ph2;c.strokeStyle='rgba(120,160,255,.1)';c.beginPath();c.moveTo(px,yy);c.lineTo(px+pw,yy);c.stroke();hud(c,px-3,yy+3,gi*25+'%','rgba(160,190,230,.7)',8,'right')}
+   [0,45,90,135,180].forEach(function(a){var xx=px+a/180*pw;hud(c,xx,py+ph2+11,a+'°','rgba(160,190,230,.7)',8,'center')});
+   c.strokeStyle='#3ad4ff';c.lineWidth=1.8;c.beginPath();for(var s=0;s<=60;s++){var q=calc(A,1-s/60*.999);var X=px+Math.max(0,q.lab)/180*pw,Y=py+ph2-q.f*ph2;if(s)c.lineTo(X,Y);else c.moveTo(X,Y)}c.stroke();
+   pts.forEach(function(q){if(q.A!==A)return;c.fillStyle='rgba(255,209,102,.8)';c.beginPath();c.arc(px+q.lab/180*pw,py+ph2-q.f*ph2,2.2,0,6.283);c.fill()});
+   var cur=px+o.lab/180*pw,cy2=py+ph2-o.f*ph2;c.strokeStyle='#fff';c.lineWidth=1.5;c.beginPath();c.arc(cur,cy2,4.5,0,6.283);c.stroke();
+   if(A===1&&wide)hud(c,px+pw-4,py+12,'never past 90°','rgba(160,190,230,.7)',8,'right')});
+  if(par.goal!=='max')return {};
+  return {check:function(){if(!fired)return {ok:false,msg:'Press <b>Fire</b> first.'};if(lastTi!==0)return {ok:false,msg:'The neutron kept '+(calc(NUC[lastTi][1],lastAim).f*100).toFixed(1)+'% of its energy. Try a lighter nucleus.'};if(lastAim>.1)return {ok:false,msg:'Close! A glancing hit only takes some of the energy. Aim closer to the centre and fire again.'};return {ok:true,head:'Stopped dead!'}},lock:function(){sel.disabled=true;sa.input.disabled=true}}};
+
+ /* ---------- 3D flux: the power shape across a core ---------- */
+ WIDGETS.flux3d=function(box,par){par=par||{};var scr=screen(box,340,250),N=narrow()?22:30,ins=par.rod||0,refl=par.refl||0,yaw=-.62,pitch=.6,auto=!calm(),drag=null,idle=0,Hh=[],Tt=[],peak=2.4,edge=0,mid=0,pkI=0,pkJ=0,i,j;
+  for(i=0;i<=N;i++){Hh.push(new Float32Array(N+1));Tt.push(new Float32Array(N+1))}
+  var s1=slider(box,'Control rods in the middle',0,100,1,Math.round(ins*100),function(v){return v+'% in'},function(v){ins=v/100;target()}),s2=slider(box,'Reflector round the core',0,100,1,Math.round(refl*100),function(v){return v?v+'%':'none (bare core)'},function(v){refl=v/100;target()});
+  var st=stats(box,[['p','Peaking factor (peak ÷ average)'],['e','Power at the edge'],['c','Power in the middle']]),m=msg(box);m.set('Drag the graph to turn it. The flat sheet is the <b>average</b> power.');
+  function target(){var d=.7*refl,sum=0,mx=0,n=(N+1)*(N+1);for(i=0;i<=N;i++)for(j=0;j<=N;j++){var x=-1+2*i/N,y=-1+2*j/N,v=Math.cos(Math.PI*x/(2*(1+d)))*Math.cos(Math.PI*y/(2*(1+d)));v*=1-.82*ins*Math.exp(-(x*x+y*y)/(2*.2*.2));Tt[i][j]=Math.max(0,v);sum+=Tt[i][j]}var av=sum/n;
+   for(i=0;i<=N;i++)for(j=0;j<=N;j++){Tt[i][j]/=av;if(Tt[i][j]>mx){mx=Tt[i][j];pkI=i;pkJ=j}}peak=mx;edge=Tt[0][N>>1];mid=Tt[N>>1][N>>1];st.p.textContent=peak.toFixed(2);st.e.textContent=edge.toFixed(2)+'× average';st.c.textContent=mid.toFixed(2)+'× average'}
+  target();for(i=0;i<=N;i++)for(j=0;j<=N;j++)Hh[i][j]=0;
+  var cv=scr.cv;cv.style.touchAction='pan-y';cv.style.cursor='grab';
+  cv.addEventListener('pointerdown',function(e){drag={x:e.clientX,y:e.clientY,yaw:yaw,pitch:pitch,id:e.pointerId};auto=false;cv.style.cursor='grabbing';try{cv.setPointerCapture(e.pointerId)}catch(_){}});
+  cv.addEventListener('pointermove',function(e){if(!drag)return;yaw=drag.yaw+(e.clientX-drag.x)*.01;if(e.pointerType==='mouse')pitch=Math.max(.28,Math.min(1.2,drag.pitch+(e.clientY-drag.y)*.006));idle=0});
+  function up(){drag=null;cv.style.cursor='grab';idle=0}cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
+  var CM=[[0,[22,34,110]],[.25,[30,120,230]],[.45,[38,198,218]],[.62,[120,230,120]],[.78,[255,213,79]],[.9,[255,138,61]],[1,[255,61,61]]];function cmap(u){u=Math.max(0,Math.min(1,u));for(var k=1;k<CM.length;k++)if(u<=CM[k][0]){var a=CM[k-1],b=CM[k],f=(u-a[0])/(b[0]-a[0]);return [a[1][0]+(b[1][0]-a[1][0])*f,a[1][1]+(b[1][1]-a[1][1])*f,a[1][2]+(b[1][2]-a[1][2])*f]}return CM[CM.length-1][1]}
+  var PX=new Float32Array((N+1)*(N+1)*3),quads=[];for(i=0;i<N;i++)for(j=0;j<N;j++)quads.push({i:i,j:j,z:0,h:0});
+  run(scr,function(dt){var c=scr.c,W=scr.W,H=scr.H,cy=Math.cos(yaw),sy=Math.sin(yaw),cp=Math.cos(pitch),sp=Math.sin(pitch),D=6.2,F=Math.min(W*.9,H*1.45)*.78,ox=W/2,oy=H*.6,HS=.62,SZ=1.55;
+   if(auto)yaw+=dt*.00016;else if(!drag){idle+=dt;if(idle>4000&&!calm())auto=true}
+   var lr=calm()?1:Math.min(1,dt/220);for(i=0;i<=N;i++)for(j=0;j<=N;j++)Hh[i][j]+=(Tt[i][j]-Hh[i][j])*lr;
+   function P(x,y,z){var X=x*cy-z*sy,Z=x*sy+z*cy,Y2=y*cp-Z*sp,Z2=y*sp+Z*cp,f=F/(D-Z2);return [ox+X*f,oy-Y2*f,Z2]}
+   var g=c.createLinearGradient(0,0,0,H);g.addColorStop(0,'#071631');g.addColorStop(1,'#040a17');c.fillStyle=g;c.fillRect(0,0,W,H);
+   // floor: reflector band, core outline, grid
+   var rf=SZ*(1+.32*refl);if(refl>0){var q1=P(-rf,0,-rf),q2=P(rf,0,-rf),q3=P(rf,0,rf),q4=P(-rf,0,rf);c.fillStyle='rgba(120,160,255,'+(.05+.1*refl).toFixed(3)+')';c.beginPath();c.moveTo(q1[0],q1[1]);c.lineTo(q2[0],q2[1]);c.lineTo(q3[0],q3[1]);c.lineTo(q4[0],q4[1]);c.closePath();c.fill()}
+   c.strokeStyle='rgba(120,160,255,.16)';c.lineWidth=1;for(var k=0;k<=6;k++){var v=-SZ+2*SZ*k/6,a1=P(v,0,-SZ),a2=P(v,0,SZ),b1=P(-SZ,0,v),b2=P(SZ,0,v);c.beginPath();c.moveTo(a1[0],a1[1]);c.lineTo(a2[0],a2[1]);c.moveTo(b1[0],b1[1]);c.lineTo(b2[0],b2[1]);c.stroke()}
+   // project surface
+   for(i=0;i<=N;i++)for(j=0;j<=N;j++){var p=P(-SZ+2*SZ*i/N,Hh[i][j]*HS,-SZ+2*SZ*j/N),o=(i*(N+1)+j)*3;PX[o]=p[0];PX[o+1]=p[1];PX[o+2]=p[2]}
+   quads.forEach(function(q){var a=(q.i*(N+1)+q.j)*3,b=((q.i+1)*(N+1)+q.j)*3,d=((q.i+1)*(N+1)+q.j+1)*3,e=(q.i*(N+1)+q.j+1)*3;q.z=(PX[a+2]+PX[b+2]+PX[d+2]+PX[e+2])/4;q.h=(Hh[q.i][q.j]+Hh[q.i+1][q.j]+Hh[q.i+1][q.j+1]+Hh[q.i][q.j+1])/4});
+   quads.sort(function(a,b){return a.z-b.z});
+   var dx=2*SZ/N;function drawQ(q){var a=(q.i*(N+1)+q.j)*3,b=((q.i+1)*(N+1)+q.j)*3,d=((q.i+1)*(N+1)+q.j+1)*3,e=(q.i*(N+1)+q.j+1)*3,hx=(Hh[q.i+1][q.j]-Hh[q.i][q.j])*HS/dx,hz=(Hh[q.i][q.j+1]-Hh[q.i][q.j])*HS/dx,nl=1/Math.sqrt(hx*hx+hz*hz+1),lt=Math.max(0,(-hx*-.45+1*.85+-hz*.3)*nl),sh=.5+.55*lt,col=cmap(q.h/2.6);
+    c.fillStyle='rgb('+Math.min(255,col[0]*sh|0)+','+Math.min(255,col[1]*sh|0)+','+Math.min(255,col[2]*sh|0)+')';c.beginPath();c.moveTo(PX[a],PX[a+1]);c.lineTo(PX[b],PX[b+1]);c.lineTo(PX[d],PX[d+1]);c.lineTo(PX[e],PX[e+1]);c.closePath();c.fill();c.strokeStyle='rgba(255,255,255,.07)';c.lineWidth=.6;c.stroke()}
+   quads.forEach(function(q){if(q.h<1)drawQ(q)});
+   // the average-power sheet
+   var y1=1*HS,c1=P(-SZ,y1,-SZ),c2=P(SZ,y1,-SZ),c3=P(SZ,y1,SZ),c4=P(-SZ,y1,SZ);c.fillStyle='rgba(200,230,255,.10)';c.strokeStyle='rgba(200,230,255,.45)';c.lineWidth=1.2;c.beginPath();c.moveTo(c1[0],c1[1]);c.lineTo(c2[0],c2[1]);c.lineTo(c3[0],c3[1]);c.lineTo(c4[0],c4[1]);c.closePath();c.fill();c.stroke();
+   quads.forEach(function(q){if(q.h>=1)drawQ(q)});
+   // peak marker and labels
+   var pk=P(-SZ+2*SZ*pkI/N,Hh[pkI][pkJ]*HS,-SZ+2*SZ*pkJ/N),pt=P(-SZ+2*SZ*pkI/N,Hh[pkI][pkJ]*HS+.55,-SZ+2*SZ*pkJ/N);c.strokeStyle='rgba(255,255,255,.8)';c.lineWidth=1.2;c.beginPath();c.moveTo(pk[0],pk[1]);c.lineTo(pt[0],pt[1]);c.stroke();c.fillStyle='#fff';c.beginPath();c.arc(pk[0],pk[1],3,0,6.283);c.fill();hud(c,pt[0],pt[1]-5,'peak '+peak.toFixed(2)+'×','#fff',10,'center',true);
+   var lab=P(SZ,y1,SZ);hud(c,lab[0]+6,lab[1]+3,'average','rgba(200,230,255,.8)',9);
+   c.fillStyle='rgba(3,8,18,.62)';c.fillRect(0,0,W,24);hud(c,8,16,'3D NEUTRON FLUX · power across the core','rgba(200,225,255,.9)',9.5,'left',true);hud(c,W-8,16,narrow()?'drag to turn':'drag to turn it','rgba(160,190,230,.75)',9,'right');
+   var kx=W-22,ky=40,kh=Math.min(110,H*.36);for(var u=0;u<=20;u++){var cc=cmap(u/20);c.fillStyle='rgb('+(cc[0]|0)+','+(cc[1]|0)+','+(cc[2]|0)+')';c.fillRect(kx,ky+kh-(u+1)/21*kh,8,kh/21+1)}hud(c,kx-4,ky+8,'high','rgba(200,225,255,.75)',8,'right');hud(c,kx-4,ky+kh,'low','rgba(200,225,255,.75)',8,'right')});
+  if(par.goal!=='flat')return {};
+  return {check:function(){return peak<1.75?{ok:true,head:'Nice and flat!',msg:'Peaking factor '+peak.toFixed(2)+'.'}:{ok:false,msg:'The peaking factor is '+peak.toFixed(2)+'. '+(refl<.5?'Add more reflector so fewer neutrons leak from the edges.':'Now push some rods into the middle to pull the peak down.')}},lock:function(){s1.input.disabled=true;s2.input.disabled=true}}};
+
+ /* ---------- put the labs into lessons (added at the end, so saved mistakes still line up) ---------- */
+ var ADD=[
+  ['r3',{w:'scatterLab',par:{goal:'max'},p:'<b>Collision lab.</b> Fire a neutron at a nucleus and watch the momentum arrows. Find the hit that takes <b>the most energy</b> from the neutron.',e:'Head-on with hydrogen, the neutron stops dead. A proton has the same mass, so it takes all the momentum and all the energy. That\'s why water is such a good moderator, and why uranium-238 is hopeless at it.'}],
+  ['tf3',{w:'scatterLab',par:{goal:'max'},p:'<b>Collision lab.</b> Fire a neutron at a nucleus and watch the arrows: they show the push (momentum) each one carries. Find the hit that slows the neutron down the most.',e:'Head-on with hydrogen, the neutron stops dead and hands everything to the proton, like snooker balls. Big nuclei just bounce it back at almost full speed.'}],
+  ['t2-2-1',{w:'scatterLab',par:{},p:'<b>Collision lab.</b> Try each target and different aims. Then press <b>Fire 100 at random</b> to see how much energy a neutron keeps at each bounce angle.'}],
+  ['r1',{w:'reactorSim',par:{goal:'critical'},p:'<b>Live core.</b> Every dot is a neutron: red ones are fast, blue ones are slow. Fast neutrons slow down by hitting hydrogen, then split uranium in the fuel. Move the control rods until the reactor is <b>critical</b>, with k holding near 1.',e:'At k = 1 each generation of neutrons is the same size as the last, so the power stays steady. That\'s what the operators hold the reactor at all day.'}],
+  ['tf2',{w:'reactorSim',par:{goal:'critical'},p:'<b>Live core.</b> Every dot is a neutron: red ones are fast, blue ones are slow. When a slow one hits a fuel rod it can split a uranium atom and release 2 or 3 new ones. Move the control rods until the chain reaction is <b>steady</b>.',e:'Steady means each split leads to exactly one more split. Rods further out and it grows; further in and it dies away.'}],
+  ['tk1',{w:'reactorSim',par:{goal:'critical',rods:.9},p:'<b>Live core.</b> The rods start almost fully in, so the chain reaction is dying. Pull them out slowly until the reactor is <b>critical</b>, and hold it there.',e:'Control rods soak up neutrons. Pulling them out leaves more neutrons to cause fission, so k rises. Operators move them a little at a time and wait, just like you did.'}],
+  ['r6',{w:'reactorSim',par:{goal:'critical',rods:.35},p:'<b>Live core.</b> This time the rods start too far out and the power is climbing. Push them in until k settles at <b>1</b>.',e:'Rod worth is how much reactivity a bit of rod movement changes. You felt it: small moves near the middle of the core make a big difference.'}],
+  ['t4-2-1',{w:'reactorSim',par:{rods:.45},p:'<b>Live core.</b> Watch the energy spectrum in the corner. Neutrons are born fast (right), lose energy hitting hydrogen and pile up at thermal energies (left), where uranium-235 catches them. Turn on slow motion to follow one.'}],
+  ['a6',{w:'flux3d',par:{},p:'<b>3D flux.</b> This is the neutron flux across a square core, in 3D. It\'s highest in the middle and falls towards the edges, where neutrons leak out. Drag it to turn it.'}],
+  ['t2-3-3',{w:'flux3d',par:{},p:'<b>3D flux.</b> Neutrons near the edge of a bare core leak out, so the flux falls to almost zero there. Add a reflector and watch the edges come up.'}],
+  ['t3-3-1',{w:'flux3d',par:{goal:'flat'},p:'<b>3D flux.</b> This is the power across the core. The higher the peak compared with the average, the hotter the hottest fuel rod. Use the reflector and the rods in the middle to get the <b>peaking factor below 1.75</b>.',e:'A flatter shape means no single fuel rod runs too hot, so the whole core can make more power within its limits. Real cores do it with reflectors, careful fuel loading and rod patterns.'}],
+  ['m4-3-2',{w:'flux3d',par:{},p:'<b>3D flux.</b> For a bare square core the diffusion equation gives φ = A cos(πx/a) cos(πy/a): a cosine hill in each direction. Drag to turn it, then see how a reflector and central rods change the solution.'}],
+  ['m4-3-3',{w:'flux3d',par:{refl:.3},p:'<b>3D flux.</b> A reflector bounces leaking neutrons back, which works like making the core bigger: the cosine stretches and the edges no longer drop to zero. Try it.'}]];
+ /* show which lessons have a live lab */
+ var LABS={reactorSim:'Live core',scatterLab:'Collision lab',flux3d:'3D flux',graphLab:'Graph lab',scaleLab:'Scale lab',machineLab:'Maths machine',decayLab:'Decay lab',radLab:'Radiation lab',statsLab:'Risk lab',atomLab:'Atom lab',kinetics:'Kinetics',thermoLab:'Heat lab',flowLab:'Flow lab',cycleLab:'Plant lab',materialsLab:'Materials lab',panelLab:'Control room',core3d:'3D core'};
+
+ /* ===== shared drawing helpers for the labs ===== */
+ function bgf(c,W,H){var g=c.createLinearGradient(0,0,0,H);g.addColorStop(0,'#071631');g.addColorStop(1,'#040a17');c.fillStyle=g;c.fillRect(0,0,W,H)}
+ function grid(c,W,H,s){c.strokeStyle='rgba(90,150,255,.055)';c.lineWidth=1;for(var x=s;x<W;x+=s){c.beginPath();c.moveTo(Math.round(x)+.5,0);c.lineTo(Math.round(x)+.5,H);c.stroke()}for(var y=s;y<H;y+=s){c.beginPath();c.moveTo(0,Math.round(y)+.5);c.lineTo(W,Math.round(y)+.5);c.stroke()}}
+ function band(c,W,l,r){var F1='700 9.5px "JetBrains Mono",ui-monospace,Consolas,monospace',F2='600 9px "JetBrains Mono",ui-monospace,Consolas,monospace',two=false;if(r){c.font=F1;var wl=c.measureText(l).width;c.font=F2;var wr=c.measureText(r).width;if(8+wl+14>W-8-wr&&l.indexOf(' · ')>0){l=l.split(' · ')[0];c.font=F1;wl=c.measureText(l).width}if(8+wl+14>W-8-wr)two=true}else if(l.indexOf(' · ')>0){c.font=F1;if(c.measureText(l).width>W-16)l=l.split(' · ')[0]}c.fillStyle='rgba(3,8,18,.62)';c.fillRect(0,0,W,two?34:22);hud(c,8,15,l,'rgba(200,225,255,.92)',9.5,'left',true);if(r)hud(c,W-8,two?29:15,r,'rgba(160,190,230,.85)',9,'right')}
+ function panel(c,x,y,w,h){c.fillStyle='rgba(3,8,18,.72)';c.fillRect(x,y,w,h);c.strokeStyle='rgba(120,160,255,.25)';c.lineWidth=1;c.strokeRect(x+.5,y+.5,w-1,h-1)}
+ function ticks(a,b,n){var st=niceStep(b-a,n||5),t=[];for(var v=Math.ceil(a/st-1e-9)*st;v<=b+st*1e-6;v+=st)t.push(Math.abs(v)<st*1e-6?0:+v.toPrecision(10));return t}
+ function chart(c,x,y,w,h,o){var x0=o.x[0],x1=o.x[1],y0=o.y[0],y1=o.y[1],lg=!!o.ylog,ly0=lg?Math.log10(y0):0,ly1=lg?Math.log10(y1):0;
+  function X(v){return x+(v-x0)/(x1-x0)*w}function Y(v){if(lg){v=Math.log10(Math.max(v,1e-300));return y+h-(v-ly0)/(ly1-ly0)*h}return y+h-(v-y0)/(y1-y0)*h}
+  c.fillStyle='rgba(255,255,255,.025)';c.fillRect(x,y,w,h);c.lineWidth=1;
+  var xt=o.xt||ticks(x0,x1,o.nx||6),yt=o.yt||(lg?(function(){var t=[];for(var k=Math.ceil(ly0);k<=Math.floor(ly1);k++)t.push(Math.pow(10,k));return t})():ticks(y0,y1,o.ny||4));
+  xt.forEach(function(v){var px=X(v);c.strokeStyle=v===0&&o.axes?'rgba(170,200,255,.45)':'rgba(120,160,255,.09)';c.beginPath();c.moveTo(px,y);c.lineTo(px,y+h);c.stroke();if(!o.noxl)hud(c,px,y+h+11,o.xf?o.xf(v):fmtTick(v),'rgba(160,190,230,.72)',8,'center')});
+  yt.forEach(function(v){var py=Y(v);c.strokeStyle=v===0&&o.axes?'rgba(170,200,255,.45)':'rgba(120,160,255,.09)';c.beginPath();c.moveTo(x,py);c.lineTo(x+w,py);c.stroke();if(!o.noyl)hud(c,x-4,py+3,o.yf?o.yf(v):lg?'10'+supStr(Math.round(Math.log10(v))):fmtTick(v),'rgba(160,190,230,.72)',8,'right')});
+  c.strokeStyle='rgba(120,160,255,.25)';c.strokeRect(x+.5,y+.5,w-1,h-1);if(o.title)hud(c,x,y-6,o.title,'rgba(200,225,255,.85)',8.5,'left',true);if(o.xl)hud(c,x+w,y+h+22,o.xl,'rgba(160,190,230,.7)',8,'right');
+  return {X:X,Y:Y,x:x,y:y,w:w,h:h,x0:x0,x1:x1,y0:y0,y1:y1,clip:function(){c.save();c.beginPath();c.rect(x,y,w,h);c.clip()},un:function(){c.restore()},
+   fn:function(f,col,lw,glow,a,b){a=a==null?x0:a;b=b==null?x1:b;c.save();c.beginPath();c.rect(x,y,w,h);c.clip();if(glow){c.shadowColor=col;c.shadowBlur=glow}c.strokeStyle=col;c.lineWidth=lw||2;c.beginPath();var pen=false,n=Math.max(40,Math.round(w/2));for(var i=0;i<=n;i++){var xv=a+(b-a)*i/n,yv=f(xv);if(!isFinite(yv)||(lg&&yv<=0)){pen=false;continue}var py=Math.max(y-2000,Math.min(y+h+2000,Y(yv)));if(pen)c.lineTo(X(xv),py);else{c.moveTo(X(xv),py);pen=true}}c.stroke();c.restore()},
+   dot:function(xv,yv,col,r){c.fillStyle=col;c.beginPath();c.arc(X(xv),Y(yv),r||4,0,6.283);c.fill()}}}
+ function poly(c,pts,col,lw,glow){if(pts.length<2)return;c.save();if(glow){c.shadowColor=col;c.shadowBlur=glow}c.strokeStyle=col;c.lineWidth=lw||2;c.beginPath();c.moveTo(pts[0][0],pts[0][1]);for(var i=1;i<pts.length;i++)c.lineTo(pts[i][0],pts[i][1]);c.stroke();c.restore()}
+ function glow(c,x,y,r,col,a){var g=c.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,rgba(col,a==null?.8:a));g.addColorStop(1,rgba(col,0));c.fillStyle=g;c.beginPath();c.arc(x,y,r,0,6.283);c.fill()}
+ function ball(c,x,y,r,col){var g=c.createRadialGradient(x-r*.35,y-r*.35,r*.1,x,y,r);g.addColorStop(0,'rgba(255,255,255,.95)');g.addColorStop(.25,rgba(col,1));g.addColorStop(1,rgba([col[0]*.35|0,col[1]*.35|0,col[2]*.35|0],1));c.fillStyle=g;c.beginPath();c.arc(x,y,r,0,6.283);c.fill()}
+ function fx(v,d){if(!isFinite(v))return '–';var a=Math.abs(v);if(a!==0&&(a>=1e5||a<1e-3))return sci(v,3);return (+v.toFixed(d==null?2:d)).toString().replace('-','−')}
+ function drag(cv,onDown,onMove,onUp){var on=false;cv.addEventListener('pointerdown',function(e){on=true;var b=cv.getBoundingClientRect();onDown&&onDown(e.clientX-b.left,e.clientY-b.top,e);try{cv.setPointerCapture(e.pointerId)}catch(_){}});cv.addEventListener('pointermove',function(e){var b=cv.getBoundingClientRect();if(onMove)onMove(e.clientX-b.left,e.clientY-b.top,on,e)});function u(){if(on){on=false;onUp&&onUp()}}cv.addEventListener('pointerup',u);cv.addEventListener('pointercancel',u)}
+ function seconds(fnc,ms){var t=0;return function(dt){t+=dt;if(t>=ms){t=0;fnc()}}}
+ var CY=[58,212,255],VI=[143,128,255],OR=[255,170,80],GR=[120,235,140],RD=[255,90,80],YE=[255,214,90],WH=[230,240,255];
+
+ /* ===== graph lab: live functions, tangents, areas, limits and differential equations ===== */
+ var GF={
+  lin:{f:function(x,p){return p.m*x+p.c},d:function(x,p){return p.m},P:[['m','Gradient m',-3,3,.1,1.5],['c','Intercept c',-5,5,.5,1]],x:[-6,6],y:[-8,8],lab:function(p){return 'y = '+fx(p.m,1)+'x '+(p.c<0?'− '+fx(-p.c,1):'+ '+fx(p.c,1))}},
+  quad:{f:function(x,p){return p.a*x*x+p.b*x+p.c},d:function(x,p){return 2*p.a*x+p.b},dd:function(x,p){return 2*p.a},P:[['a','a',-2,2,.1,1],['b','b',-4,4,.1,-1],['c','c',-5,5,.5,-2]],x:[-5,5],y:[-6,10],lab:function(p){return 'y = '+fx(p.a,1)+'x² '+(p.b<0?'− ':'+ ')+fx(Math.abs(p.b),1)+'x '+(p.c<0?'− ':'+ ')+fx(Math.abs(p.c),1)}},
+  sq:{f:function(x){return x*x},d:function(x){return 2*x},dd:function(){return 2},P:[],x:[-3,3],y:[-1,9],lab:function(){return 'y = x²'}},
+  cube:{f:function(x){return x*x*x},d:function(x){return 3*x*x},dd:function(x){return 6*x},P:[],x:[-2.2,2.2],y:[-9,9],lab:function(){return 'y = x³'}},
+  cubic:{f:function(x,p){return x*x*x-p.a*x+p.c},d:function(x,p){return 3*x*x-p.a},dd:function(x){return 6*x},P:[['a','Bend a',-2,6,.1,3],['c','Shift c',-4,4,.5,0]],x:[-3,3],y:[-8,8],lab:function(p){return 'y = x³ − '+fx(p.a,1)+'x '+(p.c<0?'− ':'+ ')+fx(Math.abs(p.c),1)}},
+  pow:{f:function(x,p){return x<=0&&p.n%1!==0?NaN:Math.pow(x,p.n)},d:function(x,p){return p.n*Math.pow(x,p.n-1)},P:[['n','Power n',-2,3,.25,2]],x:[0.05,4],y:[-1,8],lab:function(p){return 'y = x^'+fx(p.n,2)+'   dy/dx = '+fx(p.n,2)+'x^'+fx(p.n-1,2)}},
+  exp:{f:function(x,p){return p.A*Math.exp(p.k*x)},d:function(x,p){return p.A*p.k*Math.exp(p.k*x)},P:[['A','Start value A',.5,3,.1,1],['k','Rate k',-1,1,.05,.5]],x:[-4,4],y:[0,10],lab:function(p){return 'y = '+fx(p.A,1)+'e^('+fx(p.k,2)+'x)   dy/dx = k·y'}},
+  ex:{f:function(x){return Math.exp(x)},d:function(x){return Math.exp(x)},P:[],x:[-3,2.5],y:[0,10],lab:function(){return 'y = eˣ: its gradient equals its height'}},
+  ln:{f:function(x,p){return x>0?p.a*Math.log(x):NaN},d:function(x,p){return p.a/x},P:[['a','Scale a',.5,3,.1,1]],x:[0.05,8],y:[-4,4],lab:function(p){return 'y = '+fx(p.a,1)+' ln x   dy/dx = '+fx(p.a,1)+'/x'}},
+  inv:{f:function(x,p){return p.k/x},d:function(x,p){return -p.k/(x*x)},P:[['k','k',.5,5,.1,2]],x:[0.2,6],y:[0,10],lab:function(p){return 'y = '+fx(p.k,1)+' / x'}},
+  invsq:{f:function(x,p){return p.k/(x*x)},d:function(x,p){return -2*p.k/(x*x*x)},P:[['k','Source strength',1,20,1,10]],x:[0.5,6],y:[0,40],lab:function(p){return 'I = '+fx(p.k,0)+' / r²: double the distance, a quarter of the dose'}},
+  sin:{f:function(x,p){return p.A*Math.sin(p.w*x+p.ph)},d:function(x,p){return p.A*p.w*Math.cos(p.w*x+p.ph)},P:[['A','Amplitude A',.2,3,.1,1],['w','Frequency ω',.2,3,.1,1],['ph','Phase φ',-3.14,3.14,.05,0]],x:[-6.3,6.3],y:[-3.2,3.2],lab:function(p){return 'y = '+fx(p.A,1)+' sin('+fx(p.w,1)+'x '+(p.ph<0?'− ':'+ ')+fx(Math.abs(p.ph),2)+')'}},
+  cos:{f:function(x){return Math.cos(x)},d:function(x){return -Math.sin(x)},P:[],x:[-6.3,6.3],y:[-1.6,1.6],lab:function(){return 'y = cos x   dy/dx = −sin x'}},
+  decay:{f:function(x,p){return p.N*Math.exp(-p.l*x)},d:function(x,p){return -p.l*p.N*Math.exp(-p.l*x)},P:[['N','Start amount N₀',20,100,5,100],['l','Decay constant λ',.05,1,.01,.2]],x:[0,20],y:[0,110],lab:function(p){return 'N = '+fx(p.N,0)+'e^(−'+fx(p.l,2)+'t)   half-life '+fx(Math.LN2/p.l,1)+' s'}},
+  period:{f:function(x,p){return Math.exp(x/p.t)},d:function(x,p){return Math.exp(x/p.t)/p.t},P:[['t','Period τ (s)',5,60,1,20]],x:[0,60],y:[0,22],lab:function(p){return 'P = P₀ e^(t/τ)   doubling time '+fx(p.t*Math.LN2,1)+' s'}},
+  chain:{f:function(x){return Math.sin(x*x)},d:function(x){return 2*x*Math.cos(x*x)},P:[],x:[-2.6,2.6],y:[-1.6,1.6],lab:function(){return 'y = sin(x²)   u = x²'},show:function(x){var u=x*x;return ['dy/du = cos u = '+fx(Math.cos(u)),'du/dx = 2x = '+fx(2*x),'dy/dx = '+fx(2*x*Math.cos(u))]}},
+  prod:{f:function(x){return x*Math.exp(-x/2)*3},d:function(x){return 3*Math.exp(-x/2)*(1-x/2)},P:[],x:[0,10],y:[-.5,2.5],lab:function(){return 'y = 3x·e^(−x/2)   u = 3x, v = e^(−x/2)'},show:function(x){var u=3*x,v=Math.exp(-x/2);return ["u′v = "+fx(3*v),"uv′ = "+fx(-u*v/2),"dy/dx = "+fx(3*v-u*v/2)]}},
+  quot:{f:function(x){return (2*x)/(x*x+1)},d:function(x){return (2*(x*x+1)-2*x*2*x)/Math.pow(x*x+1,2)},P:[],x:[-5,5],y:[-1.4,1.4],lab:function(){return 'y = 2x / (x² + 1)'},show:function(x){var u=2*x,v=x*x+1;return ['(u′v − uv′) / v²','= ('+fx(2*v)+' − '+fx(u*2*x)+') / '+fx(v*v),'dy/dx = '+fx((2*v-u*2*x)/(v*v))]}},
+  power:{f:function(x){return x<4?300:x<7?300+(x-4)*(700/3):1000},P:[],x:[0,12],y:[0,1150],lab:function(){return 'Electricity out while raising power (MW)'}}};
+ function simpson(f,a,b,n){n=n||200;if(n%2)n++;var h=(b-a)/n,s=f(a)+f(b);for(var i=1;i<n;i++)s+=f(a+i*h)*(i%2?4:2);return s*h/3}
+ WIDGETS.graphLab=function(box,par){par=par||{};var mode=par.mode||'explore',F=GF[par.f||'quad']||GF.quad,p={},sl={},auto=!calm(),xm=null,idle=0,tt=0,hN=2,nR=par.n||6,meth=par.method||'left',showLn=false,seeds=[],seen={},interacted=0;
+  F.P.forEach(function(q){p[q[0]]=par[q[0]]!=null?par[q[0]]:q[5]});
+  var scr=screen(box,par.h||300,par.hn||(mode==='deriv'||mode==='area'||mode==='motion'||mode==='trig'?330:280));
+  var noF=['ode','euler','motion','loglin','optim','trig'].indexOf(mode)>=0;F.P.forEach(function(q){if(noF||par.lock&&par.lock.indexOf(q[0])>=0)return;sl[q[0]]=slider(box,q[1],q[2],q[3],q[4],p[q[0]],function(v){return fx(v,q[4]<.1?2:1)},function(v){p[q[0]]=v;interacted++})});
+  var extra=row(box),m=msg(box),bt={};
+  if(mode==='secant'){sl.h=slider(box,'Gap h between the two points',.01,2,.01,2,function(v){return v.toFixed(2)},function(v){hN=v;auto=false;interacted++});bt.play=btn(extra,'Shrink h automatically',function(){auto=!auto;tog(bt.play,auto)});tog(bt.play,auto)}
+  if(mode==='riemann'){sl.n=slider(box,'Number of strips',1,64,1,nR,function(v){return v},function(v){nR=v;interacted++});var ms=select(box,'Method',['Left edges','Right edges','Middles','Trapezium'],function(i){meth=['left','right','mid','trap'][i]});ms.value=['left','right','mid','trap'].indexOf(meth)}
+  if(mode==='loglin'){bt.ln=btn(extra,'Take ln of y',function(){showLn=!showLn;tog(bt.ln,showLn);interacted++},'pri')}
+  if(mode==='ode'||mode==='euler'){sl.h=slider(box,mode==='euler'?'Step size h':'Rate k',mode==='euler'?.05:.1,mode==='euler'?2:1.5,.05,mode==='euler'?1:(par.k||.5),function(v){return v.toFixed(2)},function(v){hN=v;interacted++});if(mode==='ode')hN=par.k||.5;bt.clr=btn(extra,'Clear curves',function(){seeds=[]})}
+  if(mode==='optim'){sl.x=slider(box,'Cut size x (cm)',.1,5.9,.05,1,function(v){return v.toFixed(2)+' cm'},function(v){xm=v;interacted++});xm=1}
+  m.set(mode==='ode'?'Tap the field to drop a particle and watch it follow the slope.':mode==='explore'||mode==='deriv'||mode==='stationary'||mode==='chain'?'Drag across the graph to move the tracer.':'');
+  drag(scr.cv,function(x,y){touch(x,y,true)},function(x,y,on){if(on)touch(x,y,false)},function(){idle=0});
+  var lay=null;function touch(x,y,first){interacted++;if(!lay)return;idle=0;var C=lay.c1;if(mode==='ode'){if(first){var xv=C.x0+(x-C.x)/C.w*(C.x1-C.x0),yv=C.y0+(C.y+C.h-y)/C.h*(C.y1-C.y0);seeds.push({x:xv,y:yv,pts:[]});if(seeds.length>14)seeds.shift()}return}auto=false;xm=Math.max(C.x0,Math.min(C.x1,C.x0+(x-C.x)/C.w*(C.x1-C.x0)))}
+  function f(x){return F.f(x,p)}function d(x){return F.d?F.d(x,p):(f(x+1e-4)-f(x-1e-4))/2e-4}
+  function ode(x,y){var k=hN,t=par.ode||'decay';return t==='growth'?k*y:t==='approach'?k*((par.yinf||6)-y):t==='logistic'?k*y*(1-y/8):t==='xy'?x-y:-k*y}
+  run(scr,function(dt){var c=scr.c,W=scr.W,H=scr.H,nb=narrow();tt+=dt;bgf(c,W,H);band(c,W,(par.title||'GRAPH LAB').toUpperCase(),mode==='ode'?'tap to drop':'drag to explore');
+   var L=nb?34:44,two=(mode==='deriv'||mode==='area'||mode==='chain'),top=34,ch=two?(H-top-30)*.56:H-top-34,c1;
+   if(mode==='trig'){var r=nb?Math.min(W*.17,(H-top)*.19):Math.min(H*.32,W*.16),cx=nb?W/2:L+r+6,cy=nb?top+r+12:top+(H-top-20)/2,ang=(tt/1000*.9)%(Math.PI*2);c.strokeStyle='rgba(170,200,255,.35)';c.beginPath();c.arc(cx,cy,r,0,6.283);c.stroke();c.beginPath();c.moveTo(cx-r-6,cy);c.lineTo(cx+r+6,cy);c.moveTo(cx,cy-r-6);c.lineTo(cx,cy+r+6);c.stroke();
+    var px=cx+Math.cos(ang)*r,py=cy-Math.sin(ang)*r;poly(c,[[cx,cy],[px,py]],rgba(WH,.8),1.5);c.setLineDash([3,3]);poly(c,[[px,py],[px,cy]],rgba(YE,.8),1.2);poly(c,[[px,py],[cx,py]],rgba(CY,.8),1.2);c.setLineDash([]);
+    c.fillStyle='#fff';c.beginPath();c.arc(px,py,4,0,6.283);c.fill();hud(c,cx,cy+r+18,'θ = '+Math.round(ang*180/Math.PI)+'°','rgba(220,235,255,.9)',10,'center',true);
+    var gx=nb?L:cx+r+24,gw=W-gx-10,gy=nb?cy+r+30:top+8,C2=chart(c,gx,gy,gw,H-gy-32,{x:[0,6.283],y:[-1.2,1.2],xt:[0,1.571,3.142,4.712,6.283],xf:function(v){return ['0','90°','180°','270°','360°'][Math.round(v/1.5708)]},yt:[-1,0,1],axes:true});
+    C2.fn(function(x){return x<=ang?Math.sin(x):NaN},rgba(CY,1),2.2,8);C2.fn(function(x){return x<=ang?Math.cos(x):NaN},rgba(YE,1),2.2,8);C2.dot(ang,Math.sin(ang),'#3ad4ff',4);C2.dot(ang,Math.cos(ang),'#ffd65a',4);poly(c,[[px,py],[C2.X(ang),C2.Y(Math.sin(ang))]],'rgba(58,212,255,.25)',1);
+    hud(c,nb?12:gx+6,top+22,'sin θ = '+fx(Math.sin(ang)),rgba(CY,1),10,'left',true);hud(c,nb?12:gx+6,top+36,'cos θ = '+fx(Math.cos(ang)),rgba(YE,1),10,'left',true);return}
+   if(mode==='optim'){var Ls=12,xv=xm,V=xv*(Ls-2*xv)*(Ls-2*xv),bw=nb?W*.3:Math.min(W*.42,H*.62),ox=16+bw*.15,oy=top+20+bw*.55,u=bw/Ls,dep=(Ls-2*xv)*u,hh=xv*u*1.2,sk=.5;
+    // flat sheet outline with corners cut
+    
+    var bx=ox+xv*u,by=oy,fw=dep,fd=dep*sk;function face(pts,col){c.fillStyle=col;c.beginPath();c.moveTo(pts[0][0],pts[0][1]);pts.slice(1).forEach(function(q){c.lineTo(q[0],q[1])});c.closePath();c.fill();c.strokeStyle='rgba(200,230,255,.6)';c.stroke()}
+    face([[bx,by],[bx+fw,by],[bx+fw+fd,by-fd],[bx+fd,by-fd]],'rgba(58,140,255,.25)');face([[bx,by],[bx+fw,by],[bx+fw,by-hh],[bx,by-hh]],'rgba(58,212,255,.35)');face([[bx+fw,by],[bx+fw+fd,by-fd],[bx+fw+fd,by-fd-hh],[bx+fw,by-hh]],'rgba(58,170,255,.28)');
+    hud(c,bx+fw/2,by+16,'base '+fx(Ls-2*xv,1)+' cm','rgba(200,225,255,.8)',9,'center');hud(c,bx-4,by-hh/2,'x = '+fx(xv,2),'#ffd65a',9,'right',true);
+    var gx2=W*.5+10,C3=chart(c,gx2,top+14,W-gx2-12,H-top-46,{x:[0,6],y:[0,140],title:'VOLUME V = x(12 − 2x)²'});C3.fn(function(x){return x*(Ls-2*x)*(Ls-2*x)},rgba(CY,1),2.2,8);C3.dot(xv,V,'#ffd65a',5);C3.dot(2,128,'rgba(255,255,255,.5)',3);hud(c,C3.X(2),C3.Y(128)-8,'max','rgba(255,255,255,.6)',8,'center');hud(c,16,H-16,'V = '+fx(V,1)+' cm³','#ffd65a',11,'left',true);return}
+   if(mode==='motion'){var T=par.T||6,ts=(tt/1000*(calm()?.4:1))%T,sF=function(t){return t*t*t-9*t*t+24*t},vF=function(t){return 3*t*t-18*t+24},aF=function(t){return 6*t-18},trk=top+22,sx0=20,sw=W-40;
+    c.strokeStyle='rgba(170,200,255,.3)';c.beginPath();c.moveTo(sx0,trk);c.lineTo(sx0+sw,trk);c.stroke();for(var q=0;q<=24;q+=4){var tx=sx0+q/24*sw;c.beginPath();c.moveTo(tx,trk-4);c.lineTo(tx,trk+4);c.stroke();hud(c,tx,trk+14,q+' m','rgba(160,190,230,.6)',8,'center')}
+    var bxp=sx0+Math.max(0,Math.min(24,sF(ts)))/24*sw;glow(c,bxp,trk,14,CY,.5);ball(c,bxp,trk,6,CY);var v=vF(ts);arrow(c,bxp,trk-12,bxp+v*2.2,trk-12,'#ffd65a',2);
+    var gh=(H-trk-58)/3-6,gl=L,gw2=W-gl-12,y1=trk+30;[['s (m)',sF,[0,24],CY],['v (m/s)',vF,[-6,24],YE],['a (m/s²)',aF,[-18,18],OR]].forEach(function(gq,i){var Cg=chart(c,gl,y1+i*(gh+12),gw2,gh,{x:[0,T],y:gq[2],ny:2,noxl:i<2,axes:true});Cg.fn(gq[1],rgba(gq[3],1),2,6);Cg.dot(ts,gq[1](ts),'#fff',3.5);hud(c,gl+5,y1+i*(gh+12)+11,gq[0]+' = '+fx(gq[1](ts),1),rgba(gq[3],1),9,'left',true)});
+    c.strokeStyle='rgba(255,255,255,.35)';var cxp=gl+ts/T*gw2;c.beginPath();c.moveTo(cxp,y1);c.lineTo(cxp,y1+3*(gh+12)-12);c.stroke();return}
+   if(mode==='loglin'){var Cl=chart(c,L,top+12,W-L-12,H-top-44,{x:[0,10],y:showLn?[-1,4]:[0,45],title:showLn?'ln y AGAINST x: A STRAIGHT LINE':'y AGAINST x: A CURVE',axes:true});if(!lay){seeds=[];for(var s=0;s<=10;s++){var yv=2*Math.exp(.3*s)*(1+(Math.sin(s*12.9898)*43758.5453%1)*.12);seeds.push([s,yv])}}lay={c1:Cl};
+    seeds.forEach(function(pt){var tY=showLn?Math.log(pt[1]):pt[1];pt.v=pt.v==null?tY:pt.v+(tY-pt.v)*Math.min(1,dt/300);Cl.dot(pt[0],pt.v,'#ffd65a',4)});
+    if(showLn){Cl.fn(function(x){return Math.log(2)+.3*x},rgba(CY,1),2,8);hud(c,L+8,top+30,'gradient = k = 0.30   intercept = ln A = '+fx(Math.log(2)),rgba(CY,1),10,'left',true)}else Cl.fn(function(x){return 2*Math.exp(.3*x)},rgba(CY,.6),1.5);return}
+   var Fx=par.x||F.x,Fy=par.y||F.y;
+   c1=chart(c,L,top+8,W-L-12,ch,{x:Fx,y:Fy,axes:true,title:mode==='ode'||mode==='euler'?null:F.lab(p),noxl:two});lay={c1:c1};
+   if(auto){var mid=(Fx[0]+Fx[1])/2,span=(Fx[1]-Fx[0])*.42;xm=mid+span*Math.sin(tt/2600)}else{idle+=dt;if(idle>4000&&!calm()&&mode!=='secant'&&mode!=='optim')auto=true}
+   if(xm==null)xm=(Fx[0]+Fx[1])/2;
+   if(mode==='ode'||mode==='euler'){var Cx=c1;for(var gxv=0;gxv<14;gxv++)for(var gyv=0;gyv<9;gyv++){var xs=Fx[0]+(gxv+.5)/14*(Fx[1]-Fx[0]),ys=Fy[0]+(gyv+.5)/9*(Fy[1]-Fy[0]),sl2=ode(xs,ys),ang2=Math.atan(sl2*(Cx.h/(Fy[1]-Fy[0]))/(Cx.w/(Fx[1]-Fx[0]))),lx=Math.cos(ang2)*7,ly=Math.sin(ang2)*7,px2=Cx.X(xs),py2=Cx.Y(ys);c.strokeStyle='rgba(150,190,255,.35)';c.lineWidth=1.3;c.beginPath();c.moveTo(px2-lx,py2+ly);c.lineTo(px2+lx,py2-ly);c.stroke()}
+    hud(c,L+6,top+20,par.eq||'dy/dx = −k·y','rgba(220,235,255,.9)',11,'left',true);
+    if(mode==='ode'){if(!seeds.length&&!seen.s){seen.s=1;for(var q2=0;q2<5;q2++)seeds.push({x:Fx[0],y:Fy[0]+(q2+.5)/5*(Fy[1]-Fy[0]),pts:[]})}
+     seeds.forEach(function(sd){var hstep=(Fx[1]-Fx[0])/400,steps=calm()?6:3;for(var k=0;k<steps;k++){if(sd.x>=Fx[1])break;var k1=ode(sd.x,sd.y),k2=ode(sd.x+hstep/2,sd.y+k1*hstep/2),k3=ode(sd.x+hstep/2,sd.y+k2*hstep/2),k4=ode(sd.x+hstep,sd.y+k3*hstep);sd.y+=hstep*(k1+2*k2+2*k3+k4)/6;sd.x+=hstep;sd.pts.push([Cx.X(sd.x),Cx.Y(sd.y)])}
+      Cx.clip();poly(c,sd.pts,rgba(CY,.85),2,6);Cx.un();if(sd.pts.length){var lp=sd.pts[sd.pts.length-1];glow(c,lp[0],lp[1],9,CY,.6);c.fillStyle='#fff';c.beginPath();c.arc(lp[0],lp[1],2.5,0,6.283);c.fill()}if(sd.x>=Fx[1]&&!calm()){sd.x=Fx[0];sd.pts=[]}});return}
+    var y0e=par.y0||1,ex=function(x){return par.ode==='growth'?y0e*Math.exp(.5*x):y0e*Math.exp(-.5*x)},hS=hN,pts=[[Cx.X(Fx[0]),Cx.Y(y0e)]],xe=Fx[0],ye=y0e;while(xe<Fx[1]-1e-9){var sl3=par.ode==='growth'?.5*ye:-.5*ye;ye+=hS*sl3;xe+=hS;pts.push([Cx.X(Math.min(xe,Fx[1])),Cx.Y(ye)])}
+    Cx.fn(ex,rgba(CY,1),2.2,8);Cx.clip();poly(c,pts,'#ffd65a',2);pts.forEach(function(q3){c.fillStyle='#ffd65a';c.beginPath();c.arc(q3[0],q3[1],3,0,6.283);c.fill()});Cx.un();
+    hud(c,W-14,top+20,'Euler: '+fx(ye,3)+'   exact: '+fx(ex(Fx[1]),3),'#ffd65a',10,'right',true);hud(c,W-14,top+34,'error '+fx(Math.abs(ye-ex(Fx[1]))/ex(Fx[1])*100,1)+'%','rgba(200,225,255,.8)',9,'right');return}
+   // area-type shading
+   if(mode==='area'||mode==='riemann'){var a0=par.lo!=null?par.lo:Fx[0],b0=mode==='area'?(auto?a0+(Fx[1]-a0)*(.5+.5*Math.sin(tt/2400)):xm):(par.hi!=null?par.hi:Fx[1]);if(mode==='area'&&!auto)b0=Math.max(a0,xm);
+    if(mode==='riemann'){var n=nR,hw=(b0-a0)/n,sum=0;for(var i=0;i<n;i++){var xl=a0+i*hw,xr=xl+hw,hv=meth==='left'?f(xl):meth==='right'?f(xr):meth==='mid'?f(xl+hw/2):(f(xl)+f(xr))/2;sum+=hv*hw;c.fillStyle='rgba(58,212,255,.18)';c.strokeStyle='rgba(58,212,255,.7)';c.lineWidth=1;c.beginPath();if(meth==='trap'){c.moveTo(c1.X(xl),c1.Y(0));c.lineTo(c1.X(xl),c1.Y(f(xl)));c.lineTo(c1.X(xr),c1.Y(f(xr)));c.lineTo(c1.X(xr),c1.Y(0))}else{c.rect(c1.X(xl),c1.Y(hv),c1.X(xr)-c1.X(xl),c1.Y(0)-c1.Y(hv))}c.fill();c.stroke()}
+     var ex2=simpson(f,a0,b0,400);hud(c,W-14,top+22,'strips: '+fx(sum,3),'#3ad4ff',11,'right',true);hud(c,W-14,top+37,'exact: '+fx(ex2,3)+'   error '+fx(Math.abs(sum-ex2)/Math.abs(ex2||1)*100,2)+'%','rgba(220,235,255,.85)',9.5,'right')}
+    else{c1.clip();c.fillStyle='rgba(58,212,255,.22)';c.beginPath();c.moveTo(c1.X(a0),c1.Y(0));for(var s2=0;s2<=80;s2++){var xv2=a0+(b0-a0)*s2/80;c.lineTo(c1.X(xv2),c1.Y(f(xv2)))}c.lineTo(c1.X(b0),c1.Y(0));c.closePath();c.fill();c1.un();var Av=simpson(f,a0,b0,200);hud(c,W-14,top+22,'area = '+fx(Av,2)+(par.unit?' '+par.unit:''),'#3ad4ff',11,'right',true);
+     var C4=chart(c,L,top+ch+30,W-L-12,H-top-ch-48,{x:Fx,y:par.Ay||[0,Math.max(1,simpson(f,a0,Fx[1],200))*1.1],ny:3,title:'RUNNING TOTAL (THE INTEGRAL)',axes:true});C4.fn(function(x){return x<a0||x>b0?NaN:simpson(f,a0,x,40)},rgba(YE,1),2,6);C4.dot(b0,Av,'#ffd65a',4)}}
+   // the curve
+   if(mode==='stationary'){var segN=160;c1.clip();for(var s3=0;s3<segN;s3++){var xa=Fx[0]+(Fx[1]-Fx[0])*s3/segN,xb=xa+(Fx[1]-Fx[0])/segN,up=d((xa+xb)/2)>0;c.strokeStyle=up?'#78eb8c':'#ff6a5a';c.lineWidth=2.6;c.beginPath();c.moveTo(c1.X(xa),c1.Y(f(xa)));c.lineTo(c1.X(xb),c1.Y(f(xb)));c.stroke()}c1.un();
+    for(var s4=0;s4<400;s4++){var x1=Fx[0]+(Fx[1]-Fx[0])*s4/400,x2=x1+(Fx[1]-Fx[0])/400;if(d(x1)*d(x2)<0){var xs2=(x1+x2)/2,dd=F.dd?F.dd(xs2,p):d(xs2+1e-3)-d(xs2-1e-3),lab2=dd<0?'maximum':dd>0?'minimum':'stationary';c1.dot(xs2,f(xs2),'#fff',5);hud(c,c1.X(xs2),c1.Y(f(xs2))+(dd<0?-10:18),lab2+' (d²y/dx² '+(dd<0?'< 0':'> 0')+')','rgba(255,255,255,.85)',8.5,'center',true)}}}
+   else if(mode!=='riemann'||true)c1.fn(f,rgba(CY,1),2.4,10);
+   if(mode==='secant'){var x0s=par.x0!=null?par.x0:1,hs=auto?2*Math.pow(.004,((tt/5000)%1)):hN;if(auto&&sl.h){sl.h.input.value=hs;sl.h.refresh()}var fx0=f(x0s),fxh=f(x0s+hs),gs=(fxh-fx0)/hs,gt=d(x0s);
+    c1.clip();var sp=(Fx[1]-Fx[0]);poly(c,[[c1.X(x0s-sp),c1.Y(fx0-gs*sp)],[c1.X(x0s+sp),c1.Y(fx0+gs*sp)]],'rgba(255,214,90,.9)',1.8);c.setLineDash([4,4]);poly(c,[[c1.X(x0s-sp),c1.Y(fx0-gt*sp)],[c1.X(x0s+sp),c1.Y(fx0+gt*sp)]],'rgba(255,255,255,.35)',1.2);c.setLineDash([]);c1.un();
     c1.dot(x0s,fx0,'#fff',5);c1.dot(x0s+hs,fxh,'#ffd65a',5);hud(c,c1.X(x0s+hs)+8,c1.Y(fxh)+4,'Q','#ffd65a',10,'left',true);hud(c,c1.X(x0s)-10,c1.Y(fx0)-6,'P','#fff',10,'right',true);
     panel(c,W-170,top+16,158,56);hud(c,W-162,top+31,'h = '+hs.toFixed(hs<.1?3:2),'rgba(220,235,255,.9)',10,'left',true);hud(c,W-162,top+46,'chord gradient '+fx(gs,3),'#ffd65a',10,'left',true);hud(c,W-162,top+61,'tangent gradient '+fx(gt,3),'rgba(255,255,255,.7)',9,'left');return}
    if(mode==='explore'||mode==='deriv'||mode==='chain'||mode==='stationary'||mode==='area'&&false){var yv3=f(xm),g=d(xm),sp2=(Fx[1]-Fx[0])*.16;c1.clip();poly(c,[[c1.X(xm-sp2),c1.Y(yv3-g*sp2)],[c1.X(xm+sp2),c1.Y(yv3+g*sp2)]],'rgba(255,214,90,.95)',2);glow(c,c1.X(xm),c1.Y(yv3),14,YE,.5);c1.dot(xm,yv3,'#fff',4.5);c1.un();
@@ -673,194 +849,4 @@
 
  /* ---------- reactor physics ---------- */
  SC.flux=function(p){p=p||{};var rf=p.refl?.78:1;return {k:'surf',anim:1,t:'NEUTRON FLUX ACROSS THE CORE',ax:['x (m)','y (m)','flux'],xr:[0,3.6],yr:[0,3.6],zr:[0,1.05],xf:unit(0,' m'),yf:unit(0,' m'),zf:function(v){return fv(v)},
-  f:function(x,y,t){var u=x/1.8-1,v=y/1.8-1,a=Math.cos(rf*u*PI/2)*Math.cos(rf*v*PI/2),rx=.45*Math.cos(t*.45),ry=.45*Math.sin(t*.45);return a*(1-.32*E(-((u-rx)*(u-rx)+(v-ry)*(v-ry))/.035))},
-  read:function(){return p.refl?'reflector: edge flux ≈ '+fv(Math.cos(rf*PI/2)*100)+'% of the centre':'peak ≈ 2.5 × the average · power follows the flux'},
-  cap:p.cap||(p.refl?'The flux across a reflected core. Water round the outside bounces leaking neutrons back, so the edges stay higher and the shape is flatter. The moving dip is a bank of control rods soaking up neutrons.':'The neutron flux across a slice of the core. It peaks in the middle and falls towards the edges, where neutrons leak out. Power follows the flux. The moving dip is a bank of control rods soaking up neutrons.')}};
- SC.decay=function(p){p=p||{};return {k:'surf',t:'RADIOACTIVE DECAY',ax:['time (years)','half-life (years)','% left'],xr:[0,40],yr:[2,20],zr:[0,100],xf:unit(0,' y'),yf:unit(0,' y'),zf:unit(0,'%'),
-  f:function(x,y){return 100*Math.pow(.5,x/y)},slice:{lab:'half-life',f:unit(0,' years'),note:'halves every half-life'},
-  cap:p.cap||'Every possible half-life at once. Each slice from front to back is one decay curve: it halves, then halves again. Short half-lives (front) die away fast; long ones (back) hang on.'}};
- SC.chain=function(p){var lP=Math.LN2/8;return {k:'surf',t:'PARENT → DAUGHTER',ax:['time (hours)','daughter half-life (h)','daughter activity'],xr:[0,48],yr:[.5,20],zr:[0,1],xf:unit(0,' h'),yf:unit(0,' h'),
-  f:function(x,y){var lD=Math.LN2/y;if(Math.abs(lD-lP)<1e-6)lD+=1e-4;var a=lD*lP/(lD-lP)*(E(-lP*x)-E(-lD*x));return a/(lP)*1.0},slice:{lab:'daughter half-life',f:unit(0,' h'),note:'rises, peaks, then decays'},
-  cap:'A parent with an 8-hour half-life feeding a daughter. The daughter builds up, peaks and then decays with its parent. A short-lived daughter (front) keeps pace with the parent; a long-lived one (back) builds slowly.'}};
- SC.atten=function(p){p=p||{};return {k:'surf',t:'SHIELDING: I = I₀ e^(−μx)',ax:['thickness (cm)','μ (per cm)','% getting through'],xr:[0,10],yr:[.05,1.2],zr:[0,100],xf:unit(0,' cm'),zf:unit(0,'%'),
-  f:function(x,y){return 100*E(-y*x)},slice:{lab:'μ',f:function(v){return fv(v)+' /cm · half-value '+fv(Math.LN2/v)+' cm'},note:''},
-  cap:p.cap||'How much radiation gets through a shield for every thickness and every material at once. A bigger μ (lead, at the back) stops it faster. Each half-value thickness cuts it in half again, so it never quite reaches zero.'}};
- SC.dosefield=function(p){var mu=.5,wall=1.2,wt=4;return {k:'surf',anim:1,n:34,t:'DOSE RATE AROUND A SOURCE',ax:['x (m)','y (m)','dose rate'],xr:[-4,4],yr:[-4,4],zr:[0,3.7],xf:unit(0,' m'),yf:unit(0,' m'),zf:function(v){return fv(Math.pow(10,v))},pal:'fire',
-  f:function(x,y){var r2=Math.max(.09,x*x+y*y),d=400/r2;if(x>wall&&Math.abs(y/x)<1.1)d*=E(-mu*wt);return L10(Math.max(1,d))},
-  mark:function(t){return [2.6*Math.cos(t*.4),2.6*Math.sin(t*.4)]},read:function(m,z){return 'worker at '+fv(Math.hypot(m[0],m[1]))+' m: '+fv(Math.pow(10,z))+' µSv/h'+(m[0]>wall&&Math.abs(m[1]/m[0])<1.1?' (behind the shield)':'')},
-  cap:'Dose rate on the floor around a gamma source (400 µSv/h at 1 m). It falls with the inverse square of distance, and the concrete wall casts a shadow. Height is on a log scale: each step up is ten times more.'}};
- SC.kin=function(p){var b=.0065,lam=.08;function P(t,r){r/=1e5;if(Math.abs(r)<1e-7)return 1;var tau=(b-r)/(lam*r);if(r<0)tau=-Math.max(80,Math.abs(tau));return b/(b-r)*E(t/tau)}
-  return {k:'surf',t:'POWER AFTER A REACTIVITY STEP',ax:['time (s)','reactivity (pcm)','power'],xr:[0,60],yr:[-100,200],zr:[-.45,1.5],xf:unit(0,' s'),yf:unit(0,' pcm'),zf:function(v){return '×'+fv(Math.pow(10,v))},
-  f:function(x,y){return L10(P(x,y))},slice:{lab:'reactivity',f:unit(0,' pcm'),note:'prompt jump, then a steady period'},
-  cap:'Reactor power (log scale) for every reactivity step from −100 to +200 pcm. Each slice jumps promptly, then rises or falls on a steady period set by the delayed neutrons. More reactivity means a shorter period. (One-group model.)'}};
- SC.xenon=function(){var lI=Math.LN2/6.6,lX=Math.LN2/9.2;return {k:'surf',t:'XENON-135 AFTER A SHUTDOWN',ax:['hours after shutdown','power before (%)','xenon (×equilibrium)'],xr:[0,48],yr:[10,100],zr:[0,2.6],xf:unit(0,' h'),yf:unit(0,'%'),
-  f:function(t,P){P/=100;var X0=P*1.3/(P+.3),I0=4.5*P;return X0*E(-lX*t)+I0*lI/(lX-lI)*(E(-lI*t)-E(-lX*t))},slice:{lab:'power before',f:unit(0,'%'),note:'peaks about 10 hours later'},
-  cap:'Xenon-135 after a shutdown, for every power level the reactor was running at. Iodine keeps decaying into xenon, so xenon rises and peaks about 10 hours later. The higher the power before, the bigger the peak and the harder a restart.'}};
- SC.decayheat=function(){var lab=['1 s','10 s','2 min','17 min','3 h','1 day','12 days'];return {k:'surf',t:'DECAY HEAT',ax:['time after trip','days at power','% of full power'],xr:[0,6],yr:[1,400],zr:[0,7],xf:function(v){return lab[Math.round(v)]||''},yf:unit(0,' d'),zf:unit(0,'%'),
-  f:function(x,y){var t=Math.pow(10,x),T=y*86400;return 6.6*(Math.pow(t,-.2)-Math.pow(t+T,-.2))},slice:{lab:'days at power',f:unit(0,' days'),note:'never drops to zero quickly'},
-  cap:'Heat from fission products after a trip: about 6% at first, about 1% after an hour and around 0.5% after a day. Time runs on a log scale. A reactor that has run for longer (back) has built up more long-lived products.'}};
- SC.binding=function(){var av=15.75,as=17.8,ac=.711,aa=23.7;function BA(N,Z){var A=N+Z;if(A<4||Z<1)return 0;var B=av*A-as*Math.pow(A,2/3)-ac*Z*(Z-1)/Math.pow(A,1/3)-aa*(N-Z)*(N-Z)/A;return Math.max(0,B/A)}
-  return {k:'surf',n:40,t:'BINDING ENERGY PER NUCLEON',ax:['neutrons N','protons Z','MeV per nucleon'],xr:[0,150],yr:[0,100],zr:[0,9.2],pal:'turbo',
-  f:function(x,y){return BA(x,y)},
-  extra:function(prims,pr,t){var sp=this;[[30,26,'Fe-56'],[143,92,'U-235'],[2,2,'He-4']].forEach(function(q,i){var w=W3(sp,q[0],q[1],BA(q[0],q[1])+.2);prims.push(ballP(pr,w,i===0?YE:i===1?RD:CY,5,null,true));prims.push(txt(pr,[w[0],w[1],w[2]+.12],q[2],'#fff',9,'center',true))})},
-  cap:'Binding energy per nucleon for every mix of protons and neutrons. Stable nuclei sit along the ridge. Iron-56 is near the top, so splitting heavy nuclei (uranium) or fusing light ones (helium) moves up the ridge and releases energy.'}};
- SC.fbarrier=function(){var Ef=6;return {k:'surf',anim:1,t:'THE FISSION BARRIER',ax:['stretch','lopsidedness','energy (MeV)'],xr:[0,1.8],yr:[-1,1],zr:[-16,9],
-  f:function(u,s){return Ef*(3*u*u-2*u*u*u)*(1+.3*s*s)},mark:function(t){var ph=(t*.18)%1;return [ph*1.8,.35*Math.sin(t*.7)*(1-ph)]},read:function(m,z){return 'barrier ≈ 6 MeV · a slow neutron gives U-235 6.5 MeV, enough to get over'},
-  cap:'The energy of a uranium nucleus as it stretches. It has to climb a barrier of about 6 MeV before it can split. A slow neutron gives U-235 about 6.5 MeV, enough to get over, but it only gives U-238 about 4.8 MeV.'}};
- SC.coulomb=function(){var r0=4;function V(x,y){var r=Math.max(.3,Math.hypot(x,y));return r>r0?1.44/r:-.9+(1.44/r0+.9)*(r/r0)*(r/r0)}return {k:'surf',anim:1,n:36,t:'THE COULOMB BARRIER',ax:['x (fm)','y (fm)','energy (MeV)'],xr:[-10,10],yr:[-10,10],zr:[-.6,.5],
-  f:function(x,y){return Math.max(-.6,V(x,y))},mark:function(t){var ph=(t*.25)%2,r=ph<1?10-6.2*ph:3.8+6.2*(ph-1);return [r*Math.cos(.6),r*Math.sin(.6)]},read:function(m){return 'D + T barrier ≈ 0.36 MeV · nuclei need huge speeds (or to tunnel through)'},
-  cap:'Two nuclei repel each other electrically: that is the volcano. Only when they get within a few femtometres does the strong force pull them into the pit (cut off here; it is tens of MeV deep). That is why fusion needs temperatures of over 100 million °C.'}};
- SC.scatterE=function(){return {k:'surf',t:'ENERGY KEPT AFTER ONE COLLISION',ax:['scattering angle','target mass A','fraction kept'],xr:[0,180],yr:[1,30],zr:[0,1],xf:unit(0,'°'),zf:function(v){return fv(v*100)+'%'},
-  f:function(th,A){var c=Math.cos(th*PI/180);return (A*A+2*A*c+1)/((A+1)*(A+1))},slice:{lab:'A',f:function(v){return fv(v)+(Math.round(v)===1?' (hydrogen)':Math.round(v)===12?' (carbon)':'')},note:''},
-  cap:'The fraction of its energy a neutron keeps after bouncing off a nucleus of mass A. Light targets (front) can take almost everything in a head-on hit, which is why water (hydrogen) is such a good moderator.'}};
- SC.coremap=function(p){p=p||{};var RW=[7,11,13,13,15,15,15,15,15,15,15,13,13,11,7],M=[];RW.forEach(function(n,r){M.push([]);for(var c=0;c<15;c++)M[r].push(Math.abs(c-7)<=(n-1)/2)});
-  function batch(r,c){var d=Math.hypot(r-7,c-7);if(d>5.6)return 2;return (r+c)%2===0?0:(r%2?1:2)}
-  return {k:'bars',t:p.batch?'CORE LOADING PATTERN':'POWER IN EVERY FUEL ASSEMBLY',ax:['','','relative power'],xr:null,yr:null,zr:[0,1.5],rows:15,cols:15,bw:.86,
-  v:function(r,c){if(!M[r][c])return null;var d=Math.hypot(r-7,c-7)/8.2,b=batch(r,c),f=[1.18,1,.82][b];return Math.max(.15,Math.cos(d*1.25)*f*1.28)},
-  col:p.batch?function(r,c){return [[255,214,90],[90,200,255],[150,120,255]][batch(r,c)]}:null,
-  read:function(){return p.batch?'yellow = fresh fuel · blue = once-burnt · violet = twice-burnt':'193 assemblies · the tallest makes about 1.4 × the average'},
-  cap:p.batch?'A low-leakage loading pattern: fresh fuel (yellow) is spread through the middle, mixed with older fuel, and the oldest fuel goes round the edge where neutrons leak out. This flattens the power and saves neutrons.':'Each column is one of the 193 fuel assemblies in a large PWR core, and its height is the power it makes. The power is highest in the middle and lowest at the edge, and fresh fuel makes the bumps.'}};
- SC.chainrx=function(){var R=rnd(7),U=[],Nn=[],fl=[];for(var i=0;i<5;i++)for(var j=0;j<5;j++)for(var k=0;k<4;k++)U.push({p:[-.8+i*.4,-.8+j*.4,-.6+k*.4],e:'M',c:[150,165,190]});
-  var NB=[];function spawn(p,par){var a=R()*TAU,b=Math.acos(2*R()-1);NB.push({p:p.slice(),v:[Math.sin(b)*Math.cos(a)*.8,Math.sin(b)*Math.sin(a)*.8,Math.cos(b)*.65],l:0,par:par})}
-  var last=0,count=0;return {k:'mol',box:false,anim:1,t:'A CHAIN REACTION',zoom:1.05,
-  atoms:function(t){var dt=Math.min(.05,Math.max(0,t-last));last=t;if(!Nn.length||Nn.length>60){Nn=[];NB=[];spawn([0,0,0],-1);Nn=NB;NB=[]}
-   Nn=Nn.filter(function(n){n.p[0]+=n.v[0]*dt;n.p[1]+=n.v[1]*dt;n.p[2]+=n.v[2]*dt;n.l+=dt;if(Math.abs(n.p[0])>1.02||Math.abs(n.p[1])>1.02||Math.abs(n.p[2])>.85)return false;
-    for(var i=0;i<U.length;i++){if(i===n.par)continue;var u=U[i],d=Math.hypot(u.p[0]-n.p[0],u.p[1]-n.p[1],u.p[2]-n.p[2]);if(d<.2){if(R()<.7){fl.push({p:u.p.slice(),t:t});count++;var nn=R()<.4?3:2;for(var q=0;q<nn;q++)spawn(u.p,i)}return false}}return true});
-   Nn=Nn.concat(NB);NB=[];fl=fl.filter(function(f){return t-f.t<.6});
-   var A=U.map(function(u){return {p:u.p,e:'M',c:[120,200,150],r:.3}});fl.forEach(function(f){A.push({p:f.p,e:'X',r:.9*(1-(t-f.t)/.6)+.3,c:[255,200,90],glow:true,a:.9})});Nn.forEach(function(n){A.push({p:n.p,e:'e',r:.32,c:CY,glow:true})});return A},
-  read:function(){return 'neutrons flying: '+Nn.length+' · fissions so far: '+count},
-  cap:'A chain reaction in 3D. Each fission (flash) releases 2 or 3 neutrons, which fly off and can split more uranium nuclei; others escape or are absorbed. Here more than one goes on to cause another fission, so the chain grows until it restarts. A reactor is controlled so that, on average, exactly one does.'}};
-
- SC.doppler=function(){var E0=6.67,G=.027;function w(T){return sq(G*G+4*E0*8.617e-5*T/238)}return {k:'surf',n:34,t:'DOPPLER BROADENING',ax:['neutron energy (eV)','fuel temperature (K)','chance of capture'],xr:[6.2,7.15],yr:[300,1500],zr:[0,.5],yf:unit(0,' K'),zf:function(){return ''},
-  f:function(Ee,T){var W=w(T),d=(Ee-E0)/W;return (G/W)/(1+4*d*d)},slice:{lab:'fuel temperature',f:unit(0,' K'),note:'lower, but wider'},
-  cap:'The giant U-238 capture resonance at 6.67 eV. Hotter fuel makes the uranium nuclei jiggle, smearing the resonance out so it is lower but wider and catches more of the neutrons slowing down past it. That is Doppler feedback: it acts within a fraction of a second.'}};
- SC.coolant=function(){return {k:'surf',t:'BORON–LITHIUM CHEMISTRY',ax:['boron (ppm)','lithium (ppm)','pH at 300 °C'],xr:[0,1800],yr:[.2,4],zr:[5.6,8],yf:unit(0,' ppm'),
-  f:function(B,Li){return 7.34+.9*L10(Li)-.00054*B},colf:function(x,y,z){return z>=7.1&&z<=7.4?[70,220,130]:z<7.1?[90,140,240]:[245,160,60]},
-  read:function(){return 'green = target band, pH 7.1 to 7.4'},
-  cap:'The coolant\'s pH at 300 °C for every mix of boron (acid) and lithium hydroxide (alkali). As the boron is diluted through the cycle, the lithium is lowered to stay on the green band, which keeps corrosion and crud down.'}};
- /* ---------- heat, flow and the plant ---------- */
- SC.heatcurve=function(){function T(E,P){var Ts=ts(P),es=4.18*(Ts-20),hf=2257*Math.pow(Math.max(0,(374-Ts)/274),.38);if(E<es)return 20+E/4.18;if(E<es+hf)return Ts;return Math.min(500,Ts+(E-es-hf)/2.1)}
-  return {k:'surf',n:34,t:'HEATING WATER AT DIFFERENT PRESSURES',ax:['energy in (kJ/kg)','pressure (bar)','temperature (°C)'],xr:[0,2900],yr:[1,160],zr:[0,500],zf:unit(0,'°'),yf:unit(0,' bar'),
-  f:function(E,P){return T(E,P)},slice:{lab:'pressure',f:function(v){return fv(v)+' bar · boils at '+fv(ts(v))+' °C'},note:''},
-  cap:'Heat 1 kg of water at every pressure from 1 to 160 bar. The flat steps are boiling: the energy goes into turning water to steam, not heating it. Higher pressure boils hotter, which is why a PWR at 155 bar can be at 300 °C without boiling.'}};
- SC.idealgas=function(){return {k:'surf',t:'GAS PRESSURE: pV = nRT',ax:['volume (litres)','temperature (K)','pressure (kPa)'],xr:[5,50],yr:[100,600],zr:[0,1000],yf:unit(0,' K'),xf:unit(0,' L'),
-  f:function(V,T){return 8.314*T/V},slice:{lab:'temperature',f:unit(0,' K'),note:'squash it: pressure rises'},
-  cap:'Pressure of a mole of gas for every volume and temperature. Along each slice the temperature is fixed: halve the volume and the pressure doubles. Heat it up (back) and the particles hit the walls harder, so the pressure rises.'}};
- SC.pin=function(){var rp=4.1,rc=4.75;function T(r,q){var Tc=310,h=35,Tw=Tc+q/(TAU*rc*h)*1e3,Tci=Tw+q*Math.log(rc/4.18)/(TAU*16)*1e3,Tps=Tci+q/(TAU*rp*5)*1e3/1;return r>rc?Tc+(Tw-Tc)*Math.max(0,1-(r-rc)/1.5):r>4.18?Tci-(Tci-Tw)*(r-4.18)/(rc-4.18):r>rp?Tps-(Tps-Tci)*(r-rp)/(.08):Tps+q*1000/(4*PI*3)*(1-r*r/(rp*rp))}
-  return {k:'surf',anim:1,n:38,t:'TEMPERATURE INSIDE A FUEL PIN',ax:['x (mm)','y (mm)','temperature (°C)'],xr:[-6.3,6.3],yr:[-6.3,6.3],zr:[280,1400],zf:unit(0,'°'),pal:'fire',
-  f:function(x,y,t){return T(Math.hypot(x,y),20+5*Math.sin(t*.5))},read:function(){return 'pellet centre ≈ '+fmtInt(T(0,20))+' °C · surface of the cladding ≈ 340 °C'},
-  cap:'The temperature across one fuel pin, about 12 mm wide. Uranium dioxide conducts heat badly, so the centre of the pellet is a dome at around 1,000 °C while the water outside is about 310 °C. The steep step at the edge is the gap and cladding.'}};
- SC.hotchannel=function(){function q(h,P){return 1.45*Math.sin(PI*h/4.2)*P/100}function chf(h){return 3.4-.6*h}
-  return {k:'surf',t:'HEAT FLUX vs THE DNB LIMIT',ax:['height up the core (m)','reactor power (%)','heat flux (MW/m²)'],xr:[0,4.2],yr:[60,160],zr:[0,2.6],xf:unit(0,' m'),yf:unit(0,'%'),
-  f:function(h,P){return q(h,P)},hot:function(h,P,z){return q(h,P)>chf(h)},
-  meshes:function(){var sp=this;return [{nu:14,nv:6,c:[180,220,255],a:.13,wa:.25,f:function(u,v){return W3(sp,u*4.2,60+v*100,chf(u*4.2))}}]},
-  read:function(){return 'glass sheet = DNB limit · red = steam blanket (DNB)'},
-  cap:'Heat flux up the hottest fuel rod at every reactor power. The glass sheet is the DNB limit. Where the heat flux pokes through it (red), a steam blanket forms and the cladding overheats. Trips keep the reactor well below this.'}};
- SC.carnot=function(){return {k:'surf',t:'THE EFFICIENCY LIMIT',ax:['hot side (°C)','cold side (°C)','efficiency limit'],xr:[150,600],yr:[5,60],zr:[0,70],xf:unit(0,'°'),yf:unit(0,'°'),zf:unit(0,'%'),
-  f:function(Th,Tc){return 100*(1-(Tc+273)/(Th+273))},mark:function(){return [285,20]},read:function(m,z){return 'steam at 285 °C, sea at 20 °C: limit '+fv(z)+'% · Hinkley Point C gets about 36%'},
-  cap:'The highest efficiency any heat engine can have, 1 − T_cold/T_hot (in kelvin). Hotter steam and a colder sea both help. Real plants lose more on top of this limit, which is why about two thirds of the heat goes into the sea.'}};
- SC.pump=function(){function Q0(N){return sq(Math.max(0,(100*N*N-10)/90))}return {k:'surf',t:'PUMP CURVES AT EVERY SPEED',ax:['flow (× design)','pump speed','head (m)'],xr:[0,1.3],yr:[.5,1.1],zr:[0,125],yf:function(v){return fv(v*100)+'%'},
-  f:function(Q,N){var h=100*N*N-60*Q*Q;return h<0?NaN:h},
-  extra:function(prims,pr){var sp=this,pts=[];for(var i=0;i<=24;i++){var N=.5+.6*i/24,Q=Q0(N);if(Q<=1.3)pts.push(W3(sp,Q,N,10+30*Q*Q+.5))}line(pr,pts,YE,2.5,1,true).forEach(function(o){o.d-=.5;prims.push(o)})},
-  read:function(){return 'yellow = operating points (pump curve meets the system curve)'},
-  cap:'Head a pump can deliver at every flow and speed. Turning the pump faster lifts the whole curve. The yellow line is where each pump curve meets the system curve: that is the flow you actually get.'}};
- SC.pipeflow=function(){return {k:'surf',anim:1,n:34,t:'FLOW ACROSS A PIPE',ax:['across (mm)','across (mm)','speed (× average)'],xr:[-1,1],yr:[-1,1],zr:[0,2.1],xf:function(v){return fv(v*50)},yf:function(v){return fv(v*50)},pal:'ice',
-  mask:function(x,y){return x*x+y*y<=1.001},f:function(x,y,t){var r=Math.min(1,Math.hypot(x,y)),a=(Math.sin(t*.45)+1)/2;return (1-a)*2*(1-r*r)+a*1.22*Math.pow(Math.max(0,1-r),1/7)},
-  read:function(n,z,t){var a=(Math.sin(t*.45)+1)/2;return 'Reynolds number ≈ '+fmtInt(1000*Math.pow(100,a))+(a<.25?' · smooth (laminar)':a>.6?' · turbulent':' · changing over')},
-  cap:'The speed of the water across a pipe. Smooth (laminar) flow is a pointed paraboloid, twice as fast in the middle. Turbulent flow mixes, so the profile goes flat with a thin slow layer at the wall. Reactor coolant is very turbulent.'}};
- SC.natcirc=function(){return {k:'surf',t:'NATURAL CIRCULATION',ax:['decay heat (% power)','height difference (m)','flow (% of full)'],xr:[0,8],yr:[2,20],zr:[0,10],xf:unit(0,'%'),yf:unit(0,' m'),zf:unit(0,'%'),
-  f:function(Q,H){return 2.2*Math.pow(Q*H/10,1/3)},slice:{lab:'height',f:unit(0,' m'),note:'no pumps needed'},
-  cap:'With the pumps off, hot water rising from the core and cold water sinking from the steam generators keep the coolant moving. More heat, or a taller loop, drives more flow. A few percent of full flow is enough to carry decay heat away.'}};
- SC.pid=function(){return {k:'surf',t:'CONTROLLER RESPONSE',ax:['time (s)','controller gain','level (× change)'],xr:[0,20],yr:[.5,4.4],zr:[0,1.9],xf:unit(0,' s'),
-  f:function(t,g){var z=Math.max(.08,1.15-.25*g),w=.6+.25*g;if(z>=1){return 1-E(-w*t)*(1+w*t)}var wd=w*sq(1-z*z);return 1-E(-z*w*t)*(Math.cos(wd*t)+z/sq(1-z*z)*Math.sin(wd*t))},slice:{lab:'gain',f:function(v){return fv(v)},note:'more gain: faster but more overshoot'},
-  cap:'How a level controller responds to a step change, for every gain setting. Low gain (front) is slow and smooth. High gain (back) gets there fast but overshoots and rings. Tuning is choosing a slice in between.'}};
- SC.signal=function(){return {k:'surf',t:'A 4–20 mA LOOP',ax:['pressure (bar)','time (s)','current (mA)'],xr:[0,200],yr:[0,20],zr:[0,21],yf:unit(0,' s'),zf:unit(0,' mA'),
-  f:function(p,t){return t>13&&t<16?0:4+16*p/200},read:function(){return '4 mA = 0 bar · 20 mA = 200 bar · 0 mA = broken wire (the trench)'},
-  cap:'The current from a pressure transmitter for every pressure, over time. 4 mA means zero and 20 mA means full scale. The trench is a broken wire: the current drops to 0 mA, which can never be a real reading, so the fault shows up at once.'}};
- SC.state=function(p){p=p||{};var ev=p.ev||'loca';var PATH={
-   loca:function(s){return [155-140*Math.min(1,s*1.4),300-110*s*s,60-50*Math.sin(Math.min(1,s*1.6)*PI/2)+38*Math.max(0,s-.6)/.4]},
-   sgtr:function(s){return [155-75*Math.min(1,s*1.5),300-25*s,60-30*s+10*Math.max(0,s-.7)]},
-   feed:function(s){return [155+10*Math.sin(Math.min(1,s*2)*PI)-5*s,300+15*Math.sin(Math.min(1,s*1.5)*PI/2)-20*Math.max(0,s-.5),60-35*Math.min(1,s*1.6)+25*Math.max(0,s-.6)/.4]},
-   slb:function(s){return [155-55*Math.sin(Math.min(1,s*1.3)*PI/2)+20*Math.max(0,s-.6),300-60*Math.min(1,s*1.4)+15*Math.max(0,s-.7),60-40*Math.min(1,s*1.5)+30*Math.max(0,s-.6)]},
-   turbine:function(s){return [155+8*Math.sin(Math.min(1,s*2.2)*PI)-3*s,300+8*Math.sin(Math.min(1,s*2.2)*PI)-8*s,60+10*Math.sin(Math.min(1,s*2)*PI)-15*s]},
-   loop:function(s){return [155-6*s,300+12*Math.sin(Math.min(1,s*1.5)*PI/2)-6*s,60-15*Math.min(1,s*1.8)+8*s]},
-   normal:function(s){return [155+2*Math.sin(s*TAU*2),300+1.5*Math.sin(s*TAU*3),60+4*Math.sin(s*TAU)]}};
-  var NM={loca:'a small LOCA',sgtr:'a tube rupture',feed:'loss of feedwater',slb:'a steam line break',turbine:'a turbine trip',loop:'loss of offsite power',normal:'steady full power'};var f=PATH[ev]||PATH.loca;
-  return {k:'free',anim:1,yaw:-2.35,pitch:.42,t:'PLANT STATE · '+NM[ev].toUpperCase(),ax:['pressure (bar)','temperature (°C)','pressuriser level'],xr:[0,170],yr:[150,350],zr:[0,100],yf:unit(0,'°'),zf:unit(0,'%'),
-  extra:function(prims,pr,t){var sp=this,s=(t*.1+.3)%1.25,ss=Math.min(1,s),pts=[],sat=[];for(var i=0;i<=60;i++){var q=f(ss*i/60);pts.push(W3(sp,q[0],q[1],q[2]))}
-   for(i=0;i<=40;i++){var P=5+165*i/40,T=ts(P);if(T>=150&&T<=350)sat.push(W3(sp,P,T,0).slice(0,2).concat([-ZS]))}
-   line(pr,sat,YE,2,.85).forEach(function(o){prims.push(o)});
-   var bx=[[140,160],[280,325],[40,75]].map(function(r,k){return r.map(function(v){return k===0?nr(v,sp.xr):k===1?nr(v,sp.yr):nr(v,sp.zr)*ZS})});
-   var B=bx,ed=[[[0,0,0],[1,0,0]],[[0,1,0],[1,1,0]],[[0,0,1],[1,0,1]],[[0,1,1],[1,1,1]],[[0,0,0],[0,1,0]],[[1,0,0],[1,1,0]],[[0,0,1],[0,1,1]],[[1,0,1],[1,1,1]],[[0,0,0],[0,0,1]],[[1,0,0],[1,0,1]],[[0,1,0],[0,1,1]],[[1,1,0],[1,1,1]]];
-   ed.forEach(function(e){prims.push({k:'l',p:e.map(function(a){var q=pr(B[0][a[0]],B[1][a[1]],B[2][a[2]]);return q}),s:'rgba(80,230,150,.6)',w:1.2,d:0})});
-   line(pr,pts,CY,2.4,1,true).forEach(function(o){prims.push(o)});var q=f(ss),w=W3(sp,q[0],q[1],q[2]);prims.push(ballP(pr,w,YE,5,null,true));
-   var wf=W3(sp,q[0],q[1],0);prims.push({k:'l',p:[pr(w[0],w[1],w[2]),pr(wf[0],wf[1],-ZS)],s:'rgba(255,255,255,.4)',w:1,d:0,dash:[3,3]});
-   sp._r=fmtInt(q[0])+' bar · '+fmtInt(q[1])+' °C · level '+fmtInt(q[2])+'% · subcooling '+fmtInt(ts(q[0])-q[1])+' °C'},
-  read:function(){return this._r||''},
-  cap:'The plant\'s state as a path through pressure, temperature and pressuriser level during '+NM[ev]+'. The green box is normal operation. The yellow line on the floor is boiling: the gap between the dot and that line is the subcooling margin.'}};
- SC.cycle=function(){var N=['Mine','Conversion','Enrichment','Fuel factory','Reactor','Cooling pond','Store / reprocess'],R=rnd(3),T=[];for(var i=0;i<14;i++)T.push(R());
-  return {k:'free',box:false,anim:1,t:'THE FUEL CYCLE',pitch:.75,
-  extra:function(prims,pr,t){var n=N.length,pos=N.map(function(_,i){var a=i/n*TAU-PI/2;return [Math.cos(a)*.95,Math.sin(a)*.95,.12*Math.sin(a*2)]}),ring=[];for(var i=0;i<=80;i++){var a=i/80*TAU-PI/2;ring.push([Math.cos(a)*.95,Math.sin(a)*.95,.12*Math.sin(a*2)])}
-   line(pr,ring,[90,140,230],2,.6).forEach(function(o){prims.push(o)});var rp=[pos[6],[pos[6][0]*.3,pos[6][1]*.3,.5],pos[3]];line(pr,rp,GR,1.6,.7).forEach(function(o){o.dash=[4,4];prims.push(o)});
-   pos.forEach(function(p,i){prims.push(ballP(pr,p,i===4?OR:i>4?VI:CY,9,null,true));prims.push(txt(pr,[p[0]*1.22,p[1]*1.22,p[2]+.08],N[i],'#fff',narrow()?8:9.5,'center',true))});
-   T.forEach(function(s,k){var u=(s+t*.05)%1,a=u*TAU-PI/2;prims.push(ballP(pr,[Math.cos(a)*.95,Math.sin(a)*.95,.12*Math.sin(a*2)],YE,2.6,null,true))})},
-  read:function(){return 'green dashes = reprocessing: uranium and plutonium go back into new fuel'},
-  cap:'Uranium\'s journey from the mine to the reactor and on to storage. Each yellow dot is a batch of fuel. Reprocessing (green dashes) can recover uranium and plutonium from used fuel and send them back to the fuel factory.'}};
-
- /* ---------- materials, risk and people ---------- */
- SC.dbtt=function(){function Ev(T,f){var T0=-20+55*sq(f),US=180-20*f;return 15+(US-15)/2*(1+Math.tanh((T-T0)/25))}return {k:'surf',anim:1,t:'TOUGHNESS OF VESSEL STEEL',ax:['temperature (°C)','neutron dose (×10¹⁹/cm²)','impact energy (J)'],xr:[-100,200],yr:[0,4],zr:[0,200],xf:unit(0,'°'),zf:unit(0,' J'),
-  f:Ev,mark:function(t){return [20,2*(1+Math.sin(t*.3))]},read:function(m,z){return 'at 20 °C after dose '+fv(m[1])+': '+fmtInt(z)+' J'+(z<41?' · brittle!':'')},
-  cap:'Charpy impact energy of reactor vessel steel at every temperature. Cold steel is brittle (low) and warm steel is tough (high). Neutron dose (back) pushes the change to higher temperatures, which is why the vessel must be warm before it is fully pressurised.'}};
- SC.sn=function(){return {k:'surf',t:'FATIGUE LIFE',ax:['stress amplitude (MPa)','mean stress (MPa)','cycles to failure'],xr:[100,450],yr:[0,300],zr:[1,9],zf:function(v){return pw(v)},
-  f:function(a,m){var x=a/(900*(1-m/600));return Math.min(9,L10(.5*Math.pow(x,-1/.09)))},slice:{lab:'mean stress',f:unit(0,' MPa'),note:''},
-  cap:'How many load cycles steel survives (log scale). Small stress swings (left) last for billions of cycles; big swings crack it in thousands. A higher steady (mean) stress shortens the life too. Plant thermal cycles are counted for this reason.'}};
- SC.creep=function(){return {k:'surf',t:'CREEP',ax:['time (hours)','stress (MPa)','strain (%)'],xr:[0,10000],yr:[50,150],zr:[0,5],zf:unit(0,'%'),
-  f:function(t,s){var tr=10000*Math.pow(110/s,4),u=t/tr;return Math.min(5,.08*s/100+.25*(1-E(-u*8))+.9*u+(u>.7?6*(u-.7)*(u-.7):0))},slice:{lab:'stress',f:unit(0,' MPa'),note:'primary, steady, then runaway'},
-  cap:'Slow stretching of hot metal under a steady load. It starts fast (primary), settles to a steady creep, then speeds up before it breaks (tertiary). More stress (back) brings the failure much sooner.'}};
- SC.tensile=function(){return {k:'surf',t:'A TENSILE TEST',n:40,ax:['strain (%)','temperature (°C)','stress (MPa)'],xr:[0,24],yr:[20,600],zr:[0,650],xf:unit(0,'%'),yf:unit(0,'°'),
-  f:function(e,T){var k=1-.0011*(T-20),sy=420*k,su=560*k,ey=sy/2000;if(e<ey)return 200000*e/100;var ef=24+6*(T-20)/580;if(e>ef)return 0;var h=sy+(su-sy)*(1-E(-(e-ey)/5));return e>ef*.8?h*(1-(e-ef*.8)/(ef*.2)*.35):h},
-  slice:{lab:'temperature',f:unit(0,' °C'),note:'elastic, yield, harden, neck, break'},
-  cap:'Stress against stretch for steel at every test temperature. It goes up steeply (elastic), yields, hardens, necks and breaks. Hot steel (back) is weaker, so it yields and breaks at lower stress.'}};
- SC.oxide=function(){return {k:'surf',t:'CLADDING CORROSION',ax:['days in the reactor','cladding temperature (°C)','oxide layer (µm)'],xr:[0,1500],yr:[280,360],zr:[0,100],yf:unit(0,'°'),zf:unit(0,' µm'),
-  f:function(d,T){return Math.min(100,2.2*Math.pow(d,1/3)*E((T-300)/22))},slice:{lab:'temperature',f:unit(0,' °C'),note:''},
-  cap:'The oxide layer growing on Zircaloy cladding. It grows quickly at first, then slows down. A little hotter cladding (back) corrodes much faster, which is one reason crud on the fuel and hot spots matter.'}};
- SC.damage=function(){var R=rnd(11),A=[],D=[];for(var i=0;i<6;i++)for(var j=0;j<6;j++)for(var k=0;k<4;k++)A.push({h:[-.75+i*.3,-.75+j*.3,-.45+k*.3]});var last=0,hit=0;
-  return {k:'mol',box:false,anim:1,t:'RADIATION DAMAGE',atoms:function(t){var dt=Math.max(0,Math.min(.05,t-last));last=t;if(t-hit>3){hit=t;D=[];var c=A[(R()*A.length)|0];A.forEach(function(a){var d=Math.hypot(a.h[0]-c.h[0],a.h[1]-c.h[1],a.h[2]-c.h[2]);if(d<.5&&R()<.7){var g=R()*TAU;D.push({a:a,v:[(a.h[0]-c.h[0]+.01)*3+Math.cos(g)*.4,(a.h[1]-c.h[1]+.01)*3+Math.sin(g)*.4,(a.h[2]-c.h[2])*3]})}})}
-    var age=t-hit;return A.map(function(a){var dd=D.filter(function(d){return d.a===a})[0],p=a.h;if(dd){var u=Math.min(1,age*1.5)*(age>2.2?Math.max(0,1-(age-2.2)*1.5):1);p=[a.h[0]+dd.v[0]*u*.18,a.h[1]+dd.v[1]*u*.18,a.h[2]+dd.v[2]*u*.18]}var j=.012*Math.sin(t*9+a.h[0]*20);return {p:[p[0]+j,p[1],p[2]],e:'M',r:.42,c:dd&&age<2.2?OR:[150,175,215]}}).concat(age<.4?[{p:[A[0].h[0]-1,0,0],e:'X',r:.5,c:CY,glow:true}]:[])},
-  read:function(){return 'orange = atoms knocked out of place · they settle back (annealing) when it is hot'},
-  cap:'A fast neutron hits the steel and knocks atoms out of their places in the crystal (orange). Most hop back, but some leave gaps and squeezed-in atoms behind. Over years this makes the steel harder and more brittle.'}};
- SC.tolerability=function(){return {k:'surf',t:'RISK = HOW OFTEN × HOW BAD',ax:['how often (per year)','how bad (people affected)','risk'],xr:[-9,-3],yr:[0,2],zr:[-9,-1],xf:function(v){return pw(v)},yf:function(v){return pw(v)},zf:function(v){return pw(v)},
-  f:function(x,y){return x+y},alpha:.95,colf:function(x,y,z){return z>-4?[240,80,70]:z>-6?[245,180,60]:[70,200,120]},
-  read:function(){return 'green: broadly acceptable · amber: reduce ALARP · red: not tolerable'},
-  cap:'Risk combines how often something happens with how bad it would be. Rare and mild is low (green); frequent and serious is high (red). In the amber band in between, the law says the risk must be reduced as low as reasonably practicable.'}};
- SC.reliab=function(){return {k:'surf',t:'RELIABILITY OVER TIME',ax:['time (years)','failure rate λ (per year)','chance still working'],xr:[0,5],yr:[.05,1],zr:[0,100],xf:unit(0,' y'),zf:unit(0,'%'),
-  f:function(t,l){return 100*E(-l*t)},slice:{lab:'λ',f:function(v){return fv(v)+' per year'},note:'R = e^(−λt)'},
-  cap:'The chance that a component is still working after time t, for every failure rate. Each slice is R = e^(−λt). Testing and repairs reset the clock, which is why safety equipment is tested regularly.'}};
- SC.redund=function(){var B=[0,.02,.05,.1,.2],p=.01;return {k:'bars',t:'ALL TRAINS FAILING TOGETHER',ax:['common cause β','safety trains','chance all fail'],xr:[0,4],yr:[1,4],zr:[-8,-1],base:-8,rows:4,cols:5,bw:.7,
-  xf:function(v){var i=Math.round(v);return B[i]!=null?fv(B[i]*100)+'%':''},yf:function(v){return fv(Math.round(v))},zf:function(v){return pw(v)},
-  v:function(r,c){var n=r+1,b=B[c];return L10((1-b)*Math.pow(p,n)+b*p)},lab:function(r,c,v){return '10'+supStr(Math.round(v))},
-  read:function(){return 'each train fails 1 time in 100 · common cause sets a floor'},
-  cap:'The chance that every safety train fails at once (log scale), when each fails 1 time in 100. More trains (back) multiply the protection, until common-cause failures (to the right) set a floor that extra trains cannot get below.'}};
- SC.hep=function(){return {k:'surf',t:'WHAT MAKES SLIPS MORE LIKELY',ax:['time pressure','stress','chance of a slip'],xr:[0,1],yr:[0,1],zr:[-4,-.5],xf:function(v){return v<.2?'low':v>.8?'high':''},yf:function(v){return v<.2?'low':v>.8?'high':''},zf:function(v){return pw(v)},pal:'fire',
-  f:function(a,b){return -3.5+1.3*a+1.1*b+.4*a*b},read:function(){return 'illustration: stress and time pressure multiply the chance of error'},
-  cap:'An illustration of how human-reliability methods treat error: time pressure and stress each multiply the chance of a slip, and together they are worse. Self-checking (STAR) and three-way communication pull it back down.'}};
- SC.mb=function(p){p=p||{};var Ea=p.Ea||30;return {k:'surf',t:'MOLECULE ENERGIES (MAXWELL–BOLTZMANN)',ax:['energy (kJ/mol)','temperature (K)','fraction of molecules'],xr:[0,50],yr:[250,500],zr:[0,1],yf:unit(0,' K'),zf:function(){return ''},
-  f:function(Ee,T){var kT=8.314e-3*T;return 2.4*sq(Ee/kT)*E(-Ee/kT)/kT*1.6},hot:function(x){return x>Ea},
-  read:function(){return 'orange = molecules with at least the activation energy ('+Ea+' kJ/mol)'},
-  cap:p.cap||'How energy is shared among molecules at each temperature. Only those past the activation energy (orange) can react when they collide. Heating it up (back) spreads the hump out, so many more molecules make it over.'}};
- SC.profile=function(p){p=p||{};var dH=p.endo?50:-60,Ea0=p.endo?110:90;function V(x,c){var s=x*x*(3-2*x),b=E(-Math.pow((x-.5)/.13,2));return dH*s+(Ea0*(1-.5*c)+(dH>0?dH*.5:0))*b}
-  return {k:'surf',anim:1,t:p.endo?'AN ENDOTHERMIC REACTION':'AN EXOTHERMIC REACTION',ax:['progress of reaction','catalyst','energy (kJ/mol)'],xr:[0,1],yr:[0,1],zr:[-80,170],xf:function(v){return v<.1?'reactants':v>.9?'products':''},yf:function(v){return v<.1?'none':v>.9?'strong':''},
-  f:V,mark:function(t){var u=(t*.15)%1;return [u,.5+.5*Math.sin(t*.4)]},read:function(m,z){return 'ΔH = '+(dH>0?'+':'−')+Math.abs(dH)+' kJ/mol · a catalyst lowers the hump, not ΔH'},
-  cap:p.endo?'The energy along a reaction that takes in heat: the products end up higher than the reactants. The hump is the activation energy, and a catalyst (back) lowers it without changing the overall energy change.':'The energy along a reaction that gives out heat: the products end up lower, and the difference is released. The hump is the activation energy. A catalyst (back) gives a lower route over, without changing the overall energy change.'}};
- SC.haber=function(){function Y(T,P){return 100/(1+E((T-355-200*L10(P/200))/100))}return {k:'surf',t:'AMMONIA YIELD AT EQUILIBRIUM',ax:['temperature (°C)','pressure (atm)','yield of NH₃'],xr:[300,550],yr:[50,400],zr:[0,100],xf:unit(0,'°'),yf:unit(0,''),zf:unit(0,'%'),
-  f:Y,mark:function(){return [450,200]},read:function(m,z){return 'Haber process: 450 °C, 200 atm → about '+fmtInt(z)+'% at equilibrium (about 15% per pass)'},
-  cap:'Equilibrium yield of ammonia, N₂ + 3H₂ ⇌ 2NH₃. High pressure (back) favours the side with fewer gas molecules, so yield rises. The forward reaction is exothermic, so heating lowers the yield, but 450 °C is used so it happens fast enough.'}};
- SC.titration=function(){function pH(V,c){var na=25*c,nb=.1*V,v=25+V,e=(na-nb)/v,h=e/2+sq(e*e/4+1e-14);return -L10(h)}return {k:'surf',t:'A TITRATION',ax:['alkali added (cm³)','acid concentration (M)','pH'],xr:[0,50],yr:[.05,.2],zr:[0,14],xf:unit(0,''),pal:'ph',
-  f:pH,slice:{lab:'acid',f:function(v){return fv(v)+' M · end point at '+fv(250*v)+' cm³'},note:''},
-  cap:'pH as 0.1 M sodium hydroxide is added to 25 cm³ of hydrochloric acid, for every acid concentration. The colours are universal indicator. The cliff is the end point: one drop takes the pH from acid to alkali. A stronger acid (back) needs more alkali.'}};
- SC.rate=function(){return {k:'surf',t:'RATE AND TEMPERATURE',ax:['time (s)','temperature (°C)','product made'],xr:[0,120],yr:[10,60],zr:[0,100],xf:unit(0,' s'),yf:unit(0,'°'),zf:unit(0,'%'),
-  f:function(t,T){var k=.01*Math.pow(2,(T-20)/10);return 100*(1-E(-k*t))},slice:{lab:'temperature',f:unit(0,' °C'),note:'gradient = rate'},
-  cap:'Product made over time at every temperature. The gradient of each slice is the rate. As a rule of thumb, 10 °C hotter roughly doubles the rate, because many more collisions have enough energy to react.'}};
- SC.keeling=function(){return {k:'surf',t:'CARBON DIOXIDE IN THE AIR',ax:['month','year','CO₂ (ppm)'],xr:[1,12],yr:[1960,2025],zr:[310,430],xf:function(v){return 'JFMAMJJASOND'.charAt(Math.round(v)-1)},yf:unit(0,''),
-  f:function(m,y){var d=y-1958;return 315.5+.78*d+.0125*d*d+3.1*Math.sin((m-1.3)/12*TAU)},slice:{lab:'year',f:function(v){return fmtInt(v)},note:'plants breathe in each summer'},
-  cap:'Carbon dioxide in the air at Mauna Loa, month by month for every year since 1960 (modelled). It wiggles every year as northern plants grow in summer, and climbs steadily from burning f
+  f:function(x,y,t){var u=x/1.8-1,v=y/1.8-1,a=Math.cos(rf*u*PI/2)*Math.cos(rf*v*PI/2),rx=.45*Math.cos(t*.45),ry=.45*Math.sin(t*.45);return a*(1-.32*E(-((u-r
