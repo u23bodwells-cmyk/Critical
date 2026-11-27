@@ -1,4 +1,4 @@
-}keep();writeFile(true);paint()}else{b.dataset.arm=1;b.textContent='Sure?';setTimeout(function(){delete b.dataset.arm;b.textContent='Delete'},3000)}};r.appendChild(b);L.appendChild(r)});
+d.')}keep();writeFile(true);paint()}else{b.dataset.arm=1;b.textContent='Sure?';setTimeout(function(){delete b.dataset.arm;b.textContent='Delete'},3000)}};r.appendChild(b);L.appendChild(r)});
   paintClock();paintLink()}
  function paintClock(){var c=$('.stclock'),g=$('[data-a=go]');
   if(st.run){c.textContent=clock(Date.now()-st.run.at);c.classList.add('live');g.textContent='Stop and save';g.classList.add('stop')}else{c.textContent='00:00:00';c.classList.remove('live');g.textContent='Start studying';g.classList.remove('stop')}
@@ -738,7 +738,7 @@ var PLAN=(function(){
 /* Others days: your own commitments (like a research project) take over that day's plan, with the same timer */
  function OTHL(){var o=S.others;return Array.isArray(o)?o.filter(function(x){return x&&x.n&&x.d>=0&&x.d<7}):[]}
  function OTH(i){var L=OTHL().filter(function(x){return x.d===i});if(!L.length)return null;
-  return L.map(function(x){var acts=[['Start the timer','other',x.n]];if(x.l)acts.push(['Open link','url',x.l]);return ['Others: '+x.n,Math.max(5,Math.min(240,Math.round(+x.m)||mins(i))),x.w||('Work on '+x.n+' until the timer\'s done. At the end, write down what you got done and what\'s next.'),acts,0,'other']})}
+  return L.map(function(x){var acts=[['Start the timer','other',x.n],['📚 Research tracker','restrack',x.n]];if(x.l)acts.push(['Open link','url',x.l]);return ['Others: '+x.n,Math.max(5,Math.min(240,Math.round(+x.m)||mins(i))),x.w||('Work on '+x.n+' until the timer\'s done. At the end, write down what you got done and what\'s next.'),acts,0,'other']})}
  /* free choice: once a week, study whatever you like for that day's usual time */
  function freeDay(){var p=S.plan;return p&&p.wk===wk()&&typeof p.free==='number'?p.free:null}
  function FREEB(m){return ['Free choice',m,'Study anything you like: something from class, a topic you\'re curious about, or catching up. You choose what, but keep going until the timer\'s done.',[['Pick any lesson','freelearn'],['Review','freerev'],['Control room','sim']],0,'free']}
@@ -859,8 +859,8 @@ var PLAN=(function(){
  function go(a,title,openUrl){if(PS().auto&&typeof STUDY!=='undefined'&&STUDY.start)STUDY.start(title);
   if(a[1]==='url'){if(openUrl)try{window.open(a[2],'_blank','noopener')}catch(_){}return}close();if(document.querySelector('#player.open')&&typeof closePlayer==='function')closePlayer();
   if(a[1]==='app'){location.href=a[2];return}
-  if(a[1]==='path'){pathGo();return}if(a[1]==='pathrev'){pathReview();return}if(a[1]==='brk'){brkOpen(a[2]);return}if(a[1]==='other'){toastIn('Timer running: '+(a[2]||'your project')+'. Come back here when it\'s done.');return}if(a[1]==='freelearn'){showPage('learn');return}if(a[1]==='freerev'){showPage('review');return}if(a[1]==='mix'){smMix();return}if(a[1]==='ghost'){smGhost();return}if(a[1]==='bed'){try{bedOpen()}catch(_){}return}
-  if(a[1]==='warm'){var mc=null;try{mc=MEM.counts()}catch(_){}if(mc&&mc.total)MEM.start();else ONE.start();warmP=typeof P!=='undefined'?P:null;return}
+  if(a[1]==='path'){pathGo();return}if(a[1]==='pathrev'){pathReview();return}if(a[1]==='brk'){brkOpen(a[2]);return}if(a[1]==='restrack'){try{resOpen(a[2])}catch(_){}return}if(a[1]==='other'){toastIn('Timer running: '+(a[2]||'your project')+'. Come back here when it\'s done.');return}if(a[1]==='freelearn'){showPage('learn');return}if(a[1]==='freerev'){showPage('review');return}if(a[1]==='mix'){smMix();return}if(a[1]==='ghost'){smGhost();return}if(a[1]==='bed'){try{bedOpen()}catch(_){}return}
+  if(a[1]==='warm'){var mc=null;try{mc=MEM.counts()}catch(_){}var wg=false;try{wg=warmGo()}catch(_){}if(!wg){if(mc&&mc.total)MEM.start();else ONE.start()}warmP=typeof P!=='undefined'?P:null;return}
   if(a[1]==='rev'){var rr2=runGet(),bl=DAY(rr2?rr2.day:cur)[0];try{REV.hub(bl&&bl[5]==='rev'?bl[6]:null)}catch(e){if(window.console)console.error(e)}return}
   if(a[1]==='clash'){try{ARENA.open()}catch(_){}return}
   if(a[1]==='sim'){showPage('sim');return}
@@ -1104,5 +1104,4 @@ var PLAN=(function(){
    var A=R.querySelector('.placts'),x1=document.createElement('button');x1.type='button';x1.className='plgo';x1.textContent=isRv?'Open revision →':'Go to it →';x1.onclick=function(){var a=b[3][0];if(a)go(a,b[0],true);else close()};if(b[3].length)A.appendChild(x1);
    var x2=document.createElement('button');x2.type='button';x2.className='plgo alt';x2.textContent='Next part now';x2.onclick=function(){var rr=runGet();if(rr){rr.ends=Date.now();runSet(rr);loop();paint()}};if(!isRv)A.appendChild(x2);
    var x4=document.createElement('button');x4.type='button';x4.className='plgo alt';x4.textContent='Finished early';x4.onclick=function(){finishEarly()};if(!isRv)A.appendChild(x4);
-   var x3=document.createElement('button');x3.type='button';x3.className='plgo alt';x3.textContent='Stop the plan';x3.onclick=function(){stopRun(false)};A.appendChild(x3);return}
-  var j=firstLeft(t);if(j<0){if(feOn(t)){var fz0=PS().fe[t],fn=fz0.n||1;R.innerHTML='<p>Finished early today ✓</p><b>'+fn+' lesson'+(fn===1?
+   var x3=document.createElement('button');x3.type='button';x3.className='plgo alt';x3.textContent='Stop the plan';x3.onclick=function(){stopRun(false)};A.appendChild(x3);re

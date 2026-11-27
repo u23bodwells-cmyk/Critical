@@ -1,4 +1,7 @@
-ff';$('nf_sr').style.width=srOn?lpos(Math.max(SIM.srDisp,1),0,6)+'%':'0%';
+built)return;var r=simRho(s),Tr=simTref(s),cps=s.n*1e11,srOn=s.n<=1e-6,M=MISSIONS[SIM.mi];
+ if(!srOn)SIM.srDisp=0;else{var nd=Math.max(0.25,1/Math.max(1,SIM.speed));SIM.srDisp=poissonSample(cps*nd)/nd}
+ $('sClock').textContent=fmtT(s.t);
+ $('ni_sr').textContent=srOn?Math.round(SIM.srDisp).toLocaleString('en-GB'):'HV off';$('nf_sr').style.width=srOn?lpos(Math.max(SIM.srDisp,1),0,6)+'%':'0%';
  var ir=s.n*1e-3;$('ni_ir').textContent=s.n<1e-8?'below scale':sci(ir,2)+' A';$('nf_ir').style.width=lpos(ir,-11,-3)+'%';
  $('ni_pr').textContent=(s.n*100).toFixed(s.n<0.1?2:1)+'%';$('nf_pr').style.width=Math.min(100,s.n*100/1.2)+'%';
  var sur=s.sur;$('ni_sur').textContent=(sur>=0?'+':'')+sur.toFixed(2).replace('-','−');var z=1/6*100;$('nf_sur').style.left=(sur>=0?z:Math.max(0,z+sur/6*100))+'%';$('nf_sur').style.width=Math.min(100-z,Math.abs(sur)/6*100)+'%';$('nf_sur').style.background=sur>1?'var(--red)':sur<0?'var(--blue)':'var(--accent)';
@@ -953,5 +956,4 @@ function NSIM(w,h,rnd){
     c.fillStyle='rgba(255,214,90,.55)';c.beginPath();c.moveTo(x0+W*.3,cy2-inW/2);c.bezierCurveTo(W*.55,cy2-inW/2,W*.55,cy2-inW/2-30,x1,cy2-inW/2-30);c.lineTo(x1,cy2-inW/2-30+eW);c.bezierCurveTo(W*.55,cy2-inW/2-30+eW,W*.55,cy2-inW/2+eW,x0+W*.3,cy2-inW/2+eW);c.closePath();c.fill();hud(c,x1,cy2-inW/2-36,'electricity '+fmtInt(1630*P)+' MW (35.5%)','#ffd65a',9.5,'right',true);
     c.fillStyle='rgba(58,212,200,.45)';c.beginPath();c.moveTo(x0+W*.3,cy2-inW/2+eW);c.bezierCurveTo(W*.55,cy2-inW/2+eW,W*.55,cy2+40,x1,cy2+40);c.lineTo(x1,cy2+40+sW);c.bezierCurveTo(W*.55,cy2+40+sW,W*.55,cy2+inW/2,x0+W*.3,cy2+inW/2);c.closePath();c.fill();hud(c,x1,cy2+40+sW+14,'heat to the sea '+fmtInt(2960*P)+' MW (64.5%)','#7ff0e0',9.5,'right',true);
     for(var i=0;i<24;i++){var uu=(tt/1600+i/24)%1,yy=cy2-inW/2+((i*.37)%1)*inW;c.fillStyle='rgba(255,255,255,.7)';c.beginPath();c.arc(x0+uu*W*.3,yy,1.6,0,6.283);c.fill()}st.t.textContent=fmtInt(4590*P)+' MW';st.e.textContent=fmtInt(1630*P)+' MW';st.s.textContent=fmtInt(2960*P)+' MW';return}
-   if(mode==='rankine'){band(c,W,'THE RANKINE CYCLE · temperature against entropy','');var Ce=chart(c,52,36,W-66,H-72,{x:[0,9],y:[0,380],ny:4,title:'TEMPERATURE (°C)',xl:'entropy (kJ/kg·K)'});Ce.fn(function(s){return s<4.4?374*Math.sin(Math.min(1,s/4.4)*Math.PI/2)*.98+(s<.3?s*20:0):374*Math.cos((s-4.4)/4.7*Math.PI/2)},'rgba(160,190,230,.6)',1.4);
-    var sL=function(T){return T/374*4.2},sV=function(T){return 4.4+Math.acos(Math.min(1,T/374))*4.7/(Math.PI/2)},p
+   if(mode==='rankine'){band(c,W,'THE RANKINE CYCLE · temperature against entropy','');var Ce=chart(c,52,36,W-66,H-72,{x:[0,9],y:[0,380],ny:4,ti

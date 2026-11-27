@@ -332,7 +332,7 @@ function rTy(c,b,ty){P.asked++;var p=document.createElement('div');p.className='
  sm.querySelector('.tymc').onclick=function(){toMC(false)};
  function toMC(wrong){while(b.children.length>1)b.removeChild(b.lastChild);P.asked--;c._mcNow=true;P.hintFn=P.hintCan=null;foot('','','');rQ(c,b);if(wrong)foot('no',EASE.gentle(),'<div>Not quite. Here are some options: pick the right one.</div>')}
  function check(){if(inp.disabled)return;var v=inp.value.trim(),ok;
-  if(ty.k==='num'){var x=parseNum(v.replace(/[a-zA-Zμ°Ω\/²³()\s]+$/,''));if(isNaN(x)){foot('no','That isn\'t a number','<div>Type just the number, like 13 or 0.25.</div>');return}ok=Math.abs(x-ty.v)<=Math.abs(ty.v)*ty.tol+1e-9}
+  if(ty.k==='num'){var x=parseNum(v.replace(/[a-zA-Zμ°Ω\/²³()\s]+$/,''));if(isNaN(x)){foot('no','That isn\'t a number','<div>Type just the number, like 13 or 0.25.</div>');return}ok=Math.abs(x-ty.v)<=Math.abs(ty.v)*(ty.tol+1e-9)}
   else ok=tyMatch(ty,v);
   if(!ok&&ty.k==='word'&&!tyWrongHit(ty,v)){ask(v);return}
   if(ok){inp.disabled=true;inp.style.borderColor='var(--good-line)';gotRight(c);var bon=!P.st.tries?5:0;if(bon)award(bon);foot('ok',praise()+(bon?' +5 XP for typing it':''),(tyNorm(v)!==tyNorm(ty.show)?'<div>The answer: <b>'+ty.show+'</b></div>':'')+(c.e?'<div>'+c.e+'</div>':''));mainBtn('Continue',nextCard)}
@@ -349,7 +349,7 @@ function rN(c,b){P.asked++;var p=document.createElement('div');p.className='qpro
  var sm=document.createElement('p');sm.className='small';sm.textContent='Type a number. You can write powers of ten like 3e-5 or 3×10^-5.';b.appendChild(sm);
  inp.oninput=function(){mainBtn('Check',check,inp.value.trim()==='');if(!$('pFoot').classList.contains('ok'))foot('','','')};mainBtn('Check',check,true);setTimeout(function(){try{inp.focus({preventScroll:true})}catch(e){}},50);P.hintCan=function(){return !inp.disabled&&!!c.e};P.hintFn=function(){return P.hintCan()?'Here\'s the method: '+EASE.maskAns(c.e,c.a):''};
  function check(){var v=parseNum(inp.value);if(isNaN(v)){foot('no','That isn\'t a number','<div>Try something like 0.25, 420 or 3e-5.</div>');return}
-  var tol=c.tol==null?0.02:c.tol,ok=c.a===0?Math.abs(v)<=(tol||1e-9):Math.abs(v-c.a)<=Math.abs(c.a)*tol+1e-12;
+  var tol=c.tol==null?0.02:c.tol,ok=c.a===0?Math.abs(v)<=(tol||1e-9):Math.abs(v-c.a)<=Math.abs(c.a)*(tol+1e-9);
   if(ok){inp.disabled=true;inp.style.borderColor='var(--good-line)';gotRight(c);foot('ok',praise(),c.e?'<div>'+c.e+'</div>':'');mainBtn('Continue',nextCard)}
   else{P.st.tries++;if(P.st.tries===1)gotWrong(c);inp.style.borderColor='var(--amber)';if(P.st.tries>=2){inp.disabled=true;foot('no','The answer is '+fmtAns(c.a)+(c.u?' '+c.u:''),(c.e?'<div>'+c.e+'</div>':'')+EASE.revNote(c));mainBtn('Continue',nextCard)}else{var hint=numSlip(v,c.a)||(Math.abs(v)>0&&Math.abs(c.a)>0&&Math.abs(Math.log10(Math.abs(v/c.a))-Math.round(Math.log10(Math.abs(v/c.a))))<0.02&&Math.round(Math.log10(Math.abs(v/c.a)))!==0?'Check your powers of ten.':(c.hint||'Check your working and try again.'));foot('no',EASE.gentle(),'<div>'+hint+'</div>');mainBtn('Check',check,false)}}}}
 function rW(c,b){if(c.p){var p=document.createElement('div');p.className='qprompt';p.style.fontSize='18px';p.innerHTML=c.p;b.appendChild(p)}var box=document.createElement('div');box.className='w';b.appendChild(box);
@@ -828,7 +828,7 @@ function stopTimer(){if(TIMER){clearInterval(TIMER);TIMER=null}}
 function updTimer(){if(!P||P.mode!=='test')return;var s=Math.floor((Date.now()-P.t0)/1000);$('pXP').innerHTML='<span class="ttime'+(s>TEST_MINS*60?' over':'')+'">'+fmtClock(s)+' / '+TEST_MINS+':00</span>'}
 function nextLabel(){return P.i===P.cards.length-1?'Finish test':'Next'}
 function correctText(c){return c.t==='RF'?String(c.b).replace(/[&<>]/g,function(x){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[x]}):c.t==='Q'?c.o[c.a]:c.t==='N'?fmtAns(c.a)+(c.u?' '+c.u:''):c.items.map(function(t,i){return (i+1)+'. '+t}).join('<br>')}
-function numOK(c,v){var tol=c.tol==null?0.02:c.tol;return c.a===0?Math.abs(v)<=(tol||1e-9):Math.abs(v-c.a)<=Math.abs(c.a)*tol+1e-12}
+function numOK(c,v){var tol=c.tol==null?0.02:c.tol;return c.a===0?Math.abs(v)<=(tol||1e-9):Math.abs(v-c.a)<=Math.abs(c.a)*(tol+1e-9)}
 function testRecord(c,ok,given){if(P.rev)try{REV.mark(c,ok)}catch(_){}P.answers.push({c:c,ok:ok,given:given,correct:correctText(c)});P.asked++;if(ok)P.right++;nextCard()}
 function testSkip(){var c=P.cards[P.i];testRecord(c,false,'(skipped)')}
 function testHead(c,b){var p=el('div','qprompt',c.p,b)}
@@ -1125,4 +1125,4 @@ var BEDATA=[['H-2',2,1.112],['He-3',3,2.573],['He-4',4,7.074],['Li-6',6,5.33],['
 WIDGETS.beCurve=function(box){var cv=canvas(box,260),m=msg(box),sel=null,Pp;
  function draw(){Pp=plot(cv,{x:[0,250],y:[0,10],xl:'nucleon number A',yl:'MeV per nucleon'});Pp.pts(BEDATA.map(function(b){return [b[1],b[2]]}),cssv('--muted'),1.5);BEDATA.forEach(function(b){Pp.dot(b[1],b[2],b===sel?cssv('--coral'):cssv('--accent'),b===sel?7:5)});if(sel)Pp.text(sel[0],sel[1]+4,sel[2]-0.5,cssv('--text'))}
  cv.addEventListener('click',function(e){var r=cv.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top,best=null,bd=900;BEDATA.forEach(function(b){var d=Math.pow(Pp.X(b[1])-mx,2)+Math.pow(Pp.Y(b[2])-my,2);if(d<bd){bd=d;best=b}});if(!best)return;sel=best;m.set('<b>'+best[0]+'</b>: '+best[2].toFixed(2)+' MeV per nucleon, total binding energy '+(best[2]*best[1]).toFixed(0)+' MeV.');draw()});
- onDraw(draw);draw();m.set('Click a point.');return {check:function(){return sel&&(sel[0]==='Fe-56'||sel[0]==='Ni-62')?{ok:true}:{ok:false,msg:sel?sel[0]+' has '+sel[2].toFixed(2)+' MeV per nucleon. Look for the highest point.':'Click the highes
+ onDraw(draw);draw();m.set('Click a point.');return {check:function(){return sel&&(sel[0]==='Fe-56'||sel[0]==='Ni-62')?{ok:true}:{ok:false,msg:sel?sel[0]+' has '+sel[2].toFixed(2)+' MeV per nucleon. Look for the highest point.':'Click the hi

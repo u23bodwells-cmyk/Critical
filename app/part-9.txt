@@ -1,4 +1,6 @@
-der</h3><p>y = 8 − 2x is still a straight line. The gradient is the number multiplying x, including its sign: <b>−2</b>.</p>`),
+ class="eq">y = mx + c</div>${KY([['m','the gradient',''],['c','the y-intercept: where it crosses the y-axis','']])}<p>So y = 3x + 2 has gradient 3 and crosses the y-axis at 2.</p>`),
+Q(`What is the gradient of y = 5x − 7?`,[`5`,`−7`,`7`,`−5`],0,`The number in front of x is the gradient.`),
+T(`<h3>Watch out for the order</h3><p>y = 8 − 2x is still a straight line. The gradient is the number multiplying x, including its sign: <b>−2</b>.</p>`),
 Q(`What is the gradient of y = 8 − 2x?`,[`−2`,`8`,`2`,`−8`],0,`It's the coefficient of x: −2.`),
 T(`<h3>Make y the subject first</h3><p>If the equation is 2y = 6x + 4, divide everything by 2 first: y = 3x + 2. Now the gradient is clearly <b>3</b>.</p>`),
 W('calcDrill',{skill:'gradeq',need:5},`Read off the gradient. Get 5 right to master it.`,`Get y on its own, then read the number in front of x.`),
@@ -981,6 +983,4 @@ LH('c9-2-1','Discs',10,'Spin a curve around the x-axis and slice the solid like 
 RM(`<p>Area of a circle: πr². An integral adds up thin slices: ∫ (slice) dx.</p>`),
 T(`<h3>Volume by slicing</h3><p>If every slice at position x has cross-section area A(x), the volume is <b>V = ∫ A(x) dx</b>.</p><p>Spin y = f(x) around the x-axis: each slice is a <b>disc</b> of radius y, area πy²:</p><div class="eq">V = π ∫<sub>a</sub><sup>b</sup> y² dx</div>`),
 Q(`Spinning y = f(x) about the x-axis, each slice is a disc with radius…`,[`y`,`x`,`dx`,`πy`],0,`The height of the curve.`),
-W('stepCalc',{steps:[`Prove the volume of a sphere of radius r.`,`The circle x² + y² = r², spun about the x-axis, makes a sphere. y² = r² − x²`,`V = π∫<sub>−r</sub><sup>r</sup> (r² − x²) dx = π[r²x − x³/3] from −r to r`,`= π[(r³ − r³/3) − (−r³ + r³/3)] = π × 4r³/3`,`<b>V = (4/3)πr³</b>`]},`The volume of a sphere, from calculus.`,`The formula you learned at GCSE, proved.`),
-W('calcDrill',{skill:'discvol',need:3},`Volumes by discs. Get 3 right to master it.`,`V = π∫ y² dx: square y first.`),
-Q(`Why do we square y in the disc formula?`,[`Each disc's area is π × ra
+W('stepCalc',{steps:[`Prove the volume of a sphere of radius r.`,`The circle x² + y² = r², spun about the x-axis, makes a sphere. y² = r² − x²`,`V = π∫<sub>−r</sub><sup>r</sup> (r² − x²) dx = π[r²x − x³/3] from −r to r`,`= π[(r³ − r³/3) − (−r³ + r³

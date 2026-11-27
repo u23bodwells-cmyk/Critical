@@ -1,4 +1,5 @@
-c',RAR[rw.r].c);d.innerHTML='<span>🎁</span><div><b>Promotion reward</b><em>'+esc(rw.lab)+'</em></div><button type="button" class="xbtn">Claim</button>';c.insertBefore(d,ok);d.querySelector('button').onclick=function(){var bt=this;if(lvClaim(k)){celebrate(bt,rw.r);bt.disabled=true;bt.textContent='✓ Claimed'}}}}catch(e){}return r};
+catch(e){}return out};
+ var slu=showLevelUp;showLevelUp=function(i){var r=slu.apply(this,arguments);try{var k='R:'+i,m=$('modal'),c=m&&m.querySelector('.mcard'),ok=m&&m.querySelector('#mOk');if(c&&ok&&lvCan().indexOf(k)>=0){var rw=rkReward(i),d=document.createElement('div');d.className='mlvup';d.style.setProperty('--rc',RAR[rw.r].c);d.innerHTML='<span>🎁</span><div><b>Promotion reward</b><em>'+esc(rw.lab)+'</em></div><button type="button" class="xbtn">Claim</button>';c.insertBefore(d,ok);d.querySelector('button').onclick=function(){var bt=this;if(lvClaim(k)){celebrate(bt,rw.r);bt.disabled=true;bt.textContent='✓ Claimed'}}}}catch(e){}return r};
  var gr0=gotRight;gotRight=function(){var r=gr0.apply(this,arguments);try{var it=fxEq();if(it&&popen()){var a=document.querySelector('#pBody .opt.right,#pBody .opt.ok,#pBody .opt.correct,#pBody input.ok,#pBody .ok')||$('pBtn');burstAt(it,a)}}catch(e){}return r};
  var cp=closePlayer;closePlayer=function(){var r=cp.apply(this,arguments);var q=document.getElementById('motQs');if(q)q.remove();qs=null;setTimeout(ui,50);return r};
  function cta(t){var R=RAR[t],b=$('pBody');if(document.getElementById('encWrap')){try{encChestDraw();sfx('quest')}catch(e){}return}if(!popen()||!b){try{toast('🎁','You earned a '+R.n+' crate','Open it in Rewards','badge')}catch(e){}return}
@@ -650,7 +651,7 @@ function lxWeak(k,ok,rev){var x=lxGet(),w=x.weak[k],t=today();
  if(w&&rev){var iv=Math.min(32,(w.iv||1)*2);if(iv>=16)delete x.weak[k];else x.weak[k]={n:w.n,iv:iv,due:lxAddD(t,iv),at:Date.now()};lxSet(x)}}
 function lxDue(){var x=lxGet(),t=today();return Object.keys(x.weak).filter(function(k){return typeof CGEN[k]==='function'&&x.weak[k].due<=t}).sort(function(a,b){return (x.weak[b].n||0)-(x.weak[a].n||0)})}
 /* common slips in a number answer, so a wrong answer says why it's wrong */
-function numSlip(v,a){if(!isFinite(v)||!isFinite(a)||a===0||v===0)return '';function nr(x,y){return Math.abs(x-y)<=Math.abs(y)*0.015+1e-12}
+function numSlip(v,a){if(!isFinite(v)||!isFinite(a)||a===0||v===0)return '';function nr(x,y){return Math.abs(x-y)<=Math.abs(y)*(0.015+1e-9)}
  if(nr(v,-a))return 'Right size, wrong sign: check whether the answer should be positive or negative.';
  for(var k=1;k<=12;k++)if(nr(v,a*Math.pow(10,k))||nr(v,a/Math.pow(10,k)))return 'Your digits are right, but it\'s out by a factor of 10'+(k>1?'<sup>'+k+'</sup>':'')+'. Check the units and the powers of ten.';
  if(nr(v,1/a))return 'That\'s the answer upside down: check which number divides which.';
@@ -866,5 +867,4 @@ var LABCH={
  'core3d:vessel':['Follow the coolant round the vessel.','Which way does coolant flow through a PWR vessel?',['Down the outside (the downcomer), then up through the core','Straight across the top','Down through the core','Only through the control rods'],'Cold leg water goes down the downcomer, up through the core where it is heated, and out of the hot legs.'],
  'core3d:refuel':['Step through a refuelling outage.','What happens to the fuel at refuelling?',['About a third is replaced and the rest is moved to new positions','It is all replaced','None is moved','It is just turned upside down'],'Shuffling partly used assemblies keeps the power shape flat and uses the fuel evenly.'],
  'core3d:core':['Compare the core sizes.','What mainly makes a small modular reactor different?',['It is smaller and built in factory modules','It runs on fusion','It doesn\'t need cooling','It burns coal'],'SMRs use the same physics as big PWRs, but smaller, factory-made parts aim to cut cost and build time.'],
- 'scatterLab':['Fire the neutron head-on at each target nucleus.','Which nucleus takes the most energy from the neutron?',['Hydrogen-1','Carbon-12','Uranium-238','Deuterium'],'A hydrogen nucleus has the same mass as a neutron, so a head-on hit can take all its energy. That is why water is such a good moderator.']};
-Object.assign(LABCH,{"@r2": ["Watch the four fate counters for a while.", "Which fate keeps the chain reaction going?", ["Causing fission", "Being caught by U-238", "Being s
+ 'scatterLab':['Fire the neutron head-on at each target nucleus.','Which nucleus takes the most energy from the neutron?',['Hydrogen-1','Carbon-12','Uranium-238','Deuteri

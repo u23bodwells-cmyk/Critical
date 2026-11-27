@@ -1,4 +1,5 @@
-rnable poisons</b> (gadolinium).</li><li>Poisons cut start-of-cycle boron and keep the MTC negative.</li></ul>`)]),
+ boron too (Level 3 Theory).`),
+T(`<h3>Key points</h3><ul><li><b>Low-leakage</b> patterns: fresh inside, burnt at the edge. Less leakage, less vessel fluence.</li><li>Higher internal peaking is controlled with <b>burnable poisons</b> (gadolinium).</li><li>Poisons cut start-of-cycle boron and keep the MTC negative.</li></ul>`)]),
 LH('t5-1-3','Checking the core: monitoring and startup tests',10,'The core design is a prediction. How the plant proves the real core matches it.',[
 RM(`<ul><li>Peaking factors and DNBR limits (Level 3 Theory).</li><li>Critical boron, rod worth and temperature coefficients (Level 3).</li></ul>`),
 T(`<h3>Measuring the power shape</h3><p>The EPR measures its in-core power distribution in two ways:</p><ul><li><b>Self-powered neutron detectors</b> fixed in the core, giving continuous readings used by the protection and limitation systems.</li><li>An <b>aeroball system</b>: small vanadium balls blown into the core with gas, activated by neutrons, then blown out and counted. This gives a detailed flux map used to calibrate the fixed detectors.</li></ul>`),
@@ -744,7 +745,7 @@ WIDGETS.calcDrill=function(box,par){var mth=false;try{if(typeof P!=='undefined'&
   answered=true;chkB.style.display='none';helpB.style.display='none';skipB.style.display='none';nxt.style.display='';nxt.textContent='Try a similar one';m.set('');dots();try{nxt.focus({preventScroll:true})}catch(e){}}
  function skip(){if(answered)return;clean=false;next()}
  function moveOn(){passed=true;stopT();moveB.style.display='none';m.set('No problem. You can carry on now. Come back with the <b>Practice</b> button on this lesson whenever you like: it uses the same questions.',true);dots()}
- function close(bb,v){var tol=bb.tol==null?0.005:bb.tol;return bb.a===0?Math.abs(v)<1e-9:Math.abs(v-bb.a)<=Math.abs(bb.a)*tol+1e-9}
+ function close(bb,v){var tol=bb.tol==null?0.005:bb.tol;return bb.a===0?Math.abs(v)<1e-9:Math.abs(v-bb.a)<=Math.abs(bb.a)*(tol+1e-9)}
  function mastered(fast){card.classList.add('good');medal=(wrongs===0&&!hadHelp)?3:wrongs<=2?2:1;T(function(){var id=lxLid();if(id&&!par.mix&&!weakMode)lxMedal(id,medal)});
   var st=el('div','cdstamp',fast?'⚡ Fast-tracked':MED[medal],card);T(function(){var b=top.getBoundingClientRect();if(window.NEO&&NEO.burst)NEO.burst(b.left+46,b.top+46,{n:30})});setTimeout(function(){T(function(){st.remove()})},2600);
   var bonus=fast?30:[0,15,20,30][medal];give(bonus,top);T(function(){confetti()});T(function(){sfx('done')});return bonus}
@@ -754,7 +755,7 @@ WIDGETS.calcDrill=function(box,par){var mth=false;try{if(typeof P!=='undefined'&
   else{var ins=inRow.querySelectorAll('input');vals=[].map.call(ins,function(i){return parseNum(i.value)});if(vals.some(function(v){return isNaN(v)})){m.set('Type a number in every box. Decimals like 0.5 and negatives like −3 are fine.',false);return}
    ok=q.b.every(function(bb,i){return close(bb,vals[i])});[].forEach.call(ins,function(inp,i){inp.disabled=true;inp.style.borderColor=close(q.b[i],vals[i])?cssv('--good-line'):cssv('--bad-line')})}
   stopT();answered=true;var was=done,note='',lost=false,xp=0,bonus=0,fast=false;
-  T(function(){if(q._k)lxWeak(q._k,ok,weakMode)});
+  T(function(){if(q._k)lxWeak(q._k,ok,weakMode)});if(!ok)T(function(){if(typeof nbDrill==='function')nbDrill(q,typeof vals!=='undefined'?vals:null)});
   if(ok){score++;run++;if(score>=need||(FT&&clean&&run>=3&&count===3)){done=true;fast=score<need}
    xp=help?5:q.scaf?8:10+(run>=3?Math.min(5,run-1):0);give(xp,chkB);
    T(function(){if(inL()){P.combo=(P.combo||0)+1;P.best=Math.max(P.best||0,P.combo);if(S.st&&P.combo>S.st.best)S.st.best=P.combo;if(S.st)S.st.right++;showCombo(true);qProg('right',1);qProg('run',P.combo)}});
@@ -784,7 +785,7 @@ WIDGETS.examSet=function(box,par){var gens=[].concat(par.skill||[]).filter(funct
   else{var line=el('div','cdline',null,inRow);q.b.forEach(function(bb){var g=el('span','cdgrp'+(bb.sup?' cdsupg':''),null,line);if(bb.pre)el('span','',bb.pre,g);var inp=el('input','numin cdbox'+(bb.sup?' cdsup':''),null,g);inp.type='text';inp.setAttribute('inputmode','decimal');inp.setAttribute('autocomplete','off');inp.onkeydown=function(e){if(e.key==='Enter'){e.preventDefault();e.stopPropagation();answered?next():check()}};if(bb.post)el('span','',bb.post,g)})}
   chk.style.display='';hint.style.display=q.e?'':'none';nx.style.display='none';nx.textContent=i>=N?'See my score':'Next part';head();var f=inRow.querySelector('input');if(f)try{f.focus({preventScroll:true})}catch(e){}}
  function hintF(){if(answered||hinted)return;hinted=true;var st=String(q.e||'').split(/\.\s+(?=[A-Z(<])/);hb.innerHTML='<b>📐 Method hint</b> '+st[0]+(st.length>1?'.':'')+'<div class="cdsm">This part is now worth 1 mark at most.</div>';hint.style.display='none'}
- function close(bb,v){var tol=bb.tol==null?0.005:bb.tol;return bb.a===0?Math.abs(v)<1e-9:Math.abs(v-bb.a)<=Math.abs(bb.a)*tol+1e-9}
+ function close(bb,v){var tol=bb.tol==null?0.005:bb.tol;return bb.a===0?Math.abs(v)<1e-9:Math.abs(v-bb.a)<=Math.abs(bb.a)*(tol+1e-9)}
  function check(){if(answered)return;var ok,vals=null;
   if(q.o){if(q.pick==null){m.set('Pick an answer first.',false);return}ok=q.pick===0;[].forEach.call(inRow.children,function(b){var k=+b.dataset.k;b.disabled=true;if(k===0)b.classList.add('right');else if(k===q.pick)b.classList.add('wrong')})}
   else{var ins=inRow.querySelectorAll('input');vals=[].map.call(ins,function(x){return parseNum(x.value)});if(vals.some(function(v){return isNaN(v)})){m.set('Type a number in every box.',false);return}ok=q.b.every(function(bb,k){return close(bb,vals[k])});[].forEach.call(ins,function(x,k){x.disabled=true;x.style.borderColor=close(q.b[k],vals[k])?cssv('--good-line'):cssv('--bad-line')})}
@@ -908,6 +909,4 @@ W('calcDrill',{skill:'gradpts',need:5},`Find the gradient each time. Get 5 right
 T(`<h3>Key points</h3><ul><li><b>Gradient = change in y ÷ change in x</b>.</li><li>Positive goes up, negative goes down, zero is flat.</li><li>Keep the two points in the same order on top and bottom.</li></ul>`)]),
 LH('c1-3-2','y = mx + c',8,'Read the gradient straight from the equation of a line.',[
 RM(`<p>Gradient = change in y ÷ change in x. Positive slopes up, negative slopes down.</p>`),
-T(`<h3>The equation of a straight line</h3><div class="eq">y = mx + c</div>${KY([['m','the gradient',''],['c','the y-intercept: where it crosses the y-axis','']])}<p>So y = 3x + 2 has gradient 3 and crosses the y-axis at 2.</p>`),
-Q(`What is the gradient of y = 5x − 7?`,[`5`,`−7`,`7`,`−5`],0,`The number in front of x is the gradient.`),
-T(`<h3>Watch out for the or
+T(`<h3>The equation of a straight line</h3><div

@@ -1,4 +1,4 @@
-
+> W','1.63 × 10<sup>12</sup> W'],0,`1630 MW = 1630 × 10<sup>6</sup> W = 1.63 × 10<sup>9</sup> W, about one Hinkley Point C unit's electrical output.`,`Mega means 10<sup>6</sup>, and 1630 is 1.63 × 10<sup>3</sup>.`),
 N(`Convert 0.0015 Δk/k to pcm.`,150,0.01,'pcm',`0.0015 × 100,000 = 150 pcm.`,`Multiply by 100,000.`),
 N(`Convert 0.3 %Δk/k to pcm.`,300,0.01,'pcm',`0.3 × 1000 = 300 pcm. (0.3% = 0.003 Δk/k = 300 pcm.)`,`1 %Δk/k is 1000 pcm.`),
 Q(`Which time is shortest?`,['3 × 10<sup>−5</sup> s','0.0002 s','50 µs','0.1 ms'],0,`In microseconds they are 30, 200, 50 and 100 µs. So 3 × 10<sup>−5</sup> s is the shortest.`,`Convert them all to microseconds (µs).`),
@@ -1107,5 +1107,4 @@ T(`<h3>Key points</h3><ul><li>The plant powers itself from its <b>own generator<
 L('ee3','When the power goes',10,[
 T(`<h3>Loss of off-site power</h3><p>If the grid connection is lost, for example in a storm, the reactor trips automatically. Then the plant has to keep cooling the fuel with no outside help.</p><ul><li><b>Batteries</b> keep instruments and controls running instantly, with no break.</li><li><b>Emergency diesel generators</b> start automatically within seconds and power the safety systems.</li></ul>`),
 O(`Put these events in order after the grid connection is lost.`,[`Off-site power is lost`,`The reactor trips and the control rods drop in`,`The emergency diesel generators start up`,`The diesels connect to the safety switchboards`,`Safety pumps run and keep removing decay heat`],`Trip first, then the diesels take over powering the cooling. Batteries cover instruments throughout.`),
-Q(`What keeps the instruments working in the seconds before the diesels are running?`,[`Batteries`,`The turbine`,`The grid`,`Nothing, they go blank`],0,`Battery-backed supplies give instruments and controls power with no break at all.`),
-T(`<h3>Lessons from Fukushima</h3><p>In 2011, a huge tsunami flooded the Fukushima Daiichi plant in Japan. The emergency diesels and mu
+Q(`What keeps the instruments working in the seconds before the diesels are running?`,[`Batteries`,`The turbine`,`The grid`,`Nothing, they go blank`],0,`Batte

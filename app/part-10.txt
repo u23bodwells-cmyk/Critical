@@ -1,4 +1,6 @@
-dius², and the radius is y`,`To make the answer positive`,`Because volume is always squared`,`To undo a square root`],0,`πr² with r = y.`),
+/3)] = π × 4r³/3`,`<b>V = (4/3)πr³</b>`]},`The volume of a sphere, from calculus.`,`The formula you learned at GCSE, proved.`),
+W('calcDrill',{skill:'discvol',need:3},`Volumes by discs. Get 3 right to master it.`,`V = π∫ y² dx: square y first.`),
+Q(`Why do we square y in the disc formula?`,[`Each disc's area is π × radius², and the radius is y`,`To make the answer positive`,`Because volume is always squared`,`To undo a square root`],0,`πr² with r = y.`),
 T(`<h3>Key points</h3><ul><li><b>V = ∫ A(x) dx</b> for any slices.</li><li>Discs: <b>V = π∫ y² dx</b>.</li><li>This proves the sphere and cone formulas.</li></ul>`)]),
 LH('c9-2-2','Washers',9,'Spin a region with a gap in it and the slices are discs with holes: washers.',[
 RM(`<p>Disc method: V = π∫ y² dx. Area between curves: top − bottom.</p>`),
@@ -942,4 +944,4 @@ U({id:'gp2-1',track:'gp',level:2,title:'Energy',icon:'E',color:'#D85A30',desc:'E
 LH('gp2-1-1','Energy stores and kinetic energy',9,'Energy is never used up, only moved between stores. Meet the stores, and the first equation you must learn.',[
 T(`<h3>Energy stores</h3><p>Energy is stored in different ways. Physicists call them <b>stores</b>:</p><ul><li><b>Kinetic</b>: anything moving</li><li><b>Gravitational potential</b>: anything raised up</li><li><b>Elastic potential</b>: anything stretched or squashed</li><li><b>Thermal</b> (internal): anything hot</li><li><b>Chemical</b>: food, fuel, batteries</li><li><b>Magnetic</b>, <b>electrostatic</b> and <b>nuclear</b></li></ul>`),
 T(`<h3>Moving energy between stores</h3><p>Energy is <b>transferred</b> from one store to another in four ways:</p><ul><li><b>Mechanically</b>: a force moves something (doing work)</li><li><b>Electrically</b>: a current flows</li><li><b>By heating</b></li><li><b>By radiation</b>: light, sound and other waves</li></ul><p>Throw a ball up: energy moves from its <b>kinetic</b> store to its <b>gravitational potential</b> store as it slows down and rises.</p>`),
-W('sortIt',{bins:['Kinetic','Gravitational potential','Chemical','Thermal'],items:[['A moving car',0],['A sprinting athlete',0],['A rollercoaster at the top of the track',1],['A book on a high shelf',1],['A battery',2],['Petrol',2],['A cup of hot tea',3],['A hot radiator',3]]},`Which store is the energy mainly in? Sort them.`,`Moving: kinetic. High up: gravitational potential. 
+W('sortIt',{bins:['Kinetic','Gravitational potential','Chemic
