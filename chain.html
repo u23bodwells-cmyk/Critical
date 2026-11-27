@@ -567,6 +567,13 @@ button{font:inherit;color:inherit}
 .vsteps{padding-left:20px;margin:6px 0 12px;display:flex;flex-direction:column;gap:8px;font-size:15px;line-height:1.45}
 .vrot{border-top:1px solid var(--line);margin-top:12px;padding-top:4px}
 .pb.vbuy{width:100%;flex-direction:column;padding:16px;margin:10px 0}.pb.vbuy b{font-size:19px}
+
+/* your algorithm */
+.alist{display:flex;flex-direction:column;gap:7px;margin-bottom:12px}
+.arow{display:flex;align-items:center;gap:10px;font-size:14px}.arow span:first-child{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.abar{flex:none;width:42%;height:8px;border-radius:99px;background:rgba(255,255,255,.1);overflow:hidden}.abar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#3ad4ff,#a06bff)}
+.arow.neg .abar i{background:linear-gradient(90deg,#ff3b5c,#ff8a3d)}
+.fbrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px;padding-top:12px;border-top:1px solid var(--line)}
 </style>
 </head>
 <body>
@@ -906,11 +913,41 @@ var SIMLIST=[
 ];
 var SIMORD=(function(){var a=[];for(var i=0;i<SIMLIST.length;i++)a.push(i);for(i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t}return a})();
 
+/* ---------- the algorithm: learns from what you watch, like, save, share, rewatch and skip ----------
+   Every card has a format (edit, Short, storytime, meme…), a topic and, for Shorts, a channel. Each signal nudges a
+   score for all three; the feed then leans towards high scores. 1 card in 8 ignores the scores (a wildcard) and
+   nothing is ever turned off completely, so you still discover new stuff. */
+S.algo=S.algo||{k:{},t:{},c:{},n:0};
+if(!S.algo.mig){S.algo.mig=1;for(var tk0 in S.tw){var v0=+S.tw[tk0];if(v0>0&&!S.algo.t[tk0])S.algo.t[tk0]=[Math.max(-1.5,Math.min(1.5,Math.log(v0)/1.1)),3]}}
+var KNAME={edit:"Edits",yt:"YouTube Shorts",tale:"Storytimes",chat:"Text stories",story:"Choose-your-path stories",meme:"Memes",quiz:"Quizzes",tf:"True or false",gen:"Quick puzzles",fact:"Facts",game:"Mini games",tier:"Tier lists",wyr:"Would you rather",lie:"Two truths and a lie",head:"Real or fake",guess:"Guess the number",spot:"Spot the mistake",build:"Build a reactor",geiger:"Geiger counter",vlog:"Day in the life",top5:"Top 5s",eli:"Explain it 3 ways",emoji:"Emoji riddles",beat:"Beat TikTok"};
+var ALGO_TYP={edit:12,yt:25,tale:40,chat:18,story:12,meme:6,quiz:8,tf:6,gen:8,fact:7,game:15,tier:14,wyr:7,lie:10,head:8,guess:10,spot:12,build:20,geiger:15,vlog:15,top5:12,eli:14,emoji:8,beat:8};
+function aGet(m,key){var e=S.algo[m][key];return e?e[0]:0}
+function aW(a,lo,hi){return Math.max(lo||.35,Math.min(hi||3,Math.exp(1.1*a)))}
+function aPush(m,key,r,lr){if(key==null||key==="")return;var e=S.algo[m][key]||(S.algo[m][key]=[0,0]);e[1]++;var a=Math.max(lr,1/(e[1]+2));e[0]=Math.max(-2,Math.min(2.5,e[0]*(1-a)+r*a))}
+function algoLearn(k,r){if(!k||!k.c)return;var c=k.c,kd=kindOf(c);if(kd==="check"||kd==="drop"||kd==="ytdown")return;
+  aPush("k",kd,r,.12);aPush("t",c.topic,r,.08);if(c.type==="yt"&&c.ch)aPush("c",c.ch,r,.2);S.algo.n++;save()}
+/* how much a visit says you liked it: skipping in under 1.5s is a strong no, watching past its normal length a strong yes */
+function dwellReward(k,ms){var typ=(ALGO_TYP[kindOf(k.c)]||10)*1000,f=ms/typ,r;
+  if(ms<1500&&!k.done&&!k.answered)return-1;r=f<.35?-.35:f<.8?.15:f<1.6?.55:.85;if(k.done)r+=.25;return r}
+function algoKinds(W){if(Math.random()<.125)return W;var o={};for(var k in W)o[k]=W[k]*aW(aGet("k",k),.22,3);return o}
+function wPickArr(arr,wf){var tot=0,ws=arr.map(function(x){var w=Math.max(0,wf(x)||0);tot+=w;return w});if(!tot)return pick(arr);var r=Math.random()*tot;for(var i=0;i<arr.length;i++){r-=ws[i];if(r<=0)return arr[i]}return arr[arr.length-1]}
+function algoTop(m,n,dir){var o=[];for(var key in S.algo[m]){var e=S.algo[m][key];if(e[1]>=2)o.push([key,e[0],e[1]])}o.sort(function(a,b){return dir<0?a[1]-b[1]:b[1]-a[1]});return o.filter(function(x){return dir<0?x[1]<-.15:x[1]>.1}).slice(0,n)}
+function chName(ch){var x=(window.CHAIN_YT||[]).filter(function(y){return y.ch===ch})[0];return x?x.em+" "+x.name:"⭐ Your channel"}
+function openAlgo(){var bar=function(a){var p=Math.round(Math.max(4,Math.min(100,(a+2)/4.5*100)));return'<span class="abar"><i style="width:'+p+'%"></i></span>'};
+  var sec=function(title,rows,lab){return rows.length?'<p class="plab">'+title+'</p><div class="alist">'+rows.map(function(r){return'<div class="arow"><span>'+lab(r[0])+'</span>'+bar(r[1])+'</div>'}).join("")+'</div>':""};
+  var K=algoTop("k",6,1),T=algoTop("t",4,1),C=algoTop("c",5,1),L=algoTop("k",4,-1).concat(algoTop("c",3,-1).map(function(x){return["@"+x[0],x[1]]}));
+  var h='<h3>🧠 Your algorithm</h3><p>Chain learns from how long you watch, what you like, save, share and rewatch, and what you skip straight past. It has learnt from <b>'+S.algo.n.toLocaleString("en-GB")+'</b> signals so far.</p>';
+  if(!K.length&&!T.length&&!C.length)h+='<p class="mnote">'+(S.algo.n<15?'Not enough to go on yet. Keep scrolling, and like the stuff you enjoy.':'No clear favourites yet. Like, save or watch the stuff you enjoy all the way through.')+'</p>';
+  h+=sec("You're into",K,function(k){return esc(KNAME[k]||k)})+sec("Topics",T,function(t){var o=TOP[t];return o?o.g+" "+esc(o.n):esc(t)})+sec("Channels",C,function(ch){return esc(chName(ch))});
+  if(L.length)h+='<p class="plab">Showing you less of</p><div class="alist">'+L.map(function(r){return'<div class="arow neg"><span>'+(r[0].charAt(0)==="@"?esc(chName(r[0].slice(1))):esc(KNAME[r[0]]||r[0]))+'</span>'+bar(r[1])+'</div>'}).join("")+'</div>';
+  h+='<p class="mnote">1 card in 8 is a wildcard that ignores all this, so you still find new things. Tap ⓘ Explain on any card for 👍 More like this or 🚫 Not interested.</p><p><button class="sbtn ghost" data-areset>↺ Reset my algorithm</button></p>';
+  openSheet(h)}
+var fbK=null,sheetK=null;
 /* ---------- feed engine ---------- */
 var feed=document.getElementById("feed"),cards=[],active=-1,sess={t0:Date.now(),n:0,q:0,ok:0,xp:0,combo:0,since:0},retry=[],simI=rnd(SIMLIST.length);
 var pools={fact:FACTS.map(function(f){return{type:"fact",topic:f[0],glyph:f[1],hook:f[2],body:f[3],more:f[4],id:"f"+hsh(f[2])}}),
  quiz:QUIZ.map(function(q){return{src:q,id:"q"+hsh(q[1])}}),tf:TF.map(function(t){return{src:t,id:"t"+hsh(t[1])}})};
-function tw(t){return S.off[t]?0:(S.tw[t]||1)}
+function tw(t){return S.off[t]?0:aW(aGet("t",t))}
 function pickTopic(){var tot=0,i;for(i=0;i<TK.length;i++)tot+=tw(TK[i]);if(!tot)return pick(TK);var r=Math.random()*tot;for(i=0;i<TK.length;i++){r-=tw(TK[i]);if(r<=0)return TK[i]}return TK[0]}
 function topicOf(it){return it.topic||(it.src&&it.src[0])}
 function fromPool(kind,topic){var p=pools[kind],c=p.filter(function(x){return topicOf(x)===topic&&!S.off[topicOf(x)]});if(!c.length)c=p.filter(function(x){return!S.off[topicOf(x)]});if(!c.length)c=p;
@@ -936,7 +973,7 @@ function makeNext(){
   if(last&&!(mode==="edits"&&last==="edit"&&last2!=="edit"))skip[last]=1;
   if(i<3){skip.story=1;skip.tier=1}
   cards.slice(-4).forEach(function(kk){var kd=kindOf(kk.c);if(kd==="tale"||kd==="story")skip[kd]=1});
-  for(var t=0;t<10;t++){var k=wpick(W,skip),c=makeKind(k);if(c)return c;skip[k]=1}
+  var WL=algoKinds(W);for(var t=0;t<10;t++){var k=wpick(WL,skip),c=makeKind(k);if(c)return c;skip[k]=1}
   return fromPool("quiz",pickTopic())||GEN.maths();
 }
 function pickEdit(){if(!CE)return null;
@@ -945,7 +982,7 @@ function pickEdit(){if(!CE)return null;
   var def=null;
   var lastGen=false;for(var j=cards.length-1;j>=0;j--)if(cards[j].c.type==="edit"){lastGen=!!cards[j].c.def.gen;break}
   if(!c.length||(!lastGen&&((min>0&&Math.random()<.5)||Math.random()<.18))){var qb=QUIZ.filter(function(q){return!S.off[q[0]]}),tb=TF.filter(function(t){return!S.off[t[0]]});def=Math.random()<.6?CE.genQuiz(qb.length?qb:QUIZ):CE.genTF(tb.length>=3?tb:TF)}
-  if(!def&&c.length)def=pick(c);if(!def)return null;
+  if(!def&&c.length)def=wPickArr(c,function(d){return aW(aGet("t",d.topic))});if(!def)return null;
   return{type:"edit",topic:def.topic,id:def.id,def:def,title:def.title}}
 var ICON={
  like:'<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"><path d="M12 20.5s-7.5-4.6-9.3-9.2C1.4 7.9 3.6 4.5 7 4.5c2 0 3.5 1.1 5 3 1.5-1.9 3-3 5-3 3.4 0 5.6 3.4 4.3 6.8-1.8 4.6-9.3 9.2-9.3 9.2z"/></svg>',
@@ -1008,8 +1045,8 @@ var settleT=0;function settled(){settleT=0;if(CE)CE.moving=false;onScroll()}
 feed.addEventListener("scroll",function(){if(CE)CE.moving=true;clearTimeout(settleT);settleT=setTimeout(settled,110)},{passive:true});
 if("onscrollend" in window)feed.addEventListener("scrollend",function(){clearTimeout(settleT);settled()});
 function setActive(i){var now=Date.now();
-  if(active>=0&&cards[active]){var p=cards[active];p.el.classList.remove("on");if(p.el._sim&&p.el._sim.stop)p.el._sim.stop();if(p.el._ed)p.el._ed.stop();if(p.el._pl&&p.el._pl.stop)p.el._pl.stop();hush();p.dwell+=now-p.t;leave(p)}
-  if(active>=0)vib(6);active=i;var k=cards[i];k.el.classList.add("on");k.t=now;
+  if(active>=0&&cards[active]){var p=cards[active];p.el.classList.remove("on");if(p.el._sim&&p.el._sim.stop)p.el._sim.stop();if(p.el._ed)p.el._ed.stop();if(p.el._pl&&p.el._pl.stop)p.el._pl.stop();hush();var vis=now-p.t;p.dwell+=vis;leave(p,vis)}
+  var prevA=active;if(active>=0)vib(6);active=i;var k=cards[i];if(k.counted&&i<prevA)algoLearn(k,.5);k.el.classList.add("on");k.t=now;
   if(k.c.type==="check")renderCheck(k);
   if((k.c.type==="quiz"||k.c.type==="tf")&&!k.answered)k.qt0=now;
   if(k.c.type==="edit"){mkPlayer(k);if(k.el._ed){k.el._ed.start();}sndLabel(k.el);nextSong();
@@ -1020,10 +1057,9 @@ function setActive(i){var now=Date.now();
     if(d.n===GOAL){toast("🔥 Daily goal done! +50 XP · streak "+streak()+" day"+(streak()>1?"s":""));award(25)}}
   ensure();ytManage();if(i>0)hint(false);
 }
-function leave(k){ /* reward reading facts, learn topic taste from dwell */
+function leave(k,vis){ /* reward reading facts, and teach the algorithm from how long you stayed */
+  if(vis!=null)algoLearn(k,dwellReward(k,vis));
   if(k.c.type==="fact"&&!k.done&&k.dwell>2500){k.done=true;award(k.c.rare?5:1);if(k.c.rare)comboPop("✨ Rare fact +"+5*XPM)}
-  if(k.c.type==="fact"&&k.dwell<900){var t=k.c.topic;S.tw[t]=Math.max(.4,(S.tw[t]||1)-.03)}
-  if(k.dwell>6000&&k.c.topic){var t2=k.c.topic;S.tw[t2]=Math.min(3,(S.tw[t2]||1)+.05)}
   today().ms+=Math.min(k.dwell,120000);save();
 }
 /* ---------- XP: doubled, and sent to Critical so it counts for the streak, daily goal and season pass ---------- */
@@ -1075,10 +1111,10 @@ function answer(k,i){var c=k.c;if(k.answered)return;k.answered=true;var ok=i===c
 function flame(){var f=document.getElementById("flame"),n=sess.combo;if(!f)return;f.hidden=n<3;f.textContent="🔥 "+n+(n>=10?" ×3":n>=5?" ×2":"");f.classList.toggle("hot",n>=5);f.classList.remove("bump");void f.offsetWidth;f.classList.add("bump")}
 function act(k,a,b){var c=k.c;
   if(a==="like")like(k,!S.liked[c.id]);
-  else if(a==="save"){var on=isSaved(c.id);if(on)S.saved=S.saved.filter(function(s){return s.id!==c.id});else{S.saved.unshift({id:c.id,c:strip(c),at:Date.now()});S.saved=S.saved.slice(0,300)}
+  else if(a==="save"){var on=isSaved(c.id);algoLearn(k,on?-.8:1.5);if(!on)setTimeout(refreshAhead,50);if(on)S.saved=S.saved.filter(function(s){return s.id!==c.id});else{S.saved.unshift({id:c.id,c:strip(c),at:Date.now()});S.saved=S.saved.slice(0,300)}
     b.classList.toggle("on",!on);b.setAttribute("aria-pressed",!on);pop(b);toast(on?"Removed from Saved":"Saved. Find it in the Saved tab");save()}
-  else if(a==="more")explain(c,k);
-  else if(a==="share")share(c);
+  else if(a==="more"){algoLearn(k,.4);fbK=k;try{explain(c,k)}finally{fbK=null}}
+  else if(a==="share"){algoLearn(k,1.2);share(c)}
   else if(a==="drop")openDrop(k,b);
   else if(a==="play")playStory(k.c.sid);
   else if(a==="music")openMusic();
@@ -1101,8 +1137,8 @@ function openDrop(k,b){if(k.opened)return;k.opened=true;var d=today();d.drops=(d
     confetti(box,xp>=100?60:28);award(raw);if(CE)CE.sfx("ok");vib(xp>=100?[30,50,30,50,120]:25)},650)}
 function confetti(box,n){var cols=["#F2C46D","#ff3b8d","#3ad4ff","#9cff3a","#a06bff","#fff"];for(var i=0;i<n;i++){var c=document.createElement("i");c.className="cf";var a=Math.random()*Math.PI*2,d=80+Math.random()*160;c.style.setProperty("--dx",Math.cos(a)*d+"px");c.style.setProperty("--dy",(Math.sin(a)*d-60)+"px");c.style.setProperty("--r",(Math.random()*720-360)+"deg");c.style.background=cols[i%cols.length];c.style.animationDelay=(Math.random()*.08)+"s";box.appendChild(c);setTimeout(function(x){return function(){x.remove()}}(c),1300)}}
 function strip(c){var o={};for(var x in c)if(x!=="el")o[x]=c[x];return o}
-function like(k,on,x,y){var c=k.c,b=k.el.querySelector('[data-act="like"]');if(on)S.liked[c.id]=1;else delete S.liked[c.id];
-  S.tw[c.topic]=Math.max(.4,Math.min(3,(S.tw[c.topic]||1)+(on?.35:-.35)));
+function like(k,on,x,y){var c=k.c,b=k.el.querySelector('[data-act="like"]'),was=!!S.liked[c.id];if(on)S.liked[c.id]=1;else delete S.liked[c.id];
+  if(was!==on){algoLearn(k,on?1.6:-1.2);if(on){var kn=KNAME[kindOf(c)];if(kn)toast("❤️ More "+(c.type==="yt"&&c.name?c.name:kn)+" coming up")}refreshAhead()}
   if(b){b.classList.toggle("on",on);b.setAttribute("aria-pressed",on);if(on)pop(b)}save()}
 function pop(b){b.classList.remove("pop");void b.offsetWidth;b.classList.add("pop")}
 /* double tap to like */
@@ -1135,7 +1171,7 @@ function share(c){if(c.type==="tale"||c.type==="yt"){var t1=c.type==="tale"?TALE
 
 /* ---------- sheet ---------- */
 var sheet=document.getElementById("sheet"),scrim=document.getElementById("scrim"),sheetIn=document.getElementById("sheetIn");
-function openSheet(h){sheetIn.innerHTML='<button class="close" data-x>Close</button>'+h;sheet.classList.add("show");scrim.classList.add("show")}
+function openSheet(h){sheetK=fbK;if(fbK&&fbK.c&&!/^(check|drop|ytdown)$/.test(fbK.c.type))h+='<div class="fbrow"><button class="sbtn ghost" data-fb="more">👍 More like this</button><button class="sbtn ghost" data-fb="less">🚫 Not interested</button></div>';sheetIn.innerHTML='<button class="close" data-x>Close</button>'+h;sheet.classList.add("show");scrim.classList.add("show")}
 function closeSheet(){sheet.classList.remove("show");scrim.classList.remove("show");setTab(stvOpen?"stories":mode)}
 scrim.addEventListener("click",closeSheet);
 sheet.addEventListener("click",function(e){if(e.target.closest("[data-x]"))closeSheet()});
@@ -1177,7 +1213,11 @@ tSaved.onclick=function(){setTab("saved");
     return '<button class="si" data-sv="'+i+'"><span class="g">'+(c.glyph||(c.type==="chat"&&CHAT[c.ref]?chatAv(CHAT[c.ref]).slice(0,2):c.type==="meme"?"😂":c.type==="tier"?"🏆":c.type==="wyr"?"🤔":({lie:"🕵️",head:"📰",guess:"🎯",spot:"🔍",build:"🛠️",geiger:"📟",vlog:"📱",top5:"🔢",eli:"🧠",emoji:"🧩",tale:"🎮",yt:"▶️"})[c.type]||t.g))+'</span><div><b>'+(c.hook||c.q||esc(c.title||(c.type==="chat"&&CHAT[c.ref]?CHAT[c.ref].title:c.type==="tier"&&TIER[c.ref]?TIER[c.ref].title:c.type==="wyr"&&WYR[c.ref]?"Would you rather: "+WYR[c.ref].a:c.type==="lie"&&LIES[c.ref]?"Two truths and a lie":c.type==="head"&&HEADS[c.ref]?HEADS[c.ref].h:c.type==="guess"&&GUESS[c.ref]?GUESS[c.ref].q:c.type==="spot"&&SPOT[c.ref]?"Spot the mistake: "+SPOT[c.ref].title:c.type==="top5"&&TOP5[c.ref]?TOP5[c.ref].title:c.type==="eli"&&ELI[c.ref]?ELI[c.ref].q:c.type==="emoji"&&EMO[c.ref]?"Emoji riddle "+EMO[c.ref].e:c.type==="vlog"&&VLOG[c.ref]?VLOG[c.ref].title:c.type==="build"?"Build a reactor":c.type==="tale"&&TALE[c.ref]?TALE[c.ref].title:c.type==="yt"?(c.name||"YouTube")+" Short":c.type==="geiger"?"Geiger counter":c.type==="meme"&&MEME[c.ref]?memeText(MEME[c.ref]).slice(0,70):"")))+'</b><small>'+t.n+' · '+(c.type==="fact"?"Fact":c.type==="sim"?"Try it":c.type==="edit"?"Edit":c.type==="story"?"Story":c.type==="chat"?"Text story":c.type==="meme"?"Meme":c.type==="tier"?"Tier list":c.type==="wyr"?"Would you rather":({lie:"Two truths and a lie",head:"Real or fake",guess:"Guess the number",spot:"Spot the mistake",build:"Build a reactor",geiger:"Geiger counter",vlog:"Day in the life",top5:"Top 5",eli:"Explain it 3 ways",emoji:"Emoji riddle",tale:"Storytime",yt:"YouTube"})[c.type]||"Quiz")+'</small></div></button>'}).join("")+'</div>';
   openSheet(h)};
 sheetIn.addEventListener("click",function(e){if(e.target.closest("[data-music]")){openMusic();return}
-  if(e.target.closest("[data-yt]")){openYT();return}if(e.target.closest("[data-ytadd]")){ytAdd();return}
+  if(e.target.closest("[data-yt]")){openYT();return}
+  var fb=e.target.closest("[data-fb]");if(fb&&sheetK){var more=fb.dataset.fb==="more",fk=sheetK;algoLearn(fk,more?1.8:-2.5);if(!more&&fk.c.type==="yt"&&fk.c.ch)aPush("c",fk.c.ch,-2.5,.3);closeSheet();refreshAhead();
+    toast(more?"👍 Got it. More like this coming up":"🚫 Got it. You'll see less like this");if(!more&&fk===cards[active])setTimeout(function(){goTo(active+1)},250);return}
+  if(e.target.closest("[data-algo]")){openAlgo();return}
+  if(e.target.closest("[data-areset]")){S.algo={k:{},t:{},c:{},n:0,mig:1};save();refreshAhead();toast("↺ Algorithm reset");openAlgo();return}if(e.target.closest("[data-ytadd]")){ytAdd();return}
   var yd=e.target.closest("[data-ytdel]");if(yd){var pr=yd.dataset.ytdel.split(":");if(pr[0]==="v")S.yt.v=S.yt.v.filter(function(v){return v!==pr[1]});else S.yt.ch=S.yt.ch.filter(function(x){return x.ch!==pr[1]});save();openYT();return}
   if(e.target.closest("[data-ytretry]")){S.ytBad={};ytDown=0;save();toast("OK, they'll get another go");openYT();return}
   if(e.target.closest("[data-ytoff]")){S.ytOff=!S.ytOff;save();refreshAhead();toast(S.ytOff?"YouTube hidden from your feed":"YouTube is back in your feed");openYT();return}if(e.target.closest("[data-beat]")){openBeat();return}var vt=e.target.closest("[data-vtog]");if(vt){setVoice(S.voice===false);vt.textContent=S.voice!==false?"🗣️ Voices: on":"🤐 Voices: off";if(S.voice!==false){vUnlock();say("Voices are on.","narr")}return}var s=e.target.closest("[data-sv]");if(s){var c=JSON.parse(JSON.stringify(S.saved[+s.dataset.sv].c));if(c.type==="quiz")c=mkQuiz(c.topic,c.q,[c.opts[c.ans]].concat(c.opts.filter(function(_,k){return k!==c.ans})),c.ex,c.id,c.label);insertNext(c);closeSheet();return}
@@ -1187,7 +1227,7 @@ function insertNext(c){var at=active+1,el=build(c),k={c:c,el:el,t:0,dwell:0};fee
 function refreshAhead(){ /* rebuild cards the user hasn't reached yet so topic changes apply */
   for(var i=cards.length-1;i>active+1;i--){if(cards[i].el._pl&&cards[i].el._pl.destroy)cards[i].el._pl.destroy();cards[i].el.remove();cards.splice(i,1)}ensure()}
 document.getElementById("xpBtn").onclick=function(){var d=today(),acc=sess.q?Math.round(sess.ok/sess.q*100):null;
-  readSP();openSheet('<h3>Today</h3>'+spBlock()+'<p style="margin:10px 0 0;display:flex;gap:8px;flex-wrap:wrap"><button class="sbtn" data-music style="background:#a06bff;color:#fff">🎵 Edit music</button><button class="sbtn" data-beat style="background:#ff3b5c;color:#fff">📵 Beat TikTok</button><button class="sbtn" data-yt style="background:#ff0033;color:#fff">📺 YouTube Shorts</button><button class="sbtn" data-ppass style="background:#fe2c55;color:#fff">🎟️ Scroll pass · '+syncWallet().toLocaleString("en-GB")+' XP</button><button class="sbtn ghost" data-vtog>'+(S.voice!==false?"🗣️ Voices: on":"🤐 Voices: off")+'</button></p>'+'<p style="font-size:14px;margin-top:10px">Everything you earn in Chain is doubled and goes straight onto your Critical XP: your streak, daily goal and season pass. All 3 sound packs are on this month\'s pass, at 1,850, 4,000 and 4,250 points.</p><div class="stats" style="margin-bottom:14px"><div class="st"><b>'+d.n+'/'+GOAL+'</b><span>cards today</span></div><div class="st"><b>'+streak()+'</b><span>day streak</span></div><div class="st"><b>'+(d.xp*XPM).toLocaleString("en-GB")+'</b><span>XP today</span></div><div class="st"><b>'+(d.q?Math.round(d.ok/d.q*100)+"%":"–")+'</b><span>quiz accuracy</span></div></div>'+
+  readSP();openSheet('<h3>Today</h3>'+spBlock()+'<p style="margin:10px 0 0;display:flex;gap:8px;flex-wrap:wrap"><button class="sbtn" data-music style="background:#a06bff;color:#fff">🎵 Edit music</button><button class="sbtn" data-beat style="background:#ff3b5c;color:#fff">📵 Beat TikTok</button><button class="sbtn" data-yt style="background:#ff0033;color:#fff">📺 YouTube Shorts</button><button class="sbtn" data-algo style="background:#3ad4ff;color:#04121a">🧠 Your algorithm</button><button class="sbtn" data-ppass style="background:#fe2c55;color:#fff">🎟️ Scroll pass · '+syncWallet().toLocaleString("en-GB")+' XP</button><button class="sbtn ghost" data-vtog>'+(S.voice!==false?"🗣️ Voices: on":"🤐 Voices: off")+'</button></p>'+'<p style="font-size:14px;margin-top:10px">Everything you earn in Chain is doubled and goes straight onto your Critical XP: your streak, daily goal and season pass. All 3 sound packs are on this month\'s pass, at 1,850, 4,000 and 4,250 points.</p><div class="stats" style="margin-bottom:14px"><div class="st"><b>'+d.n+'/'+GOAL+'</b><span>cards today</span></div><div class="st"><b>'+streak()+'</b><span>day streak</span></div><div class="st"><b>'+(d.xp*XPM).toLocaleString("en-GB")+'</b><span>XP today</span></div><div class="st"><b>'+(d.q?Math.round(d.ok/d.q*100)+"%":"–")+'</b><span>quiz accuracy</span></div></div>'+
   '<h3>Your feed</h3><p>Tap a topic to turn it off or on. Liking cards and taking your time on them also teaches the feed what you like.</p><div class="topics">'+TK.map(function(k){return '<button class="tp" data-tp="'+k+'" aria-pressed="'+!S.off[k]+'">'+TOP[k].g+' '+TOP[k].n+'</button>'}).join("")+'</div>'+
   '<p style="font-size:14px">Total from Chain: '+S.xp.toLocaleString("en-GB")+' XP · '+Object.keys(S.liked).length+' liked · '+S.saved.length+' saved</p>')};
 
@@ -1378,7 +1418,7 @@ var KW_FEED={yt:20,tale:12,edit:20,chat:10,meme:9,wyr:5,tier:3,game:7,story:3,qu
   KW_EDITS={yt:14,tale:6,edit:60,chat:6,meme:5,game:4,wyr:3,tier:2,story:2,quiz:1,gen:1,lie:3,head:3,guess:2,emoji:2,top5:2,vlog:1};
 function kindOf(c){if(!c)return null;var t=c.type;return t==="sim"?"game":t==="quiz"&&c.label?"gen":t}
 function pickItem(list,type){var recent={};cards.slice(-60).forEach(function(k){recent[k.c.id]=1});var c=list.filter(function(x){return!S.off[x.topic]&&!recent[x.id]});if(!c.length)c=list.filter(function(x){return!recent[x.id]});if(!c.length)return null;
-  var mn=Infinity;c.forEach(function(x){mn=Math.min(mn,S.seen[x.id]||0)});var x=pick(c.filter(function(y){return(S.seen[y.id]||0)===mn}));return{type:type,topic:x.topic,id:x.id,ref:x.id}}
+  var mn=Infinity;c.forEach(function(x){mn=Math.min(mn,S.seen[x.id]||0)});var x=wPickArr(c,function(y){return aW(aGet("t",y.topic))*Math.pow(.3,(S.seen[y.id]||0)-mn)});return{type:type,topic:x.topic,id:x.id,ref:x.id}}
 function pickGame(){for(var tries=0;tries<6;tries++){var s=SIMLIST[SIMORD[simI++%SIMORD.length]],o={type:"sim",topic:s.topic,sim:s.sim,hook:s.hook,body:s.body,id:"sim-"+s.sim};if(s.mk){var m=s.mk();for(var mk in m)o[mk]=m[mk];o.id="sim-"+s.sim+"-"+m.v}if(!S.off[o.topic])return o}return null}
 function pickStoryCard(){if(!STORIES.length)return null;var sl=STORIES.filter(function(x){return!S.off[x.topic]});if(!sl.length)sl=STORIES;var recent={};cards.slice(-30).forEach(function(k){recent[k.c.id]=1});var s2=sl.filter(function(x){return!recent["story-"+x.id]});if(!s2.length)return null;var mn=Infinity;s2.forEach(function(x){mn=Math.min(mn,stInfo(x.id).n)});var pk=pick(s2.filter(function(x){return stInfo(x.id).n===mn}));return{type:"story",topic:pk.topic,sid:pk.id,id:"story-"+pk.id,title:pk.title}}
 function makeKind(k){if(k==="edit")return pickEdit();if(k==="yt")return pickYT();if(k==="tale")return pickItem(window.CHAIN_TALES||[],"tale");if(k==="chat")return pickItem(window.CHAIN_CHATS||[],"chat");if(k==="meme")return pickItem(window.CHAIN_MEMES||[],"meme");if(k==="tier")return pickItem(window.CHAIN_TIERS||[],"tier");if(k==="wyr")return pickItem(window.CHAIN_WYR||[],"wyr");
@@ -1677,7 +1717,7 @@ function pickYT(force){if((S.ytOff&&!force)||(ytDown&&Date.now()-ytDown<6e5))ret
   var L=S.yt.ch.map(function(x){return{id:"ytc-"+x.ch,name:x.name||"Your channel",ch:x.ch,topic:"energy",em:"⭐",mine:1}}).concat(window.CHAIN_YT||[]).filter(function(x){return!S.ytBad[x.ch]&&!recent[x.ch]&&(x.mine||!S.off[x.topic])});
   if(!L.length&&mode==="shorts")L=S.yt.ch.map(function(x){return{id:"ytc-"+x.ch,name:x.name||"Your channel",ch:x.ch,topic:"energy",em:"⭐",mine:1}}).concat(window.CHAIN_YT||[]).filter(function(x){return!S.ytBad[x.ch]});
   if(!L.length){var sv=S.yt.v.filter(function(v){return!recent[v]});return sv.length?mineV(pick(sv)):null}
-  var sc=function(x){return(S.seen[x.id]||0)-(x.mine?2:0)},mn=Infinity;L.forEach(function(x){mn=Math.min(mn,sc(x))});var x=pick(L.filter(function(y){return sc(y)===mn}));
+  var mn=Infinity;L.forEach(function(y){mn=Math.min(mn,S.seen[y.id]||0)});var x=wPickArr(L,function(y){return aW(aGet("c",y.ch)*1.3,.2,4)*(y.mine?1.8:aW(aGet("t",y.topic)*.5))*Math.pow(.75,(S.seen[y.id]||0)-mn)});
   return{type:"yt",topic:x.topic,id:x.id,ch:x.ch,name:x.name,em:x.em,mine:x.mine?1:0}}
 PLAYERS.yt=function(el,k){var c=k.c,box=el.querySelector(".ytbox"),ld=el.querySelector(".ytload"),stx=el.querySelector(".ytst"),sb=el.querySelector(".ytsnd"),ln=el.querySelector(".ytopen");
   var Y={p:null,ready:false,cued:false,ids:null,tries:0,full:false,phase:"",want:false,playing:false,dead:false,fb:false,timer:0,chk:0};
