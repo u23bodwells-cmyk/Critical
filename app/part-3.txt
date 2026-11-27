@@ -1,4 +1,13 @@
-p.monClr=1;save()}r.ends=now;r.early=1;r.clr=1;runSet(r);return}
+['No, play Clash now',function(){setExt(r.day,0);hideBan();begin(r.day,nj,true)}]]);return}
+  if(ext)showBan(title,[['Open '+na[0]+' ↗',goNext],['5 more minutes',more]]);
+  else showBan(title+' Moving you in <span class="plcd">10</span> s.',[['Go now',goNext],['5 more minutes',more]],[10,function(){hideBan();begin(r.day,nj,false)}])}
+ function more(){var r=runGet();if(r){var k=r.day+'-'+r.j;delete PS().t[k];save();r.ends=Date.now()+5*60000;r.early=0;runSet(r)}upKey=null;hideBan();paintPill();if(sh.classList.contains('open'))paint()}
+ function warmChk(r){if(!r||r.ends<=Date.now()||!warmP)return;var b=DAY(r.day)[r.j];if(!b||b[5]!=='warm')return;if(typeof P!=='undefined'&&P===warmP&&P.finished){warmP=null;r.ends=Date.now();r.early=1;runSet(r)}}
+ var lastChk=0;
+ function fixChk(r){var now=Date.now();if(now-lastChk<3000)return;lastChk=now;var p=PS(),n=-1;
+  if(todayI()===0&&!p.monClr){n=pile();if(n===0){p.monClr=1;save()}}
+  if(!r||r.gm||r.ends<=now)return;var b=DAY(r.day)[r.j];if(!isFix(b)||busy())return;if(n<0)n=pile();
+  if(n===0){if(r.day===0){p.monClr=1;save()}r.ends=now;r.early=1;r.clr=1;runSet(r);return}
   if(typeof P!=='undefined'&&P&&P.finished&&P.mode==='review'&&!P._plAsk&&!ban){P._plAsk=1;showBan('<b>'+n+' mistake'+(n===1?'':'s')+' left to fix.</b> '+fmtLeft(r.ends-now)+' to go on this part.',[['Next round →',function(){hideBan();go(b[3][0],b[0])}],['Not now',hideBan]])}}
  function highChk(r,left){if(r.high||left>5*60000||ban||busy())return;var hk=(DAY(r.day)[r.j]||[])[5];if(hk==='clash'||hk==='rev'||hk==='brk')return;var nq=hwNext(r.day,r.j);if(nq>=0&&!((DAY(r.day)[nq]||[])[5]==='brk'&&hwNext(r.day,nq)<0))return;var mn=r.mins||(DAY(r.day)[r.j]||[0,0])[1];if(mn<10)return;r.high=1;runSet(r);
   var lapOk=typeof HIGH!=='undefined'&&HIGH.canLap();
@@ -2016,6 +2025,4 @@ W('generations',{},`Adjust k and watch the neutron population over 20 generation
 Q(`What does k = 1 mean?`,['No neutrons are left, so the reactor is shut down','Each generation has exactly as many neutrons as the last: critical','Each generation has more neutrons than the last: power is rising','Each generation has fewer neutrons than the last: power is falling'],1,`k = 1 is critical. k < 1 is subcritical (power falling), k > 1 is supercritical (power rising).`),
 T(`<h3>Critical isn't dangerous</h3><p>In everyday English "critical" sounds alarming. In a reactor it means <b>perfectly balanced</b>. A reactor running steadily at any power, from a tiny fraction of a percent to 100%, is exactly critical.</p>`),
 Q(`A reactor is running steadily at 50% power. It is…`,['Subcritical','Critical','Supercritical'],1,`Steady power means k = 1, whatever the power level.`),
-Q(`Power is slowly rising. k is…`,['Slightly less than 1','Exactly 1','Slightly more than 1','Exactly 0'],2,`Each generation is slightly bigger than the last, so k is just above 1.`)]),
-L('r2','The six-factor formula',12,[
-T(`<h3>Following a generation</h3><p>We can split k into six factors, each describing one stage of a neutron's life:</p><table><tr><th>Factor</th><th>What it describes</th></tr><tr><td>ε fast fission</td><td>extra neutrons from fast fission (mostly U-238)</td></tr><tr><td>L<sub>f</sub> fast non-leakage</td><td>fraction of fast neutrons that don't leak out</td></tr><tr><td>p resonance escape</td><td>fraction that slow down without being captured in U-238's resonances</td></tr><tr><td>L<sub>t</sub> thermal non-leakage</td><td>fraction of thermal neutrons that don't leak out</td></tr><tr><td>f thermal utilisation</td><td>fraction of thermal absorptions that happen in the fuel</td></tr><tr><td>η reproduction</td><td>new fast neutrons per thermal neutron absorbed in fuel</td></tr></table><div class="eq">k = ε · L<sub>f</sub> · p · L<sub>t</sub> · f · η</div><div class="key"><div class="kt">What each part means</div><div class="krow"><span class="
+Q(`Power is slowly rising. k is…`,['Slightly less than 1','Exactly 1','Slightly more than 1','Exactly 0'],2,`Each gener

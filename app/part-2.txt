@@ -1,4 +1,11 @@
-tnote">On school days, reminders pop up on your Windows PC at 4:30pm and 4:40pm, then Critical opens by itself at 4:45pm. There are more reminders at 6pm and 8pm if you haven\'t studied. Open Critical on the laptop in Chrome or Edge to set them up.</p>';R.innerHTML=h;return}
+}keep();writeFile(true);paint()}else{b.dataset.arm=1;b.textContent='Sure?';setTimeout(function(){delete b.dataset.arm;b.textContent='Delete'},3000)}};r.appendChild(b);L.appendChild(r)});
+  paintClock();paintLink()}
+ function paintClock(){var c=$('.stclock'),g=$('[data-a=go]');
+  if(st.run){c.textContent=clock(Date.now()-st.run.at);c.classList.add('live');g.textContent='Stop and save';g.classList.add('stop')}else{c.textContent='00:00:00';c.classList.remove('live');g.textContent='Start studying';g.classList.remove('stop')}
+  pills.forEach(function(b){var t=b.querySelector('.stt');b.classList.toggle('live',!!st.run);if(t)t.textContent=st.run?clock(Date.now()-st.run.at).replace(/^00:/,''):''})}
+ function paintLink(){var R=$('.strem');if(!R)return;var studied=didToday();
+  var h='<p class="stlab">Reminders on Windows</p><p>'+(studied?'<span class="stok">✓ Studied today'+(todayMin()?' ('+fmtM(todayMin())+')':'')+'.</span> Tonight\'s reminders will stay quiet.':'<span class="stwarn">Not studied yet today.</span>')+'</p>';
+  if(!isWin){h+='<p class="stnote">On school days, reminders pop up on your Windows PC at 4:30pm and 4:40pm, then Critical opens by itself at 4:45pm. There are more reminders at 6pm and 8pm if you haven\'t studied. Open Critical on the laptop in Chrome or Edge to set them up.</p>';R.innerHTML=h;return}
   if(!canFS){h+='<p class="stnote">Open Critical in Chrome or Edge to set up reminders. This browser can\'t share your study time with them.</p>';R.innerHTML=h;return}
   h+='<ol><li><a href="https://u23bodwells-cmyk.github.io/Critical/reminders/critical-reminders.zip" target="_blank" rel="noopener" download>Download the reminder setup</a>, right-click it, choose <b>Extract All</b>, then double-click <b>install.cmd</b>. If Windows warns you, click <b>More info → Run anyway</b>.</li>'+
    '<li>Connect this app to the reminders, so they know when you\'ve studied: <button class="stbtn alt" type="button" data-a="link">'+(linkState==='ok'?'Connected ✓':linkState==='lost'?'Reconnect':'Choose the Critical folder')+'</button><br><span class="stnote">'+(linkState==='ok'?'Your study time is shared with the reminders.':linkState==='lost'?'Windows needs you to allow access again. Tap Reconnect and choose Allow.':'Pick <b>Documents → Critical</b>, then click <b>Select folder</b> and <b>Allow</b>. If it asks, choose “Allow on every visit”.')+'</span></li></ol>'+
@@ -1104,13 +1111,4 @@ var PLAN=(function(){
   if(document.hidden&&!warned.n){warned.n=1;try{if('Notification' in window&&Notification.permission==='granted')new Notification('Time for '+nb[0],{body:'Come back to Critical for the next part of your plan.',tag:'critical-plan'})}catch(_){}}
   var goNext=function(){hideBan();begin(r.day,nj,true)};
   if(nb[5]==='clash'&&r.day<5&&r.day===todayI()&&!(hx&&hx.alloc)&&!extAsked(r.day)){var mm=mainOf(CORE(r.day))[0];
-   showBan((r.clr?'<b>Your mistakes pile is empty.</b> ':'')+'<b>That\'s the study part of today\'s plan done.</b> Enjoying it? You can keep going to 45 minutes: 10 more minutes of '+esc(mm)+', then 10 minutes of Critical Clash instead of 5.',[['Yes, keep going',function(){setExt(r.day,1);hideBan();begin(r.day,nj,true)}],['No, play Clash now',function(){setExt(r.day,0);hideBan();begin(r.day,nj,true)}]]);return}
-  if(ext)showBan(title,[['Open '+na[0]+' ↗',goNext],['5 more minutes',more]]);
-  else showBan(title+' Moving you in <span class="plcd">10</span> s.',[['Go now',goNext],['5 more minutes',more]],[10,function(){hideBan();begin(r.day,nj,false)}])}
- function more(){var r=runGet();if(r){var k=r.day+'-'+r.j;delete PS().t[k];save();r.ends=Date.now()+5*60000;r.early=0;runSet(r)}upKey=null;hideBan();paintPill();if(sh.classList.contains('open'))paint()}
- function warmChk(r){if(!r||r.ends<=Date.now()||!warmP)return;var b=DAY(r.day)[r.j];if(!b||b[5]!=='warm')return;if(typeof P!=='undefined'&&P===warmP&&P.finished){warmP=null;r.ends=Date.now();r.early=1;runSet(r)}}
- var lastChk=0;
- function fixChk(r){var now=Date.now();if(now-lastChk<3000)return;lastChk=now;var p=PS(),n=-1;
-  if(todayI()===0&&!p.monClr){n=pile();if(n===0){p.monClr=1;save()}}
-  if(!r||r.gm||r.ends<=now)return;var b=DAY(r.day)[r.j];if(!isFix(b)||busy())return;if(n<0)n=pile();
-  if(n===0){if(r.day===0){
+   showBan((r.clr?'<b>Your mistakes pile is empty.</b> ':'')+'<b>That\'s the study part of today\'s plan done.</b> Enjoying it? You can keep going to 45 minutes: 10 more minutes of '+esc(mm)+', then 10 minutes of Critical Clash instead of 5.',[['Yes, keep going',function(){setExt(r.day,1);hideBan();begin(r.day,nj,true)}],

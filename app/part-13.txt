@@ -1,4 +1,7 @@
-rections equally.`),
+cooling always favours the left-hand side'],0,`Cooling favours the exothermic direction.`),
+Q(`H₂(g) + I₂(g) ⇌ 2HI(g). Pressure is increased. What happens to the yield of HI?`,[`No change: 2 gas molecules on each side`,'It increases: higher pressure always favours products','It decreases: equilibrium moves to the left side','It doubles: there are twice as many HI molecules'],0,`Equal numbers of gas molecules.`),
+Q(`CO(g) + 2H₂(g) ⇌ CH₃OH(g), forward exothermic. Which conditions give the highest yield of methanol?`,[`Low temperature and high pressure`,`High temperature and high pressure`,`Low temperature and low pressure`,`High temperature and low pressure`],0,`Exothermic forward: low T. 3 molecules → 1: high P.`),
+Q(`Adding a catalyst to an equilibrium mixture…`,[`doesn't change the position, but equilibrium is reached faster`,'increases the yield, because it speeds up the forward reaction','decreases the yield, because it speeds up the reverse reaction','moves the position right, but equilibrium takes longer to reach'],0,`It speeds up both directions equally.`),
 T(`<h3>Key points</h3><ul><li>Equilibrium shifts to oppose the change.</li><li>Count gas molecules only for pressure.</li><li>Catalysts don't move the equilibrium.</li></ul>`)]),
 LH('gc5-2-2','Half equations',11,'Writing and balancing half equations for electrolysis and redox.',[
 RM(`<p>Cathode: reduction (gain of electrons). Anode: oxidation (loss of electrons). OIL RIG.</p>`),
@@ -1119,9 +1122,4 @@ T(`<h3>The method</h3><ol><li>Assume the statement is <b>false</b>.</li><li>Reas
 W('stepCalc',{steps:[`Prove √2 is irrational.`,`Assume √2 = a/b, a fraction in its simplest form (a and b share no factor).`,`Square: 2 = a²/b², so a² = 2b². So a² is even, so a is even: a = 2k.`,`Then 4k² = 2b², so b² = 2k²: b² is even, so b is even.`,`a and b are both even: they share a factor of 2. <b>Contradiction</b>. So √2 is irrational. ∎`]},`The classic proof.`,`The contradiction is with "simplest form".`),
 Q(`To prove "there are infinitely many primes" by contradiction, you start by assuming…`,[`there are only finitely many primes`,`there are infinitely many primes`,`every number is prime`,`2 is the only prime`],0,`Assume the opposite.`),
 Q(`What's the key step that makes a proof by contradiction work?`,[`Showing the assumption leads to something impossible`,`Checking many examples`,`Finding one counter-example`,`Drawing a graph`],0,`The contradiction.`),
-T(`<h3>Key points</h3><ul><li>Assume the opposite, reach a contradiction.</li><li>√2 irrational; infinitely many primes.</li><li>State clearly what's contradicted.</li></ul>`)]),
-LH('am4-1-2','Modelling',10,'Turn a real situation into maths, solve, then criticise your own model.',[
-RM(`<p>Differential equations model rates. Exponential models y = Ae<sup>kt</sup>. Mechanics models make assumptions (particle, light rod, smooth surface).</p>`),
-T(`<h3>The cycle</h3><ol><li>State <b>assumptions</b>.</li><li>Build the model (an equation).</li><li>Solve it.</li><li><b>Interpret</b> the answer in context, with units.</li><li><b>Evaluate</b>: limitations, and how to refine it.</li></ol>`),
-O(`Order the modelling cycle.`,['State assumptions','Build the equation','Solve it','Interpret in context','Evaluate and refine'],`Top marks need the last two steps.`),
-T(`<h3>Typical criticisms</h3><ul><li>Exponential growth can't continue forever: resources run out (use a logistic model).</li><li>Treating an object as a particle ignores its size and spin.</li><li>Ignoring air r
+T(`<h3>Key poi

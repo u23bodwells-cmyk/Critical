@@ -1,4 +1,9 @@
-;qp.innerHTML='<b>'+(EL[q[1]]||'Z'+q[1])+'-'+q[0]+'</b> (Z = '+q[1]+') undergoes <b>'+nm+'</b> decay.';iA.value='';iZ.value=''}
+t point on the curve.'}}}};
+
+WIDGETS.decayDrill=function(box){var EL={6:'C',7:'N',9:'F',8:'O',11:'Na',10:'Ne',12:'Mg',19:'K',20:'Ca',18:'Ar',26:'Fe',27:'Co',28:'Ni',36:'Kr',37:'Rb',38:'Sr',39:'Y',52:'Te',53:'I',54:'Xe',55:'Cs',56:'Ba',82:'Pb',84:'Po',86:'Rn',88:'Ra',90:'Th',91:'Pa',92:'U',93:'Np',94:'Pu',95:'Am',83:'Bi',97:'Bk'};
+ var QS=[[238,92,'a'],[226,88,'a'],[239,94,'a'],[241,95,'a'],[210,84,'a'],[90,38,'b'],[137,55,'b'],[135,53,'b'],[135,54,'b'],[60,27,'b'],[131,53,'b'],[239,92,'b'],[239,93,'b'],[92,36,'b'],[18,9,'p'],[22,11,'p'],[11,6,'p']],q,streak=0;
+ var qp=el('p','',null,box);qp.style.fontSize='18px';var r=row(box);r.innerHTML='<span class="small">Daughter: A =</span><input type="number" class="dA"><span class="small">Z =</span><input type="number" class="dZ">';var iA=r.querySelector('.dA'),iZ=r.querySelector('.dZ');var r2=row(box);btn(r2,'Check answer',chk,'pri');var m=msg(box),sk=el('p','small','Streak: 0',box);
+ function nq(){q=QS[Math.floor(Math.random()*QS.length)];var nm={a:'alpha',b:'beta-minus',p:'beta-plus'}[q[2]];qp.innerHTML='<b>'+(EL[q[1]]||'Z'+q[1])+'-'+q[0]+'</b> (Z = '+q[1]+') undergoes <b>'+nm+'</b> decay.';iA.value='';iZ.value=''}
  function chk(){if(iA.value===''||iZ.value===''){m.set('Enter both A and Z.',false);return}var A=q[0],Z=q[1];if(q[2]==='a'){A-=4;Z-=2}else if(q[2]==='b')Z++;else Z--;
   if(+iA.value===A&&+iZ.value===Z){streak++;m.set('Correct: '+(EL[Z]||'element '+Z)+'-'+A+'.',true);setTimeout(nq,700)}else{streak=0;m.set('Not quite: it\'s A = '+A+', Z = '+Z+'. '+(q[2]==='a'?'Alpha removes 4 nucleons and 2 protons.':q[2]==='b'?'Beta-minus: a neutron becomes a proton (Z + 1, A unchanged).':'Beta-plus: a proton becomes a neutron (Z − 1).'),false);setTimeout(nq,1800)}sk.textContent='Streak: '+streak}
  iZ.addEventListener('keydown',function(e){if(e.key==='Enter'){e.stopPropagation();e.preventDefault();chk()}});nq();
@@ -883,8 +888,8 @@ function xeTrip(t){var li=Math.LN2/6.57,lx=Math.LN2/9.14,A=4.7*lx;return Math.ex
  function defs(){QDEF.num=['Get {n} calculation{s} right first time','check'];QDEF.mission=['Complete a control room mission','dial'];QDEF.test=['Pass a unit test','star'];QDEF.test80=['Score 80% or more on a unit test','star'];
   QDEF.perfect=['Finish {n} lesson{s} with no mistakes','star'];QDEF.follow=['Complete {n} follow-up practice{s}','loop'];QDEF.lessons=['Finish {n} lesson{s}','book']}
  function activeLv(){try{if(P&&P.ui!=null)return {m:trk(P.ui),lv:lvOf(P.ui)}}catch(_){}return {m:curMode(),lv:curLevel()}}
- for(var _ql=6;_ql<=20;_ql++)LQ[_ql]={name:'Level '+_ql,focus:LQ[5].focus,xm:LQ[5].xm,pool:LQ[5].pool};
- function goalFor(lv){return Math.round(S.goal*LQ[lv].xm/10)*10}
+ for(var _ql=6;_ql<=30;_ql++)LQ[_ql]={name:'Level '+_ql,focus:LQ[5].focus,xm:LQ[5].xm,pool:LQ[5].pool};
+ function goalFor(lv){return Math.round(S.goal*(LQ[lv]||LQ[5]).xm/10)*10}
  quests=function(){defs();var t=today(),a=activeLv(),key=a.m+a.lv;S.qsets=S.qsets||{};
   if(S.quests&&S.quests.d===t&&!S.quests.key&&a.lv===1){S.quests.key=key;S.qsets[key]=S.quests}
   var q=S.qsets[key];
@@ -1209,11 +1214,4 @@ var STUDY=(function(){
   var L=$('.stlist');L.innerHTML='';var list=st.sessions.slice().sort(function(a,b){return (b.d+b.c).localeCompare(a.d+a.c)}).slice(0,12);
   if(!list.length)L.innerHTML='<p class="stnote">No sessions yet. Press Start studying when you begin.</p>';
   list.forEach(function(s){var r=document.createElement('div'),dt=new Date(s.d+'T12:00:00');var lv=!!(st.run&&s.c===st.run.c);r.innerHTML='<span>'+dt.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})+'</span><span>'+esc(s.t)+'</span><b>'+s.m+' min'+(lv?' · live':'')+'</b>';
-   var b=document.createElement('button');b.type='button';b.textContent='Delete';b.onclick=function(){if(b.dataset.arm){st.sessions=st.sessions.filter(function(x){return x!==s});if(st.run&&s.c===st.run.c){st.run=null;clearInterval(tick);note('Timer stopped and that session deleted.')}keep();writeFile(true);paint()}else{b.dataset.arm=1;b.textContent='Sure?';setTimeout(function(){delete b.dataset.arm;b.textContent='Delete'},3000)}};r.appendChild(b);L.appendChild(r)});
-  paintClock();paintLink()}
- function paintClock(){var c=$('.stclock'),g=$('[data-a=go]');
-  if(st.run){c.textContent=clock(Date.now()-st.run.at);c.classList.add('live');g.textContent='Stop and save';g.classList.add('stop')}else{c.textContent='00:00:00';c.classList.remove('live');g.textContent='Start studying';g.classList.remove('stop')}
-  pills.forEach(function(b){var t=b.querySelector('.stt');b.classList.toggle('live',!!st.run);if(t)t.textContent=st.run?clock(Date.now()-st.run.at).replace(/^00:/,''):''})}
- function paintLink(){var R=$('.strem');if(!R)return;var studied=didToday();
-  var h='<p class="stlab">Reminders on Windows</p><p>'+(studied?'<span class="stok">✓ Studied today'+(todayMin()?' ('+fmtM(todayMin())+')':'')+'.</span> Tonight\'s reminders will stay quiet.':'<span class="stwarn">Not studied yet today.</span>')+'</p>';
-  if(!isWin){h+='<p class="s
+   var b=document.createElement('button');b.type='button';b.textContent='Delete';b.onclick=function(){if(b.dataset.arm){st.sessions=st.sessions.filter(function(x){return x!==s});if(st.run&&s.c===st.run.c){st.run=null;clearInterval(tick);note('Timer stopped and that session deleted.')

@@ -1,4 +1,10 @@
-.001,'',`3 × 2² = 12.`),
+dP/dt and so on are rates of change with time.</li></ul>`)]),
+LH('c2-2-2','First principles for x³',10,'The same method, a little more algebra: prove that the gradient of x³ is 3x².',[
+RM(`<p>For y = x², the chord from a to a + h has gradient 2a + h, which tends to 2a as h → 0.</p>`),
+T(`<h3>Expanding (a + h)³</h3><p>(a + h)³ = (a + h)² × (a + h) = (a² + 2ah + h²)(a + h).</p><p>Multiply out and collect like terms:</p><div class="eq">(a + h)³ = a³ + 3a²h + 3ah² + h³</div>`),
+Q(`(a + h)³ expands to…`,[`a³ + 3a²h + 3ah² + h³`,'a³ + 3a²h + 3ah + h³','a³ + 2a²h + 2ah² + h³','a³ + 3a²h² + 3ah + h³'],0,`Four terms, with 3s in the middle two.`),
+W('stepCalc',{steps:[`Chord gradient = ((a + h)³ − a³) ÷ h`,`Expand: (a³ + 3a²h + 3ah² + h³ − a³) ÷ h`,`The a³ terms cancel: (3a²h + 3ah² + h³) ÷ h`,`Divide each term by h: <b>3a² + 3ah + h²</b>`,`As h → 0, both 3ah and h² vanish`,`So the gradient of y = x³ at x = a is <b>3a²</b>`]},`Reveal each step. It's the same plan as for x².`,`For y = x³, dy/dx = 3x².`),
+N(`For y = x³, what's the gradient at x = 2?`,12,0.001,'',`3 × 2² = 12.`),
 N(`For y = x³, what's the gradient at x = −1?`,3,0.001,'',`3 × (−1)² = 3. Positive, even on the left.`),
 Q(`Why does 3ah vanish as h → 0?`,[`It has an h in it, so it shrinks to 0`,'It has an a in it, and a is always 0','It is multiplied by 3, which cancels it','It doesn\'t vanish: it becomes 3a instead'],0,`Any term with an h shrinks away.`),
 T(`<h3>Key points</h3><ul><li>(a + h)³ = a³ + 3a²h + 3ah² + h³.</li><li>The chord gradient simplifies to 3a² + 3ah + h², which tends to <b>3a²</b>.</li><li>So for y = x³, <b>dy/dx = 3x²</b>.</li></ul>`)]),
@@ -986,10 +992,4 @@ T(`<h3>p-series</h3><p>From the integral p-test:</p><div class="eq">Σ 1/nᵖ co
 Q(`Does Σ 1/n³ converge?`,[`Yes: p = 3 > 1`,`No: p = 3 is too big`,`No: like the harmonic series`,`You can't tell`],0,`p-series with p > 1.`),
 T(`<h3>The comparison test</h3><p>For positive terms:</p><ul><li>If aₙ ≤ bₙ and Σ bₙ <b>converges</b>, so does Σ aₙ (smaller than something finite).</li><li>If aₙ ≥ bₙ and Σ bₙ <b>diverges</b>, so does Σ aₙ (bigger than something infinite).</li></ul><p>Example: 1/(n² + 5) < 1/n², and Σ 1/n² converges, so Σ 1/(n² + 5) converges.</p>`),
 Q(`1/(n + 3) is compared with 1/n. Why doesn't "smaller than a divergent series" prove anything?`,[`Being smaller than infinity doesn't make it finite`,`Because 1/(n + 3) is bigger`,`It does prove it converges`,`Because n + 3 is never zero`],0,`You need smaller-than-convergent or bigger-than-divergent.`),
-W('matchPairs',{pairs:[['Σ 1/n²','Converges (p = 2)'],['Σ 1/n','Diverges (harmonic)'],['Σ 1/√n','Diverges (p = ½)'],['Σ 1/(n² + 1)','Converges (compare with 1/n²)']]},`Match each series to its verdict.`),
-T(`<h3>Key points</h3><ul><li><b>Integral test</b>: series and integral behave alike.</li><li><b>Σ 1/nᵖ</b> converges iff <b>p > 1</b>.</li><li><b>Comparison</b>: smaller than convergent, or bigger than divergent.</li></ul>`)]),
-LH('c10-2-3','The ratio test and alternating series',11,'The most useful test of all, and what happens when the signs take turns.',[
-RM(`<p>Geometric series converge when |r| < 1. The harmonic series diverges.</p>`),
-T(`<h3>The ratio test</h3><p>Look at how each term compares to the one before:</p><div class="eq">L = lim<sub>n→∞</sub> |aₙ₊₁ / aₙ|</div><ul><li><b>L < 1</b>: converges (eventually like a geometric series with r < 1).</li><li><b>L > 1</b>: diverges.</li><li><b>L = 1</b>: the test can't decide.</li></ul>`),
-W('calcDrill',{skill:'ratiotest',need:3},`Use the ratio test. Get 3 right to master it.`,`The power of n doesn't matter; the kⁿ does.`),
-Q(`For Σ 1/n, the ratio test gives L = 1. What does that mean?`,[`The ratio test can't decide (we know it diverges)`,`It converges`,`It diverges because L = 1`
+W('matchPairs',{pairs:[['Σ 1/n²','Converges (p = 2)'],['Σ 1/n','Diverges (harmonic)'],['Σ 1/√n','Diverges (p = ½)'],['Σ 1/(n² + 1)','Converges (compare with 1/n²)']]},`Match each series to its ver
