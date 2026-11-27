@@ -647,8 +647,8 @@ var PLAN=(function(){
    if(hw&&hw.alloc&&i===todayI()){var na={};for(var a in hw.alloc)if(map[a]!=null)na[map[a]]=hw.alloc[a];hw.alloc=na}}
   p.t=nt;p.sm=want;save();if(r){if(rj==null)runClear();else{r.j=rj;runSet(r)}}if(hw&&hw.alloc)try{hwSet(hw)}catch(_){}}
  /* ----- the quantum & maths learning path: the best order, with catch-ups first ----- */
- var PATH_REQ={qm1:[],qm2:['qm1'],qm3:['qm2','calc4','calc15','calc16'],qm4:['qm3','calc17'],qm5:['qm4'],qm6:['qm5','calc18'],qm7:['qm6','calc19','calc20','calc21'],
-  calc1:[],calc15:['calc3'],calc16:['calc1'],calc17:['calc5'],calc18:['calc17','calc10','calc12'],calc19:['calc15','calc14'],calc20:['calc16','calc17'],calc21:['calc16','calc12']};
+ var PATH_REQ={qm1:[],qm2:['qm1'],qm3:['qm2','calc4','calc15','calc16'],qm4:['qm3','calc17'],qm5:['qm4','calc23'],qm6:['qm5','calc18','calc22'],qm7:['qm6','calc19','calc20','calc21'],
+  calc1:[],calc15:['calc3'],calc16:['calc1'],calc17:['calc5'],calc18:['calc17','calc10','calc12'],calc19:['calc15','calc14'],calc20:['calc16','calc17'],calc21:['calc16','calc12'],calc22:['calc17','calc16'],calc23:['calc5']};
  for(var _pc=2;_pc<=14;_pc++)PATH_REQ['calc'+_pc]=['calc'+(_pc-1)];
  var PATH_ORDER=(function(){var out=[],seen={};function visit(n){if(seen[n])return;seen[n]=1;(PATH_REQ[n]||[]).slice().sort(function(a,b){return pNum(a)-pNum(b)}).forEach(visit);out.push(n)}for(var q=1;q<=7;q++)visit('qm'+q);return out})();
  function pNum(n){return (n.indexOf('qm')===0?1000:0)+(+n.replace(/\D/g,''))}
@@ -1105,5 +1105,4 @@ var PLAN=(function(){
    var x4=document.createElement('button');x4.type='button';x4.className='plgo alt';x4.textContent='Finished early';x4.onclick=function(){finishEarly()};if(!isRv)A.appendChild(x4);
    var x3=document.createElement('button');x3.type='button';x3.className='plgo alt';x3.textContent='Stop the plan';x3.onclick=function(){stopRun(false)};A.appendChild(x3);return}
   var j=firstLeft(t);if(j<0){if(feOn(t)){var fz0=PS().fe[t],fn=fz0.n||1;R.innerHTML='<p>Finished early today ✓</p><b>'+fn+' lesson'+(fn===1?'':'s')+' done</b><p>Today\'s plan is finished. Changed your mind? You can carry on with it.</p><div class="placts"></div>';
-   var uu=document.createElement('button');uu.type='button';uu.className='plgo alt';uu.textContent='Undo: carry on with the plan';uu.onclick=undoEarly;R.querySelector('.placts').appendChild(uu)}return}
-  var bb=document.createElement(
+   var uu=document.createElement('button');uu.type='button';uu.className='plgo alt';uu.textContent='Undo: carry on with the plan';uu.onclick=undoEarly;R.querySelector('.pla

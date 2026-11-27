@@ -1,4 +1,39 @@
-d naturally: wind, solar, hydroelectric, tidal, wave, geothermal and biofuel.</p><p>Each has pros and cons: how reliable it is, its cost, and its effect on the environment (CO₂, land use, waste, noise).</p>`),
+,
+T(`<h3>Kinetic energy</h3><p>The energy in an object's kinetic store depends on its mass and its speed:</p><div class="eq">E<sub>k</sub> = ½ m v²</div>${KY([['E<sub>k</sub>','kinetic energy','J'],['m','mass','kg'],['v','speed','m/s']],'Your exams (summer 2028) come with an equation sheet, but learn it anyway: knowing it by heart makes you much faster.')}`),
+T(`<h3>Speed counts double</h3><p>Speed is <b>squared</b>. That means:</p><ul><li>Double the mass → double the kinetic energy.</li><li>Double the speed → <b>four times</b> the kinetic energy (2² = 4).</li></ul><p>That's why a crash at 60 mph is so much worse than one at 30 mph.</p>`),
+Q(`A car doubles its speed. What happens to its kinetic energy?`,[`It becomes 4 times bigger`,'It becomes 2 times bigger','It becomes 8 times bigger','It becomes 4 times smaller'],0,`E<sub>k</sub> depends on v². (2v)² = 4v².`),
+W('stepCalc',{steps:[`A 1200 kg car moves at 10 m/s. Find its kinetic energy.`,`Write the equation: E<sub>k</sub> = ½ m v²`,`Square the speed first: 10² = 100`,`Multiply: 0.5 × 1200 × 100`,`E<sub>k</sub> = <b>60 000 J</b> (that's 60 kJ)`]},`A worked example, one step at a time.`,`Square the speed before you multiply.`),
+W('calcDrill',{skill:'g_ke',need:5},`Your turn. Get 5 right to master it. Some ask for the speed.`,`To find v: v² = 2E<sub>k</sub> ÷ m, then square-root.`),
+T(`<h3>Key points</h3><ul><li>Energy is stored in <b>stores</b> and moved by <b>transfers</b>.</li><li>Energy is never used up, only moved.</li><li><b>E<sub>k</sub> = ½mv²</b>. Learn it.</li><li>Double the speed, four times the kinetic energy.</li></ul>`)]),
+LH('gp2-1-2','Gravitational and elastic energy',9,'Lifting things and stretching springs stores energy. Two more equations, and what happens when energy changes store.',[
+RM(`<p>Kinetic energy: <b>E<sub>k</sub> = ½mv²</b>, with m in kg and v in m/s. Energy moves between stores but is never used up.</p>`),
+T(`<h3>Gravitational potential energy</h3><p>Lift something up and you fill its gravitational potential energy store:</p><div class="eq">E<sub>p</sub> = m g h</div>${KY([['E<sub>p</sub>','gravitational potential energy','J'],['m','mass','kg'],['g','gravitational field strength (9.8 on Earth)','N/kg'],['h','change in height','m']],'Learn this one too. AQA uses g = 9.8 N/kg.')}`),
+N(`A 2 kg book is lifted 1.5 m onto a shelf. How much gravitational potential energy does it gain? (g = 9.8 N/kg)`,29.4,0.01,'J',`E<sub>p</sub> = mgh = 2 × 9.8 × 1.5 = 29.4 J.`),
+W('calcDrill',{skill:'g_gpe',need:4},`Practise E<sub>p</sub> = mgh. Get 4 right to master it.`,`To find h, divide E<sub>p</sub> by (m × g).`),
+T(`<h3>Elastic potential energy</h3><p>Stretch or squash a spring and you store energy in it:</p><div class="eq">E<sub>e</sub> = ½ k e²</div>${KY([['E<sub>e</sub>','elastic potential energy','J'],['k','spring constant (how stiff the spring is)','N/m'],['e','extension (how much longer it got)','m']],'This one is on the equation sheet. Always convert cm into m first: 5 cm = 0.05 m.')}`),
+W('calcDrill',{skill:'g_epe',need:3},`Practise E<sub>e</sub> = ½ke². Get 3 right to master it.`,`Convert cm to m by dividing by 100, then square it.`),
+T(`<h3>When energy changes store</h3><p>Drop a ball and, ignoring air resistance, all the gravitational potential energy it loses becomes kinetic energy:</p><div class="eq">energy lost from E<sub>p</sub> = energy gained by E<sub>k</sub></div><p>This is <b>conservation of energy</b>. It lets you link two equations together.</p>`),
+N(`A 0.5 kg ball is dropped from 5 m. Ignoring air resistance, how much kinetic energy does it have just before it lands? (g = 9.8 N/kg)`,24.5,0.01,'J',`All the E<sub>p</sub> becomes E<sub>k</sub>: mgh = 0.5 × 9.8 × 5 = 24.5 J.`),
+Q(`Why do questions say "ignoring air resistance"?`,[`Air resistance transfers some energy to the thermal store of the surroundings`,'Air resistance adds extra energy to the kinetic store of the ball','Air pushes down on the ball and makes it heavier as it falls','Air changes the value of g, so the answer would no longer use g = 9.8 N/kg at all'],0,`With air resistance, some energy is wasted, so less ends up as kinetic energy.`),
+T(`<h3>Key points</h3><ul><li><b>E<sub>p</sub> = mgh</b> (learn it, g = 9.8 N/kg).</li><li><b>E<sub>e</sub> = ½ke²</b> (given). Convert cm to m.</li><li>Energy lost from one store = energy gained by another.</li></ul>`)]),
+LH('gp2-1-3','Specific heat capacity',9,'Why water takes so long to heat up, the equation for it, and the required practical.',[
+RM(`<p>Energy can be transferred <b>by heating</b> into an object's <b>thermal</b> store. Energy is measured in joules (J).</p>`),
+T(`<h3>Some things heat up faster</h3><p>Put the same energy into 1 kg of water and 1 kg of aluminium. The aluminium gets much hotter. Water needs far more energy for each degree.</p><p>The <b>specific heat capacity</b> of a substance is the energy needed to raise the temperature of <b>1 kg</b> of it by <b>1 °C</b>.</p><p>Water's is 4200 J/kg °C, one of the highest there is. That's why water is used to carry heat around radiators, and to carry heat away from a nuclear reactor's core.</p>`),
+T(`<h3>The equation</h3><div class="eq">ΔE = m c Δθ</div>${KY([['ΔE','change in thermal energy','J'],['m','mass','kg'],['c','specific heat capacity','J/kg °C'],['Δθ','temperature change (θ is "theta")','°C']],'This is on the equation sheet. Δ (delta) means "change in".')}`),
+N(`How much energy is needed to heat 2 kg of water by 10 °C? (c = 4200 J/kg °C)`,84000,0.001,'J',`ΔE = mcΔθ = 2 × 4200 × 10 = 84 000 J.`),
+W('calcDrill',{skill:'g_shc',need:5},`Practise ΔE = mcΔθ. Get 5 right to master it. Some ask you to rearrange.`,`Rearranged: Δθ = ΔE ÷ (mc), and c = ΔE ÷ (mΔθ).`),
+T(`<h3>Required practical: specific heat capacity</h3><ol><li>Put a heater and a thermometer into holes in a 1 kg metal block.</li><li>Wrap the block in insulation.</li><li>Measure the energy supplied with a joulemeter (or E = VIt), and the temperature every minute.</li><li>Plot temperature rise against energy. Then c = energy ÷ (m × temperature rise).</li></ol>`),
+Q(`In the specific heat capacity practical, some heat escapes to the surroundings. How does this affect the value of c you calculate?`,[`It comes out too high`,`It comes out too low`,`It has no effect`,`It comes out negative`],0,`More energy was supplied than actually went into the block for that temperature rise. Dividing a too-big energy gives a too-big c. Insulation reduces this.`),
+Q(`Why put a little oil or water in the thermometer hole?`,[`To improve thermal contact, so the thermometer reads the block's temperature`,'To cool the block down so it doesn\'t get too hot to touch','To stop the block rusting, which would change its heat capacity and its mass over time','To make the heater work, because it needs a liquid to heat up'],0,`Air is a poor conductor; the liquid lets heat reach the thermometer properly.`),
+T(`<h3>Key points</h3><ul><li>Specific heat capacity: energy to heat 1 kg by 1 °C.</li><li><b>ΔE = mcΔθ</b> (given).</li><li>Water has a very high c: 4200 J/kg °C.</li><li>Heat loss in the practical makes c come out too high.</li></ul>`)]),
+LH('gp2-1-4','Power, efficiency and energy resources',10,'How fast energy is transferred, how much is wasted, and where our energy comes from.',[
+RM(`<p>Energy is conserved: it is never created or destroyed. ΔE = mcΔθ. E<sub>k</sub> = ½mv², E<sub>p</sub> = mgh.</p>`),
+T(`<h3>Power</h3><p><b>Power</b> is how fast energy is transferred:</p><div class="eq">P = E ÷ t &nbsp;&nbsp;&nbsp; P = W ÷ t</div>${KY([['P','power','W (watts)'],['E','energy transferred','J'],['W','work done','J'],['t','time','s']],'1 watt = 1 joule per second. Learn both. Always convert minutes into seconds.')}`),
+W('calcDrill',{skill:'g_power',need:4},`Practise power. Get 4 right to master it.`,`P = E ÷ t, or E = Pt. Time must be in seconds.`),
+T(`<h3>Efficiency</h3><div class="eq">efficiency = useful output ÷ total input</div><p>You can use energy or power. Multiply by 100 for a percentage. Nothing is more than 100% efficient.</p><p>The rest of the energy is <b>wasted</b>: it spreads out (is <b>dissipated</b>), usually heating the surroundings.</p>`),
+W('calcDrill',{skill:'g_eff',need:4},`Practise efficiency. Get 4 right to master it.`,`Useful ÷ total, then × 100 for a percentage.`),
+T(`<h3>Wasting less</h3><ul><li><b>Lubrication</b> (oil) reduces friction, so less energy heats moving parts.</li><li><b>Thermal insulation</b> slows down energy loss. Materials with a <b>low thermal conductivity</b> and <b>thicker walls</b> transfer energy more slowly.</li></ul>`),
+T(`<h3>Energy resources</h3><p><b>Non-renewable</b> resources will run out: coal, oil, natural gas and nuclear fuel.</p><p><b>Renewable</b> resources are replaced naturally: wind, solar, hydroelectric, tidal, wave, geothermal and biofuel.</p><p>Each has pros and cons: how reliable it is, its cost, and its effect on the environment (CO₂, land use, waste, noise).</p>`),
 W('sortIt',{bins:['Renewable','Non-renewable'],items:[['Wind',0],['Solar',0],['Tidal',0],['Geothermal',0],['Biofuel',0],['Coal',1],['Natural gas',1],['Uranium (nuclear fuel)',1],['Oil',1]]},`Sort the energy resources.`,`Nuclear fuel is non-renewable, but it gives out no CO₂ while generating.`),
 Q(`Why is nuclear power useful even though it isn't renewable?`,[`It gives out no CO₂ while running and is reliable day and night`,'It is actually renewable, because uranium never runs out','It makes no waste at all, and runs whenever the wind blows','It is cheap and quick to build, and turns on in seconds'],0,`Its downsides are radioactive waste and high building costs, but it is low-carbon and reliable.`),
 Q(`Which renewable resource is least reliable from hour to hour?`,[`Wind`,`Tidal`,`Geothermal`,`Hydroelectric`],0,`Tides are predictable, geothermal is constant, and hydro can be switched on when needed. The wind changes all the time.`),
@@ -834,58 +869,4 @@ W('stepCalc',{steps:[`Balance: H₂ + O₂ → H₂O`,`Count: left has 2 H and 2
 W('calcDrill',{skill:'g_balance',need:4},`Balance the equations. Get 4 right to master it.`,`Type 1 where no number is needed.`),
 T(`<h3>Key points</h3><ul><li>Same number of each atom on both sides.</li><li>Change the big numbers in front, never the small ones.</li><li>Recount after every change.</li></ul>`)])
 ]});
-U({id:'gc1-4',track:'gc',level:1,title:'Acids and reactions',icon:'pH',color:'#D4537E',desc:'Acids, alkalis, indicators and pH, neutralisation, acids with metals, and tests for gases.',lessons:[
-LH('gc1-4-1','Acids, alkalis and pH',8,'The pH scale, indicators, and neutralisation.',[
-T(`<h3>The pH scale</h3><p>The pH scale runs from 0 to 14:</p><ul><li>Below 7: <b>acidic</b> (lemon juice, vinegar, stomach acid).</li><li>7: <b>neutral</b> (pure water).</li><li>Above 7: <b>alkaline</b> (soap, bleach, oven cleaner).</li></ul><p>Strong acids and alkalis are corrosive.</p>`),
-T(`<h3>Indicators</h3><ul><li><b>Litmus</b>: red in acid, blue in alkali.</li><li><b>Universal indicator</b>: red (strong acid) → orange → yellow → green (neutral) → blue → purple (strong alkali). It shows the pH.</li></ul>`),
-Q(`Universal indicator turns purple. The solution is…`,[`strongly alkaline`,`strongly acidic`,`neutral`,`weakly acidic`],0,`Purple is around pH 13 to 14.`),
-T(`<h3>Neutralisation</h3><p>An acid and an alkali cancel each other out:</p><div class="eq">acid + alkali → salt + water</div><p>Indigestion tablets neutralise extra stomach acid.</p>`),
-Q(`What is made when hydrochloric acid neutralises sodium hydroxide?`,[`Sodium chloride and water`,`Sodium and chlorine`,`Hydrogen and oxygen`,`Sodium hydroxide and water`],0,`A salt (sodium chloride) and water.`),
-T(`<h3>Key points</h3><ul><li>pH below 7 acid, 7 neutral, above 7 alkali.</li><li>Universal indicator shows the pH by colour.</li><li>acid + alkali → salt + water.</li></ul>`)]),
-LH('gc1-4-2','Acids, metals and gas tests',8,'What happens when metals meet acids, and the three gas tests you must know.',[
-RM(`<p>acid + alkali → salt + water. pH below 7 is acidic.</p>`),
-T(`<h3>Metals and acids</h3><div class="eq">metal + acid → salt + hydrogen</div><p>More reactive metals fizz faster. Magnesium fizzes quickly; copper doesn't react at all.</p>`),
-T(`<h3>Gas tests</h3><ul><li><b>Hydrogen</b>: a lit splint gives a <b>squeaky pop</b>.</li><li><b>Oxygen</b>: <b>relights a glowing splint</b>.</li><li><b>Carbon dioxide</b>: turns <b>limewater cloudy</b> (milky).</li></ul>`),
-W('matchPairs',{pairs:[['Hydrogen','Squeaky pop with a lit splint'],['Oxygen','Relights a glowing splint'],['Carbon dioxide','Turns limewater cloudy']]},`Match each gas to its test.`,`These three come up in GCSE every year.`),
-Q(`Zinc is added to an acid. It fizzes. How would you test the gas?`,[`Hold a lit splint near it: a squeaky pop means hydrogen`,'Bubble it through limewater: if it turns cloudy, it\'s hydrogen','Hold a glowing splint in it: if it relights, it\'s hydrogen','Hold damp litmus paper in it: if it bleaches, it\'s hydrogen'],0,`Metal + acid makes hydrogen.`),
-T(`<h3>Key points</h3><ul><li>metal + acid → salt + hydrogen.</li><li>Hydrogen: squeaky pop. Oxygen: relights glowing splint. CO₂: limewater cloudy.</li></ul>`)])
-]});
-
-U({id:'gm1-1',track:'gm',level:1,title:'Number skills',icon:'±',color:'#7F77DD',desc:'Negative numbers, the order of operations, factors, multiples, primes, HCF and LCM.',lessons:[
-LH('gm1-1-1','Negatives and order of operations',8,'Working with negative numbers, and the order to do calculations in.',[
-T(`<h3>Negative numbers</h3><ul><li>Adding a negative is the same as subtracting: 5 + (−3) = 2.</li><li>Subtracting a negative is the same as adding: 5 − (−3) = 8.</li><li>Multiplying or dividing: <b>same signs give positive</b>, <b>different signs give negative</b>. (−4) × (−3) = 12; (−4) × 3 = −12.</li></ul>`),
-Q(`What is −6 − (−10)?`,[`4`,`−16`,`16`,`−4`],0,`−6 + 10 = 4.`),
-T(`<h3>Order of operations</h3><p><b>B</b>rackets, <b>I</b>ndices (powers), <b>D</b>ivision and <b>M</b>ultiplication, <b>A</b>ddition and <b>S</b>ubtraction (BIDMAS).</p><div class="eq">3 + 4 × 2 = 3 + 8 = 11, not 14</div>`),
-W('calcDrill',{skill:'g_bidmas',need:6},`Order of operations. Get 6 right to master it.`,`Powers before multiplying; multiplying before adding.`),
-T(`<h3>Key points</h3><ul><li>Same signs: positive. Different signs: negative.</li><li>BIDMAS: brackets, powers, × and ÷, + and −.</li></ul>`)]),
-LH('gm1-1-2','Factors, multiples and primes',8,'Prime factors, highest common factor and lowest common multiple.',[
-RM(`<p>A factor divides exactly into a number. A multiple is in its times table.</p>`),
-T(`<h3>Primes and prime factors</h3><p>A <b>prime</b> has exactly two factors: 1 and itself (2, 3, 5, 7, 11, 13…). 1 is not prime.</p><p>Every number can be written as a <b>product of prime factors</b>. Use a factor tree:</p><div class="eq">60 = 2 × 2 × 3 × 5 = 2² × 3 × 5</div>`),
-Q(`Write 36 as a product of prime factors.`,[`2² × 3²`,`4 × 9`,`2 × 3 × 6`,`6²`],0,`36 = 2 × 2 × 3 × 3. 4 and 9 aren't prime.`),
-T(`<h3>HCF and LCM</h3><ul><li><b>HCF</b> (highest common factor): the biggest number that divides into both. Multiply the primes they share.</li><li><b>LCM</b> (lowest common multiple): the smallest number both divide into. Use every prime the most times it appears.</li></ul><p>12 = 2² × 3 and 18 = 2 × 3²: HCF = 2 × 3 = 6; LCM = 2² × 3² = 36.</p>`),
-W('calcDrill',{skill:'g_hcf',need:5},`HCF and LCM. Get 5 right to master it.`,`HCF: shared primes. LCM: every prime, the most times.`),
-T(`<h3>Key points</h3><ul><li>Primes have exactly two factors. 1 isn't prime.</li><li>Factor trees give the product of primes.</li><li>HCF: shared primes. LCM: all primes, most times each.</li></ul>`)])
-]});
-U({id:'gm1-2',track:'gm',level:1,title:'Algebra basics',icon:'a',color:'#1D9E75',desc:'Collecting like terms, substitution, expanding a single bracket, solving simple equations and linear sequences.',lessons:[
-LH('gm1-2-1','Simplifying and substituting',8,'Collecting like terms, and putting numbers into expressions.',[
-T(`<h3>Algebra notation</h3><ul><li>3x means 3 × x. xy means x × y.</li><li>x² means x × x. 2x² means 2 × x × x, not (2x)².</li></ul><h3>Like terms</h3><p>Like terms have exactly the same letters and powers. Add or subtract their numbers: 5a + 3b − 2a + b = 3a + 4b.</p>`),
-W('calcDrill',{skill:'g_collect',need:5},`Collect like terms. Get 5 right to master it.`,`x terms together, y terms together.`),
-T(`<h3>Substitution</h3><p>Replace each letter with its number, then use BIDMAS. Put negative numbers in brackets so the signs come out right.</p>`),
-W('calcDrill',{skill:'g_subst',need:5},`Substitution. Get 5 right to master it.`,`Brackets around negatives, then BIDMAS.`),
-T(`<h3>Key points</h3><ul><li>Like terms: same letters and powers.</li><li>Substitute with brackets around negatives.</li></ul>`)]),
-LH('gm1-2-2','Brackets, equations and sequences',9,'Expanding a single bracket, solving simple equations, and the nth term of a linear sequence.',[
-RM(`<p>Collect like terms. Substitute with brackets around negatives.</p>`),
-T(`<h3>Expanding one bracket</h3><p>Multiply everything inside by the term outside:</p><div class="eq">4(2x − 3) = 8x − 12 &nbsp;&nbsp; −2(x + 5) = −2x − 10</div>`),
-W('calcDrill',{skill:'g_expand1',need:5},`Expand the brackets. Get 5 right to master it.`,`Watch the signs when the outside number is negative.`),
-T(`<h3>Solving equations</h3><p>Do the same to both sides to get x on its own:</p><div class="eq">3x + 5 = 20 → 3x = 15 → x = 5</div>`),
-W('calcDrill',{skill:'g_solvelin',need:4},`Solve the equations. Get 4 right to master it.`,`Collect the x terms on one side first.`),
-T(`<h3>Linear sequences</h3><p>In 5, 8, 11, 14, … the terms go up by 3, so the nth term starts with <b>3n</b>. 3n gives 3, 6, 9… so add 2: nth term = <b>3n + 2</b>.</p>`),
-W('calcDrill',{skill:'g_nth',need:4},`nth terms. Get 4 right to master it.`,`The difference is the number in front of n.`),
-T(`<h3>Key points</h3><ul><li>Expand: multiply every term inside.</li><li>Solve: same to both sides.</li><li>nth term: difference × n, then adjust.</li></ul>`)])
-]});
-U({id:'gm1-3',track:'gm',level:1,title:'Fractions, decimals and percentages',icon:'½',color:'#BA7517',desc:'Adding, multiplying and dividing fractions, fractions of amounts, and converting between fractions, decimals and percentages.',lessons:[
-LH('gm1-3-1','Fractions',9,'Adding, multiplying and dividing fractions, and finding a fraction of an amount.',[
-T(`<h3>Adding and subtracting</h3><p>Make the <b>denominators</b> (bottoms) the same first, then add or subtract the tops:</p><div class="eq">1/3 + 1/4 = 4/12 + 3/12 = 7/12</div>`),
-T(`<h3>Multiplying and dividing</h3><ul><li>Multiply: tops × tops, bottoms × bottoms. 2/3 × 3/5 = 6/15 = 2/5.</li><li>Divide: <b>flip the second fraction</b> and multiply. 2/3 ÷ 4/5 = 2/3 × 5/4 = 10/12 = 5/6.</li></ul><p>Always simplify at the end.</p>`),
-W('calcDrill',{skill:'g_frac',need:6},`Fraction calculations. Get 6 right to master it.`,`Add: same bottoms. Multiply: straight across. Divide: flip and multiply.`),
-T(`<h3>Key points</h3><ul><li>Add or subtract: common denominator.</
+U({id:'gc1-4',track:'gc',level:1,title:'Acids and reactions',icon:'

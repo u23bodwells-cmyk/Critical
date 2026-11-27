@@ -1,4 +1,374 @@
-illStyle='rgba(255,255,255,.03)';c.fillRect(px,py,pw,ph2);c.strokeStyle='rgba(120,160,255,.25)';c.strokeRect(px+.5,py+.5,pw-1,ph2-1);
+00/1.2)+'%';
+ var sur=s.sur;$('ni_sur').textContent=(sur>=0?'+':'')+sur.toFixed(2).replace('-','−');var z=1/6*100;$('nf_sur').style.left=(sur>=0?z:Math.max(0,z+sur/6*100))+'%';$('nf_sur').style.width=Math.min(100-z,Math.abs(sur)/6*100)+'%';$('nf_sur').style.background=sur>1?'var(--red)':sur<0?'var(--blue)':'var(--accent)';
+ var vals={pth:Math.round(s.Pth||0)+' MW',mwe:Math.round(s.tripped?0:s.load*3000*0.35)+' MW',tav:s.Tav.toFixed(1)+' °C',tref:Tr.toFixed(1)+' °C',thot:(s.Thot||s.Tav).toFixed(1)+' °C',tcold:(s.Tcold||s.Tav).toFixed(1)+' °C',tf:Math.round(s.Tf)+' °C',sub:(SP.Tsat-(s.Thot||s.Tav)).toFixed(1)+' °C',load:(s.load*100).toFixed(1)+'%',dump:Math.round(s.dump||0)+' MW',xe:Math.round(r.x)+' pcm',rho:(r.tot>=0?'+':'')+r.tot.toFixed(1)+' pcm'};
+ for(var k in vals)$('ro_'+k).textContent=vals[k];var subm=SP.Tsat-(s.Thot||s.Tav);$('ro_sub').parentNode.classList.toggle('alarm',subm<15);$('ro_tav').parentNode.classList.toggle('alarm',Math.abs(s.Tav-Tr)>3&&s.n>0.05);
+ var d={rod:(r.sd+r.cb)-(SIM.r0.sd+SIM.r0.cb),b:r.b-SIM.r0.b,f:r.f-SIM.r0.f,m:r.m-SIM.r0.m,x:r.x-SIM.r0.x,tot:r.tot};
+ RHO.forEach(function(q){var v=d[q[0]],w=Math.min(50,Math.abs(v)/3000*50),b=$('rb_'+q[0]);b.style.left=(v>=0?50:50-w)+'%';b.style.width=w+'%';b.style.background=v>=0?'var(--coral)':'var(--blue)';$('rv_'+q[0]).textContent=(v>=0?'+':'')+Math.round(v)});
+ $('sSdP').textContent=Math.round(s.sd*228)+' steps';$('sSdB').style.width=s.sd*100+'%';$('sCbP').textContent=Math.round(s.cb*228)+' ('+(s.cb*100).toFixed(1)+'%)';$('sCbB').style.width=s.cb*100+'%';$('sCbT').style.left=s.cbT*100+'%';$('sCbO').textContent=(s.cbT*100).toFixed(1)+'%';if(s.auto||s.tripped)$('sCb').value=s.cbT*100;
+ $('sBA').textContent=s.B.toFixed(1)+' ppm';$('sBT').textContent=s.BT.toFixed(0)+' ppm';$('sLdO').textContent=(s.loadT*100).toFixed(0)+'%';
+ var A={trip:s.tripped,pc:s.pc,flux:s.n>1.03,sur:s.sur>1,tdev:Math.abs(s.Tav-Tr)>3&&s.n>0.05,sub:subm<15,lowt:s.Tav<285,rodl:s.n>0.1&&(s.cb>=0.999||s.cb<=0.001),srhv:!srOn,dump:(s.dump||0)>1,auto:s.auto,bor:Math.abs(s.BT-s.B)>0.3};
+ ANN.forEach(function(a){var e=$('an_'+a[0]);e.classList.toggle('on',!!A[a[0]]);e.classList.toggle('red',!!(A[a[0]]&&a[2]))});
+ if(M.goals.length){M.goals.forEach(function(g,i){var li=$('sg'+i);if(li){li.classList.toggle('ok',!!SIM.ms.g[i]);var mm=SIM.ms.m&&SIM.ms.m[i];if(mm&&mm.t&&!SIM.ms.g[i]){var tgt=i===1&&M.id==='m3'?8*3600:M.id==='m2'?60:M.id==='m4'?10:15;li.innerHTML=g[0]+' <span class="small">('+(tgt>3600?(mm.t/3600).toFixed(1)+' of 8 h':Math.floor(mm.t)+' of '+tgt+' s')+')</span>'}else li.innerHTML=g[0]}})}
+ drawTrend()}
+function drawTrend(){var cv=$('sTrend');if(!cv||!SIM.s)return;var s=SIM.s,W=SIM.speed>=600?172800:SIM.speed>=60?21600:SIM.speed>=10?3600:600,t1=Math.max(s.t,W*0.2),t0=t1-W,h=SIM.hist.filter(function(x){return x[0]>=t0});
+ var xf=function(v){var d=v-t1,u=W>=7200?3600:60,r=Math.round(d/u);return Math.abs(d)<W*0.02||r===0?'now':'−'+Math.abs(r)+(u===3600?' h':' min')};
+ if(SIM.trend==='p'){var P=plot(cv,{x:[t0,t1],y:[1e-11,2],ylog:true,yl:'power (% of full)',xfmt:xf,yfmt:function(v){var e=Math.round(Math.log10(v))+2;return (e>=-2?String(+Math.pow(10,e).toFixed(2)):pow10(e))+'%'}});P.pts(h.map(function(x){return [x[0],x[1]]}),cssv('--accent'),2.5);P.hline(1,cssv('--faint'),[3,4],1)}
+ else if(SIM.trend==='t'){var lo=270,hi=345;var P2=plot(cv,{x:[t0,t1],y:[lo,hi],yl:'°C',xfmt:xf});P2.hline(335,cssv('--red'),[4,4],1);P2.pts(h.map(function(x){return [x[0],x[3]]}),cssv('--faint'),2,[5,4]);P2.pts(h.map(function(x){return [x[0],x[2]]}),cssv('--accent'),2.5);P2.pts(h.map(function(x){return [x[0],x[4]]}),cssv('--coral'),2);P2.ptext('Tavg',P2.pd.l+6,P2.pd.t+12,cssv('--accent'));P2.ptext('Tref (dashed)',P2.pd.l+46,P2.pd.t+12,cssv('--muted'));P2.ptext('hot leg',P2.pd.l+136,P2.pd.t+12,cssv('--coral'))}
+ else if(SIM.trend==='r'){var mx=Math.max(100,Math.max.apply(null,h.map(function(x){return Math.abs(x[5])}).concat([0]))*1.2);mx=Math.min(mx,8000);var P3=plot(cv,{x:[t0,t1],y:[-mx,mx],yl:'total reactivity (pcm)',xfmt:xf});P3.hline(0,cssv('--muted'),[]);P3.hline(650,cssv('--red'),[4,4],1);P3.ptext('β (prompt critical)',P3.pd.l+6,P3.Y(650)-4,cssv('--red'));P3.pts(h.map(function(x){return [x[0],x[5]]}),cssv('--accent'),2.5)}
+ else{var P4=plot(cv,{x:[t0,t1],y:[-8000,0],yl:'xenon worth (pcm)',xfmt:xf});P4.pts(h.map(function(x){return [x[0],x[6]]}),cssv('--accent'),2.5);var bmax=Math.max(20,Math.max.apply(null,h.map(function(x){return x[7]}).concat([0]))*1.1);P4.pts(h.map(function(x){return [x[0],-8000+x[7]/bmax*8000]}),cssv('--teal'),2,[5,4]);P4.ptext('boron (dashed, top = '+Math.round(bmax)+' ppm)',P4.pd.l+6,P4.pd.t+12,cssv('--teal'))}}
+function drawOneM(){var cv=$('sOneM');if(!cv||$('sOneMBox').style.display==='none')return;var P=plot(cv,{x:[0,100],y:[0,1.2],xl:'control bank position (%)',yl:'1/M',pad:{l:58,r:10,t:8,b:30}});var p=SIM.oneM;P.hline(0,cssv('--muted'),[]);p.forEach(function(q){P.dot(q[0],q[1],cssv('--accent'),5)});if(p.length>1){P.pts(p,cssv('--accent'),1.5);var a=p[p.length-2],b=p[p.length-1];if(b[1]<a[1]&&b[0]!==a[0]){var x=b[0]+b[1]*(b[0]-a[0])/(a[1]-b[1]);P.pts([[b[0],b[1]],[x,0]],cssv('--coral'),2,[5,4]);P.dot(x,0,cssv('--coral'),4);$('sPred').textContent='Predicted critical position: '+x.toFixed(0)+'%';return}}$('sPred').textContent=p.length?'Record another point after moving the rods.':'Record a point at the starting rod position.'}
+
+/* ===== New look: live animations and juicier feedback. Settings → Look → Classic turns all of it off. ===== */
+var NEO=(function(){
+ var LK='critical_look',MK='critical_motion',SEEN='critical_neo_seen',R=document.documentElement;
+ function look(){try{var v=localStorage.getItem(LK);return v==='classic'?'classic':v==='legacy'?'legacy':'neo'}catch(_){return 'neo'}}
+ function on(){return R.classList.contains('neo')}
+ function motPref(){try{var v=localStorage.getItem(MK);return v==='full'||v==='less'?v:'auto'}catch(_){return 'auto'}}
+ function sysCalm(){try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(_){return false}}
+ function calm(){var m=motPref();return m==='less'||(m==='auto'&&sysCalm())}
+ function playerOpen(){var p=$('player');return !!(p&&p.classList.contains('open'))}
+ function fonts(){if(document.getElementById('neoFonts'))return;var l=document.createElement('link');l.id='neoFonts';l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Space+Grotesk:wght@500;600;700&display=swap';document.head.appendChild(l)}
+ function hex(v){v=String(v||'').trim();var m=/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(v);if(m){var h=m[1];if(h.length===3)h=h[0]+h[0]+h[1]+h[1]+h[2]+h[2];return [parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)]}m=/rgba?\(([^)]+)\)/.exec(v);if(m){var p=m[1].split(/[ ,\/]+/).map(Number);return [p[0]||0,p[1]||0,p[2]||0]}return [58,212,255]}
+ var COL={};function cols(){COL={glow:hex(cssv('--glow')),glow2:hex(cssv('--glow2')),accent:hex(cssv('--accent')),line:hex(cssv('--line')),good:hex(cssv('--good-line')),dark:isDark()}}
+ function rgba(c,a){return 'rgba('+c[0]+','+c[1]+','+c[2]+','+(+a).toFixed(3)+')'}
+
+ /* ---------- live background: drifting neutrons with the odd fission flash ---------- */
+ var bg={cv:null,c:null,ps:[],fr:[],fl:[],w:0,h:0,raf:0,last:0,next:0};
+ function np(w,h){return {x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-.5)*.22,vy:(Math.random()-.5)*.22,r:Math.random()*1.3+.7,a:Math.random()*.45+.3,ph:Math.random()*6.28}}
+ function bgInit(){if(bg.cv)return;var c=document.createElement('canvas');c.id='neoBg';c.setAttribute('aria-hidden','true');document.body.insertBefore(c,document.body.firstChild);bg.cv=c;bg.c=c.getContext('2d');bgSize();window.addEventListener('resize',function(){bgSize();bgKick()})}
+ function bgSize(){if(!bg.cv)return;var dpr=Math.min(1.5,window.devicePixelRatio||1),w=innerWidth,h=innerHeight;bg.w=w;bg.h=h;bg.cv.width=Math.round(w*dpr);bg.cv.height=Math.round(h*dpr);bg.c.setTransform(dpr,0,0,dpr,0,0);
+  var n=Math.max(16,Math.min(54,Math.round(w*h/26000)));while(bg.ps.length<n)bg.ps.push(np(w,h));bg.ps.length=n;bg.ps.forEach(function(p){if(p.x>w)p.x=Math.random()*w;if(p.y>h)p.y=Math.random()*h});bgDraw(performance.now())}
+ function bgRun(){return on()&&!calm()&&document.visibilityState==='visible'&&!playerOpen()&&PAGE!=='sim'}
+ function bgKick(){if(!bg.cv)return;if(bgRun()){if(!bg.raf){bg.last=0;bg.raf=requestAnimationFrame(bgStep)}}else{if(bg.raf){cancelAnimationFrame(bg.raf);bg.raf=0}bgDraw(performance.now())}}
+ function bgStep(t){bg.raf=0;if(!bgRun())return;bg.raf=requestAnimationFrame(bgStep);if(bg.last&&t-bg.last<32)return;var dt=bg.last?Math.min(64,t-bg.last):16;bg.last=t;var w=bg.w,h=bg.h,k=dt/16;
+  bg.ps.forEach(function(p){p.x+=p.vx*k;p.y+=p.vy*k;if(p.x<-10)p.x=w+10;if(p.x>w+10)p.x=-10;if(p.y<-10)p.y=h+10;if(p.y>h+10)p.y=-10;var sp=Math.hypot(p.vx,p.vy);if(sp>.26){p.vx*=.985;p.vy*=.985}});
+  bg.fr=bg.fr.filter(function(f){f.x+=f.vx*k;f.y+=f.vy*k;f.life-=dt;return f.life>0});
+  if(t>bg.next){bg.next=t+2600+Math.random()*4200;var p=bg.ps[Math.floor(Math.random()*bg.ps.length)];if(p){bg.fl.push({x:p.x,y:p.y,t:t});for(var i=0;i<3;i++){var a=Math.random()*6.28,s=.9+Math.random()*.9;bg.fr.push({x:p.x,y:p.y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:1300,max:1300})}var a2=Math.random()*6.28;p.vx=Math.cos(a2)*.7;p.vy=Math.sin(a2)*.7}}
+  bgDraw(t)}
+ function bgDraw(t){if(!bg.c)return;var c=bg.c,w=bg.w,h=bg.h;c.clearRect(0,0,w,h);if(!on())return;var g=COL.glow||[58,212,255],dk=COL.dark,ps=bg.ps,L=118,L2=L*L,i,j,p,q;
+  c.lineWidth=1;for(i=0;i<ps.length;i++){p=ps[i];for(j=i+1;j<ps.length;j++){q=ps[j];var dx=p.x-q.x,dy=p.y-q.y,d2=dx*dx+dy*dy;if(d2<L2){c.strokeStyle=rgba(g,(1-d2/L2)*(dk?.15:.11));c.beginPath();c.moveTo(p.x,p.y);c.lineTo(q.x,q.y);c.stroke()}}}
+  for(i=0;i<ps.length;i++){p=ps[i];var tw=.65+.35*Math.sin(t/900+p.ph);c.fillStyle=rgba(g,p.a*tw*(dk?.95:.6));c.beginPath();c.arc(p.x,p.y,p.r,0,6.283);c.fill()}
+  bg.fr.forEach(function(f){var u=f.life/f.max;c.fillStyle=rgba(g,u*(dk?.9:.6));c.beginPath();c.arc(f.x,f.y,1.6,0,6.283);c.fill()});
+  bg.fl=bg.fl.filter(function(f){var u=(t-f.t)/1000;if(u>1||u<0)return u<0;var rr=3+u*30,gr=c.createRadialGradient(f.x,f.y,0,f.x,f.y,rr);gr.addColorStop(0,rgba(g,(dk?.55:.35)*(1-u)));gr.addColorStop(1,rgba(g,0));c.fillStyle=gr;c.beginPath();c.arc(f.x,f.y,rr,0,6.283);c.fill();return true})}
+
+ /* ---------- the reactor core: today's XP goal as reactor power ---------- */
+ var core={cv:null,raf:0,v:0,from:0,to:0,t0:0,last:0};
+ function dailyXP(){return S.daily&&S.daily.d===today()?S.daily.xp:0}
+ function coreMount(){if(!on())return;var rb=document.querySelector('#page-learn .hero .ringbox');if(!rb)return;var dx=dailyXP(),g=S.goal||50,f=Math.min(1,dx/g),full=dx>=g;
+  rb.classList.add('neocore');rb.classList.toggle('full',full);rb.title='Your daily goal. Every XP you earn today brings the reactor closer to full power.';
+  rb.innerHTML='<div class="ncw"><canvas aria-hidden="true"></canvas><div class="ncv"><b id="ncPct">'+Math.round(core.v*100)+'%</b><span>power</span></div></div><div class="lbl"><b>'+(full?'Full power: goal reached!':'Reactor power')+'</b><span>Today: '+fmtInt(dx)+' of '+fmtInt(g)+' XP</span></div>';
+  rb.setAttribute('role','img');rb.setAttribute('aria-label','Daily goal: '+dx+' of '+g+' XP today');
+  core.cv=rb.querySelector('canvas');core.from=core.v;core.to=f;core.t0=performance.now();if(calm()){core.v=f;coreDraw(performance.now())}else coreKick()}
+ function coreRun(){return on()&&core.cv&&core.cv.isConnected&&PAGE==='learn'&&document.visibilityState==='visible'&&!playerOpen()&&!calm()}
+ function coreKick(){if(!core.raf&&coreRun()){core.last=0;core.raf=requestAnimationFrame(coreStep)}}
+ function coreStep(t){core.raf=0;if(!coreRun()){if(core.cv&&core.cv.isConnected){core.v=core.to;coreDraw(t)}return}core.raf=requestAnimationFrame(coreStep);
+  var u=Math.min(1,(t-core.t0)/1400),anim=u<1;if(!anim&&core.last&&t-core.last<48)return;core.last=t;core.v=core.from+(core.to-core.from)*(1-Math.pow(1-u,3));var e=$('ncPct');if(e)e.textContent=Math.round(core.v*100)+'%';coreDraw(t)}
+ function coreDraw(t){var cv=core.cv;if(!cv||!cv.isConnected)return;var W=cv.clientWidth||168,dpr=Math.min(2,window.devicePixelRatio||1);if(cv.width!==Math.round(W*dpr)){cv.width=cv.height=Math.round(W*dpr)}
+  var c=cv.getContext('2d'),s=W/168;c.setTransform(dpr*s,0,0,dpr*s,0,0);c.clearRect(0,0,168,168);var cx=84,cy=84,f=Math.max(0,Math.min(1,core.v)),g=COL.glow||[58,212,255],g2=COL.glow2||[143,128,255],ln=COL.line||[60,70,90],full=core.to>=1&&f>.995,i;
+  // dial ticks
+  for(i=0;i<60;i++){var a=-Math.PI/2+i/60*Math.PI*2,lit=(i+.5)/60<=f,r2=i%5===0?70:73.5;c.strokeStyle=lit?rgba(g,.95):rgba(ln,COL.dark?.9:1);c.lineWidth=i%5===0?2:1.4;c.beginPath();c.moveTo(cx+Math.cos(a)*r2,cy+Math.sin(a)*r2);c.lineTo(cx+Math.cos(a)*79,cy+Math.sin(a)*79);c.stroke()}
+  // power arc
+  c.lineCap='round';c.lineWidth=6;c.strokeStyle=rgba(ln,COL.dark?.6:.8);c.beginPath();c.arc(cx,cy,63,0,6.283);c.stroke();
+  if(f>0.003){var gr=c.createLinearGradient(20,148,148,20);gr.addColorStop(0,rgba(g2,1));gr.addColorStop(1,rgba(g,1));c.save();c.shadowColor=rgba(g,.8);c.shadowBlur=12;c.strokeStyle=gr;c.beginPath();c.arc(cx,cy,63,-Math.PI/2,-Math.PI/2+f*6.283);c.stroke();c.restore();
+   var ha=-Math.PI/2+f*6.283,hx=cx+Math.cos(ha)*63,hy=cy+Math.sin(ha)*63;c.save();c.shadowColor=rgba(g,1);c.shadowBlur=14;c.fillStyle='#fff';c.beginPath();c.arc(hx,hy,3.6,0,6.283);c.fill();c.restore()}
+  // the pool and the core
+  var br=.18+.82*f,breathe=1+.05*Math.sin(t/700);var pool=c.createRadialGradient(cx,cy,4,cx,cy,54);pool.addColorStop(0,'#0b2142');pool.addColorStop(1,'#050b18');c.fillStyle=pool;c.beginPath();c.arc(cx,cy,54,0,6.283);c.fill();
+  var gl=c.createRadialGradient(cx,cy,0,cx,cy,52*breathe);gl.addColorStop(0,rgba([200,245,255],.85*br));gl.addColorStop(.35,rgba(g,.65*br));gl.addColorStop(1,rgba(g,0));c.fillStyle=gl;c.beginPath();c.arc(cx,cy,54,0,6.283);c.fill();
+  // fuel assemblies (hex grid)
+  var hs=8.2,qr=[[0,0],[1,0],[1,-1],[0,-1],[-1,0],[-1,1],[0,1],[2,0],[2,-1],[2,-2],[1,-2],[0,-2],[-1,-1],[-2,0],[-2,1],[-2,2],[-1,2],[0,2],[1,1]];
+  qr.forEach(function(h,k){var x=cx+hs*1.5*h[0]*1.0,y=cy+hs*Math.sqrt(3)*(h[1]+h[0]/2);var fl=.75+.25*Math.sin(t/(380+k*37)+k*1.7),inten=br*fl*(1-Math.hypot(x-cx,y-cy)/70);
+   c.beginPath();for(var j=0;j<6;j++){var aa=Math.PI/3*j,px=x+Math.cos(aa)*(hs-1.3),py=y+Math.sin(aa)*(hs-1.3);if(j)c.lineTo(px,py);else c.moveTo(px,py)}c.closePath();
+   c.fillStyle=rgba([150,232,255],Math.max(.05,inten*.55));c.fill();c.strokeStyle=rgba([170,235,255],.12+inten*.35);c.lineWidth=.8;c.stroke()});
+  if(full){var pu=(t%1800)/1800;c.strokeStyle=rgba(g,.5*(1-pu));c.lineWidth=2;c.beginPath();c.arc(cx,cy,54+pu*24,0,6.283);c.stroke()}}
+
+ /* ---------- one canvas for bursts and confetti ---------- */
+ var fx={cv:null,c:null,ps:[],raf:0,w:0,h:0};
+ function fxInit(){if(fx.cv)return;var c=document.createElement('canvas');c.id='neoFx';c.setAttribute('aria-hidden','true');document.body.appendChild(c);fx.cv=c;fx.c=c.getContext('2d');fxSize();window.addEventListener('resize',fxSize)}
+ function fxSize(){if(!fx.cv)return;var dpr=Math.min(2,window.devicePixelRatio||1);fx.w=innerWidth;fx.h=innerHeight;fx.cv.width=Math.round(fx.w*dpr);fx.cv.height=Math.round(fx.h*dpr);fx.c.setTransform(dpr,0,0,dpr,0,0)}
+ function fxKick(){if(!fx.raf)fx.raf=requestAnimationFrame(fxStep)}
+ function fxStep(t){fx.raf=0;var c=fx.c,dt=16;c.clearRect(0,0,fx.w,fx.h);fx.ps=fx.ps.filter(function(p){p.life-=dt;if(p.life<=0)return false;p.vy+=p.g;p.vx*=p.drag;p.vy*=p.drag;p.x+=p.vx;p.y+=p.vy;p.rot+=p.vr;var u=Math.min(1,p.life/p.fade);c.globalAlpha=u;
+   if(p.k==='ring'){p.s+=p.grow;c.strokeStyle=p.col;c.lineWidth=2.5*u+.5;c.shadowColor=p.col;c.shadowBlur=12;c.beginPath();c.arc(p.x,p.y,p.s,0,6.283);c.stroke();c.shadowBlur=0}
+   else if(p.k==='rect'){c.save();c.translate(p.x,p.y);c.rotate(p.rot);c.scale(1,Math.cos(p.rot*1.7));c.fillStyle=p.col;c.fillRect(-p.s/2,-p.s*.7,p.s,p.s*1.4);c.restore()}
+   else{c.fillStyle=p.col;c.shadowColor=p.col;c.shadowBlur=p.glow||0;c.beginPath();c.arc(p.x,p.y,p.s*(p.shrink?u:1),0,6.283);c.fill();c.shadowBlur=0}return p.y<fx.h+40});
+  c.globalAlpha=1;if(fx.ps.length)fxKick()}
+ function burst(x,y,o){if(!on()||calm())return;fxInit();o=o||{};var n=o.n||18,cs=o.cols||(COL.dark?[rgba(COL.good||[90,190,90],1),'#ffffff',rgba(COL.glow||[58,212,255],1)]:[rgba(COL.good||[90,190,90],1),rgba(COL.accent||[83,74,183],1),rgba(COL.glow||[10,159,208],1)]);
+  for(var i=0;i<n;i++){var a=(o.up?-Math.PI/2:0)+(o.up?(Math.random()-.5)*(o.spread||2.4):Math.random()*6.283),sp=(o.speed||5)*(.45+Math.random()*.75);
+   fx.ps.push({x:x,y:y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,g:o.g==null?.1:o.g,drag:.94,life:o.life||800,fade:o.life||800,s:o.size||(2.2+Math.random()*3),col:cs[i%cs.length],k:'dot',glow:o.glow==null?14:o.glow,shrink:true,rot:0,vr:0})}
+  if(o.ring!==false)fx.ps.push({x:x,y:y,vx:0,vy:0,g:0,drag:1,life:520,fade:520,s:o.ringFrom||14,grow:o.ringGrow||3.2,col:cs[0],k:'ring',rot:0,vr:0});fxKick()}
+ function confettiNeo(){fxInit();var fxk=lookFx(),round=fxk==='glow'||fxk==='atoms',cs=fxk==='glow'?['#5ec8ff','#9fe4ff','#3aa0ff','#c9f1ff','#7fd3ff','#2f7bd1']:fxk==='gold'?['#f5c542','#e0a526','#ffd96b','#c98a12','#fff1b3','#b8860b']:fxk==='atoms'?['#D85A30','#378ADD','#7F77DD','#1D9E75','#EF9F27','#D4537E']:['#7F77DD','#1D9E75','#D85A30','#EF9F27','#378ADD','#D4537E','#3ad4ff'];
+  var n=Math.min(150,Math.round(fx.w/7));for(var i=0;i<n;i++){var side=i%2,x=side?fx.w*(.85+Math.random()*.2):fx.w*(-.05+Math.random()*.2),a=side?-Math.PI*(.62+Math.random()*.18):-Math.PI*(.2+Math.random()*.18),sp=9+Math.random()*9;
+   fx.ps.push({x:x,y:fx.h*.95,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,g:.22,drag:.975,life:2600+Math.random()*900,fade:700,s:round?3+Math.random()*3:6+Math.random()*5,col:cs[i%cs.length],k:round?'dot':'rect',glow:fxk==='glow'?12:0,rot:Math.random()*6,vr:(Math.random()-.5)*.35})}fxKick()}
+ function centre(e){var r=e.getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2]}
+
+ /* ---------- sound and touch feedback ---------- */
+ function chime(n){var st=[0,2,4,5,7,9,11,12,14,16,17,19][Math.min(11,Math.max(0,n-1))],f=523.25*Math.pow(2,st/12);beep(f,0,.11,'sine',.07);beep(f*1.5,.055,.16,'sine',.045);beep(f*2,.11,.26,'triangle',.03)}
+ function buzz(p){if(calm())return;try{if(navigator.vibrate)navigator.vibrate(p)}catch(_){}}
+
+ /* ---------- combos ---------- */
+ var MILE={3:['×3','Combo'],5:['×5','On a roll'],10:['×10','Supercritical'],15:['×15','Unstoppable'],20:['×20','Chain reaction'],30:['×30','Meltdown-proof']};
+ function cpop(n){var m=MILE[n]||(n>30&&n%10===0?['×'+n,'Legendary']:null);if(!m||calm())return;var d=document.createElement('div');d.className='neocpop'+(n>=10?' blue':'');d.innerHTML='<b>'+m[0]+'</b><span>'+m[1]+'</span>';(document.getElementById('player')||document.body).appendChild(d);setTimeout(function(){d.remove()},1200)}
+ function heat(){var pl=$('player');if(!pl)return;var n=P&&P.combo||0;pl.classList.toggle('neoHot',on()&&n>=5&&!calm());pl.classList.toggle('neoSuper',on()&&n>=10&&!calm())}
+ function onRight(){var n=P?P.combo:0;setTimeout(function(){var o=document.querySelector('#pBody .opt.right')||document.querySelector('#pBody .tyin')||document.querySelector('#pBody .numin')||$('pBtn');if(o){var p=centre(o);var r=o.getBoundingClientRect();burst(p[0],p[1],{n:n>=5?34:22,speed:n>=5?7:5.5,ringFrom:Math.min(60,r.height/2),ringGrow:n>=5?4:3})}cpop(n);heat()},0);buzz(12)}
+ function onWrong(){setTimeout(function(){var i=document.querySelector('#pBody .tyin')||document.querySelector('#pBody .numin');if(i&&!document.querySelector('#pBody .opt.wrong')){i.classList.remove('neoShake');void i.offsetWidth;i.classList.add('neoShake')}heat()},0);buzz([22,40,22])}
+
+ /* ---------- end of lesson: count-ups, rank progress, full power ---------- */
+ function lvAt(x){var i=0;while(i<LEVELS.length-1&&x>=LEVELS[i+1][0])i++;var lo=LEVELS[i][0],hi=i<LEVELS.length-1?LEVELS[i+1][0]:lo+2000;return {i:i,name:LEVELS[i][1],frac:Math.min(1,(x-lo)/(hi-lo)),next:i<LEVELS.length-1?LEVELS[i+1][1]:'',toNext:hi-x}}
+ function countNum(e,d){if(!e||e.dataset.nc)return;var m=/^([+−-]?)([\d,]+)(.*)$/.exec(e.textContent.trim());if(!m)return;e.dataset.nc=1;var to=+m[2].replace(/,/g,'');if(!to)return;var t0=performance.now();d=d||900;(function f(t){var u=Math.min(1,(t-t0)/d),v=Math.round(to*(1-Math.pow(1-u,3)));e.textContent=m[1]+fmtInt(v)+m[3];if(u<1&&e.isConnected)requestAnimationFrame(f)})(t0)}
+ function enhanceDone(ds){if(!on()||ds.classList.contains('neoDone'))return;ds.classList.add('neoDone');var i=0;[].forEach.call(ds.children,function(ch){ch.style.setProperty('--ni',i++)});
+  [].forEach.call(ds.querySelectorAll('.xpbreak>div'),function(r,k){r.style.setProperty('--ni',k)});
+  if(!calm())[].forEach.call(ds.querySelectorAll('.dstat b'),function(b){if(b.id!=='dsXP')countNum(b,1000)});
+  var gain=P&&P.xp>0?P.xp:0,st=ds.querySelector('.done-stats');
+  if(gain&&st){var a=lvAt(Math.max(0,S.xp-gain)),b=lvAt(S.xp),up=b.i>a.i,w=document.createElement('div');w.className='neorank'+(up?' up':'');w.style.setProperty('--ni',1.5);
+   w.innerHTML='<div class="nrh"><span>'+(up?'Promoted to <b>'+escH(b.name)+'</b>!':'Rank '+(b.i+1)+': <b>'+escH(b.name)+'</b>')+'</span><span class="nrx">+'+fmtInt(gain)+' XP</span></div><div class="nrbar"><i style="width:'+(up?0:a.frac*100)+'%"></i><b style="width:'+(up?0:a.frac*100)+'%"></b></div><div class="nrf">'+(b.next?fmtInt(b.toNext)+' XP to '+escH(b.next):'Top rank reached')+'</div>';
+   st.parentNode.insertBefore(w,st.nextSibling);var bar=w.querySelector('.nrbar b');setTimeout(function(){if(bar)bar.style.width=(b.frac*100)+'%'},calm()?0:650)}
+  if(P&&P._full){var fp=document.createElement('div');fp.className='neofp';fp.innerHTML='<span class="nfi">⚡</span><div><b>Full power!</b><span>You hit today\'s goal of '+fmtInt(S.goal||50)+' XP.</span></div>';(st||ds.firstChild).parentNode.insertBefore(fp,(st||ds.firstChild).nextSibling);P._full=0}
+  var ic=ds.querySelector('.dicon');if(ic&&!calm())setTimeout(function(){var p=centre(ic);burst(p[0],p[1],{n:40,speed:7,cols:[COL.dark?'#ffffff':rgba(COL.accent||[83,74,183],1),rgba(COL.glow||[58,212,255],1),rgba(COL.accent||[120,110,240],1),'#ffb020'],life:900})},250)}
+ function fullPower(){if(!on())return;if(P){P._full=1;return}if(document.querySelector('.neofull'))return;var o=document.createElement('div');o.className='neofull';o.setAttribute('role','status');o.innerHTML='<div class="nfin"><div class="nfcore"></div><p class="nfk">Daily goal reached</p><h2>Full power</h2><p>'+fmtInt(S.goal||50)+' XP today. The reactor is at 100%.</p></div>';document.body.appendChild(o);
+  try{sfx('badge')}catch(_){}setTimeout(function(){burst(innerWidth/2,innerHeight/2-60,{n:60,speed:8,cols:['#ffffff','#7fe3ff','#3ad4ff'],life:1100})},200);var close=function(){if(!o.isConnected)return;o.classList.add('out');setTimeout(function(){o.remove()},300)};o.onclick=close;setTimeout(close,2800)}
+
+ /* ---------- page entrance, bars that grow, numbers that count ---------- */
+ var BARS='.lvlbar>div,.uprog>div,.stbar>div,.bbar>div,.qbar>div';
+ function snapBars(pg){return pg?[].map.call(pg.querySelectorAll(BARS),function(b){return b.style.width}):null}
+ function growBars(pg,old){if(!pg||calm())return;var bs=[].slice.call(pg.querySelectorAll(BARS));if(!bs.length)return;var same=old&&old.length===bs.length,to=bs.map(function(b){return b.style.width});
+  bs.forEach(function(b,i){b.style.transition='none';b.style.width=same?old[i]:'0%'});void pg.offsetWidth;requestAnimationFrame(function(){bs.forEach(function(b,i){b.style.transition='';b.style.width=to[i]})})}
+ function enter(pg){if(!pg||calm())return;var i=0;[].forEach.call(pg.children,function(ch){ch.style.setProperty('--ni',i++)});[].forEach.call(pg.querySelectorAll('.units>.unit'),function(u,k){u.style.setProperty('--ni',k)});
+  pg.classList.remove('neoEnter');void pg.offsetWidth;pg.classList.add('neoEnter');clearTimeout(pg._ne);pg._ne=setTimeout(function(){pg.classList.remove('neoEnter')},1600)}
+ function countStats(pg){if(!pg||calm())return;[].forEach.call(pg.querySelectorAll('.stat b'),function(b){countNum(b,900)})}
+
+ /* ---------- tab indicators and the phone tab bar ---------- */
+ var ICON={learn:'<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 1 6.5 18H20v3H6.5"/><path d="M9 7h7M9 10.5h5"/>',sim:'<path d="M4 18a8 8 0 1 1 16 0"/><path d="m12 18 4-6"/><circle cx="12" cy="18" r="1.4"/><path d="M6.3 12.5l1.2.8M12 8v1.5M17.7 12.5l-1.2.8"/>',review:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',exam:'<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M9 10h6M9 14h6M9 18h3"/>',ref:'<path d="M17 4H7l6 8-6 8h10"/>'};
+ function svg(p){return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(ICON[p]||ICON.learn)+'</svg>'}
+ function place(ind,b,first){if(!ind)return;if(!b){ind.style.width='0';return}if(first)ind.classList.add('noanim');ind.style.width=b.offsetWidth+'px';ind.style.height=b.offsetHeight+'px';ind.style.transform='translate('+b.offsetLeft+'px,'+b.offsetTop+'px)';if(first){void ind.offsetWidth;ind.classList.remove('noanim')}}
+ function tabInd(){var tb=document.querySelector('.hdr .tabs');if(!tb)return;var ind=tb.querySelector('.ntind');if(!on()){if(ind)ind.remove();return}var first=!ind;if(!ind){ind=document.createElement('span');ind.className='ntind';ind.setAttribute('aria-hidden','true');tb.insertBefore(ind,tb.firstChild)}
+  var b=tb.querySelector('.tab.on');place(ind,b,first);ind.style.transform='translate('+(b?b.offsetLeft:0)+'px,0)';ind.style.height='';if(b&&b.scrollIntoView&&(b.offsetLeft<tb.scrollLeft||b.offsetLeft+b.offsetWidth>tb.scrollLeft+tb.clientWidth))tb.scrollLeft=b.offsetLeft-12}
+ function navBuild(){var n=$('neoNav');if(!on()){if(n)n.remove();return}var tabs=[].slice.call(document.querySelectorAll('.hdr .tab'));if(!n){n=document.createElement('nav');n.id='neoNav';n.setAttribute('aria-label','Sections');document.body.appendChild(n)}
+  var sig=tabs.map(function(t){return t.dataset.p+':'+t.textContent}).join('|');if(n.dataset.sig!==sig){n.dataset.sig=sig;n.innerHTML='<span class="nnind" aria-hidden="true"></span>'+tabs.map(function(t){return '<button type="button" data-p="'+escH(t.dataset.p)+'">'+svg(t.dataset.p)+'<span>'+escH(t.textContent.trim())+'</span></button>'}).join('');
+   [].forEach.call(n.querySelectorAll('button'),function(b){b.onclick=function(){var t=document.querySelector('.hdr .tab[data-p="'+b.dataset.p+'"]');if(t)t.click();else showPage(b.dataset.p)}});n._first=1}navSync()}
+ function navSync(){var n=$('neoNav');if(!n)return;var cur=null;[].forEach.call(n.querySelectorAll('button'),function(b){var o=b.dataset.p===PAGE;b.classList.toggle('on',o);if(o){cur=b;b.setAttribute('aria-current','page')}else b.removeAttribute('aria-current')});var ind=n.querySelector('.nnind');if(ind&&cur){var f=n._first;n._first=0;if(f)ind.classList.add('noanim');ind.style.width=cur.offsetWidth+'px';ind.style.transform='translateX('+cur.offsetLeft+'px)';if(f){void ind.offsetWidth;ind.classList.remove('noanim')}}}
+ var lastY=0;window.addEventListener('scroll',function(){var h=document.querySelector('.hdr');if(!h)return;if(!on()||innerWidth>700){h.classList.remove('neohide');return}var y=window.scrollY||0;if(y>lastY+8&&y>110)h.classList.add('neohide');else if(y<lastY-8||y<60)h.classList.remove('neohide');lastY=y},{passive:true});
+ window.addEventListener('resize',function(){clearTimeout(NEO._rz);NEO._rz=setTimeout(function(){if(on()){tabInd();navSync()}},120)});
+
+ /* ---------- what's new (once) ---------- */
+ function intro(){var m=$('modal');if(!m||m.classList.contains('open')||playerOpen()||document.querySelector('.shmod'))return false;
+  m.innerHTML='<div class="mcard neonew" role="dialog" aria-modal="true" aria-labelledby="nnT"><p class="mkick">New look</p><h2 id="nnT">Critical just got an upgrade</h2><ul>'+
+   '<li style="--ni:0"><i>⚛</i><span><b>A live reactor.</b> The core on the Learn page glows brighter as you earn today\'s XP. Fill it to reach full power.</span></li>'+
+   '<li style="--ni:1"><i>🔥</i><span><b>Combos you can hear.</b> Each answer you get right in a row plays a higher note. Get 5 in a row to go hot.</span></li>'+
+   '<li style="--ni:2"><i>✦</i><span><b>Smoother everything.</b> Progress bars grow, your rank bar fills at the end of each lesson and wins get a proper celebration.</span></li>'+
+   (innerWidth<=700?'<li style="--ni:3"><i>☰</i><span><b>Tabs at the bottom.</b> Easier to reach with your thumb.</span></li>':'')+
+   '</ul><p class="note" style="text-align:center;margin:0 0 6px">Prefer the old look? Progress → Settings → Look.</p><div class="nnb"><button class="big" id="nnOk">Let\'s go</button><button class="ghost" id="nnOld">Use the classic look</button></div></div>';
+  m.classList.add('open');var close=function(){try{localStorage.setItem(SEEN,'1')}catch(_){}m.classList.remove('open');m.innerHTML=''};$('nnOk').onclick=function(){close();var t=document.querySelector('#page-learn .ringbox');if(t&&!calm()){var p=centre(t);burst(p[0],p[1],{n:36,speed:6})}};$('nnOld').onclick=function(){close();apply('classic')};setTimeout(function(){try{$('nnOk').focus()}catch(_){}},50);return true}
+ function introLater(){var seen=0;try{seen=localStorage.getItem(SEEN)}catch(_){}if(seen||!on())return;var tries=0;(function go(){if(intro())return;if(++tries<20)setTimeout(go,3000)})()}
+
+ /* ---------- settings rows ---------- */
+ function settingsRows(){var ts=$('themeSel');if(!ts||$('lookSel'))return;var row=ts.closest('.wrow');if(!row)return;var w=document.createElement('div');
+  w.innerHTML='<div class="wrow"><label for="lookSel">Look</label><select id="lookSel"><option value="neo">Report card (new)</option><option value="legacy">Legacy: the previous look</option><option value="classic">Classic</option></select></div><div class="wrow"><label for="motSel">Animations</label><select id="motSel"><option value="auto">Match my device</option><option value="full">Full</option><option value="less">Less movement</option></select></div>';
+  var a=w.children[0],b=w.children[1];row.parentNode.insertBefore(b,row.nextSibling);row.parentNode.insertBefore(a,row.nextSibling);$('lookSel').value=look();$('motSel').value=motPref();
+  $('lookSel').onchange=function(){apply(this.value)};$('motSel').onchange=function(){try{if(this.value==='auto')localStorage.removeItem(MK);else localStorage.setItem(MK,this.value)}catch(_){}calmUpd();bgKick();coreMount()}}
+
+ /* ---------- switching looks ---------- */
+ function calmUpd(){R.classList.toggle('neocalm',on()&&calm())}
+ setTimeout(function(){try{if(R.classList.contains('rpt')&&!localStorage.getItem('critical_rpt_seen')){localStorage.setItem('critical_rpt_seen','1');toast('✨','New look: report card style','Prefer the old one? Progress → Settings → Look → Legacy','')}}catch(_){}},2500);
+ function apply(lk,silent){try{if(lk==='classic'||lk==='legacy')localStorage.setItem(LK,lk);else localStorage.removeItem(LK)}catch(_){}R.classList.toggle('neo',lk!=='classic');R.classList.toggle('rpt',lk!=='classic'&&lk!=='legacy');calmUpd();
+  if(on()){fonts();bgInit();cols()}else{var h=document.querySelector('.hdr');if(h)h.classList.remove('neohide');heat()}
+  try{themeUI()}catch(_){}tabInd();navBuild();bgSize&&bg.cv&&bgSize();bgKick();if(!silent){showPage(PAGE);if(on()){try{localStorage.setItem(SEEN,'1')}catch(_){}}}}
+
+ /* ---------- hooks into the app ---------- */
+ function hook(){
+  var _sp=showPage;showPage=function(p){var pg0=$('page-'+p);if(on()&&p==='learn')core.v=0;var r=_sp.apply(this,arguments);try{if(on()){var pg=$('page-'+p);enter(pg);growBars(pg,null);if(p==='review')countStats(pg);tabInd();navSync();bgKick()}}catch(e){if(window.console)console.error(e)}return r};
+  var _rl=renderLearn;renderLearn=function(){var r=_rl.apply(this,arguments);try{coreMount()}catch(e){if(window.console)console.error(e)}return r};
+  var _rr=renderReview;renderReview=function(){var r=_rr.apply(this,arguments);try{settingsRows()}catch(e){if(window.console)console.error(e)}return r};
+  var _op=openPlayer;openPlayer=function(){var r=_op.apply(this,arguments);bgKick();heat();return r};
+  var _cp=closePlayer;closePlayer=function(){var pg=$('page-'+PAGE),old=on()?snapBars(pg):null;var r=_cp.apply(this,arguments);try{var pl=$('player');if(pl){pl.classList.remove('neoHot','neoSuper')}if(on()){pg=$('page-'+PAGE);growBars(pg,old);bgKick();coreKick()}}catch(_){}return r};
+  var _sc=showCard;showCard=function(){var r=_sc.apply(this,arguments);try{if(on()&&!calm()){var b=$('pBody');b.classList.remove('neoIn');void b.offsetWidth;b.classList.add('neoIn')}}catch(_){}return r};
+  var _gr=gotRight;gotRight=function(c){var first=P&&P.st&&!P.st.tries;var r=_gr.apply(this,arguments);try{if(on()&&first)onRight()}catch(_){}return r};
+  var _gw=gotWrong;gotWrong=function(c){var r=_gw.apply(this,arguments);try{if(on())onWrong()}catch(_){}return r};
+  var _cb=showCombo;showCombo=function(up){var r=_cb.apply(this,arguments);try{var e=$('pCombo');if(e){var n=P&&P.combo||0;e.classList.toggle('hot',on()&&n>=5);e.classList.toggle('super',on()&&n>=10);e.title=n>=2?n+' right in a row':''}heat()}catch(_){}return r};
+  var _sf=sfx;sfx=function(k){if(on()&&(k==='right'||k==='combo')&&P&&S.sound!==false){chime(P.combo||1);return}return _sf.apply(this,arguments)};
+  var _cf=confetti;confetti=function(){if(on()){if(!calm())confettiNeo();return}return _cf.apply(this,arguments)};
+  var _lu=showLevelUp;showLevelUp=function(i){var r=_lu.apply(this,arguments);try{if(on()){var mc=document.querySelector('#modal .mcard');if(mc){mc.classList.add('neoLv');var em=mc.querySelector('.memb');if(em&&!calm())setTimeout(function(){var p=centre(em);burst(p[0],p[1],{n:50,speed:8,cols:[COL.dark?'#ffffff':rgba(COL.accent||[83,74,183],1),rgba(COL.glow||[58,212,255],1),'#ffb020'],life:1000})},300)}}}catch(_){}return r};
+  var _ax=addXP;addXP=function(n,el){var g=S.goal||50,b0=dailyXP();var r=_ax.apply(this,arguments);try{if(on()&&b0<g&&dailyXP()>=g)fullPower()}catch(_){}return r};
+  var _uh=updHeader,shown=null,tok=0;updHeader=function(){var r=_uh.apply(this,arguments);try{var p=$('xpPill');if(on()&&p&&shown!=null&&S.xp>shown&&!calm()){var a=shown,b=S.xp,t0=performance.now(),my=++tok;(function f(t){if(my!==tok)return;var u=Math.min(1,(t-t0)/800),v=a+(b-a)*(1-Math.pow(1-u,3));p.innerHTML=BOLT+fmtInt(v)+' XP';if(u<1)requestAnimationFrame(f)})(t0)}shown=S.xp}catch(_){}return r};
+  var _tu=themeUI;themeUI=function(){var r=_tu.apply(this,arguments);try{if(on()){cols();var m=document.querySelector('meta[name="theme-color"]');if(m)m.setAttribute('content',isDark()?'#070c17':'#f3f6fb');bgDraw(performance.now());if(core.cv)coreDraw(performance.now())}}catch(_){}return r};
+  var _rd=redrawAll;redrawAll=function(){var r=_rd.apply(this,arguments);try{if(on()){cols();bgDraw(performance.now());if(core.cv)coreDraw(performance.now())}}catch(_){}return r};
+  // a soft click when you pick an answer
+  document.addEventListener('click',function(e){if(!on()||S.sound===false)return;var o=e.target&&e.target.closest&&e.target.closest('#pBody .opt');if(o&&!o.disabled){try{beep(1650,0,.035,'triangle',.022)}catch(_){}}},true);
+  // every finishing screen gets the treatment
+  try{new MutationObserver(function(){var ds=document.querySelector('#pBody .done-screen:not(.neoDone)');if(ds)enhanceDone(ds)}).observe($('pBody'),{childList:true})}catch(_){}
+  document.addEventListener('visibilitychange',function(){bgKick();coreKick()});
+  try{var mq=matchMedia('(prefers-reduced-motion: reduce)'),f=function(){calmUpd();bgKick()};if(mq.addEventListener)mq.addEventListener('change',f)}catch(_){}
+ }
+ function boot(){hook();if(on()){fonts();bgInit();cols()}calmUpd();setTimeout(function(){tabInd();navBuild()},0);introLater()}
+ return {boot:boot,on:on,apply:apply,look:look,calm:calm,burst:burst,coreMount:coreMount,fullPower:fullPower,intro:intro}
+})();
+try{window.NEO=NEO}catch(_){}
+NEO.boot();
+/* ===== Live labs inside lessons: collision lab (momentum), live reactor core, 3D flux ===== */
+(function(){
+ var LE0=Math.log10(0.025),LE1=Math.log10(2e6);
+ /* neutron transport toy: 2D, real elastic-scattering kinematics off hydrogen, moderation, resonance capture, fission, control rods, leakage */
+function NSIM(w,h,rnd){
+ rnd=rnd||Math.random;
+ var LE0=Math.log10(0.025),LE1=Math.log10(2e6),A=1;
+ var S={w:w,h:h,ns:[],ev:[],fuel:[],rods:[],ins:.5,born:0,lost:0,fis:0,cap:0,leak:0,col:0,abs:0,srcT:0,max:260,lastCol:null,t:0,
+  win:[],k:1,knum:0,kden:0,P:{refl:.8,sR:[.6,.25,.08],sF:[.16,.006,.01],ff:.84,lamT:24,lamF:28,hAbs:.0008}};
+ function lay(w,h){S.w=w;S.h=h;var cols=Math.max(4,Math.round(w/74)),rows=Math.max(3,Math.round(h/74)),px=w/cols,py=h/rows,r=Math.min(px,py)*.2;S.fuel=[];S.px=px;S.py=py;S.cols=cols;S.rows=rows;S.fr=r;
+  for(var j=0;j<rows;j++)for(var i=0;i<cols;i++)S.fuel.push({x:(i+.5)*px,y:(j+.5)*py,heat:0});
+  S.rods=[];for(var c=1;c<cols;c+=2)S.rods.push({x:c*px,w:Math.max(5,px*.09)})}
+ lay(w,h);
+ function sp(E){var l=(Math.log10(Math.max(E,1e-3))-LE0)/(LE1-LE0);l=l<0?0:l>1?1:l;return .5+4.4*Math.pow(l,.85)}
+ function add(x,y,E,ux,uy){if(S.ns.length>=S.max)return false;if(ux==null){var a=rnd()*6.2832;ux=Math.cos(a);uy=Math.sin(a)}S.ns.push({x:x,y:y,ux:ux,uy:uy,E:E,tr:[],age:0});return true}
+ function watt(){var E=0;for(var i=0;i<3;i++)E+=rnd();return (0.35+E*0.75)*1e6}
+ function fission(n,fi){var nu=rnd()<.43?3:2,b=0;for(var i=0;i<nu;i++)if(add(n.x,n.y,watt()))b++;S.born+=b;S.fis++;S.knum+=nu;var a=rnd()*6.2832;S.ev.push({k:'fis',x:n.x,y:n.y,t:0,a:a});if(fi!=null)S.fuel[fi].heat=Math.min(6,S.fuel[fi].heat+1)}
+ function scatter(n){var v=Math.sqrt(n.E),vx=n.ux*v,vy=n.uy*v;
+  if(n.E<0.2){var E1=0.0125*(-Math.log(rnd()+1e-9)-Math.log(rnd()+1e-9)),a=rnd()*6.2832;n.E=Math.max(0.004,E1);n.ux=Math.cos(a);n.uy=Math.sin(a);S.col++;return null}
+  var Vx=vx/(A+1),Vy=vy/(A+1),ux=vx-Vx,uy=vy-Vy,th=rnd()*6.2832,c=Math.cos(th),s=Math.sin(th),wx=Vx+ux*c-uy*s,wy=Vy+ux*s+uy*c,E1=wx*wx+wy*wy;if(E1<1e-12)E1=1e-12;
+  var rx=(vx-wx)/A,ry=(vy-wy)/A,v1=Math.sqrt(E1),cosL=(vx*wx+vy*wy)/(v*v1||1);
+  var rec={E0:n.E,E1:E1,ang:Math.acos(Math.max(-1,Math.min(1,cosL)))*180/Math.PI,p0:v,p1:v1,pr:Math.sqrt(rx*rx+ry*ry)*A,x:n.x,y:n.y,vx:vx/v,vy:vy/v,wx:wx/v,wy:wy/v,rx:rx/v,ry:ry/v};
+  n.E=E1;n.ux=wx/v1;n.uy=wy/v1;S.col++;S.lastCol=rec;return rec}
+ function lose(n,kind){S.lost++;S.kden++;if(kind==='leak')S.leak++;else S.abs++;if(kind==='cap')S.cap++}
+ function step(dt){var k=dt/16,out=[],ns=S.ns,i,fx=S.px,fy=S.py,r2=S.fr*S.fr,ins=S.ins*S.h;S.t+=dt;
+  S.srcT-=dt;if(S.srcT<=0){S.srcT=(S.P.src||1050)*(.67+rnd()*.66);var f=S.fuel[Math.floor(rnd()*S.fuel.length)];if(add(f.x+(rnd()-.5)*4,f.y+(rnd()-.5)*4,watt()))S.born++}
+  for(i=0;i<S.fuel.length;i++)S.fuel[i].heat*=Math.pow(.985,k);
+  for(i=0;i<ns.length;i++){var n=ns[i],s=sp(n.E)*k,gone=null;n.age+=dt;
+   n.x+=n.ux*s;n.y+=n.uy*s;
+   if(n.x<0||n.x>S.w||n.y<0||n.y>S.h){if(rnd()<S.P.refl){if(n.x<0){n.x=-n.x;n.ux=Math.abs(n.ux)}if(n.x>S.w){n.x=2*S.w-n.x;n.ux=-Math.abs(n.ux)}if(n.y<0){n.y=-n.y;n.uy=Math.abs(n.uy)}if(n.y>S.h){n.y=2*S.h-n.y;n.uy=-Math.abs(n.uy)}}else gone='leak'}
+   if(!gone){var inRod=false;if(n.y<ins)for(var q=0;q<S.rods.length;q++){if(Math.abs(n.x-S.rods[q].x)<S.rods[q].w/2){inRod=true;break}}
+    if(inRod){var R=S.P.sR,sr=n.E<1?R[0]:n.E<1e4?R[1]:R[2];if(rnd()<sr*s)gone='rod'}
+    else{var ci=Math.floor(n.x/fx),cj=Math.floor(n.y/fy),fi=cj*S.cols+ci,f2=S.fuel[fi],inF=false;if(f2){var dx=n.x-f2.x,dy=n.y-f2.y;inF=dx*dx+dy*dy<r2}
+     if(inF){var F=S.P.sF,sf=n.E<1?F[0]:n.E<1e4?F[1]:F[2];if(rnd()<sf*s){if(n.E<1){if(rnd()<S.P.ff){fission(n,fi);gone='fis'}else gone='cap'}else if(n.E<1e4)gone='cap';else{fission(n,fi);gone='fis'}}}
+     else{var lam=n.E<1?S.P.lamT:S.P.lamF;if(rnd()<s/lam){var rc=scatter(n);if(rc)out.push(rc)}if(n.E<1&&rnd()<S.P.hAbs*k)gone='h'}}}
+   if(gone){if(gone==='fis'){S.lost++;S.kden++;S.abs++}else lose(n,gone==='leak'?'leak':gone==='cap'?'cap':'abs');S.ev.push({k:gone,x:n.x,y:n.y,t:0});ns.splice(i,1);i--}}
+  // measured k over a sliding window
+  S.win.push([dt,S.knum,S.kden]);S.knum=0;S.kden=0;var T=0,a=0,b=0;for(i=S.win.length-1;i>=0;i--){T+=S.win[i][0];a+=S.win[i][1];b+=S.win[i][2];if(T>8000){S.win.splice(0,i);break}}
+  if(b>=6)S.k=S.k+(a/b-S.k)*Math.min(1,dt/1500);
+  return out}
+ function auto(dt,target){S.nsm=S.nsm==null?S.ns.length:S.nsm+(S.ns.length-S.nsm)*Math.min(1,dt/1500);var e=Math.log(Math.max(1,S.nsm)/Math.max(4,target)),rate=.05*e+.22*(S.k-1);rate=Math.max(-.07,Math.min(.07,rate));S.ins=Math.max(0,Math.min(1,S.ins+rate*dt/1000))}
+ S.auto=auto;S.lay=lay;S.step=step;S.add=add;S.sp=sp;S.watt=watt;return S}
+
+
+ function dpr(){return Math.min(2,window.devicePixelRatio||1)}
+ function narrow(){return innerWidth<=560}
+ function calm(){try{return NEO.calm()}catch(_){return false}}
+ function screen(box,h,hn){var w=el('div','labscr',null,box),cv=document.createElement('canvas');w.appendChild(cv);var o={wrap:w,cv:cv,c:cv.getContext('2d'),W:0,H:0,d:0};
+  o.fit=function(){var Wd=Math.max(220,Math.round(w.clientWidth||600)),Hd=narrow()?(hn||h):h,d=dpr();if(Wd===o.W&&Hd===o.H&&d===o.d)return false;o.W=Wd;o.H=Hd;o.d=d;cv.style.height=Hd+'px';cv.width=Math.round(Wd*d);cv.height=Math.round(Hd*d);o.c.setTransform(d,0,0,d,0,0);return true};o.fit();return o}
+ function run(scr,f){var last=performance.now();function L(t){if(!scr.cv.isConnected)return;requestAnimationFrame(L);var dt=Math.max(0,Math.min(50,t-last));last=t;if(document.visibilityState!=='visible')return;var rs=scr.fit();f(dt,t,rs)}requestAnimationFrame(L)}
+ var EC=[];(function(){var st=[[0,[58,212,255]],[.34,[110,255,175]],[.67,[255,206,70]],[1,[255,80,64]]];for(var i=0;i<64;i++){var u=i/63,a=st[0],b=st[1];for(var k=1;k<st.length;k++)if(u<=st[k][0]){a=st[k-1];b=st[k];break}var f=(u-a[0])/(b[0]-a[0]||1);EC.push([0,1,2].map(function(j){return Math.round(a[1][j]+(b[1][j]-a[1][j])*f)}))}})();
+ function eIdx(E){var l=(Math.log10(Math.max(E,1e-3))-LE0)/(LE1-LE0);return Math.max(0,Math.min(63,Math.round(l*63)))}
+ function rgba(c,a){return 'rgba('+c[0]+','+c[1]+','+c[2]+','+(+a).toFixed(3)+')'}
+ function fmtE(E){return E>=1e6?(E/1e6).toFixed(E>=1e7?0:2)+' MeV':E>=1e3?(E/1e3).toFixed(E>=1e5?0:1)+' keV':E>=1?E.toFixed(E>=100?0:1)+' eV':E.toFixed(3)+' eV'}
+ function arrow(c,x0,y0,x1,y1,col,w,dash){var dx=x1-x0,dy=y1-y0,L=Math.hypot(dx,dy);if(L<2)return;c.strokeStyle=col;c.fillStyle=col;c.lineWidth=w||2;c.setLineDash(dash||[]);c.beginPath();c.moveTo(x0,y0);c.lineTo(x1-dx/L*5,y1-dy/L*5);c.stroke();c.setLineDash([]);var a=Math.atan2(dy,dx),h=Math.min(9,4+L*.15);c.beginPath();c.moveTo(x1,y1);c.lineTo(x1-Math.cos(a-.42)*h,y1-Math.sin(a-.42)*h);c.lineTo(x1-Math.cos(a+.42)*h,y1-Math.sin(a+.42)*h);c.closePath();c.fill()}
+ function hud(c,x,y,t,col,size,align,bold){c.font=(bold?'700 ':'600 ')+(size||10)+'px "JetBrains Mono",ui-monospace,Consolas,monospace';c.textAlign=align||'left';c.fillStyle=col||'rgba(200,220,255,.8)';c.fillText(t,x,y);c.textAlign='left'}
+ function tog(b,v){b.classList.toggle('on',!!v);b.setAttribute('aria-pressed',v?'true':'false')}
+
+ /* ---------- live reactor core: a Monte Carlo chain reaction you control ---------- */
+ WIDGETS.reactorSim=function(box,par){par=par||{};var scr=screen(box,310,260),sim=NSIM(scr.W,scr.H),tgt=par.rods==null?.62:par.rods,mom=true,slow=false,paused=calm(),bgc=null,arrows=[],recoils=[],hist=new Float32Array(26),hold=0,done=false,moved=false,fisW=[],fps=0,tStat=0,blink=0;
+  var BOR=par.control==='boron',ppm=par.boron!=null?par.boron:1400,fb=!!par.feedback,fuelT=300,fast=false,fat={fis:0,cap:0,abs:0,leak:0},fatW=[],trip=false;if(BOR)tgt=0;if(par.source)sim.P.src=par.source;
+  sim.ins=tgt;sim.max=narrow()?170:260;for(var i=0;i<(par.n||40);i++){var f0=sim.fuel[Math.floor(Math.random()*sim.fuel.length)];sim.add(f0.x,f0.y,sim.watt())}
+  var rs=BOR?slider(box,'Boron in the water',0,2000,10,ppm,function(v){return v+' ppm'},function(v){ppm=v;moved=true}):slider(box,'Control rods',0,100,1,Math.round(tgt*100),function(v){return v+'% in'},function(v){tgt=v/100;moved=true});
+  function setBoron(){sim.P.hAbs=fast?0:.0008+(BOR?ppm*5e-6:0)}setBoron();
+  var r=row(box),bP=btn(r,paused?'Play':'Pause',function(){paused=!paused;bP.textContent=paused?'Play':'Pause'}),bF=btn(r,'Fire neutrons',function(){fire(scr.W/2,scr.H/2,6)}),bM=btn(r,'Momentum arrows',function(){mom=!mom;tog(bM,mom)}),bS=btn(r,'Slow motion',function(){slow=!slow;tog(bS,slow)});tog(bM,mom);tog(bS,slow);
+  if(par.fastBtn){var bW=btn(r,'Take the water out',function(){fast=!fast;tog(bW,fast);sim.P.lamF=fast?1e9:28;sim.P.lamT=fast?1e9:24;sim.P.sF=[.16,fb?sim.P.sF[1]:.006,fast?.002:.01];setBoron();moved=true});tog(bW,false)}
+  if(par.trip){var bT=btn(r,'Trip!',function(){trip=true;tgt=1;moved=true;try{rs.set(100)}catch(_){}},'pri')}
+  var SL=[['n','Neutrons now'],['k','k, measured']];if(par.rho)SL.push(['r','Reactivity ρ']);if(par.source)SL.push(['m','Multiplication 1/(1 − k)']);if(fb)SL.push(['T','Fuel temperature']);if(par.breed)SL.push(['p','Plutonium-239 made'],['c','Conversion ratio']);if(SL.length<4)SL.push(['f','Fissions a second']);if(SL.length<4)SL.push(['t','Slow (thermal)']);var st=stats(box,SL),stF=par.fates?stats(box,[['a','Cause fission'],['b','Caught by U-238'],['c','Soaked up (rods, boron, water)'],['d','Leak out']]):null,m=msg(box);
+  m.set(par.goal==='critical'?'Tap the core to fire in more neutrons. Get k to stay near <b>1.00</b>.':'Tap the core to fire in more neutrons.');
+  function fire(x,y,n){for(var i=0;i<n;i++)if(sim.add(x+(Math.random()-.5)*6,y+(Math.random()-.5)*6,sim.watt()))sim.born++;sim.ev.push({k:'tap',x:x,y:y,t:0})}
+  scr.cv.addEventListener('pointerdown',function(e){var b=scr.cv.getBoundingClientRect();fire(e.clientX-b.left,e.clientY-b.top,3)});scr.cv.style.cursor='crosshair';
+  function bg(){var o=document.createElement('canvas');o.width=scr.cv.width;o.height=scr.cv.height;var c=o.getContext('2d'),W=scr.W,H=scr.H;c.setTransform(scr.d,0,0,scr.d,0,0);
+   var g=c.createLinearGradient(0,0,0,H);g.addColorStop(0,'#071631');g.addColorStop(1,'#040a17');c.fillStyle=g;c.fillRect(0,0,W,H);
+   c.strokeStyle='rgba(90,150,255,.06)';c.lineWidth=1;for(var x=sim.px/2;x<W;x+=sim.px/2){c.beginPath();c.moveTo(Math.round(x)+.5,0);c.lineTo(Math.round(x)+.5,H);c.stroke()}for(var y=sim.py/2;y<H;y+=sim.py/2){c.beginPath();c.moveTo(0,Math.round(y)+.5);c.lineTo(W,Math.round(y)+.5);c.stroke()}
+   sim.fuel.forEach(function(f){var R=sim.fr,gr=c.createRadialGradient(f.x-R*.35,f.y-R*.35,1,f.x,f.y,R);gr.addColorStop(0,'#46557a');gr.addColorStop(1,'#141c2e');c.fillStyle=gr;c.beginPath();c.arc(f.x,f.y,R,0,6.283);c.fill();c.strokeStyle='rgba(170,200,255,.38)';c.lineWidth=1.2;c.stroke();c.strokeStyle='rgba(255,170,90,.18)';c.beginPath();c.arc(f.x,f.y,R*.55,0,6.283);c.stroke()});
+   return o}
+  function relayout(){var ow=sim.w,oh=sim.h;sim.lay(scr.W,scr.H);sim.ns.forEach(function(n){n.x*=scr.W/ow;n.y*=scr.H/oh;n.tr=[]});bgc=bg()}
+  bgc=bg();
+  run(scr,function(dt,t,rsz){if(rsz)relayout();var c=scr.c,W=scr.W,H=scr.H,step=paused?0:(slow?dt*.3:dt);blink+=dt;
+   if(step>0){if(fb){var fr=0;fisW.forEach(function(x){fr+=x[1]});fuelT+=((300+fr*14)-fuelT)*Math.min(1,step/1500);sim.P.sF=[.16,.006*(1+2*Math.max(0,fuelT-300)/600),fast?.002:.01]}if(BOR)setBoron();var dIns=tgt-sim.ins,mv=(trip?2.5:.25)*step/1000;sim.ins+=Math.abs(dIns)<mv?dIns:mv*Math.sign(dIns);var f1=sim.fis,cols=sim.step(step);fisW.push([t,sim.fis-f1]);
+    cols.forEach(function(rc){sim.ev.push({k:'col',x:rc.x,y:rc.y,t:0});if(rc.E0>50&&recoils.length<40)recoils.push({x:rc.x,y:rc.y,vx:rc.rx*sim.sp(rc.E0),vy:rc.ry*sim.sp(rc.E0),t:0});if(mom&&rc.E0>500&&arrows.length<(narrow()?4:7)&&Math.random()<.5)arrows.push({r:rc,t:0,ec:EC[eIdx(rc.E1)]})});
+    sim.ns.forEach(function(n){n.tr.push(n.x,n.y);if(n.tr.length>16)n.tr.splice(0,2)})}
+   while(fisW.length&&t-fisW[0][0]>1500)fisW.shift();
+   // energy histogram (smoothed)
+   var hb=new Float32Array(26);sim.ns.forEach(function(n){var l=(Math.log10(Math.max(n.E,.003))+2.5)/9.5;hb[Math.max(0,Math.min(25,Math.floor(l*26)))]++});for(var q=0;q<26;q++)hist[q]+=(hb[q]-hist[q])*Math.min(1,dt/250);
+   // goal
+   if(par.goal==='critical'&&!done&&step>0){if(moved&&Math.abs(sim.k-1)<.05&&sim.ns.length>=15)hold+=step;else hold=Math.max(0,hold-step*.5);if(hold>=6000){done=true;m.set('<b>Critical!</b> k is holding at '+sim.k.toFixed(2)+'. Each fission causes about one more, so the neutron count stays steady.',true);try{NEO.burst(scr.cv.getBoundingClientRect().left+W/2,scr.cv.getBoundingClientRect().top+H/2,{n:40,speed:7})}catch(_){}}}
+   // draw
+   c.globalCompositeOperation='source-over';c.drawImage(bgc,0,0,W,H);
+   c.globalCompositeOperation='lighter';
+   sim.fuel.forEach(function(f){if(f.heat<.03)return;var a=Math.min(.55,f.heat*.14),R=sim.fr,g=c.createRadialGradient(f.x,f.y,R*.4,f.x,f.y,R*2.8);g.addColorStop(0,'rgba(80,200,255,'+a.toFixed(3)+')');g.addColorStop(1,'rgba(40,140,255,0)');c.fillStyle=g;c.beginPath();c.arc(f.x,f.y,R*2.8,0,6.283);c.fill();c.fillStyle='rgba(255,150,70,'+(a*.6).toFixed(3)+')';c.beginPath();c.arc(f.x,f.y,R*.55,0,6.283);c.fill()});
+   c.globalCompositeOperation='source-over';
+   // control rods
+   var ins=sim.ins*H;sim.rods.forEach(function(rd,k){var x0=rd.x-rd.w/2,g=c.createLinearGradient(x0,0,x0+rd.w,0);g.addColorStop(0,'#5d6a86');g.addColorStop(.45,'#c9d3e8');g.addColorStop(1,'#3a4560');c.fillStyle=g;c.fillRect(x0,0,rd.w,ins);c.fillStyle='rgba(255,90,90,.8)';c.fillRect(x0,ins-2,rd.w,2);c.fillStyle='#2a3348';c.fillRect(x0-2,0,rd.w+4,5)});
+   // neutrons
+   c.globalCompositeOperation='lighter';c.lineCap='round';
+   for(var j=0;j<sim.ns.length;j++){var n=sim.ns[j],col=EC[eIdx(n.E)],tr=n.tr;if(tr.length>=4){c.strokeStyle=rgba(col,.4);c.lineWidth=1.3;c.beginPath();c.moveTo(tr[0],tr[1]);for(var p=2;p<tr.length;p+=2){var jx=tr[p]-tr[p-2],jy=tr[p+1]-tr[p-1];if(jx*jx+jy*jy>900)c.moveTo(tr[p],tr[p+1]);else c.lineTo(tr[p],tr[p+1])}c.stroke()}
+    c.fillStyle=rgba(col,.16);c.beginPath();c.arc(n.x,n.y,4.6,0,6.283);c.fill();c.fillStyle=rgba(col,.95);c.beginPath();c.arc(n.x,n.y,1.8,0,6.283);c.fill()}
+   // events
+   sim.ev.forEach(function(e){if(e.t===0&&!e.c){e.c=1;if(e.k==='fis')fat.fis++;else if(e.k==='cap')fat.cap++;else if(e.k==='rod'||e.k==='h')fat.abs++;else if(e.k==='leak')fat.leak++}});
+   sim.ev=sim.ev.filter(function(e){e.t+=dt;var u;if(e.k==='fis'){u=e.t/460;if(u>1)return false;var R=4+u*24,g=c.createRadialGradient(e.x,e.y,0,e.x,e.y,R);g.addColorStop(0,'rgba(255,255,255,'+(.9*(1-u)).toFixed(3)+')');g.addColorStop(.35,'rgba(255,170,70,'+(.6*(1-u)).toFixed(3)+')');g.addColorStop(1,'rgba(255,90,40,0)');c.fillStyle=g;c.beginPath();c.arc(e.x,e.y,R,0,6.283);c.fill();
+     var fa=e.a||0,fd=6+u*16;c.fillStyle='rgba(255,180,90,'+(1-u).toFixed(3)+')';c.beginPath();c.arc(e.x+Math.cos(fa)*fd,e.y+Math.sin(fa)*fd,1.8,0,6.283);c.arc(e.x-Math.cos(fa)*fd,e.y-Math.sin(fa)*fd,1.8,0,6.283);c.fill();return true}
+    if(e.k==='col'){u=e.t/200;if(u>1)return false;c.fillStyle='rgba(255,255,255,'+(.7*(1-u)).toFixed(3)+')';c.beginPath();c.arc(e.x,e.y,1.2+u*3,0,6.283);c.fill();return true}
+    if(e.k==='cap'||e.k==='rod'||e.k==='h'){u=e.t/380;if(u>1)return false;c.strokeStyle=e.k==='cap'?'rgba(255,70,70,'+(1-u).toFixed(3)+')':e.k==='rod'?'rgba(190,140,255,'+(1-u).toFixed(3)+')':'rgba(90,200,255,'+(.5*(1-u)).toFixed(3)+')';c.lineWidth=1.4;c.beginPath();c.arc(e.x,e.y,2+u*7,0,6.283);c.stroke();return true}
+    if(e.k==='tap'){u=e.t/500;if(u>1)return false;c.strokeStyle='rgba(255,255,255,'+(.8*(1-u)).toFixed(3)+')';c.lineWidth=2;c.beginPath();c.arc(e.x,e.y,4+u*28,0,6.283);c.stroke();return true}return false});
+   recoils=recoils.filter(function(p){p.t+=dt;if(p.t>420)return false;var k=step>0?(slow?.3:1)*dt/16:0;p.x+=p.vx*k*.6;p.y+=p.vy*k*.6;c.fillStyle='rgba(255,230,150,'+(.8*(1-p.t/420)).toFixed(3)+')';c.beginPath();c.arc(p.x,p.y,1.5,0,6.283);c.fill();return true});
+   c.globalCompositeOperation='source-over';
+   // momentum arrows: incoming p, outgoing p' and the proton's share P (p = p' + P)
+   arrows=arrows.filter(function(a){a.t+=dt*(slow?.45:1);if(a.t>1300)return false;var u=a.t/1300,al=u<.15?u/.15:1-Math.max(0,(u-.6)/.4),L=narrow()?20:26,rc=a.r;c.globalAlpha=al;
+    arrow(c,rc.x-rc.vx*L,rc.y-rc.vy*L,rc.x,rc.y,'rgba(255,255,255,.7)',1.6);arrow(c,rc.x,rc.y,rc.x+rc.wx*L,rc.y+rc.wy*L,rgba(a.ec,1),2);arrow(c,rc.x,rc.y,rc.x+rc.rx*L,rc.y+rc.ry*L,'#ffd166',1.6,[3,2]);
+    if(!narrow()){hud(c,rc.x+rc.wx*L+4,rc.y+rc.wy*L+3,'p′','rgba(255,255,255,.75)',9);hud(c,rc.x+rc.rx*L+4,rc.y+rc.ry*L+3,'P','#ffd166',9)}c.globalAlpha=1;return true});
+   // HUD
+   var nb=narrow(),k=sim.k,state=k>1.05?['SUPERCRITICAL','#ffb347']:k<.95?['SUBCRITICAL','#7fd8ff']:['CRITICAL','#8dff9a'];
+   var gl=par.goal==='critical'&&nb;c.fillStyle='rgba(3,8,18,.62)';c.fillRect(0,0,W,gl?54:42);
+   hud(c,10,16,'LIVE CORE',nb?'rgba(200,225,255,.9)':'rgba(200,225,255,.9)',10,'left',true);c.fillStyle=(Math.floor(blink/600)%2)?'#ff4d4d':'rgba(255,77,77,.25)';c.beginPath();c.arc(nb?80:84,12.5,3.2,0,6.283);c.fill();
+   hud(c,10,32,(BOR?'boron '+ppm+' ppm':fast?'no water':'rods '+Math.round(sim.ins*100)+'% in')+' · '+sim.ns.length+(nb?' n':' neutrons'),'rgba(160,190,230,.85)',10);
+   hud(c,W-10,19,'k = '+k.toFixed(2),state[1],nb?14:16,'right',true);hud(c,W-10,34,state[0],state[1],9,'right',true);
+   if(par.goal==='critical'){var gw=nb?W-20:140,gx=nb?10:W/2-gw/2,gy=nb?46:27;c.fillStyle='rgba(255,255,255,.1)';c.fillRect(gx,gy,gw,4);c.fillStyle=done?'#8dff9a':'#3ad4ff';c.fillRect(gx,gy,gw*Math.min(1,done?1:hold/6000),4);if(!nb)hud(c,W/2,20,done?'CRITICAL HELD':!moved?'MOVE THE RODS':'HOLD k≈1 · '+(hold/1000).toFixed(1)+' / 6 s','rgba(200,225,255,.85)',9,'center',true);else hud(c,W/2,42,done?'CRITICAL HELD':!moved?'MOVE THE RODS':'HOLD k≈1 · '+(hold/1000).toFixed(1)+' / 6 s','rgba(200,225,255,.85)',8,'center',true)}
+   // spectrum
+   var sw=nb?128:176,sh=nb?46:58,sx=8,sy=H-sh-8;c.fillStyle='rgba(3,8,18,.72)';c.fillRect(sx,sy,sw,sh);c.strokeStyle='rgba(120,160,255,.25)';c.strokeRect(sx+.5,sy+.5,sw-1,sh-1);hud(c,sx+6,sy+11,'ENERGY SPECTRUM','rgba(200,225,255,.8)',8,'left',true);
+   var mx=1;for(q=0;q<26;q++)mx=Math.max(mx,hist[q]);var bw=(sw-12)/26;for(q=0;q<26;q++){var e=Math.pow(10,-2.5+(q+.5)/26*9.5),hgt=(sh-26)*hist[q]/mx;c.fillStyle=rgba(EC[eIdx(e)],.9);c.fillRect(sx+6+q*bw,sy+sh-12-hgt,Math.max(1,bw-1),hgt)}
+   hud(c,sx+6,sy+sh-3,'slow',rgba(EC[0],.9),8);hud(c,sx+sw-6,sy+sh-3,'fast',rgba(EC[63],.9),8,'right');
+   if(!nb&&sim.lastCol){var lc=sim.lastCol,bx=W-238,by=H-50;c.fillStyle='rgba(3,8,18,.72)';c.fillRect(bx,by,230,42);c.strokeStyle='rgba(120,160,255,.25)';c.strokeRect(bx+.5,by+.5,229,41);hud(c,bx+8,by+14,'LAST HIT ON HYDROGEN','rgba(200,225,255,.8)',8,'left',true);hud(c,bx+8,by+27,fmtE(lc.E0)+' → '+fmtE(lc.E1)+' · '+Math.round(lc.ang)+'°','rgba(230,240,255,.92)',10);hud(c,bx+8,by+38,'neutron kept '+Math.round(lc.p1/lc.p0*100)+'% of its momentum','rgba(255,209,102,.9)',8.5)}
+   if(paused){c.fillStyle='rgba(3,8,18,.45)';c.fillRect(0,0,W,H);hud(c,W/2,H/2+5,'PAUSED · press Play','#fff',13,'center',true)}
+   // readouts (a few times a second)
+   tStat+=dt;if(tStat>250){tStat=0;var fs=0;fisW.forEach(function(x){fs+=x[1]});st.n.textContent=sim.ns.length;st.k.textContent=k.toFixed(2);if(st.f)st.f.textContent=Math.round(fs/1.5*(slow?1/0.3:1));var th=0;sim.ns.forEach(function(n){if(n.E<1)th++});if(st.t)st.t.textContent=sim.ns.length?Math.round(th/sim.ns.length*100)+'%':'–';if(st.r)st.r.textContent=(k>=1?'+':'')+fmtInt((k-1)/Math.max(.05,k)*1e5)+' pcm';if(st.m)st.m.textContent=k<.99?fx(1/(1-k),1)+'×':'chain reaction grows';if(st.T)st.T.textContent=fmtInt(fuelT)+' °C';fatW.push([t,fat.fis,fat.cap,fat.abs,fat.leak]);while(fatW.length>2&&t-fatW[0][0]>10000)fatW.shift();var f0=fatW[0],tot=(fat.fis-f0[1])+(fat.cap-f0[2])+(fat.abs-f0[3])+(fat.leak-f0[4]);if(stF&&tot>0){stF.a.textContent=Math.round((fat.fis-f0[1])/tot*100)+'%';stF.b.textContent=Math.round((fat.cap-f0[2])/tot*100)+'%';stF.c.textContent=Math.round((fat.abs-f0[3])/tot*100)+'%';stF.d.textContent=Math.round((fat.leak-f0[4])/tot*100)+'%'}if(st.p){st.p.textContent=fmtInt(fat.cap);var fw=fat.fis-f0[1];st.c.textContent=fw>0?fx((fat.cap-f0[2])/fw,2):'–'}}
+  });
+  if(par.goal!=='critical')return {};
+  return {check:function(){if(done)return {ok:true,head:'Critical!'};var k=sim.k;return {ok:false,msg:!moved?(BOR?'Change the boron first: drag the slider and watch what happens to k.':'Move the control rods first: drag the slider and watch what happens to k.'):sim.ns.length<15?'There are only '+sim.ns.length+' neutrons. '+(BOR?'Dilute some boron out':'Pull the rods out a bit')+' so the chain reaction can build up.':k>1.05?'k is '+k.toFixed(2)+', so the neutrons keep multiplying. '+(BOR?'Add a little boron':'Push the rods in a little')+' and wait for k to settle.':k<.95?'k is '+k.toFixed(2)+', so the chain reaction is dying away. '+(BOR?'Dilute a little boron out':'Pull the rods out a little')+' and give it a few seconds.':'Nearly there: hold k close to 1 until the bar at the top fills.'}},lock:function(){rs.input.disabled=true}}};
+
+ /* ---------- collision lab: one neutron, one nucleus, real momentum ---------- */
+ WIDGETS.scatterLab=function(box,par){par=par||{};var NUC=[['Hydrogen-1 (in water)',1,'H-1'],['Deuterium (heavy water)',2,'H-2'],['Carbon-12 (graphite)',12,'C-12'],['Uranium-238',238,'U-238']],ti=0,aim=.35,mom=true,pts=[],fired=0,t=-1,lastAim=null,lastTi=null;
+  var scr=screen(box,300,380);
+  var sel=select(box,'Target nucleus',NUC.map(function(n){return n[0]}),function(i){ti=i;pts=[];t=-1;upd()});
+  var sa=slider(box,'Aim: how far off centre',0,95,1,35,function(v){return v===0?'dead centre':v+'%'},function(v){aim=v/100;t=-1;upd()});
+  var r=row(box),bF=btn(r,'Fire',function(){t=0;fired++;lastAim=aim;lastTi=ti;pts.push(calc(NUC[ti][1],aim));if(pts.length>300)pts.shift()},'pri'),bR=btn(r,'Fire 100 at random',spray),bM=btn(r,'Momentum arrows',function(){mom=!mom;tog(bM,mom)});tog(bM,mom);
+  var st=stats(box,[['k','Energy the neutron keeps'],['g','Energy the nucleus takes'],['a','Bounce angle'],['n','Hits to slow from 2 MeV to thermal']]),m=msg(box);
+  function calc(A,b){var tc=Math.PI-2*Math.asin(Math.min(.999,b)),Vc=1/(1+A),u=A/(1+A),nx=Vc+u*Math.cos(tc),ny=u*Math.sin(tc),Nx=Vc-Vc*Math.cos(tc),Ny=-Vc*Math.sin(tc),f=nx*nx+ny*ny;return {A:A,b:b,nx:nx,ny:ny,Nx:Nx,Ny:Ny,f:f,lab:Math.atan2(ny,nx)*180/Math.PI}}
+  function xi(A){if(A===1)return 1;var al=Math.pow((A-1)/(A+1),2);return 1+al*Math.log(al)/(1-al)}
+  function spray(){var A=NUC[ti][1];for(var i=0;i<100;i++)pts.push(calc(A,Math.sqrt(Math.random())*.97));if(pts.length>300)pts.splice(0,pts.length-300);t=0;fired++;lastAim=aim;lastTi=ti}
+  function upd(){var o=calc(NUC[ti][1],aim);st.k.textContent=(o.f*100).toFixed(o.f>.99?2:1)+'%';st.g.textContent=((1-o.f)*100).toFixed((1-o.f)<.01?2:1)+'%';st.a.textContent=o.f<.001?'stopped':Math.round(o.lab)+'°';st.n.textContent=Math.round(Math.log(2e6/.025)/xi(NUC[ti][1]))}
+  upd();
+  run(scr,function(dt){var c=scr.c,W=scr.W,H=scr.H,wide=W>=620,aw=wide?Math.round(W*.6):W,ah=wide?H:Math.round(H*.56),A=NUC[ti][1],o=calc(A,aim);if(t>=0)t+=dt/1000*(calm()?.6:1);
+   var g=c.createLinearGradient(0,0,0,H);g.addColorStop(0,'#071631');g.addColorStop(1,'#040a17');c.fillStyle=g;c.fillRect(0,0,W,H);
+   c.strokeStyle='rgba(90,150,255,.06)';for(var gx=20;gx<aw;gx+=24){c.beginPath();c.moveTo(gx+.5,0);c.lineTo(gx+.5,ah);c.stroke()}for(var gy=20;gy<ah;gy+=24){c.beginPath();c.moveTo(0,gy+.5);c.lineTo(aw,gy+.5);c.stroke()}
+   c.save();c.beginPath();c.rect(0,0,aw,ah);c.clip();
+   var R=Math.max(13,Math.min(44,13*Math.cbrt(A))),rn=6,cx=aw*.56,cy=ah*.54,cd=R+rn,by=cy-aim*cd,contactX=cx-Math.sqrt(Math.max(0,cd*cd-(aim*cd)*(aim*cd))),x0=22,spd=(contactX-x0)/1,ph=t<0?-1:t<1?0:1,nxp,nyp,Nxp=cx,Nyp=cy,te=Math.max(0,Math.min(1.5,t-1))*.6;
+   if(ph<1){nxp=t<0?x0:x0+(contactX-x0)*t;nyp=by}else{nxp=contactX+o.nx*spd*te;nyp=by-o.ny*spd*te;Nxp=cx+o.Nx*spd*te;Nyp=cy-o.Ny*spd*te}
+   // aim line and paths
+   c.setLineDash([4,5]);c.strokeStyle='rgba(160,200,255,.28)';c.lineWidth=1;c.beginPath();c.moveTo(x0,by);c.lineTo(contactX,by);c.stroke();if(ph===1){c.strokeStyle='rgba(58,212,255,.35)';c.beginPath();c.moveTo(contactX,by);c.lineTo(nxp,nyp);c.stroke();c.strokeStyle='rgba(255,170,90,.35)';c.beginPath();c.moveTo(cx,cy);c.lineTo(Nxp,Nyp);c.stroke()}c.setLineDash([]);
+   // nucleus
+   var gn=c.createRadialGradient(Nxp-R*.35,Nyp-R*.35,2,Nxp,Nyp,R);gn.addColorStop(0,'#ffb27a');gn.addColorStop(1,'#b8461f');c.fillStyle=gn;c.beginPath();c.arc(Nxp,Nyp,R,0,6.283);c.fill();hud(c,Nxp,Nyp+4,NUC[ti][2],'#fff',R>20?11:9,'center',true);
+   // flash at contact
+   if(t>=1&&t<1.35){var u=(t-1)/.35,gf=c.createRadialGradient(contactX,by,0,contactX,by,10+u*30);gf.addColorStop(0,'rgba(255,255,255,'+(.8*(1-u)).toFixed(3)+')');gf.addColorStop(1,'rgba(255,255,255,0)');c.fillStyle=gf;c.beginPath();c.arc(contactX,by,10+u*30,0,6.283);c.fill()}
+   // neutron
+   c.save();c.shadowColor='#3ad4ff';c.shadowBlur=14;c.fillStyle='#bff3ff';c.beginPath();c.arc(nxp,nyp,rn,0,6.283);c.fill();c.restore();hud(c,nxp,nyp-11,'n','rgba(200,240,255,.9)',10,'center',true);
+   // momentum arrows
+   var L=wide?70:54;if(mom){if(ph<1)arrow(c,nxp,nyp,nxp+L,nyp,'rgba(255,255,255,.85)',2.4);else{arrow(c,nxp,nyp,nxp+o.nx*L,nyp-o.ny*L,'#3ad4ff',2.4);arrow(c,Nxp,Nyp,Nxp+o.Nx*A*L,Nyp-o.Ny*A*L,'#ffd166',2.4)}
+    // vector triangle: p = p' + P
+    var tx=wide?aw-118:aw-104,ty=wide?ah-28:ah-22,tl=wide?84:66;c.fillStyle='rgba(3,8,18,.7)';c.fillRect(tx-14,ty-tl*.62-18,tl+30,tl*.62+34);hud(c,tx-8,ty-tl*.62-6,'p = p′ + P','rgba(200,225,255,.85)',9,'left',true);
+    arrow(c,tx,ty,tx+tl,ty,'rgba(255,255,255,.8)',1.8);arrow(c,tx,ty,tx+o.nx*tl,ty-o.ny*tl,'#3ad4ff',1.8);arrow(c,tx+o.nx*tl,ty-o.ny*tl,tx+tl,ty,'#ffd166',1.8,[3,2])}
+   c.restore();if(!wide){c.strokeStyle='rgba(120,160,255,.18)';c.beginPath();c.moveTo(0,ah+.5);c.lineTo(W,ah+.5);c.stroke()}
+   // labels
+   c.fillStyle='rgba(3,8,18,.62)';c.fillRect(0,0,aw,22);hud(c,8,15,'COLLISION LAB · elastic scattering','rgba(200,225,255,.9)',9.5,'left',true);
+   if(ph===1)hud(c,8,ah-10,o.f<.001?'neutron stopped dead · the proton took all its energy':'neutron keeps '+(o.f*100).toFixed(o.f>.99?2:0)+'% of its energy · bounced '+Math.round(o.lab)+'°','rgba(230,240,255,.92)',wide?11:9.5);
+   // plot: energy kept against bounce angle
+   var px=wide?aw+40:40,py=wide?30:ah+26,pw=wide?W-aw-52:W-54,ph2=wide?H-62:H-ah-56;c.fillStyle='rgba(255,255,255,.03)';c.fillRect(px,py,pw,ph2);c.strokeStyle='rgba(120,160,255,.25)';c.strokeRect(px+.5,py+.5,pw-1,ph2-1);
    hud(c,px,py-8,'ENERGY KEPT vs BOUNCE ANGLE','rgba(200,225,255,.85)',8.5,'left',true);
    for(var gi=0;gi<=4;gi++){var yy=py+ph2-gi/4*ph2;c.strokeStyle='rgba(120,160,255,.1)';c.beginPath();c.moveTo(px,yy);c.lineTo(px+pw,yy);c.stroke();hud(c,px-3,yy+3,gi*25+'%','rgba(160,190,230,.7)',8,'right')}
    [0,45,90,135,180].forEach(function(a){var xx=px+a/180*pw;hud(c,xx,py+ph2+11,a+'°','rgba(160,190,230,.7)',8,'center')});
@@ -583,270 +953,4 @@ illStyle='rgba(255,255,255,.03)';c.fillRect(px,py,pw,ph2);c.strokeStyle='rgba(12
     for(var i=0;i<24;i++){var uu=(tt/1600+i/24)%1,yy=cy2-inW/2+((i*.37)%1)*inW;c.fillStyle='rgba(255,255,255,.7)';c.beginPath();c.arc(x0+uu*W*.3,yy,1.6,0,6.283);c.fill()}st.t.textContent=fmtInt(4590*P)+' MW';st.e.textContent=fmtInt(1630*P)+' MW';st.s.textContent=fmtInt(2960*P)+' MW';return}
    if(mode==='rankine'){band(c,W,'THE RANKINE CYCLE · temperature against entropy','');var Ce=chart(c,52,36,W-66,H-72,{x:[0,9],y:[0,380],ny:4,title:'TEMPERATURE (°C)',xl:'entropy (kJ/kg·K)'});Ce.fn(function(s){return s<4.4?374*Math.sin(Math.min(1,s/4.4)*Math.PI/2)*.98+(s<.3?s*20:0):374*Math.cos((s-4.4)/4.7*Math.PI/2)},'rgba(160,190,230,.6)',1.4);
     var sL=function(T){return T/374*4.2},sV=function(T){return 4.4+Math.acos(Math.min(1,T/374))*4.7/(Math.PI/2)},pts=[[sL(Tc),Tc],[sL(Tc)+.05,Tc+8],[sL(Th),Th],[sV(Th),Th],[sV(Th),Tc],[sL(Tc),Tc]],pp=pts.map(function(q){return [Ce.X(q[0]),Ce.Y(q[1])]});
-    c.fillStyle='rgba(58,212,255,.12)';c.beginPath();c.moveTo(pp[0][0],pp[0][1]);pp.forEach(function(q){c.lineTo(q[0],q[1])});c.fill();poly(c,pp,rgba(CY,1),2.4,8);var tot=0,sg=[];for(var k=1;k<pp.length;k++){var l=Math.hypot(pp[k][0]-pp[k-1][0],pp[k][1]-pp[k-1][1]);sg.push(l);tot+=l}var d=((tt/5000)%1)*tot,ix=0;while(ix<sg.length-1&&d>sg[ix]){d-=sg[ix];ix++}var fr2=Math.min(1,d/sg[ix]),dx=pp[ix][0]+(pp[ix+1][0]-pp[ix][0])*fr2,dy=pp[ix][1]+(pp[ix+1][1]-pp[ix][1])*fr2;glow(c,dx,dy,12,YE,.7);ball(c,dx,dy,4,YE);
-    var labs=['pump','heated in the steam generator','boils','turbine','condenser'];hud(c,Ce.X(sV(Th))+6,Ce.Y((Th+Tc)/2),'turbine','#ffd65a',9,'left',true);hud(c,Ce.X((sL(Th)+sV(Th))/2),Ce.Y(Th)-8,'boiling','#ffd65a',9,'center',true);hud(c,Ce.X((sL(Tc)+sV(Th))/2),Ce.Y(Tc)+14,'condensing','#ffd65a',9,'center',true);
-    var eC=1-(Tc+273)/(Th+273),eR=eC*.72;st.c.textContent=fx(eC*100,1)+'%';st.r.textContent=fx(eR*100,1)+'%';st.e.textContent=fmtInt(4590*eR)+' MW';return}
-   if(mode==='grid'){band(c,W,'GENERATOR AND GRID','50 Hz means 3,000 rpm');var target=loop?0:load;gen+=(target-gen)*Math.min(1,sd*.4);if(loop){lt+=sd;f=Math.max(0,f-sd*1.5);if(lt>10)dg=Math.min(1,dg+sd*.5)}else{f+=((gen-load)*.02-(f-50)*.3)*sd;f=Math.max(48.5,Math.min(51.5,f))}rot+=dt*.03*(f/50);
-    var cx=W*.18,cy=H*.5,R=Math.min(H*.3,W*.14);c.strokeStyle='rgba(150,240,170,.7)';c.lineWidth=2;c.beginPath();c.arc(cx,cy,R,0,6.283);c.stroke();for(var p=0;p<3;p++){var a=rot+p*2.094;c.strokeStyle=['#ff6a5a','#ffd65a','#3ad4ff'][p];c.beginPath();c.moveTo(cx,cy);c.lineTo(cx+Math.cos(a)*R*.85,cy+Math.sin(a)*R*.85);c.stroke()}hud(c,cx,cy+R+16,loop?'turbine tripped':'generator','rgba(220,235,255,.85)',9,'center',true);
-    var Cg=chart(c,W*.38,40,W*.6-12,H*.5,{x:[0,1],y:[-1.2,1.2],ny:2,noxl:true,noyl:true,title:'THREE-PHASE VOLTAGE'});['#ff6a5a','#ffd65a','#3ad4ff'].forEach(function(col,p2){Cg.fn(function(x){return (f/50)*Math.sin(x*20*(f/50)-rot*1+p2*2.094)*(loop&&!dg?0:1)},col,1.8)});
-    var mx=W*.38+(W*.6-12)/2,my=H*.82;c.strokeStyle='rgba(200,225,255,.5)';c.lineWidth=1;c.beginPath();c.arc(mx,my,40,Math.PI,0);c.stroke();var na=Math.PI+Math.max(0,Math.min(1,(f-48.5)/3))*Math.PI;arrow(c,mx,my,mx+Math.cos(na)*36,my+Math.sin(na)*36,f<49.8||f>50.2?'#ff6a5a':'#8dff9a',2);hud(c,mx,my+14,fx(f,2)+' Hz','#fff',11,'center',true);
-    if(loop){hud(c,W*.68,H*.18+H*.5,dg?'Diesel generators running: essential pumps back on':'Grid lost! Diesels starting… '+fx(Math.max(0,10-lt),0)+' s','#ffd65a',nb?9:10.5,'center',true)}st.f.textContent=fx(f,2)+' Hz';st.g.textContent=loop?'tripped':fmtInt(1630*gen/100)+' MW';st.d.textContent=dg?'running':loop?'starting':'standby';return}
-   if(mode==='fuel'){band(c,W,'THE NUCLEAR FUEL CYCLE','for one reactor, each year');var nodes=[['Mine and mill','≈ 200 t uranium ore concentrate'],['Conversion','to UF₆ gas'],['Enrichment','0.7% → 4–5% U-235'],['Fuel factory','≈ 25 t of fuel'],['Reactor','burns it for 4–6 years'],['Cooling pond','about 10 years'],[repro?'Reprocessing':'Dry store','long-term']],n=nodes.length,cx3=W/2,cy3=H/2+6,Rx=W*.38,Ry=H*.34,pos=nodes.map(function(_,i){var a=-Math.PI/2+i/n*6.283;return [cx3+Math.cos(a)*Rx,cy3+Math.sin(a)*Ry]});
-    for(var i=0;i<n-1;i++){path(c,[pos[i],pos[i+1]],3,'rgba(120,180,255,.35)');dots(c,[pos[i],pos[i+1]],function(){return [255,214,90]},.4,3)}if(repro){path(c,[pos[n-1],pos[3]],3,'rgba(120,235,140,.5)');dots(c,[pos[n-1],pos[3]],function(){return [120,235,140]},.3,4);hud(c,(pos[n-1][0]+pos[3][0])/2,(pos[n-1][1]+pos[3][1])/2-6,'uranium and plutonium recycled','#8dff9a',8.5,'center',true)}
-    pos.forEach(function(p,i){glow(c,p[0],p[1],18,i===4?CY:VI,.4);ball(c,p[0],p[1],7,i===4?CY:VI);hud(c,p[0],p[1]-12,nodes[i][0],'#fff',nb?8.5:10,'center',true);hud(c,p[0],p[1]+20,nodes[i][1],'rgba(200,225,255,.75)',8,'center')})}});
-  if(!par.goal)return {};return {check:function(){if(par.goal==='eff')return Tc<=20&&Th>=300?{ok:true,head:'More efficient!',msg:'A hotter heat source and a colder sink widen the gap, so more of the heat becomes electricity.'}:{ok:false,msg:'Make the steam hotter and the condenser colder, and watch the efficiency.'};if(par.goal==='loop')return dg?{ok:true,head:'Diesels on!'}:{ok:false,msg:'Lose the grid and wait for the diesels to start.'};return moved?{ok:true}:{ok:false,msg:'Change something first.'}}}};
- /* ===== materials lab: tensile test, Charpy and embrittlement, creep, fatigue, radiation damage, corrosion, water chemistry ===== */
- WIDGETS.materialsLab=function(box,par){par=par||{};var mode=par.mode||'tensile',MT=[['Pressure vessel steel',200,450,600,.25],['Zircaloy cladding',95,400,500,.2],['Irradiated vessel steel',200,600,680,.1]],mi=0,tt=0,eps=0,broke=false,Tt=par.T!=null?par.T:20,shift=par.shift||0,sa=par.sa||250,cyc=0,crack=.2,atoms=[],dpa=0,hot=false,ox=0,pH=7.2,B=1200,Li=2.2,auto=!calm(),stress=par.s||120,Tc=par.Tc||550,pts=[],moved=0;
-  var scr=screen(box,par.h||290,310),st;
-  if(mode==='tensile'){var ms=select(box,'Material',MT.map(function(m){return m[0]}),function(i){mi=i;eps=0;broke=false;pts=[];moved++});var r=row(box);btn(r,'Test again',function(){eps=0;broke=false;pts=[];moved++});st=stats(box,[['y','Yield strength'],['u','Ultimate strength'],['e','Stretch before breaking']])}
-  if(mode==='dbtt'){slider(box,'Test temperature',-100,200,1,Tt,function(v){return v+' °C'},function(v){Tt=v;moved++});slider(box,'Years of neutron irradiation',0,60,1,shift,function(v){return v+' years'},function(v){shift=v;moved++});st=stats(box,[['e','Energy absorbed'],['t','Transition temperature'],['m','Behaviour']])}
-  if(mode==='creep'){slider(box,'Temperature',400,800,5,Tc,function(v){return v+' °C'},function(v){Tc=v;tt=0;pts=[];moved++});slider(box,'Stress',40,250,5,stress,function(v){return v+' MPa'},function(v){stress=v;tt=0;pts=[];moved++});st=stats(box,[['l','Time to rupture'],['s','Strain now']])}
-  if(mode==='fatigue'){slider(box,'Stress amplitude',100,500,10,sa,function(v){return '± '+v+' MPa'},function(v){sa=v;cyc=0;crack=.2;moved++});st=stats(box,[['n','Cycles so far'],['c','Crack length'],['l','Expected life']])}
-  if(mode==='damage'){var rd=row(box),bh=btn(rd,'Heat it up (anneal)',function(){hot=!hot;tog(bh,hot);moved++});tog(bh,false);st=stats(box,[['d','Displacements per atom (dpa)'],['v','Vacancies now']])}
-  if(mode==='corrosion'){slider(box,'Water pH (at 300 °C)',6.5,7.6,.05,pH,function(v){return v.toFixed(2)},function(v){pH=v;ox=0;tt=0;moved++});st=stats(box,[['o','Oxide layer'],['r','Corrosion rate'],['c','Crud on the fuel']])}
-  if(mode==='chem'){var bsl=slider(box,'Boron (falls through the cycle)',0,1800,10,B,function(v){return v+' ppm'},function(v){B=v;auto=false;moved++});slider(box,'Lithium hydroxide',.2,4,.05,Li,function(v){return v.toFixed(2)+' ppm'},function(v){Li=v;moved++});st=stats(box,[['p','pH at 300 °C'],['t','Target'],['s','Status']])}
-  function initA(){atoms=[];for(var y=0;y<10;y++)for(var x=0;x<18;x++)atoms.push({hx:x,hy:y,x:x,y:y,v:0,i:0})}if(mode==='damage')initA();
-  run(scr,function(dt,tm){var c=scr.c,W=scr.W,H=scr.H,nb=narrow(),wide=W>=620,sd=dt/1000*(calm()?.5:1);tt+=dt;bgf(c,W,H);grid(c,W,H,30);
-   if(mode==='tensile'){var M=MT[mi],E=M[1],sy=M[2],su=M[3],ef=M[4],sig=function(e){var ey=sy/(E*1000);return e<ey?E*1000*e:e<ef*.7?sy+(su-sy)*(1-Math.pow(1-(e-ey)/(ef*.7-ey),2)):su-(su*.35)*(e-ef*.7)/(ef*.3)};if(!broke){eps+=sd*ef/6;if(eps>=ef)broke=true,eps=ef}pts.push([eps,sig(eps)]);
-    band(c,W,'TENSILE TEST',M[0]);var bx=20,bw=wide?W*.42:W-40,by=wide?H*.5:H*.25,L=bw*.6*(1+eps*.8),neck=eps>ef*.7?(eps-ef*.7)/(ef*.3):0,cx=bx+bw/2;c.fillStyle='rgba(120,130,150,.6)';c.fillRect(bx,by-18,22,36);c.fillRect(bx+bw-22,by-18,22,36);c.fillStyle='rgba(190,200,220,.85)';c.beginPath();var x0=cx-L/2,x1=cx+L/2;c.moveTo(x0,by-9);c.quadraticCurveTo(cx,by-9+neck*7,x1,by-9);c.lineTo(x1,by+9);c.quadraticCurveTo(cx,by+9-neck*7,x0,by+9);c.closePath();c.fill();if(broke){c.fillStyle='#071631';c.fillRect(cx-2,by-12,4,24);hud(c,cx,by-18,'snap!','#ff6a5a',10,'center',true)}
-    arrow(c,x0-4,by,x0-30,by,'#ffd65a',2);arrow(c,x1+4,by,x1+30,by,'#ffd65a',2);
-    var gx=wide?W*.5+20:46,gy=wide?36:H*.45,Ct=chart(c,gx,gy,W-gx-12,wide?H-72:H-gy-34,{x:[0,.3],y:[0,720],ny:3,xf:function(v){return Math.round(v*100)+'%'},title:'STRESS (MPa) AGAINST STRAIN',xl:'stretch'});Ct.clip();poly(c,pts.map(function(q){return [Ct.X(q[0]),Ct.Y(q[1])]}),rgba(CY,1),2.4,8);Ct.un();
-    st.y.textContent=sy+' MPa';st.u.textContent=su+' MPa';st.e.textContent=Math.round(ef*100)+'%';if(broke&&!calm()&&tt%6000<dt){eps=0;broke=false;pts=[]}return}
-   if(mode==='dbtt'){var T0=-20+shift*2.2,Ef=function(T){return 10+(160-10-shift*.8)/(1+Math.exp(-(T-T0)/18))},e=Ef(Tt);band(c,W,'CHARPY TEST · how much energy breaking it takes','');var px=wide?W*.22:W/2,py=40,Lp=Math.min(H*.55,120),ph=(tt%2600)/2600,ang=ph<.5?1.3-ph*2*2.6:-1.3+(ph-.5)*2*(e/160)*1.6;c.strokeStyle='rgba(200,220,255,.7)';c.lineWidth=2;c.beginPath();c.moveTo(px,py);c.lineTo(px+Math.sin(ang)*Lp,py+Math.cos(ang)*Lp);c.stroke();ball(c,px+Math.sin(ang)*Lp,py+Math.cos(ang)*Lp,10,[150,165,190]);c.fillStyle=ph>.5?(e<60?'rgba(255,120,90,.9)':'rgba(255,214,90,.9)'):'rgba(190,200,220,.9)';c.fillRect(px-6,py+Lp+10,12,22);if(ph>.5)hud(c,px,py+Lp+46,e<60?'brittle: snapped clean':'ductile: bent and tore','#fff',9,'center',true);
-    var gx2=wide?W*.45:46,gy2=wide?36:H*.6,Cd=chart(c,gx2,gy2,W-gx2-12,wide?H-72:H-gy2-30,{x:[-100,200],y:[0,180],ny:3,title:'ENERGY ABSORBED (J)',xl:'test temperature (°C)'});Cd.fn(function(T){return 10+150/(1+Math.exp(-(T+20)/18))},'rgba(255,255,255,.3)',1.2);Cd.fn(Ef,rgba(OR,1),2.4,8);Cd.dot(Tt,e,'#fff',5);c.setLineDash([4,4]);poly(c,[[Cd.X(T0),Cd.y],[Cd.X(T0),Cd.y+Cd.h]],'#ffd65a',1);c.setLineDash([]);
-    st.e.textContent=fmtInt(e)+' J';st.t.textContent=fmtInt(T0)+' °C';st.m.textContent=e<60?'brittle':'tough';return}
-   if(mode==='creep'){var Tk=Tc+273,rate=1e-9*Math.pow(stress/50,4)*Math.exp(-34000/8.314*(1/Tk-1/823)*8.314/8.314*3),tr2=.08/Math.max(1e-15,rate),tY=tt/1000*(tr2/12),ep=function(t){return .002+.01*Math.pow(t/tr2,1/3)+.04*t/tr2+(t>tr2*.75?.06*Math.pow((t-tr2*.75)/(tr2*.25),3):0)};band(c,W,'CREEP · slow stretching at high temperature','');var tN=Math.min(tr2,tY);if(tY>tr2*1.15)tt=0;
-    var Cc=chart(c,52,36,W-66,H-72,{x:[0,tr2/3.156e7],y:[0,.13],ny:3,yf:function(v){return Math.round(v*100)+'%'},title:'STRAIN',xl:'years'});Cc.fn(function(y){var t=y*3.156e7;return t>tN?NaN:ep(t)},rgba(OR,1),2.4,8);hud(c,Cc.X(tr2*.15/3.156e7),Cc.Y(.02)-8,'primary','rgba(220,235,255,.7)',8,'left');hud(c,Cc.X(tr2*.5/3.156e7),Cc.Y(.04)-8,'steady','rgba(220,235,255,.7)',8,'center');hud(c,Cc.X(tr2*.92/3.156e7),Cc.Y(.1),'rupture','#ff6a5a',8,'right',true);
-    st.l.textContent=tr2/3.156e7>1?fx(tr2/3.156e7,1)+' years':fx(tr2/3600,0)+' hours';st.s.textContent=fx(ep(tN)*100,1)+'%';return}
-   if(mode==='fatigue'){var Nf=1e6*Math.pow(250/sa,5),rate2=Nf/8;cyc+=rate2*sd;crack=.2+4.8*Math.pow(Math.min(1,cyc/Nf),3);var phs=Math.sin(tt/120);band(c,W,'FATIGUE · cycles of load grow a crack','');var bx2=wide?40:30,bw2=wide?W*.38:W-60,by2=wide?H*.5:H*.25;c.save();c.translate(bx2,by2);c.fillStyle='rgba(190,200,220,.85)';c.beginPath();c.moveTo(0,-10);for(var s=0;s<=20;s++){var xx=s/20*bw2;c.lineTo(xx,-10+phs*sa/40*Math.pow(s/20,2))}for(var s2=20;s2>=0;s2--){var xx2=s2/20*bw2;c.lineTo(xx2,10+phs*sa/40*Math.pow(s2/20,2))}c.closePath();c.fill();c.fillStyle='#ff6a5a';c.fillRect(-2,-10,crack*2+2,2.5);c.restore();if(cyc>=Nf){hud(c,bx2+bw2/2,by2+30,'it has broken','#ff6a5a',10,'center',true);if(!calm()&&tt%5000<dt)cyc=0}
-    var gx3=wide?W*.5:46,gy3=wide?36:H*.5,Cf=chart(c,gx3,gy3,W-gx3-12,wide?H-72:H-gy3-30,{x:[3,8],y:[100,500],ny:4,xf:function(v){return '10'+supStr(v)},title:'S–N CURVE · stress against cycles to failure',xl:'cycles'});Cf.fn(function(lg){return 250*Math.pow(Math.pow(10,lg)/1e6,-1/5)},rgba(CY,1),2.2,6);Cf.dot(Math.log10(Nf),sa,'#ffd65a',5);
-    st.n.textContent=sci(Math.max(1,cyc),2);st.c.textContent=fx(crack,1)+' mm';st.l.textContent=sci(Nf,2)+' cycles';return}
-   if(mode==='damage'){band(c,W,'RADIATION DAMAGE · fast neutrons knock atoms out of place','');var gx4=20,gy4=36,gs=Math.min((W-40)/18,(H-60)/10);if(Math.random()<sd*1.2){var a=atoms[Math.floor(Math.random()*atoms.length)];if(!a.v){a.v=1;dpa+=.01;for(var q=0;q<6;q++){var b=atoms[Math.floor(Math.random()*atoms.length)];if(Math.hypot(b.hx-a.hx,b.hy-a.hy)<3&&!b.v){b.v=1;b.ix=b.hx+(Math.random()-.5)*1.6;b.iy=b.hy+(Math.random()-.5)*1.6}}a.ix=a.hx+(Math.random()-.5)*2;a.iy=a.hy+(Math.random()-.5)*2;fx2.push({x:a.hx,y:a.hy,t:0})}}
-    var vac=0;atoms.forEach(function(q2){if(q2.v&&hot&&Math.random()<sd*.6)q2.v=0;if(q2.v)vac++;var x=gx4+q2.hx*gs+gs/2,y=gy4+q2.hy*gs+gs/2;if(q2.v){c.strokeStyle='rgba(255,120,90,.6)';c.setLineDash([2,2]);c.beginPath();c.arc(x,y,gs*.3,0,6.283);c.stroke();c.setLineDash([]);ball(c,gx4+q2.ix*gs+gs/2,gy4+q2.iy*gs+gs/2,gs*.26,[255,170,80])}else ball(c,x,y,gs*.3,[150,170,200])});
-    fx2=fx2.filter(function(f){f.t+=dt;if(f.t>500)return false;glow(c,gx4+f.x*gs+gs/2,gy4+f.y*gs+gs/2,gs*(1+f.t/200),YE,.7*(1-f.t/500));return true});hud(c,W-12,H-10,nb?'ring = vacancy · orange = knocked out':'dashed ring = vacancy · orange = atom knocked out of place','rgba(200,225,255,.75)',8.5,'right');st.d.textContent=fx(dpa,2);st.v.textContent=vac;return}
-   if(mode==='corrosion'){var rateC=Math.exp(-(pH-6.9)*3.2)*.8;ox+=sd*rateC*.4;tt+=0;band(c,W,'CORROSION AND CRUD','');var mx=20,mw=W-40,my=H*.72,oxPx=Math.min(H*.35,Math.sqrt(ox)*14);c.fillStyle='rgba(150,165,190,.85)';c.fillRect(mx,my,mw,H-my-10);hud(c,mx+mw/2,H-18,'metal','#0a0f1c',10,'center',true);c.fillStyle='rgba(120,90,60,.8)';c.fillRect(mx,my-oxPx,mw,oxPx);hud(c,mx+mw/2,my-oxPx/2+4,oxPx>12?'oxide layer':'','#fff',9,'center',true);for(var p2=0;p2<20;p2++){var xx3=mx+((p2*53+tt/40)%mw),yy3=40+((p2*29+tt/25)%(my-oxPx-50));c.fillStyle='rgba(160,110,70,.6)';c.beginPath();c.arc(xx3,yy3,1.8,0,6.283);c.fill()}hud(c,W/2,32,pH<7.1?'pH too low: faster corrosion and more crud':pH>7.45?'pH high: watch for other problems':'pH in the target band','#ffd65a',10,'center',true);
-    st.o.textContent=fx(Math.sqrt(ox)*2,1)+' µm';st.r.textContent=fx(rateC,2)+'×';st.c.textContent=pH<7.1?'building up':'low';return}
-   if(mode==='chem'){if(auto){B=Math.round(Math.max(0,1800-((tt/1000*60)%1800))/10)*10;if(bsl&&+bsl.get()!==B){bsl.input.value=B;bsl.refresh()}}var pHc=7.34+.9*Math.log10(Li)-.00054*B,ok2=pHc>=7.1&&pHc<=7.4;band(c,W,'COORDINATED BORON–LITHIUM CHEMISTRY','');var Cb=chart(c,52,36,W-66,H-72,{x:[0,1800],y:[0,4],ny:4,title:'LITHIUM (ppm) AGAINST BORON (ppm)',xl:'boron (ppm)'});c.fillStyle='rgba(120,235,140,.12)';c.beginPath();for(var b2=0;b2<=1800;b2+=60){var l1=Math.pow(10,(7.1-7.34+.00054*b2)/.9);c.lineTo(Cb.X(b2),Cb.Y(Math.min(4,l1)))}for(var b3=1800;b3>=0;b3-=60){var l2=Math.pow(10,(7.4-7.34+.00054*b3)/.9);c.lineTo(Cb.X(b3),Cb.Y(Math.min(4,l2)))}c.closePath();c.fill();hud(c,Cb.X(300),Cb.Y(.4),'pH 7.1–7.4 band','#8dff9a',9,'left',true);Cb.dot(B,Li,ok2?'#8dff9a':'#ff6a5a',6);
-    st.p.textContent=fx(pHc,2);st.t.textContent='7.1 to 7.4';st.s.textContent=ok2?'in band':'adjust lithium'}});
-  var fx2=[];if(!par.goal)return {};return {check:function(){if(par.goal==='brittle')return Ef2()<60?{ok:true,head:'Brittle!',msg:'Old, irradiated steel can turn brittle at temperatures that used to be safe. That\'s why vessels are kept warm when they\'re under pressure.'}:{ok:false,msg:'Add irradiation years and lower the test temperature until the steel snaps in a brittle way.'};return moved?{ok:true}:{ok:false,msg:'Change a setting first.'}}};function Ef2(){var T0=-20+shift*2.2;return 10+(150-shift*.8)/(1+Math.exp(-(Tt-T0)/18))}};
-
- /* ===== control room panel: live trends, alarms and real plant transients ===== */
- var EVTS={
-  turbine:['Turbine trip','The turbine trips. The reactor trips straight after, the steam dumps open and auxiliary feed starts.',[[0,'Turbine trips: steam stops going to the turbine.'],[1,'The reactor trips automatically.'],[6,'Temperature rises: the steam dumps open to get rid of the heat.'],[18,'Steam generator levels shrink. Auxiliary feedwater starts.'],[60,'The plant settles at no-load temperature, 292 °C.']]],
-  feed:['Loss of main feedwater','Feedwater stops. Steam generator levels fall until the reactor trips on low-low level.',[[0,'The main feed pumps trip.'],[10,'Steam generator levels are falling fast.'],[28,'Low-low SG level: the reactor and turbine trip.'],[32,'Auxiliary feedwater starts and slowly refills the SGs.']]],
-  slb:['Steam line break','A steam pipe breaks. Too much steam leaves, the plant overcools, pressure falls and safety injection starts.',[[0,'A steam line breaks: steam pours out.'],[4,'Overcooling: temperature falls and power rises a little.'],[14,'Low pressure: the reactor trips.'],[26,'Safety injection starts.'],[40,'Containment pressure is up: the break is inside containment.']]],
-  loca:['Small loss of coolant','A small leak in the primary circuit. Pressure and level fall, the reactor trips and safety injection keeps the core covered.',[[0,'A small break in the primary circuit.'],[10,'Pressuriser pressure and level are falling.'],[20,'Low pressure: the reactor trips.'],[30,'Safety injection starts and pressure steadies.'],[40,'Containment pressure and radiation are rising.']]],
-  sgtr:['Steam generator tube rupture','A tube in a steam generator breaks. Primary water leaks into the secondary side, so radiation shows up on the steam side.',[[0,'A steam generator tube ruptures.'],[8,'Radiation alarm on the steam side: primary water is leaking in.'],[30,'Pressuriser level and pressure fall slowly.'],[60,'One steam generator level is rising for no reason.'],[95,'Low pressure: the reactor trips.']]],
-  loop:['Loss of offsite power','The grid connection is lost. The pumps coast down, the reactor trips and the diesels start.',[[0,'The grid is lost: no offsite power.'],[1,'The reactor and turbine trip. The main pumps coast down.'],[10,'The diesel generators start and pick up the safety loads.'],[30,'Natural circulation cools the core without the main pumps.']]],
-  rod:['Dropped control rod','One control rod falls into the core. Power dips and the core goes out of balance.',[[0,'A control rod drops to the bottom.'],[2,'Power dips and the flux tilts towards one side.'],[20,'Power recovers as temperature feedback acts.']]]};
- function kf(k,t){if(t<=k[0][0])return k[0][1];for(var i=1;i<k.length;i++)if(t<=k[i][0]){var a=k[i-1],b=k[i],u=(t-a[0])/(b[0]-a[0]);u=u*u*(3-2*u);return a[1]+(b[1]-a[1])*u}return k[k.length-1][1]}
- function scen(e,t){var N={pw:100,T:310,P:155,L:60,S:50,C:0,R:1,al:[]};if(!e||t<0)return N;var A=N.al;
-  if(e==='turbine'){N.pw=kf([[0,100],[1,8],[20,5],[120,3]],t);N.T=kf([[0,310],[8,316],[60,292]],t);N.P=kf([[0,155],[10,161],[40,149],[120,155]],t);N.L=kf([[0,60],[10,66],[60,42],[120,45]],t);N.S=kf([[0,50],[15,30],[60,40],[120,50]],t);A.push('TURBINE TRIP','REACTOR TRIP');if(t>4)A.push('STEAM DUMPS OPEN');if(t>16)A.push('AUX FEED ON');if(N.S<36)A.push('LOW SG LEVEL')}
-  if(e==='feed'){N.S=kf([[0,50],[28,18],[34,16],[120,42]],t);N.T=kf([[0,310],[26,313],[60,294]],t);N.P=kf([[0,155],[26,158],[60,150],[120,155]],t);N.pw=kf([[0,100],[28,100],[29,8],[120,3]],t);N.L=kf([[0,60],[26,63],[60,44]],t);A.push('FEEDWATER FLOW LOW');if(N.S<36)A.push('LOW SG LEVEL');if(t>28)A.push('REACTOR TRIP','TURBINE TRIP');if(t>32)A.push('AUX FEED ON')}
-  if(e==='slb'){N.T=kf([[0,310],[40,282],[120,276]],t);N.P=kf([[0,155],[14,130],[26,118],[60,112],[120,115]],t);N.L=kf([[0,60],[30,5],[120,8]],t);N.pw=kf([[0,100],[12,108],[14,8],[120,3]],t);N.S=kf([[0,50],[40,20],[120,12]],t);N.C=kf([[0,0],[40,45],[120,55]],t);if(t>2)A.push('HIGH STEAM FLOW');if(t>14)A.push('REACTOR TRIP','LOW PZR PRESSURE');if(t>26)A.push('SAFETY INJECTION');if(N.C>20)A.push('HIGH CONTAINMENT PRESSURE');if(N.L<20)A.push('LOW PZR LEVEL')}
-  if(e==='loca'){N.P=kf([[0,155],[20,130],[30,120],[60,95],[120,80]],t);N.L=kf([[0,60],[25,10],[40,0],[120,0]],t);N.pw=kf([[0,100],[20,100],[21,8],[120,3]],t);N.T=kf([[0,310],[30,300],[120,280]],t);N.C=kf([[0,0],[30,8],[120,30]],t);N.R=kf([[0,1],[30,4],[120,40]],t);if(t>8)A.push('LOW PZR LEVEL');if(t>20)A.push('REACTOR TRIP','LOW PZR PRESSURE');if(t>30)A.push('SAFETY INJECTION');if(N.C>10)A.push('HIGH CONTAINMENT PRESSURE');if(N.R>5)A.push('CONTAINMENT RADIATION HIGH')}
-  if(e==='sgtr'){N.P=kf([[0,155],[95,130],[120,120]],t);N.L=kf([[0,60],[95,30],[120,20]],t);N.S=kf([[0,50],[95,68],[120,72]],t);N.pw=kf([[0,100],[95,100],[96,8],[120,4]],t);N.R=kf([[0,1],[8,30],[120,60]],t);if(t>8)A.push('STEAM LINE RADIATION HIGH');if(t>30)A.push('PZR LEVEL DEVIATION');if(t>60)A.push('SG LEVEL DEVIATION');if(t>95)A.push('REACTOR TRIP','LOW PZR PRESSURE')}
-  if(e==='loop'){N.pw=kf([[0,100],[1,8],[120,3]],t);N.T=kf([[0,310],[20,304],[60,300],[120,298]],t);N.P=kf([[0,155],[8,160],[40,150],[120,154]],t);N.L=kf([[0,60],[60,45]],t);N.S=kf([[0,50],[20,32],[120,46]],t);A.push('LOSS OF OFFSITE POWER','REACTOR TRIP','TURBINE TRIP','RCPs STOPPED');if(t>10)A.push('DIESELS RUNNING');if(t>15)A.push('AUX FEED ON')}
-  if(e==='rod'){N.pw=kf([[0,100],[2,92],[30,97],[120,98]],t);N.T=kf([[0,310],[10,307],[60,309]],t);N.P=kf([[0,155],[10,152],[60,155]],t);A.push('ROD AT BOTTOM','QUADRANT POWER TILT')}
-  return N}
- WIDGETS.panelLab=function(box,par){par=par||{};var mode=par.mode||'watch',ev=par.event||null,t0=-1,tt=0,tr=[],ack={},seen={},guess=null,ans=null,step=0,wrong=0,star={phase:0,touched:null,done:false,ok:null},task=null,comm={i:0,score:0,pick:null},csf=null,csfPick=null,moved=0;
-  var KEYS=Object.keys(EVTS);if(mode==='diagnose'){ev=KEYS[Math.floor(Math.random()*KEYS.length)]}
-  var scr=screen(box,par.h||mode==='star'||mode==='comms'||mode==='csf'||mode==='crew'?270:330,mode==='star'||mode==='comms'||mode==='csf'||mode==='crew'?300:420),st=null,m=msg(box),optRow=null;
-  if(mode==='watch'){var es=select(box,'Event',KEYS.map(function(k){return EVTS[k][0]}),function(i){ev=KEYS[i];t0=-1;tr=[];ack={};seen={};moved++});es.value=Math.max(0,KEYS.indexOf(ev||KEYS[0]));ev=ev||KEYS[0];var rw=row(box);btn(rw,'Start the event',function(){t0=tt;tr=[];ack={};seen={};moved++},'pri');btn(rw,'Acknowledge alarms',function(){for(var k in seen)ack[k]=1})}
-  if(mode==='diagnose'){var rd=row(box);btn(rd,'Start',function(){t0=tt;moved++},'pri');btn(rd,'Acknowledge alarms',function(){for(var k in seen)ack[k]=1});var pool=KEYS.slice().sort(function(){return Math.random()-.5}).filter(function(k){return k!==ev}).slice(0,3).concat([ev]).sort(function(){return Math.random()-.5});optRow=row(box);pool.forEach(function(k){var b=btn(optRow,EVTS[k][0],function(){guess=k;[].forEach.call(optRow.children,function(x){x.classList.remove('on')});b.classList.add('on')})});m.set('Press <b>Start</b>, watch the trends and alarms, then pick what happened and press Check.')}
-  if(mode==='star'){var SW=['RCP 1A','RCP 1B','RCP 2A','RCP 2B','CCW 1A','CCW 1B','CCW 2A','CCW 2B'];task=SW[4+Math.floor(Math.random()*4)];var rs=row(box),bStop=btn(rs,'1. Stop and think',function(){if(star.phase===0){star.phase=1;m.set('<b>Think:</b> the step says “Start '+task+'”. Now <b>touch</b> the switch you think it is (tap it once).')}},'pri'),bAct=btn(rs,'3. Act: operate it',function(){if(star.phase===2&&star.touched){star.phase=3;star.ok=star.touched===task;star.done=true;m.set(star.ok?'<b>Review:</b> '+task+' is running, flow is up. Exactly the right pump.':'<b>Wrong component!</b> You started '+star.touched+'. That\'s how events happen. Check the label against the procedure before you act.',star.ok)}}),bRe=btn(rs,'Try again',function(){star={phase:0,touched:null,done:false,ok:null};task=SW[4+Math.floor(Math.random()*4)];m.set('New step: “Start '+task+'”. Begin with <b>Stop and think</b>.')});m.set('Procedure step: “Start <b>'+task+'</b>”. Use STAR: Stop, Think, Act, Review.')}
-  if(mode==='comms'){var CM=par.lines||[['“Reduce turbine load to 90 percent.”',['“Reducing turbine load to 90 percent.”','“OK.”','“Reduce load to 19 percent.”'],0],['“Start auxiliary feed pump Bravo.”',['“Starting aux feed pump B, Bravo.”','“Starting aux feed pump D.”','“Will do.”'],0],['“Close valve 2-RCV-037.”',['“Closing it now.”','“Close valve 2-RCV-037. Closing 2-RCV-037.”','“Close 2-RCV-073.”'],1]];optRow=row(box);function showQ(){optRow.innerHTML='';if(comm.i>=CM.length){m.set('<b>All three repeat-backs right: '+comm.score+' of '+CM.length+'.</b> Say it back, word for word, then the sender confirms “That is correct”.',comm.score===CM.length);return}var ordr=CM[comm.i][1].map(function(_,k){return k}).sort(function(){return Math.random()-.5});ordr.forEach(function(k){var o=CM[comm.i][1][k];btn(optRow,o,function(){var ok3=k===CM[comm.i][2];if(ok3)comm.score++;m.set(ok3?'Supervisor: “That is correct.”':'Supervisor: “No. I said '+CM[comm.i][0]+'”',ok3);comm.pick=k;comm.i++;setTimeout(showQ,900)})})}showQ()}
-  if(mode==='csf'){var CS=['Subcriticality','Core cooling','Heat sink','Primary integrity','Containment','Inventory'],SETS=[[0,1,2,0,1,3],[0,0,3,1,0,1],[0,2,0,0,3,1],[2,0,1,0,0,0]],cs=SETS[Math.floor(Math.random()*SETS.length)];csf=cs;m.set('Six critical safety functions. Green is fine, then yellow, orange, red. Tap the one you deal with <b>first</b>: the most serious colour, and if two match, the one higher up the list.')}
-  if(mode==='startup'){var STEPS=[['Heat the plant up','Main pumps run and heat the water to 292 °C.'],['Dilute the boron','Bring boron down towards the critical concentration.'],['Pull the shutdown banks out','They must be out before you go critical.'],['Pull the control banks out slowly','Watch the count rate rise. Go critical.'],['Raise power to about 2%','A small positive startup rate.'],['Roll the turbine and connect to the grid','Synchronise at 50 Hz, then load up.']];optRow=row(box);STEPS.forEach(function(s,i){var b=btn(optRow,(i+1)+'. '+s[0],function(){if(i===step){step++;b.classList.add('on');m.set('<b>Done:</b> '+s[1]+(step===STEPS.length?' The plant is at power.':''),true)}else if(i>step){wrong++;m.set('<b>Not yet.</b> Procedures go in order: do “'+STEPS[step][0]+'” first.',false)}})});m.set('Do the startup in the right order.')}
-  if(mode==='crew'){var CREW=[['Shift Manager','In overall charge of the plant and the shift. Makes the big calls.',.5,.14],['Control Room Supervisor','Runs the control room, directs the operators and reads the procedures.',.5,.4],['Reactor Operator','Controls the reactor: rods, boron and the primary circuit.',.24,.72],['Turbine Operator','Runs the turbine, generator and the secondary plant.',.76,.72],['Safety Engineer','Checks the plant stays within its safety limits.',.86,.24]],pickC=null;m.set('Tap a person to see their job.')}
-  drag(scr.cv,function(x,y){var W=scr.W,H=scr.H;if(mode==='star'&&star.phase>=1&&!star.done){var cols=4,w=(W-40)/cols,h=56;for(var i=0;i<8;i++){var bx=20+(i%cols)*w,by=70+Math.floor(i/cols)*(h+40);if(x>bx&&x<bx+w-10&&y>by&&y<by+h){star.touched=SW[i];star.phase=2;m.set('<b>Touching:</b> '+SW[i]+'. Read the label: is it the one the step says? If yes, press <b>Act</b>. If not, touch another.')}}}
-   if(mode==='csf'&&csf){var cw=(W-40)/3,ch2=(H-70)/2;for(var j=0;j<6;j++){var bx2=20+(j%3)*cw,by2=40+Math.floor(j/3)*(ch2+10);if(x>bx2&&x<bx2+cw-10&&y>by2&&y<by2+ch2){csfPick=j;moved++}}}
-   if(mode==='crew'){CREW.forEach(function(p,i){if(Math.hypot(x-p[2]*W,y-p[3]*H)<28){pickC=i;m.set('<b>'+p[0]+':</b> '+p[1])}})}});
-  var COL={pw:[120,235,140],T:[255,170,80],P:[255,214,90],L:[58,212,255],S:[143,128,255],C:[255,90,80]};
-  run(scr,function(dt,tm){var c=scr.c,W=scr.W,H=scr.H,nb=narrow(),wide=W>=620;tt+=dt/1000*(calm()?.6:1)*(mode==='watch'||mode==='diagnose'?2:1);bgf(c,W,H);
-   if(mode==='star'){band(c,W,'SELF-CHECK · STAR','step: Start '+task);var cols=4,w=(W-40)/cols,h=56;for(var i=0;i<8;i++){var bx=20+(i%cols)*w,by=70+Math.floor(i/cols)*(h+40),nm=SW[i],on=star.done&&star.touched===nm,tch=star.touched===nm&&!star.done;c.fillStyle=on?'rgba(120,235,140,.3)':tch?'rgba(255,214,90,.18)':'rgba(255,255,255,.05)';c.fillRect(bx,by,w-10,h);c.strokeStyle=tch?'#ffd65a':'rgba(160,190,230,.5)';c.lineWidth=tch?2:1;c.strokeRect(bx,by,w-10,h);hud(c,bx+(w-10)/2,by+h/2+4,nm,'#fff',nb?9:11,'center',true);c.fillStyle=on?'#8dff9a':'#3a4560';c.beginPath();c.arc(bx+(w-10)-10,by+10,4,0,6.283);c.fill()}
-    ['STOP','THINK','ACT','REVIEW'].forEach(function(s,k){var x=20+k*((W-40)/4);c.fillStyle=star.phase>k?'rgba(120,235,140,.5)':'rgba(255,255,255,.07)';c.fillRect(x,40,(W-40)/4-8,16);hud(c,x+((W-40)/4-8)/2,52,s,'#fff',9,'center',true)});return}
-   if(mode==='comms'){band(c,W,'THREE-WAY COMMUNICATION','');var cx=W/2;for(var k=0;k<40;k++){var x=20+k*(W-40)/40,a=Math.abs(Math.sin(tm/120+k*.7))*(comm.i<3?14:3);c.fillStyle='rgba(58,212,255,.6)';c.fillRect(x,H/2-a,(W-40)/40-2,a*2)}var CMl=par.lines||null;hud(c,cx,46,comm.i<3?'Supervisor says:':'Communication complete','rgba(220,235,255,.85)',10,'center',true);hud(c,cx,H-30,comm.i<3?['“Reduce turbine load to 90 percent.”','“Start auxiliary feed pump Bravo.”','“Close valve 2-RCV-037.”'][comm.i]:'Score '+comm.score+' / 3','#fff',nb?11:14,'center',true);hud(c,cx,H-12,'1 send · 2 repeat back · 3 confirm','rgba(160,190,230,.75)',8.5,'center');return}
-   if(mode==='csf'){band(c,W,'CRITICAL SAFETY FUNCTION STATUS TREES','');var cw=(W-40)/3,ch2=(H-70)/2,CC=[[120,235,140],[255,214,90],[255,150,60],[255,70,70]],NM=['OK','yellow','orange','RED'];for(var j=0;j<6;j++){var bx2=20+(j%3)*cw,by2=40+Math.floor(j/3)*(ch2+10),lev=csf[j],fl=lev===3&&Math.floor(tm/400)%2;c.fillStyle=rgba(CC[lev],fl?.55:.3);c.fillRect(bx2,by2,cw-10,ch2);c.strokeStyle=csfPick===j?'#fff':rgba(CC[lev],.9);c.lineWidth=csfPick===j?3:1.5;c.strokeRect(bx2,by2,cw-10,ch2);if(nb){hud(c,bx2+(cw-10)/2,by2+ch2/2-14,String(j+1),'rgba(255,255,255,.7)',9,'center',true);CS[j].split(' ').forEach(function(wd,k,aa){hud(c,bx2+(cw-10)/2,by2+ch2/2+k*11-(aa.length-1)*5.5,wd,'#fff',8.5,'center',true)})}else hud(c,bx2+(cw-10)/2,by2+ch2/2,(j+1)+'. '+CS[j],'#fff',11,'center',true);hud(c,bx2+(cw-10)/2,by2+ch2/2+(nb?24:16),NM[lev],rgba(CC[lev],1),9,'center',true)}return}
-   if(mode==='startup'){band(c,W,'REACTOR STARTUP','step '+Math.min(step+1,6)+' of 6');var vals=[[292,'Tavg °C',step>=1],[step>=2?1100:1500,'boron ppm',step>=2],[step>=3?100:0,'shutdown banks % out',step>=3],[step>=4?62:0,'control banks % out',step>=4],[step>=5?2:step>=4?1e-6:0,'power %',step>=5],[step>=6?50:0,'grid Hz',step>=6]];vals.forEach(function(v,i){var x=16+(i%3)*((W-32)/3),y=40+Math.floor(i/3)*((H-60)/2);c.fillStyle=v[2]?'rgba(120,235,140,.14)':'rgba(255,255,255,.04)';c.fillRect(x,y,(W-32)/3-8,(H-60)/2-8);hud(c,x+8,y+16,v[1].toUpperCase(),'rgba(200,225,255,.75)',8,'left',true);hud(c,x+8,y+40,v[0]<1e-3&&v[0]>0?'critical':fx(v[0],0),v[2]?'#8dff9a':'rgba(220,235,255,.5)',nb?14:20,'left',true)});return}
-   if(mode==='crew'){band(c,W,'THE CONTROL ROOM CREW','');c.strokeStyle='rgba(160,190,230,.4)';c.lineWidth=1;c.strokeRect(W*.1,H*.62,W*.8,H*.22);hud(c,W*.5,H*.95,'the main control desks','rgba(200,225,255,.6)',8.5,'center');CREW.forEach(function(p,i){if(i>0){var a=CREW[1];c.setLineDash([3,4]);poly(c,[[a[2]*W,a[3]*H],[p[2]*W,p[3]*H]],'rgba(58,212,255,'+(.25+.25*Math.sin(tm/400+i)).toFixed(2)+')',1.4);c.setLineDash([])}});CREW.forEach(function(p,i){var x=p[2]*W,y=p[3]*H;glow(c,x,y,26,i===pickC?YE:CY,.35);ball(c,x,y,12,i===pickC?YE:CY);hud(c,x,y+26,p[0],'#fff',nb?8:10,'center',true)});return}
-   // trends and alarms (watch / diagnose)
-   var te=t0>=0?tt-t0:-1,N=scen(t0>=0?ev:null,te);if(t0>=0&&(tr.length===0||tt-tr[tr.length-1][0]>.25))tr.push([tt,N]);if(tr.length>700)tr.shift();
-   band(c,W,mode==='diagnose'?'CONTROL ROOM · what is happening?':'CONTROL ROOM · '+EVTS[ev][0],t0>=0?'t = '+fx(te,0)+' s':'steady at full power');
-   var tiles=['REACTOR TRIP','TURBINE TRIP','LOW PZR PRESSURE','LOW PZR LEVEL','LOW SG LEVEL','SAFETY INJECTION','AUX FEED ON','STEAM DUMPS OPEN','HIGH CONTAINMENT PRESSURE','STEAM LINE RADIATION HIGH','LOSS OF OFFSITE POWER','DIESELS RUNNING'],act={};N.al.forEach(function(a){act[a]=1;seen[a]=1});
-   var tw=wide?Math.min(140,W*.22):W-24,tx=wide?W-tw-10:12,ty=30,th=wide?(H-40)/tiles.length:14;if(!wide){tiles=tiles.slice(0,12)}var tcol=wide?1:3,tw2=wide?tw:(W-24)/3;tiles.forEach(function(a,i){var x=tx+(wide?0:(i%3)*tw2),y=wide?ty+i*th:ty+Math.floor(i/3)*16,on=act[a],fl=on&&!ack[a]&&Math.floor(tm/350)%2;c.fillStyle=on?(fl?'rgba(255,90,80,.9)':'rgba(255,90,80,.45)'):'rgba(255,255,255,.04)';c.fillRect(x,y,tw2-4,(wide?th:16)-3);hud(c,x+(tw2-4)/2,y+(wide?th:16)/2+2.5,a,on?'#fff':'rgba(160,190,230,.45)',wide?7.5:6.5,'center',true)});
-   var gx=wide?14:12,gy=wide?30:ty+4*16+8,gw=wide?W-tw-36:W-24,gh=H-gy-8,cols2=2,rows2=3,cw2=gw/cols2,ch3=gh/rows2,DEF=[['pw','REACTOR POWER %',[0,115]],['T','TAVG °C',[270,320]],['P','PRESSURISER PRESSURE bar',[70,170]],['L','PRESSURISER LEVEL %',[0,100]],['S','SG LEVEL %',[0,100]],['C','CONTAINMENT PRESSURE kPa',[0,70]]];
-   DEF.forEach(function(d,i){var x=gx+(i%cols2)*cw2+30,y=gy+Math.floor(i/cols2)*ch3+12,w=cw2-38,h=ch3-24,Cp=chart(c,x,y,w,h,{x:[Math.max(0,tt-60),Math.max(60,tt)],y:d[2],ny:2,noxl:true,title:d[1]});Cp.clip();poly(c,tr.map(function(q){return [Cp.X(q[0]),Cp.Y(q[1][d[0]])]}),rgba(COL[d[0]],1),1.8,4);Cp.un();hud(c,x+w-4,y+12,fx(N[d[0]],0),rgba(COL[d[0]],1),nb?9:10,'right',true)});
-   if(mode==='watch'&&t0>=0){var nar=EVTS[ev][2],cur=null;nar.forEach(function(n){if(te>=n[0])cur=n});if(cur){panel(c,gx+4,H-30,gw-8,22);hud(c,gx+12,H-15,cur[1],'#ffd65a',nb?8:9.5,'left',true)}}});
-  if(mode==='watch'||mode==='crew')return {};
-  return {check:function(){if(mode==='diagnose'){if(t0<0)return {ok:false,msg:'Press Start and watch first.'};if(!guess)return {ok:false,msg:'Pick one of the events.'};return guess===ev?{ok:true,head:'Correct diagnosis!',msg:EVTS[ev][1]}:{ok:false,msg:'Look again at the trends: '+(ev==='sgtr'?'which alarm is about radiation, and where?':ev==='loca'?'where is containment pressure going?':ev==='slb'?'is the plant cooling down or heating up?':ev==='loop'?'what happened to offsite power?':ev==='feed'?'which level fell first?':ev==='turbine'?'what tripped first?':'did power just dip a little?')}}
-   if(mode==='star')return star.done&&star.ok?{ok:true}:{ok:false,msg:star.done?'Wrong pump. Press Try again and check the label before acting.':'Work through Stop, Think (touch the switch), Act.'};
-   if(mode==='comms')return comm.i>=3&&comm.score>=2?{ok:true}:{ok:false,msg:'Finish the three messages, repeating each one back exactly.'};
-   if(mode==='csf'){if(csfPick==null)return {ok:false,msg:'Tap a safety function.'};var best=0;for(var j=0;j<6;j++)if(csf[j]>csf[best])best=j;return csfPick===best?{ok:true,head:'Right priority!',msg:'The most serious colour first, and when two are the same colour, the one higher up the list wins.'}:{ok:false,msg:'Not that one. Look for the most serious colour, and if two match, take the one higher up the list.'}}
-   if(mode==='startup')return step>=6?{ok:true,head:'At power!'}:{ok:false,msg:'Keep going, in order.'};return {ok:true}}}};
-
- /* ===== core in 3D: a fuel assembly, the whole core, loading patterns, refuelling, the vessel, pellet to core ===== */
- WIDGETS.core3d=function(box,par){par=par||{};var mode=par.mode||'assembly',ins=par.ins||0,yaw=-.7,pitch=.55,auto=!calm(),tt=0,drg=null,pat=0,cyc=0,zoom=0,moved=0,flowP=[];
-  var scr=screen(box,par.h||320,300);
-  if(mode==='assembly')slider(box,'Control rod cluster',0,100,1,ins*100,function(v){return v+'% in'},function(v){ins=v/100;moved++});
-  if(mode==='loading'){var ps=select(box,'Loading pattern',['All new fuel in the middle','New fuel round the edge','Checkerboard (low leakage)'],function(i){pat=i;moved++});var st=stats(box,[['p','Peaking factor'],['l','Neutrons leaking']])}
-  if(mode==='refuel'){var rr=row(box);btn(rr,'Next refuelling',function(){cyc++;moved++},'pri')}
-  if(mode==='pellet'){slider(box,'Zoom out',0,3,.01,0,function(v){return ['pellet','fuel rod','fuel assembly','whole core'][Math.round(v)]},function(v){zoom=v;auto=false;moved++})}
-  drag(scr.cv,function(x,y){drg={x:x,y:y,yaw:yaw,pitch:pitch};auto=false},function(x,y,on){if(on&&drg){yaw=drg.yaw+(x-drg.x)*.01;pitch=Math.max(.2,Math.min(1.3,drg.pitch+(y-drg.y)*.006))}},function(){drg=null});scr.cv.style.touchAction='pan-y';
-  // a 15-wide core map with corners cut (193 assemblies)
-  var MAP=[];for(var j=0;j<15;j++)for(var i=0;i<15;i++){var dx=Math.abs(i-7),dy=Math.abs(j-7);if(dx+dy<=10&&Math.max(dx,dy)<=7&&!(dx===7&&dy>3)&&!(dy===7&&dx>3))MAP.push([i-7,j-7])}
-  function P3(x,y,z,W,H,F){var cy=Math.cos(yaw),sy=Math.sin(yaw),cp=Math.cos(pitch),sp=Math.sin(pitch),X=x*cy-z*sy,Z=x*sy+z*cy,Y=y*cp-Z*sp,Z2=y*sp+Z*cp,f=F/(9-Z2);return [W/2+X*f,H*.62-Y*f,Z2]}
-  function cube(c,pts,col){var F=[[0,1,2,3],[4,5,6,7],[0,1,5,4],[1,2,6,5],[2,3,7,6],[3,0,4,7]].map(function(fc){return {f:fc,z:(pts[fc[0]][2]+pts[fc[1]][2]+pts[fc[2]][2]+pts[fc[3]][2])/4}}).sort(function(a,b){return a.z-b.z});F.forEach(function(q,k){var sh=k===5?1.15:k%2?.75:.9;c.fillStyle='rgb('+Math.min(255,col[0]*sh|0)+','+Math.min(255,col[1]*sh|0)+','+Math.min(255,col[2]*sh|0)+')';c.beginPath();q.f.forEach(function(n,i){var p=pts[n];if(i)c.lineTo(p[0],p[1]);else c.moveTo(p[0],p[1])});c.closePath();c.fill();c.strokeStyle='rgba(255,255,255,.08)';c.stroke()})}
-  run(scr,function(dt){var c=scr.c,W=scr.W,H=scr.H,nb=narrow(),F=Math.min(W,H*1.3)*.95;tt+=dt;if(auto)yaw+=dt*.00018;bgf(c,W,H);
-   if(mode==='assembly'){band(c,W,'A FUEL ASSEMBLY IN 3D · 17 × 17','drag to turn');var Hh=3.2,s=.15,rods=[];for(var j=0;j<17;j++)for(var i=0;i<17;i++){var gt=[[2,5],[2,8],[2,11],[3,3],[3,13],[5,2],[5,5],[5,8],[5,11],[5,14],[8,2],[8,5],[8,11],[8,14],[11,2],[11,5],[11,8],[11,11],[11,14],[13,3],[13,13],[14,5],[14,8],[14,11]].some(function(q){return q[0]===i&&q[1]===j}),ins2=i===8&&j===8;var x=(i-8)*s,z=(j-8)*s,top=P3(x,Hh/2,z,W,H,F),bot=P3(x,-Hh/2,z,W,H,F);rods.push({t:top,b:bot,z:top[2],g:gt,it:ins2,x:x,zz:z})}
-    rods.sort(function(a,b){return a.z-b.z});rods.forEach(function(r){c.strokeStyle=r.g?'rgba(255,214,90,.75)':r.it?'rgba(120,235,140,.8)':'rgba(150,170,210,.42)';c.lineWidth=r.g?2:1.2;c.beginPath();c.moveTo(r.t[0],r.t[1]);c.lineTo(r.b[0],r.b[1]);c.stroke();if(r.g&&ins>0){var tip=P3(r.x,Hh/2-ins*Hh,r.zz,W,H,F),up=P3(r.x,Hh/2+.35,r.zz,W,H,F);c.strokeStyle='rgba(255,255,255,.95)';c.lineWidth=2.6;c.beginPath();c.moveTo(up[0],up[1]);c.lineTo(tip[0],tip[1]);c.stroke()}});
-    for(var p=0;p<30;p++){var u=((tt/1800)+p/30)%1,px=((p*7)%17-8)*s+s/2,pz=((p*11)%17-8)*s+s/2,q=P3(px,-Hh/2+u*Hh,pz,W,H,F);c.fillStyle='rgba(58,212,255,'+(.8*(1-u)).toFixed(2)+')';c.beginPath();c.arc(q[0],q[1],1.8,0,6.283);c.fill()}
-    hud(c,12,H-28,'grey: 264 fuel rods · yellow: 24 guide tubes for the control rods · green: instrument tube','rgba(200,225,255,.8)',nb?7.5:9,'left');hud(c,12,H-12,'blue dots: water flowing up through the assembly','rgba(150,220,255,.8)',nb?7.5:9,'left');return}
-   if(mode==='core'||mode==='loading'||mode==='refuel'){band(c,W,mode==='refuel'?'REFUELLING · a third of the fuel changes each time':mode==='loading'?'LOADING PATTERNS':'THE CORE IN 3D · 193 fuel assemblies','drag to turn');var s2=.42,bs=s2*.46,list=[],tot=0,mx=0;
-    MAP.forEach(function(m,k){var r=Math.hypot(m[0],m[1])/7.6,batch=mode==='refuel'?((k*7+cyc)%3):pat===0?(r<.45?0:r<.75?1:2):pat===1?(r>.72?0:r>.42?2:1):((m[0]+m[1])%2===0?0:1+((k)%2)),ff=Math.cos(r*Math.PI/2*.95)*(batch===0?1.25:batch===1?1:.78);if(mode==='core')ff=Math.cos(r*Math.PI/2*.95);list.push({m:m,b:batch,f:ff});tot+=ff;mx=Math.max(mx,ff)});
-    var avg=tot/list.length,pk=mx/avg,BC=[[255,170,80],[143,128,255],[90,120,170]];list.forEach(function(q){var x=q.m[0]*s2,z=q.m[1]*s2,h=.12+q.f/avg*.55,pts=[[-1,0,-1],[1,0,-1],[1,0,1],[-1,0,1],[-1,1,-1],[1,1,-1],[1,1,1],[-1,1,1]].map(function(v){return P3(x+v[0]*bs,v[1]*h,z+v[2]*bs,W,H,F*.62)});q.pts=pts;q.z=(pts[0][2]+pts[6][2])/2});list.sort(function(a,b){return a.z-b.z});
-    list.forEach(function(q){var col=mode==='core'?hot(.2+q.f*.6):BC[q.b];cube(c,q.pts,col)});if(mode!=='core'){[['new fuel',0],['one cycle old',1],['two cycles old',2]].forEach(function(l,i){c.fillStyle=rgba(BC[l[1]],1);c.fillRect(12,H-48+i*14,10,10);hud(c,26,H-39+i*14,l[0],'rgba(220,235,255,.85)',9)})}else hud(c,12,H-12,'height and colour = power: highest in the middle','rgba(200,225,255,.8)',9,'left');
-    if(st){st.p.textContent=fx(pk,2);st.l.textContent=pat===1?'more (new fuel at the edge)':pat===2?'less':'some'}if(mode==='refuel')hud(c,W-12,H-12,'refuellings: '+cyc,'#ffd65a',10,'right',true);return}
-   if(mode==='vessel'){band(c,W,'INSIDE THE REACTOR VESSEL · follow the water','');var cx=W/2,top=40,bot=H-20,vw=Math.min(W*.42,190),hw=vw/2;c.strokeStyle='rgba(200,220,255,.7)';c.lineWidth=3;c.beginPath();c.moveTo(cx-hw,top+30);c.lineTo(cx-hw,bot-30);c.quadraticCurveTo(cx-hw,bot,cx,bot);c.quadraticCurveTo(cx+hw,bot,cx+hw,bot-30);c.lineTo(cx+hw,top+30);c.stroke();c.lineWidth=1.5;c.strokeStyle='rgba(160,190,230,.55)';c.strokeRect(cx-hw+16,top+50,vw-32,bot-top-110);
-    c.fillStyle='rgba(255,150,70,.35)';c.fillRect(cx-hw+24,top+(bot-top)*.45,vw-48,(bot-top)*.28);hud(c,cx,top+(bot-top)*.6,'CORE','#ffaa50',11,'center',true);for(var r2=0;r2<5;r2++){var rx=cx-hw+34+r2*(vw-68)/4;c.strokeStyle='rgba(255,255,255,.6)';c.beginPath();c.moveTo(rx,top+6);c.lineTo(rx,top+(bot-top)*.5);c.stroke()}hud(c,cx,top-2,'control rod drives','rgba(220,235,255,.75)',8.5,'center');
-    var path=[[cx-hw-40,top+70],[cx-hw+8,top+70],[cx-hw+8,bot-40],[cx,bot-14],[cx,top+(bot-top)*.45],[cx,top+60],[cx+hw+40,top+70]];function dots2(pts,n){var L=0,sg=[];for(var k=1;k<pts.length;k++){var l=Math.hypot(pts[k][0]-pts[k-1][0],pts[k][1]-pts[k-1][1]);sg.push(l);L+=l}for(var i2=0;i2<n;i2++){var u2=(tt/4000+i2/n)%1,d=u2*L;for(var k2=1;k2<pts.length;k2++){if(d<=sg[k2-1]){var fr=d/sg[k2-1],x=pts[k2-1][0]+(pts[k2][0]-pts[k2-1][0])*fr,y=pts[k2-1][1]+(pts[k2][1]-pts[k2-1][1])*fr,col=u2<.55?[90,160,255]:[255,130,90];glow(c,x,y,6,col,.4);c.fillStyle=rgba(col,1);c.beginPath();c.arc(x,y,2.2,0,6.283);c.fill();break}d-=sg[k2-1]}}}dots2(path,26);
-    hud(c,cx-hw-44,top+60,'cold in 292 °C','#7fb0ff',8.5,'left',true);hud(c,cx+hw+44,top+60,'hot out 328 °C','#ff9070',8.5,'right',true);hud(c,cx-hw-6,(top+bot)/2,'down the downcomer','rgba(200,225,255,.75)',8,'right');hud(c,cx+hw-20,top+(bot-top)*.36,'up through the core','rgba(200,225,255,.75)',8,'right');return}
-   if(mode==='pellet'){if(auto)zoom=1.5-1.5*Math.cos(tt/9000*Math.PI*2)/1;var z=Math.max(0,Math.min(3,zoom)),lvl=Math.round(z),NAMES=['ONE FUEL PELLET','ONE FUEL ROD','ONE FUEL ASSEMBLY','THE WHOLE CORE'],INFO=['About 8 mm across: as much energy as a tonne of coal','About 4 m long, holding around 360 pellets','264 rods in a 17 × 17 square','193 assemblies: about 18 million pellets'];band(c,W,NAMES[lvl],INFO[lvl]);var cx2=W/2,cy2=H/2+10,sc=Math.pow(10,(1.5-z)*.8);
-    if(lvl===0){var R=Math.min(W,H)*.22;ball(c,cx2,cy2,R,[90,80,70]);c.strokeStyle='rgba(255,255,255,.3)';c.beginPath();c.ellipse(cx2,cy2-R*.1,R*.95,R*.3,0,0,6.283);c.stroke()}
-    else if(lvl===1){c.fillStyle='rgba(170,180,200,.8)';c.fillRect(20,cy2-9,W-40,18);for(var p2=0;p2<40;p2++){c.strokeStyle='rgba(60,60,70,.6)';c.beginPath();c.moveTo(20+p2*(W-40)/40,cy2-9);c.lineTo(20+p2*(W-40)/40,cy2+9);c.stroke()}hud(c,W/2,cy2+30,'zirconium alloy tube, sealed at both ends','rgba(200,225,255,.8)',9,'center')}
-    else if(lvl===2){var g=Math.min(W,H)*.6/17;for(var j2=0;j2<17;j2++)for(var i3=0;i3<17;i3++){c.fillStyle='rgba(170,180,200,.75)';c.beginPath();c.arc(cx2-8.5*g+i3*g+g/2,cy2-8.5*g+j2*g+g/2,g*.38,0,6.283);c.fill()}}
-    else{var g2=Math.min(W,H)*.65/15;MAP.forEach(function(m){c.fillStyle=rgba(hot(.25+Math.cos(Math.hypot(m[0],m[1])/7.6*Math.PI/2)*.55),1);c.fillRect(cx2+m[0]*g2-g2/2+1,cy2+m[1]*g2-g2/2+1,g2-2,g2-2)})}}});
-  if(!par.goal)return {};return {check:function(){if(par.goal==='checker')return pat===2?{ok:true,head:'Low leakage!',msg:'Spreading the new fuel out flattens the power and keeps the hottest fuel away from the edge, so fewer neutrons leak.'}:{ok:false,msg:'Try each pattern and compare the peaking factor and the leakage.'};return moved?{ok:true}:{ok:false,msg:'Try a control first.'}}}};
- Object.keys(LABS).forEach(function(k){var f=WIDGETS[k];if(!f||f.__soft)return;var g=function(box,par,o){var r=f(box,par,o)||{};if(r.check){var ch=r.check;r.check=function(){var x=ch()||{};if(!x.ok)x.soft=true;return x}}return r};g.__soft=1;WIDGETS[k]=g});
- /* ===== Lesson in 3D: a live 3D graph on every lesson's summary screen ===== */
- var S3=(function(){
- var PI=Math.PI,TAU=PI*2,ZS=.78;
- var PAL={turbo:[[48,18,59],[62,90,200],[30,190,250],[60,240,180],[200,240,60],[250,170,40],[240,80,30]],
-  ice:[[14,22,70],[40,70,190],[40,160,255],[120,220,255],[230,250,255]],
-  fire:[[30,8,40],[120,20,90],[220,60,60],[250,150,40],[255,240,140]],
-  ph:[[220,40,40],[245,120,40],[245,220,50],[90,200,80],[40,150,200],[60,70,200],[130,50,170]],
-  green:[[10,40,40],[20,110,90],[40,200,140],[160,250,190],[240,255,230]],
-  violet:[[25,15,70],[90,50,200],[160,110,255],[220,190,255],[255,245,255]]};
- function cm(u,p){var P2=PAL[p||'turbo']||PAL.turbo;u=Math.max(0,Math.min(1,isFinite(u)?u:0));var n=P2.length-1,i=Math.min(n-1,Math.floor(u*n)),f=u*n-i,a=P2[i],b=P2[i+1];return [a[0]+(b[0]-a[0])*f,a[1]+(b[1]-a[1])*f,a[2]+(b[2]-a[2])*f]}
- function col(c,k,a){k=k==null?1:k;return 'rgba('+Math.min(255,c[0]*k|0)+','+Math.min(255,c[1]*k|0)+','+Math.min(255,c[2]*k|0)+','+(a==null?1:(+a).toFixed(3))+')'}
- function nr(v,r){return (v-r[0])/(r[1]-r[0])*2-1}
- function cl(v,a,b){return Math.max(a,Math.min(b,v))}
- function fv(v){if(!isFinite(v))return '–';var a=Math.abs(v);if(a>=1e5||(a>0&&a<1e-3))return sci(v,2);if(a>=100)return fmtInt(v);if(a>=10)return (+v.toFixed(1)).toString().replace('-','−');return (+v.toFixed(2)).toString().replace('-','−')}
- var LT=(function(){var l=[-.42,-.52,.74],m=Math.hypot(l[0],l[1],l[2]);return [l[0]/m,l[1]/m,l[2]/m]})();
- function shade(a,b,c2){var u=[b[0]-a[0],b[1]-a[1],b[2]-a[2]],v=[c2[0]-a[0],c2[1]-a[1],c2[2]-a[2]],n=[u[1]*v[2]-u[2]*v[1],u[2]*v[0]-u[0]*v[2],u[0]*v[1]-u[1]*v[0]],m=Math.hypot(n[0],n[1],n[2])||1;return .42+.62*Math.abs((n[0]*LT[0]+n[1]*LT[1]+n[2]*LT[2])/m)}
- function camera(cam,W,H){var cy=Math.cos(cam.yaw),sy=Math.sin(cam.yaw),cp=Math.cos(cam.pitch),sp=Math.sin(cam.pitch),sc=Math.min(W/3.9,H*.3)*(cam.zoom||1),ox=W/2,oy=H*.45+(cam.dy||0)*H,D=6.2;
-  return function(x,y,z){var X=x*cy-y*sy,Y=x*sy+y*cy,dep=Y*cp-z*sp,up=z*cp+Y*sp,f=D/(D+dep);return [ox+X*f*sc,oy-up*f*sc,dep,f*sc]}}
-
- /* ---- the frame: back panes, grid, ticks, axis titles ---- */
- function panes(c,pr,sp,W,H){var Z=ZS,xr=sp.xr,yr=sp.yr,zr=sp.zr,ax=sp.ax||['','',''];
-  var dxp=pr(1,0,0)[2],dxm=pr(-1,0,0)[2],dyp=pr(0,1,0)[2],dym=pr(0,-1,0)[2],fx_=dxp>dxm?1:-1,fy_=dyp>dym?1:-1,nx=-fx_,ny=-fy_;
-  function L(a,b,s,w){var p=pr(a[0],a[1],a[2]),q=pr(b[0],b[1],b[2]);c.strokeStyle=s;c.lineWidth=w||1;c.beginPath();c.moveTo(p[0],p[1]);c.lineTo(q[0],q[1]);c.stroke()}
-  function face(pts,f){c.beginPath();pts.forEach(function(p,i){var q=pr(p[0],p[1],p[2]);i?c.lineTo(q[0],q[1]):c.moveTo(q[0],q[1])});c.closePath();c.fillStyle=f;c.fill()}
-  face([[-1,-1,-Z],[1,-1,-Z],[1,1,-Z],[-1,1,-Z]],'rgba(60,110,220,.07)');face([[fx_,-1,-Z],[fx_,1,-Z],[fx_,1,Z],[fx_,-1,Z]],'rgba(60,110,220,.045)');face([[-1,fy_,-Z],[1,fy_,-Z],[1,fy_,Z],[-1,fy_,Z]],'rgba(60,110,220,.045)');
-  var g='rgba(130,170,255,.13)';for(var i=0;i<=4;i++){var u=-1+i*.5,w=-Z+i*Z*.5;L([u,-1,-Z],[u,1,-Z],g);L([-1,u,-Z],[1,u,-Z],g);L([fx_,u,-Z],[fx_,u,Z],g);L([fx_,-1,w],[fx_,1,w],g);L([u,fy_,-Z],[u,fy_,Z],g);L([-1,fy_,w],[1,fy_,w],g)}
-  var e='rgba(150,190,255,.38)';L([fx_,fy_,-Z],[fx_,fy_,Z],e);L([-1,fy_,-Z],[1,fy_,-Z],e);L([fx_,-1,-Z],[fx_,1,-Z],e);L([-1,ny,-Z],[1,ny,-Z],e);L([nx,-1,-Z],[nx,1,-Z],e);
-  var nb=W<500,fs=nb?8:9,tc='rgba(170,200,255,.8)',xf=sp.xf||fv,yf=sp.yf||fv,zf=sp.zf||fv;
-  if(xr)[-1,0,1].forEach(function(u){var p=pr(u,ny*1.12,-Z);hud(c,p[0],p[1]+3,xf(xr[0]+(u+1)/2*(xr[1]-xr[0])),tc,fs,'center')});
-  if(yr)[-1,0,1].forEach(function(u){var p=pr(nx*1.12,u,-Z);hud(c,p[0],p[1]+3,yf(yr[0]+(u+1)/2*(yr[1]-yr[0])),tc,fs,'center')});
-  var cx=[[fx_,ny],[nx,fy_]],ck=pr(cx[0][0],cx[0][1],0)[0]<pr(cx[1][0],cx[1][1],0)[0]?cx[0]:cx[1];
-  if(zr)[-1,0,1].forEach(function(u){var p=pr(ck[0],ck[1],u*Z),left=p[0]<W/2;hud(c,p[0]+(left?-6:6),p[1]+3,zf(zr[0]+(u+1)/2*(zr[1]-zr[0])),tc,fs,left?'right':'left')});
-  var at='rgba(210,230,255,.95)';
-  if(ax[0]){var p=pr(0,ny*1.36,-Z);hud(c,p[0],p[1]+4,ax[0],at,fs+.5,'center',true)}
-  if(ax[1]){var q=pr(nx*1.36,0,-Z);hud(c,q[0],q[1]+4,ax[1],at,fs+.5,'center',true)}
-  if(ax[2]){var r=pr(ck[0],ck[1],Z*1.16);c.font='700 '+(fs+.5)+'px "JetBrains Mono",ui-monospace,monospace';var aw=c.measureText(ax[2]).width/2+6;hud(c,cl(r[0],aw,Math.max(aw,W-aw)),Math.max(38,r[1]),ax[2],at,fs+.5,'center',true)}}
-
- /* ---- painter's renderer ---- */
- function render(c,pr,prims){prims.sort(function(a,b){return b.d-a.d});for(var i=0;i<prims.length;i++){var q=prims[i];
-  if(q.k==='f'){c.beginPath();for(var j=0;j<q.p.length;j++){var p=q.p[j];j?c.lineTo(p[0],p[1]):c.moveTo(p[0],p[1])}c.closePath();c.fillStyle=q.f;c.fill();if(q.s){c.strokeStyle=q.s;c.lineWidth=q.sw||.7;c.stroke()}}
-  else if(q.k==='l'){c.strokeStyle=q.s;c.lineWidth=q.w||1.5;if(q.dash)c.setLineDash(q.dash);c.beginPath();for(var j2=0;j2<q.p.length;j2++){var p2=q.p[j2];j2?c.lineTo(p2[0],p2[1]):c.moveTo(p2[0],p2[1])}c.stroke();if(q.dash)c.setLineDash([])}
-  else if(q.k==='b'){var g=c.createRadialGradient(q.x-q.r*.35,q.y-q.r*.4,q.r*.1,q.x,q.y,q.r);g.addColorStop(0,col(q.c,1.6,q.a));g.addColorStop(.55,col(q.c,1,q.a));g.addColorStop(1,col(q.c,.4,q.a));if(q.glow){c.fillStyle=col(q.c,1,.18*(q.a==null?1:q.a));c.beginPath();c.arc(q.x,q.y,q.r*2.2,0,TAU);c.fill()}c.fillStyle=g;c.beginPath();c.arc(q.x,q.y,Math.max(.5,q.r),0,TAU);c.fill();if(q.lab&&q.r>6)hud(c,q.x,q.y+3.5,q.lab,'rgba(10,15,30,.85)',Math.min(11,q.r*.9),'center',true)}
-  else if(q.k==='t'){hud(c,q.x,q.y,q.t,q.c||'#fff',q.z||9,q.al||'center',q.b)}}}
- function seg(pr,pts,s,w,d0,extra){var p=pts.map(function(a){return pr(a[0],a[1],a[2])}),d=0;p.forEach(function(q){d+=q[2]});var o={k:'l',p:p,s:s,w:w,d:(d0!=null?d0:d/p.length)};if(extra)for(var k in extra)o[k]=extra[k];return o}
- function arrow(prims,pr,a,b,cc,w){var p=pr(a[0],a[1],a[2]),q=pr(b[0],b[1],b[2]),ang=Math.atan2(q[1]-p[1],q[0]-p[0]),h=7+w;prims.push({k:'l',p:[p,q],s:col(cc),w:w,d:(p[2]+q[2])/2});prims.push({k:'f',p:[[q[0],q[1]],[q[0]-h*Math.cos(ang-.45),q[1]-h*Math.sin(ang-.45)],[q[0]-h*Math.cos(ang+.45),q[1]-h*Math.sin(ang+.45)]],f:col(cc),d:q[2]-.01})}
-
- /* ---- surfaces z = f(x, y) ---- */
- function gridOf(sp,t,n){var G={n:n,z:[],w:[]};for(var i=0;i<n;i++){G.z.push([]);G.w.push([]);var x=sp.xr[0]+(sp.xr[1]-sp.xr[0])*i/(n-1);for(var j=0;j<n;j++){var y=sp.yr[0]+(sp.yr[1]-sp.yr[0])*j/(n-1),ok=!sp.mask||sp.mask(x,y),v=ok?sp.f(x,y,t):NaN;G.z[i].push(v);G.w[i].push(isFinite(v)?cl(nr(v,sp.zr),-1,1)*ZS:NaN)}}return G}
- function surfPrims(prims,pr,sp,G,t){var n=G.n,pal=sp.pal,PP=[];for(var i=0;i<n;i++){PP.push([]);var X=-1+2*i/(n-1);for(var j=0;j<n;j++){var Y=-1+2*j/(n-1),w=G.w[i][j];PP[i].push(isFinite(w)?pr(X,Y,w):null)}}
-  var lw=n>24?.5:.7;for(i=0;i<n-1;i++)for(var j2=0;j2<n-1;j2++){var a=PP[i][j2],b=PP[i+1][j2],c2=PP[i+1][j2+1],d=PP[i][j2+1];if(!a||!b||!c2||!d)continue;
-   var X0=-1+2*i/(n-1),X1=-1+2*(i+1)/(n-1),Y0=-1+2*j2/(n-1),Y1=-1+2*(j2+1)/(n-1),wa=G.w[i][j2],wb=G.w[i+1][j2],wc=G.w[i+1][j2+1],wd=G.w[i][j2+1],u=((wa+wb+wc+wd)/4/ZS+1)/2;
-   var k=shade([X0,Y0,wa],[X1,Y0,wb],[X0,Y1,wd]),cc=cm(u,pal),hot=false,xm=sp.xr[0]+(sp.xr[1]-sp.xr[0])*(i+.5)/(n-1),ym=sp.yr[0]+(sp.yr[1]-sp.yr[0])*(j2+.5)/(n-1),zm=(G.z[i][j2]+G.z[i+1][j2]+G.z[i+1][j2+1]+G.z[i][j2+1])/4;
-   if(sp.colf)cc=sp.colf(xm,ym,zm,u);if(sp.hot)hot=sp.hot(xm,ym,zm,t);
-   if(sp.limit!=null&&(G.z[i][j2]+G.z[i+1][j2]+G.z[i+1][j2+1]+G.z[i][j2+1])/4>sp.limit)hot=true;
-   if(hot)cc=[255,95+60*u,60];
-   prims.push({k:'f',p:[a,b,c2,d],f:col(cc,k,sp.alpha||.97),s:'rgba(255,255,255,'+(hot?.2:.11)+')',sw:lw,d:(a[2]+b[2]+c2[2]+d[2])/4})}}
- function contours(c,pr,sp,G){var n=G.n,Z=ZS,lv=7;for(var L=1;L<lv;L++){var h=-Z+2*Z*L/lv,cc=cm(L/lv,sp.pal);c.strokeStyle=col(cc,1,.5);c.lineWidth=1;c.beginPath();
-  for(var i=0;i<n-1;i++)for(var j=0;j<n-1;j++){var v=[G.w[i][j],G.w[i+1][j],G.w[i+1][j+1],G.w[i][j+1]];if(v.some(function(q){return !isFinite(q)}))continue;var X=[-1+2*i/(n-1),-1+2*(i+1)/(n-1)],Y=[-1+2*j/(n-1),-1+2*(j+1)/(n-1)],cr=[];
-   var E=[[0,1,X[0],Y[0],X[1],Y[0]],[1,2,X[1],Y[0],X[1],Y[1]],[2,3,X[1],Y[1],X[0],Y[1]],[3,0,X[0],Y[1],X[0],Y[0]]];
-   E.forEach(function(e){var a=v[e[0]],b=v[e[1]];if((a<h)!==(b<h)){var u=(h-a)/(b-a);cr.push([e[2]+(e[4]-e[2])*u,e[3]+(e[5]-e[3])*u])}});
-   if(cr.length>=2){var p=pr(cr[0][0],cr[0][1],-Z),q=pr(cr[1][0],cr[1][1],-Z);c.moveTo(p[0],p[1]);c.lineTo(q[0],q[1])}}c.stroke()}}
-
- /* ---- bars ---- */
- function barPrims(prims,pr,sp,t,grow){var R=sp.rows,C=sp.cols;if(sp.rc){R=C=sp.rc(t)}var Z=ZS,w=(sp.bw||.78),zb=sp.base!=null?cl(nr(sp.base,sp.zr),-1,1)*Z:-Z;
-  for(var r=0;r<R;r++)for(var k=0;k<C;k++){var v=sp.v(r,k,t);if(v==null||!isFinite(v))continue;var g=grow?cl((grow-(r+k)*.035)/.9,0,1):1;g=1-Math.pow(1-g,3);
-   var top=zb+(cl(nr(v,sp.zr),-1,1)*Z-zb)*g,x0=-1+2*k/C+(1-w)/C,x1=-1+2*(k+1)/C-(1-w)/C,y0=-1+2*r/R+(1-w)/R,y1=-1+2*(r+1)/R-(1-w)/R,lo=Math.min(zb,top),hi=Math.max(zb,top),cc=sp.col?sp.col(r,k,v,t):cm((nr(v,sp.zr)+1)/2,sp.pal);
-   var F=[[[x0,y0,hi],[x1,y0,hi],[x1,y1,hi],[x0,y1,hi]],[[x0,y0,lo],[x1,y0,lo],[x1,y0,hi],[x0,y0,hi]],[[x0,y1,lo],[x1,y1,lo],[x1,y1,hi],[x0,y1,hi]],[[x0,y0,lo],[x0,y1,lo],[x0,y1,hi],[x0,y0,hi]],[[x1,y0,lo],[x1,y1,lo],[x1,y1,hi],[x1,y0,hi]]];
-   var br=[1.12,.62,.62,.82,.82];F.forEach(function(f,fi){var p=f.map(function(a){return pr(a[0],a[1],a[2])}),d=(p[0][2]+p[1][2]+p[2][2]+p[3][2])/4;prims.push({k:'f',p:p,f:col(cc,br[fi],sp.alpha||.96),s:'rgba(255,255,255,.12)',sw:.6,d:d+(fi===0?-.002:0)})});
-   if(sp.lab){var lb=sp.lab(r,k,v);if(lb){var tp=pr((x0+x1)/2,(y0+y1)/2,hi);if(tp[3]*(x1-x0)>9)prims.push({k:'t',x:tp[0],y:tp[1]+3,t:lb,c:'rgba(255,255,255,.95)',z:Math.min(10,tp[3]*(x1-x0)*(lb.length>2?.42:.62)),b:true,d:tp[2]-.05})}}}}
-
- /* ---- parametric meshes (solids, spheres, tubes) ---- */
- function meshPrims(prims,pr,m,t){var nu=m.nu||24,nv=m.nv||12,PP=[],WW=[];for(var i=0;i<=nu;i++){PP.push([]);WW.push([]);for(var j=0;j<=nv;j++){var w=m.f(i/nu,j/nv,t);WW[i].push(w);PP[i].push(pr(w[0],w[1],w[2]))}}
-  for(i=0;i<nu;i++)for(var j2=0;j2<nv;j2++){var a=PP[i][j2],b=PP[i+1][j2],c2=PP[i+1][j2+1],d=PP[i][j2+1],k=shade(WW[i][j2],WW[i+1][j2],WW[i][j2+1]),cc=typeof m.c==='function'?m.c(i/nu,j2/nv,t):m.c;
-   prims.push({k:'f',p:[a,b,c2,d],f:col(cc,k,m.a||.95),s:m.wire===false?null:'rgba(255,255,255,'+(m.wa||.1)+')',sw:.6,d:(a[2]+b[2]+c2[2]+d[2])/4})}}
-
- /* ---- molecules and particles ---- */
- var EL={H:[[235,240,250],.42],C:[[70,78,92],.62],O:[[235,60,60],.6],N:[[70,110,240],.6],Na:[[160,90,230],.72],Cl:[[60,210,90],.78],Fe:[[200,120,80],.7],M:[[190,200,215],.62],e:[[80,220,255],.2],p:[[240,80,70],.5],n:[[160,170,190],.5],Ne:[[255,120,200],.55],S:[[240,210,60],.7],K:[[150,80,220],.8],Mg:[[120,220,120],.68],I:[[150,60,200],.8],Br:[[180,60,40],.74],F:[[150,230,120],.5],X:[[255,200,90],.5]};
- function molPrims(prims,pr,m,t,scale){var A=m.atoms(t),sc=scale||1,P=A.map(function(a){return pr(a.p[0],a.p[1],a.p[2])});
-  (m.bonds?(typeof m.bonds==='function'?m.bonds(t,A):m.bonds):[]).forEach(function(b){var p=P[b[0]],q=P[b[1]];if(!p||!q)return;var ca=(EL[A[b[0]].e]||EL.X)[0],cb=(EL[A[b[1]].e]||EL.X)[0],mx=[(p[0]+q[0])/2,(p[1]+q[1])/2],wd=Math.max(1.5,(p[3]+q[3])/2*.045*sc);
-   var ord=b[2]||1;for(var o=0;o<ord;o++){var off=(o-(ord-1)/2)*wd*1.5,ang=Math.atan2(q[1]-p[1],q[0]-p[0]),ox=-Math.sin(ang)*off,oy=Math.cos(ang)*off;
-    prims.push({k:'l',p:[[p[0]+ox,p[1]+oy],[mx[0]+ox,mx[1]+oy]],s:col(ca,.9),w:wd,d:(p[2]*.75+q[2]*.25)});prims.push({k:'l',p:[[mx[0]+ox,mx[1]+oy],[q[0]+ox,q[1]+oy]],s:col(cb,.9),w:wd,d:(p[2]*.25+q[2]*.75)})}});
-  A.forEach(function(a,i){var e=EL[a.e]||EL.X,r=(a.r||e[1])*.16*P[i][3]*sc;prims.push({k:'b',x:P[i][0],y:P[i][1],r:r,c:a.c||e[0],a:a.a,glow:a.glow||a.e==='e',lab:a.lab,d:P[i][2]})})}
-
- function rdT(c,W,H,t){var z=W<500?8.5:9.5,F='700 '+z+'px "JetBrains Mono",ui-monospace,monospace';c.font=F;var w=c.measureText(t).width;if(w>W-20){z=Math.max(7,z*(W-20)/w);c.font='700 '+z+'px "JetBrains Mono",ui-monospace,monospace';while(t.length>8&&c.measureText(t).width>W-20)t=t.slice(0,-2);if(c.measureText(t).width>W-20||t.length<8){}}c.fillStyle='rgba(3,8,18,.55)';c.fillRect(0,H-26,Math.min(W,c.measureText(t).width+20),26);hud(c,10,H-10,t,'rgba(255,235,160,.95)',z,'left',true)}
- /* ---- the widget ---- */
- function mount(box,spec,opts){opts=opts||{};var nb=narrow(),scr=screen(box,opts.h||340,opts.hn||300),cam={yaw:spec.yaw!=null?spec.yaw:-.72,pitch:spec.pitch!=null?spec.pitch:.5,zoom:spec.zoom||(spec.k==='mol'?1.55:spec.box===false?1.3:1),dy:spec.k==='mol'||spec.box===false?.07:0},drag0=null,idle=99,tt=0,still=calm(),G=null,Gt=-1,n=spec.n||(nb?20:28);
-  var cv=scr.cv;cv.style.touchAction='pan-y';cv.style.cursor='grab';
-  cv.addEventListener('pointerdown',function(e){drag0={x:e.clientX,y:e.clientY,yaw:cam.yaw,pitch:cam.pitch};idle=0;try{cv.setPointerCapture(e.pointerId)}catch(_){}cv.style.cursor='grabbing'});
-  cv.addEventListener('pointermove',function(e){if(!drag0)return;cam.yaw=drag0.yaw+(e.clientX-drag0.x)*.011;cam.pitch=cl(drag0.pitch+(e.clientY-drag0.y)*.008,.06,1.35);idle=0});
-  function up(){drag0=null;cv.style.cursor='grab'}cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
-  var st={grow:0};if(spec.init)spec.init(st);
-  run(scr,function(dt,tm){var c=scr.c,W=scr.W,H=scr.H;if(!W)return;dt=dt/1000;idle+=dt;if(!still){tt+=dt;if(!drag0&&idle>2.5&&spec.spin!==false)cam.yaw+=dt*(spec.spin||.16)}else if(tt===0)tt=spec.still||2;st.grow=still?9:st.grow+dt;
-   var g=c.createLinearGradient(0,0,0,H);g.addColorStop(0,'#050b1c');g.addColorStop(1,'#02050d');c.fillStyle=g;c.fillRect(0,0,W,H);
-   var pr=camera(cam,W,H),prims=[],tA=spec.anim?tt:0;
-   if(spec.k!=='mol'&&spec.box!==false)panes(c,pr,spec,W,H);
-   if(spec.k==='surf'){if(!G||spec.anim&&Math.abs(tA-Gt)>.033){G=gridOf(spec,tA,n);Gt=tA}if(spec.floor!==false)contours(c,pr,spec,G);surfPrims(prims,pr,spec,G,tA)}
-   else if(spec.k==='bars')barPrims(prims,pr,spec,tA,st.grow);
-   if(spec.meshes)spec.meshes(tA,st).forEach(function(m){meshPrims(prims,pr,m,tA)});
-   if(spec.atoms)molPrims(prims,pr,spec,tA,spec.ms);
-   if(spec.extra)spec.extra(prims,pr,tA,st,{seg:seg,arrow:arrow,col:col,cm:cm,W:W,H:H,G:G,nr:nr});
-   render(c,pr,prims);
-   if(spec.k==='surf'&&spec.slice){var sl=spec.slice,ph=(Math.sin(tt*.35)+1)/2,yv=spec.yr[0]+(spec.yr[1]-spec.yr[0])*(still?(sl.at!=null?sl.at:.7):.08+.84*ph),pts=[],wp=[];
-    for(var i=0;i<=60;i++){var x=spec.xr[0]+(spec.xr[1]-spec.xr[0])*i/60,v=spec.f(x,yv,tA);if(!isFinite(v)){continue}var X=-1+2*i/60,Y=nr(yv,spec.yr),Zw=cl(nr(v,spec.zr),-1,1)*ZS;pts.push(pr(X,Y,Zw))}
-    var fy_=pr(0,1,0)[2]>pr(0,-1,0)[2]?1:-1;for(i=0;i<=60;i++){var x2=spec.xr[0]+(spec.xr[1]-spec.xr[0])*i/60,v2=spec.f(x2,yv,tA);if(!isFinite(v2))continue;wp.push(pr(-1+2*i/60,fy_,cl(nr(v2,spec.zr),-1,1)*ZS))}
-    c.lineWidth=1.6;c.strokeStyle='rgba(255,230,120,.55)';c.beginPath();wp.forEach(function(p,i){i?c.lineTo(p[0],p[1]):c.moveTo(p[0],p[1])});c.stroke();
-    c.lineWidth=5;c.strokeStyle='rgba(255,255,255,.16)';c.beginPath();pts.forEach(function(p,i){i?c.lineTo(p[0],p[1]):c.moveTo(p[0],p[1])});c.stroke();c.lineWidth=2;c.strokeStyle='#fff';c.stroke();
-    rdT(c,W,H,(sl.lab||(spec.ax&&spec.ax[1])||'y')+' = '+(sl.f||fv)(yv)+(sl.note?'  ·  '+sl.note:'  ·  the white slice is one 2D graph'))}
-   if(spec.k==='surf'&&spec.mark){var mk=spec.mark(tA,st),mz=spec.f(mk[0],mk[1],tA),MX=nr(mk[0],spec.xr),MY=nr(mk[1],spec.yr),MZ=cl(nr(mz,spec.zr),-1,1)*ZS,p=pr(MX,MY,MZ),q=pr(MX,MY,-ZS);c.setLineDash([3,3]);c.strokeStyle='rgba(255,255,255,.6)';c.lineWidth=1;c.beginPath();c.moveTo(p[0],p[1]);c.lineTo(q[0],q[1]);c.stroke();c.setLineDash([]);
-    c.fillStyle='rgba(255,214,90,.25)';c.beginPath();c.arc(p[0],p[1],12,0,TAU);c.fill();c.fillStyle='#ffd65a';c.beginPath();c.arc(p[0],p[1],4.5,0,TAU);c.fill();if(spec.read)rdT(c,W,H,spec.read(mk,mz,tA))}
-   else if(spec.read&&!spec.slice)rdT(c,W,H,spec.read(null,null,tA,st));
-   c.fillStyle='rgba(3,8,18,.62)';c.fillRect(0,0,W,22);hud(c,8,15,'LESSON IN 3D',rgba([120,220,255],.95),9.5,'left',true);var tl=spec.t||'';c.font='600 9px "JetBrains Mono",ui-monospace,monospace';var tw=c.measureText(tl).width;hud(c,W-8,15,(tw>W-130?tl.slice(0,Math.max(8,Math.floor((W-130)/5.6)))+'…':tl),'rgba(180,205,240,.9)',9,'right');
-   });
-  return scr}
- return {mount:mount,cm:cm,col:col,nr:nr,cl:cl,fv:fv,ZS:ZS,EL:EL}})();
- /* ===== Lesson in 3D: the scene library ===== */
- var S3SC=(function(){
- var PI=Math.PI,TAU=PI*2,ZS=S3.ZS,nr=S3.nr,cl=S3.cl,fv=S3.fv,cm=S3.cm,col=S3.col,E=Math.exp,sq=Math.sqrt,L10=Math.log10;
- function W3(sp,x,y,z){return [nr(x,sp.xr),nr(y,sp.yr),cl(nr(z,sp.zr),-1,1)*ZS]}
- function rnd(s){return function(){s=(s*16807)%2147483647;return (s-1)/2147483646}}
- function unit(v,u){return function(x){return fv(x)+u}}
- function pw(v){return '10'+supStr(Math.round(v))}
- var SATT=[[0,.0061],[20,.0234],[50,.1235],[80,.4739],[100,1.0142],[120,1.985],[150,4.76],[180,10.03],[212.4,20],[250.4,40],[285.8,70],[311,100],[324.7,120],[344.8,155],[347.4,160],[354.7,175],[357,180],[374,220.6]];
- function ts(P){var l=Math.log(Math.max(.0062,Math.min(220,P)));for(var i=1;i<SATT.length;i++){var a=Math.log(SATT[i-1][1]),b=Math.log(SATT[i][1]);if(l<=b)return SATT[i-1][0]+(SATT[i][0]-SATT[i-1][0])*(l-a)/(b-a)}return 374}
- function line(pr,pts,c,w,a,glow){var P=pts.map(function(p){return pr(p[0],p[1],p[2])}),d=0;P.forEach(function(q){d+=q[2]});var o={k:'l',p:P,s:col(c,1,a==null?1:a),w:w||2,d:d/P.length};return glow?[{k:'l',p:P,s:col(c,1,.18),w:(w||2)*3.2,d:o.d+.001},o]:[o]}
- function ballP(pr,p,c,r,lab,glow,a){var q=pr(p[0],p[1],p[2]);return {k:'b',x:q[0],y:q[1],r:r*q[3]/100,c:c,lab:lab,glow:glow,a:a,d:q[2]}}
- function txt(pr,p,t,c,z,al,b){var q=pr(p[0],p[1],p[2]);return {k:'t',x:q[0],y:q[1],t:t,c:c,z:z||9,al:al||'center',b:b,d:q[2]-.3}}
- var CY=[90,220,255],VI=[160,130,255],OR=[255,150,60],GR=[80,230,150],RD=[255,90,80],YE=[255,214,90],WH=[235,240,255];
- var SC={};
-
- /* ---------- reactor physics ---------- */
- SC.flux=function(p){p=p||{};var rf=p.refl?.78:1;return {k:'surf',anim:1,t:'NEUTRON FLUX ACROSS THE CORE',ax:['x (m)','y (m)','flux'],xr:[0,3.6],yr:[0,3.6],zr:[0,1.05],xf:unit(0,' m'),yf:unit(0,' m'),zf:function(v){return fv(v)},
-  f:function(x,y,t){var u=x/1.8-1,v=y/1.8-1,a=Math.cos(rf*u*PI/2)*Math.cos(rf*v*PI/2),rx=.45*Math.cos(t*.45),ry=.45*Math.sin(t*.45);return a*(1-.32*E(-((u-r
+    c.fillStyle='rgba(58,212,255,.12)';c.beginPath();c.moveTo(pp[0][0],pp[0][1]);pp.forEach(function(q){c.lineTo(q[0],q[1])});c.fill();poly(c,pp,rgba(CY,1),2

@@ -1,4 +1,54 @@
-werCase()?-1:1});
+nvariant mass term for A is impossible, so A's quanta are <b>massless</b>.</li></ol><div class="callout">A turns out to be the electromagnetic potential, F contains the electric and magnetic fields, and its quanta are <b>photons</b>. Maxwell's equations and the electron–photon coupling follow from one symmetry requirement.</div>`),
+O(`Put the gauge argument in order.`,['Start with the free electron field, symmetric under a global phase change','Demand symmetry under a local phase change α(x)','Find that the derivative spoils the symmetry','Introduce a new field A in the covariant derivative D = ∂ + iqA','Require A to shift so the extra terms cancel','Add A\'s own kinetic term: A is the photon field, and it must be massless'],`Electromagnetism is what you get when you insist on local phase symmetry.`),
+Q(`Why must the photon be massless?`,[`A mass term for A would break gauge invariance`,`Because light is fast`,`Because photons have no charge`,`It isn't: it's very heavy`],0,`m²A² isn't invariant under A → A − (1/q)∂α.`),
+T(`<h3>The Standard Model from symmetry</h3><p>Apply the same idea with bigger symmetry groups:</p><ul><li><b>SU(3)</b> gauge symmetry gives 8 gluons: the strong force (QCD).</li><li><b>SU(2) × U(1)</b> gives the W, Z and photon: the electroweak force.</li><li>The W and Z are heavy, which gauge symmetry forbids directly. The <b>Higgs mechanism</b> solves it: the symmetry is hidden by the Higgs field's vacuum value, giving them mass while keeping the theory consistent.</li></ul><p>The whole Standard Model is written as SU(3) × SU(2) × U(1).</p>`),
+Q(`What gauge group gives the strong force?`,[`SU(3)`,`U(1)`,`SU(2)`,`SO(3)`],0,`SU(3), with 8 gluons: quantum chromodynamics.`),
+W('flipCards',{cards:[['U(1)','Electromagnetism: one photon.'],['SU(2) × U(1)','Electroweak: W⁺, W⁻, Z and the photon, with the Higgs mechanism.'],['SU(3)','Strong force: 8 gluons, confinement.'],['Next?','Grand unification, supersymmetry, quantum gravity: the open frontier.']]},`Tap each card.`),
+T(`<h3>Key points</h3><ul><li>Demanding <b>local phase (gauge) symmetry</b> forces a new field into the covariant derivative <b>D = ∂ + iqA</b>.</li><li>That field is the <b>photon</b>, and gauge invariance makes it massless.</li><li>SU(3) gives gluons, SU(2) × U(1) gives the electroweak bosons, and the <b>Higgs mechanism</b> gives the W and Z mass.</li><li>The Standard Model is <b>SU(3) × SU(2) × U(1)</b>.</li></ul>`)])]});
+GOALS.qm7={icon:'🏛️',title:'Defend a PhD in theoretical physics',story:'Each unit is a chapter of your thesis. Finish them all and you can hold your own at a research seminar.',final:'Dr. Quantum',steps:['Time-dependent theory chapter','Path integrals chapter','Entanglement chapter','Quantum fields chapter']};
+
+
+
+
+/* ===== lesson log (for pace and weekly reports) and Ideas to remember (spaced review of quantum concepts) ===== */
+function plogAdd(tr){var d=ymdL(),L=S.pathLog;if(!L||typeof L!=='object')L=S.pathLog={};var e=L[d]||(L[d]={});e[tr]=(e[tr]||0)+1;var ks=Object.keys(L).sort();while(ks.length>150)delete L[ks.shift()]}
+function plogCount(days,tracks){var L=S.pathLog||{},n=0,now=new Date();for(var i=0;i<days;i++){var d=new Date(now);d.setDate(d.getDate()-i);var k=ymdLof(d),e=L[k];if(!e)continue;for(var t in e)if(!tracks||tracks.indexOf(t)>=0)n+=e[t]}return n}
+function ymdLof(d){return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()}
+var IDEA_INT=[1,3,7,14,30,60];
+function ideaMem(){var x=lxGet();if(!x.ideas||typeof x.ideas!=='object'||Array.isArray(x.ideas))x.ideas={};return x}
+function ideaAdd(lid){var x=ideaMem();if(x.ideas[lid])return;x.ideas[lid]={b:0,due:lxAddD(today(),1),at:Date.now()};lxSet(x)}
+function ideasDue(){var x=ideaMem(),t=today();return Object.keys(x.ideas).filter(function(k){return x.ideas[k].due<=t&&lessonById(k)})}
+var finish_log=finish;finish=function(){var id=null,was=false,tr=null;try{if(typeof P!=='undefined'&&P&&P.mode==='lesson'&&UNITS[P.ui]){id=UNITS[P.ui].lessons[P.li].id;was=!!S.done[id];tr=trk(P.ui)}}catch(e){}
+ if(typeof P!=='undefined'&&P&&P.mode==='idearev'){ideaFinish();return}
+ var r=finish_log.apply(this,arguments);try{if(id&&!was&&S.done[id]){plogAdd(tr);if(tr==='qm')ideaAdd(id);save()}}catch(e){if(window.console)console.error(e)}return r};
+function ideaReview(){var due=ideasDue();if(!due.length){toast('💡','No ideas due','They come back a day or more after each quantum lesson');return}var cs=[];
+ due.slice(0,5).forEach(function(lid){var L=lessonById(lid),l=UNITS[L.ui].lessons[L.li],qs=[];l.cards.forEach(function(c,ci){if(c.t==='Q'&&c.o&&typeof c.a==='number')qs.push(Object.assign({},c,{_key:lid+'#'+ci,_lid:lid,_src:'💡 '+l.title}))});
+  for(var i=qs.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=qs[i];qs[i]=qs[j];qs[j]=t}cs=cs.concat(qs.slice(0,2));
+  var kp=null;for(var k=l.cards.length-1;k>=0;k--){var c=l.cards[k];if(c.t==='T'&&/<h3[^>]*>\s*key points/i.test(c.h||'')){kp=c;break}}if(kp)cs.push({t:'T',h:'<div class="pcagain">💡 The big ideas: '+l.title+'</div>'+kp.h.replace(/<h3[^>]*>[\s\S]*?<\/h3>/,''),_auto:1,_key:null,_lid:lid})});
+ if(!cs.length){toast('💡','Nothing to review yet','');return}if(document.querySelector('#player.open'))closePlayer();
+ P={mode:'idearev',cards:cs,i:0,xp:0,right:0,asked:0,title:'Ideas to remember',color:'#7F77DD',unit:'Ideas to remember',combo:0,best:0,cbonus:0,mistakes:0,fixed:0,newBadges:[],levelUp:null,_miss:{},_lids:due.slice(0,5)};openPlayer()}
+var gotWrong_idea=gotWrong;gotWrong=function(c){try{if(typeof P!=='undefined'&&P&&P.mode==='idearev'&&c&&c._lid)P._miss[c._lid]=1}catch(e){}return gotWrong_idea.apply(this,arguments)};
+function ideaFinish(){P.finished=true;P.quiet=true;$('pBar').style.width='100%';var x=ideaMem(),t=today(),ok=0;
+ (P._lids||[]).forEach(function(lid){var e=x.ideas[lid];if(!e)return;if(P._miss[lid])e.b=0;else{e.b=Math.min(IDEA_INT.length-1,e.b+1);ok++}e.due=lxAddD(t,IDEA_INT[e.b]);e.at=Date.now()});lxSet(x);
+ var n=(P._lids||[]).length;$('pBody').innerHTML='<div class="done-screen"><div class="dicon" style="font-size:64px">💡</div><h2>Ideas reviewed</h2><p class="note" style="font-size:16px">'+ok+' of '+n+' lesson'+(n===1?'':'s')+' remembered well: they\'ll come back after a longer gap. '+(n-ok?'The others come back tomorrow.':'')+'</p></div>';
+ foot('','','');skipBtn(null);mainBtn('Done',function(){closePlayer()});$('pXP').textContent=P.xp?'+'+P.xp+' XP':'';try{sfx('done')}catch(e){}}
+var decorReview_idea=decorReview;decorReview=function(){decorReview_idea.apply(this,arguments);var pg=$('page-review');if(!pg||pg.querySelector('#ideaRev'))return;var x=ideaMem(),n=Object.keys(x.ideas).length;if(!n)return;var due=ideasDue().length;
+ var c=document.createElement('section');c.id='ideaRev';c.className='card fxrev';c.innerHTML='<div class="fxrh"><span class="fxri">💡</span><div><b>Ideas to remember</b><p class="small">'+n+' quantum lesson'+(n===1?'':'s')+' · '+(due?'<b>'+due+' due today</b>':'none due today')+'</p></div></div><button type="button" class="wbtn"'+(due?'':' disabled')+'>'+(due?'Test yourself on them':'Come back later')+'</button>';
+ c.querySelector('button').onclick=ideaReview;var a=pg.querySelector('#fxRev')||pg.querySelector('#lxRev');if(a)a.parentNode.insertBefore(c,a.nextSibling);else pg.appendChild(c)};
+
+/* ===== Glossary and formula sheet (built from the lessons you've done) ===== */
+var TL_EXTRA=[];
+function tlEsc(x){return String(x==null?'':x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function tlUnits(m){var o=[];UNITS.forEach(function(u,ui){if(trk(ui)===m)o.push(ui)});o.sort(function(a,b){return ((UNITS[a].level||1)-(UNITS[b].level||1))||a-b});return o}
+function tlName(m){return {qm:'Quantum',calc:'Calculus',theory:'Theory',maths:'Nuclear maths'}[m]||'this subject'}
+var tlEl=null;
+function tlClose(){if(tlEl){tlEl.remove();tlEl=null}document.body.classList.remove('noscroll','tlprint')}
+function tlOpen(title,body){tlClose();tlEl=document.createElement('div');tlEl.className='tlov';tlEl.setAttribute('role','dialog');tlEl.setAttribute('aria-label',title);
+ tlEl.innerHTML='<div class="tlw"><div class="tlbar"><button type="button" class="wbtn tlx">← Back</button><b>'+tlEsc(title)+'</b><span></span></div><div class="tlbody"></div></div>';
+ tlEl.querySelector('.tlx').onclick=tlClose;document.body.appendChild(tlEl);document.body.classList.add('noscroll');body(tlEl.querySelector('.tlbody'),tlEl.querySelector('.tlbar span'));return tlEl}
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&tlEl)tlClose()});
+function tlGloss(m){var G=glossBuild(),all=[];for(var k in G){var g=G[k];if(trk(g.ui)!==m)continue;var l=UNITS[g.ui].lessons[g.li];all.push({g:g,met:!!S.done[l.id]})}
+ all.sort(function(a,b){return a.g.t.toLowerCase()<b.g.t.toLowerCase()?-1:1});
  tlOpen('📖 '+tlName(m)+' glossary',function(B){var met=all.filter(function(x){return x.met}).length;
   B.innerHTML='<p class="tlnote">'+met+' of '+all.length+' key words met so far. Each one is explained in the words of the lesson it came from.</p><input type="search" class="tlq" placeholder="Search a word…" aria-label="Search the glossary"><label class="tlck"><input type="checkbox"> Show words from lessons you haven\'t done yet</label><div class="tllist"></div>';
   var q=B.querySelector('.tlq'),ck=B.querySelector('.tlck input'),L=B.querySelector('.tllist');
@@ -30,6 +80,63 @@ var renderLearn_tl=renderLearn;renderLearn=function(){var out=renderLearn_tl.app
  '.tlkey{display:flex;flex-direction:column;gap:3px;font-size:13px;border-top:1px dashed var(--line);padding-top:6px}.tlkr{display:flex;gap:10px}.tlks{min-width:44px;font-weight:800;font-family:"Cambria Math","STIX Two Math",serif}'+
  '@media print{body.tlprint>*:not(.tlov){display:none!important}body.tlprint .tlov{position:static;overflow:visible;padding:0;background:#fff;color:#000}body.tlprint .tlbar{display:none}body.tlprint .tlf{border:1px solid #999}}';
  document.head.appendChild(st)})();
+
+/* ===== Quantum lab: draw any potential, find its energy levels, or fire a wave packet at it (units: ħ = m = 1, box width 1) ===== */
+var QL_N=240;
+function qlPreset(name,N){var V=new Float64Array(N),i,x;for(i=0;i<N;i++){x=(i+1)/(N+1);
+  switch(name){case 'box':V[i]=0;break;case 'ho':V[i]=0.5*100*100*(x-0.5)*(x-0.5);break;case 'double':V[i]=(Math.abs(x-0.5)<0.04?900:0)+(x<0.18||x>0.82?2000:0);break;
+   case 'finite':V[i]=Math.abs(x-0.5)<0.2?0:600;break;case 'barrier':V[i]=Math.abs(x-0.55)<0.03?1500:0;break;case 'step':V[i]=x>0.5?1000:0;break;
+   case 'lattice':V[i]=(x>0.1&&x<0.9&&((x-0.1)/0.1)%1<0.25)?1500:(x<=0.1||x>=0.9?3000:0);break;case 'linear':V[i]=1600*x;break}}return V}
+function qlEig(V,dx,K){var N=V.length,e=-0.5/(dx*dx),d=new Float64Array(N),lo=1e18,hi=-1e18,i;for(i=0;i<N;i++){d[i]=1/(dx*dx)+V[i];lo=Math.min(lo,d[i]);hi=Math.max(hi,d[i])}lo-=2*Math.abs(e);hi+=2*Math.abs(e);
+ function cnt(l){var c=0,q=1;for(var i=0;i<N;i++){q=d[i]-l-(i?e*e/q:0);if(q===0)q=1e-300;if(q<0)c++}return c}
+ var out=[];for(var k=0;k<K;k++){var a=lo,b=hi;for(var it=0;it<70;it++){var m=(a+b)/2;if(cnt(m)>k)b=m;else a=m}var lam=(a+b)/2;
+  var x=new Float64Array(N),cp=new Float64Array(N),y=new Float64Array(N);for(i=0;i<N;i++)x[i]=1+0.01*Math.sin(i*1.7+k);var sh=lam+1e-7*Math.max(1,Math.abs(lam));
+  for(var r=0;r<4;r++){var bb=d[0]-sh;cp[0]=e/bb;y[0]=x[0]/bb;for(i=1;i<N;i++){var den=d[i]-sh-e*cp[i-1];if(Math.abs(den)<1e-300)den=1e-300;cp[i]=e/den;y[i]=(x[i]-e*y[i-1])/den}
+   x[N-1]=y[N-1];for(i=N-2;i>=0;i--)x[i]=y[i]-cp[i]*x[i+1];var nrm=0;for(i=0;i<N;i++)nrm+=x[i]*x[i];nrm=Math.sqrt(nrm*dx);for(i=0;i<N;i++)x[i]/=nrm}
+  var s=0;for(i=0;i<N;i++)if(Math.abs(x[i])>Math.abs(s))s=x[i];if(s<0)for(i=0;i<N;i++)x[i]=-x[i];out.push({E:lam,psi:x})}return out}
+function qlCN(V,dx,dt){var N=V.length,e=-0.5/(dx*dx),h=dt/2,ar=0,ai=h*e,cr=new Float64Array(N),ci=new Float64Array(N),br=1;
+ /* A = 1 + i h H: diag 1 + i h d, off i h e. Precompute the Thomas sweep. */
+ for(var i=0;i<N;i++){var dr=1,di=h*(1/(dx*dx)+V[i]);if(i){/* den = diag - off*c[i-1] */var pr=ar*cr[i-1]-ai*ci[i-1],pi=ar*ci[i-1]+ai*cr[i-1];dr-=pr;di-=pi}var m=dr*dr+di*di;cr[i]=(ar*dr+ai*di)/m;ci[i]=(ai*dr-ar*di)/m;}
+ var Dr=new Float64Array(N),Di=new Float64Array(N);for(i=0;i<N;i++){var dr2=1,di2=h*(1/(dx*dx)+V[i]);if(i){dr2-=ar*cr[i-1]-ai*ci[i-1];di2-=ar*ci[i-1]+ai*cr[i-1]}Dr[i]=dr2;Di[i]=di2}
+ var yr=new Float64Array(N),yi=new Float64Array(N),rr=new Float64Array(N),ri=new Float64Array(N);
+ return function(pr,pi){var i;/* rhs = (1 - i h H) psi */for(i=0;i<N;i++){var hd=h*(1/(dx*dx)+V[i]),Lr=(i?pr[i-1]:0)+(i<N-1?pr[i+1]:0),Li=(i?pi[i-1]:0)+(i<N-1?pi[i+1]:0);
+   /* (1 - i h d) psi_i - i h e (neighbours) */rr[i]=pr[i]+hd*pi[i]+h*e*Li;ri[i]=pi[i]-hd*pr[i]-h*e*Lr}
+  for(i=0;i<N;i++){var nr=rr[i],ni=ri[i];if(i){nr-=ar*yr[i-1]-ai*yi[i-1];ni-=ar*yi[i-1]+ai*yr[i-1]}var m=Dr[i]*Dr[i]+Di[i]*Di[i];yr[i]=(nr*Dr[i]+ni*Di[i])/m;yi[i]=(ni*Dr[i]-nr*Di[i])/m}
+  pr[N-1]=yr[N-1];pi[N-1]=yi[N-1];for(i=N-2;i>=0;i--){pr[i]=yr[i]-(cr[i]*pr[i+1]-ci[i]*pi[i+1]);pi[i]=yi[i]-(cr[i]*pi[i+1]+ci[i]*pr[i+1])}}}
+function qlabOpen(){tlOpen('🧪 Quantum lab',function(B){var N=QL_N,dx=1/(N+1),V=qlPreset('ho',N),mode='levels',drawOn=false,eig=null,sel=0,pr=new Float64Array(N),pi=new Float64Array(N),step=null,playing=false,t=0,raf=0;
+  B.innerHTML='<p class="tlnote">Pick a shape or draw your own potential, then see the energy levels it allows, or fire a wave packet at it. Units: ħ = m = 1, box width 1.</p>';
+  var tabs=el('div','qltabs',null,B);var tL=btn(tabs,'📊 Energy levels',function(){setMode('levels')}),tW=btn(tabs,'🌊 Wave packet',function(){setMode('wave')});
+  var pre=el('div','qlpre',null,B);[['ho','Oscillator'],['box','Box'],['finite','Finite well'],['double','Double well'],['barrier','Barrier'],['step','Step'],['lattice','Crystal'],['linear','Slope']].forEach(function(p){btn(pre,p[1],function(){V=qlPreset(p[0],N);changed()})});
+  var dB=btn(pre,'✏️ Draw',function(){drawOn=!drawOn;dB.classList.toggle('pri',drawOn);hint.textContent=drawOn?'Drag across the picture to draw the potential. Higher means more energy needed to be there.':HINTS[mode]});
+  var cv=canvas(B,330);cv.style.width='100%';cv.style.touchAction='none';cv.className='qlcv';
+  var hint=el('p','tlnote qlhint','',B),info=el('div','qlinfo','',B),ctl=el('div','qlctl',null,B);
+  var HINTS={levels:'Tap a level to see its wavefunction. Try Double well: the levels come in close pairs. Try Crystal: they bunch into bands, which is why metals conduct and insulators don\'t.',wave:'Press Play. Try Barrier with a packet that has more energy than the barrier: some still bounces back. Turn the energy down and some still gets through: tunnelling.'};
+  var sx=slider(ctl,'Start',0.1,0.5,0.01,0.25,function(v){return v.toFixed(2)},function(){reset()}),sk=slider(ctl,'Energy',200,3000,10,1200,function(v){return v.toFixed(0)},function(){reset()}),sw=slider(ctl,'Width',0.02,0.08,0.005,0.04,function(v){return v.toFixed(3)},function(){reset()});
+  var pc=el('div','wrow',null,ctl),pb=btn(pc,'▶ Play',function(){playing=!playing;pb.textContent=playing?'⏸ Pause':'▶ Play';if(playing)loop()});btn(pc,'↺ Reset',function(){reset()});
+  function Ytop(){if(mode==='wave')return 3000;var m=eig&&eig.length?eig[Math.min(9,eig.length-1)].E*1.15:500;return Math.max(150,Math.min(3000,m))}
+  function changed(){eig=null;step=null;if(mode==='levels'){eig=qlEig(V,dx,10);sel=Math.min(sel,9)}else reset();draw()}
+  function setMode(m){mode=m;playing=false;pb.textContent='▶ Play';tL.classList.toggle('pri',m==='levels');tW.classList.toggle('pri',m==='wave');ctl.style.display=m==='wave'?'':'none';hint.textContent=HINTS[m];changed()}
+  function reset(){var x0=sx.get(),k=Math.sqrt(2*sk.get()),s=sw.get(),n=0,i;t=0;for(i=0;i<N;i++){var x=(i+1)*dx,g=Math.exp(-(x-x0)*(x-x0)/(4*s*s));pr[i]=g*Math.cos(k*x);pi[i]=g*Math.sin(k*x);n+=g*g}n=Math.sqrt(n*dx);for(i=0;i<N;i++){pr[i]/=n;pi[i]/=n}step=qlCN(V,dx,4e-6);draw()}
+  function loop(){cancelAnimationFrame(raf);if(!playing||!cv.isConnected)return;for(var j=0;j<12;j++)step(pr,pi);t+=12*4e-6;draw();raf=requestAnimationFrame(loop)}
+  function draw(){if(!cv.isConnected)return;var g=prep(cv),c=g.c,W=g.W,H=g.H,top=Ytop(),px=function(i){return (i+1)*dx*W},py=function(v){return H-6-(H-14)*Math.min(1,v/top)};
+   c.fillStyle=cssv('--line');c.globalAlpha=0.55;c.beginPath();c.moveTo(0,H);for(var i=0;i<N;i++)c.lineTo(px(i),py(V[i]));c.lineTo(W,H);c.closePath();c.fill();c.globalAlpha=1;
+   c.strokeStyle=cssv('--muted');c.lineWidth=1.5;c.beginPath();for(i=0;i<N;i++){if(i)c.lineTo(px(i),py(V[i]));else c.moveTo(px(i),py(V[i]))}c.stroke();
+   c.fillStyle=cssv('--muted');c.font='11px system-ui';c.fillText('V(x)',6,14);
+   if(mode==='levels'&&eig){var amp=(H*0.07);eig.forEach(function(s,n){if(s.E>top)return;var y=py(s.E),on=n===sel;c.strokeStyle=on?cssv('--accent'):cssv('--muted');c.globalAlpha=on?1:0.45;c.lineWidth=on?2:1;c.setLineDash(on?[]:[4,4]);c.beginPath();c.moveTo(0,y);c.lineTo(W,y);c.stroke();c.setLineDash([]);
+     var mx=0;for(var i=0;i<N;i++)mx=Math.max(mx,Math.abs(s.psi[i]));c.lineWidth=on?2.5:1.2;c.strokeStyle=on?cssv('--accent'):'#4aa3ff';c.beginPath();for(i=0;i<N;i++){var yy=y-amp*(on?1.4:0.8)*s.psi[i]/mx;if(i)c.lineTo(px(i),yy);else c.moveTo(px(i),yy)}c.stroke();c.globalAlpha=1;c.fillStyle=on?cssv('--accent'):cssv('--muted');c.fillText('E'+(n+1),W-24,y-3)});
+    var s0=eig[sel],e1=eig[0].E;info.innerHTML='<b>Level '+(sel+1)+':</b> E = '+s0.E.toFixed(1)+' &nbsp;·&nbsp; E/E₁ = '+(s0.E/e1).toFixed(2)+' &nbsp;·&nbsp; nodes: '+sel+'<div class="qlrat">'+eig.slice(0,6).map(function(s,n){return '<span'+(n===sel?' class="on"':'')+'>E'+(n+1)+' '+s.E.toFixed(0)+'</span>'}).join('')+'</div>'}
+   if(mode==='wave'){var p2=[],mx=0,L=0,R=0,mid=0.5;for(i=0;i<N;i++){var q=pr[i]*pr[i]+pi[i]*pi[i];p2.push(q);mx=Math.max(mx,q);if((i+1)*dx<mid)L+=q*dx;else R+=q*dx}
+    var base=py(sk.get()),sc=(H*0.5)/Math.max(mx,1e-9);c.strokeStyle=cssv('--muted');c.setLineDash([4,4]);c.beginPath();c.moveTo(0,base);c.lineTo(W,base);c.stroke();c.setLineDash([]);c.fillText('packet energy',6,base-4);
+    c.strokeStyle='#4aa3ff';c.lineWidth=1;c.globalAlpha=0.6;c.beginPath();for(i=0;i<N;i++){var yy=base-pr[i]*Math.sqrt(sc)*0.7;if(i)c.lineTo(px(i),yy);else c.moveTo(px(i),yy)}c.stroke();c.globalAlpha=1;
+    c.fillStyle=cssv('--accent');c.globalAlpha=0.35;c.beginPath();c.moveTo(0,base);for(i=0;i<N;i++)c.lineTo(px(i),base-p2[i]*sc);c.lineTo(W,base);c.closePath();c.fill();c.globalAlpha=1;c.strokeStyle=cssv('--accent');c.lineWidth=2;c.beginPath();for(i=0;i<N;i++){if(i)c.lineTo(px(i),base-p2[i]*sc);else c.moveTo(px(i),base-p2[i]*sc)}c.stroke();
+    info.innerHTML='<b>t = '+(t*1000).toFixed(2)+'</b> (×10⁻³) &nbsp;·&nbsp; left half '+(L*100).toFixed(0)+'% &nbsp;·&nbsp; right half '+(R*100).toFixed(0)+'%<div class="qlrat"><span>shaded: |ψ|², the probability</span><span style="color:#4aa3ff">line: the real part of ψ</span></div>'}}
+  var last=-1;function at(e){var r=cv.getBoundingClientRect();return [(e.clientX-r.left)/r.width,(e.clientY-r.top)/r.height]}
+  function paintV(e){var p=at(e),i=Math.round(p[0]*(N+1))-1,v=Math.max(0,(1-(p[1]*cv.clientHeight-6)/(cv.clientHeight-14)))*Ytop();i=Math.max(0,Math.min(N-1,i));if(last<0)last=i;var a=Math.min(last,i),b=Math.max(last,i);for(var j=a;j<=b;j++)V[j]=Math.min(3000,v);last=i;draw()}
+  cv.addEventListener('pointerdown',function(e){if(drawOn){cv.setPointerCapture(e.pointerId);last=-1;paintV(e);return}if(mode==='levels'&&eig){var p=at(e),y=p[1]*cv.clientHeight,top=Ytop(),best=0,bd=1e9;eig.forEach(function(s,n){var yy=cv.clientHeight-6-(cv.clientHeight-14)*Math.min(1,s.E/top),dd=Math.abs(yy-y);if(dd<bd){bd=dd;best=n}});sel=best;draw()}});
+  cv.addEventListener('pointermove',function(e){if(drawOn&&e.buttons)paintV(e)});cv.addEventListener('pointerup',function(){if(drawOn){last=-1;changed()}});
+  onDraw(draw);setMode('levels')})}
+TL_EXTRA.push(function(m){return m==='qm'?['🧪','Quantum lab',qlabOpen]:null});
+(function(){var st=document.createElement('style');st.textContent='.qltabs,.qlpre{display:flex;gap:6px;flex-wrap:wrap}.qlpre .wbtn{font-size:12.5px;padding:6px 10px}.qlcv{border-radius:12px;background:var(--panel);border:1px solid var(--line)}.qlinfo{font-size:14px;line-height:1.5}.qlrat{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;font-size:12px;color:var(--muted)}.qlrat span{border:1px solid var(--line);border-radius:7px;padding:1px 6px}.qlrat span.on{border-color:var(--accent);color:var(--accent);font-weight:800}.qlctl{display:flex;flex-direction:column;gap:4px}';document.head.appendChild(st)})();
 
 /* ===== Spot the wrong step: proof practice for Calculus 15–21 and Quantum ===== */
 WIDGETS.spotStep=function(box,par){par=par||{};var sel=-1,locked=false;
@@ -512,6 +619,181 @@ W('calcDrill',{skill:['m_tensor','m_index','m_invm'],need:5,title:'Relativity an
 T(`<h3>Key points</h3><ul><li><b>A<sup>μ</sup> = (φ/c, A)</b>; <b>F<sub>μν</sub> = ∂<sub>μ</sub>A<sub>ν</sub> − ∂<sub>ν</sub>A<sub>μ</sub></b> contains E and B.</li><li>Maxwell's equations: ∂<sub>μ</sub>F<sup>μν</sup> = μ<sub>0</sub>J<sup>ν</sup> (plus two automatic ones).</li><li>F is unchanged by gauge transformations: the root of QED.</li><li>You now have the maths for the Dirac equation and quantum field theory.</li></ul>`)])]});
 GOALS.calc21={icon:'μν',title:'Master relativity and tensors',story:'The last maths you need before quantum field theory.',final:'Ready for quantum field theory',steps:['Special relativity','Tensors and index notation']};
 
+/* ===== Calculus Levels 22–23: numerical methods, probability and statistics ===== */
+/* -- simulations -- */
+WIDGETS.mFDiff=function(box,par){par=par||{};var cv=canvas(box,230),sp=slider(box,'Step h = 10^',-14,-0.5,0.1,-1,function(v){return v.toFixed(1)},function(){draw()}),st=stats(box,[['h','h'],['f','Forward error'],['c','Central error']]);if(par.goal)qChal(box,'Find a step h that gets the central-difference error below 10⁻⁹.');
+ var x=1,ex=Math.cos(1);function errs(h){return [Math.abs((Math.sin(x+h)-Math.sin(x))/h-ex)||1e-17,Math.abs((Math.sin(x+h)-Math.sin(x-h))/(2*h)-ex)||1e-17]}
+ function draw(){var g=prep(cv),c=g.c,W=g.W,H=g.H,L=36,R=W-10,T=10,B=H-26,X=function(p){return L+(p+14)/13.5*(R-L)},Y=function(e){var l=Math.log10(Math.max(e,1e-17));return T+(1-(l+17)/17)*(B-T)};
+  c.strokeStyle=cssv('--line');c.lineWidth=1;c.beginPath();c.moveTo(L,T);c.lineTo(L,B);c.lineTo(R,B);c.stroke();c.fillStyle=cssv('--muted');c.font='10px system-ui';[-15,-10,-5,0].forEach(function(l){c.fillText('10'+(l?l:'⁰').toString().replace('-','⁻'),2,Y(Math.pow(10,l))+3)});c.fillText('step h →  (10⁻¹⁴ … 1)',L+4,H-8);
+  [[0,'#e8742a','forward'],[1,cssv('--accent'),'central']].forEach(function(k,j){c.strokeStyle=k[1];c.lineWidth=2;c.beginPath();for(var p=-14;p<=-0.5;p+=0.05){var e=errs(Math.pow(10,p))[k[0]];if(p===-14)c.moveTo(X(p),Y(e));else c.lineTo(X(p),Y(e))}c.stroke();c.fillStyle=k[1];c.fillText(k[2],R-60,T+12+j*13)});
+  var p=sp.get(),h=Math.pow(10,p),E=errs(h);c.strokeStyle=cssv('--muted');c.setLineDash([3,3]);c.beginPath();c.moveTo(X(p),T);c.lineTo(X(p),B);c.stroke();c.setLineDash([]);[0,1].forEach(function(k){c.fillStyle=k?cssv('--accent'):'#e8742a';c.beginPath();c.arc(X(p),Y(E[k]),4,0,7);c.fill()});
+  st.h.textContent=h.toExponential(1);st.f.textContent=E[0].toExponential(1);st.c.textContent=E[1].toExponential(1)}
+ onDraw(draw);draw();el('p','small','Estimating the derivative of sin x at x = 1. Big h: the formula\'s own error (truncation). Tiny h: the computer\'s rounding error, which grows as h shrinks.',box);
+ if(par.goal)return {check:function(){var e=errs(Math.pow(10,sp.get()))[1];return e<1e-9?{ok:true,msg:'Central error '+e.toExponential(1)+'. The sweet spot is around h = 10⁻⁵: big enough to dodge rounding error, small enough that the h² truncation error is tiny.'}:{ok:false,msg:'Central error is '+e.toExponential(1)+'. '+(sp.get()>-4?'Make h smaller.':'Too small: rounding error has taken over. Make h bigger.')}}}};
+WIDGETS.mEuler=function(box,par){par=par||{};var meth='euler',cv=canvas(box,220),r=row(box),bs={};[['euler','Euler'],['leap','Leapfrog'],['rk4','RK4']].forEach(function(m){bs[m[0]]=btn(r,m[1],function(){meth=m[0];draw()})});
+ var sh=slider(box,'Step h',0.02,1,0.01,0.2,function(v){return v.toFixed(2)},function(){draw()}),st=stats(box,[['n','Steps to t = 20'],['e','Error at t = 20'],['E','Energy drift']]);if(par.goal)qChal(box,'Get the error at t = 20 under 0.01 with a step of at least h = 0.25.');
+ function run(h){var x=1,v=0,t=0,pts=[[0,1]],n=0;while(t<20-1e-9){var hh=Math.min(h,20-t);if(meth==='euler'){var nx=x+hh*v,nv=v-hh*x;x=nx;v=nv}else if(meth==='leap'){v-=0.5*hh*x;x+=hh*v;v-=0.5*hh*x}else{var f=function(X,V){return [V,-X]},k1=f(x,v),k2=f(x+hh/2*k1[0],v+hh/2*k1[1]),k3=f(x+hh/2*k2[0],v+hh/2*k2[1]),k4=f(x+hh*k3[0],v+hh*k3[1]);x+=hh/6*(k1[0]+2*k2[0]+2*k3[0]+k4[0]);v+=hh/6*(k1[1]+2*k2[1]+2*k3[1]+k4[1])}t+=hh;n++;pts.push([t,x])}return {x:x,v:v,pts:pts,n:n}}
+ var last=null;function draw(){for(var k in bs)bs[k].classList.toggle('pri',k===meth);var h=sh.get(),R=run(h);last=R;var g=prep(cv),c=g.c,W=g.W,H=g.H,X=function(t){return 8+t/20*(W-16)},Y=function(y){return H/2-y*(H/2-14)/2.2};
+  c.strokeStyle=cssv('--line');c.beginPath();c.moveTo(8,H/2);c.lineTo(W-8,H/2);c.stroke();c.strokeStyle=cssv('--muted');c.lineWidth=1.5;c.beginPath();for(var t=0;t<=20;t+=0.05){var yy=Math.max(-2.5,Math.min(2.5,Math.cos(t)));if(t===0)c.moveTo(X(t),Y(yy));else c.lineTo(X(t),Y(yy))}c.stroke();
+  c.save();c.beginPath();c.rect(0,20,W,H-22);c.clip();c.strokeStyle=cssv('--accent');c.lineWidth=2;c.beginPath();R.pts.forEach(function(p,i){var yy=Math.max(-50,Math.min(50,p[1]));if(i)c.lineTo(X(p[0]),Y(yy));else c.moveTo(X(p[0]),Y(yy))});c.stroke();c.fillStyle=cssv('--accent');R.pts.forEach(function(p){if(Math.abs(p[1])<2.6){c.beginPath();c.arc(X(p[0]),Y(p[1]),2,0,7);c.fill()}});c.restore();
+  c.fillStyle=cssv('--muted');c.font='11px system-ui';c.fillText('grey: exact x = cos t   ·   colour: the computer\'s answer',10,14);
+  var err=Math.abs(R.x-Math.cos(20)),E=(R.x*R.x+R.v*R.v)/1-1;st.n.textContent=R.n;st.e.textContent=err<1e-4?err.toExponential(1):err.toFixed(3);st.E.textContent=(E>=0?'+':'')+(Math.abs(E)<1e-4?E.toExponential(1):(E*100).toFixed(1)+'%')}
+ onDraw(draw);draw();el('p','small','A spring: x″ = −x, starting at x = 1. Euler spirals outwards (energy grows), leapfrog wobbles but keeps energy, RK4 is accurate even with big steps.',box);
+ if(par.goal)return {check:function(){var h=sh.get(),err=Math.abs(last.x-Math.cos(20));return h>=0.25&&err<0.01?{ok:true,msg:'Error '+err.toExponential(1)+' with h = '+h.toFixed(2)+': RK4\'s error shrinks like h⁴, so you can take big steps. That\'s why it\'s the workhorse for ODEs.'}:{ok:false,msg:h<0.25?'Use a step of at least 0.25.':'Error is '+err.toFixed(3)+'. Try a more accurate method.'}}}};
+WIDGETS.mFDEig=function(box,par){par=par||{};var cv=canvas(box,220),sn=slider(box,'Grid points N',3,60,1,6,function(v){return v.toFixed(0)},function(){draw()}),r=row(box),lev=0,bs=[];[1,2,3].forEach(function(n){bs.push(btn(r,'Level '+n,function(){lev=n-1;draw()}))});var st=stats(box,[['c','Computer E'],['x','Exact E'],['e','Error']]);if(par.goal)qChal(box,'Use the fewest grid points that get Level 1 within 0.1% of the exact energy.');
+ var last=null;function draw(){bs.forEach(function(b,i){b.classList.toggle('pri',i===lev)});var N=Math.round(sn.get()),dx=1/(N+1),V=new Float64Array(N),E=qlEig(V,dx,3),n=lev+1,ex=Math.PI*Math.PI*n*n/2,s=E[lev];last={N:N,err:Math.abs(E[0].E-Math.PI*Math.PI/2)/(Math.PI*Math.PI/2)};
+  var g=prep(cv),c=g.c,W=g.W,H=g.H,X=function(x){return 10+x*(W-20)},Y=function(y){return H/2-y*(H/2-16)/1.6};c.strokeStyle=cssv('--line');c.beginPath();c.moveTo(10,H/2);c.lineTo(W-10,H/2);c.stroke();
+  c.strokeStyle=cssv('--muted');c.lineWidth=1.5;c.beginPath();for(var x=0;x<=1.0001;x+=0.005){var y=Math.SQRT2*Math.sin(n*Math.PI*x);if(x===0)c.moveTo(X(x),Y(y));else c.lineTo(X(x),Y(y))}c.stroke();
+  var sg=s.psi[0]*Math.sin(n*Math.PI*dx)<0?-1:1;c.strokeStyle=cssv('--accent');c.lineWidth=2;c.beginPath();c.moveTo(X(0),Y(0));for(var i=0;i<N;i++)c.lineTo(X((i+1)*dx),Y(sg*s.psi[i]));c.lineTo(X(1),Y(0));c.stroke();c.fillStyle=cssv('--accent');for(i=0;i<N;i++){c.beginPath();c.arc(X((i+1)*dx),Y(sg*s.psi[i]),3.5,0,7);c.fill()}
+  c.fillStyle=cssv('--muted');c.font='11px system-ui';c.fillText('grey: exact ψ   ·   dots: the computer\'s ψ on the grid',12,14);st.c.textContent=s.E.toFixed(3);st.x.textContent=ex.toFixed(3);st.e.textContent=(Math.abs(s.E-ex)/ex*100).toFixed(2)+'%'}
+ onDraw(draw);draw();el('p','small','Particle in a box (ħ = m = 1, width 1). The computer replaces d²ψ/dx² by (ψ<sub>i+1</sub> − 2ψ<sub>i</sub> + ψ<sub>i−1</sub>)/Δx², turning the Schrödinger equation into a matrix eigenvalue problem.',box);
+ if(par.goal)return {check:function(){return last.err<0.001?{ok:true,msg:'N = '+last.N+' gets within '+(last.err*100).toFixed(3)+'%. The error falls like 1/N²: double the points, quarter the error. About 28 points is the minimum here.'}:{ok:false,msg:'Level 1 is off by '+(last.err*100).toFixed(2)+'%. Add more grid points.'}}}};
+WIDGETS.mMC=function(box,par){par=par||{};var cv=canvas(box,200),sd=slider(box,'Slab thickness (mean free paths)',0.5,8,0.1,2,function(v){return v.toFixed(1)},function(){run()}),sc=slider(box,'Chance of absorption per collision',0,0.9,0.05,0.3,function(v){return v.toFixed(2)},function(){run()}),sn=slider(box,'Neutrons simulated',100,5000,100,1000,function(v){return v.toFixed(0)},function(){run()});
+ var r=row(box);btn(r,'🎲 Run again',function(){run()});var st=stats(box,[['t','Get through'],['r','Bounce back'],['a','Absorbed']]);if(par.goal)qChal(box,'With absorption 0.3, make the slab thick enough that under 1% of neutrons get through (simulate at least 1000).');var res=null;
+ function run(){var d=sd.get(),ca=sc.get(),N=Math.round(sn.get()),T=0,Rf=0,A=0,tr=[];for(var k=0;k<N;k++){var x=0,y=0,mu=1,path=k<30?[[0,(k+0.5)/30]]:null,y0=(k+0.5)/30;y=0;for(var s=0;s<500;s++){var l=-Math.log(1-Math.random()),sn2=Math.sqrt(1-mu*mu)*(Math.random()<0.5?-1:1);x+=mu*l;y+=sn2*l;if(path)path.push([Math.max(-0.3,Math.min(d+0.3,x)),y0+y/(4*d+4)]);if(x<0){Rf++;break}if(x>d){T++;break}if(Math.random()<ca){A++;break}mu=2*Math.random()-1}if(path)tr.push(path)}
+  res={T:T/N,R:Rf/N,A:A/N,N:N,ca:ca,d:d,tr:tr};draw()}
+ function draw(){if(!res)return;var g=prep(cv),c=g.c,W=g.W,H=g.H,d=res.d,X=function(x){return 30+(x+0.3)/(d+0.6)*(W-60)},Y=function(y){return 8+y*(H-16)};c.fillStyle=cssv('--line');c.globalAlpha=0.45;c.fillRect(X(0),4,X(d)-X(0),H-8);c.globalAlpha=1;
+  res.tr.forEach(function(p){c.strokeStyle=cssv('--accent');c.globalAlpha=0.6;c.lineWidth=1;c.beginPath();p.forEach(function(q,i){var yy=Math.max(0,Math.min(1,q[1]));if(i)c.lineTo(X(q[0]),Y(yy));else c.moveTo(X(q[0])-20,Y(yy))});c.stroke();c.globalAlpha=1;var q=p[p.length-1];if(q[0]>=0&&q[0]<=d){c.fillStyle='#d9534f';c.beginPath();c.arc(X(q[0]),Y(Math.max(0,Math.min(1,q[1]))),2.5,0,7);c.fill()}});
+  c.fillStyle=cssv('--muted');c.font='11px system-ui';c.fillText('neutrons in →',2,12);c.fillText('red dot: absorbed',W-100,H-6);
+  function f(p){var e=Math.sqrt(p*(1-p)/res.N);return (p*100).toFixed(1)+'% ± '+(e*100).toFixed(1)}st.t.textContent=f(res.T);st.r.textContent=f(res.R);st.a.textContent=f(res.A)}
+ onDraw(draw);run();el('p','small','Each neutron flies a random distance (exponential, mean = 1 mean free path), then is absorbed or scatters in a random direction. The ± is the statistical error, which shrinks like 1/√N. This is how codes like MCNP and OpenMC design reactors.',box);
+ if(par.goal)return {check:function(){return res.N>=1000&&Math.abs(res.ca-0.3)<0.001&&res.T<0.01?{ok:true,msg:'Only '+(res.T*100).toFixed(1)+'% get through a '+res.d.toFixed(1)+'-mean-free-path slab. Without scattering it would be e^(−d) = '+(Math.exp(-res.d)*100).toFixed(2)+'%: scattering lets some neutrons wander through, and others bounce back.'}:{ok:false,msg:Math.abs(res.ca-0.3)>=0.001?'Set the absorption chance to 0.30.':res.N<1000?'Simulate at least 1000 neutrons.':(res.T*100).toFixed(1)+'% still get through. Make the slab thicker.'}}}};
+/* -- practice generators -- */
+function n4(x){return nSF(x,4)}
+CGEN.cn_euler=function(){var F=cP([['x + y',function(x,y){return x+y}],['2y',function(x,y){return 2*y}],['x − y',function(x,y){return x-y}],['xy',function(x,y){return x*y}]]),x0=cP([0,1]),y0=mI(1,4),h=cP([0.1,0.2,0.5]),fv=F[1](x0,y0),y1=y0+h*fv;
+ return {p:'dy/dx = '+F[0]+', with y('+x0+') = '+y0+'. Take one Euler step with h = '+h+'. What is y('+cNum(x0+h)+')?',b:[cB(n4(y1),'y₁ = ','','',false,0.005)],e:'y₁ = y₀ + h·f(x₀, y₀) = '+y0+' + '+h+' × '+cNum(fv)+' = '+cNum(n4(y1))+'. Follow the slope for one step.'}};
+CGEN.cn_cdiff=function(){var a=mI(1,4),h=cP([0.1,0.2,0.5]),est=3*a*a+h*h;return {p:'f(x) = x³. Use the central difference [f(x + h) − f(x − h)] ÷ 2h with h = '+h+' to estimate f′('+a+'). (4 s.f.)',b:[cB(n4(est),'f′ ≈ ','','',false,0.002)],e:'['+cNum(n4(Math.pow(a+h,3)))+' − '+cNum(n4(Math.pow(a-h,3)))+'] ÷ '+cNum(2*h)+' = '+cNum(n4(est))+'. The exact answer is 3x² = '+(3*a*a)+'; the error, h² = '+cNum(n4(h*h))+', shrinks like h².'}};
+CGEN.cn_trap=function(){var b=mI(1,3),n=cP([2,4]),h=b/n,s=0;for(var i=0;i<=n;i++){var f=Math.pow(i*h,2);s+=(i===0||i===n)?f:2*f}var T=h/2*s;return {p:'Use the trapezium rule with '+n+' strips to estimate ∫₀<sup>'+b+'</sup> x² dx. (4 s.f.)',b:[cB(n4(T),'≈ ','','',false,0.002)],e:'h = '+cNum(h)+'. T = (h/2)[f₀ + 2(middle values) + f<sub>end</sub>] = '+cNum(n4(T))+'. The exact answer is '+b+'³/3 = '+cNum(n4(b*b*b/3))+': the trapezium overestimates a curve that bends upwards.'}};
+CGEN.cn_newton=function(){var a=cP([2,3,5,7,10]),x0=mI(1,3),x1=x0-(x0*x0-a)/(2*x0);return {p:'Use one step of Newton–Raphson on f(x) = x² − '+a+', starting at x₀ = '+x0+'. What is x₁? (4 s.f.)',b:[cB(n4(x1),'x₁ = ','','',false,0.002)],e:'x₁ = x₀ − f(x₀)/f′(x₀) = '+x0+' − ('+(x0*x0-a)+')/('+(2*x0)+') = '+cNum(n4(x1))+'. The root is √'+a+' = '+cNum(n4(Math.sqrt(a)))+'.'}};
+CGEN.cn_order=function(){var p=cP([1,2,4]),E=mI(2,9),k=mI(2,5),Ev=E*Math.pow(10,-k),nm={1:'Euler (order 1)',2:'the trapezium rule (order 2)',4:'RK4 (order 4)'}[p];return {p:'With '+nm+', the error is about '+E+' × 10⁻'+k+' using step h. Roughly what is it with step h/2? (3 s.f.)',b:[cB(nSF(Ev/Math.pow(2,p),3),'≈ ','','',false,0.01)],e:'Error ∝ h<sup>'+p+'</sup>, so halving h divides it by 2<sup>'+p+'</sup> = '+Math.pow(2,p)+': '+cNum(nSF(Ev/Math.pow(2,p),3))+'.'}};
+CGEN.cn_py=function(){var k=mI(0,7);return [
+ {p:'What does this print?<pre class="pyc">x = 0\nfor i in range(4):\n    x += i\nprint(x)</pre>',o:['6','10','4','3'],e:'range(4) is 0, 1, 2, 3, and 0 + 1 + 2 + 3 = 6. Python counts from 0 and stops before 4.'},
+ {p:'What does this print?<pre class="pyc">import numpy as np\na = np.array([1, 2, 3])\nprint(a * 2)</pre>',o:['[2 4 6]','[1 2 3 1 2 3]','12','An error'],e:'NumPy works on whole arrays at once: every element is doubled. (A plain Python list would repeat instead.)'},
+ {p:'What does this print?<pre class="pyc">y, h = 1.0, 0.5\nfor step in range(2):\n    y = y + h * (-y)\nprint(y)</pre>',o:['0.25','0.5','0.3679','0.0'],e:'Two Euler steps of dy/dt = −y: 1 → 0.5 → 0.25. The exact answer e⁻¹ = 0.368 shows how crude big Euler steps are.'},
+ {p:'What does this print?<pre class="pyc">import numpy as np\nprint(len(np.linspace(0, 1, 11)))</pre>',o:['11','10','12','1'],e:'linspace(0, 1, 11) gives 11 evenly spaced points, including both ends: 0, 0.1, …, 1.'},
+ {p:'What does this print?<pre class="pyc">import numpy as np\nprint(np.diff([1, 4, 9, 16]))</pre>',o:['[3 5 7]','[1 4 9 16]','[4 9 16]','[2 2]'],e:'diff takes differences of neighbours: 4 − 1, 9 − 4, 16 − 9. It\'s a finite-difference derivative with h = 1.'},
+ {p:'What does this print?<pre class="pyc">def f(x):\n    return x**2 - 2\nx = 1.0\nx = x - f(x) / (2*x)\nprint(x)</pre>',o:['1.5','1.0','1.414','0.5'],e:'One Newton–Raphson step for √2: 1 − (−1)/2 = 1.5. Another step gives 1.4167.'},
+ {p:'What does this print?<pre class="pyc">import numpy as np\nA = np.array([[2, 0], [0, 3]])\nprint(np.linalg.eigvalsh(A))</pre>',o:['[2. 3.]','[0. 0.]','5.0','[[2 0] [0 3]]'],e:'eigvalsh finds the eigenvalues of a symmetric (Hermitian) matrix. For a diagonal matrix they\'re the diagonal entries.'},
+ {p:'Roughly what does this print?<pre class="pyc">import numpy as np\nr = np.random.rand(100000)\nprint(np.mean(r < 0.3))</pre>',o:['About 0.3','About 0.5','Exactly 0','About 30000'],e:'rand gives uniform numbers from 0 to 1; 30% of them are below 0.3, and the mean of True/False values is that fraction. That\'s the heart of Monte Carlo.'}][k]};
+CGEN.cs_bayes=function(){var p=cP([0.01,0.02,0.05]),s=cP([0.9,0.95,0.99]),f=cP([0.05,0.1]),post=s*p/(s*p+f*(1-p));return {p:'A sensor checks fuel pins for leaks. '+(p*100)+'% of pins leak. It catches '+(s*100)+'% of leaking pins, but also flags '+(f*100)+'% of good ones. A pin is flagged. What is the probability it really leaks? (3 s.f.)',b:[cB(nSF(post,3),'P = ','','',false,0.01)],e:'Bayes: P(leak | flag) = P(flag | leak)P(leak) ÷ P(flag) = '+s+' × '+p+' ÷ ('+s+' × '+p+' + '+f+' × '+cNum(n4(1-p))+') = '+cNum(nSF(post,3))+'. Most flags are false alarms because good pins vastly outnumber leaking ones.'}};
+CGEN.cs_expect=function(){var P=cP([[0.1,0.2,0.3,0.4],[0.4,0.3,0.2,0.1],[0.25,0.25,0.25,0.25],[0.5,0.2,0.2,0.1],[0.1,0.4,0.4,0.1]]),m=0,m2=0;P.forEach(function(q,i){m+=i*q;m2+=i*i*q});var v=m2-m*m,w=Math.random()<0.5;
+ return {p:'X takes the values 0, 1, 2, 3 with probabilities '+P.join(', ')+'. What is '+(w?'the mean E[X]':'the variance Var(X)')+'? (3 s.f.)',b:[cB(nSF(w?m:v,3),w?'E[X] = ':'Var = ','','',false,0.01)],e:'E[X] = Σ x P(x) = '+cNum(n4(m))+'. E[X²] = Σ x² P(x) = '+cNum(n4(m2))+'. Var = E[X²] − E[X]² = '+cNum(nSF(v,3))+'.'}};
+function pC(n,k){var r=1;for(var i=1;i<=k;i++)r=r*(n-k+i)/i;return r}
+function pF(k){var r=1;for(var i=2;i<=k;i++)r*=i;return r}
+CGEN.cs_binom=function(){var n=mI(4,10),k=mI(0,Math.min(n,4)),p=cP([0.1,0.2,0.3,0.5]),P=pC(n,k)*Math.pow(p,k)*Math.pow(1-p,n-k);return {p:'Each of '+n+' detectors fires with probability '+p+', independently. What is the probability exactly '+k+' fire? (3 s.f.)',b:[cB(nSF(P,3),'P = ','','',false,0.01)],e:'Binomial: C('+n+', '+k+') p<sup>'+k+'</sup>(1 − p)<sup>'+(n-k)+'</sup> = '+pC(n,k)+' × '+p+'<sup>'+k+'</sup> × '+cNum(n4(1-p))+'<sup>'+(n-k)+'</sup> = '+cNum(nSF(P,3))+'.'}};
+CGEN.cs_poisson=function(){var l=cP([1,2,3,4,5]),k=mI(0,6),P=Math.exp(-l)*Math.pow(l,k)/pF(k);return {p:'A detector averages '+l+' count'+(l===1?'':'s')+' per second. What is the probability of exactly '+k+' count'+(k===1?'':'s')+' in one second? (3 s.f.)',b:[cB(nSF(P,3),'P = ','','',false,0.01)],e:'Poisson: e<sup>−λ</sup>λ<sup>k</sup>/k! = e<sup>−'+l+'</sup> × '+l+'<sup>'+k+'</sup> ÷ '+pF(k)+' = '+cNum(nSF(P,3))+'.'}};
+CGEN.cs_count=function(){if(Math.random()<0.5){var N=cP([100,400,900,2500,10000]);return {p:'A counter records '+N+' counts. What is the fractional uncertainty, as a percentage?',b:[cB(100/Math.sqrt(N),'','%','',false,0.01)],e:'Counting is Poisson, so σ = √N = '+Math.sqrt(N)+'. Fractional: √N/N = 1/√N = '+cNum(nSF(100/Math.sqrt(N),3))+'%.'}}var pc=cP([1,2,5,10]);return {p:'How many counts do you need for a '+pc+'% fractional uncertainty?',b:[cB(Math.round(1e4/(pc*pc)),'N = ','','',false,0.01)],e:'1/√N = '+(pc/100)+', so √N = '+(100/pc)+' and N = '+Math.round(1e4/(pc*pc))+'. Halving the error needs four times the counts.'}};
+CGEN.cs_normal=function(){if(Math.random()<0.5){var k=mI(0,2);return [{p:'For a normal distribution, roughly what fraction lies within 1σ of the mean?',o:['68%','95%','99.7%','50%'],e:'68–95–99.7: within 1σ, 2σ and 3σ.'},{p:'Roughly what fraction lies within 2σ of the mean?',o:['95%','68%','99.7%','90%'],e:'About 95%. A "2σ" result happens by chance about 1 time in 20.'},{p:'Particle physicists need "5σ" to claim a discovery. Why so strict?',o:['A 5σ fluke by chance is about 1 in 3.5 million','5σ means 5% error','It means 5 experiments agree','It is the 68% rule five times'],e:'With many searches, 2σ or 3σ flukes are common. 5σ makes a chance fluke very unlikely.'}][k]}
+ var mu=mI(50,200),s=mI(2,10),z=cP([-2,-1.5,-1,0.5,1,1.5,2,2.5]),x=mu+z*s;return {p:'Measurements are normal with mean '+mu+' and standard deviation '+s+'. What is the z-score of '+cNum(x)+'?',b:[cB(z,'z = ','','',false,0.01)],e:'z = (x − μ)/σ = ('+cNum(x)+' − '+mu+')/'+s+' = '+z+'.'}};
+CGEN.cs_survive=function(){var S=cP([0.1,0.2,0.5,0.05]),x=mI(1,10),P=Math.exp(-S*x);return {p:'Neutrons in a material with Σ = '+S+' cm⁻¹. What fraction travel '+x+' cm without a collision? (3 s.f.)',b:[cB(nSF(P,3),'','','',false,0.01)],e:'P = e<sup>−Σx</sup> = e<sup>−'+cNum(n4(S*x))+'</sup> = '+cNum(nSF(P,3))+'. The mean free path is 1/Σ = '+cNum(n4(1/S))+' cm.'}};
+CGEN.cs_comb=function(){if(Math.random()<0.5){var a=mI(2,9),b=mI(2,9),s=Math.sqrt(a*a+b*b);return {p:'A = 120 ± '+a+' and B = 80 ± '+b+' (independent). What is the uncertainty in A + B? (3 s.f.)',b:[cB(nSF(s,3),'± ','','',false,0.01)],e:'Independent uncertainties add in quadrature: √('+a+'² + '+b+'²) = '+cNum(nSF(s,3))+'. Less than '+(a+b)+', because the errors partly cancel.'}}
+ var fa=mI(1,5),fb=mI(1,5),f=Math.sqrt(fa*fa+fb*fb);return {p:'Q = A × B. A has a '+fa+'% uncertainty and B has '+fb+'%. What is the percentage uncertainty in Q? (3 s.f.)',b:[cB(nSF(f,3),'','%','',false,0.01)],e:'For products, fractional uncertainties add in quadrature: √('+fa+'² + '+fb+'²) = '+cNum(nSF(f,3))+'%.'}};
+CGEN.cs_mean=function(){var n=cP([4,9,16,25,100]),s=mI(2,9);return {p:'Each measurement has standard deviation '+s+'. You average '+n+' of them. What is the standard error of the mean? (3 s.f.)',b:[cB(nSF(s/Math.sqrt(n),3),'σ<sub>mean</sub> = ','','',false,0.01)],e:'σ/√n = '+s+'/√'+n+' = '+cNum(nSF(s/Math.sqrt(n),3))+'. Averaging beats down random error, but only like 1/√n.'}};
+/* -- Level 22: numerical methods -- */
+U({id:'mq22-1',track:'calc',level:22,title:'Calculus by computer',icon:'⌨',color:'#378ADD',desc:'Derivatives and integrals on a grid, finding roots, and turning the Schrödinger equation into a matrix.',lessons:[
+LH('mq22-1-1','Derivatives and integrals on a grid',12,'Most real equations can\'t be solved with pen and paper. Computers solve them by chopping space into small steps. Here\'s how, and the trap hiding in it.',[
+T(`<h3>A derivative from two points</h3><p>A computer only knows f at separate points. The derivative is a limit, so just use a small step h instead of the limit:</p><div class="eq">f′(x) ≈ [f(x + h) − f(x)] ÷ h</div>${KY([['f′(x)','the derivative (gradient) at x',''],['h','a small step','']])}<p>This is the <b>forward difference</b>. Its error is about proportional to h: halve h, halve the error.</p>`),
+T(`<h3>A better one: look both ways</h3><p>Step forward <i>and</i> back, and the leading errors cancel:</p><div class="eq">f′(x) ≈ [f(x + h) − f(x − h)] ÷ 2h</div>${KY([['f′(x)','the derivative at x',''],['h','the step each way','']])}<p>This <b>central difference</b> has error proportional to h². Halve h and the error falls by 4.</p>`),
+Q(`The central difference has error ∝ h². You make h ten times smaller. The error:`,[`Falls by 100 times`,`Falls by 10 times`,`Falls by 2 times`,`Stays the same`],0,`(1/10)² = 1/100.`),
+T(`<h3>The trap: rounding error</h3><p>So just use a tiny h? No. A computer stores about 16 digits. With h = 10⁻¹², f(x + h) and f(x) agree in almost every digit, and subtracting them throws most of the digits away. Rounding error grows like 1/h. Too big an h: the formula is inaccurate. Too small: the computer is. There\'s a sweet spot.</p>`),
+W('mFDiff',{goal:true},`Find the sweet spot.`),
+T(`<h3>Integrals: add up strips</h3><p>The <b>trapezium rule</b> splits the area into n strips of width h and treats each as a trapezium:</p><div class="eq">∫ f dx ≈ (h/2)[f₀ + 2f₁ + 2f₂ + … + 2f<sub>n−1</sub> + f<sub>n</sub>]</div>${KY([['h','the width of each strip',''],['f₀ … fₙ','f at the edges of the strips','']])}<p>Error ∝ h². <b>Simpson\'s rule</b> fits parabolas instead and has error ∝ h⁴.</p>`),
+W('calcDrill',{skill:['cn_cdiff','cn_trap'],need:3,title:'Derivatives and integrals on a grid'},`Practice. Get 3 right to master it.`),
+T(`<h3>Key points</h3><ul><li><b>Central difference</b>: [f(x + h) − f(x − h)]/2h, error ∝ h².</li><li>Too small an h brings <b>rounding error</b>; there\'s a sweet spot.</li><li><b>Trapezium rule</b>: error ∝ h². Simpson: h⁴.</li></ul>`)]),
+LH('mq22-1-2','Finding roots',11,'Where does a function equal zero? For most real equations, a computer has to hunt for the answer. Two classic hunters: one slow and sure, one fast and risky.',[
+T(`<h3>Bisection: slow but sure</h3><p>If f(a) and f(b) have opposite signs, a root lies between them. Check the middle, keep the half where the sign changes, repeat. Each step halves the gap, so 10 steps shrinks it by about 1000. It can\'t fail, but it\'s slow.</p>`),
+Q(`Bisection starts with a gap of 1. How wide is it after 20 steps?`,[`About 10⁻⁶ (1/2²⁰)`,`0.05`,`1/20`,`Zero`],0,`2²⁰ ≈ 10⁶.`),
+T(`<h3>Newton–Raphson: fast</h3><p>Slide down the tangent line to where it hits zero, and use that as the next guess:</p><div class="eq">x<sub>n+1</sub> = x<sub>n</sub> − f(x<sub>n</sub>) ÷ f′(x<sub>n</sub>)</div>${KY([['xₙ','the current guess',''],['f(xₙ)','the function at the guess',''],['f′(xₙ)','its gradient there','']])}<p>Near a root, the number of correct digits roughly <b>doubles</b> every step. But start in a bad place (near where f′ = 0) and it can fly off.</p>`),
+N(`Use one Newton–Raphson step on f(x) = x² − 2 from x₀ = 1.5. What is x₁? (4 s.f.)`,1.417,0.001,'',`x₁ = 1.5 − (2.25 − 2)/3 = 1.5 − 0.0833 = 1.4167. √2 = 1.4142.`,`f(1.5) = 0.25 and f′(1.5) = 3.`),
+T(`<h3>Where this is used</h3><p>Finding the energy levels of a finite square well means solving an equation like tan z = √(z₀² − z²)/z, which has no algebraic answer. Root finders do it in microseconds. Reactor codes use the same trick to find the critical boron concentration that makes k = 1.</p>`),
+W('calcDrill',{skill:['cn_newton'],need:3,title:'Newton–Raphson'},`Practice. Get 3 right to master it.`),
+T(`<h3>Key points</h3><ul><li><b>Bisection</b> halves the gap each step: safe but slow.</li><li><b>Newton–Raphson</b>: xₙ₊₁ = xₙ − f/f′. Fast, but needs a good start.</li><li>Used for energy levels of wells and critical boron.</li></ul>`)]),
+LH('mq22-1-3','The Schrödinger equation as a matrix',12,'Put a wavefunction on a grid and the Schrödinger equation becomes a matrix. Its eigenvalues are the energy levels. This is how real quantum calculations are done.',[
+T(`<h3>The second derivative on a grid</h3><p>Apply the difference idea twice:</p><div class="eq">ψ″(x) ≈ (ψ<sub>i+1</sub> − 2ψ<sub>i</sub> + ψ<sub>i−1</sub>) ÷ Δx²</div>${KY([['ψᵢ','the wavefunction at grid point i',''],['Δx','the spacing between grid points','']])}<p>Now −(ħ²/2m)ψ″ + Vψ = Eψ at every grid point is just a set of linear equations: <b>Hψ = Eψ</b>, with H a matrix that\'s zero except on three diagonals.</p>`),
+Q(`What does the computer have to find to get the energy levels?`,[`The eigenvalues of the matrix H`,`The determinant of ψ`,`The inverse of V`,`The trace of Δx`],0,`Hψ = Eψ is an eigenvalue problem.`),
+W('mFDEig',{goal:true},`How many grid points do you need?`),
+T(`<h3>Error ∝ Δx²</h3><p>With N points in a box of width 1, Δx = 1/(N + 1), so the error in each energy falls like 1/N². Higher levels wiggle more, so they need more points for the same accuracy. Real codes use thousands of points, or smarter basis functions, and libraries like NumPy\'s <code>eigh</code> find the eigenvalues.</p>`),
+Q(`Why does Level 3 need more grid points than Level 1 for the same accuracy?`,[`It has more wiggles, so it changes faster between points`,`It has more energy, so it needs more memory`,`It\'s further from the walls`,`It doesn\'t`],0,`More nodes, shorter wavelength.`),
+T(`<h3>Key points</h3><ul><li>ψ″ ≈ (ψᵢ₊₁ − 2ψᵢ + ψᵢ₋₁)/Δx².</li><li>The Schrödinger equation becomes <b>Hψ = Eψ</b> for a matrix H.</li><li>Its eigenvalues are the energies; error falls like 1/N².</li></ul>`)])]});
+U({id:'mq22-2',track:'calc',level:22,title:'Differential equations by computer',icon:'∿',color:'#1D9E75',desc:'Euler\'s method, Runge–Kutta, stability, and reading the Python that does it.',lessons:[
+LH('mq22-2-1','Euler\'s method',11,'A differential equation tells you the slope everywhere. Follow the slope one small step at a time and you trace out the solution.',[
+T(`<h3>One step at a time</h3><p>For dy/dt = f(t, y): you know where you are and which way you\'re heading. Take a small step h in that direction:</p><div class="eq">y<sub>n+1</sub> = y<sub>n</sub> + h f(t<sub>n</sub>, y<sub>n</sub>)</div>${KY([['yₙ','the value after n steps',''],['h','the time step',''],['f(tₙ, yₙ)','the slope dy/dt there','']])}`),
+N(`dy/dt = −2y, y(0) = 1. One Euler step with h = 0.1. What is y(0.1)?`,0.8,0.001,'',`y₁ = 1 + 0.1 × (−2 × 1) = 0.8. The exact answer is e⁻⁰·² = 0.819.`,`The slope at the start is −2 × 1.`),
+T(`<h3>Why Euler drifts</h3><p>Euler uses the slope at the <i>start</i> of each step, but the slope changes during the step. Each step makes an error of about h², and there are 1/h steps, so the total error is about proportional to h: <b>first order</b>. For an oscillation, Euler always steps slightly outwards, so energy grows and the spiral blows up.</p>`),
+W('mEuler',{},`Try Euler with different steps. Watch the energy.`),
+W('calcDrill',{skill:['cn_euler'],need:3,title:'Euler steps'},`Practice. Get 3 right to master it.`),
+T(`<h3>Key points</h3><ul><li><b>Euler</b>: yₙ₊₁ = yₙ + h·f(tₙ, yₙ).</li><li>Total error ∝ h (first order).</li><li>For oscillators it adds energy every step.</li></ul>`)]),
+LH('mq22-2-2','Runge–Kutta and stability',12,'Better than following the slope at the start: sample the slope several times during the step and take a clever average.',[
+T(`<h3>RK4</h3><p>The classic fourth-order Runge–Kutta method samples the slope four times: at the start (k₁), twice in the middle (k₂, k₃), and at the end (k₄), then averages:</p><div class="eq">y<sub>n+1</sub> = y<sub>n</sub> + (h/6)(k₁ + 2k₂ + 2k₃ + k₄)</div>${KY([['k₁ … k₄','slopes sampled across the step',''],['h','the time step','']])}<p>Its total error is ∝ <b>h⁴</b>. Halve h and the error falls by 16.</p>`),
+W('mEuler',{goal:true},`Beat the challenge.`),
+T(`<h3>Keeping energy honest</h3><p>Over very long runs, like planets for a million years or particles in an accelerator, even RK4 slowly drifts. <b>Leapfrog</b> (Verlet) is only second order but it\'s <b>symplectic</b>: its energy wobbles but never drifts away. Molecular dynamics codes use it for this reason.</p>`),
+Q(`Error ∝ h⁴. You halve h. The error is divided by:`,[`16`,`4`,`8`,`2`],0,`2⁴ = 16.`),
+T(`<h3>Stiff equations</h3><p>A reactor has prompt neutrons (microseconds) and delayed neutrons (seconds). An explicit method must take microsecond steps to stay stable, even when nothing interesting is happening. <b>Implicit</b> methods, which solve an equation at each step using the slope at the end, stay stable with big steps. That\'s how reactor kinetics codes cope.</p>`),
+W('calcDrill',{skill:['cn_order'],need:3,title:'Order of accuracy'},`Practice. Get 3 right to master it.`),
+T(`<h3>Key points</h3><ul><li><b>RK4</b> averages four slopes; error ∝ h⁴.</li><li><b>Leapfrog</b> keeps energy from drifting (symplectic).</li><li><b>Stiff</b> problems like reactor kinetics need implicit methods.</li></ul>`)]),
+LH('mq22-2-3','Reading scientific Python',11,'Physicists write their own code, mostly in Python with NumPy. You don\'t need to be a programmer yet, but you should be able to read it.',[
+T(`<h3>The basics</h3><ul><li><code>for i in range(4):</code> repeats with i = 0, 1, 2, 3 (starting from 0, stopping before 4).</li><li><code>x += i</code> means x = x + i.</li><li><code>import numpy as np</code> loads NumPy, the maths library.</li><li><code>np.linspace(0, 1, 11)</code> makes 11 evenly spaced points from 0 to 1.</li><li><code>a * 2</code> on a NumPy array doubles <b>every element</b>.</li></ul>`),
+Q(`How many times does <code>for i in range(5):</code> repeat?`,[`5`,`4`,`6`,`Until i = 5 is reached, then once more`],0,`i = 0, 1, 2, 3, 4.`),
+T(`<h3>Euler in five lines</h3><pre class="pyc">import numpy as np
+h, y = 0.1, 1.0
+for step in range(10):
+    y = y + h * (-2 * y)
+print(y)</pre><p>This solves dy/dt = −2y up to t = 1. It prints 0.107; the exact answer is e⁻² = 0.135. The gap is Euler\'s first-order error.</p>`),
+Q(`In that code, what does <code>y = y + h * (-2 * y)</code> do?`,[`One Euler step of dy/dt = −2y`,`Integrates exactly`,`Finds a root`,`Prints the answer`],0,`New y = old y + step × slope.`),
+T(`<h3>The libraries do the hard parts</h3><ul><li><code>np.linalg.eigh(H)</code>: eigenvalues and eigenvectors of a Hermitian matrix.</li><li><code>scipy.integrate.solve_ivp</code>: solves ODEs with adaptive RK methods.</li><li><code>np.random.rand(N)</code>: N random numbers for Monte Carlo.</li></ul>`),
+W('calcDrill',{skill:['cn_py'],need:4,title:'What does it print?'},`Read each snippet. Get 4 right to master it.`),
+T(`<h3>Key points</h3><ul><li><code>range(n)</code> counts 0 to n − 1.</li><li>NumPy works on whole arrays at once.</li><li>eigh, solve_ivp and random do the heavy lifting.</li></ul>`)])]});
+/* -- Level 23: probability and statistics -- */
+U({id:'mq23-1',track:'calc',level:23,title:'Probability',icon:'🎲',color:'#D4537E',desc:'The rules of probability, Bayes\' theorem, expectation and variance, and the binomial and Poisson distributions.',lessons:[
+LH('mq23-1-1','Rules of probability and Bayes',12,'Quantum mechanics only ever predicts probabilities, and every measurement has uncertainty. The rules of probability are the language for both.',[
+T(`<h3>And, or, given</h3><ul><li><b>Or</b> (can\'t both happen): P(A or B) = P(A) + P(B).</li><li><b>And</b> (independent): P(A and B) = P(A) × P(B).</li><li><b>Given</b>: P(A | B) means "the probability of A, if we know B happened".</li></ul>`),
+Q(`Two independent detectors each fire with probability 0.1. What is the chance both fire?`,[`0.01`,`0.2`,`0.1`,`0.19`],0,`0.1 × 0.1.`),
+T(`<h3>Bayes\' theorem</h3><p>How to turn P(B | A) around into P(A | B):</p><div class="eq">P(A | B) = P(B | A) × P(A) ÷ P(B)</div>${KY([['P(A | B)','the probability of A given B (what you want)',''],['P(B | A)','the probability of B given A',''],['P(A)','how likely A was to begin with',''],['P(B)','the overall probability of B','']])}<p>The overall P(B) = P(B | A)P(A) + P(B | not A)P(not A).</p>`),
+T(`<h3>The false-alarm trap</h3><p>A test catches 99% of faults and only wrongly flags 5% of good parts. If 1% of parts are faulty, and a part is flagged, is it 99% likely to be faulty? No: P = 0.99 × 0.01 ÷ (0.99 × 0.01 + 0.05 × 0.99) ≈ <b>0.17</b>. Good parts are so common that their false alarms swamp the real faults.</p>`),
+W('calcDrill',{skill:['cs_bayes'],need:3,title:'Bayes\' theorem'},`Practice. Get 3 right to master it.`),
+T(`<h3>Key points</h3><ul><li>Or: add (if exclusive). And: multiply (if independent).</li><li><b>Bayes</b>: P(A | B) = P(B | A)P(A)/P(B).</li><li>Rare things + imperfect tests = mostly false alarms.</li></ul>`)]),
+LH('mq23-1-2','Expectation and variance',11,'A random quantity has an average and a spread. In quantum mechanics these are ⟨x⟩ and Δx.',[
+T(`<h3>The expected value</h3><p>Weight each value by its probability:</p><div class="eq">E[X] = Σ x P(x)</div>${KY([['E[X]','the expected value (mean) of X',''],['x','each possible value',''],['P(x)','its probability','']])}<p>For a continuous variable, Σ becomes ∫ x p(x) dx. In quantum mechanics this is ⟨x⟩ = ∫ x |ψ|² dx.</p>`),
+T(`<h3>Variance: the spread</h3><div class="eq">Var(X) = E[X²] − E[X]²</div>${KY([['Var(X)','the variance, the square of the spread',''],['E[X²]','the mean of the squares','']])}<p>The standard deviation is σ = √Var. Heisenberg\'s Δx is exactly this σ for position.</p>`),
+N(`X is 0 or 1 with equal probability. What is Var(X)?`,0.25,0.001,'',`E[X] = 0.5, E[X²] = 0.5, so Var = 0.5 − 0.25 = 0.25.`,`Work out E[X] and E[X²] first.`),
+W('calcDrill',{skill:['cs_expect'],need:3,title:'Expectation and variance'},`Practice. Get 3 right to master it.`),
+T(`<h3>Key points</h3><ul><li><b>E[X] = Σ x P(x)</b> (or ∫ x p(x) dx).</li><li><b>Var = E[X²] − E[X]²</b>, σ = √Var.</li><li>⟨x⟩ and Δx in quantum mechanics are exactly these.</li></ul>`)]),
+LH('mq23-1-3','Binomial and Poisson',12,'Count clicks on a Geiger counter, or neutrons through a detector, and two distributions appear again and again.',[
+T(`<h3>The binomial distribution</h3><p>n independent tries, each succeeding with probability p. The chance of exactly k successes:</p><div class="eq">P(k) = C(n, k) p<sup>k</sup> (1 − p)<sup>n−k</sup></div>${KY([['C(n, k)','the number of ways to choose which k succeed',''],['p','the chance each try succeeds',''],['n','the number of tries','']])}<p>Mean np, variance np(1 − p).</p>`),
+T(`<h3>The Poisson distribution</h3><p>When n is huge and p tiny (like each of 10²⁰ nuclei decaying in a second), only the average count λ matters:</p><div class="eq">P(k) = e<sup>−λ</sup> λ<sup>k</sup> ÷ k!</div>${KY([['λ','the average number of counts',''],['k','the number of counts you ask about','']])}<p>Its variance equals its mean: σ = √λ.</p>`),
+N(`A source gives an average of 2 counts per second. What is the probability of 0 counts in a second? (3 s.f.)`,0.135,0.01,'',`e⁻² × 2⁰ ÷ 0! = e⁻² = 0.135.`,`λ⁰ = 1 and 0! = 1.`),
+T(`<h3>Counting statistics</h3><p>Because σ = √N, a count of N has a fractional uncertainty of 1/√N. 100 counts: 10%. 10 000 counts: 1%. To halve your error you need four times as long. Every radiation measurement and every Monte Carlo result lives by this rule.</p>`),
+W('calcDrill',{skill:['cs_binom','cs_poisson','cs_count'],need:4,title:'Binomial, Poisson and counting'},`Practice. Get 4 right to master it.`),
+T(`<h3>Key points</h3><ul><li><b>Binomial</b>: C(n, k)pᵏ(1 − p)ⁿ⁻ᵏ.</li><li><b>Poisson</b>: e<sup>−λ</sup>λᵏ/k!, with variance = mean.</li><li>Counts N have uncertainty √N: fractional 1/√N.</li></ul>`)])]});
+U({id:'mq23-2',track:'calc',level:23,title:'Statistics and Monte Carlo',icon:'📈',color:'#7F77DD',desc:'The normal distribution, combining uncertainties, and simulating neutrons with random numbers.',lessons:[
+LH('mq23-2-1','The normal distribution',11,'Add up lots of small random effects and you always get the same bell-shaped curve. That\'s why it\'s everywhere.',[
+T(`<h3>The bell curve</h3><div class="eq">p(x) = e<sup>−(x − μ)²/2σ²</sup> ÷ (σ√(2π))</div>${KY([['μ','the mean (centre)',''],['σ','the standard deviation (width)','']])}<p>The √(2π) is the Gaussian integral you met in Quantum Level 6. The ground state of the harmonic oscillator has exactly this shape.</p>`),
+T(`<h3>68–95–99.7</h3><p>About 68% of values lie within 1σ of the mean, 95% within 2σ, and 99.7% within 3σ. The <b>z-score</b> z = (x − μ)/σ says how many σ a value is from the mean.</p>`),
+Q(`About what fraction of a normal distribution lies more than 2σ from the mean?`,[`5%`,`32%`,`0.3%`,`50%`],0,`100% − 95%.`),
+T(`<h3>The central limit theorem</h3><p>Add up many independent random bits, whatever their own distribution, and the total is approximately normal. That\'s why measurement errors (the sum of many tiny disturbances) are bell-shaped, and why a Poisson count with a large mean looks like a normal curve with σ = √λ.</p>`),
+W('calcDrill',{skill:['cs_normal'],need:3,title:'The normal distribution'},`Practice. Get 3 right to master it.`),
+T(`<h3>Key points</h3><ul><li>Normal: centre μ, width σ.</li><li><b>68–95–99.7</b> within 1, 2, 3σ; z = (x − μ)/σ.</li><li><b>Central limit theorem</b>: sums of random bits become normal.</li></ul>`)]),
+LH('mq23-2-2','Uncertainties and fitting',12,'Every number in an experiment comes with an uncertainty. Here\'s how they combine, and how to beat them down.',[
+T(`<h3>Adding in quadrature</h3><p>For independent errors, uncertainties don\'t simply add: some cancel. For a sum or difference:</p><div class="eq">σ<sub>A+B</sub> = √(σ<sub>A</sub>² + σ<sub>B</sub>²)</div>${KY([['σ_A','the uncertainty in A',''],['σ_B','the uncertainty in B','']])}<p>For a product or quotient, do the same with the <b>fractional</b> (percentage) uncertainties.</p>`),
+N(`A = 50 ± 3 and B = 20 ± 4, independent. What is the uncertainty in A − B?`,5,0.001,'',`√(3² + 4²) = 5. Uncertainties add in quadrature even when you subtract.`,`Square, add, square-root.`),
+T(`<h3>Averaging</h3><p>Average n measurements, each with spread σ, and the mean has a smaller uncertainty:</p><div class="eq">σ<sub>mean</sub> = σ ÷ √n</div>${KY([['σ','the spread of one measurement',''],['n','the number of measurements','']])}<p>Four times the data halves the error. Random errors shrink; systematic errors (a miscalibrated meter) don\'t.</p>`),
+T(`<h3>Fitting a line</h3><p><b>Least squares</b> picks the line that makes the sum of the squared gaps between data and line as small as possible. Weighting each point by 1/σ² gives the <b>χ²</b> fit: if the model is right, χ² comes out about equal to the number of data points. Much bigger, and the model (or your error bars) is wrong.</p>`),
+W('calcDrill',{skill:['cs_comb','cs_mean'],need:3,title:'Combining uncertainties'},`Practice. Get 3 right to master it.`),
+T(`<h3>Key points</h3><ul><li>Independent errors add in <b>quadrature</b>.</li><li>Averaging n readings: σ/√n.</li><li><b>Least squares / χ²</b> fit a model to data.</li></ul>`)]),
+LH('mq23-2-3','Monte Carlo: neutrons by random numbers',13,'The most accurate reactor calculations don\'t solve an equation at all. They follow billions of imaginary neutrons, one random step at a time.',[
+T(`<h3>How far before a collision?</h3><p>The chance a neutron travels distance x without colliding falls exponentially:</p><div class="eq">P(x) = e<sup>−Σx</sup></div>${KY([['Σ','the macroscopic cross section: collisions per cm','cm⁻¹'],['x','the distance travelled','cm']])}<p>The average distance, 1/Σ, is the <b>mean free path</b>. To pick a random flight distance, a computer takes a random number r between 0 and 1 and uses x = −ln(r)/Σ.</p>`),
+N(`Σ = 0.5 cm⁻¹. What fraction of neutrons travel 2 cm without a collision? (3 s.f.)`,0.368,0.01,'',`e^(−0.5 × 2) = e⁻¹ = 0.368.`,`Σx = 1.`),
+T(`<h3>Follow the neutron</h3><p>For each neutron: pick a flight distance, move it, then roll the dice: absorbed, or scattered in a new random direction? Repeat until it\'s absorbed or escapes. Do this a million times and count what happened. The answer\'s uncertainty falls like 1/√N, the counting rule from earlier.</p>`),
+W('mMC',{goal:true},`Shield the neutrons.`),
+T(`<h3>In real reactor design</h3><p>Codes like <b>MCNP</b>, <b>Serpent</b> and <b>OpenMC</b> follow neutrons through exact 3D models of a core, with real cross sections at every energy. They\'re the gold standard for k-effective, shielding and dose. The price is computer time: more neutrons, less noise.</p>`),
+W('calcDrill',{skill:['cs_survive','cs_count'],need:3,title:'Monte Carlo numbers'},`Practice. Get 3 right to master it.`),
+T(`<h3>Key points</h3><ul><li>Uncollided fraction: <b>e<sup>−Σx</sup></b>; mean free path 1/Σ.</li><li>Monte Carlo follows random neutron histories.</li><li>Its error falls like 1/√N.</li></ul>`)])]});
+GOALS.calc22={icon:'⌨',title:'Compute it',story:'Each unit adds a numerical tool to your kit: the methods real physicists use when the pen-and-paper maths runs out.',final:'Computational physicist',steps:['Calculus by computer','Differential equations by computer']};
+GOALS.calc23={icon:'🎲',title:'Master uncertainty',story:'Probability is the language of quantum mechanics, and statistics is the language of experiments.',final:'Ready for real data',steps:['Probability','Statistics and Monte Carlo']};
+CALC_LEVELS[22]=['Numerical methods','Calculus by computer: finite differences, root finding, Runge–Kutta, matrix eigenvalues, and reading scientific Python.'];
+CALC_LEVELS[23]=['Probability and statistics','Bayes, expectation and variance, binomial and Poisson, the normal distribution, uncertainties, and Monte Carlo.'];
+(function(){var st=document.createElement('style');st.textContent='pre.pyc{font:13px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:color-mix(in srgb,var(--text) 6%,var(--panel));border:1px solid var(--line);border-radius:10px;padding:10px 12px;overflow-x:auto;white-space:pre;margin:8px 0;text-align:left}';document.head.appendChild(st)})();
+
 /* every new unit (Levels 6+ and A-level) gets a unit test from its own lesson questions plus fresh generated ones */
 UNITS.forEach(function(u){var nw=(u.level||1)>5||u.track==='am'||u.track==='ap'||u.track==='ac'||u.track==='qm';if(!nw||TESTS[u.id])return;var cs=[];
  u.lessons.forEach(function(l){var sk={};l.cards.forEach(function(c){if(c.t==='Q'||c.t==='N')cs.push(x(l.id,Object.assign({},c)));if(c.t==='W'&&c.w==='calcDrill')[].concat(c.par.skill).forEach(function(s){sk[s]=1})});
@@ -611,374 +893,4 @@ function simUI(force){var now=performance.now();if(!force&&now-SIM.lastUI<120)re
  $('sClock').textContent=fmtT(s.t);
  $('ni_sr').textContent=srOn?Math.round(SIM.srDisp).toLocaleString('en-GB'):'HV off';$('nf_sr').style.width=srOn?lpos(Math.max(SIM.srDisp,1),0,6)+'%':'0%';
  var ir=s.n*1e-3;$('ni_ir').textContent=s.n<1e-8?'below scale':sci(ir,2)+' A';$('nf_ir').style.width=lpos(ir,-11,-3)+'%';
- $('ni_pr').textContent=(s.n*100).toFixed(s.n<0.1?2:1)+'%';$('nf_pr').style.width=Math.min(100,s.n*100/1.2)+'%';
- var sur=s.sur;$('ni_sur').textContent=(sur>=0?'+':'')+sur.toFixed(2).replace('-','−');var z=1/6*100;$('nf_sur').style.left=(sur>=0?z:Math.max(0,z+sur/6*100))+'%';$('nf_sur').style.width=Math.min(100-z,Math.abs(sur)/6*100)+'%';$('nf_sur').style.background=sur>1?'var(--red)':sur<0?'var(--blue)':'var(--accent)';
- var vals={pth:Math.round(s.Pth||0)+' MW',mwe:Math.round(s.tripped?0:s.load*3000*0.35)+' MW',tav:s.Tav.toFixed(1)+' °C',tref:Tr.toFixed(1)+' °C',thot:(s.Thot||s.Tav).toFixed(1)+' °C',tcold:(s.Tcold||s.Tav).toFixed(1)+' °C',tf:Math.round(s.Tf)+' °C',sub:(SP.Tsat-(s.Thot||s.Tav)).toFixed(1)+' °C',load:(s.load*100).toFixed(1)+'%',dump:Math.round(s.dump||0)+' MW',xe:Math.round(r.x)+' pcm',rho:(r.tot>=0?'+':'')+r.tot.toFixed(1)+' pcm'};
- for(var k in vals)$('ro_'+k).textContent=vals[k];var subm=SP.Tsat-(s.Thot||s.Tav);$('ro_sub').parentNode.classList.toggle('alarm',subm<15);$('ro_tav').parentNode.classList.toggle('alarm',Math.abs(s.Tav-Tr)>3&&s.n>0.05);
- var d={rod:(r.sd+r.cb)-(SIM.r0.sd+SIM.r0.cb),b:r.b-SIM.r0.b,f:r.f-SIM.r0.f,m:r.m-SIM.r0.m,x:r.x-SIM.r0.x,tot:r.tot};
- RHO.forEach(function(q){var v=d[q[0]],w=Math.min(50,Math.abs(v)/3000*50),b=$('rb_'+q[0]);b.style.left=(v>=0?50:50-w)+'%';b.style.width=w+'%';b.style.background=v>=0?'var(--coral)':'var(--blue)';$('rv_'+q[0]).textContent=(v>=0?'+':'')+Math.round(v)});
- $('sSdP').textContent=Math.round(s.sd*228)+' steps';$('sSdB').style.width=s.sd*100+'%';$('sCbP').textContent=Math.round(s.cb*228)+' ('+(s.cb*100).toFixed(1)+'%)';$('sCbB').style.width=s.cb*100+'%';$('sCbT').style.left=s.cbT*100+'%';$('sCbO').textContent=(s.cbT*100).toFixed(1)+'%';if(s.auto||s.tripped)$('sCb').value=s.cbT*100;
- $('sBA').textContent=s.B.toFixed(1)+' ppm';$('sBT').textContent=s.BT.toFixed(0)+' ppm';$('sLdO').textContent=(s.loadT*100).toFixed(0)+'%';
- var A={trip:s.tripped,pc:s.pc,flux:s.n>1.03,sur:s.sur>1,tdev:Math.abs(s.Tav-Tr)>3&&s.n>0.05,sub:subm<15,lowt:s.Tav<285,rodl:s.n>0.1&&(s.cb>=0.999||s.cb<=0.001),srhv:!srOn,dump:(s.dump||0)>1,auto:s.auto,bor:Math.abs(s.BT-s.B)>0.3};
- ANN.forEach(function(a){var e=$('an_'+a[0]);e.classList.toggle('on',!!A[a[0]]);e.classList.toggle('red',!!(A[a[0]]&&a[2]))});
- if(M.goals.length){M.goals.forEach(function(g,i){var li=$('sg'+i);if(li){li.classList.toggle('ok',!!SIM.ms.g[i]);var mm=SIM.ms.m&&SIM.ms.m[i];if(mm&&mm.t&&!SIM.ms.g[i]){var tgt=i===1&&M.id==='m3'?8*3600:M.id==='m2'?60:M.id==='m4'?10:15;li.innerHTML=g[0]+' <span class="small">('+(tgt>3600?(mm.t/3600).toFixed(1)+' of 8 h':Math.floor(mm.t)+' of '+tgt+' s')+')</span>'}else li.innerHTML=g[0]}})}
- drawTrend()}
-function drawTrend(){var cv=$('sTrend');if(!cv||!SIM.s)return;var s=SIM.s,W=SIM.speed>=600?172800:SIM.speed>=60?21600:SIM.speed>=10?3600:600,t1=Math.max(s.t,W*0.2),t0=t1-W,h=SIM.hist.filter(function(x){return x[0]>=t0});
- var xf=function(v){var d=v-t1,u=W>=7200?3600:60,r=Math.round(d/u);return Math.abs(d)<W*0.02||r===0?'now':'−'+Math.abs(r)+(u===3600?' h':' min')};
- if(SIM.trend==='p'){var P=plot(cv,{x:[t0,t1],y:[1e-11,2],ylog:true,yl:'power (% of full)',xfmt:xf,yfmt:function(v){var e=Math.round(Math.log10(v))+2;return (e>=-2?String(+Math.pow(10,e).toFixed(2)):pow10(e))+'%'}});P.pts(h.map(function(x){return [x[0],x[1]]}),cssv('--accent'),2.5);P.hline(1,cssv('--faint'),[3,4],1)}
- else if(SIM.trend==='t'){var lo=270,hi=345;var P2=plot(cv,{x:[t0,t1],y:[lo,hi],yl:'°C',xfmt:xf});P2.hline(335,cssv('--red'),[4,4],1);P2.pts(h.map(function(x){return [x[0],x[3]]}),cssv('--faint'),2,[5,4]);P2.pts(h.map(function(x){return [x[0],x[2]]}),cssv('--accent'),2.5);P2.pts(h.map(function(x){return [x[0],x[4]]}),cssv('--coral'),2);P2.ptext('Tavg',P2.pd.l+6,P2.pd.t+12,cssv('--accent'));P2.ptext('Tref (dashed)',P2.pd.l+46,P2.pd.t+12,cssv('--muted'));P2.ptext('hot leg',P2.pd.l+136,P2.pd.t+12,cssv('--coral'))}
- else if(SIM.trend==='r'){var mx=Math.max(100,Math.max.apply(null,h.map(function(x){return Math.abs(x[5])}).concat([0]))*1.2);mx=Math.min(mx,8000);var P3=plot(cv,{x:[t0,t1],y:[-mx,mx],yl:'total reactivity (pcm)',xfmt:xf});P3.hline(0,cssv('--muted'),[]);P3.hline(650,cssv('--red'),[4,4],1);P3.ptext('β (prompt critical)',P3.pd.l+6,P3.Y(650)-4,cssv('--red'));P3.pts(h.map(function(x){return [x[0],x[5]]}),cssv('--accent'),2.5)}
- else{var P4=plot(cv,{x:[t0,t1],y:[-8000,0],yl:'xenon worth (pcm)',xfmt:xf});P4.pts(h.map(function(x){return [x[0],x[6]]}),cssv('--accent'),2.5);var bmax=Math.max(20,Math.max.apply(null,h.map(function(x){return x[7]}).concat([0]))*1.1);P4.pts(h.map(function(x){return [x[0],-8000+x[7]/bmax*8000]}),cssv('--teal'),2,[5,4]);P4.ptext('boron (dashed, top = '+Math.round(bmax)+' ppm)',P4.pd.l+6,P4.pd.t+12,cssv('--teal'))}}
-function drawOneM(){var cv=$('sOneM');if(!cv||$('sOneMBox').style.display==='none')return;var P=plot(cv,{x:[0,100],y:[0,1.2],xl:'control bank position (%)',yl:'1/M',pad:{l:58,r:10,t:8,b:30}});var p=SIM.oneM;P.hline(0,cssv('--muted'),[]);p.forEach(function(q){P.dot(q[0],q[1],cssv('--accent'),5)});if(p.length>1){P.pts(p,cssv('--accent'),1.5);var a=p[p.length-2],b=p[p.length-1];if(b[1]<a[1]&&b[0]!==a[0]){var x=b[0]+b[1]*(b[0]-a[0])/(a[1]-b[1]);P.pts([[b[0],b[1]],[x,0]],cssv('--coral'),2,[5,4]);P.dot(x,0,cssv('--coral'),4);$('sPred').textContent='Predicted critical position: '+x.toFixed(0)+'%';return}}$('sPred').textContent=p.length?'Record another point after moving the rods.':'Record a point at the starting rod position.'}
-
-/* ===== New look: live animations and juicier feedback. Settings → Look → Classic turns all of it off. ===== */
-var NEO=(function(){
- var LK='critical_look',MK='critical_motion',SEEN='critical_neo_seen',R=document.documentElement;
- function look(){try{var v=localStorage.getItem(LK);return v==='classic'?'classic':v==='legacy'?'legacy':'neo'}catch(_){return 'neo'}}
- function on(){return R.classList.contains('neo')}
- function motPref(){try{var v=localStorage.getItem(MK);return v==='full'||v==='less'?v:'auto'}catch(_){return 'auto'}}
- function sysCalm(){try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(_){return false}}
- function calm(){var m=motPref();return m==='less'||(m==='auto'&&sysCalm())}
- function playerOpen(){var p=$('player');return !!(p&&p.classList.contains('open'))}
- function fonts(){if(document.getElementById('neoFonts'))return;var l=document.createElement('link');l.id='neoFonts';l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Space+Grotesk:wght@500;600;700&display=swap';document.head.appendChild(l)}
- function hex(v){v=String(v||'').trim();var m=/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(v);if(m){var h=m[1];if(h.length===3)h=h[0]+h[0]+h[1]+h[1]+h[2]+h[2];return [parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)]}m=/rgba?\(([^)]+)\)/.exec(v);if(m){var p=m[1].split(/[ ,\/]+/).map(Number);return [p[0]||0,p[1]||0,p[2]||0]}return [58,212,255]}
- var COL={};function cols(){COL={glow:hex(cssv('--glow')),glow2:hex(cssv('--glow2')),accent:hex(cssv('--accent')),line:hex(cssv('--line')),good:hex(cssv('--good-line')),dark:isDark()}}
- function rgba(c,a){return 'rgba('+c[0]+','+c[1]+','+c[2]+','+(+a).toFixed(3)+')'}
-
- /* ---------- live background: drifting neutrons with the odd fission flash ---------- */
- var bg={cv:null,c:null,ps:[],fr:[],fl:[],w:0,h:0,raf:0,last:0,next:0};
- function np(w,h){return {x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-.5)*.22,vy:(Math.random()-.5)*.22,r:Math.random()*1.3+.7,a:Math.random()*.45+.3,ph:Math.random()*6.28}}
- function bgInit(){if(bg.cv)return;var c=document.createElement('canvas');c.id='neoBg';c.setAttribute('aria-hidden','true');document.body.insertBefore(c,document.body.firstChild);bg.cv=c;bg.c=c.getContext('2d');bgSize();window.addEventListener('resize',function(){bgSize();bgKick()})}
- function bgSize(){if(!bg.cv)return;var dpr=Math.min(1.5,window.devicePixelRatio||1),w=innerWidth,h=innerHeight;bg.w=w;bg.h=h;bg.cv.width=Math.round(w*dpr);bg.cv.height=Math.round(h*dpr);bg.c.setTransform(dpr,0,0,dpr,0,0);
-  var n=Math.max(16,Math.min(54,Math.round(w*h/26000)));while(bg.ps.length<n)bg.ps.push(np(w,h));bg.ps.length=n;bg.ps.forEach(function(p){if(p.x>w)p.x=Math.random()*w;if(p.y>h)p.y=Math.random()*h});bgDraw(performance.now())}
- function bgRun(){return on()&&!calm()&&document.visibilityState==='visible'&&!playerOpen()&&PAGE!=='sim'}
- function bgKick(){if(!bg.cv)return;if(bgRun()){if(!bg.raf){bg.last=0;bg.raf=requestAnimationFrame(bgStep)}}else{if(bg.raf){cancelAnimationFrame(bg.raf);bg.raf=0}bgDraw(performance.now())}}
- function bgStep(t){bg.raf=0;if(!bgRun())return;bg.raf=requestAnimationFrame(bgStep);if(bg.last&&t-bg.last<32)return;var dt=bg.last?Math.min(64,t-bg.last):16;bg.last=t;var w=bg.w,h=bg.h,k=dt/16;
-  bg.ps.forEach(function(p){p.x+=p.vx*k;p.y+=p.vy*k;if(p.x<-10)p.x=w+10;if(p.x>w+10)p.x=-10;if(p.y<-10)p.y=h+10;if(p.y>h+10)p.y=-10;var sp=Math.hypot(p.vx,p.vy);if(sp>.26){p.vx*=.985;p.vy*=.985}});
-  bg.fr=bg.fr.filter(function(f){f.x+=f.vx*k;f.y+=f.vy*k;f.life-=dt;return f.life>0});
-  if(t>bg.next){bg.next=t+2600+Math.random()*4200;var p=bg.ps[Math.floor(Math.random()*bg.ps.length)];if(p){bg.fl.push({x:p.x,y:p.y,t:t});for(var i=0;i<3;i++){var a=Math.random()*6.28,s=.9+Math.random()*.9;bg.fr.push({x:p.x,y:p.y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:1300,max:1300})}var a2=Math.random()*6.28;p.vx=Math.cos(a2)*.7;p.vy=Math.sin(a2)*.7}}
-  bgDraw(t)}
- function bgDraw(t){if(!bg.c)return;var c=bg.c,w=bg.w,h=bg.h;c.clearRect(0,0,w,h);if(!on())return;var g=COL.glow||[58,212,255],dk=COL.dark,ps=bg.ps,L=118,L2=L*L,i,j,p,q;
-  c.lineWidth=1;for(i=0;i<ps.length;i++){p=ps[i];for(j=i+1;j<ps.length;j++){q=ps[j];var dx=p.x-q.x,dy=p.y-q.y,d2=dx*dx+dy*dy;if(d2<L2){c.strokeStyle=rgba(g,(1-d2/L2)*(dk?.15:.11));c.beginPath();c.moveTo(p.x,p.y);c.lineTo(q.x,q.y);c.stroke()}}}
-  for(i=0;i<ps.length;i++){p=ps[i];var tw=.65+.35*Math.sin(t/900+p.ph);c.fillStyle=rgba(g,p.a*tw*(dk?.95:.6));c.beginPath();c.arc(p.x,p.y,p.r,0,6.283);c.fill()}
-  bg.fr.forEach(function(f){var u=f.life/f.max;c.fillStyle=rgba(g,u*(dk?.9:.6));c.beginPath();c.arc(f.x,f.y,1.6,0,6.283);c.fill()});
-  bg.fl=bg.fl.filter(function(f){var u=(t-f.t)/1000;if(u>1||u<0)return u<0;var rr=3+u*30,gr=c.createRadialGradient(f.x,f.y,0,f.x,f.y,rr);gr.addColorStop(0,rgba(g,(dk?.55:.35)*(1-u)));gr.addColorStop(1,rgba(g,0));c.fillStyle=gr;c.beginPath();c.arc(f.x,f.y,rr,0,6.283);c.fill();return true})}
-
- /* ---------- the reactor core: today's XP goal as reactor power ---------- */
- var core={cv:null,raf:0,v:0,from:0,to:0,t0:0,last:0};
- function dailyXP(){return S.daily&&S.daily.d===today()?S.daily.xp:0}
- function coreMount(){if(!on())return;var rb=document.querySelector('#page-learn .hero .ringbox');if(!rb)return;var dx=dailyXP(),g=S.goal||50,f=Math.min(1,dx/g),full=dx>=g;
-  rb.classList.add('neocore');rb.classList.toggle('full',full);rb.title='Your daily goal. Every XP you earn today brings the reactor closer to full power.';
-  rb.innerHTML='<div class="ncw"><canvas aria-hidden="true"></canvas><div class="ncv"><b id="ncPct">'+Math.round(core.v*100)+'%</b><span>power</span></div></div><div class="lbl"><b>'+(full?'Full power: goal reached!':'Reactor power')+'</b><span>Today: '+fmtInt(dx)+' of '+fmtInt(g)+' XP</span></div>';
-  rb.setAttribute('role','img');rb.setAttribute('aria-label','Daily goal: '+dx+' of '+g+' XP today');
-  core.cv=rb.querySelector('canvas');core.from=core.v;core.to=f;core.t0=performance.now();if(calm()){core.v=f;coreDraw(performance.now())}else coreKick()}
- function coreRun(){return on()&&core.cv&&core.cv.isConnected&&PAGE==='learn'&&document.visibilityState==='visible'&&!playerOpen()&&!calm()}
- function coreKick(){if(!core.raf&&coreRun()){core.last=0;core.raf=requestAnimationFrame(coreStep)}}
- function coreStep(t){core.raf=0;if(!coreRun()){if(core.cv&&core.cv.isConnected){core.v=core.to;coreDraw(t)}return}core.raf=requestAnimationFrame(coreStep);
-  var u=Math.min(1,(t-core.t0)/1400),anim=u<1;if(!anim&&core.last&&t-core.last<48)return;core.last=t;core.v=core.from+(core.to-core.from)*(1-Math.pow(1-u,3));var e=$('ncPct');if(e)e.textContent=Math.round(core.v*100)+'%';coreDraw(t)}
- function coreDraw(t){var cv=core.cv;if(!cv||!cv.isConnected)return;var W=cv.clientWidth||168,dpr=Math.min(2,window.devicePixelRatio||1);if(cv.width!==Math.round(W*dpr)){cv.width=cv.height=Math.round(W*dpr)}
-  var c=cv.getContext('2d'),s=W/168;c.setTransform(dpr*s,0,0,dpr*s,0,0);c.clearRect(0,0,168,168);var cx=84,cy=84,f=Math.max(0,Math.min(1,core.v)),g=COL.glow||[58,212,255],g2=COL.glow2||[143,128,255],ln=COL.line||[60,70,90],full=core.to>=1&&f>.995,i;
-  // dial ticks
-  for(i=0;i<60;i++){var a=-Math.PI/2+i/60*Math.PI*2,lit=(i+.5)/60<=f,r2=i%5===0?70:73.5;c.strokeStyle=lit?rgba(g,.95):rgba(ln,COL.dark?.9:1);c.lineWidth=i%5===0?2:1.4;c.beginPath();c.moveTo(cx+Math.cos(a)*r2,cy+Math.sin(a)*r2);c.lineTo(cx+Math.cos(a)*79,cy+Math.sin(a)*79);c.stroke()}
-  // power arc
-  c.lineCap='round';c.lineWidth=6;c.strokeStyle=rgba(ln,COL.dark?.6:.8);c.beginPath();c.arc(cx,cy,63,0,6.283);c.stroke();
-  if(f>0.003){var gr=c.createLinearGradient(20,148,148,20);gr.addColorStop(0,rgba(g2,1));gr.addColorStop(1,rgba(g,1));c.save();c.shadowColor=rgba(g,.8);c.shadowBlur=12;c.strokeStyle=gr;c.beginPath();c.arc(cx,cy,63,-Math.PI/2,-Math.PI/2+f*6.283);c.stroke();c.restore();
-   var ha=-Math.PI/2+f*6.283,hx=cx+Math.cos(ha)*63,hy=cy+Math.sin(ha)*63;c.save();c.shadowColor=rgba(g,1);c.shadowBlur=14;c.fillStyle='#fff';c.beginPath();c.arc(hx,hy,3.6,0,6.283);c.fill();c.restore()}
-  // the pool and the core
-  var br=.18+.82*f,breathe=1+.05*Math.sin(t/700);var pool=c.createRadialGradient(cx,cy,4,cx,cy,54);pool.addColorStop(0,'#0b2142');pool.addColorStop(1,'#050b18');c.fillStyle=pool;c.beginPath();c.arc(cx,cy,54,0,6.283);c.fill();
-  var gl=c.createRadialGradient(cx,cy,0,cx,cy,52*breathe);gl.addColorStop(0,rgba([200,245,255],.85*br));gl.addColorStop(.35,rgba(g,.65*br));gl.addColorStop(1,rgba(g,0));c.fillStyle=gl;c.beginPath();c.arc(cx,cy,54,0,6.283);c.fill();
-  // fuel assemblies (hex grid)
-  var hs=8.2,qr=[[0,0],[1,0],[1,-1],[0,-1],[-1,0],[-1,1],[0,1],[2,0],[2,-1],[2,-2],[1,-2],[0,-2],[-1,-1],[-2,0],[-2,1],[-2,2],[-1,2],[0,2],[1,1]];
-  qr.forEach(function(h,k){var x=cx+hs*1.5*h[0]*1.0,y=cy+hs*Math.sqrt(3)*(h[1]+h[0]/2);var fl=.75+.25*Math.sin(t/(380+k*37)+k*1.7),inten=br*fl*(1-Math.hypot(x-cx,y-cy)/70);
-   c.beginPath();for(var j=0;j<6;j++){var aa=Math.PI/3*j,px=x+Math.cos(aa)*(hs-1.3),py=y+Math.sin(aa)*(hs-1.3);if(j)c.lineTo(px,py);else c.moveTo(px,py)}c.closePath();
-   c.fillStyle=rgba([150,232,255],Math.max(.05,inten*.55));c.fill();c.strokeStyle=rgba([170,235,255],.12+inten*.35);c.lineWidth=.8;c.stroke()});
-  if(full){var pu=(t%1800)/1800;c.strokeStyle=rgba(g,.5*(1-pu));c.lineWidth=2;c.beginPath();c.arc(cx,cy,54+pu*24,0,6.283);c.stroke()}}
-
- /* ---------- one canvas for bursts and confetti ---------- */
- var fx={cv:null,c:null,ps:[],raf:0,w:0,h:0};
- function fxInit(){if(fx.cv)return;var c=document.createElement('canvas');c.id='neoFx';c.setAttribute('aria-hidden','true');document.body.appendChild(c);fx.cv=c;fx.c=c.getContext('2d');fxSize();window.addEventListener('resize',fxSize)}
- function fxSize(){if(!fx.cv)return;var dpr=Math.min(2,window.devicePixelRatio||1);fx.w=innerWidth;fx.h=innerHeight;fx.cv.width=Math.round(fx.w*dpr);fx.cv.height=Math.round(fx.h*dpr);fx.c.setTransform(dpr,0,0,dpr,0,0)}
- function fxKick(){if(!fx.raf)fx.raf=requestAnimationFrame(fxStep)}
- function fxStep(t){fx.raf=0;var c=fx.c,dt=16;c.clearRect(0,0,fx.w,fx.h);fx.ps=fx.ps.filter(function(p){p.life-=dt;if(p.life<=0)return false;p.vy+=p.g;p.vx*=p.drag;p.vy*=p.drag;p.x+=p.vx;p.y+=p.vy;p.rot+=p.vr;var u=Math.min(1,p.life/p.fade);c.globalAlpha=u;
-   if(p.k==='ring'){p.s+=p.grow;c.strokeStyle=p.col;c.lineWidth=2.5*u+.5;c.shadowColor=p.col;c.shadowBlur=12;c.beginPath();c.arc(p.x,p.y,p.s,0,6.283);c.stroke();c.shadowBlur=0}
-   else if(p.k==='rect'){c.save();c.translate(p.x,p.y);c.rotate(p.rot);c.scale(1,Math.cos(p.rot*1.7));c.fillStyle=p.col;c.fillRect(-p.s/2,-p.s*.7,p.s,p.s*1.4);c.restore()}
-   else{c.fillStyle=p.col;c.shadowColor=p.col;c.shadowBlur=p.glow||0;c.beginPath();c.arc(p.x,p.y,p.s*(p.shrink?u:1),0,6.283);c.fill();c.shadowBlur=0}return p.y<fx.h+40});
-  c.globalAlpha=1;if(fx.ps.length)fxKick()}
- function burst(x,y,o){if(!on()||calm())return;fxInit();o=o||{};var n=o.n||18,cs=o.cols||(COL.dark?[rgba(COL.good||[90,190,90],1),'#ffffff',rgba(COL.glow||[58,212,255],1)]:[rgba(COL.good||[90,190,90],1),rgba(COL.accent||[83,74,183],1),rgba(COL.glow||[10,159,208],1)]);
-  for(var i=0;i<n;i++){var a=(o.up?-Math.PI/2:0)+(o.up?(Math.random()-.5)*(o.spread||2.4):Math.random()*6.283),sp=(o.speed||5)*(.45+Math.random()*.75);
-   fx.ps.push({x:x,y:y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,g:o.g==null?.1:o.g,drag:.94,life:o.life||800,fade:o.life||800,s:o.size||(2.2+Math.random()*3),col:cs[i%cs.length],k:'dot',glow:o.glow==null?14:o.glow,shrink:true,rot:0,vr:0})}
-  if(o.ring!==false)fx.ps.push({x:x,y:y,vx:0,vy:0,g:0,drag:1,life:520,fade:520,s:o.ringFrom||14,grow:o.ringGrow||3.2,col:cs[0],k:'ring',rot:0,vr:0});fxKick()}
- function confettiNeo(){fxInit();var fxk=lookFx(),round=fxk==='glow'||fxk==='atoms',cs=fxk==='glow'?['#5ec8ff','#9fe4ff','#3aa0ff','#c9f1ff','#7fd3ff','#2f7bd1']:fxk==='gold'?['#f5c542','#e0a526','#ffd96b','#c98a12','#fff1b3','#b8860b']:fxk==='atoms'?['#D85A30','#378ADD','#7F77DD','#1D9E75','#EF9F27','#D4537E']:['#7F77DD','#1D9E75','#D85A30','#EF9F27','#378ADD','#D4537E','#3ad4ff'];
-  var n=Math.min(150,Math.round(fx.w/7));for(var i=0;i<n;i++){var side=i%2,x=side?fx.w*(.85+Math.random()*.2):fx.w*(-.05+Math.random()*.2),a=side?-Math.PI*(.62+Math.random()*.18):-Math.PI*(.2+Math.random()*.18),sp=9+Math.random()*9;
-   fx.ps.push({x:x,y:fx.h*.95,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,g:.22,drag:.975,life:2600+Math.random()*900,fade:700,s:round?3+Math.random()*3:6+Math.random()*5,col:cs[i%cs.length],k:round?'dot':'rect',glow:fxk==='glow'?12:0,rot:Math.random()*6,vr:(Math.random()-.5)*.35})}fxKick()}
- function centre(e){var r=e.getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2]}
-
- /* ---------- sound and touch feedback ---------- */
- function chime(n){var st=[0,2,4,5,7,9,11,12,14,16,17,19][Math.min(11,Math.max(0,n-1))],f=523.25*Math.pow(2,st/12);beep(f,0,.11,'sine',.07);beep(f*1.5,.055,.16,'sine',.045);beep(f*2,.11,.26,'triangle',.03)}
- function buzz(p){if(calm())return;try{if(navigator.vibrate)navigator.vibrate(p)}catch(_){}}
-
- /* ---------- combos ---------- */
- var MILE={3:['×3','Combo'],5:['×5','On a roll'],10:['×10','Supercritical'],15:['×15','Unstoppable'],20:['×20','Chain reaction'],30:['×30','Meltdown-proof']};
- function cpop(n){var m=MILE[n]||(n>30&&n%10===0?['×'+n,'Legendary']:null);if(!m||calm())return;var d=document.createElement('div');d.className='neocpop'+(n>=10?' blue':'');d.innerHTML='<b>'+m[0]+'</b><span>'+m[1]+'</span>';(document.getElementById('player')||document.body).appendChild(d);setTimeout(function(){d.remove()},1200)}
- function heat(){var pl=$('player');if(!pl)return;var n=P&&P.combo||0;pl.classList.toggle('neoHot',on()&&n>=5&&!calm());pl.classList.toggle('neoSuper',on()&&n>=10&&!calm())}
- function onRight(){var n=P?P.combo:0;setTimeout(function(){var o=document.querySelector('#pBody .opt.right')||document.querySelector('#pBody .tyin')||document.querySelector('#pBody .numin')||$('pBtn');if(o){var p=centre(o);var r=o.getBoundingClientRect();burst(p[0],p[1],{n:n>=5?34:22,speed:n>=5?7:5.5,ringFrom:Math.min(60,r.height/2),ringGrow:n>=5?4:3})}cpop(n);heat()},0);buzz(12)}
- function onWrong(){setTimeout(function(){var i=document.querySelector('#pBody .tyin')||document.querySelector('#pBody .numin');if(i&&!document.querySelector('#pBody .opt.wrong')){i.classList.remove('neoShake');void i.offsetWidth;i.classList.add('neoShake')}heat()},0);buzz([22,40,22])}
-
- /* ---------- end of lesson: count-ups, rank progress, full power ---------- */
- function lvAt(x){var i=0;while(i<LEVELS.length-1&&x>=LEVELS[i+1][0])i++;var lo=LEVELS[i][0],hi=i<LEVELS.length-1?LEVELS[i+1][0]:lo+2000;return {i:i,name:LEVELS[i][1],frac:Math.min(1,(x-lo)/(hi-lo)),next:i<LEVELS.length-1?LEVELS[i+1][1]:'',toNext:hi-x}}
- function countNum(e,d){if(!e||e.dataset.nc)return;var m=/^([+−-]?)([\d,]+)(.*)$/.exec(e.textContent.trim());if(!m)return;e.dataset.nc=1;var to=+m[2].replace(/,/g,'');if(!to)return;var t0=performance.now();d=d||900;(function f(t){var u=Math.min(1,(t-t0)/d),v=Math.round(to*(1-Math.pow(1-u,3)));e.textContent=m[1]+fmtInt(v)+m[3];if(u<1&&e.isConnected)requestAnimationFrame(f)})(t0)}
- function enhanceDone(ds){if(!on()||ds.classList.contains('neoDone'))return;ds.classList.add('neoDone');var i=0;[].forEach.call(ds.children,function(ch){ch.style.setProperty('--ni',i++)});
-  [].forEach.call(ds.querySelectorAll('.xpbreak>div'),function(r,k){r.style.setProperty('--ni',k)});
-  if(!calm())[].forEach.call(ds.querySelectorAll('.dstat b'),function(b){if(b.id!=='dsXP')countNum(b,1000)});
-  var gain=P&&P.xp>0?P.xp:0,st=ds.querySelector('.done-stats');
-  if(gain&&st){var a=lvAt(Math.max(0,S.xp-gain)),b=lvAt(S.xp),up=b.i>a.i,w=document.createElement('div');w.className='neorank'+(up?' up':'');w.style.setProperty('--ni',1.5);
-   w.innerHTML='<div class="nrh"><span>'+(up?'Promoted to <b>'+escH(b.name)+'</b>!':'Rank '+(b.i+1)+': <b>'+escH(b.name)+'</b>')+'</span><span class="nrx">+'+fmtInt(gain)+' XP</span></div><div class="nrbar"><i style="width:'+(up?0:a.frac*100)+'%"></i><b style="width:'+(up?0:a.frac*100)+'%"></b></div><div class="nrf">'+(b.next?fmtInt(b.toNext)+' XP to '+escH(b.next):'Top rank reached')+'</div>';
-   st.parentNode.insertBefore(w,st.nextSibling);var bar=w.querySelector('.nrbar b');setTimeout(function(){if(bar)bar.style.width=(b.frac*100)+'%'},calm()?0:650)}
-  if(P&&P._full){var fp=document.createElement('div');fp.className='neofp';fp.innerHTML='<span class="nfi">⚡</span><div><b>Full power!</b><span>You hit today\'s goal of '+fmtInt(S.goal||50)+' XP.</span></div>';(st||ds.firstChild).parentNode.insertBefore(fp,(st||ds.firstChild).nextSibling);P._full=0}
-  var ic=ds.querySelector('.dicon');if(ic&&!calm())setTimeout(function(){var p=centre(ic);burst(p[0],p[1],{n:40,speed:7,cols:[COL.dark?'#ffffff':rgba(COL.accent||[83,74,183],1),rgba(COL.glow||[58,212,255],1),rgba(COL.accent||[120,110,240],1),'#ffb020'],life:900})},250)}
- function fullPower(){if(!on())return;if(P){P._full=1;return}if(document.querySelector('.neofull'))return;var o=document.createElement('div');o.className='neofull';o.setAttribute('role','status');o.innerHTML='<div class="nfin"><div class="nfcore"></div><p class="nfk">Daily goal reached</p><h2>Full power</h2><p>'+fmtInt(S.goal||50)+' XP today. The reactor is at 100%.</p></div>';document.body.appendChild(o);
-  try{sfx('badge')}catch(_){}setTimeout(function(){burst(innerWidth/2,innerHeight/2-60,{n:60,speed:8,cols:['#ffffff','#7fe3ff','#3ad4ff'],life:1100})},200);var close=function(){if(!o.isConnected)return;o.classList.add('out');setTimeout(function(){o.remove()},300)};o.onclick=close;setTimeout(close,2800)}
-
- /* ---------- page entrance, bars that grow, numbers that count ---------- */
- var BARS='.lvlbar>div,.uprog>div,.stbar>div,.bbar>div,.qbar>div';
- function snapBars(pg){return pg?[].map.call(pg.querySelectorAll(BARS),function(b){return b.style.width}):null}
- function growBars(pg,old){if(!pg||calm())return;var bs=[].slice.call(pg.querySelectorAll(BARS));if(!bs.length)return;var same=old&&old.length===bs.length,to=bs.map(function(b){return b.style.width});
-  bs.forEach(function(b,i){b.style.transition='none';b.style.width=same?old[i]:'0%'});void pg.offsetWidth;requestAnimationFrame(function(){bs.forEach(function(b,i){b.style.transition='';b.style.width=to[i]})})}
- function enter(pg){if(!pg||calm())return;var i=0;[].forEach.call(pg.children,function(ch){ch.style.setProperty('--ni',i++)});[].forEach.call(pg.querySelectorAll('.units>.unit'),function(u,k){u.style.setProperty('--ni',k)});
-  pg.classList.remove('neoEnter');void pg.offsetWidth;pg.classList.add('neoEnter');clearTimeout(pg._ne);pg._ne=setTimeout(function(){pg.classList.remove('neoEnter')},1600)}
- function countStats(pg){if(!pg||calm())return;[].forEach.call(pg.querySelectorAll('.stat b'),function(b){countNum(b,900)})}
-
- /* ---------- tab indicators and the phone tab bar ---------- */
- var ICON={learn:'<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 1 6.5 18H20v3H6.5"/><path d="M9 7h7M9 10.5h5"/>',sim:'<path d="M4 18a8 8 0 1 1 16 0"/><path d="m12 18 4-6"/><circle cx="12" cy="18" r="1.4"/><path d="M6.3 12.5l1.2.8M12 8v1.5M17.7 12.5l-1.2.8"/>',review:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',exam:'<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M9 10h6M9 14h6M9 18h3"/>',ref:'<path d="M17 4H7l6 8-6 8h10"/>'};
- function svg(p){return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(ICON[p]||ICON.learn)+'</svg>'}
- function place(ind,b,first){if(!ind)return;if(!b){ind.style.width='0';return}if(first)ind.classList.add('noanim');ind.style.width=b.offsetWidth+'px';ind.style.height=b.offsetHeight+'px';ind.style.transform='translate('+b.offsetLeft+'px,'+b.offsetTop+'px)';if(first){void ind.offsetWidth;ind.classList.remove('noanim')}}
- function tabInd(){var tb=document.querySelector('.hdr .tabs');if(!tb)return;var ind=tb.querySelector('.ntind');if(!on()){if(ind)ind.remove();return}var first=!ind;if(!ind){ind=document.createElement('span');ind.className='ntind';ind.setAttribute('aria-hidden','true');tb.insertBefore(ind,tb.firstChild)}
-  var b=tb.querySelector('.tab.on');place(ind,b,first);ind.style.transform='translate('+(b?b.offsetLeft:0)+'px,0)';ind.style.height='';if(b&&b.scrollIntoView&&(b.offsetLeft<tb.scrollLeft||b.offsetLeft+b.offsetWidth>tb.scrollLeft+tb.clientWidth))tb.scrollLeft=b.offsetLeft-12}
- function navBuild(){var n=$('neoNav');if(!on()){if(n)n.remove();return}var tabs=[].slice.call(document.querySelectorAll('.hdr .tab'));if(!n){n=document.createElement('nav');n.id='neoNav';n.setAttribute('aria-label','Sections');document.body.appendChild(n)}
-  var sig=tabs.map(function(t){return t.dataset.p+':'+t.textContent}).join('|');if(n.dataset.sig!==sig){n.dataset.sig=sig;n.innerHTML='<span class="nnind" aria-hidden="true"></span>'+tabs.map(function(t){return '<button type="button" data-p="'+escH(t.dataset.p)+'">'+svg(t.dataset.p)+'<span>'+escH(t.textContent.trim())+'</span></button>'}).join('');
-   [].forEach.call(n.querySelectorAll('button'),function(b){b.onclick=function(){var t=document.querySelector('.hdr .tab[data-p="'+b.dataset.p+'"]');if(t)t.click();else showPage(b.dataset.p)}});n._first=1}navSync()}
- function navSync(){var n=$('neoNav');if(!n)return;var cur=null;[].forEach.call(n.querySelectorAll('button'),function(b){var o=b.dataset.p===PAGE;b.classList.toggle('on',o);if(o){cur=b;b.setAttribute('aria-current','page')}else b.removeAttribute('aria-current')});var ind=n.querySelector('.nnind');if(ind&&cur){var f=n._first;n._first=0;if(f)ind.classList.add('noanim');ind.style.width=cur.offsetWidth+'px';ind.style.transform='translateX('+cur.offsetLeft+'px)';if(f){void ind.offsetWidth;ind.classList.remove('noanim')}}}
- var lastY=0;window.addEventListener('scroll',function(){var h=document.querySelector('.hdr');if(!h)return;if(!on()||innerWidth>700){h.classList.remove('neohide');return}var y=window.scrollY||0;if(y>lastY+8&&y>110)h.classList.add('neohide');else if(y<lastY-8||y<60)h.classList.remove('neohide');lastY=y},{passive:true});
- window.addEventListener('resize',function(){clearTimeout(NEO._rz);NEO._rz=setTimeout(function(){if(on()){tabInd();navSync()}},120)});
-
- /* ---------- what's new (once) ---------- */
- function intro(){var m=$('modal');if(!m||m.classList.contains('open')||playerOpen()||document.querySelector('.shmod'))return false;
-  m.innerHTML='<div class="mcard neonew" role="dialog" aria-modal="true" aria-labelledby="nnT"><p class="mkick">New look</p><h2 id="nnT">Critical just got an upgrade</h2><ul>'+
-   '<li style="--ni:0"><i>⚛</i><span><b>A live reactor.</b> The core on the Learn page glows brighter as you earn today\'s XP. Fill it to reach full power.</span></li>'+
-   '<li style="--ni:1"><i>🔥</i><span><b>Combos you can hear.</b> Each answer you get right in a row plays a higher note. Get 5 in a row to go hot.</span></li>'+
-   '<li style="--ni:2"><i>✦</i><span><b>Smoother everything.</b> Progress bars grow, your rank bar fills at the end of each lesson and wins get a proper celebration.</span></li>'+
-   (innerWidth<=700?'<li style="--ni:3"><i>☰</i><span><b>Tabs at the bottom.</b> Easier to reach with your thumb.</span></li>':'')+
-   '</ul><p class="note" style="text-align:center;margin:0 0 6px">Prefer the old look? Progress → Settings → Look.</p><div class="nnb"><button class="big" id="nnOk">Let\'s go</button><button class="ghost" id="nnOld">Use the classic look</button></div></div>';
-  m.classList.add('open');var close=function(){try{localStorage.setItem(SEEN,'1')}catch(_){}m.classList.remove('open');m.innerHTML=''};$('nnOk').onclick=function(){close();var t=document.querySelector('#page-learn .ringbox');if(t&&!calm()){var p=centre(t);burst(p[0],p[1],{n:36,speed:6})}};$('nnOld').onclick=function(){close();apply('classic')};setTimeout(function(){try{$('nnOk').focus()}catch(_){}},50);return true}
- function introLater(){var seen=0;try{seen=localStorage.getItem(SEEN)}catch(_){}if(seen||!on())return;var tries=0;(function go(){if(intro())return;if(++tries<20)setTimeout(go,3000)})()}
-
- /* ---------- settings rows ---------- */
- function settingsRows(){var ts=$('themeSel');if(!ts||$('lookSel'))return;var row=ts.closest('.wrow');if(!row)return;var w=document.createElement('div');
-  w.innerHTML='<div class="wrow"><label for="lookSel">Look</label><select id="lookSel"><option value="neo">Report card (new)</option><option value="legacy">Legacy: the previous look</option><option value="classic">Classic</option></select></div><div class="wrow"><label for="motSel">Animations</label><select id="motSel"><option value="auto">Match my device</option><option value="full">Full</option><option value="less">Less movement</option></select></div>';
-  var a=w.children[0],b=w.children[1];row.parentNode.insertBefore(b,row.nextSibling);row.parentNode.insertBefore(a,row.nextSibling);$('lookSel').value=look();$('motSel').value=motPref();
-  $('lookSel').onchange=function(){apply(this.value)};$('motSel').onchange=function(){try{if(this.value==='auto')localStorage.removeItem(MK);else localStorage.setItem(MK,this.value)}catch(_){}calmUpd();bgKick();coreMount()}}
-
- /* ---------- switching looks ---------- */
- function calmUpd(){R.classList.toggle('neocalm',on()&&calm())}
- setTimeout(function(){try{if(R.classList.contains('rpt')&&!localStorage.getItem('critical_rpt_seen')){localStorage.setItem('critical_rpt_seen','1');toast('✨','New look: report card style','Prefer the old one? Progress → Settings → Look → Legacy','')}}catch(_){}},2500);
- function apply(lk,silent){try{if(lk==='classic'||lk==='legacy')localStorage.setItem(LK,lk);else localStorage.removeItem(LK)}catch(_){}R.classList.toggle('neo',lk!=='classic');R.classList.toggle('rpt',lk!=='classic'&&lk!=='legacy');calmUpd();
-  if(on()){fonts();bgInit();cols()}else{var h=document.querySelector('.hdr');if(h)h.classList.remove('neohide');heat()}
-  try{themeUI()}catch(_){}tabInd();navBuild();bgSize&&bg.cv&&bgSize();bgKick();if(!silent){showPage(PAGE);if(on()){try{localStorage.setItem(SEEN,'1')}catch(_){}}}}
-
- /* ---------- hooks into the app ---------- */
- function hook(){
-  var _sp=showPage;showPage=function(p){var pg0=$('page-'+p);if(on()&&p==='learn')core.v=0;var r=_sp.apply(this,arguments);try{if(on()){var pg=$('page-'+p);enter(pg);growBars(pg,null);if(p==='review')countStats(pg);tabInd();navSync();bgKick()}}catch(e){if(window.console)console.error(e)}return r};
-  var _rl=renderLearn;renderLearn=function(){var r=_rl.apply(this,arguments);try{coreMount()}catch(e){if(window.console)console.error(e)}return r};
-  var _rr=renderReview;renderReview=function(){var r=_rr.apply(this,arguments);try{settingsRows()}catch(e){if(window.console)console.error(e)}return r};
-  var _op=openPlayer;openPlayer=function(){var r=_op.apply(this,arguments);bgKick();heat();return r};
-  var _cp=closePlayer;closePlayer=function(){var pg=$('page-'+PAGE),old=on()?snapBars(pg):null;var r=_cp.apply(this,arguments);try{var pl=$('player');if(pl){pl.classList.remove('neoHot','neoSuper')}if(on()){pg=$('page-'+PAGE);growBars(pg,old);bgKick();coreKick()}}catch(_){}return r};
-  var _sc=showCard;showCard=function(){var r=_sc.apply(this,arguments);try{if(on()&&!calm()){var b=$('pBody');b.classList.remove('neoIn');void b.offsetWidth;b.classList.add('neoIn')}}catch(_){}return r};
-  var _gr=gotRight;gotRight=function(c){var first=P&&P.st&&!P.st.tries;var r=_gr.apply(this,arguments);try{if(on()&&first)onRight()}catch(_){}return r};
-  var _gw=gotWrong;gotWrong=function(c){var r=_gw.apply(this,arguments);try{if(on())onWrong()}catch(_){}return r};
-  var _cb=showCombo;showCombo=function(up){var r=_cb.apply(this,arguments);try{var e=$('pCombo');if(e){var n=P&&P.combo||0;e.classList.toggle('hot',on()&&n>=5);e.classList.toggle('super',on()&&n>=10);e.title=n>=2?n+' right in a row':''}heat()}catch(_){}return r};
-  var _sf=sfx;sfx=function(k){if(on()&&(k==='right'||k==='combo')&&P&&S.sound!==false){chime(P.combo||1);return}return _sf.apply(this,arguments)};
-  var _cf=confetti;confetti=function(){if(on()){if(!calm())confettiNeo();return}return _cf.apply(this,arguments)};
-  var _lu=showLevelUp;showLevelUp=function(i){var r=_lu.apply(this,arguments);try{if(on()){var mc=document.querySelector('#modal .mcard');if(mc){mc.classList.add('neoLv');var em=mc.querySelector('.memb');if(em&&!calm())setTimeout(function(){var p=centre(em);burst(p[0],p[1],{n:50,speed:8,cols:[COL.dark?'#ffffff':rgba(COL.accent||[83,74,183],1),rgba(COL.glow||[58,212,255],1),'#ffb020'],life:1000})},300)}}}catch(_){}return r};
-  var _ax=addXP;addXP=function(n,el){var g=S.goal||50,b0=dailyXP();var r=_ax.apply(this,arguments);try{if(on()&&b0<g&&dailyXP()>=g)fullPower()}catch(_){}return r};
-  var _uh=updHeader,shown=null,tok=0;updHeader=function(){var r=_uh.apply(this,arguments);try{var p=$('xpPill');if(on()&&p&&shown!=null&&S.xp>shown&&!calm()){var a=shown,b=S.xp,t0=performance.now(),my=++tok;(function f(t){if(my!==tok)return;var u=Math.min(1,(t-t0)/800),v=a+(b-a)*(1-Math.pow(1-u,3));p.innerHTML=BOLT+fmtInt(v)+' XP';if(u<1)requestAnimationFrame(f)})(t0)}shown=S.xp}catch(_){}return r};
-  var _tu=themeUI;themeUI=function(){var r=_tu.apply(this,arguments);try{if(on()){cols();var m=document.querySelector('meta[name="theme-color"]');if(m)m.setAttribute('content',isDark()?'#070c17':'#f3f6fb');bgDraw(performance.now());if(core.cv)coreDraw(performance.now())}}catch(_){}return r};
-  var _rd=redrawAll;redrawAll=function(){var r=_rd.apply(this,arguments);try{if(on()){cols();bgDraw(performance.now());if(core.cv)coreDraw(performance.now())}}catch(_){}return r};
-  // a soft click when you pick an answer
-  document.addEventListener('click',function(e){if(!on()||S.sound===false)return;var o=e.target&&e.target.closest&&e.target.closest('#pBody .opt');if(o&&!o.disabled){try{beep(1650,0,.035,'triangle',.022)}catch(_){}}},true);
-  // every finishing screen gets the treatment
-  try{new MutationObserver(function(){var ds=document.querySelector('#pBody .done-screen:not(.neoDone)');if(ds)enhanceDone(ds)}).observe($('pBody'),{childList:true})}catch(_){}
-  document.addEventListener('visibilitychange',function(){bgKick();coreKick()});
-  try{var mq=matchMedia('(prefers-reduced-motion: reduce)'),f=function(){calmUpd();bgKick()};if(mq.addEventListener)mq.addEventListener('change',f)}catch(_){}
- }
- function boot(){hook();if(on()){fonts();bgInit();cols()}calmUpd();setTimeout(function(){tabInd();navBuild()},0);introLater()}
- return {boot:boot,on:on,apply:apply,look:look,calm:calm,burst:burst,coreMount:coreMount,fullPower:fullPower,intro:intro}
-})();
-try{window.NEO=NEO}catch(_){}
-NEO.boot();
-/* ===== Live labs inside lessons: collision lab (momentum), live reactor core, 3D flux ===== */
-(function(){
- var LE0=Math.log10(0.025),LE1=Math.log10(2e6);
- /* neutron transport toy: 2D, real elastic-scattering kinematics off hydrogen, moderation, resonance capture, fission, control rods, leakage */
-function NSIM(w,h,rnd){
- rnd=rnd||Math.random;
- var LE0=Math.log10(0.025),LE1=Math.log10(2e6),A=1;
- var S={w:w,h:h,ns:[],ev:[],fuel:[],rods:[],ins:.5,born:0,lost:0,fis:0,cap:0,leak:0,col:0,abs:0,srcT:0,max:260,lastCol:null,t:0,
-  win:[],k:1,knum:0,kden:0,P:{refl:.8,sR:[.6,.25,.08],sF:[.16,.006,.01],ff:.84,lamT:24,lamF:28,hAbs:.0008}};
- function lay(w,h){S.w=w;S.h=h;var cols=Math.max(4,Math.round(w/74)),rows=Math.max(3,Math.round(h/74)),px=w/cols,py=h/rows,r=Math.min(px,py)*.2;S.fuel=[];S.px=px;S.py=py;S.cols=cols;S.rows=rows;S.fr=r;
-  for(var j=0;j<rows;j++)for(var i=0;i<cols;i++)S.fuel.push({x:(i+.5)*px,y:(j+.5)*py,heat:0});
-  S.rods=[];for(var c=1;c<cols;c+=2)S.rods.push({x:c*px,w:Math.max(5,px*.09)})}
- lay(w,h);
- function sp(E){var l=(Math.log10(Math.max(E,1e-3))-LE0)/(LE1-LE0);l=l<0?0:l>1?1:l;return .5+4.4*Math.pow(l,.85)}
- function add(x,y,E,ux,uy){if(S.ns.length>=S.max)return false;if(ux==null){var a=rnd()*6.2832;ux=Math.cos(a);uy=Math.sin(a)}S.ns.push({x:x,y:y,ux:ux,uy:uy,E:E,tr:[],age:0});return true}
- function watt(){var E=0;for(var i=0;i<3;i++)E+=rnd();return (0.35+E*0.75)*1e6}
- function fission(n,fi){var nu=rnd()<.43?3:2,b=0;for(var i=0;i<nu;i++)if(add(n.x,n.y,watt()))b++;S.born+=b;S.fis++;S.knum+=nu;var a=rnd()*6.2832;S.ev.push({k:'fis',x:n.x,y:n.y,t:0,a:a});if(fi!=null)S.fuel[fi].heat=Math.min(6,S.fuel[fi].heat+1)}
- function scatter(n){var v=Math.sqrt(n.E),vx=n.ux*v,vy=n.uy*v;
-  if(n.E<0.2){var E1=0.0125*(-Math.log(rnd()+1e-9)-Math.log(rnd()+1e-9)),a=rnd()*6.2832;n.E=Math.max(0.004,E1);n.ux=Math.cos(a);n.uy=Math.sin(a);S.col++;return null}
-  var Vx=vx/(A+1),Vy=vy/(A+1),ux=vx-Vx,uy=vy-Vy,th=rnd()*6.2832,c=Math.cos(th),s=Math.sin(th),wx=Vx+ux*c-uy*s,wy=Vy+ux*s+uy*c,E1=wx*wx+wy*wy;if(E1<1e-12)E1=1e-12;
-  var rx=(vx-wx)/A,ry=(vy-wy)/A,v1=Math.sqrt(E1),cosL=(vx*wx+vy*wy)/(v*v1||1);
-  var rec={E0:n.E,E1:E1,ang:Math.acos(Math.max(-1,Math.min(1,cosL)))*180/Math.PI,p0:v,p1:v1,pr:Math.sqrt(rx*rx+ry*ry)*A,x:n.x,y:n.y,vx:vx/v,vy:vy/v,wx:wx/v,wy:wy/v,rx:rx/v,ry:ry/v};
-  n.E=E1;n.ux=wx/v1;n.uy=wy/v1;S.col++;S.lastCol=rec;return rec}
- function lose(n,kind){S.lost++;S.kden++;if(kind==='leak')S.leak++;else S.abs++;if(kind==='cap')S.cap++}
- function step(dt){var k=dt/16,out=[],ns=S.ns,i,fx=S.px,fy=S.py,r2=S.fr*S.fr,ins=S.ins*S.h;S.t+=dt;
-  S.srcT-=dt;if(S.srcT<=0){S.srcT=(S.P.src||1050)*(.67+rnd()*.66);var f=S.fuel[Math.floor(rnd()*S.fuel.length)];if(add(f.x+(rnd()-.5)*4,f.y+(rnd()-.5)*4,watt()))S.born++}
-  for(i=0;i<S.fuel.length;i++)S.fuel[i].heat*=Math.pow(.985,k);
-  for(i=0;i<ns.length;i++){var n=ns[i],s=sp(n.E)*k,gone=null;n.age+=dt;
-   n.x+=n.ux*s;n.y+=n.uy*s;
-   if(n.x<0||n.x>S.w||n.y<0||n.y>S.h){if(rnd()<S.P.refl){if(n.x<0){n.x=-n.x;n.ux=Math.abs(n.ux)}if(n.x>S.w){n.x=2*S.w-n.x;n.ux=-Math.abs(n.ux)}if(n.y<0){n.y=-n.y;n.uy=Math.abs(n.uy)}if(n.y>S.h){n.y=2*S.h-n.y;n.uy=-Math.abs(n.uy)}}else gone='leak'}
-   if(!gone){var inRod=false;if(n.y<ins)for(var q=0;q<S.rods.length;q++){if(Math.abs(n.x-S.rods[q].x)<S.rods[q].w/2){inRod=true;break}}
-    if(inRod){var R=S.P.sR,sr=n.E<1?R[0]:n.E<1e4?R[1]:R[2];if(rnd()<sr*s)gone='rod'}
-    else{var ci=Math.floor(n.x/fx),cj=Math.floor(n.y/fy),fi=cj*S.cols+ci,f2=S.fuel[fi],inF=false;if(f2){var dx=n.x-f2.x,dy=n.y-f2.y;inF=dx*dx+dy*dy<r2}
-     if(inF){var F=S.P.sF,sf=n.E<1?F[0]:n.E<1e4?F[1]:F[2];if(rnd()<sf*s){if(n.E<1){if(rnd()<S.P.ff){fission(n,fi);gone='fis'}else gone='cap'}else if(n.E<1e4)gone='cap';else{fission(n,fi);gone='fis'}}}
-     else{var lam=n.E<1?S.P.lamT:S.P.lamF;if(rnd()<s/lam){var rc=scatter(n);if(rc)out.push(rc)}if(n.E<1&&rnd()<S.P.hAbs*k)gone='h'}}}
-   if(gone){if(gone==='fis'){S.lost++;S.kden++;S.abs++}else lose(n,gone==='leak'?'leak':gone==='cap'?'cap':'abs');S.ev.push({k:gone,x:n.x,y:n.y,t:0});ns.splice(i,1);i--}}
-  // measured k over a sliding window
-  S.win.push([dt,S.knum,S.kden]);S.knum=0;S.kden=0;var T=0,a=0,b=0;for(i=S.win.length-1;i>=0;i--){T+=S.win[i][0];a+=S.win[i][1];b+=S.win[i][2];if(T>8000){S.win.splice(0,i);break}}
-  if(b>=6)S.k=S.k+(a/b-S.k)*Math.min(1,dt/1500);
-  return out}
- function auto(dt,target){S.nsm=S.nsm==null?S.ns.length:S.nsm+(S.ns.length-S.nsm)*Math.min(1,dt/1500);var e=Math.log(Math.max(1,S.nsm)/Math.max(4,target)),rate=.05*e+.22*(S.k-1);rate=Math.max(-.07,Math.min(.07,rate));S.ins=Math.max(0,Math.min(1,S.ins+rate*dt/1000))}
- S.auto=auto;S.lay=lay;S.step=step;S.add=add;S.sp=sp;S.watt=watt;return S}
-
-
- function dpr(){return Math.min(2,window.devicePixelRatio||1)}
- function narrow(){return innerWidth<=560}
- function calm(){try{return NEO.calm()}catch(_){return false}}
- function screen(box,h,hn){var w=el('div','labscr',null,box),cv=document.createElement('canvas');w.appendChild(cv);var o={wrap:w,cv:cv,c:cv.getContext('2d'),W:0,H:0,d:0};
-  o.fit=function(){var Wd=Math.max(220,Math.round(w.clientWidth||600)),Hd=narrow()?(hn||h):h,d=dpr();if(Wd===o.W&&Hd===o.H&&d===o.d)return false;o.W=Wd;o.H=Hd;o.d=d;cv.style.height=Hd+'px';cv.width=Math.round(Wd*d);cv.height=Math.round(Hd*d);o.c.setTransform(d,0,0,d,0,0);return true};o.fit();return o}
- function run(scr,f){var last=performance.now();function L(t){if(!scr.cv.isConnected)return;requestAnimationFrame(L);var dt=Math.max(0,Math.min(50,t-last));last=t;if(document.visibilityState!=='visible')return;var rs=scr.fit();f(dt,t,rs)}requestAnimationFrame(L)}
- var EC=[];(function(){var st=[[0,[58,212,255]],[.34,[110,255,175]],[.67,[255,206,70]],[1,[255,80,64]]];for(var i=0;i<64;i++){var u=i/63,a=st[0],b=st[1];for(var k=1;k<st.length;k++)if(u<=st[k][0]){a=st[k-1];b=st[k];break}var f=(u-a[0])/(b[0]-a[0]||1);EC.push([0,1,2].map(function(j){return Math.round(a[1][j]+(b[1][j]-a[1][j])*f)}))}})();
- function eIdx(E){var l=(Math.log10(Math.max(E,1e-3))-LE0)/(LE1-LE0);return Math.max(0,Math.min(63,Math.round(l*63)))}
- function rgba(c,a){return 'rgba('+c[0]+','+c[1]+','+c[2]+','+(+a).toFixed(3)+')'}
- function fmtE(E){return E>=1e6?(E/1e6).toFixed(E>=1e7?0:2)+' MeV':E>=1e3?(E/1e3).toFixed(E>=1e5?0:1)+' keV':E>=1?E.toFixed(E>=100?0:1)+' eV':E.toFixed(3)+' eV'}
- function arrow(c,x0,y0,x1,y1,col,w,dash){var dx=x1-x0,dy=y1-y0,L=Math.hypot(dx,dy);if(L<2)return;c.strokeStyle=col;c.fillStyle=col;c.lineWidth=w||2;c.setLineDash(dash||[]);c.beginPath();c.moveTo(x0,y0);c.lineTo(x1-dx/L*5,y1-dy/L*5);c.stroke();c.setLineDash([]);var a=Math.atan2(dy,dx),h=Math.min(9,4+L*.15);c.beginPath();c.moveTo(x1,y1);c.lineTo(x1-Math.cos(a-.42)*h,y1-Math.sin(a-.42)*h);c.lineTo(x1-Math.cos(a+.42)*h,y1-Math.sin(a+.42)*h);c.closePath();c.fill()}
- function hud(c,x,y,t,col,size,align,bold){c.font=(bold?'700 ':'600 ')+(size||10)+'px "JetBrains Mono",ui-monospace,Consolas,monospace';c.textAlign=align||'left';c.fillStyle=col||'rgba(200,220,255,.8)';c.fillText(t,x,y);c.textAlign='left'}
- function tog(b,v){b.classList.toggle('on',!!v);b.setAttribute('aria-pressed',v?'true':'false')}
-
- /* ---------- live reactor core: a Monte Carlo chain reaction you control ---------- */
- WIDGETS.reactorSim=function(box,par){par=par||{};var scr=screen(box,310,260),sim=NSIM(scr.W,scr.H),tgt=par.rods==null?.62:par.rods,mom=true,slow=false,paused=calm(),bgc=null,arrows=[],recoils=[],hist=new Float32Array(26),hold=0,done=false,moved=false,fisW=[],fps=0,tStat=0,blink=0;
-  var BOR=par.control==='boron',ppm=par.boron!=null?par.boron:1400,fb=!!par.feedback,fuelT=300,fast=false,fat={fis:0,cap:0,abs:0,leak:0},fatW=[],trip=false;if(BOR)tgt=0;if(par.source)sim.P.src=par.source;
-  sim.ins=tgt;sim.max=narrow()?170:260;for(var i=0;i<(par.n||40);i++){var f0=sim.fuel[Math.floor(Math.random()*sim.fuel.length)];sim.add(f0.x,f0.y,sim.watt())}
-  var rs=BOR?slider(box,'Boron in the water',0,2000,10,ppm,function(v){return v+' ppm'},function(v){ppm=v;moved=true}):slider(box,'Control rods',0,100,1,Math.round(tgt*100),function(v){return v+'% in'},function(v){tgt=v/100;moved=true});
-  function setBoron(){sim.P.hAbs=fast?0:.0008+(BOR?ppm*5e-6:0)}setBoron();
-  var r=row(box),bP=btn(r,paused?'Play':'Pause',function(){paused=!paused;bP.textContent=paused?'Play':'Pause'}),bF=btn(r,'Fire neutrons',function(){fire(scr.W/2,scr.H/2,6)}),bM=btn(r,'Momentum arrows',function(){mom=!mom;tog(bM,mom)}),bS=btn(r,'Slow motion',function(){slow=!slow;tog(bS,slow)});tog(bM,mom);tog(bS,slow);
-  if(par.fastBtn){var bW=btn(r,'Take the water out',function(){fast=!fast;tog(bW,fast);sim.P.lamF=fast?1e9:28;sim.P.lamT=fast?1e9:24;sim.P.sF=[.16,fb?sim.P.sF[1]:.006,fast?.002:.01];setBoron();moved=true});tog(bW,false)}
-  if(par.trip){var bT=btn(r,'Trip!',function(){trip=true;tgt=1;moved=true;try{rs.set(100)}catch(_){}},'pri')}
-  var SL=[['n','Neutrons now'],['k','k, measured']];if(par.rho)SL.push(['r','Reactivity ρ']);if(par.source)SL.push(['m','Multiplication 1/(1 − k)']);if(fb)SL.push(['T','Fuel temperature']);if(par.breed)SL.push(['p','Plutonium-239 made'],['c','Conversion ratio']);if(SL.length<4)SL.push(['f','Fissions a second']);if(SL.length<4)SL.push(['t','Slow (thermal)']);var st=stats(box,SL),stF=par.fates?stats(box,[['a','Cause fission'],['b','Caught by U-238'],['c','Soaked up (rods, boron, water)'],['d','Leak out']]):null,m=msg(box);
-  m.set(par.goal==='critical'?'Tap the core to fire in more neutrons. Get k to stay near <b>1.00</b>.':'Tap the core to fire in more neutrons.');
-  function fire(x,y,n){for(var i=0;i<n;i++)if(sim.add(x+(Math.random()-.5)*6,y+(Math.random()-.5)*6,sim.watt()))sim.born++;sim.ev.push({k:'tap',x:x,y:y,t:0})}
-  scr.cv.addEventListener('pointerdown',function(e){var b=scr.cv.getBoundingClientRect();fire(e.clientX-b.left,e.clientY-b.top,3)});scr.cv.style.cursor='crosshair';
-  function bg(){var o=document.createElement('canvas');o.width=scr.cv.width;o.height=scr.cv.height;var c=o.getContext('2d'),W=scr.W,H=scr.H;c.setTransform(scr.d,0,0,scr.d,0,0);
-   var g=c.createLinearGradient(0,0,0,H);g.addColorStop(0,'#071631');g.addColorStop(1,'#040a17');c.fillStyle=g;c.fillRect(0,0,W,H);
-   c.strokeStyle='rgba(90,150,255,.06)';c.lineWidth=1;for(var x=sim.px/2;x<W;x+=sim.px/2){c.beginPath();c.moveTo(Math.round(x)+.5,0);c.lineTo(Math.round(x)+.5,H);c.stroke()}for(var y=sim.py/2;y<H;y+=sim.py/2){c.beginPath();c.moveTo(0,Math.round(y)+.5);c.lineTo(W,Math.round(y)+.5);c.stroke()}
-   sim.fuel.forEach(function(f){var R=sim.fr,gr=c.createRadialGradient(f.x-R*.35,f.y-R*.35,1,f.x,f.y,R);gr.addColorStop(0,'#46557a');gr.addColorStop(1,'#141c2e');c.fillStyle=gr;c.beginPath();c.arc(f.x,f.y,R,0,6.283);c.fill();c.strokeStyle='rgba(170,200,255,.38)';c.lineWidth=1.2;c.stroke();c.strokeStyle='rgba(255,170,90,.18)';c.beginPath();c.arc(f.x,f.y,R*.55,0,6.283);c.stroke()});
-   return o}
-  function relayout(){var ow=sim.w,oh=sim.h;sim.lay(scr.W,scr.H);sim.ns.forEach(function(n){n.x*=scr.W/ow;n.y*=scr.H/oh;n.tr=[]});bgc=bg()}
-  bgc=bg();
-  run(scr,function(dt,t,rsz){if(rsz)relayout();var c=scr.c,W=scr.W,H=scr.H,step=paused?0:(slow?dt*.3:dt);blink+=dt;
-   if(step>0){if(fb){var fr=0;fisW.forEach(function(x){fr+=x[1]});fuelT+=((300+fr*14)-fuelT)*Math.min(1,step/1500);sim.P.sF=[.16,.006*(1+2*Math.max(0,fuelT-300)/600),fast?.002:.01]}if(BOR)setBoron();var dIns=tgt-sim.ins,mv=(trip?2.5:.25)*step/1000;sim.ins+=Math.abs(dIns)<mv?dIns:mv*Math.sign(dIns);var f1=sim.fis,cols=sim.step(step);fisW.push([t,sim.fis-f1]);
-    cols.forEach(function(rc){sim.ev.push({k:'col',x:rc.x,y:rc.y,t:0});if(rc.E0>50&&recoils.length<40)recoils.push({x:rc.x,y:rc.y,vx:rc.rx*sim.sp(rc.E0),vy:rc.ry*sim.sp(rc.E0),t:0});if(mom&&rc.E0>500&&arrows.length<(narrow()?4:7)&&Math.random()<.5)arrows.push({r:rc,t:0,ec:EC[eIdx(rc.E1)]})});
-    sim.ns.forEach(function(n){n.tr.push(n.x,n.y);if(n.tr.length>16)n.tr.splice(0,2)})}
-   while(fisW.length&&t-fisW[0][0]>1500)fisW.shift();
-   // energy histogram (smoothed)
-   var hb=new Float32Array(26);sim.ns.forEach(function(n){var l=(Math.log10(Math.max(n.E,.003))+2.5)/9.5;hb[Math.max(0,Math.min(25,Math.floor(l*26)))]++});for(var q=0;q<26;q++)hist[q]+=(hb[q]-hist[q])*Math.min(1,dt/250);
-   // goal
-   if(par.goal==='critical'&&!done&&step>0){if(moved&&Math.abs(sim.k-1)<.05&&sim.ns.length>=15)hold+=step;else hold=Math.max(0,hold-step*.5);if(hold>=6000){done=true;m.set('<b>Critical!</b> k is holding at '+sim.k.toFixed(2)+'. Each fission causes about one more, so the neutron count stays steady.',true);try{NEO.burst(scr.cv.getBoundingClientRect().left+W/2,scr.cv.getBoundingClientRect().top+H/2,{n:40,speed:7})}catch(_){}}}
-   // draw
-   c.globalCompositeOperation='source-over';c.drawImage(bgc,0,0,W,H);
-   c.globalCompositeOperation='lighter';
-   sim.fuel.forEach(function(f){if(f.heat<.03)return;var a=Math.min(.55,f.heat*.14),R=sim.fr,g=c.createRadialGradient(f.x,f.y,R*.4,f.x,f.y,R*2.8);g.addColorStop(0,'rgba(80,200,255,'+a.toFixed(3)+')');g.addColorStop(1,'rgba(40,140,255,0)');c.fillStyle=g;c.beginPath();c.arc(f.x,f.y,R*2.8,0,6.283);c.fill();c.fillStyle='rgba(255,150,70,'+(a*.6).toFixed(3)+')';c.beginPath();c.arc(f.x,f.y,R*.55,0,6.283);c.fill()});
-   c.globalCompositeOperation='source-over';
-   // control rods
-   var ins=sim.ins*H;sim.rods.forEach(function(rd,k){var x0=rd.x-rd.w/2,g=c.createLinearGradient(x0,0,x0+rd.w,0);g.addColorStop(0,'#5d6a86');g.addColorStop(.45,'#c9d3e8');g.addColorStop(1,'#3a4560');c.fillStyle=g;c.fillRect(x0,0,rd.w,ins);c.fillStyle='rgba(255,90,90,.8)';c.fillRect(x0,ins-2,rd.w,2);c.fillStyle='#2a3348';c.fillRect(x0-2,0,rd.w+4,5)});
-   // neutrons
-   c.globalCompositeOperation='lighter';c.lineCap='round';
-   for(var j=0;j<sim.ns.length;j++){var n=sim.ns[j],col=EC[eIdx(n.E)],tr=n.tr;if(tr.length>=4){c.strokeStyle=rgba(col,.4);c.lineWidth=1.3;c.beginPath();c.moveTo(tr[0],tr[1]);for(var p=2;p<tr.length;p+=2){var jx=tr[p]-tr[p-2],jy=tr[p+1]-tr[p-1];if(jx*jx+jy*jy>900)c.moveTo(tr[p],tr[p+1]);else c.lineTo(tr[p],tr[p+1])}c.stroke()}
-    c.fillStyle=rgba(col,.16);c.beginPath();c.arc(n.x,n.y,4.6,0,6.283);c.fill();c.fillStyle=rgba(col,.95);c.beginPath();c.arc(n.x,n.y,1.8,0,6.283);c.fill()}
-   // events
-   sim.ev.forEach(function(e){if(e.t===0&&!e.c){e.c=1;if(e.k==='fis')fat.fis++;else if(e.k==='cap')fat.cap++;else if(e.k==='rod'||e.k==='h')fat.abs++;else if(e.k==='leak')fat.leak++}});
-   sim.ev=sim.ev.filter(function(e){e.t+=dt;var u;if(e.k==='fis'){u=e.t/460;if(u>1)return false;var R=4+u*24,g=c.createRadialGradient(e.x,e.y,0,e.x,e.y,R);g.addColorStop(0,'rgba(255,255,255,'+(.9*(1-u)).toFixed(3)+')');g.addColorStop(.35,'rgba(255,170,70,'+(.6*(1-u)).toFixed(3)+')');g.addColorStop(1,'rgba(255,90,40,0)');c.fillStyle=g;c.beginPath();c.arc(e.x,e.y,R,0,6.283);c.fill();
-     var fa=e.a||0,fd=6+u*16;c.fillStyle='rgba(255,180,90,'+(1-u).toFixed(3)+')';c.beginPath();c.arc(e.x+Math.cos(fa)*fd,e.y+Math.sin(fa)*fd,1.8,0,6.283);c.arc(e.x-Math.cos(fa)*fd,e.y-Math.sin(fa)*fd,1.8,0,6.283);c.fill();return true}
-    if(e.k==='col'){u=e.t/200;if(u>1)return false;c.fillStyle='rgba(255,255,255,'+(.7*(1-u)).toFixed(3)+')';c.beginPath();c.arc(e.x,e.y,1.2+u*3,0,6.283);c.fill();return true}
-    if(e.k==='cap'||e.k==='rod'||e.k==='h'){u=e.t/380;if(u>1)return false;c.strokeStyle=e.k==='cap'?'rgba(255,70,70,'+(1-u).toFixed(3)+')':e.k==='rod'?'rgba(190,140,255,'+(1-u).toFixed(3)+')':'rgba(90,200,255,'+(.5*(1-u)).toFixed(3)+')';c.lineWidth=1.4;c.beginPath();c.arc(e.x,e.y,2+u*7,0,6.283);c.stroke();return true}
-    if(e.k==='tap'){u=e.t/500;if(u>1)return false;c.strokeStyle='rgba(255,255,255,'+(.8*(1-u)).toFixed(3)+')';c.lineWidth=2;c.beginPath();c.arc(e.x,e.y,4+u*28,0,6.283);c.stroke();return true}return false});
-   recoils=recoils.filter(function(p){p.t+=dt;if(p.t>420)return false;var k=step>0?(slow?.3:1)*dt/16:0;p.x+=p.vx*k*.6;p.y+=p.vy*k*.6;c.fillStyle='rgba(255,230,150,'+(.8*(1-p.t/420)).toFixed(3)+')';c.beginPath();c.arc(p.x,p.y,1.5,0,6.283);c.fill();return true});
-   c.globalCompositeOperation='source-over';
-   // momentum arrows: incoming p, outgoing p' and the proton's share P (p = p' + P)
-   arrows=arrows.filter(function(a){a.t+=dt*(slow?.45:1);if(a.t>1300)return false;var u=a.t/1300,al=u<.15?u/.15:1-Math.max(0,(u-.6)/.4),L=narrow()?20:26,rc=a.r;c.globalAlpha=al;
-    arrow(c,rc.x-rc.vx*L,rc.y-rc.vy*L,rc.x,rc.y,'rgba(255,255,255,.7)',1.6);arrow(c,rc.x,rc.y,rc.x+rc.wx*L,rc.y+rc.wy*L,rgba(a.ec,1),2);arrow(c,rc.x,rc.y,rc.x+rc.rx*L,rc.y+rc.ry*L,'#ffd166',1.6,[3,2]);
-    if(!narrow()){hud(c,rc.x+rc.wx*L+4,rc.y+rc.wy*L+3,'p′','rgba(255,255,255,.75)',9);hud(c,rc.x+rc.rx*L+4,rc.y+rc.ry*L+3,'P','#ffd166',9)}c.globalAlpha=1;return true});
-   // HUD
-   var nb=narrow(),k=sim.k,state=k>1.05?['SUPERCRITICAL','#ffb347']:k<.95?['SUBCRITICAL','#7fd8ff']:['CRITICAL','#8dff9a'];
-   var gl=par.goal==='critical'&&nb;c.fillStyle='rgba(3,8,18,.62)';c.fillRect(0,0,W,gl?54:42);
-   hud(c,10,16,'LIVE CORE',nb?'rgba(200,225,255,.9)':'rgba(200,225,255,.9)',10,'left',true);c.fillStyle=(Math.floor(blink/600)%2)?'#ff4d4d':'rgba(255,77,77,.25)';c.beginPath();c.arc(nb?80:84,12.5,3.2,0,6.283);c.fill();
-   hud(c,10,32,(BOR?'boron '+ppm+' ppm':fast?'no water':'rods '+Math.round(sim.ins*100)+'% in')+' · '+sim.ns.length+(nb?' n':' neutrons'),'rgba(160,190,230,.85)',10);
-   hud(c,W-10,19,'k = '+k.toFixed(2),state[1],nb?14:16,'right',true);hud(c,W-10,34,state[0],state[1],9,'right',true);
-   if(par.goal==='critical'){var gw=nb?W-20:140,gx=nb?10:W/2-gw/2,gy=nb?46:27;c.fillStyle='rgba(255,255,255,.1)';c.fillRect(gx,gy,gw,4);c.fillStyle=done?'#8dff9a':'#3ad4ff';c.fillRect(gx,gy,gw*Math.min(1,done?1:hold/6000),4);if(!nb)hud(c,W/2,20,done?'CRITICAL HELD':!moved?'MOVE THE RODS':'HOLD k≈1 · '+(hold/1000).toFixed(1)+' / 6 s','rgba(200,225,255,.85)',9,'center',true);else hud(c,W/2,42,done?'CRITICAL HELD':!moved?'MOVE THE RODS':'HOLD k≈1 · '+(hold/1000).toFixed(1)+' / 6 s','rgba(200,225,255,.85)',8,'center',true)}
-   // spectrum
-   var sw=nb?128:176,sh=nb?46:58,sx=8,sy=H-sh-8;c.fillStyle='rgba(3,8,18,.72)';c.fillRect(sx,sy,sw,sh);c.strokeStyle='rgba(120,160,255,.25)';c.strokeRect(sx+.5,sy+.5,sw-1,sh-1);hud(c,sx+6,sy+11,'ENERGY SPECTRUM','rgba(200,225,255,.8)',8,'left',true);
-   var mx=1;for(q=0;q<26;q++)mx=Math.max(mx,hist[q]);var bw=(sw-12)/26;for(q=0;q<26;q++){var e=Math.pow(10,-2.5+(q+.5)/26*9.5),hgt=(sh-26)*hist[q]/mx;c.fillStyle=rgba(EC[eIdx(e)],.9);c.fillRect(sx+6+q*bw,sy+sh-12-hgt,Math.max(1,bw-1),hgt)}
-   hud(c,sx+6,sy+sh-3,'slow',rgba(EC[0],.9),8);hud(c,sx+sw-6,sy+sh-3,'fast',rgba(EC[63],.9),8,'right');
-   if(!nb&&sim.lastCol){var lc=sim.lastCol,bx=W-238,by=H-50;c.fillStyle='rgba(3,8,18,.72)';c.fillRect(bx,by,230,42);c.strokeStyle='rgba(120,160,255,.25)';c.strokeRect(bx+.5,by+.5,229,41);hud(c,bx+8,by+14,'LAST HIT ON HYDROGEN','rgba(200,225,255,.8)',8,'left',true);hud(c,bx+8,by+27,fmtE(lc.E0)+' → '+fmtE(lc.E1)+' · '+Math.round(lc.ang)+'°','rgba(230,240,255,.92)',10);hud(c,bx+8,by+38,'neutron kept '+Math.round(lc.p1/lc.p0*100)+'% of its momentum','rgba(255,209,102,.9)',8.5)}
-   if(paused){c.fillStyle='rgba(3,8,18,.45)';c.fillRect(0,0,W,H);hud(c,W/2,H/2+5,'PAUSED · press Play','#fff',13,'center',true)}
-   // readouts (a few times a second)
-   tStat+=dt;if(tStat>250){tStat=0;var fs=0;fisW.forEach(function(x){fs+=x[1]});st.n.textContent=sim.ns.length;st.k.textContent=k.toFixed(2);if(st.f)st.f.textContent=Math.round(fs/1.5*(slow?1/0.3:1));var th=0;sim.ns.forEach(function(n){if(n.E<1)th++});if(st.t)st.t.textContent=sim.ns.length?Math.round(th/sim.ns.length*100)+'%':'–';if(st.r)st.r.textContent=(k>=1?'+':'')+fmtInt((k-1)/Math.max(.05,k)*1e5)+' pcm';if(st.m)st.m.textContent=k<.99?fx(1/(1-k),1)+'×':'chain reaction grows';if(st.T)st.T.textContent=fmtInt(fuelT)+' °C';fatW.push([t,fat.fis,fat.cap,fat.abs,fat.leak]);while(fatW.length>2&&t-fatW[0][0]>10000)fatW.shift();var f0=fatW[0],tot=(fat.fis-f0[1])+(fat.cap-f0[2])+(fat.abs-f0[3])+(fat.leak-f0[4]);if(stF&&tot>0){stF.a.textContent=Math.round((fat.fis-f0[1])/tot*100)+'%';stF.b.textContent=Math.round((fat.cap-f0[2])/tot*100)+'%';stF.c.textContent=Math.round((fat.abs-f0[3])/tot*100)+'%';stF.d.textContent=Math.round((fat.leak-f0[4])/tot*100)+'%'}if(st.p){st.p.textContent=fmtInt(fat.cap);var fw=fat.fis-f0[1];st.c.textContent=fw>0?fx((fat.cap-f0[2])/fw,2):'–'}}
-  });
-  if(par.goal!=='critical')return {};
-  return {check:function(){if(done)return {ok:true,head:'Critical!'};var k=sim.k;return {ok:false,msg:!moved?(BOR?'Change the boron first: drag the slider and watch what happens to k.':'Move the control rods first: drag the slider and watch what happens to k.'):sim.ns.length<15?'There are only '+sim.ns.length+' neutrons. '+(BOR?'Dilute some boron out':'Pull the rods out a bit')+' so the chain reaction can build up.':k>1.05?'k is '+k.toFixed(2)+', so the neutrons keep multiplying. '+(BOR?'Add a little boron':'Push the rods in a little')+' and wait for k to settle.':k<.95?'k is '+k.toFixed(2)+', so the chain reaction is dying away. '+(BOR?'Dilute a little boron out':'Pull the rods out a little')+' and give it a few seconds.':'Nearly there: hold k close to 1 until the bar at the top fills.'}},lock:function(){rs.input.disabled=true}}};
-
- /* ---------- collision lab: one neutron, one nucleus, real momentum ---------- */
- WIDGETS.scatterLab=function(box,par){par=par||{};var NUC=[['Hydrogen-1 (in water)',1,'H-1'],['Deuterium (heavy water)',2,'H-2'],['Carbon-12 (graphite)',12,'C-12'],['Uranium-238',238,'U-238']],ti=0,aim=.35,mom=true,pts=[],fired=0,t=-1,lastAim=null,lastTi=null;
-  var scr=screen(box,300,380);
-  var sel=select(box,'Target nucleus',NUC.map(function(n){return n[0]}),function(i){ti=i;pts=[];t=-1;upd()});
-  var sa=slider(box,'Aim: how far off centre',0,95,1,35,function(v){return v===0?'dead centre':v+'%'},function(v){aim=v/100;t=-1;upd()});
-  var r=row(box),bF=btn(r,'Fire',function(){t=0;fired++;lastAim=aim;lastTi=ti;pts.push(calc(NUC[ti][1],aim));if(pts.length>300)pts.shift()},'pri'),bR=btn(r,'Fire 100 at random',spray),bM=btn(r,'Momentum arrows',function(){mom=!mom;tog(bM,mom)});tog(bM,mom);
-  var st=stats(box,[['k','Energy the neutron keeps'],['g','Energy the nucleus takes'],['a','Bounce angle'],['n','Hits to slow from 2 MeV to thermal']]),m=msg(box);
-  function calc(A,b){var tc=Math.PI-2*Math.asin(Math.min(.999,b)),Vc=1/(1+A),u=A/(1+A),nx=Vc+u*Math.cos(tc),ny=u*Math.sin(tc),Nx=Vc-Vc*Math.cos(tc),Ny=-Vc*Math.sin(tc),f=nx*nx+ny*ny;return {A:A,b:b,nx:nx,ny:ny,Nx:Nx,Ny:Ny,f:f,lab:Math.atan2(ny,nx)*180/Math.PI}}
-  function xi(A){if(A===1)return 1;var al=Math.pow((A-1)/(A+1),2);return 1+al*Math.log(al)/(1-al)}
-  function spray(){var A=NUC[ti][1];for(var i=0;i<100;i++)pts.push(calc(A,Math.sqrt(Math.random())*.97));if(pts.length>300)pts.splice(0,pts.length-300);t=0;fired++;lastAim=aim;lastTi=ti}
-  function upd(){var o=calc(NUC[ti][1],aim);st.k.textContent=(o.f*100).toFixed(o.f>.99?2:1)+'%';st.g.textContent=((1-o.f)*100).toFixed((1-o.f)<.01?2:1)+'%';st.a.textContent=o.f<.001?'stopped':Math.round(o.lab)+'°';st.n.textContent=Math.round(Math.log(2e6/.025)/xi(NUC[ti][1]))}
-  upd();
-  run(scr,function(dt){var c=scr.c,W=scr.W,H=scr.H,wide=W>=620,aw=wide?Math.round(W*.6):W,ah=wide?H:Math.round(H*.56),A=NUC[ti][1],o=calc(A,aim);if(t>=0)t+=dt/1000*(calm()?.6:1);
-   var g=c.createLinearGradient(0,0,0,H);g.addColorStop(0,'#071631');g.addColorStop(1,'#040a17');c.fillStyle=g;c.fillRect(0,0,W,H);
-   c.strokeStyle='rgba(90,150,255,.06)';for(var gx=20;gx<aw;gx+=24){c.beginPath();c.moveTo(gx+.5,0);c.lineTo(gx+.5,ah);c.stroke()}for(var gy=20;gy<ah;gy+=24){c.beginPath();c.moveTo(0,gy+.5);c.lineTo(aw,gy+.5);c.stroke()}
-   c.save();c.beginPath();c.rect(0,0,aw,ah);c.clip();
-   var R=Math.max(13,Math.min(44,13*Math.cbrt(A))),rn=6,cx=aw*.56,cy=ah*.54,cd=R+rn,by=cy-aim*cd,contactX=cx-Math.sqrt(Math.max(0,cd*cd-(aim*cd)*(aim*cd))),x0=22,spd=(contactX-x0)/1,ph=t<0?-1:t<1?0:1,nxp,nyp,Nxp=cx,Nyp=cy,te=Math.max(0,Math.min(1.5,t-1))*.6;
-   if(ph<1){nxp=t<0?x0:x0+(contactX-x0)*t;nyp=by}else{nxp=contactX+o.nx*spd*te;nyp=by-o.ny*spd*te;Nxp=cx+o.Nx*spd*te;Nyp=cy-o.Ny*spd*te}
-   // aim line and paths
-   c.setLineDash([4,5]);c.strokeStyle='rgba(160,200,255,.28)';c.lineWidth=1;c.beginPath();c.moveTo(x0,by);c.lineTo(contactX,by);c.stroke();if(ph===1){c.strokeStyle='rgba(58,212,255,.35)';c.beginPath();c.moveTo(contactX,by);c.lineTo(nxp,nyp);c.stroke();c.strokeStyle='rgba(255,170,90,.35)';c.beginPath();c.moveTo(cx,cy);c.lineTo(Nxp,Nyp);c.stroke()}c.setLineDash([]);
-   // nucleus
-   var gn=c.createRadialGradient(Nxp-R*.35,Nyp-R*.35,2,Nxp,Nyp,R);gn.addColorStop(0,'#ffb27a');gn.addColorStop(1,'#b8461f');c.fillStyle=gn;c.beginPath();c.arc(Nxp,Nyp,R,0,6.283);c.fill();hud(c,Nxp,Nyp+4,NUC[ti][2],'#fff',R>20?11:9,'center',true);
-   // flash at contact
-   if(t>=1&&t<1.35){var u=(t-1)/.35,gf=c.createRadialGradient(contactX,by,0,contactX,by,10+u*30);gf.addColorStop(0,'rgba(255,255,255,'+(.8*(1-u)).toFixed(3)+')');gf.addColorStop(1,'rgba(255,255,255,0)');c.fillStyle=gf;c.beginPath();c.arc(contactX,by,10+u*30,0,6.283);c.fill()}
-   // neutron
-   c.save();c.shadowColor='#3ad4ff';c.shadowBlur=14;c.fillStyle='#bff3ff';c.beginPath();c.arc(nxp,nyp,rn,0,6.283);c.fill();c.restore();hud(c,nxp,nyp-11,'n','rgba(200,240,255,.9)',10,'center',true);
-   // momentum arrows
-   var L=wide?70:54;if(mom){if(ph<1)arrow(c,nxp,nyp,nxp+L,nyp,'rgba(255,255,255,.85)',2.4);else{arrow(c,nxp,nyp,nxp+o.nx*L,nyp-o.ny*L,'#3ad4ff',2.4);arrow(c,Nxp,Nyp,Nxp+o.Nx*A*L,Nyp-o.Ny*A*L,'#ffd166',2.4)}
-    // vector triangle: p = p' + P
-    var tx=wide?aw-118:aw-104,ty=wide?ah-28:ah-22,tl=wide?84:66;c.fillStyle='rgba(3,8,18,.7)';c.fillRect(tx-14,ty-tl*.62-18,tl+30,tl*.62+34);hud(c,tx-8,ty-tl*.62-6,'p = p′ + P','rgba(200,225,255,.85)',9,'left',true);
-    arrow(c,tx,ty,tx+tl,ty,'rgba(255,255,255,.8)',1.8);arrow(c,tx,ty,tx+o.nx*tl,ty-o.ny*tl,'#3ad4ff',1.8);arrow(c,tx+o.nx*tl,ty-o.ny*tl,tx+tl,ty,'#ffd166',1.8,[3,2])}
-   c.restore();if(!wide){c.strokeStyle='rgba(120,160,255,.18)';c.beginPath();c.moveTo(0,ah+.5);c.lineTo(W,ah+.5);c.stroke()}
-   // labels
-   c.fillStyle='rgba(3,8,18,.62)';c.fillRect(0,0,aw,22);hud(c,8,15,'COLLISION LAB · elastic scattering','rgba(200,225,255,.9)',9.5,'left',true);
-   if(ph===1)hud(c,8,ah-10,o.f<.001?'neutron stopped dead · the proton took all its energy':'neutron keeps '+(o.f*100).toFixed(o.f>.99?2:0)+'% of its energy · bounced '+Math.round(o.lab)+'°','rgba(230,240,255,.92)',wide?11:9.5);
-   // plot: energy kept against bounce angle
-   var px=wide?aw+40:40,py=wide?30:ah+26,pw=wide?W-aw-52:W-54,ph2=wide?H-62:H-ah-56;c.f
+ $('ni_pr').textContent=(s.n*100).toFixed(s.n<0.1?2:1)+'%';$('nf_pr').style.width=Math.min(100,s.n*1

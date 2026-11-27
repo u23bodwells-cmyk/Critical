@@ -1,4 +1,50 @@
-`f plus x`,`x times x`],0,`"f of x".`),GN('flin'),Q(`f(x) = 5x. What is f(0)?`,[`0`,`5`,`1`,`50`],0,`5 × 0 = 0.`)]);
+ivide everything by 2 first: y = 3x + 2. Now the gradient is clearly <b>3</b>.</p>`),
+W('calcDrill',{skill:'gradeq',need:5},`Read off the gradient. Get 5 right to master it.`,`Get y on its own, then read the number in front of x.`),
+QE(`Write 6/x² as a power of x.`,[`6x⁻²`,`6x²`,`x⁻¹²`,`−6x²`],0,`The 6 stays; 1/x² = x⁻².`),
+T(`<h3>Key points</h3><ul><li><b>y = mx + c</b>: m is the gradient, c is the y-intercept.</li><li>The gradient is the number multiplying x, sign included.</li><li>Make y the subject before you read it.</li></ul>`)]),
+LH('c1-3-3','Gradient as a rate',8,'Why a gradient is really a rate of change, with units. The key idea behind calculus.',[
+RM(`<p>Gradient = change in y ÷ change in x. In y = mx + c, m is the gradient.</p>`),
+T(`<h3>Gradients have units</h3><p>If a graph shows distance (m) against time (s), its gradient is metres ÷ seconds: <b>metres per second</b>. That's speed!</p><p>A gradient is always "how much y changes for each unit of x". That's a <b>rate of change</b>.</p>`),
+Q(`A graph shows temperature (°C) against time (minutes). What are the units of its gradient?`,[`°C per minute`,`minutes per °C`,`°C`,`minutes`],0,`Units of y ÷ units of x.`),
+T(`<h3>Rates in the plant</h3><p>Operators watch rates all the time:</p><ul><li>Heat-up rate: <b>°C per hour</b></li><li>Pressure change: <b>bar per minute</b></li><li>Power rise: <b>% per minute</b></li></ul><p>Each one is a gradient of a graph.</p>`),
+N(`A tank's level rises steadily from 20% to 50% in 10 minutes. What's the rate, in % per minute?`,3,0.001,'%/min',`(50 − 20) ÷ 10 = 3% per minute.`),
+N(`The coolant cools steadily from 290 °C to 270 °C in 4 hours. What's the gradient, in °C per hour?`,-5,0.001,'°C/h',`(270 − 290) ÷ 4 = −20 ÷ 4 = −5 °C per hour. Negative: falling.`),
+T(`<h3>The problem with curves</h3><p>On a straight line, the rate is the same everywhere. But real things rarely change at a steady rate. A car speeds up; a reactor's power rises faster and faster.</p><p>On a curve, the rate keeps changing. Calculus is the tool for finding the rate at <b>one exact moment</b>.</p>`),
+Q(`Why do we need calculus for curves but not for straight lines?`,[`A curve's rate of change is different at every point`,'Curves have no gradient, so we have to invent one','Straight lines have no rate of change to measure','Calculus only works when the numbers are decimals'],0,`A straight line has one gradient; a curve has a different one at every point.`),
+T(`<h3>Key points</h3><ul><li>A gradient is a <b>rate of change</b>, with units of y per unit of x.</li><li>Distance–time gradient = speed.</li><li>Curves change rate from point to point. Calculus finds the rate at a single point.</li></ul>`)])
+]});
+
+U({id:'c1-4',track:'calc',level:1,title:'Rates of change on curves',icon:'Δy',color:'#D85A30',desc:'Average rates of change, chords, average speed, and the question that leads straight into calculus.',lessons:[
+LH('c1-4-1','Average rate of change',8,'How to measure the rate of change between two points on a curve.',[
+RM(`<p>A gradient is a rate of change: change in y ÷ change in x. On a curve, the rate is different at every point.</p>`),
+T(`<h3>Joining two points on a curve</h3><p>Pick two points on a curve and join them with a straight line. That line is called a <b>chord</b>.</p><p>The gradient of the chord is the <b>average rate of change</b> between the two points.</p><div class="eq">average rate = (f(b) − f(a)) ÷ (b − a)</div>`),
+Q(`What is a chord?`,[`A straight line joining two points on a curve`,'A straight line touching a curve at just one point','The line through the origin at right angles','The curved part of the graph between two points'],0,`A chord cuts across between two points.`),
+W('stepCalc',{steps:[`f(x) = x². Find the average rate of change from x = 1 to x = 3.`,`f(3) = 3² = 9 and f(1) = 1² = 1`,`Change in y: 9 − 1 = 8`,`Change in x: 3 − 1 = 2`,`Average rate: 8 ÷ 2 = <b>4</b>`]},`Follow this example step by step.`,`The chord from x = 1 to x = 3 on y = x² has gradient 4.`),
+N(`f(x) = x². Find the average rate of change from x = 2 to x = 5.`,7,0.001,'',`(25 − 4) ÷ (5 − 2) = 21 ÷ 3 = 7.`),
+W('calcDrill',{skill:'avgrate',need:5},`Find each average rate of change. Get 5 right to master it.`,`Work out both outputs, then change in y ÷ change in x.`),
+T(`<h3>Key points</h3><ul><li>A <b>chord</b> joins two points on a curve.</li><li>Its gradient is the <b>average rate of change</b>: (f(b) − f(a)) ÷ (b − a).</li></ul>`)]),
+LH('c1-4-2','Average speed',7,'Distance–time graphs that curve, and what average speed really measures.',[
+RM(`<p>The gradient of a chord gives the <b>average rate of change</b> between two points.</p>`),
+T(`<h3>Speeding up</h3><p>A ball rolling down a slope speeds up. Its distance might follow <b>s = 2t²</b>: after 1 s it's gone 2 m, after 2 s 8 m, after 3 s 18 m.</p><p>The distance–time graph curves upwards, getting steeper as it goes faster.</p>`),
+N(`s = 2t². How far has the ball gone after 4 seconds?`,32,0.001,'m',`2 × 4² = 2 × 16 = 32 m.`),
+T(`<h3>Average speed is a chord gradient</h3><p>Average speed between two times = change in distance ÷ change in time. That's the gradient of the chord.</p><div class="eq">from t = 1 to t = 3: (18 − 2) ÷ 2 = 8 m/s</div>`),
+W('calcDrill',{skill:'speed',need:4},`Find each average speed. Get 4 right to master it.`,`Change in distance ÷ change in time.`),
+Q(`The ball's average speed from t = 1 to t = 3 is 8 m/s. Was it going exactly 8 m/s at t = 2?`,[`Not necessarily: average speed hides how the speed changes`,'Yes: average speed is the speed at the middle time','No: the speed must have been zero exactly halfway','Yes, but only because the ball moves in a straight line'],0,`The average smooths over the changes. To get the exact speed at t = 2 we need calculus.`),
+T(`<h3>Key points</h3><ul><li>On a distance–time graph, a chord's gradient is the <b>average speed</b>.</li><li>Average speed doesn't tell you the exact speed at an instant.</li></ul>`)]),
+LH('c1-4-3','Getting closer: the big idea',9,'Shrink the chord, and its gradient homes in on the exact rate at a point. This is calculus.',[
+RM(`<p>A chord's gradient is the average rate of change between two points. On y = x², from x = 1 to x = 3 it's 4.</p>`),
+T(`<h3>Make the chord shorter</h3><p>To find how steep y = x² is <b>exactly at x = 3</b>, take chords that start at x = 3 and end closer and closer to it.</p>`),
+W('fnPlot',{x:[0,5],y:[0,25],xl:'x',yl:'y',sl:[['h','Chord width h',0.01,2,0.01,2,function(v){return v.toFixed(2)}]],curves:function(p){var g=6+p.h;return [[function(x){return x*x},'--accent',3],[function(x){return 9+g*(x-3)},'--coral',2,[6,4]]]},read:function(p){return 'Chord from x = 3 to x = '+(3+p.h).toFixed(2)+': gradient = <b>'+(6+p.h).toFixed(2)+'</b>'},goal:function(p){return p.h<=0.05},goalMsg:'Shrink the chord until h is 0.05 or less.'},`Drag h down towards 0 and watch the chord's gradient.`,`As h shrinks, the gradient gets closer and closer to 6. That's the exact gradient at x = 3.`),
+T(`<h3>The pattern</h3><table><tr><th>Chord from 3 to…</th><th>Gradient</th></tr><tr><td>4</td><td>7</td></tr><tr><td>3.5</td><td>6.5</td></tr><tr><td>3.1</td><td>6.1</td></tr><tr><td>3.01</td><td>6.01</td></tr><tr><td>3.001</td><td>6.001</td></tr></table><p>The gradients are heading towards <b>6</b>. We say the gradient at x = 3 is <b>6</b>.</p>`),
+W('calcDrill',{skill:'chord',need:5},`Work out each chord gradient. Get 5 right to master it.`,`Notice they're always 2 × (start) + h. As h → 0, that becomes 2 × start.`),
+Q(`What happens to the chord's gradient as the chord gets shorter?`,[`It gets closer and closer to the exact gradient at the point`,'It gets bigger and bigger until it reaches infinity','It shrinks towards zero as the two points come together','It stays the same as the gradient of the first chord'],0,`That "closer and closer" idea is called a limit.`),
+T(`<h3>The tangent</h3><p>When the chord shrinks to nothing, it becomes a line that just <b>touches</b> the curve at that one point. That line is called the <b>tangent</b>.</p><p>The gradient of the curve at a point = the gradient of the tangent there. Finding it is called <b>differentiation</b>, and it's the whole of Level 2.</p>`),
+QE(`What is the gradient of the line through (1, 4) and (3, 10)?`,[`3`,`6`,`2`,`7`],0,`(10 − 4) ÷ (3 − 1) = 3.`),
+T(`<h3>Key points</h3><ul><li>Shrinking a chord makes its gradient approach the <b>exact gradient at a point</b>.</li><li>The line that just touches a curve is the <b>tangent</b>.</li><li>Finding a curve's gradient at a point is <b>differentiation</b>. You're ready for Level 2.</li></ul>`)])
+]});
+
+/* follow-ups */
+F('c1-1-1',[GN('flin'),GN('flin'),Q(`What does f(x) mean?`,[`The output of f when the input is x`,`f times x`,`f plus x`,`x times x`],0,`"f of x".`),GN('flin'),Q(`f(x) = 5x. What is f(0)?`,[`0`,`5`,`1`,`50`],0,`5 × 0 = 0.`)]);
 F('c1-1-2',[GN('fsub'),GN('fsub'),Q(`What is (−4)²?`,[`16`,`−16`,`−8`,`8`],0,`Minus times minus is plus.`),GN('fsub'),Q(`f(x) = 2x². f(3) is…`,[`18`,`36`,`12`,`6`],0,`Square first: 9, then × 2.`)]);
 F('c1-1-3',[Q(`What shape is y = x³?`,[`An S-shape`,`A U-shape`,`A straight line`,`Two separate curves`],0,`Flat in the middle, steep further out.`),Q(`For which values of x does y = √x exist (with real numbers)?`,[`x ≥ 0`,`All x`,`x < 0`,`Only x = 0`],0,`You can't square-root a negative number.`),Q(`Which graph never touches either axis?`,[`y = 1/x`,`y = x²`,`y = x`,`y = x³`],0,`1/x is never 0, and x can't be 0.`),Q(`On y = x², where is the curve flattest?`,[`At the bottom, x = 0`,`At x = 5`,`At x = −5`,`It's the same everywhere`],0,`The U is flat at the bottom.`),GN('fsub')]);
 F('c1-2-1',[GN('idxlaw'),GN('idxlaw'),GN('idxlaw'),Q(`x³ × x³ = …`,[`x⁶`,`x⁹`,`2x³`,`x²⁷`],0,`Add the powers.`),Q(`(x²)⁵ = …`,[`x¹⁰`,`x⁷`,`x³²`,`x²⁵`],0,`Multiply the powers.`)]);
@@ -936,52 +982,4 @@ Q(`Spinning y = f(x) about the x-axis, each slice is a disc with radius…`,[`y`
 W('stepCalc',{steps:[`Prove the volume of a sphere of radius r.`,`The circle x² + y² = r², spun about the x-axis, makes a sphere. y² = r² − x²`,`V = π∫<sub>−r</sub><sup>r</sup> (r² − x²) dx = π[r²x − x³/3] from −r to r`,`= π[(r³ − r³/3) − (−r³ + r³/3)] = π × 4r³/3`,`<b>V = (4/3)πr³</b>`]},`The volume of a sphere, from calculus.`,`The formula you learned at GCSE, proved.`),
 W('calcDrill',{skill:'discvol',need:3},`Volumes by discs. Get 3 right to master it.`,`V = π∫ y² dx: square y first.`),
 Q(`Why do we square y in the disc formula?`,[`Each disc's area is π × radius², and the radius is y`,`To make the answer positive`,`Because volume is always squared`,`To undo a square root`],0,`πr² with r = y.`),
-T(`<h3>Key points</h3><ul><li><b>V = ∫ A(x) dx</b> for any slices.</li><li>Discs: <b>V = π∫ y² dx</b>.</li><li>This proves the sphere and cone formulas.</li></ul>`)]),
-LH('c9-2-2','Washers',9,'Spin a region with a gap in it and the slices are discs with holes: washers.',[
-RM(`<p>Disc method: V = π∫ y² dx. Area between curves: top − bottom.</p>`),
-T(`<h3>A disc with a hole</h3><p>Spin the region <b>between</b> two curves about the x-axis. Each slice is a disc of radius R (outer curve) with a hole of radius r (inner curve):</p><div class="eq">V = π ∫<sub>a</sub><sup>b</sup> (R² − r²) dx</div>${KY([['R','outer radius: the curve further from the axis',''],['r','inner radius: the curve nearer the axis','']],'Square each radius first, then subtract. Not (R − r)².')}`),
-Q(`Which is correct for washers?`,[`π∫ (R² − r²) dx`,`π∫ (R − r)² dx`,`π∫ (R + r) dx`,`π∫ R²r² dx`],0,`Outer disc minus the hole.`),
-W('stepCalc',{steps:[`Spin the region between y = x and y = x² (from 0 to 1) about the x-axis.`,`Outer radius R = x (the line is further from the axis); inner radius r = x²`,`V = π∫<sub>0</sub><sup>1</sup> (x² − x⁴) dx`,`= π[x³/3 − x⁵/5] = π(⅓ − ⅕)`,`<b>V = 2π/15</b>`]},`A washer volume.`,`R² − r², not (R − r)².`),
-N(`Spin the region between y = 2 and y = 1 from x = 0 to x = 3 about the x-axis. Volume as a multiple of π?`,9,0.001,'π',`π∫<sub>0</sub><sup>3</sup> (4 − 1) dx = 9π. A cylinder with a hole: a pipe.`),
-QE(`Area between y = x and y = x² from 0 to 1?`,[`1/6`,`1/2`,`1/3`,`1`],0,`½ − ⅓.`),
-T(`<h3>Key points</h3><ul><li>Washers: <b>V = π∫ (R² − r²) dx</b>.</li><li>R is further from the axis, r is nearer.</li><li>Square first, then subtract.</li></ul>`)]),
-LH('c9-2-3','Cylindrical shells',10,'Spin around the y-axis and slice the solid into nested tubes, like the layers of an onion.',[
-RM(`<p>Disc and washer slices are perpendicular to the axis. The curved surface of a cylinder is 2πrh.</p>`),
-T(`<h3>Thin tubes</h3><p>Spin the region under y = f(x) around the <b>y-axis</b>. A thin vertical strip at x sweeps out a thin tube (a shell) with:</p><ul><li>radius x</li><li>height f(x)</li><li>thickness dx</li></ul><p>Unroll it into a thin sheet: 2πx long, f(x) tall, dx thick.</p><div class="eq">V = 2π ∫<sub>a</sub><sup>b</sup> x f(x) dx</div>`),
-Q(`In the shell method about the y-axis, the radius of each shell is…`,[`x`,`y`,`f(x)`,`2π`],0,`Its distance from the axis.`),
-W('stepCalc',{steps:[`Spin the region under y = x² from x = 0 to 2 about the y-axis.`,`Shells: V = 2π∫<sub>0</sub><sup>2</sup> x × x² dx = 2π∫ x³ dx`,`= 2π[x⁴/4] from 0 to 2 = 2π × 4`,`<b>V = 8π</b>`,`With discs you'd need x = √y and washers. Shells: one easy integral.`]},`Shells around the y-axis.`,`Shells avoid rearranging for x.`),
-W('calcDrill',{skill:'shellvol',need:3},`Shell volumes. Get 3 right to master it.`,`V = 2π∫ x f(x) dx.`),
-T(`<h3>Key points</h3><ul><li>Shells: <b>V = 2π∫ x f(x) dx</b> about the y-axis.</li><li>radius × height × thickness, unrolled.</li><li>Pick discs or shells to make the integral easiest.</li></ul>`)])
-]});
-
-U({id:'c9-3',track:'calc',level:9,title:'More applications',icon:'W=∫F',color:'#378ADD',desc:'Average value, the length of a curve, and work done by a changing force.',lessons:[
-LH('c9-3-1','Average value of a function',9,'What is the average of something that changes all the time? Integrate, then divide by the width.',[
-RM(`<p>An average is total ÷ count. ∫<sub>a</sub><sup>b</sup> f dx is the "total" of f over [a, b].</p>`),
-T(`<h3>The formula</h3><div class="eq">average of f on [a, b] = (1/(b − a)) ∫<sub>a</sub><sup>b</sup> f(x) dx</div><p>Picture it: the average is the height of the rectangle with the <b>same area</b> as the region under the curve.</p>`),
-N(`Average value of f(x) = 3x² on [0, 2]?`,4,0.001,'',`(1/2)∫<sub>0</sub><sup>2</sup> 3x² dx = (1/2)(8) = 4.`),
-W('calcDrill',{skill:'avgval',need:3},`Average values. Get 3 right to master it.`,`Integrate, then divide by the width.`),
-T(`<h3>AC power and RMS</h3><p>Mains voltage is V = V₀ sin(ωt). Power is proportional to V², and the average of sin² over a cycle is <b>½</b> (from sin² = ½(1 − cos 2x)). So the average power is half the peak, and the effective voltage is V₀/√2: the <b>RMS</b> value. 325 V peak gives 230 V RMS.</p>`),
-Q(`The average of sin²x over a whole cycle is…`,[`½`,`0`,`1`,`π`],0,`½(1 − cos 2x) averages to ½.`),
-QE(`Spinning y = f(x) about the x-axis, V = …`,[`π∫ y² dx`,`2π∫ y dx`,`∫ y² dx`,`π∫ y dx`],0,`Discs.`),
-T(`<h3>Key points</h3><ul><li><b>Average = (1/(b − a))∫<sub>a</sub><sup>b</sup> f dx</b>.</li><li>Same area as a rectangle of that height.</li><li>Average of sin² is ½: that's where RMS comes from.</li></ul>`)]),
-LH('c9-3-2','The length of a curve',10,'Zoom in until the curve is a staircase of tiny straight bits, and Pythagoras gives its length.',[
-RM(`<p>Pythagoras: the hypotenuse of a triangle with sides a and b is √(a² + b²). dy/dx is the gradient.</p>`),
-T(`<h3>Tiny hypotenuses</h3><p>A tiny piece of curve is almost straight. If it goes dx across and dy up, its length is √(dx² + dy²) = √(1 + (dy/dx)²) dx. Add them all up:</p><div class="eq">L = ∫<sub>a</sub><sup>b</sup> √(1 + (dy/dx)²) dx</div>`),
-Q(`Where does the arc length formula come from?`,[`Pythagoras on tiny straight pieces of the curve`,`The area under the curve`,`The volume of revolution`,`The chain rule`],0,`dx across, dy up.`),
-W('stepCalc',{steps:[`Length of y = ⅔x<sup>3/2</sup> from x = 0 to x = 3`,`dy/dx = x<sup>1/2</sup>, so (dy/dx)² = x`,`L = ∫<sub>0</sub><sup>3</sup> √(1 + x) dx`,`= [⅔(1 + x)<sup>3/2</sup>] from 0 to 3 = ⅔(8 − 1)`,`<b>L = 14/3 ≈ 4.667</b>`]},`An exact arc length.`,`Most curves give integrals you can't do by hand, so computers do them numerically.`),
-W('calcDrill',{skill:'arclen',need:2},`Arc lengths. Get 2 right to master it.`,`1 + (dy/dx)² = 1 + x.`),
-N(`Check the formula on a straight line: y = 2x from 0 to 3. Length? (3 decimal places)`,6.708,0.002,'',`√(1 + 4) × 3 = 3√5 ≈ 6.708. Pythagoras: √(3² + 6²) = √45.`),
-T(`<h3>Key points</h3><ul><li><b>L = ∫ √(1 + (dy/dx)²) dx</b>.</li><li>It's Pythagoras on infinitely many tiny pieces.</li><li>Few curves give exact answers; numerical methods do the rest.</li></ul>`)]),
-LH('c9-3-3','Work done by a changing force',10,'Work is force × distance, but only if the force is constant. When it changes, integrate.',[
-RM(`<p>Work = force × distance (for a constant force). Hooke's law: F = kx. ∫<sub>R</sub><sup>∞</sup> 1/r² dr = 1/R.</p>`),
-T(`<h3>Add up tiny bits of work</h3><p>Over a tiny distance dx, the force is almost constant, so the work is F dx. Add them up:</p><div class="eq">W = ∫<sub>a</sub><sup>b</sup> F(x) dx</div><p>Work is the area under a force–distance graph, just as energy is the area under power–time.</p>`),
-T(`<h3>Stretching a spring</h3><p>F = kx, so W = ∫<sub>0</sub><sup>x</sup> kx dx = <b>½kx²</b>. That's the elastic potential energy formula from GCSE, proved.</p>`),
-W('calcDrill',{skill:'springwork',need:3},`Work on springs. Get 3 right to master it.`,`W = ½kx².`),
-T(`<h3>Escaping a planet</h3><p>Gravity's force on a mass m is F = GMm/r². The work to lift it from the surface (r = R) to infinity is an improper integral:</p><div class="eq">W = ∫<sub>R</sub><sup>∞</sup> GMm/r² dr = GMm/R</div><p>Set ½mv² equal to it and you get the escape velocity v = √(2GM/R): about 11.2 km/s for Earth.</p>`),
-Q(`Why is the work to reach infinity finite?`,[`Gravity weakens as 1/r², fast enough for the integral to converge`,`Because gravity stops at the edge of the atmosphere`,`Because infinity is not really very far`,`It isn't: it's infinite`],0,`p = 2 > 1.`),
-QE(`The average value of f on [a, b] is…`,[`(1/(b − a))∫ f dx`,`(f(a) + f(b))/2 always`,`∫ f dx`,`f′(b) − f′(a)`],0,`Integrate, then divide by the width.`),
-T(`<h3>Key points</h3><ul><li><b>W = ∫ F dx</b>: the area under force–distance.</li><li>Springs: <b>½kx²</b>.</li><li>Escape from gravity: <b>GMm/R</b>, an improper integral.</li></ul>`)])
-]});
-
-F('c9-1-1',[GN('areabetween'),GN('areabetween'),Q(`Area between curves = ∫ …`,[`(top − bottom) dx`,`(bottom − top) dx`,`top × bottom dx`,`top dx only`],0,`Strip height.`),Q(`Does top − bottom still work below the x-axis?`,[`Yes`,`No`,`Only if both are negative`,`Only for lines`],0,`Height is always top − bottom.`),N(`Area between y = 4 and y = x² from x = −2 to 2? (3 d.p.)`,10.667,0.002,'',`∫ (4 − x²) dx = 32/3.`)]);
-F('c9-1-2',[Q(`To find the limits, you…`,[`solve f(x) = g(x)`,`set x = 0`,`differentiate`,`integrate both`],0,`Where they meet.`),N(`Area between y = 2x and y = x²? (3 d.p.)`,1.333,0.002,'',`∫<sub>0</sub><sup>2</sup> (2x − x²) dx = 4/3.`),Q(`If the curves cross in the middle, you must…`,[`split the integral`,`double the answer`,`ignore it`,`use y instead`],0,`Otherwise parts cancel.`),GN('areabetween'),Q(`Which is on top is found by…`,[`testing a point between the limits`,`guessing`,`comparing their y-intercepts`,`the bigger power`],0,`Test a point.
+T(`<h3>Key points</h3><ul><li><b>V = ∫ A(x) dx</b> for any slices.</li><li>Discs: <b>V = π∫ y² dx</b>.</li><li>This proves the sphere and cone formulas.</li>

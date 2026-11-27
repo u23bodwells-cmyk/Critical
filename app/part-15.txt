@@ -1,4 +1,47 @@
-])}}
+,'Entanglement',11,'Einstein called it "spooky action at a distance". The experiments say it\'s real.',[
+T(`<h3>Linked particles</h3><p>Two particles can be made in a shared state, like a pair whose spins always point <b>opposite</b> ways, without either one having a definite direction on its own. They're <b>entangled</b>.</p><p>Measure one and get "up", and you instantly know the other will be "down", however far apart they are.</p>`),
+T(`<h3>Einstein's objection</h3><p>Einstein thought this was too spooky. He argued that the particles must carry <b>hidden instructions</b> from the start, like a pair of gloves split into two boxes: open one, find a left glove, and you know the other's right. Nothing spooky.</p><p>In 1964 John Bell found a way to test it. If you measure the two particles along <b>different angles</b>, hidden instructions can only produce certain patterns. Quantum mechanics predicts something those instructions can't.</p>`),
+W('qBell',{},`Set the two detectors at different angles and measure pairs. Compare the dot with the two curves.`,`Quantum (the curve) and hidden instructions (the straight line) disagree at most angles.`),
+W('qBell',{goal:true},`Your challenge.`,``),
+Q(`What did Bell's test show?`,[`No "hidden instructions" model can match what entangled particles do`,`Entangled particles send signals faster than light`,`Einstein was right`,`Entanglement doesn't exist`],0,`The results match quantum mechanics and rule out local hidden instructions.`),
+T(`<h3>But you can't send messages</h3><p>Each person's results, on their own, look completely random: 50/50 up and down. The pattern only shows up when Alice and Bob <b>compare notes</b>, using ordinary, slower-than-light communication.</p><p>So entanglement can't be used to send a message faster than light. Einstein's relativity is safe, even if his hidden instructions aren't.</p><p>Alain Aspect, John Clauser and Anton Zeilinger won the 2022 Nobel Prize for the experiments that settled it. Entanglement is now used for unbreakable quantum encryption.</p>`),
+Q(`Can entanglement be used to send a message faster than light?`,[`No: each side's results look random until they compare notes`,`Yes, instantly`,`Yes, but only over short distances`,`Only with quantum computers`],0,`The correlation only appears when results are compared normally.`),
+T(`<h3>Key points</h3><ul><li><b>Entangled</b> particles share one state: measuring one tells you about the other instantly.</li><li><b>Bell's test</b> rules out "hidden instructions". Experiments agree with quantum mechanics.</li><li>Entanglement can't send messages faster than light.</li><li>It's used in quantum encryption and quantum computers.</li></ul>`)])]});
+GOALS.qm2={icon:'💻',title:'Design a quantum device',story:'Each unit is a design review for a real quantum technology. Finish them all and you understand how the quantum world is engineered.',final:'Device signed off',steps:['Wavefunction toolkit','Quantum-dot screen','Tunnelling microscope','Qubit processor']};
+
+/* ===== Quantum track: simulations for Levels 3 to 5 ===== */
+function qLine(c,pts,col,w){c.strokeStyle=col;c.lineWidth=w||2;c.beginPath();pts.forEach(function(p,i){if(i===0)c.moveTo(p[0],p[1]);else c.lineTo(p[0],p[1])});c.stroke()}
+function qArrow(c,x0,y0,x1,y1,col,w){c.strokeStyle=col;c.fillStyle=col;c.lineWidth=w||3;c.beginPath();c.moveTo(x0,y0);c.lineTo(x1,y1);c.stroke();var a=Math.atan2(y1-y0,x1-x0),h=9;c.beginPath();c.moveTo(x1,y1);c.lineTo(x1-h*Math.cos(a-0.4),y1-h*Math.sin(a-0.4));c.lineTo(x1-h*Math.cos(a+0.4),y1-h*Math.sin(a+0.4));c.fill()}
+
+/* complex amplitudes add like arrows */
+WIDGETS.qPhasor=function(box,par){par=par||{};var cv=canvas(box,240),sp=slider(box,'Phase difference φ',0,360,1,60,function(v){return v+'°'},function(){draw()}),sr=slider(box,'Size of amplitude b (a = 1)',0,1.5,0.01,1,function(v){return v.toFixed(2)},function(){draw()}),st=stats(box,[['s','|a + b|² (quantum)'],['c','|a|² + |b|² (no interference)']]);
+ if(par.goal)qChal(box,'Make the two paths cancel completely, so the particle is never found here.');
+ function draw(){var g=prep(cv),c=g.c,W=g.W,H=g.H,cx=W/2-40,cy=H/2,R=Math.min(H*0.32,W*0.2),ph=sp.get()*Math.PI/180,b=sr.get();c.strokeStyle=cssv('--line');c.lineWidth=1;c.beginPath();c.moveTo(20,cy);c.lineTo(W-20,cy);c.moveTo(cx,10);c.lineTo(cx,H-10);c.stroke();c.fillStyle=cssv('--muted');c.font='12px system-ui';c.fillText('real',W-48,cy-6);c.fillText('imaginary',cx+6,16);
+  var ax=cx+R,ay=cy,bx=ax+R*b*Math.cos(ph),by=ay-R*b*Math.sin(ph);qArrow(c,cx,cy,ax,ay,'#4aa3ff');qArrow(c,ax,ay,bx,by,'#e8742a');qArrow(c,cx,cy,bx,by,cssv('--accent'),3.5);c.fillStyle='#4aa3ff';c.fillText('a',(cx+ax)/2,cy+16);c.fillStyle='#e8742a';c.fillText('b',(ax+bx)/2+6,(ay+by)/2);c.fillStyle=cssv('--accent');c.fillText('a + b',(cx+bx)/2-30,(cy+by)/2-8);
+  var s=Math.pow(1+b*Math.cos(ph),2)+Math.pow(b*Math.sin(ph),2);st.s.textContent=s.toFixed(2);st.c.textContent=(1+b*b).toFixed(2)}
+ onDraw(draw);draw();
+ if(par.goal)return {check:function(){var ph=sp.get()*Math.PI/180,b=sr.get(),s=Math.pow(1+b*Math.cos(ph),2)+Math.pow(b*Math.sin(ph),2);return s<0.02?{ok:true,msg:'Equal sizes, opposite phases (180°): the amplitudes cancel. Two ways to arrive, and together they make zero chance. Classical probabilities can never do that.'}:{ok:false,msg:'|a + b|² is '+s.toFixed(2)+'. You need equal sizes pointing in opposite directions.'}}}};
+
+/* expectation values in a box */
+WIDGETS.qExpect=function(box,par){par=par||{};var cv=canvas(box,220),sc=slider(box,'Amount of level 2 (|c₂|²)',0,1,0.01,0.3,function(v){return (v*100).toFixed(0)+'%'},function(){draw()}),stt=slider(box,'Time',0,1,0.005,0,function(v){return (v*100).toFixed(0)+'% of a slosh'},function(){draw()}),st=stats(box,[['x','⟨x⟩'],['d','Δx'],['e','⟨E⟩ (E₁ = 1)'],['p','Measure E: chance of E₁ / E₂']]);
+ if(par.goal)qChal(box,'Make the average energy ⟨E⟩ exactly 2.5 E₁.');
+ function draw(){var c2=Math.sqrt(sc.get()),c1=Math.sqrt(1-sc.get()),t=stt.get()*2*Math.PI,g=prep(cv),c=g.c,W=g.W,H=g.H,X=function(x){return 20+x*(W-40)},i,N=300,sx=0,sxx=0,s=0,pts=[],mx=0;
+  for(i=0;i<=N;i++){var x=i/N,a=c1*Math.sin(Math.PI*x),b=c2*Math.sin(2*Math.PI*x),p=2*(a*a+b*b+2*a*b*Math.cos(t));pts.push([x,p]);s+=p;sx+=x*p;sxx+=x*x*p;mx=Math.max(mx,p)}
+  var ex=sx/s,dx=Math.sqrt(Math.max(0,sxx/s-ex*ex));c.fillStyle=cssv('--text');c.fillRect(X(0)-4,14,4,H-38);c.fillRect(X(1),14,4,H-38);qLine(c,pts.map(function(q){return [X(q[0]),H-24-q[1]/4.2*(H-46)]}),cssv('--accent'),2.5);
+  c.fillStyle='rgba(232,116,42,.18)';c.fillRect(X(ex-dx),H-24,X(ex+dx)-X(ex-dx),8);c.fillStyle='#e8742a';c.beginPath();c.arc(X(ex),H-20,6,0,7);c.fill();c.fillStyle=cssv('--muted');c.font='12px system-ui';c.fillText('|ψ|², with ⟨x⟩ (dot) and ⟨x⟩ ± Δx (bar)',24,12);
+  st.x.textContent=(ex*100).toFixed(0)+'% across';st.d.textContent=(dx*100).toFixed(0)+'% of the box';st.e.textContent=((1-sc.get())+4*sc.get()).toFixed(2)+' E₁';st.p.textContent=Math.round((1-sc.get())*100)+'% / '+Math.round(sc.get()*100)+'%'}
+ onDraw(draw);draw();
+ if(par.goal)return {check:function(){var e=(1-sc.get())+4*sc.get();return Math.abs(e-2.5)<0.03?{ok:true,msg:'|c₂|² = 50%: ⟨E⟩ = 0.5 × 1 + 0.5 × 4 = 2.5 E₁. But no single measurement ever gives 2.5: you always get 1 or 4. ⟨E⟩ is an average.'}:{ok:false,msg:'⟨E⟩ = '+e.toFixed(2)+' E₁. It\'s |c₁|² × 1 + |c₂|² × 4.'}}}};
+
+/* the quantum harmonic oscillator */
+WIDGETS.qSHO=function(box,par){par=par||{};var cv=canvas(box,250),cl=false,sn=slider(box,'Level n',0,12,1,0,function(v){return v},function(){draw()}),r=row(box),tb=btn(r,'Show the classical prediction',function(){cl=!cl;tb.textContent=cl?'Hide the classical prediction':'Show the classical prediction';draw()}),st=stats(box,[['e','Energy'],['o','Chance outside the classical region']]);
+ if(par.goal)qChal(box,par.goal[1]);
+ function psi(n,x){var h0=1,h1=2*x;if(n===0)return Math.exp(-x*x/2);for(var k=1;k<n;k++){var h2=2*x*h1-2*k*h0;h0=h1;h1=h2}var f=1;for(var j=2;j<=n;j++)f*=j;return h1*Math.exp(-x*x/2)/Math.sqrt(Math.pow(2,n)*f*Math.sqrt(Math.PI))}
+ function draw(){var n=sn.get(),E=n+0.5,A=Math.sqrt(2*E),g=prep(cv),c=g.c,W=g.W,H=g.H,L=6.2,X=function(x){return W/2+x/L*(W/2-14)},i,pts=[],pc=[],out=0,tot=0,mx=0;
+  qLine(c,(function(){var a=[];for(var i=-60;i<=60;i++){var x=i/60*L;a.push([X(x),H-20-(x*x/2)/14*(H-40)])}return a})(),cssv('--muted'),1.5);
+  var yE=H-20-E/14*(H-40);c.setLineDash([5,4]);qLine(c,[[X(-A),yE],[X(A),yE]],cssv('--accent'),1);c.setLineDash([]);
+  for(i=-300;i<=300;i++){var x=i/300*L,p=Math.pow(psi(n,x),2);mx=Math.max(mx,p);tot+=p;if(Math.abs(x)>A)out+=p}
+  for(i=-300;i<=300;i++){x=i/300*L;p=Math.pow(psi(n,x),2);pts.push([X(x),yE-p/mx*(H*0.28)]);if(cl&&Math.abs(x)<A*0.995){var q=1/(Math.PI*Math.sqrt(A*A-x*x));pc.push([X(x),yE-Math.min(q/mx,1.6)*(H*0.28)])}}
   qLine(c,pts,'#4aa3ff',2.2);if(cl)qLine(c,pc,'#e8742a',1.8);c.fillStyle=cssv('--muted');c.font='12px system-ui';c.fillText('potential ½kx² and |ψₙ|² (blue)'+(cl?', classical (orange)':''),14,14);[[-A,'turning point'],[A,'']].forEach(function(t){c.fillRect(X(t[0])-1,yE-4,2,8)});
   st.e.textContent='('+n+' + ½) ħω = '+E.toFixed(1)+' ħω';st.o.textContent=(out/tot*100).toFixed(1)+'%'}
  onDraw(draw);draw();
@@ -707,54 +750,4 @@ N(`In natural units, a particle with mass m = 3 and momentum k = 4 has energy ω
 T(`<h3>Key points</h3><ul><li>A free field is a set of oscillators, one per mode, with <b>ω<sub>k</sub> = √(k<sup>2</sup> + m<sup>2</sup>)</b>.</li><li>Quantising gives <b>creation and annihilation operators</b>. One quantum is one relativistic particle.</li><li>Commutators give <b>bosons</b>. Anticommutators give <b>fermions</b> and Pauli exclusion.</li><li>The infinite vacuum energy is normally subtracted, but gravity should feel it.</li></ul>`)]),
 LH('qm7-4-3','Gauge invariance and QED',14,'Demand that physics doesn\'t care about the phase of the electron field at each point, and you\'re forced to invent the photon.',[
 T(`<h3>Global vs local phase</h3><p>The electron field's Lagrangian doesn't change if you multiply ψ by the same phase e<sup>iα</sup> everywhere (a global U(1) symmetry). By Noether's theorem, that conserves electric charge.</p><p>Now demand more: the physics shouldn't change even if α is different at every point in space and time, α(x). That's a <b>local</b> (gauge) symmetry. The derivative ∂ψ picks up an extra term ∂α, which breaks it.</p>`),
-T(`<h3>The fix creates the photon</h3><ol class="steps"><li>Replace ∂ with the <b>covariant derivative</b> D = ∂ + iqA, introducing a new field A.</li><li>Require A to change as A → A − (1/q)∂α whenever ψ → e<sup>iα</sup>ψ. The extra terms then cancel.</li><li>Give A its own kinetic term, −¼F<sup>2</sup>, where F = ∂A − ∂A (the field strength). This term is also gauge invariant.</li><li>A gauge-invariant mass term for A is impossible, so A's quanta are <b>massless</b>.</li></ol><div class="callout">A turns out to be the electromagnetic potential, F contains the electric and magnetic fields, and its quanta are <b>photons</b>. Maxwell's equations and the electron–photon coupling follow from one symmetry requirement.</div>`),
-O(`Put the gauge argument in order.`,['Start with the free electron field, symmetric under a global phase change','Demand symmetry under a local phase change α(x)','Find that the derivative spoils the symmetry','Introduce a new field A in the covariant derivative D = ∂ + iqA','Require A to shift so the extra terms cancel','Add A\'s own kinetic term: A is the photon field, and it must be massless'],`Electromagnetism is what you get when you insist on local phase symmetry.`),
-Q(`Why must the photon be massless?`,[`A mass term for A would break gauge invariance`,`Because light is fast`,`Because photons have no charge`,`It isn't: it's very heavy`],0,`m²A² isn't invariant under A → A − (1/q)∂α.`),
-T(`<h3>The Standard Model from symmetry</h3><p>Apply the same idea with bigger symmetry groups:</p><ul><li><b>SU(3)</b> gauge symmetry gives 8 gluons: the strong force (QCD).</li><li><b>SU(2) × U(1)</b> gives the W, Z and photon: the electroweak force.</li><li>The W and Z are heavy, which gauge symmetry forbids directly. The <b>Higgs mechanism</b> solves it: the symmetry is hidden by the Higgs field's vacuum value, giving them mass while keeping the theory consistent.</li></ul><p>The whole Standard Model is written as SU(3) × SU(2) × U(1).</p>`),
-Q(`What gauge group gives the strong force?`,[`SU(3)`,`U(1)`,`SU(2)`,`SO(3)`],0,`SU(3), with 8 gluons: quantum chromodynamics.`),
-W('flipCards',{cards:[['U(1)','Electromagnetism: one photon.'],['SU(2) × U(1)','Electroweak: W⁺, W⁻, Z and the photon, with the Higgs mechanism.'],['SU(3)','Strong force: 8 gluons, confinement.'],['Next?','Grand unification, supersymmetry, quantum gravity: the open frontier.']]},`Tap each card.`),
-T(`<h3>Key points</h3><ul><li>Demanding <b>local phase (gauge) symmetry</b> forces a new field into the covariant derivative <b>D = ∂ + iqA</b>.</li><li>That field is the <b>photon</b>, and gauge invariance makes it massless.</li><li>SU(3) gives gluons, SU(2) × U(1) gives the electroweak bosons, and the <b>Higgs mechanism</b> gives the W and Z mass.</li><li>The Standard Model is <b>SU(3) × SU(2) × U(1)</b>.</li></ul>`)])]});
-GOALS.qm7={icon:'🏛️',title:'Defend a PhD in theoretical physics',story:'Each unit is a chapter of your thesis. Finish them all and you can hold your own at a research seminar.',final:'Dr. Quantum',steps:['Time-dependent theory chapter','Path integrals chapter','Entanglement chapter','Quantum fields chapter']};
-
-
-
-
-/* ===== lesson log (for pace and weekly reports) and Ideas to remember (spaced review of quantum concepts) ===== */
-function plogAdd(tr){var d=ymdL(),L=S.pathLog;if(!L||typeof L!=='object')L=S.pathLog={};var e=L[d]||(L[d]={});e[tr]=(e[tr]||0)+1;var ks=Object.keys(L).sort();while(ks.length>150)delete L[ks.shift()]}
-function plogCount(days,tracks){var L=S.pathLog||{},n=0,now=new Date();for(var i=0;i<days;i++){var d=new Date(now);d.setDate(d.getDate()-i);var k=ymdLof(d),e=L[k];if(!e)continue;for(var t in e)if(!tracks||tracks.indexOf(t)>=0)n+=e[t]}return n}
-function ymdLof(d){return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()}
-var IDEA_INT=[1,3,7,14,30,60];
-function ideaMem(){var x=lxGet();if(!x.ideas||typeof x.ideas!=='object'||Array.isArray(x.ideas))x.ideas={};return x}
-function ideaAdd(lid){var x=ideaMem();if(x.ideas[lid])return;x.ideas[lid]={b:0,due:lxAddD(today(),1),at:Date.now()};lxSet(x)}
-function ideasDue(){var x=ideaMem(),t=today();return Object.keys(x.ideas).filter(function(k){return x.ideas[k].due<=t&&lessonById(k)})}
-var finish_log=finish;finish=function(){var id=null,was=false,tr=null;try{if(typeof P!=='undefined'&&P&&P.mode==='lesson'&&UNITS[P.ui]){id=UNITS[P.ui].lessons[P.li].id;was=!!S.done[id];tr=trk(P.ui)}}catch(e){}
- if(typeof P!=='undefined'&&P&&P.mode==='idearev'){ideaFinish();return}
- var r=finish_log.apply(this,arguments);try{if(id&&!was&&S.done[id]){plogAdd(tr);if(tr==='qm')ideaAdd(id);save()}}catch(e){if(window.console)console.error(e)}return r};
-function ideaReview(){var due=ideasDue();if(!due.length){toast('💡','No ideas due','They come back a day or more after each quantum lesson');return}var cs=[];
- due.slice(0,5).forEach(function(lid){var L=lessonById(lid),l=UNITS[L.ui].lessons[L.li],qs=[];l.cards.forEach(function(c,ci){if(c.t==='Q'&&c.o&&typeof c.a==='number')qs.push(Object.assign({},c,{_key:lid+'#'+ci,_lid:lid,_src:'💡 '+l.title}))});
-  for(var i=qs.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=qs[i];qs[i]=qs[j];qs[j]=t}cs=cs.concat(qs.slice(0,2));
-  var kp=null;for(var k=l.cards.length-1;k>=0;k--){var c=l.cards[k];if(c.t==='T'&&/<h3[^>]*>\s*key points/i.test(c.h||'')){kp=c;break}}if(kp)cs.push({t:'T',h:'<div class="pcagain">💡 The big ideas: '+l.title+'</div>'+kp.h.replace(/<h3[^>]*>[\s\S]*?<\/h3>/,''),_auto:1,_key:null,_lid:lid})});
- if(!cs.length){toast('💡','Nothing to review yet','');return}if(document.querySelector('#player.open'))closePlayer();
- P={mode:'idearev',cards:cs,i:0,xp:0,right:0,asked:0,title:'Ideas to remember',color:'#7F77DD',unit:'Ideas to remember',combo:0,best:0,cbonus:0,mistakes:0,fixed:0,newBadges:[],levelUp:null,_miss:{},_lids:due.slice(0,5)};openPlayer()}
-var gotWrong_idea=gotWrong;gotWrong=function(c){try{if(typeof P!=='undefined'&&P&&P.mode==='idearev'&&c&&c._lid)P._miss[c._lid]=1}catch(e){}return gotWrong_idea.apply(this,arguments)};
-function ideaFinish(){P.finished=true;P.quiet=true;$('pBar').style.width='100%';var x=ideaMem(),t=today(),ok=0;
- (P._lids||[]).forEach(function(lid){var e=x.ideas[lid];if(!e)return;if(P._miss[lid])e.b=0;else{e.b=Math.min(IDEA_INT.length-1,e.b+1);ok++}e.due=lxAddD(t,IDEA_INT[e.b]);e.at=Date.now()});lxSet(x);
- var n=(P._lids||[]).length;$('pBody').innerHTML='<div class="done-screen"><div class="dicon" style="font-size:64px">💡</div><h2>Ideas reviewed</h2><p class="note" style="font-size:16px">'+ok+' of '+n+' lesson'+(n===1?'':'s')+' remembered well: they\'ll come back after a longer gap. '+(n-ok?'The others come back tomorrow.':'')+'</p></div>';
- foot('','','');skipBtn(null);mainBtn('Done',function(){closePlayer()});$('pXP').textContent=P.xp?'+'+P.xp+' XP':'';try{sfx('done')}catch(e){}}
-var decorReview_idea=decorReview;decorReview=function(){decorReview_idea.apply(this,arguments);var pg=$('page-review');if(!pg||pg.querySelector('#ideaRev'))return;var x=ideaMem(),n=Object.keys(x.ideas).length;if(!n)return;var due=ideasDue().length;
- var c=document.createElement('section');c.id='ideaRev';c.className='card fxrev';c.innerHTML='<div class="fxrh"><span class="fxri">💡</span><div><b>Ideas to remember</b><p class="small">'+n+' quantum lesson'+(n===1?'':'s')+' · '+(due?'<b>'+due+' due today</b>':'none due today')+'</p></div></div><button type="button" class="wbtn"'+(due?'':' disabled')+'>'+(due?'Test yourself on them':'Come back later')+'</button>';
- c.querySelector('button').onclick=ideaReview;var a=pg.querySelector('#fxRev')||pg.querySelector('#lxRev');if(a)a.parentNode.insertBefore(c,a.nextSibling);else pg.appendChild(c)};
-
-/* ===== Glossary and formula sheet (built from the lessons you've done) ===== */
-var TL_EXTRA=[];
-function tlEsc(x){return String(x==null?'':x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
-function tlUnits(m){var o=[];UNITS.forEach(function(u,ui){if(trk(ui)===m)o.push(ui)});o.sort(function(a,b){return ((UNITS[a].level||1)-(UNITS[b].level||1))||a-b});return o}
-function tlName(m){return {qm:'Quantum',calc:'Calculus',theory:'Theory',maths:'Nuclear maths'}[m]||'this subject'}
-var tlEl=null;
-function tlClose(){if(tlEl){tlEl.remove();tlEl=null}document.body.classList.remove('noscroll','tlprint')}
-function tlOpen(title,body){tlClose();tlEl=document.createElement('div');tlEl.className='tlov';tlEl.setAttribute('role','dialog');tlEl.setAttribute('aria-label',title);
- tlEl.innerHTML='<div class="tlw"><div class="tlbar"><button type="button" class="wbtn tlx">← Back</button><b>'+tlEsc(title)+'</b><span></span></div><div class="tlbody"></div></div>';
- tlEl.querySelector('.tlx').onclick=tlClose;document.body.appendChild(tlEl);document.body.classList.add('noscroll');body(tlEl.querySelector('.tlbody'),tlEl.querySelector('.tlbar span'));return tlEl}
-document.addEventListener('keydown',function(e){if(e.key==='Escape'&&tlEl)tlClose()});
-function tlGloss(m){var G=glossBuild(),all=[];for(var k in G){var g=G[k];if(trk(g.ui)!==m)continue;var l=UNITS[g.ui].lessons[g.li];all.push({g:g,met:!!S.done[l.id]})}
- all.sort(function(a,b){return a.g.t.toLowerCase()<b.g.t.toLo
+T(`<h3>The fix creates the photon</h3><ol class="steps"><li>Replace ∂ with the <b>covariant derivative</b> D = ∂ + iqA, introducing a new field A.</li><li>Require A to change as A → A − (1/q)∂α whenever ψ → e<sup>iα</sup>ψ. The extra terms then cancel.</li><li>Give A its own kinetic term, −¼F<sup>2</sup>, where F = ∂A − ∂A (the field strength). This term is also gauge invariant.</li><li>A gauge-i

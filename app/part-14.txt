@@ -1,4 +1,55 @@
-sing`,`arithmetic`],0,`It repeats every 2 terms.`),
+ility changes each trial`,`Fixed number of trials`,`Two outcomes per trial`,`Independent trials`],0,`p must stay the same.`),
+T(`<h3>Cumulative probabilities</h3><p>P(X ≤ r) adds up P(X = 0) to P(X = r). Calculators do this directly. Watch the wording: "fewer than 4" is P(X ≤ 3); "at least 4" is 1 − P(X ≤ 3).</p>`),
+T(`<h3>Key points</h3><ul><li><b>B(n, p)</b>: fixed n, two outcomes, constant p, independent.</li><li><b>P(X = r) = ⁿCᵣpʳ(1 − p)ⁿ⁻ʳ</b>.</li><li>Translate "at least" and "fewer than" carefully.</li></ul>`)]),
+LH('am2-4-2','Hypothesis testing',11,'Is a coin biased? Assume it isn\'t, and see whether the evidence makes that hard to believe.',[
+RM(`<p>X ~ B(n, p). P(X ≥ r) = 1 − P(X ≤ r − 1).</p>`),
+T(`<h3>The method</h3><ol><li><b>H₀</b>: the null hypothesis, e.g. p = 0.5.</li><li><b>H₁</b>: the alternative, e.g. p > 0.5 (one-tailed) or p ≠ 0.5 (two-tailed).</li><li>Assume H₀ and find the probability of a result at least as extreme as the one observed.</li><li>If it's below the <b>significance level</b> (often 5%), <b>reject H₀</b>.</li><li>Conclude <b>in context</b>.</li></ol>`),
+W('stepCalc',{steps:[`A coin lands heads 9 times in 10. Test at 5% whether it's biased towards heads.`,`H₀: p = 0.5. H₁: p > 0.5. X ~ B(10, 0.5).`,`P(X ≥ 9) = P(9) + P(10) = 10/1024 + 1/1024 = 0.0107`,`0.0107 < 0.05, so reject H₀.`,`<b>There's evidence at the 5% level that the coin is biased towards heads.</b>`]},`A one-tailed binomial test.`,`Never say H₀ is "proved false": say there's evidence against it.`),
+Q(`A two-tailed test at 5% puts how much in each tail?`,[`2.5%`,`5%`,`10%`,`1%`],0,`Split the significance level.`),
+Q(`What's the critical region?`,[`The values of the test statistic that lead to rejecting H₀`,`The values where H₀ is true`,`The mean of the distribution`,`Always X > 5`],0,`Reject if you land there.`),
+T(`<h3>Key points</h3><ul><li>State <b>H₀</b> and <b>H₁</b>, using the parameter p.</li><li>Compare the probability with the significance level.</li><li>Conclude <b>in context</b>, without claiming certainty.</li></ul>`)]),
+LH('am2-4-3','Kinematics and forces',11,'suvat for constant acceleration, and F = ma with friction.',[
+RM(`<p>v = u + at, s = ut + ½at², v² = u² + 2as, s = ½(u + v)t. F = ma. Weight W = mg.</p>`),
+T(`<h3>suvat</h3><p>For <b>constant acceleration</b>, list the five quantities, tick the three you know, pick the equation with your three and the one you want.</p>`),
+W('calcDrill',{skill:'g_suvat',need:3},`suvat practice. Get 3 right to master it.`,`List s, u, v, a, t.`),
+T(`<h3>Newton's laws and friction</h3><ul><li><b>Resultant force = ma</b> along the direction of motion.</li><li>Friction opposes motion: F ≤ μR, and F = μR when sliding.</li><li>On a horizontal surface, the normal reaction R = mg (if no other vertical forces).</li></ul>`),
+W('calcDrill',{skill:'a_newton',need:3},`Forces and friction. Get 3 right to master it.`,`Resultant ÷ mass.`),
+T(`<h3>Variable acceleration</h3><p>If acceleration isn't constant, suvat doesn't apply. Use calculus: v = ds/dt, a = dv/dt, and integrate to go the other way.</p>`),
+T(`<h3>Key points</h3><ul><li><b>suvat</b> only for constant acceleration.</li><li><b>F = ma</b> with the resultant force; friction <b>F = μR</b> when sliding.</li><li>Variable acceleration: <b>differentiate and integrate</b>.</li></ul>`)])
+]});
+
+GOALS.am1={icon:'🧱',title:'Bridge from GCSE',story:'Only do these if you need them. Each unit makes a GCSE skill automatic before Year 12 begins.',final:'Ready for A-level',steps:['Algebra fluency','Graphs and equations']};
+GOALS.am2={icon:'📘',title:'Master Year 12 maths',story:'Each unit covers a strand of Edexcel A-level Maths Year 1: pure, statistics and mechanics.',final:'Year 12 complete',steps:['Proof and algebra','Circles, trigonometry and the binomial','Calculus and exponentials','Statistics and mechanics']};
+/* ========== A-LEVEL MATHS · LEVEL 3 Year 13 · LEVEL 4 A* technique ========== */
+CGEN.a_arith=function(){var a=cR(-5,10),d=cNZ(-4,6),n=cR(5,30),S=n*(2*a+(n-1)*d)/2;
+ return {p:'An arithmetic series has first term '+cNum(a)+' and common difference '+cNum(d)+'. Find the sum of the first '+n+' terms.',b:[cB(S,'S = ')],e:'Sₙ = n/2 [2a + (n − 1)d] = '+n+'/2 × [2 × '+cBr(a)+' + '+(n-1)+' × '+cBr(d)+'] = '+cNum(S)+'.'}};
+CGEN.a_sector=function(){var r=cR(2,12),t=cP([0.5,0.8,1,1.2,1.5,2,2.5]),w=cR(0,1),v=w?0.5*r*r*t:r*t;
+ return {p:'A sector has radius '+r+' cm and angle '+t+' radians. Find its '+(w?'area (cm²)':'arc length (cm)')+'.',b:[cB(v,'','','value')],e:(w?'Area = ½r²θ = ½ × '+(r*r)+' × '+t:'Arc = rθ = '+r+' × '+t)+' = '+cNum(v)+'.'}};
+CGEN.a_rcos=function(){var t=cP([[3,4,5],[5,12,13],[8,15,17],[6,8,10],[1,1,Math.SQRT2],[7,24,25]]),a=t[0],b=t[1],al=Math.round(Math.atan2(b,a)*180/Math.PI*100)/100;
+ return {p:'Write '+a+'cos θ + '+b+'sin θ as R cos(θ − α). Find R and α (degrees, 2 d.p.).',b:[cB(Math.round(t[2]*1000)/1000,'R = ','','R',false,0.002),cB(al,'α = ','°','α',false,0.001)],e:'R = √('+a+'² + '+b+'²) = '+cNum(Math.round(t[2]*1000)/1000)+'. tan α = '+b+'/'+a+', so α = '+cNum(al)+'°.'}};
+CGEN.a_zscore=function(){var mu=cR(20,80),sd=cR(2,10),z=cP([-2,-1.5,-1,-0.5,0.5,1,1.5,2,2.5]),x=mu+z*sd;
+ return {p:'X ~ N('+mu+', '+sd+'²). Standardise x = '+cNum(x)+': find z.',b:[cB(z,'z = ')],e:'z = (x − μ)/σ = ('+cNum(x)+' − '+mu+')/'+sd+' = '+cNum(z)+'.'}};
+CGEN.a_moment=function(){var L=cR(4,10),m=cR(5,40),d=cR(1,L-1),F=Math.round(m*9.8*d/L*100)/100;
+ return {p:'A light rod of length '+L+' m is supported at each end. A '+m+' kg mass hangs '+d+' m from the left end. Find the reaction at the right end. (g = 9.8, 2 d.p.)',b:[cB(F,'R = ',' N','reaction',false,0.005)],e:'Take moments about the left end: R × '+L+' = '+m+' × 9.8 × '+d+'. R = '+cNum(F)+' N.'}};
+CGEN.a_proj=function(){var u=cR(10,30),a=cP([30,45,60]),uy=u*Math.sin(a*Math.PI/180),t=Math.round(2*uy/9.8*100)/100;
+ return {p:'A ball is projected at '+u+' m/s at '+a+'° above horizontal ground. Find its time of flight. (g = 9.8, 2 d.p.)',b:[cB(t,'t = ',' s','time',false,0.005)],e:'Vertical: u sin θ = '+cNum(Math.round(uy*100)/100)+' m/s. s = 0 when t = 2u sin θ / g = '+cNum(t)+' s.'}};
+
+/* ---- Level 3: Year 13 ---- */
+U({id:'am3-1',track:'am',level:3,title:'Functions and sequences',icon:'f∘g',color:'#7F77DD',desc:'Composite and inverse functions, modulus, sequences and series, and the general binomial expansion.',lessons:[
+LH('am3-1-1','Functions in depth',11,'Composite functions, inverses, the modulus and graph transformations.',[
+RM(`<p>A function maps each input to one output. fg(x) means do g first, then f. The inverse undoes the function.</p>`),
+T(`<h3>The essentials</h3><ul><li><b>Domain</b>: the inputs allowed. <b>Range</b>: the outputs produced.</li><li><b>fg(x) = f(g(x))</b>: g first.</li><li><b>f⁻¹</b> exists only if f is one-to-one; its domain is f's range. Find it by swapping x and y and rearranging.</li><li><b>|x|</b>: the modulus, the size without the sign. y = |f(x)| reflects the negative parts up.</li></ul>`),
+W('calcDrill',{skill:'g_func',need:3},`Composite and inverse functions. Get 3 right to master it.`,`fg: g first.`),
+T(`<h3>Transformations</h3><ul><li>y = f(x) + a: up a. y = f(x + a): left a.</li><li>y = af(x): stretch vertically by a. y = f(ax): stretch horizontally by 1/a.</li><li>y = −f(x): reflect in the x-axis. y = f(−x): in the y-axis.</li></ul>`),
+Q(`y = f(2x) is a stretch…`,[`horizontally, scale factor ½`,`horizontally, scale factor 2`,`vertically, scale factor 2`,`vertically, scale factor ½`],0,`Inside the bracket: opposite of what you'd expect.`),
+T(`<h3>Key points</h3><ul><li><b>fg = f(g(x))</b>; inverse by swapping x and y.</li><li>Domain of f⁻¹ = range of f.</li><li>Changes inside the bracket act on x the "wrong" way.</li></ul>`)]),
+LH('am3-1-2','Sequences and series',11,'Arithmetic and geometric series, sigma notation and recurrence relations.',[
+RM(`<p>Arithmetic: add d each time. Geometric: multiply by r each time. S∞ = a/(1 − r) for |r| < 1 (Calculus Level 10).</p>`),
+T(`<h3>The formulas</h3><ul><li>Arithmetic: uₙ = a + (n − 1)d, <b>Sₙ = n/2 [2a + (n − 1)d]</b>.</li><li>Geometric: uₙ = arⁿ⁻¹, <b>Sₙ = a(1 − rⁿ)/(1 − r)</b>, S∞ = a/(1 − r) if |r| < 1.</li></ul>`),
+W('calcDrill',{skill:'a_arith',need:3},`Arithmetic series. Get 3 right to master it.`,`n/2 [2a + (n − 1)d].`),
+W('calcDrill',{skill:'geomsum',need:2},`Geometric sums to infinity. Get 2 right to master it.`,`a/(1 − r).`),
+T(`<h3>Recurrence relations</h3><p>uₙ₊₁ = f(uₙ) defines each term from the one before. A sequence is <b>increasing</b>, <b>decreasing</b> or <b>periodic</b> (repeats). Σ notation: Σ<sub>r=1</sub><sup>n</sup> means "add up for r = 1 to n".</p>`),
+Q(`uₙ₊₁ = 1/uₙ with u₁ = 3 gives 3, 1/3, 3, 1/3, … This sequence is…`,[`periodic with period 2`,`increasing`,`decreasing`,`arithmetic`],0,`It repeats every 2 terms.`),
 T(`<h3>Key points</h3><ul><li>Arithmetic Sₙ = n/2[2a + (n − 1)d]. Geometric Sₙ = a(1 − rⁿ)/(1 − r).</li><li>S∞ only if |r| < 1.</li><li>Recurrences can be increasing, decreasing or periodic.</li></ul>`)]),
 LH('am3-1-3','The general binomial expansion',11,'For negative and fractional powers, the binomial expansion goes on forever, and partial fractions help.',[
 RM(`<p>(1 + x)ⁿ for positive whole n: Pascal's triangle. Partial fractions split a fraction into simpler pieces (Calculus Level 8).</p>`),
@@ -981,47 +1032,4 @@ W('qQubit',{goal:[0.75,'Make a qubit that gives 1 three-quarters of the time.']}
 T(`<h3>Why qubits are powerful</h3><p>Two qubits can be in a superposition of 4 states (00, 01, 10, 11), three qubits of 8, and n qubits of 2<sup>n</sup>. 300 qubits could hold more possibilities than there are atoms in the universe.</p><p>But you can't just read them all out: a measurement gives one answer. Quantum algorithms cleverly arrange for the <b>wrong answers to cancel</b> (destructive interference) and the right answer to add up. That's why quantum computers are good at some problems, like simulating molecules or breaking some codes, but not at everything.</p>`),
 Q(`What makes a quantum algorithm work?`,[`Arranging interference so wrong answers cancel and right ones add up`,`Reading out all 2ⁿ answers at once`,`Running faster than an ordinary chip`,`Using more electricity`],0,`A measurement gives one result, so the trick is making the right one likely.`),
 T(`<h3>Key points</h3><ul><li>A <b>qubit</b> can be in a superposition α|0⟩ + β|1⟩.</li><li>Measurement gives 0 or 1 with chances |α|<sup>2</sup> and |β|<sup>2</sup>.</li><li>n qubits can hold 2<sup>n</sup> possibilities at once.</li><li>Quantum algorithms use interference to make the right answer likely.</li></ul>`)]),
-LH('qm2-4-3','Entanglement',11,'Einstein called it "spooky action at a distance". The experiments say it\'s real.',[
-T(`<h3>Linked particles</h3><p>Two particles can be made in a shared state, like a pair whose spins always point <b>opposite</b> ways, without either one having a definite direction on its own. They're <b>entangled</b>.</p><p>Measure one and get "up", and you instantly know the other will be "down", however far apart they are.</p>`),
-T(`<h3>Einstein's objection</h3><p>Einstein thought this was too spooky. He argued that the particles must carry <b>hidden instructions</b> from the start, like a pair of gloves split into two boxes: open one, find a left glove, and you know the other's right. Nothing spooky.</p><p>In 1964 John Bell found a way to test it. If you measure the two particles along <b>different angles</b>, hidden instructions can only produce certain patterns. Quantum mechanics predicts something those instructions can't.</p>`),
-W('qBell',{},`Set the two detectors at different angles and measure pairs. Compare the dot with the two curves.`,`Quantum (the curve) and hidden instructions (the straight line) disagree at most angles.`),
-W('qBell',{goal:true},`Your challenge.`,``),
-Q(`What did Bell's test show?`,[`No "hidden instructions" model can match what entangled particles do`,`Entangled particles send signals faster than light`,`Einstein was right`,`Entanglement doesn't exist`],0,`The results match quantum mechanics and rule out local hidden instructions.`),
-T(`<h3>But you can't send messages</h3><p>Each person's results, on their own, look completely random: 50/50 up and down. The pattern only shows up when Alice and Bob <b>compare notes</b>, using ordinary, slower-than-light communication.</p><p>So entanglement can't be used to send a message faster than light. Einstein's relativity is safe, even if his hidden instructions aren't.</p><p>Alain Aspect, John Clauser and Anton Zeilinger won the 2022 Nobel Prize for the experiments that settled it. Entanglement is now used for unbreakable quantum encryption.</p>`),
-Q(`Can entanglement be used to send a message faster than light?`,[`No: each side's results look random until they compare notes`,`Yes, instantly`,`Yes, but only over short distances`,`Only with quantum computers`],0,`The correlation only appears when results are compared normally.`),
-T(`<h3>Key points</h3><ul><li><b>Entangled</b> particles share one state: measuring one tells you about the other instantly.</li><li><b>Bell's test</b> rules out "hidden instructions". Experiments agree with quantum mechanics.</li><li>Entanglement can't send messages faster than light.</li><li>It's used in quantum encryption and quantum computers.</li></ul>`)])]});
-GOALS.qm2={icon:'💻',title:'Design a quantum device',story:'Each unit is a design review for a real quantum technology. Finish them all and you understand how the quantum world is engineered.',final:'Device signed off',steps:['Wavefunction toolkit','Quantum-dot screen','Tunnelling microscope','Qubit processor']};
-
-/* ===== Quantum track: simulations for Levels 3 to 5 ===== */
-function qLine(c,pts,col,w){c.strokeStyle=col;c.lineWidth=w||2;c.beginPath();pts.forEach(function(p,i){if(i===0)c.moveTo(p[0],p[1]);else c.lineTo(p[0],p[1])});c.stroke()}
-function qArrow(c,x0,y0,x1,y1,col,w){c.strokeStyle=col;c.fillStyle=col;c.lineWidth=w||3;c.beginPath();c.moveTo(x0,y0);c.lineTo(x1,y1);c.stroke();var a=Math.atan2(y1-y0,x1-x0),h=9;c.beginPath();c.moveTo(x1,y1);c.lineTo(x1-h*Math.cos(a-0.4),y1-h*Math.sin(a-0.4));c.lineTo(x1-h*Math.cos(a+0.4),y1-h*Math.sin(a+0.4));c.fill()}
-
-/* complex amplitudes add like arrows */
-WIDGETS.qPhasor=function(box,par){par=par||{};var cv=canvas(box,240),sp=slider(box,'Phase difference φ',0,360,1,60,function(v){return v+'°'},function(){draw()}),sr=slider(box,'Size of amplitude b (a = 1)',0,1.5,0.01,1,function(v){return v.toFixed(2)},function(){draw()}),st=stats(box,[['s','|a + b|² (quantum)'],['c','|a|² + |b|² (no interference)']]);
- if(par.goal)qChal(box,'Make the two paths cancel completely, so the particle is never found here.');
- function draw(){var g=prep(cv),c=g.c,W=g.W,H=g.H,cx=W/2-40,cy=H/2,R=Math.min(H*0.32,W*0.2),ph=sp.get()*Math.PI/180,b=sr.get();c.strokeStyle=cssv('--line');c.lineWidth=1;c.beginPath();c.moveTo(20,cy);c.lineTo(W-20,cy);c.moveTo(cx,10);c.lineTo(cx,H-10);c.stroke();c.fillStyle=cssv('--muted');c.font='12px system-ui';c.fillText('real',W-48,cy-6);c.fillText('imaginary',cx+6,16);
-  var ax=cx+R,ay=cy,bx=ax+R*b*Math.cos(ph),by=ay-R*b*Math.sin(ph);qArrow(c,cx,cy,ax,ay,'#4aa3ff');qArrow(c,ax,ay,bx,by,'#e8742a');qArrow(c,cx,cy,bx,by,cssv('--accent'),3.5);c.fillStyle='#4aa3ff';c.fillText('a',(cx+ax)/2,cy+16);c.fillStyle='#e8742a';c.fillText('b',(ax+bx)/2+6,(ay+by)/2);c.fillStyle=cssv('--accent');c.fillText('a + b',(cx+bx)/2-30,(cy+by)/2-8);
-  var s=Math.pow(1+b*Math.cos(ph),2)+Math.pow(b*Math.sin(ph),2);st.s.textContent=s.toFixed(2);st.c.textContent=(1+b*b).toFixed(2)}
- onDraw(draw);draw();
- if(par.goal)return {check:function(){var ph=sp.get()*Math.PI/180,b=sr.get(),s=Math.pow(1+b*Math.cos(ph),2)+Math.pow(b*Math.sin(ph),2);return s<0.02?{ok:true,msg:'Equal sizes, opposite phases (180°): the amplitudes cancel. Two ways to arrive, and together they make zero chance. Classical probabilities can never do that.'}:{ok:false,msg:'|a + b|² is '+s.toFixed(2)+'. You need equal sizes pointing in opposite directions.'}}}};
-
-/* expectation values in a box */
-WIDGETS.qExpect=function(box,par){par=par||{};var cv=canvas(box,220),sc=slider(box,'Amount of level 2 (|c₂|²)',0,1,0.01,0.3,function(v){return (v*100).toFixed(0)+'%'},function(){draw()}),stt=slider(box,'Time',0,1,0.005,0,function(v){return (v*100).toFixed(0)+'% of a slosh'},function(){draw()}),st=stats(box,[['x','⟨x⟩'],['d','Δx'],['e','⟨E⟩ (E₁ = 1)'],['p','Measure E: chance of E₁ / E₂']]);
- if(par.goal)qChal(box,'Make the average energy ⟨E⟩ exactly 2.5 E₁.');
- function draw(){var c2=Math.sqrt(sc.get()),c1=Math.sqrt(1-sc.get()),t=stt.get()*2*Math.PI,g=prep(cv),c=g.c,W=g.W,H=g.H,X=function(x){return 20+x*(W-40)},i,N=300,sx=0,sxx=0,s=0,pts=[],mx=0;
-  for(i=0;i<=N;i++){var x=i/N,a=c1*Math.sin(Math.PI*x),b=c2*Math.sin(2*Math.PI*x),p=2*(a*a+b*b+2*a*b*Math.cos(t));pts.push([x,p]);s+=p;sx+=x*p;sxx+=x*x*p;mx=Math.max(mx,p)}
-  var ex=sx/s,dx=Math.sqrt(Math.max(0,sxx/s-ex*ex));c.fillStyle=cssv('--text');c.fillRect(X(0)-4,14,4,H-38);c.fillRect(X(1),14,4,H-38);qLine(c,pts.map(function(q){return [X(q[0]),H-24-q[1]/4.2*(H-46)]}),cssv('--accent'),2.5);
-  c.fillStyle='rgba(232,116,42,.18)';c.fillRect(X(ex-dx),H-24,X(ex+dx)-X(ex-dx),8);c.fillStyle='#e8742a';c.beginPath();c.arc(X(ex),H-20,6,0,7);c.fill();c.fillStyle=cssv('--muted');c.font='12px system-ui';c.fillText('|ψ|², with ⟨x⟩ (dot) and ⟨x⟩ ± Δx (bar)',24,12);
-  st.x.textContent=(ex*100).toFixed(0)+'% across';st.d.textContent=(dx*100).toFixed(0)+'% of the box';st.e.textContent=((1-sc.get())+4*sc.get()).toFixed(2)+' E₁';st.p.textContent=Math.round((1-sc.get())*100)+'% / '+Math.round(sc.get()*100)+'%'}
- onDraw(draw);draw();
- if(par.goal)return {check:function(){var e=(1-sc.get())+4*sc.get();return Math.abs(e-2.5)<0.03?{ok:true,msg:'|c₂|² = 50%: ⟨E⟩ = 0.5 × 1 + 0.5 × 4 = 2.5 E₁. But no single measurement ever gives 2.5: you always get 1 or 4. ⟨E⟩ is an average.'}:{ok:false,msg:'⟨E⟩ = '+e.toFixed(2)+' E₁. It\'s |c₁|² × 1 + |c₂|² × 4.'}}}};
-
-/* the quantum harmonic oscillator */
-WIDGETS.qSHO=function(box,par){par=par||{};var cv=canvas(box,250),cl=false,sn=slider(box,'Level n',0,12,1,0,function(v){return v},function(){draw()}),r=row(box),tb=btn(r,'Show the classical prediction',function(){cl=!cl;tb.textContent=cl?'Hide the classical prediction':'Show the classical prediction';draw()}),st=stats(box,[['e','Energy'],['o','Chance outside the classical region']]);
- if(par.goal)qChal(box,par.goal[1]);
- function psi(n,x){var h0=1,h1=2*x;if(n===0)return Math.exp(-x*x/2);for(var k=1;k<n;k++){var h2=2*x*h1-2*k*h0;h0=h1;h1=h2}var f=1;for(var j=2;j<=n;j++)f*=j;return h1*Math.exp(-x*x/2)/Math.sqrt(Math.pow(2,n)*f*Math.sqrt(Math.PI))}
- function draw(){var n=sn.get(),E=n+0.5,A=Math.sqrt(2*E),g=prep(cv),c=g.c,W=g.W,H=g.H,L=6.2,X=function(x){return W/2+x/L*(W/2-14)},i,pts=[],pc=[],out=0,tot=0,mx=0;
-  qLine(c,(function(){var a=[];for(var i=-60;i<=60;i++){var x=i/60*L;a.push([X(x),H-20-(x*x/2)/14*(H-40)])}return a})(),cssv('--muted'),1.5);
-  var yE=H-20-E/14*(H-40);c.setLineDash([5,4]);qLine(c,[[X(-A),yE],[X(A),yE]],cssv('--accent'),1);c.setLineDash([]);
-  for(i=-300;i<=300;i++){var x=i/300*L,p=Math.pow(psi(n,x),2);mx=Math.max(mx,p);tot+=p;if(Math.abs(x)>A)out+=p}
-  for(i=-300;i<=300;i++){x=i/300*L;p=Math.pow(psi(n,x),2);pts.push([X(x),yE-p/mx*(H*0.28)]);if(cl&&Math.abs(x)<A*0.995){var q=1/(Math.PI*Math.sqrt(A*A-x*x));pc.push([X(x),yE-Math.min(q/mx,1.6)*(H*0.28)
+LH('qm2-4-3'

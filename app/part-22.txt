@@ -1,0 +1,277 @@
+nt.createElement('div');d.innerHTML=h;var sup=d.querySelector('sup'),sub=d.querySelector('sub'),sp=sup?sup.textContent:null,sb=sub?sub.textContent:'';if(sup)sup.remove();if(sub)sub.remove();
+ var base=d.textContent,pw=base.match(/[⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺]+$/);if(pw){base=base.slice(0,-pw[0].length);sp=pw[0].split('').map(function(c){return FX_SUPD[c]}).join('')}
+ var w=base.split('').map(function(c){return FX_GREEK[c]?' '+FX_GREEK[c]+' ':c}).join('').replace(/√/g,' the square root of ').replace(/\s+/g,' ').trim();
+ if(base==='e'&&sp!=null)return 'e to the power of '+sp;return w+(sb?' '+sb:'')+(sp!=null?fxSaySup(sp):'')}
+/* constructs in the equation, explained */
+function fxParts(an){var h=an.h,parts=[],tr=an.tree;
+ if(fxHas(tr,'f'))parts.push(['─','The fraction line','It means divide: work out the top, work out the bottom, then divide the top by the bottom.']);
+ if(fxHas(tr,'g')&&!(function bareOnly(it){return it.every(function(x){return x.k!=='g'||(x.bare&&bareOnly(x.ch))&&(x.k!=='f'||(bareOnly(x.n)&&bareOnly(x.d)))})})(tr))parts.push(['( )','Brackets','Work out what\'s inside the brackets first, then use the answer.']);
+ if(/²|<sup>2<\/sup>/.test(h))parts.push(['x²','Squared','Multiply it by itself: x² = x × x.']);
+ if(/³|<sup>3<\/sup>/.test(h))parts.push(['x³','Cubed','Multiply it by itself three times: x × x × x.']);
+ if(/e<sup>/.test(h))parts.push(['eˣ','e to the power','e is a number, about 2.718. Use the eˣ button on your calculator. A minus sign in the power means it shrinks (decays).']);
+ if(/√/.test(h))parts.push(['√','Square root','The number that, times itself, gives what\'s under the root.']);
+ if(/\bln\b/.test(h))parts.push(['ln','Natural log','The opposite of eˣ: ln(eˣ) = x. Use the ln button on your calculator.']);
+ if(/Σ/.test(h)&&!an.S['Σ'])parts.push(['Σ','Add them up','Σ means add up all the values.']);
+ if(/Δ/.test(h))parts.push(['Δ','Change in','Δ means "the change in": the new value minus the old value.']);
+ return parts}
+/* worked example: put numbers in, then work it out a piece at a time */
+function fxWorked(an,V){if(!an.f)return null;var y=an.f(V);if(!isFinite(y))return null;
+ var num=function(x){if(!x.kd||x.kd.t!=='v'||V[x.kd.key]==null)return '<span class="fxa">'+x.h+'</span>';var v=V[x.kd.key],pw=x.kd.pow,sup=(x.h.match(/<sup>[\s\S]*$/)||[''])[0];var s=fxN(v);if(v<0)s='('+s+')';return '<span class="fxv">'+s+'</span>'+(pw?(x.h.match(/[⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺]+$/)||[''])[0]:'')+sup};
+ var steps=[],S=an.S;
+ (function walk(items){items.forEach(function(x){if(x.k==='g'){walk(x.ch);if(!x.bare&&x.ch.some(function(z){return z.k==='op'||z.k==='f'})){var f=fxCompile(x.ch,S);if(f)steps.push([fxR(x.ch,{leaf:num}),f(V),'bracket'])}}
+  else if(x.k==='f'){walk(x.n);walk(x.d);var fn=fxCompile(x.n,S),fd=fxCompile(x.d,S);if(fn&&fd){var nv=fn(V),dv=fd(V);steps.push(['<span class="fxf"><span class="fxn">'+fxR(x.n,{leaf:num})+'</span><span class="fxd">'+fxR(x.d,{leaf:num})+'</span></span>',nv/dv,'frac',nv,dv])}}})})(an.rhs);
+ return {sub:fxR(an.lhsItems)+'<span class="fxo">=</span>'+fxR(an.rhs,{leaf:num}),steps:steps.slice(-4),y:y}}
+/* a practice question from the formula: work out the answer, or rearrange to find one of the inputs */
+function fxQ(an,rev,hide){for(var g=0;g<25;g++){var V=fxVals(an),y;try{y=an.f(V)}catch(e){continue}if(!isFinite(y)||Math.abs(y)<1e-4||Math.abs(y)>1e9)continue;
+  var lhs=an.lhs,nmL=an.S[lhs]&&an.S[lhs].m?an.S[lhs].m:fxStrip(fxSym(an,lhs)),eq=hide?'the formula for <b>'+nmL+'</b>. Write it down first, from memory. <details class="fxpeek"><summary>Stuck? Show the formula</summary><div class="eq">'+an.h+'</div></details>':'<div class="eq">'+an.h+'</div>',give=function(ks){return ks.map(function(k){return fxSym(an,k)+' = '+fxN(k===lhs?y:V[k])+fxUnit(an,k)}).join(', ')};
+  var free=an.vars.filter(function(k){return k!==lhs&&an.S[k].fixed==null});
+  if(rev&&free.length){var t=free[Math.floor(Math.random()*free.length)],others=an.vars.filter(function(k){return k!==t});
+   var yv=Number(y.toPrecision(4));var V3=Object.assign({},V);var chk=an.f(V3);
+   return {p:'Use '+eq+'<b>Rearrange</b> to find '+fxSym(an,t)+'. '+give(others).replace(fxN(y),fxN(yv))+'. (3 s.f.)',b:[cB(nSF(V[t],3),fxSym(an,t)+' = ',(an.S[t].u||''),fxStrip(fxSym(an,t)),false,0.02)],
+    e:'Get '+fxSym(an,t)+' on its own, then put the numbers in: '+fxSym(an,t)+' = '+fxN(V[t])+fxUnit(an,t)+'. Check: put it back in and '+fxSym(an,lhs)+' comes out as '+fxN(chk)+fxUnit(an,lhs)+'.'}}
+  var w=fxWorked(an,V),e='Put the numbers in: <div class="eq">'+(w?w.sub:'')+'</div>'+(w&&w.steps.length?w.steps.map(function(s){return '<div class="fxstep">'+s[0]+' <span class="fxo">=</span> <b>'+fxN(s[1])+'</b></div>'}).join(''):'')+'So '+fxSym(an,lhs)+' = <b>'+fxN(y)+fxUnit(an,lhs)+'</b>.';
+  return {p:'Use '+eq+give(an.vars.filter(function(k){return k!==lhs}))+'. Work out '+fxSym(an,lhs)+'. (3 s.f.)',b:[cB(nSF(y,3),fxSym(an,lhs)+' = ',(an.S[lhs].u||''),fxStrip(fxSym(an,lhs)),false,0.01)],e:e}}
+ return null}
+function fxBank(ans,n){var out=[];for(var i=0;i<n;i++){var an=ans[i%ans.length],q=fxQ(an,i%3===2,i>=ans.length);if(q)out.push(q)}return out}
+/* ----- spaced memory for equations ----- */
+var FX_INT=[1,3,7,14,30,60];
+function fxMem(){var x=lxGet();if(!x.eqs||typeof x.eqs!=='object'||Array.isArray(x.eqs))x.eqs={};return x}
+function fxLearnt(c,ok){var x=fxMem(),e=x.eqs[c.key]||{h:c.eqh,rows:c.rows,t:c.title,lid:c.lid,b:-1,words:c.words?1:0,maths:c.maths?1:0},t=today();
+ if(c.stage==='learn'&&e.b>=0){x.eqs[c.key]=e;lxSet(x);return}
+ e.b=ok?Math.min(FX_INT.length-1,e.b+1):0;e.due=lxAddD(t,FX_INT[Math.max(0,e.b)]);e.at=Date.now();e.h=c.eqh;e.rows=c.rows;x.eqs[c.key]=e;lxSet(x)}
+function fxDue(){var x=fxMem(),t=today();return Object.keys(x.eqs).filter(function(k){return x.eqs[k].due&&x.eqs[k].due<=t})}
+/* ----- the card ----- */
+function fxCard(eqh,rows,lid,title,key,stage,words,maths){var an=fxAn(eqh,rows,{words:words,maths:maths});if(!an||!an.formula)return null;return {t:'E',eqh:eqh,rows:rows,lid:lid,title:title,key:key,stage:stage,words:words,maths:maths,_auto:1,_key:null}}
+function rE(c,b){var an=fxAn(c.eqh,c.rows||[],{words:c.words,text:c.text||'',maths:c.maths});if(!an){nextCard();return}var d=el('div','fxcard',null,b),L=an.idx.list;
+ var vk=an.vars.slice();if(an.lhs){vk=vk.filter(function(k){return k!==an.lhs});vk.unshift(an.lhs)}
+ function eqWith(o){return '<div class="eq fxbig" data-fx="1">'+fxR(an.tree,o)+'</div>'}
+ function hlLeaf(key){return {leaf:function(x){var on=x.kd&&x.kd.key===key;return '<span class="fxa'+(on?' fxhl':'')+'">'+x.h+'</span>'}}}
+ if(c.stage!=='learn'){fxScratch(an,d,c);return}
+ var steps=[],k=0,V=fxVals(an),w=an.f?fxWorked(an,V):null,ls=an.lhs?an.S[an.lhs]:null;
+ steps.push(function(){return '<div class="fxk">🧮 Let\'s learn this equation</div>'+eqWith()+'<p class="fxlead">'+(ls&&ls.m?'It works out <b>'+ls.m+'</b>'+(ls.u?' (in '+ls.u+')':'')+'. ':'')+'We\'ll go through it one piece at a time, then you\'ll write it from memory.</p>'});
+ vk.forEach(function(key){var s=an.S[key];steps.push(function(){var eff=key===an.lhs?'This is the answer: the thing the equation works out.':fxEffect(an,key);
+  return '<div class="fxk">What each part means · '+(vk.indexOf(key)+1)+' of '+(vk.length+(an.extras||[]).length)+'</div>'+eqWith(hlLeaf(key))+'<div class="fxpart"><div class="fxsym">'+s.h+'</div><div><b>'+(s.m||(s.word?fxStrip(s.h):'This symbol'))+'</b>'+(s.u?'<span class="fxu">measured in '+s.u+'</span>':s.lo!=null?'<span class="fxu">between '+s.lo+' and '+s.hi+'</span>':'')+(s.fixed!=null?'<span class="fxu">value: '+fxN(s.fixed)+'</span>':'')+(eff?'<p class="fxdo"><b>What it does:</b> '+eff+'</p>':'')+'</div></div>'})});
+ (an.extras||[]).forEach(function(xx,xi){steps.push(function(){return '<div class="fxk">What each part means · '+(vk.length+xi+1)+' of '+(vk.length+an.extras.length)+'</div>'+eqWith({leaf:function(x){var on=fxNorm(fxBase(x.h))===xx.key;return '<span class="fxa'+(on?' fxhl':'')+'">'+x.h+'</span>'}})+'<div class="fxpart"><div class="fxsym">'+xx.h+'</div><div><b>'+xx.m+'</b><p class="fxdo"><b>What it does:</b> '+xx.does+'</p></div></div>'})});
+ var parts=fxParts(an);if(parts.length)steps.push(function(){return '<div class="fxk">What the maths signs tell you to do</div>'+eqWith()+parts.map(function(p){return '<div class="fxpart"><div class="fxsym sm">'+p[0]+'</div><div><b>'+p[1]+'</b><p class="fxdo">'+p[2]+'</p></div></div>'}).join('')});
+ steps.push(function(){return '<div class="fxk">Say it out loud</div>'+eqWith()+'<p class="fxsay">“'+fxSay(an.tree).replace(/^./,function(x){return x.toUpperCase()})+'”</p><p class="fxlead">Saying it helps you remember it. Try it twice without looking.</p>'});
+ if(w)steps.push(function(){return '<div class="fxk">Worked example</div>'+eqWith()+'<p class="fxlead">'+an.vars.filter(function(x){return x!==an.lhs}).map(function(x){return fxSym(an,x)+' = '+fxN(V[x])+fxUnit(an,x)}).join(', ')+'</p><ol class="fxwk"><li>Put the numbers in:<div class="eq fxmid" data-fx="1">'+w.sub+'</div></li>'+w.steps.map(function(s){return '<li>'+(s[2]==='frac'?'Work out the top ('+fxN(s[3])+') and the bottom ('+fxN(s[4])+'), then divide:':'Work out the bracket:')+'<div class="eq fxmid" data-fx="1">'+s[0]+' <span class="fxo">=</span> '+fxN(s[1])+'</div></li>'}).join('')+'<li>So <b>'+fxSym(an,an.lhs)+' = '+fxN(w.y)+fxUnit(an,an.lhs)+'</b></li></ol>'});
+ function show(){var h=steps[k]();d.innerHTML=h;var dots='<div class="pcdots">'+steps.map(function(_,i){return '<i'+(i<=k?' class="on"':'')+'></i>'}).join('')+'<i></i></div>';d.insertAdjacentHTML('beforeend',dots);try{$('pScroll').scrollTop=0}catch(e){}
+  if(k<steps.length-1){mainBtn('Next →',function(){k++;show()});skipBtn(k>0?function(){k--;show()}:null,'← Back')}else{mainBtn('Now learn it by heart →',function(){build(false)});skipBtn(function(){k--;show()},'← Back')}}
+ show();
+ /* rebuild it: tap the pieces into the gaps */
+ function build(full){var vars=L.filter(function(x){return x.kd&&(x.kd.t==='v'||(full&&x.kd.t==='n'))});var pool=vars.slice();
+  if(!full){pool=pool.filter(function(_,i){return i%2===0||pool.length<=3});if(pool.length>4)pool=pool.slice(0,4)}else if(pool.length>8)pool=pool.slice(0,8);
+  if(!pool.length){fxLearnt(c,true);nextCard();return}
+  var blank={};pool.forEach(function(x){blank[x.ti]=1});var order=L.filter(function(x){return blank[x.ti]}),pos=0,miss=0,helped=0,wrongHere=0;
+  var extra=[],seenX={};order.forEach(function(x){seenX[fxNorm(x.h)]=1});function addX(h){var n=fxNorm(h);if(seenX[n]||!/^[A-Za-zα-ωΑ-ΩϕΔ√](<sub>[^<]{1,10}<\/sub>|[₀-₉²³]{1,2})?$/.test(n))return;seenX[n]=1;extra.push(h)}
+  an.vars.forEach(function(k2){addX(an.S[k2].h)});(c.rows||[]).slice(0,12).forEach(function(r){addX(r.h)});['x','y','t','k','n'].forEach(addX);
+  var tiles=order.map(function(x){return x.h}).concat(extra.slice(0,Math.max(1,3-Math.floor(order.length/3))));for(var i=tiles.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=tiles[i];tiles[i]=tiles[j];tiles[j]=t}
+  var memo=!full&&c.stage==='learn';
+  d.innerHTML='<div class="fxk">'+(c.stage==='learn'?'Learn it by heart':'🧠 From memory')+'</div>'+(memo?'<p class="fxlead">Look at it for a few seconds, then press <b>Hide it</b> and fill in the gaps.</p>':'<p class="fxlead">'+(c.title?'From “'+qcEsc(c.title)+'”. ':'')+'Tap the pieces into the gaps, in order.</p>')+
+   '<div class="eq fxbig" data-fx="1" id="fxEq"></div><div class="fxtiles" id="fxTiles"></div><p class="fxfb" id="fxFb"></p>';
+  var E=d.querySelector('#fxEq'),T=d.querySelector('#fxTiles'),FB=d.querySelector('#fxFb'),filled={};
+  function paint(){E.innerHTML=fxR(an.tree,{leaf:function(x){if(!blank[x.ti])return '<span class="fxa">'+x.h+'</span>';if(filled[x.ti])return '<span class="fxa fxok'+(filled[x.ti]===2?' fxhelp':'')+'">'+x.h+'</span>';return '<span class="fxslot'+(order[pos]&&order[pos].ti===x.ti?' now':'')+'">?</span>'}})}
+  function tilesUI(){T.innerHTML='';tiles.forEach(function(h,ti){var bt=document.createElement('button');bt.type='button';bt.className='fxtile';bt.innerHTML=h;bt.onclick=function(){tap(bt,h)};T.appendChild(bt)})}
+  function tap(bt,h){var want=order[pos];if(!want)return;if(fxNorm(h)===fxNorm(want.h)){filled[want.ti]=1;bt.disabled=true;bt.classList.add('used');pos++;wrongHere=0;FB.textContent='';try{sfx('right')}catch(e){}paint();if(pos>=order.length)done();return}
+   miss++;wrongHere++;bt.classList.remove('shake');void bt.offsetWidth;bt.classList.add('shake');FB.textContent=wrongHere>=2?'Here\'s that one. Look at where it goes.':'Not that one. Think about what goes here.';
+   if(wrongHere>=2){filled[want.ti]=2;helped++;var used=[].filter.call(T.children,function(x){return !x.disabled&&fxNorm(x.innerHTML)===fxNorm(want.h)})[0];if(used){used.disabled=true;used.classList.add('used')}pos++;wrongHere=0;paint();if(pos>=order.length)done()}}
+  function done(){var ok=helped===0&&miss<=1;if(c.stage==='learn'){FB.innerHTML=ok?'<b>Nice.</b> Now write the whole thing yourself, from scratch.':'<b>Nearly.</b> Have one more look, then write the whole thing yourself.';FB.className='fxfb '+(ok?'good':'meh');T.innerHTML='';mainBtn('Write it from scratch →',function(){fxScratch(an,d,c)});skipBtn(null);return}fxLearnt(c,ok);if(ok){P.xp+=5;try{addXP(5)}catch(e){}}
+   FB.innerHTML=ok?'<b>'+(miss?'Got it, with one slip.':'Perfect, from memory!')+'</b> '+(c.stage==='learn'?'You\'ll rebuild it again at the end of the lesson.':'It\'ll come back in a few days so it stays in your head.'):'<b>Nearly.</b> Look at the whole thing once more and say it out loud. It\'ll come back again soon.';
+   FB.className='fxfb '+(ok?'good':'meh');T.innerHTML='';mainBtn('Continue',nextCard);skipBtn(ok||c.stage!=='learn'?null:function(){build(false)},'Try again')}
+  if(memo){E.innerHTML=fxR(an.tree);T.innerHTML='';mainBtn('Hide it →',function(){paint();tilesUI();mainBtn('Fill in the gaps',function(){},true);skipBtn(function(){var o=E.innerHTML;E.innerHTML=fxR(an.tree);helped++;setTimeout(function(){paint()},2500)},'👀 Peek')});skipBtn(null);return}
+  paint();tilesUI();mainBtn('Fill in the gaps',function(){},true);skipBtn(function(){E.innerHTML=fxR(an.tree);helped++;setTimeout(function(){paint()},2500)},'👀 Peek')}}
+/* ----- write it from scratch: draw it by hand, or build it with boxes like a calculator. ----- */
+var FX_UNI={'⁰':'0','¹':'1','²':'2','³':'3','⁴':'4','⁵':'5','⁶':'6','⁷':'7','⁸':'8','⁹':'9','⁻':'-','⁺':'+','ⁿ':'n','ˣ':'x'};
+function fxBase(h){var b=String(h).replace(/<sup>[\s\S]*?<\/sup>/g,'');var m=b.match(/[⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺ⁿˣ]+$/);if(m&&m[0].length<b.length)b=b.slice(0,-m[0].length);return b}
+/* a canonical string for an equation tree, so two ways of writing the same thing compare equal */
+function fxCanonT(items){var out='';function strip(a){var b=a.filter(function(x){return x.k!=='sp'});return b.length===1&&b[0].k==='g'&&!/<su[bp]>/.test(b[0].c||'')?b[0].ch:a}
+ function supC(s){var t=fxTok(s),tr=t&&fxNest(t);return tr?fxCanonT(tr):fxStrip(s).replace(/\s+/g,'')}
+ items.forEach(function(x){if(x.k==='sp')return;if(x.k==='op'){out+=x.c==='×'||x.c==='·'?'':x.c==='÷'||x.c==='/'?'/':x.c==='−'||x.c==='-'?'-':x.c;return}
+  if(x.k==='a'){var h=x.h,sup=(h.match(/<sup>([\s\S]*?)<\/sup>/)||[])[1],core=h.replace(/<sup>[\s\S]*?<\/sup>/g,''),m=core.match(/[⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺ⁿˣ]+$/),pw=null;
+   if(m&&m[0].length<core.length){pw=m[0].split('').map(function(c){return FX_UNI[c]}).join('');core=core.slice(0,-m[0].length)}
+   out+=fxNorm(core)+(pw!=null?'^('+pw.replace(/\s/g,'')+')':sup!=null?'^('+supC(sup)+')':'');return}
+  if(x.k==='g'){var sp=(String(x.c||'').match(/<sup>([\s\S]*?)<\/sup>/)||[])[1];out+=(x.bare&&sp==null?fxCanonT(x.ch):'('+fxCanonT(x.ch)+')')+(sp!=null?'^('+supC(sp)+')':'');return}
+  if(x.k==='f')out+='F('+fxCanonT(strip(x.n))+')('+fxCanonT(strip(x.d))+')'});
+ return out}
+/* judging an equation tree against the real one */
+function fxJudgeT(an,tr){if(!tr||!tr.length)return {ok:false,msg:'Write something first.'};var top=tr.filter(function(x){return x.k!=='sp'}),eqs=top.filter(function(x){return x.k==='op'&&x.c==='='}).length;
+ var wantEq=an.tree.filter(function(x){return x.k==='op'&&x.c==='='}).length||1;if(eqs!==wantEq&&!(an.f&&eqs===1))return {ok:false,msg:!eqs?'It needs an = sign: what does it equal?':wantEq===1?'Only one = sign, please.':'This one has '+wantEq+' = signs: it\'s a chain of equal things.'};
+ fxIndex(tr);var at=-1;for(var i=0;i<tr.length;i++)if(tr[i].k==='op'&&tr[i].c==='='){at=i;break}var L=tr.slice(0,at),R=tr.slice(at+1);if(!L.length||!R.length)return {ok:false,msg:'Something needs to go on both sides of the = sign.'};
+ var mine={},want={};function names(items,o){items.forEach(function(x){if(x.k==='a'){var n=fxNorm(fxBase(x.h));if(n.charAt(0)==='√')n=n.slice(1);if(n&&!/^[0-9.]+$/.test(n))o[n]=fxBase(x.h)}else if(x.k==='g')names(x.ch,o);else if(x.k==='f'){names(x.n,o);names(x.d,o)}})}
+ names(tr,mine);names(an.tree,want);delete mine['√'];
+ var miss=Object.keys(want).filter(function(k){return !mine[k]}),extra=Object.keys(mine).filter(function(k){return !want[k]});
+ var hint=miss.length?'Something\'s missing: '+miss.slice(0,2).map(function(k){return want[k]}).join(' and ')+' should be in it.':extra.length?extra.slice(0,2).map(function(k){return mine[k]}).join(' and ')+(extra.length>1?' aren\'t':' isn\'t')+' in this equation.':'You\'ve got the right symbols, but not in the right places. Think about what goes on the top, and what goes on the bottom.';
+ if(an.f&&an.lhs){var fL=fxCompile(L,an.S),fR=fxCompile(R,an.S);if(!fL||!fR)return {ok:false,msg:'Something\'s not joined up: put + − × between the parts. '+hint};
+  var good=0,bad=0,diff=0;for(var g=0;g<10;g++){var V=fxVals(an);V[an.lhs]=an.f(V);var a=fL(V),b=fR(V);if(!isFinite(a)||!isFinite(b))continue;var sc=Math.max(Math.abs(a),Math.abs(b),1e-9);if(Math.abs(a-b)/sc<1e-6)good++;else bad++;
+   var V2=Object.assign({},V);V2[an.lhs]=V[an.lhs]*1.37+0.5;var a2=fL(V2),b2=fR(V2);if(isFinite(a2)&&isFinite(b2)&&Math.abs(a2-b2)/Math.max(Math.abs(a2),Math.abs(b2),1e-9)>1e-4)diff++}
+  if(good>=4&&!bad&&diff>0)return {ok:true};return {ok:false,msg:'Not quite. '+hint}}
+ if(fxCanonT(tr)===fxCanonT(an.tree))return {ok:true};return {ok:false,msg:'Not quite. '+hint}}
+function fxScratch(an,d,c,after){var mode='draw';try{mode=localStorage.getItem('critical_eqmode')||'draw'}catch(e){}var tries=0,helped=0,done=false;
+ d.innerHTML='<div class="fxk">✍️ Write it from scratch</div><p class="fxlead">'+(c.title&&c.stage!=='learn'?'From “'+qcEsc(c.title)+'”. ':'')+'Write the whole equation from memory'+(an.lhs?', starting with '+an.S[an.lhs].h+' =':'')+'.</p>'+
+  '<div class="fxmode" role="tablist"><button type="button" data-m="draw">✏️ Draw it</button><button type="button" data-m="build">🧩 Build it</button></div><div id="fxArea"></div><p class="fxfb" id="fxFb2"></p>';
+ var A=d.querySelector('#fxArea'),FB=d.querySelector('#fxFb2'),cleanup=null;
+ function setMode(m){if(done)return;mode=m;try{localStorage.setItem('critical_eqmode',m)}catch(e){}if(cleanup){cleanup();cleanup=null}[].forEach.call(d.querySelectorAll('.fxmode button'),function(b){b.classList.toggle('on',b.dataset.m===m);b.setAttribute('aria-selected',b.dataset.m===m)});FB.textContent='';FB.className='fxfb';
+  cleanup=(m==='draw'?fxDrawPad:fxBoxPad)(A,an,c,{fb:FB,result:function(ok,hard){tries++;if(ok)finish(true);else if(hard)finish(false)},peek:function(){helped++},tries:function(){return tries}})}
+ [].forEach.call(d.querySelectorAll('.fxmode button'),function(b){b.onclick=function(){setMode(b.dataset.m)}});
+ function finish(ok){done=true;if(cleanup){cleanup();cleanup=null}var good=ok&&helped===0&&tries<=2;fxLearnt(c,good);if(good){P.xp+=8;try{addXP(8)}catch(e){}}
+  d.querySelector('.fxmode').remove();A.innerHTML='<div class="eq fxbig fxans '+(ok?'right':'shown')+'" data-fx="1">'+fxR(an.tree)+'</div>';
+  FB.className='fxfb '+(good?'good':'meh');FB.innerHTML=good?'<b>'+(tries>1?'Got it on the second go.':'Perfect: written from memory!')+'</b> '+(c.stage==='learn'?'You\'ll write it again at the end of the lesson.':'It\'ll come back in a few days.'):ok?'<b>Got there.</b> It\'ll come back soon so it sticks.':'<b>Here it is.</b> Say it out loud, then write it once more. It\'ll come back soon.';
+  mainBtn('Continue',after||nextCard);skipBtn(good?null:function(){fxScratch(an,d,c,after)},'Try again')}
+ setMode(mode)}
+/* ✏️ draw it: a writing pad, then compare with the real one and mark yourself */
+function fxDrawPad(A,an,c,o){A.innerHTML='<div class="fxpad"><canvas></canvas><div class="fxpadh">Write it here with your finger, pen or mouse</div><div class="fxpadt"><button type="button" data-a="undo">↶ Undo</button><button type="button" data-a="clear">Clear</button></div></div><div id="fxCmp"></div>';
+ var wrap=A.querySelector('.fxpad'),cv=A.querySelector('canvas'),hint=A.querySelector('.fxpadh'),g=cv.getContext('2d'),strokes=[],cur=null,dpr=Math.max(1,window.devicePixelRatio||1),W=0,H=0,ink='#222';
+ function size(){var r=wrap.getBoundingClientRect();W=Math.max(200,Math.round(r.width));H=Math.round(Math.min(300,Math.max(190,W*0.55)));cv.width=W*dpr;cv.height=H*dpr;cv.style.height=H+'px';g.setTransform(dpr,0,0,dpr,0,0);try{ink=getComputedStyle(document.body).color||ink}catch(e){}redraw()}
+ function redraw(){g.clearRect(0,0,W,H);g.strokeStyle='rgba(127,127,127,.25)';g.lineWidth=1;g.setLineDash([5,6]);g.beginPath();g.moveTo(14,H*0.62);g.lineTo(W-14,H*0.62);g.stroke();g.setLineDash([]);
+  g.strokeStyle=ink;g.lineCap='round';g.lineJoin='round';g.lineWidth=3.2;strokes.forEach(function(s){if(s.length===1){g.beginPath();g.arc(s[0][0],s[0][1],1.8,0,7);g.fillStyle=ink;g.fill();return}g.beginPath();g.moveTo(s[0][0],s[0][1]);for(var i=1;i<s.length-1;i++){var mx=(s[i][0]+s[i+1][0])/2,my=(s[i][1]+s[i+1][1])/2;g.quadraticCurveTo(s[i][0],s[i][1],mx,my)}var l=s[s.length-1];g.lineTo(l[0],l[1]);g.stroke()});hint.style.display=strokes.length?'none':''}
+ function pt(e){var r=cv.getBoundingClientRect();return [e.clientX-r.left,e.clientY-r.top]}
+ cv.addEventListener('pointerdown',function(e){e.preventDefault();try{cv.setPointerCapture(e.pointerId)}catch(_){}cur=[pt(e)];strokes.push(cur);redraw()});
+ cv.addEventListener('pointermove',function(e){if(!cur)return;e.preventDefault();var p=pt(e),l=cur[cur.length-1];if(Math.abs(p[0]-l[0])+Math.abs(p[1]-l[1])<1.5)return;cur.push(p);redraw()});
+ function up(){cur=null}cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);cv.addEventListener('pointerleave',up);
+ A.querySelector('[data-a=undo]').onclick=function(){strokes.pop();redraw()};A.querySelector('[data-a=clear]').onclick=function(){strokes=[];redraw()};
+ var ro=null;try{ro=new ResizeObserver(function(){var r=wrap.getBoundingClientRect();if(Math.round(r.width)!==W)size()});ro.observe(wrap)}catch(e){}setTimeout(size,0);size();
+ var C=A.querySelector('#fxCmp');
+ function check(){if(!strokes.length){o.fb.className='fxfb meh';o.fb.textContent='Write it on the pad first.';return}
+  C.innerHTML='<div class="fxcmp"><div class="fxk">Here\'s the real one. Compare carefully.</div><div class="eq fxbig" data-fx="1">'+fxR(an.tree)+'</div><p class="fxlead">Check the = sign, every symbol, what\'s on the top and the bottom, and any powers or brackets.</p><div class="fxself"><button type="button" class="fxyes">✓ Mine matches</button><button type="button" class="fxno">✗ Not quite</button></div></div>';
+  wrap.classList.add('lock');mainBtn('Mark yourself above',function(){},true);skipBtn(null);try{C.scrollIntoView({block:'nearest',behavior:'smooth'})}catch(e){}
+  C.querySelector('.fxyes').onclick=function(){o.result(true)};C.querySelector('.fxno').onclick=function(){o.result(false,true)}}
+ mainBtn('Check my writing',check);skipBtn(function(){o.peek();var e=document.createElement('div');e.className='eq fxbig fxpeekv';e.dataset.fx='1';e.innerHTML=fxR(an.tree);wrap.appendChild(e);setTimeout(function(){e.remove()},2500)},'👀 Peek');
+ return function(){if(ro)try{ro.disconnect()}catch(e){}}}
+/* 🧩 build it: boxes like a calculator. A fraction gives you a box on top and a box underneath. */
+function fxBoxPad(A,an,c,o){var root=[],cur={s:root,i:0},reg=[],keyH=null;
+ var syms=[],seen={};an.idx.list.forEach(function(x){var b=fxBase(x.h),n=fxNorm(b);if(n.charAt(0)==='√'){b=b.slice(1);n=fxNorm(b)}if(!n||/^[0-9.]+$/.test(n)||seen[n])return;seen[n]=1;syms.push(b)});
+ var extra=[];function addX(h){var n=fxNorm(h);if(seen[n]||!/^[A-Za-zα-ωΑ-ΩϕΔ](<sub>[^<]{1,10}<\/sub>)?$/.test(n))return;seen[n]=1;extra.push(h)}(c.rows||[]).slice(0,14).forEach(function(r){addX(r.h)});['x','y','n','t','k'].forEach(addX);
+ syms=syms.concat(extra.slice(0,syms.length>5?2:3));for(var i=syms.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),tt=syms[i];syms[i]=syms[j];syms[j]=tt}
+ var hasPow=/<sup>|[²³⁴ⁿˣ⁻]/.test(an.h),hasRoot=/√/.test(an.h),hasFrac=fxHas(an.tree,'f'),hasNum=an.idx.list.some(function(x){return /\d/.test(fxBase(x.h))});
+ A.innerHTML='<div class="eq fxbig fxwrite" data-fx="1" id="fxW"></div><div class="fxkeys" id="fxKeys"></div>';var Wb=A.querySelector('#fxW'),K=A.querySelector('#fxKeys');
+ /* every list of boxes knows where it lives, so the cursor can move in and out */
+ function parentOf(s){for(var i=0;i<reg.length;i++)if(reg[i].s===s)return reg[i];return null}
+ function rs(s,ps,node,role){if(!parentOf(s))reg.push({s:s,ps:ps,node:node,role:role});return s}
+ function render(){reg=reg.filter(function(r){return r.s===root||alive(r.s)});var html=seq(root);Wb.innerHTML=html||'';
+  [].forEach.call(Wb.querySelectorAll('[data-s]'),function(el){el.onclick=function(e){e.stopPropagation();var r=reg[+el.dataset.s];if(r){cur={s:r.s,i:r.s.length};render()}}})}
+ function alive(s){var found=false;(function w(q){q.forEach(function(n){if(found)return;['n','d','ch'].forEach(function(k){if(n[k]){if(n[k]===s)found=true;else w(n[k])}})})})(root);return found}
+ function seq(s){var id=reg.indexOf(parentOf(s)),out='',isCur=cur.s===s;
+  s.forEach(function(n,i){if(isCur&&cur.i===i)out+='<span class="fxcaret"></span>';out+=node(n)});if(isCur&&cur.i===s.length)out+='<span class="fxcaret"></span>';
+  if(s===root)return out||'<span class="fxph">Tap the keys below</span><span class="fxcaret"></span>';
+  return '<span class="fxbox'+(s.length?'':' empty')+(isCur?' on':'')+'" data-s="'+id+'">'+out+'</span>'}
+ function node(n){if(n.t==='a')return '<span class="fxa">'+n.h+'</span>';if(n.t==='n')return '<span class="fxa">'+n.v+'</span>';if(n.t==='op')return '<span class="fxo">'+n.c+'</span>';
+  if(n.t==='f')return '<span class="fxf"><span class="fxn">'+seq(n.n)+'</span><span class="fxd">'+seq(n.d)+'</span></span>';
+  if(n.t==='g')return '<span class="fxb">(</span>'+seq(n.ch)+'<span class="fxb">)</span>';if(n.t==='p')return '<sup>'+seq(n.ch)+'</sup>';if(n.t==='r')return '<span class="fxrt">√<span class="fxrtin">'+seq(n.ch)+'</span></span>';return ''}
+ function ins(n){var last=cur.s[cur.i-1];if(n.t==='n'&&last&&last.t==='n'){last.v+=n.v;render();return}cur.s.splice(cur.i,0,n);cur.i++;
+  if(n.t==='f'){rs(n.n,cur.s,n,'n');rs(n.d,cur.s,n,'d');cur={s:n.n,i:0}}else if(n.ch){rs(n.ch,cur.s,n,'ch');cur={s:n.ch,i:0}}o.fb.textContent='';o.fb.className='fxfb';render()}
+ function next(){var r=parentOf(cur.s);if(!r){if(cur.i<cur.s.length){cur.i++;render()}return}if(r.role==='n'){cur={s:r.node.d,i:r.node.d.length};render();return}var pi=r.ps.indexOf(r.node);cur={s:r.ps,i:pi+1};render()}
+ function prev(){var r=parentOf(cur.s);if(cur.i>0){var n=cur.s[cur.i-1];if(n.t==='f'){cur={s:n.d,i:n.d.length}}else if(n.ch){cur={s:n.ch,i:n.ch.length}}else cur.i--;render();return}if(!r)return;if(r.role==='d'){cur={s:r.node.n,i:r.node.n.length};render();return}cur={s:r.ps,i:r.ps.indexOf(r.node)};render()}
+ function back(){if(cur.i>0){var n=cur.s[cur.i-1];if(n.t==='n'&&n.v.length>1){n.v=n.v.slice(0,-1);render();return}if(n.t==='f'||n.ch){if(n.t==='f'?(n.n.length||n.d.length):n.ch.length){prev();return}}cur.s.splice(cur.i-1,1);cur.i--;render();return}
+  var r=parentOf(cur.s);if(!r)return;var nd=r.node,empty=nd.t==='f'?!nd.n.length&&!nd.d.length:!nd.ch.length;var pi=r.ps.indexOf(nd);if(empty){r.ps.splice(pi,1);cur={s:r.ps,i:pi}}else if(r.role==='d'){cur={s:nd.n,i:nd.n.length}}else cur={s:r.ps,i:pi};render()}
+ function key(lbl,cls,fn,tip){var b=document.createElement('button');b.type='button';b.className='fxkey'+(cls?' '+cls:'');b.innerHTML=lbl;if(tip)b.title=tip;b.onclick=function(){fn();try{b.blur()}catch(e){}};return b}
+ function row(cls){var r=document.createElement('div');r.className='fxkrow'+(cls?' '+cls:'');K.appendChild(r);return r}
+ var r1=row('syms');syms.forEach(function(h){r1.appendChild(key(h,'sym',function(){ins({t:'a',h:h})}))});
+ var r2=row('ops');[['=','='],['+','+'],['−','−'],['×','×']].forEach(function(x){r2.appendChild(key(x[0],'op',function(){ins({t:'op',c:x[1]})}))});
+ r2.appendChild(key('<span class="fxkf"><i></i><i></i></span>','op tpl',function(){ins({t:'f',n:[],d:[]})},'Fraction: a box on top and a box underneath'));
+ r2.appendChild(key('( )','op tpl',function(){ins({t:'g',ch:[]})},'Brackets'));
+ if(hasPow)r2.appendChild(key('x<sup>□</sup>','op tpl',function(){var last=cur.s[cur.i-1];if(!last||last.t==='op'){o.fb.className='fxfb meh';o.fb.textContent='Put the thing being raised to a power first, then press the power key.';return}ins({t:'p',ch:[]})},'Power'));
+ if(hasRoot)r2.appendChild(key('√□','op tpl',function(){ins({t:'r',ch:[]})},'Square root'));
+ var r3=row('nums');(hasNum?'1234567890.':'12').split('').forEach(function(n){r3.appendChild(key(n,'num',function(){ins({t:'n',v:n})}))});
+ var r4=row('nav');r4.appendChild(key('◀','ctl',prev,'Back a box'));r4.appendChild(key('Next box ▶','ctl wide2',next,'Move to the next box'));r4.appendChild(key('⌫','ctl',back,'Delete'));r4.appendChild(key('Clear','ctl',function(){root.length=0;reg=[];cur={s:root,i:0};render()}));
+ render();
+ /* boxes to an equation tree the checker understands */
+ function lin(s){return s.map(function(n){return n.t==='a'?n.h:n.t==='n'?n.v:n.t==='op'?n.c:n.t==='f'?'('+lin(n.n)+') ÷ ('+lin(n.d)+')':n.t==='g'?'('+lin(n.ch)+')':n.t==='r'?'√('+lin(n.ch)+')':''}).join(' ')}
+ function conv(s){var out=[];s.forEach(function(n){var last=out[out.length-1];
+  if(n.t==='a')out.push({k:'a',h:n.h});else if(n.t==='n')out.push({k:'a',h:n.v});else if(n.t==='op')out.push({k:'op',c:n.c});
+  else if(n.t==='f')out.push({k:'f',n:conv(n.n),d:conv(n.d)});else if(n.t==='g')out.push({k:'g',o:'(',c:')',ch:conv(n.ch)});
+  else if(n.t==='r'){out.push({k:'a',h:'√'});out.push({k:'g',o:'(',c:')',ch:conv(n.ch)})}
+  else if(n.t==='p'&&last){var sp=lin(n.ch);if(last.k==='a'){last.h+='<sup>'+sp+'</sup>';last.sup=sp}else if(last.k==='g'){last.c=')<sup>'+sp+'</sup>';last.sup=sp}else if(last.k==='f'){out[out.length-1]={k:'g',o:'(',c:')<sup>'+sp+'</sup>',sup:sp,ch:[last]}}}});
+  return out}
+ function emptyBox(s){return s.some(function(n){return n.t==='f'?(!n.n.length||!n.d.length||emptyBox(n.n)||emptyBox(n.d)):n.ch?(!n.ch.length||emptyBox(n.ch)):false})}
+ function check(){if(!root.length){o.fb.className='fxfb meh';o.fb.textContent='Build it first.';return}if(emptyBox(root)){o.fb.className='fxfb meh';o.fb.textContent='There\'s an empty box. Fill it in or delete it.';return}
+  var res=fxJudgeT(an,conv(root));if(res.ok){o.result(true);return}o.result(false,false);var t=o.tries();
+  o.fb.className='fxfb meh';o.fb.innerHTML=res.msg+(t>=2?' <button type="button" class="fxshow">Show me</button>':'');var sb=o.fb.querySelector('.fxshow');if(sb)sb.onclick=function(){o.peek();o.result(false,true)};
+  Wb.classList.remove('shake');void Wb.offsetWidth;Wb.classList.add('shake')}
+ mainBtn('Check',check);skipBtn(function(){o.peek();var keep=Wb.innerHTML;Wb.innerHTML=fxR(an.tree);Wb.classList.add('peek');setTimeout(function(){Wb.classList.remove('peek');render()},2500)},'👀 Peek');
+ keyH=function(e){if(!Wb.isConnected){document.removeEventListener('keydown',keyH,true);return}if(e.ctrlKey||e.metaKey||e.altKey)return;var k=e.key,hit=true;
+  if(/^[0-9.]$/.test(k))ins({t:'n',v:k});else if(k==='+')ins({t:'op',c:'+'});else if(k==='-')ins({t:'op',c:'−'});else if(k==='*')ins({t:'op',c:'×'});else if(k==='=')ins({t:'op',c:'='});
+  else if(k==='/')ins({t:'f',n:[],d:[]});else if(k==='('||k==='[')ins({t:'g',ch:[]});else if(k===')'||k===']'||k==='ArrowRight'||k==='Tab')next();else if(k==='ArrowLeft')prev();else if(k==='^'&&hasPow)ins({t:'p',ch:[]});else if(k==='Backspace')back();
+  else if(k==='Enter'){if(P.onMain)P.onMain()}else if(k.length===1&&/[a-zA-Z]/.test(k)){var m=syms.filter(function(h){return fxStrip(h).charAt(0)===k});if(m.length)ins({t:'a',h:m[0]});else hit=false}else hit=false;
+  if(hit){e.preventDefault();e.stopImmediatePropagation()}};
+ document.addEventListener('keydown',keyH,true);
+ return function(){document.removeEventListener('keydown',keyH,true)}}
+(function(){var st=document.createElement('style');st.textContent='.fxwrite{min-height:70px;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;border:2px dashed var(--line)}.fxwrite.right{border:2px solid var(--good-line);background:var(--good-bg)}.fxwrite.shown,.fxwrite.peek{border:2px solid #c98a12}.fxwrite.shake{animation:fxshake .35s}'+'.fxph{font-family:var(--sans);font-size:15px;color:var(--muted)}.fxcaret{display:inline-block;width:2px;height:1.1em;background:var(--accent);margin-left:3px;vertical-align:middle;animation:fxpulse 1s steps(2) infinite}.fxcaret.up{height:.7em;vertical-align:super}'+'.fxkeys{display:flex;flex-direction:column;gap:7px}.fxkrow{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}.fxkey{font:inherit;min-width:44px;height:44px;padding:0 10px;border-radius:11px;border:1.5px solid var(--line);background:var(--panel);color:var(--text);cursor:pointer;font-size:17px}'+'.fxkey.sym{font-family:var(--serif);font-size:21px;background:var(--accent-bg);border-color:transparent;color:var(--accent-text)}.fxkey.op{font-size:20px;font-weight:700}.fxkey.wide{font-size:14px}.fxkey.on{background:var(--accent);color:var(--on-accent)}.fxkey.num{background:var(--bg)}.fxkey.ctl{font-size:14px;color:var(--muted)}.fxkey:active{transform:scale(.95)}'+'.fxshow{font:inherit;font-weight:800;border:0;background:none;color:var(--accent-text);text-decoration:underline;cursor:pointer}.fxpeek{margin:6px 0}.fxpeek summary{cursor:pointer;color:var(--muted);font-size:14px}';document.head.appendChild(st)})();
+(function(){var st=document.createElement('style');st.textContent='.fxmode{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:var(--soft);border-radius:12px;padding:4px}.fxmode button{font:inherit;font-size:15px;font-weight:800;border:0;border-radius:9px;padding:9px;background:none;color:var(--muted);cursor:pointer}.fxmode button.on{background:var(--panel);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.14)}'+'.fxpad{position:relative;border:2px solid var(--line);border-radius:16px;background:var(--panel);overflow:hidden}.fxpad canvas{display:block;width:100%;touch-action:none;cursor:crosshair}.fxpad.lock canvas{pointer-events:none;opacity:.9}'+'.fxpadh{position:absolute;left:0;right:0;top:38%;text-align:center;color:var(--muted);font-size:15px;pointer-events:none}.fxpadt{position:absolute;right:8px;top:8px;display:flex;gap:6px}.fxpadt button{font:inherit;font-size:13px;font-weight:700;border:1.5px solid var(--line);background:var(--bg);color:var(--text);border-radius:999px;padding:5px 11px;cursor:pointer}'+'.fxpeekv{position:absolute;inset:auto 8px 8px 8px;margin:0;background:var(--accent-bg)}.fxcmp{margin-top:12px;display:flex;flex-direction:column;gap:8px;border:2px solid var(--accent);border-radius:16px;padding:12px 14px;background:var(--bg)}'+'.fxself{display:flex;gap:8px}.fxself button{flex:1;font:inherit;font-size:16px;font-weight:800;border:0;border-radius:12px;padding:12px;cursor:pointer}.fxyes{background:var(--good-line);color:#fff}.fxno{background:var(--soft);color:var(--text)}'+'.fxbox{display:inline-flex;align-items:center;justify-content:center;min-width:1.1em;min-height:1.15em;padding:0 .12em;border-radius:5px;cursor:pointer}.fxbox.empty{border:1.5px dashed var(--muted);min-width:1.3em}.fxbox.on{background:var(--accent-bg);outline:2px solid var(--accent)}.fxwrite .fxf{margin:0 .2em}'+'.fxrt{white-space:nowrap}.fxrtin{border-top:.07em solid currentColor;padding:0 .1em;margin-left:.05em}.fxkf{display:inline-flex;flex-direction:column;align-items:center;gap:3px}.fxkf i{display:block;width:13px;height:10px;border:1.5px solid currentColor;border-radius:2px}.fxkf i:first-child{margin-bottom:1px;box-shadow:0 3px 0 -1.5px currentColor}'+'.fxkey.tpl{min-width:52px;font-size:17px}.fxkey.wide2{min-width:120px;font-weight:800;color:var(--accent-text)}.fxans.right{border:2px solid var(--good-line);background:var(--good-bg)}.fxans.shown{border:2px solid #c98a12}';document.head.appendChild(st)})();
+/* ----- putting the cards into lessons ----- */
+var FX_TRACKS={theory:1,maths:1,gp:1,ap:1,gc:1,ac:1,gcs:1,calc:1,gm:1,am:1,qm:1},FX_MTR={calc:1,gm:1,am:1,maths:1};
+function fxLoc(l){for(var ui=0;ui<UNITS.length;ui++){var li=UNITS[ui].lessons.indexOf(l);if(li>=0)return {ui:ui,li:li}}return null}
+var FX_TROWS={};function fxTrackRows(tr){if(FX_TROWS[tr])return FX_TROWS[tr];var rel={ap:['ap','gp'],ac:['ac','gc'],gp:['gp','ap'],gc:['gc','ac'],theory:['theory','maths'],maths:['maths','theory'],gcs:['gcs','gp','gc']}[tr]||[tr],out=[];
+ UNITS.forEach(function(u,ui){if(rel.indexOf(trk(ui))<0)return;u.lessons.forEach(function(x){x.cards.forEach(function(c){if(c.t==='T'&&c.h&&c.h.indexOf('class="key"')>=0)out=out.concat(fxRows(c.h))})})});return FX_TROWS[tr]=out}
+function fxLessonEqs(l,ui){var unitRows=[],utext='';UNITS[ui].lessons.forEach(function(x){x.cards.forEach(function(c){if(c.h)utext+=' '+c.h;if(c.e)utext+=' '+c.e})});UNITS[ui].lessons.forEach(function(x){x.cards.forEach(function(c){if(c.t==='T'&&c.h&&c.h.indexOf('class="key"')>=0)unitRows=unitRows.concat(fxRows(c.h))})});
+ var out=[],words=trk(ui)==='gc'||trk(ui)==='gcs'||trk(ui)==='ac',maths=!!FX_MTR[trk(ui)],rule=trk(ui)==='calc'||trk(ui)==='gm'||trk(ui)==='am';
+ l.cards.forEach(function(c,ci){if(c.t!=='T'||!c.h||c.h.indexOf('class="eq"')<0)return;var d=document.createElement('div');d.innerHTML=c.h;
+  [].forEach.call(d.querySelectorAll('.eq'),function(e,k0){var nx=e.nextElementSibling,rows=nx&&nx.classList.contains('key')?fxRows('<div>'+nx.outerHTML+'</div>'):[];rows=rows.concat(fxRows(c.h));if(rule)l.cards.forEach(function(c2){if(c2.t==='T'&&c2.h&&c2!==c)rows=rows.concat(fxRows(c2.h))});else rows=rows.concat(unitRows).concat(fxTrackRows(trk(ui)));
+   String(e.innerHTML).split(/(?:\s*&nbsp;\s*){2,}|\s{3,}/).forEach(function(part,pk){var eh=part.trim().replace(/^[A-Za-z][a-z]{2,}(?:\s+[a-z]{3,})*\s+(?=[^\s=]+\s*=)/,'');if(!eh)return;var k=k0*10+pk;var an=fxAn(eh,rows,{words:words,text:utext,maths:maths});if(an&&maths&&(an.idx.list.some(function(a){var n=fxNorm(fxBase(a.h));return FX_EN.test(n)||(/^[a-z]{4,}$/i.test(n)&&!FX_FN.test(n)&&!FX_DICT[n])})||(fxStrip(eh).match(/=/g)||[]).length>1))an=null;if(an&&rule&&an.idx.list.filter(function(a){return a.kd&&a.kd.t==='n'&&!/^[012]$/.test(fxNorm(fxBase(a.h)))}).length)an=null;if(an&&an.formula&&!out.some(function(o){return fxNorm(o.h)===fxNorm(eh)}))out.push({ci:ci,k:k,h:eh,rows:rows,an:an,words:words,text:utext,maths:maths})})})});
+ return out}
+var playCards_fx=playCards;playCards=function(l){var out=playCards_fx(l);if(out._fx)return out;out._fx=1;
+ try{var lc=fxLoc(l);if(!lc||!FX_TRACKS[trk(lc.ui)])return out;var eqs=fxLessonEqs(l,lc.ui).slice(0,2);if(!eqs.length)return out;
+  eqs.slice().reverse().forEach(function(q){var at=-1;for(var i=0;i<out.length;i++)if(out[i]._key===l.id+'#'+q.ci){at=i;break}if(at<0)return;var j=at+1;while(j<out.length&&out[j]._auto&&out[j].t!=='E')j++;
+   var card=fxCard(q.h,q.rows,l.id,l.title,l.id+'#'+q.ci+'@'+q.k,'learn',q.words,q.maths);if(card){card.text=q.text;out.splice(j,0,card)}});
+  var kp=-1;for(var i=out.length-1;i>=0;i--){if(out[i].t==='T'&&/<h3[^>]*>\s*(key points|recap|summary)/i.test(out[i].h||'')){kp=i;break}}if(kp<0)for(i=out.length-1;i>=0;i--)if(out[i].t==='Z'){kp=i;break}
+  if(kp>0)eqs.slice().reverse().forEach(function(q){var card=fxCard(q.h,q.rows,l.id,l.title,l.id+'#'+q.ci+'@'+q.k,'recall',q.words,q.maths);if(card){card.text=q.text;out.splice(kp,0,card)}});
+  /* number practice from the formula, where the lesson doesn't already have a calculation drill */
+  var hasSkill=l.cards.some(function(c){return c.t==='W'&&c.w==='calcDrill'&&c.par&&[].concat(c.par.skill||[]).length});
+  var evl=eqs.filter(function(q){return q.an.f&&q.an.lhs});
+  if(!hasSkill&&evl.length){var z=out.length-1;while(z>0&&out[z].t!=='Z')z--;if(z>0)out.splice(z,0,{t:'W',w:'calcDrill',par:{bank:function(){return fxBank(evl.map(function(q){return fxAn(q.h,q.rows,{words:q.words,text:q.text,maths:q.maths})}),10)},need:4,title:l.title,label:'Equation practice'},p:'<b>Equation practice.</b> Use the formula from this lesson. Get 4 right to master it.',_auto:1,_key:null})}
+ }catch(e){if(window.console)console.error(e)}return out};
+/* ----- equations to remember (Review page) ----- */
+function fxReview(){var due=fxDue();if(!due.length){toast('🧮','No equations due','They come back a few days after you learn them');return}var x=fxMem();
+ var cs=due.slice(0,8).map(function(k){var e=x.eqs[k];return {t:'E',eqh:e.h,rows:e.rows||[],lid:e.lid,title:e.t,key:k,stage:'review',words:!!e.words,maths:!!e.maths,_auto:1,_key:null}});
+ if(document.querySelector('#player.open'))closePlayer();P={mode:'eqrev',cards:cs,i:0,xp:0,right:0,asked:0,title:'Equations to remember',color:'#534AB7',unit:'Equations to remember',combo:0,best:0,cbonus:0,mistakes:0,fixed:0,newBadges:[],levelUp:null};openPlayer()}
+var finish_fx=finish;finish=function(){if(typeof P!=='undefined'&&P&&P.mode==='eqrev'){P.finished=true;P.quiet=true;$('pBar').style.width='100%';var left=fxDue().length;
+  $('pBody').innerHTML='<div class="done-screen"><div class="dicon" style="font-size:64px">🧮</div><h2>Equations done</h2><p class="note" style="font-size:16px">'+(left?left+' still due: they\'ll come back soon.':'All your equations are fresh. They\'ll come back in a few days.')+'</p></div>';foot('','','');skipBtn(null);mainBtn('Done',function(){closePlayer()});$('pXP').textContent=P.xp?'+'+P.xp+' XP':'';try{sfx('done')}catch(e){}return}
+ return finish_fx.apply(this,arguments)};
+var decorReview_fx=decorReview;decorReview=function(){decorReview_fx.apply(this,arguments);var pg=$('page-review');if(!pg||pg.querySelector('#fxRev'))return;var x=fxMem(),n=Object.keys(x.eqs).length;if(!n)return;var due=fxDue().length;
+ var c=document.createElement('section');c.id='fxRev';c.className='card fxrev';c.innerHTML='<div class="fxrh"><span class="fxri">🧮</span><div><b>Equations to remember</b><p class="small">'+n+' learnt · '+(due?'<b>'+due+' due today</b>':'none due today')+'</p></div></div><button type="button" class="wbtn"'+(due?'':' disabled')+'>'+(due?'Write them from memory':'Come back later')+'</button>';
+ c.querySelector('button').onclick=fxReview;var lx=pg.querySelector('#lxRev');if(lx)lx.parentNode.insertBefore(c,lx.nextSibling);else pg.appendChild(c)};
+(function(){var st=document.createElement('style');st.textContent=
+ '.fxf{display:inline-flex;flex-direction:column;align-items:stretch;vertical-align:middle;margin:0 .18em;line-height:1.2;text-align:center}.fxn{border-bottom:.07em solid currentColor;padding:0 .3em .1em}.fxd{padding:.12em .3em 0}.fxf .fxf{font-size:.9em}'+
+ '.fxo{padding:0 .22em}.fxo.fxc{padding:0 .3em 0 0}.fxs{display:inline-block;width:.18em}.fxb.tall{font-size:1.75em;font-weight:300;line-height:1;vertical-align:middle;position:relative;top:-.04em}.eq.fxon{line-height:1.3;padding-top:12px;padding-bottom:12px}'+
+ '.fxcard{display:flex;flex-direction:column;gap:12px}.fxk{font:800 12px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--accent-text)}.eq.fxbig{font-size:24px;margin:4px 0}.eq.fxmid{font-size:19px;margin:6px 0;text-align:left}'+
+ '.fxhl{background:#f5c542;color:#2b2000;border-radius:5px;padding:0 .12em;box-shadow:0 0 0 3px rgba(245,197,66,.35)}.fxlead{margin:0;font-size:16px;line-height:1.55}'+
+ '.fxpart{display:flex;gap:14px;align-items:flex-start;background:var(--bg);border:1.5px solid var(--line);border-radius:14px;padding:12px 14px}.fxsym{font-family:var(--serif);font-size:30px;min-width:52px;text-align:center;line-height:1.1}.fxsym.sm{font-size:22px}.fxpart b{font-size:16px}'+
+ '.fxu{display:block;font-size:14px;color:var(--muted);margin-top:2px}.fxdo{margin:6px 0 0;font-size:15px;line-height:1.5}.fxsay{font-family:var(--serif);font-size:19px;line-height:1.5;background:var(--accent-bg);border-radius:12px;padding:12px 14px;margin:0}'+
+ '.fxwk{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:8px;font-size:15px;line-height:1.5}.fxv{color:var(--accent-text);font-weight:700}.fxstep{font-family:var(--serif);font-size:17px;margin:4px 0}'+
+ '.fxslot{display:inline-block;min-width:1.4em;padding:0 .2em;border-bottom:3px solid var(--line);color:var(--muted);font-family:var(--sans);font-size:.8em;text-align:center}.fxslot.now{border-color:var(--accent);color:var(--accent-text);animation:fxpulse 1s ease-in-out infinite}@keyframes fxpulse{50%{opacity:.45}}'+
+ '.fxok{color:var(--good)}.fxok.fxhelp{color:#c98a12}.fxtiles{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}.fxtile{font-family:var(--serif);font-size:21px;min-width:52px;padding:8px 12px;border-radius:12px;border:2px solid var(--line);background:var(--panel);color:var(--text);cursor:pointer}.fxtile.used{opacity:.25}.fxtile.shake{animation:fxshake .35s}@keyframes fxshake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}'+
+ '.fxfb{margin:0;min-height:22px;text-align:center;font-size:15px}.fxfb.good{color:var(--good)}.fxfb.meh{color:#c98a12}.fxrev .fxrh{display:flex;gap:12px;align-items:center;margin-bottom:10px}.fxri{font-size:30px}.fxrev p{margin:2px 0 0}';
+ document.head.appendChild(st)})();
+/* ===== fairer multiple choice: when the right answer is a full sentence, weak wrong answers (much shorter, or silly)
+   are swapped for real statements from the same unit, of a similar length. Each one is the right answer to a different
+   question, so you have to know which fact answers this one instead of picking the one that sounds most formal. ===== */
+var MCF_STOP={that:1,this:1,with:1,from:1,they:1,them:1,their:1,there:1,what:1,when:1,which:1,will:1,would:1,into:1,have:1,more:1,less:1,than:1,then:1,each:1,only:1,does:1,because:1,about:1,very:1,much:1,some:1,also:1,been:1,being:1};
+var MCF_IDX=null,MCF_LID=null;
+/* the kind of question, and the kind of answer: only like-for-like answers are swapped in */
+function mcfQK(p){p=p.toLowerCase().replace(/^[^a-z]+/,'');var m;if(/^why\b/.test(p))return 'why';if(/^how (does|do|is|are|can)\b/.test(p))return 'how';if(/^what (does|do)\b.*\b(do|mean|measure|show|tell)\b/.test(p))return 'whatdo';if(/^what (is|are)\b/.test(p))return 'whatis';if(/^what happens\b/.test(p))return 'happens';if(/^when\b/.test(p))return 'when';if(/^where\b/.test(p))return 'where';if(/^(a|an|the|if|you|after|during|in)\b.*\?$/.test(p))return 'scen';return null}
+function mcfAK(t){var w=t.split(' ')[0].toLowerCase().replace(/[^a-z']/g,'');if(/^(to|because|it|its|it's|they|they're|there|the|a|an|by|so|when|if|more|less|only|no|nothing)$/.test(w))return w==='its'||w==="it's"?'it':w==='they\'re'?'they':w==='an'?'a':w;if(/[^s]s$/.test(w)&&w.length>3)return 'verbs';if(/ing$/.test(w))return 'ing';return 'other'}
+function mcfText(h){var d=document.createElement('div');d.innerHTML=h||'';return d.textContent.replace(/\s+/g,' ').trim()}
+function mcfWords(s){var o={};String(s).toLowerCase().replace(/[^a-z0-9 ]/g,' ').split(' ').forEach(function(w){if(w.length>=4&&!MCF_STOP[w])o[w]=1});return o}
+function mcfOver(a,b){var ka=Object.keys(a),kb=Object.keys(b),n=0;if(!ka.length||!kb.length)return 0;ka.forEach(function(k){if(b[k])n++});return n/Math.min(ka.length,kb.length)}
+function mcfBuild(){if(MCF_IDX)return;MCF_IDX={};MCF_LID={};UNITS.forEach(function(u,ui){var list=MCF_IDX[ui]=[];u.lessons.forEach(function(l){MCF_LID[l.id]=ui;l.cards.forEach(function(c){if(c.t!=='Q'||!c.o||typeof c.a!=='number')return;var h=c.o[c.a];if(/<(img|svg|table)/i.test(h))return;var t=mcfText(h);if(t.split(' ').length<3)return;
+  list.push({h:h,t:t,w:mcfWords(t),pw:mcfWords(mcfText(c.p)),dig:/\d/.test(t),qk:mcfQK(mcfText(c.p)),ak:mcfAK(t)})})})})}
+var MCF_SKIP=/\b(true|correct|false|not|isn't|aren't|except|incorrect|wrong|untrue|odd one|best describes|which (of these|statement|one|two|three|four|list|pair|row|option))\b/i;
+function mcfFix(c){if(!c||c.t!=='Q'||!c.o||typeof c.a!=='number'||c._mcFix||c.o.length<3||c._ty)return null;var pt=mcfText(c.p);if(MCF_SKIP.test(pt)||/fill the gap/i.test(pt)||/qchk|QUICK CHECK/i.test(c.p||''))return null;
+ if(c.o.some(function(o){return /<(img|svg|table|input)/i.test(o)}))return null;var ct=mcfText(c.o[c.a]);if(ct.split(' ').length<3)return null;
+ mcfBuild();var ui=null,m=String(c._key||c._src0||c._rk||'').replace(/^[FB]/,'').match(/^([^#@]+)/);if(m&&MCF_LID[m[1]]!=null)ui=MCF_LID[m[1]];if(ui==null&&typeof P!=='undefined'&&P&&P.mode==='lesson')ui=P.ui;if(ui==null||!MCF_IDX[ui])return null;
+ var L=ct.length,weak=[],keep=[];c.o.forEach(function(o,i){if(i===c.a)return;var t=mcfText(o);if(t.length<L*0.72)weak.push(i);else keep.push(i)});
+ if(!weak.length)return null;if(!keep.length){weak.sort(function(a,b){return mcfText(c.o[b]).length-mcfText(c.o[a]).length});keep.push(weak.shift());if(!weak.length)return null}
+ var cw=mcfWords(ct),pw=mcfWords(pt),have={};c.o.forEach(function(o){have[mcfText(o).toLowerCase()]=1});var dig=/\d/.test(ct),qk=mcfQK(pt),ak=mcfAK(ct);if(!qk||(ak==='other'&&qk!=='why'))return null;
+ var src=MCF_IDX[ui].map(function(x){x.near=0;return x}),tk=trk(ui);for(var du=-2;du<=2;du++){var u2=ui+du;if(du&&MCF_IDX[u2]&&trk(u2)===tk)src=src.concat(MCF_IDX[u2].map(function(x){x.near=Math.abs(du)*0.15;return x}))}
+ var cand=src.filter(function(x){return !have[x.t.toLowerCase()]&&x.t.length>=L*0.7&&x.t.length<=L*1.35&&x.dig===dig&&x.qk===qk&&(qk==='why'?x.ak!=='other'||ak==='other':x.ak===ak)&&mcfOver(x.w,cw)<0.45&&mcfOver(x.pw,pw)<0.5});
+ if(!cand.length)return null;cand.forEach(function(x){x.s=Math.abs(x.t.length-L)/L+x.near+(x.ak===ak?0:0.2)+Math.random()*0.3});cand.sort(function(a,b){return a.s-b.s});
+ var o=c.o.slice(),used=0;weak.forEach(function(i){var x=cand[used];if(!x)return;if(cand.slice(0,used).some(function(y){return mcfOver(y.w,x.w)>0.6})){used++;x=cand[used];if(!x)return}o[i]=x.h;used++});
+ if(!used)return null;return Object.assign({},c,{o:o,_mcFix:1})}
+var showCard_mcf=showCard;showCard=function(){try{if(typeof P!=='undefined'&&P&&P.cards){var c=P.cards[P.i],f=mcfFix(c);if(f){if(!P._pcCopy){P.cards=P.cards.slice();P._pcCopy=1}P.cards[P.i]=f}else if(c&&c.t==='Q'&&!c._mcFix){c._mcFix=1}}}catch(e){if(window.console)console.error(e)}return showCard_mcf.apply(this,arguments)};
+UNITS.forEach(function(u){u.lessons.forEach(function(l){l.cards.forEach(function(c){if(c.t==='W'&&c.w==='calcDrill'&&c.par&&!c.par.rule&&c.e)c.par.rule=c.e})})});
+/* XP earned in other Critical apps (Chain) waits in critical_xp_inbox as {days:{'YYYY-MM-DD':xp}} until Critical is open, then lands here as normal XP on the day it was earned, so it counts for the streak, daily goal and season pass */
+(function(){var K='critical_xp_inbox';function take(){var o=null;try{o=JSON.parse(localStorage.getItem(K)||'null')}catch(e){}if(!o||!o.days)return;try{localStorage.removeItem(K)}catch(e){}
+  var t=today(),tot=0;Object.keys(o.days).sort().forEach(function(d){var n=Math.round(+o.days[d]||0);if(n<=0||!/^\d{4}-\d{2}-\d{2}$/.test(d)||d>t)return;tot+=n;if(d===t)addXP(n);else{S.xp+=n;S.hist[d]=(S.hist[d]||0)+n;pruneHist();save();updHeader()}});
+  if(tot){try{checkBadges()}catch(e){}try{toast('📱','+'+tot.toLocaleString('en-GB')+' XP from Chain','Your scrolling counts towards your season pass','quest')}catch(e){}}}
+ setTimeout(take,1200);document.addEventListener('visibilitychange',function(){if(!document.hidden)setTimeout(take,300)});addEventListener('storage',function(e){if(e.key===K)setTimeout(take,100)})})();
+checkBadges(true);quests();updHeader();showPage('learn');
+})();
