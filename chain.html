@@ -559,6 +559,14 @@ button{font:inherit;color:inherit}
 .pb.no{background:rgba(255,255,255,.08);color:var(--dim)}
 .pneed{font-size:14px;color:var(--dim)}.pbuy{margin-bottom:12px}
 .sheet code{background:rgba(255,255,255,.1);padding:1px 6px;border-radius:6px;font-size:13px}
+
+/* passcode vault */
+.vcode{display:flex;gap:10px;justify-content:center;margin:14px 0}
+.vcode i{font:800 40px/1 var(--mono);font-style:normal;width:56px;height:68px;display:grid;place-items:center;border-radius:14px;background:rgba(255,255,255,.08);border:1px solid var(--line)}
+.vcode.sm i{font-size:28px;width:44px;height:52px}
+.vsteps{padding-left:20px;margin:6px 0 12px;display:flex;flex-direction:column;gap:8px;font-size:15px;line-height:1.45}
+.vrot{border-top:1px solid var(--line);margin-top:12px;padding-top:4px}
+.pb.vbuy{width:100%;flex-direction:column;padding:16px;margin:10px 0}.pb.vbuy b{font-size:19px}
 </style>
 </head>
 <body>
@@ -1538,7 +1546,7 @@ function openPass(from){var bal=syncWallet(),left=passLeft(),xpN=bal.toLocaleStr
   (from&&left<=0?'<p><button class="sbtn ghost" data-pstay>💪 Stay in Chain</button></p>':'')+
   '<p class="mnote">Every XP you earn in Chain or Critical goes into this wallet. It still counts for your level and season pass; spending only empties the wallet. Buying more time adds to what\'s left.</p>'+
   '<p class="mnote">If you use Critical from a home-screen icon, iPhone keeps its data separate from Safari, so your XP may show up in only one of them. Buy the pass wherever your XP is: the code it copies works from either.</p>'+
-  '<p><button class="sbtn ghost" data-psetup>🔒 How to make TikTok actually lock</button></p>';
+  '<p style="display:flex;gap:8px;flex-wrap:wrap"><button class="sbtn ghost" data-vault>🔐 Lock with Screen Time (no Shortcuts)</button><button class="sbtn ghost" data-psetup>🔒 Lock with Shortcuts</button></p>';
   openSheet(h);clearInterval(passIv);passIv=setInterval(function(){if(!sheet.classList.contains("show")){clearInterval(passIv);return}var e=document.getElementById("pLeft");if(!e){clearInterval(passIv);return}var l=passLeft();e.textContent=l>0?mmss(l):"none";if(l<=0&&sheetIn.querySelector("[data-passgo]")){clearInterval(passIv);openPass()}},1000)}
 function buyPass(min){var bal=syncWallet(),cost=0;PASS_PRICES.forEach(function(p){if(p[0]===min)cost=p[1]});if(!cost)return;
   if(bal<cost){toast("You need "+(cost-bal)+" more XP for that");vib([20,30,20]);return}
@@ -1546,6 +1554,7 @@ function buyPass(min){var bal=syncWallet(),cost=0;PASS_PRICES.forEach(function(p
   if(passFrom&&S.swaps.length&&S.swaps[S.swaps.length-1]===passFrom){S.swaps.pop();passFrom=0}
   save();if(CE)CE.sfx("ok");vib(20);toast("🎟️ "+min+" minutes unlocked");openPass()}
 function openPassSetup(){openSheet('<h3>🔒 Lock TikTok behind your XP</h3>'+
+  '<p class="mnote">Can\'t use Shortcuts? <button class="sbtn ghost" data-vault>🔐 Use the Screen Time passcode vault instead</button></p>'+
   '<p>A website can\'t block another app on its own, but an iPhone Shortcuts automation can. With this set up, TikTok sends you to Chain unless you have a pass running. (If you already made the simple “open Chain” automation from Beat TikTok, delete it and make this one instead.)</p>'+
   '<p><b>1.</b> Copy your Chain link: <button class="sbtn" data-copyswap>📋 Copy link</button></p>'+
   '<p><b>2.</b> Shortcuts app → <b>Automation</b> → <b>+</b> → <b>App</b> → choose <b>TikTok</b> (add Instagram or YouTube too if you like) → tick <b>Is Opened</b> → <b>Run Immediately</b> → <b>New Blank Automation</b>.</p>'+
@@ -1563,6 +1572,44 @@ sheetIn.addEventListener("click",function(e){
   if(e.target.closest("[data-psetup]")){openPassSetup();return}
   if(e.target.closest("[data-ppass]")){openPass();return}
   if(e.target.closest("[data-pstay]")){closeSheet();passFrom=0;var n=weekSwaps();setTimeout(function(){bigWin("💪","You chose Chain over TikTok","That’s swap #"+n+" this week. Every one breaks the habit a bit more.","<button class=\"sbtn\" data-wclose>Let’s go</button>")},200);return}});
+/* ---------- passcode vault: the XP lock without Shortcuts ----------
+   Screen Time gets a passcode that only Chain knows and TikTok gets a 1 minute daily limit. When the limit hits,
+   iPhone asks for the Screen Time passcode, and the only way to see it is to spend XP here. Afterwards Chain
+   offers a fresh code, so a code you've seen once stops working. */
+var VAULT_COST=300,VAULT_SHOW=10*60000;
+function vEnc(c){var k="crit",o="";for(var i=0;i<c.length;i++)o+=("0"+(c.charCodeAt(i)^k.charCodeAt(i%4)).toString(16)).slice(-2);return o}
+function vDec(h){if(!h)return"";var k="crit",o="";for(var i=0;i<h.length;i+=2)o+=String.fromCharCode(parseInt(h.substr(i,2),16)^k.charCodeAt((i/2)%4));return o}
+function vNew(){var c;do{var a=new Uint8Array(4);try{crypto.getRandomValues(a)}catch(e){for(var j=0;j<4;j++)a[j]=Math.random()*256}c=Array.prototype.map.call(a,function(x){return x%10}).join("")}
+  while(/^(\d)\1\1\1$/.test(c)||"0123456789".indexOf(c)>=0||"9876543210".indexOf(c)>=0||/^(19|20)\d\d$/.test(c));return c}
+function vBig(c,sm){return'<div class="vcode'+(sm?" sm":"")+'">'+c.split("").map(function(d){return"<i>"+d+"</i>"}).join("")+'</div>'}
+S.vault=S.vault||{on:false};
+function openVault(){var V=S.vault,bal=syncWallet(),h='<h3>🔐 Passcode vault</h3>';
+  if(!V.on){if(!V.pend)V.pend=vEnc(vNew());save();var code=vDec(V.pend);
+    h+='<p>No Shortcuts needed. You give <b>Screen Time</b> a passcode that only Chain knows, and TikTok gets a 1 minute daily limit. To get more time you spend XP here to see the passcode: <b>15 minutes for '+VAULT_COST+' XP</b>.</p>'+vBig(code)+
+    '<ol class="vsteps"><li>Open <b>Settings → Screen Time</b>. If it asks, turn on <b>App &amp; Website Activity</b>.</li>'+
+    '<li>Tap <b>Lock Screen Time Settings</b> (on some versions <b>Use Screen Time Passcode</b>) and type the code above. If it asks for your Apple ID for recovery, add it: that\'s your way back in if Chain ever loses the code.</li>'+
+    '<li>Already have a Screen Time passcode you know? Tap <b>Change Screen Time Passcode</b> instead and change it to the code above.</li>'+
+    '<li>Go to <b>App Limits → Add Limit</b>, tick <b>TikTok</b> (add Instagram or YouTube if you want). Scroll down to <b>Websites</b> and add <b>tiktok.com</b> too, so Safari isn\'t a way round it.</li>'+
+    '<li>Set the time to <b>1 min</b>, turn on <b>Block at End of Limit</b>, then tap <b>Add</b>.</li></ol>'+
+    '<p><button class="sbtn" data-vdone style="background:#1db954;color:#fff">✅ Done, hide the code</button></p>'+
+    '<p class="mnote">Don\'t write the code down, or the lock is pointless. If a parent already has a Screen Time passcode on your phone, you can\'t set your own: buy a pass in Scroll pass and show them the screen instead.</p>';
+    openSheet(h);return}
+  var shown=V.shown&&Date.now()-V.shown<VAULT_SHOW;
+  h+='<div class="pwal"><div><small>XP to spend</small><b>'+bal.toLocaleString("en-GB")+'</b></div><div><small>Unlocks</small><b>15 min</b></div></div>';
+  if(shown){h+='<p class="plab">Your Screen Time passcode</p>'+vBig(vDec(V.code))+'<p>Type it in, then choose <b>Approve for 15 Minutes</b>.</p>';
+    if(V.next)h+='<div class="vrot"><p><b>Then lock it again with a new code</b>, so this one stops working:<br>Settings → Screen Time → <b>Change Screen Time Passcode</b> → type the code above → then the new one:</p>'+vBig(vDec(V.next),1)+'<p><button class="sbtn" data-vrot style="background:#1db954;color:#fff">I changed it</button> <button class="sbtn ghost" data-vkeep>Keep the old code</button></p></div>'}
+  else h+='<p>When TikTok hits its limit, tap <b>Ask For More Time → Enter Screen Time Passcode</b>, then come here.</p><button class="pb vbuy'+(bal>=VAULT_COST?"":" no")+'" data-vbuy><b>🔓 Show the passcode</b><span>'+VAULT_COST+' XP · 15 minutes</span></button>'+
+    (bal<VAULT_COST?'<p class="pneed">'+(VAULT_COST-bal)+' more XP needed. A few quizzes or a Critical lesson will do it.</p>':'');
+  h+='<p><button class="sbtn ghost" data-vhelp>Code not working?</button></p><div id="vhelp" hidden><p class="mnote">If you tapped “I changed it” without actually changing it, Screen Time still has your previous code: <b>'+(V.prev?vDec(V.prev):"(none yet)")+'</b>. Still stuck? On the passcode screen tap <b>Forgot Passcode?</b> and use your Apple ID.</p></div>';
+  openSheet(h)}
+sheetIn.addEventListener("click",function(e){var V=S.vault;
+  if(e.target.closest("[data-vault]")){openVault();return}
+  if(e.target.closest("[data-vdone]")){V.code=V.pend;delete V.pend;V.on=true;V.since=Date.now();save();toast("🔐 Vault locked. Only XP opens it now");openVault();return}
+  if(e.target.closest("[data-vbuy]")){var bal=syncWallet();if(bal<VAULT_COST){toast("You need "+(VAULT_COST-bal)+" more XP");vib([20,30,20]);return}
+    var w=S.wallet;w.bal-=VAULT_COST;w.spent=(w.spent||0)+VAULT_COST;w.buys.push([Date.now(),15,VAULT_COST,"vault"]);w.buys=w.buys.slice(-300);V.shown=Date.now();V.next=vEnc(vNew());save();if(CE)CE.sfx("ok");vib(20);openVault();return}
+  if(e.target.closest("[data-vrot]")){V.prev=V.code;V.code=V.next;delete V.next;V.shown=0;save();toast("🔐 Locked with the new code");openVault();return}
+  if(e.target.closest("[data-vkeep]")){delete V.next;save();openVault();return}
+  if(e.target.closest("[data-vhelp]")){var hp=document.getElementById("vhelp");if(hp)hp.hidden=!hp.hidden;return}});
 (function(){var q=location.search||"";if(/[?&]from=tiktok/.test(q)){passFrom=Date.now();S.swaps.push(passFrom);if(S.swaps.length>2000)S.swaps=S.swaps.slice(-2000);save();
   try{history.replaceState(null,"",location.pathname+location.hash)}catch(e){}
   setTimeout(function(){openPass(true)},700)}})();
