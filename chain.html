@@ -574,6 +574,13 @@ button{font:inherit;color:inherit}
 .abar{flex:none;width:42%;height:8px;border-radius:99px;background:rgba(255,255,255,.1);overflow:hidden}.abar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#3ad4ff,#a06bff)}
 .arow.neg .abar i{background:linear-gradient(90deg,#ff3b5c,#ff8a3d)}
 .fbrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px;padding-top:12px;border-top:1px solid var(--line)}
+
+/* settle up */
+.pwal b.neg{color:#ff5c7a}
+.lday{display:flex;gap:6px;margin:8px 0}.lday button{border:1px solid var(--line);background:none;color:var(--dim);border-radius:999px;padding:6px 14px;font-weight:700;cursor:pointer}.lday button.on{background:var(--text);color:#0b0b10}
+.llist{display:flex;flex-direction:column;gap:4px;margin:6px 0 12px}
+.lrow{display:grid;grid-template-columns:1.2fr 1fr 1fr 1.1fr;gap:6px;font-size:13px;background:rgba(255,255,255,.05);border-radius:10px;padding:7px 10px}
+.lrow .lneg{color:#ff5c7a;font-weight:700;text-align:right}.lrow .lok{color:#5fe38a;font-weight:700;text-align:right}
 </style>
 </head>
 <body>
@@ -1577,13 +1584,14 @@ function walletEarn(n){var w=S.wallet,td=isoDay();if(!w||td<w.start)return;w.bal
 function passLeft(){return Math.max(0,(S.wallet.until||0)-Date.now())}
 function mmss(ms){var s=Math.ceil(ms/1000),m=Math.floor(s/60);s%=60;return m+":"+(s<10?"0":"")+s}
 function passToken(){var d=new Date(Math.ceil(S.wallet.until/60000)*60000),p=function(n){return(n<10?"0":"")+n};return"CHAINPASS "+d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+p(d.getHours())+p(d.getMinutes())}
-function openPass(from){var bal=syncWallet(),left=passLeft(),xpN=bal.toLocaleString("en-GB");
-  var h='<h3>🎟️ Scroll pass</h3>'+(from?'<p class="pfrom">'+(left>0?'Your pass is still running. Tap below to go back.':'You opened TikTok. Spend XP on it, or stay here and earn some more?')+'</p>':'')+
-  '<div class="pwal"><div><small>XP to spend</small><b>'+xpN+'</b></div><div><small>Pass time left</small><b id="pLeft">'+(left>0?mmss(left):"none")+'</b></div></div>';
+function openPass(from,ask){var bal=syncWallet(),left=passLeft(),xpN=(bal<0?"−":"")+Math.abs(bal).toLocaleString("en-GB");
+  var h='<h3>🎟️ Scroll pass</h3>'+(ask?'<p class="pfrom">🧾 Daily check: how long were you on TikTok yesterday? It\'s in Settings → Screen Time.</p>'+logHtml()+'<p><button class="sbtn ghost" data-logskip>Skip for today</button></p>':'')+(from?'<p class="pfrom">'+(left>0?'Your pass is still running. Tap below to go back.':'You opened TikTok. Spend XP on it, or stay here and earn some more?')+'</p>':'')+
+  '<div class="pwal"><div><small>XP to spend</small><b'+(bal<0?' class="neg"':'')+'>'+xpN+'</b></div><div><small>Pass time left</small><b id="pLeft">'+(left>0?mmss(left):"none")+'</b></div></div>';
   if(left>0)h+='<div class="papps">'+PASS_APPS.map(function(a,i){return'<a class="sbtn" style="background:'+a[2]+';color:#fff" href="'+a[1]+'" target="_blank" rel="noopener" data-passgo>'+(i?"":"▶ ")+'Open '+a[0]+'</a>'}).join("")+'</div>';
   h+='<p class="plab">'+(left>0?"Add more time":"Buy time")+'</p><div class="pbuy">'+PASS_PRICES.map(function(p){return'<button class="pb'+(bal>=p[1]?"":" no")+'" data-pbuy="'+p[0]+'"><b>'+p[0]+' min</b><span>'+p[1]+' XP</span></button>'}).join("")+'</div>'+
-  (bal<PASS_PRICES[0][1]?'<p class="pneed">'+(PASS_PRICES[0][1]-bal)+' more XP for 5 minutes. A few quizzes or a Critical lesson will do it.</p>':'')+
+  (bal<0?'<p class="pneed">You owe <b>'+(-bal)+' XP</b> for unpaid TikTok time. New XP pays it off first.</p>':bal<PASS_PRICES[0][1]?'<p class="pneed">'+(PASS_PRICES[0][1]-bal)+' more XP for 5 minutes. A few quizzes or a Critical lesson will do it.</p>':'')+
   (from&&left<=0?'<p><button class="sbtn ghost" data-pstay>💪 Stay in Chain</button></p>':'')+
+  (ask?'':logHtml())+
   '<p class="mnote">Every XP you earn in Chain or Critical goes into this wallet. It still counts for your level and season pass; spending only empties the wallet. Buying more time adds to what\'s left.</p>'+
   '<p class="mnote">If you use Critical from a home-screen icon, iPhone keeps its data separate from Safari, so your XP may show up in only one of them. Buy the pass wherever your XP is: the code it copies works from either.</p>'+
   '<p style="display:flex;gap:8px;flex-wrap:wrap"><button class="sbtn ghost" data-vault>🔐 Lock with Screen Time (no Shortcuts)</button><button class="sbtn ghost" data-psetup>🔒 Lock with Shortcuts</button></p>';
@@ -1593,6 +1601,31 @@ function buyPass(min){var bal=syncWallet(),cost=0;PASS_PRICES.forEach(function(p
   var w=S.wallet;w.bal-=cost;w.spent=(w.spent||0)+cost;w.until=Math.max(Date.now(),w.until||0)+min*60000;w.buys.push([Date.now(),min,cost]);w.buys=w.buys.slice(-300);
   if(passFrom&&S.swaps.length&&S.swaps[S.swaps.length-1]===passFrom){S.swaps.pop();passFrom=0}
   save();if(CE)CE.sfx("ok");vib(20);toast("🎟️ "+min+" minutes unlocked");openPass()}
+/* ---------- settle up: charge XP for TikTok time you didn't buy a pass for ----------
+   iPhone doesn't let websites read Screen Time, so you copy the minutes across from Settings. Anything over the
+   time you paid for (plus 2 free minutes a day) costs 20 XP a minute, the same rate as a pass. The wallet can go
+   below zero; new XP pays the debt off first. After the first log, Chain asks about yesterday once a day. */
+var LOG_FREE=2,LOG_RATE=20,logDay="t";
+function dayKey(ts){var d=new Date(ts),m=d.getMonth()+1,y=d.getDate();return d.getFullYear()+"-"+(m<10?"0":"")+m+"-"+(y<10?"0":"")+y}
+function logKey(){return dayKey(logDay==="y"?Date.now()-864e5:Date.now())}
+function paidMin(day){var t=0;(S.wallet.buys||[]).forEach(function(b){if(dayKey(b[0])===day)t+=b[1]});return t}
+function logTime(day,min){var w=S.wallet;w.logs=w.logs||{};var L=w.logs[day]||{min:0,xp:0},owe=Math.max(0,min-paidMin(day)-LOG_FREE)*LOG_RATE,diff=owe-L.xp;
+  w.bal-=diff;L.min=min;L.xp=owe;w.logs[day]=L;w.logOn=1;var ks=Object.keys(w.logs).sort();while(ks.length>60)delete w.logs[ks.shift()];save();return diff}
+function logHtml(){var w=S.wallet,L=w.logs||{},days=[];for(var i=0;i<7;i++){var d=dayKey(Date.now()-i*864e5);if(L[d])days.push([d,L[d]])}
+  return'<p class="plab">🧾 Log your TikTok time</p><p class="mnote">Forgot to buy a pass, or tapped “Remind Me in 15 Minutes” without paying? Go to <b>Settings → Screen Time</b>, tap the usage chart at the top (<b>See All App &amp; Website Activity</b>), find TikTok, and put in the minutes it shows. Anything you didn\'t pay for costs '+LOG_RATE+' XP a minute (the first '+LOG_FREE+' minutes a day are free).</p>'+
+  '<div class="lday"><button data-lday="t"'+(logDay==="t"?' class="on"':'')+'>Today</button><button data-lday="y"'+(logDay==="y"?' class="on"':'')+'>Yesterday</button></div>'+
+  '<div class="ytform"><input id="logMin" type="number" inputmode="numeric" min="0" max="1440" placeholder="Minutes on TikTok"><button class="sbtn" data-logsave style="background:#fe2c55;color:#fff">Log it</button></div><p class="mnote" id="logInfo">'+logInfo()+'</p>'+
+  (days.length?'<div class="llist">'+days.map(function(x){var paid=paidMin(x[0]);return'<div class="lrow"><span>'+(x[0]===dayKey(Date.now())?"Today":x[0]===dayKey(Date.now()-864e5)?"Yesterday":new Date(x[0]+"T12:00").toLocaleDateString("en-GB",{weekday:"short",day:"numeric"}))+'</span><span>'+x[1].min+' min</span><span>'+paid+' paid</span><span class="'+(x[1].xp?"lneg":"lok")+'">'+(x[1].xp?"−"+x[1].xp+" XP":"✓ paid")+'</span></div>'}).join("")+'</div>':'')}
+function logInfo(){var d=logKey(),L=(S.wallet.logs||{})[d];return(logDay==="y"?"Yesterday":"Today")+': paid for <b>'+paidMin(d)+' min</b>'+(L?' · logged <b>'+L.min+' min</b>'+(L.xp?' (charged '+L.xp+' XP)':''):'')}
+sheetIn.addEventListener("click",function(e){var b=e.target.closest("[data-lday]");if(b){logDay=b.dataset.lday;sheetIn.querySelectorAll("[data-lday]").forEach(function(x){x.classList.toggle("on",x===b)});var inf=document.getElementById("logInfo");if(inf)inf.innerHTML=logInfo();return}
+  if(e.target.closest("[data-logsave]")){var inp=document.getElementById("logMin"),v=Math.round(+((inp&&inp.value)||"")),day=logKey();if(!(v>=0&&v<=1440)||inp.value===""){toast("Type the minutes from Screen Time");return}
+    var diff=logTime(day,v),L=S.wallet.logs[day];syncWallet();
+    if(diff>0){toast("🧾 −"+diff+" XP for unpaid TikTok time");vib([20,40,20]);if(CE)CE.sfx("no")}else if(diff<0)toast("↩️ Fixed: "+(-diff)+" XP back");else toast(L.xp?"🧾 Already charged for that":"✅ All paid for. Nice one");
+    if(!L.xp&&v<=paidMin(day)+LOG_FREE&&CE)CE.sfx("ok");openPass(false);return}
+  if(e.target.closest("[data-logskip]")){closeSheet();return}});
+/* once a day, after the first log: ask about yesterday */
+(function(){var w=S.wallet,y=dayKey(Date.now()-864e5),t=dayKey(Date.now());if(!w.logOn||(w.logs||{})[y]||w.asked===t||/[?&]from=tiktok/.test(location.search))return;w.asked=t;save();
+  setTimeout(function(){if(sheet.classList.contains("show"))return;logDay="y";openPass(false,true)},1800)})();
 function openPassSetup(){openSheet('<h3>🔒 Lock TikTok behind your XP</h3>'+
   '<p class="mnote">Can\'t use Shortcuts? <button class="sbtn ghost" data-vault>🔐 Use the Screen Time passcode vault instead</button></p>'+
   '<p>A website can\'t block another app on its own, but an iPhone Shortcuts automation can. With this set up, TikTok sends you to Chain unless you have a pass running. (If you already made the simple “open Chain” automation from Beat TikTok, delete it and make this one instead.)</p>'+
