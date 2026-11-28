@@ -802,7 +802,7 @@ var renderLearn_lx2=renderLearn;renderLearn=function(){var out=renderLearn_lx2.a
   bs.forEach(function(x){var b=document.createElement('button');b.type='button';b.className='wbtn lx2b';b.textContent=x[0];b.onclick=x[1];row.appendChild(b)})})}catch(e){if(window.console)console.error(e)}return out};
 /* 6. read aloud */
 var TTS={on:false};
-function ttsText(){var b=$('pBody');if(!b)return '';[].forEach.call(b.querySelectorAll('*'),function(x){if(x.getClientRects().length===0||getComputedStyle(x).visibility==='hidden')x.setAttribute('data-ttsh','1')});var c=b.cloneNode(true);[].forEach.call(b.querySelectorAll('[data-ttsh]'),function(x){x.removeAttribute('data-ttsh')});[].forEach.call(c.querySelectorAll('[data-ttsh]'),function(x){x.remove()});[].forEach.call(c.querySelectorAll('button,input,textarea,select,canvas,svg,script,style,.symtr,.numrow,.small,.ldchips,.cmclues'),function(x){x.remove()});
+function ttsText(){var b=$('pBody');if(!b)return '';[].forEach.call(b.querySelectorAll('.opt'),function(o,i){o.setAttribute('data-ttso',String(i+1))});[].forEach.call(b.querySelectorAll('*'),function(x){if(x.getClientRects().length===0||getComputedStyle(x).visibility==='hidden')x.setAttribute('data-ttsh','1')});var c=b.cloneNode(true);[].forEach.call(b.querySelectorAll('[data-ttsh]'),function(x){x.removeAttribute('data-ttsh')});[].forEach.call(c.querySelectorAll('[data-ttsh]'),function(x){x.remove()});[].forEach.call(c.querySelectorAll('.opt[data-ttso]'),function(o){var sp=document.createElement('p');sp.textContent='Option '+o.getAttribute('data-ttso')+': '+o.textContent;o.parentNode.replaceChild(sp,o)});[].forEach.call(b.querySelectorAll('[data-ttso]'),function(x){x.removeAttribute('data-ttso')});[].forEach.call(c.querySelectorAll('button,input,textarea,select,canvas,svg,script,style,.symtr,.numrow,.small,.ldchips,.cmclues'),function(x){x.remove()});
  [].forEach.call(c.querySelectorAll('p,li,h3,h2,div'),function(x){x.appendChild(document.createTextNode('. '))});var t=c.textContent;var fb=$('pFb');if(fb&&fb.textContent.trim()&&$('pFoot').className.match(/ok|no/))t+='. '+fb.textContent;
  var SUP={'⁰':'0','¹':'1','²':'2','³':'3','⁴':'4','⁵':'5','⁶':'6','⁷':'7','⁸':'8','⁹':'9'};
  t=t.replace(/×\s*10([⁻⁰¹²³⁴⁵⁶⁷⁸⁹]+)/g,function(_,e){var neg=e.charAt(0)==='⁻';return ' times ten to the '+(neg?'minus ':'')+e.replace('⁻','').split('').map(function(ch){return SUP[ch]}).join('')+' '});
@@ -819,7 +819,7 @@ function ttsBar(show){var bar=$('ttsBar');if(!bar){bar=document.createElement('d
  if(show)bar.hidden=false;ttsBarUpd()}
 function ttsBarUpd(){var bar=$('ttsBar');if(!bar)return;var r=S.ttsRate||0.95;bar.querySelector('[data-t=play]').textContent=TTS.on?'⏸ Stop':'🔊 Read';bar.querySelector('[data-t=rate]').textContent=(r<0.9?'🐢 Slow':r>1?'🐇 Fast':'Normal')+' speed';bar.querySelector('[data-t=auto]').textContent='Auto-read: '+(S.ttsAuto?'on':'off')}
 (function(){try{var snd=$('pSound');if(snd&&!$('pTTS')){var b=document.createElement('button');b.className='psnd';b.id='pTTS';b.type='button';b.textContent='🔊';b.title='Read this card aloud';b.setAttribute('aria-label','Read this card aloud');snd.parentNode.insertBefore(b,snd);b.onclick=function(){if(!window.speechSynthesis){toast('🔊','Read aloud isn\'t available in this browser','');return}if(TTS.on)ttsStop();else ttsSpeak()}}}catch(e){}})();
-var showCard_tts=showCard;showCard=function(){ttsStop();var r=showCard_tts.apply(this,arguments);try{if(S.ttsAuto&&window.speechSynthesis)setTimeout(function(){if(document.querySelector('#player.open'))ttsSpeak()},450)}catch(e){}return r};
+var showCard_tts=showCard;showCard=function(){ttsStop();var r=showCard_tts.apply(this,arguments);try{if((S.ttsAuto||(typeof P!=='undefined'&&P&&P._o&&P._o.go&&S.goRead))&&window.speechSynthesis)setTimeout(function(){if(document.querySelector('#player.open'))ttsSpeak()},450)}catch(e){}return r};
 var closePlayer_tts=closePlayer;closePlayer=function(){ttsStop();var bar=$('ttsBar');if(bar)bar.hidden=true;return closePlayer_tts.apply(this,arguments)};
 (function(){var st=document.createElement('style');st.textContent=
  '.rcchips{display:flex;flex-wrap:wrap;gap:6px}.rcchips span{font-size:14px;font-weight:700;padding:4px 10px;border-radius:999px;background:var(--panel);border:1px solid var(--line)}.rclines{display:flex;flex-direction:column;gap:4px}.rcl{font-size:15px;line-height:1.45;padding:4px 0;border-bottom:1px dashed var(--line)}.rcw{display:flex;flex-direction:column;gap:10px}.rcq{font-size:14.5px;line-height:1.5;padding:10px 12px;border-radius:12px;background:var(--panel);border:1px solid var(--line)}.rcs{display:flex;flex-direction:column;gap:6px;padding:10px 12px;border-left:3px solid var(--accent);background:color-mix(in srgb,var(--accent) 5%,transparent);border-radius:0 12px 12px 0}.rcs p{margin:0;font-size:14.5px;line-height:1.5}.rcf{font:500 18px/1.4 "Cambria Math","STIX Two Math",Georgia,serif;color:var(--accent)}.rcopts{display:flex;flex-direction:column;gap:6px}.rcfb{margin:0;font-size:14px;line-height:1.5;min-height:1.2em}.rcs .numrow{display:flex;gap:8px;align-items:center}'+
@@ -831,11 +831,45 @@ var closePlayer_tts=closePlayer;closePlayer=function(){ttsStop();var bar=$('ttsB
  '#pTTS.on{color:var(--accent)}.ttsbar{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(96px + env(safe-area-inset-bottom));display:flex;gap:6px;padding:6px;border-radius:999px;background:var(--panel);border:1px solid var(--line);box-shadow:0 6px 22px rgba(0,0,0,.18);z-index:30;max-width:calc(100% - 24px);flex-wrap:wrap;justify-content:center}.ttsbar[hidden]{display:none}.ttsbar button{font:inherit;font-size:12.5px;font-weight:700;padding:7px 11px;border-radius:999px;border:1px solid var(--line);background:var(--bg);color:var(--text);cursor:pointer}';
  document.head.appendChild(st)})();
 
-UNITS.forEach(function(u){u.lessons.forEach(function(l){l.cards.forEach(function(c){if(c.t==='W'&&c.w==='calcDrill'&&c.par&&!c.par.rule&&c.e)c.par.rule=c.e})})});
-/* XP earned in other Critical apps (Chain) waits in critical_xp_inbox as {days:{'YYYY-MM-DD':xp}} until Critical is open, then lands here as normal XP on the day it was earned, so it counts for the streak, daily goal and season pass */
-(function(){var K='critical_xp_inbox';function take(){var o=null;try{o=JSON.parse(localStorage.getItem(K)||'null')}catch(e){}if(!o||!o.days)return;try{localStorage.removeItem(K)}catch(e){}
-  var t=today(),tot=0;Object.keys(o.days).sort().forEach(function(d){var n=Math.round(+o.days[d]||0);if(n<=0||!/^\d{4}-\d{2}-\d{2}$/.test(d)||d>t)return;tot+=n;if(d===t)addXP(n);else{S.xp+=n;S.hist[d]=(S.hist[d]||0)+n;pruneHist();save();updHeader()}});
-  if(tot){try{checkBadges()}catch(e){}try{toast('📱','+'+tot.toLocaleString('en-GB')+' XP from Chain','Your scrolling counts towards your season pass','quest')}catch(e){}}}
- setTimeout(take,1200);document.addEventListener('visibilitychange',function(){if(!document.hidden)setTimeout(take,300)});addEventListener('storage',function(e){if(e.key===K)setTimeout(take,100)})})();
-checkBadges(true);quests();updHeader();showPage('learn');
-})();
+/* ===== On the go: no-maths lessons you can pick and do anywhere (optional, doesn't affect the plan) ===== */
+var GO_SUBS=[['theory','⚛️','Nuclear theory'],['qm','🌊','Quantum physics'],['gp','🔭','GCSE Physics'],['gc','🧪','GCSE Chemistry'],['gcs','💻','GCSE Computer Science'],['ap','🚀','A-level Physics',1],['ac','⚗️','A-level Chemistry',1]];
+var GO_W={matchPairs:1,sortIt:1,flipCards:1,tapLabels:1,journey:1};
+var GO_MATHQ=/calculat|work out|how (much|many|far|long)|what is the (value|energy|speed|wavelength|frequency|mass|power|current|resistance)|\d\s*[×x]\s*10|=\s*\?|to \d+ (s\.f|d\.p)|significant figures|rearrange/i;
+function goMathy(arr){var n=arr.filter(function(o){return /\d/.test(symTxt(String(o)))}).length;return n*2>arr.length}
+function goStrip(h){var d=document.createElement('div');d.innerHTML=h;[].forEach.call(d.querySelectorAll('.eq,.key,.fx,.krow,table.calc,.worked'),function(x){x.remove()});
+ [].forEach.call(d.querySelectorAll('p,li'),function(x){var t=x.textContent;if(!/=/.test(t))return;if((t.match(/[=×÷√²³⁻]/g)||[]).length>=3&&t.length<80){x.remove();return}
+  var ss=t.split(/(?<=[.;:!?])\s+/),keep=ss.filter(function(z){return !(/=/.test(z)&&(/\d/.test(z)||(z.match(/[×÷\/√²³⁻^−₀₁₂₃₄₅₆₇₈₉]/g)||[]).length>=2))});
+  if(keep.length===ss.length)return;if(!keep.length||keep.join(' ').trim().length<15){x.remove();return}x.textContent=keep.join(' ')});return d.innerHTML}
+function goCards(l,ui){var out=[],nT=0;l.cards.forEach(function(c){
+  if(c.t==='T'&&c.h){var h=goStrip(c.h);if(symTxt(h).length<40)return;out.push({t:'T',h:h,_auto:1,_key:null});nT++}
+  else if(c.t==='Q'&&c.o&&typeof c.a==='number'){if(GO_MATHQ.test(symTxt(c.p))||goMathy(c.o))return;out.push(Object.assign({},c,{_auto:1,_key:null,_mcFix:1}))}
+  else if(c.t==='O'&&c.items){if(goMathy(c.items))return;out.push(Object.assign({},c,{_auto:1,_key:null}))}
+  else if(c.t==='W'&&GO_W[c.w])out.push(Object.assign({},c,{_auto:1,_key:null}))});
+ if(nT<2)return null;
+ var mz=MIS[l.id];if(mz)out.unshift({t:'Q',p:'<span class="gymk">🤔 True or false?</span><br><b>'+mz[0]+'</b>',o:mz[1]?['True','False']:['False','True'],a:0,e:(mz[1]?'':'Many people think this, but it\'s false. ')+mz[2],_auto:1,_key:null,_mcFix:1,_mis:1});
+ if(LABEL[l.id]&&DIAS[LABEL[l.id]])out.push(Object.assign(W('labelDia',{d:LABEL[l.id]},'🏷 Label the diagram',''),{_auto:1,_key:null}));
+ var u=UNITS[ui];if(u.lessons[u.lessons.length-1]===l&&CMAP[u.id])out.push(Object.assign(W('cmap',CMAP[u.id],'🗺 Concept map: '+u.title,''),{_auto:1,_key:null}));
+ return out}
+function goSubOpen(s){return !s[3]||alOpen()}
+function goUnits(tr){var o=[];UNITS.forEach(function(u,ui){if(trk(ui)===tr&&!(tr==='qm'&&(u.level||1)>=6))o.push(ui)});o.sort(function(a,b){return ((UNITS[a].level||1)-(UNITS[b].level||1))||a-b});return o}
+var GO_CACHE={};function goList(tr){if(GO_CACHE[tr])return GO_CACHE[tr];var L=[];goUnits(tr).forEach(function(ui){UNITS[ui].lessons.forEach(function(l,li){var cs=null;try{cs=goCards(l,ui)}catch(e){}if(cs)L.push({ui:ui,li:li,id:l.id,t:l.title,n:cs.length,min:Math.max(2,Math.round(cs.length*0.6))})})});GO_CACHE[tr]=L;return L}
+function goStart(ui,li){var l=UNITS[ui].lessons[li],cs=goCards(l,ui);if(!cs)return;S.goLast={ui:ui,li:li,tr:trk(ui)};save();
+ sessGo({title:l.title,icon:'🚗',doneTitle:'Lesson done',color:UNITS[ui].color,cards:cs,go:1,onDone:function(){var G=S.go||(S.go={});G[l.id]={d:today(),n:((G[l.id]&&G[l.id].n)||0)+1};save();var nx=goNext(ui,li);
+   setTimeout(function(){var b=document.querySelector('.gonext');if(b&&nx)b.onclick=function(){closePlayer();goStart(nx.ui,nx.li)}},50);
+   return 'Nice one. '+(nx?'<br><br><button type="button" class="wbtn pri gonext">Next: '+tlEsc(nx.t)+' →</button>':'')}});
+ try{if(S.goBig)document.body.classList.add('gobig')}catch(e){}}
+function goNext(ui,li){var L=goList(trk(ui));for(var i=0;i<L.length;i++)if(L[i].ui===ui&&L[i].li===li)return L[i+1]||null;return null}
+var closePlayer_go=closePlayer;closePlayer=function(){document.body.classList.remove('gobig');var r=closePlayer_go.apply(this,arguments);try{if(typeof PAGE!=='undefined'&&PAGE==='go')goRender()}catch(e){}return r};
+function goRender(){var pg=$('page-go');if(!pg)return;var cur=S.goSub||'theory',subs=GO_SUBS.filter(function(s){return s[0]!=='gcs'||UNITS.some(function(u,ui){return trk(ui)==='gcs'})}),G=S.go||{};
+ var sub=subs.filter(function(s){return s[0]===cur})[0]||subs[0];if(!goSubOpen(sub))sub=subs[0];cur=sub[0];var L=goList(cur),last=S.goLast,lastL=last&&UNITS[last.ui]?UNITS[last.ui].lessons[last.li]:null,nx=last?goNext(last.ui,last.li):null;
+ var h='<div class="gohead"><h1>🚗 On the go</h1><p>No maths, no pressure. Pick any lesson and it teaches you, on your phone, wherever you are. It doesn\'t count towards your plan, so do it whenever you like.</p></div>'+
+  '<div class="goopts"><button type="button" class="goopt'+(S.goRead?' on':'')+'" data-o="read">🔊 Read it to me: <b>'+(S.goRead?'on':'off')+'</b></button><button type="button" class="goopt'+(S.goBig?' on':'')+'" data-o="big">🔠 Bigger text: <b>'+(S.goBig?'on':'off')+'</b></button></div>'+
+  (lastL?'<div class="golast"><span>Last time: <b>'+tlEsc(lastL.title)+'</b></span>'+(nx?'<button type="button" class="wbtn pri" data-nx="1">Carry on: '+tlEsc(nx.t)+' →</button>':'')+'</div>':'')+
+  '<div class="gosubs">'+subs.map(function(s){var op=goSubOpen(s);return '<button type="button" class="gosub'+(s[0]===cur?' on':'')+(op?'':' lock')+'" data-s="'+s[0]+'"'+(op?'':' title="Unlocks when you finish GCSE"')+'><span>'+s[1]+'</span>'+tlEsc(s[2])+(op?'':' 🔒')+'</button>'}).join('')+'</div>'+
+  '<div class="gobar"><b>'+tlEsc(sub[2])+'</b><span>'+L.filter(function(x){return G[x.id]}).length+' of '+L.length+' done here</span><button type="button" class="wbtn" data-r="1">🎲 Surprise me</button></div>';
+ var byU={};L.forEach(function(x){(byU[x.ui]=byU[x.ui]||[]).push(x)});var lvs={};Object.keys(byU).forEach(function(ui){var lv=UNITS[ui].level||1;(lvs[lv]=lvs[lv]||[]).push(+ui)});
+ h+=Object.keys(lvs).sort(function(a,b){return a-b}).map(function(lv,k){var us=lvs[lv],tot=0,dn=0;us.forEach(function(ui){byU[ui].forEach(function(x){tot++;if(G[x.id])dn++})});var nm='Level '+lv;try{nm=lvInfo(cur,+lv)[0]}catch(e){}
+   return '<details class="golv"'+(k===0||(last&&us.indexOf(last.ui)>=0)?' open':'')+'><summary><b>Level '+lv+'</b> · '+tlEsc(nm)+'<span>'+dn+'/'+tot+'</span></summary>'+us.map(function(ui){var u=UNITS[ui];return '<div class="gou"><div class="gout">'+tlEsc(u.icon||'')+' '+tlEsc(u.title)+'</div>'+byU[ui].map(function(x){var d=G[x.id];return '<button type="button" class="gol'+(d?' done':'')+'" data-u="'+x.ui+'" data-l="'+x.li+'"><span class="golt">'+tlEsc(x.t)+'</span><span class="golm">'+(d?'✓ ':'')+'~'+x.min+' min</span></button>'}).join('')+'</div>'}).join('')+'</details>'}).join('');
+ if(!L.length)h+='<p class="tlnote">Nothing here yet.</p>';
+ pg.innerHTML='<div class="gow">'+h+'</div>';
+ [].forEach.call(pg.querySelectorAll('[data-s]'),function(b){b.onclick=function(){var s=GO_SUBS.filter(function(x){return x[0]===b.dataset.s})[0];if

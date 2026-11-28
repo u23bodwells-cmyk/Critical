@@ -1,0 +1,24 @@
+(!goSubOpen(s)){toast('🔒','A-level unlocks after GCSE','Finish the GCSE levels in Learn to open it');return}S.goSub=s[0];save();goRender()}});
+ [].forEach.call(pg.querySelectorAll('[data-o]'),function(b){b.onclick=function(){if(b.dataset.o==='read'){S.goRead=!S.goRead;if(S.goRead&&!window.speechSynthesis)toast('🔊','Read aloud isn\'t available in this browser','')}else S.goBig=!S.goBig;save();goRender()}});
+ [].forEach.call(pg.querySelectorAll('.gol'),function(b){b.onclick=function(){goStart(+b.dataset.u,+b.dataset.l)}});
+ var nb=pg.querySelector('[data-nx]');if(nb)nb.onclick=function(){goStart(nx.ui,nx.li)};
+ var rb=pg.querySelector('[data-r]');if(rb)rb.onclick=function(){var pool=L.filter(function(x){return !G[x.id]});if(!pool.length)pool=L;var x=cP(pool);if(x)goStart(x.ui,x.li)}}
+var showPage_go=showPage;showPage=function(p){var r=showPage_go.apply(this,arguments);try{if(p==='go')goRender()}catch(e){if(window.console)console.error(e)}return r};window.showPage=showPage;
+(function(){var st=document.createElement('style');st.textContent=
+ '.gow{max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:12px;padding-bottom:30px}.gohead h1{margin:4px 0}.gohead p{margin:0;color:var(--muted);line-height:1.5}'+
+ '.goopts{display:flex;gap:8px;flex-wrap:wrap}.goopt{flex:1 1 150px;font:inherit;font-size:14px;padding:12px;border-radius:14px;border:1.5px solid var(--line);background:var(--panel);color:var(--text);cursor:pointer;text-align:left}.goopt.on{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,var(--panel))}'+
+ '.golast{display:flex;flex-direction:column;gap:8px;padding:12px 14px;border-radius:14px;background:color-mix(in srgb,var(--accent) 8%,var(--panel));border:1px solid var(--line)}.golast .wbtn{align-self:flex-start;font-size:15px;padding:12px 16px}'+
+ '.gosubs{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}.gosub{flex:none;display:flex;align-items:center;gap:6px;font:inherit;font-size:14px;font-weight:700;padding:10px 14px;border-radius:999px;border:1.5px solid var(--line);background:var(--panel);color:var(--text);cursor:pointer;white-space:nowrap}.gosub span{font-size:18px}.gosub.on{border-color:var(--accent);background:var(--accent);color:#fff}.gosub.lock{opacity:.55}'+
+ '.gobar{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.gobar span{color:var(--muted);font-size:13px;flex:1}'+
+ '.golv{border:1px solid var(--line);border-radius:14px;background:var(--panel);padding:4px 12px}.golv summary{cursor:pointer;padding:10px 0;display:flex;gap:6px;align-items:center;font-size:15px}.golv summary span{margin-left:auto;color:var(--muted);font-size:13px}.gou{padding:6px 0 10px;border-top:1px solid var(--line)}.gout{font-weight:800;font-size:14px;margin:6px 0}'+
+ '.gol{display:flex;align-items:center;gap:10px;width:100%;text-align:left;font:inherit;padding:14px 12px;margin:4px 0;border-radius:12px;border:1.5px solid var(--line);background:var(--bg);color:var(--text);cursor:pointer;min-height:52px}.gol:active{transform:scale(.99)}.golt{flex:1;font-size:15.5px;font-weight:600}.golm{font-size:12.5px;color:var(--muted);white-space:nowrap}.gol.done{border-color:color-mix(in srgb,var(--good) 50%,var(--line))}.gol.done .golm{color:var(--good);font-weight:800}'+
+ 'body.gobig #pBody{font-size:118%}body.gobig #pBody .opt{font-size:17px;padding:16px}body.gobig #pBody h3{font-size:1.3em}';document.head.appendChild(st)})();
+
+UNITS.forEach(function(u){u.lessons.forEach(function(l){l.cards.forEach(function(c){if(c.t==='W'&&c.w==='calcDrill'&&c.par&&!c.par.rule&&c.e)c.par.rule=c.e})})});
+/* XP earned in other Critical apps (Chain) waits in critical_xp_inbox as {days:{'YYYY-MM-DD':xp}} until Critical is open, then lands here as normal XP on the day it was earned, so it counts for the streak, daily goal and season pass */
+(function(){var K='critical_xp_inbox';function take(){var o=null;try{o=JSON.parse(localStorage.getItem(K)||'null')}catch(e){}if(!o||!o.days)return;try{localStorage.removeItem(K)}catch(e){}
+  var t=today(),tot=0;Object.keys(o.days).sort().forEach(function(d){var n=Math.round(+o.days[d]||0);if(n<=0||!/^\d{4}-\d{2}-\d{2}$/.test(d)||d>t)return;tot+=n;if(d===t)addXP(n);else{S.xp+=n;S.hist[d]=(S.hist[d]||0)+n;pruneHist();save();updHeader()}});
+  if(tot){try{checkBadges()}catch(e){}try{toast('📱','+'+tot.toLocaleString('en-GB')+' XP from Chain','Your scrolling counts towards your season pass','quest')}catch(e){}}}
+ setTimeout(take,1200);document.addEventListener('visibilitychange',function(){if(!document.hidden)setTimeout(take,300)});addEventListener('storage',function(e){if(e.key===K)setTimeout(take,100)})})();
+checkBadges(true);quests();updHeader();showPage('learn');
+})();
