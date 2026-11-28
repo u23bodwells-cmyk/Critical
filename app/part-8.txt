@@ -1,4 +1,4 @@
- boron too (Level 3 Theory).`),
+ro always`,`unrelated`],0,`Expanding water removes boron too (Level 3 Theory).`),
 T(`<h3>Key points</h3><ul><li><b>Low-leakage</b> patterns: fresh inside, burnt at the edge. Less leakage, less vessel fluence.</li><li>Higher internal peaking is controlled with <b>burnable poisons</b> (gadolinium).</li><li>Poisons cut start-of-cycle boron and keep the MTC negative.</li></ul>`)]),
 LH('t5-1-3','Checking the core: monitoring and startup tests',10,'The core design is a prediction. How the plant proves the real core matches it.',[
 RM(`<ul><li>Peaking factors and DNBR limits (Level 3 Theory).</li><li>Critical boron, rod worth and temperature coefficients (Level 3).</li></ul>`),
@@ -908,5 +908,4 @@ N(`Find the gradient of the line through (0, 10) and (5, 0).`,-2,0.001,'',`(0 �
 W('calcDrill',{skill:'gradpts',need:5},`Find the gradient each time. Get 5 right to master it.`,`Change in y ÷ change in x, keeping the points in the same order.`),
 T(`<h3>Key points</h3><ul><li><b>Gradient = change in y ÷ change in x</b>.</li><li>Positive goes up, negative goes down, zero is flat.</li><li>Keep the two points in the same order on top and bottom.</li></ul>`)]),
 LH('c1-3-2','y = mx + c',8,'Read the gradient straight from the equation of a line.',[
-RM(`<p>Gradient = change in y ÷ change in x. Positive slopes up, negative slopes down.</p>`),
-T(`<h3>The equation of a straight line</h3><div
+RM(`<p>Gradient = change in y ÷ change in x. Positive slopes up, negative slopes down.</p>`

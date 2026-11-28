@@ -1,4 +1,4 @@
-ghest point on the curve.'}}}};
+ucleon. Look for the highest point.':'Click the highest point on the curve.'}}}};
 
 WIDGETS.decayDrill=function(box){var EL={6:'C',7:'N',9:'F',8:'O',11:'Na',10:'Ne',12:'Mg',19:'K',20:'Ca',18:'Ar',26:'Fe',27:'Co',28:'Ni',36:'Kr',37:'Rb',38:'Sr',39:'Y',52:'Te',53:'I',54:'Xe',55:'Cs',56:'Ba',82:'Pb',84:'Po',86:'Rn',88:'Ra',90:'Th',91:'Pa',92:'U',93:'Np',94:'Pu',95:'Am',83:'Bi',97:'Bk'};
  var QS=[[238,92,'a'],[226,88,'a'],[239,94,'a'],[241,95,'a'],[210,84,'a'],[90,38,'b'],[137,55,'b'],[135,53,'b'],[135,54,'b'],[60,27,'b'],[131,53,'b'],[239,92,'b'],[239,93,'b'],[92,36,'b'],[18,9,'p'],[22,11,'p'],[11,6,'p']],q,streak=0;
@@ -1214,4 +1214,4 @@ var STUDY=(function(){
   var L=$('.stlist');L.innerHTML='';var list=st.sessions.slice().sort(function(a,b){return (b.d+b.c).localeCompare(a.d+a.c)}).slice(0,12);
   if(!list.length)L.innerHTML='<p class="stnote">No sessions yet. Press Start studying when you begin.</p>';
   list.forEach(function(s){var r=document.createElement('div'),dt=new Date(s.d+'T12:00:00');var lv=!!(st.run&&s.c===st.run.c);r.innerHTML='<span>'+dt.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})+'</span><span>'+esc(s.t)+'</span><b>'+s.m+' min'+(lv?' · live':'')+'</b>';
-   var b=document.createElement('button');b.type='button';b.textContent='Delete';b.onclick=function(){if(b.dataset.arm){st.sessions=st.sessions.filter(function(x){return x!==s});if(st.run&&s.c===st.run.c){st.run=null;clearInterval(tick);note('Timer stopped and that session delete
+   var b=document.createElement('button');b.type='button';b.textContent='Delete';b.onclick=function(){if(b.dataset.arm){st.sessions=st.sessions.filter(function(x){return x!==s});if(st.run&&s.c===st.run.c){st.run=null;clearInterval
