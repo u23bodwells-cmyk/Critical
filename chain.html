@@ -1001,7 +1001,9 @@ var ICON={
  heart:'<svg viewBox="0 0 24 24"><path d="M12 21s-8-4.9-9.9-9.8C.7 7.6 3 4 6.7 4c2.2 0 3.8 1.2 5.3 3.2C13.5 5.2 15.1 4 17.3 4 21 4 23.3 7.6 21.9 11.2 20 16.1 12 21 12 21z"/></svg>'
 };
 function isSaved(id){return S.saved.some(function(s){return s.id===id})}
-function rail(c){if(c.type==="check"||c.type==="drop"||c.type==="ytdown")return"";var sv=isSaved(c.id),lk=!!S.liked[c.id];
+/* likes and saves on a Short belong to that video, not the whole channel */
+function likeKey(c){return c.type==="yt"&&c.vid?"ytv-"+c.vid:c.id}
+function rail(c){if(c.type==="check"||c.type==="drop"||c.type==="ytdown")return"";var sv=isSaved(likeKey(c)),lk=!!S.liked[likeKey(c)];
   return '<aside class="rail"><button class="rb'+(lk?" on":"")+'" data-act="like" aria-pressed="'+lk+'"><span class="c">'+ICON.like+'</span>Like</button>'+
   '<button class="rb'+(sv?" on":"")+'" data-act="save" aria-pressed="'+sv+'"><span class="c">'+ICON.save+'</span>Save</button>'+
   '<button class="rb" data-act="more"><span class="c">'+ICON.more+'</span>Explain</button>'+
@@ -1100,7 +1102,8 @@ feed.addEventListener("click",function(e){var k=cardOf(e.target);if(!k)return;
   if(k.c.type==="chat"&&k.el._pl&&e.target.closest(".chlog")){k.el._pl.speed();return}
   var o=e.target.closest(".opt");if(o&&(k.c.type==="quiz"||k.c.type==="tf")&&!o.closest(".sim")){answer(k,+o.dataset.i);return}
   var b=e.target.closest("[data-act]");if(b){act(k,b.dataset.act,b);return}
-  if(k.c.type==="yt"&&k.el._pl&&e.target.closest(".ytshield")){k.el._pl.tap();return}
+  if(k.c.type==="yt"&&k.el._pl&&e.target.closest(".ytshield")){var ypl=k.el._pl,ynow=Date.now();if(ynow-ytLastClick<320){clearTimeout(ytTapT);ytTapT=0;ytLastClick=0;return}ytLastClick=ynow;
+    if(ypl.needsSound()){ypl.tap();return}clearTimeout(ytTapT);ytTapT=setTimeout(function(){ytTapT=0;if(k===cards[active])ypl.tap()},300);return}
   if(k.c.type==="tale"&&k.el._pl&&k===cards[active]&&!e.target.closest("a,button,.rail,.ecap,.tend")){k.el._pl.toggle();return}
 });
 function answer(k,i){var c=k.c;if(k.answered)return;k.answered=true;var ok=i===c.ans,box=k.el.querySelector(".opts"),bs=box.querySelectorAll(".opt");
@@ -1120,7 +1123,7 @@ function answer(k,i){var c=k.c;if(k.answered)return;k.answered=true;var ok=i===c
 function flame(){var f=document.getElementById("flame"),n=sess.combo;if(!f)return;f.hidden=n<3;f.textContent="🔥 "+n+(n>=10?" ×3":n>=5?" ×2":"");f.classList.toggle("hot",n>=5);f.classList.remove("bump");void f.offsetWidth;f.classList.add("bump")}
 function act(k,a,b){var c=k.c;
   if(a==="like")like(k,!S.liked[c.id]);
-  else if(a==="save"){var on=isSaved(c.id);algoLearn(k,on?-.8:1.5);if(!on)setTimeout(refreshAhead,50);if(on)S.saved=S.saved.filter(function(s){return s.id!==c.id});else{S.saved.unshift({id:c.id,c:strip(c),at:Date.now()});S.saved=S.saved.slice(0,300)}
+  else if(a==="save"){var lkey=likeKey(c),on=isSaved(lkey);algoLearn(k,on?-.8:1.5);if(!on)setTimeout(refreshAhead,50);if(on)S.saved=S.saved.filter(function(s){return s.id!==lkey});else{S.saved.unshift({id:lkey,c:strip(c),at:Date.now()});S.saved=S.saved.slice(0,300)}
     b.classList.toggle("on",!on);b.setAttribute("aria-pressed",!on);pop(b);toast(on?"Removed from Saved":"Saved. Find it in the Saved tab");save()}
   else if(a==="more"){algoLearn(k,.4);fbK=k;try{explain(c,k)}finally{fbK=null}}
   else if(a==="share"){algoLearn(k,1.2);share(c)}
@@ -1146,7 +1149,7 @@ function openDrop(k,b){if(k.opened)return;k.opened=true;var d=today();d.drops=(d
     confetti(box,xp>=100?60:28);award(raw);if(CE)CE.sfx("ok");vib(xp>=100?[30,50,30,50,120]:25)},650)}
 function confetti(box,n){var cols=["#F2C46D","#ff3b8d","#3ad4ff","#9cff3a","#a06bff","#fff"];for(var i=0;i<n;i++){var c=document.createElement("i");c.className="cf";var a=Math.random()*Math.PI*2,d=80+Math.random()*160;c.style.setProperty("--dx",Math.cos(a)*d+"px");c.style.setProperty("--dy",(Math.sin(a)*d-60)+"px");c.style.setProperty("--r",(Math.random()*720-360)+"deg");c.style.background=cols[i%cols.length];c.style.animationDelay=(Math.random()*.08)+"s";box.appendChild(c);setTimeout(function(x){return function(){x.remove()}}(c),1300)}}
 function strip(c){var o={};for(var x in c)if(x!=="el")o[x]=c[x];return o}
-function like(k,on,x,y){var c=k.c,b=k.el.querySelector('[data-act="like"]'),was=!!S.liked[c.id];if(on)S.liked[c.id]=1;else delete S.liked[c.id];
+function like(k,on,x,y){var c=k.c,b=k.el.querySelector('[data-act="like"]'),key=likeKey(c),was=!!S.liked[key];if(on)S.liked[key]=1;else delete S.liked[key];
   if(was!==on){algoLearn(k,on?1.6:-1.2);if(on){var kn=KNAME[kindOf(c)];if(kn)toast("❤️ More "+(c.type==="yt"&&c.name?c.name:kn)+" coming up")}refreshAhead()}
   if(b){b.classList.toggle("on",on);b.setAttribute("aria-pressed",on);if(on)pop(b)}save()}
 function pop(b){b.classList.remove("pop");void b.offsetWidth;b.classList.add("pop")}
@@ -1760,7 +1763,7 @@ function pickYT(force){if((S.ytOff&&!force)||(ytDown&&Date.now()-ytDown<6e5))ret
 /* ONE shared YouTube player, moved to whichever Short is on screen. iPhones only let a player make sound after you've
    tapped it, so a fresh player per Short meant tapping every time. With one player, the first tap turns sound on and
    every Short after it plays with sound. A second, hidden player looks up each channel's Shorts in the background. */
-var YS={el:null,p:null,mk:null,k:null,want:false,playing:false,vis:false,fb:false,timer:0,chk:0},YH={p:null,mk:null,q:[],busy:null},ytLists={};
+var ytTapT=0,ytLastClick=0,YS={el:null,p:null,mk:null,k:null,want:false,playing:false,vis:false,fb:false,timer:0,chk:0},YH={p:null,mk:null,q:[],busy:null},ytLists={};
 function ysEl(){if(!YS.el||!YS.el.isConnected){if(YS.el&&YS.p)try{YS.p.destroy()}catch(e){}YS.el=document.createElement("div");YS.el.id="ytStage";YS.el.innerHTML='<div id="ytStageP"></div>';feed.appendChild(YS.el);YS.p=null;YS.mk=null}return YS.el}
 function ysMake(){ysEl();if(YS.mk)return YS.mk;
   YS.mk=loadYT().then(function(YT){return new Promise(function(ok,no){var to=setTimeout(no,15000);
@@ -1803,7 +1806,7 @@ function yhDone(r){var j=YH.busy;if(!j)return;clearTimeout(j.to);YH.busy=null;j.
 function yhState(e){var j=YH.busy;if(!j)return;if(e.data===5||e.data===1||e.data===-1){var ids=[];try{ids=YH.p.getPlaylist()||[]}catch(x){}if(ids.length){try{YH.p.stopVideo()}catch(x){}yhDone({ids:ids,full:j.full})}}}
 function yhErr(){var j=YH.busy;if(!j)return;if(!j.full){j.full=true;yhCue(j);return}yhDone(null)}
 PLAYERS.yt=function(el,k){var c=k.c,box=el.querySelector(".ytbox"),ld=el.querySelector(".ytload"),ln=el.querySelector(".ytopen"),R={swaps:0,res:null};
-  function thumb(){if(!c.vid)return;box.style.backgroundImage="url(https://i.ytimg.com/vi/"+c.vid+"/hqdefault.jpg)";ld.classList.add("thumb");ln.href=ytLink(c)}
+  function thumb(){if(!c.vid)return;var hb=el.querySelector('[data-act="like"]');if(hb){var lk=!!S.liked[likeKey(c)];hb.classList.toggle("on",lk);hb.setAttribute("aria-pressed",lk)}box.style.backgroundImage="url(https://i.ytimg.com/vi/"+c.vid+"/hqdefault.jpg)";ld.classList.add("thumb");ln.href=ytLink(c)}
   function relabel(){ld.querySelector("b").textContent=c.name||"YouTube";ld.querySelector(".ytav").textContent=c.em||"▶️";el.querySelector(".ecap b").textContent="@"+(c.name||"YouTube");el.querySelector(".ecap .tags").textContent=ytTags(c);ln.href=ytLink(c)}
   /* work out which video this card plays; a channel that won't load is swapped for another on the same card */
   function resolve(){if(c.vid){thumb();return Promise.resolve(c.vid)}if(R.res)return R.res;
@@ -1822,7 +1825,8 @@ PLAYERS.yt=function(el,k){var c=k.c,box=el.querySelector(".ytbox"),ld=el.querySe
     stop:function(){if(YS.k===k){YS.want=false;clearTimeout(YS.chk);try{YS.p.pauseVideo()}catch(x){}}},destroy:function(){},
     tap:function(){if(YS.k!==k||!YS.p){go();return}if(YS.p.isMuted()||YS.fb||!S.ytSound){sound(true);return}
       try{if(YS.playing){YS.p.pauseVideo();el.classList.add("paused")}else{YS.p.playVideo();el.classList.remove("paused")}}catch(x){}},
-    sound:function(){sound(!(S.ytSound&&!YS.fb&&YS.p&&YS.k===k&&!YS.p.isMuted()))},resize:ysFit}};
+    sound:function(){sound(!(S.ytSound&&!YS.fb&&YS.p&&YS.k===k&&!YS.p.isMuted()))},resize:ysFit,
+    needsSound:function(){return!YS.p||YS.k!==k||YS.fb||!S.ytSound||(YS.p.isMuted&&YS.p.isMuted())}}};
 /* look up the Shorts for the card on screen and the next two ahead of time */
 function ytManage(){cards.forEach(function(kk,j){if(kk.c.type!=="yt"||j<active||j>active+2)return;if(!kk.el._pl)kk.el._pl=PLAYERS.yt(kk.el,kk);kk.el._pl.prep()});ysFit();
   var k=cards[active];if(YS.p&&(!k||k.c.type!=="yt")&&YS.want){YS.want=false;try{YS.p.pauseVideo()}catch(x){}}}
