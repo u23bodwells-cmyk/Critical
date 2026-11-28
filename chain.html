@@ -581,6 +581,8 @@ button{font:inherit;color:inherit}
 .llist{display:flex;flex-direction:column;gap:4px;margin:6px 0 12px}
 .lrow{display:grid;grid-template-columns:1.2fr 1fr 1fr 1.1fr;gap:6px;font-size:13px;background:rgba(255,255,255,.05);border-radius:10px;padding:7px 10px}
 .lrow .lneg{color:#ff5c7a;font-weight:700;text-align:right}.lrow .lok{color:#5fe38a;font-weight:700;text-align:right}
+
+.ytload.thumb{justify-content:flex-end;padding-bottom:34%;background:linear-gradient(rgba(0,0,0,.1),rgba(0,0,0,.55))}.ytload.thumb .ytav,.ytload.thumb b{display:none}
 </style>
 </head>
 <body>
@@ -924,7 +926,7 @@ var SIMORD=(function(){var a=[];for(var i=0;i<SIMLIST.length;i++)a.push(i);for(i
    Every card has a format (edit, Short, storytime, meme…), a topic and, for Shorts, a channel. Each signal nudges a
    score for all three; the feed then leans towards high scores. 1 card in 8 ignores the scores (a wildcard) and
    nothing is ever turned off completely, so you still discover new stuff. */
-S.algo=S.algo||{k:{},t:{},c:{},n:0};
+S.algo=S.algo||{k:{},t:{},c:{},n:0};S.algo.g=S.algo.g||{};
 if(!S.algo.mig){S.algo.mig=1;for(var tk0 in S.tw){var v0=+S.tw[tk0];if(v0>0&&!S.algo.t[tk0])S.algo.t[tk0]=[Math.max(-1.5,Math.min(1.5,Math.log(v0)/1.1)),3]}}
 var KNAME={edit:"Edits",yt:"YouTube Shorts",tale:"Storytimes",chat:"Text stories",story:"Choose-your-path stories",meme:"Memes",quiz:"Quizzes",tf:"True or false",gen:"Quick puzzles",fact:"Facts",game:"Mini games",tier:"Tier lists",wyr:"Would you rather",lie:"Two truths and a lie",head:"Real or fake",guess:"Guess the number",spot:"Spot the mistake",build:"Build a reactor",geiger:"Geiger counter",vlog:"Day in the life",top5:"Top 5s",eli:"Explain it 3 ways",emoji:"Emoji riddles",beat:"Beat TikTok"};
 var ALGO_TYP={edit:12,yt:25,tale:40,chat:18,story:12,meme:6,quiz:8,tf:6,gen:8,fact:7,game:15,tier:14,wyr:7,lie:10,head:8,guess:10,spot:12,build:20,geiger:15,vlog:15,top5:12,eli:14,emoji:8,beat:8};
@@ -932,7 +934,7 @@ function aGet(m,key){var e=S.algo[m][key];return e?e[0]:0}
 function aW(a,lo,hi){return Math.max(lo||.35,Math.min(hi||3,Math.exp(1.1*a)))}
 function aPush(m,key,r,lr){if(key==null||key==="")return;var e=S.algo[m][key]||(S.algo[m][key]=[0,0]);e[1]++;var a=Math.max(lr,1/(e[1]+2));e[0]=Math.max(-2,Math.min(2.5,e[0]*(1-a)+r*a))}
 function algoLearn(k,r){if(!k||!k.c)return;var c=k.c,kd=kindOf(c);if(kd==="check"||kd==="drop"||kd==="ytdown")return;
-  aPush("k",kd,r,.12);aPush("t",c.topic,r,.08);if(c.type==="yt"&&c.ch)aPush("c",c.ch,r,.2);S.algo.n++;save()}
+  aPush("k",kd,r,.12);aPush("t",c.topic,r,.08);if(c.type==="yt"){if(c.ch)aPush("c",c.ch,r,.2);(c.g||[]).forEach(function(g){aPush("g",g,r,.15)})}S.algo.n++;save()}
 /* how much a visit says you liked it: skipping in under 1.5s is a strong no, watching past its normal length a strong yes */
 function dwellReward(k,ms){var typ=(ALGO_TYP[kindOf(k.c)]||10)*1000,f=ms/typ,r;
   if(ms<1500&&!k.done&&!k.answered)return-1;r=f<.35?-.35:f<.8?.15:f<1.6?.55:.85;if(k.done)r+=.25;return r}
@@ -942,10 +944,10 @@ function algoTop(m,n,dir){var o=[];for(var key in S.algo[m]){var e=S.algo[m][key
 function chName(ch){var x=(window.CHAIN_YT||[]).filter(function(y){return y.ch===ch})[0];return x?x.em+" "+x.name:"⭐ Your channel"}
 function openAlgo(){var bar=function(a){var p=Math.round(Math.max(4,Math.min(100,(a+2)/4.5*100)));return'<span class="abar"><i style="width:'+p+'%"></i></span>'};
   var sec=function(title,rows,lab){return rows.length?'<p class="plab">'+title+'</p><div class="alist">'+rows.map(function(r){return'<div class="arow"><span>'+lab(r[0])+'</span>'+bar(r[1])+'</div>'}).join("")+'</div>':""};
-  var K=algoTop("k",6,1),T=algoTop("t",4,1),C=algoTop("c",5,1),L=algoTop("k",4,-1).concat(algoTop("c",3,-1).map(function(x){return["@"+x[0],x[1]]}));
+  var K=algoTop("k",6,1),T=algoTop("t",4,1),C=algoTop("c",5,1),G=algoTop("g",5,1),L=algoTop("k",4,-1).concat(algoTop("c",3,-1).map(function(x){return["@"+x[0],x[1]]}));
   var h='<h3>🧠 Your algorithm</h3><p>Chain learns from how long you watch, what you like, save, share and rewatch, and what you skip straight past. It has learnt from <b>'+S.algo.n.toLocaleString("en-GB")+'</b> signals so far.</p>';
-  if(!K.length&&!T.length&&!C.length)h+='<p class="mnote">'+(S.algo.n<15?'Not enough to go on yet. Keep scrolling, and like the stuff you enjoy.':'No clear favourites yet. Like, save or watch the stuff you enjoy all the way through.')+'</p>';
-  h+=sec("You're into",K,function(k){return esc(KNAME[k]||k)})+sec("Topics",T,function(t){var o=TOP[t];return o?o.g+" "+esc(o.n):esc(t)})+sec("Channels",C,function(ch){return esc(chName(ch))});
+  if(!K.length&&!T.length&&!C.length&&!G.length)h+='<p class="mnote">'+(S.algo.n<15?'Not enough to go on yet. Keep scrolling, and like the stuff you enjoy.':'No clear favourites yet. Like, save or watch the stuff you enjoy all the way through.')+'</p>';
+  h+=sec("You're into",K,function(k){return esc(KNAME[k]||k)})+sec("Topics",T,function(t){var o=TOP[t];return o?o.g+" "+esc(o.n):esc(t)})+sec("Shorts channels",C,function(ch){return esc(chName(ch))})+sec("Shorts categories",G,function(g){return esc(g)});
   if(L.length)h+='<p class="plab">Showing you less of</p><div class="alist">'+L.map(function(r){return'<div class="arow neg"><span>'+(r[0].charAt(0)==="@"?esc(chName(r[0].slice(1))):esc(KNAME[r[0]]||r[0]))+'</span>'+bar(r[1])+'</div>'}).join("")+'</div>';
   h+='<p class="mnote">1 card in 8 is a wildcard that ignores all this, so you still find new things. Tap ⓘ Explain on any card for 👍 More like this or 🚫 Not interested.</p><p><button class="sbtn ghost" data-areset>↺ Reset my algorithm</button></p>';
   openSheet(h)}
@@ -1210,8 +1212,7 @@ var tShorts=document.getElementById("tShorts"),tFeed=document.getElementById("tF
 function setTab(t){tEdits.setAttribute("aria-selected",t==="edits");tShorts.setAttribute("aria-selected",t==="shorts");tFeed.setAttribute("aria-selected",t==="feed");tStories.setAttribute("aria-selected",t==="stories");tSaved.setAttribute("aria-selected",t==="saved")}
 function setMode(m){if(m===mode){closeSheet();return}mode=m;closeSheet();
   var p=cards[active];if(p){if(p.el._ed)p.el._ed.stop();if(p.el._sim&&p.el._sim.stop)p.el._sim.stop();if(p.el._pl&&p.el._pl.stop)p.el._pl.stop()}
-  cards.forEach(function(kk){if(kk.c.type==="yt"&&kk.el._pl)kk.el._pl.destroy()});
-  feed.innerHTML="";cards=[];active=-1;retry=[];sess.since=0;feed.scrollTop=0;for(var i=0;i<4;i++)add(makeNext());setActive(0);setTab(m)}
+  cards.forEach(function(kk){kk.el.remove()});if(YS.p){YS.want=false;try{YS.p.pauseVideo()}catch(x){}}YS.k=null;ysFit();cards=[];active=-1;retry=[];sess.since=0;feed.scrollTop=0;for(var i=0;i<4;i++)add(makeNext());setActive(0);setTab(m)}
 tFeed.onclick=function(){hideStories();setMode("feed");setTab(mode)};tShorts.onclick=function(){hideStories();setMode("shorts");setTab(mode)};tEdits.onclick=function(){hideStories();setMode("edits");setTab(mode)};tStories.onclick=function(){showStories()};
 tSaved.onclick=function(){setTab("saved");
   var h='<h3>Saved</h3>';
@@ -1224,7 +1225,7 @@ sheetIn.addEventListener("click",function(e){if(e.target.closest("[data-music]")
   var fb=e.target.closest("[data-fb]");if(fb&&sheetK){var more=fb.dataset.fb==="more",fk=sheetK;algoLearn(fk,more?1.8:-2.5);if(!more&&fk.c.type==="yt"&&fk.c.ch)aPush("c",fk.c.ch,-2.5,.3);closeSheet();refreshAhead();
     toast(more?"👍 Got it. More like this coming up":"🚫 Got it. You'll see less like this");if(!more&&fk===cards[active])setTimeout(function(){goTo(active+1)},250);return}
   if(e.target.closest("[data-algo]")){openAlgo();return}
-  if(e.target.closest("[data-areset]")){S.algo={k:{},t:{},c:{},n:0,mig:1};save();refreshAhead();toast("↺ Algorithm reset");openAlgo();return}if(e.target.closest("[data-ytadd]")){ytAdd();return}
+  if(e.target.closest("[data-areset]")){S.algo={k:{},t:{},c:{},g:{},n:0,mig:1};save();refreshAhead();toast("↺ Algorithm reset");openAlgo();return}if(e.target.closest("[data-ytadd]")){ytAdd();return}
   var yd=e.target.closest("[data-ytdel]");if(yd){var pr=yd.dataset.ytdel.split(":");if(pr[0]==="v")S.yt.v=S.yt.v.filter(function(v){return v!==pr[1]});else S.yt.ch=S.yt.ch.filter(function(x){return x.ch!==pr[1]});save();openYT();return}
   if(e.target.closest("[data-ytretry]")){S.ytBad={};ytDown=0;save();toast("OK, they'll get another go");openYT();return}
   if(e.target.closest("[data-ytoff]")){S.ytOff=!S.ytOff;save();refreshAhead();toast(S.ytOff?"YouTube hidden from your feed":"YouTube is back in your feed");openYT();return}if(e.target.closest("[data-beat]")){openBeat();return}var vt=e.target.closest("[data-vtog]");if(vt){setVoice(S.voice===false);vt.textContent=S.voice!==false?"🗣️ Voices: on":"🤐 Voices: off";if(S.voice!==false){vUnlock();say("Voices are on.","narr")}return}var s=e.target.closest("[data-sv]");if(s){var c=JSON.parse(JSON.stringify(S.saved[+s.dataset.sv].c));if(c.type==="quiz")c=mkQuiz(c.topic,c.q,[c.opts[c.ans]].concat(c.opts.filter(function(_,k){return k!==c.ans})),c.ex,c.id,c.label);insertNext(c);closeSheet();return}
@@ -1740,66 +1741,91 @@ function loadYT(){if(window.YT&&YT.Player)return Promise.resolve(window.YT);if(y
   ytP.catch(function(){ytP=null;ytDown=Date.now();
     /* YouTube is blocked or offline: take the Shorts already queued up out of the feed rather than skipping them one by one */
     for(var i=cards.length-1;i>active;i--)if(cards[i].c.type==="yt"){if(cards[i].el._pl)cards[i].el._pl.destroy();cards[i].el.remove();cards.splice(i,1)}ensure()});return ytP}
+function ytTags(c){return(c.g&&c.g.length?c.g:["Science"]).map(function(t){return"#"+t.toLowerCase().replace(/[^a-z0-9]/g,"")}).join(" ")+" #shorts"}
 function ytLink(c){return c.vid?"https://www.youtube.com/shorts/"+c.vid:c.ch?"https://www.youtube.com/channel/"+c.ch+"/shorts":"https://www.youtube.com"}
 function ytHtml(c){return '<div class="ytbox"></div><div class="ytload"><div class="ytav">'+(c.em||"▶️")+'</div><b>'+esc(c.name||"YouTube")+'</b><span class="ytst"><i class="ytspin"></i> Loading Shorts…</span><button class="sbtn ghost ytadd" data-act="ytadd" hidden>＋ Add your own Shorts</button></div><div class="ytshield"></div>'+
   '<div class="ytbadge">▶ YouTube Shorts</div><div class="eplay" aria-hidden="true">'+PLAYSVG+'</div><button class="snd ytsnd" data-act="ytsnd">🔇 Tap for sound</button>'+rail(c)+
-  '<div class="ecap"><b>@'+esc(c.name||"YouTube")+'</b>'+(c.mine?" · ⭐ your pick":"")+'<div class="tags">#shorts #science</div><div class="music"><a class="ytopen" href="'+ytLink(c)+'" target="_blank" rel="noopener">▶ Watch on YouTube ↗</a></div></div>'}
-function pickYT(force){if((S.ytOff&&!force)||(ytDown&&Date.now()-ytDown<6e5))return null;var recent={};cards.slice(mode==="shorts"?-6:-30).forEach(function(k){if(k.c.type==="yt")recent[k.c.ch||k.c.v]=1});
-  var mineV=function(v){return{type:"yt",topic:"energy",id:"yt-"+v,v:v,vid:v,name:"Your Shorts",em:"⭐",mine:1}};
+  '<div class="ecap"><b>@'+esc(c.name||"YouTube")+'</b>'+(c.mine?" · ⭐ your pick":"")+'<div class="tags">'+esc(ytTags(c))+'</div><div class="music"><a class="ytopen" href="'+ytLink(c)+'" target="_blank" rel="noopener">▶ Watch on YouTube ↗</a></div></div>'}
+function pickYT(force){if((S.ytOff&&!force)||(ytDown&&Date.now()-ytDown<6e5))return null;var recent={};cards.slice(mode==="shorts"?-2:-12).forEach(function(k){if(k.c.type==="yt")recent[k.c.ch||k.c.v]=1});
+  var mineV=function(v){return{type:"yt",topic:"energy",id:"yt-"+v,v:v,vid:v,name:"Your Shorts",em:"⭐",mine:1,g:["Your picks"]}};
   var un=S.yt.v.filter(function(v){return!S.ytSeen[v]&&!recent[v]});if(un.length&&Math.random()<.7)return mineV(pick(un));
-  var L=S.yt.ch.map(function(x){return{id:"ytc-"+x.ch,name:x.name||"Your channel",ch:x.ch,topic:"energy",em:"⭐",mine:1}}).concat(window.CHAIN_YT||[]).filter(function(x){return!S.ytBad[x.ch]&&!recent[x.ch]&&(x.mine||!S.off[x.topic])});
-  if(!L.length&&mode==="shorts")L=S.yt.ch.map(function(x){return{id:"ytc-"+x.ch,name:x.name||"Your channel",ch:x.ch,topic:"energy",em:"⭐",mine:1}}).concat(window.CHAIN_YT||[]).filter(function(x){return!S.ytBad[x.ch]});
+  var mineC=function(x){return{id:"ytc-"+x.ch,name:x.name||"Your channel",ch:x.ch,topic:"energy",em:"⭐",mine:1,g:["Your picks"]}};
+  var L=S.yt.ch.map(mineC).concat(window.CHAIN_YT||[]).filter(function(x){return!S.ytBad[x.ch]&&!recent[x.ch]&&(x.mine||!S.off[x.topic])});
+  if(!L.length&&mode==="shorts")L=S.yt.ch.map(mineC).concat(window.CHAIN_YT||[]).filter(function(x){return!S.ytBad[x.ch]});
   if(!L.length){var sv=S.yt.v.filter(function(v){return!recent[v]});return sv.length?mineV(pick(sv)):null}
-  var mn=Infinity;L.forEach(function(y){mn=Math.min(mn,S.seen[y.id]||0)});var x=wPickArr(L,function(y){return aW(aGet("c",y.ch)*1.3,.2,4)*(y.mine?1.8:aW(aGet("t",y.topic)*.5))*Math.pow(.75,(S.seen[y.id]||0)-mn)});
-  return{type:"yt",topic:x.topic,id:x.id,ch:x.ch,name:x.name,em:x.em,mine:x.mine?1:0}}
-PLAYERS.yt=function(el,k){var c=k.c,box=el.querySelector(".ytbox"),ld=el.querySelector(".ytload"),stx=el.querySelector(".ytst"),sb=el.querySelector(".ytsnd"),ln=el.querySelector(".ytopen");
-  var Y={p:null,ready:false,cued:false,ids:null,tries:0,full:false,phase:"",want:false,playing:false,dead:false,fb:false,timer:0,chk:0};
-  if(c.vid)box.style.backgroundImage="url(https://i.ytimg.com/vi/"+c.vid+"/hqdefault.jpg)";
-  function msg(t,add){ld.hidden=false;stx.textContent=t;ld.querySelector(".ytadd").hidden=!add}
-  function skipSoon(){setTimeout(function(){if(cards[active]===k)goTo(active+1)},1600)}
-  function relabel(){ld.querySelector("b").textContent=c.name||"YouTube";ld.querySelector(".ytav").textContent=c.em||"▶️";el.querySelector(".ecap b").textContent="@"+(c.name||"YouTube");ln.href=ytLink(c)}
-  function paintSnd(){var on=!!(Y.p&&Y.cued&&S.ytSound&&!Y.fb&&Y.p.isMuted&&!Y.p.isMuted());sb.classList.toggle("live",on);sb.textContent=on?"🔊":"🔇 Tap for sound"}
-  function fit(){var f=box.querySelector("iframe");if(!f)return;var w=el.clientWidth,h=el.clientHeight;
-    if(Y.full){f.style.cssText="position:absolute;inset:0;width:100%;height:100%;border:0";return}
-    var Wd=Math.max(w,h*9/16),Hd=Math.max(h,Wd*16/9);f.style.cssText="position:absolute;border:0;left:"+((w-Wd)/2)+"px;top:"+((h-Hd)/2)+"px;width:"+Wd+"px;height:"+Hd+"px"}
-  function arm(){clearTimeout(Y.timer);Y.timer=setTimeout(function(){if(!Y.cued)msg("This one's taking ages… swipe on",true)},12000)}
-  function cueList(){Y.phase="list";try{Y.p.cuePlaylist({listType:"playlist",list:(Y.full?"UU":"UUSH")+c.ch.slice(2),index:0})}catch(e){}arm()}
-  function cueVid(v){Y.phase="vid";c.vid=v;ytUsed[v]=1;ln.href=ytLink(c);try{Y.p.cueVideoById(v)}catch(e){}arm()}
-  function make(){if(Y.p||Y.dead||Y.loading)return;if(ytDown&&Date.now()-ytDown<6e5&&!(window.YT&&YT.Player)){msg("YouTube isn't loading right now (it may be blocked on this Wi-Fi)",false);if(Y.want)skipSoon();return}Y.loading=true;msg("Loading Shorts…");stx.insertAdjacentHTML("afterbegin",'<i class="ytspin"></i> ');
-    loadYT().then(function(YT){Y.loading=false;if(Y.p||Y.dead||!el.isConnected)return;var hold=document.createElement("div");box.innerHTML="";box.appendChild(hold);
-      var opt={host:"https://www.youtube-nocookie.com",width:"100%",height:"100%",playerVars:{autoplay:0,mute:1,playsinline:1,controls:0,rel:0,iv_load_policy:3,fs:0,disablekb:1,modestbranding:1,origin:location.origin},
-        events:{onReady:ready,onStateChange:state,onError:err}};
-      if(c.vid){opt.videoId=c.vid;Y.phase="vid"}Y.p=new YT.Player(hold,opt);fit();arm()},function(){Y.loading=false;msg("YouTube didn't load. It might be blocked on this Wi-Fi.",false);skipSoon()})}
-  function ready(){Y.ready=true;fit();if(!c.vid&&c.ch)cueList()}
-  function state(e){var s=e.data;
-    if((s===5||s===1)&&Y.phase==="list"&&!Y.ids){var ids=[];try{ids=Y.p.getPlaylist()||[]}catch(x){}
-      if(ids.length){Y.ids=ids;var pool=ids.slice(0,60),un=pool.filter(function(v){return!S.ytSeen[v]&&!ytUsed[v]});if(!un.length)un=pool.filter(function(v){return!ytUsed[v]});cueVid(pick(un.length?un:pool));return}}
-    if(s===5||s===1){if(!Y.cued){Y.cued=true;clearTimeout(Y.timer);ld.hidden=true;fit();paintSnd();if(Y.want&&s===5)play()}}
-    if(s===1){Y.playing=true;el.classList.remove("paused");if(c.vid&&!S.ytSeen[c.vid]){S.ytSeen[c.vid]=1;save()}paintSnd()}
-    else if(s===2)Y.playing=false;
-    else if(s===0){Y.playing=false;if(!k.done){k.done=true;award(2)}if(Y.want)try{Y.p.seekTo(0,true);Y.p.playVideo()}catch(x){}}}
-  function err(e){clearTimeout(Y.timer);
-    if(Y.phase==="list"){if(!Y.full){Y.full=true;fit();cueList();return}S.ytBad[c.ch]=1;save();
-      if((Y.swaps||0)<4){var n=pickYT(true);if(n&&n.ch){Y.swaps=(Y.swaps||0)+1;c.ch=n.ch;c.name=n.name;c.em=n.em;c.mine=n.mine;Y.full=false;Y.ids=null;relabel();msg("Loading Shorts…");stx.insertAdjacentHTML("afterbegin",'<i class="ytspin"></i> ');cueList();return}}
-      msg("This channel won't play here. Skipping…",false);skipSoon();return}
-    if(Y.ids&&Y.tries<3){Y.tries++;Y.cued=false;var rest=Y.ids.slice(0,60).filter(function(v){return v!==c.vid});if(rest.length){cueVid(pick(rest));return}}
-    msg("This video won't play here. Skipping…",false);skipSoon()}
-  function play(){Y.want=true;if(!Y.p)return make();if(!Y.cued)return;
-    try{if(S.ytSound&&!Y.fb){Y.p.unMute();Y.p.setVolume(100)}else Y.p.mute();Y.p.playVideo()}catch(x){}
-    clearTimeout(Y.chk);Y.chk=setTimeout(function(){if(Y.want&&!Y.playing&&Y.p&&Y.p.isMuted&&!Y.p.isMuted()){Y.fb=true;try{Y.p.mute();Y.p.playVideo()}catch(x){}paintSnd()}},2000)}
-  function sound(on){if(!Y.p||!Y.cued)return;S.ytSound=on;save();Y.fb=false;
-    try{if(on){Y.p.unMute();Y.p.setVolume(100);Y.p.playVideo()}else Y.p.mute()}catch(x){}paintSnd();
-    if(on){clearTimeout(Y.chk);Y.chk=setTimeout(function(){if(Y.want&&!Y.playing){Y.fb=true;try{Y.p.mute();Y.p.playVideo()}catch(x){}paintSnd();toast("Sound's blocked in here: tap “Watch on YouTube” for sound")}},1800)}}
-  return{prep:function(){make()},start:function(){hush();play()},resume:function(){play()},
-    stop:function(){Y.want=false;clearTimeout(Y.chk);try{if(Y.p&&Y.cued)Y.p.pauseVideo()}catch(x){}},
-    destroy:function(){Y.want=false;clearTimeout(Y.chk);clearTimeout(Y.timer);try{if(Y.p)Y.p.destroy()}catch(x){}Y.p=null;Y.ready=Y.cued=Y.playing=false;Y.ids=null;Y.phase="";box.innerHTML="";if(c.vid)box.style.backgroundImage="url(https://i.ytimg.com/vi/"+c.vid+"/hqdefault.jpg)";msg("Loading Shorts…")},
-    tap:function(){if(!Y.p||!Y.cued){if(!Y.p){Y.dead=false;make()}return}
-      if(Y.p.isMuted()||Y.fb){sound(true);return}
-      try{if(Y.playing){Y.p.pauseVideo();el.classList.add("paused")}else{Y.p.playVideo();el.classList.remove("paused")}}catch(x){}},
-    sound:function(){sound(!(S.ytSound&&!Y.fb&&Y.p&&!Y.p.isMuted()))},resize:fit}};
-/* only the Short on screen and the next one get a player; the rest are let go to save memory */
-function ytManage(){cards.forEach(function(kk,j){if(kk.c.type!=="yt")return;var near=j===active||j===active+1;
-  if(near){if(!kk.el._pl)kk.el._pl=PLAYERS.yt(kk.el,kk);kk.el._pl.prep()}else if(kk.el._pl&&(j<active-1||j>active+2))kk.el._pl.destroy()})}
+  var mn=Infinity;L.forEach(function(y){mn=Math.min(mn,S.seen[y.id]||0)});var gw=function(y){var g=y.g||[],t=0;if(!g.length)return 1;g.forEach(function(q){t+=aGet("g",q)});return aW(t/g.length*1.3,.3,4)};
+  /* favourite channels and categories come up much more often; ones you skip fade out (never to zero) */
+  var x=wPickArr(L,function(y){var a=aGet("c",y.ch);return aW(a*1.8,.12,10)*gw(y)*(y.mine?1.8:1)*Math.pow(a>.3?.93:.75,(S.seen[y.id]||0)-mn)});
+  return{type:"yt",topic:x.topic,id:x.id,ch:x.ch,name:x.name,em:x.em,mine:x.mine?1:0,g:x.g||[]}}
+/* ONE shared YouTube player, moved to whichever Short is on screen. iPhones only let a player make sound after you've
+   tapped it, so a fresh player per Short meant tapping every time. With one player, the first tap turns sound on and
+   every Short after it plays with sound. A second, hidden player looks up each channel's Shorts in the background. */
+var YS={el:null,p:null,mk:null,k:null,want:false,playing:false,vis:false,fb:false,timer:0,chk:0},YH={p:null,mk:null,q:[],busy:null},ytLists={};
+function ysEl(){if(!YS.el||!YS.el.isConnected){if(YS.el&&YS.p)try{YS.p.destroy()}catch(e){}YS.el=document.createElement("div");YS.el.id="ytStage";YS.el.innerHTML='<div id="ytStageP"></div>';feed.appendChild(YS.el);YS.p=null;YS.mk=null}return YS.el}
+function ysMake(){ysEl();if(YS.mk)return YS.mk;
+  YS.mk=loadYT().then(function(YT){return new Promise(function(ok,no){var to=setTimeout(no,15000);
+    YS.p=new YT.Player("ytStageP",{host:"https://www.youtube-nocookie.com",width:"100%",height:"100%",playerVars:{autoplay:0,mute:1,playsinline:1,controls:0,rel:0,iv_load_policy:3,fs:0,disablekb:1,modestbranding:1,origin:location.origin},
+      events:{onReady:function(){clearTimeout(to);ysFit();ok(YS.p)},onStateChange:ysState,onError:ysErr}})})});
+  YS.mk.catch(function(){YS.mk=null});return YS.mk}
+/* sit exactly over the Short's card (inside the feed, so it scrolls with it); taps go to the card's own layer on top */
+function ysFit(){var st=YS.el;if(!st)return;var k=YS.k,c=k&&k.el;if(!c||!c.isConnected){st.style.visibility="hidden";return}
+  var w=c.clientWidth,h=c.clientHeight;st.style.cssText="position:absolute;left:0;top:"+c.offsetTop+"px;width:"+w+"px;height:"+h+"px;overflow:hidden;z-index:1;pointer-events:none;background:#000;visibility:"+(YS.vis?"visible":"hidden");
+  var f=st.querySelector("iframe");if(!f)return;if(k.c.full){f.style.cssText="position:absolute;inset:0;width:100%;height:100%;border:0";return}
+  var Wd=Math.max(w,h*9/16),Hd=Math.max(h,Wd*16/9);f.style.cssText="position:absolute;border:0;left:"+((w-Wd)/2)+"px;top:"+((h-Hd)/2)+"px;width:"+Wd+"px;height:"+Hd+"px"}
+function ysOn(){return!!(YS.p&&YS.p.isMuted&&S.ytSound&&!YS.fb&&!YS.p.isMuted())}
+function ytPaint(){var on=S.ytSound&&!YS.fb;cards.forEach(function(k){if(k.c.type!=="yt")return;var b=k.el.querySelector(".ytsnd");if(!b)return;var live=k===YS.k?ysOn():on;b.classList.toggle("live",live);b.textContent=live?"🔊":"🔇 Tap for sound"})}
+function ytMsg(k,t,add,spin){var ld=k.el.querySelector(".ytload"),stx=ld.querySelector(".ytst");ld.hidden=false;stx.innerHTML=(spin?'<i class="ytspin"></i> ':'')+esc(t);ld.querySelector(".ytadd").hidden=!add}
+function ytSkip(k){setTimeout(function(){if(cards[active]===k)goTo(active+1)},1600)}
+function ysLoad(k){var c=k.c;YS.k=k;YS.want=true;YS.playing=false;YS.vis=false;YS.tries=YS.tries||0;ysFit();clearTimeout(YS.timer);clearTimeout(YS.chk);
+  try{if(S.ytSound&&!YS.fb){YS.p.unMute();YS.p.setVolume(100)}else YS.p.mute();YS.p.loadVideoById({videoId:c.vid})}catch(e){}
+  YS.timer=setTimeout(function(){if(YS.k===k&&!YS.playing&&cards[active]===k)ytMsg(k,"This one's taking ages… swipe on",true)},12000);
+  /* sound wasn't allowed yet (first Short since opening Chain): play muted until you tap */
+  YS.chk=setTimeout(function(){if(YS.k===k&&YS.want&&!YS.playing&&YS.p&&YS.p.isMuted&&!YS.p.isMuted()){YS.fb=true;try{YS.p.mute();YS.p.playVideo()}catch(e){}ytPaint()}},2200);ytPaint()}
+function ysState(e){var s=e.data,k=YS.k;if(!k)return;var c=k.c;
+  if(s===1){YS.playing=true;clearTimeout(YS.timer);if(!YS.want||cards[active]!==k){try{YS.p.pauseVideo()}catch(x){}return}
+    YS.vis=true;ysFit();k.el.querySelector(".ytload").hidden=true;k.el.classList.remove("paused");if(c.vid&&!S.ytSeen[c.vid]){S.ytSeen[c.vid]=1;save()}ytPaint()}
+  else if(s===2)YS.playing=false;
+  else if(s===0){YS.playing=false;k.loops=(k.loops||0)+1;algoLearn(k,k.loops===1?1:.4);if(!k.done){k.done=true;award(2)}if(YS.want)try{YS.p.seekTo(0,true);YS.p.playVideo()}catch(x){}}}
+function ysErr(){var k=YS.k;if(!k)return;clearTimeout(YS.timer);var c=k.c,L=c.ch&&ytLists[c.ch];YS.tries=(YS.tries||0)+1;
+  if(YS.tries<=3&&L&&L.ids){var rest=L.ids.slice(0,60).filter(function(v){return v!==c.vid&&!ytUsed[v]});if(rest.length){c.vid=pick(rest);ytUsed[c.vid]=1;var pl=k.el._pl;if(pl&&pl.thumb)pl.thumb();ysLoad(k);return}}
+  ytMsg(k,"This video won't play here. Skipping…",false);ytSkip(k)}
+/* the hidden helper: turns a channel into its list of Shorts (falls back to all uploads if it has no Shorts list) */
+function yhMake(){if(YH.mk)return YH.mk;
+  YH.mk=loadYT().then(function(YT){return new Promise(function(ok,no){var d=document.createElement("div");d.style.cssText="position:fixed;left:-500px;top:0;width:200px;height:200px;opacity:0;pointer-events:none";d.innerHTML='<div id="ytHelpP"></div>';document.body.appendChild(d);
+    var to=setTimeout(no,15000);YH.p=new YT.Player("ytHelpP",{host:"https://www.youtube-nocookie.com",width:200,height:200,playerVars:{autoplay:0,mute:1,playsinline:1,controls:0},events:{onReady:function(){clearTimeout(to);ok(YH.p)},onStateChange:yhState,onError:yhErr}})})});
+  YH.mk.catch(function(){YH.mk=null;YH.q.splice(0).forEach(function(j){j.ok("down")})});return YH.mk}
+function ytIds(ch){var L=ytLists[ch];if(L&&L.then)return L;if(L)return Promise.resolve(L);
+  var P=new Promise(function(ok){YH.q.push({ch:ch,ok:ok});yhNext()});ytLists[ch]=P;
+  P.then(function(r){if(r&&r.ids)ytLists[ch]=r;else delete ytLists[ch]});return P}
+function yhNext(){if(YH.busy||!YH.q.length)return;yhMake().then(function(){if(YH.busy||!YH.q.length)return;var j=YH.busy=YH.q.shift();j.full=false;yhCue(j)},function(){})}
+function yhCue(j){try{YH.p.cuePlaylist({listType:"playlist",list:(j.full?"UU":"UUSH")+j.ch.slice(2),index:0})}catch(e){}clearTimeout(j.to);j.to=setTimeout(function(){yhDone("slow")},10000)}
+function yhDone(r){var j=YH.busy;if(!j)return;clearTimeout(j.to);YH.busy=null;j.ok(r);setTimeout(yhNext,30)}
+function yhState(e){var j=YH.busy;if(!j)return;if(e.data===5||e.data===1||e.data===-1){var ids=[];try{ids=YH.p.getPlaylist()||[]}catch(x){}if(ids.length){try{YH.p.stopVideo()}catch(x){}yhDone({ids:ids,full:j.full})}}}
+function yhErr(){var j=YH.busy;if(!j)return;if(!j.full){j.full=true;yhCue(j);return}yhDone(null)}
+PLAYERS.yt=function(el,k){var c=k.c,box=el.querySelector(".ytbox"),ld=el.querySelector(".ytload"),ln=el.querySelector(".ytopen"),R={swaps:0,res:null};
+  function thumb(){if(!c.vid)return;box.style.backgroundImage="url(https://i.ytimg.com/vi/"+c.vid+"/hqdefault.jpg)";ld.classList.add("thumb");ln.href=ytLink(c)}
+  function relabel(){ld.querySelector("b").textContent=c.name||"YouTube";ld.querySelector(".ytav").textContent=c.em||"▶️";el.querySelector(".ecap b").textContent="@"+(c.name||"YouTube");el.querySelector(".ecap .tags").textContent=ytTags(c);ln.href=ytLink(c)}
+  /* work out which video this card plays; a channel that won't load is swapped for another on the same card */
+  function resolve(){if(c.vid){thumb();return Promise.resolve(c.vid)}if(R.res)return R.res;
+    R.res=ytIds(c.ch).then(function(r){
+      if(r==="down"||r==="slow")throw r;
+      if(!r){S.ytBad[c.ch]=1;save();if(R.swaps<4){var n=pickYT(true);if(n&&n.ch){R.swaps++;c.ch=n.ch;c.name=n.name;c.em=n.em;c.mine=n.mine;c.g=n.g;c.topic=n.topic;relabel();R.res=null;return resolve()}}throw"bad"}
+      c.full=r.full;var pool=r.ids.slice(0,60),un=pool.filter(function(v){return!S.ytSeen[v]&&!ytUsed[v]});if(!un.length)un=pool.filter(function(v){return!ytUsed[v]});var v=pick(un.length?un:pool);c.vid=v;ytUsed[v]=1;thumb();return v});
+    R.res.catch(function(){R.res=null});return R.res}
+  function go(){YS.want=true;if(!c.vid)ytMsg(k,"Loading Shorts…",false,true);
+    resolve().then(function(){if(cards[active]!==k)return;return ysMake().catch(function(){throw"down"}).then(function(){if(cards[active]!==k)return;if(YS.k===k&&YS.p.getVideoData&&(YS.p.getVideoData()||{}).video_id===c.vid){YS.vis=true;ysFit();try{if(S.ytSound&&!YS.fb)YS.p.unMute();YS.p.playVideo()}catch(x){}}else{YS.tries=0;ysLoad(k)}})})
+    .catch(function(r){if(cards[active]!==k)return;ytMsg(k,r==="down"?"YouTube isn't loading right now (it may be blocked on this Wi-Fi)":r==="slow"?"This one's taking ages… swipe on":"This channel won't play here. Skipping…",r!=="down");if(r!=="slow")ytSkip(k)})}
+  function sound(on){S.ytSound=on;save();YS.fb=false;if(!YS.p||YS.k!==k){ytPaint();return}
+    try{if(on){YS.p.unMute();YS.p.setVolume(100);YS.p.playVideo()}else YS.p.mute()}catch(x){}ytPaint();
+    if(on){algoLearn(k,.3);clearTimeout(YS.chk);YS.chk=setTimeout(function(){if(YS.k===k&&YS.want&&!YS.playing){YS.fb=true;try{YS.p.mute();YS.p.playVideo()}catch(x){}ytPaint();toast("Sound's blocked in here: tap “Watch on YouTube” for sound")}},1800)}}
+  return{prep:function(){resolve().catch(function(){})},thumb:thumb,start:function(){hush();go()},resume:function(){go()},
+    stop:function(){if(YS.k===k){YS.want=false;clearTimeout(YS.chk);try{YS.p.pauseVideo()}catch(x){}}},destroy:function(){},
+    tap:function(){if(YS.k!==k||!YS.p){go();return}if(YS.p.isMuted()||YS.fb||!S.ytSound){sound(true);return}
+      try{if(YS.playing){YS.p.pauseVideo();el.classList.add("paused")}else{YS.p.playVideo();el.classList.remove("paused")}}catch(x){}},
+    sound:function(){sound(!(S.ytSound&&!YS.fb&&YS.p&&YS.k===k&&!YS.p.isMuted()))},resize:ysFit}};
+/* look up the Shorts for the card on screen and the next two ahead of time */
+function ytManage(){cards.forEach(function(kk,j){if(kk.c.type!=="yt"||j<active||j>active+2)return;if(!kk.el._pl)kk.el._pl=PLAYERS.yt(kk.el,kk);kk.el._pl.prep()});ysFit();
+  var k=cards[active];if(YS.p&&(!k||k.c.type!=="yt")&&YS.want){YS.want=false;try{YS.p.pauseVideo()}catch(x){}}}
 function ytParse(s){s=(s||"").trim();var m;
   if((m=s.match(/(?:youtu\.be\/|\/shorts\/|[?&]v=|\/embed\/|\/live\/)([\w-]{11})/)))return{v:m[1]};
   if((m=s.match(/\/channel\/(UC[\w-]{22})/))||(m=s.match(/^(UC[\w-]{22})$/)))return{ch:m[1]};
