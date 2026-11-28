@@ -934,7 +934,9 @@ function aGet(m,key){var e=S.algo[m][key];return e?e[0]:0}
 function aW(a,lo,hi){return Math.max(lo||.35,Math.min(hi||3,Math.exp(1.1*a)))}
 function aPush(m,key,r,lr){if(key==null||key==="")return;var e=S.algo[m][key]||(S.algo[m][key]=[0,0]);e[1]++;var a=Math.max(lr,1/(e[1]+2));e[0]=Math.max(-2,Math.min(2.5,e[0]*(1-a)+r*a))}
 function algoLearn(k,r){if(!k||!k.c)return;var c=k.c,kd=kindOf(c);if(kd==="check"||kd==="drop"||kd==="ytdown")return;
-  aPush("k",kd,r,.12);aPush("t",c.topic,r,.08);if(c.type==="yt"){if(c.ch)aPush("c",c.ch,r,.2);(c.g||[]).forEach(function(g){aPush("g",g,r,.15)})}S.algo.n++;save()}
+  /* likes, saves and shares count for more than watch time, and a visit where you liked something can't count as a skip */
+  var big=Math.abs(r)>=1.2;if(big&&r>0)k.engaged=true;
+  aPush("k",kd,r,.12);aPush("t",c.topic,r,.08);if(c.type==="yt"){if(c.ch)aPush("c",c.ch,r,big?.35:.2);(c.g||[]).forEach(function(g){aPush("g",g,r,big?.25:.15)})}S.algo.n++;save()}
 /* how much a visit says you liked it: skipping in under 1.5s is a strong no, watching past its normal length a strong yes */
 function dwellReward(k,ms){var typ=(ALGO_TYP[kindOf(k.c)]||10)*1000,f=ms/typ,r;
   if(ms<1500&&!k.done&&!k.answered)return-1;r=f<.35?-.35:f<.8?.15:f<1.6?.55:.85;if(k.done)r+=.25;return r}
@@ -1069,7 +1071,7 @@ function setActive(i){var now=Date.now();
   ensure();ytManage();if(i>0)hint(false);
 }
 function leave(k,vis){ /* reward reading facts, and teach the algorithm from how long you stayed */
-  if(vis!=null)algoLearn(k,dwellReward(k,vis));
+  if(vis!=null)algoLearn(k,k.engaged?Math.max(.3,dwellReward(k,vis)):dwellReward(k,vis));
   if(k.c.type==="fact"&&!k.done&&k.dwell>2500){k.done=true;award(k.c.rare?5:1);if(k.c.rare)comboPop("✨ Rare fact +"+5*XPM)}
   today().ms+=Math.min(k.dwell,120000);save();
 }
@@ -1830,6 +1832,7 @@ PLAYERS.yt=function(el,k){var c=k.c,box=el.querySelector(".ytbox"),ld=el.querySe
 /* look up the Shorts for the card on screen and the next two ahead of time */
 function ytManage(){cards.forEach(function(kk,j){if(kk.c.type!=="yt"||j<active||j>active+2)return;if(!kk.el._pl)kk.el._pl=PLAYERS.yt(kk.el,kk);kk.el._pl.prep()});ysFit();
   var k=cards[active];if(YS.p&&(!k||k.c.type!=="yt")&&YS.want){YS.want=false;try{YS.p.pauseVideo()}catch(x){}}}
+if(/[?&]debug\b/.test(location.search))window.__chain={pickYT:pickYT,S:S};
 function ytParse(s){s=(s||"").trim();var m;
   if((m=s.match(/(?:youtu\.be\/|\/shorts\/|[?&]v=|\/embed\/|\/live\/)([\w-]{11})/)))return{v:m[1]};
   if((m=s.match(/\/channel\/(UC[\w-]{22})/))||(m=s.match(/^(UC[\w-]{22})$/)))return{ch:m[1]};
