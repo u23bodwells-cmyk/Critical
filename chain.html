@@ -324,7 +324,13 @@ button{font:inherit;color:inherit}
 .stsay b{display:block;font-style:normal;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);margin-bottom:3px}
 /* stories */
 [hidden]{display:none!important}
-.tabs{gap:2px}.tabs button{font-size:15px;padding:6px 5px}
+.tabs{gap:0}.tabs button{font-size:15px;padding:6px 5px}
+/* four tabs: centred when there's room, scrollable instead of pushing the buttons off screen when there isn't */
+.tabs{min-width:0;justify-content:flex-start;overflow-x:auto;scrollbar-width:none}.tabs::-webkit-scrollbar{display:none}
+.tabs button:first-child{margin-left:auto}.tabs button:last-child{margin-right:auto}
+@media (max-width:400px){.top{gap:6px;padding-left:10px;padding-right:10px}.tabs button{font-size:14px;padding:6px 4px}}
+@media (max-width:379px){.xp{padding:4px}.xp #xpN{display:none}}
+@media (max-width:345px){.tabs button{font-size:13px;padding:6px 3px}}
 .savedBtn{width:36px;height:36px;border-radius:50%;border:0;background:var(--glass);color:var(--text);display:grid;place-items:center;cursor:pointer;flex:none}
 .savedBtn[aria-selected="true"]{background:var(--gold);color:#2B1D00}
 .flame{position:absolute;right:14px;top:calc(var(--st) + 54px)}
@@ -480,6 +486,101 @@ button{font:inherit;color:inherit}
 @media (prefers-reduced-motion:reduce){.card.on .bg i,.card.on .glyph::before,.card.on .glyph::after,.swipe svg,.card.on .in>*{animation:none!important}}
 @media (max-height:700px){.in{gap:10px;padding-top:calc(var(--st) + 62px)}.opt{padding:9px 12px}.opts{gap:7px}.hook{font-size:22px}.sim canvas,.reflex{height:min(30vh,240px)}}
 @media (max-height:640px){.glyph{display:none}}
+/* storytimes over gameplay */
+.k-tale{background:#05030c}
+.tgame{position:absolute;inset:0;background:#120a26 center/cover no-repeat}
+.k-tale.th0 .tgame{background-color:#3a0f5c}.k-tale.th1 .tgame{background-color:#0a1a4a}.k-tale.th2 .tgame{background-color:#003a2c}.k-tale.th3 .tgame{background-color:#5a1335}
+.k-tale.nogl .tgame{background-image:repeating-linear-gradient(0deg,rgba(255,255,255,.08) 0 2px,transparent 2px 46px),linear-gradient(#1a0533,#ff2d95 62%,#ffb347);background-size:100% 46px,100% 100%;animation:noglr .5s linear infinite}
+@keyframes noglr{to{background-position:0 46px,0 0}}
+.tvig{position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(0,0,0,.45),transparent 20%,transparent 62%,rgba(0,0,0,.6))}
+.tpost{position:absolute;z-index:3;left:18px;right:18px;top:calc(var(--st) + 100px);background:#fff;color:#1a1a1b;border-radius:18px;padding:14px 16px 12px;box-shadow:0 18px 50px rgba(0,0,0,.5);opacity:0;transform:translateY(-18px) scale(.94);transition:transform .4s cubic-bezier(.2,1.3,.4,1),opacity .25s;pointer-events:none}
+.tpost.show{opacity:1;transform:none}
+.tph{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+.tsi{width:36px;height:36px;flex:none;border-radius:50%;background:linear-gradient(135deg,#ff4500,#ff8a3d);display:grid;place-items:center;font-size:18px}
+.tph b{display:block;font:800 14px/1.2 system-ui,-apple-system,sans-serif}.tph small{display:block;color:#787c7e;font:500 12px/1.3 system-ui,-apple-system,sans-serif}
+.tpost h3{margin:0;font:800 20px/1.22 system-ui,-apple-system,"Segoe UI",sans-serif;letter-spacing:-.015em}
+.tpf{display:flex;gap:16px;margin-top:11px;color:#787c7e;font:700 13px system-ui,-apple-system,sans-serif}
+.tcap{position:absolute;z-index:3;left:40px;right:70px;top:36%;text-align:center;font:800 44px/1.08 Anton,Impact,"Arial Narrow","Helvetica Neue",Arial,sans-serif;font-synthesis:none;color:#fff;letter-spacing:.01em;pointer-events:none;
+  text-shadow:-3px -3px 0 #000,3px -3px 0 #000,-3px 3px 0 #000,3px 3px 0 #000,0 -3px 0 #000,0 3px 0 #000,-3px 0 0 #000,3px 0 0 #000,0 6px 0 #000,0 10px 24px rgba(0,0,0,.55)}
+.tcap span{display:inline-block;margin:0 .07em;transition:color .06s,transform .1s cubic-bezier(.2,1.6,.4,1)}
+.tcap span.on{color:#ffe14d;transform:scale(1.07) rotate(-1.5deg)}
+.k-tale.th2 .tcap span.on{color:#9cff3a}.k-tale.th1 .tcap span.on{color:#5fe1ff}
+.tcap.pop{animation:tcpop .2s cubic-bezier(.2,1.6,.4,1)}
+@keyframes tcpop{from{transform:scale(.78);opacity:.3}to{transform:none;opacity:1}}
+.tcoin{position:absolute;z-index:3;left:14px;top:calc(var(--st) + 62px);display:flex;align-items:center;gap:7px;background:rgba(0,0,0,.45);border-radius:999px;padding:5px 13px 5px 6px;color:#ffd166;font:800 16px system-ui,-apple-system,sans-serif;font-variant-numeric:tabular-nums}
+.tcoin i{width:20px;height:20px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff3b0,#ffc83d 45%,#b27600);box-shadow:0 0 10px rgba(255,200,61,.7)}
+.tcoin.bump i{animation:cbump .3s ease-out}@keyframes cbump{50%{transform:scale(1.35) rotate(25deg)}}
+.k-tale.paused .eplay,.k-yt.paused .eplay{opacity:1;transform:translate(-50%,-50%) scale(1)}
+.k-tale .rail,.k-yt .rail{bottom:calc(var(--sb) + 92px)}
+.tend{position:absolute;z-index:4;left:18px;right:78px;top:50%;transform:translateY(-50%);background:rgba(12,8,24,.84);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.14);border-radius:22px;padding:20px 18px;text-align:center;color:#fff;animation:rise .4s cubic-bezier(.2,.9,.3,1.25) both}
+.tek{display:inline-block;font:800 13px system-ui,-apple-system,sans-serif;letter-spacing:.06em;text-transform:uppercase;background:#a06bff;padding:6px 12px;border-radius:999px}
+.tek.tru{background:#1db954}
+.tend .sbtn{background:#fff;color:#111;padding:11px 18px;font-size:15px}.tend .sbtn.ghost{background:rgba(255,255,255,.14);color:#fff}
+.ytform .sbtn{background:#ff0033;color:#fff}.sheet a.sbtn,a.sbtn{display:inline-block;text-decoration:none}
+.tend p{font-size:16px;line-height:1.45;margin:12px 0 16px}
+.teb{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+/* real YouTube Shorts */
+.k-yt{background:#000}
+.ytbox{position:absolute;inset:0;overflow:hidden;background:#000 center/cover no-repeat}
+.ytshield{position:absolute;inset:0;z-index:2}
+.ytload{position:absolute;inset:0;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:30px 40px;text-align:center;color:#fff;background:radial-gradient(circle at 50% 38%,rgba(120,10,30,.85),rgba(0,0,0,.92) 72%)}
+.ytav{width:88px;height:88px;border-radius:50%;background:linear-gradient(135deg,#ff0033,#ff7a00);display:grid;place-items:center;font-size:42px;box-shadow:0 0 0 4px rgba(255,255,255,.14),0 10px 40px rgba(255,0,51,.4)}
+.ytload b{font-size:22px;font-weight:800}
+.ytst{font-size:14px;opacity:.8;display:flex;align-items:center;gap:8px;justify-content:center}
+.ytspin{display:inline-block;width:16px;height:16px;border:2.5px solid rgba(255,255,255,.25);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite}
+.ytadd{position:relative;z-index:3}
+.ytbadge{position:absolute;z-index:3;left:14px;top:calc(var(--st) + 64px);background:#ff0033;color:#fff;font:800 12px system-ui,-apple-system,sans-serif;letter-spacing:.02em;padding:5px 9px;border-radius:7px;pointer-events:none}
+.ecap a{color:#fff;font-weight:700}
+.ytform{display:flex;gap:8px}.ytform input{flex:1;min-width:0;border:1px solid var(--line);background:rgba(255,255,255,.07);color:var(--text);border-radius:12px;padding:11px 12px;font-size:16px}
+.ytmsg{font-size:13px;color:#ff8a9a;min-height:1em;margin:6px 0}
+.ytlist{display:flex;flex-direction:column;gap:6px;margin:8px 0}
+.yti{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.06);border-radius:12px;padding:6px 8px;font-size:13px}
+.yti img{width:48px;height:36px;object-fit:cover;border-radius:6px}.yti .ytci{width:48px;text-align:center;font-size:22px}
+.yti span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.yti button{border:0;background:rgba(255,255,255,.12);color:var(--text);border-radius:8px;width:30px;height:30px;cursor:pointer}
+/* storytime tiles on the Stories screen */
+.tlrow{display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;margin:0 -16px 18px;padding:0 16px 4px;scroll-snap-type:x mandatory}
+.tltile{flex:none;width:150px;height:200px;scroll-snap-align:start;border:0;border-radius:18px;padding:12px;display:flex;flex-direction:column;justify-content:flex-end;gap:6px;text-align:left;color:#fff;cursor:pointer;position:relative;overflow:hidden}
+.tltile.th0{background:linear-gradient(170deg,#1a0533,#ff2d95 70%,#ffb347)}.tltile.th1{background:linear-gradient(170deg,#020412,#1b3b8a)}.tltile.th2{background:linear-gradient(170deg,#00100c,#00b383)}.tltile.th3{background:linear-gradient(170deg,#14062b,#c2185b 65%,#ff9800)}
+.tltile b{font-size:14px;line-height:1.25;text-shadow:0 2px 6px rgba(0,0,0,.6)}
+.tlk{position:absolute;top:10px;left:10px;font:800 10px system-ui,-apple-system,sans-serif;letter-spacing:.08em;background:rgba(0,0,0,.4);padding:4px 7px;border-radius:6px}
+.tlw{font-size:11px;opacity:.8}
+
+/* scroll pass */
+.pfrom{font-size:17px;font-weight:700}
+.pwal{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}
+.pwal div{background:rgba(255,255,255,.07);border:1px solid var(--line);border-radius:16px;padding:12px 14px}
+.pwal small{display:block;color:var(--dim);font-size:12px;font-weight:700}.pwal b{font-size:26px;font-variant-numeric:tabular-nums}
+.papps{display:flex;flex-direction:column;gap:8px;margin:12px 0}.papps .sbtn{text-align:center;padding:13px 16px;font-size:16px}
+.plab{margin:14px 0 6px;font-weight:800}
+.pbuy{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.pb{border:0;border-radius:16px;padding:14px 6px;background:linear-gradient(160deg,#fe2c55,#a01aff);color:#fff;cursor:pointer;display:flex;flex-direction:column;gap:3px;align-items:center}
+.pb b{font-size:18px}.pb span{font-size:13px;font-weight:700;opacity:.9}
+.pb.no{background:rgba(255,255,255,.08);color:var(--dim)}
+.pneed{font-size:14px;color:var(--dim)}.pbuy{margin-bottom:12px}
+.sheet code{background:rgba(255,255,255,.1);padding:1px 6px;border-radius:6px;font-size:13px}
+
+/* passcode vault */
+.vcode{display:flex;gap:10px;justify-content:center;margin:14px 0}
+.vcode i{font:800 40px/1 var(--mono);font-style:normal;width:56px;height:68px;display:grid;place-items:center;border-radius:14px;background:rgba(255,255,255,.08);border:1px solid var(--line)}
+.vcode.sm i{font-size:28px;width:44px;height:52px}
+.vsteps{padding-left:20px;margin:6px 0 12px;display:flex;flex-direction:column;gap:8px;font-size:15px;line-height:1.45}
+.vrot{border-top:1px solid var(--line);margin-top:12px;padding-top:4px}
+.pb.vbuy{width:100%;flex-direction:column;padding:16px;margin:10px 0}.pb.vbuy b{font-size:19px}
+
+/* your algorithm */
+.alist{display:flex;flex-direction:column;gap:7px;margin-bottom:12px}
+.arow{display:flex;align-items:center;gap:10px;font-size:14px}.arow span:first-child{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.abar{flex:none;width:42%;height:8px;border-radius:99px;background:rgba(255,255,255,.1);overflow:hidden}.abar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#3ad4ff,#a06bff)}
+.arow.neg .abar i{background:linear-gradient(90deg,#ff3b5c,#ff8a3d)}
+.fbrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px;padding-top:12px;border-top:1px solid var(--line)}
+
+/* settle up */
+.pwal b.neg{color:#ff5c7a}
+.lday{display:flex;gap:6px;margin:8px 0}.lday button{border:1px solid var(--line);background:none;color:var(--dim);border-radius:999px;padding:6px 14px;font-weight:700;cursor:pointer}.lday button.on{background:var(--text);color:#0b0b10}
+.llist{display:flex;flex-direction:column;gap:4px;margin:6px 0 12px}
+.lrow{display:grid;grid-template-columns:1.2fr 1fr 1fr 1.1fr;gap:6px;font-size:13px;background:rgba(255,255,255,.05);border-radius:10px;padding:7px 10px}
+.lrow .lneg{color:#ff5c7a;font-weight:700;text-align:right}.lrow .lok{color:#5fe38a;font-weight:700;text-align:right}
 </style>
 </head>
 <body>
@@ -489,6 +590,7 @@ button{font:inherit;color:inherit}
     <nav class="tabs" role="tablist">
       <button role="tab" aria-selected="false" id="tEdits">Edits</button>
       <button role="tab" aria-selected="true" id="tFeed">For you</button>
+      <button role="tab" aria-selected="false" id="tShorts">Shorts</button>
       <button role="tab" aria-selected="false" id="tStories">Stories</button>
     </nav>
     <button class="savedBtn" id="tSaved" aria-label="Saved cards" aria-selected="false"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M6 3.5h12v17l-6-4.2-6 4.2z"/></svg></button>
@@ -515,6 +617,7 @@ button{font:inherit;color:inherit}
 <script src="chain-stories.js"></script>
 <script src="chain-fun.js"></script>
 <script src="chain-more.js"></script>
+<script src="chain-tales.js"></script>
 <script>
 (function(){
 "use strict";
@@ -817,11 +920,41 @@ var SIMLIST=[
 ];
 var SIMORD=(function(){var a=[];for(var i=0;i<SIMLIST.length;i++)a.push(i);for(i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t}return a})();
 
+/* ---------- the algorithm: learns from what you watch, like, save, share, rewatch and skip ----------
+   Every card has a format (edit, Short, storytime, meme…), a topic and, for Shorts, a channel. Each signal nudges a
+   score for all three; the feed then leans towards high scores. 1 card in 8 ignores the scores (a wildcard) and
+   nothing is ever turned off completely, so you still discover new stuff. */
+S.algo=S.algo||{k:{},t:{},c:{},n:0};
+if(!S.algo.mig){S.algo.mig=1;for(var tk0 in S.tw){var v0=+S.tw[tk0];if(v0>0&&!S.algo.t[tk0])S.algo.t[tk0]=[Math.max(-1.5,Math.min(1.5,Math.log(v0)/1.1)),3]}}
+var KNAME={edit:"Edits",yt:"YouTube Shorts",tale:"Storytimes",chat:"Text stories",story:"Choose-your-path stories",meme:"Memes",quiz:"Quizzes",tf:"True or false",gen:"Quick puzzles",fact:"Facts",game:"Mini games",tier:"Tier lists",wyr:"Would you rather",lie:"Two truths and a lie",head:"Real or fake",guess:"Guess the number",spot:"Spot the mistake",build:"Build a reactor",geiger:"Geiger counter",vlog:"Day in the life",top5:"Top 5s",eli:"Explain it 3 ways",emoji:"Emoji riddles",beat:"Beat TikTok"};
+var ALGO_TYP={edit:12,yt:25,tale:40,chat:18,story:12,meme:6,quiz:8,tf:6,gen:8,fact:7,game:15,tier:14,wyr:7,lie:10,head:8,guess:10,spot:12,build:20,geiger:15,vlog:15,top5:12,eli:14,emoji:8,beat:8};
+function aGet(m,key){var e=S.algo[m][key];return e?e[0]:0}
+function aW(a,lo,hi){return Math.max(lo||.35,Math.min(hi||3,Math.exp(1.1*a)))}
+function aPush(m,key,r,lr){if(key==null||key==="")return;var e=S.algo[m][key]||(S.algo[m][key]=[0,0]);e[1]++;var a=Math.max(lr,1/(e[1]+2));e[0]=Math.max(-2,Math.min(2.5,e[0]*(1-a)+r*a))}
+function algoLearn(k,r){if(!k||!k.c)return;var c=k.c,kd=kindOf(c);if(kd==="check"||kd==="drop"||kd==="ytdown")return;
+  aPush("k",kd,r,.12);aPush("t",c.topic,r,.08);if(c.type==="yt"&&c.ch)aPush("c",c.ch,r,.2);S.algo.n++;save()}
+/* how much a visit says you liked it: skipping in under 1.5s is a strong no, watching past its normal length a strong yes */
+function dwellReward(k,ms){var typ=(ALGO_TYP[kindOf(k.c)]||10)*1000,f=ms/typ,r;
+  if(ms<1500&&!k.done&&!k.answered)return-1;r=f<.35?-.35:f<.8?.15:f<1.6?.55:.85;if(k.done)r+=.25;return r}
+function algoKinds(W){if(Math.random()<.125)return W;var o={};for(var k in W)o[k]=W[k]*aW(aGet("k",k),.22,3);return o}
+function wPickArr(arr,wf){var tot=0,ws=arr.map(function(x){var w=Math.max(0,wf(x)||0);tot+=w;return w});if(!tot)return pick(arr);var r=Math.random()*tot;for(var i=0;i<arr.length;i++){r-=ws[i];if(r<=0)return arr[i]}return arr[arr.length-1]}
+function algoTop(m,n,dir){var o=[];for(var key in S.algo[m]){var e=S.algo[m][key];if(e[1]>=2)o.push([key,e[0],e[1]])}o.sort(function(a,b){return dir<0?a[1]-b[1]:b[1]-a[1]});return o.filter(function(x){return dir<0?x[1]<-.15:x[1]>.1}).slice(0,n)}
+function chName(ch){var x=(window.CHAIN_YT||[]).filter(function(y){return y.ch===ch})[0];return x?x.em+" "+x.name:"⭐ Your channel"}
+function openAlgo(){var bar=function(a){var p=Math.round(Math.max(4,Math.min(100,(a+2)/4.5*100)));return'<span class="abar"><i style="width:'+p+'%"></i></span>'};
+  var sec=function(title,rows,lab){return rows.length?'<p class="plab">'+title+'</p><div class="alist">'+rows.map(function(r){return'<div class="arow"><span>'+lab(r[0])+'</span>'+bar(r[1])+'</div>'}).join("")+'</div>':""};
+  var K=algoTop("k",6,1),T=algoTop("t",4,1),C=algoTop("c",5,1),L=algoTop("k",4,-1).concat(algoTop("c",3,-1).map(function(x){return["@"+x[0],x[1]]}));
+  var h='<h3>🧠 Your algorithm</h3><p>Chain learns from how long you watch, what you like, save, share and rewatch, and what you skip straight past. It has learnt from <b>'+S.algo.n.toLocaleString("en-GB")+'</b> signals so far.</p>';
+  if(!K.length&&!T.length&&!C.length)h+='<p class="mnote">'+(S.algo.n<15?'Not enough to go on yet. Keep scrolling, and like the stuff you enjoy.':'No clear favourites yet. Like, save or watch the stuff you enjoy all the way through.')+'</p>';
+  h+=sec("You're into",K,function(k){return esc(KNAME[k]||k)})+sec("Topics",T,function(t){var o=TOP[t];return o?o.g+" "+esc(o.n):esc(t)})+sec("Channels",C,function(ch){return esc(chName(ch))});
+  if(L.length)h+='<p class="plab">Showing you less of</p><div class="alist">'+L.map(function(r){return'<div class="arow neg"><span>'+(r[0].charAt(0)==="@"?esc(chName(r[0].slice(1))):esc(KNAME[r[0]]||r[0]))+'</span>'+bar(r[1])+'</div>'}).join("")+'</div>';
+  h+='<p class="mnote">1 card in 8 is a wildcard that ignores all this, so you still find new things. Tap ⓘ Explain on any card for 👍 More like this or 🚫 Not interested.</p><p><button class="sbtn ghost" data-areset>↺ Reset my algorithm</button></p>';
+  openSheet(h)}
+var fbK=null,sheetK=null;
 /* ---------- feed engine ---------- */
 var feed=document.getElementById("feed"),cards=[],active=-1,sess={t0:Date.now(),n:0,q:0,ok:0,xp:0,combo:0,since:0},retry=[],simI=rnd(SIMLIST.length);
 var pools={fact:FACTS.map(function(f){return{type:"fact",topic:f[0],glyph:f[1],hook:f[2],body:f[3],more:f[4],id:"f"+hsh(f[2])}}),
  quiz:QUIZ.map(function(q){return{src:q,id:"q"+hsh(q[1])}}),tf:TF.map(function(t){return{src:t,id:"t"+hsh(t[1])}})};
-function tw(t){return S.off[t]?0:(S.tw[t]||1)}
+function tw(t){return S.off[t]?0:aW(aGet("t",t))}
 function pickTopic(){var tot=0,i;for(i=0;i<TK.length;i++)tot+=tw(TK[i]);if(!tot)return pick(TK);var r=Math.random()*tot;for(i=0;i<TK.length;i++){r-=tw(TK[i]);if(r<=0)return TK[i]}return TK[0]}
 function topicOf(it){return it.topic||(it.src&&it.src[0])}
 function fromPool(kind,topic){var p=pools[kind],c=p.filter(function(x){return topicOf(x)===topic&&!S.off[topicOf(x)]});if(!c.length)c=p.filter(function(x){return!S.off[topicOf(x)]});if(!c.length)c=p;
@@ -834,15 +967,20 @@ function fromPool(kind,topic){var p=pools[kind],c=p.filter(function(x){return to
 function makeNext(){
   var i=cards.length;
   if(sess.since>=12){sess.since=0;return{type:"check",topic:"maths",id:"chk"+i}}
+  if(mode==="shorts"){var ys=pickYT(true);if(ys)return ys;if(!cards.some(function(k){return k.c.type==="ytdown"}))return{type:"ytdown",topic:"energy",id:"ytdown"+i}}
   /* mystery drops turn up at random (not on a fixed beat), a few a day */
   sess.sinceDrop=(sess.sinceDrop||0)+1;var dd=today();if(i>3&&sess.sinceDrop>5&&(dd.drops||0)<8&&Math.random()<.11){sess.sinceDrop=0;return{type:"drop",topic:"maths",id:"drop"+Date.now()+i}}
   if(retry.length&&retry[0].due<=i){var r=retry.shift().c;return mkQuiz(r.topic,r.q,[r.opts[r.ans]].concat(r.opts.filter(function(_,k){return k!==r.ans})),r.ex,r.id,"Second chance")}
   if(i===0){var e0=pickEdit();if(e0)return e0}
+  /* a real Short and a storytime early on, so the best stuff shows up straight away */
+  if(i===2&&mode==="feed"){var y0=pickYT();if(y0)return y0}
+  if(i===6&&mode==="feed"){var t0=pickItem(window.CHAIN_TALES||[],"tale");if(t0)return t0}
   if(i===4&&!S.swaps.length&&S.beatDay!==dk()){S.beatDay=dk();save();return{type:"beat",topic:"ops",id:"beat"+dk()}}
-  var W=mode==="edits"?KW_EDITS:KW_FEED,last=i>0?kindOf(cards[i-1].c):null,last2=i>1?kindOf(cards[i-2].c):null,skip={};
+  var W=mode==="edits"?KW_EDITS:KW_FEED,last=i>0?kindOf(cards[i-1].c):null,last2=i>1?kindOf(cards[i-2].c):null,skip={};if(mode==="shorts")skip.yt=1;
   if(last&&!(mode==="edits"&&last==="edit"&&last2!=="edit"))skip[last]=1;
   if(i<3){skip.story=1;skip.tier=1}
-  for(var t=0;t<10;t++){var k=wpick(W,skip),c=makeKind(k);if(c)return c;skip[k]=1}
+  cards.slice(-4).forEach(function(kk){var kd=kindOf(kk.c);if(kd==="tale"||kd==="story")skip[kd]=1});
+  var WL=algoKinds(W);for(var t=0;t<10;t++){var k=wpick(WL,skip),c=makeKind(k);if(c)return c;skip[k]=1}
   return fromPool("quiz",pickTopic())||GEN.maths();
 }
 function pickEdit(){if(!CE)return null;
@@ -851,7 +989,7 @@ function pickEdit(){if(!CE)return null;
   var def=null;
   var lastGen=false;for(var j=cards.length-1;j>=0;j--)if(cards[j].c.type==="edit"){lastGen=!!cards[j].c.def.gen;break}
   if(!c.length||(!lastGen&&((min>0&&Math.random()<.5)||Math.random()<.18))){var qb=QUIZ.filter(function(q){return!S.off[q[0]]}),tb=TF.filter(function(t){return!S.off[t[0]]});def=Math.random()<.6?CE.genQuiz(qb.length?qb:QUIZ):CE.genTF(tb.length>=3?tb:TF)}
-  if(!def&&c.length)def=pick(c);if(!def)return null;
+  if(!def&&c.length)def=wPickArr(c,function(d){return aW(aGet("t",d.topic))});if(!def)return null;
   return{type:"edit",topic:def.topic,id:def.id,def:def,title:def.title}}
 var ICON={
  like:'<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"><path d="M12 20.5s-7.5-4.6-9.3-9.2C1.4 7.9 3.6 4.5 7 4.5c2 0 3.5 1.1 5 3 1.5-1.9 3-3 5-3 3.4 0 5.6 3.4 4.3 6.8-1.8 4.6-9.3 9.2-9.3 9.2z"/></svg>',
@@ -861,7 +999,7 @@ var ICON={
  heart:'<svg viewBox="0 0 24 24"><path d="M12 21s-8-4.9-9.9-9.8C.7 7.6 3 4 6.7 4c2.2 0 3.8 1.2 5.3 3.2C13.5 5.2 15.1 4 17.3 4 21 4 23.3 7.6 21.9 11.2 20 16.1 12 21 12 21z"/></svg>'
 };
 function isSaved(id){return S.saved.some(function(s){return s.id===id})}
-function rail(c){if(c.type==="check"||c.type==="drop")return"";var sv=isSaved(c.id),lk=!!S.liked[c.id];
+function rail(c){if(c.type==="check"||c.type==="drop"||c.type==="ytdown")return"";var sv=isSaved(c.id),lk=!!S.liked[c.id];
   return '<aside class="rail"><button class="rb'+(lk?" on":"")+'" data-act="like" aria-pressed="'+lk+'"><span class="c">'+ICON.like+'</span>Like</button>'+
   '<button class="rb'+(sv?" on":"")+'" data-act="save" aria-pressed="'+sv+'"><span class="c">'+ICON.save+'</span>Save</button>'+
   '<button class="rb" data-act="more"><span class="c">'+ICON.more+'</span>Explain</button>'+
@@ -876,6 +1014,7 @@ function inner(c){var t=TOP[c.topic]||TOP.reactor,h="";
   else if(c.type==="tier")h=tierHtml(c);
   else if(c.type==="wyr")h=wyrHtml(c);
   else if(c.type==="story"){var so=STORY[c.sid],inf=stInfo(c.sid);h='<div class="stcard"><span class="stkind'+(so.kind==="Story"?" story":so.kind==="Funny"?" funny":"")+'">'+(so.kind==="Story"?"📖 Interactive story":so.kind==="Funny"?"😂 Comedy · you decide":"🚨 Emergency · you decide")+'</span><div class="stcover">'+so.icon+'</div><h2 class="hook">'+esc(so.title)+'</h2><p class="body">'+esc(so.blurb)+'</p><div class="stfound">Endings found: '+Object.keys(inf.e).length+' / '+endCount(so)+'</div><button class="playbtn" data-act="play">▶ Play</button></div>'}
+  else if(c.type==="ytdown")h='<div class="chchip">📺 Shorts</div><div class="glyph">📡</div><h2 class="hook">YouTube isn\'t loading</h2><p class="body">It might be blocked on this Wi-Fi, or you\'re offline. The normal feed carries on below this card.</p><button class="playbtn" data-act="ytretry">↻ Try again</button>';
   else if(c.type==="drop")h='<div class="dropc"><div class="dchip">🎁 Mystery drop</div><button class="dbox" data-act="drop" aria-label="Open the mystery drop">🎁</button><div class="dtxt">Tap to open</div><div class="dsub">Could be anything up to a 1,000 XP jackpot</div></div>';
   else if(c.type==="fact")h=(c.rare?'<div class="rchip">✨ Rare fact · 5× XP</div>':'')+chipHtml(c,t)+'<div class="glyph">'+c.glyph+'</div><h2 class="hook">'+c.hook+'</h2><p class="body">'+c.body+'</p>';
   else if(c.type==="quiz"||c.type==="tf"){h=chipHtml(c,t)+'<h2 class="hook">'+c.q+'</h2><div class="qbar"><i></i></div><div class="opts'+(c.type==="tf"?" tf":"")+'">'+
@@ -886,6 +1025,8 @@ function inner(c){var t=TOP[c.topic]||TOP.reactor,h="";
 function build(c){var t=TOP[c.topic]||TOP.reactor,el=document.createElement("section");
   if(c.type==="edit"){el.className="card k-edit";el.innerHTML='<canvas class="ecv"></canvas><button class="snd" data-act="snd"></button><div class="eplay" aria-hidden="true"><svg viewBox="0 0 24 24" fill="#fff"><path d="M7 4.5v15l13-7.5z"/></svg></div>'+rail(c)+
     '<div class="ecap"><b>@critical</b> · '+esc(c.def.title)+'<div class="tags">'+esc(c.def.tags||"")+'</div><div class="music"><span>♫ '+(S.music&&S.music.on&&CE&&CE.track?esc(CE.track.name):'original sound · Critical '+(c.def.style==="hype"?"hype mix":"phonk"))+'</span></div></div><div class="eprog"><i></i></div>';sndLabel(el);return el}
+  if(c.type==="tale"){el.className="card k-tale th"+(TALE[c.ref].theme%4);el.dataset.th=TALE[c.ref].theme%4;el.innerHTML=taleHtml(c);talePoster(el);sndLabel(el);if(!threeP)setTimeout(function(){loadThree().catch(function(){})},400);return el}
+  if(c.type==="yt"){el.className="card k-yt";el.innerHTML=ytHtml(c);return el}
   el.className="card k-"+c.type;el.style.setProperty("--a",t.a);el.style.setProperty("--b1",t.b1);el.style.setProperty("--b2",t.b2);
   el.classList.add("t-"+c.type);
   if(c.type==="check"){el.style.setProperty("--b1","#2a2140");el.style.setProperty("--b2","#09070f");el.style.setProperty("--a","#F2C46D")}
@@ -898,8 +1039,8 @@ function add(c){var el=build(c),k={c:c,el:el,t:0,dwell:0,done:false};cards.push(
 function mkPlayer(k){if(!k.el._ed&&CE)k.el._ed=CE.Player(k.el,k.c.def,{watched:function(){if(!k.done){k.done=true;award(2)}},
   gate:function(r){var d=today();if(r.ok===true){award(5);d.q++;d.ok++;sess.q++;sess.ok++;sess.combo++;CE.sfx("ok");vib(18)}else if(r.ok===false){d.q++;sess.q++;sess.combo=0;CE.sfx("no");vib([30,40,30])}else{award(2);vib(15)}save();flame()}})}
 function sndLabel(el){var b=el.querySelector(".snd");if(!b)return;var live=!!(S.sound&&CE&&CE.on());b.classList.toggle("live",live);b.textContent=live?"🔊":S.sound?"🔊 Tap for sound":"🔇 Sound off";b.setAttribute("aria-label",live?"Mute":"Turn sound on")}
-function allSnd(){cards.forEach(function(k){if(k.c.type==="edit")sndLabel(k.el)})}
-function wake(e){vUnlock();if(!CE||!S.sound||!CE.needs())return;if(e&&e.target&&e.target.closest&&e.target.closest(".snd"))return;CE.unlock().then(function(){if(!CE.on())return;var k=cards[active];if(k&&k.el._ed)k.el._ed.resync();allSnd()})}
+function allSnd(){cards.forEach(function(k){if(k.c.type==="edit"||k.c.type==="tale")sndLabel(k.el)})}
+function wake(e){vUnlock();if(!CE||!S.sound||!CE.needs())return;if(e&&e.target&&e.target.closest&&e.target.closest(".snd"))return;CE.unlock().then(function(){if(!CE.on())return;var k=cards[active];if(k&&k.el._ed)k.el._ed.resync();if(k&&k.c.type==="tale"&&k.el._pl)k.el._pl.snd();allSnd()})}
 ["pointerdown","pointerup","touchend","click","keydown"].forEach(function(ev){document.addEventListener(ev,wake,true)});
 function ensure(){while(cards.length<active+5)add(makeNext())}
 
@@ -911,8 +1052,8 @@ var settleT=0;function settled(){settleT=0;if(CE)CE.moving=false;onScroll()}
 feed.addEventListener("scroll",function(){if(CE)CE.moving=true;clearTimeout(settleT);settleT=setTimeout(settled,110)},{passive:true});
 if("onscrollend" in window)feed.addEventListener("scrollend",function(){clearTimeout(settleT);settled()});
 function setActive(i){var now=Date.now();
-  if(active>=0&&cards[active]){var p=cards[active];p.el.classList.remove("on");if(p.el._sim&&p.el._sim.stop)p.el._sim.stop();if(p.el._ed)p.el._ed.stop();if(p.el._pl&&p.el._pl.stop)p.el._pl.stop();hush();p.dwell+=now-p.t;leave(p)}
-  if(active>=0)vib(6);active=i;var k=cards[i];k.el.classList.add("on");k.t=now;
+  if(active>=0&&cards[active]){var p=cards[active];p.el.classList.remove("on");if(p.el._sim&&p.el._sim.stop)p.el._sim.stop();if(p.el._ed)p.el._ed.stop();if(p.el._pl&&p.el._pl.stop)p.el._pl.stop();hush();var vis=now-p.t;p.dwell+=vis;leave(p,vis)}
+  var prevA=active;if(active>=0)vib(6);active=i;var k=cards[i];if(k.counted&&i<prevA)algoLearn(k,.5);k.el.classList.add("on");k.t=now;
   if(k.c.type==="check")renderCheck(k);
   if((k.c.type==="quiz"||k.c.type==="tf")&&!k.answered)k.qt0=now;
   if(k.c.type==="edit"){mkPlayer(k);if(k.el._ed){k.el._ed.start();}sndLabel(k.el);nextSong();
@@ -921,12 +1062,11 @@ function setActive(i){var now=Date.now();
   if(PLAYERS[k.c.type]){if(!k.el._pl)k.el._pl=PLAYERS[k.c.type](k.el,k);if(k.el._pl.start)k.el._pl.start()}
   if(!k.counted){k.counted=true;var d=today();d.n++;sess.n++;sess.since++;S.seen[k.c.id]=(S.seen[k.c.id]||0)+1;save();ring();
     if(d.n===GOAL){toast("🔥 Daily goal done! +50 XP · streak "+streak()+" day"+(streak()>1?"s":""));award(25)}}
-  ensure();if(i>0)hint(false);
+  ensure();ytManage();if(i>0)hint(false);
 }
-function leave(k){ /* reward reading facts, learn topic taste from dwell */
+function leave(k,vis){ /* reward reading facts, and teach the algorithm from how long you stayed */
+  if(vis!=null)algoLearn(k,dwellReward(k,vis));
   if(k.c.type==="fact"&&!k.done&&k.dwell>2500){k.done=true;award(k.c.rare?5:1);if(k.c.rare)comboPop("✨ Rare fact +"+5*XPM)}
-  if(k.c.type==="fact"&&k.dwell<900){var t=k.c.topic;S.tw[t]=Math.max(.4,(S.tw[t]||1)-.03)}
-  if(k.dwell>6000&&k.c.topic){var t2=k.c.topic;S.tw[t2]=Math.min(3,(S.tw[t2]||1)+.05)}
   today().ms+=Math.min(k.dwell,120000);save();
 }
 /* ---------- XP: doubled, and sent to Critical so it counts for the streak, daily goal and season pass ---------- */
@@ -944,7 +1084,7 @@ function nextSound(p){for(var i=0;i<SOUND_AT.length;i++)if(SOUND_AT[i]>p)return 
 function paintSP(){var e=document.getElementById("xpN");if(e)e.textContent=SP.toLocaleString("en-GB")}
 function spBlock(){var nx=nextAt(SP),pv=prevAt(SP),f=nx?(SP-pv)/(nx-pv):1,ns=nextSound(SP);
   return '<div class="spb"><div class="sph"><b>🏆 Season pass</b><span>'+SP.toLocaleString("en-GB")+' pts</span></div><div class="spbar"><i style="width:'+Math.round(f*100)+'%"></i></div><div class="spn">'+(nx?'<b>'+(nx-SP).toLocaleString("en-GB")+'</b> to your next reward':'Every reward reached. Legend.')+(ns?' · 🎵 sound pack in <b>'+(ns-SP).toLocaleString("en-GB")+'</b>':' · 🎵 all 3 sound packs reached')+'</div></div>'}
-function award(n){n=Math.round(n*XPM);if(n<=0)return;var before=SP;S.xp+=n;sess.xp+=n;today().xp+=n;SP+=n;inbox(n);paintSP();xpFloat(n);save();
+function award(n){n=Math.round(n*XPM);if(n<=0)return;var before=SP;S.xp+=n;sess.xp+=n;today().xp+=n;SP+=n;inbox(n);walletEarn(n);paintSP();xpFloat(n);save();
   var nx=nextAt(before),ns=nextSound(before);
   if(ns&&SP>=ns){setTimeout(function(){bigWin("🎵","Sound pack unlocked!","Claim it on the season pass in Critical")},400)}
   else if(nx&&SP>=nx){setTimeout(function(){toast("🎁 Season pass reward unlocked! Claim it in Critical")},400)}}
@@ -958,6 +1098,8 @@ feed.addEventListener("click",function(e){var k=cardOf(e.target);if(!k)return;
   if(k.c.type==="chat"&&k.el._pl&&e.target.closest(".chlog")){k.el._pl.speed();return}
   var o=e.target.closest(".opt");if(o&&(k.c.type==="quiz"||k.c.type==="tf")&&!o.closest(".sim")){answer(k,+o.dataset.i);return}
   var b=e.target.closest("[data-act]");if(b){act(k,b.dataset.act,b);return}
+  if(k.c.type==="yt"&&k.el._pl&&e.target.closest(".ytshield")){k.el._pl.tap();return}
+  if(k.c.type==="tale"&&k.el._pl&&k===cards[active]&&!e.target.closest("a,button,.rail,.ecap,.tend")){k.el._pl.toggle();return}
 });
 function answer(k,i){var c=k.c;if(k.answered)return;k.answered=true;var ok=i===c.ans,box=k.el.querySelector(".opts"),bs=box.querySelectorAll(".opt");
   bs.forEach(function(b,j){if(j===c.ans)b.classList.add("ok");else if(j===i)b.classList.add("no");else b.classList.add("fade")});
@@ -976,10 +1118,10 @@ function answer(k,i){var c=k.c;if(k.answered)return;k.answered=true;var ok=i===c
 function flame(){var f=document.getElementById("flame"),n=sess.combo;if(!f)return;f.hidden=n<3;f.textContent="🔥 "+n+(n>=10?" ×3":n>=5?" ×2":"");f.classList.toggle("hot",n>=5);f.classList.remove("bump");void f.offsetWidth;f.classList.add("bump")}
 function act(k,a,b){var c=k.c;
   if(a==="like")like(k,!S.liked[c.id]);
-  else if(a==="save"){var on=isSaved(c.id);if(on)S.saved=S.saved.filter(function(s){return s.id!==c.id});else{S.saved.unshift({id:c.id,c:strip(c),at:Date.now()});S.saved=S.saved.slice(0,300)}
+  else if(a==="save"){var on=isSaved(c.id);algoLearn(k,on?-.8:1.5);if(!on)setTimeout(refreshAhead,50);if(on)S.saved=S.saved.filter(function(s){return s.id!==c.id});else{S.saved.unshift({id:c.id,c:strip(c),at:Date.now()});S.saved=S.saved.slice(0,300)}
     b.classList.toggle("on",!on);b.setAttribute("aria-pressed",!on);pop(b);toast(on?"Removed from Saved":"Saved. Find it in the Saved tab");save()}
-  else if(a==="more")explain(c,k);
-  else if(a==="share")share(c);
+  else if(a==="more"){algoLearn(k,.4);fbK=k;try{explain(c,k)}finally{fbK=null}}
+  else if(a==="share"){algoLearn(k,1.2);share(c)}
   else if(a==="drop")openDrop(k,b);
   else if(a==="play")playStory(k.c.sid);
   else if(a==="music")openMusic();
@@ -987,7 +1129,12 @@ function act(k,a,b){var c=k.c;
   else if(a==="beat")openBeat();
   else if(a==="voice"){setVoice(S.voice===false);toast(S.voice!==false?"🗣️ Voices on":"🤐 Voices off");if(S.voice===false&&k.el._pl&&k.el._pl.speed){}}
   else if(a==="snd"){var live=S.sound&&CE&&CE.on();S.sound=!live;if(CE)CE.sound=S.sound;save();
-    var done=function(){if(k.el._ed)k.el._ed.resync();allSnd()};if(S.sound&&CE)CE.unlock().then(done);else done()}
+    var done=function(){if(k.el._ed)k.el._ed.resync();if(k.c.type==="tale"&&k.el._pl)k.el._pl.snd();allSnd()};if(S.sound&&CE)CE.unlock().then(done);else done()}
+  else if(a==="ytsnd"){if(k.el._pl&&k.el._pl.sound)k.el._pl.sound()}
+  else if(a==="ytadd")openYT();
+  else if(a==="ytretry"){ytDown=0;for(var ri=cards.length-1;ri>active;ri--){if(cards[ri].el._pl&&cards[ri].el._pl.destroy)cards[ri].el._pl.destroy();cards[ri].el.remove();cards.splice(ri,1)}ensure();toast("Trying YouTube again…");goTo(active+1)}
+  else if(a==="treplay"){if(k.el._pl)k.el._pl.replay()}
+  else if(a==="tnext")goTo(active+1);
 }
 function openDrop(k,b){if(k.opened)return;k.opened=true;var d=today();d.drops=(d.drops||0)+1;save();b.classList.add("shake");if(CE)CE.sfx("pop");vib([10,40,10,40,10]);
   var r=Math.random(),raw=r<.01?500:r<.08?50+rnd(26):r<.3?20+rnd(21):5+rnd(11),xp=raw*XPM,box=k.el.querySelector(".dropc");
@@ -997,8 +1144,8 @@ function openDrop(k,b){if(k.opened)return;k.opened=true;var d=today();d.drops=(d
     confetti(box,xp>=100?60:28);award(raw);if(CE)CE.sfx("ok");vib(xp>=100?[30,50,30,50,120]:25)},650)}
 function confetti(box,n){var cols=["#F2C46D","#ff3b8d","#3ad4ff","#9cff3a","#a06bff","#fff"];for(var i=0;i<n;i++){var c=document.createElement("i");c.className="cf";var a=Math.random()*Math.PI*2,d=80+Math.random()*160;c.style.setProperty("--dx",Math.cos(a)*d+"px");c.style.setProperty("--dy",(Math.sin(a)*d-60)+"px");c.style.setProperty("--r",(Math.random()*720-360)+"deg");c.style.background=cols[i%cols.length];c.style.animationDelay=(Math.random()*.08)+"s";box.appendChild(c);setTimeout(function(x){return function(){x.remove()}}(c),1300)}}
 function strip(c){var o={};for(var x in c)if(x!=="el")o[x]=c[x];return o}
-function like(k,on,x,y){var c=k.c,b=k.el.querySelector('[data-act="like"]');if(on)S.liked[c.id]=1;else delete S.liked[c.id];
-  S.tw[c.topic]=Math.max(.4,Math.min(3,(S.tw[c.topic]||1)+(on?.35:-.35)));
+function like(k,on,x,y){var c=k.c,b=k.el.querySelector('[data-act="like"]'),was=!!S.liked[c.id];if(on)S.liked[c.id]=1;else delete S.liked[c.id];
+  if(was!==on){algoLearn(k,on?1.6:-1.2);if(on){var kn=KNAME[kindOf(c)];if(kn)toast("❤️ More "+(c.type==="yt"&&c.name?c.name:kn)+" coming up")}refreshAhead()}
   if(b){b.classList.toggle("on",on);b.setAttribute("aria-pressed",on);if(on)pop(b)}save()}
 function pop(b){b.classList.remove("pop");void b.offsetWidth;b.classList.add("pop")}
 /* double tap to like */
@@ -1021,7 +1168,8 @@ function comboPop(t){var d=document.createElement("div");d.className="combo";d.t
 function vib(p){try{if(navigator.userActivation&&!navigator.userActivation.hasBeenActive)return;if(navigator.vibrate)navigator.vibrate(p)}catch(e){}}
 var toastT=0;function toast(t){var el=document.getElementById("toast");el.textContent=t;el.classList.add("show");clearTimeout(toastT);toastT=setTimeout(function(){el.classList.remove("show")},1900)}
 function plain(h){var d=document.createElement("div");d.innerHTML=h;return d.textContent}
-function share(c){var ITX={lie:LIES,head:HEADS,guess:GUESS,spot:SPOT,emoji:EMO,top5:TOP5,eli:ELI,vlog:VLOG}[c.type],it0=ITX&&ITX[c.ref];
+function share(c){if(c.type==="tale"||c.type==="yt"){var t1=c.type==="tale"?TALE[c.ref].title+" (a storytime on Critical)":ytLink(c);if(navigator.share)navigator.share({title:"Critical",text:t1,url:c.type==="yt"?ytLink(c):undefined}).catch(function(){});else if(navigator.clipboard)navigator.clipboard.writeText(t1).then(function(){toast("Copied to clipboard")},function(){});return}
+  var ITX={lie:LIES,head:HEADS,guess:GUESS,spot:SPOT,emoji:EMO,top5:TOP5,eli:ELI,vlog:VLOG}[c.type],it0=ITX&&ITX[c.ref];
   if(it0){var t0=c.type==="lie"?"Two truths and a lie: "+it0.s.map(function(x){return x[0]}).join(" / "):c.type==="head"?"Real or fake? "+it0.h:c.type==="emoji"?"Emoji riddle: "+it0.e:(it0.q||it0.title||"");t0+=" (from Critical)";if(navigator.share){navigator.share({title:"Critical",text:t0}).catch(function(){})}else if(navigator.clipboard){navigator.clipboard.writeText(t0).then(function(){toast("Copied to clipboard")},function(){})}return}
   var txt=c.type==="chat"?CHAT[c.ref].title+": "+CHAT[c.ref].lesson:c.type==="meme"?memeText(MEME[c.ref]):c.type==="tier"?TIER[c.ref].title:c.type==="wyr"?"Would you rather "+WYR[c.ref].a+" or "+WYR[c.ref].b+"?":c.type==="edit"?c.def.title+" "+c.def.shots.map(function(s){return s.cap}).filter(Boolean).join(". "):c.type==="fact"?plain(c.hook)+" "+plain(c.body):plain(c.q||c.hook||"")+(c.opts?" "+c.opts.map(plain).join(" / "):"");
   txt+=" (from Critical)";
@@ -1030,7 +1178,7 @@ function share(c){var ITX={lie:LIES,head:HEADS,guess:GUESS,spot:SPOT,emoji:EMO,t
 
 /* ---------- sheet ---------- */
 var sheet=document.getElementById("sheet"),scrim=document.getElementById("scrim"),sheetIn=document.getElementById("sheetIn");
-function openSheet(h){sheetIn.innerHTML='<button class="close" data-x>Close</button>'+h;sheet.classList.add("show");scrim.classList.add("show")}
+function openSheet(h){sheetK=fbK;if(fbK&&fbK.c&&!/^(check|drop|ytdown)$/.test(fbK.c.type))h+='<div class="fbrow"><button class="sbtn ghost" data-fb="more">👍 More like this</button><button class="sbtn ghost" data-fb="less">🚫 Not interested</button></div>';sheetIn.innerHTML='<button class="close" data-x>Close</button>'+h;sheet.classList.add("show");scrim.classList.add("show")}
 function closeSheet(){sheet.classList.remove("show");scrim.classList.remove("show");setTab(stvOpen?"stories":mode)}
 scrim.addEventListener("click",closeSheet);
 sheet.addEventListener("click",function(e){if(e.target.closest("[data-x]"))closeSheet()});
@@ -1038,6 +1186,8 @@ var sy=null;sheet.addEventListener("touchstart",function(e){sy=sheet.scrollTop<=
 sheet.addEventListener("touchmove",function(e){if(sy!=null&&e.touches[0].clientY-sy>80){sy=null;closeSheet()}},{passive:true});
 var LEARN='<a class="go" href="critical.html">Learn this properly in Critical <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>';
 function explain(c,k){var h;
+  if(c.type==="tale"){var T0=TALE[c.ref];openSheet('<h3>'+esc(T0.title)+'</h3><p>'+esc(T0.text)+'</p><p><b>'+(T0.true?"✅ True story.":"📝 Made up.")+'</b> '+esc(T0.end)+'</p>');return}
+  if(c.type==="yt"){openSheet('<h3>'+esc(c.name||"YouTube")+'</h3><p>This is a real Short from YouTube, played with YouTube\'s own player. Tap the video for sound, tap again to pause.</p><p><a class="sbtn" style="background:#ff0033;color:#fff" href="'+ytLink(c)+'" target="_blank" rel="noopener">▶ Watch on YouTube</a> <button class="sbtn ghost" data-yt>📺 Add your own Shorts</button></p>');return}
   var X={lie:LIES,head:HEADS,guess:GUESS,spot:SPOT,emoji:EMO}[c.type];if(X&&X[c.ref]){var it=X[c.ref];openSheet('<h3>'+esc(it.q||it.title||it.h||"The answer")+'</h3><p>'+esc(it.ex)+'</p>'+LEARN);return}
   if(c.type==="top5"){var P5=TOP5[c.ref];openSheet('<h3>'+esc(P5.title)+'</h3>'+P5.items.map(function(x,j){return'<p><b>#'+(5-j)+' '+x[0]+' '+esc(x[1])+'</b><br>'+esc(x[2])+'</p>'}).reverse().join("")+LEARN);return}
   if(c.type==="eli"){var E3=ELI[c.ref];openSheet('<h3>'+esc(E3.q)+'</h3>'+E3.lv.map(function(x,j){return'<p><b>'+["🧸 Like I'm 5","📘 GCSE","🎓 Physicist"][j]+'</b><br>'+esc(x)+'</p>'}).join("")+LEARN);return}
@@ -1056,26 +1206,35 @@ function explain(c,k){var h;
   openSheet(h)}
 
 /* ---------- tabs: saved, progress ---------- */
-var tFeed=document.getElementById("tFeed"),tSaved=document.getElementById("tSaved"),tEdits=document.getElementById("tEdits"),tStories=document.getElementById("tStories");
-function setTab(t){tEdits.setAttribute("aria-selected",t==="edits");tFeed.setAttribute("aria-selected",t==="feed");tStories.setAttribute("aria-selected",t==="stories");tSaved.setAttribute("aria-selected",t==="saved")}
+var tShorts=document.getElementById("tShorts"),tFeed=document.getElementById("tFeed"),tSaved=document.getElementById("tSaved"),tEdits=document.getElementById("tEdits"),tStories=document.getElementById("tStories");
+function setTab(t){tEdits.setAttribute("aria-selected",t==="edits");tShorts.setAttribute("aria-selected",t==="shorts");tFeed.setAttribute("aria-selected",t==="feed");tStories.setAttribute("aria-selected",t==="stories");tSaved.setAttribute("aria-selected",t==="saved")}
 function setMode(m){if(m===mode){closeSheet();return}mode=m;closeSheet();
-  var p=cards[active];if(p){if(p.el._ed)p.el._ed.stop();if(p.el._sim&&p.el._sim.stop)p.el._sim.stop()}
+  var p=cards[active];if(p){if(p.el._ed)p.el._ed.stop();if(p.el._sim&&p.el._sim.stop)p.el._sim.stop();if(p.el._pl&&p.el._pl.stop)p.el._pl.stop()}
+  cards.forEach(function(kk){if(kk.c.type==="yt"&&kk.el._pl)kk.el._pl.destroy()});
   feed.innerHTML="";cards=[];active=-1;retry=[];sess.since=0;feed.scrollTop=0;for(var i=0;i<4;i++)add(makeNext());setActive(0);setTab(m)}
-tFeed.onclick=function(){hideStories();setMode("feed");setTab(mode)};tEdits.onclick=function(){hideStories();setMode("edits");setTab(mode)};tStories.onclick=function(){showStories()};
+tFeed.onclick=function(){hideStories();setMode("feed");setTab(mode)};tShorts.onclick=function(){hideStories();setMode("shorts");setTab(mode)};tEdits.onclick=function(){hideStories();setMode("edits");setTab(mode)};tStories.onclick=function(){showStories()};
 tSaved.onclick=function(){setTab("saved");
   var h='<h3>Saved</h3>';
   if(!S.saved.length)h+='<p>Nothing saved yet. Tap the bookmark on any card to keep it here.</p>';
   else h+='<p>'+S.saved.length+' saved. Tap one to see it again.</p><div class="savedList">'+S.saved.map(function(s,i){var c=s.c,t=TOP[c.topic]||TOP.reactor;
-    return '<button class="si" data-sv="'+i+'"><span class="g">'+(c.glyph||(c.type==="chat"&&CHAT[c.ref]?chatAv(CHAT[c.ref]).slice(0,2):c.type==="meme"?"😂":c.type==="tier"?"🏆":c.type==="wyr"?"🤔":({lie:"🕵️",head:"📰",guess:"🎯",spot:"🔍",build:"🛠️",geiger:"📟",vlog:"📱",top5:"🔢",eli:"🧠",emoji:"🧩"})[c.type]||t.g))+'</span><div><b>'+(c.hook||c.q||esc(c.title||(c.type==="chat"&&CHAT[c.ref]?CHAT[c.ref].title:c.type==="tier"&&TIER[c.ref]?TIER[c.ref].title:c.type==="wyr"&&WYR[c.ref]?"Would you rather: "+WYR[c.ref].a:c.type==="lie"&&LIES[c.ref]?"Two truths and a lie":c.type==="head"&&HEADS[c.ref]?HEADS[c.ref].h:c.type==="guess"&&GUESS[c.ref]?GUESS[c.ref].q:c.type==="spot"&&SPOT[c.ref]?"Spot the mistake: "+SPOT[c.ref].title:c.type==="top5"&&TOP5[c.ref]?TOP5[c.ref].title:c.type==="eli"&&ELI[c.ref]?ELI[c.ref].q:c.type==="emoji"&&EMO[c.ref]?"Emoji riddle "+EMO[c.ref].e:c.type==="vlog"&&VLOG[c.ref]?VLOG[c.ref].title:c.type==="build"?"Build a reactor":c.type==="geiger"?"Geiger counter":c.type==="meme"&&MEME[c.ref]?memeText(MEME[c.ref]).slice(0,70):"")))+'</b><small>'+t.n+' · '+(c.type==="fact"?"Fact":c.type==="sim"?"Try it":c.type==="edit"?"Edit":c.type==="story"?"Story":c.type==="chat"?"Text story":c.type==="meme"?"Meme":c.type==="tier"?"Tier list":c.type==="wyr"?"Would you rather":({lie:"Two truths and a lie",head:"Real or fake",guess:"Guess the number",spot:"Spot the mistake",build:"Build a reactor",geiger:"Geiger counter",vlog:"Day in the life",top5:"Top 5",eli:"Explain it 3 ways",emoji:"Emoji riddle"})[c.type]||"Quiz")+'</small></div></button>'}).join("")+'</div>';
+    return '<button class="si" data-sv="'+i+'"><span class="g">'+(c.glyph||(c.type==="chat"&&CHAT[c.ref]?chatAv(CHAT[c.ref]).slice(0,2):c.type==="meme"?"😂":c.type==="tier"?"🏆":c.type==="wyr"?"🤔":({lie:"🕵️",head:"📰",guess:"🎯",spot:"🔍",build:"🛠️",geiger:"📟",vlog:"📱",top5:"🔢",eli:"🧠",emoji:"🧩",tale:"🎮",yt:"▶️"})[c.type]||t.g))+'</span><div><b>'+(c.hook||c.q||esc(c.title||(c.type==="chat"&&CHAT[c.ref]?CHAT[c.ref].title:c.type==="tier"&&TIER[c.ref]?TIER[c.ref].title:c.type==="wyr"&&WYR[c.ref]?"Would you rather: "+WYR[c.ref].a:c.type==="lie"&&LIES[c.ref]?"Two truths and a lie":c.type==="head"&&HEADS[c.ref]?HEADS[c.ref].h:c.type==="guess"&&GUESS[c.ref]?GUESS[c.ref].q:c.type==="spot"&&SPOT[c.ref]?"Spot the mistake: "+SPOT[c.ref].title:c.type==="top5"&&TOP5[c.ref]?TOP5[c.ref].title:c.type==="eli"&&ELI[c.ref]?ELI[c.ref].q:c.type==="emoji"&&EMO[c.ref]?"Emoji riddle "+EMO[c.ref].e:c.type==="vlog"&&VLOG[c.ref]?VLOG[c.ref].title:c.type==="build"?"Build a reactor":c.type==="tale"&&TALE[c.ref]?TALE[c.ref].title:c.type==="yt"?(c.name||"YouTube")+" Short":c.type==="geiger"?"Geiger counter":c.type==="meme"&&MEME[c.ref]?memeText(MEME[c.ref]).slice(0,70):"")))+'</b><small>'+t.n+' · '+(c.type==="fact"?"Fact":c.type==="sim"?"Try it":c.type==="edit"?"Edit":c.type==="story"?"Story":c.type==="chat"?"Text story":c.type==="meme"?"Meme":c.type==="tier"?"Tier list":c.type==="wyr"?"Would you rather":({lie:"Two truths and a lie",head:"Real or fake",guess:"Guess the number",spot:"Spot the mistake",build:"Build a reactor",geiger:"Geiger counter",vlog:"Day in the life",top5:"Top 5",eli:"Explain it 3 ways",emoji:"Emoji riddle",tale:"Storytime",yt:"YouTube"})[c.type]||"Quiz")+'</small></div></button>'}).join("")+'</div>';
   openSheet(h)};
-sheetIn.addEventListener("click",function(e){if(e.target.closest("[data-music]")){openMusic();return}if(e.target.closest("[data-beat]")){openBeat();return}var vt=e.target.closest("[data-vtog]");if(vt){setVoice(S.voice===false);vt.textContent=S.voice!==false?"🗣️ Voices: on":"🤐 Voices: off";if(S.voice!==false){vUnlock();say("Voices are on.","narr")}return}var s=e.target.closest("[data-sv]");if(s){var c=JSON.parse(JSON.stringify(S.saved[+s.dataset.sv].c));if(c.type==="quiz")c=mkQuiz(c.topic,c.q,[c.opts[c.ans]].concat(c.opts.filter(function(_,k){return k!==c.ans})),c.ex,c.id,c.label);insertNext(c);closeSheet();return}
+sheetIn.addEventListener("click",function(e){if(e.target.closest("[data-music]")){openMusic();return}
+  if(e.target.closest("[data-yt]")){openYT();return}
+  var fb=e.target.closest("[data-fb]");if(fb&&sheetK){var more=fb.dataset.fb==="more",fk=sheetK;algoLearn(fk,more?1.8:-2.5);if(!more&&fk.c.type==="yt"&&fk.c.ch)aPush("c",fk.c.ch,-2.5,.3);closeSheet();refreshAhead();
+    toast(more?"👍 Got it. More like this coming up":"🚫 Got it. You'll see less like this");if(!more&&fk===cards[active])setTimeout(function(){goTo(active+1)},250);return}
+  if(e.target.closest("[data-algo]")){openAlgo();return}
+  if(e.target.closest("[data-areset]")){S.algo={k:{},t:{},c:{},n:0,mig:1};save();refreshAhead();toast("↺ Algorithm reset");openAlgo();return}if(e.target.closest("[data-ytadd]")){ytAdd();return}
+  var yd=e.target.closest("[data-ytdel]");if(yd){var pr=yd.dataset.ytdel.split(":");if(pr[0]==="v")S.yt.v=S.yt.v.filter(function(v){return v!==pr[1]});else S.yt.ch=S.yt.ch.filter(function(x){return x.ch!==pr[1]});save();openYT();return}
+  if(e.target.closest("[data-ytretry]")){S.ytBad={};ytDown=0;save();toast("OK, they'll get another go");openYT();return}
+  if(e.target.closest("[data-ytoff]")){S.ytOff=!S.ytOff;save();refreshAhead();toast(S.ytOff?"YouTube hidden from your feed":"YouTube is back in your feed");openYT();return}if(e.target.closest("[data-beat]")){openBeat();return}var vt=e.target.closest("[data-vtog]");if(vt){setVoice(S.voice===false);vt.textContent=S.voice!==false?"🗣️ Voices: on":"🤐 Voices: off";if(S.voice!==false){vUnlock();say("Voices are on.","narr")}return}var s=e.target.closest("[data-sv]");if(s){var c=JSON.parse(JSON.stringify(S.saved[+s.dataset.sv].c));if(c.type==="quiz")c=mkQuiz(c.topic,c.q,[c.opts[c.ans]].concat(c.opts.filter(function(_,k){return k!==c.ans})),c.ex,c.id,c.label);insertNext(c);closeSheet();return}
   var tp=e.target.closest("[data-tp]");if(tp){var key=tp.dataset.tp;if(S.off[key])delete S.off[key];else{if(TK.filter(function(k){return!S.off[k]}).length<=1){toast("Keep at least one topic on");return}S.off[key]=1}
     tp.setAttribute("aria-pressed",!S.off[key]);save();refreshAhead()}});
 function insertNext(c){var at=active+1,el=build(c),k={c:c,el:el,t:0,dwell:0};feed.insertBefore(el,cards[at]?cards[at].el:null);cards.splice(at,0,k);setTimeout(function(){goTo(at)},60)}
 function refreshAhead(){ /* rebuild cards the user hasn't reached yet so topic changes apply */
-  for(var i=cards.length-1;i>active+1;i--){cards[i].el.remove();cards.splice(i,1)}ensure()}
+  for(var i=cards.length-1;i>active+1;i--){if(cards[i].el._pl&&cards[i].el._pl.destroy)cards[i].el._pl.destroy();cards[i].el.remove();cards.splice(i,1)}ensure()}
 document.getElementById("xpBtn").onclick=function(){var d=today(),acc=sess.q?Math.round(sess.ok/sess.q*100):null;
-  readSP();openSheet('<h3>Today</h3>'+spBlock()+'<p style="margin:10px 0 0;display:flex;gap:8px;flex-wrap:wrap"><button class="sbtn" data-music style="background:#a06bff;color:#fff">🎵 Edit music</button><button class="sbtn" data-beat style="background:#ff3b5c;color:#fff">📵 Beat TikTok</button><button class="sbtn ghost" data-vtog>'+(S.voice!==false?"🗣️ Voices: on":"🤐 Voices: off")+'</button></p>'+'<p style="font-size:14px;margin-top:10px">Everything you earn in Chain is doubled and goes straight onto your Critical XP: your streak, daily goal and season pass. All 3 sound packs are on this month\'s pass, at 1,850, 4,000 and 4,250 points.</p><div class="stats" style="margin-bottom:14px"><div class="st"><b>'+d.n+'/'+GOAL+'</b><span>cards today</span></div><div class="st"><b>'+streak()+'</b><span>day streak</span></div><div class="st"><b>'+(d.xp*XPM).toLocaleString("en-GB")+'</b><span>XP today</span></div><div class="st"><b>'+(d.q?Math.round(d.ok/d.q*100)+"%":"–")+'</b><span>quiz accuracy</span></div></div>'+
+  readSP();openSheet('<h3>Today</h3>'+spBlock()+'<p style="margin:10px 0 0;display:flex;gap:8px;flex-wrap:wrap"><button class="sbtn" data-music style="background:#a06bff;color:#fff">🎵 Edit music</button><button class="sbtn" data-beat style="background:#ff3b5c;color:#fff">📵 Beat TikTok</button><button class="sbtn" data-yt style="background:#ff0033;color:#fff">📺 YouTube Shorts</button><button class="sbtn" data-algo style="background:#3ad4ff;color:#04121a">🧠 Your algorithm</button><button class="sbtn" data-ppass style="background:#fe2c55;color:#fff">🎟️ Scroll pass · '+syncWallet().toLocaleString("en-GB")+' XP</button><button class="sbtn ghost" data-vtog>'+(S.voice!==false?"🗣️ Voices: on":"🤐 Voices: off")+'</button></p>'+'<p style="font-size:14px;margin-top:10px">Everything you earn in Chain is doubled and goes straight onto your Critical XP: your streak, daily goal and season pass. All 3 sound packs are on this month\'s pass, at 1,850, 4,000 and 4,250 points.</p><div class="stats" style="margin-bottom:14px"><div class="st"><b>'+d.n+'/'+GOAL+'</b><span>cards today</span></div><div class="st"><b>'+streak()+'</b><span>day streak</span></div><div class="st"><b>'+(d.xp*XPM).toLocaleString("en-GB")+'</b><span>XP today</span></div><div class="st"><b>'+(d.q?Math.round(d.ok/d.q*100)+"%":"–")+'</b><span>quiz accuracy</span></div></div>'+
   '<h3>Your feed</h3><p>Tap a topic to turn it off or on. Liking cards and taking your time on them also teaches the feed what you like.</p><div class="topics">'+TK.map(function(k){return '<button class="tp" data-tp="'+k+'" aria-pressed="'+!S.off[k]+'">'+TOP[k].g+' '+TOP[k].n+'</button>'}).join("")+'</div>'+
   '<p style="font-size:14px">Total from Chain: '+S.xp.toLocaleString("en-GB")+' XP · '+Object.keys(S.liked).length+' liked · '+S.saved.length+' saved</p>')};
 
@@ -1128,14 +1287,15 @@ function endCount(so){return Object.keys(so.nodes).filter(function(k){return so.
 /* the app frame must never scroll (focusing a button near the edge could nudge it) */
 var APP=document.getElementById("app");APP.addEventListener("scroll",function(){if(APP.scrollTop||APP.scrollLeft){APP.scrollTop=0;APP.scrollLeft=0}});
 var stvOpen=false,stv=document.getElementById("stv"),sto=document.getElementById("sto"),PL={};
-function pauseFeed(){var k=cards[active];if(k){if(k.el._ed)k.el._ed.stop();if(k.el._sim&&k.el._sim.stop)k.el._sim.stop()}}
-function resumeFeed(){var k=cards[active];if(k&&k.el._ed&&!stvOpen&&sto.hidden)k.el._ed.start()}
+function pauseFeed(){var k=cards[active];if(k){if(k.el._ed)k.el._ed.stop();if(k.el._sim&&k.el._sim.stop)k.el._sim.stop();if((k.c.type==="tale"||k.c.type==="yt")&&k.el._pl)k.el._pl.stop()}}
+function resumeFeed(){var k=cards[active];if(!k||stvOpen||!sto.hidden)return;if(k.el._ed)k.el._ed.start();if((k.c.type==="tale"||k.c.type==="yt")&&k.el._pl&&k.el._pl.resume)k.el._pl.resume()}
 function showStories(){stvOpen=true;closeSheet();pauseFeed();hint(false);
-  stv.innerHTML='<h2>Interactive stories</h2><p>You make the calls. Every choice changes what happens next. Find every ending.</p><div class="stgrid">'+STORIES.slice().sort(function(a,b){return(stInfo(a.id).n?1:0)-(stInfo(b.id).n?1:0)}).map(function(so){var inf=stInfo(so.id),f=Object.keys(inf.e).length,n=endCount(so);
+  var TL=window.CHAIN_TALES||[];
+  stv.innerHTML=(TL.length?'<h2>🎮 Storytimes</h2><p>Wild true stories and funny made-up ones, told over gameplay.</p><div class="tlrow">'+TL.map(function(x){return'<button class="tltile th'+(x.theme%4)+'" data-tl="'+x.id+'"><span class="tlk">'+(x.true?"TRUE STORY":"STORYTIME")+'</span><b>'+esc(x.title)+'</b>'+(S.seen[x.id]?'<span class="tlw">✓ watched</span>':'')+'</button>'}).join("")+'</div>':'')+'<h2>Interactive stories</h2><p>You make the calls. Every choice changes what happens next. Find every ending.</p><div class="stgrid">'+STORIES.slice().sort(function(a,b){return(stInfo(a.id).n?1:0)-(stInfo(b.id).n?1:0)}).map(function(so){var inf=stInfo(so.id),f=Object.keys(inf.e).length,n=endCount(so);
     return '<button class="sttile'+(f===n?" done":"")+'" data-st="'+so.id+'"><span class="tk'+(so.kind==="Story"?" story":so.kind==="Funny"?" funny":"")+'">'+(so.kind==="Story"?"Story":so.kind==="Funny"?"Comedy":"Emergency")+'</span><span class="ti">'+so.icon+'</span><b>'+esc(so.title)+'</b><small>'+esc(so.blurb)+'</small><span class="tf">'+(f===n?"🏆 ":"")+f+' / '+n+' endings</span></button>'}).join("")+'</div>';
   stv.hidden=false;setTab("stories")}
 function hideStories(){if(!stvOpen)return;stvOpen=false;stv.hidden=true;resumeFeed()}
-stv.addEventListener("click",function(e){var b=e.target.closest("[data-st]");if(b)playStory(b.dataset.st)});
+stv.addEventListener("click",function(e){var tl=e.target.closest("[data-tl]");if(tl){var x=TALE[tl.dataset.tl];hideStories();setTab(mode);insertNext({type:"tale",topic:x.topic,id:x.id,ref:x.id});return}var b=e.target.closest("[data-st]");if(b)playStory(b.dataset.st)});
 function playStory(id){var so=STORY[id];if(!so)return;pauseFeed();PL={s:so,risk:10,path:0};document.getElementById("stt").textContent=so.icon+" "+so.title;sto.hidden=false;paintRisk();stGo(so.start);vib(10)}
 function stClear(){clearInterval(PL.ty);clearInterval(PL.beep);cancelAnimationFrame(PL.tr);PL.ty=PL.beep=PL.tr=0;PL.vr=(PL.vr||0)+1;hush()}
 var CASTN={steve:"Big Steve",priya:"Priya",mum:"Mum",mc:"Mission Control"};
@@ -1261,14 +1421,14 @@ PLAYERS.wyr=function(el,k){var W=WYR[k.c.ref],box=el.querySelector(".wyr"),T=0;
   return{start:function(){clearTimeout(T);if(!box.classList.contains("done"))T=setTimeout(function(){if(cards[active]===k)say("Would you rather "+W.a+", or "+W.b+"?","hype")},700)},stop:function(){clearTimeout(T);hush()}}};
 
 /* ---------- picking the next card: a weighted shuffle that never repeats a format back to back ---------- */
-var KW_FEED={edit:20,chat:10,meme:9,wyr:5,tier:3,game:7,story:3,quiz:6,tf:2,gen:4,fact:3,lie:6,head:5,guess:5,spot:4,build:2,geiger:2,vlog:3,top5:4,eli:3,emoji:5},
-  KW_EDITS={edit:66,chat:6,meme:5,game:4,wyr:3,tier:2,story:2,quiz:1,gen:1,lie:3,head:3,guess:2,emoji:2,top5:2,vlog:1};
+var KW_FEED={yt:20,tale:12,edit:20,chat:10,meme:9,wyr:5,tier:3,game:7,story:3,quiz:6,tf:2,gen:4,fact:3,lie:6,head:5,guess:5,spot:4,build:2,geiger:2,vlog:3,top5:4,eli:3,emoji:5},
+  KW_EDITS={yt:14,tale:6,edit:60,chat:6,meme:5,game:4,wyr:3,tier:2,story:2,quiz:1,gen:1,lie:3,head:3,guess:2,emoji:2,top5:2,vlog:1};
 function kindOf(c){if(!c)return null;var t=c.type;return t==="sim"?"game":t==="quiz"&&c.label?"gen":t}
 function pickItem(list,type){var recent={};cards.slice(-60).forEach(function(k){recent[k.c.id]=1});var c=list.filter(function(x){return!S.off[x.topic]&&!recent[x.id]});if(!c.length)c=list.filter(function(x){return!recent[x.id]});if(!c.length)return null;
-  var mn=Infinity;c.forEach(function(x){mn=Math.min(mn,S.seen[x.id]||0)});var x=pick(c.filter(function(y){return(S.seen[y.id]||0)===mn}));return{type:type,topic:x.topic,id:x.id,ref:x.id}}
+  var mn=Infinity;c.forEach(function(x){mn=Math.min(mn,S.seen[x.id]||0)});var x=wPickArr(c,function(y){return aW(aGet("t",y.topic))*Math.pow(.3,(S.seen[y.id]||0)-mn)});return{type:type,topic:x.topic,id:x.id,ref:x.id}}
 function pickGame(){for(var tries=0;tries<6;tries++){var s=SIMLIST[SIMORD[simI++%SIMORD.length]],o={type:"sim",topic:s.topic,sim:s.sim,hook:s.hook,body:s.body,id:"sim-"+s.sim};if(s.mk){var m=s.mk();for(var mk in m)o[mk]=m[mk];o.id="sim-"+s.sim+"-"+m.v}if(!S.off[o.topic])return o}return null}
 function pickStoryCard(){if(!STORIES.length)return null;var sl=STORIES.filter(function(x){return!S.off[x.topic]});if(!sl.length)sl=STORIES;var recent={};cards.slice(-30).forEach(function(k){recent[k.c.id]=1});var s2=sl.filter(function(x){return!recent["story-"+x.id]});if(!s2.length)return null;var mn=Infinity;s2.forEach(function(x){mn=Math.min(mn,stInfo(x.id).n)});var pk=pick(s2.filter(function(x){return stInfo(x.id).n===mn}));return{type:"story",topic:pk.topic,sid:pk.id,id:"story-"+pk.id,title:pk.title}}
-function makeKind(k){if(k==="edit")return pickEdit();if(k==="chat")return pickItem(window.CHAIN_CHATS||[],"chat");if(k==="meme")return pickItem(window.CHAIN_MEMES||[],"meme");if(k==="tier")return pickItem(window.CHAIN_TIERS||[],"tier");if(k==="wyr")return pickItem(window.CHAIN_WYR||[],"wyr");
+function makeKind(k){if(k==="edit")return pickEdit();if(k==="yt")return pickYT();if(k==="tale")return pickItem(window.CHAIN_TALES||[],"tale");if(k==="chat")return pickItem(window.CHAIN_CHATS||[],"chat");if(k==="meme")return pickItem(window.CHAIN_MEMES||[],"meme");if(k==="tier")return pickItem(window.CHAIN_TIERS||[],"tier");if(k==="wyr")return pickItem(window.CHAIN_WYR||[],"wyr");
   if(k==="lie")return pickItem(window.CHAIN_LIES||[],"lie");if(k==="head")return pickItem(window.CHAIN_HEADS||[],"head");if(k==="guess")return pickItem(window.CHAIN_GUESS||[],"guess");if(k==="spot")return pickItem(window.CHAIN_SPOT||[],"spot");
   if(k==="top5")return pickItem(window.CHAIN_TOP5||[],"top5");if(k==="eli")return pickItem(window.CHAIN_ELI||[],"eli");if(k==="emoji")return pickItem(window.CHAIN_EMOJI||[],"emoji");if(k==="vlog")return pickItem(window.CHAIN_VLOGS||[],"vlog");
   if(k==="build")return pickItem(BUILD_ITEM,"build");if(k==="geiger")return pickItem(GEIGER_ITEM,"geiger");
@@ -1404,15 +1564,261 @@ function openBeat(){var w=weekSwaps(),tot=S.swaps.length;
    '<p>The trick isn’t willpower. It’s making TikTok slightly harder to open on autopilot, and putting something better in its place.</p>'+
    '<p><b>iPhone: make TikTok open Chain instead</b><br>1. Open the <b>Shortcuts</b> app → <b>Automation</b> → <b>+</b><br>2. Choose <b>App</b>, pick <b>TikTok</b>, tick <b>Is Opened</b>, choose <b>Run Immediately</b><br>3. Add the action <b>Open URLs</b> and paste your Chain link (button below)<br>4. Done. Now every time you open TikTok, Chain pops up, and it counts as a swap here.</p>'+
    '<p><button class="sbtn" data-copyswap>📋 Copy my Chain link</button></p>'+
+   '<p><b>Or earn your TikTok time</b><br>Spend XP on a scroll pass (5 minutes for 100 XP) and lock TikTok so it only opens while a pass is running.</p><p><button class="sbtn" data-ppass style="background:#fe2c55;color:#fff">🎟️ Scroll pass</button> <button class="sbtn ghost" data-psetup>🔒 Set up the lock</button></p>'+
    '<p><b>Set a limit that actually holds</b><br>iPhone: Settings → Screen Time → App Limits → TikTok → 30 minutes. Ask a parent to set the Screen Time passcode so you can’t just tap “ignore”.<br>Android: Settings → Digital Wellbeing → TikTok → App timer.</p>'+
    '<p><b>Small changes that help a lot</b><br>• Move TikTok off your home screen and put Chain where it was<br>• Turn TikTok notifications off<br>• Charge your phone outside your bedroom at night<br>• Try one TikTok-free day a week</p>'+
    '<p class="mnote">On your computer, the Critical Browser already blocks TikTok until your plan for the day is done.</p>')}
 sheetIn.addEventListener("click",function(e){if(e.target.closest("[data-copyswap]")){var l=swapLink();(navigator.clipboard?navigator.clipboard.writeText(l):Promise.reject()).then(function(){toast("📋 Copied. Paste it into Shortcuts")},function(){prompt("Copy this link:",l)})}});
-(function(){var q=location.search||"";if(/[?&]from=tiktok/.test(q)){S.swaps.push(Date.now());if(S.swaps.length>2000)S.swaps=S.swaps.slice(-2000);save();
+/* ---------- scroll pass: spend XP to unlock TikTok (or Instagram, YouTube) for a few minutes ----------
+   Every XP earned in Chain or Critical from the first day this is used goes into a wallet. It still counts for the
+   level and season pass as normal; buying a pass only empties the wallet. The lock itself is an iPhone Shortcuts
+   automation: tapping "Open TikTok" copies a pass code that ends at the right minute, and the automation lets TikTok
+   open only while that code is still valid (otherwise it sends you here). */
+var PASS_PRICES=[[5,100],[10,200],[15,300]],PASS_APPS=[["TikTok","https://www.tiktok.com/","#fe2c55"],["Instagram","https://www.instagram.com/","#d62976"],["YouTube","https://www.youtube.com/","#ff0033"]],passIv=0,passFrom=0;
+function dayTotals(){var st=J("critical_state"),h=(st&&st.hist)||{},ib=J(IBK),o={},d;for(d in h)o[d]=(o[d]||0)+(+h[d]||0);if(ib&&ib.days)for(d in ib.days)o[d]=(o[d]||0)+(+ib.days[d]||0);return o}
+if(!S.wallet)S.wallet={start:isoDay(),seen:{},bal:0,until:0,spent:0,buys:[]};
+/* add whatever has been earned since the last look (never takes anything away, so Critical moving Chain's XP across can't double count) */
+function syncWallet(){var w=S.wallet,t=dayTotals(),ch=false,d;for(d in t){if(d<w.start)continue;var v=Math.round(t[d]),sn=w.seen[d]||0;if(v>sn){w.bal+=v-sn;w.seen[d]=v;ch=true}}
+  var ks=Object.keys(w.seen).sort();while(ks.length>90){delete w.seen[ks.shift()];ch=true}if(ch)save();return w.bal}
+function walletEarn(n){var w=S.wallet,td=isoDay();if(!w||td<w.start)return;w.bal+=n;w.seen[td]=(w.seen[td]||0)+n}
+function passLeft(){return Math.max(0,(S.wallet.until||0)-Date.now())}
+function mmss(ms){var s=Math.ceil(ms/1000),m=Math.floor(s/60);s%=60;return m+":"+(s<10?"0":"")+s}
+function passToken(){var d=new Date(Math.ceil(S.wallet.until/60000)*60000),p=function(n){return(n<10?"0":"")+n};return"CHAINPASS "+d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+p(d.getHours())+p(d.getMinutes())}
+function openPass(from,ask){var bal=syncWallet(),left=passLeft(),xpN=(bal<0?"−":"")+Math.abs(bal).toLocaleString("en-GB");
+  var h='<h3>🎟️ Scroll pass</h3>'+(ask?'<p class="pfrom">🧾 Daily check: how long were you on TikTok yesterday? It\'s in Settings → Screen Time.</p>'+logHtml()+'<p><button class="sbtn ghost" data-logskip>Skip for today</button></p>':'')+(from?'<p class="pfrom">'+(left>0?'Your pass is still running. Tap below to go back.':'You opened TikTok. Spend XP on it, or stay here and earn some more?')+'</p>':'')+
+  '<div class="pwal"><div><small>XP to spend</small><b'+(bal<0?' class="neg"':'')+'>'+xpN+'</b></div><div><small>Pass time left</small><b id="pLeft">'+(left>0?mmss(left):"none")+'</b></div></div>';
+  if(left>0)h+='<div class="papps">'+PASS_APPS.map(function(a,i){return'<a class="sbtn" style="background:'+a[2]+';color:#fff" href="'+a[1]+'" target="_blank" rel="noopener" data-passgo>'+(i?"":"▶ ")+'Open '+a[0]+'</a>'}).join("")+'</div>';
+  h+='<p class="plab">'+(left>0?"Add more time":"Buy time")+'</p><div class="pbuy">'+PASS_PRICES.map(function(p){return'<button class="pb'+(bal>=p[1]?"":" no")+'" data-pbuy="'+p[0]+'"><b>'+p[0]+' min</b><span>'+p[1]+' XP</span></button>'}).join("")+'</div>'+
+  (bal<0?'<p class="pneed">You owe <b>'+(-bal)+' XP</b> for unpaid TikTok time. New XP pays it off first.</p>':bal<PASS_PRICES[0][1]?'<p class="pneed">'+(PASS_PRICES[0][1]-bal)+' more XP for 5 minutes. A few quizzes or a Critical lesson will do it.</p>':'')+
+  (from&&left<=0?'<p><button class="sbtn ghost" data-pstay>💪 Stay in Chain</button></p>':'')+
+  (ask?'':logHtml())+
+  '<p class="mnote">Every XP you earn in Chain or Critical goes into this wallet. It still counts for your level and season pass; spending only empties the wallet. Buying more time adds to what\'s left.</p>'+
+  '<p class="mnote">If you use Critical from a home-screen icon, iPhone keeps its data separate from Safari, so your XP may show up in only one of them. Buy the pass wherever your XP is: the code it copies works from either.</p>'+
+  '<p style="display:flex;gap:8px;flex-wrap:wrap"><button class="sbtn ghost" data-vault>🔐 Lock with Screen Time (no Shortcuts)</button><button class="sbtn ghost" data-psetup>🔒 Lock with Shortcuts</button></p>';
+  openSheet(h);clearInterval(passIv);passIv=setInterval(function(){if(!sheet.classList.contains("show")){clearInterval(passIv);return}var e=document.getElementById("pLeft");if(!e){clearInterval(passIv);return}var l=passLeft();e.textContent=l>0?mmss(l):"none";if(l<=0&&sheetIn.querySelector("[data-passgo]")){clearInterval(passIv);openPass()}},1000)}
+function buyPass(min){var bal=syncWallet(),cost=0;PASS_PRICES.forEach(function(p){if(p[0]===min)cost=p[1]});if(!cost)return;
+  if(bal<cost){toast("You need "+(cost-bal)+" more XP for that");vib([20,30,20]);return}
+  var w=S.wallet;w.bal-=cost;w.spent=(w.spent||0)+cost;w.until=Math.max(Date.now(),w.until||0)+min*60000;w.buys.push([Date.now(),min,cost]);w.buys=w.buys.slice(-300);
+  if(passFrom&&S.swaps.length&&S.swaps[S.swaps.length-1]===passFrom){S.swaps.pop();passFrom=0}
+  save();if(CE)CE.sfx("ok");vib(20);toast("🎟️ "+min+" minutes unlocked");openPass()}
+/* ---------- settle up: charge XP for TikTok time you didn't buy a pass for ----------
+   iPhone doesn't let websites read Screen Time, so you copy the minutes across from Settings. Anything over the
+   time you paid for (plus 2 free minutes a day) costs 20 XP a minute, the same rate as a pass. The wallet can go
+   below zero; new XP pays the debt off first. After the first log, Chain asks about yesterday once a day. */
+var LOG_FREE=2,LOG_RATE=20,logDay="t";
+function dayKey(ts){var d=new Date(ts),m=d.getMonth()+1,y=d.getDate();return d.getFullYear()+"-"+(m<10?"0":"")+m+"-"+(y<10?"0":"")+y}
+function logKey(){return dayKey(logDay==="y"?Date.now()-864e5:Date.now())}
+function paidMin(day){var t=0;(S.wallet.buys||[]).forEach(function(b){if(dayKey(b[0])===day)t+=b[1]});return t}
+function logTime(day,min){var w=S.wallet;w.logs=w.logs||{};var L=w.logs[day]||{min:0,xp:0},owe=Math.max(0,min-paidMin(day)-LOG_FREE)*LOG_RATE,diff=owe-L.xp;
+  w.bal-=diff;L.min=min;L.xp=owe;w.logs[day]=L;w.logOn=1;var ks=Object.keys(w.logs).sort();while(ks.length>60)delete w.logs[ks.shift()];save();return diff}
+function logHtml(){var w=S.wallet,L=w.logs||{},days=[];for(var i=0;i<7;i++){var d=dayKey(Date.now()-i*864e5);if(L[d])days.push([d,L[d]])}
+  return'<p class="plab">🧾 Log your TikTok time</p><p class="mnote">Forgot to buy a pass, or tapped “Remind Me in 15 Minutes” without paying? Go to <b>Settings → Screen Time</b>, tap the usage chart at the top (<b>See All App &amp; Website Activity</b>), find TikTok, and put in the minutes it shows. Anything you didn\'t pay for costs '+LOG_RATE+' XP a minute (the first '+LOG_FREE+' minutes a day are free).</p>'+
+  '<div class="lday"><button data-lday="t"'+(logDay==="t"?' class="on"':'')+'>Today</button><button data-lday="y"'+(logDay==="y"?' class="on"':'')+'>Yesterday</button></div>'+
+  '<div class="ytform"><input id="logMin" type="number" inputmode="numeric" min="0" max="1440" placeholder="Minutes on TikTok"><button class="sbtn" data-logsave style="background:#fe2c55;color:#fff">Log it</button></div><p class="mnote" id="logInfo">'+logInfo()+'</p>'+
+  (days.length?'<div class="llist">'+days.map(function(x){var paid=paidMin(x[0]);return'<div class="lrow"><span>'+(x[0]===dayKey(Date.now())?"Today":x[0]===dayKey(Date.now()-864e5)?"Yesterday":new Date(x[0]+"T12:00").toLocaleDateString("en-GB",{weekday:"short",day:"numeric"}))+'</span><span>'+x[1].min+' min</span><span>'+paid+' paid</span><span class="'+(x[1].xp?"lneg":"lok")+'">'+(x[1].xp?"−"+x[1].xp+" XP":"✓ paid")+'</span></div>'}).join("")+'</div>':'')}
+function logInfo(){var d=logKey(),L=(S.wallet.logs||{})[d];return(logDay==="y"?"Yesterday":"Today")+': paid for <b>'+paidMin(d)+' min</b>'+(L?' · logged <b>'+L.min+' min</b>'+(L.xp?' (charged '+L.xp+' XP)':''):'')}
+sheetIn.addEventListener("click",function(e){var b=e.target.closest("[data-lday]");if(b){logDay=b.dataset.lday;sheetIn.querySelectorAll("[data-lday]").forEach(function(x){x.classList.toggle("on",x===b)});var inf=document.getElementById("logInfo");if(inf)inf.innerHTML=logInfo();return}
+  if(e.target.closest("[data-logsave]")){var inp=document.getElementById("logMin"),v=Math.round(+((inp&&inp.value)||"")),day=logKey();if(!(v>=0&&v<=1440)||inp.value===""){toast("Type the minutes from Screen Time");return}
+    var diff=logTime(day,v),L=S.wallet.logs[day];syncWallet();
+    if(diff>0){toast("🧾 −"+diff+" XP for unpaid TikTok time");vib([20,40,20]);if(CE)CE.sfx("no")}else if(diff<0)toast("↩️ Fixed: "+(-diff)+" XP back");else toast(L.xp?"🧾 Already charged for that":"✅ All paid for. Nice one");
+    if(!L.xp&&v<=paidMin(day)+LOG_FREE&&CE)CE.sfx("ok");openPass(false);return}
+  if(e.target.closest("[data-logskip]")){closeSheet();return}});
+/* once a day, after the first log: ask about yesterday */
+(function(){var w=S.wallet,y=dayKey(Date.now()-864e5),t=dayKey(Date.now());if(!w.logOn||(w.logs||{})[y]||w.asked===t||/[?&]from=tiktok/.test(location.search))return;w.asked=t;save();
+  setTimeout(function(){if(sheet.classList.contains("show"))return;logDay="y";openPass(false,true)},1800)})();
+function openPassSetup(){openSheet('<h3>🔒 Lock TikTok behind your XP</h3>'+
+  '<p class="mnote">Can\'t use Shortcuts? <button class="sbtn ghost" data-vault>🔐 Use the Screen Time passcode vault instead</button></p>'+
+  '<p>A website can\'t block another app on its own, but an iPhone Shortcuts automation can. With this set up, TikTok sends you to Chain unless you have a pass running. (If you already made the simple “open Chain” automation from Beat TikTok, delete it and make this one instead.)</p>'+
+  '<p><b>1.</b> Copy your Chain link: <button class="sbtn" data-copyswap>📋 Copy link</button></p>'+
+  '<p><b>2.</b> Shortcuts app → <b>Automation</b> → <b>+</b> → <b>App</b> → choose <b>TikTok</b> (add Instagram or YouTube too if you like) → tick <b>Is Opened</b> → <b>Run Immediately</b> → <b>New Blank Automation</b>.</p>'+
+  '<p><b>3.</b> Add <b>Get Clipboard</b>.</p>'+
+  '<p><b>4.</b> Add <b>If</b>: <i>Clipboard</i> · <b>contains</b> · <code>CHAINPASS</code></p>'+
+  '<p><b>5.</b> Inside that If, add <b>Get Numbers from Input</b> and set its input to <i>Clipboard</i>.</p>'+
+  '<p><b>6.</b> Still inside, add <b>Format Date</b>: date <i>Current Date</i>, format <b>Custom</b>, <code>yyyyMMddHHmm</code></p>'+
+  '<p><b>7.</b> Still inside, add another <b>If</b>: <i>Numbers</i> · <b>is greater than</b> · <i>Formatted Date</i>. Leave its top part empty. Under its <b>Otherwise</b>, add <b>Open URLs</b> with your Chain link.</p>'+
+  '<p><b>8.</b> Under the first If\'s <b>Otherwise</b>, add <b>Open URLs</b> with your Chain link too.</p>'+
+  '<p>Now: no pass, and TikTok bounces you to Chain. Buy a pass, tap <b>Open TikTok</b> (that copies your pass code), and TikTok opens normally until the time runs out.</p>'+
+  '<p class="mnote">Honest limits: iPhone won\'t let anything close TikTok mid-scroll, so the lock kicks in the next time you open it after your time is up. Copying something else wipes the code: just tap Open TikTok in Chain again. For a hard daily cap as well, ask a parent to set a Screen Time limit on TikTok with their passcode. On Android there\'s no equivalent, so the pass is on your honour.</p>')}
+sheetIn.addEventListener("click",function(e){
+  if(e.target.closest("[data-passgo]")){try{if(navigator.clipboard)navigator.clipboard.writeText(passToken()).catch(function(){})}catch(x){}return}
+  var pb=e.target.closest("[data-pbuy]");if(pb){buyPass(+pb.dataset.pbuy);return}
+  if(e.target.closest("[data-psetup]")){openPassSetup();return}
+  if(e.target.closest("[data-ppass]")){openPass();return}
+  if(e.target.closest("[data-pstay]")){closeSheet();passFrom=0;var n=weekSwaps();setTimeout(function(){bigWin("💪","You chose Chain over TikTok","That’s swap #"+n+" this week. Every one breaks the habit a bit more.","<button class=\"sbtn\" data-wclose>Let’s go</button>")},200);return}});
+/* ---------- passcode vault: the XP lock without Shortcuts ----------
+   Screen Time gets a passcode that only Chain knows and TikTok gets a 1 minute daily limit. When the limit hits,
+   iPhone asks for the Screen Time passcode, and the only way to see it is to spend XP here. Afterwards Chain
+   offers a fresh code, so a code you've seen once stops working. */
+var VAULT_COST=300,VAULT_SHOW=10*60000;
+function vEnc(c){var k="crit",o="";for(var i=0;i<c.length;i++)o+=("0"+(c.charCodeAt(i)^k.charCodeAt(i%4)).toString(16)).slice(-2);return o}
+function vDec(h){if(!h)return"";var k="crit",o="";for(var i=0;i<h.length;i+=2)o+=String.fromCharCode(parseInt(h.substr(i,2),16)^k.charCodeAt((i/2)%4));return o}
+function vNew(){var c;do{var a=new Uint8Array(4);try{crypto.getRandomValues(a)}catch(e){for(var j=0;j<4;j++)a[j]=Math.random()*256}c=Array.prototype.map.call(a,function(x){return x%10}).join("")}
+  while(/^(\d)\1\1\1$/.test(c)||"0123456789".indexOf(c)>=0||"9876543210".indexOf(c)>=0||/^(19|20)\d\d$/.test(c));return c}
+function vBig(c,sm){return'<div class="vcode'+(sm?" sm":"")+'">'+c.split("").map(function(d){return"<i>"+d+"</i>"}).join("")+'</div>'}
+S.vault=S.vault||{on:false};
+function openVault(){var V=S.vault,bal=syncWallet(),h='<h3>🔐 Passcode vault</h3>';
+  if(!V.on){if(!V.pend)V.pend=vEnc(vNew());save();var code=vDec(V.pend);
+    h+='<p>No Shortcuts needed. You give <b>Screen Time</b> a passcode that only Chain knows, and TikTok gets a 1 minute daily limit. To get more time you spend XP here to see the passcode: <b>15 minutes for '+VAULT_COST+' XP</b>.</p>'+vBig(code)+
+    '<ol class="vsteps"><li>Open <b>Settings → Screen Time</b>. If it asks, turn on <b>App &amp; Website Activity</b>.</li>'+
+    '<li>Scroll down to just below <b>Content &amp; Privacy Restrictions</b> and tap <b>Lock Screen Time Settings</b> (on older iPhones <b>Use Screen Time Passcode</b>). Type the code above twice. If it asks for your Apple ID for recovery, add it: that\'s your way back in if Chain ever loses the code.</li>'+
+    '<li>Only if you set a Screen Time passcode before: you\'ll see <b>Change Screen Time Passcode</b> in the same place instead. Tap it, choose <b>Change Screen Time Passcode</b>, type your old code, then the code above.</li>'+
+    '<li>Nothing between Content &amp; Privacy Restrictions and Share Across Devices? Then your Screen Time is managed through Family Sharing and only a parent can set the passcode. See the options below.</li>'+
+    '<li>Go to <b>App Limits → Add Limit</b>, tick <b>TikTok</b> (and Instagram or YouTube if you want), add <b>tiktok.com</b> under Websites so Safari isn\'t a way round it, set <b>1 min</b>, turn on <b>Block at End of Limit</b>, tap <b>Add</b>.</li></ol>'+
+    '<p><button class="sbtn" data-vdone style="background:#1db954;color:#fff">✅ Done, hide the code</button></p>'+
+    '<p class="mnote">Don\'t write the code down, or the lock is pointless.</p>'+
+    '<p><b>No passcode option on your phone?</b></p><p class="mnote"><b>With a parent:</b> ask them to set a Screen Time passcode for you and add the 1 minute TikTok limit. When it runs out, tap <b>Ask For More Time</b> to send them a request, and send a screenshot of the time you bought in Scroll pass. They approve 15 minutes.<br><br><b>On your own:</b> still add the 1 minute App Limit (no passcode needed). When it runs out, only tap <b>Remind Me in 15 Minutes</b> after buying 15 minutes in Scroll pass. It\'s not a real lock, but every bit of TikTok becomes a choice you paid XP for.</p>';
+    openSheet(h);return}
+  var shown=V.shown&&Date.now()-V.shown<VAULT_SHOW;
+  h+='<div class="pwal"><div><small>XP to spend</small><b>'+bal.toLocaleString("en-GB")+'</b></div><div><small>Unlocks</small><b>15 min</b></div></div>';
+  if(shown){h+='<p class="plab">Your Screen Time passcode</p>'+vBig(vDec(V.code))+'<p>Type it in, then choose <b>Approve for 15 Minutes</b>.</p>';
+    if(V.next)h+='<div class="vrot"><p><b>Then lock it again with a new code</b>, so this one stops working:<br>Settings → Screen Time → scroll down to <b>Change Screen Time Passcode</b> → <b>Change Screen Time Passcode</b> again → type the code above → then the new one twice:</p>'+vBig(vDec(V.next),1)+'<p><button class="sbtn" data-vrot style="background:#1db954;color:#fff">I changed it</button> <button class="sbtn ghost" data-vkeep>Keep the old code</button></p></div>'}
+  else h+='<p>When TikTok hits its limit, tap <b>Ask For More Time → Enter Screen Time Passcode</b>, then come here.</p><button class="pb vbuy'+(bal>=VAULT_COST?"":" no")+'" data-vbuy><b>🔓 Show the passcode</b><span>'+VAULT_COST+' XP · 15 minutes</span></button>'+
+    (bal<VAULT_COST?'<p class="pneed">'+(VAULT_COST-bal)+' more XP needed. A few quizzes or a Critical lesson will do it.</p>':'');
+  h+='<p><button class="sbtn ghost" data-vhelp>Code not working?</button></p><div id="vhelp" hidden><p class="mnote">If you tapped “I changed it” without actually changing it, Screen Time still has your previous code: <b>'+(V.prev?vDec(V.prev):"(none yet)")+'</b>. Still stuck? On the passcode screen tap <b>Forgot Passcode?</b> and use your Apple ID.</p></div>';
+  openSheet(h)}
+sheetIn.addEventListener("click",function(e){var V=S.vault;
+  if(e.target.closest("[data-vault]")){openVault();return}
+  if(e.target.closest("[data-vdone]")){V.code=V.pend;delete V.pend;V.on=true;V.since=Date.now();save();toast("🔐 Vault locked. Only XP opens it now");openVault();return}
+  if(e.target.closest("[data-vbuy]")){var bal=syncWallet();if(bal<VAULT_COST){toast("You need "+(VAULT_COST-bal)+" more XP");vib([20,30,20]);return}
+    var w=S.wallet;w.bal-=VAULT_COST;w.spent=(w.spent||0)+VAULT_COST;w.buys.push([Date.now(),15,VAULT_COST,"vault"]);w.buys=w.buys.slice(-300);V.shown=Date.now();V.next=vEnc(vNew());save();if(CE)CE.sfx("ok");vib(20);openVault();return}
+  if(e.target.closest("[data-vrot]")){V.prev=V.code;V.code=V.next;delete V.next;V.shown=0;save();toast("🔐 Locked with the new code");openVault();return}
+  if(e.target.closest("[data-vkeep]")){delete V.next;save();openVault();return}
+  if(e.target.closest("[data-vhelp]")){var hp=document.getElementById("vhelp");if(hp)hp.hidden=!hp.hidden;return}});
+(function(){var q=location.search||"";if(/[?&]from=tiktok/.test(q)){passFrom=Date.now();S.swaps.push(passFrom);if(S.swaps.length>2000)S.swaps=S.swaps.slice(-2000);save();
   try{history.replaceState(null,"",location.pathname+location.hash)}catch(e){}
-  var n=weekSwaps();setTimeout(function(){bigWin("💪","You chose Chain over TikTok","That’s swap #"+n+" this week. Every one breaks the habit a bit more.","<button class=\"sbtn\" data-wclose>Let’s go</button>")},700)}})();
+  setTimeout(function(){openPass(true)},700)}})();
 /* ---------- checkpoint ---------- */
 function mins(ms){var m=Math.round(ms/60000);return m<1?"under a minute":m===1?"1 minute":m+" minutes"}
+/* ---------- storytimes told over original 3D gameplay ---------- */
+var TALE={};(window.CHAIN_TALES||[]).forEach(function(x){TALE[x.id]=x});
+var POSTER={},threeP=null,PLAYSVG='<svg viewBox="0 0 24 24" fill="#fff"><path d="M7 4.5v15l13-7.5z"/></svg>';
+function addJs(src){return new Promise(function(ok,no){var s=document.createElement("script");s.src=src;s.async=true;s.onload=ok;s.onerror=no;document.head.appendChild(s)})}
+function loadThree(){if(threeP)return threeP;
+  threeP=(window.THREE?Promise.resolve():addJs("vendor/three.min.js")).then(function(){return window.ChainRun?0:addJs("chain-run.js")}).then(function(){
+    if(!window.ChainRun||!window.THREE)throw 0;
+    if(ChainRun.snap)for(var i=0;i<ChainRun.themes;i++)if(!POSTER[i])POSTER[i]=ChainRun.snap(i,270,480);
+    cards.forEach(function(k){if(k.c.type==="tale")talePoster(k.el)})});
+  threeP.catch(function(){threeP=null});return threeP}
+function talePoster(el){var p=POSTER[+el.dataset.th];if(p)el.querySelector(".tgame").style.backgroundImage="url("+p+")"}
+function fmtK(n){return n>=1000?(Math.round(n/100)/10)+"k":String(Math.round(n))}
+function taleHtml(c){var T=TALE[c.ref],up=parseFloat(T.up)*(/k/.test(T.up)?1000:1);
+  return '<div class="tgame"></div><div class="tvig"></div>'+
+  '<div class="tpost"><div class="tph"><span class="tsi">'+(T.true?"📜":"💬")+'</span><div><b>'+esc(T.sub)+'</b><small>'+esc(T.user)+' · '+(T.true?"true story":"storytime")+'</small></div></div><h3>'+esc(T.title)+'</h3><div class="tpf"><span>⬆ '+esc(T.up)+'</span><span>💬 '+fmtK(up*.031)+'</span><span>↗ Share</span></div></div>'+
+  '<div class="tcap"></div><div class="tcoin"><i></i><b>0</b></div><div class="eplay" aria-hidden="true">'+PLAYSVG+'</div><button class="snd" data-act="snd"></button>'+
+  '<div class="tend" hidden><div class="tek'+(T.true?" tru":"")+'">'+(T.true?"✅ True story":"📝 Made-up story")+'</div><p>'+esc(T.end)+'</p><div class="teb"><button class="sbtn" data-act="treplay">↻ Watch again</button><button class="sbtn ghost" data-act="tnext">Next ↓</button></div></div>'+
+  rail(c)+'<div class="ecap"><b>@critical</b> · storytime 🎮<div class="tags">#storytime '+(T.true?"#truestory #history":"#funny #relatable")+' #'+["synthwave","nightcity","reactor","sunset"][T.theme%4]+'run</div><div class="music"><span>♫ '+(S.music&&S.music.on&&CE&&CE.track?esc(CE.track.name):"lo-fi storytime beat · Critical")+'</span></div></div><div class="eprog"><i></i></div>'}
+/* split the story into 1 to 3 word captions, timed at a quick reading pace with pauses at commas and full stops */
+function taleWords(T){if(T._w)return T._w;var ws=T.text.split(/\s+/).filter(Boolean),t=0,ch=[],chunks=[];
+  ws.forEach(function(w){var end=/[.!?…]["”’)]*$/.test(w),cm=/[,;:—]["”’)]*$/.test(w);ch.push({w:w,t:t});t+=.17+.026*w.replace(/[^\w]/g,"").length+(end?.34:cm?.15:0);
+    if(end||cm||ch.length>=3||(ch.length>=2&&w.length>9)){chunks.push({ws:ch,t0:ch[0].t});ch=[]}});
+  if(ch.length)chunks.push({ws:ch,t0:ch[0].t});T._w={chunks:chunks,dur:t};return T._w}
+PLAYERS.tale=function(el,k){var T=TALE[k.c.ref],W=taleWords(T),cap=el.querySelector(".tcap"),post=el.querySelector(".tpost"),bar=el.querySelector(".eprog i"),coin=el.querySelector(".tcoin"),coinB=coin.querySelector("b"),endEl=el.querySelector(".tend"),game=el.querySelector(".tgame");
+  var head=Math.max(2.6,T.title.split(/\s+/).length*.3+.9),total=head+W.dur+.7,t=0,last=0,raf=0,paused=false,ci=-1,wi=-1,run=false,attached=false,finished=false;
+  function music(){if(!CE)return;if(run&&!paused&&!finished&&S.sound&&CE.on())CE.bed(true);else CE.bed(false)}
+  function finish(){finished=true;cap.innerHTML="";endEl.hidden=false;music();if(!k.done){k.done=true;award(2)}vib(12)}
+  function frame(now){raf=requestAnimationFrame(frame);var dt=last?Math.min(.1,(now-last)/1000):0;last=now;if(paused||finished)return;t+=dt;
+    post.classList.toggle("show",t<head);var st=t-head;
+    if(st>=0){var n=ci;while(n+1<W.chunks.length&&W.chunks[n+1].t0<=st)n++;
+      if(n!==ci){ci=n;wi=-1;cap.innerHTML=W.chunks[n].ws.map(function(x){return"<span>"+esc(x.w)+"</span>"}).join(" ");cap.classList.remove("pop");void cap.offsetWidth;cap.classList.add("pop")}
+      if(ci>=0){var ws=W.chunks[ci].ws,j=0;while(j+1<ws.length&&ws[j+1].t<=st)j++;if(j!==wi){var sp=cap.children;if(sp[wi])sp[wi].classList.remove("on");wi=j;if(sp[j])sp[j].classList.add("on")}}}
+    bar.style.transform="scaleX("+Math.min(1,t/total)+")";if(t>=total)finish()}
+  function go(){run=true;last=0;cancelAnimationFrame(raf);raf=requestAnimationFrame(frame);el.classList.toggle("paused",paused);
+    loadThree().then(function(){if(!run||attached||cards[active]!==k)return;try{if(ChainRun.attach(game,T.theme)){attached=true;ChainRun.pause(paused);ChainRun.onCoin(function(n){coinB.textContent=n;coin.classList.remove("bump");void coin.offsetWidth;coin.classList.add("bump")})}}catch(e){el.classList.add("nogl")}}).catch(function(){el.classList.add("nogl")});
+    music()}
+  function halt(){run=false;cancelAnimationFrame(raf);raf=0;if(attached&&window.ChainRun){ChainRun.detach();attached=false}if(CE)CE.bed(false)}
+  function reset(){t=0;ci=-1;wi=-1;finished=false;paused=false;endEl.hidden=true;cap.innerHTML="";coinB.textContent="0";bar.style.transform="scaleX(0)"}
+  return{start:function(){reset();go()},resume:function(){if(!run)go()},stop:halt,snd:music,
+    toggle:function(){if(finished)return;paused=!paused;el.classList.toggle("paused",paused);if(attached&&window.ChainRun)ChainRun.pause(paused);music();vib(8)},
+    replay:function(){halt();reset();go()}}};
+
+/* ---------- real YouTube Shorts, played with YouTube's own embedded player ---------- */
+S.yt=S.yt||{v:[],ch:[]};S.ytBad=S.ytBad||{};S.ytSeen=S.ytSeen||{};
+var ytP=null,ytDown=0,ytUsed={};
+function loadYT(){if(window.YT&&YT.Player)return Promise.resolve(window.YT);if(ytP)return ytP;
+  ytP=new Promise(function(ok,no){var prev=window.onYouTubeIframeAPIReady;window.onYouTubeIframeAPIReady=function(){if(typeof prev==="function")try{prev()}catch(e){}ok(window.YT)};
+    addJs("https://www.youtube.com/iframe_api").catch(no);setTimeout(function(){if(window.YT&&YT.Player)ok(window.YT);else no()},15000)});
+  ytP.catch(function(){ytP=null;ytDown=Date.now();
+    /* YouTube is blocked or offline: take the Shorts already queued up out of the feed rather than skipping them one by one */
+    for(var i=cards.length-1;i>active;i--)if(cards[i].c.type==="yt"){if(cards[i].el._pl)cards[i].el._pl.destroy();cards[i].el.remove();cards.splice(i,1)}ensure()});return ytP}
+function ytLink(c){return c.vid?"https://www.youtube.com/shorts/"+c.vid:c.ch?"https://www.youtube.com/channel/"+c.ch+"/shorts":"https://www.youtube.com"}
+function ytHtml(c){return '<div class="ytbox"></div><div class="ytload"><div class="ytav">'+(c.em||"▶️")+'</div><b>'+esc(c.name||"YouTube")+'</b><span class="ytst"><i class="ytspin"></i> Loading Shorts…</span><button class="sbtn ghost ytadd" data-act="ytadd" hidden>＋ Add your own Shorts</button></div><div class="ytshield"></div>'+
+  '<div class="ytbadge">▶ YouTube Shorts</div><div class="eplay" aria-hidden="true">'+PLAYSVG+'</div><button class="snd ytsnd" data-act="ytsnd">🔇 Tap for sound</button>'+rail(c)+
+  '<div class="ecap"><b>@'+esc(c.name||"YouTube")+'</b>'+(c.mine?" · ⭐ your pick":"")+'<div class="tags">#shorts #science</div><div class="music"><a class="ytopen" href="'+ytLink(c)+'" target="_blank" rel="noopener">▶ Watch on YouTube ↗</a></div></div>'}
+function pickYT(force){if((S.ytOff&&!force)||(ytDown&&Date.now()-ytDown<6e5))return null;var recent={};cards.slice(mode==="shorts"?-6:-30).forEach(function(k){if(k.c.type==="yt")recent[k.c.ch||k.c.v]=1});
+  var mineV=function(v){return{type:"yt",topic:"energy",id:"yt-"+v,v:v,vid:v,name:"Your Shorts",em:"⭐",mine:1}};
+  var un=S.yt.v.filter(function(v){return!S.ytSeen[v]&&!recent[v]});if(un.length&&Math.random()<.7)return mineV(pick(un));
+  var L=S.yt.ch.map(function(x){return{id:"ytc-"+x.ch,name:x.name||"Your channel",ch:x.ch,topic:"energy",em:"⭐",mine:1}}).concat(window.CHAIN_YT||[]).filter(function(x){return!S.ytBad[x.ch]&&!recent[x.ch]&&(x.mine||!S.off[x.topic])});
+  if(!L.length&&mode==="shorts")L=S.yt.ch.map(function(x){return{id:"ytc-"+x.ch,name:x.name||"Your channel",ch:x.ch,topic:"energy",em:"⭐",mine:1}}).concat(window.CHAIN_YT||[]).filter(function(x){return!S.ytBad[x.ch]});
+  if(!L.length){var sv=S.yt.v.filter(function(v){return!recent[v]});return sv.length?mineV(pick(sv)):null}
+  var mn=Infinity;L.forEach(function(y){mn=Math.min(mn,S.seen[y.id]||0)});var x=wPickArr(L,function(y){return aW(aGet("c",y.ch)*1.3,.2,4)*(y.mine?1.8:aW(aGet("t",y.topic)*.5))*Math.pow(.75,(S.seen[y.id]||0)-mn)});
+  return{type:"yt",topic:x.topic,id:x.id,ch:x.ch,name:x.name,em:x.em,mine:x.mine?1:0}}
+PLAYERS.yt=function(el,k){var c=k.c,box=el.querySelector(".ytbox"),ld=el.querySelector(".ytload"),stx=el.querySelector(".ytst"),sb=el.querySelector(".ytsnd"),ln=el.querySelector(".ytopen");
+  var Y={p:null,ready:false,cued:false,ids:null,tries:0,full:false,phase:"",want:false,playing:false,dead:false,fb:false,timer:0,chk:0};
+  if(c.vid)box.style.backgroundImage="url(https://i.ytimg.com/vi/"+c.vid+"/hqdefault.jpg)";
+  function msg(t,add){ld.hidden=false;stx.textContent=t;ld.querySelector(".ytadd").hidden=!add}
+  function skipSoon(){setTimeout(function(){if(cards[active]===k)goTo(active+1)},1600)}
+  function relabel(){ld.querySelector("b").textContent=c.name||"YouTube";ld.querySelector(".ytav").textContent=c.em||"▶️";el.querySelector(".ecap b").textContent="@"+(c.name||"YouTube");ln.href=ytLink(c)}
+  function paintSnd(){var on=!!(Y.p&&Y.cued&&S.ytSound&&!Y.fb&&Y.p.isMuted&&!Y.p.isMuted());sb.classList.toggle("live",on);sb.textContent=on?"🔊":"🔇 Tap for sound"}
+  function fit(){var f=box.querySelector("iframe");if(!f)return;var w=el.clientWidth,h=el.clientHeight;
+    if(Y.full){f.style.cssText="position:absolute;inset:0;width:100%;height:100%;border:0";return}
+    var Wd=Math.max(w,h*9/16),Hd=Math.max(h,Wd*16/9);f.style.cssText="position:absolute;border:0;left:"+((w-Wd)/2)+"px;top:"+((h-Hd)/2)+"px;width:"+Wd+"px;height:"+Hd+"px"}
+  function arm(){clearTimeout(Y.timer);Y.timer=setTimeout(function(){if(!Y.cued)msg("This one's taking ages… swipe on",true)},12000)}
+  function cueList(){Y.phase="list";try{Y.p.cuePlaylist({listType:"playlist",list:(Y.full?"UU":"UUSH")+c.ch.slice(2),index:0})}catch(e){}arm()}
+  function cueVid(v){Y.phase="vid";c.vid=v;ytUsed[v]=1;ln.href=ytLink(c);try{Y.p.cueVideoById(v)}catch(e){}arm()}
+  function make(){if(Y.p||Y.dead||Y.loading)return;if(ytDown&&Date.now()-ytDown<6e5&&!(window.YT&&YT.Player)){msg("YouTube isn't loading right now (it may be blocked on this Wi-Fi)",false);if(Y.want)skipSoon();return}Y.loading=true;msg("Loading Shorts…");stx.insertAdjacentHTML("afterbegin",'<i class="ytspin"></i> ');
+    loadYT().then(function(YT){Y.loading=false;if(Y.p||Y.dead||!el.isConnected)return;var hold=document.createElement("div");box.innerHTML="";box.appendChild(hold);
+      var opt={host:"https://www.youtube-nocookie.com",width:"100%",height:"100%",playerVars:{autoplay:0,mute:1,playsinline:1,controls:0,rel:0,iv_load_policy:3,fs:0,disablekb:1,modestbranding:1,origin:location.origin},
+        events:{onReady:ready,onStateChange:state,onError:err}};
+      if(c.vid){opt.videoId=c.vid;Y.phase="vid"}Y.p=new YT.Player(hold,opt);fit();arm()},function(){Y.loading=false;msg("YouTube didn't load. It might be blocked on this Wi-Fi.",false);skipSoon()})}
+  function ready(){Y.ready=true;fit();if(!c.vid&&c.ch)cueList()}
+  function state(e){var s=e.data;
+    if((s===5||s===1)&&Y.phase==="list"&&!Y.ids){var ids=[];try{ids=Y.p.getPlaylist()||[]}catch(x){}
+      if(ids.length){Y.ids=ids;var pool=ids.slice(0,60),un=pool.filter(function(v){return!S.ytSeen[v]&&!ytUsed[v]});if(!un.length)un=pool.filter(function(v){return!ytUsed[v]});cueVid(pick(un.length?un:pool));return}}
+    if(s===5||s===1){if(!Y.cued){Y.cued=true;clearTimeout(Y.timer);ld.hidden=true;fit();paintSnd();if(Y.want&&s===5)play()}}
+    if(s===1){Y.playing=true;el.classList.remove("paused");if(c.vid&&!S.ytSeen[c.vid]){S.ytSeen[c.vid]=1;save()}paintSnd()}
+    else if(s===2)Y.playing=false;
+    else if(s===0){Y.playing=false;if(!k.done){k.done=true;award(2)}if(Y.want)try{Y.p.seekTo(0,true);Y.p.playVideo()}catch(x){}}}
+  function err(e){clearTimeout(Y.timer);
+    if(Y.phase==="list"){if(!Y.full){Y.full=true;fit();cueList();return}S.ytBad[c.ch]=1;save();
+      if((Y.swaps||0)<4){var n=pickYT(true);if(n&&n.ch){Y.swaps=(Y.swaps||0)+1;c.ch=n.ch;c.name=n.name;c.em=n.em;c.mine=n.mine;Y.full=false;Y.ids=null;relabel();msg("Loading Shorts…");stx.insertAdjacentHTML("afterbegin",'<i class="ytspin"></i> ');cueList();return}}
+      msg("This channel won't play here. Skipping…",false);skipSoon();return}
+    if(Y.ids&&Y.tries<3){Y.tries++;Y.cued=false;var rest=Y.ids.slice(0,60).filter(function(v){return v!==c.vid});if(rest.length){cueVid(pick(rest));return}}
+    msg("This video won't play here. Skipping…",false);skipSoon()}
+  function play(){Y.want=true;if(!Y.p)return make();if(!Y.cued)return;
+    try{if(S.ytSound&&!Y.fb){Y.p.unMute();Y.p.setVolume(100)}else Y.p.mute();Y.p.playVideo()}catch(x){}
+    clearTimeout(Y.chk);Y.chk=setTimeout(function(){if(Y.want&&!Y.playing&&Y.p&&Y.p.isMuted&&!Y.p.isMuted()){Y.fb=true;try{Y.p.mute();Y.p.playVideo()}catch(x){}paintSnd()}},2000)}
+  function sound(on){if(!Y.p||!Y.cued)return;S.ytSound=on;save();Y.fb=false;
+    try{if(on){Y.p.unMute();Y.p.setVolume(100);Y.p.playVideo()}else Y.p.mute()}catch(x){}paintSnd();
+    if(on){clearTimeout(Y.chk);Y.chk=setTimeout(function(){if(Y.want&&!Y.playing){Y.fb=true;try{Y.p.mute();Y.p.playVideo()}catch(x){}paintSnd();toast("Sound's blocked in here: tap “Watch on YouTube” for sound")}},1800)}}
+  return{prep:function(){make()},start:function(){hush();play()},resume:function(){play()},
+    stop:function(){Y.want=false;clearTimeout(Y.chk);try{if(Y.p&&Y.cued)Y.p.pauseVideo()}catch(x){}},
+    destroy:function(){Y.want=false;clearTimeout(Y.chk);clearTimeout(Y.timer);try{if(Y.p)Y.p.destroy()}catch(x){}Y.p=null;Y.ready=Y.cued=Y.playing=false;Y.ids=null;Y.phase="";box.innerHTML="";if(c.vid)box.style.backgroundImage="url(https://i.ytimg.com/vi/"+c.vid+"/hqdefault.jpg)";msg("Loading Shorts…")},
+    tap:function(){if(!Y.p||!Y.cued){if(!Y.p){Y.dead=false;make()}return}
+      if(Y.p.isMuted()||Y.fb){sound(true);return}
+      try{if(Y.playing){Y.p.pauseVideo();el.classList.add("paused")}else{Y.p.playVideo();el.classList.remove("paused")}}catch(x){}},
+    sound:function(){sound(!(S.ytSound&&!Y.fb&&Y.p&&!Y.p.isMuted()))},resize:fit}};
+/* only the Short on screen and the next one get a player; the rest are let go to save memory */
+function ytManage(){cards.forEach(function(kk,j){if(kk.c.type!=="yt")return;var near=j===active||j===active+1;
+  if(near){if(!kk.el._pl)kk.el._pl=PLAYERS.yt(kk.el,kk);kk.el._pl.prep()}else if(kk.el._pl&&(j<active-1||j>active+2))kk.el._pl.destroy()})}
+function ytParse(s){s=(s||"").trim();var m;
+  if((m=s.match(/(?:youtu\.be\/|\/shorts\/|[?&]v=|\/embed\/|\/live\/)([\w-]{11})/)))return{v:m[1]};
+  if((m=s.match(/\/channel\/(UC[\w-]{22})/))||(m=s.match(/^(UC[\w-]{22})$/)))return{ch:m[1]};
+  if(/^[\w-]{11}$/.test(s))return{v:s};if(/@[\w.-]+/.test(s))return{err:"handle"};return{err:"bad"}}
+function openYT(){var bad=(window.CHAIN_YT||[]).filter(function(x){return S.ytBad[x.ch]});
+  var h='<h3>📺 YouTube Shorts</h3><p>Real Shorts from science creators play right in your feed through YouTube\'s own player. Add your favourites too: paste a link to a Short, a video or a channel.</p>'+
+  '<div class="ytform"><input id="ytIn" type="url" inputmode="url" placeholder="Paste a YouTube link" autocomplete="off"><button class="sbtn" data-ytadd>Add</button></div><p class="ytmsg" id="ytMsg"></p>';
+  if(S.yt.v.length||S.yt.ch.length)h+='<div class="ytlist">'+S.yt.v.map(function(v){return'<div class="yti"><img src="https://i.ytimg.com/vi/'+v+'/default.jpg" alt=""><span>Short · '+v+'</span><button data-ytdel="v:'+v+'" aria-label="Remove">✕</button></div>'}).join("")+
+    S.yt.ch.map(function(x){return'<div class="yti"><span class="ytci">📺</span><span>Channel · '+esc(x.ch.slice(0,10))+'…</span><button data-ytdel="c:'+x.ch+'" aria-label="Remove">✕</button></div>'}).join("")+'</div>';
+  h+='<p style="font-size:13px">On YouTube: open a Short → Share → Copy link, then paste it here. Channel links need the long ID (youtube.com/channel/UC…): @handles can\'t be looked up without a YouTube developer key, so for those paste a few of their Shorts instead.</p>'+
+  '<p style="font-size:13px">Built in: '+(window.CHAIN_YT||[]).map(function(x){return esc(x.name)+(S.ytBad[x.ch]?" (won\'t load)":"")}).join(", ")+'.</p>'+
+  (bad.length?'<p><button class="sbtn ghost" data-ytretry>Try the ones that wouldn\'t load again</button></p>':'')+
+  '<p><button class="sbtn ghost" data-ytoff>'+(S.ytOff?"▶ Show YouTube in my feed":"🙈 Hide YouTube from my feed")+'</button></p>';
+  openSheet(h);var inp=document.getElementById("ytIn");if(inp)inp.addEventListener("keydown",function(e){if(e.key==="Enter")ytAdd()})}
+function ytAdd(){var inp=document.getElementById("ytIn"),out=document.getElementById("ytMsg");if(!inp)return;var r=ytParse(inp.value);
+  if(r.err){out.textContent=r.err==="handle"?"@handles can't be looked up without a YouTube key. Paste a link to one of their Shorts instead (Share → Copy link).":"That doesn't look like a YouTube link.";return}
+  if(r.v){if(S.yt.v.indexOf(r.v)<0)S.yt.v.unshift(r.v);S.yt.v=S.yt.v.slice(0,200);delete S.ytSeen[r.v];save();closeSheet();insertNext({type:"yt",topic:"energy",id:"yt-"+r.v,v:r.v,vid:r.v,name:"Your Shorts",em:"⭐",mine:1});toast("Added. Here it is!");return}
+  if(!S.yt.ch.some(function(x){return x.ch===r.ch}))S.yt.ch.unshift({ch:r.ch});delete S.ytBad[r.ch];save();closeSheet();insertNext({type:"yt",topic:"energy",id:"ytc-"+r.ch,ch:r.ch,name:"Your channel",em:"⭐",mine:1});toast("Channel added. Its Shorts will turn up in your feed")}
+addEventListener("resize",function(){if(window.ChainRun)ChainRun.resize();var k=cards[active];if(k&&k.c.type==="yt"&&k.el._pl)k.el._pl.resize()});
 function renderCheck(k){var el=k.el.querySelector(".chk"),ms=Date.now()-sess.t0,acc=sess.q?Math.round(sess.ok/sess.q*100)+"%":"–",d=today(),m=ms/60000;
   var nudge=m>=25?'<div class="nudge"><p><b>You\'ve been here '+mins(ms)+'.</b> That\'s a full lesson\'s worth of learning, not doom scrolling. Nice. Keep going if you\'re enjoying it, or turn it into proper progress.</p><div class="srow"><a class="sbtn" href="critical.html">Open a Critical lesson</a><a class="sbtn ghost" href="index.html">Back to menu</a></div></div>'
    :d.n>=GOAL?'<div class="nudge"><p>🔥 Daily goal done. <b>'+streak()+'-day streak.</b> Everything from here is a bonus.</p></div>'
@@ -1593,7 +1999,7 @@ addEventListener("keydown",function(e){if(!sto.hidden){if(e.key==="Escape")close
 });
 var rzT=0;addEventListener("resize",function(){clearTimeout(rzT);rzT=setTimeout(function(){if(active>=0){feed.scrollTop=active*cardH();var k=cards[active];if(k&&k.el._ed)k.el._ed.size()}},120)});
 addEventListener("pagehide",function(){if(active>=0){var k=cards[active];k.dwell+=Date.now()-k.t;k.t=Date.now();today().ms+=0}try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}});
-document.addEventListener("visibilitychange",function(){var k=cards[active];if(!k)return;if(document.hidden){if(k.el._sim&&k.el._sim.stop)k.el._sim.stop();if(k.el._ed)k.el._ed.stop();if(k.el._pl&&k.el._pl.stop)k.el._pl.stop();hush();if(CE)CE.sleep();try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}else{k.t=Date.now();readSP();if(k.el._ed)k.el._ed.start()}});
+document.addEventListener("visibilitychange",function(){var k=cards[active];if(!k)return;if(document.hidden){if(k.el._sim&&k.el._sim.stop)k.el._sim.stop();if(k.el._ed)k.el._ed.stop();if(k.el._pl&&k.el._pl.stop)k.el._pl.stop();hush();if(CE)CE.sleep();try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}else{k.t=Date.now();readSP();if(k.el._ed)k.el._ed.start();if((k.c.type==="tale"||k.c.type==="yt")&&k.el._pl&&k.el._pl.resume)k.el._pl.resume()}});
 
 /* first-run hint */
 var hintEl=null;function hint(show){if(show){hintEl=document.createElement("div");hintEl.className="swipe";hintEl.style.cssText="position:absolute;z-index:22;left:0;right:0;bottom:calc(var(--sb) + 130px);justify-content:center;text-shadow:0 1px 4px rgba(0,0,0,.8);color:#fff;pointer-events:none";hintEl.innerHTML='<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M6 11l6-6 6 6"/></svg>Swipe up for the next one';document.getElementById("app").appendChild(hintEl)}else if(hintEl){hintEl.remove();hintEl=null}}
