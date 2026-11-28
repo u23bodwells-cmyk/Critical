@@ -1,0 +1,603 @@
+{
+ "about": "Critical is built from these files, joined in this order. Edit them, then run: python3 tools/build.py",
+ "head": "src/shell/head.html",
+ "tail": "src/shell/tail.html",
+ "pieces": [
+  {
+   "file": "src/app/0010-core-helpers.js",
+   "marker": ""
+  },
+  {
+   "file": "src/app/0020-state.js",
+   "marker": "/* ---------- state ---------- */"
+  },
+  {
+   "file": "src/app/0030-navigation.js",
+   "marker": "/* ---------- navigation ---------- */"
+  },
+  {
+   "file": "src/app/0040-learn-page.js",
+   "marker": "/* ---------- learn page ---------- */"
+  },
+  {
+   "file": "src/app/0050-units-cheat-sheet-formulas-page-and.js",
+   "marker": "/* ---------- units cheat sheet (Formulas page and the Units button in lessons) ---------- */"
+  },
+  {
+   "file": "src/app/0060-player.js",
+   "marker": "/* ---------- player ---------- */"
+  },
+  {
+   "file": "src/app/0070-review-and-progress.js",
+   "marker": "/* ---------- review and progress ---------- */"
+  },
+  {
+   "file": "src/app/0080-motivation.js",
+   "marker": "/* ---------- motivation: station, quests, combos, badges, ranks, sound ---------- */"
+  },
+  {
+   "file": "src/app/0090-career-ladders.js",
+   "marker": "/* ===== Career ladders: seven routes through a nuclear station. Chief Nuclear Officer needs everything. ===== */"
+  },
+  {
+   "file": "src/app/0100-ease-help-after-mistakes-gentler-feedback.js",
+   "marker": "/* ===== ease: help after mistakes, gentler feedback, level-too-hard warnings ===== */"
+  },
+  {
+   "file": "src/app/0110-weekly-chart.js",
+   "marker": "/* ===== ease end ===== */"
+  },
+  {
+   "file": "src/app/0120-follow-up-practice-and-unit-tests.js",
+   "marker": "/* ---------- follow-up practice and unit tests ---------- */"
+  },
+  {
+   "file": "src/app/0130-save-load-progress.js",
+   "marker": "/* ---------- save / load progress between devices ---------- */"
+  },
+  {
+   "file": "src/app/0140-reactor-simulator-core.js",
+   "marker": "var SP={beta:0.0065,bi:[0.033,0.219,0.196,0.395,0.115,0.042],li:[0.0124,0.0305,0.111,0.301,1.14,3.01],Lam:2e-5,LS:3e-11,Pfull:3000,Rf:500/3000,Cf:30,Cc:1500,mcp:90.9,pump:15,aM:-30,aF:-2.5,bw:-10,Wsd:"
+  },
+  {
+   "file": "src/app/0150-nuclear-maths-widgets.js",
+   "marker": "WIDGETS.unitConvert=function(box,par){var st,s=slider(box,'Reactivity',0,1000,10,0,function(v){return v+' pcm'},function(v){upd(v)});st=stats(box,[['dk','Δk/k'],['pc','%Δk/k'],['pcm','pcm']]);"
+  },
+  {
+   "file": "src/app/0160-emc2-step-by-step.js",
+   "marker": "/* ---------- E = mc², step by step ---------- */"
+  },
+  {
+   "file": "src/app/0170-theory-widgets.js",
+   "marker": "/* ====================================================================="
+  },
+  {
+   "file": "src/app/0180-diagrams.js",
+   "marker": "/* =========================  DIAGRAMS  ========================= */"
+  },
+  {
+   "file": "src/app/0190-levels-2-5-helpers.js",
+   "marker": "/* ====================================================================="
+  },
+  {
+   "file": "src/app/0200-level-goals.js",
+   "marker": "/* ===== a different goal for every track and level (Maths Level 1 keeps the power station) ===== */"
+  },
+  {
+   "file": "src/app/0210-end-of-level-tests.js",
+   "marker": "/* ===== end-of-level test for every track and level ===== */"
+  },
+  {
+   "file": "src/app/0220-level-test-practice.js",
+   "marker": "/* ===== custom practice built from the questions missed on a level test ===== */"
+  },
+  {
+   "file": "src/app/0230-calculator.js",
+   "marker": "/* ===== scientific calculator (button next to ?) ===== */"
+  },
+  {
+   "file": "src/app/0240-study-timer.js",
+   "marker": "/* ===== study timer + Windows reminders (button next to the calculator) ===== */"
+  },
+  {
+   "file": "src/app/0250-test-revision-days.js",
+   "marker": "/* ===== revise for a test: each test gets a countdown, and the days before it become revision days in the weekly plan ===== */"
+  },
+  {
+   "file": "src/app/0260-big-past-paper.js",
+   "marker": "/* ===== big past paper: an hour of exam-style questions written and marked by Claude. Type or handwrite your answers;"
+  },
+  {
+   "file": "src/app/0270-weekly-plan.js",
+   "marker": "/* ===== weekly plan (calendar button next to the study timer) ===== */"
+  },
+  {
+   "file": "src/app/0280-just-one-question.js",
+   "marker": "/* ===== just one question: a tiny way into a study session ===== */"
+  },
+  {
+   "file": "src/app/0290-rewards.js",
+   "marker": "/* ===== rewards: bonus XP for doing more Critical, and things to unlock ===== */"
+  },
+  {
+   "file": "src/app/0300-shift-mode-high-mystery.js",
+   "marker": "/* ===== shift mode, end on a high, and the mystery of the week ===== */"
+  },
+  {
+   "file": "src/app/0310-qrcode-library.js",
+   "marker": "/* QRCode for JavaScript, (c) 2009 Kazuhiko Arase, MIT licence, http://www.d-project.com/ (from qrcode-terminal) */"
+  },
+  {
+   "file": "src/app/0320-sync.js",
+   "marker": "/* ===== sync: sign in once on each device and progress moves across by itself (a secret gist on your GitHub account) ===== */"
+  },
+  {
+   "file": "src/app/0330-exam-practice.js",
+   "marker": "/* ===== exam practice: real past papers, a countdown timer and an answer sheet to send to Claude ===== */"
+  },
+  {
+   "file": "src/content/0340-nuclear-maths-level-1.js",
+   "marker": "U({id:'maths',title:'Maths for operators',icon:'√x',color:'#7F77DD',desc:'Powers of ten, exponentials, logs, rates of change and counting statistics.',lessons:["
+  },
+  {
+   "file": "src/content/0350-theory-level-1.js",
+   "marker": "/* ====================================================================="
+  },
+  {
+   "file": "src/content/0360-follow-up-practice-units-1-3.js",
+   "marker": "/* ---------- follow-up practice: units 1-3 ---------- */"
+  },
+  {
+   "file": "src/content/0370-follow-up-practice-units-4-5.js",
+   "marker": "/* ---------- follow-up practice: units 4-5 ---------- */"
+  },
+  {
+   "file": "src/content/0380-follow-up-practice-units-6-10.js",
+   "marker": "/* ---------- follow-up practice: units 6-10 ---------- */"
+  },
+  {
+   "file": "src/content/0390-unit-test-pools.js",
+   "marker": "/* ---------- unit test question pools (12 per unit; each test draws 10 of these + 5 from the unit's lessons and follow-ups) ---------- */"
+  },
+  {
+   "file": "src/content/0400-theory-level-1-extras.js",
+   "marker": "/* ===== Theory Level 1 extras: plant diagrams, instruments, electrical systems, preventing human error ===== */"
+  },
+  {
+   "file": "src/content/0410-nuclear-maths-level-2.js",
+   "marker": "/* ========== LEVEL 2 · MATHS (A-level) ========== */"
+  },
+  {
+   "file": "src/content/0420-theory-level-2.js",
+   "marker": "/* ========== LEVEL 2 · THEORY (A-level) ========== */"
+  },
+  {
+   "file": "src/content/0430-nuclear-maths-level-3.js",
+   "marker": "/* ========== LEVEL 3 · MATHS (operator training) ========== */"
+  },
+  {
+   "file": "src/content/0440-theory-level-3.js",
+   "marker": "/* ========== LEVEL 3 · THEORY (operator training) ========== */"
+  },
+  {
+   "file": "src/content/0450-nuclear-maths-level-4.js",
+   "marker": "/* ========== LEVEL 4 · MATHS (university years 1–2) ========== */"
+  },
+  {
+   "file": "src/content/0460-theory-level-4.js",
+   "marker": "/* ========== LEVEL 4 · THEORY (university years 1–2) ========== */"
+  },
+  {
+   "file": "src/content/0470-nuclear-maths-level-5.js",
+   "marker": "/* ========== LEVEL 5 · MATHS (university years 3–4) ========== */"
+  },
+  {
+   "file": "src/content/0480-theory-level-5.js",
+   "marker": "/* ========== LEVEL 5 · THEORY (university years 3–4) ========== */"
+  },
+  {
+   "file": "src/content/0490-nuclear-maths-level-6.js",
+   "marker": "/* ========== LEVEL 6 · MATHS (Specialist: master's level) ========== */"
+  },
+  {
+   "file": "src/content/0500-theory-level-6.js",
+   "marker": "/* ========== LEVEL 6 · THEORY (Specialist) ========== */"
+  },
+  {
+   "file": "src/content/0510-nuclear-maths-level-7.js",
+   "marker": "/* ========== LEVEL 7 · MATHS (Research) ========== */"
+  },
+  {
+   "file": "src/content/0520-theory-level-7.js",
+   "marker": "/* ========== LEVEL 7 · THEORY (Research) ========== */"
+  },
+  {
+   "file": "src/app/0530-calculus-helpers-and-drills.js",
+   "marker": "/* ==================================================================="
+  },
+  {
+   "file": "src/app/0540-calculus-generators-level-1.js",
+   "marker": "/* ---------------- Level 1: ready for calculus ---------------- */"
+  },
+  {
+   "file": "src/app/0550-calculus-generators-level-2.js",
+   "marker": "/* ---------------- Level 2: differentiation ---------------- */"
+  },
+  {
+   "file": "src/app/0560-calculus-generators-level-3.js",
+   "marker": "/* ---------------- Level 3: differentiation toolkit ---------------- */"
+  },
+  {
+   "file": "src/app/0570-calculus-generators-level-4.js",
+   "marker": "/* ---------------- Level 4: integration ---------------- */"
+  },
+  {
+   "file": "src/app/0580-calculus-generators-level-5.js",
+   "marker": "/* ---------------- Level 5: calculus in the reactor ---------------- */"
+  },
+  {
+   "file": "src/content/0590-calculus-level-1.js",
+   "marker": "/* ========== CALCULUS · LEVEL 1 · Ready for calculus ========== */"
+  },
+  {
+   "file": "src/content/0600-calculus-level-2.js",
+   "marker": "/* ========== CALCULUS · LEVEL 2 · Differentiation ========== */"
+  },
+  {
+   "file": "src/content/0610-calculus-level-3.js",
+   "marker": "/* ========== CALCULUS · LEVEL 3 · Differentiation toolkit ========== */"
+  },
+  {
+   "file": "src/content/0620-calculus-level-4.js",
+   "marker": "/* ========== CALCULUS · LEVEL 4 · Integration ========== */"
+  },
+  {
+   "file": "src/content/0630-calculus-level-5.js",
+   "marker": "/* ========== CALCULUS · LEVEL 5 · Calculus in the reactor ========== */"
+  },
+  {
+   "file": "src/content/0640-calculus-level-6.js",
+   "marker": "/* ========== CALCULUS · LEVEL 6 · Limits, properly (university Calculus 1) ========== */"
+  },
+  {
+   "file": "src/content/0650-calculus-level-7.js",
+   "marker": "/* ========== CALCULUS · LEVEL 7 · More differentiation (rest of Calculus 1) ========== */"
+  },
+  {
+   "file": "src/content/0660-calculus-level-8.js",
+   "marker": "/* ========== CALCULUS · LEVEL 8 · Integration techniques (Calculus 2) ========== */"
+  },
+  {
+   "file": "src/content/0670-calculus-level-9.js",
+   "marker": "/* ========== CALCULUS · LEVEL 9 · Applications of integration ========== */"
+  },
+  {
+   "file": "src/content/0680-calculus-level-10.js",
+   "marker": "/* ========== CALCULUS · LEVEL 10 · Sequences and series ========== */"
+  },
+  {
+   "file": "src/content/0690-calculus-level-11.js",
+   "marker": "/* ========== CALCULUS · LEVEL 11 · Curves and vectors ========== */"
+  },
+  {
+   "file": "src/content/0700-calculus-level-12.js",
+   "marker": "/* ========== CALCULUS · LEVEL 12 · Partial derivatives (Calculus 3, part 1) ========== */"
+  },
+  {
+   "file": "src/content/0710-calculus-level-13.js",
+   "marker": "/* ========== CALCULUS · LEVEL 13 · Multiple integrals (Calculus 3, part 2) ========== */"
+  },
+  {
+   "file": "src/content/0720-calculus-level-14.js",
+   "marker": "/* ========== CALCULUS · LEVEL 14 · Vector calculus (Calculus 3, part 3) ========== */"
+  },
+  {
+   "file": "src/app/0730-gcse-physics-generators.js",
+   "marker": "/* ---------- PHYSICS (AQA 8463): g = 9.8 N/kg ---------- */"
+  },
+  {
+   "file": "src/app/0740-gcse-chemistry-generators.js",
+   "marker": "/* ---------- CHEMISTRY (AQA 8462) ---------- */"
+  },
+  {
+   "file": "src/app/0750-gcse-maths-generators.js",
+   "marker": "/* ---------- MATHS (Edexcel 1MA1 Higher) ---------- */"
+  },
+  {
+   "file": "src/content/0760-gcse-physics-level-2.js",
+   "marker": "/* ========== GCSE PHYSICS (AQA 8463) · LEVEL 2 · Year 10 ========== */"
+  },
+  {
+   "file": "src/content/0770-gcse-chemistry-level-2.js",
+   "marker": "/* ========== GCSE CHEMISTRY (AQA 8462) · LEVEL 2 · Year 10 ========== */"
+  },
+  {
+   "file": "src/content/0780-gcse-maths-level-2.js",
+   "marker": "/* ========== GCSE MATHS (Edexcel 1MA1 Higher) · LEVEL 2 · Year 10 ========== */"
+  },
+  {
+   "file": "src/app/0790-gcse-constructions-widget.js",
+   "marker": "/* ===== constructions start ===== */"
+  },
+  {
+   "file": "src/app/0800-gcse-maths-constructions-unit.js",
+   "marker": "/* ===== constructions end ===== */"
+  },
+  {
+   "file": "src/content/0810-gcse-level-1-year-9-refreshers.js",
+   "marker": "/* ========== GCSE · LEVEL 1 · Year 9 refreshers (only if you need them) ========== */"
+  },
+  {
+   "file": "src/content/0820-gcse-physics-level-3.js",
+   "marker": "/* ========== GCSE PHYSICS (AQA 8463) · LEVEL 3 · Year 11 ========== */"
+  },
+  {
+   "file": "src/content/0830-gcse-chemistry-level-3.js",
+   "marker": "/* ========== GCSE CHEMISTRY (AQA 8462) · LEVEL 3 · Year 11 ========== */"
+  },
+  {
+   "file": "src/content/0840-gcse-maths-level-3.js",
+   "marker": "/* ========== GCSE MATHS (Edexcel 1MA1 Higher) · LEVEL 3 · Year 11 ========== */"
+  },
+  {
+   "file": "src/content/0850-gcse-level-4-grade-7-8.js",
+   "marker": "/* ========== GCSE · LEVEL 4 · Grade 7–8 ========== */"
+  },
+  {
+   "file": "src/content/0860-gcse-level-5-grade-9.js",
+   "marker": "/* ========== GCSE · LEVEL 5 · Grade 9 ========== */"
+  },
+  {
+   "file": "src/content/0870-gcse-computer-science.js",
+   "marker": "/* ========== GCSE COMPUTER SCIENCE (AQA 8525) ========== */"
+  },
+  {
+   "file": "src/content/0880-a-level-chemistry-levels-1-2.js",
+   "marker": "/* ========== A-LEVEL CHEMISTRY (AQA 7405) · LEVEL 1 bridge · LEVEL 2 Year 12 ========== */"
+  },
+  {
+   "file": "src/content/0890-a-level-chemistry-levels-3-4.js",
+   "marker": "/* ========== A-LEVEL CHEMISTRY · LEVEL 3 Year 13 · LEVEL 4 A* technique ========== */"
+  },
+  {
+   "file": "src/content/0900-a-level-maths-levels-1-2.js",
+   "marker": "/* ========== A-LEVEL MATHS (Edexcel 9MA0) · LEVEL 1 bridge · LEVEL 2 Year 12 ========== */"
+  },
+  {
+   "file": "src/content/0910-a-level-maths-levels-3-4.js",
+   "marker": "/* ========== A-LEVEL MATHS · LEVEL 3 Year 13 · LEVEL 4 A* technique ========== */"
+  },
+  {
+   "file": "src/content/0920-a-level-physics-levels-1-2.js",
+   "marker": "/* ========== A-LEVEL PHYSICS (AQA 7408) · LEVEL 1 bridge · LEVEL 2 Year 12 ========== */"
+  },
+  {
+   "file": "src/content/0930-a-level-physics-levels-3-4.js",
+   "marker": "/* ========== A-LEVEL PHYSICS · LEVEL 3 Year 13 · LEVEL 4 A* technique ========== */"
+  },
+  {
+   "file": "src/app/0940-quantum-simulations-levels-1-2.js",
+   "marker": "/* ===== Quantum track: simulations ===== */"
+  },
+  {
+   "file": "src/content/0950-quantum-level-1.js",
+   "marker": "/* ===== Quantum track: Level 1, Quantum ideas ===== */"
+  },
+  {
+   "file": "src/content/0960-quantum-level-2.js",
+   "marker": "/* ===== Quantum track: Level 2, The Schrödinger equation ===== */"
+  },
+  {
+   "file": "src/app/0970-quantum-simulations-levels-3-5.js",
+   "marker": "/* ===== Quantum track: simulations for Levels 3 to 5 ===== */"
+  },
+  {
+   "file": "src/content/0980-quantum-level-3.js",
+   "marker": "/* ===== Quantum track: Level 3, The mathematical machinery ===== */"
+  },
+  {
+   "file": "src/content/0990-quantum-level-4.js",
+   "marker": "/* ===== Quantum track: Level 4, Atoms, angular momentum and approximations ===== */"
+  },
+  {
+   "file": "src/content/1000-quantum-level-5.js",
+   "marker": "/* ===== Quantum track: Level 5, Frontiers ===== */"
+  },
+  {
+   "file": "src/app/1010-quantum-simulations-levels-6-7.js",
+   "marker": "/* ===== Quantum track: simulations for Levels 6 and 7 ===== */"
+  },
+  {
+   "file": "src/content/1020-quantum-level-6.js",
+   "marker": "/* ===== Quantum track: Level 6, Quantum mechanics with calculus ===== */"
+  },
+  {
+   "file": "src/content/1030-quantum-level-7.js",
+   "marker": "/* ===== Quantum track: Level 7, Advanced quantum theory ===== */"
+  },
+  {
+   "file": "src/app/1040-lesson-log-for-pace-and-weekly.js",
+   "marker": "/* ===== lesson log (for pace and weekly reports) and Ideas to remember (spaced review of quantum concepts) ===== */"
+  },
+  {
+   "file": "src/app/1050-glossary-and-formula-sheet-built-from.js",
+   "marker": "/* ===== Glossary and formula sheet (built from the lessons you've done) ===== */"
+  },
+  {
+   "file": "src/app/1060-quantum-lab.js",
+   "marker": "/* ===== Quantum lab: draw any potential, find its energy levels, or fire a wave packet at it (units: ħ = m = 1, box width 1) ===== */"
+  },
+  {
+   "file": "src/app/1070-spot-the-wrong-step.js",
+   "marker": "/* ===== Spot the wrong step: proof practice for Calculus 15–21 and Quantum ===== */"
+  },
+  {
+   "file": "src/app/1080-calculus-15-21-generators.js",
+   "marker": "/* ===== maths for quantum mechanics: practice generators (Calculus Levels 15 to 21) ===== */"
+  },
+  {
+   "file": "src/app/1090-calculus-15-21-simulations.js",
+   "marker": "/* ===== maths for quantum mechanics: simulations ===== */"
+  },
+  {
+   "file": "src/content/1100-calculus-levels-15-to-18.js",
+   "marker": "/* ===== Calculus Levels 15 to 18: the maths quantum mechanics needs ===== */"
+  },
+  {
+   "file": "src/content/1110-calculus-levels-19-to-21.js",
+   "marker": "/* ===== Calculus Levels 19 to 21 ===== */"
+  },
+  {
+   "file": "src/app/1120-calculus-levels-22-23.js",
+   "marker": "/* ===== Calculus Levels 22–23: numerical methods, probability and statistics ===== */"
+  },
+  {
+   "file": "src/app/1130-new-look.js",
+   "marker": "/* ===== New look: live animations and juicier feedback. Settings → Look → Classic turns all of it off. ===== */"
+  },
+  {
+   "file": "src/app/1140-live-labs-inside-lessons.js",
+   "marker": "/* ===== Live labs inside lessons: collision lab (momentum), live reactor core, 3D flux ===== */"
+  },
+  {
+   "file": "src/app/1150-extras-weekly-report-and-xp.js",
+   "marker": "/* ===== extras start ===== */"
+  },
+  {
+   "file": "src/app/1160-screens.js",
+   "marker": "/* ===== screens start ===== */"
+  },
+  {
+   "file": "src/app/1170-motivation-boosts.js",
+   "marker": "/* ===== motivation start ===== */"
+  },
+  {
+   "file": "src/app/1180-memory-old-questions.js",
+   "marker": "/* ===== memory start ===== */"
+  },
+  {
+   "file": "src/app/1190-arena.js",
+   "marker": "/* ===== arena start ===== */"
+  },
+  {
+   "file": "src/app/1200-plant.js",
+   "marker": "/* ===== plant start ===== */"
+  },
+  {
+   "file": "src/app/1210-sound-packs.js",
+   "marker": "/* ===== sounds start ===== */"
+  },
+  {
+   "file": "src/app/1220-nuclear-maths-generators.js",
+   "marker": "/* ---------------- Nuclear maths: generators for the operator maths track ---------------- */"
+  },
+  {
+   "file": "src/content/1230-mastery-drill-in-every-maths-lesson.js",
+   "marker": "/* ---------- every maths lesson ends with a mastery drill ----------"
+  },
+  {
+   "file": "src/app/1240-quick-checks.js",
+   "marker": "/* ---------- quick checks: a teach card that nothing asks about gets a fill-the-gap question straight after it ----------"
+  },
+  {
+   "file": "src/app/1250-learning-extras.js",
+   "marker": "/* ===== learning extras: your own question at the start, explain-it-back, predict first, confidence, medals,"
+  },
+  {
+   "file": "src/app/1260-lab-challenges.js",
+   "marker": "/* ===== lab challenges: every simulation that used to be a free play now sets a task, and asks a question you answer by watching it ===== */"
+  },
+  {
+   "file": "src/content/1270-exam-questions-gcse-physics.js",
+   "marker": "/* ---------- GCSE Physics ---------- */"
+  },
+  {
+   "file": "src/content/1280-exam-questions-gcse-chemistry.js",
+   "marker": "/* ---------- GCSE Chemistry ---------- */"
+  },
+  {
+   "file": "src/content/1290-exam-questions-gcse-maths.js",
+   "marker": "/* ---------- GCSE Maths ---------- */"
+  },
+  {
+   "file": "src/content/1300-exam-questions-gcse-computer-science.js",
+   "marker": "/* ---------- GCSE Computer Science ---------- */"
+  },
+  {
+   "file": "src/content/1310-exam-questions-a-level-physics.js",
+   "marker": "/* ---------- A-level Physics ---------- */"
+  },
+  {
+   "file": "src/content/1320-exam-questions-a-level-chemistry.js",
+   "marker": "/* ---------- A-level Chemistry ---------- */"
+  },
+  {
+   "file": "src/content/1330-exam-questions-a-level-maths.js",
+   "marker": "/* ---------- A-level Maths ---------- */"
+  },
+  {
+   "file": "src/app/1340-the-exam-question-card.js",
+   "marker": "/* ---------- the exam-question card ---------- */"
+  },
+  {
+   "file": "src/content/1350-quantum-problem-sheets.js",
+   "marker": "/* ===== Quantum problem sheets: one worked, multi-part problem per unit ===== */"
+  },
+  {
+   "file": "src/app/1360-hand-written-questions-for-teach-cards.js",
+   "marker": "/* ===== hand-written questions for teach cards that nothing asked about (keyed by the card's lesson and position) ===== */"
+  },
+  {
+   "file": "src/app/1370-encouragement.js",
+   "marker": "/* ===== encouragement: a chest meter fed by XP, a lesson-end screen that shows how far you've come, highlights and daily bonuses ===== */"
+  },
+  {
+   "file": "src/app/1380-critical-race.js",
+   "marker": "/* ===== Critical Race: host a live race (the code appears on screen) or join a friend's ===== */"
+  },
+  {
+   "file": "src/app/1390-bedtime-review.js",
+   "marker": "/* ===== bedtime review: a calm 5 minutes on your phone before sleep ====="
+  },
+  {
+   "file": "src/app/1400-beat-your-ghost.js",
+   "marker": "/* ===== Beat your ghost: a fixed 10-question test per unit; your last attempt races you as a ghost mouse ===== */"
+  },
+  {
+   "file": "src/app/1410-theory-at-your-pace.js",
+   "marker": "/* ===== Theory at your pace: teach cards one bit at a time, a \"not sure yet\" button that slows down,"
+  },
+  {
+   "file": "src/app/1420-equations.js",
+   "marker": "/* ===== equations: real fractions in every .eq box, a step-by-step \"learn this equation\" card,"
+  },
+  {
+   "file": "src/app/1430-fairer-multiple-choice.js",
+   "marker": "/* ===== fairer multiple choice: when the right answer is a full sentence, weak wrong answers (much shorter, or silly)"
+  },
+  {
+   "file": "src/app/1440-symbols-to-remember.js",
+   "marker": "/* ===== Symbols to remember: meet each new symbol (like λ) on its own screen, check it after its equation, then spaced review ===== */"
+  },
+  {
+   "file": "src/app/1450-maths-gym-data.js",
+   "marker": "/* ===== Maths gym data: unit checks, which formula, rearranging ===== */"
+  },
+  {
+   "file": "src/app/1460-practice-sessions-shared-by-the-gym.js",
+   "marker": "/* ===== Practice sessions shared by the gym, notebook and warm-up ===== */"
+  },
+  {
+   "file": "src/app/1470-lesson-extras-data.js",
+   "marker": "/* ===== Lesson extras data: common mistakes, diagrams, concept maps, long answers ===== */"
+  },
+  {
+   "file": "src/app/1480-lesson-extras.js",
+   "marker": "/* ===== Lesson extras ===== */"
+  },
+  {
+   "file": "src/app/1490-on-the-go.js",
+   "marker": "/* ===== On the go: no-maths lessons you can pick and do anywhere (optional, doesn't affect the plan) ===== */"
+  }
+ ]
+}

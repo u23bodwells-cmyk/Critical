@@ -1,0 +1,57 @@
+/* ---------- every maths lesson ends with a mastery drill ----------
+   lessons that didn't have one get one here, built from the generators that fit the lesson */
+var DRILL_ADD={
+ m1:['n_units','p_prefix','g_stdform'],m2:['n_double','n_period'],m3:['n_decades','a_logsolve'],m4:['n_slope','gradat'],m5:['n_euler','euler','sepode'],m6:['n_poisson'],
+ e1:['g_work','g_power','g_eff','n_eff'],e2:['g_mom','g_ke'],e3:['n_emc'],e3b:['n_emc','n_units'],e3c:['n_mev','n_u931'],e3d:['n_u931','n_fiss','n_mev'],
+ a1:['n_nucl'],a2:['n_bea','n_u931'],a3:['n_nucl','g_decay','decay'],a4:['g_halflife','decay','n_act'],a5:['n_mfp','n_atten'],a6:['n_rate','n_mfp'],a7:['n_fiss','n_mev','n_u931'],
+ r1:['n_gen','n_mult'],r2:['n_six'],r3:['n_coll'],r4:['n_rho'],r5:['n_mult','n_1m'],r6:['n_rodw','n_rho'],r7:['n_boron','n_dilute'],r8:['n_mtc'],r9:['n_xenon'],r10:['n_xenon','n_deplete'],r11:['n_sdm','n_rodw'],
+ k1:['n_delayed'],k2:['n_sur','n_period'],k3:['n_jump','n_rho'],k4:['n_jump','n_sur'],k5:['n_dheat'],
+ t1:['g_shc','g_pressure','n_qmct'],t2:['n_boil'],t3:['n_qmct','n_calor'],t4:['n_eff'],
+ h1:['n_cond','n_pellet'],h2:['n_dnbr','n_boil'],h3:['n_cont','n_bern'],h4:['n_qmct','n_cont'],
+ p1:['n_dose','n_units'],p2:['n_dose','n_hvl'],p3:['n_dose','g_halflife'],
+ s1:['n_eff','n_qmct'],s2:['g_boyle','n_units'],s3:['n_calor','n_eff'],s4:['n_decades','n_sur'],s5:['n_relia'],s6:['n_boron','g_conc'],o3:['n_mult','n_1m','n_sur'],o1:[],o2:[],
+ 'm2-1-1':['g_solvelin','g_subst'],'m2-1-2':['g_lineeq','gradeq'],'m2-1-3':['g_dirprop','g_invprop','n_dose'],
+ 'm2-2-1':['n_period','decay'],'m2-2-2':['a_logsolve','n_period'],'m2-2-3':['a_logsolve','n_decades'],
+ 'm2-3-1':['gradat','n_slope'],'m2-3-2':['power','fpx2','expd'],'m2-3-3':['n_slope','expd','n_period'],
+ 'm2-4-1':['area','defint'],'m2-4-2':['intpow','const0'],'m2-4-3':['defint','n_burn'],
+ 'm2-5-1':['g_halflife','n_act'],'m2-5-2':['n_atoms'],'m2-5-3':['n_fiss','n_burn'],
+ 'm3-1-1':['n_rho'],'m3-1-2':['n_rho'],'m3-1-3':['n_mtc','n_boron','n_rodw'],
+ 'm3-2-1':['n_rodw'],'m3-2-2':['n_boron'],'m3-2-3':['n_boron','n_dilute'],
+ 'm3-3-1':['n_period','n_sur'],'m3-3-2':['n_sur'],'m3-3-3':['n_jump'],
+ 'm3-4-1':['n_mult'],'m3-4-2':['n_1m'],'m3-4-3':['n_1m','n_mult'],
+ 'm3-5-1':['n_qmct'],'m3-5-2':['n_calor'],'m3-5-3':['n_eff'],
+ 'm4-1-1':['n_euler','sepode'],'m4-1-2':['n_euler','decay'],'m4-1-3':['g_halflife','n_act'],
+ 'm4-2-1':['n_mfp','n_atoms'],'m4-2-2':['n_mfp','n_atten'],'m4-2-3':['n_rate','n_fiss'],
+ 'm4-3-1':['n_diff'],'m4-3-2':['n_diff','n_buck'],'m4-3-3':['n_buck'],
+ 'm4-4-1':['n_cond'],'m4-4-2':['n_pellet'],'m4-4-3':['n_pellet','n_cond'],
+ 'm4-5-1':['n_cont','n_bern'],'m4-5-2':['n_re'],'m4-5-3':['n_cont','n_qmct'],
+ 'm5-1-1':['n_jump','n_period'],'m5-1-2':['n_euler'],'m5-1-3':['n_period','n_rho'],
+ 'm5-2-1':['n_mtc','n_rho'],'m5-2-2':['n_rho','n_adiab'],'m5-2-3':['n_adiab'],
+ 'm5-3-1':['n_diff'],'m5-3-2':['n_diff','n_buck'],'m5-3-3':['n_power_it','n_euler'],
+ 'm5-4-1':['n_relia'],'m5-4-2':['n_relia'],'m5-4-3':['n_relia'],
+ 'm5-5-1':['n_dheat'],'m5-5-2':['n_boil'],'m5-5-3':['n_adiab'],
+ 'm6-1-1':['n_mfp','n_diff'],'m6-1-2':['n_atten','n_mfp'],'m6-1-3':['n_diff'],
+ 'm6-2-1':['n_deplete'],'m6-2-2':['g_halflife','n_act'],'m6-2-3':['n_deplete','n_nucl'],
+ 'm6-3-1':['n_mcerr','n_atten'],'m6-3-2':['n_mcerr','n_poisson'],'m6-3-3':['n_power_it','n_mcerr'],
+ 'm7-1-1':['n_euler'],'m7-1-2':['n_power_it','n_euler'],'m7-1-3':['n_power_it'],
+ 'm7-2-1':['n_rho','n_unc'],'m7-2-2':['n_unc'],'m7-2-3':['n_unc'],
+ 'm7-3-1':['n_adiab','n_euler'],'m7-3-2':['n_jump','n_mtc'],'m7-3-3':['n_euler','n_mtc'],
+ 'c1-1-3':['fsub','flin','polyval'],'c1-3-3':['gradpts','avgrate','speed'],'c2-1-1':['chord','gradat','tangent'],'c2-2-1':['power','gradat','fpx2'],'c2-2-2':['power','gradat','chord'],
+ 'c3-2-3':['kin','avgrate','gradat'],'c4-1-1':['intpow','const0','intneg'],'c4-2-1':['area','defint','trap'],'c4-3-2':['trigd','defint'],
+ 'c5-1-1':['sepode','euler'],'c5-1-3':['decay','period','expd'],'c5-2-1':['decay','g_halflife'],'c5-2-3':['decay','n_act'],'c5-3-2':['period','n_sur','n_double'],'c5-3-3':['period','n_period','n_sur'],
+ 'c6-1-1':['limfac','liminf'],'c6-1-3':['limfac','liminf'],'c6-2-1':['limfac','liminf'],'c6-2-3':['lhop','liminf'],
+ 'c7-1-3':['lnd','product','chain'],'c7-2-3':['relcirc','ladder'],'c8-1-1':['subst','defint'],'c8-1-2':['subst'],'c8-2-3':['pfrac','pfint','subst','parts'],'c8-3-2':['improper','expimp'],
+ 'c9-1-2':['areabetween'],'c9-1-3':['areabetween','area'],'c9-2-2':['discvol','shellvol'],
+ 'c10-1-1':['geomsum','partsum'],'c10-1-2':['partsum','geomsum'],'c10-2-1':['ratiotest','partsum'],'c10-2-2':['ratiotest','improper'],'c10-3-3':['taylorcoef'],
+ 'c11-1-1':['paramgrad'],'c11-1-3':['arclen','paramgrad'],'c11-2-2':['polar2cart','polararea'],'c12-1-2':['fxyeval','partial'],'c12-1-3':['vmag','fxyeval'],
+ 'c13-3-3':['polarint','cylvol','jacobian'],'c14-1-1':['div3','curl2'],'c14-2-2':['scalarline','potential'],
+ 'gm2-5-1':['g_angle1','g_polygon'],'gm2-5-2':['g_angle1','g_polygon'],'gm2-5-3':['g_pyth','g_angle1'],'gm2-5-4':['g_circle','g_pyth'],'gm2-5-5':['g_angle1','g_ratio','g_trig'],
+ 'gm3-2-1':['g_angle1','g_polygon','g_circle'],'gm3-4-2':['g_median','g_groupmean'],'gm5-1-1':['g_expand','g_factorise'],'gm5-1-2':['g_angle1','g_polygon','g_pyth'],'gm5-3-1':['g_vector'],'gm5-4-1':['g_simul','g_solvequad','g_simulquad'],
+ 'am2-1-1':['a_disc','g_expand'],'am2-1-3':['a_disc','g_factorise','polyval'],'am2-2-2':['a_rcos','g_trig'],'am2-4-2':['a_binomP','a_zscore'],'am3-1-3':['a_binom'],'am3-2-2':['a_rcos'],
+ 'am4-1-1':['a_disc','a_surd'],'am4-1-2':['a_proj','a_newton','decay'],'am4-1-3':['a_logsolve','a_circle','a_arith'],'am4-2-1':['a_surd','a_logsolve'],'am4-2-2':['a_zscore','a_proj','a_moment'],'am4-2-3':['a_disc','a_arith','a_logsolve','a_surd']};
+var DRILL_MISSING=[];
+UNITS.forEach(function(u){var tr=u.track||'maths',mt={maths:1,calc:1,gm:1,am:1}[tr];u.lessons.forEach(function(l){var has=l.cards.some(function(c){return c.t==='W'&&c.w==='calcDrill'});
+ if(has){l.cards.forEach(function(c){if(c.t==='W'&&c.w==='calcDrill'&&c.par&&!c.par.title)c.par.title=l.title});return}
+ if(!mt)return;var sk=(DRILL_ADD[l.id]||[]).filter(function(k){return typeof CGEN[k]==='function'});if(!sk.length){if(DRILL_ADD[l.id]===undefined)DRILL_MISSING.push(l.id);return}
+ var d=W('calcDrill',{skill:sk,need:5,title:l.title},'Practice time. Get 5 right to master this lesson. Stuck? Press <b>Help</b> for a hint or a full walk-through.');
+ var cs=l.cards.slice(),last=cs[cs.length-1],at=(last&&last.t==='T'&&/Key points|Summary|In short|Recap|Remember/i.test(last.h||''))?cs.length-1:cs.length;cs.splice(at,0,d);l.cards=cs})});
