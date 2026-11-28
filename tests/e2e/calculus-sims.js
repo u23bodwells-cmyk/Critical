@@ -1,0 +1,14 @@
+const {chromium}=require('playwright');const SP=process.argv[2];
+(async()=>{const b=await chromium.launch();const p=await b.newPage({viewport:{width:390,height:844}});const errs=[];p.on('pageerror',e=>errs.push(e.message));
+await p.goto('file://'+SP+'/mq_copy.html');await p.waitForTimeout(2500);
+for(let k=0;k<4;k++){await p.evaluate(()=>{const m=document.querySelector('#modal.open');if(m){const bs=m.querySelectorAll('button');if(bs.length)bs[bs.length-1].click()}});await p.waitForTimeout(150)}
+const open=async(w,match)=>p.evaluate(([w,match])=>{const T=__T();const ok=c=>c.t==='W'&&c.w===w&&(match==null?!!c.par.goal:JSON.stringify(c.par.goal||null).indexOf(match)>=0);for(let ui=0;ui<T.UNITS.length;ui++){const u=T.UNITS[ui];if(u.track!=='calc'||u.level<15)continue;for(let li=0;li<u.lessons.length;li++){const l=u.lessons[li];if(l.cards.some(ok)){T.startLesson(ui,li);const P=T.P();T.show(P.cards.findIndex(ok));document.querySelectorAll('.plban').forEach(x=>x.remove());return l.title}}}return 'NOT FOUND'},[w,match]);
+const setR=async(i,v)=>p.evaluate(([i,v])=>{const r=document.querySelectorAll('#pBody input[type=range]')[i];r.value=v;r.dispatchEvent(new Event('input'))},[i,v]);
+const check=async()=>{await p.evaluate(()=>document.getElementById('pBtn').click());await p.waitForTimeout(150);return p.evaluate(()=>document.getElementById('pFb').innerText.replace(/\n+/g,' ').slice(0,150))};
+const shot=async nm=>{await p.evaluate(()=>{document.querySelectorAll('.plban').forEach(x=>x.remove());const w=document.querySelector('#pBody .w');w&&w.scrollIntoView({block:'start'})});await p.waitForTimeout(250);await p.screenshot({path:SP+'/'+nm+'.png'})};
+const T=[['mArgand','real',async()=>{await setR(0,1);await setR(1,157)}],['mMatrix','det0',async()=>{await setR(0,2);await setR(1,1);await setR(2,2);await setR(3,1)}],['mMatrix','rot',async()=>{await setR(0,0);await setR(1,1);await setR(2,-1);await setR(3,0)}],['mODE',null,async()=>{await setR(0,4);await setR(1,4)}],['mFSeries',null,async()=>{await setR(0,25)}],['mContour',null,async()=>{await setR(0,1.45)}],['mLorentz',null,async()=>{await setR(0,0.6)}]];
+for(const [w,m,fn] of T){const t=await open(w,m);await fn();await p.waitForTimeout(150);await shot('m_'+w+(m||''));console.log((w+' '+(m||'')).padEnd(14),'('+t+'):',await check())}
+// a drill with matrices
+await p.evaluate(()=>{const T=__T();const ui=T.UNITS.findIndex(u=>u.id==='mq16-1');T.startLesson(ui,1);const P=T.P();T.show(P.cards.findIndex(c=>c.t==='W'&&c.w==='calcDrill'));document.querySelectorAll('.plban').forEach(x=>x.remove())});await p.waitForTimeout(300);await p.screenshot({path:SP+'/m_drill.png'});
+console.log('drill prompt:',await p.evaluate(()=>document.getElementById('pBody').innerText.replace(/\n+/g,' / ').slice(0,200)));
+console.log('errors:',errs.length?errs.join('\n'):'none');await b.close()})();

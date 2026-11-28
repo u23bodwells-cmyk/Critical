@@ -1,4 +1,4 @@
-),
+opes up, negative slopes down.</p>`),
 T(`<h3>The equation of a straight line</h3><div class="eq">y = mx + c</div>${KY([['m','the gradient',''],['c','the y-intercept: where it crosses the y-axis','']])}<p>So y = 3x + 2 has gradient 3 and crosses the y-axis at 2.</p>`),
 Q(`What is the gradient of y = 5x − 7?`,[`5`,`−7`,`7`,`−5`],0,`The number in front of x is the gradient.`),
 T(`<h3>Watch out for the order</h3><p>y = 8 − 2x is still a straight line. The gradient is the number multiplying x, including its sign: <b>−2</b>.</p>`),
@@ -984,4 +984,4 @@ LH('c9-2-1','Discs',10,'Spin a curve around the x-axis and slice the solid like 
 RM(`<p>Area of a circle: πr². An integral adds up thin slices: ∫ (slice) dx.</p>`),
 T(`<h3>Volume by slicing</h3><p>If every slice at position x has cross-section area A(x), the volume is <b>V = ∫ A(x) dx</b>.</p><p>Spin y = f(x) around the x-axis: each slice is a <b>disc</b> of radius y, area πy²:</p><div class="eq">V = π ∫<sub>a</sub><sup>b</sup> y² dx</div>`),
 Q(`Spinning y = f(x) about the x-axis, each slice is a disc with radius…`,[`y`,`x`,`dx`,`πy`],0,`The height of the curve.`),
-W('stepCalc',{steps:[`Prove the volume of a sphere of radius r.`,`The circle x² + y² = r², spun about the x-axis, makes a sphere. y² = r² − x²`,`V = π∫<sub>−r</sub><sup>r</sup> (r² − x²) dx = π[r²x 
+W('stepCalc',{steps:[`Prove the volume of a sphere of radius r.`,`The circle x² + y² = r², spun about the x-axis, makes a sphere. y² = r² − x²`,`V = π∫<sub>−r</sub

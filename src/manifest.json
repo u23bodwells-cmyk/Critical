@@ -598,6 +598,14 @@
   {
    "file": "src/app/1490-on-the-go.js",
    "marker": "/* ===== On the go: no-maths lessons you can pick and do anywhere (optional, doesn't affect the plan) ===== */"
+  },
+  {
+   "file": "src/app/1500-storage-safety.js",
+   "marker": "/* ===== Storage safety: a backup copy of everything in IndexedDB"
+  },
+  {
+   "file": "src/app/9990-startup.js",
+   "marker": "UNITS.forEach(function(u){u.lessons.forEach(function(l){l.cards.forEach(function(c){if(c.t==='W'&&c.w==='calcDrill'"
   }
  ]
 }

@@ -1,6 +1,6 @@
 /* ---------- state ---------- */
 var S=(function(){var d={xp:0,done:{},streak:0,last:'',daily:{d:'',xp:0},missions:{},goal:50};try{var s=JSON.parse(localStorage.getItem('critical_state')||'null');if(s){for(var k in d)if(s[k]===undefined)s[k]=d[k];return s}}catch(e){}return d})();
-function save(){try{localStorage.setItem('critical_state',JSON.stringify(S))}catch(e){}}
+function save(){try{localStorage.setItem('critical_state',JSON.stringify(S))}catch(e){try{storageSaveFailed(e)}catch(_){}}}
 function ymdL(){var d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()}
 function lcount(){try{if(typeof P==='undefined'||!P||P._lc||P.mode==='one'||P.mode==='lap')return;P._lc=1;var d=ymdL();if(!S.lday||S.lday.d!==d)S.lday={d:d,n:0};S.lday.n++;save();setTimeout(function(){try{if(typeof MYS!=='undefined')MYS.lesson()}catch(_){}try{if(typeof REW!=='undefined')REW.lessonBonus()}catch(_){}try{if(window.PLAN&&PLAN.afterLesson)PLAN.afterLesson()}catch(_){}},0)}catch(_){}}
 function lessonsToday(){var n=0,d=ymdL(),t=new Date();function same(ms){var x=new Date(ms);return x.getFullYear()===t.getFullYear()&&x.getMonth()===t.getMonth()&&x.getDate()===t.getDate()}

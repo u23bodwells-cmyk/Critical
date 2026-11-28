@@ -1,4 +1,4 @@
-ck=function(){stopRun(false)};A.appendChild(x3);return}
+extContent='Stop the plan';x3.onclick=function(){stopRun(false)};A.appendChild(x3);return}
   var j=firstLeft(t);if(j<0){if(feOn(t)){var fz0=PS().fe[t],fn=fz0.n||1;R.innerHTML='<p>Finished early today ✓</p><b>'+fn+' lesson'+(fn===1?'':'s')+' done</b><p>Today\'s plan is finished. Changed your mind? You can carry on with it.</p><div class="placts"></div>';
    var uu=document.createElement('button');uu.type='button';uu.className='plgo alt';uu.textContent='Undo: carry on with the plan';uu.onclick=undoEarly;R.querySelector('.placts').appendChild(uu)}return}
   var bb=document.createElement('button');bb.type='button';bb.className='plbig';var rvT=rvOn(t);bb.textContent=(rvT?'Start revision':DAY(t).some(function(_,k){return isDone(t,k)})?'Carry on with today\'s plan':'Start today\'s plan')+' ('+DAY(t).slice(j).filter(function(_,k){return !isDone(t,j+k)}).reduce(function(s2,x){return s2+x[1]},0)+' min)';
@@ -2060,4 +2060,4 @@ T(`<h3>What holds the nucleus together?</h3><p>Protons repel each other. The <b>
 W('nuclideChart',{},`This is a chart of nuclides: protons up, neutrons across. Stable nuclei sit in the dark band. Fission fragments are medium-sized nuclei with <b>too many neutrons</b>. Click where they would be.`,`Fission fragments land below and to the right of the stable band: neutron-rich. They fix this by beta-minus decay, turning neutrons into protons, often several times in a row.`),
 Q(`Fission fragments have too many neutrons. How do they usually decay?`,['Alpha decay','Beta-minus decay','Beta-plus decay','They never decay'],1,`Beta-minus decay turns a neutron into a proton, moving the nucleus towards the stable band. Each fragment usually goes through a chain of these decays.`)]),
 L('a2','Binding energy',8,[
-T(`<h3>The missing mass</h3><p>A nucleus weighs <b>less</b> than the protons and neutrons it's made of. The missing mass, the <b>mass defect</b>, was released as energy when t
+T(`<h3>The missing mass</h3><p>A nucleus weighs <b>less</b> than the protons and neutrons it's made of. The missing mass, the <b>mass defect

@@ -1,4 +1,5 @@
-{bins:['Kinetic','Gravitational potential','Chemical','Thermal'],items:[['A moving car',0],['A sprinting athlete',0],['A rollercoaster at the top of the track',1],['A book on a high shelf',1],['A battery',2],['Petrol',2],['A cup of hot tea',3],['A hot radiator',3]]},`Which store is the energy mainly in? Sort them.`,`Moving: kinetic. High up: gravitational potential. Fuel and batteries: chemical. Hot: thermal.`),
+ down and rises.</p>`),
+W('sortIt',{bins:['Kinetic','Gravitational potential','Chemical','Thermal'],items:[['A moving car',0],['A sprinting athlete',0],['A rollercoaster at the top of the track',1],['A book on a high shelf',1],['A battery',2],['Petrol',2],['A cup of hot tea',3],['A hot radiator',3]]},`Which store is the energy mainly in? Sort them.`,`Moving: kinetic. High up: gravitational potential. Fuel and batteries: chemical. Hot: thermal.`),
 Q(`You drop a ball. Which energy transfer happens as it falls?`,[`Gravitational potential → kinetic`,`Kinetic → gravitational potential`,`Chemical → kinetic`,`Thermal → kinetic`],0,`It loses height (gravitational potential) and speeds up (kinetic).`),
 T(`<h3>Kinetic energy</h3><p>The energy in an object's kinetic store depends on its mass and its speed:</p><div class="eq">E<sub>k</sub> = ½ m v²</div>${KY([['E<sub>k</sub>','kinetic energy','J'],['m','mass','kg'],['v','speed','m/s']],'Your exams (summer 2028) come with an equation sheet, but learn it anyway: knowing it by heart makes you much faster.')}`),
 T(`<h3>Speed counts double</h3><p>Speed is <b>squared</b>. That means:</p><ul><li>Double the mass → double the kinetic energy.</li><li>Double the speed → <b>four times</b> the kinetic energy (2² = 4).</li></ul><p>That's why a crash at 60 mph is so much worse than one at 30 mph.</p>`),
@@ -866,4 +867,4 @@ LH('gc1-3-2','Balancing symbol equations',9,'Why equations must balance, and a r
 RM(`<p>A formula counts the atoms: H₂O is 2 H and 1 O. reactants → products.</p>`),
 T(`<h3>Why balance?</h3><p>Atoms aren't made or destroyed in a reaction, just rearranged. So there must be the same number of each type of atom on both sides.</p><p>H₂ + O₂ → H₂O isn't balanced: 2 O on the left, only 1 on the right.</p>`),
 T(`<h3>How to balance</h3><ol><li>Count each type of atom on both sides.</li><li>Put a <b>big number in front</b> of a formula to fix one element.</li><li>Recount and repeat until everything matches.</li></ol><p>Never change the small numbers: that would change the substance.</p>`),
-W('stepCalc',{steps:[`Balance: H₂ + O₂ → H₂O`,`Count: left has 
+W('stepCalc',{steps:[`Balanc

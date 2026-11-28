@@ -1,4 +1,5 @@
-'f'&&x.n.length===1&&x.d.length===1&&x.n[0].k==='a'&&x.d[0].k==='a'&&/^d[a-zθ]?$/.test(fxNorm(x.n[0].h))&&/^d[a-zθ]$/.test(fxNorm(x.d[0].h)))out.push(fxStrip(x.n[0].h)+' by '+fxStrip(x.d[0].h));
+'+fxSaySup(x.sup))}
+ else if(x.k==='f'&&x.n.length===1&&x.d.length===1&&x.n[0].k==='a'&&x.d[0].k==='a'&&/^d[a-zθ]?$/.test(fxNorm(x.n[0].h))&&/^d[a-zθ]$/.test(fxNorm(x.d[0].h)))out.push(fxStrip(x.n[0].h)+' by '+fxStrip(x.d[0].h));
  else if(x.k==='f'){var n=fxSay(x.n),d=fxSay(x.d),cn=x.n.filter(function(y){return y.k!=='sp'}).length>1,cd=x.d.filter(function(y){return y.k!=='sp'}).length>1;out.push((cn?'('+n+')':n)+' over '+(cd?'('+d+')':d))}});
  return out.join(' ').replace(/\s+,/g,',').replace(/\(\s+/g,'(').replace(/\s+\)/g,')')}
 function fxSaySup(sup){if(sup==null)return '';var s=fxStrip(sup).trim();return s==='2'?' squared':s==='3'?' cubed':' to the power of '+s}
@@ -872,4 +873,4 @@ function goRender(){var pg=$('page-go');if(!pg)return;var cur=S.goSub||'theory',
    return '<details class="golv"'+(k===0||(last&&us.indexOf(last.ui)>=0)?' open':'')+'><summary><b>Level '+lv+'</b> · '+tlEsc(nm)+'<span>'+dn+'/'+tot+'</span></summary>'+us.map(function(ui){var u=UNITS[ui];return '<div class="gou"><div class="gout">'+tlEsc(u.icon||'')+' '+tlEsc(u.title)+'</div>'+byU[ui].map(function(x){var d=G[x.id];return '<button type="button" class="gol'+(d?' done':'')+'" data-u="'+x.ui+'" data-l="'+x.li+'"><span class="golt">'+tlEsc(x.t)+'</span><span class="golm">'+(d?'✓ ':'')+'~'+x.min+' min</span></button>'}).join('')+'</div>'}).join('')+'</details>'}).join('');
  if(!L.length)h+='<p class="tlnote">Nothing here yet.</p>';
  pg.innerHTML='<div class="gow">'+h+'</div>';
- [].forEach.call(pg.querySelectorAll('[data-s]'),function(b){b.onclick=function(){var s=GO_SUBS.filter(function(x){return x[0]===b.dataset.s})[0];if
+ [].forEach.call(pg.querySelectorAll('[data-s]'),function(b){b.onclick=function(){var s=GO_SUBS.filter(function(x

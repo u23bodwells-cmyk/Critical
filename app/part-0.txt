@@ -94,7 +94,7 @@ function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(M
 
 /* ---------- state ---------- */
 var S=(function(){var d={xp:0,done:{},streak:0,last:'',daily:{d:'',xp:0},missions:{},goal:50};try{var s=JSON.parse(localStorage.getItem('critical_state')||'null');if(s){for(var k in d)if(s[k]===undefined)s[k]=d[k];return s}}catch(e){}return d})();
-function save(){try{localStorage.setItem('critical_state',JSON.stringify(S))}catch(e){}}
+function save(){try{localStorage.setItem('critical_state',JSON.stringify(S))}catch(e){try{storageSaveFailed(e)}catch(_){}}}
 function ymdL(){var d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()}
 function lcount(){try{if(typeof P==='undefined'||!P||P._lc||P.mode==='one'||P.mode==='lap')return;P._lc=1;var d=ymdL();if(!S.lday||S.lday.d!==d)S.lday={d:d,n:0};S.lday.n++;save();setTimeout(function(){try{if(typeof MYS!=='undefined')MYS.lesson()}catch(_){}try{if(typeof REW!=='undefined')REW.lessonBonus()}catch(_){}try{if(window.PLAN&&PLAN.afterLesson)PLAN.afterLesson()}catch(_){}},0)}catch(_){}}
 function lessonsToday(){var n=0,d=ymdL(),t=new Date();function same(ms){var x=new Date(ms);return x.getFullYear()===t.getFullYear()&&x.getMonth()===t.getMonth()&&x.getDate()===t.getDate()}
@@ -1125,4 +1125,4 @@ var BEDATA=[['H-2',2,1.112],['He-3',3,2.573],['He-4',4,7.074],['Li-6',6,5.33],['
 WIDGETS.beCurve=function(box){var cv=canvas(box,260),m=msg(box),sel=null,Pp;
  function draw(){Pp=plot(cv,{x:[0,250],y:[0,10],xl:'nucleon number A',yl:'MeV per nucleon'});Pp.pts(BEDATA.map(function(b){return [b[1],b[2]]}),cssv('--muted'),1.5);BEDATA.forEach(function(b){Pp.dot(b[1],b[2],b===sel?cssv('--coral'):cssv('--accent'),b===sel?7:5)});if(sel)Pp.text(sel[0],sel[1]+4,sel[2]-0.5,cssv('--text'))}
  cv.addEventListener('click',function(e){var r=cv.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top,best=null,bd=900;BEDATA.forEach(function(b){var d=Math.pow(Pp.X(b[1])-mx,2)+Math.pow(Pp.Y(b[2])-my,2);if(d<bd){bd=d;best=b}});if(!best)return;sel=best;m.set('<b>'+best[0]+'</b>: '+best[2].toFixed(2)+' MeV per nucleon, total binding energy '+(best[2]*best[1]).toFixed(0)+' MeV.');draw()});
- onDraw(draw);draw();m.set('Click a point.');return {check:function(){return sel&&(sel[0]==='Fe-56'||sel[0]==='Ni-62')?{ok:true}:{ok:false,msg:sel?sel[0]+' has '+sel[2].toFixed(2)+' MeV per n
+ onDraw(draw);draw();m.set('Click a point.');return {check:function(){return sel&&(sel[0]==='Fe-56'||sel[0]==='Ni-62')?{ok:true}:{ok:false,msg:sel?sel[0]+' 

@@ -4,3 +4,4 @@ browser/selftest*.png
 browser/selftest.log
 shots/
 tools/__pycache__/
+tests/.out/

@@ -1,4 +1,4 @@
-atics, and Newton\'s laws.',lessons:[
+ution and hypothesis testing, kinematics, and Newton\'s laws.',lessons:[
 LH('am2-4-1','The binomial distribution',10,'Fixed number of trials, two outcomes, same chance each time: binomial.',[
 RM(`<p>Independent events: P(A and B) = P(A) × P(B). ⁿCᵣ counts arrangements.</p>`),
 T(`<h3>X ~ B(n, p)</h3><p>Use it when there are: a <b>fixed number</b> n of trials, each with <b>two outcomes</b>, the <b>same probability</b> p each time, and trials are <b>independent</b>.</p><div class="eq">P(X = r) = ⁿCᵣ pʳ(1 − p)ⁿ⁻ʳ</div>`),
@@ -1034,4 +1034,4 @@ T(`<h3>Bits and qubits</h3><p>An ordinary computer bit is either 0 or 1. A <b>qu
 W('qQubit',{},`Tilt the qubit and measure it many times.`,`The arrow's tilt sets the chances. Each single measurement is still just 0 or 1.`),
 Q(`A qubit is in the state 0.6|0⟩ + 0.8|1⟩. What is the chance of measuring 1?`,[`64%`,`80%`,`60%`,`36%`],0,`|β|² = 0.8² = 0.64.`),
 W('qQubit',{goal:[0.75,'Make a qubit that gives 1 three-quarters of the time.']},`Your challenge.`,``),
-T(`<h3>Why qubits are powerful</h3><p>Two qubits can be in a superposition of 4 states (00, 01, 10, 11), three qubits of 8, and n qubits of 2<sup>n</sup>. 300 qubits could hold more possibilities than there are atoms in the universe.</p><p>But you can't just read them all out: a measurement gives one answer. Quantum algorithms cleverly arrange for the <b>wrong answers to cancel</b> (destructive interference) and the right answer to add up. That's why quantum computers are good at some problems, like simulating molecules or breaking some cod
+T(`<h3>Why qubits are powerful</h3><p>Two qubits can be in a superposition of 4 states (00, 01, 10, 11), three qubits of 8, and n qubits of 2<sup>n</sup>. 300 qubits could hold more possibilities than there are atoms in the universe.</p><p>But you can't just read them all out: a measurement gives one answer. Quantum algorithms cleverly arrange for the <b>wrong answers to cancel</b> (destructive interference) and the right answer to add up. That's why quantum computers are good at some problems, like simula

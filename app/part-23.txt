@@ -1,4 +1,4 @@
-(!goSubOpen(s)){toast('🔒','A-level unlocks after GCSE','Finish the GCSE levels in Learn to open it');return}S.goSub=s[0];save();goRender()}});
+){return x[0]===b.dataset.s})[0];if(!goSubOpen(s)){toast('🔒','A-level unlocks after GCSE','Finish the GCSE levels in Learn to open it');return}S.goSub=s[0];save();goRender()}});
  [].forEach.call(pg.querySelectorAll('[data-o]'),function(b){b.onclick=function(){if(b.dataset.o==='read'){S.goRead=!S.goRead;if(S.goRead&&!window.speechSynthesis)toast('🔊','Read aloud isn\'t available in this browser','')}else S.goBig=!S.goBig;save();goRender()}});
  [].forEach.call(pg.querySelectorAll('.gol'),function(b){b.onclick=function(){goStart(+b.dataset.u,+b.dataset.l)}});
  var nb=pg.querySelector('[data-nx]');if(nb)nb.onclick=function(){goStart(nx.ui,nx.li)};
@@ -17,6 +17,54 @@ var showPage_go=showPage;showPage=function(p){var r=showPage_go.apply(this,argum
 /* critical.html#onthego opens straight on this tab (used by the main menu) */
 var goHashN=0;function goHash(){try{if(!/^#onthego$/i.test(location.hash))return;if(typeof PAGE==='undefined'||PAGE!=='go')showPage('go');if(++goHashN<4){setTimeout(goHash,goHashN*500);return}history.replaceState(null,'',location.pathname+location.search)}catch(e){}}setTimeout(goHash,60);window.addEventListener('hashchange',function(){goHashN=0;goHash()});
 
+/* ===== Storage safety: a backup copy of everything in IndexedDB, persistent storage, and a restore if progress ever goes missing =====
+   localStorage stays the live store (sync, the main menu and the other apps read it), so nothing about how the app reads or writes changes.
+   This only adds a safety net: a copy of every critical_ key, kept up to date, with one backup per day for the last week. */
+var BK={db:null,last:'',persist:null,fail:0,lastAt:0};
+var BK_LIMIT=2.5e6; /* characters: the smallest localStorage allowance among the browsers Critical runs on (about 5 MB) */
+function bkKeys(){var o={};try{for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k&&k.indexOf('critical_')===0&&k!=='critical_lasterr')o[k]=localStorage.getItem(k)}}catch(e){}return o}
+function bkUsed(){var n=0;try{for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i)||'';n+=k.length+(localStorage.getItem(k)||'').length}}catch(e){}return n}
+function bkOpen(cb){if(BK.db)return cb(BK.db);try{var r=indexedDB.open('critical_backup',1);r.onupgradeneeded=function(){r.result.createObjectStore('snap')};r.onsuccess=function(){BK.db=r.result;cb(BK.db)};r.onerror=function(){cb(null)};r.onblocked=function(){cb(null)}}catch(e){cb(null)}}
+function bkPut(key,val,cb){bkOpen(function(db){if(!db)return cb&&cb(false);try{var t=db.transaction('snap','readwrite');t.objectStore('snap').put(val,key);t.oncomplete=function(){cb&&cb(true)};t.onerror=t.onabort=function(){cb&&cb(false)}}catch(e){cb&&cb(false)}})}
+function bkGet(key,cb){bkOpen(function(db){if(!db)return cb(null);try{var q=db.transaction('snap').objectStore('snap').get(key);q.onsuccess=function(){cb(q.result||null)};q.onerror=function(){cb(null)}}catch(e){cb(null)}})}
+function bkList(cb){bkOpen(function(db){if(!db)return cb([]);var out=[];try{var q=db.transaction('snap').objectStore('snap').openCursor();q.onsuccess=function(){var c=q.result;if(c){out.push([c.key,c.value]);c.continue()}else cb(out)};q.onerror=function(){cb(out)}}catch(e){cb(out)}})}
+function bkDel(key){bkOpen(function(db){if(!db)return;try{db.transaction('snap','readwrite').objectStore('snap').delete(key)}catch(e){}})}
+function bkSum(data){var st=null;try{st=JSON.parse((data&&data.critical_state)||'null')}catch(e){}return {xp:(st&&st.xp)||0,done:st&&st.done?Object.keys(st.done).length:0}}
+function bkSnap(force){try{var d=bkKeys(),j=JSON.stringify(d),s=bkSum(d);if(!force&&j===BK.last)return;if(!s.xp&&!s.done)return; /* never back up an empty profile over a real one */
+  BK.last=j;var rec={at:Date.now(),data:d,xp:s.xp,done:s.done,size:j.length};bkPut('latest',rec,function(ok){if(ok)BK.lastAt=rec.at});bkPut('d-'+today(),rec,bkPrune)}catch(e){if(window.console)console.error(e)}}
+function bkPrune(){bkList(function(L){var days=L.map(function(x){return x[0]}).filter(function(k){return /^d-/.test(k)}).sort();while(days.length>7)bkDel(days.shift())})}
+function bkRestore(rec,after){if(!rec||!rec.data)return;var cur=bkKeys(),cs=bkSum(cur);var go=function(){try{Object.keys(rec.data).forEach(function(k){localStorage.setItem(k,rec.data[k])})}catch(e){toast('⚠️','Couldn\'t restore','There isn\'t enough space on this device');return}try{localStorage.setItem('critical_bk_restored',String(rec.at))}catch(e){}bkFreeze();location.reload()};
+ if(cs.xp||cs.done)bkPut('before-restore',{at:Date.now(),data:cur,xp:cs.xp,done:cs.done,size:JSON.stringify(cur).length},go);else go()}
+/* while the page reloads after a restore, stop the app's own unload saves from writing its old (empty) progress back over the restored data */
+function bkFreeze(){try{var P0=Storage.prototype,s0=P0.setItem,r0=P0.removeItem;P0.setItem=function(k,v){if(this===window.localStorage&&String(k).indexOf('critical_')===0)return;return s0.apply(this,arguments)};P0.removeItem=function(k){if(this===window.localStorage&&String(k).indexOf('critical_')===0)return;return r0.apply(this,arguments)}}catch(e){}}
+/* if save() can't write (storage full), keep an emergency copy and say so once */
+function storageSaveFailed(e){BK.fail++;try{bkPut('emergency',{at:Date.now(),data:{critical_state:JSON.stringify(S)},xp:S.xp||0,done:Object.keys(S.done||{}).length,size:0})}catch(_){}
+ if(BK.fail===1)try{toast('⚠️','This device is running out of space for Critical','Your progress is kept in a backup copy. Open Progress → Data safety.','')}catch(_){}}
+function bkAgo(t){if(!t)return 'never';var m=Math.round((Date.now()-t)/60000);return m<1?'just now':m<60?m+' min ago':m<1440?Math.round(m/60)+' h ago':Math.round(m/1440)+' days ago'}
+function bkFmt(n){return n>=1e6?(n/1e6).toFixed(1)+' M':n>=1e3?Math.round(n/1e3)+' k':String(n)}
+/* ask the browser not to clear Critical's data on its own */
+function bkPersist(){try{if(navigator.storage&&navigator.storage.persisted)navigator.storage.persisted().then(function(p){if(p){BK.persist=true;return}if(navigator.storage.persist)navigator.storage.persist().then(function(r){BK.persist=!!r}).catch(function(){BK.persist=false})}).catch(function(){})}catch(e){}}
+/* progress missing but a backup has it: offer to restore */
+function bkCheckLost(){try{var cur=bkSum(bkKeys());if(cur.xp||cur.done)return;bkGet('latest',function(rec){if(!rec||!(rec.xp||rec.done))return;var dec='';try{dec=localStorage.getItem('critical_bk_declined')||''}catch(e){}if(dec===String(rec.at))return;
+  tlOpen('🛟 Restore your progress?',function(B){B.innerHTML='<p>Critical has no progress on this device right now, but it kept a backup copy from <b>'+tlEsc(new Date(rec.at).toLocaleString())+'</b>: <b>'+rec.done+' lesson'+(rec.done===1?'':'s')+'</b> and <b>'+rec.xp.toLocaleString('en-GB')+' XP</b>.</p><p class="tlnote">If you cleared your progress on purpose, choose "Start fresh".</p><div class="bkbtns"><button type="button" class="wbtn pri" data-b="r">Restore it</button><button type="button" class="wbtn" data-b="n">Start fresh</button></div>';
+   B.querySelector('[data-b=r]').onclick=function(){bkRestore(rec)};B.querySelector('[data-b=n]').onclick=function(){try{localStorage.setItem('critical_bk_declined',String(rec.at))}catch(e){}tlClose()}})})}catch(e){if(window.console)console.error(e)}}
+function bkOpenPanel(){tlOpen('🛟 Data safety',function(B,bar){var used=bkUsed(),pct=Math.min(100,Math.round(100*used/BK_LIMIT));
+ B.innerHTML='<p class="tlnote">Critical saves your progress on this device. It also keeps a backup copy on the same device, updated every couple of minutes, plus one backup a day for the last week. Your sync link copies it to your other devices.</p>'+
+  '<div class="bkrow"><span>Space used</span><b>'+pct+'%</b></div><div class="rsp"><i style="width:'+pct+'%;'+(pct>75?'background:#d9534f':'')+'"></i></div>'+(pct>75?'<p class="tlnote" style="color:#d9534f">Nearly full. Your backups are safe, but it\'s worth syncing.</p>':'')+
+  '<div class="bkrow"><span>Protected from automatic clearing</span><b>'+(BK.persist===true?'Yes':BK.persist===false?'Not yet':'Checking…')+'</b></div>'+(BK.persist!==true?'<p class="tlnote">On iPhone, add Critical to your Home Screen (Share → Add to Home Screen) so Safari never clears it.</p>':'')+
+  '<h3 class="rsh2">Backups on this device</h3><div class="bklist"><p class="tlnote">Loading…</p></div>';
+ var nb=document.createElement('button');nb.type='button';nb.className='wbtn';nb.textContent='Back up now';nb.onclick=function(){bkSnap(true);setTimeout(function(){bkOpenPanel()},400)};bar.appendChild(nb);
+ bkList(function(L){var el=B.querySelector('.bklist');L=L.filter(function(x){return x[1]&&x[1].data}).sort(function(a,b){return b[1].at-a[1].at});if(!L.length){el.innerHTML='<p class="tlnote">No backups yet. One is made a few seconds after you open Critical with some progress.</p>';return}
+  var NM={latest:'Latest',emergency:'Emergency copy (when saving failed)','before-restore':'Before your last restore'};
+  el.innerHTML=L.map(function(x,i){var k=x[0],r=x[1];return '<div class="tlitem bki"><div><b>'+tlEsc(NM[k]||('Daily: '+k.slice(2)))+'</b><p class="tlsrc">'+tlEsc(new Date(r.at).toLocaleString())+' · '+r.done+' lessons · '+(r.xp||0).toLocaleString('en-GB')+' XP</p></div><button type="button" class="wbtn" data-i="'+i+'">Restore</button></div>'}).join('');
+  [].forEach.call(el.querySelectorAll('[data-i]'),function(b){b.onclick=function(){var r=L[+b.dataset.i][1];if(confirm('Replace what\'s on this device with this backup ('+r.done+' lessons, '+(r.xp||0)+' XP)? Your current progress is kept as "Before your last restore".'))bkRestore(r)}})})})}
+var decorReview_bk=decorReview;decorReview=function(){decorReview_bk.apply(this,arguments);var pg=$('page-review');if(!pg||pg.querySelector('#bkRev'))return;var used=bkUsed(),pct=Math.min(100,Math.round(100*used/BK_LIMIT));
+ var c=document.createElement('section');c.id='bkRev';c.className='card fxrev';c.innerHTML='<div class="fxrh"><span class="fxri">🛟</span><div><b>Data safety</b><p class="small">Backup '+bkAgo(BK.lastAt)+' · '+pct+'% of space used'+(BK.persist===true?' · protected':'')+'</p></div></div><button type="button" class="wbtn">Details</button>';
+ c.querySelector('button').onclick=bkOpenPanel;pg.appendChild(c)};
+(function(){bkPersist();setTimeout(function(){bkCheckLost();bkGet('latest',function(r){if(r)BK.lastAt=r.at;bkSnap()})},4000);setInterval(function(){bkSnap()},120000);
+ document.addEventListener('visibilitychange',function(){if(document.hidden)bkSnap()});addEventListener('pagehide',function(){bkSnap()});
+ try{var rs=localStorage.getItem('critical_bk_restored');if(rs){localStorage.removeItem('critical_bk_restored');setTimeout(function(){toast('🛟','Progress restored','From the backup saved '+new Date(+rs).toLocaleString(),'')},1500)}}catch(e){}
+ var st=document.createElement('style');st.textContent='.bkbtns{display:flex;gap:8px;flex-wrap:wrap}.bkrow{display:flex;justify-content:space-between;gap:10px;font-size:14px;margin-top:8px}.bki{display:flex;gap:10px;align-items:center;justify-content:space-between}.bki p{margin:2px 0 0}';document.head.appendChild(st)})();
 UNITS.forEach(function(u){u.lessons.forEach(function(l){l.cards.forEach(function(c){if(c.t==='W'&&c.w==='calcDrill'&&c.par&&!c.par.rule&&c.e)c.par.rule=c.e})})});
 /* XP earned in other Critical apps (Chain) waits in critical_xp_inbox as {days:{'YYYY-MM-DD':xp}} until Critical is open, then lands here as normal XP on the day it was earned, so it counts for the streak, daily goal and season pass */
 (function(){var K='critical_xp_inbox';function take(){var o=null;try{o=JSON.parse(localStorage.getItem(K)||'null')}catch(e){}if(!o||!o.days)return;try{localStorage.removeItem(K)}catch(e){}
